@@ -958,9 +958,9 @@ namespace Lina::Editor
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 					{
-						IM_ASSERT(payload->DataSize == sizeof(uint32));
+						IM_ASSERT(payload->DataSize == sizeof(StringIDType));
 
-						auto& mat = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data);
+						auto& mat = Lina::Graphics::Material::GetMaterial(*(StringIDType*)payload->m_data);
 						renderer.SetMaterial(ecs, entity, i, mat);
 					}
 					ImGui::EndDragDropTarget();
@@ -1043,8 +1043,8 @@ namespace Lina::Editor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 				{
-					IM_ASSERT(payload->DataSize == sizeof(uint32));
-					renderer.m_materialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+					renderer.m_materialID = Lina::Graphics::Material::GetMaterial(*(StringIDType*)payload->m_data).GetID();
 					renderer.m_materialPaths = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 
 				}

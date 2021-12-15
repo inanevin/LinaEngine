@@ -45,6 +45,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Math/Color.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Utility/StringId.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
 #include <set>
@@ -70,21 +71,19 @@ namespace Lina::Graphics
 			archive(m_unit, m_path, m_paramsPath, m_bindMode, m_isActive);
 		}
 
-
 	};
 
 	class Material
 	{
-
 	public:
 
 		static Material& CreateMaterial(Shader& shader, const std::string& path = "");
 		static Material& LoadMaterialFromFile(const std::string& path = "");
-		static Material& GetMaterial(int id);
+		static Material& GetMaterial(StringIDType id);
 		static Material& GetMaterial(const std::string& path);
-		static bool MaterialExists(int id);
+		static bool MaterialExists(StringIDType id);
 		static bool MaterialExists(const std::string& path);
-		static void UnloadMaterialResource(int id);
+		static void UnloadMaterialResource(StringIDType id);
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
 		static Material& SetMaterialShader(Material& material, Shader& shader, bool onlySetID = false);
@@ -92,7 +91,7 @@ namespace Lina::Graphics
 		static void UnloadAll();
 		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }
 		static std::set<Material*>& GetHDRIMaterials() { return s_hdriMaterials; }
-		static std::map<int, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
+		static std::map<StringIDType, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
 
 		void UpdateMaterialData();
 		void PostLoadMaterialData();
@@ -225,7 +224,7 @@ namespace Lina::Graphics
 
 	private:
 
-		static std::map<int, Material> s_loadedMaterials;
+		static std::map<StringIDType, Material> s_loadedMaterials;
 		static std::set<Material*> s_shadowMappedMaterials;
 		static std::set<Material*> s_hdriMaterials;
 
@@ -234,7 +233,7 @@ namespace Lina::Graphics
 		friend class OpenGLRenderEngine;
 		friend class RenderContext;
 
-		int m_materialID = -1;
+		StringIDType m_materialID = -1;
 	
 
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;

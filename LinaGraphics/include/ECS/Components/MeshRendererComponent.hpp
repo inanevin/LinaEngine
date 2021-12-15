@@ -48,7 +48,7 @@ namespace Lina::ECS
 		std::string m_modelPath = "";
 		std::string m_materialPath = "";
 		StringIDType m_modelID = -1;
-		int m_materialID = -1;
+		StringIDType m_materialID = -1;
 		int m_meshIndex = -1;	// Index to define which mesh is this in the model's hierarchy. (parallel with the child entity indices under the model renderer component's entity).
 		bool m_excludeFromDrawList = false;
 

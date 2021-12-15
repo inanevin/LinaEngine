@@ -486,8 +486,8 @@ namespace Lina::Editor
 					{
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
 						{
-							IM_ASSERT(payload->DataSize == sizeof(uint32));
-							m_selectedMaterial->SetTexture(it.first, &Lina::Graphics::Texture::GetTexture(*(uint32*)payload->m_data), it.second.m_bindMode);
+							IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+							m_selectedMaterial->SetTexture(it.first, &Lina::Graphics::Texture::GetTexture(*(StringIDType*)payload->m_data), it.second.m_bindMode);
 						}
 
 

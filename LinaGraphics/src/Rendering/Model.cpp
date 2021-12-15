@@ -97,13 +97,8 @@ namespace Lina::Graphics
 
 	Model& Model::GetModel(StringIDType id)
 	{
-		if (!ModelExists(id))
-		{
-			// Mesh not found.
-			LINA_WARN("Mesh with the id was not found, returning un-constructed mesh...");
-			return Model();
-		}
-
+		bool model = ModelExists(id);
+		LINA_ASSERT(model, "Model does not exist!");
 		return s_loadedModels[id];
 	}
 

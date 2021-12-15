@@ -38,7 +38,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-	std::map<int, Material> Material::s_loadedMaterials;
+	std::map<StringIDType, Material> Material::s_loadedMaterials;
 	std::set<Material*> Material::s_shadowMappedMaterials;
 	std::set<Material*> Material::s_hdriMaterials;
 
@@ -139,7 +139,7 @@ namespace Lina::Graphics
 	Material& Material::LoadMaterialFromFile(const std::string& path)
 	{
 		// Build material & set it's shader.
-		int id = Utility::GetUniqueID();
+		StringIDType id = StringID(path.c_str()).value();
 		Material& mat = s_loadedMaterials[id];
 		Material::LoadMaterialData(mat, path);
 
@@ -219,33 +219,17 @@ namespace Lina::Graphics
 		}
 	}
 
-	Material& Material::GetMaterial(int id)
+	Material& Material::GetMaterial(StringIDType id)
 	{
-		if (!MaterialExists(id))
-		{
-			// Mesh not found.
-			LINA_WARN("Material with the id {0} was not found, returning default material...", id);
-			return OpenGLRenderEngine::GetDefaultUnlitMaterial();
-		}
-
+		bool materialExists = MaterialExists(id);
+		LINA_ASSERT(materialExists, "Material does not exist!");
 		return s_loadedMaterials[id];
 	}
 
 	Material& Material::GetMaterial(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedMaterials.begin(), s_loadedMaterials.end(), [path]
-		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
-
-		if (it == s_loadedMaterials.end())
-		{
-			// Mesh not found.
-			LINA_WARN("Material with the path {0} was not found, returning un-constructed material...", path);
-			return Material();
-		}
-
-		return it->second;
+		return GetMaterial(StringID(path.c_str()).value());
 	}
-
 
 	Material& Material::SetMaterialShader(Material& material, Shader& shader, bool onlySetID)
 	{
@@ -305,7 +289,7 @@ namespace Lina::Graphics
 	}
 
 
-	bool Material::MaterialExists(int id)
+	bool Material::MaterialExists(StringIDType id)
 	{
 		if (id < 0) return false;
 		return !(s_loadedMaterials.find(id) == s_loadedMaterials.end());
@@ -313,12 +297,10 @@ namespace Lina::Graphics
 
 	bool Material::MaterialExists(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedMaterials.begin(), s_loadedMaterials.end(), [path]
-		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
-		return it != s_loadedMaterials.end();
+		return MaterialExists(StringID(path.c_str()).value());
 	}
 
-	void Material::UnloadMaterialResource(int id)
+	void Material::UnloadMaterialResource(StringIDType id)
 	{
 		if (!MaterialExists(id))
 		{

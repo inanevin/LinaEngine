@@ -373,8 +373,8 @@ namespace Lina::Editor
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = Lina::Graphics::Material::GetMaterial(it->second.m_path).GetID();
-					ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &id, sizeof(uint32));
+					StringIDType id = Lina::Graphics::Material::GetMaterial(it->second.m_path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &id, sizeof(StringIDType));
 
 					// Display preview 
 					ImGui::Text("Assign ");
@@ -535,8 +535,8 @@ namespace Lina::Editor
 			}
 			if (file.m_type == FileType::Material)
 			{
-				Lina::Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(file.m_path);
-				mat.PostLoadMaterialData();
+				// Lina::Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(file.m_path);
+				// mat.PostLoadMaterialData();
 			}
 			else if (file.m_type == FileType::Model)
 			{

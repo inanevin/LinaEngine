@@ -268,13 +268,8 @@ namespace Lina::Graphics
 
 	Texture& Texture::GetTexture(StringIDType id)
 	{
-		if (!TextureExists(id))
-		{
-			// Mesh not found.
-			LINA_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
-			return Texture();
-		}
-
+		bool texture = TextureExists(id);
+		LINA_ASSERT(texture, "Texture does not exist!");
 		return *s_loadedTextures[id];
 	}
 
