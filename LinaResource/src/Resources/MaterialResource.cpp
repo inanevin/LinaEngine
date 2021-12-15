@@ -62,7 +62,7 @@ namespace Lina::Resources
     {
         {
             std::string data((char*)buffer, bufferSize);
-            std::istringstream stream(data);
+            std::istringstream stream(data, std::ios::binary);
             {
                 cereal::PortableBinaryInputArchive iarchive(stream);
                 iarchive(*this);

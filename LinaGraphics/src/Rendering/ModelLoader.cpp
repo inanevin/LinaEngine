@@ -183,10 +183,36 @@ namespace Lina::Graphics
 		return true;
 	}
 
+
+	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& params)
+	{
+		// Get the importer & set assimp scene.
+		Assimp::Importer importer;
+		uint32 importFlags = 0;
+		if (params.m_calculateTangentSpace)
+			importFlags |= aiProcess_CalcTangentSpace;
+
+		if (params.m_triangulate)
+			importFlags |= aiProcess_Triangulate;
+
+		if (params.m_smoothNormals)
+			importFlags |= aiProcess_GenSmoothNormals;
+
+		if (params.m_flipUVs)
+			importFlags |= aiProcess_FlipUVs;
+
+		if (params.m_flipWinding)
+			importFlags |= aiProcess_FlipWindingOrder;
+
+		const std::string ext = "." + Utility::GetFileExtension(model.GetPath());
+		const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
+		const char* err = importer.GetErrorString();
+		LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
+		return LoadModel(scene, model);
+	}
+
 	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams)
 	{
-		ModelSceneParameters& worldParams = model.GetWorldParameters();
-
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;

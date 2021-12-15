@@ -33,7 +33,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include <stdio.h>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 #include "Rendering/Model.hpp"
 
@@ -51,9 +51,9 @@ namespace Lina::Graphics
 	ModelParameters Model::LoadParameters(const std::string& path)
 	{
 		ModelParameters params;
-		std::ifstream stream(path);
+		std::ifstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryInputArchive iarchive(stream);
+			cereal::PortableBinaryInputArchive iarchive(stream);
 			iarchive(params);
 		}
 		return params;
@@ -61,22 +61,52 @@ namespace Lina::Graphics
 
 	void Model::SaveParameters(const std::string& path, ModelParameters params)
 	{
-		std::ofstream stream(path);
+		std::ofstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryOutputArchive oarchive(stream);
+			cereal::PortableBinaryOutputArchive oarchive(stream);
 			oarchive(params); 
 		}
 	}
 
 	ModelParameters Model::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
 	{
-		return ModelParameters();
+		ModelParameters params;
+		{
+			std::string data((char*)data, dataSize);
+			std::istringstream stream(data, std::ios::binary);
+			{
+				cereal::PortableBinaryInputArchive iarchive(stream);
+				iarchive(params);
+			}
+		}
+		return params;
 	}
 
-	Model& Model::CreateModel(unsigned char* data, size_t dataSize, ModelParameters modelParams)
+	Model& Model::CreateModel(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, ModelParameters modelParams)
 	{
-		return Model();
+		StringIDType id = StringID(path.c_str()).value();
+
+		Model& model = s_loadedModels[id];
+		model.SetParameters(modelParams);
+		model.m_paramsPath = paramsPath;
+		model.m_path = path;
+		ModelLoader::LoadModel(data, dataSize, model, modelParams);
+
+		LINA_ASSERT(model.GetMeshes().size() != 0, "Model does not contain any meshes, Lina expects all imported files to contain at least a single mesh!");
+	
+		// Build vertex array for each model.
+		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
+		{
+			model.GetMeshes()[i].CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
+		}
+
+		// Set id
+		model.m_meshID = id;
+		model.m_path = path;
+		model.m_paramsPath = paramsPath;
+		return s_loadedModels[id];
 	}
+
 
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams,  const std::string& paramsPath)
 	{
@@ -84,6 +114,8 @@ namespace Lina::Graphics
 
 		Model& model = s_loadedModels[id];
 		model.SetParameters(meshParams);
+		model.m_paramsPath = paramsPath;
+		model.m_path = filePath;
 		ModelLoader::LoadModel(filePath, model, meshParams);
 
 		if (model.GetMeshes().size() == 0)

@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Rendering/ArrayBitmap.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include <stdio.h>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Graphics
@@ -172,11 +172,9 @@ namespace Lina::Graphics
 	{
 		SamplerParameters params;
 
-		std::ifstream stream(path);
+		std::ifstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryInputArchive iarchive(stream);
-
-			// Read the data into it.
+			cereal::PortableBinaryInputArchive iarchive(stream);
 			iarchive(params);
 		}
 
@@ -185,16 +183,26 @@ namespace Lina::Graphics
 
 	SamplerParameters Texture::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
 	{
-		return SamplerParameters();
+		SamplerParameters params;
+
+		{
+			std::string data((char*)data, dataSize);
+			std::istringstream stream(data, std::ios::binary);
+			{
+				cereal::PortableBinaryInputArchive iarchive(stream);
+				iarchive(params);
+			}
+		}
+
+		return params;
 	}
 
 	void Texture::SaveParameters(const std::string& path, SamplerParameters params)
 	{
-		std::ofstream stream(path);
+		std::ofstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
-
-			oarchive(params); // Write the data to the archive
+			cereal::PortableBinaryOutputArchive oarchive(stream);
+			oarchive(params);
 		}
 	}
 

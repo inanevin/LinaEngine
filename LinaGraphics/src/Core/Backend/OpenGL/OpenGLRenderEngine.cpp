@@ -305,7 +305,14 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event)
 	{
-		LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
+		LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
+
+		ModelParameters params;
+
+		if (event.m_paramsData != nullptr)
+			params = Model::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
+
+		Model::CreateModel(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params);
 
 	}
 

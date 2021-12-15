@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Rendering/Texture.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include <stdio.h>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Graphics
@@ -67,18 +67,18 @@ namespace Lina::Graphics
 
 	void Material::LoadMaterialData(Material& mat, const std::string& path)
 	{
-		std::ifstream stream(path);
+		std::ifstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryInputArchive iarchive(stream);
+			cereal::PortableBinaryInputArchive iarchive(stream);
 			iarchive(mat);
 		}
 	}
 
 	void Material::SaveMaterialData(const Material& mat, const std::string& path)
 	{
-		std::ofstream stream(path);
+		std::ofstream stream(path, std::ios::binary);
 		{
-			cereal::BinaryOutputArchive oarchive(stream);
+			cereal::PortableBinaryOutputArchive oarchive(stream);
 			oarchive(mat); 
 		}
 	}
