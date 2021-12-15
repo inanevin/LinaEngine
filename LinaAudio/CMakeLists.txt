@@ -22,8 +22,11 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAAUDIO_SOURCES
 
-	#AUDIO
+	# Core
 	src/Core/Backend/OpenAL/OpenALAudioEngine.cpp
+
+	# Audio
+	src/Audio/Audio.cpp
 
 )
 
@@ -32,10 +35,14 @@ set (LINAAUDIO_SOURCES
 #--------------------------------------------------------------------
 set(LINAAUDIO_HEADERS
 	
-	#AUDIO
+	# Core
 	include/Core/Backend/OpenAL/OpenALAudioEngine.hpp
 	include/Core/AudioBackend.hpp
 	include/Core/AudioBackendFwd.hpp
+	
+	# Audio
+	include/Audio/Audio.hpp
+	
 )
 
 

@@ -27,15 +27,19 @@ SOFTWARE.
 */
 
 #include "Core/Backend/OpenAL/OpenALAudioEngine.hpp"  
+#include "EventSystem/EventSystem.hpp"
 #include "ECS/ECS.hpp"
 #include "Log/Log.hpp"
-#include "AL/al.h"
-#include "AL/alc.h"
-#include "AL/alut.h"
+#include "Audio/Audio.hpp"
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alut.h>
 #include <fstream>
 
 namespace Lina::Audio
 {
+	OpenALAudioEngine* OpenALAudioEngine::s_audioEngine = nullptr;
+
 	void OpenALAudioEngine::Initialize()
 	{
 		LINA_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
@@ -85,71 +89,42 @@ namespace Lina::Audio
 
 		// Init alut
 		alutInit(NULL, NULL);
+
+		Event::EventSystem::Get()->Connect<Event::ELoadAudioResourceFromFile, &OpenALAudioEngine::OnLoadAudioFromFile>(this);
 	}
 
 	void OpenALAudioEngine::Shutdown()
 	{
 		LINA_TRACE("[Shutdown] -> Audio Engine ({0})", typeid(*this).name());
-
-		// Cleanup buffers.
-		for (auto buffer : m_audioBuffers)
-		{
-			alDeleteBuffers(1, &buffer.second);
-			LINA_TRACE("[Audio Engine OpenAL] -> Buffer deleted.");
-		}
-	}
-
-	void OpenALAudioEngine::LoadAudioSource(const std::string& path)
-	{
-		ALsizei size;
-		ALfloat freq;
-		ALenum format;
-		ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
-
-		ALenum err = alutGetError();
-		if (err != ALUT_ERROR_NO_ERROR)
-		{
-			LINA_ERR("[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
-			return;
-		}
-
-		// Trigger event & free data.
-		OnAudioSourceLoaded(path, (void*)data, size, format, freq);
-		free(data);
-
-		LINA_TRACE("[Audio Loader] -> Audio loaded from file: {0}", path);
-	}
-
-	void OpenALAudioEngine::PlayOneShot(const std::string& path, float gain, bool looping, float pitch, Vector3 position, Vector3 velocity)
-	{
-		if (m_audioBuffers.find(path) == m_audioBuffers.end())
-			return;
-
-		if (m_oneShotSources.find(path) == m_oneShotSources.end())
-		{
-			// Set source properties.
-			unsigned int source;
-			alGenSources((ALuint)1, &source);
-			alSourcef(source, AL_PITCH, pitch);
-			alSourcef(source, AL_GAIN, gain);
-			alSource3f(source, AL_POSITION, position.x, position.y, position.z);
-			alSource3f(source, AL_VELOCITY, 0, 0, 0);
-			alSourcei(source, AL_LOOPING, looping);
-			alSourcei(source, AL_BUFFER, m_audioBuffers[path]);
-
-			m_oneShotSources[path] = source;
-		}
+		Audio::UnloadAll();
 		
-		unsigned int ps = m_oneShotSources[path];
+		for (auto& s : m_generatedSources)
+			alDeleteSources((ALuint)1, &s.second);
 
-		// Set source properties.
-		alSourcef(ps, AL_PITCH, pitch);
-		alSourcef(ps, AL_GAIN, gain);
-		alSource3f(ps, AL_POSITION, position.x, position.y, position.z);
-		alSource3f(ps, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-		alSourcei(ps, AL_LOOPING, looping);
-		alSourcePlay(ps);
+		m_generatedSources.clear();
+	}
 
+	void OpenALAudioEngine::PlayOneShot(Audio& audio, float gain, bool looping, float pitch, Vector3 position, Vector3 velocity)
+	{
+		unsigned int source = -1;
+
+		StringIDType sid = audio.GetSID();
+
+		if (m_generatedSources.find(sid) == m_generatedSources.end())
+		{
+			alGenSources((ALuint)1, &source);
+			m_generatedSources[sid] = source;
+		}
+		else
+			source = m_generatedSources[sid];
+		
+		alSourcef(source, AL_PITCH, pitch);
+		alSourcef(source, AL_GAIN, gain);
+		alSource3f(source, AL_POSITION, position.x, position.y, position.z);
+		alSource3f(source, AL_VELOCITY, 0, 0, 0);
+		alSourcei(source, AL_LOOPING, looping);
+		alSourcei(source, AL_BUFFER, audio.GetBuffer());
+		alSourcePlay(source);
 	}
 
 	void OpenALAudioEngine::ListAudioDevices(const char* type, const char* list)
@@ -174,29 +149,11 @@ namespace Lina::Audio
 		}
 	}
 
-	void OpenALAudioEngine::OnAudioSourceLoaded(const std::string& path, void* data, int dataSize, int format, float freq)
+	void OpenALAudioEngine::OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev)
 	{
-		// Generate an OpenAL buffer for the loaded audio source.
-		std::lock_guard<std::mutex> l(m_mutex);
-		ALuint buffer;
-		alGenBuffers((ALuint)1, &buffer);
-		alBufferData(buffer, format, data, dataSize, freq);
-		m_audioBuffers[path] = buffer;
-		LINA_TRACE("[Audio Engine OpenAL] -> Buffer generated.");
-
-#ifndef LINA_PRODUCTION_BUILD
-		CheckForError();
-#endif
+		LINA_TRACE("[Audio Loader] -> Loading audio: {0}", ev.m_path);
+		Audio::CreateAudio(ev.m_path);
 	}
 
-	void OpenALAudioEngine::CheckForError()
-	{
-		ALCenum error;
-		error = alGetError();
-		if (error != AL_NO_ERROR)
-		{
-			LINA_ERR("[Audio Engine OpenAL] -> Open AL Error {0}", alutGetErrorString(error));
-		}
-	}
 }
 

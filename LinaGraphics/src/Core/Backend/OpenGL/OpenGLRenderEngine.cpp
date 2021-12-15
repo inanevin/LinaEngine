@@ -293,7 +293,12 @@ namespace Lina::Graphics
 	void OpenGLRenderEngine::OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event)
 	{
 		LINA_TRACE("[Shader Loader] -> Loading shader: {0}", event.m_path);
-		Shader::CreateShader(event.m_path);
+
+		if (!Shader::ShaderExists(event.m_path))
+		{
+			Shader::CreateShader(event.m_path);
+		}
+		
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)

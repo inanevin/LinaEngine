@@ -27,79 +27,59 @@ SOFTWARE.
 */
 
 /*
-Class:  Audio
+Class: Audio
 
-Responsible for initializing, running and cleaning up the audio world.
 
-Timestamp: 5/1/2019 2:35:28 AM
+
+Timestamp: 12/15/2021 2:12:28 PM
 */
 
 #pragma once
 
-#ifndef AudioEngine_HPP
-#define AudioEngine_HPP
+#ifndef Audio_HPP
+#define Audio_HPP
 
-#include "Math/Vector.hpp"
-#include "EventSystem/Events.hpp"
+// Headers here.
 #include "Utility/StringId.hpp"
+#include <string>
 #include <map>
-#include <unordered_map>
-#include <mutex>
-
-struct ALCcontext;
-struct ALCdevice;
-
-
-namespace Lina
-{
-	class Engine;
-
-	namespace World
-	{
-		class Level;
-	}
-
-	namespace ECS
-	{
-		class Registry;
-	}
-}
 
 namespace Lina::Audio
 {
-	class Audio;
-
-	class OpenALAudioEngine
+	class Audio
 	{
+		
 	public:
+		
+		Audio() {}
+		~Audio();
+	
+		static Audio& CreateAudio(const std::string& path);
+		static std::map<StringIDType, Audio>& GetLoadedAudios() { return s_loadedAudios; }
+		static void UnloadAudio(StringIDType sid);
+		static void UnloadAudio(const std::string& path);
+		static void UnloadAll();
+		static bool AudioExists(const std::string& path);
+		static bool AudioExists(StringIDType sid);
+		static Audio& GetAudio(StringIDType sid);
+		static Audio& GetAudio(const std::string& path);
 
-		void PlayOneShot(Audio& audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
-		static OpenALAudioEngine* Get() { return s_audioEngine; }
+		unsigned int GetBuffer() { return m_buffer; }
+		StringIDType GetSID() { return m_sid; }
+	private:
+
+		static void CheckForError();
 
 	private:
 
-		void OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev);
-		void ListAudioDevices(const char* type, const char* list);
-
-	private:
-
-		friend class Engine;
-		OpenALAudioEngine() {};
-		~OpenALAudioEngine() {};
-		void Initialize();	
-		void Shutdown();
-
-	private:
-
-		static OpenALAudioEngine* s_audioEngine;
-		ECS::Registry* m_ecs = nullptr;
-		mutable std::mutex m_mutex;
-		ALCcontext* m_context = nullptr;
-		ALCdevice* m_device = nullptr;
-		Vector3 m_mainListenerLastPos = Vector3::Zero;
-		std::map<StringIDType, unsigned int> m_generatedSources;
+		static std::map<StringIDType, Audio> s_loadedAudios;
+		int m_size = 0;
+		StringIDType m_sid;
+		float m_freq = 0.0f;
+		int m_format = 0;
+		void* m_data = nullptr;
+		unsigned int m_buffer = 0;
 	};
 }
-
 
 #endif

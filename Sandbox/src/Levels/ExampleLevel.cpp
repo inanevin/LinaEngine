@@ -26,6 +26,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Audio/Audio.hpp"
 using namespace Lina::Graphics;
 using namespace Lina::ECS;
 using namespace Lina;
@@ -60,7 +61,6 @@ void ExampleLevel::Initialize()
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
-
 }
 
 void ExampleLevel::Tick(Event::ETick ev)

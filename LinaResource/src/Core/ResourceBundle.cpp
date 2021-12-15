@@ -160,7 +160,8 @@ namespace Lina::Resources
 		}
 		else if (type == ResourceType::Audio)
 		{
-			
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
 		}
 		else if (type == ResourceType::Material)
 		{
@@ -168,7 +169,7 @@ namespace Lina::Resources
 		}
 		else if (type == ResourceType::GLSL)
 		{
-		
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
 		}
 	}
 
