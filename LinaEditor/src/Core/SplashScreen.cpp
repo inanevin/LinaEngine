@@ -94,6 +94,7 @@ namespace Lina::Editor
 
 		// Build pixel data.
 		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
+		//splashScreenTexture = &Lina::Graphics::Texture::GetTexture("resources/editor/textures/splashScreen.png");
 	}
 
 	void SplashScreen::Draw()
@@ -131,6 +132,6 @@ namespace Lina::Editor
 		ImGui::DestroyContext();
 
 		if (splashScreenTexture)
-			delete splashScreenTexture;
+			Lina::Graphics::Texture::UnloadTextureResource(splashScreenTexture->GetSID());
 	}
 }

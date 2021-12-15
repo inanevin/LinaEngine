@@ -70,8 +70,6 @@ namespace Lina::Graphics
 		model.m_meshID = sid;
 		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
-
-		LINA_TRACE("Mesh created. ");
 		return s_loadedModels[sid];
 	}
 
@@ -101,7 +99,7 @@ namespace Lina::Graphics
 		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
 
-		LINA_TRACE("Mesh created. {0}", filePath);
+		LINA_TRACE("[Mesh Loader] -> Mesh loaded from file: {0}", filePath);
 		return s_loadedModels[id];
 	}
 

@@ -328,7 +328,7 @@ namespace Lina::Editor
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
 			Lina::Event::EventSystem::Get()->Trigger<ETextureReimported>(ETextureReimported{m_selectedTexture, reimportedTexture});
 
-			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetID());
+			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetSID());
 			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);
 
 			SetSelectedTexture(reimportedTexture);

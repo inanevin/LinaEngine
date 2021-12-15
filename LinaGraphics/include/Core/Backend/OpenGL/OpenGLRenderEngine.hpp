@@ -108,7 +108,7 @@ namespace Lina::Graphics
 		void SetHDRIData(Material* mat);
 		void RemoveHDRIData(Material* mat);
 
-		void DrawIcon(Vector3 p, uint32 textureID, float size = 1.0f);
+		void DrawIcon(Vector3 p, StringIDType textureID, float size = 1.0f);
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 		void DrawAABB(Vector3 center, Vector3 halfWidths, Color col = Color::White, float width = 1.0f);
 		void ProcessDebugQueue();

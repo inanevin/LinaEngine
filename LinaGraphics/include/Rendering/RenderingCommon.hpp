@@ -300,7 +300,7 @@ namespace Lina::Graphics
 	struct DebugIcon
 	{
 		Vector3 m_center;
-		uint32 m_textureID = -1;
+		StringIDType m_textureID;
 		float m_size = 1.0f;
 	};
 

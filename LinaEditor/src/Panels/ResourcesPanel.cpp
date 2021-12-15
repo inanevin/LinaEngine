@@ -356,8 +356,8 @@ namespace Lina::Editor
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = Lina::Graphics::Texture::GetTexture(it->second.m_path).GetID();
-					ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &id, sizeof(uint32));
+					StringIDType id = Lina::Graphics::Texture::GetTexture(it->second.m_path).GetSID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &id, sizeof(StringIDType));
 
 					// Display preview 
 					ImGui::Text("Assign ");
@@ -552,9 +552,9 @@ namespace Lina::Editor
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
 		if (file.m_type == FileType::Texture2D)
-			Lina::Graphics::Texture::UnloadTextureResource(Lina::Graphics::Texture::GetTexture(file.m_path).GetID());
+			Lina::Graphics::Texture::UnloadTextureResource(Lina::Graphics::Texture::GetTexture(file.m_path).GetSID());
 		else if(file.m_type == FileType::HDRI)
-			Lina::Graphics::Texture::UnloadTextureResource(Lina::Graphics::Texture::GetTexture(file.m_path).GetID());
+			Lina::Graphics::Texture::UnloadTextureResource(Lina::Graphics::Texture::GetTexture(file.m_path).GetSID());
 		else if (file.m_type == FileType::Model)
 			Lina::Graphics::Model::UnloadModel(Lina::Graphics::Model::GetModel(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)

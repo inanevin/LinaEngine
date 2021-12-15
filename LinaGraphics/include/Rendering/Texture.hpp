@@ -68,6 +68,7 @@ namespace Lina::Graphics
 		static SamplerParameters LoadParameters(const std::string& path);
 		static void SaveParameters(const std::string& path, SamplerParameters params);
 		uint32 GetID() const { return m_id; };
+		StringIDType GetSID() const { return m_sid; }
 		uint32 GetSamplerID() const { return m_sampler.GetID(); }
 		Sampler& GetSampler() { return m_sampler; }
 		bool IsCompressed() const { return m_isCompressed; }
@@ -79,16 +80,16 @@ namespace Lina::Graphics
 
 		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		static Texture& CreateTextureHDRI(const std::string filePath);
-		static Texture& GetTexture(int id);
+		static Texture& GetTexture(StringIDType id);
 		static Texture& GetTexture(const std::string& path);
-		static bool TextureExists(int id);
+		static bool TextureExists(StringIDType id);
 		static bool TextureExists(const std::string& path);
-		static void UnloadTextureResource(int id);
+		static void UnloadTextureResource(StringIDType id);
 		static void UnloadAll();
 
 	private:
 
-		static std::map<int, Texture*> s_loadedTextures;
+		static std::map<StringIDType, Texture*> s_loadedTextures;
 
 		friend RenderEngine;
 
@@ -96,6 +97,7 @@ namespace Lina::Graphics
 		Sampler m_sampler;
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_id = 0;
+		StringIDType m_sid = 0;
 		Vector2 m_size = Vector2::One;
 		bool m_isCompressed = false;
 		bool m_hasMipMaps = true;

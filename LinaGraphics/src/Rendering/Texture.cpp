@@ -35,12 +35,11 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-	std::map<int, Texture*> Texture::s_loadedTextures;
+	std::map<StringIDType, Texture*> Texture::s_loadedTextures;
 
 	Texture::~Texture()
 	{
 		m_id = m_renderDevice->ReleaseTexture2D(m_id);
-
 	}
 
 	Texture& Texture::Construct(const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
@@ -220,11 +219,14 @@ namespace Lina::Graphics
 
 		}
 
+		StringIDType sid = StringID(filePath.c_str()).value();
+
 		// Build texture & construct.
 		Texture* texture = new Texture();
 		texture->Construct(*textureBitmap, samplerParams, compress, filePath);
-		s_loadedTextures[texture->GetID()] = texture;
 		texture->m_paramsPath = paramsPath;
+		texture->m_sid = sid;
+		s_loadedTextures[sid] = texture;
 
 		// Delete pixel data.
 		delete textureBitmap;
@@ -232,7 +234,7 @@ namespace Lina::Graphics
 		LINA_TRACE("Texture created. {0}", filePath);
 
 		// Return
-		return *s_loadedTextures[texture->GetID()];
+		return *s_loadedTextures[sid];
 	}
 
 
@@ -255,16 +257,18 @@ namespace Lina::Graphics
 		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
+		StringIDType sid = StringID(filePath.c_str()).value();
 		Texture* texture = new Texture();
 		texture->ConstructHDRI(samplerParams, Vector2(w, h), data, filePath);
-		s_loadedTextures[texture->GetID()] = texture;
+		texture->m_sid = sid;
+		s_loadedTextures[sid] = texture;
 
 		// Return
-		return *s_loadedTextures[texture->GetID()];
+		return *s_loadedTextures[sid];
 	}
 
 
-	Texture& Texture::GetTexture(int id)
+	Texture& Texture::GetTexture(StringIDType id)
 	{
 		if (!TextureExists(id))
 		{
@@ -278,20 +282,10 @@ namespace Lina::Graphics
 
 	Texture& Texture::GetTexture(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedTextures.begin(), s_loadedTextures.end(), [path]
-		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
-
-		if (it == s_loadedTextures.end())
-		{
-			// Mesh not found.
-			LINA_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
-			return Texture();
-		}
-
-		return *it->second;
+		return GetTexture(StringID(path.c_str()).value());
 	}
 
-	void Texture::UnloadTextureResource(int id)
+	void Texture::UnloadTextureResource(StringIDType id)
 	{
 		if (!TextureExists(id))
 		{
@@ -306,13 +300,13 @@ namespace Lina::Graphics
 	void Texture::UnloadAll()
 	{
 		// Delete textures.
-		for (std::map<int, Texture*>::iterator it = s_loadedTextures.begin(); it != s_loadedTextures.end(); it++)
+		for (std::map<StringIDType, Texture*>::iterator it = s_loadedTextures.begin(); it != s_loadedTextures.end(); it++)
 			delete it->second;
 
 		s_loadedTextures.clear();
 	}
 
-	bool Texture::TextureExists(int id)
+	bool Texture::TextureExists(StringIDType id)
 	{
 		if (id < 0) return false;
 		return !(s_loadedTextures.find(id) == s_loadedTextures.end());
@@ -320,9 +314,7 @@ namespace Lina::Graphics
 
 	bool Texture::TextureExists(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedTextures.begin(), s_loadedTextures.end(), [path]
-		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
-		return it != s_loadedTextures.end();
+		return TextureExists(StringID(path.c_str()).value());
 	}
 
 }

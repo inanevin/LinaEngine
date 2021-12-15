@@ -572,7 +572,7 @@ namespace Lina::Graphics
 		m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
 	}
 
-	void OpenGLRenderEngine::DrawIcon(Vector3 position, uint32 textureID, float size)
+	void OpenGLRenderEngine::DrawIcon(Vector3 position, StringIDType textureID, float size)
 	{
 		m_debugIconQueue.push(DebugIcon{ position, textureID, size });
 	}

@@ -35,9 +35,9 @@ namespace Lina::ECS
 
 	const float DIRLIGHT_DISTANCE_OFFSET = 10;
 
-	uint32 pLightIconID = -1;
-	uint32 sLightIconID = -1;
-	uint32 dLightIconID = -1;
+	StringIDType pLightIconID = -1;
+	StringIDType sLightIconID = -1;
+	StringIDType dLightIconID = -1;
 
 
 	void LightingSystem::Initialize(Lina::ApplicationMode& appMode)
@@ -50,9 +50,9 @@ namespace Lina::ECS
 		if (m_appMode == Lina::ApplicationMode::Editor)
 		{
 			// Create debug icon textures for lights
-			pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetID();
-			sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetID();
-			dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetID();
+			pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetSID();
+			sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetSID();
+			dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetSID();
 		}
 	}
 
