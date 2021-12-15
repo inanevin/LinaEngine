@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/ResourceBundle.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Core/ResourceManager.hpp"
 
 namespace Lina::Resources
 {
@@ -171,11 +172,11 @@ namespace Lina::Resources
 		m_modelParameters.clear();
 	}
 
-	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
+	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root,const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
 	{
 		for (auto& folder : root.m_folders)
 		{
-			LoadResourcesInFolder(folder, progData, excludes, onlyLoad);
+			LoadResourcesInFolder(folder,  excludes, onlyLoad);
 		}
 
 		// Initialize each file into memory where they will persist during the editor lifetime.
@@ -195,13 +196,15 @@ namespace Lina::Resources
 				}
 			}
 
-			LoadResourceFromFile(file, resType, progData);
-			progData->m_currentResourceName = file.m_fullPath;
-			progData->m_progressTitle = "Loading resources in folder...";
+			ResourceManager::TriggerResourceUpdatedEvent();
+			ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
+			LoadResourceFromFile(file, resType);
+			ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
+			ResourceManager::s_currentProgressData.m_currentProgress = (float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles;
 		}
 	}
 
-	void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData)
+	void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type)
 	{
 		if (type == ResourceType::Image)
 		{

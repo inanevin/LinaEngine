@@ -46,8 +46,6 @@ Lina::Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
-
-
 	void SplashScreen::Initialize(const Lina::WindowProperties& props)
 	{
 		// Set GUI draw params.
@@ -93,9 +91,18 @@ namespace Lina::Editor
 		splashWindow->SetPos(Lina::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
 		// Build pixel data.
-		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
-		//splashScreenTexture = &Lina::Graphics::Texture::GetTexture("resources/editor/textures/splashScreen.png");
+		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png", Graphics::SamplerParameters(), false, false, "");
+		Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &SplashScreen::OnResourceLoadUpdated>(this);
+		Draw();
 	}
+
+	void SplashScreen::OnResourceLoadUpdated(Event::EResourceLoadUpdated ev)
+	{
+		m_currentlyLoadingResource = ev.m_currentResource;
+		m_percentage = ev.m_percentage;
+		Draw();
+	}
+
 
 	void SplashScreen::Draw()
 	{
@@ -113,15 +120,15 @@ namespace Lina::Editor
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
 		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+		std::string loadData = m_currentlyLoadingResource + std::to_string(m_percentage);
+		ImGui::Text(loadData.c_str());
 		ImGui::End();
-
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// swap buffers.
 		Lina::Graphics::WindowBackend::Get()->Tick();
-
 	}
 
 	SplashScreen::~SplashScreen()

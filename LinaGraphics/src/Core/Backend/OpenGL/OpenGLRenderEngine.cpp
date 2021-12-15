@@ -81,6 +81,7 @@ namespace Lina::Graphics
 		m_eventSystem->Connect<Event::ELoadImageResourceFromMemory, &OpenGLRenderEngine::OnLoadImageResourceFromMemory>(this);
 		m_eventSystem->Connect<Event::ELoadShaderResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderResourceFromMemory>(this);
 		m_eventSystem->Connect<Event::ELoadShaderIncludeResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory>(this);
+
 	}
 
 	void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
@@ -94,15 +95,15 @@ namespace Lina::Graphics
 		m_appWindow = OpenGLWindow::Get();
 		m_appMode = appMode;
 
+		// Initialize the render device.
+		m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
+
 		// Setup draw parameters.
 		m_defaultDrawParams = DrawParameterHelper::GetDefault();
 		m_skyboxDrawParams = DrawParameterHelper::GetSkybox();
 		m_fullscreenQuadDP = DrawParameterHelper::GetFullScreenQuad();
 		m_shadowMapDrawParams = DrawParameterHelper::GetShadowMap();
 
-
-		// Initialize the render device.
-		m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
 
 		// Construct the uniform buffer for global matrices.
 		m_globalDataBuffer.Construct(UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
@@ -117,7 +118,7 @@ namespace Lina::Graphics
 		m_globalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
 
 		// Initialize engine materials
-		ConstructEngineMaterials();
+		// ConstructEngineMaterials();
 
 		// Initialize built-in vertex array objects.
 		m_skyboxVAO = m_renderDevice.CreateSkyboxVertexArray();
@@ -154,7 +155,7 @@ namespace Lina::Graphics
 		// Set debug values.
 		m_debugData.visualizeDepth = false;
 
-		Shader::ClearShaderIncludes();
+		// Shader::ClearShaderIncludes();
 	}
 
 
@@ -270,6 +271,8 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event)
 	{
+		if (Texture::TextureExists(event.m_path)) return;
+
 		LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
 
 

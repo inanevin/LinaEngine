@@ -69,7 +69,7 @@ namespace Lina
 		extern char* WCharToChar(const wchar_t* input);
 
 		// Scans the given folder & fills it's child folder data
-		extern void ScanFolder(Folder& root, bool recursive = true);
+		extern void ScanFolder(Folder& root, bool recursive = true, int* totalFiles = nullptr);
 
 		// Removes file from OS.
 		extern bool DeleteFileInPath(const std::string& path);

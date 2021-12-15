@@ -60,6 +60,7 @@ namespace Lina
 
 		static Engine* Get() { return s_engine; }
 
+		void StartLoadingResources();
 		double GetElapsedTime();
 		void SetPlayMode(bool enabled);
 		bool GetPlayMode() { return m_isInPlayMode; }
@@ -85,8 +86,6 @@ namespace Lina
 		void DisplayGame(float interpolation);
 		void RemoveOutliers(bool biggest);
 		double SmoothDeltaTime(double dt);
-
-		void OnAllResourcesLoaded(Event::EAllResourcesLoaded ev);
 
 	private:
 

@@ -98,7 +98,7 @@ namespace Lina
 			return (stat(path.c_str(), &buffer) == 0);
 		}
 
-		void ScanFolder(Folder& root, bool recursive)
+		void ScanFolder(Folder& root, bool recursive, int* totalFiles)
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(root.m_fullPath))
 			{
@@ -114,6 +114,9 @@ namespace Lina
 					file.m_fullPath = replacedPath;
 					file.m_extension = file.m_fullName.substr(file.m_fullName.find(".") + 1);
 					file.m_pureName = GetFileWithoutExtension(file.m_fullName);
+
+					if (totalFiles != nullptr)
+						(*totalFiles) = (*totalFiles) + 1;
 				}
 				else
 				{

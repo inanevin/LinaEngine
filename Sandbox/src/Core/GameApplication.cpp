@@ -37,7 +37,7 @@ namespace Lina
 		Application::Initialize(appInfo);
 
 		if (appInfo.m_appMode == ApplicationMode::Editor)
-		{
+		{	
 			m_editor = new Editor::EditorApplication();
 			m_editor->Initialize();
 			m_editor->Refresh();
@@ -62,7 +62,7 @@ namespace Lina
 		// Set vsync
 		// Graphics::WindowBackend::Get()->SetVsync(2);
 
-		// Run();
+		 Run();
 
 		// After engine has finished running.
 		if (m_editor != nullptr)

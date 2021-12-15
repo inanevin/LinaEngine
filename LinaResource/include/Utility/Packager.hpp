@@ -59,9 +59,9 @@ namespace Lina::Resources
 
 		friend class ResourceManager;
 
-		void PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass, ResourceProgressData* loadingData);
-		void PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass, ResourceProgressData* loadingData);
-		void Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, ResourceProgressData* loadingData, std::unordered_map<std::string, ResourceType>& unpackedResources);
+		void PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass);
+		void PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass);
+		void Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources);
 
 	};
 

@@ -38,7 +38,7 @@ Timestamp: 10/10/2020 3:25:27 PM
 #ifndef SplashScreen_HPP
 #define SplashScreen_HPP
 
-
+#include "EventSystem/Events.hpp"
 
 namespace Lina
 {
@@ -57,6 +57,15 @@ namespace Lina::Editor
 		
 		void Draw();
 		void Initialize(const Lina::WindowProperties& props);
+
+	private:
+
+		void OnResourceLoadUpdated(Event::EResourceLoadUpdated ev);
+
+	private:
+
+		std::string m_currentlyLoadingResource = "";
+		float m_percentage = 0.0f;
 	};
 }
 

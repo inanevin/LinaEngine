@@ -86,7 +86,9 @@ namespace Lina::Resources
 		ResourceProgressState m_state = ResourceProgressState::None;
 		std::string m_currentResourceName = "";
 		std::string m_progressTitle = "";
-		int m_currentProgress = 0;
+		float m_currentProgress = 0.0f;
+		int m_currentTotalFiles = 0;
+		int m_currentProcessedFiles = 0;
 
 	private:
 		ResourceProgressData(const ResourceProgressData&); // = delete

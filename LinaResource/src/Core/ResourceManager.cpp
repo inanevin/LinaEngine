@@ -36,49 +36,35 @@ SOFTWARE.
 namespace Lina::Resources
 {
 	ResourceManager* ResourceManager::s_resourceManager = nullptr;
+	ResourceProgressData ResourceManager::s_currentProgressData;
 
 	void ResourceManager::LoadEditorResources()
 	{
 		LINA_WARN("[Resource Manager] -> Loading Editor Resources");
 
-		m_currentProgressData.m_state = ResourceProgressState::Pending;
+		// Find resources.
+		Utility::Folder root;
+		root.m_fullPath = "resources/";
+		Utility::ScanFolder(root, true, &s_currentProgressData.m_currentTotalFiles);
 
 		// Set progress & fill.
-		m_currentProgressData.m_progressTitle = "Loading resources...";
-		m_currentProgressData.m_state = ResourceProgressState::InProgress;
-		m_currentProgressData.m_currentProgress = 0.0f;
+		s_currentProgressData.m_state = ResourceProgressState::Pending;
+		s_currentProgressData.m_progressTitle = "Loading resources...";
+		s_currentProgressData.m_state = ResourceProgressState::InProgress;
+		s_currentProgressData.m_currentProcessedFiles = 0;
 		std::unordered_map<std::string, ResourceType> filledResources;
 
-		// Make sure we don't have any packing/unpacking going on.
-		m_taskflow.clear();
-		m_executor.wait_for_all();
+		// Load all editor resources, first only load the shader includes, then shaders, then the rest.
+		std::vector<ResourceType> excludes;
+		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLH);
+		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLSL);
 
-		// Pack the bundle associated with this level, on a seperate thread.
-		m_taskflow.emplace([=]()
-			{
-				// Find resources.
-				Utility::Folder root;
-				root.m_fullPath = "resources/";
-				Utility::ScanFolder(root, true);
+		excludes.push_back(ResourceType::GLH);
+		excludes.push_back(ResourceType::GLSL);
+		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::Unknown);
 
-				// Load all editor resources, first only load the shader includes, then shaders, then the rest.
-				std::vector<ResourceType> excludes;
-				m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::GLH);
-				m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::GLSL);
-
-				excludes.push_back(ResourceType::GLH);
-				excludes.push_back(ResourceType::GLSL);
-				m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::Unknown);
-
-				Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
-			});
-
-		m_future = m_executor.run(m_taskflow);
-
-
-
-		// Notify listeners that unpacking has finished.
-		m_currentProgressData.m_state = ResourceProgressState::None;
+		Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
+		ResetProgress();
 	}
 
 	void ResourceManager::Shutdown()
@@ -93,6 +79,19 @@ namespace Lina::Resources
 		LINA_TRACE("[Resource Manager] -> Shutdown");
 	}
 
+	void Lina::Resources::ResourceManager::ResetProgress()
+	{
+		s_currentProgressData.m_currentProcessedFiles = s_currentProgressData.m_currentTotalFiles = 0;
+		s_currentProgressData.m_currentResourceName = s_currentProgressData.m_progressTitle = "";
+		s_currentProgressData.m_state = ResourceProgressState::None;
+		s_currentProgressData.m_currentProgress = 0.0f;
+	}
+
+	void Lina::Resources::ResourceManager::TriggerResourceUpdatedEvent()
+	{
+		Event::EventSystem::Get()->Trigger<Event::EResourceLoadUpdated>(Event::EResourceLoadUpdated{ ResourceManager::s_currentProgressData.m_currentResourceName, ResourceManager::s_currentProgressData.m_currentProgress });
+	}
+
 	void ResourceManager::PackageProject(const std::string& path, const std::string& name)
 	{
 		// Find out which resources to export.
@@ -104,7 +103,7 @@ namespace Lina::Resources
 		AddAllResourcesToPack(filesToPack, root);
 
 		// Export resources.
-		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS, &m_currentProgressData);
+		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS);
 	}
 
 
@@ -126,23 +125,20 @@ namespace Lina::Resources
 			return;
 		}
 		std::string fullBundlePath = fullPath;
-		m_currentProgressData.m_progressTitle = "Unpacking level resources...";
-		m_currentProgressData.m_currentResourceName = fullBundlePath;
+		s_currentProgressData.m_progressTitle = "Unpacking level resources...";
+		s_currentProgressData.m_currentResourceName = fullBundlePath;
 
 		// Start unpacking process, preceeded & followed by an event dispatch.
 		// m_eventSys->Trigger<Event::EResourceProgressStarted>();
 
 		// Start unpacking.
 		std::unordered_map<std::string, ResourceType> unpackedResources;
-		m_packager.Unpack(fullBundlePath, PACKAGE_PASS, &m_bundle, &m_currentProgressData, unpackedResources);
+		m_packager.Unpack(fullBundlePath, PACKAGE_PASS, &m_bundle, unpackedResources);
 
 		m_bundle.LoadAllMemoryMaps();
 
 		// Set progress end.
-		m_currentProgressData.m_state = ResourceProgressState::None;
-		m_currentProgressData.m_progressTitle = "";
-		m_currentProgressData.m_currentResourceName = "";
-		m_currentProgressData.m_currentProgress = 0;
+		ResetProgress();
 	}
 
 }

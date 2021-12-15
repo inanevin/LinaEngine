@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/ResourceBundle.hpp"
+#include "Core/ResourceManager.hpp"
 #include <bit7z/include/bitcompressor.hpp>
 #include <bit7z/include/bitformat.hpp>
 #include <bit7z/include/bitexception.hpp>
@@ -39,7 +40,7 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-	void Packager::PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass, ResourceProgressData* loadingData)
+	void Packager::PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass)
 	{
 		try
 		{
@@ -55,6 +56,7 @@ namespace Lina::Resources
 
 			// Progress callback.
 			bit7z::BitCompressor* pCompressor = &compressor;
+			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
 			loadingData->m_currentResourceName = "Packing directory";
 			loadingData->m_currentProgress = 0;
 			loadingData->m_state = ResourceProgressState::Pending;
@@ -94,7 +96,7 @@ namespace Lina::Resources
 		}
 	}
 
-	void Packager::PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass, ResourceProgressData* loadingData)
+	void Packager::PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass)
 	{
 		try
 		{
@@ -116,8 +118,9 @@ namespace Lina::Resources
 
 			// Progress callback.
 			bit7z::BitCompressor* pCompressor = &compressor;
+			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
 			loadingData->m_currentResourceName = "Packing directory";
-			loadingData->m_currentProgress = 0;
+			loadingData->m_currentProgress = 0.0f;
 			loadingData->m_state = ResourceProgressState::Pending;
 			loadingData->m_progressTitle = "Packing multiple files...";
 
@@ -161,7 +164,7 @@ namespace Lina::Resources
 		}
 	}
 
-	void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, ResourceProgressData* loadingData, std::unordered_map<std::string, ResourceType>& unpackedResources)
+	void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources)
 	{
 		try {
 
@@ -185,6 +188,7 @@ namespace Lina::Resources
 
 			// Progress callback.
 			bit7z::BitExtractor* pExtractor = &extractor;
+			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
 			loadingData->m_currentResourceName = "nofile";
 			loadingData->m_currentProgress = 0;
 			loadingData->m_state = ResourceProgressState::Pending;

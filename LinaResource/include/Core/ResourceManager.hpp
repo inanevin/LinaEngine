@@ -71,14 +71,13 @@ namespace Lina::Resources
 	public:
 
 		static ResourceManager* Get() { return s_resourceManager; }
+		static ResourceProgressData s_currentProgressData;
+		static void ResetProgress();
+		static void TriggerResourceUpdatedEvent();
 
 		void PackageProject(const std::string& path, const std::string& name);
 		void ImportResourceBundle(const std::string& path, const std::string& name);
-
-		// Queries current progress data, useful for showing progress information.
-		ResourceProgressData& GetCurrentProgressData() { return m_currentProgressData; }
-
-	
+		
 	private:
 
 		friend class Engine;
@@ -94,7 +93,6 @@ namespace Lina::Resources
 		static ResourceManager* s_resourceManager ;
 		Event::EventSystem* m_eventSys = nullptr;
 		ECS::Registry* m_ecs = nullptr;
-		ResourceProgressData m_currentProgressData;
 		Packager m_packager;
 		Executor m_executor;
 		TaskFlow m_taskflow;

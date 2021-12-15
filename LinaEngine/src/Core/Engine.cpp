@@ -45,6 +45,8 @@ namespace Lina
 {
 	Engine* Engine::s_engine = nullptr;
 
+	
+
 	double Engine::GetElapsedTime()
 	{
 		return Utility::GetCPUTime() - m_startTime;
@@ -71,8 +73,6 @@ namespace Lina
 		m_eventSystem.Initialize();
 		m_inputEngine.Initialize();
 
-		m_eventSystem.Connect<Event::EAllResourcesLoaded, &Engine::OnAllResourcesLoaded>(this);
-
 		// Build main window.
 		bool windowCreationSuccess = m_window.CreateContext(appInfo);
 		if (!windowCreationSuccess)
@@ -81,17 +81,15 @@ namespace Lina
 			return;
 		}
 
-		m_renderEngine.ConnectEvents();
-		m_audioEngine.Initialize();
-
-		if (appInfo.m_appMode == ApplicationMode::Editor)
-			m_resourceManager.LoadEditorResources();
-		else
-			m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
-
 		// Set event callback for main window.
 		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
 
+		m_renderEngine.ConnectEvents();
+		m_audioEngine.Initialize();
+		m_ecs.Initialize();
+		m_physicsEngine.Initialize();
+		m_renderEngine.Initialize(m_appInfo.m_appMode);
+		
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
 		m_ecs.RegisterComponent<ECS::FreeLookComponent>();
@@ -103,7 +101,25 @@ namespace Lina
 		m_ecs.RegisterComponent<ECS::MeshRendererComponent>();
 		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
 		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
+	}
 
+	void Engine::StartLoadingResources()
+	{
+		if (m_appInfo.m_appMode == ApplicationMode::Editor)
+			m_resourceManager.LoadEditorResources();
+		else
+			m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
+
+		m_renderEngine.ConstructEngineMaterials();
+
+		// Initialize any listeners.
+		m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
+
+		m_deltaTimeArray.fill(-1.0);
+		m_isInPlayMode = true;
+
+		if (m_appInfo.m_appMode == ApplicationMode::Editor)
+			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/engine/audio/lina_init.wav"));
 	}
 
 	void Engine::Run()
@@ -197,6 +213,7 @@ namespace Lina
 		m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
 		m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 	}
+
 	void Engine::DisplayGame(float interpolation)
 	{
 		PROFILER_FUNC("Engine Render");
@@ -289,26 +306,6 @@ namespace Lina
 		avg /= DELTA_TIME_HISTORY - 4;
 
 		return avg;
-	}
-
-	void Engine::OnAllResourcesLoaded(Event::EAllResourcesLoaded ev)
-	{
-		// Initialize the rest of the sub-systems that might depend on resources being completely loaded.
-		m_ecs.Initialize();
-		m_physicsEngine.Initialize();
-		m_renderEngine.Initialize(m_appInfo.m_appMode);
-
-		// Initialize any listeners.
-		m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
-
-		m_deltaTimeArray.fill(-1.0);
-		m_isInPlayMode = true;
-
-		if (m_appInfo.m_appMode == ApplicationMode::Editor)
-			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/engine/audio/lina_init.wav"));
-
-		// Kick-off engine loop
-		Run();
 	}
 
 }

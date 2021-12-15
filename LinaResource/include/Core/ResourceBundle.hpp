@@ -68,10 +68,10 @@ namespace Lina::Resources
 		void LoadAllMemoryMaps();
 
 		// Calls LoadResourceFromFile on all resources within the folder.
-		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
+		void LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
 		// Loads given resource from a file path into memory.
-		void LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData);
+		void LoadResourceFromFile(Utility::File& file, ResourceType type);
 
 		std::unordered_map<std::string, std::vector<unsigned char>> m_audioParameters;
 		std::unordered_map<std::string, std::vector<unsigned char>> m_imageParameters;
