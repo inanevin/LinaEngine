@@ -254,38 +254,25 @@ namespace Lina
 			return fileName.substr(0, lastindex);
 		}
 
-		bool LoadTextWithIncludes(std::string& output,  const std::string& includeKeyword)
+		bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap)
 		{
-			std::ifstream file;
-			file.open(output);
+			std::istringstream iss(output);
+
+	
 			std::stringstream ss;
-			std::string line;
 
-			if (file.is_open())
+			for (std::string line; std::getline(iss, line); )
 			{
-				while (file.good())
+				if (line.find(includeKeyword) == std::string::npos)
+					ss << line << "\n";
+				else
 				{
-					getline(file, line);
-
-					if (line.find(includeKeyword) == std::string::npos)
-						ss << line << "\n";
-
-					else
-					{
-						std::string includeFileName = Split(line, ' ')[1];
-						includeFileName =
-							includeFileName.substr(1, includeFileName.length() - 2);
-
-						std::string toAppend;
-						LoadTextWithIncludes(toAppend, includeKeyword);
-						ss << toAppend << "\n";
-					}
+					std::string includeFileName = Split(line, ' ')[1];
+					includeFileName = includeFileName.substr(1, includeFileName.length() - 2);
+					const std::string includeID = GetFileWithoutExtension(GetFileNameOnly(includeFileName));
+					std::string toAppend = includesMap[includeID];
+					ss << toAppend << "\n";
 				}
-			}
-			else
-			{
-				LINA_ERR("Text could not be loaded!");
-				return false;
 			}
 
 			output = ss.str();
@@ -315,7 +302,6 @@ namespace Lina
 						includeFileName = includeFileName.substr(1, includeFileName.length() - 2);
 						const std::string includeID = GetFileWithoutExtension(GetFileNameOnly(includeFileName));
 						std::string toAppend = includesMap[includeID];
-						// LoadTextFileWithIncludes(toAppend, filePath + includeFileName, includeKeyword);
 						ss << toAppend << "\n";
 					}
 				}

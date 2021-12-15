@@ -359,6 +359,9 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory(Event::ELoadShaderIncludeResourceFromMemory event)
 	{
+		const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
+		const std::string& text = std::string(reinterpret_cast<char*>(event.m_data), event.m_dataSize);
+		Shader::PushShaderInclude(name, text);
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
@@ -413,7 +416,7 @@ namespace Lina::Graphics
 		}
 		else if (path.compare("resources/engine/shaders/Skybox/SkyboxColor.glsl") == 0)
 		{
-			m_skyboxSingleColorShader = &Shader::CreateShader(path, false);
+			m_skyboxSingleColorShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxCubemap.glsl") == 0

@@ -155,9 +155,8 @@ namespace Lina::Resources
 	{
 		
 		for (auto& shaderInc : m_shaderIncludes)
-		{
-
-		}
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromMemory>(Event::ELoadShaderIncludeResourceFromMemory{ shaderInc.first, &shaderInc.second[0], shaderInc.second.size() });
+		
 		for (auto& shader : m_shaders)
 			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromMemory>(Event::ELoadShaderResourceFromMemory{ shader.first, &shader.second[0], shader.second.size() });
 

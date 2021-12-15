@@ -114,7 +114,7 @@ namespace Lina
 		extern std::string GetFileExtension(const std::string& file);
 
 		// Used for loading shaders from memory.
-		extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword);
+		extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
 
 		// Mostly used for loading shaders.
 		extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
