@@ -129,9 +129,9 @@ namespace Lina::Editor
 				if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 				{
 					auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
-					if (Graphics::Shader::ShaderExists(mat.GetShaderID()))
+					if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
 					{
-						auto& shader = Graphics::Shader::GetShader(mat.GetShaderID());
+						auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
 						if (shader.GetPath().compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0)
 						{
 							if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))

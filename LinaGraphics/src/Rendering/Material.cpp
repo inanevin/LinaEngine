@@ -53,9 +53,15 @@ namespace Lina::Graphics
 		}
 		
 		if (Shader::ShaderExists(m_shaderPath))
+		{
 			m_shaderID = Shader::GetShader(m_shaderPath).GetID();
+			m_shaderSID = Shader::GetShader(m_shaderPath).GetSID();
+		}
 		else
+		{
 			m_shaderID = OpenGLRenderEngine::GetDefaultShader().GetID();
+			m_shaderSID = OpenGLRenderEngine::GetDefaultShader().GetSID();
+		}
 	}
 
 
@@ -64,8 +70,6 @@ namespace Lina::Graphics
 		std::ifstream stream(path);
 		{
 			cereal::BinaryInputArchive iarchive(stream);
-
-			// Read the data into it.
 			iarchive(mat);
 		}
 	}
@@ -74,9 +78,8 @@ namespace Lina::Graphics
 	{
 		std::ofstream stream(path);
 		{
-			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
-
-			oarchive(mat); // Write the data to the archive
+			cereal::BinaryOutputArchive oarchive(stream);
+			oarchive(mat); 
 		}
 	}
 
@@ -159,9 +162,9 @@ namespace Lina::Graphics
 
 	void Material::UpdateMaterialData()
 	{
-		if (Shader::ShaderExists(m_shaderID))
+		if (Shader::ShaderExists(m_shaderSID))
 		{
-			ShaderUniformData data = Shader::GetShader(m_shaderID).GetUniformData();
+			ShaderUniformData data = Shader::GetShader(m_shaderSID).GetUniformData();
 
 			for (auto& e : data.m_colors)
 			{
@@ -235,6 +238,7 @@ namespace Lina::Graphics
 	{
 
 		material.m_shaderID = shader.GetID();
+		material.m_shaderSID = shader.GetSID();
 		material.m_shaderPath = shader.GetPath();
 	
 		if (onlySetID) return material;

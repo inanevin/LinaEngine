@@ -168,7 +168,7 @@ namespace Lina::Editor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 
-			Lina::Graphics::Shader* selected = WidgetsUtility::ShaderComboBox("##mat_shader", m_selectedMaterial->GetShaderID());
+			Lina::Graphics::Shader* selected = WidgetsUtility::ShaderComboBox("##mat_shader", m_selectedMaterial->GetShaderSID());
 			
 			if (selected != nullptr)
 				m_selectedMaterial->SetMaterialShader(*m_selectedMaterial, *selected);
@@ -180,8 +180,8 @@ namespace Lina::Editor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
 				{
-					IM_ASSERT(payload->DataSize == sizeof(uint32));
-					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::Shader::GetShader(*(uint32*)payload->m_data));
+					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::Shader::GetShader(*(StringIDType*)payload->m_data));
 
 				}
 				ImGui::EndDragDropTarget();

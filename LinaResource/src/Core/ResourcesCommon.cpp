@@ -43,7 +43,7 @@ namespace Lina::Resources
 		{ StringID("wav"), ResourceType::Audio },
 		{ StringID("mp3"), ResourceType::Audio },
 		{ StringID("ogg"), ResourceType::Audio },
-		{ StringID("linamat"), ResourceType::Material },
+		{ StringID("mat"), ResourceType::Material },
 		{ StringID("glsl"), ResourceType::GLSL },
 		{ StringID("spv"), ResourceType::SPIRV },
 	};

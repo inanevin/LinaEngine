@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-	std::map<int, Shader*> Shader::s_loadedShaders;
+	std::map<StringIDType, Shader*> Shader::s_loadedShaders;
 
 	Shader::~Shader()
 	{
@@ -60,41 +60,33 @@ namespace Lina::Graphics
 	{
 		std::string shaderText;
 		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+		StringIDType sid = StringID(path.c_str()).value();
 		Shader* shader = new Shader();
 		shader->Construct(shaderText, usesGeometryShader);
 		shader->m_path = path;
-		s_loadedShaders[shader->GetID()] = shader;
+		shader->m_sid = sid;
+		s_loadedShaders[sid] = shader;
 		return *shader;
 	}
 
 	Shader& Shader::GetShader(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedShaders.begin(), s_loadedShaders.end(), [path]
-		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
-
-		if (it == s_loadedShaders.end())
-		{
-			// Mesh not found.
-			LINA_WARN("Shader with the path {0} was not found, returning default shader", path);
-			return RenderEngineBackend::GetDefaultShader();
-		}
-
-		return *it->second;
+		return GetShader(StringID(path.c_str()).value());
 	}
 
-	Shader& Shader::GetShader(int id)
+	Shader& Shader::GetShader(StringIDType id)
 	{
+		bool shaderExists = ShaderExists(id);
+		LINA_ASSERT(shaderExists, "Shader does not exist!");
 		return *s_loadedShaders[id];
 	}
 
 	bool Shader::ShaderExists(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedShaders.begin(), s_loadedShaders.end(), [path]
-		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
-		return it != s_loadedShaders.end();
+		return ShaderExists(StringID(path.c_str()).value());
 	}
 
-	bool Shader::ShaderExists(int id)
+	bool Shader::ShaderExists(StringIDType id)
 	{
 		if (id < 0) return false;
 		return !(s_loadedShaders.find(id) == s_loadedShaders.end());
@@ -103,7 +95,7 @@ namespace Lina::Graphics
 	void Shader::UnloadAll()
 	{
 		// Delete textures.
-		for (std::map<int, Shader*>::iterator it = s_loadedShaders.begin(); it != s_loadedShaders.end(); it++)
+		for (std::map<StringIDType, Shader*>::iterator it = s_loadedShaders.begin(); it != s_loadedShaders.end(); it++)
 			delete it->second;
 
 		s_loadedShaders.clear();

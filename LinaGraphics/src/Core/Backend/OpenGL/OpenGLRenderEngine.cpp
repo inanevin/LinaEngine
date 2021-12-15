@@ -246,7 +246,7 @@ namespace Lina::Graphics
 		}
 
 	}
-	
+
 	void OpenGLRenderEngine::OnLoadModelResourceFromFile(Event::ELoadModelResourceFromFile event)
 	{
 		ModelParameters params;
@@ -263,26 +263,37 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event)
 	{
-		SamplerParameters params;
 		LINA_TRACE("[Texture Loader] -> Loading texture: {0}", event.m_path);
 
-		bool paramsExists = Utility::FileExists(event.m_paramsPath);
 
-		if (paramsExists)
-			params = Texture::LoadParameters(event.m_paramsPath);
+		if (event.m_isHDR)
+			Texture::CreateTextureHDRI(event.m_path);
+		else
+		{
+			SamplerParameters params;
+			bool paramsExists = Utility::FileExists(event.m_paramsPath);
 
-		Texture::CreateTexture2D(event.m_path, params, false, false, event.m_paramsPath);
+			if (paramsExists)
+				params = Texture::LoadParameters(event.m_paramsPath);
 
-		if (!paramsExists)
-			Texture::SaveParameters(event.m_paramsPath, params);
+			Texture::CreateTexture2D(event.m_path, params, false, false, event.m_paramsPath);
+			if (!paramsExists)
+				Texture::SaveParameters(event.m_paramsPath, params);
+		}
+
+
 	}
 
 	void OpenGLRenderEngine::OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event)
 	{
+		LINA_TRACE("[Material Loader] -> Loading material: {0}", event.m_path);
+		Material::LoadMaterialFromFile(event.m_path);
 	}
 
 	void OpenGLRenderEngine::OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event)
 	{
+		LINA_TRACE("[Shader Loader] -> Loading shader: {0}", event.m_path);
+		Shader::CreateShader(event.m_path);
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
@@ -351,9 +362,9 @@ namespace Lina::Graphics
 	{
 		bool validated = false;
 
-		std::map<int, Shader*>& loadedShaders = Shader::GetLoadedShaders();
+		std::map<StringIDType, Shader*>& loadedShaders = Shader::GetLoadedShaders();
 
-		for (std::map<int, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
+		for (std::map<StringIDType, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
 		{
 			LINA_TRACE("Validating {0}", it->second->GetPath());
 			bool success = m_renderDevice.ValidateShaderProgram(it->second->GetID());
@@ -369,10 +380,6 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::ConstructEngineMaterials()
 	{
-
-		Material::LoadMaterialFromFile("resources/engine/materials/DefaultLit.mat");
-		Material::LoadMaterialFromFile("resources/engine/materials/DefaultUnlit.mat");
-
 		Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
 		Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
 		Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
@@ -382,7 +389,6 @@ namespace Lina::Graphics
 		Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
 		Material::SetMaterialShader(s_defaultUnlit, *s_standardUnlitShader);
 		Material::SetMaterialShader(m_pLightShadowDepthMaterial, *m_pointShadowsDepthShader);
-
 		UpdateRenderSettings();
 	}
 

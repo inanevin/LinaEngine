@@ -451,7 +451,7 @@ namespace Lina::Editor
 
 			for (auto& shader : loadedShaders)
 			{
-				const bool selected = currentShaderID == shader.second->GetID();
+				const bool selected = currentShaderID == shader.second->GetSID();
 
 				std::string label = shader.second->GetPath();
 				label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));

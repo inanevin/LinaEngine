@@ -61,14 +61,15 @@ namespace Lina::Graphics
 
 		static Shader& CreateShader(const std::string& path, bool usesGeometryShader = false);
 		static Shader& GetShader(const std::string& path);
-		static Shader& GetShader(int id);
+		static Shader& GetShader(StringIDType id);
 		static bool ShaderExists(const std::string& path);
-		static bool ShaderExists(int id);
+		static bool ShaderExists(StringIDType id);
 		static void UnloadAll();
-		static std::map<int, Shader*>& GetLoadedShaders() { return s_loadedShaders; }
+		static std::map<StringIDType, Shader*>& GetLoadedShaders() { return s_loadedShaders; }
 
 
 		ShaderUniformData& GetUniformData() { return m_uniformData; }
+		StringIDType GetSID() { return m_sid; }
 		uint32 GetID() { return m_engineBoundID; }
 		const std::string& GetPath() { return m_path; }
 
@@ -78,8 +79,9 @@ namespace Lina::Graphics
 		ShaderUniformData m_uniformData;
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
+		StringIDType m_sid;
 		std::string m_path = "";
-		static std::map<int, Shader*> s_loadedShaders;
+		static std::map<StringIDType, Shader*> s_loadedShaders;
 
 	
 	};

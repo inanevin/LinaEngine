@@ -308,7 +308,7 @@ namespace Lina::Editor
 		WidgetsUtility::IncrementCursorPosX(11);
 
 		// Apply button
-		if (ImGui::Button("Apply"))
+		if (ImGui::Button("Apply", ImVec2(90, 30)))
 		{
 			params.m_anisotropy = m_currentAnisotropy;
 			params.m_textureParams.m_generateMipMaps = m_currentGenerateMips;

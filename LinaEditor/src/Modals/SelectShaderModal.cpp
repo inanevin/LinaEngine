@@ -44,9 +44,9 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);
 
-			if (ImGui::Selectable(it->second->GetPath().c_str(), selected == it->second->GetID()))
+			if (ImGui::Selectable(it->second->GetPath().c_str(), selected == it->second->GetSID()))
 			{
-				selected = it->second->GetID();
+				selected = it->second->GetSID();
 				selectedPath = it->second->GetPath();
 			}
 		}

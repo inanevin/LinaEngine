@@ -399,7 +399,7 @@ namespace Lina::Editor
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = Lina::Graphics::Shader::GetShader(it->second.m_path).GetID();
+					StringIDType id = Lina::Graphics::Shader::GetShader(it->second.m_path).GetSID();
 					ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &id, sizeof(uint32));
 
 					// Display preview 
@@ -490,9 +490,9 @@ namespace Lina::Editor
 			}
 			if (file.m_type == FileType::Material)
 			{
-				bool materialExists = Lina::Graphics::Material::MaterialExists(file.m_path);
-				if (!materialExists)
-					Lina::Graphics::Material::LoadMaterialFromFile(file.m_path);
+				//bool materialExists = Lina::Graphics::Material::MaterialExists(file.m_path);
+				//if (!materialExists)
+				//	Lina::Graphics::Material::LoadMaterialFromFile(file.m_path);
 
 			}
 			else if (file.m_type == FileType::Model)

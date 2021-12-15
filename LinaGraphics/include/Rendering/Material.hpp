@@ -186,6 +186,7 @@ namespace Lina::Graphics
 		int GetID() const { return m_materialID; }
 		const std::string& GetPath() const { return m_path; }
 		uint32 GetShaderID() { return m_shaderID; }
+		StringIDType GetShaderSID() { return m_shaderSID; }
 
 		void SetSurfaceType(MaterialSurfaceType type)
 		{
@@ -220,6 +221,7 @@ namespace Lina::Graphics
 		bool m_isShadowMapped = false;
 		std::string m_shaderPath = "";
 		uint32 m_shaderID = 0;
+		StringIDType m_shaderSID = 0;
 		std::string m_path = "";
 
 	private:

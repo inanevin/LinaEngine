@@ -119,11 +119,11 @@ namespace Lina::Event
 	//struct EImageResourceLoaded { StringIDType m_sid;  unsigned char* m_data; int32_t m_width; int32_t m_height; };
 	//struct EModelResourceLoaded { StringIDType m_sid; std::string m_path; std::string m_paramsPath; void* m_scene; ModelParameters m_params; };
 	//struct EShaderResourceLoaded { StringIDType m_sid; const char* m_data; size_t m_dataSize; };
-	struct ELoadModelResourceFromFile { std::string m_path; std::string m_paramsPath; };
-	struct ELoadImageResourceFromFile { std::string m_path; std::string m_paramsPath; };
-	struct ELoadMaterialResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadModelResourceFromFile { std::string m_path; std::string m_paramsPath;};
+	struct ELoadImageResourceFromFile { std::string m_path; std::string m_paramsPath; bool m_isHDR; };
+	struct ELoadMaterialResourceFromFile { std::string m_path; };
 	struct ELoadAudioResourceFromFile { std::string m_path; std::string m_paramsPath; };
-	struct ELoadShaderResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadShaderResourceFromFile { std::string m_path; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};
 }

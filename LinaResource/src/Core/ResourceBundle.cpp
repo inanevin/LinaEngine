@@ -145,52 +145,31 @@ namespace Lina::Resources
 		if (type == ResourceType::Image)
 		{
 			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath });
-			//ImageResource* img = new ImageResource();
-			//if (img->LoadFromFile(path))
-			//	m_imagePackage[StringID(path.c_str()).value()] = img;
-			//else
-			//	delete img;
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false});
+
+		}
+		else if (type == ResourceType::HDR)
+		{
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
 		}
 		else if (type == ResourceType::Mesh)
 		{
 			std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
 			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>( Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath} );
-
-			//ModelParameters params;
-			//
-			//// Load the parameters first if it exists.
-			//if (Utility::FileExists(paramsPath))
-			//	MeshResource::LoadParamsFromFile(paramsPath, params);
-			//else
-			//	MeshResource::SaveParamsToFile(paramsPath, params);
-			//
-			//MeshResource::LoadFromFile(file.m_fullPath, paramsPath, params);
 		}
 		else if (type == ResourceType::Audio)
 		{
-			//AudioResource* aud = new AudioResource();
-			//if (aud->LoadFromFile(path))
-			//	m_audioPackage[StringID(path.c_str()).value()] = aud;
-			//else
-			//	delete aud;
+			
 		}
 		else if (type == ResourceType::Material)
 		{
-			//MaterialResource* mat = new MaterialResource();
-			//if (mat->LoadFromFile(path))
-			//	m_materialPackage[StringID(path.c_str()).value()] = mat;
-			//else
-			//	delete mat;
+			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
 		}
-		//else if (type == ResourceType::GLSLFrag || type == ResourceType::GLSLGeo || type == ResourceType::GLSLVertex)
-		//{
-		//	ShaderResource* shader = new ShaderResource();
-		//	if (shader->LoadFromFile(path, type, eventSys))
-		//		m_shaderPackage[StringID(path.c_str()).value()] = shader;
-		//	else
-		//		delete shader;
-		//}
+		else if (type == ResourceType::GLSL)
+		{
+		
+		}
 	}
 
 }
