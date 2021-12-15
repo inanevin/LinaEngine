@@ -42,6 +42,7 @@ Timestamp: 12/22/2020 12:26:55 AM
 // Headers here.
 #include "ResourcesCommon.hpp"
 #include "ResourcePackages.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 namespace Lina
 {
@@ -70,8 +71,10 @@ namespace Lina::Resources
 		// Converts each raw package into a processed package & fills in the table.
 		void ProcessRawPackages(Event::EventSystem* eventSys);
 
-		// Fills in the corresponding processed package w/ the resource.
-		void FillProcessedPackage(const std::string& path, ResourceType type, ResourceProgressData* progData, Event::EventSystem* eventSys);
+		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData);
+
+		// Loads given resource into memory.
+		void LoadResourceIntoMemory(Utility::File& file, ResourceType type, ResourceProgressData* progData);
 
 		std::unordered_map<ResourceType, RawPackage> m_rawPackages =
 		{

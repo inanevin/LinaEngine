@@ -73,95 +73,27 @@ namespace Lina::Resources
 
 	void ResourceManager::LoadEditorResources()
 	{
+		m_currentProgressData.m_state = ResourceProgressState::Pending;
+
+		// Find resources.
 		Utility::Folder root;
 		root.m_fullPath = "resources/";
 		Utility::ScanFolder(root, true);
-		LoadResourcesInFolder(root);
+
+		// Set progress & fill.
+		m_currentProgressData.m_progressTitle = "Loading resources...";
+		m_currentProgressData.m_state = ResourceProgressState::InProgress;
+		m_currentProgressData.m_currentProgress = 0.0f;
+		std::unordered_map<std::string, ResourceType> filledResources;
+
+		// Start filling preceeded & followed by an event dispatch.
+		// m_eventSys->Trigger<Event::EResourceProgressStarted>();
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData);
+
+		// Notify listeners that unpacking has finished.
+		m_currentProgressData.m_state = ResourceProgressState::None;
 	}
 
-	void ResourceManager::LoadResourcesInFolder(Utility::Folder& root)
-	{
-		for (auto& folder : root.m_folders)
-			LoadResourcesInFolder(folder);
-
-		for (auto& file : root.m_files)
-		{
-			ResourceType type = GetResourceType(file.m_extension);
-
-			switch (type)
-			{
-			case ResourceType::Image:
-				//	Graphics::Texture::CreateTexture2D(file.m_fullPath);
-				break;
-
-			case ResourceType::HDR:
-
-				break;
-
-			case ResourceType::Mesh:
-				MeshResource::LoadFromFile(file.m_fullPath);
-				break;
-
-			case ResourceType::Audio:
-
-				break;
-
-			case ResourceType::Material:
-
-				break;
-
-			case ResourceType::GLSL:
-
-				break;
-			}
-		}
-	}
-
-
-	void ResourceManager::OnAppLoad(Event::EAppLoad& e)
-	{
-		m_appMode = e.m_appInfo->m_appMode;
-
-		m_activeLevel.AddUsedResource("Resources/test.wav");
-		m_activeLevel.AddUsedResource("Resources/Shaders/frag.spv");
-		m_activeLevel.AddUsedResource("Resources/Shaders/vert.spv");
-
-		// If we are in editor, fill our resource bundle with all the files imported in the project's Resources directory.
-		if (m_appMode == ApplicationMode::Editor)
-		{
-			m_currentProgressData.m_state = ResourceProgressState::Pending;
-
-			m_taskflow.emplace([=]()
-				{
-					// Find resources.
-					Utility::Folder root;
-					root.m_fullPath = "Resources/";
-					Utility::ScanFolder(root, true);
-
-					// Set progress & fill.
-					m_currentProgressData.m_progressTitle = "Loading resources...";
-					m_currentProgressData.m_state = ResourceProgressState::InProgress;
-					m_currentProgressData.m_currentProgress = 0.0f;
-					std::unordered_map<std::string, ResourceType> filledResources;
-
-					// Start filling preceeded & followed by an event dispatch.
-					m_eventSys->Trigger<Event::EResourceProgressStarted>();
-					FillBundleForEditor(root, filledResources, &m_currentProgressData);
-
-					// Unload all processed packages since the listeners of resource loaders already uploaded the necessary buffers to cpu.
-					// From the packages to necessary memory blocks.
-					m_bundle.UnloadProcessedPackages();
-
-					// Notify listeners that unpacking has finished.
-					m_currentProgressData.m_state = ResourceProgressState::None;
-					m_eventSys->Trigger<Event::EResourceProgressEnded>();
-				});
-
-			m_future = m_executor.run(m_taskflow);
-		}
-		//	else
-		//		ImportLevel("", "default");
-	}
 
 	void ResourceManager::ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData)
 	{
@@ -173,7 +105,6 @@ namespace Lina::Resources
 		}
 
 		LevelResource::ImportLevel(path, levelName, levelData);
-
 
 		
 		return;
@@ -241,7 +172,19 @@ namespace Lina::Resources
 	void ResourceManager::ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData)
 	{
 
+		// Setup progress data.
+		m_currentProgressData.m_state = ResourceProgressState::InProgress;
+		m_currentProgressData.m_progressTitle = "Exporting level...";
+		m_currentProgressData.m_currentResourceName = levelName + ".linalevel";
 		LevelResource::ExportLevel(path, levelName, levelData);
+
+		// Find out which resources to export.
+		std::vector<std::string> filesToPack;
+
+
+
+		// Export resources.
+		m_packager.PackageFileset(filesToPack, path + levelName + ".linabundle", PACKAGE_PASS, &m_currentProgressData);
 
 		return;
 		// Make sure we don't have any packing/unpacking going on.
@@ -295,22 +238,6 @@ namespace Lina::Resources
 	void ResourceManager::RemoveResourceReference(const std::string& path, ResourceType type)
 	{
 		m_activeLevel.RemoveUsedResource(path);
-	}
-
-	void ResourceManager::FillBundleForEditor(Utility::Folder& root, std::unordered_map<std::string, ResourceType>& filledResources, ResourceProgressData* progData)
-	{
-		for (auto& folder : root.m_folders)
-		{
-			FillBundleForEditor(folder, filledResources, progData);
-		}
-
-		// InitializeVulkan each file into memory where they will persist during the editor lifetime.
-		for (auto& file : root.m_files)
-		{
-			ResourceType resType = GetResourceType(file.m_extension);
-			m_bundle.FillProcessedPackage(file.m_fullPath, resType, progData, m_eventSys);
-			filledResources[file.m_fullPath] = resType;
-		}
 	}
 
 }

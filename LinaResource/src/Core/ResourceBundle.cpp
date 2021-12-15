@@ -86,11 +86,11 @@ namespace Lina::Resources
 				}
 				else if (package.first == ResourceType::Mesh)
 				{
-					MeshResource* mesh = new MeshResource();
-					if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size()))
-						m_meshPackage[resource.first] = mesh;
-					else
-						delete mesh;
+					//MeshResource* mesh = new MeshResource();
+					//if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size()))
+					//	m_meshPackage[resource.first] = mesh;
+					//else
+					//	delete mesh;
 				}
 				else if (package.first == ResourceType::Audio)
 				{
@@ -123,41 +123,62 @@ namespace Lina::Resources
 		UnloadRawPackages();
 	}
 
-	void ResourceBundle::FillProcessedPackage(const std::string& path, ResourceType type, ResourceProgressData* progData, Event::EventSystem* eventSys)
+	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData)
 	{
-		progData->m_currentResourceName = path;
+		for (auto& folder : root.m_folders)
+		{
+			LoadResourcesInFolder(folder, progData);
+		}
+
+		// Initialize each file into memory where they will persist during the editor lifetime.
+		for (auto& file : root.m_files)
+		{
+			ResourceType resType = GetResourceType(file.m_extension);
+			LoadResourceIntoMemory(file, resType, progData);
+		}
+	}
+
+	void ResourceBundle::LoadResourceIntoMemory(Utility::File& file, ResourceType type, ResourceProgressData* progData)
+	{
+		progData->m_currentResourceName = file.m_fullPath;
 		// InitializeVulkan the corresponding package class from memory.
 		if (type == ResourceType::Image)
 		{
-			ImageResource* img = new ImageResource();
-			if (img->LoadFromFile(path, eventSys))
-				m_imagePackage[StringID(path.c_str()).value()] = img;
-			else
-				delete img;
+			//ImageResource* img = new ImageResource();
+			//if (img->LoadFromFile(path))
+			//	m_imagePackage[StringID(path.c_str()).value()] = img;
+			//else
+			//	delete img;
 		}
 		else if (type == ResourceType::Mesh)
 		{
-			MeshResource* mesh = new MeshResource();
-			if (mesh->LoadFromFile(path))
-				m_meshPackage[StringID(path.c_str()).value()] = mesh;
+			std::string paramsPath = "";
+			paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
+			ModelParameters params;
+
+			// Load the parameters first if it exists.
+			if (Utility::FileExists(paramsPath))
+				MeshResource::LoadParamsFromFile(paramsPath, params);
 			else
-				delete mesh;
+				MeshResource::SaveParamsToFile(paramsPath, params);
+
+			MeshResource::LoadFromFile(file.m_fullPath, paramsPath, params);
 		}
 		else if (type == ResourceType::Audio)
 		{
-			AudioResource* aud = new AudioResource();
-			if (aud->LoadFromFile(path, eventSys))
-				m_audioPackage[StringID(path.c_str()).value()] = aud;
-			else
-				delete aud;
+			//AudioResource* aud = new AudioResource();
+			//if (aud->LoadFromFile(path))
+			//	m_audioPackage[StringID(path.c_str()).value()] = aud;
+			//else
+			//	delete aud;
 		}
 		else if (type == ResourceType::Material)
 		{
-			MaterialResource* mat = new MaterialResource();
-			if (mat->LoadFromFile(path, eventSys))
-				m_materialPackage[StringID(path.c_str()).value()] = mat;
-			else
-				delete mat;
+			//MaterialResource* mat = new MaterialResource();
+			//if (mat->LoadFromFile(path))
+			//	m_materialPackage[StringID(path.c_str()).value()] = mat;
+			//else
+			//	delete mat;
 		}
 		//else if (type == ResourceType::GLSLFrag || type == ResourceType::GLSLGeo || type == ResourceType::GLSLVertex)
 		//{
@@ -168,4 +189,5 @@ namespace Lina::Resources
 		//		delete shader;
 		//}
 	}
+
 }

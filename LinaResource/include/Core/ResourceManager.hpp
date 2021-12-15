@@ -99,13 +99,10 @@ namespace Lina::Resources
 		ResourceManager() {};
 		~ResourceManager() {};
 
-		void LoadResourcesInFolder(Utility::Folder& root);
 		void LoadEditorResources();
 		void DebugLevelLoad(Event::ETick& e);
 		void OnStartGame(Event::EStartGame& e);
 		void OnEndGame(Event::EEndGame& e);
-		void OnAppLoad(Event::EAppLoad& e);
-		void FillBundleForEditor(Utility::Folder& root, std::unordered_map<std::string, ResourceType>& filledResources, ResourceProgressData* progData);
 
 	private:
 

@@ -85,10 +85,16 @@ namespace Lina::Resources
 
 	void LevelResource::ExportLevel(const std::string& path, const std::string& name, LevelData& levelData)
 	{
+		const std::string finalPath = path + "/" + name + ".linalevel";
+
+		// Delete if exists.
+		if (Utility::FileExists(finalPath))
+			Utility::DeleteFileInPath(finalPath);
+
 		Lina::ECS::Registry* registry = ECS::Registry::Get();
 		{
 
-			std::ofstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
+			std::ofstream levelDataStream(finalPath, std::ios::binary);
 			{
 				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); // Build an output archive
 				//

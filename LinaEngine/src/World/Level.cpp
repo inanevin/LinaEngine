@@ -55,12 +55,9 @@ namespace Lina::World
 		if (loadFromFile)
 		{
 			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
-			{
-				//DeserializeLevelData(path, levelName);
 				LoadLevelResources();
-		
-			}
 		 }
+
 		return true;
 	}
 
@@ -86,15 +83,14 @@ namespace Lina::World
 				if (Utility::FileExists(mr.m_modelPath))
 				{
 					const std::string paramsPath = Utility::FileExists(mr.m_modelParamsPath) ? mr.m_modelParamsPath : "";
-					Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelPath, Graphics::ModelParameters(), -1, paramsPath);
-					mr.m_modelID = model.GetID();
+					//Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelPath, ModelParameters(), -1, paramsPath);
+					//mr.m_modelID = model.GetID();
 				}
 			}
 			else
 			{
 				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
 			}
-
 
 			// Load all the materials pointed by the model renderer.
 			for (int i = 0; i < mr.m_materialPaths.size(); i++)
@@ -188,37 +184,4 @@ namespace Lina::World
 			renderEngine->SetSkyboxMaterial(nullptr);
 	}
 
-
-	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
-	{
-		Lina::ECS::Registry* registry = ECS::Registry::Get();
-		{
-
-			std::ofstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
-			{
-				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); // Build an output archive
-				//
-				oarchive(m_levelData); // write the level data to the archive.
-				registry->SerializeComponentsInRegistry(oarchive);
-			}
-		}
-	}
-
-	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
-	{
-		Lina::ECS::Registry* registry = ECS::Registry::Get();
-
-		{
-			std::ifstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
-			{
-				cereal::PortableBinaryInputArchive iarchive(levelDataStream);
-
-				// Read the data into it.
-				iarchive(m_levelData);
-
-				registry->clear();
-				registry->DeserializeComponentsInRegistry(iarchive);
-			}
-		}
-	}
 }

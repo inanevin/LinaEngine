@@ -60,16 +60,15 @@ namespace Lina::Graphics
 		Model() {};
 		virtual ~Model();
 
-		static Model& CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams = ModelParameters(), int id = -1, const std::string& paramsPath = "");
-		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), int id = -1, const std::string& paramsPath = "");
-		static Model& GetModel(int id);
+		static Model& CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams = ModelParameters(), const std::string& filePath = "", const std::string & paramsPath = "");
+		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), const std::string& paramsPath = "");
+		static Model& GetModel(StringIDType id);
 		static Model& GetModel(const std::string& path);
-		static bool ModelExists(int id);
+		static bool ModelExists(StringIDType id);
 		static bool ModelExists(const std::string& path);
-		static void UnloadModel(int id);
-		static Model& GetPrimitive(Primitives primitive);
+		static void UnloadModel(StringIDType id);
 		static void UnloadAll();
-		static std::map<int, Model>& GetLoadedModels() { return s_loadedMeshes; }
+		static std::map<StringIDType, Model>& GetLoadedModels() { return s_loadedModels; }
 
 		std::vector<Mesh>& GetMeshes()
 		{
@@ -86,8 +85,6 @@ namespace Lina::Graphics
 			return m_skeleton;
 		}
 
-		static ModelParameters LoadParameters(const std::string& path);
-		static void SaveParameters(const std::string& path, ModelParameters params);
 		void SetParameters(ModelParameters params) { m_parameters = params; }
 		ModelParameters& GetParameters() { return m_parameters; }
 		ModelSceneParameters& GetWorldParameters() { return m_worldParameters; }
@@ -98,7 +95,7 @@ namespace Lina::Graphics
 
 	private:
 
-		static std::map<int, Model> s_loadedMeshes;
+		static std::map<StringIDType, Model> s_loadedModels;
 
 		friend class OpenGLRenderEngine;
 		int m_meshID = -1;

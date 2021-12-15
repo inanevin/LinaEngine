@@ -912,9 +912,9 @@ namespace Lina::Editor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
 				{
-					IM_ASSERT(payload->DataSize == sizeof(uint32));
+					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
 
-					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto& model = Lina::Graphics::Model::GetModel(*(StringIDType*)payload->m_data);
 					renderer.SetModel(ecs, entity, model);
 				}
 				ImGui::EndDragDropTarget();

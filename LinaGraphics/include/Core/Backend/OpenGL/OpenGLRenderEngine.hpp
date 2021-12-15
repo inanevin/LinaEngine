@@ -145,13 +145,12 @@ namespace Lina::Graphics
 
 	private:
 
-		void OnMeshResourceLoaded(Event::EMeshResourceLoaded event);
+		void OnModelResourceLoaded(Event::EModelResourceLoaded event);
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
 		void ConstructEngineShaders();
 		bool ValidateEngineShaders();
 		void ConstructEngineMaterials();
-		void ConstructEnginePrimitives();
 		void ConstructRenderTargets();
 		void DumpMemory();
 		void Draw();

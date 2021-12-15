@@ -386,8 +386,8 @@ namespace Lina::Editor
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = Lina::Graphics::Model::GetModel(it->second.m_path).GetID();
-					ImGui::SetDragDropPayload(RESOURCES_MOVEMESH_ID, &id, sizeof(uint32));
+					StringIDType id = Lina::Graphics::Model::GetModel(it->second.m_path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVEMESH_ID, &id, sizeof(StringIDType));
 
 					// Display preview 
 					ImGui::Text("Assign ");
@@ -501,15 +501,15 @@ namespace Lina::Editor
 
 				if (!meshExists)
 				{
-					Lina::Graphics::ModelParameters meshParams;
-					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".modelparams";
+					//Lina::Graphics::ModelParameters meshParams;
+					//std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".modelparams";
+					//
+					//if (Lina::Utility::FileExists(meshParamsPath))
+					//	meshParams = Lina::Graphics::Model::LoadParameters(meshParamsPath);
+					//
+					//Lina::Graphics::Model::CreateModel(file.m_path, meshParams, -1, meshParamsPath);
 
-					if (Lina::Utility::FileExists(meshParamsPath))
-						meshParams = Lina::Graphics::Model::LoadParameters(meshParamsPath);
-
-					Lina::Graphics::Model::CreateModel(file.m_path, meshParams, -1, meshParamsPath);
-
-					Lina::Graphics::Model::SaveParameters(meshParamsPath, meshParams);
+					//Lina::Graphics::Model::SaveParameters(meshParamsPath, meshParams);
 				}
 			}
 		}

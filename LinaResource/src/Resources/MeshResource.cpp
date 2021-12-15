@@ -30,18 +30,36 @@ SOFTWARE.
 #include "EventSystem/Events.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Log/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <cereal/archives/portable_binary.hpp>
+#include <fstream>
 
 namespace Lina::Resources
 {
 
-	bool MeshResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize)
+	bool MeshResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, ModelParameters& params)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32_t importFlags = 0;
+
+		if (params.m_calculateTangentSpace)
+			importFlags |= aiProcess_CalcTangentSpace;
+
+		if (params.m_triangulate)
+			importFlags |= aiProcess_Triangulate;
+
+		if (params.m_smoothNormals)
+			importFlags |= aiProcess_GenSmoothNormals;
+
+		if (params.m_flipUVs)
+			importFlags |= aiProcess_FlipUVs;
+
+		if (params.m_flipWinding)
+			importFlags |= aiProcess_FlipWindingOrder;
 
 		const aiScene* scene = importer.ReadFileFromMemory(buffer, bufferSize, importFlags);
 
@@ -52,20 +70,32 @@ namespace Lina::Resources
 		}
 
 		// Trigger event w/ data
-		Lina::Event::EventSystem::Get()->Trigger<Event::EMeshResourceLoaded>({ sid, (void*)scene });
+		Lina::Event::EventSystem::Get()->Trigger<Event::EModelResourceLoaded>({ sid, "", "", (void*)scene, params});
 
 		LINA_TRACE("[Mesh Loader] -> Mesh loaded from memory.");
 		return true;
 	}
 
-	bool MeshResource::LoadFromFile(const std::string& path)
+	bool MeshResource::LoadFromFile(const std::string& path, const std::string& paramsPath, ModelParameters& params)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32_t importFlags = 0;
-		importFlags |= aiProcess_CalcTangentSpace;
-		importFlags |= aiProcess_Triangulate;
-		importFlags |= aiProcess_GenSmoothNormals;
+
+		if (params.m_calculateTangentSpace)
+			importFlags |= aiProcess_CalcTangentSpace;
+
+		if (params.m_triangulate)
+			importFlags |= aiProcess_Triangulate;
+
+		if (params.m_smoothNormals)
+			importFlags |= aiProcess_GenSmoothNormals;
+
+		if (params.m_flipUVs)
+			importFlags |= aiProcess_FlipUVs;
+
+		if (params.m_flipWinding)
+			importFlags |= aiProcess_FlipWindingOrder;
 
 		const aiScene* scene = importer.ReadFile(path.c_str(), importFlags);
 
@@ -74,11 +104,38 @@ namespace Lina::Resources
 			LINA_ERR("[Mesh Loader] -> Mesh loading failed: {0}", path.c_str());
 			return false;
 		}
-
+		
 		// Trigger event w/ data
-		Lina::Event::EventSystem::Get()->Trigger<Event::EMeshResourceLoaded>({ StringID(path.c_str()).value(), (void*)scene });
+		Lina::Event::EventSystem::Get()->Trigger<Event::EModelResourceLoaded>({ StringID(path.c_str()).value(), path, paramsPath, (void*)scene, params });
 
 		LINA_TRACE("[Mesh Loader] -> Mesh loaded from file: {0}", path);
+		return true;
+	}
+
+	bool Lina::Resources::MeshResource::LoadParamsFromFile(const std::string& path, ModelParameters& params)
+	{
+		std::ifstream stream(path, std::ios::binary);
+		{
+			cereal::PortableBinaryInputArchive iarchive(stream);
+			iarchive(params);
+			LINA_TRACE("[Mesh Loader] -> Mesh params loaded from file: {0}", path);
+		}
+
+		return true;
+	}
+
+	bool Lina::Resources::MeshResource::SaveParamsToFile(const std::string& path, ModelParameters& params)
+	{
+		// Delete if exists.
+		if (Utility::FileExists(path))
+			Utility::DeleteFileInPath(path);
+
+		std::ofstream levelDataStream(path, std::ios::binary);
+		{
+			cereal::PortableBinaryOutputArchive oarchive(levelDataStream);
+			oarchive(params); 
+		}
+
 		return true;
 	}
 

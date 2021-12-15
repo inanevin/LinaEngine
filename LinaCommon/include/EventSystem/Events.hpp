@@ -116,7 +116,7 @@ namespace Lina::Event
 	// Resources.
 	struct EAudioResourceLoaded { StringIDType m_sid;  void* m_data; int m_dataSize; int m_format; float m_freq; };
 	struct EImageResourceLoaded { StringIDType m_sid;  unsigned char* m_data; int32_t m_width; int32_t m_height; };
-	struct EMeshResourceLoaded { StringIDType m_sid; void* m_scene; };
+	struct EModelResourceLoaded { StringIDType m_sid; std::string m_path; std::string m_paramsPath; void* m_scene; ModelParameters m_params; };
 	struct EShaderResourceLoaded { StringIDType m_sid; const char* m_data; size_t m_dataSize; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};

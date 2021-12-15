@@ -39,7 +39,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-	std::map<int, Model> Model::s_loadedMeshes;
+	std::map<StringIDType, Model> Model::s_loadedModels;
 
 	Model::~Model()
 	{
@@ -47,20 +47,17 @@ namespace Lina::Graphics
 		m_materialSpecArray.clear();
 	}
 
-	Model& Model::CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams, int id, const std::string& paramsPath)
+	Model& Model::CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams, const std::string& filePath, const std::string& paramsPath)
 	{
-			// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
-		if (id == -1) id = Utility::GetUniqueID();
-
-		Model& model = s_loadedMeshes[id];
+		Model& model = s_loadedModels[sid];
 		model.SetParameters(meshParams);
 		ModelLoader::LoadModel(scene, model);
 
 		if (model.GetMeshes().size() == 0)
 		{
 			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...");
-			UnloadModel(id);
-			return GetPrimitive(Primitives::Plane);
+			UnloadModel(sid);
+			return s_loadedModels[0];
 		}
 
 		// Build vertex array for each model.
@@ -70,28 +67,27 @@ namespace Lina::Graphics
 		}
 
 		// Set id
-		model.m_meshID = id;
-		// model.m_path = filePath;
+		model.m_meshID = sid;
+		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
 
 		LINA_TRACE("Mesh created. ");
-		return s_loadedMeshes[id];
+		return s_loadedModels[sid];
 	}
 
-	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams, int id, const std::string& paramsPath)
+	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams,  const std::string& paramsPath)
 	{
-		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
-		if (id == -1) id = Utility::GetUniqueID();
+		StringIDType id = StringID(filePath.c_str()).value();
 
-		Model& model = s_loadedMeshes[id];
+		Model& model = s_loadedModels[id];
 		model.SetParameters(meshParams);
 		ModelLoader::LoadModel(filePath, model, meshParams);
 
 		if (model.GetMeshes().size() == 0)
 		{
-			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad... {0}", filePath);
+			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning default mesh {0}", filePath);
 			UnloadModel(id);
-			return GetPrimitive(Primitives::Plane);
+			return s_loadedModels[0];
 		}
 
 		// Build vertex array for each model.
@@ -106,50 +102,38 @@ namespace Lina::Graphics
 		model.m_paramsPath = paramsPath;
 
 		LINA_TRACE("Mesh created. {0}", filePath);
-		return s_loadedMeshes[id];
+		return s_loadedModels[id];
 	}
 
-	Model& Model::GetModel(int id)
+	Model& Model::GetModel(StringIDType id)
 	{
 		if (!ModelExists(id))
 		{
 			// Mesh not found.
-			LINA_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
+			LINA_WARN("Mesh with the id was not found, returning un-constructed mesh...");
 			return Model();
 		}
 
-		return s_loadedMeshes[id];
+		return s_loadedModels[id];
 	}
 
 	Model& Model::GetModel(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
-		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
-
-		if (it == s_loadedMeshes.end())
-		{
-			// Mesh not found.
-			LINA_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
-			return Model();
-		}
-
-		return it->second;
+		return GetModel(StringID(path.c_str()).value());
 	}
 
-	bool Model::ModelExists(int id)
+	bool Model::ModelExists(StringIDType id)
 	{
 		if (id < 0) return false;
-		return !(s_loadedMeshes.find(id) == s_loadedMeshes.end());
+		return !(s_loadedModels.find(id) == s_loadedModels.end());
 	}
 
 	bool Model::ModelExists(const std::string& path)
 	{
-		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
-		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
-		return it != s_loadedMeshes.end();
+		return ModelExists(StringID(path.c_str()).value());
 	}
 
-	void Model::UnloadModel(int id)
+	void Model::UnloadModel(StringIDType id)
 	{
 		if (!ModelExists(id))
 		{
@@ -157,49 +141,14 @@ namespace Lina::Graphics
 			return;
 		}
 
-		s_loadedMeshes.erase(id);
-	}
-
-	Model& Model::GetPrimitive(Primitives primitive)
-	{
-		if (!ModelExists(primitive))
-		{
-			// VA not found.
-			LINA_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
-			return GetPrimitive(Primitives::Plane);
-		}
-		else
-			return s_loadedMeshes[primitive];
+		s_loadedModels.erase(id);
 	}
 
 	void Model::UnloadAll()
 	{
-		s_loadedMeshes.clear();
+		s_loadedModels.clear();
 	}
 
-	ModelParameters Model::LoadParameters(const std::string& path)
-	{
-		ModelParameters params;
-
-		std::ifstream stream(path);
-		{
-			cereal::BinaryInputArchive iarchive(stream);
-
-			// Read the data into it.
-			iarchive(params);
-		}
-
-		return params;
-	}
-
-	void Model::SaveParameters(const std::string& path, ModelParameters params)
-	{
-		std::ofstream stream(path);
-		{
-			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
-
-			oarchive(params); // Write the data to the archive
-		}
-	}
+	
 }
 

@@ -76,7 +76,7 @@ namespace Lina::Graphics
 
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
 		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
-		m_eventSystem->Connect<Event::EMeshResourceLoaded, &OpenGLRenderEngine::OnMeshResourceLoaded>(this);
+		m_eventSystem->Connect<Event::EModelResourceLoaded, &OpenGLRenderEngine::OnModelResourceLoaded>(this);
 
 		// Flip loaded images.
 		ArrayBitmap::SetImageFlip(true);
@@ -108,9 +108,6 @@ namespace Lina::Graphics
 
 		// Initialize engine materials
 		ConstructEngineMaterials();
-
-		// Initialize engine vertex arrays.
-		ConstructEnginePrimitives();
 
 		// Initialize built-in vertex array objects.
 		m_skyboxVAO = m_renderDevice.CreateSkyboxVertexArray();
@@ -246,9 +243,9 @@ namespace Lina::Graphics
 
 	}
 
-	void OpenGLRenderEngine::OnMeshResourceLoaded(Event::EMeshResourceLoaded event)
+	void OpenGLRenderEngine::OnModelResourceLoaded(Event::EModelResourceLoaded event)
 	{
-		Model::CreateModel(event.m_sid, event.m_scene);
+		Model::CreateModel(event.m_sid, event.m_scene, event.m_params, event.m_path, event.m_paramsPath);
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
@@ -352,16 +349,6 @@ namespace Lina::Graphics
 		UpdateRenderSettings();
 	}
 
-	void OpenGLRenderEngine::ConstructEnginePrimitives()
-	{
-		// Primitives
-		Model::CreateModel("resources/engine/meshes/primitives/cube.fbx", ModelParameters(), Primitives::Cube);
-		Model::CreateModel("resources/engine/meshes/primitives/cylinder.fbx", ModelParameters(), Primitives::Cylinder);
-		Model::CreateModel("resources/engine/meshes/primitives/capsule.fbx", ModelParameters(), Primitives::Capsule);
-		Model::CreateModel("resources/engine/meshes/primitives/quad.fbx", ModelParameters(), Primitives::Quad);
-		Model::CreateModel("resources/engine/meshes/primitives/plane.fbx", ModelParameters(), Primitives::Plane);
-		Model::CreateModel("resources/engine/meshes/primitives/sphere.fbx", ModelParameters(), Primitives::Sphere);
-	}
 
 	void OpenGLRenderEngine::ConstructRenderTargets()
 	{

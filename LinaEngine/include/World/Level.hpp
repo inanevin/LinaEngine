@@ -71,8 +71,6 @@ namespace Lina::World
 		virtual void Initialize() {};
 		virtual void Tick(Lina::Event::ETick ev) {};
 
-		void SerializeLevelData(const std::string& path, const std::string& levelName);
-		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 		void SetSkyboxMaterial();
 		LevelData& GetLevelData() { return m_levelData; }
 
