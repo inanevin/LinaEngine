@@ -97,9 +97,9 @@ namespace Lina::Resources
 		m_currentProgressData.m_currentProgress = 0.0f;
 		std::unordered_map<std::string, ResourceType> filledResources;
 
-		// Start filling preceeded & followed by an event dispatch.
-		// m_eventSys->Trigger<Event::EResourceProgressStarted>();
-		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData);
+		// Load all editor resources, first only load shaders, then load the rest..
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, ResourceType::GLSL);
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, ResourceType::Unknown, ResourceType::GLSL);
 
 		// Notify listeners that unpacking has finished.
 		m_currentProgressData.m_state = ResourceProgressState::None;
@@ -189,7 +189,7 @@ namespace Lina::Resources
 		LevelResource::ExportLevel(path, levelName, levelData);
 	}
 
-	void ResourceManager::PackageProject(const std::string& path, const std::string& levelName)
+	void ResourceManager::PackageProject(const std::string& path, const std::string& name)
 	{
 		// Find out which resources to export.
 		std::vector<std::string> filesToPack;
@@ -200,7 +200,35 @@ namespace Lina::Resources
 		AddAllResourcesToPack(filesToPack, root);
 		
 		// Export resources.
-		m_packager.PackageFileset(filesToPack, path + levelName + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS, &m_currentProgressData);
+		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS, &m_currentProgressData);
+	}
+
+	void ResourceManager::ImportResourceBundle(const std::string& path, const std::string& name)
+	{
+		const std::string fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
+		if (!Utility::FileExists(fullPath))
+		{
+			LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
+			return;
+		}
+		std::string fullBundlePath = fullPath;
+		m_currentProgressData.m_progressTitle = "Unpacking level resources...";
+		m_currentProgressData.m_currentResourceName = fullBundlePath;
+
+		// Start unpacking process, preceeded & followed by an event dispatch.
+		// m_eventSys->Trigger<Event::EResourceProgressStarted>();
+
+		// Start unpacking.
+		std::unordered_map<std::string, ResourceType> unpackedResources;
+		m_packager.Unpack(fullBundlePath, PACKAGE_PASS, &m_bundle, &m_currentProgressData, unpackedResources);
+
+		m_bundle.LoadAllMemoryMaps();
+
+		// Set progress end.
+		m_currentProgressData.m_state = ResourceProgressState::None;
+		m_currentProgressData.m_progressTitle = "";
+		m_currentProgressData.m_currentResourceName = "";
+		m_currentProgressData.m_currentProgress = 0;
 	}
 
 }

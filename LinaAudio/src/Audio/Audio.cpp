@@ -32,6 +32,7 @@ SOFTWARE.
 #include <AL/alc.h>
 #include <AL/alut.h>
 #include <fstream>
+#include <cereal/archives/portable_binary.hpp>
 
 namespace Lina::Audio
 {
@@ -42,7 +43,74 @@ namespace Lina::Audio
 		alDeleteBuffers(1, &m_buffer);
 	}
 
-	Audio& Audio::CreateAudio(const std::string& path)
+	AudioParameters Audio::LoadParameters(const std::string& path)
+	{
+		AudioParameters params;
+		std::ifstream stream(path);
+		{
+			cereal::PortableBinaryInputArchive iarchive(stream);
+			iarchive(params);
+		}
+		return params;
+	}
+
+	void Audio::SaveParameters(const std::string& path, AudioParameters params)
+	{
+		std::ofstream stream(path);
+		{
+			cereal::PortableBinaryOutputArchive oarchive(stream);
+			oarchive(params);
+		}
+	}
+
+	AudioParameters Audio::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	{
+		AudioParameters params;
+
+		{
+			std::string data((char*)data, dataSize);
+			std::istringstream stream(data);
+			{
+				cereal::PortableBinaryInputArchive iarchive(stream);
+				iarchive(params);
+			}
+		}
+
+		return params;
+	}
+
+
+	Audio& Audio::CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioParameters& params)
+	{
+		ALsizei size;
+		ALfloat freq;
+		ALenum format;
+		ALvoid* aldata = alutLoadMemoryFromFileImage(data, dataSize, &format, &size, &freq);
+
+		ALenum err = alutGetError();
+		LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
+
+		StringIDType sid = StringID(path.c_str()).value();
+		Audio& aud = s_loadedAudios[sid];
+		aud.m_data = aldata;
+		aud.m_format = format;
+		aud.m_size = size;
+		aud.m_freq = freq;
+		aud.m_sid = sid;
+		aud.m_params = params;
+
+		alGenBuffers((ALuint)1, &aud.m_buffer);
+		alBufferData(aud.m_buffer, format, aldata, size, freq);
+		free(aldata);
+
+#ifndef LINA_PRODUCTION_BUILD
+		CheckForError();
+#endif
+
+		return s_loadedAudios[sid];
+	}
+
+	Audio& Audio::CreateAudio(const std::string& path, AudioParameters& params)
     {
 		ALsizei size;
 		ALfloat freq;
@@ -59,6 +127,7 @@ namespace Lina::Audio
 		aud.m_size = size;
 		aud.m_freq = freq;
 		aud.m_sid = sid;
+		aud.m_params = params;
 
 		alGenBuffers((ALuint)1, &aud.m_buffer);
 		alBufferData(aud.m_buffer, format, data, size, freq);

@@ -56,6 +56,11 @@ namespace Lina::Graphics
 		m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
 	}
 
+	Shader& Shader::CreateShaderFromMemory(unsigned char* data, size_t dataSize, bool usesGeometryShader)
+	{
+		return Shader();	// TODO: insert return statement here
+	}
+
 	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader)
 	{
 		std::string shaderText;

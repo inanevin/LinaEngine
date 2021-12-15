@@ -183,6 +183,11 @@ namespace Lina::Graphics
 		return params;
 	}
 
+	SamplerParameters Texture::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	{
+		return SamplerParameters();
+	}
+
 	void Texture::SaveParameters(const std::string& path, SamplerParameters params)
 	{
 		std::ofstream stream(path);
@@ -191,6 +196,16 @@ namespace Lina::Graphics
 
 			oarchive(params); // Write the data to the archive
 		}
+	}
+
+	Texture& Texture::CreateTexture2D(unsigned char* data, size_t dataSize, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
+	{
+		return Texture();
+	}
+
+	Texture& Texture::CreateTextureHDRI(unsigned char* data, size_t dataSize)
+	{
+		return Texture();
 	}
 
 	Texture& Texture::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)

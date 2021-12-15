@@ -43,7 +43,7 @@ namespace Lina::Resources
 			p.second.clear();
 
 		m_rawPackages.clear();
-			
+
 		LINA_TRACE("[Resource Bundle] -> Raw bundle unloaded.");
 	}
 
@@ -84,7 +84,7 @@ namespace Lina::Resources
 					else
 						delete img;
 				}
-				else if (package.first == ResourceType::Mesh)
+				else if (package.first == ResourceType::Model)
 				{
 					//MeshResource* mesh = new MeshResource();
 					//if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size()))
@@ -97,7 +97,7 @@ namespace Lina::Resources
 					AudioResource* aud = new AudioResource();
 					if (aud->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
 						m_audioPackage[resource.first] = aud;
-					else 
+					else
 						delete aud;
 				}
 				else if (package.first == ResourceType::Material)
@@ -123,29 +123,151 @@ namespace Lina::Resources
 		UnloadRawPackages();
 	}
 
-	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData)
+	void ResourceBundle::PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data)
+	{
+		StringIDType sid = StringID(path.c_str()).value();
+
+		if (type == ResourceType::Image)
+		{
+			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			//Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
+			// Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{ path, &data[0], data.size() });
+
+		}
+
+		else if (type == ResourceType::ImageParams)
+		{
+
+		}
+		else if (type == ResourceType::HDR)
+		{
+			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			//Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
+		}
+		else if (type == ResourceType::Model)
+		{
+			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
+			//Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>(Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath });
+		}
+		else if (type == ResourceType::ModelParams)
+		{
+
+		}
+		else if (type == ResourceType::Audio)
+		{
+			//Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromMemory>(Event::ELoadAudioResourceFromMemory{path, &data[0], data.size()});
+			m_audios[path] = data;
+			data.clear();
+
+			// std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+			// Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
+		}
+		else if (type == ResourceType::AudioParams)
+		{
+			m_audioParameters[path] = data;
+			data.clear();
+		}
+		else if (type == ResourceType::Material)
+		{
+			//Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
+		}
+		else if (type == ResourceType::GLSL)
+		{
+			//Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
+		}
+	}
+
+	void ResourceBundle::LoadAllMemoryMaps()
+	{
+		for (auto& audio : m_audios)
+		{
+			std::string nameOnly = Utility::GetFileWithoutExtension(audio.first);
+			std::string paramsName = nameOnly + ".audioparams";
+
+			// If parameters were pushed into the map, load with params, if not, load as default.
+			if (m_audioParameters.find(paramsName) != m_audioParameters.end())
+			{
+				Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromMemory>(Event::ELoadAudioResourceFromMemory{
+					audio.first, &audio.second[0], audio.second.size(),
+					paramsName, &m_audioParameters[paramsName][0], m_audioParameters[paramsName].size() });
+			}
+			else
+			{
+				Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromMemory>(Event::ELoadAudioResourceFromMemory{
+					audio.first, &audio.second[0], audio.second.size(),
+					"", nullptr, 0 });
+			}
+		}
+
+		for (auto& image : m_images)
+		{
+			std::string nameOnly = Utility::GetFileWithoutExtension(image.first);
+			std::string paramsName = nameOnly + ".samplerparams";
+
+			// If parameters were pushed into the map, load with params, if not, load as default.
+			if (m_imageParameters.find(paramsName) != m_imageParameters.end())
+			{
+				Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{
+					image.first, &image.second[0], image.second.size(),
+					paramsName, &m_imageParameters[paramsName][0], m_imageParameters[paramsName].size() , false });
+			}
+			else
+			{
+				Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{
+					image.first, &image.second[0], image.second.size(),
+					"", nullptr, 0, false });
+			}
+		}
+
+
+		for (auto v : m_images)
+			v.second.clear();
+
+		for (auto v : m_imageParameters)
+			v.second.clear();
+
+		for (auto v : m_audioParameters)
+			v.second.clear();
+
+		for (auto v : m_audios)
+			v.second.clear();
+
+		m_audioParameters.clear();
+		m_audios.clear();
+		m_imageParameters.clear();
+		m_images.clear();
+	}
+
+	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, ResourceType onlyLoad, ResourceType exclude)
 	{
 		for (auto& folder : root.m_folders)
 		{
-			LoadResourcesInFolder(folder, progData);
+			LoadResourcesInFolder(folder, progData, onlyLoad, exclude);
 		}
 
 		// Initialize each file into memory where they will persist during the editor lifetime.
 		for (auto& file : root.m_files)
 		{
 			ResourceType resType = GetResourceType(file.m_extension);
-			LoadResourceIntoMemory(file, resType, progData);
+
+			if (onlyLoad != ResourceType::Unknown && resType != onlyLoad)
+				continue;
+
+			if (exclude != ResourceType::Unknown && resType == exclude)
+				continue;
+
+			LoadResourceFromFile(file, resType, progData);
+			progData->m_currentResourceName = file.m_fullPath;
+			progData->m_progressTitle = "Loading resources in folder...";
 		}
 	}
 
-	void ResourceBundle::LoadResourceIntoMemory(Utility::File& file, ResourceType type, ResourceProgressData* progData)
+	void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData)
 	{
-		progData->m_currentResourceName = file.m_fullPath;
-		// InitializeVulkan the corresponding package class from memory.
 		if (type == ResourceType::Image)
 		{
 			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false});
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
 
 		}
 		else if (type == ResourceType::HDR)
@@ -153,15 +275,15 @@ namespace Lina::Resources
 			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
 			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
 		}
-		else if (type == ResourceType::Mesh)
+		else if (type == ResourceType::Model)
 		{
 			std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>( Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath} );
+			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>(Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath });
 		}
 		else if (type == ResourceType::Audio)
 		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
+			// std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+			// Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
 		}
 		else if (type == ResourceType::Material)
 		{

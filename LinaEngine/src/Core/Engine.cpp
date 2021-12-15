@@ -34,6 +34,7 @@ SOFTWARE.
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "Audio/Audio.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/Timer.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -69,8 +70,6 @@ namespace Lina
 		m_eventSystem.Initialize();
 		m_inputEngine.Initialize();
 
-	
-
 		// Build main window.
 		bool windowCreationSuccess = m_window.CreateContext(appInfo);
 		if (!windowCreationSuccess)
@@ -79,6 +78,14 @@ namespace Lina
 			return;
 		}
 
+		m_renderEngine.ConnectEvents();
+		m_audioEngine.Initialize();
+		//if (appInfo.m_appMode == ApplicationMode::Editor)
+		//	m_resourceManager.LoadEditorResources();
+
+		m_resourceManager.LoadEditorResources();
+		m_resourceManager.ImportResourceBundle("resources/", "Example");
+
 		// Set event callback for main window.
 		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
 
@@ -86,7 +93,7 @@ namespace Lina
 		m_ecs.Initialize();
 		m_physicsEngine.Initialize();
 		m_renderEngine.Initialize(appInfo.m_appMode);
-		m_audioEngine.Initialize();
+	
 
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
@@ -106,10 +113,8 @@ namespace Lina
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;
 
-
-		if (appInfo.m_appMode == ApplicationMode::Editor)
-			m_resourceManager.LoadEditorResources();
-
+		if (m_appInfo.m_appMode == ApplicationMode::Editor)
+			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/engine/audio/lina_init.wav"));
 	}
 
 	void Engine::Run()

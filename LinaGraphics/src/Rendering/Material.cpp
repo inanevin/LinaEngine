@@ -160,6 +160,12 @@ namespace Lina::Graphics
 		return s_loadedMaterials[id];
 	}
 
+	Material& Material::LoadMaterialFromMemory(unsigned char* data, size_t dataSize)
+	{
+		return Material();
+		// TODO: insert return statement here
+	}
+
 	void Material::UpdateMaterialData()
 	{
 		if (Shader::ShaderExists(m_shaderSID))

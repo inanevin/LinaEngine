@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,6 +30,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "ECS/ECS.hpp"
 #include "Log/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "Audio/Audio.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -91,17 +92,20 @@ namespace Lina::Audio
 		alutInit(NULL, NULL);
 
 		Event::EventSystem::Get()->Connect<Event::ELoadAudioResourceFromFile, &OpenALAudioEngine::OnLoadAudioFromFile>(this);
+		Event::EventSystem::Get()->Connect<Event::ELoadAudioResourceFromMemory, &OpenALAudioEngine::OnLoadAudioFromMemory>(this);
 	}
 
 	void OpenALAudioEngine::Shutdown()
 	{
 		LINA_TRACE("[Shutdown] -> Audio Engine ({0})", typeid(*this).name());
-		Audio::UnloadAll();
-		
+
 		for (auto& s : m_generatedSources)
 			alDeleteSources((ALuint)1, &s.second);
 
 		m_generatedSources.clear();
+
+		Audio::UnloadAll();
+
 	}
 
 	void OpenALAudioEngine::PlayOneShot(Audio& audio, float gain, bool looping, float pitch, Vector3 position, Vector3 velocity)
@@ -117,7 +121,7 @@ namespace Lina::Audio
 		}
 		else
 			source = m_generatedSources[sid];
-		
+
 		alSourcef(source, AL_PITCH, pitch);
 		alSourcef(source, AL_GAIN, gain);
 		alSource3f(source, AL_POSITION, position.x, position.y, position.z);
@@ -135,24 +139,45 @@ namespace Lina::Audio
 
 		if (!list)
 		{
-			LINA_TRACE("[Audio Engine OpenAL] -> None");
+			LINA_INFO("[Audio Engine OpenAL] -> None");
 		}
 		else
 		{
 			nptr = ptr;
 			while (*(nptr += strlen(ptr) + 1) != 0)
 			{
-				LINA_TRACE("[Audio Engine OpenAL] -> {0}", ptr);
+				LINA_INFO("[Audio Engine OpenAL] -> {0}", ptr);
 				ptr = nptr;
 			}
-			LINA_TRACE("[Audio Engine OpenAL] -> {0}", ptr);
+			LINA_INFO("[Audio Engine OpenAL] -> {0}", ptr);
 		}
 	}
 
 	void OpenALAudioEngine::OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev)
 	{
-		LINA_TRACE("[Audio Loader] -> Loading audio: {0}", ev.m_path);
-		Audio::CreateAudio(ev.m_path);
+		LINA_TRACE("[Audio Loader] -> Loading audio (file): {0}", ev.m_path);
+
+		std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".audioparams";
+		AudioParameters params;
+
+		if (Utility::FileExists(paramsPath))
+			params = Audio::LoadParameters(paramsPath);
+		else
+			Audio::SaveParameters(paramsPath, params);
+
+		Audio::CreateAudio(ev.m_path, params);
+	}
+
+	void OpenALAudioEngine::OnLoadAudioFromMemory(Event::ELoadAudioResourceFromMemory ev)
+	{
+		LINA_TRACE("[Audio Loader] -> Loading audio (memory): {0}", ev.m_path);
+
+		AudioParameters params;
+
+		if (ev.m_paramsData != nullptr)
+			params = Audio::LoadParametersFromMemory(ev.m_paramsData, ev.m_paramsDataSize);
+
+		Audio::CreateAudioFromMemory(ev.m_path, ev.m_data, ev.m_dataSize, params);
 	}
 
 }

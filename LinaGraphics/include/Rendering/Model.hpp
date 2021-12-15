@@ -62,6 +62,8 @@ namespace Lina::Graphics
 
 		static ModelParameters LoadParameters(const std::string& path);
 		static void SaveParameters(const std::string& path, ModelParameters params);
+		static ModelParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
+		static Model& CreateModel(unsigned char* data, size_t dataSize, ModelParameters modelParams = ModelParameters());
 		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), const std::string& paramsPath = "");
 		static Model& GetModel(StringIDType id);
 		static Model& GetModel(const std::string& path);

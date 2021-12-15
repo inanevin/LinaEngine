@@ -35,6 +35,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
+#include "Rendering/Model.hpp"
 
 namespace Lina::Graphics
 {
@@ -65,6 +66,16 @@ namespace Lina::Graphics
 			cereal::BinaryOutputArchive oarchive(stream);
 			oarchive(params); 
 		}
+	}
+
+	ModelParameters Model::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	{
+		return ModelParameters();
+	}
+
+	Model& Model::CreateModel(unsigned char* data, size_t dataSize, ModelParameters modelParams)
+	{
+		return Model();
 	}
 
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams,  const std::string& paramsPath)

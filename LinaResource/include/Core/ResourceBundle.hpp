@@ -71,16 +71,23 @@ namespace Lina::Resources
 		// Converts each raw package into a processed package & fills in the table.
 		void ProcessRawPackages(Event::EventSystem* eventSys);
 
-		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData);
+		// Pushes the given memory buffer to a resource map.
+		void PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data);
 
-		// Loads given resource into memory.
-		void LoadResourceIntoMemory(Utility::File& file, ResourceType type, ResourceProgressData* progData);
+		// Loads all memory buffers stored in maps.
+		void LoadAllMemoryMaps();
+
+		// Calls LoadResourceFromFile on all resources within the folder.
+		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, ResourceType onlyLoad = ResourceType::Unknown, ResourceType exclude = ResourceType::Unknown);
+
+		// Loads given resource from a file path into memory.
+		void LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData);
 
 		std::unordered_map<ResourceType, RawPackage> m_rawPackages =
 		{
 			{ResourceType::Image, RawPackage()},
 			{ResourceType::Material, RawPackage()},
-			{ResourceType::Mesh, RawPackage()},
+			{ResourceType::Model, RawPackage()},
 			{ResourceType::Audio, RawPackage()},
 			{ResourceType::SPIRV, RawPackage()}
 		};
@@ -90,6 +97,17 @@ namespace Lina::Resources
 		AudioPackage m_audioPackage;
 		MaterialPackage m_materialPackage;		
 		ShaderPackage m_shaderPackage;		
+
+		std::unordered_map<std::string, std::vector<unsigned char>> m_audioParameters;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_imageParameters;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_modelParameters;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_shaderParameters;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_audios;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_images;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_hdrs;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_models;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_materials;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_shaders;
 	};
 }
 

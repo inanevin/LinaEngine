@@ -65,8 +65,7 @@ namespace Lina::Graphics
 		Texture& ConstructRTTexture(Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
 		Texture& ConstructRTTextureMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
 		Texture& ConstructEmpty( SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
-		static SamplerParameters LoadParameters(const std::string& path);
-		static void SaveParameters(const std::string& path, SamplerParameters params);
+
 		uint32 GetID() const { return m_id; };
 		StringIDType GetSID() const { return m_sid; }
 		uint32 GetSamplerID() const { return m_sampler.GetID(); }
@@ -78,6 +77,11 @@ namespace Lina::Graphics
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
 
+		static SamplerParameters LoadParameters(const std::string& path);
+		static SamplerParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
+		static void SaveParameters(const std::string& path, SamplerParameters params);
+		static Texture& CreateTexture2D(unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
+		static Texture& CreateTextureHDRI(unsigned char* data, size_t dataSize);
 		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		static Texture& CreateTextureHDRI(const std::string filePath);
 		static Texture& GetTexture(StringIDType id);

@@ -76,8 +76,9 @@ namespace Lina::Resources
 
 		void ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
 		void ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
-		void PackageProject(const std::string& path, const std::string& levelName);
-			
+		void PackageProject(const std::string& path, const std::string& name);
+		void ImportResourceBundle(const std::string& path, const std::string& name);
+
 		// Queries current progress data, useful for showing progress information.
 		ResourceProgressData& GetCurrentProgressData() { return m_currentProgressData; }
 

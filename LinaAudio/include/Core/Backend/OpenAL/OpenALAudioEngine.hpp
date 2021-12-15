@@ -79,6 +79,7 @@ namespace Lina::Audio
 	private:
 
 		void OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev);
+		void OnLoadAudioFromMemory(Event::ELoadAudioResourceFromMemory ev);
 		void ListAudioDevices(const char* type, const char* list);
 
 	private:

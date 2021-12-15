@@ -200,6 +200,7 @@ namespace Lina::Resources
 				{
 					char* chr = Utility::WCharToChar(file.c_str());
 					loadingData->m_currentResourceName = std::string(chr);
+					LINA_TRACE("[Packager] -> Unpacking {0}", loadingData->m_currentResourceName);
 					delete chr;
 				});
 
@@ -221,7 +222,8 @@ namespace Lina::Resources
 				unpackedResources[filePathStr] = resType;
 
 				// Pass the resource to bundle.
-				outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
+				// outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
+				outBundle->PushResourceFromMemory(filePathStr, resType, item.second);
 			}
 
 			LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);

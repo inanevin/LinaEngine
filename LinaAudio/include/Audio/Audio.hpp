@@ -46,6 +46,18 @@ Timestamp: 12/15/2021 2:12:28 PM
 
 namespace Lina::Audio
 {
+
+	struct AudioParameters
+	{
+		int m_dummy = 0;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_dummy);
+		}
+	};
+
 	class Audio
 	{
 		
@@ -54,7 +66,13 @@ namespace Lina::Audio
 		Audio() {}
 		~Audio();
 	
-		static Audio& CreateAudio(const std::string& path);
+
+		static AudioParameters LoadParameters(const std::string& path);
+		static void SaveParameters(const std::string& path, AudioParameters params);
+		static AudioParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
+
+		static Audio& CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioParameters& params);
+		static Audio& CreateAudio(const std::string& path, AudioParameters& params);
 		static std::map<StringIDType, Audio>& GetLoadedAudios() { return s_loadedAudios; }
 		static void UnloadAudio(StringIDType sid);
 		static void UnloadAudio(const std::string& path);
@@ -75,6 +93,7 @@ namespace Lina::Audio
 		static std::map<StringIDType, Audio> s_loadedAudios;
 		int m_size = 0;
 		StringIDType m_sid;
+		AudioParameters m_params;
 		float m_freq = 0.0f;
 		int m_format = 0;
 		void* m_data = nullptr;

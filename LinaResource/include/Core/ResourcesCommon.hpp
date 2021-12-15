@@ -59,14 +59,18 @@ namespace Lina::Resources
 
 	enum class ResourceType
 	{
-		Unknown,
-		Mesh,
-		Image,
-		HDR,
-		Audio,
-		Material,
-		GLSL,
-		SPIRV
+		Unknown = 0,
+		Model = 1,
+		ModelParams = 2,
+		Image = 3,
+		ImageParams = 4,
+		HDR = 5,
+		Audio = 6,
+		AudioParams = 7,
+		Material = 8,
+		GLSL = 9,
+		SPIRV = 11,
+		Font = 12
 	};
 
 	extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;

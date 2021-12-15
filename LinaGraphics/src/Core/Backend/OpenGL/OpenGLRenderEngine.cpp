@@ -63,6 +63,24 @@ namespace Lina::Graphics
 	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
 
 
+	void OpenGLRenderEngine::ConnectEvents()
+	{
+		// Flip loaded images.
+		ArrayBitmap::SetImageFlip(true);
+
+		m_eventSystem = Event::EventSystem::Get();
+		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
+		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
+		m_eventSystem->Connect<Event::ELoadModelResourceFromFile, &OpenGLRenderEngine::OnLoadModelResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadMaterialResourceFromFile, &OpenGLRenderEngine::OnLoadMaterialResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadImageResourceFromFile, &OpenGLRenderEngine::OnLoadImageResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadShaderResourceFromFile, &OpenGLRenderEngine::OnLoadShaderResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadModelResourceFromMemory, &OpenGLRenderEngine::OnLoadModelResourceFromMemory>(this);
+		m_eventSystem->Connect<Event::ELoadMaterialResourceFromMemory, &OpenGLRenderEngine::OnLoadMaterialResourceFromMemory>(this);
+		m_eventSystem->Connect<Event::ELoadImageResourceFromMemory, &OpenGLRenderEngine::OnLoadImageResourceFromMemory>(this);
+		m_eventSystem->Connect<Event::ELoadShaderResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderResourceFromMemory>(this);
+	}
+
 	void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
 	{
 		LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
@@ -72,18 +90,7 @@ namespace Lina::Graphics
 
 		// Set references.
 		m_appWindow = OpenGLWindow::Get();
-		m_eventSystem = Event::EventSystem::Get();
 		m_appMode = appMode;
-
-		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
-		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
-		m_eventSystem->Connect<Event::ELoadModelResourceFromFile, &OpenGLRenderEngine::OnLoadModelResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadMaterialResourceFromFile, &OpenGLRenderEngine::OnLoadMaterialResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadImageResourceFromFile, &OpenGLRenderEngine::OnLoadImageResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadShaderResourceFromFile, &OpenGLRenderEngine::OnLoadShaderResourceFromFile>(this);
-
-		// Flip loaded images.
-		ArrayBitmap::SetImageFlip(true);
 
 		// Setup draw parameters.
 		m_defaultDrawParams = DrawParameterHelper::GetDefault();
@@ -106,9 +113,6 @@ namespace Lina::Graphics
 		// Construct the uniform buffer for debugging.
 		m_globalDebugBuffer.Construct(UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_globalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
-
-		// Initialize the engine shaders.
-		ConstructEngineShaders();
 
 		// Initialize engine materials
 		ConstructEngineMaterials();
@@ -292,13 +296,27 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event)
 	{
-		LINA_TRACE("[Shader Loader] -> Loading shader: {0}", event.m_path);
-
 		if (!Shader::ShaderExists(event.m_path))
 		{
-			Shader::CreateShader(event.m_path);
+			LINA_TRACE("[Shader Loader] -> Loading shader: {0}", event.m_path);
+			ConstructShader(event.m_path);
 		}
-		
+	}
+
+	void OpenGLRenderEngine::OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event)
+	{
+	}
+
+	void OpenGLRenderEngine::OnLoadImageResourceFromMemory(Event::ELoadImageResourceFromMemory event)
+	{
+	}
+
+	void OpenGLRenderEngine::OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event)
+	{
+	}
+
+	void OpenGLRenderEngine::OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event)
+	{
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
@@ -309,58 +327,6 @@ namespace Lina::Graphics
 	void OpenGLRenderEngine::OnWindowResized(Event::EWindowResized event)
 	{
 		SetViewportDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
-	}
-
-
-	void OpenGLRenderEngine::ConstructEngineShaders()
-	{
-		// Unlit.
-		s_standardUnlitShader = &Shader::CreateShader("resources/engine/shaders/Unlit/Unlit.glsl");
-		s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-
-		// PBR Lit
-		Shader& pbrLit = Shader::CreateShader("resources/engine/shaders/PBR/PBRLitStandard.glsl", false);
-		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-
-		// Point shadows depth shader
-		m_pointShadowsDepthShader = &Shader::CreateShader("resources/engine/shaders/PBR/PointShadowsDepth.glsl", true);
-
-		// Skies
-		m_skyboxSingleColorShader = &Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxColor.glsl");
-		Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		Shader::CreateShader("resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
-		// Equirectangular cube & irradiance for HDRI skbox
-		m_hdriEquirectangularShader = &Shader::CreateShader("resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
-		m_hdriIrradianceShader = &Shader::CreateShader("resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
-		m_hdriPrefilterShader = &Shader::CreateShader("resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
-		m_hdriBRDFShader = &Shader::CreateShader("resources/engine/shaders/HDRI/HDRIBRDF.glsl");
-
-
-		// Screen Quad Shaders
-		m_sqFinalShader = &Shader::CreateShader("resources/engine/shaders/ScreenQuads/SQFinal.glsl");
-		m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		m_sqBlurShader = &Shader::CreateShader("resources/engine/shaders/ScreenQuads/SQBlur.glsl");
-		m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		m_sqShadowMapShader = &Shader::CreateShader("resources/engine/shaders/ScreenQuads/SQShadowMap.glsl");
-		m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);;
-
-		// Line
-		m_debugLineShader = &Shader::CreateShader("resources/engine/shaders/Debug/DebugLine.glsl");
-		m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
-		// Icon
-		m_debugIconShader = &Shader::CreateShader("resources/engine/shaders/Debug/DebugIcon.glsl");
-		m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
-		// 2D
-		Shader::CreateShader("resources/engine/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	bool OpenGLRenderEngine::ValidateEngineShaders()
@@ -381,6 +347,94 @@ namespace Lina::Graphics
 		}
 
 		return !validated;
+	}
+
+	void OpenGLRenderEngine::ConstructShader(const std::string& path)
+	{
+		if (path.compare("resources/engine/shaders/Unlit/Unlit.glsl") == 0)
+		{
+			s_standardUnlitShader = &Shader::CreateShader(path, false);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/PBR/PBRLitStandard.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/PBR/PointShadowsDepth.glsl") == 0)
+		{
+			m_pointShadowsDepthShader = &Shader::CreateShader(path, true);
+		}
+		else if (path.compare("resources/engine/shaders/Skybox/SkyboxColor.glsl") == 0)
+		{
+			m_skyboxSingleColorShader = &Shader::CreateShader(path, false);
+			m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxCubemap.glsl") == 0
+			|| path.compare("resources/engine/shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0
+			|| path.compare("resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+
+		else if (path.compare("resources/engine/shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+		{
+			m_hdriEquirectangularShader = &Shader::CreateShader(path);
+		}
+		else if (path.compare("resources/engine/shaders/HDRI/HDRIIrradiance.glsl") == 0)
+		{
+			m_hdriIrradianceShader = &Shader::CreateShader(path);
+		}
+		else if (path.compare("resources/engine/shaders/HDRI/HDRIPrefilter.glsl") == 0)
+		{
+			m_hdriPrefilterShader = &Shader::CreateShader(path);
+		}
+		else if (path.compare("resources/engine/shaders/HDRI/HDRIBRDF.glsl") == 0)
+		{
+			m_hdriBRDFShader = &Shader::CreateShader(path);
+		}
+		else if (path.compare("resources/engine/shaders/ScreenQuads/SQFinal.glsl") == 0)
+		{
+			m_sqFinalShader = &Shader::CreateShader(path);
+			m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/ScreenQuads/SQBlur.glsl") == 0)
+		{
+			m_sqBlurShader = &Shader::CreateShader(path);
+			m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/ScreenQuads/SQShadowMap.glsl") == 0)
+		{
+			m_sqShadowMapShader = &Shader::CreateShader(path);
+			m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/Debug/DebugLine.glsl") == 0)
+		{
+			m_debugLineShader = &Shader::CreateShader(path);
+			m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/Debug/DebugIcon.glsl") == 0)
+		{
+			m_debugIconShader = &Shader::CreateShader(path);
+			m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("resources/engine/shaders/2D/Sprite.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else
+		{
+			Shader& shader = Shader::CreateShader(path, false);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
 	}
 
 	void OpenGLRenderEngine::ConstructEngineMaterials()

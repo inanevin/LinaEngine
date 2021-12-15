@@ -93,8 +93,8 @@ namespace Lina::Editor
 		splashWindow->SetPos(Lina::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
 		// Build pixel data.
-		//splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
-		splashScreenTexture = &Lina::Graphics::Texture::GetTexture("resources/editor/textures/splashScreen.png");
+		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
+		//splashScreenTexture = &Lina::Graphics::Texture::GetTexture("resources/editor/textures/splashScreen.png");
 	}
 
 	void SplashScreen::Draw()

@@ -138,6 +138,7 @@ namespace Lina::Graphics
 		friend class Lina::Engine;
 		OpenGLRenderEngine() {};
 		~OpenGLRenderEngine() {};
+		void ConnectEvents();
 		void Initialize(ApplicationMode appMode);
 		void Shutdown();
 		void Tick(float delta);
@@ -149,10 +150,14 @@ namespace Lina::Graphics
 		void OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event);
 		void OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event);
 		void OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event);
+		void OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event);
+		void OnLoadImageResourceFromMemory(Event::ELoadImageResourceFromMemory event);
+		void OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event);
+		void OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event);
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
-		void ConstructEngineShaders();
 		bool ValidateEngineShaders();
+		void ConstructShader(const std::string& path);
 		void ConstructEngineMaterials();
 		void ConstructRenderTargets();
 		void DumpMemory();
