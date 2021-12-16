@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Rendering/Texture.hpp"
 #include "Core/RenderDeviceBackend.hpp"
 #include "Core/Application.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -77,6 +78,10 @@ namespace Lina::Editor
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		// Add default font.
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 22.0f, NULL);
 
 		Lina::Graphics::WindowBackend* splashWindow = Lina::Graphics::WindowBackend::Get();
 
@@ -117,17 +122,24 @@ namespace Lina::Editor
 		ImGui::SetNextWindowSize(viewport->Size);
 
 		// Draw window.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
 		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
-
-		ImGui::SetNextWindowPos(ImVec2(500, 250));
-		ImGui::BeginChild("text", ImVec2(300, 300), ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
+		ImGui::SetNextWindowPos(ImVec2(40, 310));
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
+		ImGui::BeginChild("text", ImVec2(640, 90), ImGuiWindowFlags_NoDecoration);
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
 		ImGui::Text(m_currentlyLoadingResource.c_str());
 		std::string loadData = std::to_string(m_percentage) + "%";
 		ImGui::Text(loadData.c_str());
+		WidgetsUtility::IncrementCursorPosY(10);
+		WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 1, 1, 1), 2);
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() * m_percentage / 100.0f, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+		WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 0, 1, 1), 2, ImVec2(0,0), max);
 		ImGui::EndChild();
+		ImGui::PopStyleVar();
 		ImGui::End();
+		ImGui::PopStyleVar();
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
