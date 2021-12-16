@@ -106,40 +106,14 @@ namespace Lina::World
 		ECS::Registry* ecs = ECS::Registry::Get();
 
 		auto view = ecs->view<ECS::ModelRendererComponent>();
-		LINA_TRACE("Loading Level Resources...");
 
 		for (ECS::Entity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
 
 			// Load the model pointed by the model renderer.
-			if (!Graphics::Model::ModelExists(mr.m_modelPath))
-			{
-				if (Utility::FileExists(mr.m_modelPath))
-				{
-					const std::string paramsPath = Utility::FileExists(mr.m_modelParamsPath) ? mr.m_modelParamsPath : "";
-					//Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelPath, ModelParameters(), -1, paramsPath);
-					//mr.m_modelID = model.GetID();
-				}
-			}
-			else
-			{
+			if (Graphics::Model::ModelExists(mr.m_modelPath))
 				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
-			}
-
-			// Load all the materials pointed by the model renderer.
-			for (int i = 0; i < mr.m_materialPaths.size(); i++)
-			{
-				auto& path = mr.m_materialPaths[i];
-				if (!Graphics::Material::MaterialExists(path))
-				{
-					if (Utility::FileExists(path))
-					{
-						Graphics::Material::LoadMaterialFromFile(path);
-					}
-				}
-
-			}
 
 			// Iterate model renderer's children, find all mesh renderer components & assign their mesh & material IDs accordingly.
 			ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
@@ -163,31 +137,7 @@ namespace Lina::World
 		{
 			ECS::SpriteRendererComponent& sprite = viewSprites.get<ECS::SpriteRendererComponent>(entity);
 
-			if (!Graphics::Material::MaterialExists(sprite.m_materialPaths))
-			{
-				if (Utility::FileExists(sprite.m_materialPaths))
-				{
-					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(sprite.m_materialPaths);
-					sprite.m_materialID = mat.GetID();
-
-					// Load material textures.
-					for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
-					{
-						if (Utility::FileExists(it->second.m_path))
-						{
-							Graphics::SamplerParameters samplerParams;
-
-							if (Utility::FileExists(it->second.m_paramsPath))
-								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
-
-							//Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
-							//
-							//mat.SetTexture(it->first, &texture, it->second.m_bindMode);
-						}
-					}
-				}
-			}
-			else
+			if (Graphics::Material::MaterialExists(sprite.m_materialPaths))
 			{
 				Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPaths);
 				sprite.m_materialID = mat.GetID();
@@ -196,9 +146,9 @@ namespace Lina::World
 
 		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 
-		if (Utility::FileExists(m_levelData.m_skyboxMaterialPath))
+		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{
-			Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(m_levelData.m_skyboxMaterialPath);
+			Graphics::Material& mat = Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath);
 			renderEngine->SetSkyboxMaterial(&mat);
 		}
 		else

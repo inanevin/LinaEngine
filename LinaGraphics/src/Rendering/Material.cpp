@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -51,7 +51,7 @@ namespace Lina::Graphics
 				SetTexture(it->first, &Texture::GetTexture(it->second.m_path), it->second.m_bindMode);
 			}
 		}
-		
+
 		if (Shader::ShaderExists(m_shaderPath))
 		{
 			m_shaderID = Shader::GetShader(m_shaderPath).GetID();
@@ -79,7 +79,7 @@ namespace Lina::Graphics
 		std::ofstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(mat); 
+			oarchive(mat);
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace Lina::Graphics
 			{
 				m_sampler2Ds[textureName].m_path = texture->GetPath();
 				m_sampler2Ds[textureName].m_paramsPath = texture->GetParamsPath();
-			}		
+			}
 		}
 		else
 		{
@@ -157,6 +157,13 @@ namespace Lina::Graphics
 		mat.m_path = path;
 		mat.UpdateMaterialData();
 
+
+		for (auto& sampler : mat.m_sampler2Ds)
+		{
+			if (Texture::TextureExists(sampler.second.m_path))
+				mat.SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+		}
+
 		return s_loadedMaterials[id];
 	}
 
@@ -165,7 +172,7 @@ namespace Lina::Graphics
 		// Build material & set it's shader.
 		StringIDType id = StringID(path.c_str()).value();
 		Material& mat = s_loadedMaterials[id];
-		
+
 		{
 			std::string data((char*)data, dataSize);
 			std::istringstream stream(data, std::ios::binary);
@@ -174,7 +181,7 @@ namespace Lina::Graphics
 				iarchive(mat);
 			}
 		}
-	
+
 
 		if (Shader::ShaderExists(mat.m_shaderPath))
 			SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
@@ -186,6 +193,12 @@ namespace Lina::Graphics
 		mat.m_materialID = id;
 		mat.m_path = path;
 		mat.UpdateMaterialData();
+
+		for (auto& sampler : mat.m_sampler2Ds)
+		{
+			if (Texture::TextureExists(sampler.second.m_path))
+				mat.SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+		}
 
 		return s_loadedMaterials[id];
 	}
@@ -271,7 +284,7 @@ namespace Lina::Graphics
 		material.m_shaderID = shader.GetID();
 		material.m_shaderSID = shader.GetSID();
 		material.m_shaderPath = shader.GetPath();
-	
+
 		if (onlySetID) return material;
 
 
@@ -311,7 +324,7 @@ namespace Lina::Graphics
 		if (material.m_usesHDRI)
 			s_hdriMaterials.emplace(&material);
 
-		if(material.m_isShadowMapped)
+		if (material.m_isShadowMapped)
 			s_shadowMappedMaterials.emplace(&material);
 
 	}
