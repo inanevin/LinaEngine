@@ -42,11 +42,13 @@ Timestamp: 6/5/2020 12:54:52 AM
 #include "Panels/EditorPanel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include <map>
 #include <vector>
 
 namespace Lina::Editor 
 {
+	
 
 	class PropertiesPanel;
 
@@ -66,6 +68,9 @@ namespace Lina::Editor
 	
 		void ScanRoot();
 		void DrawContextMenu();
+		void DrawFolderMenu(Utility::Folder& folder, float offset);
+		void DrawContents(Utility::Folder& folder);
+		void DrawFile(Utility::File& file);
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder, bool isRoot = false);
 		void LoadFolderResources(EditorFolder& folder);
@@ -81,6 +86,10 @@ namespace Lina::Editor
 	private:
 
 		std::vector<EditorFolder> m_resourceFolders;
+		std::vector<Utility::Folder> m_folders;
+		Utility::Folder* m_currentSelectedFolder = nullptr;
+		Utility::Folder* m_currentHoveredFolder = nullptr;
+		Utility::File* m_currentSelectedFile = nullptr;
 	};
 }
 

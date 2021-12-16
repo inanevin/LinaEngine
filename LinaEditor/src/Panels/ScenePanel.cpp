@@ -89,8 +89,6 @@ namespace Lina::Editor
 				}
 
 				ImGui::BeginChild("finalImage");
-				WidgetsUtility::DrawShadowedLine(5);
-
 
 				// Get game viewport aspect.
 				Vector2 vpSize = renderEngine->GetViewportSize();

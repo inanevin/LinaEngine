@@ -66,8 +66,6 @@ namespace Lina::Editor
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
 			ImGui::Begin(GLOBALSETTINGS_ID, &m_show, flags);
 
-			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
 
 			WidgetsUtility::FramePaddingY(0);
 

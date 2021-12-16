@@ -77,7 +77,6 @@ namespace Lina::Editor
 			if (ImGui::Begin(LOG_ID, &m_show, flags))
 			{
 				// Shadow.
-				WidgetsUtility::DrawShadowedLine(5);
 				WidgetsUtility::IncrementCursorPosX(11);
 				WidgetsUtility::IncrementCursorPosY(11);
 

@@ -95,7 +95,6 @@ namespace Lina::Editor
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
 
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::Entities)

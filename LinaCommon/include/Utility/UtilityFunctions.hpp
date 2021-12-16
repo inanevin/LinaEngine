@@ -61,6 +61,7 @@ namespace Lina
 			std::string m_name = "";
 			std::vector<File> m_files;
 			std::vector<Folder> m_folders;
+			bool m_isOpen = false;
 		};
 
 		static int s_uniqueID = 100;

@@ -120,8 +120,6 @@ namespace Lina::Editor
 		{
 			Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
 
-
-
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
@@ -130,9 +128,7 @@ namespace Lina::Editor
 
 			if (ImGui::Begin(ECS_ID, &m_show, flags))
 			{
-
-				WidgetsUtility::DrawShadowedLine(5);
-
+				
 				// Statics.
 				static char entityName[256] = "Entity";
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));

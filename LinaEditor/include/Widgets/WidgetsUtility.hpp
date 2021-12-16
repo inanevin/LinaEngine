@@ -39,7 +39,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #ifndef WidgetsUtility_HPP
 #define WidgetsUtility_HPP
 
-
+#include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -66,11 +66,14 @@ namespace Lina::Editor
 		
 	public:
 		
+		static bool ColorsEqual(ImVec4 col1, ImVec4 col2);
+		static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0,0,0,0));
 		static void ColorButton(const char* id, float* colorX);
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static bool ToggleButton(const char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, const ImVec4& activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), const ImVec4& activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), const ImVec4& inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), const ImVec4& inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
+		static void HorizontalDivider(float thickness = 5.0f, ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
 		static void ScreenPosLine();
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));

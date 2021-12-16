@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,6 +42,111 @@ namespace Lina::Editor
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 	std::map<std::string, bool> WidgetsUtility::s_carets;
 
+	bool WidgetsUtility::ColorsEqual(ImVec4 col1, ImVec4 col2)
+	{
+		return (col1.x == col2.x && col1.y == col2.y && col1.z == col2.z && col1.w == col2.w);
+	}
+
+	void WidgetsUtility::DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground, ImVec4 selectedBackground)
+	{
+
+		if (ColorsEqual(hoverBackground, ImVec4(0, 0, 0, 0)))
+			hoverBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered);
+
+		if (ColorsEqual(selectedBackground, ImVec4(0, 0, 0, 0)))
+			selectedBackground = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+
+
+		ImVec2 pos = ImGui::GetCurrentWindow()->Pos;
+		ImVec2 size = ImGui::GetCurrentWindow()->Size;
+		ImVec2 min = ImVec2(ImGui::GetCurrentWindow()->Pos.x, -ImGui::GetScrollY() + ImGui::GetCursorPosY() + ImGui::GetCurrentWindow()->Pos.y);
+		ImVec2 max = ImVec2(min.x + size.x, min.y + height);
+
+		// Hover state.
+		if (ImGui::IsMouseHoveringRect(min, max))
+			hoveredFolder = &folder;
+
+		bool hovered = hoveredFolder == &folder;
+		bool selected = selectedFolder == &folder;
+		bool open = folder.m_isOpen;
+
+		// Color & selection
+		ImVec4 background = selected ? selectedBackground : (hovered ? hoverBackground : defaultBackground);
+		ImVec4 usedBackground = background;
+		if (hovered)
+		{
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+			{
+				usedBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive);
+			}
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			{
+				selectedFolder = &folder;
+			}
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			{
+				selectedFolder = &folder;
+			}
+		}
+
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
+				selectedFolder = nullptr;
+		}
+
+
+		// Background
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(usedBackground));
+
+		if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			folder.m_isOpen = !folder.m_isOpen;
+
+		// Draw the folder data
+		PushScaledFont(0.7f);
+
+		IncrementCursorPosY(6);
+		ImGui::SetCursorPosX(4 + offset);
+
+		if (folder.m_folders.size() != 0)
+		{
+			if (selected)
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+			else
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
+
+			if (open)
+				ImGui::Text(ICON_FA_CARET_DOWN);
+			else
+				ImGui::Text(ICON_FA_CARET_RIGHT);
+
+			ImGui::PopStyleColor();
+
+
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+				folder.m_isOpen = !folder.m_isOpen;
+
+			ImGui::SameLine();
+		}
+
+		IncrementCursorPosY(0);
+		PopScaledFont();
+		ImGui::SetCursorPosX(4 + offset + 12);
+		Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			folder.m_isOpen = !folder.m_isOpen;
+
+		ImGui::SameLine();
+		IncrementCursorPosY(-5);
+		ImGui::Text(folder.m_name.c_str());
+
+
+
+		//	ImGui::EndChild();
+		//	ImGui::PopStyleVar();
+	}
+
 	void WidgetsUtility::ColorButton(const char* id, float* colorX)
 	{
 		static bool alpha_preview = true;
@@ -65,7 +170,7 @@ namespace Lina::Editor
 		}
 
 		std::string buf(id);
-		static ImVec4 backup_color;	
+		static ImVec4 backup_color;
 		bool open_popup = ImGui::ColorButton(buf.c_str(), ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
 		buf.append("##p");
 		if (open_popup)
@@ -81,7 +186,7 @@ namespace Lina::Editor
 			ImGui::Separator();
 			ImGui::ColorPicker4(buf.c_str(), colorX, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
 			ImGui::SameLine();
-			
+
 			buf.append("##current");
 			ImGui::BeginGroup(); // Lock X position
 			ImGui::Text("Current");
@@ -194,6 +299,13 @@ namespace Lina::Editor
 		{
 			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Lina::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
 		}
+	}
+
+	void WidgetsUtility::HorizontalDivider(float thickness, ImVec4 color)
+	{
+		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(color), thickness);
 	}
 
 	void WidgetsUtility::DrawBeveledLine(ImVec2 min, ImVec2 max)
@@ -526,7 +638,7 @@ namespace Lina::Editor
 			Icon(label, scale, disabledColor);
 			return false;
 		}
-		
+
 
 	}
 

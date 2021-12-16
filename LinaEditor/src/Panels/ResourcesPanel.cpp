@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "Utility/UtilityFunctions.hpp"
 #include "Rendering/Shader.hpp"
 #include "IconsFontAwesome5.h"
 #include "imgui/imgui.h"
@@ -68,15 +67,22 @@ namespace Lina::Editor
 	{
 		Lina::Event::EventSystem::Get()->Connect<ETextureReimported, &ResourcesPanel::TextureReimported>(this);
 		Lina::Event::EventSystem::Get()->Connect<EMaterialTextureSelected, &ResourcesPanel::MaterialTextureSelected>(this);
-		ScanRoot();
 		s_highlightColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		s_fileNameColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
 		s_usedFileNameColor = s_fileNameColor;
+
+		Utility::Folder root;
+		root.m_fullPath = "resources/";
+		root.m_name = "resources";
+		m_folders.push_back(root);
+		Utility::ScanFolder(m_folders[0]);
 	}
 
 
 	void ResourcesPanel::ScanRoot()
 	{
+
+		return;
 		// Build root.
 		EditorFolder root;
 		root.m_name = ROOT_NAME;
@@ -143,14 +149,105 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
+
 			ImGui::Begin(RESOURCES_ID, &m_show, flags);
-			WidgetsUtility::DrawShadowedLine(5);
-			DrawContextMenu();
-			DrawFolder(m_resourceFolders[0], true);
+
+			float windowWidth = ImGui::GetWindowWidth();
+			float windowHeight = ImGui::GetWindowHeight();
+			ImVec2 pos = ImGui::GetWindowPos();
+			ImVec2 min = ImVec2(0,0);
+			ImVec2 max = ImVec2(500, 500);
+
+			ImGui::BeginChild("##res_sb", ImVec2(0, 10));
+
+			ImGui::EndChild();
+			//WidgetsUtility::HorizontalDivider(10);
+
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+			const float yPadding = 0.0f;
+			const float xPadding = 0.0f;
+			ImGui::SetNextWindowPos(ImVec2(pos.x + xPadding, pos.y + ImGui::GetCursorPosY() + yPadding));
+			ImGui::BeginChild("folders", ImVec2((windowWidth * 0.2f) - (2.0f * xPadding), -yPadding * 2.0f), true);
+			DrawFolderMenu(m_folders[0], 0.0f);
+
+	
+
+			ImGui::EndChild();
+			ImGui::PopStyleColor();
+			ImGui::SameLine();
+			ImGui::BeginChild("files", ImVec2(windowWidth * 0.8f, windowHeight), true);
+			//DrawContents();
+			ImGui::EndChild();
 
 			ImGui::End();
 		}
 	}
+
+
+
+	void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, float offset)
+	{
+		static bool colorToggle = false;
+
+		ImVec4 childBG= ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+		m_currentHoveredFolder = nullptr;
+		WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder, m_currentHoveredFolder, 22, offset, childBG);
+		
+		if (folder.m_isOpen)
+		{
+			for (auto& f : folder.m_folders)
+				DrawFolderMenu(f, offset + 15.0f);
+		}
+		
+		return;
+
+		//static ImGuiTreeNodeFlags folderFlagsNotSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		//static ImGuiTreeNodeFlags folderFlagsSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+		//static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
+		//static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+		//
+		//ImGuiTreeNodeFlags folderFlags = m_currentSelectedFolder == &folder ? folderFlagsSelected : folderFlagsNotSelected;
+		//
+		//std::string id = "##" + folder.m_name;
+		//bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
+		//ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
+		//WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+		//ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
+		//ImGui::Text(folder.m_name.c_str());
+		//
+		//// Click
+		//if (ImGui::IsItemClicked())
+		//{
+		//	m_currentSelectedFile = nullptr;
+		//	m_currentSelectedFolder = &folder;
+		//}
+		//
+		//
+		//if (nodeOpen)
+		//{
+		//	//for (auto& f : folder.m_folders)
+		//	//{
+		//	//	DrawFolderMenu(f);
+		//	//
+		//	//}
+		//	ImGui::TreePop();
+		//
+		//}
+		
+	}
+
+	void ResourcesPanel::DrawContents(Utility::Folder& folder)
+	{
+
+	}
+
+
+	void ResourcesPanel::DrawFile(Utility::File& file)
+	{
+
+	}
+
+
 
 	void ResourcesPanel::DrawContextMenu()
 	{

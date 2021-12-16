@@ -79,7 +79,7 @@ namespace Lina::Editor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
-		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
 
 		// merge in icons from Font Awesome
 		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
@@ -426,7 +426,7 @@ namespace Lina::Editor
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 0));
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
 		ImGui::Begin("DockSpace", NULL, window_flags);
 		ImGui::PopStyleVar();
@@ -455,9 +455,9 @@ namespace Lina::Editor
 				ImGuiID dock_id_propBottom = ImGui::DockBuilderSplitNode(dock_id_prop, ImGuiDir_Down, 0.6f, NULL, &dock_id_prop);
 				ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, NULL, &dock_main_id);
 				ImGuiID dock_id_rightBottom = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.20f, NULL, &dock_id_right);
-				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.20f, NULL, &dock_main_id);
+				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.45f, NULL, &dock_main_id);
 
-				ImGui::DockBuilderDockWindow(RESOURCES_ID, dock_id_propBottom);
+				ImGui::DockBuilderDockWindow(RESOURCES_ID, dock_id_bottom);
 				ImGui::DockBuilderDockWindow(ECS_ID, dock_id_prop);
 				ImGui::DockBuilderDockWindow(SCENE_ID, dock_main_id);
 				ImGui::DockBuilderDockWindow(LOG_ID, dock_id_rightBottom);

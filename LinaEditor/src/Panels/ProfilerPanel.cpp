@@ -89,7 +89,6 @@ namespace Lina::Editor
 
 
 			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::IncrementCursorPosY(11);
 
 
