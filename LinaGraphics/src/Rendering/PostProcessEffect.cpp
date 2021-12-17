@@ -42,8 +42,8 @@ namespace Lina::Graphics
 		m_samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
 		m_samplerParams.m_textureParams.m_minFilter = m_samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
 		m_samplerParams.m_textureParams.m_wrapS = m_samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		m_rtTexture.ConstructRTTexture(m_renderEngine->GetViewportSize(), m_samplerParams, false);
-		m_renderTarget.Construct(m_rtTexture, m_renderEngine->GetViewportSize(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_rtTexture.ConstructRTTexture(m_renderEngine->GetScreenSize(), m_samplerParams, false);
+		m_renderTarget.Construct(m_rtTexture, m_renderEngine->GetScreenSize(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 		m_drawParams = DrawParameterHelper::GetFullScreenQuad();
 		Material::SetMaterialShader(m_material, shader);
 	}

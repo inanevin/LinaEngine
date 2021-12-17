@@ -135,14 +135,14 @@ namespace Lina::Graphics
 
 		// Build default textures.
 		s_defaultTexture.ConstructEmpty();
-		m_defaultCubemapTexture.ConstructRTCubemapTexture(m_viewportSize, SamplerParameters());
+		m_defaultCubemapTexture.ConstructRTCubemapTexture(m_screenSize, SamplerParameters());
 
 		// Add the ECS systems into the pipeline.
 		m_cameraSystem.Initialize();
 		m_meshRendererSystem.Initialize();
 		m_spriteRendererSystem.Initialize();
 		m_lightingSystem.Initialize(m_appMode);
-		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
+		m_cameraSystem.SetAspectRatio((float)m_screenSize.x / (float)m_screenSize.y);
 		AddToRenderingPipeline(m_cameraSystem);
 		AddToRenderingPipeline(m_meshRendererSystem);
 		AddToRenderingPipeline(m_spriteRendererSystem);
@@ -190,39 +190,38 @@ namespace Lina::Graphics
 
 		// Reset the viewport & fbo to allow any post render drawing, like GUI.
 		m_renderDevice.SetFBO(0);
-		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
+		m_renderDevice.SetViewport(m_screenPos, m_screenSize);
 		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 	}
-
 
 	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system)
 	{
 		m_renderingPipeline.AddSystem(system);
 	}
 
-	void OpenGLRenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)
+	void OpenGLRenderEngine::SetScreenDisplay(Vector2 pos, Vector2 size)
 	{
 		m_renderDevice.SetViewport(pos, size);
-		m_viewportPos = pos;
-		m_viewportSize = size;
-		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
+		m_screenPos = pos;
+		m_screenSize = size;
+		m_cameraSystem.SetAspectRatio((float)m_screenSize.x / (float)m_screenSize.y);
 
 		// Resize render buffers & frame buffer textures
-		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_primaryMSAARTTexture0.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_primaryMSAARTTexture1.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_primaryRTTexture0.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_primaryRTTexture1.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_screenSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_screenSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryMSAARTTexture0.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryMSAARTTexture1.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture0.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture1.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
 
 		for (auto& p : m_postProcessMap)
 		{
 			SamplerParameters sp = p.second.GetParams();
-			m_renderDevice.ResizeRTTexture(p.second.GetTexture().GetID(), m_viewportSize, sp.m_textureParams.m_internalPixelFormat, sp.m_textureParams.m_pixelFormat);
+			m_renderDevice.ResizeRTTexture(p.second.GetTexture().GetID(), m_screenSize, sp.m_textureParams.m_internalPixelFormat, sp.m_textureParams.m_pixelFormat);
 		}
 
 		if (m_appMode == ApplicationMode::Editor)
-			m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+			m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
 	}
 
 
@@ -373,7 +372,7 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnWindowResized(Event::EWindowResized event)
 	{
-		SetViewportDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
+		SetScreenDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
 	}
 
 	bool OpenGLRenderEngine::ValidateEngineShaders()
@@ -520,14 +519,14 @@ namespace Lina::Graphics
 		m_shadowsRTParams.m_textureParams.m_wrapS = m_shadowsRTParams.m_textureParams.m_wrapR = m_shadowsRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		// Initialize primary RT textures
-		m_primaryMSAARTTexture0.ConstructRTTextureMSAA(m_viewportSize, m_primaryRTParams, 4);
-		m_primaryMSAARTTexture1.ConstructRTTextureMSAA(m_viewportSize, m_primaryRTParams, 4);
-		m_primaryRTTexture0.ConstructRTTexture(m_viewportSize, m_primaryRTParams, false);
-		m_primaryRTTexture1.ConstructRTTexture(m_viewportSize, m_primaryRTParams, false);
+		m_primaryMSAARTTexture0.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
+		m_primaryMSAARTTexture1.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
+		m_primaryRTTexture0.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+		m_primaryRTTexture1.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
 
 		// Initialize ping pong rt texture
-		m_pingPongRTTexture1.ConstructRTTexture(m_viewportSize, m_pingPongRTParams, false);
-		m_pingPongRTTexture2.ConstructRTTexture(m_viewportSize, m_pingPongRTParams, false);
+		m_pingPongRTTexture1.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
+		m_pingPongRTTexture2.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
 
 		// Shadow map RT texture
 		m_shadowMapRTTexture.ConstructRTTexture(m_shadowMapResolution, m_shadowsRTParams, true);
@@ -537,15 +536,15 @@ namespace Lina::Graphics
 			m_pLightShadowTextures[i].ConstructRTCubemapTexture(m_pLightShadowResolution, m_shadowsRTParams);
 
 		// Initialize primary render buffer
-		m_primaryBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
-		m_primaryMSAABuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_viewportSize, 4);
+		m_primaryBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+		m_primaryMSAABuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize, 4);
 
 		// Initialize hdri render buffer
 		m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
 
 		// Initialize primary render target.
-		m_primaryRenderTarget.Construct(m_primaryRTTexture0, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
+		m_primaryRenderTarget.Construct(m_primaryRTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
 		m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
@@ -555,8 +554,8 @@ namespace Lina::Graphics
 		m_renderDevice.MultipleDrawBuffersCommand(m_primaryMSAATarget.GetID(), 2, attachments);
 
 		// Initialize ping pong render targets
-		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize HDRI render target
 		m_hdriCaptureRenderTarget.Construct(m_hdriResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
@@ -570,9 +569,9 @@ namespace Lina::Graphics
 
 		if (m_appMode == ApplicationMode::Editor)
 		{
-			m_secondaryRTTexture.ConstructRTTexture(m_viewportSize, m_primaryRTParams, false);
-			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
-			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+			m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
 		}
 	}
 
@@ -633,7 +632,7 @@ namespace Lina::Graphics
 		}
 
 		m_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
-		m_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
+		m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
 
 
 		if (!Event::EventSystem::Get()->IsEmpty<Event::ECustomRender>())
@@ -655,8 +654,8 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::DrawFinalize()
 	{
-		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_viewportSize.x, m_viewportSize.y, m_primaryRenderTarget.GetID(), m_viewportSize.x, m_viewportSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
-		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_viewportSize.x, m_viewportSize.y, m_primaryRenderTarget.GetID(), m_viewportSize.x, m_viewportSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)1);
+		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
+		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)1);
 
 		// Below we process bloom post fx based on brightColor output in shaders.
 		bool horizontal = true;
@@ -705,7 +704,7 @@ namespace Lina::Graphics
 			// Back to default buffer
 			m_renderDevice.SetFBO(0);
 
-		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
+		m_renderDevice.SetViewport(m_screenPos, m_screenSize);
 		m_renderDevice.Clear(true, true, true, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
@@ -998,7 +997,7 @@ namespace Lina::Graphics
 		CalculateHDRIPrefilter(captureProjection, captureViews);
 		CalculateHDRIBRDF(captureProjection, captureViews);
 		m_renderDevice.SetFBO(0);
-		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
+		m_renderDevice.SetViewport(m_screenPos, m_screenSize);
 
 		// Set flag
 		m_hdriDataCaptured = true;
@@ -1241,5 +1240,7 @@ namespace Lina::Graphics
 	{
 		shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 	}
+
+
 
 }

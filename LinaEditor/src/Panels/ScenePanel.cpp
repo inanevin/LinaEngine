@@ -78,11 +78,6 @@ namespace Lina::Editor
 				ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
 				ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
 
-				if (!scenePanelFirstRun)
-				{
-					scenePanelFirstRun = true;
-					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
-				}
 
 				// Set Focus
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -99,13 +94,13 @@ namespace Lina::Editor
 				ImGui::BeginChild("finalImage");
 
 				// Get game viewport aspect.
-				Vector2 vpSize = renderEngine->GetViewportSize();
+				Vector2 vpSize = renderEngine->GetScreenSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
 				// Resize scene panel.
 				if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
 				{
-					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
+					Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
 					previousWindowSize = sceneWindowSize;
 				}
 
@@ -140,6 +135,14 @@ namespace Lina::Editor
 						m_borderAlpha = 0.0f;
 				}
 
+				ImGuiIO& io = ImGui::GetIO();
+				ImGuizmo::Enable(true);
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
+				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
+				ProcessInput();
+				DrawGizmos();
 
 				if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
 				{
@@ -152,8 +155,8 @@ namespace Lina::Editor
 						| ImGuiWindowFlags_NoMove
 						| ImGuiWindowFlags_NoScrollbar
 						| ImGuiWindowFlags_NoSavedSettings;
-				
-				
+
+
 					ImGui::SetNextWindowPos(pos);
 					ImGui::SetNextWindowBgAlpha(0.8f);
 					ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
@@ -175,17 +178,14 @@ namespace Lina::Editor
 					ImGui::EndChild();
 				}
 
-				ImGuiIO& io = ImGui::GetIO();
-				ImGuizmo::Enable(true);
-				ImGuizmo::SetOrthographic(false);
-				ImGuizmo::SetDrawlist();
-				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
-				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
-
-				ProcessInput();
-				DrawGizmos();
 				ImGui::EndChild();
 
+
+				if (!scenePanelFirstRun)
+				{
+					scenePanelFirstRun = true;
+					Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
+				}
 			}
 
 
@@ -326,6 +326,22 @@ namespace Lina::Editor
 			data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
 			data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
+		}
+
+		// Draw scene orientation gizmo
+		
+		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
+		if (editorCam != entt::null)
+		{
+			Transformation sceneOrientationTransform;
+			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.1f, 2.0f));
+			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3::Zero, Vector3::Up);
+			glm::mat4 sceneOrientation = sceneOrientationTransform.ToMatrix();
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &sceneOrientation[0][0]);
+
+			Vector3 worldTest = Vector3(0, 0, 10);
+			Vector2 screenCoord = Lina::ECS::CameraSystem::WorldToViewportCoordinates(worldTest);
+			LINA_TRACE("Screen Cord: {0}", screenCoord.ToString());
 		}
 
 

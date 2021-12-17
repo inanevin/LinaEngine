@@ -143,6 +143,7 @@ namespace Lina
 		static Vector3 One;
 
 		static Vector3 Lerp(Vector3& from, Vector3& to, float t);
+
 		Vector3 Cross(const Vector3& other) const;
 		Vector3 Abs() const;
 		Vector3 Min(const Vector3& other) const;

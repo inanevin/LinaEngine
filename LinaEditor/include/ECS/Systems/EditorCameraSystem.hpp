@@ -57,6 +57,7 @@ namespace Lina::ECS
 		void Initialize(Lina::Editor::ScenePanel& scenePanel);
 		virtual void UpdateComponents(float delta) override;
 		void SetEditorCamera(Entity entity) { m_editorCamera = entity; }
+		Entity GetEditorCamera() { return m_editorCamera; }
 
 	private:
 

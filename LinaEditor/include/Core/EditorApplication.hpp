@@ -63,9 +63,11 @@ namespace Lina::Editor
 		EditorApplication() {};
 		~EditorApplication() {};
 
+		static EditorApplication* Get() { return s_editorApplication; }
 		void Initialize();
 		void Refresh();
 		void LevelInitialized(Event::ELevelInitialized ev);
+		Lina::ECS::EditorCameraSystem& GetCameraSystem() { return m_editorCameraSystem; }
 
 	private:
 
@@ -73,7 +75,8 @@ namespace Lina::Editor
 
 	private:
 
-		Lina::ECS::EditorCameraSystem editorCameraSystem;
+		static EditorApplication* s_editorApplication;
+		Lina::ECS::EditorCameraSystem m_editorCameraSystem;
 		GUILayer m_guiLayer;
 	};
 }

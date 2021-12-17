@@ -90,7 +90,7 @@ namespace Lina::Graphics
 		static OpenGLRenderEngine* Get() { return s_renderEngine; }
 
 		void AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system);
-		void SetViewportDisplay(Vector2 offset, Vector2 size);
+		void SetScreenDisplay(Vector2 offset, Vector2 size);
 		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
 		void MaterialUpdated(Material& mat);
 		void UpdateShaderData(Material* mat);
@@ -113,7 +113,8 @@ namespace Lina::Graphics
 		void DrawAABB(Vector3 center, Vector3 halfWidths, Color col = Color::White, float width = 1.0f);
 		void ProcessDebugQueue();
 
-		Vector2 GetViewportSize() { return m_viewportSize; }
+		Vector2 GetScreenSize() { return m_screenSize; }
+		Vector2 GetScreenPos() { return m_screenPos; }
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 		ECS::LightingSystem* GetLightingSystem() { return &m_lightingSystem; }
 		ECS::MeshRendererSystem* GetMeshRendererSystem() { return &m_meshRendererSystem; }
@@ -280,8 +281,8 @@ namespace Lina::Graphics
 
 		Vector2 m_hdriResolution = Vector2(512, 512);
 		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
-		Vector2 m_viewportPos = Vector2::Zero;
-		Vector2 m_viewportSize = Vector2::Zero;
+		Vector2 m_screenPos = Vector2::Zero;
+		Vector2 m_screenSize = Vector2::Zero;
 		Vector2 m_pLightShadowResolution = Vector2(1024, 1024);
 
 		bool m_firstFrameDrawn = false;

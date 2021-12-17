@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/RenderEngineBackend.hpp"
+#include "Math/Matrix.hpp"
 #include "ECS/Systems/CameraSystem.hpp"  
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
@@ -53,6 +55,46 @@ namespace Lina::ECS
 			m_activeCameraEntity = cameraOwner;
 		else
 			LINA_WARN("This entity does not have a camera component, can not set it as main camera.");
+	}
+
+	Vector3 CameraSystem::ScreenToWorldCoordinates(const Vector3& screenPos)
+	{
+		auto* renderEngine = Graphics::RenderEngineBackend::Get();
+		Vector2 windowSize = renderEngine->GetScreenSize();
+		Vector2 windowPos = renderEngine->GetScreenPos();
+		Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
+		Vector3 win = glm::vec3(screenPos.x, screenPos.y, 1.0f);
+		Matrix pp = renderEngine->GetCameraSystem()->GetProjectionMatrix();
+		Matrix vv = renderEngine->GetCameraSystem()->GetViewMatrix();
+		Vector4 camPos = renderEngine->GetCameraSystem()->GetCameraLocation();
+		Vector4 worldPos = glm::unProject(win, vv, pp, viewport);
+		return glm::normalize(worldPos - camPos) * screenPos.z + camPos;
+	}
+
+	Vector3 CameraSystem::ViewportToWorldCoordinates(const Vector3& viewport)
+	{
+		auto* renderEngine = Graphics::RenderEngineBackend::Get();
+		Vector2 windowSize = renderEngine->GetScreenSize();
+		return ScreenToWorldCoordinates(Vector3(viewport.x * windowSize.x, viewport.y * windowSize.y, viewport.z));
+	}
+
+	Vector3 CameraSystem::WorldToScreenCoordinates(const Vector3& world)
+	{
+		auto* renderEngine = Graphics::RenderEngineBackend::Get();
+		Vector2 windowSize = renderEngine->GetScreenSize();
+		Vector2 windowPos = renderEngine->GetScreenPos();
+		Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
+		Matrix pp = renderEngine->GetCameraSystem()->GetProjectionMatrix();
+		Matrix vv = renderEngine->GetCameraSystem()->GetViewMatrix();
+		return glm::project(world, vv, pp, viewport);
+	}
+
+	Vector3 CameraSystem::WorldToViewportCoordinates(const Vector3& world)
+	{
+		auto* renderEngine = Graphics::RenderEngineBackend::Get();
+		Vector2 windowSize = renderEngine->GetScreenSize();
+		Vector3 screen = WorldToScreenCoordinates(world);
+		return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);
 	}
 
 

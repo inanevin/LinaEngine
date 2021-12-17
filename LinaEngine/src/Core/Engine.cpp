@@ -101,7 +101,7 @@ namespace Lina
 		}
 
 		// Set event callback for main window.
-		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
+		m_renderEngine.SetScreenDisplay(Vector2::Zero, m_window.GetSize());
 
 		m_renderEngine.ConnectEvents();
 		m_audioEngine.Initialize();

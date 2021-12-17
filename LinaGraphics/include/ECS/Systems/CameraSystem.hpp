@@ -40,6 +40,7 @@ Timestamp: 5/2/2019 12:40:46 AM
 #ifndef CameraSystem_HPP
 #define CameraSystem_HPP
 
+#include "Core/RenderBackendFwd.hpp"
 #include "ECS/ECS.hpp"
 #include "Math/Matrix.hpp"
 #include "Math/Color.hpp"
@@ -59,10 +60,60 @@ namespace Lina::ECS
 		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta) override;
 
-		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
+		/// <summary>
+		/// Changes the camera's view matrix for a single frame with the given matrix.
+		/// </summary>
+		/// <param name="view"></param>
 		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
+
+		/// <summary>
+		/// Changes the camera's projection matrix for a single frame with the given matrix.
+		/// </summary>
+		/// <param name="proj"></param>
 		void InjectProjMatrix(const Matrix& proj) { m_projMatrixInjected = true; m_projection = proj; }
+
+		/// <summary>
+		/// Converts given screen-space coordinates to world-space coordinates.
+		/// Z element is the distance from camera.
+		/// (0,0) bottom-left, (screenSizeX, screenSizeY) top-right
+		/// </summary>
+		/// <param name="screenPos"></param>
+		/// <returns></returns>
+		static Vector3 ScreenToWorldCoordinates(const Vector3& screenPos);
+
+		/// <summary>
+		/// Converts given viewport-space coordinates to world-space coordinates.
+		/// (0,0) bottom-left, (1,1) top-right
+		/// </summary>
+		/// <param name="viewport"></param>
+		/// <returns></returns>
+		static Vector3 ViewportToWorldCoordinates(const Vector3& viewport);
+
+		/// <summary>
+		/// Converts the given world-space coordinates to screen-space coordinates.
+		/// (0,0) bottom-left, (screenSizeX, screenSizeY) top-right
+		/// </summary>
+		/// <param name="world"></param>
+		/// <returns></returns>
+		static Vector3 WorldToScreenCoordinates(const Vector3& world);
+
+		/// <summary>
+		/// Converts the given world-space coordinates to viewport coordinates.
+		/// (0,0) bottom-left, (1,1) top-right
+		/// </summary>
+		/// <param name="world"></param>
+		/// <returns></returns>
+		static Vector3 WorldToViewportCoordinates(const Vector3& world);
+
+		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 		void SetActiveCamera(Entity cameraOwner);
+		Entity GetActiveCamera() { return m_activeCameraEntity; }
+		Matrix& GetViewMatrix() { return m_view; }
+		Matrix& GetProjectionMatrix() { return m_projection; }
+		Vector3 GetCameraLocation();
+		Color& GetCurrentClearColor();
+		CameraComponent* GetActiveCameraComponent();
+
 
 		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)
 		{
@@ -70,12 +121,6 @@ namespace Lina::ECS
 				m_activeCameraEntity = entt::null;
 		}
 
-		Entity GetActiveCamera() { return m_activeCameraEntity; }
-		Matrix& GetViewMatrix() { return m_view; }
-		Matrix& GetProjectionMatrix() { return m_projection; }
-		Vector3 GetCameraLocation();
-		Color& GetCurrentClearColor();
-		CameraComponent* GetActiveCameraComponent();
 
 
 	private:
