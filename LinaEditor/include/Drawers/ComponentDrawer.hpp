@@ -49,6 +49,7 @@ namespace Lina::Editor
 
 	typedef std::function<void(Lina::ECS::Entity)> ComponentFunction;
 	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
+	typedef std::function<entt::meta_handle(Lina::ECS::Entity)> GetComponentFunction;
 
 	class ComponentDrawer
 	{
@@ -74,6 +75,15 @@ namespace Lina::Editor
 			std::get<1>(m_componentFunctionsMap[typeID]) = std::bind(&ComponentDrawer::ComponentAddFunction<T>, this, std::placeholders::_1);
 			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
 		}
+
+		template<typename T>
+		entt::meta_handle GetComponentFunc(Lina::ECS::Entity ent)
+		{
+			T& t = Lina::ECS::Registry::Get()->get<T>(ent);
+			return entt::meta_handle{ t };
+		}
+
+		void DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
 
 		void DrawEntityData(Lina::ECS::Entity entity);
 		void DrawEntityDataComponent(Lina::ECS::Entity entity);
@@ -107,6 +117,7 @@ namespace Lina::Editor
 
 	private:
 
+		std::map<Lina::ECS::TypeID, GetComponentFunction> m_getComponentFunctions;
 		std::map<Lina::ECS::TypeID, ComponentValueTuple> m_componentFunctionsMap;
 		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
 		std::vector<Lina::ECS::TypeID> m_componentDrawList;

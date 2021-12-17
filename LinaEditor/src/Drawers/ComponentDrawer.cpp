@@ -46,12 +46,22 @@ SOFTWARE.
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/imguizmo/ImGuizmo.h"
-
+#include <entt/meta/meta.hpp>
+#include <entt/meta/resolve.hpp>
+#include <entt/meta/node.hpp>
+#include <entt/core/hashed_string.hpp>
+#include <entt/meta/factory.hpp>
+#include <entt/meta/meta.hpp>
+#include <entt/meta/node.hpp>
+#include <entt/meta/resolve.hpp>
 using namespace Lina::ECS;
 using namespace Lina::Editor;
 
+
 namespace Lina::Editor
 {
+	std::map<entt::id_type, std::string> m_variableTypeIdentifiers;
+
 	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
 
 	ComponentDrawer::ComponentDrawer()
@@ -64,6 +74,78 @@ namespace Lina::Editor
 		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1));
 		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1));
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1));
+		using namespace entt::literals;
+
+		// Camera component
+		entt::meta<CameraComponent>().type();
+		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs);
+		entt::meta<CameraComponent>().data<&CameraComponent::m_zNear>("zn"_hs);
+		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs);
+		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs);
+		m_getComponentFunctions[entt::type_id<CameraComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<CameraComponent>, this, std::placeholders::_1);
+
+		// Dirlight
+		entt::meta<DirectionalLightComponent>().type();
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs);
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs);
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs);
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs);
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs);
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs);
+		m_getComponentFunctions[entt::type_id<DirectionalLightComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<DirectionalLightComponent>, this, std::placeholders::_1);
+
+		// Spotlight
+		entt::meta<SpotLightComponent>().type();
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_drawDebug>("debug"_hs);
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_outerCutoff>("oc"_hs);
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_cutoff>("cof"_hs);
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs);
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs);
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs);
+		m_getComponentFunctions[entt::type_id<SpotLightComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<SpotLightComponent>, this, std::placeholders::_1);
+
+		// Pointlight
+		entt::meta<PointLightComponent>().type();
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("cs"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs);
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs);
+		m_getComponentFunctions[entt::type_id<PointLightComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<PointLightComponent>, this, std::placeholders::_1);
+
+		// Freelook
+		entt::meta<FreeLookComponent>().type();
+		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_rotationSpeeds>("rs"_hs);
+		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_movementSpeeds>("ms"_hs);
+		m_getComponentFunctions[entt::type_id<FreeLookComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<FreeLookComponent>, this, std::placeholders::_1);
+
+		// Model Renderer
+		auto idt = "matpath_arr"_hs;
+		entt::meta<ModelRendererComponent>().type();
+		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt);
+		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs);
+		m_getComponentFunctions[entt::type_id<ModelRendererComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<ModelRendererComponent>, this, std::placeholders::_1);
+
+		// Sprite renderer
+		entt::meta<SpriteRendererComponent>().type();
+		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs);
+		m_getComponentFunctions[entt::type_id<SpriteRendererComponent>().hash()] = std::bind(&ComponentDrawer::GetComponentFunc<SpriteRendererComponent>, this, std::placeholders::_1);
+
+		m_variableTypeIdentifiers["matpath"_hs] = "MaterialPath";
+		m_variableTypeIdentifiers["matpath_arr"_hs] = "MaterialPathArr";
+		m_variableTypeIdentifiers["modpath"_hs] = "ModelPath";
+
+	//	ECS::TypeID tid;
+	//	auto x = entt::resolve(tid).data();
+	//
+	//	for (auto data : entt::resolve<ModelRendererComponent>().data()) {
+	//		auto t = data.type();
+	//		LINA_TRACE("xdxdxaaad {0}", m_variableTypeIdentifiers[data.id()]);
+	//	}
+	//	auto factory = entt::meta<ModelRendererComponent>().type();
+
 	}
 
 
@@ -245,6 +327,29 @@ namespace Lina::Editor
 		"CYLINDER",
 		"CAPSULE"
 	};
+
+	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
+	{
+		auto* ecs = ECS::Registry::Get();
+		auto resolvedData = entt::resolve(tid);
+		
+	
+		if (resolvedData)
+		{
+			entt::meta_handle instance = m_getComponentFunctions[tid](ent);
+
+			for (auto data : resolvedData.data()) {
+				auto t = data.type();
+				LINA_TRACE("Member Data {0}", t.info().name());
+
+				if (t.is_floating_point())
+				{
+					data.set(entt::meta_handle(std::move(instance)), 12.0f);
+				}
+			}
+		}
+		
+	}
 
 	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity)
 	{

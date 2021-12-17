@@ -126,6 +126,7 @@ namespace Lina::Editor
 		ecs->visit(m_selectedEntity, [this](const auto component)
 			{
 				m_componentDrawer.AddIDToDrawList(component.hash());
+				m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
 			});
 		
 		// Draw the added components.
