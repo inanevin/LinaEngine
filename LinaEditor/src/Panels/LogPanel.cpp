@@ -76,6 +76,8 @@ namespace Lina::Editor
 
 			if (ImGui::Begin(LOG_ID, NULL, flags))
 			{
+				WidgetsUtility::CloseWindowTabPopup(&m_show);
+
 				// Shadow.
 				WidgetsUtility::IncrementCursorPosX(11);
 				WidgetsUtility::IncrementCursorPosY(11);

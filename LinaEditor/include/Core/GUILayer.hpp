@@ -50,6 +50,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "World/DefaultLevel.hpp"
 #include "Core/MainToolbar.hpp"
 #include <vector>
+class ImFont;
 
 namespace Lina
 {
@@ -74,6 +75,8 @@ namespace Lina::Editor
 		void Initialize();
 		void OnShutdown(Event::EShutdown ev);
 		void OnPostRender(Event::EPostRender);
+		static ImFont* GetDefaultFont() { return s_defaultFont; }
+		static ImFont* GetBigFont() { return s_bigFont; }
 
 		// Menu bar item callback from header panel.
 		void DispatchMenuBarClickedAction(EMenuBarItemClicked event);
@@ -99,8 +102,10 @@ namespace Lina::Editor
 		HeaderPanel m_headerPanel;
 		ProfilerPanel m_profilerPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
-
 		Lina::World::DefaultLevel m_defaultLevel;
+
+		static ImFont* s_defaultFont;
+		static ImFont* s_bigFont;
 	};
 }
 

@@ -205,7 +205,6 @@ namespace Lina::Graphics
 		m_renderDevice.SetViewport(pos, size);
 		m_viewportPos = pos;
 		m_viewportSize = size;
-
 		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
 
 		// Resize render buffers & frame buffer textures

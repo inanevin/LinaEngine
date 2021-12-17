@@ -165,15 +165,6 @@ namespace Lina
 			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
 			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
-			while (m_paused && !m_shouldSkipFrame)
-			{
-				previousFrameTime = GetElapsedTime();
-				continue;
-			}
-
-			if (m_paused && m_shouldSkipFrame)
-				m_shouldSkipFrame = false;
-
 			m_inputEngine.Tick();
 			updates++;
 			LINA_TIMER_START("Update MS");
@@ -223,6 +214,10 @@ namespace Lina
 	void Engine::UpdateGame(float deltaTime)
 	{
 		PROFILER_FUNC("Engine Tick");
+
+		// Pause & skip frame controls.
+		if (m_paused && !m_shouldSkipFrame) return;
+		m_shouldSkipFrame = false;
 
 		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 

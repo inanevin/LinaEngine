@@ -150,6 +150,7 @@ namespace Lina::Editor
 
 
 			ImGui::Begin(RESOURCES_ID, NULL, flags);
+			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 			float windowWidth = ImGui::GetWindowWidth();
 			float windowHeight = ImGui::GetWindowHeight();

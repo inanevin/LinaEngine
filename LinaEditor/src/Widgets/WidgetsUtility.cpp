@@ -650,7 +650,34 @@ namespace Lina::Editor
 		return button;
 	}
 
-	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, float scale)
+	void WidgetsUtility::CloseWindowTabPopup(bool* shouldShow)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(9, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 2));
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Close"))
+			{
+				*shouldShow = false;
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleVar();
+		ImGui::PopStyleVar();
+	}
+
+	ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()
+	{
+		return ImVec2(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowPos().x, ImGui::GetWindowContentRegionMin().y + ImGui::GetWindowPos().y);
+	}
+
+	ImVec2 WidgetsUtility::GetWindowSizeWithContentRegion()
+	{
+		float yDiff = ImGui::GetWindowPos().y - WidgetsUtility::GetWindowPosWithContentRegion().y;
+		return ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetWindowSize().y + yDiff);
+	}
+
+	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, float scale)
 	{
 		ImGui::SetCursorPosY(cursorPosY);
 		ImVec2 windowPos = ImGui::GetWindowPos();
@@ -666,6 +693,15 @@ namespace Lina::Editor
 		ImVec4 defaultColor = ImVec4(0.18f, 0.18, 0.18f, 1.0f);
 		ImVec4 col = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col));
+
+		if (tooltip.compare("") != 0 && hovered)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(9, 2));
+			ImGui::BeginTooltip();
+			ImGui::Text(tooltip.c_str());
+			ImGui::EndTooltip();
+			ImGui::PopStyleVar();
+		}
 
 		const float yIncrement = size.y / 4.0f + 1;
 		const float currentCursorPos = ImGui::GetCursorPosY();

@@ -81,7 +81,10 @@ namespace Lina::Editor
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static bool Button(const char* label, const ImVec2& size = ImVec2(0,0));
-		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, float fontScale = 0.75f);
+		static void CloseWindowTabPopup(bool* shouldShow);
+		static ImVec2 GetWindowPosWithContentRegion();
+		static ImVec2 GetWindowSizeWithContentRegion();
+		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, float fontScale = 0.75f);
 		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
 		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);

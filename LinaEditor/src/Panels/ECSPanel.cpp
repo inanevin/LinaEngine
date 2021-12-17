@@ -127,16 +127,8 @@ namespace Lina::Editor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			if (ImGui::Begin(ECS_ID, NULL, flags))
 			{
-				if (ImGui::BeginPopupContextItem())
-				{
-					if (ImGui::MenuItem("Close"))
-					{
-						m_show = false;
-					}
+				WidgetsUtility::CloseWindowTabPopup(&m_show);
 
-					ImGui::EndPopup();
-
-				}
 				// Statics.
 				static char entityName[256] = "Entity";
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));

@@ -50,6 +50,7 @@ static ImVec2 previousWindowSize;
 
 namespace Lina::Editor
 {
+	bool scenePanelFirstRun = false;
 
 	void ScenePanel::Initialize()
 	{
@@ -73,32 +74,26 @@ namespace Lina::Editor
 
 			if (ImGui::Begin(SCENE_ID, NULL, flags))
 			{
-				if (ImGui::BeginPopupContextItem())
+				WidgetsUtility::CloseWindowTabPopup(&m_show);
+				ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
+				ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
+
+				if (!scenePanelFirstRun)
 				{
-					if (ImGui::MenuItem("Close"))
-					{
-						m_show = false;
-					}
-
-					ImGui::EndPopup();
-
+					scenePanelFirstRun = true;
+					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
 				}
 
 				// Set Focus
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
-					ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
+					ImVec2 min = ImVec2(sceneWindowPos.x, sceneWindowPos.y);
+					ImVec2 max = ImVec2(min.x + sceneWindowSize.x, min.y + sceneWindowSize.y);
 
 					if (ImGui::IsMouseHoveringRect(min, max))
 						m_isFocused = true;
 					else
 						m_isFocused = false;
-				}
-
-				if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
-				{
-					ImGui::Text("NO CAMERA AVAILABLE");
 				}
 
 				ImGui::BeginChild("finalImage");
@@ -107,35 +102,78 @@ namespace Lina::Editor
 				Vector2 vpSize = renderEngine->GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
-				// Mins & max for scene panel area.
-				float currentWindowX = ImGui::GetWindowSize().x;
-				float currentWindowY = ImGui::GetWindowSize().y;
-				ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX - 12, ImGui::GetCursorScreenPos().y + currentWindowY - 42);
-				ImVec2 size = ImGui::GetCurrentWindow()->Size;
-				ImVec2 currentPanelSize = ImVec2(pMax.x - pMin.x, pMax.y - pMin.y);
-
 				// Resize scene panel.
-				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
+				if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
 				{
-					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
-					//Lina::Graphics::RenderEngineBackend::Get()->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
-					previousWindowSize = size;
+					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
+					previousWindowSize = sceneWindowSize;
 				}
 
 				// Desired window height.
-				float desiredHeight = currentPanelSize.x / aspect;
-
-
-				// Calculate desired drawing rect for the image.
-				ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);
-				ImVec2 imageRectMax = ImVec2(pMax.x, pMax.y - (currentPanelSize.y - desiredHeight) / 2.0f);
-
+				// Mins & max for scene panel area.
+				// float currentWindowX = ImGui::GetWindowSize().x;
+				// float currentWindowY = ImGui::GetWindowSize().y;
+				// ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
+				// ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + currentWindowY);
+				// ImVec2 currentPanelSize = ImVec2(pMax.x - pMin.x, pMax.y - pMin.y);
+				// float desiredHeight = currentPanelSize.x / aspect;
+				//ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);
+				//ImVec2 imageRectMax = ImVec2(pMax.x, pMax.y - (currentPanelSize.y - desiredHeight) / 2.0f);
+				ImVec2 imageRectMin = sceneWindowPos;
+				ImVec2 imageRectMax = ImVec2(sceneWindowPos.x + sceneWindowSize.x, sceneWindowPos.y + sceneWindowSize.y);
 
 				if (m_drawMode == DrawMode::FinalImage)
 					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
 					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+
+				if (Lina::Engine::Get()->GetPlayMode())
+				{
+					if (m_borderAlpha < 1.0f)
+						m_borderAlpha = Math::Lerp(m_borderAlpha, 1.1f, Lina::Engine::Get()->GetRawDelta() * 1.2f);
+
+					ImGui::GetWindowDrawList()->AddRect(imageRectMin, ImVec2(imageRectMax.x, imageRectMax.y - 4), ImGui::ColorConvertFloat4ToU32(ImVec4(0.33f, 0.54f, 0.78f, m_borderAlpha)), 0, 0, 5);
+				}
+				else
+				{
+					if (m_borderAlpha != 0.0f)
+						m_borderAlpha = 0.0f;
+				}
+
+
+				if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
+				{
+					ImVec2 size = ImVec2(240, 100);
+					ImVec2 pos = ImVec2(sceneWindowPos.x + sceneWindowSize.x / 2.0f - (size.x / 2.0f), sceneWindowPos.y + sceneWindowSize.y / 2.0f - (size.y / 2.0f));
+					ImGuiWindowFlags noCamFlags = 0
+						| ImGuiWindowFlags_NoDocking
+						| ImGuiWindowFlags_NoTitleBar
+						| ImGuiWindowFlags_NoResize
+						| ImGuiWindowFlags_NoMove
+						| ImGuiWindowFlags_NoScrollbar
+						| ImGuiWindowFlags_NoSavedSettings;
+				
+				
+					ImGui::SetNextWindowPos(pos);
+					ImGui::SetNextWindowBgAlpha(0.8f);
+					ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
+					ImGui::PushFont(GUILayer::GetBigFont());
+					ImGui::BeginChild("##scenepanel_nocam", size, false, noCamFlags);
+					const char* noCamAvab = "No camera available!";
+					const char* latestViewMatrix = "(Using latest view matrix)";
+					ImVec2 windowSize = ImGui::GetWindowSize();
+					ImVec2 textSize1 = ImGui::CalcTextSize(noCamAvab);
+					ImVec2 textSize2 = ImGui::CalcTextSize(latestViewMatrix);
+					ImGui::SetCursorPosX((windowSize.x - textSize1.x) * 0.5f);
+					ImGui::SetCursorPosY((windowSize.y - textSize1.y) * 0.5f - 10);
+					ImGui::Text("No camera available!");
+					ImGui::SetCursorPosX((windowSize.x - textSize2.x) * 0.5f);
+					ImGui::SetCursorPosY((windowSize.y - textSize2.y) * 0.5f + 10);
+					ImGui::Text(latestViewMatrix);
+					ImGui::PopFont();
+					ImGui::PopStyleVar();
+					ImGui::EndChild();
+				}
 
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
@@ -146,9 +184,6 @@ namespace Lina::Editor
 
 				ProcessInput();
 				DrawGizmos();
-
-				
-
 				ImGui::EndChild();
 
 			}
@@ -246,7 +281,7 @@ namespace Lina::Editor
 						// unconfine
 					}
 				}
-		
+
 
 				if (m_isFocused && inputEngine->GetMouseButtonDown(Lina::Input::InputCode::Mouse1))
 				{
@@ -256,7 +291,7 @@ namespace Lina::Editor
 			}
 
 		}
-		
+
 	}
 
 	void ScenePanel::DrawGizmos()
@@ -278,11 +313,11 @@ namespace Lina::Editor
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0]);
 
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);			
+			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
 
 			if (ImGuizmo::IsUsing())
 			{
-			
+
 				glm::vec3 rot = data.GetRotationAngles();
 				glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
 				data.SetRotationAngles(rot + deltaRotation);

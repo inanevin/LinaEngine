@@ -78,18 +78,27 @@ namespace Lina::Editor
 		WidgetsUtility::IncrementCursorPosX(12);
 
 		char* label = nullptr;
-
+		std::string tooltip = "";
 		const float cursorPos = ImGui::GetCursorPosY();
 		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
+			{
 				label = ICON_FA_ARROWS_ALT;
+				tooltip = "Move";
+			}
 			else if (i == 1)
+			{
 				label = ICON_FA_SYNC_ALT;
+				tooltip = "Rotate";
+			}
 			else if (i == 2)
+			{
 				label = ICON_FA_COMPRESS_ALT;
+				tooltip = "Scale";
+			}
 
-			if (WidgetsUtility::ToolbarToggleIcon(label, ImVec2(30, 22), 1, m_toggledTransformSelection == i, cursorPos))
+			if (WidgetsUtility::ToolbarToggleIcon(label, ImVec2(30, 22), 1, m_toggledTransformSelection == i, cursorPos, tooltip))
 				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ i });
 
 			ImGui::SameLine();
@@ -97,28 +106,30 @@ namespace Lina::Editor
 		}
 		
 		char* pivotLabel = m_currentGizmoGlobal ? ICON_FA_GLOBE_AMERICAS : ICON_FA_CUBE;
-		if (WidgetsUtility::ToolbarToggleIcon(pivotLabel, ImVec2(30, 22), 1, false, cursorPos))
+		std::string pivotTooltip = m_currentGizmoGlobal ? "Currently Global" : "Currently Local";
+		if (WidgetsUtility::ToolbarToggleIcon(pivotLabel, ImVec2(30, 22), 1, false, cursorPos, pivotTooltip))
 			Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ !m_currentGizmoGlobal });
 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
 		bool playMode = Lina::Engine::Get()->GetPlayMode();
-		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_PLAY, ImVec2(30, 22), 1, playMode, cursorPos))
+		char* playLabel = playMode ? ICON_FA_STOP : ICON_FA_PLAY;
+		if (WidgetsUtility::ToolbarToggleIcon(playLabel, ImVec2(30, 22), 1, playMode, cursorPos, "Play/Stop"))
 			Lina::Engine::Get()->SetPlayMode(!playMode);
 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
 		bool paused = Lina::Engine::Get()->GetPauseMode();
-		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_PAUSE, ImVec2(30, 22), 1, paused, cursorPos))
+		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_PAUSE, ImVec2(30, 22), 1, paused, cursorPos, "Pause"))
 			Lina::Engine::Get()->SetIsPaused(!paused);
 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
-		if (WidgetsUtility::ToolbarToggleIcon("Skip Frame", ImVec2(40, 22), 1, false, cursorPos, 1.0f))
-			Lina::Engine::Get()->SetIsPaused(!paused);
+		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_FORWARD, ImVec2(40, 22), 1, false, cursorPos, "Skip Frame"))
+			Lina::Engine::Get()->SkipNextFrame();
 
 		ImGui::End();
 		ImGui::PopStyleVar();

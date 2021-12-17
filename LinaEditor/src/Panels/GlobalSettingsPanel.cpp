@@ -65,6 +65,7 @@ namespace Lina::Editor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
 			ImGui::Begin(GLOBALSETTINGS_ID, NULL, flags);
+			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 
 			WidgetsUtility::FramePaddingY(0);

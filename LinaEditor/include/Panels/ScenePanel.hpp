@@ -80,6 +80,7 @@ namespace Lina::Editor
 
 	private:
 
+		float m_borderAlpha = 0.0f;
 		bool m_isFocused = true;
 		Lina::ECS::Entity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;

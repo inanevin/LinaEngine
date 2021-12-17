@@ -92,6 +92,8 @@ namespace Lina::Editor
 
 			// window.
 			ImGui::Begin(PROPERTIES_ID, NULL, flags);
+			WidgetsUtility::CloseWindowTabPopup(&m_show);
+
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			// Shadow.

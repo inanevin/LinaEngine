@@ -60,9 +60,10 @@ static bool s_physicsDebugEnabled = false;
 static bool s_dockWindowInit = true;
 static const char* s_saveLevelDialogID = "id_saveLevel";
 static const char* s_loadLevelDialogID = "id_loadLevel";
-
 namespace Lina::Editor
 {
+	ImFont* GUILayer::s_defaultFont = nullptr;
+	ImFont* GUILayer::s_bigFont = nullptr;
 
 	void GUILayer::Initialize()
 	{
@@ -79,8 +80,8 @@ namespace Lina::Editor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
-
+		io.FontDefault =  io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
+		
 		// merge in icons from Font Awesome
 		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		static const ImWchar icons_rangesFK[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
@@ -93,6 +94,9 @@ namespace Lina::Editor
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
+
+		s_bigFont = io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MuktaMahee-Medium.ttf", 30, NULL);
+		s_defaultFont = io.FontDefault;
 
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

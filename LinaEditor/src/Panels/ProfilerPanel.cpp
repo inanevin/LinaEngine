@@ -86,6 +86,7 @@ namespace Lina::Editor
 			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
 			ImGui::Begin(PROFILER_ID, NULL, flags);
+			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 
 			// Shadow.
