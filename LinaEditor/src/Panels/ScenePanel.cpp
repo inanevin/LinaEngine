@@ -308,7 +308,10 @@ namespace Lina::Editor
 			// Get required matrices.
 			glm::mat4 object = data.ToMatrix();
 
-
+			ImGuizmo::SetCanUse(true);
+			ImGuizmo::SetThicknessMultiplier(1.0f);
+			ImGuizmo::SetLineLengthMultiplier(1.0f);
+			ImGuizmo::EnablePlanes(true);
 			// Draw transformation handle.
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0]);
 
@@ -333,17 +336,16 @@ namespace Lina::Editor
 		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		if (editorCam != entt::null)
 		{
+			ImGuizmo::SetCanUse(false);
+			ImGuizmo::SetThicknessMultiplier(0.8f);
+			ImGuizmo::SetLineLengthMultiplier(0.4f);
+			ImGuizmo::EnablePlanes(false);
 			Transformation sceneOrientationTransform;
-			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.1f, 2.0f));
-			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3::Zero, Vector3::Up);
+			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
+			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3(0,0, 1000), Vector3::Up);
 			glm::mat4 sceneOrientation = sceneOrientationTransform.ToMatrix();
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &sceneOrientation[0][0]);
-
-			Vector3 worldTest = Vector3(0, 0, 10);
-			Vector2 screenCoord = Lina::ECS::CameraSystem::WorldToViewportCoordinates(worldTest);
-			LINA_TRACE("Screen Cord: {0}", screenCoord.ToString());
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &sceneOrientation[0][0]);
 		}
-
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 

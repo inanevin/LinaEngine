@@ -180,4 +180,9 @@ namespace ImGuizmo
    IMGUI_API void ViewManipulate(float* view, float length, ImVec2 position, ImVec2 size, ImU32 backgroundColor);
    
    IMGUI_API void SetID(int id);
+
+   IMGUI_API void EnablePlanes(bool enabled);
+   IMGUI_API void SetLineLengthMultiplier(float multiplier);
+   IMGUI_API void SetThicknessMultiplier(float multiplier);
+   IMGUI_API void SetCanUse(bool canUse);
 };

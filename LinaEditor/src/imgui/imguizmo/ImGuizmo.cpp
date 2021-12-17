@@ -42,6 +42,11 @@ namespace ImGuizmo
    static const float gGizmoSizeClipSpace = 0.1f;
    const float screenRotateSize = 0.06f;
 
+   bool drawPlanes = true;
+   float lineLengthMultiplier = 1.0f;
+   float thicknessMultiplier = 1.0f;
+   bool canManipulate = true;
+
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // utility and math
 
@@ -1268,9 +1273,9 @@ namespace ImGuizmo
          if (belowAxisLimit)
          {
             ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * gContext.mScreenFactor, gContext.mMVP);
-            ImVec2 worldDirSSpace = worldToPos(dirAxis * gContext.mScreenFactor, gContext.mMVP);
+            ImVec2 worldDirSSpace = worldToPos(dirAxis * lineLengthMultiplier * gContext.mScreenFactor, gContext.mMVP);
 
-            drawList->AddLine(baseSSpace, worldDirSSpace, colors[i + 1], 3.f);
+            drawList->AddLine(baseSSpace, worldDirSSpace, colors[i + 1], 3.0f * thicknessMultiplier);
 
             // Arrow head begin
             ImVec2 dir(origin - worldDirSSpace);
@@ -1286,12 +1291,12 @@ namespace ImGuizmo
 
             if (gContext.mAxisFactor[i] < 0.f)
             {
-               DrawHatchedAxis(dirAxis);
+               DrawHatchedAxis(dirAxis * lineLengthMultiplier);
             }
          }
 
          // draw plane
-         if (belowPlaneLimit)
+         if (drawPlanes && belowPlaneLimit)
          {
             ImVec2 screenQuadPts[4];
             for (int j = 0; j < 4; ++j)
@@ -1726,6 +1731,8 @@ namespace ImGuizmo
 
    static void HandleTranslation(float* matrix, float* deltaMatrix, int& type, float* snap)
    {
+       if (!canManipulate) return;
+
       ImGuiIO& io = ImGui::GetIO();
       bool applyRotationLocaly = gContext.mMode == LOCAL || type == MOVE_SCREEN;
 
@@ -2073,6 +2080,26 @@ namespace ImGuizmo
    void SetID(int id)
    {
       gContext.mActualID = id;
+   }
+
+   IMGUI_API void EnablePlanes(bool enabled)
+   {
+       drawPlanes = enabled;
+   }
+
+   IMGUI_API void SetLineLengthMultiplier(float multiplier)
+   {
+       lineLengthMultiplier = multiplier;
+   }
+
+   IMGUI_API void SetThicknessMultiplier(float multiplier)
+   {
+       thicknessMultiplier = multiplier;
+   }
+
+   IMGUI_API void SetCanUse(bool canUse)
+   {
+       canManipulate = canUse;
    }
 
    void Manipulate(const float* view, const float* projection, OPERATION operation, MODE mode, float* matrix, float* deltaMatrix, float* snap, float* localBounds, float* boundsSnap)
