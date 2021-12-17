@@ -187,6 +187,7 @@ namespace Lina::Editor
 
 		m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
+		m_toolbar.Initialize();
 		m_ecsPanel.Initialize();
 		m_headerPanel.Initialize();
 		m_logPanel.Initialize();
@@ -233,8 +234,6 @@ namespace Lina::Editor
 		m_globalSettingsPanel.Draw();
 		m_toolbar.DrawFooter();
 
-		if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
-			Lina::Engine::Get()->SetPlayMode(!Lina::Engine::Get()->GetPlayMode());
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);

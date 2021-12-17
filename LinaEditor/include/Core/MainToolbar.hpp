@@ -40,6 +40,7 @@ Timestamp: 12/17/2021 11:58:19 AM
 #define MainToolbar_HPP
 
 // Headers here.
+#include "Core/EditorCommon.hpp"
 
 
 namespace Lina::Editor
@@ -51,11 +52,19 @@ namespace Lina::Editor
 		
 		MainToolbar() {};
 		~MainToolbar() {};
+		void Initialize();
 		void Draw();
 		void DrawFooter();
 
 	private:
+
+		void OnTransformGizmoChanged(ETransformGizmoChanged ev);
+		void OnTransformPivotChanged(ETransformPivotChanged ev);
+
+	private:
 	
+		int m_toggledTransformSelection = 0;
+		bool m_currentGizmoGlobal;
 	};
 }
 

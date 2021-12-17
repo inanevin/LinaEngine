@@ -48,7 +48,6 @@ namespace Lina::Input
 	{
 		LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
 		Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
-		Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &GLFWInputEngine::OnPlayModeChanged>(this);
 		m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
 		m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
 	}
@@ -57,15 +56,6 @@ namespace Lina::Input
 	{
 		LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
 	}
-
-	void GLFWInputEngine::OnPlayModeChanged(Event::EPlayModeChanged playMode)
-	{
-		if (playMode.m_playMode)
-			SetCursorMode(Lina::Input::CursorMode::Disabled);
-		else
-			SetCursorMode(Lina::Input::CursorMode::Visible);
-	}
-
 
 	void GLFWInputEngine::OnWindowContextCreated(Event::EWindowContextCreated& e)
 	{
@@ -173,8 +163,10 @@ namespace Lina::Input
 	}
 
 
-	void GLFWInputEngine::SetCursorMode(CursorMode mode) const
+	void GLFWInputEngine::SetCursorMode(CursorMode mode)
 	{
+		m_cursorMode = mode;
+
 		switch (mode)
 		{
 		case CursorMode::Visible:

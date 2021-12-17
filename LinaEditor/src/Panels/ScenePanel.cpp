@@ -56,6 +56,8 @@ namespace Lina::Editor
 		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &ScenePanel::Unselected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &ScenePanel::EntitySelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &ScenePanel::LevelUninstalled>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &ScenePanel::OnTransformGizmoChanged>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ScenePanel::OnTransformPivotChanged>(this);
 	}
 
 	void ScenePanel::Draw()
@@ -200,13 +202,59 @@ namespace Lina::Editor
 		if (ImGui::IsWindowFocused())
 		{
 			if (ImGui::IsKeyPressed(LINA_KEY_Q))
-				currentTransformGizmoOP = ImGuizmo::TRANSLATE;
+				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ 0 });
 			if (ImGui::IsKeyPressed(LINA_KEY_E))
-				currentTransformGizmoOP = ImGuizmo::ROTATE;
+				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ 1 });
 			if (ImGui::IsKeyPressed(LINA_KEY_R))
-				currentTransformGizmoOP = ImGuizmo::SCALE;
+				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ 2 });
 			if (ImGui::IsKeyPressed(LINA_KEY_T))
-				currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+				Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ currentTransformGizmoMode == ImGuizmo::LOCAL });
+
+			auto* inputEngine = Lina::Input::InputEngineBackend::Get();
+			bool isInPlay = Lina::Engine::Get()->GetPlayMode();
+
+			if (inputEngine->GetKey(Lina::Input::InputCode::LCTRL) && inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
+			{
+
+				if (isInPlay)
+				{
+					Lina::Engine::Get()->SetPlayMode(false);
+					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+					// unconfine mouse
+				}
+				else
+				{
+					Lina::Engine::Get()->SetPlayMode(true);
+					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+					// confine mouse
+				}
+			}
+
+			if (isInPlay)
+			{
+				if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
+				{
+					Lina::Input::CursorMode currentMode = Lina::Input::InputEngineBackend::Get()->GetCursorMode();
+
+					if (currentMode == Lina::Input::CursorMode::Visible)
+					{
+						Lina::Engine::Get()->SetPlayMode(false);
+					}
+					else
+					{
+						Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+						// unconfine
+					}
+				}
+		
+
+				if (m_isFocused && inputEngine->GetMouseButtonDown(Lina::Input::InputCode::Mouse1))
+				{
+					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+					// confine
+				}
+			}
+
 		}
 		
 	}
@@ -250,5 +298,22 @@ namespace Lina::Editor
 
 	}
 
+	void ScenePanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
+	{
+		if (ev.m_currentGizmo == 0)
+			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
+		else if (ev.m_currentGizmo == 1)
+			currentTransformGizmoOP = ImGuizmo::ROTATE;
+		else if (ev.m_currentGizmo == 2)
+			currentTransformGizmoOP = ImGuizmo::SCALE;
+	}
+
+	void ScenePanel::OnTransformPivotChanged(ETransformPivotChanged ev)
+	{
+		if (ev.m_isGlobal)
+			currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
+		else
+			currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
+	}
 
 }

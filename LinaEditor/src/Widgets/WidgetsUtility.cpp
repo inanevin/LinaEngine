@@ -650,4 +650,36 @@ namespace Lina::Editor
 		return button;
 	}
 
+	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, float scale)
+	{
+		ImGui::SetCursorPosY(cursorPosY);
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		ImVec2 min = ImVec2(windowPos.x + ImGui::GetCursorPosX(), windowPos.y + ImGui::GetCursorPosY());
+		ImVec2 max = ImVec2(windowPos.x + ImGui::GetCursorPosX() + size.x, windowPos.y + ImGui::GetCursorPosY() + size.y);
+
+		bool hovered = ImGui::IsMouseHoveringRect(min, max);
+		bool pressed = ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+
+		ImVec4 toggledColor = ImVec4(0.01f, 0.01f, 0.01f, 1.0f);
+		ImVec4 hoveredColor = ImVec4(0.24f, 0.24f, 0.24f, 1.0f);
+		ImVec4 pressedColor = ImVec4(0.14f, 0.14f, 0.14f, 1.0f);
+		ImVec4 defaultColor = ImVec4(0.18f, 0.18, 0.18f, 1.0f);
+		ImVec4 col = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col));
+
+		const float yIncrement = size.y / 4.0f + 1;
+		const float currentCursorPos = ImGui::GetCursorPosY();
+		IncrementCursorPosY(yIncrement);
+		IncrementCursorPosX(size.x / 4.0f + 1);
+		PushScaledFont(scale);
+		ImGui::Text(label);
+		PopScaledFont();
+
+
+		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			return true;
+
+		return false;
+	}
+
 }

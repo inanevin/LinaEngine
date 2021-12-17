@@ -82,6 +82,7 @@ namespace Lina::Event
 	struct EPostTick { float m_deltaTime; bool m_isInPlayMode; };
 	struct ERender {};
 	struct EPlayModeChanged { bool m_playMode; };
+	struct EPauseModeChanged { bool m_isPaused; };
 
 	// Physics
 	struct EPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };

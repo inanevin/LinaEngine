@@ -107,6 +107,8 @@ namespace Lina::Editor
 	struct ETextureSelected { Graphics::Texture* m_texture; };
 	struct EMaterialSelected { EditorFile* m_file; Graphics::Material* m_material; };
 	struct EModelSelected { Graphics::Model* m_model; };
+	struct ETransformGizmoChanged { int m_currentGizmo; };
+	struct ETransformPivotChanged { bool m_isGlobal; };
 
 #define EDITOR_CAMERA_NAME "Editor Camera"
 

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -55,7 +55,7 @@ namespace Lina
 
 	class Engine
 	{
-		
+
 	public:
 
 		static Engine* Get() { return s_engine; }
@@ -63,7 +63,8 @@ namespace Lina
 		void StartLoadingResources();
 		double GetElapsedTime();
 		void SetPlayMode(bool enabled);
-		bool GetPlayMode() { return m_isInPlayMode; }
+		void SetIsPaused(bool paused);
+		void SkipNextFrame();
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 		int GetCurrentFPS() { return m_currentFPS; }
 		int GetCurrentUPS() { return m_currentUPS; }
@@ -72,7 +73,9 @@ namespace Lina
 		double GetFrameTime() { return m_frameTime; }
 		double GetRenderTime() { return m_renderTime; }
 		double GetUpdateTime() { return m_updateTime; }
-
+		bool GetPlayMode() { return m_isInPlayMode; }
+		bool GetPauseMode() { return m_paused; }
+	
 	private:
 
 		friend class Application;
@@ -105,6 +108,8 @@ namespace Lina
 		bool m_canRender = true;
 		bool m_firstRun = true;
 		bool m_isInPlayMode = false;
+		bool m_paused = false;
+		bool m_shouldSkipFrame = false;
 
 		// Performance & variable stepping
 		int m_currentFPS = 0;

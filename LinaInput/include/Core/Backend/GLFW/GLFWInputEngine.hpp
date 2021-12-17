@@ -66,11 +66,13 @@ namespace Lina::Input
 		bool GetMouseButton(int index);
 		bool GetMouseButtonDown(int index);
 		bool GetMouseButtonUp(int index);
-		void SetCursorMode(CursorMode mode) const;
+		void SetCursorMode(CursorMode mode);
 		void SetMousePosition(const Vector2& v) const;
 		Vector2 GetMousePosition();
 		Vector2 GetRawMouseAxis();
 		Vector2 GetMouseAxis();
+		CursorMode GetCursorMode() { return m_cursorMode; }
+
 		float GetHorizontalAxisValue() { return m_horizontalAxis.GetValue(); }
 		float GetVerticalAxisValue() { return m_verticalAxis.GetValue(); }
 
@@ -82,7 +84,6 @@ namespace Lina::Input
 		void Initialize();
 		void Tick();
 		void Shutdown();
-		void OnPlayModeChanged(Event::EPlayModeChanged playMode);
 		void OnWindowContextCreated(Event::EWindowContextCreated& e);
 
 	private:
@@ -91,6 +92,7 @@ namespace Lina::Input
 		static GLFWInputEngine* s_inputEngine;
 		InputAxis m_horizontalAxis;
 		InputAxis m_verticalAxis;
+		CursorMode m_cursorMode = CursorMode::Visible;
 			
 	};
 }

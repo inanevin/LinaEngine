@@ -75,6 +75,11 @@ namespace Lina::Editor
 
 	private:
 
+		void OnTransformGizmoChanged(ETransformGizmoChanged ev);
+		void OnTransformPivotChanged(ETransformPivotChanged ev);
+
+	private:
+
 		bool m_isFocused = true;
 		Lina::ECS::Entity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;

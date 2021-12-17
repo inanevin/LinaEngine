@@ -56,7 +56,26 @@ namespace Lina
 	{
 		m_isInPlayMode = enabled;
 		m_eventSystem.Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
+
+		if (!m_isInPlayMode && m_paused)
+			SetIsPaused(false);
 	}
+
+	void Engine::SetIsPaused(bool paused)
+	{
+		if (paused && !m_isInPlayMode) return;
+		m_paused = paused;
+		m_eventSystem.Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{ m_paused });
+	}
+
+	void Engine::SkipNextFrame()
+	{
+		if (!m_isInPlayMode) return;
+
+		m_shouldSkipFrame = true;
+	}
+
+
 
 	void Engine::Initialize(ApplicationInfo& appInfo)
 	{
@@ -119,7 +138,7 @@ namespace Lina
 		m_isInPlayMode = true;
 
 		if (m_appInfo.m_appMode == ApplicationMode::Editor)
-			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/engine/audio/lina_init.wav"));
+			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/editor/audio/lina_init.wav"));
 	}
 
 	void Engine::Run()
@@ -145,6 +164,15 @@ namespace Lina
 			currentFrameTime = GetElapsedTime();
 			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
 			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
+
+			while (m_paused && !m_shouldSkipFrame)
+			{
+				previousFrameTime = GetElapsedTime();
+				continue;
+			}
+
+			if (m_paused && m_shouldSkipFrame)
+				m_shouldSkipFrame = false;
 
 			m_inputEngine.Tick();
 			updates++;
