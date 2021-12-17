@@ -14978,8 +14978,9 @@ static void ImGui::DockNodeCalcTabBarLayout(const ImGuiDockNode* node, ImRect* o
     float button_sz = g.FontSize;
 
     ImVec2 window_menu_button_pos = r.Min;
-    r.Min.x += style.FramePadding.x;
-    r.Max.x -= style.FramePadding.x;
+    r.Min.x -= 1;
+   //r.Min.x += style.FramePadding.x;
+   //r.Max.x -= style.FramePadding.x;
     if (node->HasCloseButton)
     {
         r.Max.x -= button_sz;

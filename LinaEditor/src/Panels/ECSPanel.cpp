@@ -125,7 +125,6 @@ namespace Lina::Editor
 			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			
 			if (ImGui::Begin(ECS_ID, NULL, flags))
 			{
 				if (ImGui::BeginPopupContextItem())

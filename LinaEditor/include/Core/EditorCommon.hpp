@@ -112,7 +112,6 @@ namespace Lina::Editor
 
 	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)
-#define GLOBAL_DOCKSPACE_BEGIN 60
 
 
 // HEADER PANEL
@@ -128,6 +127,9 @@ namespace Lina::Editor
 #define HEADER_OFFSET_TOPBUTTONS 80
 #define HEADER_LINALOGO_ANIMSIZE 132
 #define HEADER_LINALOGO_SIZE ImVec2(180, 29)
+#define TOOLBAR_HEIGHT 30
+#define FOOTER_HEIGHT 20
+#define DOCKSPACE_OFFSET 0
 
 // LOG PANEL
 #define LOG_ID "Log"

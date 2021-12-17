@@ -111,24 +111,25 @@ namespace Lina::Editor
 		// Setup Dear ImGui style
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImVec4* colors = ImGui::GetStyle().Colors;
-		style.FrameBorderSize = 1.0f;
-		style.PopupBorderSize = 1.0f;
-		style.AntiAliasedFill = false;
-		style.WindowRounding = 0.0f;
-		style.TabRounding = 0.0f;
-		style.ChildRounding = 0.0f;
-		style.PopupRounding = 3.0f;
-		style.FrameRounding = 0.0f;
-		style.ScrollbarRounding = 5.0f;
-		style.FramePadding = ImVec2(0, 5);
-		style.WindowPadding = ImVec2(0, 0);
-		style.ItemInnerSpacing = ImVec2(8, 4);
-		style.ItemInnerSpacing = ImVec2(5, 4);
-		style.GrabRounding = 6.0f;
+		//style.FrameBorderSize = 1.0f;
+		//style.PopupBorderSize = 1.0f;
+		//style.AntiAliasedFill = false;
+		//style.WindowRounding = 0.0f;
+		style.TabRounding = 2.0f;
+		//style.ChildRounding = 0.0f;
+		//style.PopupRounding = 3.0f;
+		//style.FrameRounding = 0.0f;
+		//style.ScrollbarRounding = 5.0f;
+		style.FramePadding = ImVec2(5, 5);
+		style.WindowPadding = ImVec2(0, 5);
+		//style.ItemInnerSpacing = ImVec2(8, 4);
+		//style.ItemInnerSpacing = ImVec2(5, 4);
+		//style.GrabRounding = 6.0f;
 		style.ChildBorderSize = 0.0f;
-		style.TabBorderSize = 0.0f;
-		style.WindowBorderSize = 0.0f;
+		//style.TabBorderSize = 0.0f;
+		//style.WindowBorderSize = 0.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
+
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
@@ -221,8 +222,8 @@ namespace Lina::Editor
 		ImGui::NewFrame();
 
 		m_headerPanel.Draw();
+		m_toolbar.Draw();
 		DrawCentralDockingSpace();
-
 		m_resourcesPanel.Draw();
 		m_ecsPanel.Draw();
 		m_scenePanel.Draw();
@@ -230,7 +231,7 @@ namespace Lina::Editor
 		m_profilerPanel.Draw();
 		m_propertiesPanel.Draw();
 		m_globalSettingsPanel.Draw();
-
+		m_toolbar.DrawFooter();
 
 		if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
 			Lina::Engine::Get()->SetPlayMode(!Lina::Engine::Get()->GetPlayMode());
@@ -403,8 +404,8 @@ namespace Lina::Editor
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 size = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - GLOBAL_DOCKSPACE_BEGIN);
-			ImVec2 pos = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + GLOBAL_DOCKSPACE_BEGIN);
+			ImVec2 size = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - HEADER_HEIGHT - TOOLBAR_HEIGHT - FOOTER_HEIGHT - DOCKSPACE_OFFSET);
+			ImVec2 pos = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + HEADER_HEIGHT + TOOLBAR_HEIGHT + DOCKSPACE_OFFSET);
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(size);
 			ImGui::SetNextWindowViewport(viewport->ID);
@@ -426,10 +427,9 @@ namespace Lina::Editor
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 0));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 0));
 		ImGui::Begin("DockSpace", NULL, window_flags);
-		ImGui::PopStyleVar();
+
 
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
@@ -448,7 +448,7 @@ namespace Lina::Editor
 				Vector2 screenSize = Lina::Graphics::WindowBackend::Get()->GetSize();
 				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
-				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y));
+				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y - FOOTER_HEIGHT));
 
 				ImGuiID dock_main_id = dockspace_id; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
 				ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.15f, NULL, &dock_main_id);
@@ -468,9 +468,9 @@ namespace Lina::Editor
 		}
 
 		ImGui::End();
-		ImGui::PopStyleVar();
-		ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
-		ImGui::End();
+		//ImGui::PopStyleVar();
+		//ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
+		//ImGui::End();
 		ImGui::PopStyleColor();
 	}
 	

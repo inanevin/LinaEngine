@@ -26,7 +26,7 @@ src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/SplashScreen.cpp
-
+src/Core/MainToolbar.cpp
 # ECS
 src/ECS/Systems/EditorCameraSystem.cpp
 
@@ -87,6 +87,7 @@ include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/SplashScreen.hpp
 include/Core/EditorApplication.hpp
+include/Core/MainToolbar.hpp
 
 # ECS
 include/ECS/Systems/EditorCameraSystem.hpp

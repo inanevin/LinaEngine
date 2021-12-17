@@ -8242,7 +8242,10 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
 
 	// Render tab shape
 	ImDrawList* display_draw_list = window->DrawList;
-	const ImU32 tab_col = GetColorU32((held || hovered) ? ImGuiCol_TabHovered : tab_contents_visible ? (tab_bar_focused ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive) : (tab_bar_focused ? ImGuiCol_Tab : ImGuiCol_TabUnfocused));
+	const ImU32 tab_col = docked_window ?
+		GetColorU32((held || hovered) ? ImGuiCol_TabHovered : tab_contents_visible ? (tab_bar_focused ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive) : (ImGuiCol_TitleBg)) :
+		GetColorU32((held || hovered) ? ImGuiCol_TabHovered : tab_contents_visible ? (tab_bar_focused ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive) : (ImGuiCol_TabUnfocused));
+
 	if (tab_bar->SelectedTabId == id)
 		TabItemBackgroundHighlighted(display_draw_list, bb, flags, tab_col);
 	else
@@ -8376,7 +8379,7 @@ void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bb
 
 	// Highlight.
 	const float a1 = y1;
-	const float a2 = y1 + 2.0f + rounding;
+	const float a2 = y1 + 1.5f + rounding;
 	draw_list->PathLineTo(ImVec2(bb.Min.x, a2));
 	draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, a1 + rounding), rounding, 6, 9);
 	draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, a1 + rounding), rounding, 9, 12);

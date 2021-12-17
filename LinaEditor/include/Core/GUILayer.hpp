@@ -48,6 +48,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ProfilerPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "World/DefaultLevel.hpp"
+#include "Core/MainToolbar.hpp"
 #include <vector>
 
 namespace Lina
@@ -89,6 +90,7 @@ namespace Lina::Editor
 	private:
 
 		Lina::Graphics::DrawParams m_drawParameters;
+		MainToolbar m_toolbar;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;
 		ScenePanel m_scenePanel;
