@@ -85,7 +85,7 @@ namespace Lina::Editor
 
 			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
-			ImGui::Begin(PROFILER_ID, &m_show, flags);
+			ImGui::Begin(PROFILER_ID, NULL, flags);
 
 
 			// Shadow.

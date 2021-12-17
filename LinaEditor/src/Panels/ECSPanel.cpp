@@ -91,7 +91,7 @@ namespace Lina::Editor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(Entity));
-				ecs->AddChildToEntity(entity, *(Entity*)payload->m_data);
+				ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -122,13 +122,22 @@ namespace Lina::Editor
 
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
-
-			if (ImGui::Begin(ECS_ID, &m_show, flags))
+			
+			if (ImGui::Begin(ECS_ID, NULL, flags))
 			{
-				
+				if (ImGui::BeginPopupContextItem())
+				{
+					if (ImGui::MenuItem("Close"))
+					{
+						m_show = false;
+					}
+
+					ImGui::EndPopup();
+
+				}
 				// Statics.
 				static char entityName[256] = "Entity";
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));
@@ -206,7 +215,7 @@ namespace Lina::Editor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(Entity));
-					Entity entity = *(Entity*)payload->m_data;
+					Entity entity = *(Entity*)payload->Data;
 					ecs->RemoveFromParent(entity);
 				}
 
@@ -215,7 +224,7 @@ namespace Lina::Editor
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
 					auto* ecs = Lina::ECS::Registry::Get();
-					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->Data);
 					auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(ecs, entity, model);

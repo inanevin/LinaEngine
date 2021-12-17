@@ -64,7 +64,7 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
-			ImGui::Begin(GLOBALSETTINGS_ID, &m_show, flags);
+			ImGui::Begin(GLOBALSETTINGS_ID, NULL, flags);
 
 
 			WidgetsUtility::FramePaddingY(0);
@@ -109,8 +109,8 @@ namespace Lina::Editor
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-						levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+						levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
+						levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
 						m_currentLevel->SetSkyboxMaterial();
 					}
 

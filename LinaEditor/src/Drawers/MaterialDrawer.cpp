@@ -181,7 +181,7 @@ namespace Lina::Editor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::Shader::GetShader(*(StringIDType*)payload->m_data));
+					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::Shader::GetShader(*(StringIDType*)payload->Data));
 
 				}
 				ImGui::EndDragDropTarget();
@@ -487,7 +487,7 @@ namespace Lina::Editor
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
 						{
 							IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-							m_selectedMaterial->SetTexture(it.first, &Lina::Graphics::Texture::GetTexture(*(StringIDType*)payload->m_data), it.second.m_bindMode);
+							m_selectedMaterial->SetTexture(it.first, &Lina::Graphics::Texture::GetTexture(*(StringIDType*)payload->Data), it.second.m_bindMode);
 						}
 
 

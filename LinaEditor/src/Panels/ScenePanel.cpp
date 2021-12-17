@@ -69,8 +69,19 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin(SCENE_ID, &m_show, flags))
+			if (ImGui::Begin(SCENE_ID, NULL, flags))
 			{
+				if (ImGui::BeginPopupContextItem())
+				{
+					if (ImGui::MenuItem("Close"))
+					{
+						m_show = false;
+					}
+
+					ImGui::EndPopup();
+
+				}
+
 				// Set Focus
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
@@ -149,7 +160,7 @@ namespace Lina::Editor
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
 					auto* ecs = Lina::ECS::Registry::Get();
-					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->Data);
 					auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(ecs, entity, model);

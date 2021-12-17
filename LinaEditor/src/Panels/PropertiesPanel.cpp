@@ -85,13 +85,13 @@ namespace Lina::Editor
 
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
 			// window.
-			ImGui::Begin(PROPERTIES_ID, &m_show, flags);
+			ImGui::Begin(PROPERTIES_ID, NULL, flags);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			// Shadow.

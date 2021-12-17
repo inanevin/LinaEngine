@@ -216,8 +216,8 @@ namespace Lina::Editor
 
 			// Start drawing window.
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEADER_HEIGHT));
+			ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
+			ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, HEADER_HEIGHT));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_FILEMENU);
 
@@ -315,7 +315,7 @@ namespace Lina::Editor
 			static char searchStr[128] = "";
 			ImGui::SetNextItemWidth(170);
 			WidgetsUtility::IncrementCursorPosY(-5);
-			ImGui::InputTextWithHint("", "search...", searchStr, IM_ARRAYSIZE(searchStr));
+			ImGui::InputTextWithHint("##header_search", "search...", searchStr, IM_ARRAYSIZE(searchStr));
 			WidgetsUtility::PopStyleVar();
 
 			// Draw Tool Buttons

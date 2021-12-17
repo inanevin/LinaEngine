@@ -70,11 +70,11 @@ namespace Lina::Editor
 		{
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin(LOG_ID, &m_show, flags))
+			if (ImGui::Begin(LOG_ID, NULL, flags))
 			{
 				// Shadow.
 				WidgetsUtility::IncrementCursorPosX(11);

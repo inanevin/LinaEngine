@@ -371,8 +371,8 @@ namespace Lina::Editor
 		if (corner != -1)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();   // Instead of using viewport->Pos we use GetWorkPos() to avoid menu bars, if any!
-			ImVec2 work_area_size = viewport->GetWorkSize();
+			ImVec2 work_area_pos = viewport->WorkPos;   // Instead of using viewport->Pos we use GetWorkPos() to avoid menu bars, if any!
+			ImVec2 work_area_size = viewport->WorkSize;
 			ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
 			ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
 			ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
@@ -395,7 +395,7 @@ namespace Lina::Editor
 	{
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoCloseButton;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton;
 
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
@@ -403,8 +403,8 @@ namespace Lina::Editor
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 size = ImVec2(viewport->GetWorkSize().x, viewport->GetWorkSize().y - GLOBAL_DOCKSPACE_BEGIN);
-			ImVec2 pos = ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y + GLOBAL_DOCKSPACE_BEGIN);
+			ImVec2 size = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - GLOBAL_DOCKSPACE_BEGIN);
+			ImVec2 pos = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + GLOBAL_DOCKSPACE_BEGIN);
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(size);
 			ImGui::SetNextWindowViewport(viewport->ID);
@@ -441,7 +441,7 @@ namespace Lina::Editor
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 
 			ImGui::DockSpace(dockspace_id, ImVec2(0, 0), dockspace_flags);
-
+		
 			if (s_setDockspaceLayout)
 			{
 				s_setDockspaceLayout = false;

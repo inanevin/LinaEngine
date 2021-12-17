@@ -69,14 +69,15 @@ src/imgui/imgui.cpp
 src/imgui/imgui_demo.cpp
 src/imgui/imgui_draw.cpp
 src/imgui/imgui_widgets.cpp
+src/imgui/imgui_tables.cpp
 src/imgui/imguizmo/ImCurveEdit.cpp
 src/imgui/imguizmo/ImGradient.cpp
 src/imgui/imguizmo/ImGuizmo.cpp
 src/imgui/imguizmo/ImSequencer.cpp
-src/imgui/ImGuiFileDialogue/ImGuiFileDialog.cpp
 src/imgui/implot/implot_demo.cpp
 src/imgui/implot/implot.cpp
 src/imgui/implot/implot_items.cpp
+
 )
 
 set(LINAEDITOR_HEADERS
@@ -128,6 +129,7 @@ include/imgui/imconfig.h
 include/imgui/imgui.h
 include/imgui/imgui_impl_glfw.h
 include/imgui/imgui_impl_opengl3.h
+include/imgui/imgui_impl_opengl3_loader.h
 include/imgui/imgui_internal.h
 include/imgui/imstb_rectpack.h
 include/imgui/imstb_textedit.h
@@ -136,8 +138,6 @@ include/imgui/imguizmo/ImCurveEdit.h
 include/imgui/imguizmo/ImGradient.h
 include/imgui/imguizmo/ImGuizmo.h
 include/imgui/imguizmo/ImSequencer.h
-include/imgui/ImGuiFileDialogue/ImGuiFileDialog.h
-include/imgui/ImGuiFileDialogue/ImGuiFileDialogConfig.h
 include/imgui/implot/implot.h
 include/imgui/implot/implot_internal.h
 

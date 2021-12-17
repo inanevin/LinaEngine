@@ -304,7 +304,7 @@ struct ImPlotAnnotationCollection {
     }
 
     const char* GetText(int idx) {
-        return TextBuffer.Buf.m_data + Annotations[idx].TextOffset;
+        return TextBuffer.Buf.Data + Annotations[idx].TextOffset;
     }
 
     void Reset() {
@@ -365,7 +365,7 @@ struct ImPlotTickCollection {
     }
 
     const char* GetText(int idx) {
-        return TextBuffer.Buf.m_data + Ticks[idx].TextOffset;
+        return TextBuffer.Buf.Data + Ticks[idx].TextOffset;
     }
 
     void Reset() {

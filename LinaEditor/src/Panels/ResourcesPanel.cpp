@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "IconsFontAwesome5.h"
 #include "imgui/imgui.h"
-#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include <filesystem>
 
 #define ROOT_NAME "###Resources"
@@ -145,12 +144,12 @@ namespace Lina::Editor
 		{
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
-			ImGui::Begin(RESOURCES_ID, &m_show, flags);
+			ImGui::Begin(RESOURCES_ID, NULL, flags);
 
 			float windowWidth = ImGui::GetWindowWidth();
 			float windowHeight = ImGui::GetWindowHeight();

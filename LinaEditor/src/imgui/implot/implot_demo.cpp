@@ -989,7 +989,7 @@ void ShowDemoWindow(bool* p_open) {
             // make our plot a drag and drop target
 			if (ImGui::BeginDragDropTarget()) {
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_PLOT")) {
-					int i = *(int*)payload->m_data;
+					int i = *(int*)payload->Data;
 					show[i] = true;
                     yAxis[i] = 0;
                     // set specific y-axis if hovered
@@ -1102,14 +1102,14 @@ void ShowDemoWindow(bool* p_open) {
         if (ImGui::BeginDragDropTarget()) {
            const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DIGITAL_PLOT");
             if (payload) {
-                int i = *(int*)payload->m_data;
+                int i = *(int*)payload->Data;
                 showDigital[i] = true;
             }
             else
             {
                payload = ImGui::AcceptDragDropPayload("DND_ANALOG_PLOT");
                if (payload) {
-                  int i = *(int*)payload->m_data;
+                  int i = *(int*)payload->Data;
                   showAnalog[i] = true;
                }
             }
@@ -1129,7 +1129,7 @@ void ShowDemoWindow(bool* p_open) {
             ImGui::TableSetupColumn("Electrode", ImGuiTableColumnFlags_WidthFixed, 75.0f);
             ImGui::TableSetupColumn("Voltage", ImGuiTableColumnFlags_WidthFixed, 75.0f);
             ImGui::TableSetupColumn("EMG Signal");
-            ImGui::TableAutoHeaders();
+            // ImGui::TableAutoHeaders();
             ImPlot::PushColormap(ImPlotColormap_Cool);
             for (int row = 0; row < 10; row++) {
                 ImGui::TableNextRow();

@@ -228,7 +228,7 @@ namespace Lina::Editor
 		{
 			ImVec2 pos_after = window->DC.CursorPos;
 			window->DC.CursorPos = pos_before;
-			ret = ImGui::TempInputText(window->DC.LastItemRect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
+			//ret = ImGui::TempInputText(window->Rect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
 			window->DC.CursorPos = pos_after;
 		}
 		else
