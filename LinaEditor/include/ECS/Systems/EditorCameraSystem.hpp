@@ -58,6 +58,7 @@ namespace Lina::ECS
 		virtual void UpdateComponents(float delta) override;
 		void SetEditorCamera(Entity entity) { m_editorCamera = entity; }
 		Entity GetEditorCamera() { return m_editorCamera; }
+		void SetCameraSpeedMultiplier(float multiplier) { m_cameraSpeedMultiplier = multiplier; }
 
 	private:
 
@@ -68,6 +69,7 @@ namespace Lina::ECS
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;
 		float m_targetYAngle = 0.0f;
+		float m_cameraSpeedMultiplier = 1.0f;
 	};
 }
 

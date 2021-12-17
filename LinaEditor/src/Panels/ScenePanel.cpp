@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include <imgui/imguizmo/ImGuizmo.h>
+#include "IconsFontAwesome5.h"
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
@@ -67,6 +68,13 @@ namespace Lina::Editor
 
 		if (m_show)
 		{
+			ImGuiWindowFlags emptyChildFlags = 0
+				| ImGuiWindowFlags_NoDocking
+				| ImGuiWindowFlags_NoTitleBar
+				| ImGuiWindowFlags_NoResize
+				| ImGuiWindowFlags_NoMove
+				| ImGuiWindowFlags_NoScrollbar
+				| ImGuiWindowFlags_NoSavedSettings;
 
 			Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
@@ -77,7 +85,6 @@ namespace Lina::Editor
 				WidgetsUtility::CloseWindowTabPopup(&m_show);
 				ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
 				ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
-
 
 				// Set Focus
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -97,23 +104,14 @@ namespace Lina::Editor
 				Vector2 vpSize = renderEngine->GetScreenSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
-				// Resize scene panel.
+				// Resize engine display.
 				if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
 				{
 					Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
 					previousWindowSize = sceneWindowSize;
 				}
 
-				// Desired window height.
-				// Mins & max for scene panel area.
-				// float currentWindowX = ImGui::GetWindowSize().x;
-				// float currentWindowY = ImGui::GetWindowSize().y;
-				// ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-				// ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + currentWindowY);
-				// ImVec2 currentPanelSize = ImVec2(pMax.x - pMin.x, pMax.y - pMin.y);
-				// float desiredHeight = currentPanelSize.x / aspect;
-				//ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);
-				//ImVec2 imageRectMax = ImVec2(pMax.x, pMax.y - (currentPanelSize.y - desiredHeight) / 2.0f);
+				// Draw final image.
 				ImVec2 imageRectMin = sceneWindowPos;
 				ImVec2 imageRectMax = ImVec2(sceneWindowPos.x + sceneWindowSize.x, sceneWindowPos.y + sceneWindowSize.y);
 
@@ -135,6 +133,7 @@ namespace Lina::Editor
 						m_borderAlpha = 0.0f;
 				}
 
+				// Draw gizmos.
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
 				ImGuizmo::SetOrthographic(false);
@@ -144,24 +143,16 @@ namespace Lina::Editor
 				ProcessInput();
 				DrawGizmos();
 
+				// Show a warning box if no camerais available.
 				if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
 				{
 					ImVec2 size = ImVec2(240, 100);
 					ImVec2 pos = ImVec2(sceneWindowPos.x + sceneWindowSize.x / 2.0f - (size.x / 2.0f), sceneWindowPos.y + sceneWindowSize.y / 2.0f - (size.y / 2.0f));
-					ImGuiWindowFlags noCamFlags = 0
-						| ImGuiWindowFlags_NoDocking
-						| ImGuiWindowFlags_NoTitleBar
-						| ImGuiWindowFlags_NoResize
-						| ImGuiWindowFlags_NoMove
-						| ImGuiWindowFlags_NoScrollbar
-						| ImGuiWindowFlags_NoSavedSettings;
-
-
 					ImGui::SetNextWindowPos(pos);
 					ImGui::SetNextWindowBgAlpha(0.8f);
 					ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
 					ImGui::PushFont(GUILayer::GetBigFont());
-					ImGui::BeginChild("##scenepanel_nocam", size, false, noCamFlags);
+					ImGui::BeginChild("##scenepanel_nocam", size, false, emptyChildFlags);
 					const char* noCamAvab = "No camera available!";
 					const char* latestViewMatrix = "(Using latest view matrix)";
 					ImVec2 windowSize = ImGui::GetWindowSize();
@@ -178,8 +169,76 @@ namespace Lina::Editor
 					ImGui::EndChild();
 				}
 
+				/// <summary>
+				/// Scene Settings - window for buttons.
+				/// </summary>
+				ImVec2 settingsPos = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
+				ImVec2 settingsSize = ImVec2(240, 30);
+				ImGui::SetNextWindowPos(settingsPos);
+				ImGui::SetNextWindowBgAlpha(0.0f);
+				ImGui::BeginChild("##scenePanel_settings", settingsSize);
+				const float cursorPos = ImGui::GetCursorPosY();
+				if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_CAMERA, ImVec2(30, 30), 1, false, cursorPos, "Camera Settings"))
+					m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
 				ImGui::EndChild();
 
+				/// <summary>
+				/// Camera settings pop-up window.
+				/// </summary>
+				if (m_shouldShowCameraSettings)
+				{
+					// Smoothly animate window size
+					if (m_cameraSettingsWindowYMultiplier < 1.0f)
+					{
+						m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Lina::Engine::Get()->GetRawDelta() * 6.0f);
+						m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
+					}
+
+					ImVec2 cameraSettingsPos = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
+					ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
+					ImGui::SetNextWindowPos(cameraSettingsPos);
+					ImGui::SetNextWindowBgAlpha(0.5f);
+					ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar );
+					float cursorPosLabels = 12;
+					WidgetsUtility::IncrementCursorPosY(6);
+					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
+					ImGui::SetCursorPosX(cursorPosLabels);
+					WidgetsUtility::AlignedText("Camera Speed");
+					ImGui::SameLine();
+
+					float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+					ImGui::SetCursorPosX(cursorPosValues);
+					ImGui::SetNextItemWidth(100);
+					ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
+					ImGui::SetCursorPosX(cursorPosLabels);
+					WidgetsUtility::AlignedText("Multiplier");
+					ImGui::SameLine();
+					ImGui::SetCursorPosX(cursorPosValues);
+					ImGui::SetNextItemWidth(100);
+					ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
+					ImGui::PopStyleVar();
+					EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+					ImGui::EndChild();
+
+					if (ImGui::IsWindowHovered())
+					{
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							if(!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
+								m_shouldShowCameraSettings = false;
+
+						}
+					}
+				
+				}
+				else
+				{
+					if (m_cameraSettingsWindowYMultiplier != 0.0f)
+						m_cameraSettingsWindowYMultiplier = 0.0f;
+				}
+				
+
+				ImGui::EndChild();
 
 				if (!scenePanelFirstRun)
 				{
@@ -338,7 +397,7 @@ namespace Lina::Editor
 		{
 			ImGuizmo::SetCanUse(false);
 			ImGuizmo::SetThicknessMultiplier(0.8f);
-			ImGuizmo::SetLineLengthMultiplier(0.4f);
+			ImGuizmo::SetLineLengthMultiplier(0.5f);
 			ImGuizmo::EnablePlanes(false);
 			Transformation sceneOrientationTransform;
 			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));

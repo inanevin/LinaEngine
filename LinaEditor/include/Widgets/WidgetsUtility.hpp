@@ -84,7 +84,7 @@ namespace Lina::Editor
 		static void CloseWindowTabPopup(bool* shouldShow);
 		static ImVec2 GetWindowPosWithContentRegion();
 		static ImVec2 GetWindowSizeWithContentRegion();
-		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, float fontScale = 0.75f);
+		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1,1,1,1), float fontScale = 0.75f);
 		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
 		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);

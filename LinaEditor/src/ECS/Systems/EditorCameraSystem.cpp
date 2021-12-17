@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/EditorCameraSystem.hpp"
+#include "Core/InputBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/Application.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -75,43 +76,14 @@ namespace Lina::ECS
 			// Handle movement.
 			float horizontalKey = m_inputEngine->GetHorizontalAxisValue();
 			float verticalKey = m_inputEngine->GetVerticalAxisValue();
+			float sprintMultiplier = Lina::Input::InputEngineBackend::Get()->GetKey(Lina::Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
 			Quaternion rotation = data.GetRotation();
 			Vector3 fw = rotation.GetForward();
 			Vector3 up = rotation.GetUp();
 			Vector3 rg = rotation.GetRight();
 
-			data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * fw.Normalized());
-			data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * rg.Normalized());
-
-		//Vector3 lo = data.GetLocation();
-		//static bool toLeft = true;
-		//if (toLeft)
-		//{
-		//	data.SetLocation(Vector3::Lerp(lo, Vector3(-5.2f, 0, -2), delta * 2));
-		//
-		//	if (lo.x < -5)
-		//		toLeft = false;
-		//}
-		//else
-		//{
-		//	data.SetLocation(Vector3::Lerp(lo, Vector3(5.2f, 0, -2), delta * 2));
-		//
-		//	if (lo.x > 5)
-		//		toLeft = true;
-		//}
-
-		//Vector3 vertical = rotation.GetForward();
-		//vertical.Normalize();
-		//vertical *= freeLook.m_movementSpeeds.y * verticalKey * delta;
-		//
-		//Vector3 horizontal = rotation.GetRight();
-		//horizontal.Normalize();
-		//horizontal *= freeLook.m_movementSpeeds.x * horizontalKey * delta;
-		//
-		//Vector3 current = data.GetLocation();
-		//Vector3 targetLoc = current + vertical + horizontal;
-		//Vector3 newLoc = Vector3::Lerp(current, targetLoc, delta * freeLook.m_movementSpeeds.x);
-		//data.SetLocation(newLoc);
+			data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * fw.Normalized());
+			data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * rg.Normalized());
 
 		}
 

@@ -115,7 +115,7 @@ namespace Lina::Editor
 
 		bool playMode = Lina::Engine::Get()->GetPlayMode();
 		char* playLabel = playMode ? ICON_FA_STOP : ICON_FA_PLAY;
-		if (WidgetsUtility::ToolbarToggleIcon(playLabel, ImVec2(30, 22), 1, playMode, cursorPos, "Play/Stop"))
+		if (WidgetsUtility::ToolbarToggleIcon(playLabel, ImVec2(30, 22), 1, playMode, cursorPos, "Play/Stop", ImVec4(0.0f, 0.8f, 0.0f, 1.0f)))
 			Lina::Engine::Get()->SetPlayMode(!playMode);
 
 		ImGui::SameLine();

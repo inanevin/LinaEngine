@@ -82,6 +82,10 @@ namespace Lina::Editor
 
 		float m_borderAlpha = 0.0f;
 		bool m_isFocused = true;
+		bool m_shouldShowCameraSettings = false;
+		float m_cameraSettingsWindowYMultiplier = 0.0f;
+		float m_editorCameraSpeed = 1.0f;
+		float m_editorCameraSpeedMultiplier = 1.0f;
 		Lina::ECS::Entity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 	};

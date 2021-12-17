@@ -677,7 +677,7 @@ namespace Lina::Editor
 		return ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetWindowSize().y + yDiff);
 	}
 
-	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, float scale)
+	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color, float scale)
 	{
 		ImGui::SetCursorPosY(cursorPosY);
 		ImVec2 windowPos = ImGui::GetWindowPos();
@@ -708,7 +708,9 @@ namespace Lina::Editor
 		IncrementCursorPosY(yIncrement);
 		IncrementCursorPosX(size.x / 4.0f + 1);
 		PushScaledFont(scale);
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
 		ImGui::Text(label);
+		ImGui::PopStyleColor();
 		PopScaledFont();
 
 

@@ -129,6 +129,7 @@ namespace Lina::Editor
 		//style.ItemInnerSpacing = ImVec2(8, 4);
 		//style.ItemInnerSpacing = ImVec2(5, 4);
 		//style.GrabRounding = 6.0f;
+		style.GrabMinSize = 6.0f;
 		style.ChildBorderSize = 0.0f;
 		//style.TabBorderSize = 0.0f;
 		//style.WindowBorderSize = 0.0f;
@@ -153,7 +154,7 @@ namespace Lina::Editor
 		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
 		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
 		colors[ImGuiCol_CheckMark] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-		colors[ImGuiCol_SliderGrab] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
 		colors[ImGuiCol_Button] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
 		colors[ImGuiCol_ButtonHovered] = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
