@@ -41,7 +41,6 @@ set(LINAPHYSICS_HEADERS
 
 	
 	include/Physics/PhysicsGizmoDrawer.hpp
-	include/ECS/Components/RigidbodyComponent.hpp
 	include/ECS/Systems/RigidbodySystem.hpp
 	include/ECS/Components/AABBComponent.hpp
 )

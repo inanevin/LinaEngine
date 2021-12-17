@@ -36,7 +36,6 @@ SOFTWARE.
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -57,18 +56,14 @@ namespace Lina::Editor
 
 	ComponentDrawer::ComponentDrawer()
 	{
-
-		RegisterComponentToDraw<EntityDataComponent>(GetTypeID<EntityDataComponent>(), "Transformation", std::bind(&ComponentDrawer::DrawEntityDataComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<RigidbodyComponent>(GetTypeID<RigidbodyComponent>(), "Rigidbody", std::bind(&ComponentDrawer::DrawRigidbodyComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&ComponentDrawer::DrawDirectionalLightComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<SpotLightComponent>(GetTypeID<SpotLightComponent>(), "Spot Light", std::bind(&ComponentDrawer::DrawSpotLightComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<PointLightComponent>(GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&ComponentDrawer::DrawFreeLookComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
-
+		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&ComponentDrawer::DrawDirectionalLightComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<SpotLightComponent>(GetTypeID<SpotLightComponent>(), "Spot Light", std::bind(&ComponentDrawer::DrawSpotLightComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<PointLightComponent>(GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&ComponentDrawer::DrawFreeLookComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1));
+		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1));
 	}
 
 
@@ -79,10 +74,11 @@ namespace Lina::Editor
 	}
 
 	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Entity entity)
 	{
 		std::vector<std::string> eligibleTypes;
 		std::vector<TypeID> typeIDs;
+		auto* ecs = Lina::ECS::Registry::Get();
 
 		// Store all components of the entity.
 		ecs->visit(entity, [&typeIDs](const auto component)
@@ -106,13 +102,13 @@ namespace Lina::Editor
 		return eligibleTypes;
 	}
 
-	void ComponentDrawer::AddComponentToEntity(Registry* ecs, Entity entity, const std::string& comp)
+	void ComponentDrawer::AddComponentToEntity(Entity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
 		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
 			if (std::get<0>(it->second).compare(comp) == 0)
-				std::get<1>(it->second)(ecs, entity);
+				std::get<1>(it->second)(entity);
 		}
 	}
 
@@ -136,7 +132,7 @@ namespace Lina::Editor
 		m_componentDrawList.clear();
 	}
 
-	void ComponentDrawer::DrawComponents(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawComponents(Lina::ECS::Entity entity)
 	{
 		s_activeInstance = this;
 
@@ -145,7 +141,7 @@ namespace Lina::Editor
 		{
 			auto func = std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]]);
 			if (func)
-				func(ecs, entity);
+				func(entity);
 		}
 	}
 
@@ -250,9 +246,31 @@ namespace Lina::Editor
 		"CAPSULE"
 	};
 
-	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
+		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
+		TypeID id = GetTypeID<EntityDataComponent>();
+
+		bool foldoutOpen = m_foldoutStateMap[entity][id];
+		float sizeY = foldoutOpen ? 15 : 100;
+		bool enabled = false;
+		bool close, copy, reset = false;
+		bool actv = false;
+		//WidgetsUtility::ComponentHeader(&enabled, "Entity Data", ICON_FA_ADDRESS_BOOK, &actv, &close, &copy, &reset);
+		//ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+		//ImGui::BeginChild("##entity_data", ImVec2(0, 0), ImGuiWindowFlags_NoDecoration);
+		//
+		//
+		//ImGui::EndChild();
+		//ImGui::PopStyleColor();
+	}
+
+	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Entity entity)
+	{
+		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
 		TypeID id = GetTypeID<EntityDataComponent>();
 
@@ -344,9 +362,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		CameraComponent& camera = ecs->get<CameraComponent>(entity);
 		TypeID id = GetTypeID<CameraComponent>();
 
@@ -411,9 +430,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
 		TypeID id = GetTypeID<FreeLookComponent>();
 
@@ -421,9 +441,10 @@ namespace Lina::Editor
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
 		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
-		// Draw title.
+		bool removeComponent = false;
 		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<FreeLookComponent>(), "FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+		bool copyButton = false;
+		WidgetsUtility::ComponentHeader(&(m_foldoutStateMap[entity][id]), "Freelook", ICON_FA_EYE, &freeLook.m_isEnabled, &removeComponent, &copyButton, &refreshPressed);
 
 		// Remove if requested.
 		if (removeComponent)
@@ -435,6 +456,7 @@ namespace Lina::Editor
 		// Refresh
 		if (refreshPressed)
 			ecs->replace<FreeLookComponent>(entity, FreeLookComponent());
+		
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -462,11 +484,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
-		RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
-		TypeID id = GetTypeID<RigidbodyComponent>();
+		auto* ecs = Lina::ECS::Registry::Get();
+		PhysicsComponent& rb = ecs->get<PhysicsComponent>(entity);
+		TypeID id = GetTypeID<PhysicsComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -474,18 +497,18 @@ namespace Lina::Editor
 
 		// Draw title.
 		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<RigidbodyComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PhysicsComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs->remove<RigidbodyComponent>(entity);
+			ecs->remove<PhysicsComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs->replace<RigidbodyComponent>(entity, RigidbodyComponent());
+			ecs->replace<PhysicsComponent>(entity, PhysicsComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -560,7 +583,7 @@ namespace Lina::Editor
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			if (ImGui::Button("Apply"))
-				ecs->replace<Lina::ECS::RigidbodyComponent>(entity, rb);
+				ecs->replace<Lina::ECS::PhysicsComponent>(entity, rb);
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
@@ -569,9 +592,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		PointLightComponent& pLight = ecs->get<PointLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<PointLightComponent>();
@@ -678,9 +702,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		SpotLightComponent& sLight = ecs->get<SpotLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<SpotLightComponent>();
@@ -760,9 +785,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		DirectionalLightComponent& dLight = ecs->get<DirectionalLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<DirectionalLightComponent>();
@@ -843,9 +869,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		MeshRendererComponent& renderer = ecs->get<MeshRendererComponent>(entity);
 		TypeID id = GetTypeID<MeshRendererComponent>();
 		
@@ -860,9 +887,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		ModelRendererComponent& renderer = ecs->get<ModelRendererComponent>(entity);
 		TypeID id = GetTypeID<ModelRendererComponent>();
 
@@ -984,9 +1012,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
+		auto* ecs = Lina::ECS::Registry::Get();
 		SpriteRendererComponent& renderer = ecs->get<SpriteRendererComponent>(entity);
 		TypeID id = GetTypeID<SpriteRendererComponent>();
 

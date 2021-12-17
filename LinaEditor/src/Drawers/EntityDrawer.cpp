@@ -103,12 +103,12 @@ namespace Lina::Editor
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(ecs, m_selectedEntity);
+			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(m_selectedEntity);
 			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
 
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
-				m_componentDrawer.AddComponentToEntity(ecs, m_selectedEntity, chosenComponents[i]);
+				m_componentDrawer.AddComponentToEntity(m_selectedEntity, chosenComponents[i]);
 
 			ImGui::EndPopup();
 		}
@@ -117,18 +117,21 @@ namespace Lina::Editor
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
-		WidgetsUtility::FramePaddingX(4);
+		//ImGui::SetCursorPosX(12);
+		//m_componentDrawer.DrawEntityData(m_selectedEntity);
 
+		WidgetsUtility::FramePaddingX(4);
+		
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		ecs->visit(m_selectedEntity, [this](const auto component)
 			{
 				m_componentDrawer.AddIDToDrawList(component.hash());
 			});
-
+		
 		// Draw the added components.
-		m_componentDrawer.DrawComponents(ecs, m_selectedEntity);
+		m_componentDrawer.DrawComponents(m_selectedEntity);
 
-		WidgetsUtility::PopStyleVar();
+		 WidgetsUtility::PopStyleVar();
 
 	}
 

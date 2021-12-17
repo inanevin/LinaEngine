@@ -28,27 +28,27 @@ SOFTWARE.
 
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
 #include "Core/PhysicsBackend.hpp"
 
 namespace Lina::ECS
 {
 	void RigidbodySystem::UpdateComponents(float delta)
 	{
-		auto view = m_ecs->view<EntityDataComponent, RigidbodyComponent>();
+		auto view = m_ecs->view<EntityDataComponent, PhysicsComponent>();
 
 		// Find all entities with rigidbody component and transform component attached to them.
 		for (auto entity : view)
 		{
-			RigidbodyComponent& rbComponent = view.get<RigidbodyComponent>(entity);
-			if (!rbComponent.m_isEnabled) continue;
+			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
+			if (!phyComp.m_isEnabled) continue;
 
 			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 
 			// We get the rigidbody information from the world, and update the entity's transformation
 			// based on the body's transformation. So we keep the game world that does the rendering via
 			// transformations in sync with the physics world.
-			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(rbComponent.m_bodyID);
+			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(phyComp.m_bodyID);
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
 

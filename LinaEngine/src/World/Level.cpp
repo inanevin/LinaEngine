@@ -33,12 +33,8 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <stdio.h>

@@ -105,6 +105,7 @@ set(LINACOMMON_HEADERS
 	
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
+	include/ECS/Components/PhysicsComponent.hpp
 	include/ECS/ECS.hpp
 	include/ECS/ECSComponent.hpp
 	

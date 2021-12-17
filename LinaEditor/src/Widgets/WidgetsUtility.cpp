@@ -357,6 +357,122 @@ namespace Lina::Editor
 		return s_carets[title];
 	}
 
+	bool WidgetsUtility::CaretAndLabel(const char* title, const char* label)
+	{
+		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			s_carets[title] = !s_carets[title];
+
+		ImGui::SameLine();
+		ImGui::Text(label);
+		if (ImGui::IsItemClicked())
+			s_carets[title] = !s_carets[title];
+
+		return s_carets[title];
+	}
+
+	void WidgetsUtility::ComponentHeader(bool* enabledPtr, const char* componentLabel, const char* componentIcon, bool* componentActive, bool* closeButton, bool* copyButton, bool* resetButton)
+	{
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
+		const ImVec2 rectMin = currentPos;
+		const ImVec2 rectMax = ImVec2(rectMin.x + windowSize.x, rectMin.y + 25);
+		const ImVec4 normalColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		bool hovered = ImGui::IsMouseHoveringRect(rectMin, rectMax) && !ImGui::IsAnyItemHovered();
+		bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+		bool enabled = *enabledPtr;
+		const float iconScale = 0.65f;
+		const ImVec4 rectCol = pressing ? normalColor : (hovered ? hoverColor : normalColor);
+		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol));
+
+		static float caretpos = 6;
+		static float labelpos = -4;
+		static float iconpos = 3;
+		static float togglepos = -2;
+		static float restpos = 2;
+		static float perc1 = 36.0f;
+		static float perc2 = 26.0f;
+		static float w = 22;
+		static float h = 15;
+		static float x = 2;
+		static float y = 1;
+
+		IncrementCursorPosY(caretpos);
+		ImGui::Text(enabled ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+		ImGui::SameLine();
+		IncrementCursorPosY(labelpos);
+		ImGui::Text(componentLabel);
+		ImGui::SameLine();
+		PushScaledFont(iconScale);
+		IncrementCursorPosY(3);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		IncrementCursorPosY(iconpos);
+		ImGui::Text(componentIcon);
+		ImGui::PopStyleColor();
+		PopScaledFont();
+		ImGui::SameLine();
+		IncrementCursorPosY(togglepos);
+
+		ToggleButton("#b", componentActive, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		bool toggleButtonHovered = ImGui::IsItemHovered();
+		ImGui::SameLine();
+
+		PushScaledFont(iconScale);
+		IncrementCursorPosY(restpos);
+
+		std::vector<std::pair<const char*, bool*>> buttons;
+
+		if (closeButton != nullptr)
+			buttons.push_back(std::make_pair(ICON_FA_TIMES, closeButton));
+
+		if (copyButton != nullptr)
+			buttons.push_back(std::make_pair(ICON_FA_COPY, copyButton));
+
+		if (resetButton != nullptr)
+			buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetButton));
+
+
+		bool anyButtonRectHovered = false;
+
+		for (int i = 0; i < buttons.size(); i++)
+		{
+			if (i == 0)
+				ImGui::SetCursorPosX(windowSize.x - perc2);
+			else
+				ImGui::SetCursorPosX(windowSize.x - perc2 - (i * perc1));
+
+			float boxWidth = w;
+			float boxHeight = h;
+			ImRect itemRect = ImRect(ImGui::GetWindowPos().x + ImGui::GetCursorPosX() - (boxWidth / 2) + x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - (boxHeight / 2) + y,
+				ImGui::GetWindowPos().x + ImGui::GetCursorPosX() + boxWidth, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + boxHeight);
+
+			bool boxHovered = ImGui::IsMouseHoveringRect(itemRect.Min, itemRect.Max);
+			bool boxPressing = boxHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+			ImVec4 boxNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
+			ImVec4 boxHoverColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+			ImVec4 boxColor = boxPressing ? boxNormalColor : boxHovered ? boxHoverColor : boxNormalColor;
+			ImGui::GetWindowDrawList()->AddRectFilled(itemRect.Min, itemRect.Max, ImGui::ColorConvertFloat4ToU32(boxColor));
+			ImGui::Text(buttons[i].first);
+
+			if (boxHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+				*(buttons[i].second) = true;
+
+			if (i != buttons.size()-1)
+				ImGui::SameLine();
+
+			if (boxHovered)
+				anyButtonRectHovered = true;
+		}
+		PopScaledFont();
+
+
+		if (!anyButtonRectHovered && !toggleButtonHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
+			*enabledPtr = !(*enabledPtr);
+
+
+	}
+
 	void WidgetsUtility::IncrementCursorPosX(float f)
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + f);

@@ -33,8 +33,8 @@ Timestamp: 9/30/2020 2:46:27 AM
 
 #pragma once
 
-#ifndef RigidbodyComponent_HPP
-#define RigidbodyComponent_HPP
+#ifndef PhysicsbodyComponent_HPP
+#define PhysicsbodyComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
 #include "Math/Vector.hpp"
@@ -49,7 +49,7 @@ namespace Lina::ECS
 		CAPSULE
 	};
 
-	struct RigidbodyComponent : public ECSComponent
+	struct PhysicsComponent : public ECSComponent
 	{
 		CollisionShape m_collisionShape = CollisionShape::Sphere;
 		Lina::Vector3 m_localInertia = Lina::Vector3::Zero;

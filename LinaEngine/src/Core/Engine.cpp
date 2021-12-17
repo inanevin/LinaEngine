@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
@@ -112,7 +112,7 @@ namespace Lina
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
 		m_ecs.RegisterComponent<ECS::FreeLookComponent>();
-		m_ecs.RegisterComponent<ECS::RigidbodyComponent>();
+		m_ecs.RegisterComponent<ECS::PhysicsComponent>();
 		m_ecs.RegisterComponent<ECS::CameraComponent>();
 		m_ecs.RegisterComponent<ECS::PointLightComponent>();
 		m_ecs.RegisterComponent<ECS::SpotLightComponent>();
