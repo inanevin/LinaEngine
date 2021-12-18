@@ -250,14 +250,14 @@ namespace Lina::Editor
 		float radius = height * 0.50f;
 
 		ImGui::InvisibleButton(label, ImVec2(width, height));
-		if (ImGui::IsItemClicked())
+		if (v != nullptr && ImGui::IsItemClicked())
 			*v = !*v;
 
-		float t = *v ? 1.0f : 0.0f;
+		float t = v == nullptr ? 0.0f : *v ? 1.0f : 0.0f;
 
 		ImGuiContext& g = *GImGui;
 		float ANIM_SPEED = 0.08f;
-		if (g.LastActiveId == g.CurrentWindow->GetID(label))// && g.LastActiveIdTimer < ANIM_SPEED)
+		if (v != nullptr && g.LastActiveId == g.CurrentWindow->GetID(label))// && g.LastActiveIdTimer < ANIM_SPEED)
 		{
 			float t_anim = ImSaturate(g.LastActiveIdTimer / ANIM_SPEED);
 			t = *v ? (t_anim) : (1.0f - t_anim);
@@ -272,7 +272,7 @@ namespace Lina::Editor
 		draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
 		draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
 
-		return *v;
+		return v != nullptr ? *v : false;
 	}
 
 	void WidgetsUtility::DrawWindowBorders(const ImVec4& color, float thickness)
@@ -371,7 +371,7 @@ namespace Lina::Editor
 		return s_carets[title];
 	}
 
-	void WidgetsUtility::ComponentHeader(bool* enabledPtr, const char* componentLabel, const char* componentIcon, bool* componentActive, bool* closeButton, bool* copyButton, bool* resetButton)
+	void WidgetsUtility::ComponentHeader(bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted)
 	{
 		const ImVec2 windowSize = ImGui::GetWindowSize();
 		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
@@ -381,7 +381,6 @@ namespace Lina::Editor
 		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 		bool hovered = ImGui::IsMouseHoveringRect(rectMin, rectMax) && !ImGui::IsAnyItemHovered();
 		bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-		bool enabled = *enabledPtr;
 		const float iconScale = 0.65f;
 		const ImVec4 rectCol = pressing ? normalColor : (hovered ? hoverColor : normalColor);
 		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol));
@@ -398,8 +397,9 @@ namespace Lina::Editor
 		static float x = 2;
 		static float y = 1;
 
+		ImGui::SetCursorPosX(12);
 		IncrementCursorPosY(caretpos);
-		ImGui::Text(enabled ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+		ImGui::Text(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
 		ImGui::SameLine();
 		IncrementCursorPosY(labelpos);
 		ImGui::Text(componentLabel);
@@ -414,7 +414,7 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		IncrementCursorPosY(togglepos);
 
-		ToggleButton("#b", componentActive, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		ToggleButton("#b", toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header) );
 		bool toggleButtonHovered = ImGui::IsItemHovered();
 		ImGui::SameLine();
 
@@ -423,14 +423,10 @@ namespace Lina::Editor
 
 		std::vector<std::pair<const char*, bool*>> buttons;
 
-		if (closeButton != nullptr)
-			buttons.push_back(std::make_pair(ICON_FA_TIMES, closeButton));
-
-		if (copyButton != nullptr)
-			buttons.push_back(std::make_pair(ICON_FA_COPY, copyButton));
-
-		if (resetButton != nullptr)
-			buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetButton));
+		buttons.push_back(std::make_pair(ICON_FA_TIMES, removed));
+		buttons.push_back(std::make_pair(ICON_FA_COPY, copied));
+		buttons.push_back(std::make_pair(ICON_FA_PASTE, pasted));
+		buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetted));
 
 
 		bool anyButtonRectHovered = false;
@@ -442,6 +438,8 @@ namespace Lina::Editor
 			else
 				ImGui::SetCursorPosX(windowSize.x - perc2 - (i * perc1));
 
+			bool locked = buttons[i].second == nullptr;
+
 			float boxWidth = w;
 			float boxHeight = h;
 			ImRect itemRect = ImRect(ImGui::GetWindowPos().x + ImGui::GetCursorPosX() - (boxWidth / 2) + x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - (boxHeight / 2) + y,
@@ -449,16 +447,17 @@ namespace Lina::Editor
 
 			bool boxHovered = ImGui::IsMouseHoveringRect(itemRect.Min, itemRect.Max);
 			bool boxPressing = boxHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+			ImVec4 lockedColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 			ImVec4 boxNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
 			ImVec4 boxHoverColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-			ImVec4 boxColor = boxPressing ? boxNormalColor : boxHovered ? boxHoverColor : boxNormalColor;
+			ImVec4 boxColor = locked ? lockedColor : boxPressing ? boxNormalColor : boxHovered ? boxHoverColor : boxNormalColor;
 			ImGui::GetWindowDrawList()->AddRectFilled(itemRect.Min, itemRect.Max, ImGui::ColorConvertFloat4ToU32(boxColor));
 			ImGui::Text(buttons[i].first);
 
-			if (boxHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			if (!locked && boxHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 				*(buttons[i].second) = true;
 
-			if (i != buttons.size()-1)
+			if (i != buttons.size() - 1)
 				ImGui::SameLine();
 
 			if (boxHovered)
@@ -468,7 +467,7 @@ namespace Lina::Editor
 
 
 		if (!anyButtonRectHovered && !toggleButtonHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
-			*enabledPtr = !(*enabledPtr);
+			*foldoutOpen = !(*foldoutOpen);
 
 
 	}
@@ -625,7 +624,7 @@ namespace Lina::Editor
 		return materialToReturn;
 	}
 
-	Lina::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID)
+	Lina::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID, bool* removed)
 	{
 		Lina::Graphics::Model* modelToReturn = nullptr;
 
@@ -636,6 +635,13 @@ namespace Lina::Editor
 			modelLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
 		}
 
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		
+		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+
+		ImGui::SetNextItemWidth(comboWidth);
 		if (ImGui::BeginCombo(comboID, modelLabel.c_str()))
 		{
 			auto& loadedModels = Graphics::Model::GetLoadedModels();
@@ -656,6 +662,17 @@ namespace Lina::Editor
 			}
 
 			ImGui::EndCombo();
+		}
+
+		if (removed != nullptr)
+		{
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			WidgetsUtility::IncrementCursorPosY(6);
+
+			// Remove Model
+			if (WidgetsUtility::IconButton("##removeModel", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+				*removed = true;
 		}
 
 		return modelToReturn;

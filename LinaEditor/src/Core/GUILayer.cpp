@@ -484,11 +484,11 @@ namespace Lina::Editor
 		auto& model = Lina::Graphics::Model::GetModel(modelPath);
 		auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 		auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
-		mr.SetModel(ecs, entity, model);
+		mr.SetModel(entity, model);
 
 		auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
 
 		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
-			mr.SetMaterial(ecs, entity, i, mat);
+			mr.SetMaterial(entity, i, mat);
 	}
 }

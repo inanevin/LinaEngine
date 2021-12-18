@@ -49,7 +49,59 @@ namespace Lina::Editor
 
 	typedef std::function<void(Lina::ECS::Entity)> ComponentFunction;
 	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
-	typedef std::function<entt::meta_handle(Lina::ECS::Entity)> GetComponentFunction;
+	typedef std::function<entt::meta_any(Lina::ECS::Entity)> GetComponentFunction;
+	typedef std::function<void(Lina::ECS::Entity)> RemoveComponentFunction;
+	typedef std::function<void(Lina::ECS::Entity)> ResetComponentFunction;
+	typedef std::function<void(Lina::ECS::Entity)> CopyComponentFunction;
+
+	struct DrawData
+	{
+		DrawData() {};
+		DrawData(const std::string& icon, const std::string& name, bool copyEnabled, bool pasteEnabled, bool resetEnabled, bool closeEnabled)
+		{
+			m_icon = icon;
+			m_name = name;
+			m_copyEnabled = copyEnabled;
+			m_pasteEnabled = pasteEnabled;
+			m_resetEnabled = resetEnabled;
+			m_closeEnabled = closeEnabled;
+			m_foldoutOpen = true;
+		}
+
+		std::string m_icon = "";
+		std::string m_name = "";
+		bool m_copyEnabled = true;
+		bool m_pasteEnabled = true;
+		bool m_resetEnabled = true;
+		bool m_closeEnabled = true;
+		bool m_foldoutOpen = true;
+	};
+
+	enum ComponentDrawFlags_
+	{
+		ComponentDrawFlags_None = 0,
+		ComponentDrawFlags_NoRemove = 1 << 0,
+		ComponentDrawFlags_NoReset = 1 << 1,
+		ComponentDrawFlags_NoCopy = 1 << 2,
+		ComponentDrawFlags_NoPaste = 1 << 3,
+		ComponentDrawFlags_NoToggle = 1 << 4
+	};
+
+	enum class ComponentVariableType
+	{
+		DragInt,
+		DragFloat,
+		Vector2,
+		Vector3,
+		Vector4,
+		Color,
+		Matrix,
+		Checkmark,
+		MaterialPath,
+		MaterialPathArray,
+		ModelPath,
+		ModelPathArray
+	};
 
 	class ComponentDrawer
 	{
@@ -76,12 +128,7 @@ namespace Lina::Editor
 			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
 		}
 
-		template<typename T>
-		entt::meta_handle GetComponentFunc(Lina::ECS::Entity ent)
-		{
-			T& t = Lina::ECS::Registry::Get()->get<T>(ent);
-			return entt::meta_handle{ t };
-		}
+	
 
 		void DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
 
@@ -107,7 +154,6 @@ namespace Lina::Editor
 
 	private:
 
-
 		template<typename T>
 		void ComponentAddFunction(Lina::ECS::Entity entity)
 		{
@@ -115,9 +161,56 @@ namespace Lina::Editor
 			ecs->emplace<T>(entity, T());
 		}
 
+		template<typename T>
+		entt::meta_any GetComponentFunc(Lina::ECS::Entity ent)
+		{
+			return Lina::ECS::Registry::Get()->get<T>(ent);
+		}
+
+		template <typename T>
+		void RemoveComponentFunc(Lina::ECS::Entity ent)
+		{
+			Lina::ECS::Registry::Get()->remove<T>(ent);
+		}
+
+		template <typename T>
+		void ResetComponentFunc(Lina::ECS::Entity ent)
+		{
+			Lina::ECS::Registry::Get()->replace<T>(ent, T());
+		}
+
+		template <typename T>
+		void CopyComponentFunc(Lina::ECS::Entity ent)
+		{
+			// m_copyBuffer = std::make_pair<Lina::ECS::Entity, Lina::ECS::TypeID>(ent, entt::type_id<T>().hash());
+		}
+
+		template <typename T>
+		void PasteComponentFunc(Lina::ECS::Entity ent, T copy)
+		{
+			Lina::ECS::Registry::Get()->replace<T>(ent, copy);
+		}
+
+		template <typename T>
+		void RegisterComponentFunctions(const std::string& title, const std::string& icon, bool removeEnabled = true, bool resetEnabled = true, bool copyEnabled = true, bool pasteEnabled = true)
+		{
+			Lina::ECS::TypeID tid = entt::type_id <T>().hash();
+			m_getComponentFunctions[tid] = std::bind(&ComponentDrawer::GetComponentFunc<T>, this, std::placeholders::_1);
+			m_removeComponentFunctions[tid] = std::bind(&ComponentDrawer::RemoveComponentFunc<T>, this, std::placeholders::_1);
+			m_resetComponentFunctions[tid] = std::bind(&ComponentDrawer::ResetComponentFunc<T>, this, std::placeholders::_1);
+			m_copyComponentFunctions[tid] = std::bind(&ComponentDrawer::CopyComponentFunc<T>, this, std::placeholders::_1);
+			m_componentDrawData[tid] = DrawData(icon, title, removeEnabled, resetEnabled, copyEnabled, pasteEnabled);
+		}
+
 	private:
 
 		std::map<Lina::ECS::TypeID, GetComponentFunction> m_getComponentFunctions;
+		std::map<Lina::ECS::TypeID, RemoveComponentFunction> m_removeComponentFunctions;
+		std::map<Lina::ECS::TypeID, ResetComponentFunction> m_resetComponentFunctions;
+		std::map<Lina::ECS::TypeID, CopyComponentFunction> m_copyComponentFunctions;
+		std::map<Lina::ECS::TypeID, DrawData> m_componentDrawData;
+		std::pair<ECS::Entity, ECS::TypeID> m_copyBuffer;
+
 		std::map<Lina::ECS::TypeID, ComponentValueTuple> m_componentFunctionsMap;
 		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
 		std::vector<Lina::ECS::TypeID> m_componentDrawList;

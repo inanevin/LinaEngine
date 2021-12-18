@@ -90,7 +90,7 @@ namespace Lina::Editor
 		static void AlignedText(const char* label);
 		static bool Caret(const char* title);
 		static bool CaretAndLabel(const char* title, const char* label);
-		static void ComponentHeader(bool* enabled, const char* componentLabel, const char* componentIcon, bool* componentActive, bool* closeButton, bool* copyButton, bool* resetButton);
+		static void ComponentHeader(bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
 		static void IncrementCursorPos(const ImVec2& v);
@@ -113,7 +113,7 @@ namespace Lina::Editor
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath);
-		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID);
+		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
 		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID);
 
 		static std::map<std::string, bool> s_carets;

@@ -101,7 +101,7 @@ namespace Lina::Graphics
 		}
 
 		// Set id
-		model.m_meshID = id;
+		model.m_id = id;
 		model.m_path = path;
 		model.m_paramsPath = paramsPath;
 		return s_loadedModels[id];
@@ -132,7 +132,7 @@ namespace Lina::Graphics
 		}
 
 		// Set id
-		model.m_meshID = id;
+		model.m_id = id;
 		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
 		return s_loadedModels[id];

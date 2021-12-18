@@ -33,8 +33,10 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void ModelRendererComponent::SetModel(ECS::Registry* reg, ECS::Entity parent, Graphics::Model& model)
+	void ModelRendererComponent::SetModel(ECS::Entity parent, Graphics::Model& model)
 	{
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+		
 		// Assign model data
 		m_modelID = model.GetID();
 		m_modelPath = model.GetPath();
@@ -52,6 +54,8 @@ namespace Lina::ECS
 			return;
 		}
 
+		auto& defaultMaterial = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+
 		// Generate entities for each children.
 		for (int i = 0; i < model.GetMeshes().size(); i++)
 		{
@@ -62,13 +66,22 @@ namespace Lina::ECS
 			mr.m_meshIndex = i;
 			mr.m_modelID = model.GetID();
 			mr.m_modelPath = m_modelPath;
+
+			// Set default material to mesh renderer.
+			mr.m_materialID = defaultMaterial.GetID();
+			mr.m_materialPath = defaultMaterial.GetPath();
 		}
+
+		// Set default material to all the paths.
+		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+			m_materialPaths[i] = defaultMaterial.GetPath();
 
 		m_materialCount = model.GetMaterialSpecs().size();
 	}
 
-	void ModelRendererComponent::RemoveModel(ECS::Registry* reg, ECS::Entity parent)
+	void ModelRendererComponent::RemoveModel(ECS::Entity parent)
 	{
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
 		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
@@ -83,9 +96,10 @@ namespace Lina::ECS
 		m_materialPaths.clear();
 	}
 
-	void ModelRendererComponent::SetMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material)
+	void ModelRendererComponent::SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material)
 	{
-		
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+
 		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
@@ -116,8 +130,10 @@ namespace Lina::ECS
 		}
 	}
 
-	void ModelRendererComponent::RemoveMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex)
+	void ModelRendererComponent::RemoveMaterial(ECS::Entity parent, int materialIndex)
 	{
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+
 		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{

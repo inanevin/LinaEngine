@@ -62,6 +62,7 @@ void ExampleLevel::Initialize()
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
 	Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
+
 }
 
 void ExampleLevel::Tick(Event::ETick ev)
@@ -74,6 +75,14 @@ void ExampleLevel::Tick(Event::ETick ev)
 		Vector3 location = data.GetLocation();
 		location.x = Math::Sin(Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
 		data.SetLocation(location);
+	}
+
+	if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Space))
+	{
+		auto entity = ECS::Registry::Get()->GetEntity("capsule.fbx");
+		ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+		mr.SetModel(entity, Graphics::Model::GetModel("resources/engine/meshes/primitives/sphere.fbx"));
+		mr.SetMaterial(entity, 0, Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat"));
 	}
 }
 

@@ -71,11 +71,12 @@ namespace Lina::ECS
 	struct ModelRendererComponent : public ECSComponent
 	{
 
-		void SetModel(ECS::Registry* reg, ECS::Entity parent, Graphics::Model& model);
-		void RemoveModel(ECS::Registry* reg, ECS::Entity parent);
-		void SetMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material);
-		void RemoveMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex);
+		void SetModel(ECS::Entity parent, Graphics::Model& model);
+		void RemoveModel(ECS::Entity parent);
+		void SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material);
+		void RemoveMaterial(ECS::Entity parent, int materialIndex);
 		
+		std::string GetModelPath() { return m_modelPath; }
 
 	private:
 
@@ -84,7 +85,7 @@ namespace Lina::ECS
 		friend class Lina::World::Level;
 		friend class Lina::Editor::ComponentDrawer;
 
-		int m_modelID = 0;
+		StringIDType m_modelID = 0;
 		std::string m_modelPath = "";
 		std::string m_modelParamsPath = "";
 		std::vector<std::string> m_materialPaths;

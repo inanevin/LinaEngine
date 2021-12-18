@@ -44,11 +44,11 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);
 
-			if (ImGui::Selectable(it->second.GetPath().c_str(), selected == it->second.GetID()))
-			{
-				selected = it->second.GetID();
-				selectedPath = it->second.GetPath();
-			}
+			//if (ImGui::Selectable(it->second.GetPath().c_str(), selected == it->second.GetID()))
+			//{
+			//	//selected = it->second.GetID();
+			//	//selectedPath = it->second.GetPath();
+			//}
 		}
 
 		ImGui::EndChild();

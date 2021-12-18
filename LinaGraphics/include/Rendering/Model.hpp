@@ -93,18 +93,17 @@ namespace Lina::Graphics
 		ModelSceneParameters& GetWorldParameters() { return m_worldParameters; }
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
-		const int GetID() const { return m_meshID; }
-
+		StringIDType GetID() { return m_id; }
 
 	private:
 
 		static std::map<StringIDType, Model> s_loadedModels;
 
 		friend class OpenGLRenderEngine;
-		int m_meshID = -1;
 		std::string m_path = "";
 		std::string m_paramsPath = "";
 
+		StringIDType m_id = -1;
 		ModelSceneParameters m_worldParameters;
 		ModelParameters m_parameters;
 		std::vector<Mesh> m_meshes;
