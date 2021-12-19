@@ -125,7 +125,7 @@ namespace Lina::Editor
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		ecs->visit(m_selectedEntity, [this](const auto component)
 			{
-				m_componentDrawer.AddIDToDrawList(component.hash());
+				//m_componentDrawer.AddIDToDrawList(component.hash());
 				m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
 			});
 		

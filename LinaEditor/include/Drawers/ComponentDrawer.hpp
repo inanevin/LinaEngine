@@ -129,9 +129,10 @@ namespace Lina::Editor
 		}
 
 	
-
+		void DrawDebugPointLight(Lina::ECS::Entity ent);
+		void DrawDebugSpotLight(Lina::ECS::Entity ent);
+		void DrawDebugDirectionalLight(Lina::ECS::Entity ent);
 		void DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
-
 		void DrawEntityData(Lina::ECS::Entity entity);
 		void DrawEntityDataComponent(Lina::ECS::Entity entity);
 		void DrawCameraComponent(Lina::ECS::Entity entity);

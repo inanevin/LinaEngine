@@ -60,7 +60,7 @@ using namespace Lina::Editor;
 
 namespace Lina::Editor
 {
-	
+
 	std::map<entt::id_type, std::string> m_variableTypeIdentifiers;
 	std::map<entt::id_type, bool> m_componentFoldoutState;
 
@@ -96,23 +96,34 @@ namespace Lina::Editor
 	void SetEnabled(bool enabled, Lina::ECS::Entity ent)
 	{
 		Lina::ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
+
+		// If we are toggling model renderer component, toggle every mesh renderer component below it.
+		if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
+		{
+			auto& data = Lina::ECS::Registry::Get()->get<EntityDataComponent>(ent);
+			for (auto child : data.m_children)
+			{
+				auto* meshRenderer = Lina::ECS::Registry::Get()->try_get<MeshRendererComponent>(child);
+				meshRenderer->m_isEnabled = enabled;
+			}
+		}
 	}
 
 	template<typename Type>
-	void SetModelRendererModel(Lina::ECS::Entity ent, Lina::Graphics::Model* model)
+	void Drawer_SetModel(Lina::ECS::Entity ent, Lina::Graphics::Model* model)
 	{
 		Lina::ECS::Registry::Get()->get<Type>(ent).SetModel(ent, *model);
 	}
 
 	template<typename Type>
-	void RemoveModelRendererModel(Lina::ECS::Entity ent)
+	void Drawer_RemoveModel(Lina::ECS::Entity ent)
 	{
 		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
 		comp.RemoveModel(ent);
 	}
 
 	template<typename Type>
-	void SetModelRendererMaterial(Lina::ECS::Entity ent, int materialIndex, const Graphics::Material& material)
+	void Drawer_SetMaterial(Lina::ECS::Entity ent, int materialIndex, const Graphics::Material& material)
 	{
 		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
 		comp.SetMaterial(ent, materialIndex, material);
@@ -120,14 +131,14 @@ namespace Lina::Editor
 
 
 	template<typename Type>
-	void RemoveModelRendererMaterial(Lina::ECS::Entity ent, int materialIndex)
+	void Drawer_RemoveMaterial(Lina::ECS::Entity ent, int materialIndex)
 	{
 		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
 		comp.RemoveMaterial(ent, materialIndex);
 	}
 
 	template<typename Type>
-	std::string GetModelRendererMaterialName(Lina::ECS::Entity ent, int index)
+	std::string Drawer_GetMaterialName(Lina::ECS::Entity ent, int index)
 	{
 		std::string modelPath = Lina::ECS::Registry::Get()->template get<Type>(ent).GetModelPath();
 		return Lina::Graphics::Model::GetModel(modelPath).GetMaterialSpecs()[index].m_name;;
@@ -146,6 +157,9 @@ namespace Lina::Editor
 		entt::meta<Type>().func<&Paste<Type>, entt::as_ref_t>("paste"_hs);
 	}
 
+	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
+		LINA_TRACE("Debug PLIGHT");
+	}
 	ComponentDrawer::ComponentDrawer()
 	{
 		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1));
@@ -177,7 +191,8 @@ namespace Lina::Editor
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS("Shadow Near", ComponentVariableType::DragFloat));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS("Shadow Projection", ComponentVariableType::Vector4));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", "Color"));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<DirectionalLightComponent>().func<&ComponentDrawer::DrawDebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags);
 
 		// Spotlight
@@ -187,7 +202,8 @@ namespace Lina::Editor
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_cutoff>("cof"_hs).props(PROPS("Cutoff", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", "Color"));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags);
 
 		// Pointlight
@@ -199,7 +215,8 @@ namespace Lina::Editor
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("cs"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", "Color"));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<PointLightComponent>().func<&ComponentDrawer::DrawDebugPointLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags);
 
 		// Freelook
@@ -213,11 +230,11 @@ namespace Lina::Editor
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialPathArray));
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath));
-		entt::meta<ModelRendererComponent>().func<&SetModelRendererModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
-		entt::meta<ModelRendererComponent>().func<&GetModelRendererMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
-		entt::meta<ModelRendererComponent>().func<&RemoveModelRendererModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
-		entt::meta<ModelRendererComponent>().func<&SetModelRendererMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
-		entt::meta<ModelRendererComponent>().func<&RemoveModelRendererMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
+		entt::meta<ModelRendererComponent>().func<&Drawer_SetModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
+		entt::meta<ModelRendererComponent>().func<&Drawer_GetMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
+		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
+		entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
+		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
 		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags);
 
 		// Sprite renderer
@@ -447,6 +464,36 @@ namespace Lina::Editor
 		"CAPSULE"
 	};
 
+	void ComponentDrawer::DrawDebugPointLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
+		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
+	}
+
+	void ComponentDrawer::DrawDebugSpotLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
+	void ComponentDrawer::DrawDebugDirectionalLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		Vector3 dir = Vector3::Zero - data.GetLocation();
+		Vector3 end1 = data.GetLocation() + dir;
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
 	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
 	{
 		auto* ecs = ECS::Registry::Get();
@@ -459,7 +506,7 @@ namespace Lina::Editor
 			auto icon = resolvedData.prop("Icon"_hs).value().cast<char*>();
 			auto foldout = resolvedData.prop("Foldout"_hs).value().cast<bool>();
 			entt::meta_any& instance = resolvedData.func("get"_hs).invoke({}, ent);
-			
+
 			bool drawToggle = !(drawFlags & ComponentDrawFlags_NoToggle);
 			bool drawRemove = !(drawFlags & ComponentDrawFlags_NoRemove);
 			bool drawCopy = !(drawFlags & ComponentDrawFlags_NoCopy);
@@ -471,9 +518,9 @@ namespace Lina::Editor
 			bool reset = false;
 			bool enabled = resolvedData.data("enabled"_hs).get(instance).cast<bool>();
 			WidgetsUtility::ComponentHeader(&m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr);
-			
+
 			resolvedData.data("enabled"_hs).set(instance, enabled);
-			
+
 			if (remove)
 				resolvedData.func("remove"_hs).invoke({}, ent);
 
@@ -488,14 +535,34 @@ namespace Lina::Editor
 
 			if (m_componentFoldoutState[tid])
 			{
+				// Check if the target data contains a debug property,
+				// If so, and if the property is set to true,
+				// Call the debug function if exists.
+				auto debugProperty = resolvedData.data("debug"_hs);
+				if (debugProperty)
+				{
+					auto debugFunc = resolvedData.func("drawDebug"_hs);
+					entt::meta_any metaThis = this;
+
+					if (debugFunc)
+						debugFunc.invoke({}, entt::forward_as_meta(*this), ent);
+					//bool isDebugEnabled = debugProperty.get(instance).cast<bool>();
+					//
+					//if (isDebugEnabled)
+					//{
+					//	
+					//}
+				}
+
+				// Draw each reflected property in the component according to it's type.
 				WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 				float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 				float cursorPosLabels = CURSORPOS_X_LABELS;
-
 				int varCounter = 0;
 				std::string varLabelID = "";
-				for (auto data : resolvedData.data()) {
-				
+				for (auto data : resolvedData.data())
+				{
+
 					auto labelProperty = data.prop("Label"_hs);
 					auto typeProperty = data.prop("Type"_hs);
 					if (!labelProperty || !typeProperty) continue;
@@ -561,8 +628,9 @@ namespace Lina::Editor
 							resolvedData.func("setModel"_hs).invoke({}, ent, selectedModel);
 
 						// Remove Model
-						if (removed)
+						if (removed || reset)
 							resolvedData.func("removeModel"_hs).invoke({}, ent);
+
 
 						// Mesh drag & drop.
 						if (ImGui::BeginDragDropTarget())
@@ -596,17 +664,17 @@ namespace Lina::Editor
 							WidgetsUtility::AlignedText(materialName.c_str());
 							ImGui::SameLine();
 							ImGui::SetCursorPosX(cursorPosValues);
-							ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 
-							const std::string cboxID = "#modelrend_material " + i;
-							Lina::Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i]);
+							const std::string cboxID = "##modRendMat " + std::to_string(i);
+							bool removed = false;
+							Lina::Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
 
 							if (selectedMaterial != nullptr)
 								resolvedData.func("setMaterial"_hs).invoke({}, ent, i, *selectedMaterial);
 
+							if (removed)
+								resolvedData.func("removeMaterial"_hs).invoke({}, ent, i);
 
-							ImGui::SameLine();
-							WidgetsUtility::IncrementCursorPosY(5);
 
 							// Material drag & drop.
 							if (ImGui::BeginDragDropTarget())
@@ -620,10 +688,9 @@ namespace Lina::Editor
 								}
 								ImGui::EndDragDropTarget();
 							}
+
 						}
 
-						ImGui::SetCursorPosX(cursorPosLabels);
-						WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 					}
 
 
@@ -1336,7 +1403,7 @@ namespace Lina::Editor
 					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
 
 					auto& model = Lina::Graphics::Model::GetModel(*(StringIDType*)payload->Data);
-					renderer.SetModel( entity, model);
+					renderer.SetModel(entity, model);
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -1346,7 +1413,7 @@ namespace Lina::Editor
 			// Remove Model
 			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				renderer.RemoveModel( entity);
+				renderer.RemoveModel(entity);
 			}
 
 			for (int i = 0; i < renderer.m_materialPaths.size(); i++)
@@ -1389,7 +1456,7 @@ namespace Lina::Editor
 				std::string icnBtn = "##selectmat" + std::to_string(i);
 				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 				{
-					renderer.RemoveMaterial( entity, i);
+					renderer.RemoveMaterial(entity, i);
 				}
 			}
 

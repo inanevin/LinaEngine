@@ -56,9 +56,10 @@ namespace Lina::ECS
 		{
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
 			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0 || renderer.m_meshIndex < 0) continue;
-
+			
 			auto& data = view.get<EntityDataComponent>(entity);
 
+	
 			// We get the materials, then according to their surface types we add the model
 			// data into either opaque queue or the transparent queue.
 			Graphics::Model& model = Lina::Graphics::Model::GetModel(renderer.m_modelID);

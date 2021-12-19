@@ -67,6 +67,7 @@ namespace Lina::Editor
 		
 	public:
 		
+		static void Tooltip(const char* tooltip);
 		static bool ColorsEqual(ImVec4 col1, ImVec4 col2);
 		static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0,0,0,0));
 		static void ColorButton(const char* id, float* colorX);
@@ -112,9 +113,9 @@ namespace Lina::Editor
 		static void ItemSpacing(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
-		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath);
+		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
 		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
-		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID);
+		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
 
 		static std::map<std::string, bool> s_carets;
 
