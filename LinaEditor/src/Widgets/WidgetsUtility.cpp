@@ -431,7 +431,7 @@ namespace Lina::Editor
 		IncrementCursorPosY(restpos);
 
 		std::vector<std::pair<const char*, bool*>> buttons;
-		std::vector<std::string> buttonNames{ "Remove", "Copy", "Paste", "Reset" };
+		std::vector<std::string> buttonNames{ "Remove", "Paste", "Copy", "Reset" };
 
 		buttons.push_back(std::make_pair(ICON_FA_TIMES, removed));
 		buttons.push_back(std::make_pair(ICON_FA_PASTE, pasted));

@@ -61,34 +61,55 @@ using namespace Lina::Editor;
 namespace Lina::Editor
 {
 
-	std::map<entt::id_type, std::string> m_variableTypeIdentifiers;
-	std::map<entt::id_type, bool> m_componentFoldoutState;
+	std::map<Lina::ECS::TypeID, std::string> m_variableTypeIdentifiers;
+	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
+	std::pair<Lina::ECS::Entity, Lina::ECS::TypeID> m_copyBuffer;
 
 	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
 	using namespace entt::literals;
 
 	template<typename Type>
-	Type& Drawer_Get(Lina::ECS::Entity entity) {
+	Type& Drawer_Get(Lina::ECS::Entity entity)
+	{
 		return Lina::ECS::Registry::Get()->template get<Type>(entity);
 	}
 
 	template<typename Type>
-	void Drawer_Reset(Lina::ECS::Entity entity) {
+	void Drawer_Reset(Lina::ECS::Entity entity)
+	{
 		Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
 	}
 
 	template<typename Type>
-	void Drawer_Remove(Lina::ECS::Entity entity) {
+	void Drawer_Remove(Lina::ECS::Entity entity)
+	{
 		Lina::ECS::Registry::Get()->template remove<Type>(entity);
 	}
 
-	template<typename Type>
-	void Drawer_Copy(entt::entity entity) {
 
+	void Drawer_Copy(Lina::ECS::Entity entity, Lina::ECS::TypeID tid)
+	{
+		m_copyBuffer.first = entity;
+		m_copyBuffer.second = tid;
 	}
 
 	template<typename Type>
-	void Drawer_Paste(entt::entity entity) {
+	void Drawer_Paste(Lina::ECS::Entity entity)
+	{
+		Lina::ECS::TypeID pastedTid = Lina::ECS::GetTypeID<Type>();
+
+		if (pastedTid == m_copyBuffer.second)
+		{
+			if (m_copyBuffer.first != entt::null)
+			{
+				Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
+
+				if (copy != nullptr)
+					Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
+			}
+
+
+		}
 
 	}
 
@@ -183,7 +204,7 @@ namespace Lina::Editor
 		entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
 		entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
 		entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_ref_t>("remove"_hs);
-		entt::meta<Type>().func<&Drawer_Copy<Type>, entt::as_ref_t>("copy"_hs);
+		entt::meta<Type>().func<&Drawer_Copy, entt::as_ref_t>("copy"_hs);
 		entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
 	}
 
@@ -534,14 +555,14 @@ namespace Lina::Editor
 				resolvedData.func("reset"_hs).invoke({}, ent);
 
 			if (copy)
-				resolvedData.func("copy"_hs).invoke({}, ent);
+				resolvedData.func("copy"_hs).invoke({}, ent, tid);
 
 			if (paste)
 				resolvedData.func("paste"_hs).invoke({}, ent);
 
 			if (m_componentFoldoutState[tid])
 			{
-			
+
 				// Draw each reflected property in the component according to it's type.
 				WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 				float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
