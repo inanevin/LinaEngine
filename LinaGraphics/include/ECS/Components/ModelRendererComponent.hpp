@@ -77,6 +77,7 @@ namespace Lina::ECS
 		void RemoveMaterial(ECS::Entity parent, int materialIndex);
 		
 		std::string GetModelPath() { return m_modelPath; }
+		std::vector<std::string> GetMaterialPaths() { return m_materialPaths; }
 
 	private:
 

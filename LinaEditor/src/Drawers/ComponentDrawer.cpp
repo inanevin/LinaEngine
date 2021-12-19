@@ -110,11 +110,36 @@ namespace Lina::Editor
 
 
 		}
+	}
+
+	void Drawer_PasteModelRenderer(Lina::ECS::Entity entity)
+	{
+		Drawer_Paste<ModelRendererComponent>(entity);
+
+		// If we pasted a model renderer, it's data will be copied but we still need to 
+		// manually set the pasted model & materials on the renderer.
+		auto& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+		std::string modelPath = mr.GetModelPath();
+		std::vector<std::string> materials = mr.GetMaterialPaths();
+		if (Lina::Graphics::Model::ModelExists(modelPath))
+		{
+			mr.SetModel(entity, Lina::Graphics::Model::GetModel(modelPath));
+
+			for (int i = 0; i < materials.size(); i++)
+			{
+				if (Lina::Graphics::Material::MaterialExists(materials[i]))
+					mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial(materials[i]));
+				else
+					mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat"));
+			}
+		}
+		else
+			mr.RemoveModel(entity);
 
 	}
 
 	template<typename Type>
-	void Drawer_SetEnabled(bool enabled, Lina::ECS::Entity ent)
+	void Drawer_SetEnabled(Lina::ECS::Entity ent, bool enabled)
 	{
 		Lina::ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
 
@@ -223,6 +248,7 @@ namespace Lina::Editor
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1));
 
 		uint8 defaultDrawFlags = ComponentDrawFlags_None;
+		uint8 noCopy = ComponentDrawFlags_NoToggle;
 
 #define PROPS(LABEL, TYPE) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE)
 #define PROPS_DEP(LABEL,TYPE, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
@@ -233,7 +259,7 @@ namespace Lina::Editor
 		entt::meta<CameraComponent>().data<&CameraComponent::m_zNear>("zn"_hs).props(PROPS("Near", ComponentVariableType::DragFloat));
 		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs).props(PROPS("Fov", ComponentVariableType::DragFloat));
 		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs).props(PROPS("Clear Color", ComponentVariableType::Color));
-		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, defaultDrawFlags);
+		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, noCopy);
 
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
@@ -289,6 +315,7 @@ namespace Lina::Editor
 		entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
 		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags);
+		entt::meta<ModelRendererComponent>().func<&Drawer_PasteModelRenderer, entt::as_ref_t>("paste"_hs);
 
 		// Sprite renderer
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
@@ -541,9 +568,11 @@ namespace Lina::Editor
 			bool paste = false;
 			bool reset = false;
 			bool enabled = resolvedData.data("enabled"_hs).get(instance).cast<bool>();
+			bool enabledPrevious = enabled;
 			WidgetsUtility::ComponentHeader(&m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr);
 
-			resolvedData.data("enabled"_hs).set(instance, enabled);
+			if (enabled != enabledPrevious)
+				resolvedData.func("setEnabled"_hs).invoke({}, ent, enabled);
 
 			if (remove)
 			{
@@ -653,7 +682,6 @@ namespace Lina::Editor
 						// Remove Model
 						if (removed || reset)
 							resolvedData.func("removeModel"_hs).invoke({}, ent);
-
 
 						// Mesh drag & drop.
 						if (ImGui::BeginDragDropTarget())

@@ -262,7 +262,11 @@ namespace Lina::Editor
 		if (v != nullptr && ImGui::IsItemClicked())
 			*v = !*v;
 
-		float t = v == nullptr ? 0.0f : *v ? 1.0f : 0.0f;
+		float t = v == nullptr ? 1.0f : *v ? 1.0f : 0.0f;
+
+		ImVec4 usedActiveColor = activeColor;
+		if (v == nullptr)
+			usedActiveColor = ImVec4(activeColor.x - 0.15f, activeColor.y - 0.15f, activeColor.z - 0.15f, activeColor.w);
 
 		ImGuiContext& g = *GImGui;
 		float ANIM_SPEED = 0.08f;
@@ -273,10 +277,10 @@ namespace Lina::Editor
 		}
 
 		ImU32 col_bg;
-		if (ImGui::IsItemHovered())
+		if (ImGui::IsItemHovered() && v != nullptr)
 			col_bg = ImGui::GetColorU32(ImLerp(inactiveHoveredColor, activeHoveredColor, t));
 		else
-			col_bg = ImGui::GetColorU32(ImLerp(inactiveColor, activeColor, t));
+			col_bg = ImGui::GetColorU32(ImLerp(inactiveColor, usedActiveColor, t));
 
 		draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
 		draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
@@ -423,7 +427,8 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		IncrementCursorPosY(togglepos);
 
-		ToggleButton("#b", toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		std::string toggleID = "#tb_" + std::string(componentLabel);
+		ToggleButton(toggleID.c_str(), toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 		bool toggleButtonHovered = ImGui::IsItemHovered();
 		ImGui::SameLine();
 
