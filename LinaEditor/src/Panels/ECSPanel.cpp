@@ -103,7 +103,7 @@ namespace Lina::Editor
 			for (Entity child : data.m_children)
 			{
 				DrawEntityNode(counter, child);
-					counter++;
+				counter++;
 			}
 			ImGui::TreePop();
 		}
@@ -120,63 +120,58 @@ namespace Lina::Editor
 		if (m_show)
 		{
 			Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
+			ImGui::Begin(m_id, NULL, m_windowFlags);
 
-			// Set window properties.
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->WorkPos;
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-			ImGui::SetNextWindowBgAlpha(1.0f);
-			if (ImGui::Begin(m_id, NULL, flags))
+			WidgetsUtility::WindowTitlebar(m_id);
+			if (!CanDrawContent()) return;
+
+			// Statics.
+			static char entityName[256] = "Entity";
+			WidgetsUtility::WindowPadding(ImVec2(3, 4));
+
+			// Handle Right Click.
+			if (Lina::Application::Get().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
 			{
-				WidgetsUtility::CloseWindowTabPopup(&m_show);
-
-				// Statics.
-				static char entityName[256] = "Entity";
-				WidgetsUtility::WindowPadding(ImVec2(3, 4));
-
-				// Handle Right Click.
-				if (Lina::Application::Get().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+				if (ImGui::BeginMenu("Create"))
 				{
-					if (ImGui::BeginMenu("Create"))
+					if (ImGui::MenuItem("Entity"))
 					{
-						if (ImGui::MenuItem("Entity"))
-						{
-							m_selectedEntity = ecs->CreateEntity("Entity");
-							Lina::Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
-						}
-
-						ImGui::EndMenu();
-					}
-					ImGui::EndPopup();
-				}
-
-				WidgetsUtility::PopStyleVar();
-				WidgetsUtility::WindowPadding(ImVec2(0, 0));
-				WidgetsUtility::FramePadding(ImVec2(0, 0));
-				WidgetsUtility::IncrementCursorPosY(7);
-				int entityCounter = 0;
-				auto singleView = ecs->view<Lina::ECS::EntityDataComponent>();
-
-				for (auto entity : singleView)
-				{
-					Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(entity);
-
-					if (data.m_parent == entt::null)
-						DrawEntityNode(entityCounter, entity);
-
-					// Deselect.
-					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-					{
-						Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-						m_selectedEntity = entt::null;
+						m_selectedEntity = ecs->CreateEntity("Entity");
+						Lina::Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
 					}
 
-					entityCounter++;
+					ImGui::EndMenu();
 				}
-
-				WidgetsUtility::PopStyleVar();
-				WidgetsUtility::PopStyleVar();
+				ImGui::EndPopup();
 			}
+
+			WidgetsUtility::PopStyleVar();
+			WidgetsUtility::WindowPadding(ImVec2(0, 0));
+			WidgetsUtility::FramePadding(ImVec2(0, 0));
+			WidgetsUtility::IncrementCursorPosY(7);
+			int entityCounter = 0;
+			auto singleView = ecs->view<Lina::ECS::EntityDataComponent>();
+
+			for (auto entity : singleView)
+			{
+				Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(entity);
+
+				if (data.m_parent == entt::null)
+					DrawEntityNode(entityCounter, entity);
+
+				// Deselect.
+				if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				{
+					Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+					m_selectedEntity = entt::null;
+				}
+
+				entityCounter++;
+			}
+
+			WidgetsUtility::PopStyleVar();
+			WidgetsUtility::PopStyleVar();
+
 
 
 			if (m_selectedEntity != entt::null)
@@ -200,9 +195,9 @@ namespace Lina::Editor
 			ImGuiID id = ImGui::GetWindowDockID();
 			ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 			ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
-		
-		
-			if (ImGui::BeginDragDropTargetCustom(ImRect(min,max), id))
+
+
+			if (ImGui::BeginDragDropTargetCustom(ImRect(min, max), id))
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 				{

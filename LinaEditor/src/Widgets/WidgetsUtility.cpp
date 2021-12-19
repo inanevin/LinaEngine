@@ -310,32 +310,40 @@ namespace Lina::Editor
 
 	void WidgetsUtility::WindowButtons(const char* windowID, float yOffset, bool isAppWindow)
 	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+
 		ImVec2 windowPos = ImGui::GetWindowPos();
 		float windowWidth = ImGui::GetWindowWidth();
 
-		static float offset1 = 100;
+		static float offset1 = 28.0f;
 		static float gap = 25;
-
+		
+		ImGui::SetCursorPosY(yOffset);
 		const float cursorY = ImGui::GetCursorPosY();
+		ImGui::SetCursorPosX(windowWidth - offset1 - gap * 2);
 		if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MINIMIZE, 2.0f))
 		{
 			if (isAppWindow)
 				Lina::Graphics::WindowBackend::Get()->Iconify();
 			else
-				ImGui::SetWindowCollapsed(true);
+				GUILayer::s_editorPanels[windowID]->ToggleCollapse();
 		}
 
 		ImGui::SameLine();
+		ImGui::SetCursorPosX(windowWidth - offset1 - gap);
 		ImGui::SetCursorPosY(cursorY);
-		if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MAXIMIZE, 2.0f))
+		if (WidgetsUtility::ButtonRectangle("##header_maximize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MAXIMIZE, 2.0f))
 		{
 			if (isAppWindow)
 				Lina::Graphics::WindowBackend::Get()->Maximize();
 			else
-				ImGui::SetWindowCollapsed(false);
+				GUILayer::s_editorPanels[windowID]->ToggleMaximize();
 		}
 
 		ImGui::SameLine();
+		ImGui::SetCursorPosX(windowWidth - offset1);
 		ImGui::SetCursorPosY(cursorY);
 		if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_TIMES, 2.0f))
 		{
@@ -345,8 +353,32 @@ namespace Lina::Editor
 				GUILayer::s_editorPanels[windowID]->Close();
 		}
 
-		ImGui::DragFloat("offset1", &offset1);
-		ImGui::DragFloat("gap", &gap);
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+	}
+
+	void WidgetsUtility::WindowTitlebar(const char* label)
+	{
+		if (ImGui::IsWindowDocked()) return;
+
+		const ImVec2 windowPos = ImGui::GetWindowPos();
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		const float height = 30.0f;
+		const float lineOffset = 2.0f;
+
+		// Draw title rect & line.
+		ImRect titleRect = ImRect(windowPos, ImVec2(windowPos.x + windowSize.x, windowPos.y + height));
+		ImVec4 titleRectColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+		ImGui::GetWindowDrawList()->AddRectFilled(titleRect.Min, titleRect.Max, ImGui::ColorConvertFloat4ToU32(titleRectColor));
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(windowPos.x, windowPos.y + lineOffset), ImVec2(windowPos.x + windowSize.x, windowPos.y + lineOffset), ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), 4.0f);
+
+		// Draw title
+		ImGui::SetCursorPosX(12.5f);
+		ImGui::Text(label);
+
+		// Draw Buttons
+		WindowButtons(label, 5.0f);
 	}
 
 	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
@@ -996,22 +1028,6 @@ namespace Lina::Editor
 		bool button = ImGui::Button(label, size);
 		PopStyleVar();
 		return button;
-	}
-
-	void WidgetsUtility::CloseWindowTabPopup(bool* shouldShow)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(9, 2));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 2));
-		if (ImGui::BeginPopupContextItem())
-		{
-			if (ImGui::MenuItem("Close"))
-			{
-				*shouldShow = false;
-			}
-			ImGui::EndPopup();
-		}
-		ImGui::PopStyleVar();
-		ImGui::PopStyleVar();
 	}
 
 	ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()

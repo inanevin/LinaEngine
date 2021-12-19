@@ -57,16 +57,11 @@ namespace Lina::Editor
 			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 			float cursorPosLabels = CURSORPOS_X_LABELS;
 
-			/// <summary>
-		/// 
-		/// </summary>
-		/// 
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
-			ImGui::Begin(m_id, NULL, flags);
-			WidgetsUtility::CloseWindowTabPopup(&m_show);
+			ImGui::Begin(m_id, NULL, m_windowFlags);
 
+			WidgetsUtility::WindowTitlebar(m_id);
+			if (!CanDrawContent()) return;
 
 			WidgetsUtility::FramePaddingY(0);
 
@@ -146,10 +141,6 @@ namespace Lina::Editor
 
 
 			WidgetsUtility::PopStyleVar();
-			/// <summary>
-			/// 
-			/// </summary>
-
 
 			Lina::Graphics::RenderSettings& renderSettings = Lina::Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 

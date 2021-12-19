@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -28,12 +28,71 @@ SOFTWARE.
 
 #include "Panels/EditorPanel.hpp"
 #include "Core/GUILayer.hpp"
+#include "imgui/imgui.h"
 
 namespace Lina::Editor
 {
-    void EditorPanel::Initialize(const char* id)
-    {
-        m_id = id;
-        GUILayer::s_editorPanels[id] = this;
-    }
+	void EditorPanel::Initialize(const char* id)
+	{
+		m_id = id;
+		m_windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+		GUILayer::s_editorPanels[id] = this;
+	}
+
+	void EditorPanel::ToggleCollapse()
+	{
+		m_collapsed = !m_collapsed;
+		if (m_collapsed)
+		{
+			if (m_maximized)
+				ToggleMaximize();
+
+			m_windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
+			ImVec2 size = ImGui::GetWindowSize();
+			m_sizeBeforeCollapse = Vector2(size.x, size.y);
+			ImGui::SetWindowSize(ImVec2(size.x, 30.0f)); // title size.
+		}
+		else
+		{
+			m_windowFlags &= ~ImGuiWindowFlags_NoResize;
+			m_windowFlags &= ~ImGuiWindowFlags_NoScrollbar;
+			m_windowFlags &= ~ImGuiWindowFlags_NoDocking;
+			ImGui::SetWindowSize(ImVec2(m_sizeBeforeCollapse.x, m_sizeBeforeCollapse.y));
+		}
+	}
+
+	void EditorPanel::ToggleMaximize()
+	{
+		m_maximized = !m_maximized;
+
+		if (m_maximized)
+		{
+			if (m_collapsed)
+				ToggleCollapse();
+
+			ImVec2 size = ImGui::GetWindowSize();
+			ImVec2 pos = ImGui::GetWindowPos();
+			m_sizeBeforeMaximize = Vector2(size.x, size.y);
+			m_posBeforeMaximize = Vector2(pos.x, pos.y);
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetWindowPos(ImVec2(0, 0));
+			ImGui::SetWindowSize(ImVec2(viewport->WorkSize.x, viewport->WorkSize.y));
+		}
+		else
+		{
+			ImGui::SetWindowPos(ImVec2(m_posBeforeMaximize.x, m_posBeforeMaximize.y));
+			ImGui::SetWindowSize(ImVec2(m_sizeBeforeMaximize.x, m_sizeBeforeMaximize.y));
+		}
+	}
+
+	bool EditorPanel::CanDrawContent()
+	{
+		if (!ImGui::IsWindowDocked() && m_collapsed)
+		{
+			ImGui::End();
+			return false;
+		}
+
+		return true;
+	}
 }

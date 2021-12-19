@@ -114,6 +114,12 @@ namespace Lina::Editor
 		/// </summary>
 		static void WindowButtons(const char* windowID, float yOffset = 0.0f, bool isAppWindow = false);
 
+		/// <summary>
+		/// Draws a custom title bar for the window.
+		/// </summary>
+		/// <param name="label"></param>
+		static void WindowTitlebar(const char* label);
+
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
@@ -123,7 +129,6 @@ namespace Lina::Editor
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static bool Button(const char* label, const ImVec2& size = ImVec2(0,0));
-		static void CloseWindowTabPopup(bool* shouldShow);
 		static ImVec2 GetWindowPosWithContentRegion();
 		static ImVec2 GetWindowSizeWithContentRegion();
 		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1,1,1,1), float fontScale = 0.75f);

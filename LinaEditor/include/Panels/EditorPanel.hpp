@@ -56,11 +56,20 @@ namespace Lina::Editor
 		virtual void Draw() = 0;
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }
+		virtual void ToggleCollapse();
+		virtual void ToggleMaximize();
+		virtual bool CanDrawContent();
 
 	protected:
 
 		bool m_show = true;
+		bool m_collapsed = false;
+		bool m_maximized = false;
+		Lina::Vector2 m_sizeBeforeMaximize = Lina::Vector2::Zero;
+		Lina::Vector2 m_sizeBeforeCollapse = Lina::Vector2::Zero;
+		Lina::Vector2 m_posBeforeMaximize = Lina::Vector2::Zero;
 		const char* m_id;
+		int m_windowFlags;
 	};
 }
 

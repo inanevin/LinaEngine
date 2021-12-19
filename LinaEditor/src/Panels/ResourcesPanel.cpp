@@ -144,15 +144,9 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			// Set window properties.
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->WorkPos;
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-			ImGui::SetNextWindowBgAlpha(1.0f);
-
-
-			ImGui::Begin(m_id, NULL, flags);
-			WidgetsUtility::CloseWindowTabPopup(&m_show);
+			ImGui::Begin(m_id, NULL, m_windowFlags);
+			WidgetsUtility::WindowTitlebar(m_id);
+			if (!CanDrawContent()) return;
 
 			float windowWidth = ImGui::GetWindowWidth();
 			float windowHeight = ImGui::GetWindowHeight();

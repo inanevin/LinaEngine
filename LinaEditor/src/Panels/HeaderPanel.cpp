@@ -269,29 +269,7 @@ namespace Lina::Editor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS);
 			ImGui::SetCursorPosY(5);
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(HEADER_COLOR_TOPBUTTONS.r, HEADER_COLOR_TOPBUTTONS.g, HEADER_COLOR_TOPBUTTONS.b, HEADER_COLOR_TOPBUTTONS.a));
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_TOPBUTTONS);
-
-
-			const float cursorY = ImGui::GetCursorPosY();
-			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MINIMIZE, 2.0f))
-				appWindow->Iconify();
-
-			ImGui::SameLine();
-			ImGui::SetCursorPosY(cursorY);
-			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MAXIMIZE, 2.0f))
-				appWindow->Maximize();
-
-			ImGui::SameLine();
-			ImGui::SetCursorPosY(cursorY);
-			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_TIMES, 2.0f))
-				appWindow->Close();
-
-
-			ImGui::PopStyleColor();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
+			WidgetsUtility::WindowButtons(nullptr, 6.0f, true);
 
 			// Logo
 			ImGui::SameLine();
@@ -315,17 +293,6 @@ namespace Lina::Editor
 
 			if (!anyPopupOpen)
 				MenuButton::s_anyButtonFocused = false;
-
-			// Draw search bar.		
-			// ImGui::SameLine();
-			// WidgetsUtility::FramePaddingY(1.7f);
-			// ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS - 100);
-			// WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
-			// static char searchStr[128] = "";
-			// ImGui::SetNextItemWidth(170);
-			// WidgetsUtility::IncrementCursorPosY(-5);
-			// ImGui::InputTextWithHint("##header_search", "search...", searchStr, IM_ARRAYSIZE(searchStr));
-			// WidgetsUtility::PopStyleVar();
 
 
 			ImGui::End();

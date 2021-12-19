@@ -80,14 +80,11 @@ namespace Lina::Editor
 		{
 			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-			ImGui::SetNextWindowBgAlpha(1.0f);
-
 			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
-			ImGui::Begin(m_id, NULL, flags);
-			WidgetsUtility::CloseWindowTabPopup(&m_show);
+			ImGui::Begin(m_id, NULL, m_windowFlags);
+			WidgetsUtility::WindowTitlebar(m_id);
+			if (!CanDrawContent()) return;
 
 
 			// Shadow.
