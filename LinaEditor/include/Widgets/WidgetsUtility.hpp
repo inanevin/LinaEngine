@@ -95,6 +95,7 @@ namespace Lina::Editor
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
 		static void IncrementCursorPos(const ImVec2& v);
+		static void CenteredText(const char* label);
 		static void CenterCursorX();
 		static void CenterCursorY();
 		static void CenterCursor();

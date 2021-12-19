@@ -70,6 +70,8 @@ namespace Lina::ECS
 			// Set default material to mesh renderer.
 			mr.m_materialID = defaultMaterial.GetID();
 			mr.m_materialPath = defaultMaterial.GetPath();
+
+			mr.m_isEnabled = m_isEnabled;
 		}
 
 		// Set default material to all the paths.

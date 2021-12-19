@@ -46,97 +46,16 @@ SOFTWARE.
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/imguizmo/ImGuizmo.h"
-#include <entt/meta/meta.hpp>
-#include <entt/meta/resolve.hpp>
-#include <entt/meta/node.hpp>
-#include <entt/core/hashed_string.hpp>
-#include <entt/meta/factory.hpp>
-#include <entt/meta/meta.hpp>
-#include <entt/meta/node.hpp>
-#include <entt/meta/resolve.hpp>
+
 using namespace Lina::ECS;
 using namespace Lina::Editor;
 
 
 namespace Lina::Editor
 {
-
-	std::map<Lina::ECS::TypeID, std::string> m_variableTypeIdentifiers;
+	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
 	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
 	std::pair<Lina::ECS::Entity, Lina::ECS::TypeID> m_copyBuffer;
-
-	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
-	using namespace entt::literals;
-
-	template<typename Type>
-	Type& Drawer_Get(Lina::ECS::Entity entity)
-	{
-		return Lina::ECS::Registry::Get()->template get<Type>(entity);
-	}
-
-	template<typename Type>
-	void Drawer_Reset(Lina::ECS::Entity entity)
-	{
-		Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
-	}
-
-	template<typename Type>
-	void Drawer_Remove(Lina::ECS::Entity entity)
-	{
-		Lina::ECS::Registry::Get()->template remove<Type>(entity);
-	}
-
-
-	void Drawer_Copy(Lina::ECS::Entity entity, Lina::ECS::TypeID tid)
-	{
-		m_copyBuffer.first = entity;
-		m_copyBuffer.second = tid;
-	}
-
-	template<typename Type>
-	void Drawer_Paste(Lina::ECS::Entity entity)
-	{
-		Lina::ECS::TypeID pastedTid = Lina::ECS::GetTypeID<Type>();
-
-		if (pastedTid == m_copyBuffer.second)
-		{
-			if (m_copyBuffer.first != entt::null)
-			{
-				Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
-
-				if (copy != nullptr)
-					Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
-			}
-
-
-		}
-	}
-
-	void Drawer_PasteModelRenderer(Lina::ECS::Entity entity)
-	{
-		Drawer_Paste<ModelRendererComponent>(entity);
-
-		// If we pasted a model renderer, it's data will be copied but we still need to 
-		// manually set the pasted model & materials on the renderer.
-		auto& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(entity);
-		std::string modelPath = mr.GetModelPath();
-		std::vector<std::string> materials = mr.GetMaterialPaths();
-		if (Lina::Graphics::Model::ModelExists(modelPath))
-		{
-			mr.SetModel(entity, Lina::Graphics::Model::GetModel(modelPath));
-
-			for (int i = 0; i < materials.size(); i++)
-			{
-				if (Lina::Graphics::Material::MaterialExists(materials[i]))
-					mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial(materials[i]));
-				else
-					mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat"));
-			}
-		}
-		else
-			mr.RemoveModel(entity);
-
-	}
 
 	template<typename Type>
 	void Drawer_SetEnabled(Lina::ECS::Entity ent, bool enabled)
@@ -154,6 +73,92 @@ namespace Lina::Editor
 			}
 		}
 	}
+
+	template<typename Type>
+	Type& Drawer_Get(Lina::ECS::Entity entity)
+	{
+		return Lina::ECS::Registry::Get()->template get<Type>(entity);
+	}
+
+	template<typename Type>
+	void Drawer_Add(Lina::ECS::Entity entity)
+	{
+		Lina::ECS::Registry::Get()->template emplace<Type>(entity);
+	}
+
+	template<typename Type>
+	bool Drawer_Has(Lina::ECS::Entity entity)
+	{
+		return Lina::ECS::Registry::Get()->all_of<Type>(entity);
+	}
+
+	template<typename Type>
+	void Drawer_Reset(Lina::ECS::Entity entity)
+	{
+		Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
+	}
+
+	template<typename Type>
+	void Drawer_Remove(Lina::ECS::Entity entity)
+	{
+		Lina::ECS::Registry::Get()->template remove<Type>(entity);
+	}
+
+	void Drawer_Copy(Lina::ECS::Entity entity, Lina::ECS::TypeID tid)
+	{
+		m_copyBuffer.first = entity;
+		m_copyBuffer.second = tid;
+	}
+
+	template<typename Type>
+	void Drawer_Paste(Lina::ECS::Entity entity)
+	{
+		Lina::ECS::TypeID pastedTid = Lina::ECS::GetTypeID<Type>();
+
+
+		if (pastedTid == m_copyBuffer.second)
+		{
+			if (m_copyBuffer.first != entt::null)
+			{
+				Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
+
+				if (copy != nullptr)
+				{
+					Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
+					Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
+				}
+			}
+		}
+
+		// If we pasted a model renderer, it's data will be copied but we still need to 
+		// manually set the pasted model & materials on the renderer.
+		if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
+		{
+			auto& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+			std::string modelPath = mr.GetModelPath();
+			std::vector<std::string> materials = mr.GetMaterialPaths();
+			if (Lina::Graphics::Model::ModelExists(modelPath))
+			{
+				mr.SetModel(entity, Lina::Graphics::Model::GetModel(modelPath));
+
+				for (int i = 0; i < materials.size(); i++)
+				{
+					if (Lina::Graphics::Material::MaterialExists(materials[i]))
+						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial(materials[i]));
+					else
+						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat"));
+				}
+			}
+			else
+				mr.RemoveModel(entity);
+
+			
+		}
+
+	}
+
+
+
 
 	template<typename Type>
 	void Drawer_SetModel(Lina::ECS::Entity ent, Lina::Graphics::Model* model)
@@ -190,48 +195,6 @@ namespace Lina::Editor
 	}
 
 
-	void Drawer_DebugPointLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
-	}
-
-	void Drawer_DebugSpotLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-	}
-
-	void Drawer_DebugDirectionalLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		Vector3 dir = Vector3::Zero - data.GetLocation();
-		Vector3 end1 = data.GetLocation() + dir;
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-	}
-
-
-	template<typename Type>
-	void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags)
-	{
-		entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags));
-		entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
-		entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
-		entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
-		entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_ref_t>("remove"_hs);
-		entt::meta<Type>().func<&Drawer_Copy, entt::as_ref_t>("copy"_hs);
-		entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
-	}
 
 	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
 		LINA_TRACE("Debug PLIGHT");
@@ -248,7 +211,6 @@ namespace Lina::Editor
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1));
 
 		uint8 defaultDrawFlags = ComponentDrawFlags_None;
-		uint8 noCopy = ComponentDrawFlags_NoToggle;
 
 #define PROPS(LABEL, TYPE) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE)
 #define PROPS_DEP(LABEL,TYPE, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
@@ -259,7 +221,7 @@ namespace Lina::Editor
 		entt::meta<CameraComponent>().data<&CameraComponent::m_zNear>("zn"_hs).props(PROPS("Near", ComponentVariableType::DragFloat));
 		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs).props(PROPS("Fov", ComponentVariableType::DragFloat));
 		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs).props(PROPS("Clear Color", ComponentVariableType::Color));
-		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, noCopy);
+		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, defaultDrawFlags, "View");
 
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
@@ -270,8 +232,8 @@ namespace Lina::Editor
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<DirectionalLightComponent>().func<&Drawer_DebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags);
+		entt::meta<DirectionalLightComponent>().func<&ComponentDrawer::DrawDebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
+		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags, "Lights");
 
 		// Spotlight
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_isEnabled>("enabled"_hs);
@@ -282,8 +244,8 @@ namespace Lina::Editor
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<SpotLightComponent>().func<&Drawer_DebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags);
+		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
+		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags, "Lights");
 
 		// Pointlight
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_isEnabled>("enabled"_hs);
@@ -295,14 +257,14 @@ namespace Lina::Editor
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<PointLightComponent>().func<&Drawer_DebugPointLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags);
+		entt::meta<PointLightComponent>().func<&ComponentDrawer::DrawDebugPointLight, entt::as_ref_t>("drawDebug"_hs);
+		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags, "Lights");
 
 		// Freelook
 		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_rotationSpeeds>("rs"_hs).props(PROPS("Rotation Speed", ComponentVariableType::Vector2));
 		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_movementSpeeds>("ms"_hs).props(PROPS("Movement Speed", ComponentVariableType::Vector2));
-		RegisterComponentForEditor<FreeLookComponent>("Freelook", ICON_FA_EYE, defaultDrawFlags);
+		RegisterComponentForEditor<FreeLookComponent>("Freelook", ICON_FA_EYE, defaultDrawFlags, "View");
 
 		// Model Renderer
 		auto idt = "matpath_arr"_hs;
@@ -314,13 +276,12 @@ namespace Lina::Editor
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
-		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags);
-		entt::meta<ModelRendererComponent>().func<&Drawer_PasteModelRenderer, entt::as_ref_t>("paste"_hs);
+		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering");
 
 		// Sprite renderer
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath));;
-		RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags);
+		RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags, "Rendering");
 
 
 
@@ -545,6 +506,59 @@ namespace Lina::Editor
 	};
 
 
+	AddComponentMap ComponentDrawer::GetCurrentAddComponentMap(Lina::ECS::Entity entity)
+	{
+		AddComponentMap map;
+
+		for (auto& category : m_addComponentMap)
+		{
+			for (auto& pair : category.second)
+			{
+				Lina::ECS::TypeID tid = pair.second;
+				auto meta = entt::resolve(tid);
+				bool hasComponent = meta.func("has"_hs).invoke({}, entity).cast<bool>();
+				
+				if (!hasComponent)
+				{
+					map[category.first].push_back(std::make_pair(pair.first, tid));
+				}
+			}
+		}
+
+		return map;
+	}
+
+	void ComponentDrawer::DrawDebugPointLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
+		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
+	}
+
+	void ComponentDrawer::DrawDebugSpotLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
+	void ComponentDrawer::DrawDebugDirectionalLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		Vector3 dir = Vector3::Zero - data.GetLocation();
+		Vector3 end1 = data.GetLocation() + dir;
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
+
 	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
 	{
 		auto* ecs = ECS::Registry::Get();
@@ -763,7 +777,7 @@ namespace Lina::Editor
 						auto debugFunc = resolvedData.func("drawDebug"_hs);
 
 						if (debugFunc)
-							debugFunc.invoke({}, ent);
+							debugFunc.invoke({}, entt::forward_as_meta(*this), ent);
 					}
 				}
 			}

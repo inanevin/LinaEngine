@@ -125,6 +125,12 @@ namespace Lina
 
 		// Return the full directory (user-specific) that the engine executable is running on.
 		extern std::string GetRunningDirectory();
+
+		// Converts all string characters to lowercase
+		extern std::string ToLower(const std::string& input);
+
+		// Converts all string characters to uppercase
+		extern std::string ToUpper(const std::string& input);
 	}
 }
 

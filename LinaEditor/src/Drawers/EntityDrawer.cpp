@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -55,7 +55,10 @@ namespace Lina::Editor
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
 		WidgetsUtility::PushScaledFont(0.8f);
-		WidgetsUtility::AlignedText(ICON_FA_CUBE);	ImGui::SameLine();
+		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			AddComponentPopup();
+
+		ImGui::SameLine();
 		WidgetsUtility::PopScaledFont();
 
 		// Setup char.
@@ -77,63 +80,79 @@ namespace Lina::Editor
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
-		ImGui::SameLine();	
+		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(1.5f);
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 
-		// Add component button.
-		ImGui::SetCursorPosX(13);
-		WidgetsUtility::IncrementCursorPosY(6);
-		ImGui::Text("Add Component "); 
-		ImGui::SameLine();
-		WidgetsUtility::IncrementCursorPosY(4);
-
-		// add component button.
-		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+		// Add Component Popup
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 4));
+		if (ImGui::BeginPopup("addComponentPopup", ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
 		{
-			ImGui::OpenPopup("Select Component");
-		}
+			AddComponentMap map = m_componentDrawer.GetCurrentAddComponentMap(m_selectedEntity);
+			static char filterChr[128] = "";
 
-		// Component selection modal.
-		bool o = true;
-		WidgetsUtility::FramePaddingY(8);
-		WidgetsUtility::FramePaddingX(4);
-		ImGui::SetNextWindowSize(ImVec2(280, 400));
-		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
-		{
-			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(m_selectedEntity);
-			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
+			const char* addCompText = "Add Component";
+			WidgetsUtility::CenteredText(addCompText);
+			ImGui::SetNextItemWidth(250);
+			ImGui::InputText("##filter", filterChr, IM_ARRAYSIZE(filterChr));
 
-			// Add the selected components to the entity.
-			for (int i = 0; i < chosenComponents.size(); i++)
-				m_componentDrawer.AddComponentToEntity(m_selectedEntity, chosenComponents[i]);
+			for (auto& category : map)
+			{
+				std::string filterLowercase = Utility::ToLower(std::string(filterChr));
 
+				if (ImGui::TreeNode(category.first.c_str()))
+				{
+					for (auto& pair : category.second)
+					{
+						std::string pairLowercase = Utility::ToLower(pair.first);
+						if (pairLowercase.find(std::string(filterLowercase)) != std::string::npos)
+						{
+							bool selected = false;
+							ImGui::Selectable(pair.first.c_str(), &selected);
+							if (selected)
+							{
+								entt::resolve(pair.second).func("add"_hs).invoke({}, m_selectedEntity);
+								ImGui::CloseCurrentPopup();
+							}
+						
+						}
+					}
+
+					ImGui::TreePop();
+				}
+			}
 			ImGui::EndPopup();
 		}
-		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
+		ImGui::PopStyleVar();
 
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
-		//ImGui::SetCursorPosX(12);
-		//m_componentDrawer.DrawEntityData(m_selectedEntity);
-
 		WidgetsUtility::FramePaddingX(4);
-		
+
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		ecs->visit(m_selectedEntity, [this](const auto component)
 			{
-				//m_componentDrawer.AddIDToDrawList(component.hash());
 				m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
 			});
-		
-		// Draw the added components.
-		m_componentDrawer.DrawComponents(m_selectedEntity);
 
-		 WidgetsUtility::PopStyleVar();
+		// Draw the added components.
+		//m_componentDrawer.DrawComponents(m_selectedEntity);
+
+		WidgetsUtility::PopStyleVar();
 
 	}
+
+	void EntityDrawer::AddComponentPopup()
+	{
+		ImGui::OpenPopup("addComponentPopup");
+	}
+
+	void EntityDrawer::DrawEntityData()
+	{
+	}
+
+
 
 }

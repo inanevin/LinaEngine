@@ -72,7 +72,7 @@ namespace Lina::Editor
 		ImVec2 max = ImVec2(min.x + size.x, min.y + height);
 
 		// Hover state.
-		if (ImGui::IsMouseHoveringRect(min, max))
+		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsWindowFocused())
 			hoveredFolder = &folder;
 
 		bool hovered = hoveredFolder == &folder;
@@ -390,13 +390,16 @@ namespace Lina::Editor
 		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
 		const ImVec2 rectMin = currentPos;
 		const ImVec2 rectMax = ImVec2(rectMin.x + windowSize.x, rectMin.y + 25);
-		const ImVec4 normalColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+		const ImVec4 normalColor = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
 		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-		bool hovered = ImGui::IsMouseHoveringRect(rectMin, rectMax) && !ImGui::IsAnyItemHovered();
+		bool hovered = ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(rectMin, rectMax) && !ImGui::IsAnyItemHovered();
 		bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 		const float iconScale = 0.65f;
 		const ImVec4 rectCol = pressing ? normalColor : (hovered ? hoverColor : normalColor);
+		const ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
 		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol));
+		ImGui::GetWindowDrawList()->AddLine(rectMin, ImVec2(rectMax.x, rectMin.y), borderColor);
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(rectMin.x, rectMax.y), rectMax, borderColor);
 
 		static float caretpos = 6;
 		static float labelpos = -4;
@@ -406,9 +409,9 @@ namespace Lina::Editor
 		static float perc1 = 36.0f;
 		static float perc2 = 26.0f;
 		static float w = 22;
-		static float h = 15;
+		static float h = 14;
 		static float x = 2;
-		static float y = 1;
+		static float y = 2;
 
 		ImGui::SetCursorPosX(12);
 		IncrementCursorPosY(caretpos);
@@ -460,7 +463,7 @@ namespace Lina::Editor
 			ImRect itemRect = ImRect(ImGui::GetWindowPos().x + ImGui::GetCursorPosX() - (boxWidth / 2) + x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - (boxHeight / 2) + y,
 				ImGui::GetWindowPos().x + ImGui::GetCursorPosX() + boxWidth, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + boxHeight);
 
-			bool boxHovered = ImGui::IsMouseHoveringRect(itemRect.Min, itemRect.Max);
+			bool boxHovered = ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(itemRect.Min, itemRect.Max);
 			bool boxPressing = boxHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 			ImVec4 lockedColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 			ImVec4 boxNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
@@ -505,6 +508,13 @@ namespace Lina::Editor
 	void WidgetsUtility::IncrementCursorPos(const  ImVec2& v)
 	{
 		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
+	}
+
+	void WidgetsUtility::CenteredText(const char* label)
+	{
+		float textW = ImGui::CalcTextSize(label).x;
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - textW / 2.0f);
+		ImGui::Text(label);
 	}
 
 	void WidgetsUtility::CenterCursorX()

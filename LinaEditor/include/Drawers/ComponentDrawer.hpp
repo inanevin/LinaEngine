@@ -43,6 +43,11 @@ Timestamp: 10/13/2020 2:34:21 PM
 #include <functional>
 #include <map>
 #include <tuple>
+#include <entt/core/hashed_string.hpp>
+#include <entt/meta/factory.hpp>
+#include <entt/meta/meta.hpp>
+#include <entt/meta/node.hpp>
+#include <entt/meta/resolve.hpp>
 
 namespace Lina::Editor
 {
@@ -53,6 +58,8 @@ namespace Lina::Editor
 	typedef std::function<void(Lina::ECS::Entity)> RemoveComponentFunction;
 	typedef std::function<void(Lina::ECS::Entity)> ResetComponentFunction;
 	typedef std::function<void(Lina::ECS::Entity)> CopyComponentFunction;
+	typedef std::map<std::string, std::vector<std::pair<std::string, Lina::ECS::TypeID>>> AddComponentMap;
+	using namespace entt::literals;
 
 	struct DrawData
 	{
@@ -129,6 +136,7 @@ namespace Lina::Editor
 		}
 
 	
+		AddComponentMap GetCurrentAddComponentMap(Lina::ECS::Entity entity);
 		void DrawDebugPointLight(Lina::ECS::Entity ent);
 		void DrawDebugSpotLight(Lina::ECS::Entity ent);
 		void DrawDebugDirectionalLight(Lina::ECS::Entity ent);
@@ -203,6 +211,27 @@ namespace Lina::Editor
 			m_componentDrawData[tid] = DrawData(icon, title, removeEnabled, resetEnabled, copyEnabled, pasteEnabled);
 		}
 
+
+		template<typename Type>
+		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true)
+		{
+			entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags),
+			std::make_pair("Category"_hs, category));
+			entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
+			entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
+			entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
+			entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_ref_t>("remove"_hs);
+			entt::meta<Type>().func<&Drawer_Copy, entt::as_ref_t>("copy"_hs);
+			entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
+			entt::meta<Type>().func<&Drawer_Has<Type>, entt::as_ref_t>("has"_hs);
+			
+			if (canAddComponent)
+			{
+				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_ref_t>("add"_hs);
+				m_addComponentMap[category].push_back(std::make_pair<std::string, Lina::ECS::TypeID>(std::string(title), Lina::ECS::GetTypeID<Type>()));
+			}
+		}
+
 	private:
 
 		std::map<Lina::ECS::TypeID, GetComponentFunction> m_getComponentFunctions;
@@ -210,11 +239,13 @@ namespace Lina::Editor
 		std::map<Lina::ECS::TypeID, ResetComponentFunction> m_resetComponentFunctions;
 		std::map<Lina::ECS::TypeID, CopyComponentFunction> m_copyComponentFunctions;
 		std::map<Lina::ECS::TypeID, DrawData> m_componentDrawData;
-		std::pair<ECS::Entity, ECS::TypeID> m_copyBuffer;
 
 		std::map<Lina::ECS::TypeID, ComponentValueTuple> m_componentFunctionsMap;
 		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
 		std::vector<Lina::ECS::TypeID> m_componentDrawList;
+
+		// Category - vector of pairs - pair.first = component title, pair.second component id.
+		AddComponentMap m_addComponentMap;
 
 
 	};

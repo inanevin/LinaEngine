@@ -340,5 +340,26 @@ namespace Lina
 
 			return "";
 		}
+		std::string ToLower(const std::string& input)
+		{
+			std::string data = input;
+
+			std::for_each(data.begin(), data.end(), [](char& c) {
+				c = ::tolower(c);
+				});
+
+			return data;
+		}
+
+		std::string ToUpper(const std::string& input)
+		{
+			std::string data = input;
+
+			std::for_each(data.begin(), data.end(), [](char& c) {
+				c = ::toupper(c);
+				});
+
+			return data;
+		}
 	}
 }
