@@ -8386,6 +8386,9 @@ void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bb
 	draw_list->PathLineTo(ImVec2(bb.Max.x, a2));
 	draw_list->PathFillConvex(ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)));
 
+	// Small line under the tab.
+	draw_list->AddLine(ImVec2(bb.Min.x -2, bb.Max.y -3), ImVec2(bb.Max.x, bb.Max.y -3), ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 2.0f);
+
 	if (g.Style.TabBorderSize > 0.0f)
 	{
 		draw_list->PathLineTo(ImVec2(bb.Min.x + 0.5f, y2));

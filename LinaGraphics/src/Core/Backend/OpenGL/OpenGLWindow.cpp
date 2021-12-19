@@ -143,7 +143,7 @@ namespace Lina::Graphics
 			else if (action == GLFW_REPEAT)
 				inputAction = InputAction::Repeated;
 
-			Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{ window->m_window, key, scancode, inputAction, modes });
+ 			Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{ window->m_window, key, scancode, inputAction, modes });
 		};
 
 		auto windowButtonFunc = [](GLFWwindow* w, int button, int action, int modes)

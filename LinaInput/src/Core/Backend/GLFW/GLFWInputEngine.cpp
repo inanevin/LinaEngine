@@ -55,6 +55,10 @@ namespace Lina::Input
 	void GLFWInputEngine::Shutdown()
 	{
 		LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
+		m_keyDownNewStateMap.clear();
+		m_keyUpNewStateMap.clear();
+		m_mouseDownNewStateMap.clear();
+		m_mouseUpNewStateMap.clear();
 	}
 
 	void GLFWInputEngine::OnWindowContextCreated(Event::EWindowContextCreated& e)
@@ -70,18 +74,16 @@ namespace Lina::Input
 
 	bool GLFWInputEngine::GetKeyDown(int keyCode)
 	{
-		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
-		bool flag = (newState == GLFW_PRESS && oldState[keyCode] == GLFW_RELEASE) ? true : false;
-		oldState[keyCode] = newState;
+		bool flag = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
+		m_keyDownNewStateMap[keyCode] = newState;
 		return flag;
 	}
 	bool GLFWInputEngine::GetKeyUp(int keyCode)
 	{
-		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
-		bool flag = (newState == GLFW_RELEASE && oldState[keyCode] == GLFW_PRESS) ? true : false;
-		oldState[keyCode] = newState;
+		bool flag = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
+		m_keyUpNewStateMap[keyCode] = newState;
 		return flag;
 	}
 	bool GLFWInputEngine::GetMouseButton(int button)
@@ -91,18 +93,16 @@ namespace Lina::Input
 	}
 	bool GLFWInputEngine::GetMouseButtonDown(int button)
 	{
-		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
-		bool flag = (newState == GLFW_PRESS && oldState[button] == GLFW_RELEASE) ? true : false;
-		oldState[button] = newState;
+		bool flag = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
+		m_mouseDownNewStateMap[button] = newState;
 		return flag;
 	}
 	bool GLFWInputEngine::GetMouseButtonUp(int button)
 	{
-		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
-		bool flag = (newState == GLFW_RELEASE && oldState[button] == GLFW_PRESS) ? true : false;
-		oldState[button] = newState;
+		bool flag = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
+		m_mouseUpNewStateMap[button] = newState;
 		return flag;
 	}
 
@@ -190,6 +190,23 @@ namespace Lina::Input
 	
 	void GLFWInputEngine::Tick()
 	{
+		// Refresh the key states from previous frame.
+		for (auto& pair : m_keyDownNewStateMap)
+			m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];
+
+		for (auto& pair : m_keyUpNewStateMap)
+			m_keyStatesUp[pair.first] = m_keyUpNewStateMap[pair.first];
+
+		for (auto& pair : m_mouseDownNewStateMap)
+			m_mouseStatesDown[pair.first] = m_mouseDownNewStateMap[pair.first];
+
+		for (auto& pair : m_mouseUpNewStateMap)
+			m_mouseStatesUp[pair.first] = m_mouseUpNewStateMap[pair.first];
+
+		m_keyDownNewStateMap.clear();
+		m_keyUpNewStateMap.clear();
+		m_mouseDownNewStateMap.clear();
+		m_mouseUpNewStateMap.clear();
 		glfwPollEvents();
 	}
 }

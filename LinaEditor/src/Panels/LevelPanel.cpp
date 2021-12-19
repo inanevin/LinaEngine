@@ -61,11 +61,14 @@ namespace Lina::Editor
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);
 		Lina::Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &LevelPanel::OnTransformGizmoChanged>(this);
 		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &LevelPanel::OnTransformPivotChanged>(this);
+
+		m_shouldShowGizmos = true;
 	}
 
 	void LevelPanel::Draw()
 	{
 		ImGuizmo::BeginFrame();
+		ProcessInput();
 
 		if (m_show)
 		{
@@ -133,6 +136,94 @@ namespace Lina::Editor
 					m_borderAlpha = 0.0f;
 			}
 
+
+			/// <summary>
+			/// Scene Settings - window for buttons.
+			/// </summary>
+			ImVec2 settingsPos = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
+			ImVec2 settingsSize = ImVec2(65, 40);
+			ImGui::SetNextWindowPos(settingsPos);
+			ImGui::SetNextWindowBgAlpha(0.4f);
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
+			ImGui::PushStyleColor(ImGuiCol_ButtonLocked, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+			ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+			const float cursorPos = ImGui::GetCursorPosY();
+
+			const ImVec2 buttonSize = ImVec2(25, 25);
+			float cursorPosY = settingsSize.y / 2.0f - buttonSize.y / 2.0f;
+			ImGui::SetCursorPosX(5.0f);
+			ImGui::SetCursorPosY(cursorPosY);
+
+			if (WidgetsUtility::CustomToggle("##scenepanel_camsettings", buttonSize, m_shouldShowCameraSettings, nullptr, ICON_FA_CAMERA, 3.0f, "Camera Settings"))
+				m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(cursorPosY);
+
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.6f, 0.1f, 1.0f));
+			if (WidgetsUtility::CustomToggle("##scenepanel_gizmos", buttonSize, m_shouldShowGizmos, nullptr, ICON_FA_BACON, 3.0f, "Gizmos"))
+				m_shouldShowGizmos = !m_shouldShowGizmos;
+			ImGui::PopStyleColor();
+			ImGui::EndChild();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor();
+
+			/// <summary>
+			/// Camera settings pop-up window.
+			/// </summary>
+			if (m_shouldShowCameraSettings)
+			{
+				// Smoothly animate window size
+				if (m_cameraSettingsWindowYMultiplier < 1.0f)
+				{
+					m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Lina::Engine::Get()->GetRawDelta() * 6.0f);
+					m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
+				}
+
+				ImVec2 cameraSettingsPos = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
+				ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
+				ImGui::SetNextWindowPos(cameraSettingsPos);
+				ImGui::SetNextWindowBgAlpha(0.5f);
+				ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
+				float cursorPosLabels = 12;
+				WidgetsUtility::IncrementCursorPosY(6);
+				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Camera Speed");
+				ImGui::SameLine();
+
+				float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(100);
+				ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Multiplier");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(100);
+				ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
+				ImGui::PopStyleVar();
+				EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+				ImGui::EndChild();
+
+				if (ImGui::IsWindowHovered())
+				{
+					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
+							m_shouldShowCameraSettings = false;
+
+					}
+				}
+
+			}
+			else
+			{
+				if (m_cameraSettingsWindowYMultiplier != 0.0f)
+					m_cameraSettingsWindowYMultiplier = 0.0f;
+			}
+
+
 			// Draw gizmos.
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuizmo::Enable(true);
@@ -140,10 +231,9 @@ namespace Lina::Editor
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
 			ImGui::PushClipRect(imageRectMin, imageRectMax, false);
-			ProcessInput();
 			DrawGizmos();
 
-			// Show a warning box if no camerais available.
+			// Show a warning box if no camera is available.
 			if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
 			{
 				ImVec2 size = ImVec2(240, 100);
@@ -169,8 +259,6 @@ namespace Lina::Editor
 				ImGui::EndChild();
 			}
 
-
-
 			ImGui::EndChild();
 
 			if (!levelPanelFirstRun)
@@ -181,8 +269,7 @@ namespace Lina::Editor
 			}
 
 
-
-			// Mesh drag & drop.
+			// Model drag & drop.
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
@@ -202,7 +289,6 @@ namespace Lina::Editor
 				}
 				ImGui::EndDragDropTarget();
 			}
-
 
 			ImGui::End();
 
@@ -227,6 +313,11 @@ namespace Lina::Editor
 
 	void LevelPanel::ProcessInput()
 	{
+		auto* inputEngine = Lina::Input::InputEngineBackend::Get();
+
+		if (inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
+			LINA_ERR("NESXD");
+
 		if (ImGui::IsWindowFocused())
 		{
 			if (ImGui::IsKeyPressed(LINA_KEY_Q))
@@ -238,12 +329,10 @@ namespace Lina::Editor
 			if (ImGui::IsKeyPressed(LINA_KEY_T))
 				Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ currentTransformGizmoMode == ImGuizmo::LOCAL });
 
-			auto* inputEngine = Lina::Input::InputEngineBackend::Get();
 			bool isInPlay = Lina::Engine::Get()->GetPlayMode();
 
-			if (inputEngine->GetKey(Lina::Input::InputCode::LCTRL) && inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
+			if (inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
 			{
-
 				if (isInPlay)
 				{
 					Lina::Engine::Get()->SetPlayMode(false);
@@ -289,7 +378,7 @@ namespace Lina::Editor
 
 	void LevelPanel::DrawGizmos()
 	{
-		if (Lina::Engine::Get()->GetPlayMode()) return;
+		if (Lina::Engine::Get()->GetPlayMode() || !m_shouldShowGizmos) return;
 
 		ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
 		ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
@@ -330,7 +419,6 @@ namespace Lina::Editor
 		}
 
 		// Draw scene orientation gizmo
-
 		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		if (editorCam != entt::null)
 		{
@@ -346,74 +434,6 @@ namespace Lina::Editor
 		}
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
-
-		/// <summary>
-		/// Scene Settings - window for buttons.
-		/// </summary>
-		ImVec2 settingsPos = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
-		ImVec2 settingsSize = ImVec2(240, 30);
-		ImGui::SetNextWindowPos(settingsPos);
-		ImGui::SetNextWindowBgAlpha(0.0f);
-		ImGui::BeginChild("##scenePanel_settings", settingsSize);
-		const float cursorPos = ImGui::GetCursorPosY();
-		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_CAMERA, ImVec2(30, 30), 1, false, cursorPos, "Camera Settings"))
-			m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
-		ImGui::EndChild();
-
-		/// <summary>
-		/// Camera settings pop-up window.
-		/// </summary>
-		if (m_shouldShowCameraSettings)
-		{
-			// Smoothly animate window size
-			if (m_cameraSettingsWindowYMultiplier < 1.0f)
-			{
-				m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Lina::Engine::Get()->GetRawDelta() * 6.0f);
-				m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
-			}
-
-			ImVec2 cameraSettingsPos = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
-			ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
-			ImGui::SetNextWindowPos(cameraSettingsPos);
-			ImGui::SetNextWindowBgAlpha(0.5f);
-			ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
-			float cursorPosLabels = 12;
-			WidgetsUtility::IncrementCursorPosY(6);
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Camera Speed");
-			ImGui::SameLine();
-
-			float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(100);
-			ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Multiplier");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(100);
-			ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
-			ImGui::PopStyleVar();
-			EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
-			ImGui::EndChild();
-
-			if (ImGui::IsWindowHovered())
-			{
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
-						m_shouldShowCameraSettings = false;
-
-				}
-			}
-
-		}
-		else
-		{
-			if (m_cameraSettingsWindowYMultiplier != 0.0f)
-				m_cameraSettingsWindowYMultiplier = 0.0f;
-		}
 
 
 	}

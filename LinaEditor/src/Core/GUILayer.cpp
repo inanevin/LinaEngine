@@ -263,6 +263,7 @@ namespace Lina::Editor
 		m_globalSettingsPanel.Draw();
 		m_toolbar.DrawFooter();
 
+	
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -41,12 +41,15 @@ namespace Lina::Editor
 
 	void EditorPanel::ToggleCollapse()
 	{
+		if (m_maximized)
+		{
+			ToggleMaximize();
+			return;
+		}
+
 		m_collapsed = !m_collapsed;
 		if (m_collapsed)
 		{
-			if (m_maximized)
-				ToggleMaximize();
-
 			m_windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
 			ImVec2 size = ImGui::GetWindowSize();
 			m_sizeBeforeCollapse = Vector2(size.x, size.y);
@@ -63,6 +66,12 @@ namespace Lina::Editor
 
 	void EditorPanel::ToggleMaximize()
 	{
+		if (m_collapsed)
+		{
+			ToggleCollapse();
+			return;
+		}
+
 		m_maximized = !m_maximized;
 
 		if (m_maximized)

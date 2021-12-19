@@ -83,6 +83,7 @@ namespace Lina::Editor
 		float m_borderAlpha = 0.0f;
 		bool m_isFocused = true;
 		bool m_shouldShowCameraSettings = false;
+		bool m_shouldShowGizmos= false;
 		float m_cameraSettingsWindowYMultiplier = 0.0f;
 		float m_editorCameraSpeed = 1.0f;
 		float m_editorCameraSpeedMultiplier = 1.0f;

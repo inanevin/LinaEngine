@@ -80,9 +80,5 @@ void ExampleLevel::Tick(Event::ETick ev)
 		data.SetLocation(location);
 	}
 
-	if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Space))
-	{
-		
-	}
 }
 

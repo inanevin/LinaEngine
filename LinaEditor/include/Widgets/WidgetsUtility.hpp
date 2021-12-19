@@ -74,10 +74,16 @@ namespace Lina::Editor
 		static void Tooltip(const char* tooltip);
 
 		/// <summary>
-		/// Draws a button with the given size, with an option to draw an icon in the middle.
-		/// Use ImGuiCol_ButtonX to style, ImGuiCol_Icon to style the icon color.
+		/// Draws a button with the given size, with an option to draw an icon/text in the middle.
+		/// Use ImGuiCol_ButtonX to style, ImGuiCol_Icon to style the icon color.</summary>
+		/// <returns></returns>
+		static bool CustomButton(const char* id, ImVec2 size, bool* isHovered = nullptr, bool locked = false, const char* icon = nullptr, float rounding = 0.0f, const char* tooltip = nullptr);
+
+		/// <summary>
+		/// Draws a button with the given size, with an option to draw an icon/text in the middle. Use the toggled parameter to
+		/// keep the button pressed/unpressed. Use ImGuiCol_ButtonLocked to style the toggled state, ImGuiCol_Icon to style the icon color.</summary>
 		/// </summary>
-		static bool ButtonRectangle(const char* id, ImVec2 size, bool* isHovered = nullptr, bool locked = false, const char* icon = nullptr, float rounding = 0.0f);
+		static bool CustomToggle(const char* id, ImVec2 size, bool toggled, bool* hoveredPtr = nullptr, const char* icon = nullptr, float rounding = 0.0f, const char* tooltip = nullptr);
 
 		/// <summary>
 		/// Returns whether two ImGui colors are equal or not.
@@ -119,6 +125,11 @@ namespace Lina::Editor
 		/// </summary>
 		/// <param name="label"></param>
 		static void WindowTitlebar(const char* label);
+
+		/// <summary>
+		/// Draws multiple horizontal dividers to create a drop shadow effect.
+		/// </summary>
+		static void DropShadow();
 
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);

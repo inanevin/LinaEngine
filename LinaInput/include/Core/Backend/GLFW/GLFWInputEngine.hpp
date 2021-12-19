@@ -90,6 +90,14 @@ namespace Lina::Input
 
 		friend class Lina::Engine;
 		static GLFWInputEngine* s_inputEngine;
+		int m_keyStatesDown[NUM_KEY_STATES];
+		int m_keyStatesUp[NUM_KEY_STATES];
+		int m_mouseStatesDown[NUM_MOUSE_STATES];
+		int m_mouseStatesUp[NUM_MOUSE_STATES];
+		std::map<int, int> m_keyDownNewStateMap;
+		std::map<int, int> m_keyUpNewStateMap;
+		std::map<int, int> m_mouseDownNewStateMap;
+		std::map<int, int> m_mouseUpNewStateMap;
 		InputAxis m_horizontalAxis;
 		InputAxis m_verticalAxis;
 		CursorMode m_cursorMode = CursorMode::Visible;
