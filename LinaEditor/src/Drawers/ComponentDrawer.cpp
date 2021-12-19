@@ -68,32 +68,32 @@ namespace Lina::Editor
 	using namespace entt::literals;
 
 	template<typename Type>
-	Type& Get(Lina::ECS::Entity entity) {
+	Type& Drawer_Get(Lina::ECS::Entity entity) {
 		return Lina::ECS::Registry::Get()->template get<Type>(entity);
 	}
 
 	template<typename Type>
-	void Reset(Lina::ECS::Entity entity) {
+	void Drawer_Reset(Lina::ECS::Entity entity) {
 		Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
 	}
 
 	template<typename Type>
-	void Remove(Lina::ECS::Entity entity) {
+	void Drawer_Remove(Lina::ECS::Entity entity) {
 		Lina::ECS::Registry::Get()->template remove<Type>(entity);
 	}
 
 	template<typename Type>
-	void Copy(entt::entity entity) {
+	void Drawer_Copy(entt::entity entity) {
 
 	}
 
 	template<typename Type>
-	void Paste(entt::entity entity) {
+	void Drawer_Paste(entt::entity entity) {
 
 	}
 
 	template<typename Type>
-	void SetEnabled(bool enabled, Lina::ECS::Entity ent)
+	void Drawer_SetEnabled(bool enabled, Lina::ECS::Entity ent)
 	{
 		Lina::ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
 
@@ -129,7 +129,6 @@ namespace Lina::Editor
 		comp.SetMaterial(ent, materialIndex, material);
 	}
 
-
 	template<typename Type>
 	void Drawer_RemoveMaterial(Lina::ECS::Entity ent, int materialIndex)
 	{
@@ -145,16 +144,47 @@ namespace Lina::Editor
 	}
 
 
+	void Drawer_DebugPointLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
+		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
+		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
+	}
+
+	void Drawer_DebugSpotLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
+		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
+	void Drawer_DebugDirectionalLight(Lina::ECS::Entity ent)
+	{
+		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		Vector3 dir = Vector3::Zero - data.GetLocation();
+		Vector3 end1 = data.GetLocation() + dir;
+		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+	}
+
+
 	template<typename Type>
 	void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags)
 	{
 		entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags));
-		entt::meta<Type>().func<&SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
-		entt::meta<Type>().func<&Get<Type>, entt::as_ref_t>("get"_hs);
-		entt::meta<Type>().func<&Reset<Type>, entt::as_ref_t>("reset"_hs);
-		entt::meta<Type>().func<&Remove<Type>, entt::as_ref_t>("remove"_hs);
-		entt::meta<Type>().func<&Copy<Type>, entt::as_ref_t>("copy"_hs);
-		entt::meta<Type>().func<&Paste<Type>, entt::as_ref_t>("paste"_hs);
+		entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
+		entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
+		entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
+		entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_ref_t>("remove"_hs);
+		entt::meta<Type>().func<&Drawer_Copy<Type>, entt::as_ref_t>("copy"_hs);
+		entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
 	}
 
 	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
@@ -174,7 +204,7 @@ namespace Lina::Editor
 		uint8 defaultDrawFlags = ComponentDrawFlags_None;
 
 #define PROPS(LABEL, TYPE) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE)
-
+#define PROPS_DEP(LABEL,TYPE, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
 
 		// Camera component
 		entt::meta<CameraComponent>().data<&CameraComponent::m_isEnabled>("enabled"_hs);
@@ -187,36 +217,38 @@ namespace Lina::Editor
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS("Shadow Far", ComponentVariableType::DragFloat));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS("Shadow Near", ComponentVariableType::DragFloat));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS("Shadow Projection", ComponentVariableType::Vector4));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "castShadows"_hs));
+		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<DirectionalLightComponent>().func<&ComponentDrawer::DrawDebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
+		entt::meta<DirectionalLightComponent>().func<&Drawer_DebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags);
 
 		// Spotlight
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
+		// entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_outerCutoff>("oc"_hs).props(PROPS("Outer Cutoff", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_cutoff>("cof"_hs).props(PROPS("Cutoff", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
+		entt::meta<SpotLightComponent>().func<&Drawer_DebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags);
 
 		// Pointlight
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS("Shadow Far", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS("Shadow Near", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS("Bias", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("cs"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS_DEP("Bias", ComponentVariableType::DragFloat, "castShadows"_hs));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
-		entt::meta<PointLightComponent>().func<&ComponentDrawer::DrawDebugPointLight, entt::as_ref_t>("drawDebug"_hs);
+		entt::meta<PointLightComponent>().func<&Drawer_DebugPointLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags);
 
 		// Freelook
@@ -464,35 +496,6 @@ namespace Lina::Editor
 		"CAPSULE"
 	};
 
-	void ComponentDrawer::DrawDebugPointLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
-	}
-
-	void ComponentDrawer::DrawDebugSpotLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-	}
-
-	void ComponentDrawer::DrawDebugDirectionalLight(Lina::ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		Vector3 dir = Vector3::Zero - data.GetLocation();
-		Vector3 end1 = data.GetLocation() + dir;
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-	}
 
 	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
 	{
@@ -522,7 +525,10 @@ namespace Lina::Editor
 			resolvedData.data("enabled"_hs).set(instance, enabled);
 
 			if (remove)
+			{
 				resolvedData.func("remove"_hs).invoke({}, ent);
+				return;
+			}
 
 			if (reset)
 				resolvedData.func("reset"_hs).invoke({}, ent);
@@ -535,25 +541,7 @@ namespace Lina::Editor
 
 			if (m_componentFoldoutState[tid])
 			{
-				// Check if the target data contains a debug property,
-				// If so, and if the property is set to true,
-				// Call the debug function if exists.
-				auto debugProperty = resolvedData.data("debug"_hs);
-				if (debugProperty)
-				{
-					auto debugFunc = resolvedData.func("drawDebug"_hs);
-					entt::meta_any metaThis = this;
-
-					if (debugFunc)
-						debugFunc.invoke({}, entt::forward_as_meta(*this), ent);
-					//bool isDebugEnabled = debugProperty.get(instance).cast<bool>();
-					//
-					//if (isDebugEnabled)
-					//{
-					//	
-					//}
-				}
-
+			
 				// Draw each reflected property in the component according to it's type.
 				WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 				float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -568,6 +556,20 @@ namespace Lina::Editor
 					if (!labelProperty || !typeProperty) continue;
 					const char* label = labelProperty.value().cast<const char*>();
 					ComponentVariableType type = typeProperty.value().cast<ComponentVariableType>();
+
+					auto displayDependencyProperty = data.prop("DisplayDependency"_hs);
+
+					if (displayDependencyProperty)
+					{
+						entt::hashed_string displayDependencyHash = displayDependencyProperty.value().cast<entt::hashed_string>();
+						auto dependantMember = resolvedData.data(displayDependencyHash);
+
+						if (dependantMember)
+						{
+							bool dependantMemberValue = dependantMember.get(instance).cast<bool>();
+							if (!dependantMemberValue) continue;
+						}
+					}
 
 					varLabelID = "##_" + std::string(title) + std::to_string(varCounter);
 					ImGui::SetCursorPosX(cursorPosLabels);
@@ -697,6 +699,23 @@ namespace Lina::Editor
 
 					varCounter++;
 					varLabelID.clear();
+				}
+
+				// Check if the target data contains a debug property,
+				// If so, and if the property is set to true,
+				// Call the debug function if exists.
+				auto debugProperty = resolvedData.data("debug"_hs);
+				if (debugProperty)
+				{
+					bool isDebugEnabled = debugProperty.get(instance).cast<bool>();
+
+					if (isDebugEnabled)
+					{
+						auto debugFunc = resolvedData.func("drawDebug"_hs);
+
+						if (debugFunc)
+							debugFunc.invoke({}, ent);
+					}
 				}
 			}
 
