@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Rendering/RenderSettings.hpp"
 #include "World/Level.hpp"
 #include "Rendering/Material.hpp"
-#include "Modals/SelectMaterialModal.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 

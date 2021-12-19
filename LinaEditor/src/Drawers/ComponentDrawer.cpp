@@ -39,8 +39,6 @@ SOFTWARE.
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Modals/SelectMeshModal.hpp"
-#include "Modals/SelectMaterialModal.hpp"
 #include "Memory/Memory.hpp"
 #include "Core/EditorCommon.hpp"
 #include "IconsFontAwesome5.h"
@@ -53,7 +51,22 @@ using namespace Lina::Editor;
 
 namespace Lina::Editor
 {
-	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
+#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_Y_INCREMENT_BEFORE 15
+#define CURSORPOS_Y_INCREMENT_BEFOREVAL 2.5f
+#define CURSORPOS_Y_INCREMENT_AFTER 6.5f
+#define CURSORPOS_XPERC_VALUES 0.32f
+#define CURSORPOS_XPERC_VALUES2 0.545f
+
+	const char* rigidbodyShapes[]
+	{
+		"SPHERE",
+		"BOX",
+		"CYLINDER",
+		"CAPSULE"
+	};
+
+
 	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
 	std::pair<Lina::ECS::Entity, Lina::ECS::TypeID> m_copyBuffer;
 
@@ -157,9 +170,6 @@ namespace Lina::Editor
 
 	}
 
-
-
-
 	template<typename Type>
 	void Drawer_SetModel(Lina::ECS::Entity ent, Lina::Graphics::Model* model)
 	{
@@ -194,27 +204,13 @@ namespace Lina::Editor
 		return Lina::Graphics::Model::GetModel(modelPath).GetMaterialSpecs()[index].m_name;;
 	}
 
-
-
 	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
 		LINA_TRACE("Debug PLIGHT");
 	}
+
 	ComponentDrawer::ComponentDrawer()
 	{
-		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&ComponentDrawer::DrawDirectionalLightComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<SpotLightComponent>(GetTypeID<SpotLightComponent>(), "Spot Light", std::bind(&ComponentDrawer::DrawSpotLightComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<PointLightComponent>(GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&ComponentDrawer::DrawFreeLookComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1));
-		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1));
-
-		uint8 defaultDrawFlags = ComponentDrawFlags_None;
-
-#define PROPS(LABEL, TYPE) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE)
-#define PROPS_DEP(LABEL,TYPE, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
-
+		uint8 defaultDrawFlags = ComponentDrawFlags_None | ComponentDrawFlags_NoCopy;
 		// Camera component
 		entt::meta<CameraComponent>().data<&CameraComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs).props(PROPS("Far", ComponentVariableType::DragFloat));
@@ -283,92 +279,18 @@ namespace Lina::Editor
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath));;
 		RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags, "Rendering");
 
-
-
-
-
-		//	ECS::TypeID tid;
-		//	auto x = entt::resolve(tid).data();
-		//
-		//	for (auto data : entt::resolve<ModelRendererComponent>().data()) {
-		//		auto t = data.type();
-		//		LINA_TRACE("xdxdxaaad {0}", m_variableTypeIdentifiers[data.id()]);
-		//	}
-		//	auto factory = entt::meta<ModelRendererComponent>().type();
-
 	}
 
 	void ComponentDrawer::Initialize()
 	{
-		s_activeInstance = this;
-
-		auto* ecs = Lina::ECS::Registry::Get();
-		Lina::ECS::Entity ent = ecs->CreateEntity("ent");
-		auto& pl = ecs->emplace<PointLightComponent>(ent);
-
-		Lina::ECS::TypeID tid = entt::type_id<PointLightComponent>().hash();
-
-		auto resolved = entt::resolve(tid);
-
-		entt::meta_any& inst = resolved.func("get"_hs).invoke({}, ent);
-
-
-		bool enabledData = resolved.data("enabled"_hs).get(inst).cast<bool>();
-		float intensity = resolved.data("i"_hs).get(inst).cast<float>();
-		resolved.data("i"_hs).set(inst, 17.75f);
-		float intensity2 = resolved.data("i"_hs).get(inst).cast<float>();
-
-		for (auto data : resolved.data())
-		{
-			if (data.type().is_floating_point())
-			{
-				data.set(inst, 29.87f);
-			}
-		}
-
-		float intensity3 = resolved.data("i"_hs).get(inst).cast<float>();
-		auto& pl2 = ecs->get<PointLightComponent>(ent);
-
-		LINA_TRACE("a");
+		Lina::Event::EventSystem::Get()->Connect<EComponentOrderSwapped, &ComponentDrawer::OnComponentOrderSwapped>(this);
 	}
 
-	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Entity entity)
+	void ComponentDrawer::AddIDToDrawList(Lina::ECS::TypeID id)
 	{
-		std::vector<std::string> eligibleTypes;
-		std::vector<TypeID> typeIDs;
-		auto* ecs = Lina::ECS::Registry::Get();
-
-		// Store all components of the entity.
-		ecs->visit(entity, [&typeIDs](const auto component)
-			{
-				TypeID id = component.hash();
-				typeIDs.push_back(id);
-			});
-
-		// Iterate registered types & add as eligible if entity does not contain the type.
-		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
-		{
-			// Exclusion
-			if (std::get<0>(it->second).compare("Mesh Renderer") == 0) continue;
-
-			if (std::find(typeIDs.begin(), typeIDs.end(), it->first) == typeIDs.end())
-			{
-				eligibleTypes.push_back(std::get<0>(it->second));
-			}
-		}
-
-		return eligibleTypes;
-	}
-
-	void ComponentDrawer::AddComponentToEntity(Entity entity, const std::string& comp)
-	{
-		// Call the add function of the type when the requested strings match.
-		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
-		{
-			if (std::get<0>(it->second).compare(comp) == 0)
-				std::get<1>(it->second)(entity);
-		}
+		// Add only if it doesn't exists.
+		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
+			m_componentDrawList.push_back(id);
 	}
 
 	void ComponentDrawer::SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2)
@@ -379,132 +301,15 @@ namespace Lina::Editor
 		std::iter_swap(it1, it2);
 	}
 
-	void ComponentDrawer::AddIDToDrawList(Lina::ECS::TypeID id)
+	void ComponentDrawer::OnComponentOrderSwapped(EComponentOrderSwapped ev)
 	{
-		// Add only if it doesn't exists.
-		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
-			m_componentDrawList.push_back(id);
+		SwapComponentOrder(ev.m_id1, ev.m_id2);
 	}
 
 	void ComponentDrawer::ClearDrawList()
 	{
 		m_componentDrawList.clear();
 	}
-
-	void ComponentDrawer::DrawComponents(Lina::ECS::Entity entity)
-	{
-		s_activeInstance = this;
-
-		// Draw components.
-		for (int i = 0; i < m_componentDrawList.size(); i++)
-		{
-			auto func = std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]]);
-			if (func)
-				func(entity);
-		}
-	}
-
-	bool ComponentDrawer::DrawComponentTitle(Lina::ECS::TypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool cantDelete, bool noRefresh)
-	{
-
-		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			*foldoutOpen = !*foldoutOpen;
-
-		// Title.
-		ImGui::SameLine();
-		ImGui::AlignTextToFramePadding();
-		WidgetsUtility::IncrementCursorPosY(-5);
-		ImGui::Text(title);
-		if (ImGui::IsItemClicked())
-			*foldoutOpen = !*foldoutOpen;
-		ImGui::AlignTextToFramePadding();
-		ImGui::SameLine();
-
-		// Title is the drag and drop target.
-		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-		{
-			// Set payload to carry the type id.
-			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &typeID, sizeof(int));
-
-			// Display preview 
-			ImGui::Text("Move ");
-			ImGui::EndDragDropSource();
-		}
-
-		// Dropped on another title, swap component orders.
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
-			{
-				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
-				Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->Data;
-				SwapComponentOrder(payloadID, typeID);
-			}
-			ImGui::EndDragDropTarget();
-		}
-
-		// Icon
-		WidgetsUtility::IncrementCursorPosY(6);
-		WidgetsUtility::IncrementCursorPos(ImVec2(iconOffset.x, iconOffset.y));
-		WidgetsUtility::Icon(icon, 0.6f, iconColor);
-		WidgetsUtility::IncrementCursorPos(ImVec2(-iconOffset.x, -iconOffset.y));
-
-		// Enabled toggle
-		std::string buf(title);
-		if (!cantDelete && enabled != nullptr)
-		{
-			buf.append("t");
-			ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);
-			WidgetsUtility::IncrementCursorPosY(-4);
-			WidgetsUtility::ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
-		}
-
-		// Refresh button
-		if (!noRefresh)
-		{
-			buf.append("r");
-			ImGui::SameLine();
-			if (cantDelete)
-				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 23);
-			else
-				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
-			WidgetsUtility::IncrementCursorPosY(4);
-			*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		}
-
-		// Close button
-		if (!cantDelete)
-		{
-			buf.append("c");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
-			bool removed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-			if (removed)
-				ClearDrawList();
-
-			return removed;
-		}
-	}
-
-#define CURSORPOS_X_LABELS 12
-#define CURSORPOS_Y_INCREMENT_BEFORE 15
-#define CURSORPOS_Y_INCREMENT_BEFOREVAL 2.5f
-#define CURSORPOS_Y_INCREMENT_AFTER 6.5f
-#define CURSORPOS_XPERC_VALUES 0.32f
-#define CURSORPOS_XPERC_VALUES2 0.545f
-
-	const char* rigidbodyShapes[]
-	{
-		"SPHERE",
-		"BOX",
-		"CYLINDER",
-		"CAPSULE"
-	};
-
 
 	AddComponentMap ComponentDrawer::GetCurrentAddComponentMap(Lina::ECS::Entity entity)
 	{
@@ -558,6 +363,17 @@ namespace Lina::Editor
 		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
 	}
 
+	void ComponentDrawer::PushComponentToDraw(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
+	{
+		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), tid) == m_componentDrawList.end())
+			m_componentDrawList.push_back(tid);
+	}
+
+	void ComponentDrawer::DrawAllComponents(Lina::ECS::Entity ent)
+	{
+		for (auto tid : m_componentDrawList)
+			DrawComponent(tid, ent);
+	}
 
 	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
 	{
@@ -583,7 +399,7 @@ namespace Lina::Editor
 			bool reset = false;
 			bool enabled = resolvedData.data("enabled"_hs).get(instance).cast<bool>();
 			bool enabledPrevious = enabled;
-			WidgetsUtility::ComponentHeader(&m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr);
+			WidgetsUtility::ComponentHeader(tid, &m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr);
 
 			if (enabled != enabledPrevious)
 				resolvedData.func("setEnabled"_hs).invoke({}, ent, enabled);
@@ -591,6 +407,15 @@ namespace Lina::Editor
 			if (remove)
 			{
 				resolvedData.func("remove"_hs).invoke({}, ent);
+				
+				for (std::vector<Lina::ECS::TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
+				{
+					if (*it == tid)
+					{
+						m_componentDrawList.erase(it);
+						break;
+					}
+				}
 				return;
 			}
 
@@ -602,6 +427,8 @@ namespace Lina::Editor
 
 			if (paste)
 				resolvedData.func("paste"_hs).invoke({}, ent);
+
+			
 
 			if (m_componentFoldoutState[tid])
 			{
@@ -788,7 +615,7 @@ namespace Lina::Editor
 
 	}
 
-	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity)
+	/*void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity)
 	{
 		// Get component
 		auto* ecs = Lina::ECS::Registry::Get();
@@ -902,130 +729,9 @@ namespace Lina::Editor
 
 		// Draw bevel line
 		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		CameraComponent& camera = ecs->get<CameraComponent>(entity);
-		TypeID id = GetTypeID<CameraComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, nullptr, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<CameraComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<CameraComponent>(entity, CameraComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-			ImGui::SetCursorPosX(cursorPosLabels);
-
-			WidgetsUtility::AlignedText("Clear Color");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::ColorButton("##clrclr", &camera.m_clearColor.r);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Field of View");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fov", &camera.m_fieldOfView);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Near Plane");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##zNear", &camera.m_zNear);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Far Plane");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##zFar", &camera.m_zFar);
-
-			ImGui::SetCursorPosX(cursorPosValues);
-			if (ImGui::Button("Set Active Camera", ImVec2(110, 30)))
-				Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(entity);
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
-		TypeID id = GetTypeID<FreeLookComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		bool removeComponent = false;
-		bool refreshPressed = false;
-		bool copyButton = false;
-		//WidgetsUtility::ComponentHeader(&(m_foldoutStateMap[entity][id]), "Freelook", ICON_FA_EYE, &freeLook.m_isEnabled, &removeComponent, &copyButton, &refreshPressed);
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<FreeLookComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<FreeLookComponent>(entity, FreeLookComponent());
-
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-			ImGui::SetCursorPosX(cursorPosLabels);
-
-			WidgetsUtility::AlignedText("Movement Speeds");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat2("##ms", &freeLook.m_movementSpeeds.x);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Rotation Speeds");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat2("##rs", &freeLook.m_rotationSpeeds.x);
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
+	} 
+	
+	
 	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
@@ -1133,508 +839,6 @@ namespace Lina::Editor
 		// Draw bevel line
 		WidgetsUtility::DrawBeveledLine();
 	}
-
-	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		PointLightComponent& pLight = ecs->get<PointLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
-		TypeID id = GetTypeID<PointLightComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PointLightComponent>(), "PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<PointLightComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<PointLightComponent>(entity, PointLightComponent());
-
-
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Color");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::ColorButton("##pclr", &pLight.m_color.r);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Intensity");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##plint", &pLight.m_intensity);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Distance");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##pldist", &pLight.m_distance);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Casts Shadows");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##castsShadows", &pLight.m_castsShadows);
-
-			if (pLight.m_castsShadows)
-			{
-				ImGui::Indent();
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Bias");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##bias", &pLight.m_bias);
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Shadow Near");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##shadowNear", &pLight.m_shadowNear);
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Shadow Far");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##shadowFar", &pLight.m_shadowFar);
-				ImGui::Unindent();
-			}
-
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Draw Debug");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##drawDebug", &pLight.m_drawDebug);
-
-
-			if (pLight.m_drawDebug)
-			{
-				Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-				Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-				Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-				Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
-			}
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		SpotLightComponent& sLight = ecs->get<SpotLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
-		TypeID id = GetTypeID<SpotLightComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpotLightComponent>(), "SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3.0f));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<SpotLightComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<SpotLightComponent>(entity, SpotLightComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Color");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::ColorButton("##sclr", &sLight.m_color.r);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Distance");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##sldist", &sLight.m_distance);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Intensity");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##slint", &sLight.m_intensity);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Cutoff");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##cutOff", &sLight.m_cutoff);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Outer Cutoff");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##outerCutOff", &sLight.m_outerCutoff);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Draw Debug");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##drawDebug", &sLight.m_drawDebug);
-
-			if (sLight.m_drawDebug)
-			{
-				Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-			}
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		DirectionalLightComponent& dLight = ecs->get<DirectionalLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
-		TypeID id = GetTypeID<DirectionalLightComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<DirectionalLightComponent>(), "DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<DirectionalLightComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-			ImGui::SetCursorPosX(cursorPosLabels);
-
-			WidgetsUtility::AlignedText("Color");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::ColorButton("##dclr", &dLight.m_color.r);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Intensity");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##dlint", &dLight.m_intensity);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Shadow Near Plane");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##szNear", &dLight.m_shadowZNear);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Shadow Far Plane");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##szFar", &dLight.m_shadowZFar);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Shadow Projection");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat4("##sproj", &dLight.m_shadowOrthoProjection.x);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Draw Debug");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##drawDebug", &dLight.m_drawDebug);
-
-			if (dLight.m_drawDebug)
-			{
-				Vector3 dir = Vector3::Zero - data.GetLocation();
-				Vector3 end1 = data.GetLocation() + dir;
-				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-			}
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		MeshRendererComponent& renderer = ecs->get<MeshRendererComponent>(entity);
-		TypeID id = GetTypeID<MeshRendererComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		bool refreshPressed = false;
-		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3), true, true);
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		ModelRendererComponent& renderer = ecs->get<ModelRendererComponent>(entity);
-		TypeID id = GetTypeID<ModelRendererComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "ModelRenderer", ICON_MD_TOYS, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<ModelRendererComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<ModelRendererComponent>(entity, ModelRendererComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			// Model selection
-			char meshPathC[128] = "";
-			strcpy(meshPathC, renderer.m_modelPath.c_str());
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Model");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-
-			Lina::Graphics::Model* selected = WidgetsUtility::ModelComboBox("##modelrend_model", renderer.m_modelID);
-
-			if (selected)
-				renderer.SetModel(entity, *selected);
-
-			// Mesh drag & drop.
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-
-					auto& model = Lina::Graphics::Model::GetModel(*(StringIDType*)payload->Data);
-					renderer.SetModel(entity, model);
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
-			// Remove Model
-			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			{
-				renderer.RemoveModel(entity);
-			}
-
-			for (int i = 0; i < renderer.m_materialPaths.size(); i++)
-			{
-				// Material selection.
-				char matPathC[128] = "";
-				strcpy(matPathC, renderer.m_materialPaths[i].c_str());
-
-				// Draw material name
-				ImGui::SetCursorPosX(cursorPosLabels);
-				std::string materialName = Lina::Graphics::Model::GetModel(renderer.m_modelPath).GetMaterialSpecs()[i].m_name;
-				WidgetsUtility::AlignedText(materialName.c_str());
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-
-				const std::string cboxID = "#modelrend_material " + i;
-				Lina::Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), renderer.m_materialPaths[i]);
-
-				if (selectedMaterial != nullptr)
-					renderer.SetMaterial(entity, i, *selectedMaterial);
-
-				ImGui::SameLine();
-				WidgetsUtility::IncrementCursorPosY(5);
-
-				// Material drag & drop.
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-
-						auto& mat = Lina::Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
-						renderer.SetMaterial(entity, i, mat);
-					}
-					ImGui::EndDragDropTarget();
-				}
-
-				// Remove Material
-				std::string icnBtn = "##selectmat" + std::to_string(i);
-				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				{
-					renderer.RemoveMaterial(entity, i);
-				}
-			}
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		SpriteRendererComponent& renderer = ecs->get<SpriteRendererComponent>(entity);
-		TypeID id = GetTypeID<SpriteRendererComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<SpriteRendererComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			// Material selection
-			if (Lina::Graphics::Material::MaterialExists(renderer.m_materialID))
-			{
-				renderer.m_selectedMatID = renderer.m_materialID;
-				renderer.m_selectedMatPath = renderer.m_materialPaths;
-			}
-
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Material");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-
-			Graphics::Material* selected = WidgetsUtility::MaterialComboBox("##spr_material", renderer.m_materialPaths);
-
-			if (selected != nullptr)
-			{
-				renderer.m_materialID = selected->GetID();
-				renderer.m_materialPaths = selected->GetPath();
-			}
-
-
-			// Material drag & drop.
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-					renderer.m_materialID = Lina::Graphics::Material::GetMaterial(*(StringIDType*)payload->Data).GetID();
-					renderer.m_materialPaths = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
-
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
-
-
-			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			{
-				renderer.m_materialID = -1;
-				renderer.m_materialPaths = "";
-			}
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line.
-		WidgetsUtility::DrawBeveledLine();
-	}
+	*/
 
 }

@@ -86,12 +86,14 @@ namespace Lina::Editor
 		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		static const ImWchar icons_rangesFK[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
 		static const ImWchar icons_rangesMD[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
+		static const ImWchar icons_rangesCUST[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
 
 		ImFontConfig icons_config;
 		icons_config.MergeMode = true;
 		icons_config.PixelSnapH = true;
 
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/CustomIcons/icomoon.ttf", 20.0f, &icons_config, icons_rangesCUST);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
 
@@ -99,7 +101,7 @@ namespace Lina::Editor
 		s_defaultFont = io.FontDefault;
 
 		// Setup configuration flags.
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 		ImGui::StyleColorsDark();
 
 #ifdef LINA_GRAPHICS_OPENGL
@@ -185,6 +187,8 @@ namespace Lina::Editor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
+		colors[ImGuiCol_ButtonLocked] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
+		colors[ImGuiCol_Icon] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		ImPlot::GetStyle().AntiAliasedLines = true;
 

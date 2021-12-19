@@ -94,7 +94,7 @@ namespace Lina::Graphics
 	private:
 
 		static std::map<StringIDType, Texture*> s_loadedTextures;
-
+		
 		friend RenderEngine;
 
 		TextureBindMode m_bindMode;

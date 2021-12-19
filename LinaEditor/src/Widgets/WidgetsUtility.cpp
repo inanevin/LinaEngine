@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/GUILayer.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Math/Math.hpp"
 #include "Math/Quaternion.hpp"
 #include "Rendering/Material.hpp"
@@ -49,6 +52,45 @@ namespace Lina::Editor
 		ImGui::Text(tooltip);
 		ImGui::EndTooltip();
 		ImGui::PopStyleVar();
+	}
+
+	bool WidgetsUtility::ButtonRectangle(const char* id, ImVec2 size, bool locked, const char* icon, float rounding)
+	{
+		const ImVec2 currentCursor = ImGui::GetCursorPos();
+		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
+		const ImRect absoluteRect = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
+		
+		ImGui::ItemAdd(absoluteRect, ImGuiID(id));
+		ImGui::ItemSize(size);
+
+		bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
+		const bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+
+		const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+		const ImVec4 lockedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
+		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+		const ImVec4 rectCol = locked ? lockedColor : pressing ? normalColor : (hovered ? hoverColor : normalColor);
+		const ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
+		ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
+		IncrementCursorPosY(size.y / 2.0f);
+	
+		if (icon != nullptr)
+		{
+			const float iconScale = size.y * 0.035f;
+			PushScaledFont(iconScale);
+			ImVec2 textSize = ImGui::CalcTextSize(icon);
+		
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(currentCursor.x + size.x / 2.0f - textSize.x / 2.0f);
+			ImGui::SetCursorPosY(currentCursor.y + size.y / 2.0f - size.y * 0.2f);
+			ImGui::Text(icon);
+			PopScaledFont();
+		}
+
+		if (!locked && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
+			return true;
+
+		return false;
 	}
 
 	bool WidgetsUtility::ColorsEqual(ImVec4 col1, ImVec4 col2)
@@ -215,40 +257,6 @@ namespace Lina::Editor
 		}
 	}
 
-	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
-	{
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
-		ImVec2 pos_before = window->DC.CursorPos;
-
-		ImGui::PushID(str_id);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
-		bool ret = ImGui::Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
-		ImGui::PopStyleVar();
-
-		ImGuiID id = window->GetID("##Input");
-		bool temp_input_is_active = ImGui::TempInputIsActive(id);
-		bool temp_input_start = ret ? ImGui::IsMouseDoubleClicked(0) : false;
-
-		if (temp_input_start)
-			ImGui::SetActiveID(id, window);
-
-		if (temp_input_is_active || temp_input_start)
-		{
-			ImVec2 pos_after = window->DC.CursorPos;
-			window->DC.CursorPos = pos_before;
-			//ret = ImGui::TempInputText(window->Rect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
-			window->DC.CursorPos = pos_after;
-		}
-		else
-		{
-			window->DrawList->AddText(pos_before, ImGui::GetColorU32(ImGuiCol_Text), buf);
-		}
-
-		ImGui::PopID();
-		return ret;
-	}
-
 	bool WidgetsUtility::ToggleButton(const char* label, bool* v, float heightMultiplier, float widthMultiplier, const ImVec4& activeColor, const ImVec4& activeHoveredColor, const ImVec4& inactiveColor, const ImVec4& inactiveHoveredColor)
 	{
 		ImVec2 p = ImGui::GetCursorScreenPos();
@@ -288,6 +296,47 @@ namespace Lina::Editor
 		return v != nullptr ? *v : false;
 	}
 
+	void WidgetsUtility::HorizontalDivider(float yOffset, float thickness)
+	{
+		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + yOffset);
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), min.y);
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), thickness);
+	}
+
+	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		ImVec2 pos_before = window->DC.CursorPos;
+
+		ImGui::PushID(str_id);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
+		bool ret = ImGui::Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
+		ImGui::PopStyleVar();
+
+		ImGuiID id = window->GetID("##Input");
+		bool temp_input_is_active = ImGui::TempInputIsActive(id);
+		bool temp_input_start = ret ? ImGui::IsMouseDoubleClicked(0) : false;
+
+		if (temp_input_start)
+			ImGui::SetActiveID(id, window);
+
+		if (temp_input_is_active || temp_input_start)
+		{
+			ImVec2 pos_after = window->DC.CursorPos;
+			window->DC.CursorPos = pos_before;
+			//ret = ImGui::TempInputText(window->Rect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
+			window->DC.CursorPos = pos_after;
+		}
+		else
+		{
+			window->DrawList->AddText(pos_before, ImGui::GetColorU32(ImGuiCol_Text), buf);
+		}
+
+		ImGui::PopID();
+		return ret;
+	}
+
 	void WidgetsUtility::DrawWindowBorders(const ImVec4& color, float thickness)
 	{
 		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
@@ -312,13 +361,6 @@ namespace Lina::Editor
 		{
 			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Lina::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
 		}
-	}
-
-	void WidgetsUtility::HorizontalDivider(float thickness, ImVec4 color)
-	{
-		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(color), thickness);
 	}
 
 	void WidgetsUtility::DrawBeveledLine(ImVec2 min, ImVec2 max)
@@ -384,59 +426,109 @@ namespace Lina::Editor
 		return s_carets[title];
 	}
 
-	void WidgetsUtility::ComponentHeader(bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted)
+	void WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted)
 	{
+
+
 		const ImVec2 windowSize = ImGui::GetWindowSize();
-		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
-		const ImVec2 rectMin = currentPos;
-		const ImVec2 rectMax = ImVec2(rectMin.x + windowSize.x, rectMin.y + 25);
+		const ImVec2 rectSize = ImVec2(windowSize.x, 25);
 		const ImVec4 normalColor = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
 		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-		bool hovered = ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(rectMin, rectMax) && !ImGui::IsAnyItemHovered();
-		bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 		const float iconScale = 0.65f;
-		const ImVec4 rectCol = pressing ? normalColor : (hovered ? hoverColor : normalColor);
-		const ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
-		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol));
-		ImGui::GetWindowDrawList()->AddLine(rectMin, ImVec2(rectMax.x, rectMin.y), borderColor);
-		ImGui::GetWindowDrawList()->AddLine(ImVec2(rectMin.x, rectMax.y), rectMax, borderColor);
 
-		static float caretpos = 6;
-		static float labelpos = -4;
-		static float iconpos = 3;
-		static float togglepos = -2;
-		static float restpos = 2;
-		static float perc1 = 36.0f;
-		static float perc2 = 26.0f;
-		static float w = 22;
-		static float h = 14;
-		static float x = 2;
-		static float y = 2;
+		ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, normalColor);
+		const std::string componentHeaderID = std::to_string(static_cast<uint32>(tid));
+		bool isPressed = ButtonRectangle(componentHeaderID.c_str(), rectSize);
+		bool hovered = ImGui::IsItemHovered();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
 
-		ImGui::SetCursorPosX(12);
-		IncrementCursorPosY(caretpos);
-		ImGui::Text(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+		//IncrementCursorPosY(-rectSize.y - ImGui::GetStyle().ItemSpacing.y);
 		ImGui::SameLine();
-		IncrementCursorPosY(labelpos);
+
+		// Horizontal dividers as borders.
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
+		HorizontalDivider();
+		HorizontalDivider(rectSize.y);
+		ImGui::PopStyleColor();
+
+		static float caretPos = 6;
+		static float labelPos = -4;
+		static float iconPos = 3;
+		static float togglePos = -1.7f;
+		static float moveHandlePos = 2;
+		static float buttonsPos = -4.2f;
+		static float buttonOffsetFromSize1 = 36.0f;
+		static float buttonOffsetFromSize2 = 34.0f;
+		static float buttonWidth = 29.0f;
+		static float buttonHeight = 18.0f;
+		static float buttonRounding = 2.0f;
+
+		// Caret
+		ImGui::SetCursorPosX(12);
+		IncrementCursorPosY(caretPos);
+		ImGui::Text(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+
+		// Label
+		ImGui::SameLine();
+		IncrementCursorPosY(labelPos);
 		ImGui::Text(componentLabel);
+
+		// Icon
 		ImGui::SameLine();
 		PushScaledFont(iconScale);
 		IncrementCursorPosY(3);
 		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		IncrementCursorPosY(iconpos);
+		IncrementCursorPosY(iconPos);
 		ImGui::Text(componentIcon);
 		ImGui::PopStyleColor();
 		PopScaledFont();
-		ImGui::SameLine();
-		IncrementCursorPosY(togglepos);
 
+		// Toggle
+		ImGui::SameLine();
+		IncrementCursorPosY(togglePos);
 		std::string toggleID = "#tb_" + std::string(componentLabel);
 		ToggleButton(toggleID.c_str(), toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 		bool toggleButtonHovered = ImGui::IsItemHovered();
-		ImGui::SameLine();
 
+		// Move
+		ImGui::SameLine();
 		PushScaledFont(iconScale);
-		IncrementCursorPosY(restpos);
+		IncrementCursorPosY(moveHandlePos);
+		ImGui::Text(ICON_FA_BARS);
+
+		// Title is the drag and drop target.
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			// Set payload to carry the type id.
+			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &tid, sizeof(int));
+
+			// Display preview 
+			ImGui::Text("Move ");
+			ImGui::EndDragDropSource();
+		}
+
+		bool wasDraggedDropped = false;
+		// Dropped on another title, swap component orders.
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
+				Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->Data;
+				Lina::Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{ payloadID, tid });
+			}
+
+			wasDraggedDropped = true;
+
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::SameLine();
+		IncrementCursorPosY(buttonsPos);
 
 		std::vector<std::pair<const char*, bool*>> buttons;
 		std::vector<std::string> buttonNames{ "Remove", "Paste", "Copy", "Reset" };
@@ -446,39 +538,39 @@ namespace Lina::Editor
 		buttons.push_back(std::make_pair(ICON_FA_COPY, copied));
 		buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetted));
 
-
 		bool anyButtonRectHovered = false;
-
+		float currentCursorPosY = ImGui::GetCursorPosY();
 		for (int i = 0; i < buttons.size(); i++)
 		{
+			ImGui::SetCursorPosY(currentCursorPosY);
+
 			if (i == 0)
-				ImGui::SetCursorPosX(windowSize.x - perc2);
+				ImGui::SetCursorPosX(windowSize.x - buttonOffsetFromSize2);
 			else
-				ImGui::SetCursorPosX(windowSize.x - perc2 - (i * perc1));
+				ImGui::SetCursorPosX(windowSize.x - buttonOffsetFromSize2 - (i * buttonOffsetFromSize1));
 
 			bool locked = buttons[i].second == nullptr;
 
-			float boxWidth = w;
-			float boxHeight = h;
-			ImRect itemRect = ImRect(ImGui::GetWindowPos().x + ImGui::GetCursorPosX() - (boxWidth / 2) + x, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - (boxHeight / 2) + y,
-				ImGui::GetWindowPos().x + ImGui::GetCursorPosX() + boxWidth, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + boxHeight);
+			ImVec4 buttonLockedColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+			ImVec4 buttonNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
+			ImVec4 buttonHoverColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+			ImGui::PushStyleColor(ImGuiCol_Button, buttonNormalColor);
+			ImGui::PushStyleColor(ImGuiCol_ButtonLocked, buttonLockedColor);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoverColor);
+			const std::string id = componentHeaderID + std::to_string(i);
+			bool buttonPressed = ButtonRectangle(id.c_str(), ImVec2(buttonWidth, buttonHeight), locked, buttons[i].first, buttonRounding);
+			bool buttonHovered = ImGui::IsItemHovered();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
 
-			bool boxHovered = ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(itemRect.Min, itemRect.Max);
-			bool boxPressing = boxHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-			ImVec4 lockedColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-			ImVec4 boxNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
-			ImVec4 boxHoverColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-			ImVec4 boxColor = locked ? lockedColor : boxPressing ? boxNormalColor : boxHovered ? boxHoverColor : boxNormalColor;
-			ImGui::GetWindowDrawList()->AddRectFilled(itemRect.Min, itemRect.Max, ImGui::ColorConvertFloat4ToU32(boxColor));
-			ImGui::Text(buttons[i].first);
-
-			if (!locked && boxHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			if (!locked && buttonHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 				*(buttons[i].second) = true;
 
 			if (i != buttons.size() - 1)
 				ImGui::SameLine();
 
-			if (boxHovered)
+			if (buttonHovered)
 			{
 				anyButtonRectHovered = true;
 				PopScaledFont();
@@ -486,10 +578,10 @@ namespace Lina::Editor
 				PushScaledFont(iconScale);
 			}
 		}
+
 		PopScaledFont();
 
-
-		if (!anyButtonRectHovered && !toggleButtonHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
+		if (!wasDraggedDropped && !anyButtonRectHovered && !toggleButtonHovered && isPressed)
 			*foldoutOpen = !(*foldoutOpen);
 
 

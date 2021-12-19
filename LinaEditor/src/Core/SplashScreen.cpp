@@ -76,7 +76,7 @@ namespace Lina::Editor
 		Lina::Graphics::RenderEngineBackend::Get()->SetDrawParameters(splashDrawParams);
 
 		// Setup Dear ImGui context
-		IMGUI_CHECKVERSION();
+		//IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 

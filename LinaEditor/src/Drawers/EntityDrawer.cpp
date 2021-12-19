@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Drawers/EntityDrawer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Modals/SelectComponentModal.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "IconsFontAwesome5.h"
@@ -44,6 +43,7 @@ namespace Lina::Editor
 	{
 		m_shouldCopyEntityName = true;
 		m_selectedEntity = entity;
+
 		m_componentDrawer.ClearDrawList();
 	}
 
@@ -132,11 +132,13 @@ namespace Lina::Editor
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		ecs->visit(m_selectedEntity, [this](const auto component)
+		Lina::ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
 			{
-				m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
+				//m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
+				m_componentDrawer.PushComponentToDraw(component.hash(), m_selectedEntity);
 			});
 
+		m_componentDrawer.DrawAllComponents(m_selectedEntity);
 		// Draw the added components.
 		//m_componentDrawer.DrawComponents(m_selectedEntity);
 

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Modals/SelectShaderModal.hpp"
+
 #include "Rendering/Shader.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Memory/Memory.hpp"

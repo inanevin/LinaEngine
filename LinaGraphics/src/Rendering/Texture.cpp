@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Utility/UtilityFunctions.hpp"
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
 #include "Core/RenderEngineBackend.hpp"
@@ -235,9 +236,9 @@ namespace Lina::Graphics
 		texture->m_path = path;
 		texture->m_paramsPath = paramsPath;
 		s_loadedTextures[sid] = texture;
-
+	
 		// Delete pixel data.
-		delete textureBitmap;
+		delete textureBitmap;	
 
 		// Return
 		return *s_loadedTextures[sid];
@@ -295,7 +296,7 @@ namespace Lina::Graphics
 		}
 
 		StringIDType sid = StringID(filePath.c_str()).value();
-
+		
 		// Build texture & construct.
 		Texture* texture = new Texture();
 		texture->Construct(*textureBitmap, samplerParams, compress, filePath);

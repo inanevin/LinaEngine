@@ -109,6 +109,7 @@ namespace Lina::Editor
 	struct EModelSelected { Graphics::Model* m_model; };
 	struct ETransformGizmoChanged { int m_currentGizmo; };
 	struct ETransformPivotChanged { bool m_isGlobal; };
+	struct EComponentOrderSwapped { ECS::TypeID m_id1; ECS::TypeID m_id2; };
 
 #define EDITOR_CAMERA_NAME "Editor Camera"
 

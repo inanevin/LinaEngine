@@ -41,6 +41,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/StringId.hpp"
+#include "ECS/ECS.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -67,15 +68,50 @@ namespace Lina::Editor
 		
 	public:
 		
+		/// <summary>
+		/// Draws a simple tooltip pop-up.
+		/// </summary>
 		static void Tooltip(const char* tooltip);
+
+		/// <summary>
+		/// Draws a button with the given size, with an option to draw an icon in the middle.
+		/// Use ImGuiCol_ButtonX to style, ImGuiCol_Icon to style the icon color.
+		/// </summary>
+		static bool ButtonRectangle(const char* id, ImVec2 size, bool locked = false, const char* icon = nullptr, float rounding = 0.0f);
+
+		/// <summary>
+		/// Returns whether two ImGui colors are equal or not.
+		/// </summary>
 		static bool ColorsEqual(ImVec4 col1, ImVec4 col2);
+
+		/// <summary>
+		/// Draws a folder in the style of Resources Panel.
+		/// </summary>
 		static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0,0,0,0));
+		
+		/// <summary>
+		/// Button with color-picker pop-up
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="colorX"></param>
 		static void ColorButton(const char* id, float* colorX);
-		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
+
+		/// <summary>
+		/// Draws a button that the user can toggle from left-to right with toggling animation.
+		/// </summary>
 		static bool ToggleButton(const char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, const ImVec4& activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), const ImVec4& activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), const ImVec4& inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), const ImVec4& inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
+
+		/// <summary>
+		/// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
+		/// Use ImGuiCol_Text to style.
+		/// </summary>
+		/// <param name="thickness"></param>
+		/// <param name="color"></param>
+		static void HorizontalDivider(float yOffset = 0.0f, float thickness = 1.0f);
+
+		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
-		static void HorizontalDivider(float thickness = 5.0f, ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
 		static void ScreenPosLine();
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
@@ -91,7 +127,7 @@ namespace Lina::Editor
 		static void AlignedText(const char* label);
 		static bool Caret(const char* title);
 		static bool CaretAndLabel(const char* title, const char* label);
-		static void ComponentHeader(bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
+		static void ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
 		static void IncrementCursorPos(const ImVec2& v);
