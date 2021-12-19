@@ -27,9 +27,13 @@ SOFTWARE.
 */
 
 #include "Panels/EditorPanel.hpp"
-
+#include "Core/GUILayer.hpp"
 
 namespace Lina::Editor
 {
-
+    void EditorPanel::Initialize(const char* id)
+    {
+        m_id = id;
+        GUILayer::s_editorPanels[id] = this;
+    }
 }

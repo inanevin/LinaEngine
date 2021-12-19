@@ -37,11 +37,11 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #ifndef GUILAYER_HPP
 #define GUILAYER_HPP
 
-
+#include "Core/EditorCommon.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
-#include "Panels/ScenePanel.hpp"
+#include "Panels/LevelPanel.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Panels/LogPanel.hpp"
 #include "Panels/HeaderPanel.hpp"
@@ -50,6 +50,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "World/DefaultLevel.hpp"
 #include "Core/MainToolbar.hpp"
 #include <vector>
+
 class ImFont;
 
 namespace Lina
@@ -77,14 +78,18 @@ namespace Lina::Editor
 		void OnPostRender(Event::EPostRender);
 		static ImFont* GetDefaultFont() { return s_defaultFont; }
 		static ImFont* GetBigFont() { return s_bigFont; }
+		static std::map<const char*, EditorPanel*> s_editorPanels;
 
 		// Menu bar item callback from header panel.
 		void DispatchMenuBarClickedAction(EMenuBarItemClicked event);
 
 		void Refresh();
-		ScenePanel& GetScenePanel() { return m_scenePanel; }
+		LevelPanel& GetLevelPanel() { return m_levelPanel; }
 
 	private:
+
+		void DrawSplashScreen();
+		void OnResourceLoadUpdated(Event::EResourceLoadUpdated ev);
 
 		void DrawFPSCounter(int corner = 0);
 		void DrawCentralDockingSpace();
@@ -92,20 +97,23 @@ namespace Lina::Editor
 
 	private:
 
+		static ImFont* s_defaultFont;
+		static ImFont* s_bigFont;
+
 		Lina::Graphics::DrawParams m_drawParameters;
 		MainToolbar m_toolbar;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;
-		ScenePanel m_scenePanel;
+		LevelPanel m_levelPanel;
 		PropertiesPanel m_propertiesPanel;
 		LogPanel m_logPanel;
 		HeaderPanel m_headerPanel;
 		ProfilerPanel m_profilerPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
 		Lina::World::DefaultLevel m_defaultLevel;
-
-		static ImFont* s_defaultFont;
-		static ImFont* s_bigFont;
+		std::string m_currentlyLoadingResource = "";
+		float m_percentage = 0.0f;
+	
 	};
 }
 

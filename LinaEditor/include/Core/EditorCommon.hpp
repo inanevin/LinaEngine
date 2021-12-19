@@ -118,7 +118,7 @@ namespace Lina::Editor
 
 
 // HEADER PANEL
-#define HEADER_ID "Header"
+#define ID_HEADER "Header"
 #define HEADER_FRAMEPADDING_FILEMENU ImVec2(5,3)
 #define HEADER_FRAMEPADDING_TOPBUTTONS ImVec2(3,2)
 #define HEADER_WINDOWPADDING_MENUBUTTON ImVec2(7,4)
@@ -135,7 +135,7 @@ namespace Lina::Editor
 #define DOCKSPACE_OFFSET 0
 
 // LOG PANEL
-#define LOG_ID "Log"
+#define ID_LOG "Log"
 #define LOGPANEL_ICONSENABLED false
 #define LOGPANEL_COLOR_ICONDEFAULT ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
 #define LOGPANEL_COLOR_ICONHOVERED ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
@@ -166,11 +166,11 @@ namespace Lina::Editor
 #define LOGPANEL_COLOR_CRIT_PRESSED ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
 
 // ECS
-#define ECS_ID "Entities"
+#define ID_ECS "Entities"
 #define ECS_MOVEENTITY "ECS_MOVE_ENTITY"
 
 // Resources
-#define RESOURCES_ID "Resources"
+#define ID_RESOURCES "Resources"
 #define RESOURCES_MOVETEXTURE_ID "RSR_MOVE_TEXTURE"
 #define RESOURCES_MOVEHDRI_ID "RSR_MOVE_HDRI"
 #define RESOURCES_MOVEMATERIAL_ID "RSR_MOVE_MATERIAL"
@@ -178,18 +178,19 @@ namespace Lina::Editor
 #define RESOURCES_MOVESHADER_ID "RSR_MOVE_SHADER"
 
 // Profiler
-#define PROFILER_ID "Profiler"
+#define ID_PROFILER "Profiler"
 
-#define LEVELSETTINGS_ID "Level"
-
-// global
-#define GLOBALSETTINGS_ID "Global"
+// Global
+#define ID_GLOBAL "Global"
 
 // Properties
-#define PROPERTIES_ID "Properties"
+#define ID_PROPERTIES "Properties"
 
 // Scene
-#define SCENE_ID "Viewport"
+#define ID_SCENE "Scene"
+
+// Toolbar
+#define ID_TOOLBAR "Toolbar"
 }
 
 

@@ -77,7 +77,7 @@ namespace Lina::Editor
 		/// Draws a button with the given size, with an option to draw an icon in the middle.
 		/// Use ImGuiCol_ButtonX to style, ImGuiCol_Icon to style the icon color.
 		/// </summary>
-		static bool ButtonRectangle(const char* id, ImVec2 size, bool locked = false, const char* icon = nullptr, float rounding = 0.0f);
+		static bool ButtonRectangle(const char* id, ImVec2 size, bool* isHovered = nullptr, bool locked = false, const char* icon = nullptr, float rounding = 0.0f);
 
 		/// <summary>
 		/// Returns whether two ImGui colors are equal or not.
@@ -108,6 +108,11 @@ namespace Lina::Editor
 		/// <param name="thickness"></param>
 		/// <param name="color"></param>
 		static void HorizontalDivider(float yOffset = 0.0f, float thickness = 1.0f);
+
+		/// <summary>
+		/// Draws minimize, maximize and close buttons on the window. Pass in the window ID used for BeginWindow().
+		/// </summary>
+		static void WindowButtons(const char* windowID, float yOffset = 0.0f, bool isAppWindow = false);
 
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);

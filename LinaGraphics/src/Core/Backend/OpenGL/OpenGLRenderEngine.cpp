@@ -192,6 +192,7 @@ namespace Lina::Graphics
 		m_renderDevice.SetFBO(0);
 		m_renderDevice.SetViewport(m_screenPos, m_screenSize);
 		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
+		m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 	}
 
 	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system)

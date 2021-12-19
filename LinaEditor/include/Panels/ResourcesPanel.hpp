@@ -61,7 +61,7 @@ namespace Lina::Editor
 		ResourcesPanel() {};
 		virtual ~ResourcesPanel() {};
 	
-		virtual void Initialize() override;
+		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 
 	private:

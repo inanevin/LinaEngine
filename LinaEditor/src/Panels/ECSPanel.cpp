@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/ECSPanel.hpp"
-#include "Panels/ScenePanel.hpp"
+#include "Panels/LevelPanel.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "Rendering/Model.hpp"
@@ -45,8 +45,9 @@ namespace Lina::Editor
 	using namespace Lina::ECS;
 	using namespace Lina;
 
-	void ECSPanel::Initialize()
+	void ECSPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
 	}
 
@@ -125,7 +126,7 @@ namespace Lina::Editor
 			ImVec2 work_area_pos = viewport->WorkPos;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			if (ImGui::Begin(ECS_ID, NULL, flags))
+			if (ImGui::Begin(m_id, NULL, flags))
 			{
 				WidgetsUtility::CloseWindowTabPopup(&m_show);
 

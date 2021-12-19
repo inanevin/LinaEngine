@@ -60,7 +60,7 @@ namespace Lina::Editor
 		GlobalSettingsPanel() {};
 		~GlobalSettingsPanel() {};
 
-		virtual void Initialize() override;
+		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 	
 		void LevelInstalled(Event::ELevelInstalled ev);

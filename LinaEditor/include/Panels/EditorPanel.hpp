@@ -52,7 +52,7 @@ namespace Lina::Editor
 		
 		EditorPanel() { };
 		virtual ~EditorPanel() {};
-		virtual void Initialize() = 0;
+		virtual void Initialize(const char* id);
 		virtual void Draw() = 0;
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }
@@ -60,6 +60,7 @@ namespace Lina::Editor
 	protected:
 
 		bool m_show = true;
+		const char* m_id;
 	};
 }
 

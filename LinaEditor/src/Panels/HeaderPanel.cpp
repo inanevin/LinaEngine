@@ -66,8 +66,11 @@ namespace Lina::Editor
 	}
 
 
-	void HeaderPanel::Initialize()
-	{// Logo texture
+	void HeaderPanel::Initialize(const char* id)
+	{
+		EditorPanel::Initialize(id);
+
+		// Logo texture
 		windowIcon = &Lina::Graphics::Texture::GetTexture("resources/editor/textures/linaEngineIcon.png");
 
 		// Logo animation textures
@@ -215,13 +218,20 @@ namespace Lina::Editor
 				clicked = false;
 
 			// Start drawing window.
+			const ImVec2 headerPos = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y);
+			const ImVec2 headerSize = ImVec2(viewport->WorkSize.x, HEADER_HEIGHT);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
-			ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, HEADER_HEIGHT));
+			ImGui::SetNextWindowPos(headerPos);
+			ImGui::SetNextWindowSize(headerSize);
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_FILEMENU);
 
-			ImGui::Begin(HEADER_ID, NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
+			ImGui::Begin(m_id, NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
+
+			ImVec2 windowPos = ImGui::GetWindowPos();
+			ImVec2 windowSize = ImGui::GetWindowSize();
+			ImRect border = ImRect(windowPos, ImVec2(windowPos.x + windowSize.x, windowPos.y));
+			ImGui::GetWindowDrawList()->AddLine(border.Min, border.Max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), 4.0f);
 
 			// Handle window movement.
 			if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -243,11 +253,16 @@ namespace Lina::Editor
 
 			// Icon
 			ImGui::SetCursorPosX(12);
-			ImGui::SetCursorPosY(7.5f);
-			ImGui::Image((void*)windowIcon->GetID(), ImVec2(16, 16), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::SetCursorPosY(12.0f);
+			WidgetsUtility::PushScaledFont(0.7f);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			ImGui::Text(ICON_FA_FIRE);
+			ImGui::PopStyleColor();
+			WidgetsUtility::PopScaledFont();
 
 			// Title
 			ImGui::SameLine();
+			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text(m_title.c_str());
 
 			// Minimize, maximize, exit buttons.
@@ -257,29 +272,23 @@ namespace Lina::Editor
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(HEADER_COLOR_TOPBUTTONS.r, HEADER_COLOR_TOPBUTTONS.g, HEADER_COLOR_TOPBUTTONS.b, HEADER_COLOR_TOPBUTTONS.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_TOPBUTTONS);
-			WidgetsUtility::PushScaledFont();
 
-			// Minimize
-			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
-			{
+
+			const float cursorY = ImGui::GetCursorPosY();
+			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MINIMIZE, 2.0f))
 				appWindow->Iconify();
-			}
 
-			// Maximize/Restore
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE))
-			{
+			ImGui::SetCursorPosY(cursorY);
+			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_WINDOW_MAXIMIZE, 2.0f))
 				appWindow->Maximize();
-			}
 
-			// Exit.
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_WINDOW_CLOSE))
-			{
+			ImGui::SetCursorPosY(cursorY);
+			if (WidgetsUtility::ButtonRectangle("##header_minimize", ImVec2(20, 20), nullptr, false, ICON_FA_TIMES, 2.0f))
 				appWindow->Close();
-			}
 
-			WidgetsUtility::PopScaledFont();
+
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -308,54 +317,16 @@ namespace Lina::Editor
 				MenuButton::s_anyButtonFocused = false;
 
 			// Draw search bar.		
-			ImGui::SameLine();
-			WidgetsUtility::FramePaddingY(1.7f);
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS - 100);
-			WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
-			static char searchStr[128] = "";
-			ImGui::SetNextItemWidth(170);
-			WidgetsUtility::IncrementCursorPosY(-5);
-			ImGui::InputTextWithHint("##header_search", "search...", searchStr, IM_ARRAYSIZE(searchStr));
-			WidgetsUtility::PopStyleVar();
+			// ImGui::SameLine();
+			// WidgetsUtility::FramePaddingY(1.7f);
+			// ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS - 100);
+			// WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
+			// static char searchStr[128] = "";
+			// ImGui::SetNextItemWidth(170);
+			// WidgetsUtility::IncrementCursorPosY(-5);
+			// ImGui::InputTextWithHint("##header_search", "search...", searchStr, IM_ARRAYSIZE(searchStr));
+			// WidgetsUtility::PopStyleVar();
 
-			// Draw Tool Buttons
-		//	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
-		//
-		//	// Move
-		//	if (ImGui::Button(ICON_FA_ARROWS_ALT))
-		//	{
-		//
-		//	}
-		//
-		//	// Rotate
-		//	ImGui::SameLine();
-		//	if (ImGui::Button(ICON_FA_SYNC))
-		//	{
-		//
-		//	}
-		//	// Scale
-		//	ImGui::SameLine();
-		//	if (ImGui::Button(ICON_FA_COMPRESS_ALT))
-		//	{
-		//
-		//	}
-		//
-		//	static const char* pivotButtonText = ICON_FA_GLOBE;
-		//
-		//	// Change pivot
-		//	ImGui::SameLine();
-		//	if (ImGui::Button(pivotButtonText))
-		//	{
-		//		isAxisPivotLocal = !isAxisPivotLocal;
-		//
-		//		if(isAxisPivotLocal)
-		//			pivotButtonText = ICON_FA_THUMBTACK;
-		//		else
-		//			pivotButtonText = ICON_FA_GLOBE;
-		//		
-		//	}
-		//
-		//	ImGui::PopStyleColor();
 
 			ImGui::End();
 			ImGui::PopStyleColor();
@@ -367,7 +338,7 @@ namespace Lina::Editor
 
 	void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)
 	{
-		Lina::Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{item});
+		Lina::Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{ item });
 
 	}
 }

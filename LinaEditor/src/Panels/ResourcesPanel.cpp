@@ -62,8 +62,10 @@ namespace Lina::Editor
 	static float s_colorLerpDuration = 1.0f;
 	static float s_colorLerpItemID;
 
-	void ResourcesPanel::Initialize()
+	void ResourcesPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
+
 		Lina::Event::EventSystem::Get()->Connect<ETextureReimported, &ResourcesPanel::TextureReimported>(this);
 		Lina::Event::EventSystem::Get()->Connect<EMaterialTextureSelected, &ResourcesPanel::MaterialTextureSelected>(this);
 		s_highlightColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -149,7 +151,7 @@ namespace Lina::Editor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
-			ImGui::Begin(RESOURCES_ID, NULL, flags);
+			ImGui::Begin(m_id, NULL, flags);
 			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 			float windowWidth = ImGui::GetWindowWidth();

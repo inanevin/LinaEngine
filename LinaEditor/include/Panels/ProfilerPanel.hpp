@@ -52,7 +52,7 @@ namespace Lina::Editor
 		ProfilerPanel() {};
 		~ProfilerPanel() {};
 
-		virtual void Initialize() override;
+		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 		
 	private:

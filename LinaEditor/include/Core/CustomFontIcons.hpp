@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,52 +27,20 @@ SOFTWARE.
 */
 
 /*
-Class: ECSPanel
+Class: EditorCommon
 
-Draws all the alive entities in the current loaded level.
+General purpose macros for LinaEditor namespace.
 
-Timestamp: 5/23/2020 4:15:06 PM
+Timestamp: 5/8/2020 11:04:45 PM
+
 */
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef CustomFontIcons_HPP
+#define CustomFontIcons_HPP
 
-#include "EventSystem/Events.hpp"
-#include "Panels/EditorPanel.hpp"
-#include "ECS/ECS.hpp"
-
-namespace Lina
-{
-	namespace World
-	{
-		class Level;
-	}
-}
-
-namespace Lina::Editor
-{
-	class ScenePanel;
-	class PropertiesPanel;
-
-	class ECSPanel : public EditorPanel
-	{
-		
-	public:
-		
-		ECSPanel() {};
-		virtual ~ECSPanel() {};
-
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
-		void Refresh();
-		void DrawEntityNode(int id,  Lina::ECS::Entity entity);
-		void OnLevelInstall(Event::ELevelInstalled event);
-
-	private:
-
-		Lina::ECS::Entity m_selectedEntity;
-	};
-}
+#define ICON_MIN_CS 0xe900
+#define ICON_MAX_CS 0xe901
+#define ICON_CS_SPOTLIGHT u8"\ue900"
 
 #endif

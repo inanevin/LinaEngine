@@ -42,8 +42,10 @@ namespace Lina::Editor
 {
 	LogPanel::~LogPanel() {};
 
-	void LogPanel::Initialize()
+	void LogPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
+
 		// We set our dispatcher & subscribe in order to receive log events.
 		Lina::Event::EventSystem::Get()->Connect<Event::ELog, &LogPanel::OnLog>(this);
 
@@ -74,7 +76,7 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin(LOG_ID, NULL, flags))
+			if (ImGui::Begin(m_id, NULL, flags))
 			{
 				WidgetsUtility::CloseWindowTabPopup(&m_show);
 

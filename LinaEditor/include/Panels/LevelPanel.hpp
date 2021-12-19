@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: ScenePanel
+Class: LevelPanel
 
 Displays the final image of the scene generated via the engine. Is used as a main viewport for editing levels.
 
@@ -36,8 +36,8 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 #pragma once
 
-#ifndef ScenePanel_HPP
-#define ScenePanel_HPP
+#ifndef LevelPanel_HPP
+#define LevelPanel_HPP
 
 #include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
@@ -46,7 +46,7 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 namespace Lina::Editor
 {
-	class ScenePanel : public EditorPanel
+	class LevelPanel : public EditorPanel
 	{
 	
 		
@@ -58,11 +58,11 @@ namespace Lina::Editor
 			ShadowMap
 		};
 		
-		ScenePanel() {};
-		virtual ~ScenePanel() {};
+		LevelPanel() {};
+		virtual ~LevelPanel() {};
 
 
-		virtual void Initialize() override;
+		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 
 		void EntitySelected(EEntitySelected ev);

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "Log/Log.hpp"
-#include "Panels/ScenePanel.hpp"
+#include "Panels/LevelPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/InputMappings.hpp"
 #include "Core/RenderEngineBackend.hpp"
@@ -39,8 +39,8 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
-#include <imgui/imguizmo/ImGuizmo.h>
 #include "IconsFontAwesome5.h"
+#include <imgui/imguizmo/ImGuizmo.h>
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
@@ -51,18 +51,19 @@ static ImVec2 previousWindowSize;
 
 namespace Lina::Editor
 {
-	bool scenePanelFirstRun = false;
+	bool levelPanelFirstRun = false;
 
-	void ScenePanel::Initialize()
+	void LevelPanel::Initialize(const char* id)
 	{
-		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &ScenePanel::Unselected>(this);
-		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &ScenePanel::EntitySelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &ScenePanel::LevelUninstalled>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &ScenePanel::OnTransformGizmoChanged>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ScenePanel::OnTransformPivotChanged>(this);
+		EditorPanel::Initialize(id);
+		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &LevelPanel::Unselected>(this);
+		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &LevelPanel::EntitySelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &LevelPanel::OnTransformGizmoChanged>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &LevelPanel::OnTransformPivotChanged>(this);
 	}
 
-	void ScenePanel::Draw()
+	void LevelPanel::Draw()
 	{
 		ImGuizmo::BeginFrame();
 
@@ -80,7 +81,7 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin(SCENE_ID, NULL, flags))
+			if (ImGui::Begin(m_id, NULL, flags))
 			{
 				WidgetsUtility::CloseWindowTabPopup(&m_show);
 				ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
@@ -173,9 +174,9 @@ namespace Lina::Editor
 
 				ImGui::EndChild();
 
-				if (!scenePanelFirstRun)
+				if (!levelPanelFirstRun)
 				{
-					scenePanelFirstRun = true;
+					levelPanelFirstRun = true;
 					Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
 					LINA_TRACE("SA");
 				}
@@ -210,22 +211,22 @@ namespace Lina::Editor
 	}
 
 
-	void ScenePanel::EntitySelected(EEntitySelected ev)
+	void LevelPanel::EntitySelected(EEntitySelected ev)
 	{
 		m_selectedTransform = ev.m_entity;
 	}
 
-	void ScenePanel::Unselected(EEntityUnselected ev)
+	void LevelPanel::Unselected(EEntityUnselected ev)
 	{
 		m_selectedTransform = entt::null;
 	}
 
-	void ScenePanel::LevelUninstalled(Event::ELevelUninstalled ev)
+	void LevelPanel::LevelUninstalled(Event::ELevelUninstalled ev)
 	{
 		Unselected(EEntityUnselected());
 	}
 
-	void ScenePanel::ProcessInput()
+	void LevelPanel::ProcessInput()
 	{
 		if (ImGui::IsWindowFocused())
 		{
@@ -287,7 +288,7 @@ namespace Lina::Editor
 
 	}
 
-	void ScenePanel::DrawGizmos()
+	void LevelPanel::DrawGizmos()
 	{
 		if (Lina::Engine::Get()->GetPlayMode()) return;
 
@@ -418,7 +419,7 @@ namespace Lina::Editor
 
 	}
 
-	void ScenePanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
+	void LevelPanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
 	{
 		if (ev.m_currentGizmo == 0)
 			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
@@ -428,7 +429,7 @@ namespace Lina::Editor
 			currentTransformGizmoOP = ImGuizmo::SCALE;
 	}
 
-	void ScenePanel::OnTransformPivotChanged(ETransformPivotChanged ev)
+	void LevelPanel::OnTransformPivotChanged(ETransformPivotChanged ev)
 	{
 		if (ev.m_isGlobal)
 			currentTransformGizmoMode = ImGuizmo::MODE::WORLD;

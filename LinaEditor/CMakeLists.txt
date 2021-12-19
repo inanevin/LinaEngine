@@ -43,7 +43,7 @@ src/Drawers/MeshDrawer.cpp
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
 src/Panels/ResourcesPanel.cpp
-src/Panels/ScenePanel.cpp
+src/Panels/LevelPanel.cpp
 src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
@@ -84,6 +84,7 @@ include/Core/EditorCommon.hpp
 include/Core/SplashScreen.hpp
 include/Core/EditorApplication.hpp
 include/Core/MainToolbar.hpp
+include/Core/CustomFontIcons.hpp
 
 # ECS
 include/ECS/Systems/EditorCameraSystem.hpp
@@ -101,7 +102,7 @@ include/Drawers/MeshDrawer.hpp
 include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
 include/Panels/ResourcesPanel.hpp
-include/Panels/ScenePanel.hpp
+include/Panels/LevelPanel.hpp
 include/Panels/PropertiesPanel.hpp
 include/Panels/LogPanel.hpp
 include/Panels/HeaderPanel.hpp

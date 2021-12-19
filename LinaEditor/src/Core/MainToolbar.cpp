@@ -41,8 +41,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void MainToolbar::Initialize()
+	void MainToolbar::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
+
 		m_toggledTransformSelection = -1;
 		m_currentGizmoGlobal = true;
 		Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &MainToolbar::OnTransformGizmoChanged>(this);
@@ -68,7 +70,7 @@ namespace Lina::Editor
 		
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-		ImGui::Begin("##toolbar", NULL, flags);
+		ImGui::Begin(m_id, NULL, flags);
 
 		ImVec2 min = ImVec2(0, pos.y);
 		ImVec2 max = ImVec2(size.x, pos.y);

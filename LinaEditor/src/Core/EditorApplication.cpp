@@ -56,21 +56,21 @@ namespace Lina::Editor
 		splashProps.m_decorated = false;
 		splashProps.m_resizable = false;
 
-		Editor::SplashScreen* splash = new Editor::SplashScreen();
-		splash->Initialize(splashProps);
-		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
-
-		Engine::Get()->StartLoadingResources();
-
-		// Remove splash.
-		delete splash;
-
+		//Editor::SplashScreen* splash = new Editor::SplashScreen();
+		//splash->Initialize(splashProps);
+		//splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
+		//
+		//Engine::Get()->StartLoadingResources();
+		//
+		//// Remove splash.
+		//delete splash;
 		m_guiLayer.Initialize();
+
 
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
 		Lina::Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
 
-		m_editorCameraSystem.Initialize(m_guiLayer.GetScenePanel());
+		m_editorCameraSystem.Initialize(m_guiLayer.GetLevelPanel());
 		m_editorCameraSystem.SystemActivation(true);
 
 		Lina::Engine::Get()->AddToMainPipeline(m_editorCameraSystem);

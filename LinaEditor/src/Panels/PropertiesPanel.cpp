@@ -43,8 +43,9 @@ namespace Lina::Editor
 	static bool s_openCompExistsModal;
 
 
-	void PropertiesPanel::Initialize()
+	void PropertiesPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
 		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
@@ -91,7 +92,7 @@ namespace Lina::Editor
 
 
 			// window.
-			ImGui::Begin(PROPERTIES_ID, NULL, flags);
+			ImGui::Begin(m_id, NULL, flags);
 			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));

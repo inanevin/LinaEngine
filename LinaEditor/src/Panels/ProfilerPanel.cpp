@@ -68,8 +68,9 @@ namespace Lina::Editor
 
 	std::map<std::string, std::string> m_timerMSStorage;
 
-	void ProfilerPanel::Initialize()
+	void ProfilerPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
 		m_show = false;
 	}
 
@@ -85,7 +86,7 @@ namespace Lina::Editor
 
 			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
-			ImGui::Begin(PROFILER_ID, NULL, flags);
+			ImGui::Begin(m_id, NULL, flags);
 			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 

@@ -42,8 +42,9 @@ namespace Lina::Editor
 #define CURSORPOS_X_LABELS 12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
-	void GlobalSettingsPanel::Initialize()
+	void GlobalSettingsPanel::Initialize(const char* id)
 	{
+		EditorPanel::Initialize(id);
 		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
 		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
 		m_show = true;
@@ -63,7 +64,7 @@ namespace Lina::Editor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
-			ImGui::Begin(GLOBALSETTINGS_ID, NULL, flags);
+			ImGui::Begin(m_id, NULL, flags);
 			WidgetsUtility::CloseWindowTabPopup(&m_show);
 
 

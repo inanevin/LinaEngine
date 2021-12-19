@@ -41,19 +41,19 @@ Timestamp: 12/17/2021 11:58:19 AM
 
 // Headers here.
 #include "Core/EditorCommon.hpp"
-
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina::Editor
 {
-	class MainToolbar
+	class MainToolbar : public EditorPanel
 	{
 		
 	public:
 		
 		MainToolbar() {};
 		~MainToolbar() {};
-		void Initialize();
-		void Draw();
+		virtual void Initialize(const char* id);
+		virtual void Draw();
 		void DrawFooter();
 
 	private:
