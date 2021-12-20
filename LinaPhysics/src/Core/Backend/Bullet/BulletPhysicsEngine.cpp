@@ -104,6 +104,7 @@ namespace Lina::Physics
 		// Initialize the debug drawer.
 		m_world->setDebugDrawer(&m_gizmoDrawer);
 		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+		m_ecs->on_destroy<ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnPhysicsComponentRemoved>(this);
 
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
 		m_rigidbodySystem.Initialize();
@@ -215,10 +216,14 @@ namespace Lina::Physics
 	}
 
 
+	void BulletPhysicsEngine::OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent)
+	{
+		if (s_bodies.find(ent) != s_bodies.end())
+			RemoveBodyFromWorld(ent);
+	}
+
 	void BulletPhysicsEngine::RemoveBodyFromWorld(ECS::Entity body)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
-		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
 		btRigidBody* rb = s_bodies[body];
 		m_world->removeRigidBody(rb);
 		delete rb->getMotionState();
@@ -229,6 +234,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::AddBodyToWorld(ECS::Entity body)
 	{
+		LINA_TRACE("Rigidbody");
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
 		Vector3 location = data.GetLocation();

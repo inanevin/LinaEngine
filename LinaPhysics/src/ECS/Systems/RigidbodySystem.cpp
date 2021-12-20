@@ -48,7 +48,8 @@ namespace Lina::ECS
 			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
-			data.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
+			Vector3 location = Physics::ToLinaVector(rb->getWorldTransform().getOrigin());
+			data.SetLocation(location);
 			data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
 			phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
 			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());

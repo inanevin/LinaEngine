@@ -88,6 +88,7 @@ namespace Lina::Physics
 
 	private:
 
+		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body);
 		void OnPostSceneDraw(Event::EPostSceneDraw);

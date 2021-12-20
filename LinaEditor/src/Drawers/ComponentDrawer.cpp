@@ -148,7 +148,7 @@ namespace Lina::Editor
 						Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
 					}
 				}
-			
+
 			}
 		}
 
@@ -396,9 +396,14 @@ namespace Lina::Editor
 		auto* physicsEngine = Lina::Physics::PhysicsEngineBackend::Get();
 		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
 		Lina::ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
-		bool disabled = entity == ecs->GetEntity("Editor Camera");
+		Lina::ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
+		PhysicsComponent& phy = ecs->get<PhysicsComponent>(entity);
 
-		const std::string caretLabel = "Transformation " + std::string((m_isTransformPivotGlobal ? "(Global)" : "(Local)"));
+		bool disabled = entity == ecs->GetEntity("Editor Camera");
+		std::string caretLabel = "Transformation " + std::string((m_isTransformPivotGlobal ? "(Global)" : "(Local)"));
+		if (phy.m_isSimulated)
+			caretLabel += " (Physics Active)";
+
 		bool copied = false;
 		bool pasted = false;
 		bool resetted = false;
@@ -406,22 +411,41 @@ namespace Lina::Editor
 		if (disabled)
 			ImGui::BeginDisabled();
 
-		if (WidgetsUtility::ComponentHeader(entityDataTid, transformFoldoutOpen, caretLabel.c_str(), nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr :  &pasted, disabled ? nullptr :  &resetted, false))
+		if (WidgetsUtility::ComponentHeader(entityDataTid, transformFoldoutOpen, caretLabel.c_str(), nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
 		{
 			WidgetsUtility::PropertyLabel("Location");
+
+			if (phy.m_isSimulated)
+				ImGui::BeginDisabled();
+			
 			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
 			ImGui::DragFloat3("##loc", &location.x);
-			data.SetLocalLocation(location);
+
+			if (m_isTransformPivotGlobal)
+				data.SetLocation(location);
+			else
+				data.SetLocalLocation(location);
 
 			WidgetsUtility::PropertyLabel("Rotation");
-			glm::vec3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
+			Vector3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
 			ImGui::DragFloat3("##rot", &rot.x);
-			data.SetLocalRotationAngles(rot);
+			if (m_isTransformPivotGlobal)
+				data.SetRotationAngles(rot);
+			else
+				data.SetLocalRotationAngles(rot);
 
 			WidgetsUtility::PropertyLabel("Scale");
 			Vector3 scale = m_isTransformPivotGlobal ? data.GetScale() : data.GetLocalScale();
 			ImGui::DragFloat3("##scale", &scale.x);
-			data.SetLocalScale(scale);
+
+			if (m_isTransformPivotGlobal)
+				data.SetScale(scale);
+			else
+				data.SetLocalScale(scale);
+
+			if (phy.m_isSimulated)
+				ImGui::EndDisabled();
+
 		}
 
 		if (copied)
@@ -433,11 +457,8 @@ namespace Lina::Editor
 		if (resetted)
 			Drawer_Reset<EntityDataComponent>(entity);
 
-		Lina::ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
-		PhysicsComponent& phy = ecs->get<PhysicsComponent>(entity);
-
 		copied = pasted = resetted = false;
-		if (WidgetsUtility::ComponentHeader(entityDataTid, physicsFoldoutOpen, "Physics", nullptr, nullptr, nullptr, disabled ? nullptr :  &copied, disabled ? nullptr :  &pasted, disabled ? nullptr :  &resetted, false))
+		if (WidgetsUtility::ComponentHeader(entityDataTid, physicsFoldoutOpen, "Physics", nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
 		{
 
 			WidgetsUtility::PropertyLabel("Simulated");
@@ -503,7 +524,7 @@ namespace Lina::Editor
 			}
 
 			ImGui::SetCursorPosX(CURSOR_X_LABELS);
-		
+
 		}
 
 		if (copied)
@@ -694,7 +715,7 @@ namespace Lina::Editor
 							// Draw material name
 							std::string materialName = resolvedData.func("getMaterialName"_hs).invoke({}, ent, i).cast<std::string>();
 							WidgetsUtility::PropertyLabel(materialName.c_str());
-						
+
 
 							const std::string cboxID = "##modRendMat " + std::to_string(i);
 							bool removed = false;
