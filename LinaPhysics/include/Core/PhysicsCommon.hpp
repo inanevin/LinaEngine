@@ -52,6 +52,7 @@ Timestamp: 12/20/2021 1:05:42 PM
 
 namespace Lina::Physics
 {
+#define PHYSICS_STEP 0.01666
 
 #ifdef LINA_PHYSICS_BULLET
 

@@ -125,6 +125,7 @@ namespace Lina
 		int m_deltaFirstFill = 0;
 		bool m_deltaFilled = false;
 		double m_startTime = 0.0;
+		float m_physicsAccumulator = 0.0f;
 	};
 }
 

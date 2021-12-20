@@ -33,10 +33,23 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
+#include "PxPhysicsAPI.h"
 
 namespace Lina::Physics
 {
 	PhysXPhysicsEngine* PhysXPhysicsEngine::s_physicsEngine;
+
+	using namespace physx;
+
+	PxDefaultAllocator m_pxAllocator;
+	PxDefaultErrorCallback	m_pxErrorCallback;
+	PxFoundation* m_pxFoundation = NULL;
+	PxPhysics* m_pxPhysics = NULL;
+	PxDefaultCpuDispatcher* m_pxDispatcher = NULL;
+	PxScene* m_pxScene = NULL;
+	PxMaterial* m_pxMaterial = NULL;
+	PxPvd* m_pxPvd = NULL;
+	PxReal m_pxStackZ = 10.0f;
 
 	PhysXPhysicsEngine::PhysXPhysicsEngine()
 	{
@@ -47,7 +60,8 @@ namespace Lina::Physics
 	{
 		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 
-		
+		m_pxPhysics->release();
+		m_pxFoundation->release();
 	}
 
 	void PhysXPhysicsEngine::Initialize(Lina::ApplicationMode appMode)
@@ -59,7 +73,33 @@ namespace Lina::Physics
 		if (m_appMode == Lina::ApplicationMode::Editor)
 			SetDebugDraw(true);
 
-		
+		m_pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_pxAllocator, m_pxErrorCallback);
+		LINA_ASSERT(m_pxFoundation != nullptr, "Nvidia PhysX foundation could not be created!");
+
+		m_pxPvd = PxCreatePvd(*m_pxFoundation);
+		PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(nullptr, 5425, 10);
+		m_pxPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+
+		m_pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pxFoundation, PxTolerancesScale(), true, m_pxPvd);
+		LINA_ASSERT(m_pxPhysics != nullptr, "Nvidia PhysX could not be initialized!");
+
+		PxSceneDesc sceneDesc(m_pxPhysics->getTolerancesScale());
+		sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+		m_pxDispatcher = PxDefaultCpuDispatcherCreate(2);
+		sceneDesc.cpuDispatcher = m_pxDispatcher;
+		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+		m_pxScene = m_pxPhysics->createScene(sceneDesc);
+
+		PxPvdSceneClient* pvdClient = m_pxScene->getScenePvdClient();
+		if (pvdClient)
+		{
+			pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+			pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+			pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+		}
+		m_pxMaterial = m_pxPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+
+
 		m_ecs->on_destroy<ECS::PhysicsComponent>().connect<&PhysXPhysicsEngine::OnPhysicsComponentRemoved>(this);
 
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
@@ -76,6 +116,8 @@ namespace Lina::Physics
 	{
 		// Update phy.
 	
+		m_pxScene->simulate(PHYSICS_STEP);
+		m_pxScene->fetchResults(true);
 		m_physicsPipeline.UpdateSystems(fixedDelta);
 	}
 

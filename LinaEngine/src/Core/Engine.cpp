@@ -37,9 +37,8 @@ SOFTWARE.
 #include "Audio/Audio.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/Timer.hpp"
+#include "Core/PhysicsCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
-#define PHYSICS_DELTA 0.01666
 
 namespace Lina
 {
@@ -145,15 +144,16 @@ namespace Lina
 	{
 		m_running = true;
 		m_startTime = Utility::GetCPUTime();
+		m_physicsAccumulator = 0.0f;
 
 		PROFILER_MAIN_THREAD;
 		PROFILER_ENABLE;
 
 		int frames = 0;
 		int updates = 0;
-		double totalFPSTime = GetElapsedTime();
+		double totalFPSTime = 0.0f;
 		double previousFrameTime;
-		double currentFrameTime = GetElapsedTime();
+		double currentFrameTime = 0.0f;
 
 		// Starting game.
 		m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
@@ -222,10 +222,15 @@ namespace Lina
 		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
 		// Physics events & physics tick.
-		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-		m_physicsEngine.Tick(0.02);
-		m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
-		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
+		m_physicsAccumulator += deltaTime;
+		if (m_physicsAccumulator >= PHYSICS_STEP)
+		{
+			m_physicsAccumulator -= PHYSICS_STEP;
+			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+			m_physicsEngine.Tick(PHYSICS_STEP);
+			m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_STEP, m_isInPlayMode });
+			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_STEP, m_isInPlayMode });
+		}
 
 		// Other main systems (engine or game)
 		m_mainECSPipeline.UpdateSystems(deltaTime);
