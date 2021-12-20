@@ -66,8 +66,14 @@ namespace Lina::Physics
 
 		static BulletPhysicsEngine* Get() { return s_physicsEngine; }
 
-		btRigidBody* GetActiveRigidbody(int id) { return s_bodies[id]; }
+		btRigidBody* GetActiveRigidbody(ECS::Entity ent) { return s_bodies[ent]; }
 		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
+		void SetBodySimulation(ECS::Entity body, bool simulate);
+		void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
+		void SetBodyMass(ECS::Entity body, float mass);
+		void SetBodyRadius(ECS::Entity body, float radius);
+		void SetBodyHeight(ECS::Entity body, float height);
+		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
 
 	private:
 		btCollisionShape* GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb);
@@ -76,19 +82,19 @@ namespace Lina::Physics
 		friend class Lina::Engine;
 		BulletPhysicsEngine();
 		~BulletPhysicsEngine();
-		void Initialize();
+		void Initialize(Lina::ApplicationMode appMode);
 		void Tick(float fixedDelta);
 		void Shutdown();
 
 	private:
 
-		void OnRigidbodyOrTransformAdded(entt::registry&, entt::entity);
-		void OnRigidbodyRemoved(entt::registry&, entt::entity);
-		void OnRigidbodyUpdated(entt::registry&, entt::entity);
+		void RemoveBodyFromWorld(ECS::Entity body);
+		void AddBodyToWorld(ECS::Entity body);
 		void OnPostSceneDraw(Event::EPostSceneDraw);
 
 	private:
 
+		Lina::ECS::Registry* m_ecs = nullptr;
 		static BulletPhysicsEngine* s_physicsEngine;
 		btDefaultCollisionConfiguration* m_collisionConfig = nullptr;
 		btCollisionDispatcher* m_collisionDispatcher = nullptr;
@@ -99,8 +105,9 @@ namespace Lina::Physics
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
 		Lina::ECS::ECSSystemList m_physicsPipeline;
 		Lina::Event::EventSystem* m_eventSystem;
-		std::map<int, btRigidBody*> s_bodies;		
+		std::map<ECS::Entity, btRigidBody*> s_bodies;		
 		bool m_debugDrawEnabled = false;
+		Lina::ApplicationMode m_appMode = Lina::ApplicationMode::Editor;
 	};
 }
 

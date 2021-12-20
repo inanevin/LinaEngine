@@ -51,12 +51,6 @@ using namespace Lina::Editor;
 
 namespace Lina::Editor
 {
-#define CURSORPOS_X_LABELS 12
-#define CURSORPOS_Y_INCREMENT_BEFORE 15
-#define CURSORPOS_Y_INCREMENT_BEFOREVAL 2.5f
-#define CURSORPOS_Y_INCREMENT_AFTER 6.5f
-#define CURSORPOS_XPERC_VALUES 0.32f
-#define CURSORPOS_XPERC_VALUES2 0.545f
 
 
 	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
@@ -108,11 +102,6 @@ namespace Lina::Editor
 			comp.SetLocalLocation(Vector3::Zero);
 			comp.SetLocalRotation(Quaternion());
 			comp.SetLocalScale(Vector3::One);
-		}
-		else if (tid == GetTypeID<PhysicsComponent>())
-		{
-			PhysicsComponent& comp = Lina::ECS::Registry::Get()->get<PhysicsComponent>(entity);
-			comp.Reset();
 		}
 		else
 			Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
@@ -404,6 +393,7 @@ namespace Lina::Editor
 	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
 	{
 		auto* ecs = Lina::ECS::Registry::Get();
+		auto* physicsEngine = Lina::Physics::PhysicsEngineBackend::Get();
 		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
 		Lina::ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
 		bool disabled = entity == ecs->GetEntity("Editor Camera");
@@ -451,35 +441,69 @@ namespace Lina::Editor
 		{
 
 			WidgetsUtility::PropertyLabel("Simulated");
-			ImGui::Checkbox("##enabled", &phy.m_isEnabled);
+			const bool currentSimulation = phy.m_isSimulated;
+			ImGui::Checkbox("##enabled", &phy.m_isSimulated);
+			if (currentSimulation != phy.m_isSimulated)
+			{
+				physicsEngine->SetBodySimulation(entity, phy.m_isSimulated);
+			}
 
 			WidgetsUtility::PropertyLabel("Mass");
+			const float currentMass = phy.m_mass;
 			ImGui::DragFloat("##mass", &phy.m_mass);
+			if (phy.m_mass != currentMass)
+			{
+				physicsEngine->SetBodyMass(entity, phy.m_mass);
+			}
 
 			WidgetsUtility::PropertyLabel("Shape");
-			phy.m_collisionShape = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("Collision Shape", (int)phy.m_collisionShape);
-
+			const Physics::CollisionShape currentShape = phy.m_collisionShape;
+			phy.m_collisionShape = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("##collision", (int)phy.m_collisionShape);
+			if (phy.m_collisionShape != currentShape)
+			{
+				physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
+			}
 			if (phy.m_collisionShape == Physics::CollisionShape::Box || phy.m_collisionShape == Physics::CollisionShape::Cylinder)
 			{
 				WidgetsUtility::PropertyLabel("Half Extents");
+				const Vector3 currentExtents = phy.m_halfExtents;
 				ImGui::DragFloat3("##halfextents", &phy.m_halfExtents.x);
+				if (currentExtents != phy.m_halfExtents)
+				{
+					physicsEngine->SetBodyHalfExtents(entity, phy.m_halfExtents);
+				}
 			}
 			else if (phy.m_collisionShape == Physics::CollisionShape::Sphere)
 			{
 				WidgetsUtility::PropertyLabel("Radius");
+				const float currentRadius = phy.m_radius;
 				ImGui::DragFloat("##radius", &phy.m_radius);
+				if (currentRadius != phy.m_radius)
+				{
+					physicsEngine->SetBodyRadius(entity, phy.m_radius);
+				}
 			}
 			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
 			{
 				WidgetsUtility::PropertyLabel("Radius");
+				const float currentRadius = phy.m_radius;
 				ImGui::DragFloat("##radius", &phy.m_radius);
+				if (currentRadius != phy.m_radius)
+				{
+					physicsEngine->SetBodyRadius(entity, phy.m_radius);
+				}
 
 				WidgetsUtility::PropertyLabel("Height");
+				const float currentHeight = phy.m_capsuleHeight;
 				ImGui::DragFloat("##height", &phy.m_capsuleHeight);
+				if (currentHeight != phy.m_capsuleHeight)
+				{
+					physicsEngine->SetBodyHeight(entity, phy.m_capsuleHeight);
+				}
 			}
 
-			if (WidgetsUtility::CustomButton("Apply", ImVec2(60,30)))
-				Lina::ECS::Registry::Get()->replace<Lina::ECS::PhysicsComponent>(entity, phy);
+			ImGui::SetCursorPosX(CURSOR_X_LABELS);
+		
 		}
 
 		if (copied)
@@ -489,7 +513,10 @@ namespace Lina::Editor
 			Drawer_Paste<PhysicsComponent>(entity);
 
 		if (resetted)
-			Drawer_Reset<PhysicsComponent>(entity);
+		{
+			phy.Reset();
+			physicsEngine->SetBodySimulation(entity, phy.m_isSimulated);
+		}
 
 		if (disabled)
 			ImGui::EndDisabled();
@@ -554,9 +581,7 @@ namespace Lina::Editor
 			{
 
 				// Draw each reflected property in the component according to it's type.
-				WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-				float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-				float cursorPosLabels = CURSORPOS_X_LABELS;
+
 				int varCounter = 0;
 				std::string varLabelID = "";
 				for (auto data : resolvedData.data())
@@ -583,10 +608,7 @@ namespace Lina::Editor
 					}
 
 					varLabelID = "##_" + std::string(title) + std::to_string(varCounter);
-					ImGui::SetCursorPosX(cursorPosLabels);
-					WidgetsUtility::AlignedText(label);
-					ImGui::SameLine();
-					ImGui::SetCursorPosX(cursorPosValues);
+					WidgetsUtility::PropertyLabel(label);
 
 					if (type == ComponentVariableType::DragFloat)
 					{
@@ -660,7 +682,6 @@ namespace Lina::Editor
 					else if (type == ComponentVariableType::MaterialPathArray)
 					{
 						ImGui::NewLine();
-						ImGui::SetCursorPosX(cursorPosLabels);
 
 						std::vector<std::string> materials = data.get(instance).cast<std::vector<std::string>>();
 
@@ -671,11 +692,9 @@ namespace Lina::Editor
 							strcpy(matPathC, materials[i].c_str());
 
 							// Draw material name
-							ImGui::SetCursorPosX(cursorPosLabels);
 							std::string materialName = resolvedData.func("getMaterialName"_hs).invoke({}, ent, i).cast<std::string>();
-							WidgetsUtility::AlignedText(materialName.c_str());
-							ImGui::SameLine();
-							ImGui::SetCursorPosX(cursorPosValues);
+							WidgetsUtility::PropertyLabel(materialName.c_str());
+						
 
 							const std::string cboxID = "##modRendMat " + std::to_string(i);
 							bool removed = false;

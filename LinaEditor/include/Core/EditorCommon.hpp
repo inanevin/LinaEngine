@@ -86,7 +86,6 @@ namespace Lina::Editor
 		GlobalSettingsPanel = 48,
 		ImGuiPanel = 50,
 
-		DebugViewPhysics = 61,
 		DebugViewShadows = 62,
 		DebugViewNormal = 63,
 

@@ -106,7 +106,7 @@ namespace Lina
 		m_renderEngine.ConnectEvents();
 		m_audioEngine.Initialize();
 		m_ecs.Initialize();
-		m_physicsEngine.Initialize();
+		m_physicsEngine.Initialize(m_appInfo.m_appMode);
 		m_renderEngine.Initialize(m_appInfo.m_appMode);
 		
 		// Register ECS components for cloning & serialization functionality.

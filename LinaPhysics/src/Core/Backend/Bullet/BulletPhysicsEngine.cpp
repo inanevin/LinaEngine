@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/PhysicsCommon.hpp"
 #include "Core/Backend/Bullet/BulletPhysicsEngine.hpp"  
 #include "Log/Log.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
-
 
 namespace Lina::Physics
 {
@@ -48,7 +48,7 @@ namespace Lina::Physics
 		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 
 		// Remove collision shapes.
-		for (std::map<int, btRigidBody*>::iterator it = s_bodies.begin(); it != s_bodies.end(); ++it)
+		for (std::map<ECS::Entity, btRigidBody*>::iterator it = s_bodies.begin(); it != s_bodies.end(); ++it)
 		{
 			if (it->second->getMotionState())
 			{
@@ -64,7 +64,7 @@ namespace Lina::Physics
 
 			if (body && body->getMotionState())
 				delete body->getMotionState();
-			
+
 			m_world->removeCollisionObject(obj);
 			delete obj;
 		}
@@ -76,9 +76,14 @@ namespace Lina::Physics
 		delete m_collisionConfig;
 	}
 
-	void BulletPhysicsEngine::Initialize()
+	void BulletPhysicsEngine::Initialize(Lina::ApplicationMode appMode)
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
+		m_appMode = appMode;
+		m_ecs = Lina::ECS::Registry::Get();
+
+		if (m_appMode == Lina::ApplicationMode::Editor)
+			SetDebugDraw(true);
 
 		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 		m_collisionConfig = new btDefaultCollisionConfiguration();
@@ -94,7 +99,7 @@ namespace Lina::Physics
 
 		// Build dynamics world
 		m_world = new btDiscreteDynamicsWorld(m_collisionDispatcher, m_overlappingPairCache, m_impulseSolver, m_collisionConfig);
-		m_world->setGravity(btVector3(0, -10, 0));
+		m_world->setGravity(btVector3(0, -0.2f, 0));
 
 		// Initialize the debug drawer.
 		m_world->setDebugDrawer(&m_gizmoDrawer);
@@ -103,11 +108,7 @@ namespace Lina::Physics
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
 		m_rigidbodySystem.Initialize();
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
-		ECS::Registry::Get()->on_construct<Lina::ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ECS::Registry::Get()->on_destroy<Lina::ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ECS::Registry::Get()->on_construct<Lina::ECS::EntityDataComponent>().connect<&BulletPhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ECS::Registry::Get()->on_update<Lina::ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnRigidbodyUpdated>(this);
-		
+
 		// Engine events.
 		m_eventSystem = Event::EventSystem::Get();
 		m_eventSystem->Connect<Event::EPostSceneDraw, &BulletPhysicsEngine::OnPostSceneDraw>(this);
@@ -116,7 +117,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::Tick(float fixedDelta)
 	{
-		// Update physics.
+		// Update phy.
 		m_world->stepSimulation(fixedDelta, 10);
 		m_physicsPipeline.UpdateSystems(fixedDelta);
 	}
@@ -126,92 +127,136 @@ namespace Lina::Physics
 		LINA_TRACE("[Shutdown] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
-	void BulletPhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
-	{
-		// If the object doesn't have a transform & rigidbody yet, return.
-		if (!reg.all_of<Lina::ECS::EntityDataComponent>(ent) || !reg.all_of<Lina::ECS::PhysicsComponent>(ent)) return;
-		Lina::ECS::PhysicsComponent& physics = reg.get<Lina::ECS::PhysicsComponent>(ent);
-
-		// Return if rigidbody is already alive.
-		if (physics.m_alive) return;
-
-		Lina::ECS::EntityDataComponent& data = reg.get<Lina::ECS::EntityDataComponent>(ent);
-		btCollisionShape* colShape = GetCreateCollisionShape(physics);
-
-		btTransform transform;
-		transform.setIdentity();
-		Vector3 location = data.GetLocation();
-		transform.setOrigin(btVector3(location.x, location.y, location.z));
-
-		btScalar mass(physics.m_mass);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass, localInertia);
-
-		physics.m_localInertia = Vector3(localInertia.getX(), localInertia.getY(), localInertia.getZ());
-
-		// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		// Register the body to the map and assign it to the world
-		// so that its simulated.
-		int id = Lina::Utility::GetUniqueID();
-		s_bodies[id] = body;
-		physics.m_bodyID = id;
-
-		physics.m_alive = true;
-		m_world->addRigidBody(body);
-	}
-
-	void BulletPhysicsEngine::OnRigidbodyRemoved(entt::registry& reg, entt::entity ent)
-	{
-		Lina::ECS::PhysicsComponent& rbComp = reg.get<Lina::ECS::PhysicsComponent>(ent);
-		btRigidBody* rb = s_bodies[rbComp.m_bodyID];
-		
-		if (rb->getMotionState())
-			delete rb->getMotionState();
-
-		m_world->removeRigidBody(rb);
-
-		s_bodies.erase(rbComp.m_bodyID);
-	}
-
-	void BulletPhysicsEngine::OnRigidbodyUpdated(entt::registry& reg, entt::entity ent)
-	{
-		Lina::ECS::PhysicsComponent& rbComp = reg.get<Lina::ECS::PhysicsComponent>(ent);
-		btRigidBody* rb = s_bodies[rbComp.m_bodyID];
-
-		// We remove the body, replace the collision shape
-		// Recalculate it and add it to the world again.
-		rb->activate(true);
-		m_world->removeRigidBody(rb);
-
-		btCollisionShape* previousShape = rb->getCollisionShape();
-		btCollisionShape* newShape = GetCreateCollisionShape(rbComp);
-		rb->setCollisionShape(newShape);
-
-		btVector3 inertia(0, 0, 0);
-		newShape->calculateLocalInertia(btScalar(rbComp.m_mass), inertia);
-
-		rb->setMassProps(btScalar(rbComp.m_mass), inertia);
-		rb->updateInertiaTensor();
-
-		delete previousShape;
-
-		m_world->addRigidBody(rb);
-	}
-
 	void BulletPhysicsEngine::OnPostSceneDraw(Event::EPostSceneDraw)
 	{
 		if (m_debugDrawEnabled)
 			m_world->debugDrawWorld();
+	}
+
+	void BulletPhysicsEngine::SetBodySimulation(ECS::Entity body, bool simulate)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+
+		// If started simulating.
+		if (simulate && !phy.m_wasSimulated)
+		{
+			AddBodyToWorld(body);
+			phy.m_wasSimulated = true;
+		}
+		else if (!phy.m_isSimulated && phy.m_wasSimulated)
+		{
+			RemoveBodyFromWorld(body);
+			phy.m_wasSimulated = false;
+		}
+
+		phy.m_isSimulated = simulate;
+	}
+
+	void BulletPhysicsEngine::SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		phy.m_collisionShape = shape;
+
+		if (phy.m_isSimulated)
+		{
+			btRigidBody* rb = s_bodies[body];
+			btCollisionShape* previousShape = rb->getCollisionShape();
+			rb->setCollisionShape(GetCreateCollisionShape(phy));
+			delete previousShape;
+		}
+	}
+
+	void BulletPhysicsEngine::SetBodyMass(ECS::Entity body, float mass)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		phy.m_mass = mass;
+		
+		if (phy.m_isSimulated)
+		{
+			btRigidBody* rb = s_bodies[body];
+			btVector3 localInertia(0, 0, 0);
+			rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+			rb->setMassProps(btScalar(mass), localInertia);
+		}
+
+	}
+
+	void BulletPhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		phy.m_radius = radius;
+
+		if (phy.m_isSimulated)
+		{
+			SetBodyCollisionShape(body, phy.m_collisionShape);
+		}
+	}
+
+	void BulletPhysicsEngine::SetBodyHeight(ECS::Entity body, float height)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		phy.m_capsuleHeight = height;
+
+		if (phy.m_isSimulated)
+		{
+			SetBodyCollisionShape(body, phy.m_collisionShape);
+		}
+	}
+
+	void BulletPhysicsEngine::SetBodyHalfExtents(ECS::Entity body, const Vector3& extents)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		phy.m_halfExtents = extents;
+
+		if (phy.m_isSimulated)
+		{
+			SetBodyCollisionShape(body, phy.m_collisionShape);
+		}
+	}
+
+
+	void BulletPhysicsEngine::RemoveBodyFromWorld(ECS::Entity body)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
+		btRigidBody* rb = s_bodies[body];
+		m_world->removeRigidBody(rb);
+		delete rb->getMotionState();
+		delete rb->getCollisionShape();
+		delete rb;
+		s_bodies.erase(body);
+	}
+
+	void BulletPhysicsEngine::AddBodyToWorld(ECS::Entity body)
+	{
+		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
+		Vector3 location = data.GetLocation();
+		Quaternion rotation = data.GetRotation();
+
+		btTransform transform;
+		transform.setIdentity();
+		transform.setOrigin(btVector3(location.x, location.y, location.z));
+		transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+		btScalar mass(phy.m_mass);
+		btVector3 localInertia(0, 0, 0);
+
+		// rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.0f);
+		btCollisionShape* colShape = GetCreateCollisionShape(phy);
+		if (isDynamic)
+			colShape->calculateLocalInertia(mass, localInertia);
+
+		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, colShape, localInertia);
+		btRigidBody* rb = new btRigidBody(rbInfo);
+		rb->setLinearVelocity(ToBtVector(phy.m_velocity));
+		rb->setAngularVelocity(ToBtVector(phy.m_angularVelocity));
+		rb->setPushVelocity(ToBtVector(phy.m_pushVelocity));
+		rb->setTurnVelocity(ToBtVector(phy.m_turnVelocity));
+
+		s_bodies[body] = rb;
+		m_world->addRigidBody(rb);
 	}
 
 	btCollisionShape* BulletPhysicsEngine::GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb)

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,35 +40,75 @@ Timestamp: 9/30/2020 2:46:27 AM
 #include "Math/Vector.hpp"
 #include "Core/Common.hpp"
 
+namespace Lina
+{
+	namespace Editor
+	{
+		class ComponentDrawer;
+	}
+
+	namespace Physics
+	{
+		class BulletPhysicsEngine;
+	}
+};
+
 namespace Lina::ECS
 {
+	class RigidbodySystem;
+
 	struct PhysicsComponent : public ECSComponent
 	{
+
+		Lina::Vector3 GetVelocity() { return m_velocity; }
+		Lina::Vector3 GetAngularVelocity() { return m_angularVelocity; }
+		bool GetIsSimulated() { return m_isSimulated; }
+
+	private:
+
+		friend class cereal::access;
+		friend class Lina::Editor::ComponentDrawer;
+		friend class Lina::Physics::BulletPhysicsEngine;
+		friend class Lina::ECS::RigidbodySystem;
+
 		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
-		Lina::Vector3 m_localInertia = Lina::Vector3::Zero;
-		Lina::Vector3 m_halfExtents = Lina::Vector3::Zero; // used for box & cylinder shapes
+		Lina::Vector3 m_halfExtents = Lina::Vector3::One; // used for box & cylinder shapes
 		float m_mass = 1.0f;
 		float m_radius = 1.0f; // used for sphere & capsule shapes.
-		float m_capsuleHeight = 0.0f; 
+		float m_capsuleHeight = 0.0f;
 		bool m_isSimulated = false;
-		int m_bodyID = 0;
-		bool m_alive = false; // Added & alive in Physics World
+		bool m_wasSimulated = false;
 		Physics::CollisionShape m_boundingBox = Physics::CollisionShape::Box;
-		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::Zero;
+		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::One;
+
+		Lina::Vector3 m_velocity = Lina::Vector3::Zero;
+		Lina::Vector3 m_angularVelocity = Lina::Vector3::Zero;
+		Lina::Vector3 m_pushVelocity = Lina::Vector3::Zero;
+		Lina::Vector3 m_turnVelocity = Lina::Vector3::Zero;
+
+		void ResetRuntimeState()
+		{
+			m_velocity = Vector3::Zero;
+			m_angularVelocity = Vector3::Zero;
+			m_pushVelocity = Vector3::Zero;
+			m_turnVelocity = Vector3::Zero;
+			m_isSimulated = false;
+			m_wasSimulated = false;
+		}
 
 		void Reset()
 		{
 			m_mass = 1.0f;
 			m_radius = 1.0f;
 			m_capsuleHeight = 2.0f;
-			m_isSimulated = false;
 			m_collisionShape = Physics::CollisionShape::Box;
+			ResetRuntimeState();
 		}
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_localInertia, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_isSimulated, m_isEnabled); 
+			archive(m_collisionShape, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_isSimulated, m_isEnabled);
 		}
 
 	};

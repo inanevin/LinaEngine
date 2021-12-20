@@ -368,9 +368,6 @@ namespace Lina::Editor
 			s_showIMGUIDemo = true;
 
 		// Debug
-		else if (item == MenuBarItems::DebugViewPhysics)
-			Lina::Physics::PhysicsEngineBackend::Get()->SetDebugDraw(s_physicsDebugEnabled);
-
 		else if (item == MenuBarItems::DebugViewShadows)
 			m_levelPanel.SetDrawMode(Lina::Editor::LevelPanel::DrawMode::ShadowMap);
 

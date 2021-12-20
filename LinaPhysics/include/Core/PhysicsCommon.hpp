@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,11 +40,24 @@ Timestamp: 12/20/2021 1:05:42 PM
 #define PhysicsCommon_HPP
 
 // Headers here.
+#include "Math/Vector.hpp"
+#include "Math/Quaternion.hpp"
 
+#ifdef LINA_PHYSICS_BULLET
+#include "btBulletDynamicsCommon.h"
+#endif
 
 namespace Lina::Physics
 {
 
+#ifdef LINA_PHYSICS_BULLET
+
+	extern btVector3 ToBtVector(const Vector3& v);
+	extern btQuaternion ToBtQuat(const Quaternion& q);
+	extern Vector3 ToLinaVector(const btVector3& v);
+	extern Quaternion ToLinaQuat(const btQuaternion& q);
+
+#endif
 }
 
 #endif

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Physics/PhysicsGizmoDrawer.hpp"
+#include "Helpers/PhysicsGizmoDrawer.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/Events.hpp"
 

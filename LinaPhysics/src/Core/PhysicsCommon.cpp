@@ -26,35 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Common.hpp"
+#include "Core/PhysicsCommon.hpp"
 
-namespace Lina
+namespace Lina::Physics
 {
-	namespace Physics
+	btVector3 ToBtVector(const Vector3& v)
 	{
-		std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
-	};
+		return btVector3(v.x, v.y, v.z);
+	}
 
-	std::string LogLevelAsString(LogLevel level)
+	btQuaternion ToBtQuat(const Quaternion& q)
 	{
-		switch (level)
-		{
-		case LogLevel::Critical:
-			return "Critical";
-		case LogLevel::Debug:
-			return "Debug";
-		case LogLevel::Error:
-			return "Error";
-		case LogLevel::Info:
-			return "Info";
-		case LogLevel::None:
-			return "None";
-		case LogLevel::Trace:
-			return "Trace";
-		case LogLevel::Warn:
-			return "Warn";
-		default:
-			return "";
-		}
+		return btQuaternion(q.x, q.y, q.z, q.w);
+	}
+
+	Vector3 ToLinaVector(const btVector3& v)
+	{
+		return Vector3(v.getX(), v.getY(), v.getZ());
+	}
+
+	Quaternion ToLinaQuat(const btQuaternion& q)
+	{
+		return Quaternion(q.getX(), q.getY(), q.getZ(), q.getW());
 	}
 }

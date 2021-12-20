@@ -136,7 +136,6 @@ namespace Lina::Editor
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
-		debug.emplace_back(new MenuItem(ICON_FA_BOXES, " Debug View Physics", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewPhysics)));
 		debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewShadows)));
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));

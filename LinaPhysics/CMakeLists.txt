@@ -24,6 +24,8 @@ set (LINAPHYSICS_SOURCES
 
 	#Physics
 	src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
+	src/Core/PhysicsCommon.cpp
+	
 	src/Helpers/PhysicsGizmoDrawer.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 

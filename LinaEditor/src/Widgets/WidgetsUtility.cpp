@@ -952,7 +952,7 @@ namespace Lina::Editor
 		ImGui::PopStyleColor();
 		PopScaledFont();
 
-		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+		if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			return true;
 
 		return false;

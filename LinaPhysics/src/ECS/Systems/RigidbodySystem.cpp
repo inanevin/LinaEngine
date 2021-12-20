@@ -30,6 +30,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Core/PhysicsBackend.hpp"
+#include "Core/PhysicsCommon.hpp"
 
 namespace Lina::ECS
 {
@@ -41,19 +42,17 @@ namespace Lina::ECS
 		for (auto entity : view)
 		{
 			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
-			if (!phyComp.m_isSimulated) continue;
+			if (!phyComp.GetIsSimulated()) continue;
 
 			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
-
-			// We get the rigidbody information from the world, and update the entity's transformation
-			// based on the body's transformation. So we keep the game world that does the rendering via
-			// transformations in sync with the physics world.
-			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(phyComp.m_bodyID);
+			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
-
 			data.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
 			data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
+			phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
+			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());
+			phyComp.m_turnVelocity = Physics::ToLinaVector(rb->getTurnVelocity());
 		}
 	}
 }
