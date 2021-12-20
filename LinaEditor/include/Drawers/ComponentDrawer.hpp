@@ -56,8 +56,8 @@ namespace Lina::Editor
 	typedef std::map<std::string, std::vector<std::pair<std::string, Lina::ECS::TypeID>>> AddComponentMap;
 	using namespace entt::literals;
 
-#define PROPS(LABEL, TYPE) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE)
-#define PROPS_DEP(LABEL,TYPE, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
+#define PROPS(LABEL, TYPE, TOOLTIP) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("Tooltip"_hs, TOOLTIP)
+#define PROPS_DEP(LABEL,TYPE, TOOLTIP, DISPLAYDEPENDENCY) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("Tooltip"_hs, TOOLTIP), std::make_pair("DisplayDependency"_hs, DISPLAYDEPENDENCY)
 
 	enum ComponentDrawFlags_
 	{
@@ -95,9 +95,9 @@ namespace Lina::Editor
 
 		void Initialize();
 		void SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2);
-		void AddIDToDrawList(Lina::ECS::TypeID id);	
+		void AddIDToDrawList(Lina::ECS::TypeID id);
 		void ClearDrawList();
-	
+
 		AddComponentMap GetCurrentAddComponentMap(Lina::ECS::Entity entity);
 		void DrawDebugPointLight(Lina::ECS::Entity ent);
 		void DrawDebugSpotLight(Lina::ECS::Entity ent);
@@ -121,7 +121,7 @@ namespace Lina::Editor
 		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true)
 		{
 			entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags),
-			std::make_pair("Category"_hs, category));
+				std::make_pair("Category"_hs, category));
 			entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
 			entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
 			entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
@@ -129,7 +129,7 @@ namespace Lina::Editor
 			entt::meta<Type>().func<&Drawer_Copy, entt::as_ref_t>("copy"_hs);
 			entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
 			entt::meta<Type>().func<&Drawer_Has<Type>, entt::as_ref_t>("has"_hs);
-			
+
 			if (canAddComponent)
 			{
 				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_ref_t>("add"_hs);

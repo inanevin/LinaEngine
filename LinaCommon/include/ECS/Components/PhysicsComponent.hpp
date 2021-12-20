@@ -86,6 +86,7 @@ namespace Lina::ECS
 		float m_radius = 1.0f; // used for sphere & capsule shapes.
 		float m_capsuleHeight = 0.0f;
 		bool m_isSimulated = false;
+		bool m_isKinematic = true;
 		bool m_wasSimulated = false;
 		Physics::CollisionShape m_boundingBox = Physics::CollisionShape::Box;
 		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::One;
@@ -117,7 +118,7 @@ namespace Lina::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_isSimulated, m_isEnabled);
+			archive(m_collisionShape, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_isSimulated, m_isKinematic, m_isEnabled);
 		}
 
 	};

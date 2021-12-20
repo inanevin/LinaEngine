@@ -222,60 +222,60 @@ namespace Lina::Editor
 		uint8 defaultDrawFlags = ComponentDrawFlags_None;
 		// Camera component
 		entt::meta<CameraComponent>().data<&CameraComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs).props(PROPS("Far", ComponentVariableType::DragFloat));
-		entt::meta<CameraComponent>().data<&CameraComponent::m_zNear>("zn"_hs).props(PROPS("Near", ComponentVariableType::DragFloat));
-		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs).props(PROPS("Fov", ComponentVariableType::DragFloat));
-		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs).props(PROPS("Clear Color", ComponentVariableType::Color));
+		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs).props(PROPS("Far", ComponentVariableType::DragFloat, "Far Plane"));
+		entt::meta<CameraComponent>().data<&CameraComponent::m_zNear>("zn"_hs).props(PROPS("Near", ComponentVariableType::DragFloat, "Near Plane"));
+		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs).props(PROPS("Fov", ComponentVariableType::DragFloat, "Field of View Angles"));
+		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs).props(PROPS("Clear Color", ComponentVariableType::Color, "Background Clear Color"));
 		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, defaultDrawFlags, "View");
 
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "castShadows"_hs));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs, "Far plane distance used in shadow rendering."));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs, "Near plane distance used in shadow rendering."));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "castShadows"_hs, "Shadow projection matrix (ortho)."));
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
 		entt::meta<DirectionalLightComponent>().func<&ComponentDrawer::DrawDebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags, "Lights");
 
 		// Spotlight
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
 		// entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_outerCutoff>("oc"_hs).props(PROPS("Outer Cutoff", ComponentVariableType::DragFloat));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_cutoff>("cof"_hs).props(PROPS("Cutoff", ComponentVariableType::DragFloat));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_outerCutoff>("oc"_hs).props(PROPS("Outer Cutoff", ComponentVariableType::DragFloat, "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff."));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_cutoff>("cof"_hs).props(PROPS("Cutoff", ComponentVariableType::DragFloat, "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff."));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat, ""));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
+		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
 		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags, "Lights");
 
 		// Pointlight
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS_DEP("Bias", ComponentVariableType::DragFloat, "castShadows"_hs));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs, "Far plane distance used in shadow rendering."));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs, "Near plane distance used in shadow rendering."));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS_DEP("Bias", ComponentVariableType::DragFloat, "castShadows"_hs, "Controls the amount of darkening."));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark, ""));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat, ""));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
 		entt::meta<PointLightComponent>().func<&ComponentDrawer::DrawDebugPointLight, entt::as_ref_t>("drawDebug"_hs);
 		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags, "Lights");
 
 		// Freelook
 		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_rotationSpeeds>("rs"_hs).props(PROPS("Rotation Speed", ComponentVariableType::Vector2));
-		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_movementSpeeds>("ms"_hs).props(PROPS("Movement Speed", ComponentVariableType::Vector2));
+		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_rotationSpeeds>("rs"_hs).props(PROPS("Rotation Speed", ComponentVariableType::Vector2, ""));
+		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_movementSpeeds>("ms"_hs).props(PROPS("Movement Speed", ComponentVariableType::Vector2, ""));
 		RegisterComponentForEditor<FreeLookComponent>("Freelook", ICON_FA_EYE, defaultDrawFlags, "View");
 
 		// Model Renderer
 		auto idt = "matpath_arr"_hs;
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialPathArray));
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath));
+		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialPathArray, ""));
+		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath, ""));
 		entt::meta<ModelRendererComponent>().func<&Drawer_SetModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_GetMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
@@ -285,7 +285,7 @@ namespace Lina::Editor
 
 		// Sprite renderer
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath));;
+		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath, ""));
 		RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags, "Rendering");
 
 	}
@@ -469,6 +469,16 @@ namespace Lina::Editor
 				physicsEngine->SetBodySimulation(entity, phy.m_isSimulated);
 			}
 
+			WidgetsUtility::PropertyLabel("Kinematic");
+			const bool currentKinematic = phy.m_isKinematic;
+			ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
+			if (currentKinematic != phy.m_isKinematic)
+			{
+				physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
+			}
+			if (ImGui::IsItemHovered())
+				WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
+
 			WidgetsUtility::PropertyLabel("Mass");
 			const float currentMass = phy.m_mass;
 			ImGui::DragFloat("##mass", &phy.m_mass);
@@ -630,6 +640,14 @@ namespace Lina::Editor
 
 					varLabelID = "##_" + std::string(title) + std::to_string(varCounter);
 					WidgetsUtility::PropertyLabel(label);
+
+					auto tooltipPropery = data.prop("Tooltip"_hs);
+					if (!tooltipPropery)
+					{
+						std::string tooltip = tooltipPropery.value().cast<std::string>();
+						if (ImGui::IsItemHovered() && tooltip.compare("") != 0)
+							WidgetsUtility::Tooltip(tooltip.c_str());
+					}
 
 					if (type == ComponentVariableType::DragFloat)
 					{

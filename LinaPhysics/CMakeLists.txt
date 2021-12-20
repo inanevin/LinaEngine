@@ -30,6 +30,7 @@ set (LINAPHYSICS_SOURCES
 	src/Core/PhysicsCommon.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 
+	src/Physics/PhysicsMaterial.cpp
 )
 
 #--------------------------------------------------------------------
@@ -48,6 +49,8 @@ set(LINAPHYSICS_HEADERS
 
 	include/ECS/Systems/RigidbodySystem.hpp
 	include/ECS/Components/AABBComponent.hpp
+	
+	include/Physics/PhysicsMaterial.hpp
 )
 
 

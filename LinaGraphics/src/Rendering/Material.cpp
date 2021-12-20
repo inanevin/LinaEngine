@@ -129,8 +129,15 @@ namespace Lina::Graphics
 	}
 	Material& Material::CreateMaterial(Shader& shader, const std::string& path)
 	{
-		// Build material & set it's shader.
 		StringIDType sid = StringID(path.c_str()).value();
+
+		if (MaterialExists(sid))
+		{
+			LINA_WARN("Material already exists with the given path. {0}", path);
+			return;
+		}
+
+		// Build material & set it's shader.
 		Material& mat = s_loadedMaterials[sid];
 		SetMaterialShader(mat, shader);
 		SetMaterialContainers(mat);

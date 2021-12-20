@@ -71,7 +71,7 @@ namespace Lina::Physics
 		void SetBodyRadius(ECS::Entity body, float radius);
 		void SetBodyHeight(ECS::Entity body, float height);
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
-
+		void SetBodyKinematic(ECS::Entity body, bool kinematic);
 
 	private:
 		friend class Lina::Engine;
@@ -83,6 +83,7 @@ namespace Lina::Physics
 
 	private:
 
+		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body);

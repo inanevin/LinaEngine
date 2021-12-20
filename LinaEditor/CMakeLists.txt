@@ -36,8 +36,10 @@ src/Drawers/ComponentDrawer.cpp
 src/Drawers/TextureDrawer.cpp
 src/Drawers/MaterialDrawer.cpp
 src/Drawers/MeshDrawer.cpp
+src/Drawers/PhysicsMaterialDrawer.cpp
 
 #Modals
+
 
 # Panels
 src/Panels/EditorPanel.cpp
@@ -93,6 +95,7 @@ include/Drawers/ComponentDrawer.hpp
 include/Drawers/TextureDrawer.hpp
 include/Drawers/MaterialDrawer.hpp
 include/Drawers/MeshDrawer.hpp
+include/Drawers/PhysicsMaterialDrawer.hpp
 
 # Modals
 
