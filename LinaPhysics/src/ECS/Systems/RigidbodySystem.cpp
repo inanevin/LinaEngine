@@ -43,7 +43,7 @@ namespace Lina::ECS
 		{
 			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
 			if (!phyComp.GetIsSimulated()) continue;
-
+#ifdef LINA_PHYSICS_BULLET
 			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
 			btTransform btTrans;
@@ -54,6 +54,9 @@ namespace Lina::ECS
 			phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
 			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());
 			phyComp.m_turnVelocity = Physics::ToLinaVector(rb->getTurnVelocity());
+#elif LINA_PHYSICS_PHYSX
+
+#endif
 		}
 	}
 }

@@ -49,6 +49,14 @@ namespace Lina::Physics
 }
 #endif
 
+#ifdef LINA_PHYSICS_PHYSX
+
+namespace Lina::Physics
+{
+	class PhysXPhysicsEngine;
+	typedef PhysXPhysicsEngine PhysicsEngine;
+}
+#endif
 
 #endif
 

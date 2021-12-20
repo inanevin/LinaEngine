@@ -49,7 +49,11 @@ namespace Lina
 
 	namespace Physics
 	{
+#ifdef LINA_PHYSICS_BULLET
 		class BulletPhysicsEngine;
+#elif LINA_PHYSICS_PHYSX
+		class PhysXPhysicsEngine;
+#endif
 	}
 };
 
@@ -68,8 +72,13 @@ namespace Lina::ECS
 
 		friend class cereal::access;
 		friend class Lina::Editor::ComponentDrawer;
-		friend class Lina::Physics::BulletPhysicsEngine;
 		friend class Lina::ECS::RigidbodySystem;
+
+#ifdef LINA_PHYSICS_BULLET
+		friend class Lina::Physics::BulletPhysicsEngine;
+#elif LINA_PHYSICS_PHYSX
+		friend class Lina::Physics::PhysXPhysicsEngine;
+#endif
 
 		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
 		Lina::Vector3 m_halfExtents = Lina::Vector3::One; // used for box & cylinder shapes

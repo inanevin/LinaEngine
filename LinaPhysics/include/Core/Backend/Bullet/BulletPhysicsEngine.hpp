@@ -42,7 +42,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "Helpers/PhysicsGizmoDrawer.hpp"
+#include "Core/Backend/Bullet/BulletGizmoDrawer.hpp"
 #include "ECS/Components/AABBComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "btBulletDynamicsCommon.h"
@@ -102,7 +102,7 @@ namespace Lina::Physics
 		btBroadphaseInterface* m_overlappingPairCache = nullptr;
 		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
 		btDiscreteDynamicsWorld* m_world = nullptr;
-		PhysicsGizmoDrawer m_gizmoDrawer;
+		BulletGizmoDrawer m_gizmoDrawer;
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
 		Lina::ECS::ECSSystemList m_physicsPipeline;
 		Lina::Event::EventSystem* m_eventSystem;

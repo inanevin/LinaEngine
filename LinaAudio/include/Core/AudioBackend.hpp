@@ -45,7 +45,7 @@ Timestamp: 12/22/2020 6:07:35 PM
 
 namespace Lina::Audio
 {
-#ifdef LINA_PHYSICS_BULLET
+#ifdef LINA_AUDIO_OPENAL
 	typedef OpenALAudioEngine AudioEngineBackend;
 #endif
 }

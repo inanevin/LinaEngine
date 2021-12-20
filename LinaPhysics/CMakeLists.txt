@@ -23,10 +23,11 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAPHYSICS_SOURCES
 
 	#Physics
-	src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
+	# src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
+	# src/Core/Backend/Bullet/BulletGizmoDrawer.cpp
+	src/Core/Backend/PhysX/PhysXPhysicsEngine.cpp
+
 	src/Core/PhysicsCommon.cpp
-	
-	src/Helpers/PhysicsGizmoDrawer.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 
 )
@@ -37,13 +38,14 @@ set (LINAPHYSICS_SOURCES
 set(LINAPHYSICS_HEADERS
 	
 	#Physics
-	include/Core/Backend/Bullet/BulletPhysicsEngine.hpp
+	# include/Core/Backend/Bullet/BulletPhysicsEngine.hpp
+	# include/Core/Backend/Bullet/BulletGizmoDrawer.hpp
+	include/Core/Backend/PhysX/PhysXPhysicsEngine.hpp
+
 	include/Core/PhysicsBackend.hpp
 	include/Core/PhysicsBackendFwd.hpp
 	include/Core/PhysicsCommon.hpp
 
-	
-	include/Helpers/PhysicsGizmoDrawer.hpp
 	include/ECS/Systems/RigidbodySystem.hpp
 	include/ECS/Components/AABBComponent.hpp
 )
@@ -69,39 +71,44 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/include)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/include)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Common.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet2FileLoader.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Collision.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletCollision.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Dynamics.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletDynamics.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Geometry.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3OpenCL_clew.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletExampleBrowserLib.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletFileLoader.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamics.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamicsUtils.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletSoftBody.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletWorldImporter.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletXmlWorldImporter.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BussIK.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/clsocket.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ConvexDecomposition.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/GIMPACTUtils.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gtest.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gwen.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/HACD.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/LinearMath.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenGLWindow.lib
-	PRIVATE Lina::Common
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Common.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet2FileLoader.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Collision.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletCollision.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Dynamics.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletDynamics.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Geometry.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3OpenCL_clew.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletExampleBrowserLib.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletFileLoader.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamics.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamicsUtils.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletSoftBody.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletWorldImporter.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletXmlWorldImporter.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BussIK.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/clsocket.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ConvexDecomposition.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/GIMPACTUtils.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gtest.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gwen.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/HACD.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/LinearMath.lib
+#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenGLWindow.lib
+PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysX_64.lib
+PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXCommon_64.lib
+PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXFoundation_64.lib
+PRIVATE Lina::Common
 )
+
+
 	
 
 #--------------------------------------------------------------------

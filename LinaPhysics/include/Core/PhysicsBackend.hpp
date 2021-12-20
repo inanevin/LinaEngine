@@ -43,10 +43,18 @@ Timestamp: 12/22/2020 6:07:35 PM
 #include "Backend/Bullet/BulletPhysicsEngine.hpp"
 #endif
 
+#ifdef LINA_PHYSICS_PHYSX
+#include "Backend/PhysX/PhysXPhysicsEngine.hpp"
+#endif
+
 namespace Lina::Physics
 {
 #ifdef LINA_PHYSICS_BULLET
 	typedef BulletPhysicsEngine PhysicsEngineBackend;
+#endif
+
+#ifdef LINA_PHYSICS_PHYSX
+	typedef PhysXPhysicsEngine PhysicsEngineBackend;
 #endif
 }
 

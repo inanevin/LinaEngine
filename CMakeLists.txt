@@ -49,7 +49,8 @@ endif()
 add_compile_definitions(LINA_AUDIO_OPENAL)
 add_compile_definitions(LINA_GRAPHICS_OPENGL)
 add_compile_definitions(LINA_INPUT_GLFW)
-add_compile_definitions(LINA_PHYSICS_BULLET)
+# add_compile_definitions(LINA_PHYSICS_BULLET)
+add_compile_definitions(LINA_PHYSICS_PHYSX)
 
 set(TARGET_ARCHITECTURE "x64")
 
