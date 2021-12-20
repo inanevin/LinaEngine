@@ -35,6 +35,45 @@ namespace Lina
 		std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
 	};
 
+	namespace Resources
+	{
+		
+		std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable =
+		{
+			{ StringID("png"), ResourceType::Image},
+			{ StringID("jpg"), ResourceType::Image },
+			{ StringID("jpeg"), ResourceType::Image },
+			{ StringID("tga"), ResourceType::Image },
+			{ StringID("samplerparams"), ResourceType::ImageParams },
+			{ StringID("hdr"), ResourceType::HDR },
+			{ StringID("fbx"), ResourceType::Model },
+			{ StringID("obj"), ResourceType::Model },
+			{ StringID("3ds"), ResourceType::Model },
+			{ StringID("modelparams"), ResourceType::ModelParams },
+			{ StringID("wav"), ResourceType::Audio },
+			{ StringID("mp3"), ResourceType::Audio },
+			{ StringID("ogg"), ResourceType::Audio },
+			{ StringID("audioparams"), ResourceType::AudioParams },
+			{ StringID("mat"), ResourceType::Material },
+			{ StringID("glsl"), ResourceType::GLSL },
+			{ StringID("glh"), ResourceType::GLH },
+			{ StringID("spv"), ResourceType::SPIRV },
+			{ StringID("ttf"), ResourceType::Font },
+			{ StringID("otf"), ResourceType::Font },
+			{ StringID("phymat"), ResourceType::PhysicsMaterial },
+		};
+
+		void RegisterUserDefinedResource(const std::string& extension)
+		{
+			m_resourceTypeTable[StringID(extension.c_str())] = ResourceType::UserAsset;
+		}
+
+		ResourceType GetResourceType(const std::string& extension)
+		{
+			return m_resourceTypeTable[StringID(extension.c_str())];
+		}
+	}
+
 	std::string LogLevelAsString(LogLevel level)
 	{
 		switch (level)

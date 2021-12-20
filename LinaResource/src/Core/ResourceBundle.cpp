@@ -34,143 +34,75 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-	
+	MemoryEntry::~MemoryEntry()
+	{
+		m_data.clear();
+		LINA_TRACE("Memory entry popped");
+	}
+
 	void ResourceBundle::PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data)
 	{
 		StringIDType sid = StringID(path.c_str()).value();
-
-		if (type == ResourceType::Image)
-			m_images[path] = data;
-		else if (type == ResourceType::ImageParams)
-			m_imageParameters[path] = data;
-		else if (type == ResourceType::HDR)
-			m_imageParameters[path] = data;
-		else if (type == ResourceType::Model)
-			m_models[path] = data;
-		else if (type == ResourceType::ModelParams)
-			m_modelParameters[path] = data;
-		else if (type == ResourceType::Audio)
-			m_audios[path] = data;
-		else if (type == ResourceType::AudioParams)
-			m_audioParameters[path] = data;
-		else if (type == ResourceType::Material)
-			m_materials[path] = data;
-		else if (type == ResourceType::GLSL)
-			m_shaders[path] = data;
-		else if (type == ResourceType::GLH)
-			m_shaderIncludes[path] = data;
-
+		
+		int priority = 100;
+		std::string paramsExtension = "";
+		
+		if (type == ResourceType::AudioParams || type == ResourceType::ModelParams || type == ResourceType::ImageParams)
+		{
+			m_memoryResourcesParams.push_back(MemoryEntry(priority, type, path, data, paramsExtension));
+		}
+		else
+		{
+			if (type == ResourceType::GLH)
+				priority = 0;
+			else if (type == ResourceType::GLSL)
+				priority = 1;
+			else if (type == ResourceType::Audio)
+				paramsExtension = ".audioparams";
+			else if (type == ResourceType::Model)
+				paramsExtension = ".modelparams";
+			else if (type == ResourceType::Image || type == ResourceType::HDR)
+				paramsExtension = ".samplerparams";
+		
+			m_memoryResources.push(MemoryEntry(priority, type, path, data, paramsExtension));
+		}
+		
+		
 		data.clear();
 	}
 
 	void ResourceBundle::LoadAllMemoryMaps()
 	{
-		
-		for (auto& shaderInc : m_shaderIncludes)
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromMemory>(Event::ELoadShaderIncludeResourceFromMemory{ shaderInc.first, &shaderInc.second[0], shaderInc.second.size() });
-		
-		for (auto& shader : m_shaders)
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromMemory>(Event::ELoadShaderResourceFromMemory{ shader.first, &shader.second[0], shader.second.size() });
-
-		for (auto& audio : m_audios)
-		{
-			std::string nameOnly = Utility::GetFileWithoutExtension(audio.first);
-			std::string paramsName = nameOnly + ".audioparams";
-
-			// If parameters were pushed into the map, load with params, if not, load as default.
-			if (m_audioParameters.find(paramsName) != m_audioParameters.end())
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromMemory>(Event::ELoadAudioResourceFromMemory{
-					audio.first, &audio.second[0], audio.second.size(),
-					paramsName, &m_audioParameters[paramsName][0], m_audioParameters[paramsName].size() });
-			}
-			else
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromMemory>(Event::ELoadAudioResourceFromMemory{
-					audio.first, &audio.second[0], audio.second.size(),
-					"", nullptr, 0 });
-			}
-		}
-
-		for (auto& image : m_images)
-		{
-			std::string nameOnly = Utility::GetFileWithoutExtension(image.first);
-			std::string paramsName = nameOnly + ".samplerparams";
-
-			// If parameters were pushed into the map, load with params, if not, load as default.
-			if (m_imageParameters.find(paramsName) != m_imageParameters.end())
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{
-					image.first, &image.second[0], image.second.size(),
-					paramsName, &m_imageParameters[paramsName][0], m_imageParameters[paramsName].size() , false });
-			}
-			else
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{
-					image.first, &image.second[0], image.second.size(),
-					"", nullptr, 0, false });
-			}
-		}
-
-		for (auto& model : m_models)
-		{
-			std::string nameOnly = Utility::GetFileWithoutExtension(model.first);
-			std::string paramsName = nameOnly + ".modelparams";
-
-			// If parameters were pushed into the map, load with params, if not, load as default.
-			if (m_modelParameters.find(paramsName) != m_modelParameters.end())
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromMemory>(Event::ELoadModelResourceFromMemory{
-					model.first, &model.second[0], model.second.size(),
-					paramsName, &m_modelParameters[paramsName][0], m_modelParameters[paramsName].size() });
-			}
-			else
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromMemory>(Event::ELoadModelResourceFromMemory{
-					model.first, &model.second[0], model.second.size(),
-					"", nullptr, 0 });
-			}
-		}
-
-		for (auto& material : m_materials)
-			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromMemory>(Event::ELoadMaterialResourceFromMemory{ material.first, &material.second[0], material.second.size() });
-
-		for (auto v : m_images)
-			v.second.clear();
-
-		for (auto v : m_imageParameters)
-			v.second.clear();
-
-		for (auto v : m_audioParameters)
-			v.second.clear();
-
-		for (auto v : m_audios)
-			v.second.clear();
-
-		for (auto v : m_modelParameters)
-			v.second.clear();
-
-		for (auto v : m_models)
-			v.second.clear();
-
-		for (auto v : m_materials)
-			v.second.clear();
-
-		for (auto v : m_shaders)
-			v.second.clear();
-
-		for (auto v : m_shaderIncludes)
-			v.second.clear();
-
-		m_shaderIncludes.clear();
-		m_shaders.clear();
-		m_materials.clear();
-		m_audioParameters.clear();
-		m_audios.clear();
-		m_imageParameters.clear();
-		m_images.clear();
-		m_models.clear();
-		m_modelParameters.clear();
+		//while (!m_memoryResources.empty())
+		//{
+		//	MemoryEntry entry = m_memoryResources.top();
+		//
+		//	std::string nameOnly = Utility::GetFileWithoutExtension(entry.m_path);
+		//	std::string paramsName = nameOnly + entry.m_paramsExtension;
+		//
+		//	bool wasParamFound = false;
+		//	for (auto& paramEntry : m_memoryResourcesParams)
+		//	{
+		//		
+		//		if (paramEntry.m_path.compare(paramsName) == 0)
+		//		{
+		//			Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type,
+		//				entry.m_path, &entry.m_data[0], entry.m_data.size(), paramEntry.m_path, &paramEntry.m_data[0], paramEntry.m_data.size()
+		//				});
+		//			
+		//			wasParamFound = true;
+		//			break;
+		//		}
+		//	}
+		//
+		//	if (!wasParamFound)
+		//	{
+		//		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size() });
+		//	}
+		//
+		//	m_memoryResources.pop();
+		//}
+		//m_memoryResourcesParams.clear();
 	}
 
 	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root,const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
@@ -208,42 +140,18 @@ namespace Lina::Resources
 
 	void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type)
 	{
+		std::string paramsPath = "";
+
 		if (type == ResourceType::Image)
-		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
-		}
+			paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
 		else if (type == ResourceType::HDR)
-		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
-		}
+			paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
 		else if (type == ResourceType::Model)
-		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>(Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath });
-		}
+			paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
 		else if (type == ResourceType::Audio)
-		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
-		}
-		else if (type == ResourceType::Material)
-		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
-		}
-		else if (type == ResourceType::GLH)
-		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromFile>(Event::ELoadShaderIncludeResourceFromFile{ file.m_fullPath });
-		}
-		else if (type == ResourceType::GLSL)
-		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
-		}
-		else if (type == ResourceType::GLH)
-		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromFile>(Event::ELoadShaderIncludeResourceFromFile{ file.m_fullPath });
-		}
+			paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+
+		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
 	}
 
 }

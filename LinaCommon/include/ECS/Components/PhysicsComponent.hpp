@@ -88,6 +88,9 @@ namespace Lina::ECS
 		bool m_isSimulated = false;
 		bool m_isKinematic = true;
 		bool m_wasSimulated = false;
+		std::string m_physicsMaterialPath = "";
+		StringIDType m_physicsMaterialID = 0;
+
 		Physics::CollisionShape m_boundingBox = Physics::CollisionShape::Box;
 		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::One;
 
@@ -118,7 +121,7 @@ namespace Lina::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_isSimulated, m_isKinematic, m_isEnabled);
+			archive(m_collisionShape, m_physicsMaterialPath, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_isSimulated, m_isKinematic, m_isEnabled);
 		}
 
 	};

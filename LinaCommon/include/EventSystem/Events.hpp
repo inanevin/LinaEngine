@@ -116,19 +116,8 @@ namespace Lina::Event
 	struct ELevelInitialized { };
 
 	// Resources.
-
-	struct ELoadModelResourceFromFile { std::string m_path; std::string m_paramsPath;};
-	struct ELoadImageResourceFromFile { std::string m_path; std::string m_paramsPath; bool m_isHDR; };
-	struct ELoadMaterialResourceFromFile { std::string m_path; };
-	struct ELoadAudioResourceFromFile { std::string m_path; std::string m_paramsPath; };
-	struct ELoadShaderResourceFromFile { std::string m_path; };
-	struct ELoadShaderIncludeResourceFromFile { std::string m_path; };
-	struct ELoadModelResourceFromMemory { std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
-	struct ELoadMaterialResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
-	struct ELoadImageResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; bool m_isHDR; };
-	struct ELoadShaderResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
-	struct ELoadShaderIncludeResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
-	struct ELoadAudioResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
+	struct ELoadResourceFromFile { Resources::ResourceType m_resourceType;  std::string m_path; std::string m_paramsPath; };
+	struct ELoadResourceFromMemory { Resources::ResourceType m_resourceType; std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};
 	struct EAllResourcesLoaded {};

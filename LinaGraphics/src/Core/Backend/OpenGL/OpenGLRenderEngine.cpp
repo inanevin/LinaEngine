@@ -71,17 +71,8 @@ namespace Lina::Graphics
 		m_eventSystem = Event::EventSystem::Get();
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
 		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
-		m_eventSystem->Connect<Event::ELoadModelResourceFromFile, &OpenGLRenderEngine::OnLoadModelResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadMaterialResourceFromFile, &OpenGLRenderEngine::OnLoadMaterialResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadImageResourceFromFile, &OpenGLRenderEngine::OnLoadImageResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadShaderResourceFromFile, &OpenGLRenderEngine::OnLoadShaderResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadShaderIncludeResourceFromFile, &OpenGLRenderEngine::OnLoadShaderIncludeResourceFromFile>(this);
-		m_eventSystem->Connect<Event::ELoadModelResourceFromMemory, &OpenGLRenderEngine::OnLoadModelResourceFromMemory>(this);
-		m_eventSystem->Connect<Event::ELoadMaterialResourceFromMemory, &OpenGLRenderEngine::OnLoadMaterialResourceFromMemory>(this);
-		m_eventSystem->Connect<Event::ELoadImageResourceFromMemory, &OpenGLRenderEngine::OnLoadImageResourceFromMemory>(this);
-		m_eventSystem->Connect<Event::ELoadShaderResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderResourceFromMemory>(this);
-		m_eventSystem->Connect<Event::ELoadShaderIncludeResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory>(this);
-
+		m_eventSystem->Connect<Event::ELoadResourceFromFile, &OpenGLRenderEngine::OnLoadResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadResourceFromMemory, &OpenGLRenderEngine::OnLoadResourceFromMemory>(this);
 	}
 
 	void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
@@ -254,31 +245,47 @@ namespace Lina::Graphics
 
 	}
 
-	void OpenGLRenderEngine::OnLoadModelResourceFromFile(Event::ELoadModelResourceFromFile event)
+	void OpenGLRenderEngine::OnLoadResourceFromFile(Event::ELoadResourceFromFile event)
 	{
-		ModelParameters params;
-
-		LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
-
-		if (Utility::FileExists(event.m_paramsPath))
-			params = Model::LoadParameters(event.m_paramsPath);
-		else
-			Model::SaveParameters(event.m_paramsPath, params);
-
-		Model::CreateModel(event.m_path, params, event.m_paramsPath);
-	}
-
-	void OpenGLRenderEngine::OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event)
-	{
-		if (Texture::TextureExists(event.m_path)) return;
-
-		LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
-
-
-		if (event.m_isHDR)
-			Texture::CreateTextureHDRI(event.m_path);
-		else
+		if (event.m_resourceType == Resources::ResourceType::GLSL)
 		{
+			if (!Shader::ShaderExists(event.m_path))
+			{
+				LINA_TRACE("[Shader Loader] -> Loading (file): {0}", event.m_path);
+				ConstructShader(event.m_path, nullptr, 0);
+			}
+		}
+		else if (event.m_resourceType == Resources::ResourceType::GLH)
+		{
+			const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
+			const std::string& text = Utility::GetFileContents(event.m_path);
+			Shader::PushShaderInclude(name, text);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Model)
+		{
+			ModelParameters params;
+
+			LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
+
+			if (Utility::FileExists(event.m_paramsPath))
+				params = Model::LoadParameters(event.m_paramsPath);
+			else
+				Model::SaveParameters(event.m_paramsPath, params);
+
+			Model::CreateModel(event.m_path, params, event.m_paramsPath);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Material)
+		{
+
+			LINA_TRACE("[Material Loader] -> Loading (file): {0}", event.m_path);
+			Material::LoadMaterialFromFile(event.m_path);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Image)
+		{
+			if (Texture::TextureExists(event.m_path)) return;
+
+			LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
+
 			SamplerParameters params;
 			bool paramsExists = Utility::FileExists(event.m_paramsPath);
 
@@ -288,82 +295,62 @@ namespace Lina::Graphics
 			Texture::CreateTexture2D(event.m_path, params, false, false, event.m_paramsPath);
 			if (!paramsExists)
 				Texture::SaveParameters(event.m_paramsPath, params);
+
 		}
-
-
-	}
-
-	void OpenGLRenderEngine::OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event)
-	{
-		LINA_TRACE("[Material Loader] -> Loading (file): {0}", event.m_path);
-		Material::LoadMaterialFromFile(event.m_path);
-	}
-
-	void OpenGLRenderEngine::OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event)
-	{
-		if (!Shader::ShaderExists(event.m_path))
+		else if (event.m_resourceType == Resources::ResourceType::HDR)
 		{
-			LINA_TRACE("[Shader Loader] -> Loading (file): {0}", event.m_path);
-			ConstructShader(event.m_path, nullptr, 0);
+			if (Texture::TextureExists(event.m_path)) return;
+			Texture::CreateTextureHDRI(event.m_path);
 		}
 	}
 
-	void OpenGLRenderEngine::OnLoadShaderIncludeResourceFromFile(Event::ELoadShaderIncludeResourceFromFile event)
+	void OpenGLRenderEngine::OnLoadResourceFromMemory(Event::ELoadResourceFromMemory event)
 	{
-		const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
-		const std::string& text = Utility::GetFileContents(event.m_path);
-		Shader::PushShaderInclude(name, text);
-	}
+		if (event.m_resourceType == Resources::ResourceType::GLSL)
+		{
+			if (!Shader::ShaderExists(event.m_path))
+			{
+				LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
+				ConstructShader(event.m_path, event.m_data, event.m_dataSize);
+			}
+		}
+		else if (event.m_resourceType == Resources::ResourceType::GLH)
+		{
+			const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
+			const std::string& text = std::string(reinterpret_cast<char*>(event.m_data), event.m_dataSize);
+			Shader::PushShaderInclude(name, text);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Model)
+		{
+			LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
 
-	void OpenGLRenderEngine::OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event)
-	{
-		LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
+			ModelParameters params;
 
-		ModelParameters params;
+			if (event.m_paramsData != nullptr)
+				params = Model::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
 
-		if (event.m_paramsData != nullptr)
-			params = Model::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
+			Model::CreateModel(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Material)
+		{
+			LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
+			Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
+		}
+		else if (event.m_resourceType == Resources::ResourceType::Image)
+		{
+			LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
 
-		Model::CreateModel(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params);
+			SamplerParameters params;
 
-	}
+			if (event.m_paramsData != nullptr)
+				params = Texture::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
 
-	void OpenGLRenderEngine::OnLoadImageResourceFromMemory(Event::ELoadImageResourceFromMemory event)
-	{
-		LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
-
-		SamplerParameters params;
-
-		if (event.m_paramsData != nullptr)
-			params = Texture::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
-
-		if (event.m_isHDR)
-			Texture::CreateTextureHDRI(event.m_path, event.m_data, event.m_dataSize);
-		else
 			Texture::CreateTexture2D(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params, false, false);
-	}
-
-	void OpenGLRenderEngine::OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event)
-	{
-		LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
-		Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
-	}
-
-	void OpenGLRenderEngine::OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event)
-	{
-
-		if (!Shader::ShaderExists(event.m_path))
-		{
-			LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
-			ConstructShader(event.m_path, event.m_data, event.m_dataSize);
 		}
-	}
-
-	void OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory(Event::ELoadShaderIncludeResourceFromMemory event)
-	{
-		const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
-		const std::string& text = std::string(reinterpret_cast<char*>(event.m_data), event.m_dataSize);
-		Shader::PushShaderInclude(name, text);
+		else if (event.m_resourceType == Resources::ResourceType::HDR)
+		{
+			Texture::CreateTextureHDRI(event.m_path, event.m_data, event.m_dataSize);
+		}
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)

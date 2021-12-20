@@ -324,7 +324,7 @@ namespace Lina::Editor
 			std::string paramsPath = m_selectedTexture->GetParamsPath();
 			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);
 			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetSID());
-			Lina::Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ filePath, paramsPath });
+			Lina::Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{ Resources::ResourceType::Image, filePath, paramsPath });
 			Lina::Graphics::Texture* reimportedTexture = &Lina::Graphics::Texture::GetTexture(filePath);
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
 			Lina::Event::EventSystem::Get()->Trigger<ETextureReimported>(ETextureReimported{m_selectedTexture, reimportedTexture});

@@ -43,7 +43,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/AABBComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
-
+#include "Physics/PhysicsMaterial.hpp"
 
 namespace Lina
 {
@@ -68,6 +68,7 @@ namespace Lina::Physics
 		void SetBodySimulation(ECS::Entity body, bool simulate);
 		void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
 		void SetBodyMass(ECS::Entity body, float mass);
+		void SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& mat);
 		void SetBodyRadius(ECS::Entity body, float radius);
 		void SetBodyHeight(ECS::Entity body, float height);
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
@@ -82,6 +83,9 @@ namespace Lina::Physics
 		void Shutdown();
 
 	private:
+		
+		void OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev);
+		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
 
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);

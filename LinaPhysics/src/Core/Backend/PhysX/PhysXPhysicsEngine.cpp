@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
+#include "Physics/PhysicsMaterial.hpp"
 #include "PxPhysicsAPI.h"
 
 namespace Lina::Physics
@@ -158,10 +159,12 @@ namespace Lina::Physics
 	void PhysXPhysicsEngine::SetBodyMass(ECS::Entity body, float mass)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
-
-
 	}
 
+	void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& material)
+	{
+
+	}
 	void PhysXPhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
@@ -185,6 +188,24 @@ namespace Lina::Physics
 
 	}
 
+
+	void PhysXPhysicsEngine::OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev)
+	{
+		if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
+		{
+			LINA_TRACE("[Physics Loader] -> Loading (file): {0}", ev.m_path);
+			PhysicsMaterial::LoadMaterialFromFile(ev.m_path);
+		}
+	}
+
+	void PhysXPhysicsEngine::OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev)
+	{
+		if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
+		{
+			LINA_TRACE("[Physics Loader] -> Loading (memory): {0}", ev.m_path);
+			PhysicsMaterial::LoadMaterialFromMemory(ev.m_path, ev.m_data, ev.m_dataSize);
+		}
+	}
 
 	void PhysXPhysicsEngine::OnLevelInitialized(Event::ELevelInitialized ev)
 	{
@@ -217,7 +238,7 @@ namespace Lina::Physics
 		// pose.p = ToPxVector3(data.GetLocation());
 		// pose.q = ToPxQuat(data.GetRotation());
 		// PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
-		
+
 	}
 
 }

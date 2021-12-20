@@ -59,6 +59,11 @@ namespace Lina
 		class Model;
 		class Shader;
 	}
+
+	namespace Physics
+	{
+		class PhysicsMaterial;
+	}
 }
 
 namespace Lina::Editor
@@ -166,6 +171,13 @@ namespace Lina::Editor
 		/// Drop-down combo-box for selecting any loaded shader material in the project.
 		/// </summary>
 		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
+
+
+		/// <summary>
+		/// Drop-down combo-box for selecting any loaded physics material in the project.
+		/// </summary>
+		static Lina::Physics::PhysicsMaterial* PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
+
 
 		/// <summary>
 		/// Drop-down combo-box for selecting collision shapes.

@@ -27,6 +27,8 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Audio/Audio.hpp"
+#include "Physics/PhysicsMaterial.hpp"
+
 using namespace Lina::Graphics;
 using namespace Lina::ECS;
 using namespace Lina;
@@ -65,6 +67,9 @@ void ExampleLevel::Initialize()
 	//auto entity = ECS::Registry::Get()->GetEntity("Entity");
 	//ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
 	//mr.SetModel(entity, Graphics::Model::GetModel("resources/sandbox/Target/RicochetTarget.fbx"));
+
+	auto& mat =Physics::PhysicsMaterial::CreateMaterial("Default Physics Material", 0.5f, 0.5f, 0.6f);
+	mat.SaveMaterialData(mat, "resources/DefaultPhysicsMaterial.phymat");
 
 }
 

@@ -91,8 +91,8 @@ namespace Lina::Audio
 		// Init alut
 		alutInit(NULL, NULL);
 
-		Event::EventSystem::Get()->Connect<Event::ELoadAudioResourceFromFile, &OpenALAudioEngine::OnLoadAudioFromFile>(this);
-		Event::EventSystem::Get()->Connect<Event::ELoadAudioResourceFromMemory, &OpenALAudioEngine::OnLoadAudioFromMemory>(this);
+		Event::EventSystem::Get()->Connect<Event::ELoadResourceFromFile, &OpenALAudioEngine::OnLoadResourceFromFile>(this);
+		Event::EventSystem::Get()->Connect<Event::ELoadResourceFromMemory, &OpenALAudioEngine::OnLoadResourceFromMemory>(this);
 	}
 
 	void OpenALAudioEngine::Shutdown()
@@ -153,31 +153,37 @@ namespace Lina::Audio
 		}
 	}
 
-	void OpenALAudioEngine::OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev)
+	void OpenALAudioEngine::OnLoadResourceFromFile(Event::ELoadResourceFromFile ev)
 	{
-		LINA_TRACE("[Audio Loader] -> Loading (file): {0}", ev.m_path);
+		if (ev.m_resourceType == Resources::ResourceType::Audio)
+		{
+			LINA_TRACE("[Audio Loader] -> Loading (file): {0}", ev.m_path);
 
-		std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".audioparams";
-		AudioParameters params;
+			std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".audioparams";
+			AudioParameters params;
 
-		if (Utility::FileExists(paramsPath))
-			params = Audio::LoadParameters(paramsPath);
-		else
-			Audio::SaveParameters(paramsPath, params);
+			if (Utility::FileExists(paramsPath))
+				params = Audio::LoadParameters(paramsPath);
+			else
+				Audio::SaveParameters(paramsPath, params);
 
-		Audio::CreateAudio(ev.m_path, params);
+			Audio::CreateAudio(ev.m_path, params);
+		}
 	}
 
-	void OpenALAudioEngine::OnLoadAudioFromMemory(Event::ELoadAudioResourceFromMemory ev)
+	void OpenALAudioEngine::OnLoadResourceFromMemory(Event::ELoadResourceFromMemory ev)
 	{
-		LINA_TRACE("[Audio Loader] -> Loading (memory): {0}", ev.m_path);
+		if (ev.m_resourceType == Resources::ResourceType::Audio)
+		{
+			LINA_TRACE("[Audio Loader] -> Loading (memory): {0}", ev.m_path);
 
-		AudioParameters params;
+			AudioParameters params;
 
-		if (ev.m_paramsData != nullptr)
-			params = Audio::LoadParametersFromMemory(ev.m_paramsData, ev.m_paramsDataSize);
+			if (ev.m_paramsData != nullptr)
+				params = Audio::LoadParametersFromMemory(ev.m_paramsData, ev.m_paramsDataSize);
 
-		Audio::CreateAudioFromMemory(ev.m_path, ev.m_data, ev.m_dataSize, params);
+			Audio::CreateAudioFromMemory(ev.m_path, ev.m_data, ev.m_dataSize, params);
+		}
 	}
 
 }

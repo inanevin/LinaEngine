@@ -147,16 +147,8 @@ namespace Lina::Graphics
 
 	private:
 
-		void OnLoadModelResourceFromFile(Event::ELoadModelResourceFromFile event);
-		void OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event);
-		void OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event);
-		void OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event);
-		void OnLoadShaderIncludeResourceFromFile(Event::ELoadShaderIncludeResourceFromFile event);
-		void OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event);
-		void OnLoadImageResourceFromMemory(Event::ELoadImageResourceFromMemory event);
-		void OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event);
-		void OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event);
-		void OnLoadShaderIncludeResourceFromMemory(Event::ELoadShaderIncludeResourceFromMemory event);
+		void OnLoadResourceFromFile(Event::ELoadResourceFromFile event);
+		void OnLoadResourceFromMemory(Event::ELoadResourceFromMemory event);
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
 		bool ValidateEngineShaders();

@@ -42,6 +42,7 @@ Timestamp: 12/22/2020 12:26:55 AM
 // Headers here.
 #include "ResourcesCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include <queue>
 
 namespace Lina
 {
@@ -53,6 +54,43 @@ namespace Lina
 
 namespace Lina::Resources
 {
+	class MemoryEntry
+	{
+	public:
+		MemoryEntry() {};
+		~MemoryEntry();
+
+		MemoryEntry(int priority, ResourceType type, const std::string& path, std::vector<unsigned char>& data, std::string& paramsExtension)
+		{
+			m_priority = priority;
+			m_type = type;
+			m_path = path;
+			m_data = data;
+			m_paramsExtension = paramsExtension;
+		}
+
+		ResourceType m_type = ResourceType::Unknown;
+		int m_priority = 100;
+		std::string m_path = "";
+		std::string m_paramsExtension = "";
+		std::vector<unsigned char> m_data;
+	};
+
+	struct CompareMemEntry {
+		bool operator()(MemoryEntry const& p1, MemoryEntry const& p2)
+		{
+			// return "true" if "p1" is ordered
+			// before "p2", for example:
+			return p1.m_priority < p2.m_priority;
+		}
+	};
+
+	class MemoryMapCompare
+	{
+	public:
+		
+	};
+
 	class ResourceBundle
 	{
 
@@ -73,17 +111,9 @@ namespace Lina::Resources
 		// Loads given resource from a file path into memory.
 		void LoadResourceFromFile(Utility::File& file, ResourceType type);
 
-		std::unordered_map<std::string, std::vector<unsigned char>> m_audioParameters;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_imageParameters;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_modelParameters;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_shaderParameters;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_audios;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_images;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_hdrs;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_models;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_materials;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_shaders;
-		std::unordered_map<std::string, std::vector<unsigned char>> m_shaderIncludes;
+		std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
+		std::vector<MemoryEntry> m_memoryResourcesParams;
+
 	};
 }
 

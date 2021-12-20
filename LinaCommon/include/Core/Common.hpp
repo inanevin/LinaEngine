@@ -39,12 +39,11 @@ Timestamp: 4/7/2019 3:29:18 PM
 #ifndef Common_HPP
 #define Common_HPP
 
-#include <string>
-#include <Core/SizeDefinitions.hpp>
+#include "Core/SizeDefinitions.hpp"
+#include "Utility/StringId.hpp"
 #include "Math/Color.hpp"
-
-
-
+#include <unordered_map>
+#include <string>
 
 namespace Lina
 {
@@ -59,6 +58,36 @@ namespace Lina
 			Cylinder = 2,
 			Capsule = 3,
 		};
+	}
+
+	namespace Resources
+	{
+		enum class ResourceType
+		{
+			Unknown = 0,
+			Model = 1,
+			ModelParams = 2,
+			Image = 3,
+			ImageParams = 4,
+			HDR = 5,
+			Audio = 6,
+			AudioParams = 7,
+			Material = 8,
+			GLSL = 9,
+			GLH,
+			SPIRV = 11,
+			Font = 12,
+			PhysicsMaterial = 13,
+			UserAsset = 20
+		};
+
+		/// <summary>
+		/// Register a user defined resource to be picked-up & request to load by the resource manager.
+		/// Pass in the extension without '.'
+		/// </summary>
+		extern void RegisterUserDefinedResource(const std::string& extension);
+		extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
+		extern ResourceType GetResourceType(const std::string& extension);
 	}
 
 	enum class WindowState

@@ -68,8 +68,10 @@ namespace Lina::Physics
 		static void LoadMaterialData(PhysicsMaterial& mat, const std::string& path);
 		static void SaveMaterialData(const PhysicsMaterial& mat, const std::string& path);
 		static void UnloadAll();
-
+		static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials() { return s_loadedMaterials; }
 	
+		std::string GetPath() { return m_path; }
+
 	private:
 
 		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;

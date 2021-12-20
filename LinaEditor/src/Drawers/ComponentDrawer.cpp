@@ -487,6 +487,14 @@ namespace Lina::Editor
 				physicsEngine->SetBodyMass(entity, phy.m_mass);
 			}
 
+			WidgetsUtility::PropertyLabel("Material");
+			const std::string currentMaterial = phy.m_physicsMaterialPath;
+			WidgetsUtility::PhysicsMaterialComboBox("##phyMat", phy.m_physicsMaterialPath, nullptr);
+			if (phy.m_physicsMaterialPath.compare(currentMaterial) != 0)
+			{
+				physicsEngine->SetBodyMaterial(entity, Physics::PhysicsMaterial::GetMaterial(phy.m_physicsMaterialPath));
+			}
+
 			WidgetsUtility::PropertyLabel("Shape");
 			const Physics::CollisionShape currentShape = phy.m_collisionShape;
 			phy.m_collisionShape = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("##collision", (int)phy.m_collisionShape);

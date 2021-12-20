@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"
+#include "Physics/PhysicsMaterial.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/CustomFontIcons.hpp"
@@ -880,6 +881,65 @@ namespace Lina::Editor
 
 
 		return shaderToReturn;
+	}
+
+	Lina::Physics::PhysicsMaterial* Lina::Editor::WidgetsUtility::PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
+	{
+		Physics::PhysicsMaterial* materialToReturn = nullptr;
+
+		std::string materialLabel = "";
+		if (Physics::PhysicsMaterial::MaterialExists(currentPath))
+		{
+			materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
+		}
+
+
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+		ImGui::SetNextItemWidth(comboWidth);
+
+		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
+		{
+			auto& loadedMaterials = Physics::PhysicsMaterial::GetLoadedMaterials();
+
+			for (auto& material : loadedMaterials)
+			{
+				const bool selected = currentPath == material.second.GetPath();
+
+				std::string label = material.second.GetPath();
+				label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+				if (ImGui::Selectable(label.c_str(), selected))
+				{
+					materialToReturn = &material.second;
+				}
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		if (removed != nullptr)
+		{
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			WidgetsUtility::IncrementCursorPosY(6);
+
+			// Remove Model
+			const std::string removeID = "##removeMaterial_" + std::string(comboID);
+			if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+				*removed = true;
+
+
+			if (ImGui::IsItemHovered())
+				Tooltip("Remove");
+
+		}
+
+		return materialToReturn;
 	}
 
 	int Lina::Editor::WidgetsUtility::CollisionShapeComboBox(const char* comboID, int currentShapeID)
