@@ -68,7 +68,6 @@ namespace Lina::Editor
 	void LevelPanel::Draw()
 	{
 		ImGuizmo::BeginFrame();
-		ProcessInput();
 
 		if (m_show)
 		{
@@ -85,6 +84,7 @@ namespace Lina::Editor
 			ImGui::Begin(m_id, NULL, m_windowFlags);
 			WidgetsUtility::WindowTitlebar(m_id);
 			if (!CanDrawContent()) return;
+			WidgetsUtility::FramePaddingY(0.0f);
 
 			ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
 			ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
@@ -145,7 +145,6 @@ namespace Lina::Editor
 			ImGui::SetNextWindowPos(settingsPos);
 			ImGui::SetNextWindowBgAlpha(0.4f);
 			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
-			ImGui::PushStyleColor(ImGuiCol_ButtonLocked, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
 			ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 			const float cursorPos = ImGui::GetCursorPosY();
 
@@ -166,7 +165,6 @@ namespace Lina::Editor
 			ImGui::PopStyleColor();
 			ImGui::EndChild();
 			ImGui::PopStyleVar();
-			ImGui::PopStyleColor();
 
 			/// <summary>
 			/// Camera settings pop-up window.
@@ -231,6 +229,7 @@ namespace Lina::Editor
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
 			ImGui::PushClipRect(imageRectMin, imageRectMax, false);
+			ProcessInput();
 			DrawGizmos();
 
 			// Show a warning box if no camera is available.
@@ -265,7 +264,6 @@ namespace Lina::Editor
 			{
 				levelPanelFirstRun = true;
 				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
-				LINA_TRACE("SA");
 			}
 
 
@@ -290,6 +288,7 @@ namespace Lina::Editor
 				ImGui::EndDragDropTarget();
 			}
 
+			WidgetsUtility::PopStyleVar();
 			ImGui::End();
 
 		}
@@ -313,10 +312,6 @@ namespace Lina::Editor
 
 	void LevelPanel::ProcessInput()
 	{
-		auto* inputEngine = Lina::Input::InputEngineBackend::Get();
-
-		if (inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
-			LINA_ERR("NESXD");
 
 		if (ImGui::IsWindowFocused())
 		{
@@ -330,26 +325,27 @@ namespace Lina::Editor
 				Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ currentTransformGizmoMode == ImGuizmo::LOCAL });
 
 			bool isInPlay = Lina::Engine::Get()->GetPlayMode();
-
-			if (inputEngine->GetKeyDown(Lina::Input::InputCode::Space))
+			auto* inputEngine = Lina::Input::InputEngineBackend::Get();		
+			
+		if (inputEngine->GetKey(LINA_KEY_LCTRL) && inputEngine->GetKeyDown(LINA_KEY_SPACE))
+		{
+			if (isInPlay)
 			{
-				if (isInPlay)
-				{
-					Lina::Engine::Get()->SetPlayMode(false);
-					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
-					// unconfine mouse
-				}
-				else
-				{
-					Lina::Engine::Get()->SetPlayMode(true);
-					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
-					// confine mouse
-				}
+				Lina::Engine::Get()->SetPlayMode(false);
+				Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+				// unconfine mouse
 			}
+			else
+			{
+				Lina::Engine::Get()->SetPlayMode(true);
+				Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+				// confine mouse
+			}
+		}
 
 			if (isInPlay)
 			{
-				if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
+				if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_ESCAPE))
 				{
 					Lina::Input::CursorMode currentMode = Lina::Input::InputEngineBackend::Get()->GetCursorMode();
 
@@ -365,7 +361,7 @@ namespace Lina::Editor
 				}
 
 
-				if (m_isFocused && inputEngine->GetMouseButtonDown(Lina::Input::InputCode::Mouse1))
+				if (m_isFocused && inputEngine->GetMouseButtonDown(LINA_MOUSE_1))
 				{
 					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
 					// confine

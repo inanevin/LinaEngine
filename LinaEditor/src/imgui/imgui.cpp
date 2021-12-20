@@ -2782,6 +2782,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_Button: return "Button";
     case ImGuiCol_ButtonHovered: return "ButtonHovered";
     case ImGuiCol_ButtonActive: return "ButtonActive";
+    case ImGuiCol_ButtonLocked: return "ButtonLocked";
     case ImGuiCol_Header: return "Header";
     case ImGuiCol_HeaderHovered: return "HeaderHovered";
     case ImGuiCol_HeaderActive: return "HeaderActive";
@@ -2813,6 +2814,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_NavWindowingHighlight: return "NavWindowingHighlight";
     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
+    case ImGuiCol_Icon: return "Icon";
     }
     IM_ASSERT(0);
     return "Unknown";

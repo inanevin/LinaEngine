@@ -243,9 +243,7 @@ namespace Lina
 
 		if (m_canRender)
 		{
-			m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
 			m_renderEngine.Render(interpolation);
-			m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
 			m_window.Tick();
 		}
 	}

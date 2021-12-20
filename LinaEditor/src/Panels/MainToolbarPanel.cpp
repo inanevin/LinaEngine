@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/MainToolbar.hpp"
+#include "Panels/MainToolbarPanel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/Engine.hpp"
@@ -41,17 +41,17 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void MainToolbar::Initialize(const char* id)
+	void MainToolbarPanel::Initialize(const char* id)
 	{
 		EditorPanel::Initialize(id);
 
 		m_toggledTransformSelection = -1;
 		m_currentGizmoGlobal = true;
-		Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &MainToolbar::OnTransformGizmoChanged>(this);
-		Event::EventSystem::Get()->Connect<ETransformPivotChanged, &MainToolbar::OnTransformPivotChanged>(this);
+		Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &MainToolbarPanel::OnTransformGizmoChanged>(this);
+		Event::EventSystem::Get()->Connect<ETransformPivotChanged, &MainToolbarPanel::OnTransformPivotChanged>(this);
 	}
 
-	void MainToolbar::Draw()
+	void MainToolbarPanel::Draw()
 	{
 		ImGuiWindowFlags flags = 0
 			| ImGuiWindowFlags_NoDocking
@@ -75,13 +75,13 @@ namespace Lina::Editor
 		ImVec2 min = ImVec2(0, pos.y);
 		ImVec2 max = ImVec2(size.x, pos.y);
 		ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 0.5f));
-		ImGui::GetWindowDrawList()->AddLine(min, max, borderColor, 2);
-		ImGui::GetWindowDrawList()->AddLine(ImVec2(0, min.y + TOOLBAR_HEIGHT), ImVec2(size.x, max.y + TOOLBAR_HEIGHT), borderColor, 2);
+		// ImGui::GetWindowDrawList()->AddLine(min, max, borderColor, 2);
+		// ImGui::GetWindowDrawList()->AddLine(ImVec2(0, min.y + TOOLBAR_HEIGHT), ImVec2(size.x, max.y + TOOLBAR_HEIGHT), borderColor, 2);
 		WidgetsUtility::IncrementCursorPosX(12);
 
 		char* label = nullptr;
 		std::string tooltip = "";
-		const float cursorPos = ImGui::GetCursorPosY();
+		const float cursorPos = ImGui::GetCursorPosY() + 1.5f;
 		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
@@ -130,7 +130,7 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
-		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_FORWARD, ImVec2(40, 22), 1, false, cursorPos, "Skip Frame"))
+		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_FORWARD, ImVec2(30, 22), 1, false, cursorPos, "Skip Frame"))
 			Lina::Engine::Get()->SkipNextFrame();
 
 		ImGui::End();
@@ -139,7 +139,7 @@ namespace Lina::Editor
 
 	}
 
-	void MainToolbar::DrawFooter()
+	void MainToolbarPanel::DrawFooter()
 	{
 	
 		ImGuiWindowFlags flags = 0
@@ -162,12 +162,12 @@ namespace Lina::Editor
 		ImGui::PopStyleColor();
 	}
 
-	void Lina::Editor::MainToolbar::OnTransformGizmoChanged(ETransformGizmoChanged ev)
+	void Lina::Editor::MainToolbarPanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
 	{
 		m_toggledTransformSelection = ev.m_currentGizmo;
 	}
 
-	void Lina::Editor::MainToolbar::OnTransformPivotChanged(ETransformPivotChanged ev)
+	void Lina::Editor::MainToolbarPanel::OnTransformPivotChanged(ETransformPivotChanged ev)
 	{
 		m_currentGizmoGlobal = ev.m_isGlobal;
 	}

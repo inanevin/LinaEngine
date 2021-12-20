@@ -48,7 +48,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ProfilerPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "World/DefaultLevel.hpp"
-#include "Core/MainToolbar.hpp"
+#include "Panels/MainToolbarPanel.hpp"
 #include <vector>
 
 class ImFont;
@@ -101,7 +101,7 @@ namespace Lina::Editor
 		static ImFont* s_bigFont;
 
 		Lina::Graphics::DrawParams m_drawParameters;
-		MainToolbar m_toolbar;
+		MainToolbarPanel m_toolbar;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;
 		LevelPanel m_levelPanel;

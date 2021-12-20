@@ -123,8 +123,8 @@ namespace Lina::Editor
 		// Setup Dear ImGui style
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImVec4* colors = ImGui::GetStyle().Colors;
-		//style.FrameBorderSize = 1.0f;
-		//style.PopupBorderSize = 1.0f;
+		style.FrameBorderSize = 1.0f;
+		style.PopupBorderSize = 1.0f;
 		//style.AntiAliasedFill = false;
 		//style.WindowRounding = 0.0f;
 		style.TabRounding = 2.0f;
@@ -164,9 +164,9 @@ namespace Lina::Editor
 		colors[ImGuiCol_CheckMark] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_SliderGrab] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-		colors[ImGuiCol_Button] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
-		colors[ImGuiCol_ButtonHovered] = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
-		colors[ImGuiCol_ButtonActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
+		colors[ImGuiCol_Button] = ImVec4(0.212f, 0.325f, 0.459f, 1.000f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.351f, 0.493f, 0.622f, 1.000f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(0.240f, 0.372f, 0.526f, 1.000f);
 		colors[ImGuiCol_Header] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.46f, 0.34f, 0.47f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.47f, 0.39f, 0.47f, 1.00f);
@@ -193,7 +193,7 @@ namespace Lina::Editor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
-		colors[ImGuiCol_ButtonLocked] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
+		colors[ImGuiCol_ButtonLocked] = ImVec4(0.100f, 0.146f, 0.199f, 1.000f);
 		colors[ImGuiCol_Icon] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		ImPlot::GetStyle().AntiAliasedLines = true;

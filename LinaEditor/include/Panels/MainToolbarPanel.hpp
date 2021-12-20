@@ -27,45 +27,44 @@ SOFTWARE.
 */
 
 /*
-Class: SplashScreen
+Class: MainToolbarPanel
 
-Draws editor splash screen while opening the sandbox.
 
-Timestamp: 10/10/2020 3:25:27 PM
+
+Timestamp: 12/17/2021 11:58:19 AM
 */
+
 #pragma once
 
-#ifndef SplashScreen_HPP
-#define SplashScreen_HPP
+#ifndef MainToolbarPanel_HPP
+#define MainToolbarPanel_HPP
 
-#include "EventSystem/Events.hpp"
-
-namespace Lina
-{
-	struct WindowProperties;
-}
+// Headers here.
+#include "Core/EditorCommon.hpp"
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina::Editor
 {
-	class SplashScreen
+	class MainToolbarPanel : public EditorPanel
 	{
 		
 	public:
 		
-		SplashScreen() {};
-		~SplashScreen();
-		
-		void Draw();
-		void Initialize(const Lina::WindowProperties& props);
+		MainToolbarPanel() {};
+		~MainToolbarPanel() {};
+		virtual void Initialize(const char* id);
+		virtual void Draw();
+		void DrawFooter();
 
 	private:
 
-		void OnResourceLoadUpdated(Event::EResourceLoadUpdated ev);
+		void OnTransformGizmoChanged(ETransformGizmoChanged ev);
+		void OnTransformPivotChanged(ETransformPivotChanged ev);
 
 	private:
-
-		std::string m_currentlyLoadingResource = "";
-		float m_percentage = 0.0f;
+	
+		int m_toggledTransformSelection = 0;
+		bool m_currentGizmoGlobal;
 	};
 }
 

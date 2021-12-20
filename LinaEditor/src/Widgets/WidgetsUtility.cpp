@@ -430,150 +430,6 @@ namespace Lina::Editor
 		WindowButtons(label, 5.0f);
 	}
 
-	void WidgetsUtility::DropShadow()
-	{
-		static int countS = 4;
-		static float thicknessS = 4.0f;
-		static float yOffsetS = 3.0f;
-
-		ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-		int dividerCount = 4;
-		float dividerSize = 4.0f;
-		float yOffset = 3.0f;
-		float colorFade = 1.0f / (float)dividerCount;
-
-		for (int i = 0; i < dividerCount; i++)
-		{
-			color.w = 1.0f - i * colorFade;
-			ImGui::PushStyleColor(ImGuiCol_Text, color);
-			HorizontalDivider(i * yOffset, thicknessS);
-			ImGui::PopStyleColor();
-		}
-	}
-
-	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
-	{
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
-		ImVec2 pos_before = window->DC.CursorPos;
-
-		ImGui::PushID(str_id);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
-		bool ret = ImGui::Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
-		ImGui::PopStyleVar();
-
-		ImGuiID id = window->GetID("##Input");
-		bool temp_input_is_active = ImGui::TempInputIsActive(id);
-		bool temp_input_start = ret ? ImGui::IsMouseDoubleClicked(0) : false;
-
-		if (temp_input_start)
-			ImGui::SetActiveID(id, window);
-
-		if (temp_input_is_active || temp_input_start)
-		{
-			ImVec2 pos_after = window->DC.CursorPos;
-			window->DC.CursorPos = pos_before;
-			//ret = ImGui::TempInputText(window->Rect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
-			window->DC.CursorPos = pos_after;
-		}
-		else
-		{
-			window->DrawList->AddText(pos_before, ImGui::GetColorU32(ImGuiCol_Text), buf);
-		}
-
-		ImGui::PopID();
-		return ret;
-	}
-
-	void WidgetsUtility::DrawWindowBorders(const ImVec4& color, float thickness)
-	{
-		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
-		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
-		ImGui::BeginChild("##ch");
-		ImGui::PushClipRect(min, max, false);
-		ImGui::GetWindowDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(color), 0, 15, thickness);
-		ImGui::PopClipRect();
-		ImGui::EndChild();
-	}
-
-	void WidgetsUtility::DrawShadowedLine(int height, const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
-	{
-
-		if (min.x == 0 && min.y == 0)
-			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-		if (max.x == 0 && max.y == 0)
-			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-		for (int i = 0; i < height; i++)
-		{
-			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Lina::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
-		}
-	}
-
-	void WidgetsUtility::DrawBeveledLine(ImVec2 min, ImVec2 max)
-	{
-		if (min.x == 0 && min.y == 0)
-			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-		if (max.x == 0 && max.y == 0)
-			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
-		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
-	}
-
-	void WidgetsUtility::ScreenPosLine()
-	{
-		ImVec2 min = ImVec2(ImGui::GetCursorScreenPos());
-		ImVec2 max = ImVec2(ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionMax().x, ImGui::GetCursorScreenPos().y));
-		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)));
-	}
-
-	bool WidgetsUtility::InputQuaternion(const char* label, Lina::Quaternion& v)
-	{
-		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
-		bool edited = ImGui::InputFloat3(label, rot);
-		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
-		return edited;
-	}
-
-	bool WidgetsUtility::DragQuaternion(const char* label, Lina::Quaternion& v)
-	{
-		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
-		bool edited = ImGui::DragFloat3(label, rot);
-		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
-		return edited;
-	}
-
-	void WidgetsUtility::AlignedText(const char* label)
-	{
-		ImGui::AlignTextToFramePadding();
-		ImGui::Text(label);
-	}
-
-	bool WidgetsUtility::Caret(const char* title)
-	{
-		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			s_carets[title] = !s_carets[title];
-		return s_carets[title];
-	}
-
-	bool WidgetsUtility::CaretAndLabel(const char* title, const char* label)
-	{
-		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			s_carets[title] = !s_carets[title];
-
-		ImGui::SameLine();
-		ImGui::Text(label);
-		if (ImGui::IsItemClicked())
-			s_carets[title] = !s_carets[title];
-
-		return s_carets[title];
-	}
-
 	void WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted)
 	{
 		const ImVec2 windowSize = ImGui::GetWindowSize();
@@ -591,8 +447,6 @@ namespace Lina::Editor
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
-
-		//IncrementCursorPosY(-rectSize.y - ImGui::GetStyle().ItemSpacing.y);
 		ImGui::SameLine();
 
 		// Horizontal dividers as borders.
@@ -730,129 +584,112 @@ namespace Lina::Editor
 
 	}
 
-	void WidgetsUtility::IncrementCursorPosX(float f)
+	bool WidgetsUtility::Header(const char* label, bool* foldoutOpen)
 	{
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + f);
-	}
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		const ImVec2 rectSize = ImVec2(windowSize.x, 25);
+		const ImVec4 normalColor = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
+		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		const float iconScale = 0.65f;
 
-	void WidgetsUtility::IncrementCursorPosY(float f)
-	{
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + f);
-	}
+		ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, normalColor);
 
-	void WidgetsUtility::IncrementCursorPos(const  ImVec2& v)
-	{
-		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
-	}
+		if (CustomButton(label, rectSize))
+			*foldoutOpen = !*foldoutOpen;
 
-	void WidgetsUtility::CenteredText(const char* label)
-	{
-		float textW = ImGui::CalcTextSize(label).x;
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - textW / 2.0f);
+		bool hovered = ImGui::IsItemHovered();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+
+		// Horizontal dividers as borders.
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
+		HorizontalDivider();
+		HorizontalDivider(rectSize.y);
+		ImGui::PopStyleColor();
+
+		static float caretPos = 6;
+		static float labelPos = -4;
+
+		// Caret
+		ImGui::SetCursorPosX(12);
+		IncrementCursorPosY(caretPos);
+		ImGui::Text(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+
+		// Label
+		ImGui::SameLine();
+		IncrementCursorPosY(labelPos);
 		ImGui::Text(label);
+
+		return *foldoutOpen;
 	}
 
-	void WidgetsUtility::CenterCursorX()
+	void WidgetsUtility::DropShadow()
 	{
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f);
+		static int countS = 4;
+		static float thicknessS = 4.0f;
+		static float yOffsetS = 3.0f;
+
+		ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+		int dividerCount = 4;
+		float dividerSize = 4.0f;
+		float yOffset = 3.0f;
+		float colorFade = 1.0f / (float)dividerCount;
+
+		for (int i = 0; i < dividerCount; i++)
+		{
+			color.w = 1.0f - i * colorFade;
+			ImGui::PushStyleColor(ImGuiCol_Text, color);
+			HorizontalDivider(i * yOffset, thicknessS);
+			ImGui::PopStyleColor();
+		}
 	}
 
-	void WidgetsUtility::CenterCursorY()
+	bool WidgetsUtility::CaretTitle(const char* title, bool* caretOpen)
 	{
-		ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.0f);
+		bool clicked = false;
+		bool hovered = false;
+		ImVec4 caretNormalColor = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+		ImVec4 caretHoverColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImVec4 caretColor = hovered ? caretHoverColor : caretNormalColor;
 
+		ImGui::SetCursorPosX(CURSOR_X_LABELS);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, caretColor);
+		ImGui::Text(*caretOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+		ImGui::PopStyleColor();
+
+		if (ImGui::IsItemClicked())
+			clicked = true;
+
+		ImGui::SameLine();
+		IncrementCursorPosY(0);
+		ImGui::Text(title);
+
+		if (ImGui::IsItemClicked())
+			clicked = true;
+
+		if (clicked)
+			*caretOpen = !*caretOpen;
+
+		return *caretOpen;
 	}
 
-	void WidgetsUtility::CenterCursor()
+	void WidgetsUtility::PropertyLabel(const char* label, bool sameLine)
 	{
-		CenterCursorX();
-		CenterCursorY();
+		ImGui::SetCursorPosX(CURSOR_X_LABELS);
+		WidgetsUtility::AlignedText(label);
+
+		if (sameLine)
+		{
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(CURSOR_X_VALUES);
+		}
 	}
 
-	float WidgetsUtility::DebugFloat(const char* id, bool currentWindow)
-	{
-		if (!currentWindow)
-			ImGui::Begin("WidgetsUtility");
-
-		ImGui::InputFloat(id, &s_debugFloats[id]);
-
-		if (!currentWindow)
-			ImGui::End();
-
-		return s_debugFloats[id];
-	}
-
-	void WidgetsUtility::PushScaledFont(float defaultScale)
-	{
-		ImGui::GetFont()->Scale = defaultScale;
-		ImGui::PushFont(ImGui::GetFont());
-	}
-
-	void WidgetsUtility::PopScaledFont()
-	{
-		ImGui::GetFont()->Scale = 1.0f;
-		ImGui::PopFont();
-	}
-
-	void WidgetsUtility::FramePaddingX(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(amt, ImGui::GetStyle().FramePadding.y));
-	}
-
-	void WidgetsUtility::FramePaddingY(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, amt));
-	}
-
-	void WidgetsUtility::FramePadding(const ImVec2& amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, amt);
-	}
-
-	void WidgetsUtility::FrameRounding(float rounding)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding);
-	}
-
-	void WidgetsUtility::WindowPaddingX(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(amt, ImGui::GetStyle().WindowPadding.y));
-	}
-
-	void WidgetsUtility::WindowPaddingY(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, amt));
-	}
-
-	void WidgetsUtility::WindowPadding(const ImVec2& amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, amt);
-	}
-
-	void WidgetsUtility::ItemSpacingX(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(amt, ImGui::GetStyle().ItemSpacing.y));
-	}
-
-	void WidgetsUtility::ItemSpacingY(float amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, amt));
-	}
-
-	void WidgetsUtility::ItemSpacing(const ImVec2& amt)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, amt);
-	}
-
-	void WidgetsUtility::WindowRounding(float rounding)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);
-	}
-
-	void WidgetsUtility::PopStyleVar()
-	{
-		ImGui::PopStyleVar();
-	}
 
 	Lina::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
 	{
@@ -1027,6 +864,263 @@ namespace Lina::Editor
 		return shaderToReturn;
 	}
 
+	bool WidgetsUtility::Button(const char* label, const ImVec2& size)
+	{
+		FrameRounding(4.0f);
+		bool button = ImGui::Button(label, size);
+		PopStyleVar();
+		return button;
+	}
+
+
+	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		ImVec2 pos_before = window->DC.CursorPos;
+
+		ImGui::PushID(str_id);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
+		bool ret = ImGui::Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
+		ImGui::PopStyleVar();
+
+		ImGuiID id = window->GetID("##Input");
+		bool temp_input_is_active = ImGui::TempInputIsActive(id);
+		bool temp_input_start = ret ? ImGui::IsMouseDoubleClicked(0) : false;
+
+		if (temp_input_start)
+			ImGui::SetActiveID(id, window);
+
+		if (temp_input_is_active || temp_input_start)
+		{
+			ImVec2 pos_after = window->DC.CursorPos;
+			window->DC.CursorPos = pos_before;
+			//ret = ImGui::TempInputText(window->Rect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
+			window->DC.CursorPos = pos_after;
+		}
+		else
+		{
+			window->DrawList->AddText(pos_before, ImGui::GetColorU32(ImGuiCol_Text), buf);
+		}
+
+		ImGui::PopID();
+		return ret;
+	}
+
+	void WidgetsUtility::DrawWindowBorders(const ImVec4& color, float thickness)
+	{
+		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
+		ImGui::BeginChild("##ch");
+		ImGui::PushClipRect(min, max, false);
+		ImGui::GetWindowDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(color), 0, 15, thickness);
+		ImGui::PopClipRect();
+		ImGui::EndChild();
+	}
+
+	void WidgetsUtility::DrawShadowedLine(int height, const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
+	{
+
+		if (min.x == 0 && min.y == 0)
+			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		if (max.x == 0 && max.y == 0)
+			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		for (int i = 0; i < height; i++)
+		{
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Lina::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
+		}
+	}
+
+	void WidgetsUtility::DrawBeveledLine(ImVec2 min, ImVec2 max)
+	{
+		if (min.x == 0 && min.y == 0)
+			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		if (max.x == 0 && max.y == 0)
+			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
+	}
+
+	void WidgetsUtility::ScreenPosLine()
+	{
+		ImVec2 min = ImVec2(ImGui::GetCursorScreenPos());
+		ImVec2 max = ImVec2(ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionMax().x, ImGui::GetCursorScreenPos().y));
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)));
+	}
+
+	bool WidgetsUtility::InputQuaternion(const char* label, Lina::Quaternion& v)
+	{
+		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
+		bool edited = ImGui::InputFloat3(label, rot);
+		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		return edited;
+	}
+
+	bool WidgetsUtility::DragQuaternion(const char* label, Lina::Quaternion& v)
+	{
+		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
+		bool edited = ImGui::DragFloat3(label, rot);
+		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		return edited;
+	}
+
+	void WidgetsUtility::AlignedText(const char* label)
+	{
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text(label);
+	}
+
+	bool WidgetsUtility::Caret(const char* title)
+	{
+		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			s_carets[title] = !s_carets[title];
+		return s_carets[title];
+	}
+
+	bool WidgetsUtility::CaretAndLabel(const char* title, const char* label)
+	{
+		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			s_carets[title] = !s_carets[title];
+
+		ImGui::SameLine();
+		ImGui::Text(label);
+		if (ImGui::IsItemClicked())
+			s_carets[title] = !s_carets[title];
+
+		return s_carets[title];
+	}
+
+
+	void WidgetsUtility::IncrementCursorPosX(float f)
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + f);
+	}
+
+	void WidgetsUtility::IncrementCursorPosY(float f)
+	{
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + f);
+	}
+
+	void WidgetsUtility::IncrementCursorPos(const  ImVec2& v)
+	{
+		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
+	}
+
+	void WidgetsUtility::CenteredText(const char* label)
+	{
+		float textW = ImGui::CalcTextSize(label).x;
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - textW / 2.0f);
+		ImGui::Text(label);
+	}
+
+	void WidgetsUtility::CenterCursorX()
+	{
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f);
+	}
+
+	void WidgetsUtility::CenterCursorY()
+	{
+		ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.0f);
+
+	}
+
+	void WidgetsUtility::CenterCursor()
+	{
+		CenterCursorX();
+		CenterCursorY();
+	}
+
+	float WidgetsUtility::DebugFloat(const char* id, bool currentWindow)
+	{
+		if (!currentWindow)
+			ImGui::Begin("WidgetsUtility");
+
+		ImGui::InputFloat(id, &s_debugFloats[id]);
+
+		if (!currentWindow)
+			ImGui::End();
+
+		return s_debugFloats[id];
+	}
+
+	void WidgetsUtility::PushScaledFont(float defaultScale)
+	{
+		ImGui::GetFont()->Scale = defaultScale;
+		ImGui::PushFont(ImGui::GetFont());
+	}
+
+	void WidgetsUtility::PopScaledFont()
+	{
+		ImGui::GetFont()->Scale = 1.0f;
+		ImGui::PopFont();
+	}
+
+	void WidgetsUtility::FramePaddingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(amt, ImGui::GetStyle().FramePadding.y));
+	}
+
+	void WidgetsUtility::FramePaddingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, amt));
+	}
+
+	void WidgetsUtility::FramePadding(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, amt);
+	}
+
+	void WidgetsUtility::FrameRounding(float rounding)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding);
+	}
+
+	void WidgetsUtility::WindowPaddingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(amt, ImGui::GetStyle().WindowPadding.y));
+	}
+
+	void WidgetsUtility::WindowPaddingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, amt));
+	}
+
+	void WidgetsUtility::WindowPadding(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, amt);
+	}
+
+	void WidgetsUtility::ItemSpacingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(amt, ImGui::GetStyle().ItemSpacing.y));
+	}
+
+	void WidgetsUtility::ItemSpacingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, amt));
+	}
+
+	void WidgetsUtility::ItemSpacing(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, amt);
+	}
+
+	void WidgetsUtility::WindowRounding(float rounding)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);
+	}
+
+	void WidgetsUtility::PopStyleVar()
+	{
+		ImGui::PopStyleVar();
+	}
+
 	void WidgetsUtility::Icon(const char* label, float scale, const ImVec4& color)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
@@ -1087,13 +1181,6 @@ namespace Lina::Editor
 
 	}
 
-	bool WidgetsUtility::Button(const char* label, const ImVec2& size)
-	{
-		FrameRounding(2.0f);
-		bool button = ImGui::Button(label, size);
-		PopStyleVar();
-		return button;
-	}
 
 	ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()
 	{
@@ -1116,12 +1203,12 @@ namespace Lina::Editor
 		bool hovered = ImGui::IsMouseHoveringRect(min, max);
 		bool pressed = ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 
-		ImVec4 toggledColor = ImVec4(0.01f, 0.01f, 0.01f, 1.0f);
-		ImVec4 hoveredColor = ImVec4(0.24f, 0.24f, 0.24f, 1.0f);
-		ImVec4 pressedColor = ImVec4(0.14f, 0.14f, 0.14f, 1.0f);
-		ImVec4 defaultColor = ImVec4(0.18f, 0.18, 0.18f, 1.0f);
+		ImVec4 toggledColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
+		ImVec4 hoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+		ImVec4 pressedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+		ImVec4 defaultColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
 		ImVec4 col = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col));
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col), 4.0f);
 
 		if (tooltip.compare("") != 0 && hovered)
 		{
@@ -1137,7 +1224,6 @@ namespace Lina::Editor
 		ImGui::Text(label);
 		ImGui::PopStyleColor();
 		PopScaledFont();
-
 
 		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			return true;

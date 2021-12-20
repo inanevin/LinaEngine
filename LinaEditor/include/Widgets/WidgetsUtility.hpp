@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -65,9 +65,9 @@ namespace Lina::Editor
 {
 	class WidgetsUtility
 	{
-		
+
 	public:
-		
+
 		/// <summary>
 		/// Draws a simple tooltip pop-up.
 		/// </summary>
@@ -93,8 +93,8 @@ namespace Lina::Editor
 		/// <summary>
 		/// Draws a folder in the style of Resources Panel.
 		/// </summary>
-		static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0,0,0,0));
-		
+		static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0, 0, 0, 0));
+
 		/// <summary>
 		/// Button with color-picker pop-up
 		/// </summary>
@@ -131,24 +131,63 @@ namespace Lina::Editor
 		/// </summary>
 		static void DropShadow();
 
+		/// <summary>
+		/// Draws a horizontal reactangle, with foldout caret, component title, icon, and component buttons.
+		/// </summary>
+		static void ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
+
+		/// <summary>
+		/// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.
+		/// </summary>
+		static bool Header(const char* title, bool* foldoutOpen);
+
+		/// <summary>
+		/// Draws a simple caret and a title, return true upon press. 
+		/// </summary>
+		static bool CaretTitle(const char* title, bool* caretOpen);
+
+		/// <summary>
+		/// Draws a property label, automatically sets the cursor position, asks for the same line.
+		/// </summary>
+		/// <param name="label"></param>
+		static void PropertyLabel(const char* label, bool sameLine = true);
+
+		/// <summary>
+		/// Drop-down combo-box for selecting any loaded material in the project.
+		/// </summary>
+		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
+
+		/// <summary>
+		/// Drop-down combo-box for selecting any loaded model in the project.
+		/// </summary>
+		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
+
+		/// <summary>
+		/// Drop-down combo-box for selecting any loaded shader material in the project.
+		/// </summary>
+		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
+
+		/// <summary>
+		/// Default IMGUI button with fixed styling options.
+		/// </summary>
+		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
+
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
-		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
+		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f, 0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
 		static void ScreenPosLine();
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
-		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
-		static bool Button(const char* label, const ImVec2& size = ImVec2(0,0));
+		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1, 1, 1, .8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static ImVec2 GetWindowPosWithContentRegion();
 		static ImVec2 GetWindowSizeWithContentRegion();
-		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1,1,1,1), float fontScale = 0.75f);
+		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
 		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);
 		static bool Caret(const char* title);
 		static bool CaretAndLabel(const char* title, const char* label);
-		static void ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
 		static void IncrementCursorPos(const ImVec2& v);
@@ -171,15 +210,12 @@ namespace Lina::Editor
 		static void ItemSpacing(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
-		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
-		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
-		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
 
 		static std::map<std::string, bool> s_carets;
 
 	private:
-	
-		static std::map<std::string, std::tuple<bool,bool>> s_iconButtons;
+
+		static std::map<std::string, std::tuple<bool, bool>> s_iconButtons;
 		static std::map<std::string, float> s_debugFloats;
 	};
 }

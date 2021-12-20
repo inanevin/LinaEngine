@@ -25,8 +25,8 @@ set(LINAEDITOR_SOURCES
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
-src/Core/SplashScreen.cpp
-src/Core/MainToolbar.cpp
+
+
 # ECS
 src/ECS/Systems/EditorCameraSystem.cpp
 
@@ -49,7 +49,7 @@ src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
 src/Panels/ProfilerPanel.cpp
 src/Panels/GlobalSettingsPanel.cpp
-
+src/Panels/MainToolbarPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -81,9 +81,7 @@ set(LINAEDITOR_HEADERS
 # Core
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
-include/Core/SplashScreen.hpp
 include/Core/EditorApplication.hpp
-include/Core/MainToolbar.hpp
 include/Core/CustomFontIcons.hpp
 
 # ECS
@@ -99,6 +97,7 @@ include/Drawers/MeshDrawer.hpp
 # Modals
 
 # Panels
+include/Panels/MainToolbarPanel.hpp
 include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
 include/Panels/ResourcesPanel.hpp

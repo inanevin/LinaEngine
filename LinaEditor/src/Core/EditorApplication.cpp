@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Panels/ECSPanel.hpp"
-#include "Core/SplashScreen.hpp"
 #include "Core/GUILayer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -50,22 +49,7 @@ namespace Lina::Editor
 		LINA_TRACE("[Initialize] -> Editor Application ({0})", typeid(*this).name());
 
 		s_editorApplication = this;
-		Lina::WindowProperties splashProps;
-		splashProps.m_width = 720;
-		splashProps.m_height = 450;
-		splashProps.m_decorated = false;
-		splashProps.m_resizable = false;
-
-		//Editor::SplashScreen* splash = new Editor::SplashScreen();
-		//splash->Initialize(splashProps);
-		//splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
-		//
-		//Engine::Get()->StartLoadingResources();
-		//
-		//// Remove splash.
-		//delete splash;
 		m_guiLayer.Initialize();
-
 
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
 		Lina::Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);

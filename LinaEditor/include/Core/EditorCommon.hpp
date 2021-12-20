@@ -112,6 +112,8 @@ namespace Lina::Editor
 	struct EComponentOrderSwapped { ECS::TypeID m_id1; ECS::TypeID m_id2; };
 
 #define EDITOR_CAMERA_NAME "Editor Camera"
+#define CURSOR_X_LABELS 12
+#define CURSOR_X_VALUES ImGui::GetWindowSize().x * 0.3f
 
 	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)

@@ -86,8 +86,7 @@ namespace Lina::Editor
 			ImGui::Begin(m_id, NULL, m_windowFlags);
 			WidgetsUtility::WindowTitlebar(m_id);
 			if (!CanDrawContent()) return;
-
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
+			WidgetsUtility::FramePaddingY(0.0f);
 
 			// Shadow.
 

@@ -54,195 +54,147 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
 			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
 			ImGui::Begin(m_id, NULL, m_windowFlags);
-
 			WidgetsUtility::WindowTitlebar(m_id);
 			if (!CanDrawContent()) return;
-
-			WidgetsUtility::FramePaddingY(0);
+			WidgetsUtility::FramePaddingY(0.0f);
 
 			if (m_currentLevel != nullptr)
 			{
 				Lina::LevelData& levelData = m_currentLevel->GetLevelData();
 
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::IncrementCursorPosY(11);
-
-				WidgetsUtility::AlignedText("Ambient Color");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-				Lina::Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
-				// Material selection
-				if (Lina::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+				static bool levelSettingsOpen = false;
+				if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
 				{
-					levelData.m_selectedSkyboxMatID = levelData.m_skyboxMaterialID;
-					levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
-				}
+					WidgetsUtility::PropertyLabel("Ambient Color");
+					WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
+					Lina::Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 
-
-				// Material selection.
-				char matPathC[128] = "";
-				strcpy(matPathC, levelData.m_skyboxMaterialPath.c_str());
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Material");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-				ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
-				ImGui::SameLine();
-				WidgetsUtility::IncrementCursorPosY(5);
-
-
-				// Material drag & drop.
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+					// Material selection
+					if (Lina::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 					{
-						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
-						levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
+						levelData.m_selectedSkyboxMatID = levelData.m_skyboxMaterialID;
+						levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
+					}
+
+					// Material selection.
+					char matPathC[128] = "";
+					strcpy(matPathC, levelData.m_skyboxMaterialPath.c_str());
+
+					WidgetsUtility::PropertyLabel("Material");
+					bool removed = false;
+					Lina::Graphics::Material* mat = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
+
+					if (removed)
+					{
+						levelData.m_skyboxMaterialID = -1;
+						levelData.m_skyboxMaterialPath = "";
 						m_currentLevel->SetSkyboxMaterial();
 					}
 
-					ImGui::EndDragDropTarget();
-				}
-
-				if (WidgetsUtility::IconButton("##selectmat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				{
-					levelData.m_skyboxMaterialID = -1;
-					levelData.m_skyboxMaterialPath = "";
-					m_currentLevel->SetSkyboxMaterial();
-				}
-
-				if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
-				{
-					auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
-					if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
+					if (mat != nullptr)
 					{
-						auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
-						if (shader.GetPath().compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0)
+						levelData.m_skyboxMaterialID = mat->GetID();
+						levelData.m_skyboxMaterialPath = mat->GetPath();
+					}
+
+					// Material drag & drop.
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 						{
-							if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
+							IM_ASSERT(payload->DataSize == sizeof(uint32));
+							levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
+							levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
+							m_currentLevel->SetSkyboxMaterial();
+						}
+
+						ImGui::EndDragDropTarget();
+					}
+
+					if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+					{
+						auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
+						if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
+						{
+							auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
+							if (shader.GetPath().compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0)
 							{
-								auto& texture = mat.GetTexture("material.environmentMap");
-								if (!texture.GetIsEmpty())
-									Lina::Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
+								if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
+								{
+									auto& texture = mat.GetTexture("material.environmentMap");
+									if (!texture.GetIsEmpty())
+										Lina::Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
+								}
 							}
 						}
 					}
 				}
+
 			}
-
-
-			WidgetsUtility::PopStyleVar();
 
 			Lina::Graphics::RenderSettings& renderSettings = Lina::Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 
-			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
-			WidgetsUtility::FramePaddingY(0);
-			WidgetsUtility::IncrementCursorPosY(12);
+			static bool ppSettingsOpen = false;
+			if (WidgetsUtility::Header("Post Process", &ppSettingsOpen))
+			{
+				static bool toneSettingsOpen = false;
+				static bool fxaaSettingsOpen = false;
+				static bool bloomSettingsOpen = false;
+				static bool vignetteSettingsOpen = false;
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Lighting");
+				if (WidgetsUtility::CaretTitle("Tonemapping", &toneSettingsOpen))
+				{
+					WidgetsUtility::PropertyLabel("Gamma");
+					ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("FXAA");
+					WidgetsUtility::PropertyLabel("Exposure");
+					ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
+				}
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Enabled");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
+				if (WidgetsUtility::CaretTitle("FXAA", &fxaaSettingsOpen))
+				{
+					WidgetsUtility::PropertyLabel("Enabled");
+					ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Reduce Min");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
+					WidgetsUtility::PropertyLabel("Reduce Min");
+					ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Reduce Mul");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
+					WidgetsUtility::PropertyLabel("Reduce Mul");
+					ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Span Max");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
+					WidgetsUtility::PropertyLabel("Span Max");
+					ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
+				}
 
-			WidgetsUtility::IncrementCursorPosY(6);
+				if (WidgetsUtility::CaretTitle("Bloom", &bloomSettingsOpen))
+				{
+					WidgetsUtility::PropertyLabel("Enabled");
+					ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
+				}
 
-			WidgetsUtility::DrawBeveledLine();
-			WidgetsUtility::IncrementCursorPosY(6);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Bloom");
+				if (WidgetsUtility::CaretTitle("Vignette", &vignetteSettingsOpen))
+				{
+					WidgetsUtility::PropertyLabel("Enabled");
+					ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Enabled");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
+					WidgetsUtility::PropertyLabel("Amount");
+					ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
 
-			WidgetsUtility::IncrementCursorPosY(6);
+					WidgetsUtility::PropertyLabel("Pow");
+					ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
 
-			WidgetsUtility::DrawBeveledLine();
-			WidgetsUtility::IncrementCursorPosY(6);
+				}
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Post FX General");
+			}
 
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Gamma");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Exposure");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
-
-			WidgetsUtility::IncrementCursorPosY(6);
-			WidgetsUtility::DrawBeveledLine();
-			WidgetsUtility::IncrementCursorPosY(6);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Vignette Enabled");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Vignette Amount");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Vignette Pow");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
-
-			WidgetsUtility::IncrementCursorPosY(6);
-			WidgetsUtility::DrawBeveledLine();
-			WidgetsUtility::IncrementCursorPosY(6);
 
 			Lina::Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
-			ImGui::SetCursorPosX(cursorPosLabels);
+			ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
-			if (ImGui::Button("Save Settings", ImVec2(90, 30)))
+			if (WidgetsUtility::Button("Save Settings", ImVec2(90, 30)))
 				Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 			ImGui::PopStyleVar();

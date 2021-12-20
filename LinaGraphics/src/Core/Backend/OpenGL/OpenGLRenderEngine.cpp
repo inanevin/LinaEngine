@@ -191,8 +191,8 @@ namespace Lina::Graphics
 		// Reset the viewport & fbo to allow any post render drawing, like GUI.
 		m_renderDevice.SetFBO(0);
 		m_renderDevice.SetViewport(m_screenPos, m_screenSize);
-		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 		m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 	}
 
 	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system)
