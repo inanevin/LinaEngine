@@ -71,8 +71,10 @@ namespace Lina::Resources
 		GLSL = 9,
 		GLH,
 		SPIRV = 11,
-		Font = 12
+		Font = 12,
+		PhysicsMaterial = 13
 	};
+
 
 	extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
 

@@ -42,7 +42,7 @@ namespace Lina::Physics
 		if (MaterialExists(sid))
 		{
 			LINA_WARN("Physics Material already exists with the given name. {0}", name);
-			return;
+			return s_loadedMaterials[sid];
 		}
 
 		PhysicsMaterial& mat = s_loadedMaterials[sid];
@@ -65,14 +65,7 @@ namespace Lina::Physics
 	{
 		StringIDType sid = StringID(path.c_str()).value();
 		PhysicsMaterial& mat = s_loadedMaterials[sid];
-		{
-			std::string data((char*)data, dataSize);
-			std::istringstream stream(data, std::ios::binary);
-			{
-				cereal::PortableBinaryInputArchive iarchive(stream);
-				iarchive(mat);
-			}
-		}
+		
 
 		mat.m_materialID = sid;
 		mat.m_path = path;

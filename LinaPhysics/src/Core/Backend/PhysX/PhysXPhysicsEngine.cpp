@@ -211,15 +211,13 @@ namespace Lina::Physics
 
 	void PhysXPhysicsEngine::AddBodyToWorld(ECS::Entity body)
 	{
-		ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(body);
-		ECS::PhysicsComponent& phyComp = m_ecs->get<ECS::PhysicsComponent>(body);
-		PxTransform pose;
-		pose.p = ToPxVector3(data.GetLocation());
-		pose.q = ToPxQuat(data.GetRotation());
-		PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
+		// ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(body);
+		// ECS::PhysicsComponent& phyComp = m_ecs->get<ECS::PhysicsComponent>(body);
+		// PxTransform pose;
+		// pose.p = ToPxVector3(data.GetLocation());
+		// pose.q = ToPxQuat(data.GetRotation());
+		// PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
 		
-		PxShape* shape = m_pxPhysics->createShape()
-		rigid->attachShape(shape);
 	}
 
 }

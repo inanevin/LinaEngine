@@ -40,6 +40,7 @@ Timestamp: 12/20/2021 10:16:40 PM
 #define PhysicsMaterial_HPP
 
 #include "Utility/StringId.hpp"
+#include <cereal/types/string.hpp>
 
 namespace Lina::Editor
 {
@@ -72,6 +73,13 @@ namespace Lina::Physics
 	private:
 
 		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
+		friend class cereal::access;
+
+		StringIDType m_materialID = -1;
+		std::string m_path = "";
+		float m_staticFriction = 0.5f;
+		float m_dynamicFriction = 0.5f;
+		float m_restitution = 0.5f;
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -79,15 +87,6 @@ namespace Lina::Physics
 			archive(m_staticFriction, m_dynamicFriction, m_restitution);
 		}
 
-	private:
-
-		float m_staticFriction = 0.5f;
-		float m_dynamicFriction = 0.5f;
-		float m_restitution = 0.5f;
-		StringIDType m_materialID = -1;
-		std::string m_path = "";
-
-	
 	};
 }
 

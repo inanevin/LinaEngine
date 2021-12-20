@@ -134,7 +134,7 @@ namespace Lina::Graphics
 		if (MaterialExists(sid))
 		{
 			LINA_WARN("Material already exists with the given path. {0}", path);
-			return;
+			return s_loadedMaterials[sid];
 		}
 
 		// Build material & set it's shader.

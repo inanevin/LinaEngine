@@ -52,6 +52,7 @@ namespace Lina::Resources
 		{ StringID("spv"), ResourceType::SPIRV },
 		{ StringID("ttf"), ResourceType::Font },
 		{ StringID("otf"), ResourceType::Font },
+		{ StringID("phymat"), ResourceType::PhysicsMaterial },
 	};
 
 	ResourceType GetResourceType(const std::string& extension)

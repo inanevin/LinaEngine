@@ -116,6 +116,7 @@ namespace Lina::Event
 	struct ELevelInitialized { };
 
 	// Resources.
+
 	struct ELoadModelResourceFromFile { std::string m_path; std::string m_paramsPath;};
 	struct ELoadImageResourceFromFile { std::string m_path; std::string m_paramsPath; bool m_isHDR; };
 	struct ELoadMaterialResourceFromFile { std::string m_path; };
