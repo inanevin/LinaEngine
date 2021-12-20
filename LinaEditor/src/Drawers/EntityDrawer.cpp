@@ -53,6 +53,10 @@ namespace Lina::Editor
 		Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
 		ImVec2 windowPos = ImGui::GetWindowPos();
 		ImVec2 windowSize = ImGui::GetWindowSize();
+		bool isEditorCamera = m_selectedEntity == ecs->GetEntity("Editor Camera");
+
+		if (isEditorCamera)
+			ImGui::BeginDisabled();
 
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -128,26 +132,23 @@ namespace Lina::Editor
 		}
 		ImGui::PopStyleVar();
 
+		if (isEditorCamera)
+			ImGui::EndDisabled();
+
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
 		WidgetsUtility::FramePaddingX(4);
 		
-		ImVec2 rectMin = ImVec2(windowPos.x, windowPos.y + ImGui::GetCursorPosY());
-		ImVec2 rectMax = ImVec2(rectMin.x + windowSize.x, rectMin.y + 100);
-		ImVec4 rectColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectColor));
+		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		Lina::ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
 			{
-				//m_componentDrawer.DrawComponent(component.hash(), m_selectedEntity);
-				//m_componentDrawer.PushComponentToDraw(component.hash(), m_selectedEntity);
+				m_componentDrawer.PushComponentToDraw(component.hash(), m_selectedEntity);
 			});
 
-		//m_componentDrawer.DrawAllComponents(m_selectedEntity);
-		// Draw the added components.
-		//m_componentDrawer.DrawComponents(m_selectedEntity);
+		m_componentDrawer.DrawAllComponents(m_selectedEntity);
 
 		WidgetsUtility::PopStyleVar();
 

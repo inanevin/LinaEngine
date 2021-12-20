@@ -64,7 +64,7 @@ namespace Lina::Editor
 
 		// Handle click
 		m_isHovered = ImGui::IsMouseHoveringRect(min, max);
-		if (m_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		if (m_isHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 		{
 			if (m_onClick)
 				m_onClick();

@@ -38,32 +38,37 @@ Timestamp: 9/30/2020 2:46:27 AM
 
 #include "ECS/ECSComponent.hpp"
 #include "Math/Vector.hpp"
+#include "Core/Common.hpp"
 
 namespace Lina::ECS
 {
-	enum class CollisionShape
-	{
-		Sphere,
-		BOX,
-		Cylinder,
-		CAPSULE
-	};
-
 	struct PhysicsComponent : public ECSComponent
 	{
-		CollisionShape m_collisionShape = CollisionShape::Sphere;
+		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
 		Lina::Vector3 m_localInertia = Lina::Vector3::Zero;
 		Lina::Vector3 m_halfExtents = Lina::Vector3::Zero; // used for box & cylinder shapes
-		float m_mass = 0.0f;
-		float m_radius = 0.0f; // used for sphere & capsule shapes.
+		float m_mass = 1.0f;
+		float m_radius = 1.0f; // used for sphere & capsule shapes.
 		float m_capsuleHeight = 0.0f; 
-		bool m_alive = false;
+		bool m_isSimulated = false;
 		int m_bodyID = 0;
+		bool m_alive = false; // Added & alive in Physics World
+		Physics::CollisionShape m_boundingBox = Physics::CollisionShape::Box;
+		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::Zero;
+
+		void Reset()
+		{
+			m_mass = 1.0f;
+			m_radius = 1.0f;
+			m_capsuleHeight = 2.0f;
+			m_isSimulated = false;
+			m_collisionShape = Physics::CollisionShape::Box;
+		}
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive, m_isEnabled); 
+			archive(m_collisionShape, m_localInertia, m_isSimulated, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_isSimulated, m_isEnabled); 
 		}
 
 	};

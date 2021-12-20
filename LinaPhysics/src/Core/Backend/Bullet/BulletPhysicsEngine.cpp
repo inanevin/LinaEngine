@@ -136,7 +136,7 @@ namespace Lina::Physics
 		if (physics.m_alive) return;
 
 		Lina::ECS::EntityDataComponent& data = reg.get<Lina::ECS::EntityDataComponent>(ent);
-		btCollisionShape* colShape = GetCollisionShape(physics);
+		btCollisionShape* colShape = GetCreateCollisionShape(physics);
 
 		btTransform transform;
 		transform.setIdentity();
@@ -194,7 +194,7 @@ namespace Lina::Physics
 		m_world->removeRigidBody(rb);
 
 		btCollisionShape* previousShape = rb->getCollisionShape();
-		btCollisionShape* newShape = GetCollisionShape(rbComp);
+		btCollisionShape* newShape = GetCreateCollisionShape(rbComp);
 		rb->setCollisionShape(newShape);
 
 		btVector3 inertia(0, 0, 0);
@@ -214,18 +214,18 @@ namespace Lina::Physics
 			m_world->debugDrawWorld();
 	}
 
-	btCollisionShape* BulletPhysicsEngine::GetCollisionShape(Lina::ECS::PhysicsComponent rb)
+	btCollisionShape* BulletPhysicsEngine::GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb)
 	{
 		btCollisionShape* colShape = nullptr;
 
 		// Build collision shape depending on the type
-		if (rb.m_collisionShape == Lina::ECS::CollisionShape::BOX)
+		if (rb.m_collisionShape == CollisionShape::Box)
 			colShape = new btBoxShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
-		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::Sphere)
+		else if (rb.m_collisionShape == CollisionShape::Sphere)
 			colShape = new btSphereShape(btScalar(rb.m_radius));
-		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::CAPSULE)
+		else if (rb.m_collisionShape == CollisionShape::Capsule)
 			colShape = new btCapsuleShape(btScalar(rb.m_radius), btScalar(rb.m_capsuleHeight));
-		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::Cylinder)
+		else if (rb.m_collisionShape == CollisionShape::Cylinder)
 			colShape = new btCylinderShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
 
 		return colShape;

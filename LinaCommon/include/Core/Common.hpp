@@ -43,8 +43,23 @@ Timestamp: 4/7/2019 3:29:18 PM
 #include <Core/SizeDefinitions.hpp>
 #include "Math/Color.hpp"
 
+
+
+
 namespace Lina
 {
+	namespace Physics
+	{
+		extern std::string COLLISION_SHAPES[4];
+
+		enum class CollisionShape : uint8
+		{
+			Box = 0,
+			Sphere = 1,
+			Cylinder = 2,
+			Capsule = 3,
+		};
+	}
 
 	enum class WindowState
 	{

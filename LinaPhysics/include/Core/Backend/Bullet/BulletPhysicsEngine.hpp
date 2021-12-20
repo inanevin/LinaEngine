@@ -42,7 +42,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "Physics/PhysicsGizmoDrawer.hpp"
+#include "Helpers/PhysicsGizmoDrawer.hpp"
 #include "ECS/Components/AABBComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "btBulletDynamicsCommon.h"
@@ -70,7 +70,7 @@ namespace Lina::Physics
 		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
 
 	private:
-		btCollisionShape* GetCollisionShape(Lina::ECS::PhysicsComponent rb);
+		btCollisionShape* GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb);
 
 	private:
 		friend class Lina::Engine;

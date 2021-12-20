@@ -104,6 +104,8 @@ namespace Lina::Editor
 		void DrawDebugDirectionalLight(Lina::ECS::Entity ent);
 		void PushComponentToDraw(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
 		void DrawAllComponents(Lina::ECS::Entity ent);
+
+		void DrawEntityData(Lina::ECS::Entity ent, bool* transformDataOpen, bool* physicsDataOpen);
 		void DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
 
 	public:
@@ -112,6 +114,8 @@ namespace Lina::Editor
 		int m_currentCollisionShape = 0;
 
 	private:
+
+		void OnTransformPivotChanged(ETransformPivotChanged ev);
 
 		template<typename Type>
 		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true)
@@ -140,7 +144,7 @@ namespace Lina::Editor
 		AddComponentMap m_addComponentMap; 	// Category - vector of pairs - pair.first = component title, pair.second component id.
 		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
 		std::vector<Lina::ECS::TypeID> m_componentDrawList;
-
+		bool m_isTransformPivotGlobal = true;
 	};
 
 

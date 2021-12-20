@@ -30,6 +30,11 @@ SOFTWARE.
 
 namespace Lina
 {
+	namespace Physics
+	{
+		std::string COLLISION_SHAPES[4] = { "Sphere", "Box", "Cylinder", "Capsule" };
+	};
+
 	std::string LogLevelAsString(LogLevel level)
 	{
 		switch (level)

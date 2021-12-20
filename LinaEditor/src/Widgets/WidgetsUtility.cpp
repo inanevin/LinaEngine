@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Drawers/ComponentDrawer.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/CustomFontIcons.hpp"
+#include "Core/PhysicsCommon.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace Lina::Editor
@@ -430,7 +431,7 @@ namespace Lina::Editor
 		WindowButtons(label, 5.0f);
 	}
 
-	void WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted)
+	bool WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton)
 	{
 		const ImVec2 windowSize = ImGui::GetWindowSize();
 		const ImVec2 rectSize = ImVec2(windowSize.x, 25);
@@ -455,17 +456,17 @@ namespace Lina::Editor
 		HorizontalDivider(rectSize.y);
 		ImGui::PopStyleColor();
 
-		static float caretPos = 6;
-		static float labelPos = -4;
-		static float iconPos = 3;
-		static float togglePos = -1.7f;
-		static float moveHandlePos = 2;
-		static float buttonsPos = -4.2f;
-		static float buttonOffsetFromSize1 = 36.0f;
-		static float buttonOffsetFromSize2 = 34.0f;
-		static float buttonWidth = 29.0f;
-		static float buttonHeight = 18.0f;
-		static float buttonRounding = 2.0f;
+		const float caretPos = 6;
+		const float labelPos = -4;
+		const float iconPos = 3;
+		const float togglePos = -1.7f;
+		const float moveHandlePos = 2;
+		const float buttonOffsetFromSize1 = 36.0f;
+		const float buttonOffsetFromSize2 = 34.0f;
+		const float buttonWidth = 29.0f;
+		const float buttonHeight = 18.0f;
+		const float buttonRounding = 2.0f;
+		float buttonsPos = -4.2f;
 
 		// Caret
 		ImGui::SetCursorPosX(12);
@@ -478,54 +479,71 @@ namespace Lina::Editor
 		ImGui::Text(componentLabel);
 
 		// Icon
-		ImGui::SameLine();
-		PushScaledFont(iconScale);
-		IncrementCursorPosY(3);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		IncrementCursorPosY(iconPos);
-		ImGui::Text(componentIcon);
-		ImGui::PopStyleColor();
-		PopScaledFont();
+		if (componentIcon != nullptr)
+		{
+			ImGui::SameLine();
+			PushScaledFont(iconScale);
+			IncrementCursorPosY(3);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			IncrementCursorPosY(iconPos);
+			ImGui::Text(componentIcon);
+			ImGui::PopStyleColor();
+			PopScaledFont();
+		}
 
 		// Toggle
-		ImGui::SameLine();
-		IncrementCursorPosY(togglePos);
-		std::string toggleID = "#tb_" + std::string(componentLabel);
-		ToggleButton(toggleID.c_str(), toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		bool toggleButtonHovered = ImGui::IsItemHovered();
-
-		// Move
-		ImGui::SameLine();
-		PushScaledFont(iconScale);
-		IncrementCursorPosY(moveHandlePos);
-		ImGui::Text(ICON_FA_BARS);
-
-		// Title is the drag and drop target.
-		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		bool toggleButtonHovered = false;
+		if (toggled != nullptr)
 		{
-			// Set payload to carry the type id.
-			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &tid, sizeof(int));
-
-			// Display preview 
-			ImGui::Text("Move ");
-			ImGui::EndDragDropSource();
+			ImGui::SameLine();
+			IncrementCursorPosY(togglePos);
+			std::string toggleID = "#tb_" + std::string(componentLabel);
+			ToggleButton(toggleID.c_str(), toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			toggleButtonHovered = ImGui::IsItemHovered();
 		}
+		else 
+			buttonsPos += 4.0f;
+
 
 		bool wasDraggedDropped = false;
-		// Dropped on another title, swap component orders.
-		if (ImGui::BeginDragDropTarget())
+		PushScaledFont(iconScale);
+
+		if (moveButton)
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
+			// Move
+			ImGui::SameLine();
+			IncrementCursorPosY(moveHandlePos);
+			ImGui::Text(ICON_FA_BARS);
+
+			// Title is the drag and drop target.
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
-				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
-				Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->Data;
-				Lina::Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{ payloadID, tid });
+				// Set payload to carry the type id.
+				ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &tid, sizeof(int));
+
+				// Display preview 
+				ImGui::Text("Move ");
+				ImGui::EndDragDropSource();
 			}
 
-			wasDraggedDropped = true;
+			// Dropped on another title, swap component orders.
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
+					Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->Data;
+					Lina::Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{ payloadID, tid });
+				}
 
-			ImGui::EndDragDropTarget();
+				wasDraggedDropped = true;
+
+				ImGui::EndDragDropTarget();
+			}
 		}
+		else
+			buttonsPos += 2.0f;
+
 
 		ImGui::SameLine();
 		IncrementCursorPosY(buttonsPos);
@@ -554,15 +572,15 @@ namespace Lina::Editor
 			ImVec4 buttonLockedColor = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 			ImVec4 buttonNormalColor = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
 			ImVec4 buttonHoverColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-			ImGui::PushStyleColor(ImGuiCol_Button, buttonNormalColor);
-			ImGui::PushStyleColor(ImGuiCol_ButtonLocked, buttonLockedColor);
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoverColor);
+			//ImGui::PushStyleColor(ImGuiCol_Button, buttonNormalColor);
+			//ImGui::PushStyleColor(ImGuiCol_ButtonLocked, buttonLockedColor);
+			//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoverColor);
 			const std::string id = componentHeaderID + std::to_string(i);
 			bool buttonHovered = false;
 			bool buttonPressed = CustomButton(id.c_str(), ImVec2(buttonWidth, buttonHeight), &buttonHovered, locked, buttons[i].first, buttonRounding, buttonNames[i].c_str());
-			ImGui::PopStyleColor();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleColor();
+			//ImGui::PopStyleColor();
+			//ImGui::PopStyleColor();
+			//ImGui::PopStyleColor();
 
 			if (!locked && buttonHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 				*(buttons[i].second) = true;
@@ -576,12 +594,13 @@ namespace Lina::Editor
 			}
 		}
 
+
 		PopScaledFont();
 
 		if (!wasDraggedDropped && !anyButtonRectHovered && !toggleButtonHovered && isPressed)
 			*foldoutOpen = !(*foldoutOpen);
 
-
+		return *foldoutOpen;
 	}
 
 	bool WidgetsUtility::Header(const char* label, bool* foldoutOpen)
@@ -689,7 +708,6 @@ namespace Lina::Editor
 			ImGui::SetCursorPosX(CURSOR_X_VALUES);
 		}
 	}
-
 
 	Lina::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
 	{
@@ -864,6 +882,36 @@ namespace Lina::Editor
 		return shaderToReturn;
 	}
 
+	int Lina::Editor::WidgetsUtility::CollisionShapeComboBox(const char* comboID, int currentShapeID)
+	{
+		int shapeToReturn = currentShapeID;
+
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		float comboWidth = remaining - 12.4f;
+		if (ImGui::BeginCombo(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str()))
+		{
+			int counter = 0;
+			for (auto& shape : Lina::Physics::COLLISION_SHAPES)
+			{
+				const bool selected = currentShapeID == counter;
+
+				if (ImGui::Selectable(Lina::Physics::COLLISION_SHAPES[counter].c_str(), selected))
+					shapeToReturn = counter;
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+
+				counter++;
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return shapeToReturn;
+	}
+
 	bool WidgetsUtility::Button(const char* label, const ImVec2& size)
 	{
 		FrameRounding(4.0f);
@@ -872,6 +920,43 @@ namespace Lina::Editor
 		return button;
 	}
 
+	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color, float scale)
+	{
+		ImGui::SetCursorPosY(cursorPosY);
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		ImVec2 min = ImVec2(windowPos.x + ImGui::GetCursorPosX(), windowPos.y + ImGui::GetCursorPosY());
+		ImVec2 max = ImVec2(windowPos.x + ImGui::GetCursorPosX() + size.x, windowPos.y + ImGui::GetCursorPosY() + size.y);
+
+		bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(min, max);
+		bool pressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+
+		ImVec4 toggledColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
+		ImVec4 hoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+		ImVec4 pressedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+		ImVec4 defaultColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+		ImVec4 col = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col), 4.0f);
+
+		if (tooltip.compare("") != 0 && hovered)
+		{
+			Tooltip(tooltip.c_str());
+		}
+
+		const float yIncrement = size.y / 4.0f + 1;
+		const float currentCursorPos = ImGui::GetCursorPosY();
+		IncrementCursorPosY(yIncrement);
+		IncrementCursorPosX(size.x / 4.0f + 1);
+		PushScaledFont(scale);
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
+		ImGui::Text(label);
+		ImGui::PopStyleColor();
+		PopScaledFont();
+
+		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			return true;
+
+		return false;
+	}
 
 	bool WidgetsUtility::SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size)
 	{
@@ -995,7 +1080,6 @@ namespace Lina::Editor
 
 		return s_carets[title];
 	}
-
 
 	void WidgetsUtility::IncrementCursorPosX(float f)
 	{
@@ -1151,7 +1235,6 @@ namespace Lina::Editor
 		return pressed;
 	}
 
-
 	bool WidgetsUtility::IconButton(const char* id, const char* label, float width, float scale, const ImVec4& color, const ImVec4& hoverColor, const ImVec4& pressedColor, bool disabled)
 	{
 		if (width != 0.0f)
@@ -1181,7 +1264,6 @@ namespace Lina::Editor
 
 	}
 
-
 	ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()
 	{
 		return ImVec2(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowPos().x, ImGui::GetWindowContentRegionMin().y + ImGui::GetWindowPos().y);
@@ -1193,42 +1275,5 @@ namespace Lina::Editor
 		return ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetWindowSize().y + yDiff);
 	}
 
-	bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color, float scale)
-	{
-		ImGui::SetCursorPosY(cursorPosY);
-		ImVec2 windowPos = ImGui::GetWindowPos();
-		ImVec2 min = ImVec2(windowPos.x + ImGui::GetCursorPosX(), windowPos.y + ImGui::GetCursorPosY());
-		ImVec2 max = ImVec2(windowPos.x + ImGui::GetCursorPosX() + size.x, windowPos.y + ImGui::GetCursorPosY() + size.y);
-
-		bool hovered = ImGui::IsMouseHoveringRect(min, max);
-		bool pressed = ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-
-		ImVec4 toggledColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
-		ImVec4 hoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-		ImVec4 pressedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-		ImVec4 defaultColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-		ImVec4 col = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col), 4.0f);
-
-		if (tooltip.compare("") != 0 && hovered)
-		{
-			Tooltip(tooltip.c_str());
-		}
-
-		const float yIncrement = size.y / 4.0f + 1;
-		const float currentCursorPos = ImGui::GetCursorPosY();
-		IncrementCursorPosY(yIncrement);
-		IncrementCursorPosX(size.x / 4.0f + 1);
-		PushScaledFont(scale);
-		ImGui::PushStyleColor(ImGuiCol_Text, color);
-		ImGui::Text(label);
-		ImGui::PopStyleColor();
-		PopScaledFont();
-
-		if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-			return true;
-
-		return false;
-	}
 
 }

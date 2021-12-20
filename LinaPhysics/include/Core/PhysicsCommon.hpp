@@ -27,45 +27,24 @@ SOFTWARE.
 */
 
 /*
-Class: EntityDrawer
+Class: PhysicsCommon
 
-Responsible for drawing the selected entity properties, name, layers etc. as well as initiating
-component draw for that entity.
 
-Timestamp: 10/12/2020 1:02:29 AM
+
+Timestamp: 12/20/2021 1:05:42 PM
 */
 
 #pragma once
 
-#ifndef EntityDrawer_HPP
-#define EntityDrawer_HPP
+#ifndef PhysicsCommon_HPP
+#define PhysicsCommon_HPP
 
-#include "ECS/ECS.hpp"
-#include "ComponentDrawer.hpp"
+// Headers here.
 
-namespace Lina::Editor
+
+namespace Lina::Physics
 {
-	class EntityDrawer
-	{
-	public:
 
-		EntityDrawer() {};
-		~EntityDrawer() {};
-		
-		void Initialize();
-		void SetSelectedEntity(Lina::ECS::Entity entity);
-		void DrawSelectedEntity();
-		void DrawEntityData();
-		void AddComponentPopup();
-
-	private:
-
-		ComponentDrawer m_componentDrawer;
-		Lina::ECS::Entity m_selectedEntity;
-		bool m_shouldCopyEntityName = true;
-		bool m_transformationFoldoutOpen = false;
-		bool m_physicsFoldoutOpen = false;
-	};
 }
 
 #endif

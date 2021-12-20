@@ -61,10 +61,10 @@ void ExampleLevel::Initialize()
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
-	Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
-	auto entity = ECS::Registry::Get()->GetEntity("Entity");
-	ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
-	mr.SetModel(entity, Graphics::Model::GetModel("resources/sandbox/Target/RicochetTarget.fbx"));
+	//Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
+	//auto entity = ECS::Registry::Get()->GetEntity("Entity");
+	//ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+	//mr.SetModel(entity, Graphics::Model::GetModel("resources/sandbox/Target/RicochetTarget.fbx"));
 
 }
 

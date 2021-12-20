@@ -29,6 +29,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "ECS/ECS.hpp"  
 #include "Log/Log.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "..\..\include\ECS\Components\EntityDataComponent.hpp"
 
@@ -164,6 +165,7 @@ namespace Lina::ECS
 	{
 		entt::entity ent = create();
 		emplace<EntityDataComponent>(ent, EntityDataComponent( false, true, true, name ));
+		emplace<PhysicsComponent>(ent, PhysicsComponent());
 		return ent;
 	}
 

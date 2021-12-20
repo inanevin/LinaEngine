@@ -24,7 +24,7 @@ set (LINAPHYSICS_SOURCES
 
 	#Physics
 	src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
-	src/Physics/PhysicsGizmoDrawer.cpp
+	src/Helpers/PhysicsGizmoDrawer.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 
 )
@@ -38,9 +38,10 @@ set(LINAPHYSICS_HEADERS
 	include/Core/Backend/Bullet/BulletPhysicsEngine.hpp
 	include/Core/PhysicsBackend.hpp
 	include/Core/PhysicsBackendFwd.hpp
+	include/Core/PhysicsCommon.hpp
 
 	
-	include/Physics/PhysicsGizmoDrawer.hpp
+	include/Helpers/PhysicsGizmoDrawer.hpp
 	include/ECS/Systems/RigidbodySystem.hpp
 	include/ECS/Components/AABBComponent.hpp
 )

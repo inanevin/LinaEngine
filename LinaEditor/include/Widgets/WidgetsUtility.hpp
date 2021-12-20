@@ -134,7 +134,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Draws a horizontal reactangle, with foldout caret, component title, icon, and component buttons.
 		/// </summary>
-		static void ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted);
+		static bool ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton = true);
 
 		/// <summary>
 		/// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.
@@ -168,9 +168,19 @@ namespace Lina::Editor
 		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
 
 		/// <summary>
+		/// Drop-down combo-box for selecting collision shapes.
+		/// </summary>
+		static int CollisionShapeComboBox(const char* comboID, int currentShapeID);
+
+		/// <summary>
 		/// Default IMGUI button with fixed styling options.
 		/// </summary>
 		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
+
+		/// <summary>
+		/// Draws icon buttons used in the main toolbar.
+		/// </summary>
+		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
@@ -182,7 +192,6 @@ namespace Lina::Editor
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1, 1, 1, .8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static ImVec2 GetWindowPosWithContentRegion();
 		static ImVec2 GetWindowSizeWithContentRegion();
-		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
 		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);

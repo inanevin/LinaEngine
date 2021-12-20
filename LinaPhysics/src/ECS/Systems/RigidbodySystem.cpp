@@ -41,7 +41,7 @@ namespace Lina::ECS
 		for (auto entity : view)
 		{
 			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
-			if (!phyComp.m_isEnabled) continue;
+			if (!phyComp.m_isSimulated) continue;
 
 			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 

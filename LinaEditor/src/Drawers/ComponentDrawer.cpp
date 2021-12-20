@@ -58,14 +58,6 @@ namespace Lina::Editor
 #define CURSORPOS_XPERC_VALUES 0.32f
 #define CURSORPOS_XPERC_VALUES2 0.545f
 
-	const char* rigidbodyShapes[]
-	{
-		"SPHERE",
-		"BOX",
-		"CYLINDER",
-		"CAPSULE"
-	};
-
 
 	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
 	std::pair<Lina::ECS::Entity, Lina::ECS::TypeID> m_copyBuffer;
@@ -108,7 +100,22 @@ namespace Lina::Editor
 	template<typename Type>
 	void Drawer_Reset(Lina::ECS::Entity entity)
 	{
-		Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
+		ECS::TypeID tid = GetTypeID<Type>();
+
+		if (tid == GetTypeID<EntityDataComponent>())
+		{
+			EntityDataComponent& comp = Lina::ECS::Registry::Get()->get<EntityDataComponent>(entity);
+			comp.SetLocalLocation(Vector3::Zero);
+			comp.SetLocalRotation(Quaternion());
+			comp.SetLocalScale(Vector3::One);
+		}
+		else if (tid == GetTypeID<PhysicsComponent>())
+		{
+			PhysicsComponent& comp = Lina::ECS::Registry::Get()->get<PhysicsComponent>(entity);
+			comp.Reset();
+		}
+		else
+			Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
 	}
 
 	template<typename Type>
@@ -133,19 +140,32 @@ namespace Lina::Editor
 		{
 			if (m_copyBuffer.first != entt::null)
 			{
-				Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
-
-				if (copy != nullptr)
+				if (pastedTid == GetTypeID<EntityDataComponent>())
 				{
-					Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
-					Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
+					EntityDataComponent& copy = Lina::ECS::Registry::Get()->get<EntityDataComponent>(m_copyBuffer.first);
+
+					auto& data = Lina::ECS::Registry::Get()->get<EntityDataComponent>(entity);
+					data.SetLocation(copy.GetLocation());
+					data.SetRotation(copy.GetRotation());
+					data.SetScale(copy.GetScale());
 				}
+				else
+				{
+					Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
+
+					if (copy != nullptr)
+					{
+						Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
+						Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
+					}
+				}
+			
 			}
 		}
 
 		// If we pasted a model renderer, it's data will be copied but we still need to 
 		// manually set the pasted model & materials on the renderer.
-		if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
+		if (pastedTid == GetTypeID<ModelRendererComponent>())
 		{
 			auto& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(entity);
 			std::string modelPath = mr.GetModelPath();
@@ -165,7 +185,7 @@ namespace Lina::Editor
 			else
 				mr.RemoveModel(entity);
 
-			
+
 		}
 
 	}
@@ -210,7 +230,7 @@ namespace Lina::Editor
 
 	ComponentDrawer::ComponentDrawer()
 	{
-		uint8 defaultDrawFlags = ComponentDrawFlags_None | ComponentDrawFlags_NoCopy;
+		uint8 defaultDrawFlags = ComponentDrawFlags_None;
 		// Camera component
 		entt::meta<CameraComponent>().data<&CameraComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs).props(PROPS("Far", ComponentVariableType::DragFloat));
@@ -284,6 +304,7 @@ namespace Lina::Editor
 	void ComponentDrawer::Initialize()
 	{
 		Lina::Event::EventSystem::Get()->Connect<EComponentOrderSwapped, &ComponentDrawer::OnComponentOrderSwapped>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ComponentDrawer::OnTransformPivotChanged>(this);
 	}
 
 	void ComponentDrawer::AddIDToDrawList(Lina::ECS::TypeID id)
@@ -322,7 +343,7 @@ namespace Lina::Editor
 				Lina::ECS::TypeID tid = pair.second;
 				auto meta = entt::resolve(tid);
 				bool hasComponent = meta.func("has"_hs).invoke({}, entity).cast<bool>();
-				
+
 				if (!hasComponent)
 				{
 					map[category.first].push_back(std::make_pair(pair.first, tid));
@@ -375,6 +396,105 @@ namespace Lina::Editor
 			DrawComponent(tid, ent);
 	}
 
+	void ComponentDrawer::OnTransformPivotChanged(ETransformPivotChanged ev)
+	{
+		m_isTransformPivotGlobal = ev.m_isGlobal;
+	}
+
+	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
+	{
+		auto* ecs = Lina::ECS::Registry::Get();
+		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
+		Lina::ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
+		bool disabled = entity == ecs->GetEntity("Editor Camera");
+
+		const std::string caretLabel = "Transformation " + std::string((m_isTransformPivotGlobal ? "(Global)" : "(Local)"));
+		bool copied = false;
+		bool pasted = false;
+		bool resetted = false;
+
+		if (disabled)
+			ImGui::BeginDisabled();
+
+		if (WidgetsUtility::ComponentHeader(entityDataTid, transformFoldoutOpen, caretLabel.c_str(), nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr :  &pasted, disabled ? nullptr :  &resetted, false))
+		{
+			WidgetsUtility::PropertyLabel("Location");
+			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
+			ImGui::DragFloat3("##loc", &location.x);
+			data.SetLocalLocation(location);
+
+			WidgetsUtility::PropertyLabel("Rotation");
+			glm::vec3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
+			ImGui::DragFloat3("##rot", &rot.x);
+			data.SetLocalRotationAngles(rot);
+
+			WidgetsUtility::PropertyLabel("Scale");
+			Vector3 scale = m_isTransformPivotGlobal ? data.GetScale() : data.GetLocalScale();
+			ImGui::DragFloat3("##scale", &scale.x);
+			data.SetLocalScale(scale);
+		}
+
+		if (copied)
+			Drawer_Copy(entity, entityDataTid);
+
+		if (pasted)
+			Drawer_Paste<EntityDataComponent>(entity);
+
+		if (resetted)
+			Drawer_Reset<EntityDataComponent>(entity);
+
+		Lina::ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
+		PhysicsComponent& phy = ecs->get<PhysicsComponent>(entity);
+
+		copied = pasted = resetted = false;
+		if (WidgetsUtility::ComponentHeader(entityDataTid, physicsFoldoutOpen, "Physics", nullptr, nullptr, nullptr, disabled ? nullptr :  &copied, disabled ? nullptr :  &pasted, disabled ? nullptr :  &resetted, false))
+		{
+
+			WidgetsUtility::PropertyLabel("Simulated");
+			ImGui::Checkbox("##enabled", &phy.m_isEnabled);
+
+			WidgetsUtility::PropertyLabel("Mass");
+			ImGui::DragFloat("##mass", &phy.m_mass);
+
+			WidgetsUtility::PropertyLabel("Shape");
+			phy.m_collisionShape = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("Collision Shape", (int)phy.m_collisionShape);
+
+			if (phy.m_collisionShape == Physics::CollisionShape::Box || phy.m_collisionShape == Physics::CollisionShape::Cylinder)
+			{
+				WidgetsUtility::PropertyLabel("Half Extents");
+				ImGui::DragFloat3("##halfextents", &phy.m_halfExtents.x);
+			}
+			else if (phy.m_collisionShape == Physics::CollisionShape::Sphere)
+			{
+				WidgetsUtility::PropertyLabel("Radius");
+				ImGui::DragFloat("##radius", &phy.m_radius);
+			}
+			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
+			{
+				WidgetsUtility::PropertyLabel("Radius");
+				ImGui::DragFloat("##radius", &phy.m_radius);
+
+				WidgetsUtility::PropertyLabel("Height");
+				ImGui::DragFloat("##height", &phy.m_capsuleHeight);
+			}
+
+			if (WidgetsUtility::CustomButton("Apply", ImVec2(60,30)))
+				Lina::ECS::Registry::Get()->replace<Lina::ECS::PhysicsComponent>(entity, phy);
+		}
+
+		if (copied)
+			Drawer_Copy(entity, entityDataTid);
+
+		if (pasted)
+			Drawer_Paste<PhysicsComponent>(entity);
+
+		if (resetted)
+			Drawer_Reset<PhysicsComponent>(entity);
+
+		if (disabled)
+			ImGui::EndDisabled();
+	}
+
 	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
 	{
 		auto* ecs = ECS::Registry::Get();
@@ -407,7 +527,7 @@ namespace Lina::Editor
 			if (remove)
 			{
 				resolvedData.func("remove"_hs).invoke({}, ent);
-				
+
 				for (std::vector<Lina::ECS::TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
 				{
 					if (*it == tid)
@@ -428,7 +548,7 @@ namespace Lina::Editor
 			if (paste)
 				resolvedData.func("paste"_hs).invoke({}, ent);
 
-			
+
 
 			if (m_componentFoldoutState[tid])
 			{
@@ -615,26 +735,7 @@ namespace Lina::Editor
 
 	}
 
-	/*void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
-		TypeID id = GetTypeID<EntityDataComponent>();
-
-		bool foldoutOpen = m_foldoutStateMap[entity][id];
-		float sizeY = foldoutOpen ? 15 : 100;
-		bool enabled = false;
-		bool close, copy, reset = false;
-		bool actv = false;
-		//WidgetsUtility::ComponentHeader(&enabled, "Entity Data", ICON_FA_ADDRESS_BOOK, &actv, &close, &copy, &reset);
-		//ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
-		//ImGui::BeginChild("##entity_data", ImVec2(0, 0), ImGuiWindowFlags_NoDecoration);
-		//
-		//
-		//ImGui::EndChild();
-		//ImGui::PopStyleColor();
-	}
+	/*
 
 	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Entity entity)
 	{
@@ -729,9 +830,9 @@ namespace Lina::Editor
 
 		// Draw bevel line
 		WidgetsUtility::DrawBeveledLine();
-	} 
-	
-	
+	}
+
+
 	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Entity entity)
 	{
 		// Get component
