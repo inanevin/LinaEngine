@@ -172,12 +172,15 @@ namespace Lina::Editor
 		/// </summary>
 		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
 
-
 		/// <summary>
 		/// Drop-down combo-box for selecting any loaded physics material in the project.
 		/// </summary>
 		static Lina::Physics::PhysicsMaterial* PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
 
+		/// <summary>
+		/// Drop-down combo-box for selecting physics simulation type.
+		/// </summary>
+		static int SimulationTypeComboBox(const char* comboID, int currentShapeID);
 
 		/// <summary>
 		/// Drop-down combo-box for selecting collision shapes.
@@ -194,6 +197,123 @@ namespace Lina::Editor
 		/// </summary>
 		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 
+		/// <summary>
+		/// Returns current window position, excluding the window's title bar.
+		/// </summary>
+		/// <returns></returns>
+		static ImVec2 GetWindowPosWithContentRegion();
+
+		/// <summary>
+		/// Returns current window size, excluding the window's title bar.
+		/// </summary>
+		/// <returns></returns>
+		static ImVec2 GetWindowSizeWithContentRegion();
+
+		/// <summary>
+		/// Draws a text centered within the current window.
+		/// </summary>
+		static void CenteredText(const char* label);
+
+		/// <summary>
+		/// Sets ImGui cursor position X & Y to the current window center.
+		/// </summary>
+		static void CenterCursor();
+
+		/// <summary>
+		/// Sets ImGui cursor position X to current window center.
+		/// </summary>
+		static void CenterCursorX();
+
+		/// <summary>
+		/// Sets ImGui cursor position Y to current window center.
+		/// </summary>
+		static void CenterCursorY();
+
+		/// <summary>
+		/// Increments ImGui Cursor, both X & Y.
+		/// </summary>
+		static void IncrementCursorPos(const ImVec2& v);
+
+		/// <summary>
+		/// Increments ImGui Cursor Pos X
+		/// </summary>
+		static void IncrementCursorPosX(float f);
+
+		/// <summary>
+		/// Increments ImGui Cursor Pos Y
+		/// </summary>
+		static void IncrementCursorPosY(float f);
+
+		/// <summary>
+		/// Use Push & Pop Scaled Font functions to scale only a single text/icon item.
+		/// </summary>
+		static void PushScaledFont(float defaultScale = 0.6f);
+
+		/// <summary>
+		/// Use Push & Pop Scaled Font functions to scale only a single text/icon item.
+		/// </summary>
+		static void PopScaledFont();
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_FramePadding X & Y
+		/// </summary>
+		static void FramePadding(const ImVec2& amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_FramePadding X
+		/// </summary>
+		static void FramePaddingX(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_FramePadding Y
+		/// </summary>
+		static void FramePaddingY(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_FrameRounding
+		/// </summary>
+		static void FrameRounding(float rounding);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_WindowPadding, both X & Y
+		/// </summary>
+		static void WindowPadding(const ImVec2& amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_WindowPadding X
+		/// </summary>
+		static void WindowPaddingX(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_WindowPadding Y
+		/// </summary>
+		static void WindowPaddingY(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_ItemSpacing, both X & Y
+		/// </summary>
+		static void ItemSpacing(const ImVec2& amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_ItemSpacing X
+		/// </summary>
+		static void ItemSpacingX(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_ItemSpacing Y
+		/// </summary>
+		static void ItemSpacingY(float amt);
+
+		/// <summary>
+		/// ImGui Styling option, pushes ImGuiStyleVar_WindowRounding, both X & Y
+		/// </summary>
+		static void WindowRounding(float rounding);
+
+		/// <summary>
+		/// Pops ImGui StyleVar Stack (ImGui::PopStyleVar)
+		/// </summary>
+		static void PopStyleVar();
+
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f, 0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
@@ -202,35 +322,14 @@ namespace Lina::Editor
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1, 1, 1, .8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
-		static ImVec2 GetWindowPosWithContentRegion();
-		static ImVec2 GetWindowSizeWithContentRegion();
 		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
 		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);
 		static bool Caret(const char* title);
 		static bool CaretAndLabel(const char* title, const char* label);
-		static void IncrementCursorPosX(float f);
-		static void IncrementCursorPosY(float f);
-		static void IncrementCursorPos(const ImVec2& v);
-		static void CenteredText(const char* label);
-		static void CenterCursorX();
-		static void CenterCursorY();
-		static void CenterCursor();
+
 		static float DebugFloat(const char* id = "debug", bool currentWindow = false);
-		static void PushScaledFont(float defaultScale = 0.6f);
-		static void PopScaledFont();
-		static void FramePaddingX(float amt);
-		static void FramePaddingY(float amt);
-		static void FramePadding(const ImVec2& amt);
-		static void FrameRounding(float rounding);
-		static void WindowPaddingX(float amt);
-		static void WindowPaddingY(float amt);
-		static void WindowPadding(const ImVec2& amt);
-		static void ItemSpacingX(float amt);
-		static void ItemSpacingY(float amt);
-		static void ItemSpacing(const ImVec2& amt);
-		static void WindowRounding(float rounding);
-		static void PopStyleVar();
+
 
 		static std::map<std::string, bool> s_carets;
 

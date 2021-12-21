@@ -65,8 +65,6 @@ namespace Lina::Physics
 	{
 		StringIDType sid = StringID(path.c_str()).value();
 		PhysicsMaterial& mat = s_loadedMaterials[sid];
-		
-
 		mat.m_materialID = sid;
 		mat.m_path = path;
 		return mat;

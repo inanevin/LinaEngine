@@ -57,8 +57,8 @@ namespace Lina::World
 
 			std::ofstream levelDataStream(finalPath, std::ios::binary);
 			{
-				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); 
-				oarchive(m_levelData); 
+				cereal::PortableBinaryOutputArchive oarchive(levelDataStream);
+				oarchive(m_levelData);
 				registry->SerializeComponentsInRegistry(oarchive);
 			}
 		}
@@ -87,7 +87,7 @@ namespace Lina::World
 		{
 			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
 				LoadLevelResources();
-		 }
+		}
 
 		return true;
 	}
@@ -107,7 +107,7 @@ namespace Lina::World
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
 
-			// Load the model pointed by the model renderer.
+			// Assign model pointed by the model renderer.
 			if (Graphics::Model::ModelExists(mr.m_modelPath))
 				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
 
@@ -121,8 +121,20 @@ namespace Lina::World
 				{
 					if (Graphics::Material::MaterialExists(meshRenderer->m_materialPath))
 						meshRenderer->m_materialID = Graphics::Material::GetMaterial(meshRenderer->m_materialPath).GetID();
+					else
+					{
+						Graphics::Material& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+						meshRenderer->m_materialID = mat.GetID();
+						meshRenderer->m_materialPath = mat.GetPath();
+					}
 
-					meshRenderer->m_modelID = Graphics::Model::GetModel(meshRenderer->m_modelPath).GetID();
+					if (Graphics::Model::ModelExists(meshRenderer->m_modelPath))
+						meshRenderer->m_modelID = Graphics::Model::GetModel(meshRenderer->m_modelPath).GetID();
+					else
+					{
+						meshRenderer->m_modelID = -1;
+						meshRenderer->m_modelPath = "";
+					}
 				}
 			}
 		}
@@ -137,6 +149,31 @@ namespace Lina::World
 			{
 				Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPaths);
 				sprite.m_materialID = mat.GetID();
+			}
+			else
+			{
+				Graphics::Material& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultSprite.mat");
+				sprite.m_materialID = mat.GetID();
+				sprite.m_materialPaths = mat.GetPath();
+			}
+		}
+
+		auto viewPhysics = ecs->view<ECS::PhysicsComponent>();
+
+		for (ECS::Entity entity : viewPhysics)
+		{
+			ECS::PhysicsComponent& phy = viewPhysics.get<ECS::PhysicsComponent>(entity);
+
+			if (Physics::PhysicsMaterial::MaterialExists(phy.GetMaterialPath()))
+			{
+				Physics::PhysicsMaterial& mat = Physics::PhysicsMaterial::GetMaterial(phy.GetMaterialPath());
+				phy.m_physicsMaterialID = mat.GetID();
+			}
+			else
+			{
+				Physics::PhysicsMaterial& mat = Physics::PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
+				phy.m_physicsMaterialID = mat.GetID();
+				phy.m_physicsMaterialPath = mat.GetPath();
 			}
 		}
 

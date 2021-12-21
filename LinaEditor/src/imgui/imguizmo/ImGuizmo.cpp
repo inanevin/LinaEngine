@@ -1311,6 +1311,8 @@ namespace ImGuizmo
 
       drawList->AddCircleFilled(gContext.mScreenSquareCenter, 6.f, colors[0], 32);
 
+      if (!canManipulate) return;
+
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID))
       {
          ImVec2 sourcePosOnScreen = worldToPos(gContext.mMatrixOrigin, gContext.mViewProjection);

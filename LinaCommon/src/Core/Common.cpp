@@ -33,6 +33,7 @@ namespace Lina
 	namespace Physics
 	{
 		std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
+		std::string SIMULATION_TYPES[3] = { "None", "Static", "Dynamic" };
 	};
 
 	namespace Resources

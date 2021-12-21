@@ -32,21 +32,25 @@ namespace Lina::ECS
 {
 	void EntityDataComponent::AddRotation(const Vector3& angles)
 	{
+		if (m_isTransformLocked) return;
 		SetRotationAngles(GetRotationAngles() + angles);
 	}
 
 	void EntityDataComponent::AddLocaRotation(const Vector3& angles)
 	{
+		if (m_isTransformLocked) return;
 		SetLocalRotationAngles(GetLocalRotationAngles() + angles);
 	}
 
 	void EntityDataComponent::AddLocation(const Vector3& loc)
 	{
+		if (m_isTransformLocked) return;
 		SetLocation(GetLocation() + loc);
 	}
 
 	void EntityDataComponent::AddLocalLocation(const Vector3& loc)
 	{
+		if (m_isTransformLocked) return;
 		SetLocalLocation(GetLocalLocation() + loc);
 	}
 
@@ -61,6 +65,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetLocalLocation(const Vector3& loc)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_localLocation = loc;
 		UpdateGlobalLocation();
 
@@ -72,6 +77,7 @@ namespace Lina::ECS
 	}
 	void EntityDataComponent::SetLocation(const Vector3& loc)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_previousLocation = m_transform.m_location;
 		m_transform.m_location = loc;
 		UpdateLocalLocation();
@@ -85,6 +91,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_localRotation = rot;
 		m_transform.m_localRotationAngles = rot.GetEuler();
 		UpdateGlobalRotation();
@@ -101,6 +108,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetLocalRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_localRotationAngles = angles;
 		m_transform.m_localRotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
 		UpdateGlobalRotation();
@@ -117,6 +125,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_previousAngles = m_transform.m_rotationAngles;
 		m_transform.m_rotation = rot;
 		m_transform.m_rotationAngles = rot.GetEuler();
@@ -134,6 +143,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_previousAngles = m_transform.m_rotationAngles;
 		m_transform.m_rotationAngles = angles;
 		m_transform.m_rotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
@@ -151,6 +161,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetLocalScale(const Vector3& scale, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_localScale = scale;
 		UpdateGlobalScale();
 
@@ -166,6 +177,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::SetScale(const Vector3& scale, bool isThisPivot)
 	{
+		if (m_isTransformLocked) return;
 		m_transform.m_previousScale = m_transform.m_scale;
 		m_transform.m_scale = scale;
 		UpdateLocalScale();
@@ -182,6 +194,7 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateGlobalLocation()
 	{
+		if (m_isTransformLocked) return;
 
 		if (m_parent == entt::null)
 		{
@@ -206,6 +219,8 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateLocalLocation()
 	{
+		if (m_isTransformLocked) return;
+
 		if (m_parent == entt::null)
 			m_transform.m_localLocation = m_transform.m_location;
 		else
@@ -218,6 +233,8 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateGlobalScale()
 	{
+		if (m_isTransformLocked) return;
+
 		if (m_parent == entt::null)
 		{
 			m_transform.m_previousScale = m_transform.m_scale;
@@ -241,6 +258,8 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateGlobalRotation()
 	{
+		if (m_isTransformLocked) return;
+
 		if (m_parent == entt::null)
 		{
 			m_transform.m_previousAngles = m_transform.m_rotationAngles;
@@ -267,6 +286,8 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateLocalScale()
 	{
+		if (m_isTransformLocked) return;
+
 		if (m_parent == entt::null)
 			m_transform.m_localScale = m_transform.m_scale;
 		else
@@ -279,6 +300,8 @@ namespace Lina::ECS
 
 	void EntityDataComponent::UpdateLocalRotation()
 	{
+		if (m_isTransformLocked) return;
+
 		if (m_parent == entt::null)
 		{
 			m_transform.m_localRotation = m_transform.m_rotation;

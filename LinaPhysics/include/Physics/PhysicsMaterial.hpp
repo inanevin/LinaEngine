@@ -47,6 +47,13 @@ namespace Lina::Editor
 
 }
 
+namespace Lina
+{
+	namespace World
+	{
+		class Level;
+	}
+}
 namespace Lina::Physics
 {
 	class PhysicsMaterial
@@ -70,6 +77,7 @@ namespace Lina::Physics
 		static void UnloadAll();
 		static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials() { return s_loadedMaterials; }
 	
+		StringIDType GetID() { return m_materialID; }
 		std::string GetPath() { return m_path; }
 		float GetStaticFriction() { return m_staticFriction; }
 		float GetDynamicFriction() { return m_dynamicFriction; }
@@ -79,6 +87,7 @@ namespace Lina::Physics
 
 		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
 		friend class cereal::access;
+		friend class Lina::World::Level;
 
 #ifdef LINA_PHYSICS_BULLET
 		friend class BulletPhysicsEngine;

@@ -50,6 +50,14 @@ namespace Lina
 	namespace Physics
 	{
 		extern std::string COLLISION_SHAPES[4];
+		extern std::string SIMULATION_TYPES[3];
+
+		enum class SimulationType : uint8
+		{
+			None = 0,
+			Static = 1,
+			Dynamic = 2,
+		};
 
 		enum class CollisionShape : uint8
 		{

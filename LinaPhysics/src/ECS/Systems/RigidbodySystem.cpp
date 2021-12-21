@@ -78,8 +78,6 @@ namespace Lina::ECS
 			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(p.first);
 			PhysicsComponent& phyComp = m_ecs->get<PhysicsComponent>(p.first);
 
-			if (!phyComp.m_isSimulated) continue;
-
 			if (phyComp.m_isKinematic)
 			{
 				PxTransform destination;
@@ -103,9 +101,10 @@ namespace Lina::ECS
 						data.SetRotation(Physics::ToLinaQuat(pose.q));
 					}
 				}
-
 			}
+	
 		}
+
 #endif
 	}
 }

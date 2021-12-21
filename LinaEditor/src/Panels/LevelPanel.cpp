@@ -388,10 +388,13 @@ namespace Lina::Editor
 		if (m_selectedTransform != entt::null)
 		{
 			ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(m_selectedTransform);
+			ECS::PhysicsComponent& phy = Lina::ECS::Registry::Get()->get<ECS::PhysicsComponent>(m_selectedTransform);
+
 			// Get required matrices.
 			glm::mat4 object = data.ToMatrix();
 
-			ImGuizmo::SetCanUse(true);
+			bool useDisabled = (phy.GetSimType() == Physics::SimulationType::Static) || (phy.GetSimType() == Physics::SimulationType::Dynamic && !phy.GetIsKinematic());
+			ImGuizmo::SetCanUse(!useDisabled);
 			ImGuizmo::SetThicknessMultiplier(1.0f);
 			ImGuizmo::SetLineLengthMultiplier(1.0f);
 			ImGuizmo::EnablePlanes(true);

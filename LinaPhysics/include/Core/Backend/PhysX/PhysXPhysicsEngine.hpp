@@ -58,14 +58,10 @@ namespace Lina
 namespace physx
 {
 	class PxShape;
-	class PxFoundation;
-	class PxPhysics;
-	class PxDefaultCpuDispatcher;
-	class PxScene;
-	class PxMaterial;
-	class PxPvd;
 	class PxRigidDynamic;
 	class PxActor;
+	class PxRigidStatic;
+	class PxMaterial;
 }
 
 namespace Lina::Physics
@@ -77,8 +73,11 @@ namespace Lina::Physics
 
 		static PhysXPhysicsEngine* Get() { return s_physicsEngine; }
 
+		void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
+		void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
+		void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
 		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
-		void SetBodySimulation(ECS::Entity body, bool simulate);
+		void SetBodySimulation(ECS::Entity body, SimulationType type);
 		void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
 		void SetBodyMass(ECS::Entity body, float mass);
 		void SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& mat);
@@ -89,6 +88,8 @@ namespace Lina::Physics
 		physx::PxActor** GetActiveActors(uint32& size);
 		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
 		std::map<ECS::Entity, physx::PxRigidDynamic*>& GetAllDynamicActors();
+		std::map<ECS::Entity, physx::PxRigidStatic*>& GetAllStaticActors();
+		std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
 
 	private:
 		friend class Lina::Engine;
@@ -100,13 +101,16 @@ namespace Lina::Physics
 
 	private:
 
+		void OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
+		void UpdateShapeMaterials(ECS::Entity body, physx::PxShape* shape);
+		void UpdateBodyShape(ECS::Entity body);
 		void OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev);
 		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void OnPostSceneDraw(Event::EPostSceneDraw);
-		void RemoveBodyFromWorld(ECS::Entity body);
-		void AddBodyToWorld(ECS::Entity body);
+		void RemoveBodyFromWorld(ECS::Entity body, bool isDynamic);
+		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
 		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy);
 
 	private:

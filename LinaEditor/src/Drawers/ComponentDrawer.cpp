@@ -234,7 +234,7 @@ namespace Lina::Editor
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "Far plane distance used in shadow rendering.", "castShadows"_hs, ));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "Near plane distance used in shadow rendering.", "castShadows"_hs));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4,"Shadow projection matrix (ortho).", "castShadows"_hs));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "Shadow projection matrix (ortho).", "castShadows"_hs));
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
@@ -399,11 +399,16 @@ namespace Lina::Editor
 		Lina::ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
 		Lina::ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
 		PhysicsComponent& phy = ecs->get<PhysicsComponent>(entity);
+		Physics::SimulationType simType = phy.m_simType;
 
 		bool disabled = entity == ecs->GetEntity("Editor Camera");
+		bool disableTransform = (simType == Physics::SimulationType::Dynamic && !phy.m_isKinematic) || (simType == Physics::SimulationType::Static);
 		std::string caretLabel = "Transformation " + std::string((m_isTransformPivotGlobal ? "(Global)" : "(Local)"));
-		if (phy.m_isSimulated)
-			caretLabel += " (Physics Active)";
+
+		if (simType == Physics::SimulationType::Dynamic)
+			caretLabel += " (Physics: Dynamic)";
+		else if (simType == Physics::SimulationType::Static)
+			caretLabel += " (Physics: Static)";
 
 		bool copied = false;
 		bool pasted = false;
@@ -416,9 +421,9 @@ namespace Lina::Editor
 		{
 			WidgetsUtility::PropertyLabel("Location");
 
-			if (phy.m_isSimulated && !phy.m_isKinematic)
+			if (disableTransform)
 				ImGui::BeginDisabled();
-			
+
 			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
 			ImGui::DragFloat3("##loc", &location.x);
 
@@ -444,7 +449,7 @@ namespace Lina::Editor
 			else
 				data.SetLocalScale(scale);
 
-			if (phy.m_isSimulated && !phy.m_isKinematic)
+			if (disableTransform)
 				ImGui::EndDisabled();
 
 		}
@@ -462,25 +467,32 @@ namespace Lina::Editor
 		if (WidgetsUtility::ComponentHeader(entityDataTid, physicsFoldoutOpen, "Physics", nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
 		{
 
-			WidgetsUtility::PropertyLabel("Simulated");
-			const bool currentSimulation = phy.m_isSimulated;
-			ImGui::Checkbox("##enabled", &phy.m_isSimulated);
-			if (currentSimulation != phy.m_isSimulated)
-			{
-				physicsEngine->SetBodySimulation(entity, phy.m_isSimulated);
-			}
-
-			WidgetsUtility::PropertyLabel("Kinematic");
+			WidgetsUtility::PropertyLabel("Simulation");
 			if (ImGui::IsItemHovered())
-				WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
-
-			const bool currentKinematic = phy.m_isKinematic;
-			ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
-			if (currentKinematic != phy.m_isKinematic)
+				WidgetsUtility::Tooltip("Simulation type determines how the object will behave in physics world. \nNone = Object is not physically simulated. \nDynamic = Object will be an active rigidbody. You can switch between kinematic & non-kinematic to determine \nwhether the transformation will be user-controlled or fully-simulated. \nStatic = Object will be simulated, but can not move during the gameplay. ");
+		
+			Physics::SimulationType currentSimType = phy.m_simType;
+			Physics::SimulationType selectedSimType = (Physics::SimulationType)WidgetsUtility::SimulationTypeComboBox("##simType", (int)phy.m_simType);
+			if (selectedSimType != currentSimType)
 			{
-				physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
+				physicsEngine->SetBodySimulation(entity, selectedSimType);
 			}
-	
+
+			if (selectedSimType == Physics::SimulationType::Dynamic)
+			{
+				WidgetsUtility::PropertyLabel("Kinematic");
+				if (ImGui::IsItemHovered())
+					WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
+
+				const bool currentKinematic = phy.m_isKinematic;
+				ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
+				if (currentKinematic != phy.m_isKinematic)
+				{
+					physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
+				}
+			}
+
+		
 			WidgetsUtility::PropertyLabel("Mass");
 			const float currentMass = phy.m_mass;
 			ImGui::DragFloat("##mass", &phy.m_mass);
@@ -489,10 +501,20 @@ namespace Lina::Editor
 				physicsEngine->SetBodyMass(entity, phy.m_mass);
 			}
 
-			WidgetsUtility::PropertyLabel("Material");
+			
+			WidgetsUtility::PropertyLabel("Physics Material");
 			const std::string currentMaterial = phy.m_physicsMaterialPath;
-			WidgetsUtility::PhysicsMaterialComboBox("##phyMat", phy.m_physicsMaterialPath, nullptr);
-			if (phy.m_physicsMaterialPath.compare(currentMaterial) != 0)
+			bool removed = false;
+			Physics::PhysicsMaterial* selected = WidgetsUtility::PhysicsMaterialComboBox("##phyMat", phy.m_physicsMaterialPath, &removed);
+
+			if (removed)
+			{
+				auto& mat = Physics::PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
+				selected = &mat;
+				physicsEngine->SetBodyMaterial(entity, mat);
+			}
+
+			if (selected != nullptr && phy.m_physicsMaterialID != selected->GetID())
 			{
 				physicsEngine->SetBodyMaterial(entity, Physics::PhysicsMaterial::GetMaterial(phy.m_physicsMaterialPath));
 			}
@@ -504,7 +526,7 @@ namespace Lina::Editor
 			{
 				physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
 			}
-			if (phy.m_collisionShape == Physics::CollisionShape::Box || phy.m_collisionShape == Physics::CollisionShape::Cylinder)
+			if (phy.m_collisionShape == Physics::CollisionShape::Box)
 			{
 				WidgetsUtility::PropertyLabel("Half Extents");
 				const Vector3 currentExtents = phy.m_halfExtents;
@@ -524,7 +546,7 @@ namespace Lina::Editor
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
 				}
 			}
-			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
+			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule || phy.m_collisionShape == Physics::CollisionShape::Cylinder)
 			{
 				WidgetsUtility::PropertyLabel("Radius");
 				const float currentRadius = phy.m_radius;
@@ -534,15 +556,16 @@ namespace Lina::Editor
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
 				}
 
-				WidgetsUtility::PropertyLabel("Height");
-				const float currentHeight = phy.m_capsuleHeight;
-				ImGui::DragFloat("##height", &phy.m_capsuleHeight);
-				if (currentHeight != phy.m_capsuleHeight)
+				WidgetsUtility::PropertyLabel("Half Height");
+				const float currentHeight = phy.m_capsuleHalfHeight;
+				ImGui::DragFloat("##height", &phy.m_capsuleHalfHeight);
+				if (currentHeight != phy.m_capsuleHalfHeight)
 				{
-					physicsEngine->SetBodyHeight(entity, phy.m_capsuleHeight);
+					physicsEngine->SetBodyHeight(entity, phy.m_capsuleHalfHeight);
 				}
 			}
 
+			
 			ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
 		}
@@ -556,7 +579,7 @@ namespace Lina::Editor
 		if (resetted)
 		{
 			phy.Reset();
-			physicsEngine->SetBodySimulation(entity, phy.m_isSimulated);
+			physicsEngine->SetBodySimulation(entity, phy.m_simType);
 		}
 
 		if (disabled)
@@ -995,7 +1018,7 @@ namespace Lina::Editor
 				WidgetsUtility::AlignedText("Height");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##height", &rb.m_capsuleHeight);
+				ImGui::DragFloat("##height", &rb.m_capsuleHalfHeight);
 			}
 
 			ImGui::SetCursorPosX(cursorPosLabels);

@@ -45,6 +45,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+#define COMBOBOX_WIDTH_1 12.4f
+#define COMBOBOX_WIDTH_2 28.0f
+#define COMBOBOX_WIDTH_3 22.4f
+
 	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 	std::map<std::string, bool> WidgetsUtility::s_carets;
@@ -724,7 +728,7 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
 		ImGui::SetNextItemWidth(comboWidth);
 
 		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
@@ -752,7 +756,7 @@ namespace Lina::Editor
 		if (removed != nullptr)
 		{
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
 			WidgetsUtility::IncrementCursorPosY(6);
 
 			// Remove Model
@@ -783,7 +787,7 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
 
 		ImGui::SetNextItemWidth(comboWidth);
 		if (ImGui::BeginCombo(comboID, modelLabel.c_str()))
@@ -811,7 +815,7 @@ namespace Lina::Editor
 		if (removed != nullptr)
 		{
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
 			WidgetsUtility::IncrementCursorPosY(6);
 
 			// Remove
@@ -841,7 +845,7 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
 		if (ImGui::BeginCombo(comboID, shaderLabel.c_str()))
 		{
 			auto& loadedShaders = Lina::Graphics::Shader::GetLoadedShaders();
@@ -867,7 +871,7 @@ namespace Lina::Editor
 		if (removed != nullptr)
 		{
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
 			WidgetsUtility::IncrementCursorPosY(6);
 
 			// Remove Model
@@ -897,7 +901,7 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - 12.4f : remaining - 28.0f;
+		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
 		ImGui::SetNextItemWidth(comboWidth);
 
 		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
@@ -925,11 +929,11 @@ namespace Lina::Editor
 		if (removed != nullptr)
 		{
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowWidth - 22.4f);
+			ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
 			WidgetsUtility::IncrementCursorPosY(6);
 
 			// Remove Model
-			const std::string removeID = "##removeMaterial_" + std::string(comboID);
+			const std::string removeID = "##removePhysicsMat_" + std::string(comboID);
 			if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 				*removed = true;
 
@@ -942,6 +946,36 @@ namespace Lina::Editor
 		return materialToReturn;
 	}
 
+	int Lina::Editor::WidgetsUtility::SimulationTypeComboBox(const char* comboID, int currentShapeID)
+	{
+		int simTypeToReturn = currentShapeID;
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		float comboWidth = remaining - COMBOBOX_WIDTH_1;
+		ImGui::SetNextItemWidth(comboWidth);
+		if (ImGui::BeginCombo(comboID, Lina::Physics::SIMULATION_TYPES[currentShapeID].c_str()))
+		{
+			int counter = 0;
+			for (auto& shape : Lina::Physics::SIMULATION_TYPES)
+			{
+				const bool selected = currentShapeID == counter;
+
+				if (ImGui::Selectable(Lina::Physics::SIMULATION_TYPES[counter].c_str(), selected))
+					simTypeToReturn = counter;
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+
+				counter++;
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return simTypeToReturn;
+	}
+
 	int Lina::Editor::WidgetsUtility::CollisionShapeComboBox(const char* comboID, int currentShapeID)
 	{
 		int shapeToReturn = currentShapeID;
@@ -949,7 +983,8 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = remaining - 12.4f;
+		float comboWidth = remaining - COMBOBOX_WIDTH_2;
+		ImGui::SetNextItemWidth(comboWidth);
 		if (ImGui::BeginCombo(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str()))
 		{
 			int counter = 0;

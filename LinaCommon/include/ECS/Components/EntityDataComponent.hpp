@@ -44,6 +44,18 @@ Timestamp: 12/8/2021 5:35:25 PM
 #include "ECS/ECSComponent.hpp"
 #include "ECS/ECS.hpp"
 
+namespace Lina
+{
+	namespace Physics
+	{
+#ifdef LINA_PHYSICS_BULLET
+		class BulletPhysicsEngine;
+#elif LINA_PHYSICS_PHYSX
+		class PhysXPhysicsEngine;
+#endif
+	}
+};
+
 namespace Lina::ECS
 {
 	struct EntityDataComponent : public ECSComponent
@@ -108,13 +120,21 @@ namespace Lina::ECS
 		friend class cereal::access;
 		friend class Registry;
 
+#ifdef LINA_PHYSICS_BULLET
+		friend class Lina::Physics::BulletPhysicsEngine;
+#elif LINA_PHYSICS_PHYSX
+		friend class Lina::Physics::PhysXPhysicsEngine;
+#endif
+
+		bool m_isTransformLocked = false;
+
 		Registry* m_ecs = nullptr;
 		Lina::Transformation m_transform;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_transform, m_isEnabled, m_name, m_parent, m_children);
+			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
 		}
 
 	
