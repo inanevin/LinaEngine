@@ -187,7 +187,7 @@ namespace Lina::Editor
 				WidgetsUtility::IncrementCursorPosY(6);
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Camera Speed");
+				WidgetsUtility::PropertyLabel("Camera Speed");
 				ImGui::SameLine();
 
 				float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
@@ -195,7 +195,7 @@ namespace Lina::Editor
 				ImGui::SetNextItemWidth(100);
 				ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Multiplier");
+				WidgetsUtility::PropertyLabel("Multiplier");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(100);

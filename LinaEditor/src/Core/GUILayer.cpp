@@ -95,6 +95,7 @@ namespace Lina::Editor
 		ImFontConfig icons_config;
 		icons_config.MergeMode = true;
 		icons_config.PixelSnapH = true;
+		icons_config.GlyphOffset.y = 3.5f;
 
 		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
 		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 20.0f, &icons_config, icons_rangesCUST);
@@ -427,9 +428,9 @@ namespace Lina::Editor
 		std::string loadData = std::to_string(m_percentage) + "%";
 		ImGui::Text(loadData.c_str());
 		WidgetsUtility::IncrementCursorPosY(10);
-		WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 1, 1, 1), 2);
+	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 1, 1, 1), 2);
 		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() * m_percentage / 100.0f, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-		WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 0, 1, 1), 2, ImVec2(0, 0), max);
+	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 0, 1, 1), 2, ImVec2(0, 0), max);
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 		ImGui::End();

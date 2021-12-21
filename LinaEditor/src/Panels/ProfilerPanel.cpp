@@ -104,15 +104,15 @@ namespace Lina::Editor
 
 			double updateTime = Lina::Engine::Get()->GetUpdateTime();
 			const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
-			WidgetsUtility::AlignedText(updateTimeStr.c_str());
+			WidgetsUtility::PropertyLabel(updateTimeStr.c_str());
 
 			double renderTime = Lina::Engine::Get()->GetRenderTime();
 			const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
-			WidgetsUtility::AlignedText(renderTimeStr.c_str());
+			WidgetsUtility::PropertyLabel(renderTimeStr.c_str());
 
 			double frameTime = Lina::Engine::Get()->GetFrameTime();
 			const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
-			WidgetsUtility::AlignedText(frameTimeStr.c_str());
+			WidgetsUtility::PropertyLabel(frameTimeStr.c_str());
 
 
 

@@ -59,9 +59,9 @@ namespace Lina::Editor
 			ImGui::BeginDisabled();
 
 		// Align.
-		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
+		ImGui::SetCursorPosX(12); 
 		WidgetsUtility::PushScaledFont(0.8f);
-		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, true))
 			AddComponentPopup();
 
 		ImGui::SameLine();
@@ -79,7 +79,7 @@ namespace Lina::Editor
 
 		// Entity name input text.
 		WidgetsUtility::FramePaddingX(5);
-		WidgetsUtility::IncrementCursorPosY(-5);
+		WidgetsUtility::IncrementCursorPosY(-0.8f);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
 		ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
@@ -89,7 +89,7 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(1.5f);
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-		WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+		WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled);
 
 		// Add Component Popup
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 4));
@@ -137,10 +137,6 @@ namespace Lina::Editor
 
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
-		WidgetsUtility::DrawBeveledLine();
-		WidgetsUtility::FramePaddingX(4);
-		
-		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		Lina::ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
@@ -150,7 +146,6 @@ namespace Lina::Editor
 
 		m_componentDrawer.DrawAllComponents(m_selectedEntity);
 
-		WidgetsUtility::PopStyleVar();
 
 	}
 

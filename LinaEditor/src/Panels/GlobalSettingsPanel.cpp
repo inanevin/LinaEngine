@@ -190,13 +190,14 @@ namespace Lina::Editor
 
 			}
 
-
 			Lina::Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
-			ImGui::SetCursorPosX(CURSOR_X_LABELS);
+		//	ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
-			if (WidgetsUtility::Button("Save Settings", ImVec2(90, 30)))
-				Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+		//	if (WidgetsUtility::Button("Save Settings", ImVec2(90, 30)))
+		//		Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
+		
+		
 			ImGui::PopStyleVar();
 			ImGui::End();
 

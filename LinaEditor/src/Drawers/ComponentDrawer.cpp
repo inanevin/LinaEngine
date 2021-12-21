@@ -425,7 +425,7 @@ namespace Lina::Editor
 				ImGui::BeginDisabled();
 
 			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
-			ImGui::DragFloat3("##loc", &location.x);
+			WidgetsUtility::DragVector3("##loc", &location.x);
 
 			if (m_isTransformPivotGlobal)
 				data.SetLocation(location);
@@ -434,7 +434,7 @@ namespace Lina::Editor
 
 			WidgetsUtility::PropertyLabel("Rotation");
 			Vector3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
-			ImGui::InputFloat3("##rot", &rot.x);
+			WidgetsUtility::DragVector3("##rot", &rot.x);
 			if (m_isTransformPivotGlobal)
 				data.SetRotationAngles(rot);
 			else
@@ -442,7 +442,7 @@ namespace Lina::Editor
 
 			WidgetsUtility::PropertyLabel("Scale");
 			Vector3 scale = m_isTransformPivotGlobal ? data.GetScale() : data.GetLocalScale();
-			ImGui::DragFloat3("##scale", &scale.x);
+			WidgetsUtility::DragVector3("##scale", &scale.x);
 
 			if (m_isTransformPivotGlobal)
 				data.SetScale(scale);
@@ -495,7 +495,7 @@ namespace Lina::Editor
 		
 			WidgetsUtility::PropertyLabel("Mass");
 			const float currentMass = phy.m_mass;
-			ImGui::DragFloat("##mass", &phy.m_mass);
+			WidgetsUtility::DragFloat("##mass", nullptr, &phy.m_mass);
 			if (phy.m_mass != currentMass)
 			{
 				physicsEngine->SetBodyMass(entity, phy.m_mass);
@@ -530,7 +530,7 @@ namespace Lina::Editor
 			{
 				WidgetsUtility::PropertyLabel("Half Extents");
 				const Vector3 currentExtents = phy.m_halfExtents;
-				ImGui::DragFloat3("##halfextents", &phy.m_halfExtents.x);
+				WidgetsUtility::DragVector3("##halfextents", &phy.m_halfExtents.x);
 				if (currentExtents != phy.m_halfExtents)
 				{
 					physicsEngine->SetBodyHalfExtents(entity, phy.m_halfExtents);
@@ -540,7 +540,7 @@ namespace Lina::Editor
 			{
 				WidgetsUtility::PropertyLabel("Radius");
 				const float currentRadius = phy.m_radius;
-				ImGui::DragFloat("##radius", &phy.m_radius);
+				WidgetsUtility::DragFloat("##radius", nullptr, & phy.m_radius);
 				if (currentRadius != phy.m_radius)
 				{
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
@@ -550,7 +550,7 @@ namespace Lina::Editor
 			{
 				WidgetsUtility::PropertyLabel("Radius");
 				const float currentRadius = phy.m_radius;
-				ImGui::DragFloat("##radius", &phy.m_radius);
+				WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
 				if (currentRadius != phy.m_radius)
 				{
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
@@ -558,7 +558,7 @@ namespace Lina::Editor
 
 				WidgetsUtility::PropertyLabel("Half Height");
 				const float currentHeight = phy.m_capsuleHalfHeight;
-				ImGui::DragFloat("##height", &phy.m_capsuleHalfHeight);
+				WidgetsUtility::DragFloat("##height", nullptr, &phy.m_capsuleHalfHeight);
 				if (currentHeight != phy.m_capsuleHalfHeight)
 				{
 					physicsEngine->SetBodyHeight(entity, phy.m_capsuleHalfHeight);
@@ -861,7 +861,7 @@ namespace Lina::Editor
 			float cursorPosLabels = CURSORPOS_X_LABELS;
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Location");
+			WidgetsUtility::PropertyLabel("Location");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			Vector3 location = data.GetLocalLocation();
@@ -870,7 +870,7 @@ namespace Lina::Editor
 			data.SetLocalLocation(location);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Rotation");
+			WidgetsUtility::PropertyLabel("Rotation");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			glm::vec3 rot = data.GetLocalRotationAngles();
@@ -878,7 +878,7 @@ namespace Lina::Editor
 			data.SetLocalRotationAngles(rot);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Scale");
+			WidgetsUtility::PropertyLabel("Scale");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			Vector3 scale = data.GetLocalScale();
@@ -896,14 +896,14 @@ namespace Lina::Editor
 			if (caretGlobal)
 			{
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Location");
+				WidgetsUtility::PropertyLabel("Location");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				Vector3 globalLocation = data.GetLocation();
 				ImGui::InputFloat3("##dbg_loc", &globalLocation.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Rotation");
+				WidgetsUtility::PropertyLabel("Rotation");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				Quaternion globalRotation = data.GetRotation();
@@ -911,7 +911,7 @@ namespace Lina::Editor
 				ImGui::InputFloat3("##dbg_rot", &angles.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Scale");
+				WidgetsUtility::PropertyLabel("Scale");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				Vector3 globalScale = data.GetScale();
@@ -966,7 +966,7 @@ namespace Lina::Editor
 			static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
 			const char* collisionShapeLabel = rigidbodyShapes[ComponentDrawer::s_activeInstance->m_currentCollisionShape];
 
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::PropertyLabel("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);
 			if (ImGui::BeginCombo("##collshape", collisionShapeLabel, flags))
 			{
 				for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
@@ -987,7 +987,7 @@ namespace Lina::Editor
 			}
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Mass");
+			WidgetsUtility::PropertyLabel("Mass");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##mass", &rb.m_mass);
@@ -995,7 +995,7 @@ namespace Lina::Editor
 			if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::Cylinder)
 			{
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Half Extents");
+				WidgetsUtility::PropertyLabel("Half Extents");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::DragFloat3("##halfextents", &rb.m_halfExtents.x);
@@ -1003,7 +1003,7 @@ namespace Lina::Editor
 			else if (rb.m_collisionShape == ECS::CollisionShape::Sphere)
 			{
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Radius");
+				WidgetsUtility::PropertyLabel("Radius");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::DragFloat("##radius", &rb.m_radius);
@@ -1011,13 +1011,13 @@ namespace Lina::Editor
 			else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
 			{
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Radius");
+				WidgetsUtility::PropertyLabel("Radius");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::DragFloat("##radius", &rb.m_radius);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Height");
+				WidgetsUtility::PropertyLabel("Height");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::DragFloat("##height", &rb.m_capsuleHalfHeight);

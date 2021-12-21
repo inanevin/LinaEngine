@@ -112,7 +112,6 @@ namespace Lina::Editor
 			}
 
 			WidgetsUtility::IncrementCursorPosY(4);
-			WidgetsUtility::DrawBeveledLine();
 			WidgetsUtility::IncrementCursorPosY(4);
 			//Draw dump contents.
 			if (ImGui::BeginChild("Log_", ImVec2(0, 0), false))
@@ -128,43 +127,43 @@ namespace Lina::Editor
 					// WidgetsUtility::IncrementCursorPos(ImVec2(15, 0)); // for icons
 					WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
 
-					// Draw the icon depending on the log level type also set the text color ready.
-					if (it->m_dump.m_level == Lina::LogLevel::Critical)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_SKULL_CROSSBONES, 0.6f, LOGPANEL_COLOR_CRIT_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_CRIT_DEFAULT);
-					}
-					else if (it->m_dump.m_level == Lina::LogLevel::Debug)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_BUG, 0.6f, LOGPANEL_COLOR_DEBUG_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_DEBUG_DEFAULT);
-					}
-					else if (it->m_dump.m_level == Lina::LogLevel::Error)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_TIMES_CIRCLE, 0.6f, LOGPANEL_COLOR_ERR_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_ERR_DEFAULT);
-					}
-					else if (it->m_dump.m_level == Lina::LogLevel::Info)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_INFO_CIRCLE, 0.6f, LOGPANEL_COLOR_INFO_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_INFO_DEFAULT);
-					}
-					else if (it->m_dump.m_level == Lina::LogLevel::Trace)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_CLIPBOARD_LIST, 0.6f, LOGPANEL_COLOR_TRACE_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_TRACE_DEFAULT);
-					}
-					else if (it->m_dump.m_level == Lina::LogLevel::Warn)
-					{
-						if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_EXCLAMATION_TRIANGLE, 0.6f, LOGPANEL_COLOR_WARN_DEFAULT);
-						ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_WARN_DEFAULT);
-					}
+				//// Draw the icon depending on the log level type also set the text color ready.
+				//if (it->m_dump.m_level == Lina::LogLevel::Critical)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_SKULL_CROSSBONES, 0.6f, LOGPANEL_COLOR_CRIT_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_CRIT_DEFAULT);
+				//}
+				//else if (it->m_dump.m_level == Lina::LogLevel::Debug)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_BUG, 0.6f, LOGPANEL_COLOR_DEBUG_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_DEBUG_DEFAULT);
+				//}
+				//else if (it->m_dump.m_level == Lina::LogLevel::Error)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_TIMES_CIRCLE, 0.6f, LOGPANEL_COLOR_ERR_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_ERR_DEFAULT);
+				//}
+				//else if (it->m_dump.m_level == Lina::LogLevel::Info)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_INFO_CIRCLE, 0.6f, LOGPANEL_COLOR_INFO_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_INFO_DEFAULT);
+				//}
+				//else if (it->m_dump.m_level == Lina::LogLevel::Trace)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_CLIPBOARD_LIST, 0.6f, LOGPANEL_COLOR_TRACE_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_TRACE_DEFAULT);
+				//}
+				//else if (it->m_dump.m_level == Lina::LogLevel::Warn)
+				//{
+				//	if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_EXCLAMATION_TRIANGLE, 0.6f, LOGPANEL_COLOR_WARN_DEFAULT);
+				//	ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_WARN_DEFAULT);
+				//}
 
 					// Draw the message text.
 					if (LOGPANEL_ICONSENABLED) ImGui::SameLine();
 					WidgetsUtility::IncrementCursorPosY(-5);
 					ImGui::Text(it->m_dump.m_message.c_str());
-					ImGui::PopStyleColor();
+					//ImGui::PopStyleColor();
 					ImGui::PopTextWrapPos();
 
 					// Display the amount of calls for this same entry.
@@ -228,19 +227,19 @@ namespace Lina::Editor
 
 	void LogLevelIconButton::DrawButton(unsigned int* flags)
 	{
-		if (WidgetsUtility::IconButton(m_id, m_icon, 0.0f, 1.0f, m_usedColorDefault, m_usedColorHovered, m_usedColorPressed))
-		{
-			if (*flags & m_targetLevel)
-			{
-				*flags &= ~m_targetLevel;
-				UpdateColors(flags);
-			}
-			else
-			{
-				*flags |= m_targetLevel;
-				UpdateColors(flags);
-			}
-		}
+		//if (WidgetsUtility::IconButton(m_id, m_icon, 0.0f, 1.0f, m_usedColorDefault, m_usedColorHovered, m_usedColorPressed))
+		//{
+		//	if (*flags & m_targetLevel)
+		//	{
+		//		*flags &= ~m_targetLevel;
+		//		UpdateColors(flags);
+		//	}
+		//	else
+		//	{
+		//		*flags |= m_targetLevel;
+		//		UpdateColors(flags);
+		//	}
+		//}
 
 		if (ImGui::IsItemActive() || ImGui::IsItemHovered())
 			ImGui::SetTooltip(m_tooltip);

@@ -51,7 +51,7 @@ namespace Lina::Editor
 
 		// Draw icon.
 		WidgetsUtility::IncrementCursorPosY(6);
-		 WidgetsUtility::AlignedText(m_icon);
+		 WidgetsUtility::PropertyLabel(m_icon);
 
 		// Pop font.
 		ImGui::GetFont()->Scale = 1;
@@ -60,7 +60,7 @@ namespace Lina::Editor
 		// Draw title.
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(-6); ImGui::SetCursorPosX(23);
-		WidgetsUtility::AlignedText(m_title);
+		WidgetsUtility::PropertyLabel(m_title);
 
 		// Handle click
 		m_isHovered = ImGui::IsMouseHoveringRect(min, max);

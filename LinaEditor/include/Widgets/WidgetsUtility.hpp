@@ -110,7 +110,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Draws a button that the user can toggle from left-to right with toggling animation.
 		/// </summary>
-		static bool ToggleButton(const char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, const ImVec4& activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), const ImVec4& activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), const ImVec4& inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), const ImVec4& inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
+		static bool ToggleButton(const char* label, bool* toggled, ImVec2 size = ImVec2(0.0f, 0.0f));   // toggle button
 
 		/// <summary>
 		/// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
@@ -143,8 +143,9 @@ namespace Lina::Editor
 
 		/// <summary>
 		/// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.
+		/// Send in a cursor pos value to get the cursor position inside the header.
 		/// </summary>
-		static bool Header(const char* title, bool* foldoutOpen);
+		static bool Header(const char* title, bool* foldoutOpen, ImVec2* cursorPos = nullptr);
 
 		/// <summary>
 		/// Draws a simple caret and a title, return true upon press. 
@@ -190,7 +191,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Default IMGUI button with fixed styling options.
 		/// </summary>
-		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
+		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f);
 
 		/// <summary>
 		/// Draws icon buttons used in the main toolbar.
@@ -198,14 +199,24 @@ namespace Lina::Editor
 		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 
 		/// <summary>
+		/// Dragging functionality for custom drag widgets.
+		/// </summary>
+		static void DragBehaviour(const char* id, float* var, ImRect rect);
+
+		/// <summary>
+		/// Dragging functionality for custom drag widgets.
+		/// </summary>
+		static void DragBehaviour(const char* id, int* var);
+
+		/// <summary>
 		/// Draws ImGui::DragFloat with custom dragger.
 		/// </summary>
-		static bool DragFloat(const char* id, const char* label, float* var);
+		static bool DragFloat(const char* id, const char* label, float* var, float width  = -1.0f);
 
 		/// <summary>
 		/// Draws ImGui::DragInt with custom dragger.
 		/// </summary>
-		static bool DragInt(const char* id, const char* label, int* var);
+		static bool DragInt(const char* id, const char* label, int* var, int count = 1);
 
 		/// <summary>
 		/// Draws 2 drag floats side by side.
@@ -339,29 +350,15 @@ namespace Lina::Editor
 		/// </summary>
 		static void PopStyleVar();
 
-		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
-		static void DrawWindowBorders(const ImVec4& color, float thickness);
-		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f, 0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
-		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
-		static void ScreenPosLine();
-		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
-		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
-		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1, 1, 1, .8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
-		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
-		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
-		static void AlignedText(const char* label);
-		static bool Caret(const char* title);
-		static bool CaretAndLabel(const char* title, const char* label);
+		/// <summary>
+		/// Draws a simple icon in the current cursor position, offers to modify the cursor to align.
+		/// </summary>
+		static void Icon(const char* label, bool align, float scale = 0.6f);
 
-		static float DebugFloat(const char* id = "debug", bool currentWindow = false);
-
-
-		static std::map<std::string, bool> s_carets;
-
-	private:
-
-		static std::map<std::string, std::tuple<bool, bool>> s_iconButtons;
-		static std::map<std::string, float> s_debugFloats;
+		/// <summary>
+		/// Draws an icon, with button functionality. Use ImGuiCol_ButtonX to style colors.
+		/// </summary>
+		static bool IconButton(const char* id, const char* label, bool align, float scale = 0.6f, bool disabled = false);
 	};
 }
 

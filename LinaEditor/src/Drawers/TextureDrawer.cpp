@@ -102,6 +102,7 @@ namespace Lina::Editor
 
 	void TextureDrawer::DrawSelectedTexture()
 	{
+		return;
 		SamplerParameters& params = m_selectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
 		static PixelFormat selectedInternalPF = params.m_textureParams.m_internalPixelFormat;
@@ -123,20 +124,20 @@ namespace Lina::Editor
 		float targetWidth = ImGui::GetWindowWidth() - cursorPosValues - 20;
 
 		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
-		WidgetsUtility::AlignedText("Generate Mipmaps?");
+		WidgetsUtility::PropertyLabel("Generate Mipmaps?");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##generateMipmaps", &m_currentGenerateMips);
 
 		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-		WidgetsUtility::AlignedText("Anisotropy");
+		WidgetsUtility::PropertyLabel("Anisotropy");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
 		ImGui::DragInt("##anisotropy", &m_currentAnisotropy, 0.05f, 0, 8);
 
 		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-		WidgetsUtility::AlignedText("Internal Pixel Format");
+		WidgetsUtility::PropertyLabel("Internal Pixel Format");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -161,7 +162,7 @@ namespace Lina::Editor
 
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Pixel Format");
+		WidgetsUtility::PropertyLabel("Pixel Format");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -185,7 +186,7 @@ namespace Lina::Editor
 		}
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Min Filter");
+		WidgetsUtility::PropertyLabel("Min Filter");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -209,7 +210,7 @@ namespace Lina::Editor
 		}
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Mag Filter");
+		WidgetsUtility::PropertyLabel("Mag Filter");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -234,7 +235,7 @@ namespace Lina::Editor
 
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Wrap S");
+		WidgetsUtility::PropertyLabel("Wrap S");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -258,7 +259,7 @@ namespace Lina::Editor
 		}
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Wrap R");
+		WidgetsUtility::PropertyLabel("Wrap R");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -282,7 +283,7 @@ namespace Lina::Editor
 		}
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		WidgetsUtility::AlignedText("Wrap T");
+		WidgetsUtility::PropertyLabel("Wrap T");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(targetWidth);
@@ -333,7 +334,6 @@ namespace Lina::Editor
 
 		
 		WidgetsUtility::IncrementCursorPosY(12);
-		WidgetsUtility::DrawBeveledLine();
 
 		Vector2 textureSize = m_selectedTexture->GetSize();
 

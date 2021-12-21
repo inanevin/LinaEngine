@@ -53,33 +53,33 @@ namespace Lina::Editor
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Triangulate");
+		WidgetsUtility::PropertyLabel("Triangulate");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##triangulate", &m_selectedParams.m_triangulate);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Smooth Normals");
+		WidgetsUtility::PropertyLabel("Smooth Normals");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##smoothNormals", &m_selectedParams.m_smoothNormals);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Calculate Tangents");
+		WidgetsUtility::PropertyLabel("Calculate Tangents");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##tangentSpace", &m_selectedParams.m_calculateTangentSpace);
 
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Flip UVs");
+		WidgetsUtility::PropertyLabel("Flip UVs");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##flipUVs", &m_selectedParams.m_flipUVs);
 
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Flip Winding (CW)");
+		WidgetsUtility::PropertyLabel("Flip Winding (CW)");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##flipWinding", &m_selectedParams.m_flipWinding);

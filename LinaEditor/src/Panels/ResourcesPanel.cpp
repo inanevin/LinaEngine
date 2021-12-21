@@ -364,7 +364,8 @@ namespace Lina::Editor
 			std::string id = "##" + (it->second).m_name;
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
-			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
+			// col = , ImVec4(0.9f, 0.83f, 0.0f, 1.0f)
+			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f);
 			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text((it->second).m_name.c_str());
 
