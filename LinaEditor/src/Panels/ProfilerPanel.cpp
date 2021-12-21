@@ -82,9 +82,7 @@ namespace Lina::Editor
 			float cursorPosLabels = CURSORPOS_X_LABELS;
 			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
+			Begin();
 
 
 			// Shadow.
@@ -197,7 +195,7 @@ namespace Lina::Editor
 				ImPlot::EndPlot();
 
 			}
-			ImGui::End();
+			End();
 
 		}
 	}

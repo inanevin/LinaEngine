@@ -191,7 +191,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Default IMGUI button with fixed styling options.
 		/// </summary>
-		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f);
+		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentAlign = ImVec2(0.5f, 0.5f));
 
 		/// <summary>
 		/// Draws icon buttons used in the main toolbar.

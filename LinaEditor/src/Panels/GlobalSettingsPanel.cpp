@@ -54,11 +54,7 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
-			WidgetsUtility::FramePaddingY(0.0f);
+			Begin();
 
 			if (m_currentLevel != nullptr)
 			{
@@ -198,8 +194,7 @@ namespace Lina::Editor
 
 		
 		
-			ImGui::PopStyleVar();
-			ImGui::End();
+			End();
 
 
 		}

@@ -83,10 +83,8 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
-			WidgetsUtility::FramePaddingY(0.0f);
+			Begin();
+	
 
 			// Shadow.
 
@@ -100,8 +98,7 @@ namespace Lina::Editor
 			else if (m_currentDrawType == DrawType::Material)
 				m_materialDrawer.DrawSelectedMaterial();
 
-			ImGui::PopStyleVar();
-			ImGui::End();
+			End();
 
 		}
 	}

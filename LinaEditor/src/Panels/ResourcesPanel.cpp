@@ -144,9 +144,7 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
+			Begin();
 
 			float windowWidth = ImGui::GetWindowWidth();
 			float windowHeight = ImGui::GetWindowHeight();
@@ -175,7 +173,7 @@ namespace Lina::Editor
 			//DrawContents();
 			ImGui::EndChild();
 
-			ImGui::End();
+			End();
 		}
 	}
 

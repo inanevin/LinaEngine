@@ -70,9 +70,7 @@ namespace Lina::Editor
 
 		if (m_show)
 		{
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
+			Begin();
 
 			// Shadow.
 			WidgetsUtility::IncrementCursorPosX(11);
@@ -181,7 +179,7 @@ namespace Lina::Editor
 			ImGui::EndChild();
 
 
-			ImGui::End();
+			End();
 		}
 	}
 

@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Panels/EditorPanel.hpp"
 #include "Core/GUILayer.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor
@@ -35,8 +36,25 @@ namespace Lina::Editor
 	void EditorPanel::Initialize(const char* id)
 	{
 		m_id = id;
-		m_windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+		m_windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 		GUILayer::s_editorPanels[id] = this;
+	}
+
+	void EditorPanel::Begin()
+	{
+		ImGui::Begin(m_id, NULL, m_windowFlags);
+		WidgetsUtility::WindowTitlebar(m_id);
+		if (!CanDrawContent()) return;
+		WidgetsUtility::FramePaddingY(0.0f);
+		const std::string childID = "##child_" + std::string(m_id);
+		ImGui::BeginChild(childID.c_str(), ImVec2(0, -20));
+	}
+
+	void EditorPanel::End()
+	{
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+		ImGui::End();
 	}
 
 	void EditorPanel::ToggleCollapse()

@@ -54,11 +54,15 @@ namespace Lina::Editor
 		virtual ~EditorPanel() {};
 		virtual void Initialize(const char* id);
 		virtual void Draw() = 0;
+		virtual void Begin();
+		virtual void End();
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }
 		virtual void ToggleCollapse();
 		virtual void ToggleMaximize();
 		virtual bool CanDrawContent();
+		virtual bool IsMaximized() { return m_maximized; }
+		virtual bool IsCollapsed() { return m_collapsed; }
 
 	protected:
 

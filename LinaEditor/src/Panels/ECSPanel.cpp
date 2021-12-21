@@ -120,10 +120,8 @@ namespace Lina::Editor
 		if (m_show)
 		{
 			Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
-			ImGui::Begin(m_id, NULL, m_windowFlags);
-
-			WidgetsUtility::WindowTitlebar(m_id);
-			if (!CanDrawContent()) return;
+			
+			Begin();
 
 			// Statics.
 			static char entityName[256] = "Entity";
@@ -197,7 +195,7 @@ namespace Lina::Editor
 			ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
 
 
-			if (ImGui::BeginDragDropTargetCustom(ImRect(min, max), id))
+			/*if (ImGui::BeginDragDropTargetCustom(ImRect(min, max), id))
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 				{
@@ -223,9 +221,9 @@ namespace Lina::Editor
 				}
 
 				ImGui::EndDragDropTarget();
-			}
+			}*/
 
-			ImGui::End();
+			End();
 
 		}
 	}

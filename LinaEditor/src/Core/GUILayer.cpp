@@ -428,6 +428,7 @@ namespace Lina::Editor
 		std::string loadData = std::to_string(m_percentage) + "%";
 		ImGui::Text(loadData.c_str());
 		WidgetsUtility::IncrementCursorPosY(10);
+		WidgetsUtility::HorizontalDivider(2.0f);
 	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 1, 1, 1), 2);
 		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() * m_percentage / 100.0f, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 0, 1, 1), 2, ImVec2(0, 0), max);
