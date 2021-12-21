@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/CustomFontIcons.hpp"
 #include "Core/PhysicsCommon.hpp"
+#include "Core/InputBackend.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace Lina::Editor
@@ -52,7 +53,7 @@ namespace Lina::Editor
 	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 	std::map<std::string, bool> WidgetsUtility::s_carets;
-
+	
 	void WidgetsUtility::Tooltip(const char* tooltip)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(9, 2));
@@ -69,14 +70,14 @@ namespace Lina::Editor
 		const ImVec2 currentCursor = ImGui::GetCursorPos();
 		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
 		const ImRect absoluteRect = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
-		
+
 		ImGui::ItemAdd(absoluteRect, ImGuiID(id));
 		ImGui::ItemSize(size);
 
 		bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
 		if (isHovered != nullptr)
 			*isHovered = hovered;
-		
+
 		const bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 
 		const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
@@ -86,13 +87,13 @@ namespace Lina::Editor
 		const ImU32 borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
 		ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
 		IncrementCursorPosY(size.y / 2.0f);
-	
+
 		if (icon != nullptr)
 		{
 			const float iconScale = size.y * 0.035f;
 			PushScaledFont(iconScale);
 			ImVec2 textSize = ImGui::CalcTextSize(icon);
-		
+
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(currentCursor.x + size.x / 2.0f - textSize.x / 2.0f);
 			ImGui::SetCursorPosY(currentCursor.y + size.y / 2.0f - size.y * 0.2f);
@@ -374,7 +375,7 @@ namespace Lina::Editor
 
 		static float offset1 = 28.0f;
 		static float gap = 25;
-		
+
 		ImGui::SetCursorPosY(yOffset);
 		const float cursorY = ImGui::GetCursorPosY();
 		ImGui::SetCursorPosX(windowWidth - offset1 - gap * 2);
@@ -506,7 +507,7 @@ namespace Lina::Editor
 			ToggleButton(toggleID.c_str(), toggled, 0.6f, 1.5f, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 			toggleButtonHovered = ImGui::IsItemHovered();
 		}
-		else 
+		else
 			buttonsPos += 4.0f;
 
 
@@ -983,7 +984,7 @@ namespace Lina::Editor
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
 		float remaining = windowWidth - currentCursor;
-		float comboWidth = remaining - COMBOBOX_WIDTH_2;
+		float comboWidth = remaining - COMBOBOX_WIDTH_1;
 		ImGui::SetNextItemWidth(comboWidth);
 		if (ImGui::BeginCombo(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str()))
 		{
@@ -1050,6 +1051,101 @@ namespace Lina::Editor
 		if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			return true;
 
+		return false;
+	}
+
+	bool Lina::Editor::WidgetsUtility::DragFloat(const char* id, const char* label, float* var)
+	{
+		static bool g_isDraggingWidgetInput = false;
+		static std::string g_draggedInput = "";
+
+		if (label != nullptr)
+		{
+			ImGui::Text(label);
+			ImGui::SameLine();
+		}
+		else
+		{
+			IncrementCursorPosX(2.2f);
+			IncrementCursorPosY(6.2f);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
+			PushScaledFont(0.7f);
+			ImGui::Text(ICON_FA_ARROWS_ALT_H);
+			PopScaledFont();
+			ImGui::PopStyleColor();
+			ImGui::SameLine();
+
+			IncrementCursorPosX(-0.6f);
+			IncrementCursorPosY(-5.8f);
+
+			if (ImGui::IsItemHovered())
+			{
+				if (!g_isDraggingWidgetInput)
+				{
+					ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+				}
+			
+				if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+				{
+					g_isDraggingWidgetInput = true;
+					g_draggedInput = id;
+				}
+
+				if (g_isDraggingWidgetInput && g_draggedInput != id)
+				{
+					g_isDraggingWidgetInput = false;
+					g_draggedInput = "";
+				}
+			}
+
+			if (g_isDraggingWidgetInput)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+
+			if (g_isDraggingWidgetInput && !ImGui::IsWindowHovered())
+			{
+				g_isDraggingWidgetInput = false;
+				g_draggedInput = "";
+			}
+
+			if (g_isDraggingWidgetInput && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			{
+				g_isDraggingWidgetInput = false;
+				g_draggedInput = "";
+			}
+
+			if (g_isDraggingWidgetInput && id == g_draggedInput)
+			{
+				*var += ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).x * 0.01f;
+			}
+
+		}
+
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		float comboWidth = remaining - 10;
+		ImGui::SetNextItemWidth(comboWidth);
+		return ImGui::InputFloat(id, var);
+		return false;
+	}
+
+	bool Lina::Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var)
+	{
+		return false;
+	}
+
+	bool Lina::Editor::WidgetsUtility::DragVector2(const char* id, float* var)
+	{
+		return false;
+	}
+
+	bool Lina::Editor::WidgetsUtility::DragVector3(const char* id, float* var)
+	{
+		return false;
+	}
+
+	bool Lina::Editor::WidgetsUtility::DragVector4(const char* id, float* var)
+	{
 		return false;
 	}
 

@@ -198,6 +198,31 @@ namespace Lina::Editor
 		static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 
 		/// <summary>
+		/// Draws ImGui::DragFloat with custom dragger.
+		/// </summary>
+		static bool DragFloat(const char* id, const char* label, float* var);
+
+		/// <summary>
+		/// Draws ImGui::DragInt with custom dragger.
+		/// </summary>
+		static bool DragInt(const char* id, const char* label, int* var);
+
+		/// <summary>
+		/// Draws 2 drag floats side by side.
+		/// </summary>
+		static bool DragVector2(const char* id, float* var);
+
+		/// <summary>
+		/// Draws 3 drag floats side by side.
+		/// </summary>
+		static bool DragVector3(const char* id, float* var);
+
+		/// <summary>
+		/// Draws 4 drag floats side by side.
+		/// </summary>
+		static bool DragVector4(const char* id, float* var);
+
+		/// <summary>
 		/// Returns current window position, excluding the window's title bar.
 		/// </summary>
 		/// <returns></returns>

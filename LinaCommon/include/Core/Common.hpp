@@ -49,7 +49,6 @@ namespace Lina
 {
 	namespace Physics
 	{
-		extern std::string COLLISION_SHAPES[4];
 		extern std::string SIMULATION_TYPES[3];
 
 		enum class SimulationType : uint8
@@ -59,6 +58,9 @@ namespace Lina
 			Dynamic = 2,
 		};
 
+#ifdef LINA_PHYSICS_BULLET
+		extern std::string COLLISION_SHAPES[4];
+
 		enum class CollisionShape : uint8
 		{
 			Box = 0,
@@ -67,6 +69,17 @@ namespace Lina
 			Capsule = 3,
 			ConvexMesh = 4,
 		};
+#elif LINA_PHYSICS_PHYSX
+		extern std::string COLLISION_SHAPES[3];
+
+		enum class CollisionShape : uint8
+		{
+			Box = 0,
+			Sphere = 1,
+			Capsule = 2,
+			ConvexMesh = 3,
+		};
+#endif
 	}
 
 	namespace Resources

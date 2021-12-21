@@ -198,7 +198,7 @@ namespace Lina::Physics
 			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
 		else if (shape == CollisionShape::Sphere)
 			return m_pxPhysics->createShape(PxSphereGeometry(phy.GetRadius()), *m_pxDefaultMaterial);
-		else if (shape == CollisionShape::Capsule || shape == CollisionShape::Cylinder)
+		else if (shape == CollisionShape::Capsule)
 			return m_pxPhysics->createShape(PxCapsuleGeometry(phy.GetRadius(), phy.GetCapsuleHalfHeight()), *mat);
 		else
 			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
@@ -517,6 +517,12 @@ namespace Lina::Physics
 		pose.p = ToPxVector3(data.GetLocation());
 		pose.q = ToPxQuat(data.GetRotation());
 		PxShape* shape = GetCreateShape(phyComp);
+
+		if (phyComp.GetCollisionShape() == CollisionShape::Capsule)
+		{
+			PxTransform relativePose(PxQuat(PxHalfPi, PxVec3(0, 0, 1)));
+			shape->setLocalPose(relativePose);
+		}
 
 		if (isDynamic)
 		{

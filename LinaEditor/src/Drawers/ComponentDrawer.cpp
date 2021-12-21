@@ -434,7 +434,7 @@ namespace Lina::Editor
 
 			WidgetsUtility::PropertyLabel("Rotation");
 			Vector3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
-			ImGui::DragFloat3("##rot", &rot.x);
+			ImGui::InputFloat3("##rot", &rot.x);
 			if (m_isTransformPivotGlobal)
 				data.SetRotationAngles(rot);
 			else
@@ -546,7 +546,7 @@ namespace Lina::Editor
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
 				}
 			}
-			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule || phy.m_collisionShape == Physics::CollisionShape::Cylinder)
+			else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
 			{
 				WidgetsUtility::PropertyLabel("Radius");
 				const float currentRadius = phy.m_radius;
@@ -565,7 +565,9 @@ namespace Lina::Editor
 				}
 			}
 
-			
+#ifdef LINA_PHYSICS_BULLET
+			// Draw other shape types.
+#endif
 			ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
 		}
@@ -685,31 +687,31 @@ namespace Lina::Editor
 					if (type == ComponentVariableType::DragFloat)
 					{
 						float variable = data.get(instance).cast<float>();
-						ImGui::DragFloat(varLabelID.c_str(), &variable);
+						WidgetsUtility::DragFloat(varLabelID.c_str(), nullptr, &variable);
 						data.set(instance, variable);
 					}
 					else if (type == ComponentVariableType::DragInt)
 					{
 						int variable = data.get(instance).cast<int>();
-						ImGui::DragInt(varLabelID.c_str(), &variable);
+						WidgetsUtility::DragInt(varLabelID.c_str(), nullptr, &variable);
 						data.set(instance, variable);
 					}
 					else if (type == ComponentVariableType::Vector2)
 					{
 						Vector2 variable = data.get(instance).cast<Vector2>();
-						ImGui::DragFloat2(varLabelID.c_str(), &variable.x);
+						WidgetsUtility::DragVector2(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
 					}
 					else if (type == ComponentVariableType::Vector3)
 					{
 						Vector3 variable = data.get(instance).cast<Vector3>();
-						ImGui::DragFloat3(varLabelID.c_str(), &variable.x);
+						WidgetsUtility::DragVector3(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
 					}
 					else if (type == ComponentVariableType::Vector4)
 					{
 						Vector4 variable = data.get(instance).cast<Vector4>();
-						ImGui::DragFloat4(varLabelID.c_str(), &variable.x);
+						WidgetsUtility::DragVector4(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
 					}
 					else if (type == ComponentVariableType::Color)
