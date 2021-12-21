@@ -137,7 +137,7 @@ namespace Lina
 		m_isInPlayMode = true;
 
 		if (m_appInfo.m_appMode == ApplicationMode::Editor)
-			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("resources/editor/audio/lina_init.wav"));
+			m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("Resources/Editor/Audio/LinaStartup.wav"));
 	}
 
 	void Engine::Run()

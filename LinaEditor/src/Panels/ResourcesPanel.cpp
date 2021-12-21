@@ -73,8 +73,8 @@ namespace Lina::Editor
 		s_usedFileNameColor = s_fileNameColor;
 
 		Utility::Folder root;
-		root.m_fullPath = "resources/";
-		root.m_name = "resources";
+		root.m_fullPath = "Resources/";
+		root.m_name = "Resources";
 		m_folders.push_back(root);
 		Utility::ScanFolder(m_folders[0]);
 	}
@@ -87,12 +87,12 @@ namespace Lina::Editor
 		// Build root.
 		EditorFolder root;
 		root.m_name = ROOT_NAME;
-		root.m_path = "resources";
+		root.m_path = "Resources";
 		m_resourceFolders.push_back(root);
 
 		// Recursively fill in root.
 		s_itemIDCounter = -1;
-		std::string path = "resources";
+		std::string path = "Resources";
 		ScanFolder(m_resourceFolders[0]);
 
 		// Load resources	
@@ -247,7 +247,7 @@ namespace Lina::Editor
 
 	void ResourcesPanel::DrawContextMenu()
 	{
-		std::string rootPath = s_hoveredFolder == nullptr ? "resources" : s_hoveredFolder->m_path;
+		std::string rootPath = s_hoveredFolder == nullptr ? "Resources" : s_hoveredFolder->m_path;
 
 		// Handle Right click popup.
 		if (ImGui::BeginPopupContextWindow())

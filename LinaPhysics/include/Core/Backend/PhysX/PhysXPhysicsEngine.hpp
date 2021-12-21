@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,7 +39,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
-
+#include "Core/Common.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/AABBComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
@@ -53,6 +53,19 @@ namespace Lina
 	{
 		class EventSystem;
 	}
+}
+
+namespace physx
+{
+	class PxShape;
+	class PxFoundation;
+	class PxPhysics;
+	class PxDefaultCpuDispatcher;
+	class PxScene;
+	class PxMaterial;
+	class PxPvd;
+	class PxRigidDynamic;
+	class PxActor;
 }
 
 namespace Lina::Physics
@@ -73,6 +86,9 @@ namespace Lina::Physics
 		void SetBodyHeight(ECS::Entity body, float height);
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
 		void SetBodyKinematic(ECS::Entity body, bool kinematic);
+		physx::PxActor** GetActiveActors(uint32& size);
+		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
+		std::map<ECS::Entity, physx::PxRigidDynamic*>& GetAllDynamicActors();
 
 	private:
 		friend class Lina::Engine;
@@ -83,18 +99,19 @@ namespace Lina::Physics
 		void Shutdown();
 
 	private:
-		
+
 		void OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev);
 		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
-
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
+		void OnPostSceneDraw(Event::EPostSceneDraw);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body);
-		void OnPostSceneDraw(Event::EPostSceneDraw);
+		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy);
 
 	private:
 
+		
 		Lina::ECS::Registry* m_ecs = nullptr;
 		static PhysXPhysicsEngine* s_physicsEngine;
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;

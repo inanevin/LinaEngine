@@ -44,7 +44,7 @@ namespace Lina::Resources
 
 		// Find resources.
 		Utility::Folder root;
-		root.m_fullPath = "resources/";
+		root.m_fullPath = "Resources/";
 		Utility::ScanFolder(root, true, &s_currentProgressData.m_currentTotalFiles);
 
 		// Set progress & fill.
@@ -105,7 +105,7 @@ namespace Lina::Resources
 		std::vector<std::string> filesToPack;
 
 		Utility::Folder root;
-		root.m_fullPath = "resources/";
+		root.m_fullPath = "Resources/";
 		Utility::ScanFolder(root);
 		AddAllResourcesToPack(filesToPack, root);
 

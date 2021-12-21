@@ -44,6 +44,7 @@ SOFTWARE.
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/imguizmo/ImGuizmo.h"
+#include "Core/CustomFontIcons.hpp"
 
 using namespace Lina::ECS;
 using namespace Lina::Editor;
@@ -168,7 +169,7 @@ namespace Lina::Editor
 					if (Lina::Graphics::Material::MaterialExists(materials[i]))
 						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial(materials[i]));
 					else
-						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat"));
+						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
 				}
 			}
 			else
@@ -231,9 +232,9 @@ namespace Lina::Editor
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs, "Far plane distance used in shadow rendering."));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs, "Near plane distance used in shadow rendering."));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "castShadows"_hs, "Shadow projection matrix (ortho)."));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "Far plane distance used in shadow rendering.", "castShadows"_hs, ));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "Near plane distance used in shadow rendering.", "castShadows"_hs));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4,"Shadow projection matrix (ortho).", "castShadows"_hs));
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
@@ -250,14 +251,14 @@ namespace Lina::Editor
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
 		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_MD_FLASH_ON, defaultDrawFlags, "Lights");
+		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_CS_SPOTLIGHT, defaultDrawFlags, "Lights");
 
 		// Pointlight
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "castShadows"_hs, "Far plane distance used in shadow rendering."));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "castShadows"_hs, "Near plane distance used in shadow rendering."));
-		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS_DEP("Bias", ComponentVariableType::DragFloat, "castShadows"_hs, "Controls the amount of darkening."));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowFar>("sf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "Far plane distance used in shadow rendering.", "castShadows"_hs));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_shadowNear>("sn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "Near plane distance used in shadow rendering.", "castShadows"_hs));
+		entt::meta<PointLightComponent>().data<&PointLightComponent::m_bias>("b"_hs).props(PROPS_DEP("Bias", ComponentVariableType::DragFloat, "Controls the amount of darkening.", "castShadows"_hs));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark, ""));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat, ""));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
@@ -415,7 +416,7 @@ namespace Lina::Editor
 		{
 			WidgetsUtility::PropertyLabel("Location");
 
-			if (phy.m_isSimulated)
+			if (phy.m_isSimulated && !phy.m_isKinematic)
 				ImGui::BeginDisabled();
 			
 			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
@@ -443,7 +444,7 @@ namespace Lina::Editor
 			else
 				data.SetLocalScale(scale);
 
-			if (phy.m_isSimulated)
+			if (phy.m_isSimulated && !phy.m_isKinematic)
 				ImGui::EndDisabled();
 
 		}
@@ -470,15 +471,16 @@ namespace Lina::Editor
 			}
 
 			WidgetsUtility::PropertyLabel("Kinematic");
+			if (ImGui::IsItemHovered())
+				WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
+
 			const bool currentKinematic = phy.m_isKinematic;
 			ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
 			if (currentKinematic != phy.m_isKinematic)
 			{
 				physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
 			}
-			if (ImGui::IsItemHovered())
-				WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
-
+	
 			WidgetsUtility::PropertyLabel("Mass");
 			const float currentMass = phy.m_mass;
 			ImGui::DragFloat("##mass", &phy.m_mass);

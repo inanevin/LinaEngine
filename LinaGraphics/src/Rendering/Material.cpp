@@ -305,7 +305,7 @@ namespace Lina::Graphics
 		material.m_matrices.clear();
 		material.m_vector4s.clear();
 		material.m_isShadowMapped = false;
-		material.m_isPBR = shader.GetPath().compare("resources/engine/shaders/PBR/PBRLitStandard.glsl") == 0;
+		material.m_isPBR = shader.GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
 		material.m_usesHDRI = false;
 
 		ShaderUniformData data = shader.GetUniformData();

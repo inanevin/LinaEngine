@@ -49,33 +49,30 @@ void ExampleLevel::Initialize()
 	// auto entity = reg.CreateEntity("Test");
 	// auto& mr = reg.emplace<ECS::ModelRendererComponent>(entity);
 	// 
-	// auto& model = Graphics::Model::CreateModel("resources/sandbox/Meshes/MarkerMan.fbx");
+	// auto& model = Graphics::Model::CreateModel("Resources/SandboxMeshes/MarkerMan.fbx");
 	// mr.SetModel(reg, entity, model);
 	// 
-	// auto& mat = Graphics::Material::LoadMaterialFromFile("resources/sandbox/NewMaterial207.mat");
+	// auto& mat = Graphics::Material::LoadMaterialFromFile("Resources/SandboxNewMaterial207.mat");
 	// mr.SetMaterial(reg, entity, 1, mat);
 	//auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
 	//anim.m_animationName = "Armature_Move";
 
-	// Texture* hdri = &Texture::GetTexture("resources/sandbox/HDRI/studio.hdr");
+	// Texture* hdri = &Texture::GetTexture("Resources/SandboxHDRI/studio.hdr");
 	// Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
-	// Material& mat = Lina::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("resources/engine/shaders/Skybox/SkyboxHDRI.glsl"));
+	// Material& mat = Lina::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"));
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
 	//Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
 	//auto entity = ECS::Registry::Get()->GetEntity("Entity");
 	//ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
-	//mr.SetModel(entity, Graphics::Model::GetModel("resources/sandbox/Target/RicochetTarget.fbx"));
-
-	auto& mat =Physics::PhysicsMaterial::CreateMaterial("Default Physics Material", 0.5f, 0.5f, 0.6f);
-	mat.SaveMaterialData(mat, "resources/DefaultPhysicsMaterial.phymat");
+	//mr.SetModel(entity, Graphics::Model::GetModel("Resources/SandboxTarget/RicochetTarget.fbx"));
 
 }
 
 void ExampleLevel::Tick(Event::ETick ev)
 {
-	auto entity = ECS::Registry::Get()->GetEntity("capsule.fbx");
+	auto entity = ECS::Registry::Get()->GetEntity("Capsule.fbx");
 	if (entity != ECSNULL)
 	{
 		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);

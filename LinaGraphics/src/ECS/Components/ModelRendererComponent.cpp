@@ -54,7 +54,7 @@ namespace Lina::ECS
 			return;
 		}
 
-		auto& defaultMaterial = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
 		// Generate entities for each children.
 		for (int i = 0; i < model.GetMeshes().size(); i++)

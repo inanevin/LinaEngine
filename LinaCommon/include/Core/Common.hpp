@@ -57,6 +57,7 @@ namespace Lina
 			Sphere = 1,
 			Cylinder = 2,
 			Capsule = 3,
+			ConvexMesh = 4,
 		};
 	}
 

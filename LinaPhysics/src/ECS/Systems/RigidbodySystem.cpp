@@ -32,10 +32,19 @@ SOFTWARE.
 #include "Core/PhysicsBackend.hpp"
 #include "Core/PhysicsCommon.hpp"
 
+#ifdef LINA_PHYSICS_PHYSX
+#include "PxPhysics.h"
+#endif
+
+using namespace physx;
 namespace Lina::ECS
 {
 	void RigidbodySystem::UpdateComponents(float delta)
 	{
+		auto* physicsEngine = Physics::PhysicsEngineBackend::Get();;
+
+#ifdef LINA_PHYSICS_BULLET
+
 		auto view = m_ecs->view<EntityDataComponent, PhysicsComponent>();
 
 		// Find all entities with rigidbody component and transform component attached to them.
@@ -43,7 +52,6 @@ namespace Lina::ECS
 		{
 			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
 			if (!phyComp.GetIsSimulated()) continue;
-#ifdef LINA_PHYSICS_BULLET
 			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
 			btTransform btTrans;
@@ -54,10 +62,51 @@ namespace Lina::ECS
 			phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
 			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());
 			phyComp.m_turnVelocity = Physics::ToLinaVector(rb->getTurnVelocity());
-#elif LINA_PHYSICS_PHYSX
 
-#endif
+
+
 		}
+#endif
+#ifdef LINA_PHYSICS_PHYSX
+
+	
+
+		auto& dynamics = physicsEngine->GetAllDynamicActors();
+
+		for (auto& p : dynamics)
+		{
+			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(p.first);
+			PhysicsComponent& phyComp = m_ecs->get<PhysicsComponent>(p.first);
+
+			if (!phyComp.m_isSimulated) continue;
+
+			if (phyComp.m_isKinematic)
+			{
+				PxTransform destination;
+				destination.p = Physics::ToPxVector3(data.GetLocation());
+				destination.q = Physics::ToPxQuat(data.GetRotation());
+				p.second->setKinematicTarget(destination);
+			}
+			else
+			{
+				PxU32 nbActiveActors;
+				PxActor** activeActors = Physics::PhysicsEngineBackend::Get()->GetActiveActors(nbActiveActors);
+				for (PxU32 i = 0; i < nbActiveActors; ++i)
+				{
+					ECS::Entity entity = Physics::PhysicsEngineBackend::Get()->GetEntityOfActor(activeActors[i]);
+
+					if (entity == p.first)
+					{
+						PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
+						auto& pose = rigid->getGlobalPose();
+						data.SetLocation(Physics::ToLinaVector3(pose.p));
+						data.SetRotation(Physics::ToLinaQuat(pose.q));
+					}
+				}
+
+			}
+		}
+#endif
 	}
 }
 

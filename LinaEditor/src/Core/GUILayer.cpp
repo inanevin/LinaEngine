@@ -84,7 +84,7 @@ namespace Lina::Editor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Mukta-Medium.ttf", 20.0f, NULL);
 
 		// merge in icons from Font Awesome
 		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
@@ -96,12 +96,12 @@ namespace Lina::Editor
 		icons_config.MergeMode = true;
 		icons_config.PixelSnapH = true;
 
-		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
-		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/CustomIcons/icomoon.ttf", 20.0f, &icons_config, icons_rangesCUST);
-		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
-		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
+		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
+		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 20.0f, &icons_config, icons_rangesCUST);
+		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
+		io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
 
-		s_bigFont = io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MuktaMahee-Medium.ttf", 30, NULL);
+		s_bigFont = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
 		s_defaultFont = io.FontDefault;
 
 		// Setup configuration flags.
@@ -209,7 +209,7 @@ namespace Lina::Editor
 		splashWindow->SetSize(splashSize);
 		splashWindow->SetPosCentered(Vector2(0, 0));
 		Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png", Graphics::SamplerParameters(), false, false, "");
+		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
 		DrawSplashScreen();
 
 
@@ -377,17 +377,17 @@ namespace Lina::Editor
 		// Objects
 
 		else if (item == MenuBarItems::Cube)
-			CreateObjectInLevel("resources/engine/meshes/primitives/cube.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Cube.fbx");
 		else if (item == MenuBarItems::Cylinder)
-			CreateObjectInLevel("resources/engine/meshes/primitives/cylinder.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
 		else if (item == MenuBarItems::Capsule)
-			CreateObjectInLevel("resources/engine/meshes/primitives/capsule.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Capsule.fbx");
 		else if (item == MenuBarItems::Quad)
-			CreateObjectInLevel("resources/engine/meshes/primitives/quad.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Quad.fbx");
 		else if (item == MenuBarItems::Sphere)
-			CreateObjectInLevel("resources/engine/meshes/primitives/sphere.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Sphere.fbx");
 		else if (item == MenuBarItems::Plane)
-			CreateObjectInLevel("resources/engine/meshes/primitives/plane.fbx");
+			CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Plane.fbx");
 	}
 
 	void GUILayer::Refresh()
@@ -531,7 +531,7 @@ namespace Lina::Editor
 		auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 		mr.SetModel(entity, model);
 
-		auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+		auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
 		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
 			mr.SetMaterial(entity, i, mat);

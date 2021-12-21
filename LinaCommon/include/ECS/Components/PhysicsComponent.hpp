@@ -66,7 +66,12 @@ namespace Lina::ECS
 
 		Lina::Vector3 GetVelocity() { return m_velocity; }
 		Lina::Vector3 GetAngularVelocity() { return m_angularVelocity; }
+		Lina::Vector3 GetHalfExtents() { return m_halfExtents; }
+		float GetRadius() { return m_radius; }
+		float GetCapsuleHeight() { return m_capsuleHeight; }
 		bool GetIsSimulated() { return m_isSimulated; }
+		bool GetIsKinematic() { return m_isKinematic; }
+		Physics::CollisionShape GetCollisionShape() { return m_collisionShape; }
 
 	private:
 

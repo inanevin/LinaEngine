@@ -385,79 +385,79 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::ConstructShader(const std::string& path, unsigned char* data, size_t dataSize)
 	{
-		if (path.compare("resources/engine/shaders/Unlit/Unlit.glsl") == 0)
+		if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
 		{
 			s_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/PBR/PBRLitStandard.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
 		{
 			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/PBR/PointShadowsDepth.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
 		{
 			m_pointShadowsDepthShader = &Shader::CreateShader(path, true, data, dataSize);
 		}
-		else if (path.compare("resources/engine/shaders/Skybox/SkyboxColor.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxColor.glsl") == 0)
 		{
 			m_skyboxSingleColorShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxCubemap.glsl") == 0
-			|| path.compare("resources/engine/shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0
-			|| path.compare("resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxCubemap.glsl") == 0
+			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0
+			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
 		{
 			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 
-		else if (path.compare("resources/engine/shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
 		{
 			m_hdriEquirectangularShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
-		else if (path.compare("resources/engine/shaders/HDRI/HDRIIrradiance.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
 		{
 			m_hdriIrradianceShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
-		else if (path.compare("resources/engine/shaders/HDRI/HDRIPrefilter.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
 		{
 			m_hdriPrefilterShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
-		else if (path.compare("resources/engine/shaders/HDRI/HDRIBRDF.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
 		{
 			m_hdriBRDFShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
-		else if (path.compare("resources/engine/shaders/ScreenQuads/SQFinal.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl") == 0)
 		{
 			m_sqFinalShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/ScreenQuads/SQBlur.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl") == 0)
 		{
 			m_sqBlurShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/ScreenQuads/SQShadowMap.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl") == 0)
 		{
 			m_sqShadowMapShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/Debug/DebugLine.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/Debug/DebugLine.glsl") == 0)
 		{
 			m_debugLineShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/Debug/DebugIcon.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/Debug/DebugIcon.glsl") == 0)
 		{
 			m_debugIconShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
-		else if (path.compare("resources/engine/shaders/2D/Sprite.glsl") == 0)
+		else if (path.compare("Resources/Engine/Shaders/2D/Sprite.glsl") == 0)
 		{
 			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);

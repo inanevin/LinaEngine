@@ -57,9 +57,9 @@ namespace Lina::ECS
 		if (m_appMode == Lina::ApplicationMode::Editor || pLightIconID == -1)
 		{
 			// Create debug icon textures for lights
-			pLightIconID = Graphics::Texture::GetTexture("resources/editor/textures/objectIcons/pLightIcon.png").GetSID();
-			sLightIconID = Graphics::Texture::GetTexture("resources/editor/textures/objectIcons/sLightIcon.png").GetSID();
-			dLightIconID = Graphics::Texture::GetTexture("resources/editor/textures/objectIcons/dLightIcon.png").GetSID();
+			pLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/PLightIcon.png").GetSID();
+			sLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/SLightIcon.png").GetSID();
+			dLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/DLightIcon.png").GetSID();
 		}
 
 		// Flush lights every update.

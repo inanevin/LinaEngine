@@ -71,11 +71,20 @@ namespace Lina::Physics
 		static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials() { return s_loadedMaterials; }
 	
 		std::string GetPath() { return m_path; }
+		float GetStaticFriction() { return m_staticFriction; }
+		float GetDynamicFriction() { return m_dynamicFriction; }
+		float GetRestitution() { return m_restitution; }
 
 	private:
 
 		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
 		friend class cereal::access;
+
+#ifdef LINA_PHYSICS_BULLET
+		friend class BulletPhysicsEngine;
+#elif LINA_PHYSICS_PHYSX
+		friend class PhysXPhysicsEngine;
+#endif
 
 		StringIDType m_materialID = -1;
 		std::string m_path = "";
