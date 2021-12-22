@@ -1586,6 +1586,7 @@ enum ImGuiCol_
     ImGuiCol_TitleHeader,
     ImGuiCol_TitleHeaderHover,
     ImGuiCol_TitleHeaderPressed,
+    ImGuiCol_TitleHeaderBorder,
     ImGuiCol_COUNT
 };
 

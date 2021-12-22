@@ -46,13 +46,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-#define COMBOBOX_WIDTH_1 12.4f
-#define COMBOBOX_WIDTH_2 28.0f
-#define COMBOBOX_WIDTH_3 22.4f
-#define DRAG_POWER 0.01f
-#define VALUE_OFFSET_FROM_WINDOW 10
-#define HEADER_WIDGET_HEIGHT 25
-#define DEFAULT_TOGGLE_SIZE ImVec2(35.0f, 15.0f)
 
 	static bool s_isDraggingWidgetInput = false;
 	static std::string s_draggedInput = "";
@@ -469,11 +462,14 @@ namespace Lina::Editor
 		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderPressed);
 		const ImVec2 rectMin = ImVec2(windowPos.x, windowPos.y + cursorPos.y);
 		const ImVec2 rectMax = ImVec2(rectMin.x + rectSize.x, rectMin.y + rectSize.y);
-		const bool bgHovered = ImGui::IsMouseHoveringRect(rectMin, rectMax);
+		const bool bgHovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
 		const bool bgPressed = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 		const bool bgReleased = bgHovered && Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
 		const ImVec4 bgColor = bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
 		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
+
+		const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);
+		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(borderColor));
 
 		static float w = 2.0f;
 
@@ -689,6 +685,31 @@ namespace Lina::Editor
 		}
 	}
 
+	bool Lina::Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
+	{
+		float currentCursor = ImGui::GetCursorPosX();
+		float windowWidth = ImGui::GetWindowWidth();
+		float remaining = windowWidth - currentCursor;
+		float comboWidth = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+		ImGui::SetNextItemWidth(comboWidth);
+
+		return ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+	}
+
+	bool Lina::Editor::WidgetsUtility::PostComboBox(const char* id)
+	{
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImGui::SameLine(0.0f, 0.0f);
+		float frameHeight = ImGui::GetFrameHeight() - 2;
+		const std::string btnLabel = std::string(ICON_FA_MINUS) + "##" + std::string(id);
+		bool button = Button(btnLabel.c_str(), ImVec2(frameHeight, frameHeight), 0.7f, 2.0f, ImVec2(0.1f, 0.0f));
+
+		if (ImGui::IsItemHovered())
+			Tooltip("Remove");
+
+		return button;
+	}
+
 	Lina::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
 	{
 		Graphics::Material* materialToReturn = nullptr;
@@ -699,14 +720,7 @@ namespace Lina::Editor
 			materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
 		}
 
-
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
-		ImGui::SetNextItemWidth(comboWidth);
-
-		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
+		if (BeginComboBox(comboID, materialLabel.c_str(), true))
 		{
 			auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
 
@@ -724,25 +738,13 @@ namespace Lina::Editor
 				if (selected)
 					ImGui::SetItemDefaultFocus();
 			}
-
 			ImGui::EndCombo();
 		}
 
-		if (removed != nullptr)
-		{
-			//ImGui::SameLine();
-			//ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
-			//WidgetsUtility::IncrementCursorPosY(6);
-
-			// Remove Model
-			const std::string removeID = "##removeMaterial_" + std::string(comboID);
-			//if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			//	*removed = true;
-
-			if (ImGui::IsItemHovered())
-				Tooltip("Remove");
-
-		}
+		const std::string comboEndID = std::string(comboID) + "_comboEnd";
+		if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
+			*removed = true;
+		
 
 		return materialToReturn;
 	}
@@ -758,13 +760,7 @@ namespace Lina::Editor
 			modelLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
 		}
 
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
-
-		ImGui::SetNextItemWidth(comboWidth);
-		if (ImGui::BeginCombo(comboID, modelLabel.c_str()))
+		if (BeginComboBox(comboID, modelLabel.c_str(), true))
 		{
 			auto& loadedModels = Graphics::Model::GetLoadedModels();
 
@@ -786,20 +782,9 @@ namespace Lina::Editor
 			ImGui::EndCombo();
 		}
 
-		if (removed != nullptr)
-		{
-			//ImGui::SameLine();
-			//ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
-			//WidgetsUtility::IncrementCursorPosY(6);
-
-			// Remove
-			const std::string removeID = "##removeModel_" + std::string(comboID);
-			//if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			//	*removed = true;
-
-			if (ImGui::IsItemHovered())
-				Tooltip("Remove");
-		}
+		const std::string comboEndID = std::string(comboID) + "_comboEnd";
+		if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
+			*removed = true;
 
 		return modelToReturn;
 	}
@@ -815,12 +800,7 @@ namespace Lina::Editor
 			shaderLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(shaderLabelFull));
 		}
 
-
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 : remaining - COMBOBOX_WIDTH_2;
-		if (ImGui::BeginCombo(comboID, shaderLabel.c_str()))
+		if (BeginComboBox(comboID, shaderLabel.c_str(), true))
 		{
 			auto& loadedShaders = Lina::Graphics::Shader::GetLoadedShaders();
 
@@ -842,21 +822,9 @@ namespace Lina::Editor
 			ImGui::EndCombo();
 		}
 
-		if (removed != nullptr)
-		{
-			//ImGui::SameLine();
-			//ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
-			WidgetsUtility::IncrementCursorPosY(6);
-
-			// Remove Model
-			const std::string removeID = "##removeShader_" + std::string(comboID);
-			//if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			//	*removed = true;
-
-
-			if (ImGui::IsItemHovered())
-				Tooltip("Remove");
-		}
+		const std::string comboEndID = std::string(comboID) + "_comboEnd";
+		if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
+			*removed = true;
 
 
 		return shaderToReturn;
@@ -879,13 +847,7 @@ namespace Lina::Editor
 		if (Lina::Input::InputEngineBackend::Get()->GetKey(LINA_KEY_E))
 			w -= 0.01f;
 
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = removed == nullptr ? remaining - COMBOBOX_WIDTH_1 - w : remaining - COMBOBOX_WIDTH_2;
-		ImGui::SetNextItemWidth(comboWidth);
-
-		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
+		if (BeginComboBox(comboID, materialLabel.c_str(), true))
 		{
 			auto& loadedMaterials = Physics::PhysicsMaterial::GetLoadedMaterials();
 
@@ -907,22 +869,9 @@ namespace Lina::Editor
 			ImGui::EndCombo();
 		}
 
-		if (removed != nullptr)
-		{
-			//ImGui::SameLine();
-			//ImGui::SetCursorPosX(windowWidth - COMBOBOX_WIDTH_3);
-			WidgetsUtility::IncrementCursorPosY(6);
-
-			// Remove Model
-			const std::string removeID = "##removePhysicsMat_" + std::string(comboID);
-			//if (WidgetsUtility::IconButton(removeID.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			//	*removed = true;
-
-
-			if (ImGui::IsItemHovered())
-				Tooltip("Remove");
-
-		}
+		const std::string comboEndID = std::string(comboID) + "_comboEnd";
+		if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
+			*removed = true;
 
 		return materialToReturn;
 	}
@@ -930,12 +879,8 @@ namespace Lina::Editor
 	int Lina::Editor::WidgetsUtility::SimulationTypeComboBox(const char* comboID, int currentShapeID)
 	{
 		int simTypeToReturn = currentShapeID;
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = remaining - COMBOBOX_WIDTH_1;
-		ImGui::SetNextItemWidth(comboWidth);
-		if (ImGui::BeginCombo(comboID, Lina::Physics::SIMULATION_TYPES[currentShapeID].c_str()))
+	
+		if (BeginComboBox(comboID, Lina::Physics::SIMULATION_TYPES[currentShapeID].c_str(), false))
 		{
 			int counter = 0;
 			for (auto& shape : Lina::Physics::SIMULATION_TYPES)
@@ -961,12 +906,7 @@ namespace Lina::Editor
 	{
 		int shapeToReturn = currentShapeID;
 
-		float currentCursor = ImGui::GetCursorPosX();
-		float windowWidth = ImGui::GetWindowWidth();
-		float remaining = windowWidth - currentCursor;
-		float comboWidth = remaining - COMBOBOX_WIDTH_1;
-		ImGui::SetNextItemWidth(comboWidth);
-		if (ImGui::BeginCombo(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str()))
+		if (BeginComboBox(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str(), false))
 		{
 			int counter = 0;
 			for (auto& shape : Lina::Physics::COLLISION_SHAPES)
@@ -988,16 +928,31 @@ namespace Lina::Editor
 		return shapeToReturn;
 	}
 
-	bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentAlign)
+	bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset)
 	{
 		FrameRounding(rounding);
 		WidgetsUtility::PushScaledFont(textSize);
-		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, contentAlign);
-		bool button = ImGui::Button(label, size);
+
+		bool button = false;
+		if (contentOffset.x == 0.0f && contentOffset.y == 0.0f)
+		{
+			button = ImGui::Button(label, size);
+		}
+		else
+		{
+			const ImVec2 currentCursor = ImGui::GetCursorScreenPos();
+			const std::string finalLabel = "##_" + std::string(label);
+			button = ImGui::Button(finalLabel.c_str(), size);
+			std::string labelStr = std::string(label);
+			std::string text = labelStr.substr(0, labelStr.find("#"));
+			const ImVec2 calcSize = ImGui::CalcTextSize(text.c_str());
+			const ImVec2 textPos = ImVec2(currentCursor.x + size.x / 2.0f - calcSize.x / 2.0f + contentOffset.x, currentCursor.y + size.y / 2.0f - calcSize.y / 2.0f + contentOffset.y);
+			ImGui::GetWindowDrawList()->AddText(textPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), text.c_str());
+		}
+
 		ImGui::SetItemAllowOverlap();
 		ImGui::PopStyleVar();
 		WidgetsUtility::PopScaledFont();
-		PopStyleVar();
 		return button;
 	}
 
@@ -1134,21 +1089,21 @@ namespace Lina::Editor
 		const float itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
 		ImVec2 windowPos = ImGui::GetWindowPos();
 		ImVec2 cursorPos = ImGui::GetCursorPos();
-		ImVec2 rectMin = ImVec2(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y + 1);
-		ImVec2 rectMax = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 1);
+		ImVec2 rectMin = ImVec2(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y + 2);
+		ImVec2 rectMax = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 4);
 		ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
-		ImVec4 rectCol = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+		ImVec4 rectCol = ImVec4(0.13f, 0.13f, 0.13f, 1.0f);
 		ImVec4 textCol = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const std::string rectID = std::string(id) + "_rect";
 
 		if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
 			ImGui::SetHoveredID(ImGuiID(rectID.c_str()));
 
-		FramePaddingX(itemHeight);
+		FramePaddingX(itemHeight + 1);
 		bool result = ImGui::InputFloat(id, var);
 		PopStyleVar();
 
-		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol), 2);
+		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol), 1);
 		DragBehaviour(rectID.c_str(), var, ImRect(rectMin, rectMax));
 
 		if (isIcon)
@@ -1201,12 +1156,18 @@ namespace Lina::Editor
 
 	bool Lina::Editor::WidgetsUtility::DragVector2(const char* id, float* var)
 	{
+		float windowWidth = ImGui::GetWindowWidth();
+		float currentCursor = ImGui::GetCursorPosX();
+		const float labelIncrement = 12;
+		float widthPerItem = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 1.0f) / 2.0f;
 		std::string xid = std::string(id) + "_x";
 		std::string yid = std::string(id) + "_y";
-		bool x = DragFloat(xid.c_str(), "X", &var[0]);
+
+		bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
 		ImGui::SameLine();
-		bool y = DragFloat(yid.c_str(), "Y", &var[1]);
-		return x || y;
+		bool y = DragFloat(yid.c_str(), "Y", &var[1], widthPerItem);
+
+		return x || y ;
 	}
 
 	bool Lina::Editor::WidgetsUtility::DragVector3(const char* id, float* var)
@@ -1225,22 +1186,26 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		bool z = DragFloat(zid.c_str(), "Z", &var[2], widthPerItem);
 
-		return false;
+		return x || y || z;
 	}
 
 	bool Lina::Editor::WidgetsUtility::DragVector4(const char* id, float* var)
 	{
+		float windowWidth = ImGui::GetWindowWidth();
+		float currentCursor = ImGui::GetCursorPosX();
+		const float labelIncrement = 12;
+		float widthPerItem = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 3.0f) / 4.0f;
 		std::string xid = std::string(id) + "_x";
 		std::string yid = std::string(id) + "_y";
 		std::string zid = std::string(id) + "_z";
-		std::string wid = std::string(id) + "_w";
-		bool x = DragFloat(xid.c_str(), "X", &var[0]);
+
+		bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
 		ImGui::SameLine();
-		bool y = DragFloat(yid.c_str(), "Y", &var[1]);
+		bool y = DragFloat(yid.c_str(), "Y", &var[1], widthPerItem);
 		ImGui::SameLine();
-		bool z = DragFloat(zid.c_str(), "Z", &var[2]);
+		bool z = DragFloat(zid.c_str(), "Z", &var[2], widthPerItem);
 		ImGui::SameLine();
-		bool w = DragFloat(zid.c_str(), "W", &var[3]);
+		bool w = DragFloat(zid.c_str(), "W", &var[3], widthPerItem);
 		return x || y || z || w;
 	}
 

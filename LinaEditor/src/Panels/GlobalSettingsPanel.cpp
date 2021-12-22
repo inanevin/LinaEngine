@@ -187,10 +187,11 @@ namespace Lina::Editor
 			}
 
 			Lina::Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
-		//	ImGui::SetCursorPosX(CURSOR_X_LABELS);
+			const ImVec2 buttonSize = ImVec2(90, 30);
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
 
-		//	if (WidgetsUtility::Button("Save Settings", ImVec2(90, 30)))
-		//		Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+			if (WidgetsUtility::Button("Save Settings", buttonSize))
+				Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 		
 		

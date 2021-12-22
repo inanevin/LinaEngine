@@ -113,6 +113,11 @@ namespace Lina::Editor
 #define EDITOR_CAMERA_NAME "Editor Camera"
 #define CURSOR_X_LABELS 12
 #define CURSOR_X_VALUES ImGui::GetWindowSize().x * 0.3f
+#define DRAG_POWER 0.01f
+#define VALUE_OFFSET_FROM_WINDOW 10
+#define COMBO_REMOVE_BUTTON_WIDTH 30
+#define HEADER_WIDGET_HEIGHT 25
+#define DEFAULT_TOGGLE_SIZE ImVec2(35.0f, 15.0f)
 
 	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)

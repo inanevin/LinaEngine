@@ -58,12 +58,10 @@ namespace Lina::Editor
 		if (isEditorCamera)
 			ImGui::BeginDisabled();
 
-		static float w = 0.0f;
-
-		w += Lina::Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
 
 		ImGui::SetCursorPosX(12.0f);
-		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, false, 1.0f))
+	
+		if (WidgetsUtility::Button(ICON_FA_PLUS, ImVec2(22, 22), 0.6f, 4.0f, ImVec2(0.5f, 0.0f)))
 			AddComponentPopup();
 
 		ImGui::SameLine();
@@ -80,7 +78,7 @@ namespace Lina::Editor
 
 		// Entity name input text.
 		WidgetsUtility::FramePaddingX(5);
-		WidgetsUtility::IncrementCursorPosY(-0.8f);
+		WidgetsUtility::IncrementCursorPosY(0.9f);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
 		ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
@@ -136,9 +134,7 @@ namespace Lina::Editor
 		if (isEditorCamera)
 			ImGui::EndDisabled();
 
-		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
-
 		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.

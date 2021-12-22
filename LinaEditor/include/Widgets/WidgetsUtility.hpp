@@ -159,6 +159,16 @@ namespace Lina::Editor
 		static void PropertyLabel(const char* label, bool sameLine = true);
 
 		/// <summary>
+		/// Base implementation of a combobox begin, uses ImGui Combo with custom remove buttons.
+		/// </summary>
+		static bool BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton = false);
+
+		/// <summary>
+		/// Base implementation of a combobox end, uses ImGui Combo with custom remove buttons.
+		/// </summary>		
+		static bool PostComboBox(const char* id);
+
+		/// <summary>
 		/// Drop-down combo-box for selecting any loaded material in the project.
 		/// </summary>
 		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
@@ -191,7 +201,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Default IMGUI button with fixed styling options.
 		/// </summary>
-		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentAlign = ImVec2(0.5f, 0.5f));
+		static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentOffset = ImVec2(0.0f, 0.0f));
 
 		/// <summary>
 		/// Draws icon buttons used in the main toolbar.
