@@ -2819,6 +2819,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_TitleHeaderHover: return "TitleHeaderHover";
     case ImGuiCol_TitleHeaderPressed: return "TitleHeaderPressed";
     case ImGuiCol_TitleHeaderBorder: return "TitleHeaderBorder";
+    case ImGuiCol_TitleHeaderDisabled: return "TitleHeaderDisabled";
     }
     IM_ASSERT(0);
     return "Unknown";

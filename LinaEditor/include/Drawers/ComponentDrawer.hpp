@@ -66,7 +66,8 @@ namespace Lina::Editor
 		ComponentDrawFlags_NoReset = 1 << 1,
 		ComponentDrawFlags_NoCopy = 1 << 2,
 		ComponentDrawFlags_NoPaste = 1 << 3,
-		ComponentDrawFlags_NoToggle = 1 << 4
+		ComponentDrawFlags_NoToggle = 1 << 4,
+		ComponentDrawFlags_DisabledHeader = 1 << 5,
 	};
 
 	enum class ComponentVariableType

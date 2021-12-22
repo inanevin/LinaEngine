@@ -29,6 +29,7 @@ SOFTWARE.
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
 #include "Rendering/Model.hpp"
 
 namespace Lina::ECS
@@ -70,8 +71,11 @@ namespace Lina::ECS
 			// Set default material to mesh renderer.
 			mr.m_materialID = defaultMaterial.GetID();
 			mr.m_materialPath = defaultMaterial.GetPath();
-
 			mr.m_isEnabled = m_isEnabled;
+
+			// Set the child's bounding volume from mesh data.
+			auto& data = reg->get<ECS::EntityDataComponent>(newEntity);
+			data.m_halfBounds = mesh.GetHalfBounds();
 		}
 
 		// Set default material to all the paths.

@@ -42,9 +42,12 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+	Lina::Vector3 AssimpToLinaVector(aiVector3D vec)
+	{
+		return Lina::Vector3(vec.x, vec.y, vec.z);
+	}
 
-
-	Matrix AssimpToInternal(aiMatrix4x4 aiMat)
+	Matrix AssimpToLinaMatrix(aiMatrix4x4 aiMat)
 	{
 		Matrix mat;
 		mat[0][0] = aiMat.a1;	mat[0][1] = aiMat.b1;	mat[0][2] = aiMat.c1;	mat[0][3] = aiMat.d1;
@@ -70,18 +73,16 @@ namespace Lina::Graphics
 		}
 
 		aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
-		worldParams.m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
+		worldParams.m_rootInverse = AssimpToLinaMatrix(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
-
-
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
 			// Build aiMesh reference for each aiMesh.
 			const aiMesh* aiMesh = scene->mMeshes[j];
-
+			
 			// Build and indexed aiMesh for each aiMesh & fill in the data.
 			Mesh currentMesh;
 			currentMesh.SetName(scene->mMeshes[j]->mName.C_Str());
@@ -95,7 +96,6 @@ namespace Lina::Graphics
 			currentMesh.AllocateElement(4, 6, true);	// bone weights
 			currentMesh.AllocateElement(16, 7, true, true); // Model Matrix
 
-
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
 			std::vector<std::vector<int>> vertexBoneIDs;
@@ -106,8 +106,6 @@ namespace Lina::Graphics
 				vertexBoneIDs.resize(aiMesh->mNumVertices, std::vector<int>(4, -1));
 				vertexBoneWeights.resize(aiMesh->mNumVertices, std::vector<float>(4, 0.0f));
 			}
-
-
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < aiMesh->mNumVertices; i++)
@@ -153,6 +151,10 @@ namespace Lina::Graphics
 			}
 
 			// Add aiMesh to array.
+			const Vector3 min = AssimpToLinaVector(aiMesh->mAABB.mMin);
+			const Vector3 max = AssimpToLinaVector(aiMesh->mAABB.mMax);
+			const Vector3 half = (max - min) / 2.0f;
+			currentMesh.m_halfBounds = half;
 			model.GetMeshes().push_back(currentMesh);
 		}
 
@@ -182,7 +184,6 @@ namespace Lina::Graphics
 		}
 		return true;
 	}
-
 
 	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& params)
 	{
@@ -242,8 +243,6 @@ namespace Lina::Graphics
 
 		return LoadModel(scene, model);
 	}
-
-
 
 	bool ModelLoader::LoadSpriteQuad(Mesh& mesh)
 	{

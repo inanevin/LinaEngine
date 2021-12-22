@@ -60,6 +60,7 @@ namespace Lina
 	{
 		class Level;
 	}
+
 };
 
 namespace Lina::ECS
@@ -80,7 +81,6 @@ namespace Lina::ECS
 		Physics::SimulationType GetSimType() { return m_simType; }
 		std::string GetMaterialPath() { return m_physicsMaterialPath; }
 		StringIDType GetMaterialID() { return m_physicsMaterialID; }
-		Lina::Vector3 GetBounds() { return m_bounds; }
 
 	private:
 
@@ -98,17 +98,15 @@ namespace Lina::ECS
 
 		Physics::SimulationType m_simType = Physics::SimulationType::None;
 		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
-		Lina::Vector3 m_halfExtents = Lina::Vector3::One; // used for box & cylinder shapes
+		Lina::Vector3 m_halfExtents = Lina::Vector3(0.5f, 0.5f, 0.5f); 
+		Lina::Vector3 m_velocity = Lina::Vector3::Zero;
+		Lina::Vector3 m_angularVelocity = Lina::Vector3::Zero;
 		float m_mass = 1.0f;
-		float m_radius = 1.0f; // used for sphere & capsule shapes.
+		float m_radius = 1.0f;
 		float m_capsuleHalfHeight = 1.0f;
 		bool m_isKinematic = true;
 		std::string m_physicsMaterialPath = "";
 		StringIDType m_physicsMaterialID = 0;
-
-		Lina::Vector3 m_bounds = Lina::Vector3::One;
-		Lina::Vector3 m_velocity = Lina::Vector3::Zero;
-		Lina::Vector3 m_angularVelocity = Lina::Vector3::Zero;
 
 		void ResetRuntimeState()
 		{
@@ -129,7 +127,7 @@ namespace Lina::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_physicsMaterialPath, m_simType,  m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled, m_bounds);
+			archive(m_collisionShape, m_physicsMaterialPath, m_simType,  m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
 		}
 
 	};

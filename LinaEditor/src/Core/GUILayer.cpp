@@ -197,8 +197,10 @@ namespace Lina::Editor
 		colors[ImGuiCol_ButtonLocked] = ImVec4(0.100f, 0.146f, 0.199f, 1.000f);
 		colors[ImGuiCol_Icon] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		colors[ImGuiCol_TitleHeader] = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
-		colors[ImGuiCol_TitleHeaderHover] = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
-		colors[ImGuiCol_TitleHeaderPressed] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		colors[ImGuiCol_TitleHeaderHover] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		colors[ImGuiCol_TitleHeaderPressed] = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
+		colors[ImGuiCol_TitleHeaderBorder] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		colors[ImGuiCol_TitleHeaderDisabled] = ImVec4(0.172f, 0.000f, 0.000f, 1.000f);
 		ImPlot::GetStyle().AntiAliasedLines = true;
 
 		s_setDockspaceLayout = true;

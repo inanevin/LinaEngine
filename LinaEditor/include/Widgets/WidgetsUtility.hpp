@@ -139,7 +139,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Draws a horizontal reactangle, with foldout caret, component title, icon, and component buttons.
 		/// </summary>
-		static bool ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton = true);
+		static bool ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton = true, bool disableHeader = false);
 
 		/// <summary>
 		/// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.

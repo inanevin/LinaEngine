@@ -449,7 +449,7 @@ namespace Lina::Editor
 		WindowButtons(label, 5.0f);
 	}
 
-	bool WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton)
+	bool WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
 	{
 		const ImVec2 cursorPos = ImGui::GetCursorPos();
 		const ImVec2 windowPos = ImGui::GetWindowPos();
@@ -458,14 +458,15 @@ namespace Lina::Editor
 
 		// Draw background
 		const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeader);
-		const ImVec4 pressColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderHover);
-		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderPressed);
+		const ImVec4 pressColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderPressed);
+		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderHover);
+		const ImVec4 disabledColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderDisabled);
 		const ImVec2 rectMin = ImVec2(windowPos.x, windowPos.y + cursorPos.y);
 		const ImVec2 rectMax = ImVec2(rectMin.x + rectSize.x, rectMin.y + rectSize.y);
-		const bool bgHovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
+		const bool bgHovered = !disableHeader && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
 		const bool bgPressed = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
 		const bool bgReleased = bgHovered && Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
-		const ImVec4 bgColor = bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
+		const ImVec4 bgColor = disableHeader ? disabledColor : bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
 		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
 
 		const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);

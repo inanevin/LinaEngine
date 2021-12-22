@@ -314,34 +314,40 @@ namespace Lina::Editor
 	void LevelPanel::ProcessInput()
 	{
 
-		if (ImGui::IsWindowFocused())
+		if (ImGui::IsWindowHovered())
 		{
 			// Mouse picking
 			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
 			{
 				auto* reg = Lina::ECS::Registry::Get();
-				
 				auto* rend = Lina::Graphics::RenderEngineBackend::Get();
-				Vector2 windowPos = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
-				Vector2 mousePos = Vector2(ImGui::GetMousePos().x - windowPos.x, ImGui::GetMousePos().y - windowPos.y);
-				Vector2 display = rend->GetScreenSize();
-				const Vector3 rayPos = Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
-
-				LINA_TRACE("Screen Size: {0}, Mouse Position: {1}, World Position: {2}", display.ToString(), mousePos.ToString(), rayPos.ToString());
-
 				Lina::ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 				Lina::ECS::EntityDataComponent& camData = reg->get<ECS::EntityDataComponent>(editorCam);
-				reg->each([reg, &camData](auto entity) {
+				Vector2 windowPos = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+				Vector2 mousePos = Vector2(ImGui::GetMousePos().x - windowPos.x, ImGui::GetMousePos().y - windowPos.y);
 
-					//Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
-					//Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
-					//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camData.GetLocation(), camData.GetRotation().GetForward(), entityData.GetLocation(), entityPhy.GetBounds(), 500.0f);
+				const Vector3 camLocation = camData.GetLocation();
+				const Vector3 clickPos = Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
+				const Vector3 rayDir = (clickPos - camLocation).Normalized();
 
+				reg->each([reg, camLocation, rayDir, editorCam](auto entity) {
 
+					if (entity != editorCam)
+					{
+						Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
+						Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
+						Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetHalfBounds(), 500.0f);
+
+						if (hitInfo.m_hitCount > 0)
+						{
+							Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ entity });
+							return;
+						}
+					}
+					
 					});
 
 			}
-
 
 			if (ImGui::IsKeyPressed(LINA_KEY_Q))
 				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ 0 });
@@ -404,11 +410,8 @@ namespace Lina::Editor
 	{
 		if (Lina::Engine::Get()->GetPlayMode() || !m_shouldShowGizmos) return;
 
-		ImVec2 sceneWindowPos = WidgetsUtility::GetWindowPosWithContentRegion();
-		ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
-
 		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
-
+		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		Matrix& view = renderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 
@@ -433,7 +436,6 @@ namespace Lina::Editor
 
 			if (ImGuizmo::IsUsing())
 			{
-
 				glm::vec3 rot = data.GetRotationAngles();
 				glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
 				data.SetRotationAngles(rot + deltaRotation);
@@ -443,11 +445,11 @@ namespace Lina::Editor
 			data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
 			// Handle AABB bounding box drawing for the selected entity.
-			Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{ data.GetLocation(), phy.GetBounds(), Color::Red, 2.0f });
+			if (m_selectedTransform != editorCam)
+				Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{ data.GetLocation(), data.GetHalfBounds(), Color::Red, 2.0f });
 		}
 
 		// Draw scene orientation gizmo
-		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		if (editorCam != entt::null)
 		{
 			ImGuizmo::SetCanUse(false);

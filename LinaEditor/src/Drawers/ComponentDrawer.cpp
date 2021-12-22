@@ -221,6 +221,8 @@ namespace Lina::Editor
 	ComponentDrawer::ComponentDrawer()
 	{
 		uint8 defaultDrawFlags = ComponentDrawFlags_None;
+		uint8 meshRendererFlags = ComponentDrawFlags_NoCopy | ComponentDrawFlags_NoPaste | ComponentDrawFlags_NoRemove | ComponentDrawFlags_NoReset | ComponentDrawFlags_DisabledHeader;
+
 		// Camera component
 		entt::meta<CameraComponent>().data<&CameraComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<CameraComponent>().data<&CameraComponent::m_zFar>("zf"_hs).props(PROPS("Far", ComponentVariableType::DragFloat, "Far Plane"));
@@ -228,6 +230,9 @@ namespace Lina::Editor
 		entt::meta<CameraComponent>().data<&CameraComponent::m_fieldOfView>("fov"_hs).props(PROPS("Fov", ComponentVariableType::DragFloat, "Field of View Angles"));
 		entt::meta<CameraComponent>().data<&CameraComponent::m_clearColor>("cc"_hs).props(PROPS("Clear Color", ComponentVariableType::Color, "Background Clear Color"));
 		RegisterComponentForEditor<CameraComponent>("Camera", ICON_FA_CAMERA, defaultDrawFlags, "View");
+
+		entt::meta<MeshRendererComponent>().data<&MeshRendererComponent::m_isEnabled>("enabled"_hs);
+		RegisterComponentForEditor<MeshRendererComponent>("Mesh", ICON_FA_BORDER_ALL, meshRendererFlags, "Rendering", false);
 
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
@@ -607,13 +612,14 @@ namespace Lina::Editor
 			bool drawCopy = !(drawFlags & ComponentDrawFlags_NoCopy);
 			bool drawPaste = !(drawFlags & ComponentDrawFlags_NoPaste);
 			bool drawReset = !(drawFlags & ComponentDrawFlags_NoReset);
+			bool disableHeader = (drawFlags & ComponentDrawFlags_DisabledHeader);
 			bool remove = false;
 			bool copy = false;
 			bool paste = false;
 			bool reset = false;
 			bool enabled = resolvedData.data("enabled"_hs).get(instance).cast<bool>();
 			bool enabledPrevious = enabled;
-			WidgetsUtility::ComponentHeader(tid, &m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr);
+			WidgetsUtility::ComponentHeader(tid, &m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr, true, disableHeader);
 
 			if (enabled != enabledPrevious)
 				resolvedData.func("setEnabled"_hs).invoke({}, ent, enabled);
@@ -643,12 +649,9 @@ namespace Lina::Editor
 				resolvedData.func("paste"_hs).invoke({}, ent);
 
 
-
 			if (m_componentFoldoutState[tid])
 			{
-
 				// Draw each reflected property in the component according to it's type.
-
 				int varCounter = 0;
 				std::string varLabelID = "";
 				for (auto data : resolvedData.data())

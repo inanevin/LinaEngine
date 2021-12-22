@@ -366,8 +366,7 @@ namespace Lina::Graphics
 	void OpenGLRenderEngine::OnDrawBox(Event::EDrawBox event)
 	{
 		const Vector3 pos = event.m_position;
-		const Vector3 extents = event.m_extents;
-		const Vector3 halfExtents = extents / 2.0f;
+		const Vector3 halfExtents = event.m_halfExtents;
 
 		const Vector3 bottomLB = pos - halfExtents;
 		const Vector3 bottomLF = pos + Vector3(-halfExtents.x, -halfExtents.y, halfExtents.z);

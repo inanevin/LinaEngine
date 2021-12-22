@@ -58,6 +58,8 @@ namespace Lina
 
 namespace Lina::ECS
 {
+	struct ModelRendererComponent;
+
 	struct EntityDataComponent : public ECSComponent
 	{
 		EntityDataComponent(bool hidden, bool enabled, bool serialized, std::string name)
@@ -104,6 +106,7 @@ namespace Lina::ECS
 		const Quaternion& GetRotation() { return m_transform.m_rotation; }
 		const Vector3& GetRotationAngles() { return m_transform.m_rotationAngles; }
 		const Vector3& GetScale() { return m_transform.m_scale; }
+		Lina::Vector3 GetHalfBounds() { return m_halfBounds; }
 
 	private:
 
@@ -119,6 +122,7 @@ namespace Lina::ECS
 
 		friend class cereal::access;
 		friend class Registry;
+		friend class Lina::ECS::ModelRendererComponent;
 
 #ifdef LINA_PHYSICS_BULLET
 		friend class Lina::Physics::BulletPhysicsEngine;
@@ -127,14 +131,14 @@ namespace Lina::ECS
 #endif
 
 		bool m_isTransformLocked = false;
-
+		Lina::Vector3 m_halfBounds = Lina::Vector3(0.5f, 0.5f, 0.5f);
 		Registry* m_ecs = nullptr;
 		Lina::Transformation m_transform;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
+			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children, m_halfBounds);
 		}
 
 	

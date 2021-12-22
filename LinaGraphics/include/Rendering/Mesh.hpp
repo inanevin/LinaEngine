@@ -84,18 +84,18 @@ namespace Lina::Graphics
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
 		uint32 GetIndexCount() const { return m_indices.size(); }
 		VertexArray& GetVertexArray() { return m_vertexArray; }
-
-	public:
-
-
+		Vector3 GetHalfBounds() { return m_halfBounds; }
+		
 	private:
 
-		// Index & element data.
+		friend class ModelLoader;
+
 		std::string m_name = "";
 		std::vector<uint32> m_indices;
 		std::vector<BufferData> m_bufferElements;
 		VertexArray m_vertexArray;
 		uint32 m_materialSlot = 0;
+		Lina::Vector3 m_halfBounds = Lina::Vector3(0.5f, 0.5f, 0.5f);
 	};
 }
 
