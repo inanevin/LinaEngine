@@ -153,7 +153,7 @@ namespace Lina::Physics
 
 		static float x = 0.0f;
 
-		x += fixedDelta;
+		//x += fixedDelta;
 
 		if (x > 2.0f)
 		{

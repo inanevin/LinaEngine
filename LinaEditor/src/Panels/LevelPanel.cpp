@@ -320,15 +320,26 @@ namespace Lina::Editor
 			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
 			{
 				auto* reg = Lina::ECS::Registry::Get();
+				
+				auto* rend = Lina::Graphics::RenderEngineBackend::Get();
+				Vector2 windowPos = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+				Vector2 mousePos = Vector2(ImGui::GetMousePos().x - windowPos.x, ImGui::GetMousePos().y - windowPos.y);
+				Vector2 display = rend->GetScreenSize();
+				const Vector3 rayPos = Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
+
+				LINA_TRACE("Screen Size: {0}, Mouse Position: {1}, World Position: {2}", display.ToString(), mousePos.ToString(), rayPos.ToString());
+
 				Lina::ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 				Lina::ECS::EntityDataComponent& camData = reg->get<ECS::EntityDataComponent>(editorCam);
+				reg->each([reg, &camData](auto entity) {
 
-				//reg->each([camData](auto entity))
-				//{
-				//	Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
-				//	Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
-				//	Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camData.GetLocation(), camData.GetRotation().GetForward(), entityData.GetLocation(), entityPhy.GetAABBExtents(), 500.0f);
-				//});
+					//Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
+					//Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
+					//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camData.GetLocation(), camData.GetRotation().GetForward(), entityData.GetLocation(), entityPhy.GetBounds(), 500.0f);
+
+
+					});
+
 			}
 
 
@@ -342,23 +353,23 @@ namespace Lina::Editor
 				Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ currentTransformGizmoMode == ImGuizmo::LOCAL });
 
 			bool isInPlay = Lina::Engine::Get()->GetPlayMode();
-			auto* inputEngine = Lina::Input::InputEngineBackend::Get();		
-			
-		if (inputEngine->GetKey(LINA_KEY_LCTRL) && inputEngine->GetKeyDown(LINA_KEY_SPACE))
-		{
-			if (isInPlay)
+			auto* inputEngine = Lina::Input::InputEngineBackend::Get();
+
+			if (inputEngine->GetKey(LINA_KEY_LCTRL) && inputEngine->GetKeyDown(LINA_KEY_SPACE))
 			{
-				Lina::Engine::Get()->SetPlayMode(false);
-				Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
-				// unconfine mouse
+				if (isInPlay)
+				{
+					Lina::Engine::Get()->SetPlayMode(false);
+					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+					// unconfine mouse
+				}
+				else
+				{
+					Lina::Engine::Get()->SetPlayMode(true);
+					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+					// confine mouse
+				}
 			}
-			else
-			{
-				Lina::Engine::Get()->SetPlayMode(true);
-				Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
-				// confine mouse
-			}
-		}
 
 			if (isInPlay)
 			{
@@ -401,7 +412,7 @@ namespace Lina::Editor
 		Matrix& view = renderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 
-		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
+		// Handle entity transformation manipulation.
 		if (m_selectedTransform != entt::null)
 		{
 			ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(m_selectedTransform);
@@ -409,7 +420,6 @@ namespace Lina::Editor
 
 			// Get required matrices.
 			glm::mat4 object = data.ToMatrix();
-
 			bool useDisabled = (phy.GetSimType() == Physics::SimulationType::Static) || (phy.GetSimType() == Physics::SimulationType::Dynamic && !phy.GetIsKinematic());
 			ImGuizmo::SetCanUse(!useDisabled);
 			ImGuizmo::SetThicknessMultiplier(1.0f);
@@ -432,6 +442,8 @@ namespace Lina::Editor
 			data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
 			data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
+			// Handle AABB bounding box drawing for the selected entity.
+			Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{ data.GetLocation(), phy.GetBounds(), Color::Red, 2.0f });
 		}
 
 		// Draw scene orientation gizmo
@@ -450,8 +462,6 @@ namespace Lina::Editor
 		}
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
-
-
 	}
 
 	void LevelPanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)

@@ -75,7 +75,7 @@ namespace Lina::ECS
 		/// <summary>
 		/// Converts given screen-space coordinates to world-space coordinates.
 		/// Z element is the distance from camera.
-		/// (0,0) bottom-left, (screenSizeX, screenSizeY) top-right
+		/// (0,0) top-left, (screenSizeX, screenSizeY) bottom-right
 		/// </summary>
 		/// <param name="screenPos"></param>
 		/// <returns></returns>
@@ -83,7 +83,7 @@ namespace Lina::ECS
 
 		/// <summary>
 		/// Converts given viewport-space coordinates to world-space coordinates.
-		/// (0,0) bottom-left, (1,1) top-right
+		/// (0,0) top-left, (1,1) bottom-right
 		/// </summary>
 		/// <param name="viewport"></param>
 		/// <returns></returns>
@@ -91,7 +91,7 @@ namespace Lina::ECS
 
 		/// <summary>
 		/// Converts the given world-space coordinates to screen-space coordinates.
-		/// (0,0) bottom-left, (screenSizeX, screenSizeY) top-right
+		/// (0,0) top-left, (screenSizeX, screenSizeY) bottom-right
 		/// </summary>
 		/// <param name="world"></param>
 		/// <returns></returns>
@@ -99,7 +99,7 @@ namespace Lina::ECS
 
 		/// <summary>
 		/// Converts the given world-space coordinates to viewport coordinates.
-		/// (0,0) bottom-left, (1,1) top-right
+		/// (0,0) top-left, (1,1) bottom-right
 		/// </summary>
 		/// <param name="world"></param>
 		/// <returns></returns>

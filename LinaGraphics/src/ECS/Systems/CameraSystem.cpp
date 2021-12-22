@@ -63,7 +63,7 @@ namespace Lina::ECS
 		Vector2 windowSize = renderEngine->GetScreenSize();
 		Vector2 windowPos = renderEngine->GetScreenPos();
 		Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
-		Vector3 win = glm::vec3(screenPos.x, screenPos.y, 1.0f);
+		Vector3 win = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
 		Matrix pp = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 		Matrix vv = renderEngine->GetCameraSystem()->GetViewMatrix();
 		Vector3 camPos = renderEngine->GetCameraSystem()->GetCameraLocation();
@@ -86,7 +86,8 @@ namespace Lina::ECS
 		Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
 		Matrix pp = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 		Matrix vv = renderEngine->GetCameraSystem()->GetViewMatrix();
-		return glm::project(world, vv, pp, viewport);
+		Vector3 result = glm::project(world, vv, pp, viewport);
+		return Vector3(result.x, windowSize.y - result.y, result.z);
 	}
 
 	Vector3 CameraSystem::WorldToViewportCoordinates(const Vector3& world)
