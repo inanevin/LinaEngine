@@ -393,6 +393,7 @@ namespace Lina::Editor
 
 	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
 	{
+
 		auto* ecs = Lina::ECS::Registry::Get();
 		auto* physicsEngine = Lina::Physics::PhysicsEngineBackend::Get();
 		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);

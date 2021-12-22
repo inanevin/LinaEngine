@@ -58,14 +58,15 @@ namespace Lina::Editor
 		if (isEditorCamera)
 			ImGui::BeginDisabled();
 
-		// Align.
-		ImGui::SetCursorPosX(12); 
-		WidgetsUtility::PushScaledFont(0.8f);
-		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, true))
+		static float w = 0.0f;
+
+		w += Lina::Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
+
+		ImGui::SetCursorPosX(12.0f);
+		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, false, 1.0f))
 			AddComponentPopup();
 
 		ImGui::SameLine();
-		WidgetsUtility::PopScaledFont();
 
 		// Setup char.
 		static char entityName[64] = "";
@@ -87,7 +88,7 @@ namespace Lina::Editor
 
 		// Entity enabled toggle button.
 		ImGui::SameLine();
-		WidgetsUtility::IncrementCursorPosY(1.5f);
+		WidgetsUtility::IncrementCursorPosY(3.0f);
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled);
 
@@ -137,6 +138,8 @@ namespace Lina::Editor
 
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
+
+		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		Lina::ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)

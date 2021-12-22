@@ -2815,6 +2815,9 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
     case ImGuiCol_Icon: return "Icon";
+    case ImGuiCol_TitleHeader: return "TitleHeader";
+    case ImGuiCol_TitleHeaderHover: return "TitleHeaderHover";
+    case ImGuiCol_TitleHeaderPressed: return "TitleHeaderPressed";
     }
     IM_ASSERT(0);
     return "Unknown";

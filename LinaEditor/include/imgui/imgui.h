@@ -1583,6 +1583,9 @@ enum ImGuiCol_
     ImGuiCol_ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
     ImGuiCol_ButtonLocked, // CUSTOM BUTTONS START
     ImGuiCol_Icon,
+    ImGuiCol_TitleHeader,
+    ImGuiCol_TitleHeaderHover,
+    ImGuiCol_TitleHeaderPressed,
     ImGuiCol_COUNT
 };
 

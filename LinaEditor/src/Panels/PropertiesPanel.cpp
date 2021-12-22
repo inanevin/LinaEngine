@@ -85,9 +85,6 @@ namespace Lina::Editor
 		{
 			Begin();
 	
-
-			// Shadow.
-
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::Entities)
 				m_entityDrawer.DrawSelectedEntity();

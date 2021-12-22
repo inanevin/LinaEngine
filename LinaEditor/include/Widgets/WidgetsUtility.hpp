@@ -118,7 +118,7 @@ namespace Lina::Editor
 		/// </summary>
 		/// <param name="thickness"></param>
 		/// <param name="color"></param>
-		static void HorizontalDivider(float yOffset = 0.0f, float thickness = 1.0f);
+		static void HorizontalDivider(float yOffset = 0.0f, float thickness = 1.0f, float maxOverride = 0.0f);
 
 		/// <summary>
 		/// Draws minimize, maximize and close buttons on the window. Pass in the window ID used for BeginWindow().

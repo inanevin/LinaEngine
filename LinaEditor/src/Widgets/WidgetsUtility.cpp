@@ -371,10 +371,11 @@ namespace Lina::Editor
 		return v != nullptr ? *v : false;
 	}
 
-	void WidgetsUtility::HorizontalDivider(float yOffset, float thickness)
+	void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
 	{
+		const float maxWidth = maxOverride == 0.0f ? ImGui::GetWindowPos().x + ImGui::GetWindowWidth() : ImGui::GetWindowPos().x + maxOverride;
 		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + yOffset);
-		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), min.y);
+		ImVec2 max = ImVec2(maxWidth, min.y);
 		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), thickness);
 	}
 
@@ -404,7 +405,7 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(windowWidth - offset1 - gap);
 		ImGui::SetCursorPosY(cursorY);
-		
+
 		bool isMaximized = isAppWindow ? Lina::Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::s_editorPanels[windowID]->IsMaximized();
 		if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, ImVec2(20, 20), 0.6f, 0.0f, ImVec2(0.0f, 1.0f)))
 		{
@@ -442,7 +443,7 @@ namespace Lina::Editor
 		const float height = 30.0f;
 		const float lineOffset = 2.0f;
 
-		ImRect titleRect = ImRect(ImVec2(windowPos.x, windowPos.y ), ImVec2(windowPos.x + windowSize.x, windowPos.y + height));
+		ImRect titleRect = ImRect(ImVec2(windowPos.x, windowPos.y), ImVec2(windowPos.x + windowSize.x, windowPos.y + height));
 		ImVec4 titleRectColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 		ImGui::GetWindowDrawList()->AddRectFilled(titleRect.Min, titleRect.Max, ImGui::ColorConvertFloat4ToU32(titleRectColor));
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(windowPos.x, windowPos.y + lineOffset), ImVec2(windowPos.x + windowSize.x, windowPos.y + lineOffset), ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), 4.0f);
@@ -457,10 +458,32 @@ namespace Lina::Editor
 
 	bool WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton)
 	{
-		// Draw header.
-		ImVec2 cursorPos = ImVec2(0, 0);
-		Header(componentLabel, foldoutOpen, &cursorPos);
-		const ImVec2 cursorPosAfterHeader = ImGui::GetCursorPos();
+		const ImVec2 cursorPos = ImGui::GetCursorPos();
+		const ImVec2 windowPos = ImGui::GetWindowPos();
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		const ImVec2 rectSize = ImVec2(windowSize.x, HEADER_WIDGET_HEIGHT);
+
+		// Draw background
+		const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeader);
+		const ImVec4 pressColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderHover);
+		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderPressed);
+		const ImVec2 rectMin = ImVec2(windowPos.x, windowPos.y + cursorPos.y);
+		const ImVec2 rectMax = ImVec2(rectMin.x + rectSize.x, rectMin.y + rectSize.y);
+		const bool bgHovered = ImGui::IsMouseHoveringRect(rectMin, rectMax);
+		const bool bgPressed = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+		const bool bgReleased = bgHovered && Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
+		const ImVec4 bgColor = bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
+		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
+
+		static float w = 2.0f;
+
+		w += Lina::Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
+
+		IncrementCursorPosY(2.0f);
+		ImGui::SetCursorPosX(CURSOR_X_LABELS);
+		Icon(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT, false, 1.0f);
+		ImGui::SameLine();
+		ImGui::Text(componentLabel);
 
 		// Title is the drag and drop target.
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -486,20 +509,23 @@ namespace Lina::Editor
 			ImGui::EndDragDropTarget();
 		}
 
-		// Draw component icon.
-		ImGui::SetCursorPos(cursorPos);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		IncrementCursorPosY(10.2f);
-		IncrementCursorPosX(ImGui::GetStyle().ItemSpacing.x);
-		Icon(componentIcon, true, 0.7f);
-		ImGui::PopStyleColor();
 		ImGui::SameLine();
 
+		// Draw component icon.
+		if (componentIcon != nullptr)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			IncrementCursorPosY(10.2f);
+			IncrementCursorPosX(ImGui::GetStyle().ItemSpacing.x);
+			Icon(componentIcon, true, 0.7f);
+			ImGui::PopStyleColor();
+			ImGui::SameLine();
+		}
 
-		ImGui::SetCursorPos(cursorPos);
+
+		ImGui::SetCursorPosX(cursorPos.x);
+		ImGui::SetCursorPosY(cursorPos.y + 2.6f);
 		const float cursorPosX = ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW;
-		const float buttonWidth = 26.0f;
-		const float buttonHeight = 20.0f;
 
 		std::vector<std::pair<const char*, bool*>> buttons;
 		std::vector<std::string> buttonNames{ "Remove", "Paste", "Copy", "Reset" };
@@ -509,6 +535,9 @@ namespace Lina::Editor
 		buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetted));
 
 		float lastCursorX = 0.0f;
+		const float buttonWidth = 26.0f;
+		const float buttonHeight = 20.0f;
+		bool anyButtonHovered = false;
 
 		for (int i = 0; i < buttons.size(); i++)
 		{
@@ -518,8 +547,15 @@ namespace Lina::Editor
 			if (buttons[i].second == nullptr)
 				ImGui::BeginDisabled();
 
-			if (Button(buttons[i].first, ImVec2(buttonWidth, buttonHeight), 0.6f, 2.0f))
+			const std::string btnLbl = std::string(buttons[i].first) + "##_" + componentLabel;
+			if (Button(btnLbl.c_str(), ImVec2(buttonWidth, buttonHeight), 0.6f, 2.0f))
 				*buttons[i].second = !*buttons[i].second;
+
+			if (ImGui::IsItemHovered())
+			{
+				Tooltip(buttonNames[i].c_str());
+				anyButtonHovered = true;
+			}
 
 			if (buttons[i].second == nullptr)
 				ImGui::EndDisabled();
@@ -528,35 +564,39 @@ namespace Lina::Editor
 			ImGui::SameLine();
 		}
 
+
 		const ImVec2 toggleSize = DEFAULT_TOGGLE_SIZE;
 
-		static float w = 3.5f;
-		if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_Q))
-			w += 0.1f;
-		if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_E))
-		w-= 0.1f;
-		
-		// Toggle
-		const std::string toggleID = "##_toggle_" + std::string(componentLabel);
-		ImGui::SetCursorPosX(lastCursorX - toggleSize.x - ImGui::GetStyle().ItemSpacing.x);
-		IncrementCursorPosY(2.8f);
-		ToggleButton(toggleID.c_str(), toggled);
-		ImGui::SameLine();
-		lastCursorX = ImGui::GetCursorPosX();
-	
-		ImGui::SetCursorPos(cursorPosAfterHeader);
+		if (toggled != nullptr)
+		{
+			// Toggle
+			const std::string toggleID = "##_toggle_" + std::string(componentLabel);
+			ImGui::SetCursorPosX(lastCursorX - toggleSize.x - ImGui::GetStyle().ItemSpacing.x);
+			ImGui::SetCursorPosY(cursorPos.y + 4.4f);
+			ToggleButton(toggleID.c_str(), toggled);
+			if (ImGui::IsItemHovered())
+				anyButtonHovered = true;
+
+			ImGui::SameLine();
+			lastCursorX = ImGui::GetCursorPosX();
+		}
+
+		if (bgReleased && !anyButtonHovered)
+			*foldoutOpen = !*foldoutOpen;
+
+		ImGui::SetCursorPos(cursorPos);
+		IncrementCursorPosY(rectSize.y + ImGui::GetStyle().ItemSpacing.y);
 		return *foldoutOpen;
-	
+
 	}
 
 	bool WidgetsUtility::Header(const char* label, bool* foldoutOpen, ImVec2* outCursorPos)
 	{
-		ImGui::BeginGroup();
-
 		const ImVec2 windowSize = ImGui::GetWindowSize();
 		const ImVec2 rectSize = ImVec2(windowSize.x, HEADER_WIDGET_HEIGHT);
-		const ImVec4 normalColor = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
-		const ImVec4 hoverColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeader);
+		const ImVec4 pressColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderHover);
+		const ImVec4 hoverColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderPressed);
 		const ImVec2 cursorPosBeforeButton = ImGui::GetCursorPos();
 		const float iconScale = 0.65f;
 
@@ -580,14 +620,8 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		ImGui::Text(label);
 		ImGui::SameLine();
-		const ImVec2 cursorPosFinal = ImGui::GetCursorPos();
-
-		if (outCursorPos != nullptr)
-			*outCursorPos = cursorPosFinal;
-
 		ImGui::SetCursorPos(cursorPosAfterButton);
 
-		ImGui::EndGroup();
 		return *foldoutOpen;
 	}
 
@@ -960,8 +994,8 @@ namespace Lina::Editor
 		WidgetsUtility::PushScaledFont(textSize);
 		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, contentAlign);
 		bool button = ImGui::Button(label, size);
-		ImGui::PopStyleVar();
 		ImGui::SetItemAllowOverlap();
+		ImGui::PopStyleVar();
 		WidgetsUtility::PopScaledFont();
 		PopStyleVar();
 		return button;

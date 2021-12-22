@@ -47,7 +47,8 @@ namespace Lina::Editor
 		if (!CanDrawContent()) return;
 		WidgetsUtility::FramePaddingY(0.0f);
 		const std::string childID = "##child_" + std::string(m_id);
-		ImGui::BeginChild(childID.c_str(), ImVec2(0, -20));
+		ImGui::BeginChild(childID.c_str(), ImVec2(0, ImGui::IsWindowDocked() ? 0 : -20));
+
 	}
 
 	void EditorPanel::End()

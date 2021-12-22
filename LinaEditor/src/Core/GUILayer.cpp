@@ -196,7 +196,9 @@ namespace Lina::Editor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 		colors[ImGuiCol_ButtonLocked] = ImVec4(0.100f, 0.146f, 0.199f, 1.000f);
 		colors[ImGuiCol_Icon] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-
+		colors[ImGuiCol_TitleHeader] = ImVec4(0.03f, 0.03f, 0.03f, 1.0f);
+		colors[ImGuiCol_TitleHeaderHover] = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
+		colors[ImGuiCol_TitleHeaderPressed] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 		ImPlot::GetStyle().AntiAliasedLines = true;
 
 		s_setDockspaceLayout = true;
@@ -429,9 +431,10 @@ namespace Lina::Editor
 		ImGui::Text(loadData.c_str());
 		WidgetsUtility::IncrementCursorPosY(10);
 		WidgetsUtility::HorizontalDivider(2.0f);
-	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 1, 1, 1), 2);
-		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() * m_percentage / 100.0f, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-	//	WidgetsUtility::DrawShadowedLine(1, ImVec4(1, 0, 1, 1), 2, ImVec2(0, 0), max);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		WidgetsUtility::HorizontalDivider(2.0f, 2.0f, ImGui::GetWindowWidth() * m_percentage / 100.0f);
+		ImGui::PopStyleColor();
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 		ImGui::End();
