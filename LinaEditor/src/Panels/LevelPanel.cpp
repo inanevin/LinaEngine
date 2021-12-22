@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/InputBackend.hpp"
 #include "Core/Application.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Physics/Raycast.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 #include <imgui/imguizmo/ImGuizmo.h>
@@ -315,6 +316,22 @@ namespace Lina::Editor
 
 		if (ImGui::IsWindowFocused())
 		{
+			// Mouse picking
+			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+			{
+				auto* reg = Lina::ECS::Registry::Get();
+				Lina::ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
+				Lina::ECS::EntityDataComponent& camData = reg->get<ECS::EntityDataComponent>(editorCam);
+
+				//reg->each([camData](auto entity))
+				//{
+				//	Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
+				//	Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
+				//	Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camData.GetLocation(), camData.GetRotation().GetForward(), entityData.GetLocation(), entityPhy.GetAABBExtents(), 500.0f);
+				//});
+			}
+
+
 			if (ImGui::IsKeyPressed(LINA_KEY_Q))
 				Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{ 0 });
 			if (ImGui::IsKeyPressed(LINA_KEY_E))

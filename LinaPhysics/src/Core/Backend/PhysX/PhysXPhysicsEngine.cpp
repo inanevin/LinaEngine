@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Math/Math.hpp"
+#include "Physics/Raycast.hpp"
 #include "PxPhysicsAPI.h"
 
 namespace Lina::Physics
@@ -118,7 +119,6 @@ namespace Lina::Physics
 			m_pxScene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 2.0f);
 			m_pxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_LIN_VELOCITY, 2.0f);
 			m_pxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 2.0f);
-
 		}
 
 		PxPvdSceneClient* pvdClient = m_pxScene->getScenePvdClient();
@@ -151,6 +151,39 @@ namespace Lina::Physics
 	{
 		// Update phy.
 
+		static float x = 0.0f;
+
+		x += fixedDelta;
+
+		if (x > 2.0f)
+		{
+			x = 0.0f;
+
+			PxRaycastHit hitInfo;
+			PxU32 maxHits = 1;
+			PxTransform pose;
+			pose.p = PxVec3(0, 0, 0);
+			pose.q = ToPxQuat(Quaternion(Vector3(0,0,1), 0));
+
+			HitInfo h = RaycastPose(Vector3(0, 0, -10), Vector3(0, 0, 1), Vector3(5, 0, 0), Vector3(5,5,5), 100);
+
+			LINA_TRACE("Raycast {0}", h.m_hitCount);
+
+			//PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eUV;
+			//PxU32 hitCount = PxGeometryQuery::raycast(PxVec3(0,0, -10), PxVec3(0,0,1),
+			//	PxBoxGeometry(), pose,
+			//	100,
+			//	hitFlags,
+			//	maxHits, &hitInfo);
+			//
+			//
+			//if (hitInfo.actor != nullptr)
+			//	LINA_TRACE("actor aint null");
+			//
+			//LINA_TRACE("RAY CAST {0} pos: {1}", hitCount, ToLinaVector3(hitInfo.position).ToString());
+
+		}
+
 		m_pxScene->simulate(PHYSICS_STEP);
 		m_pxScene->fetchResults(true);
 		m_physicsPipeline.UpdateSystems(fixedDelta);
@@ -172,7 +205,7 @@ namespace Lina::Physics
 			renderColor.g = (line.color0 >> 8) & 0xff;
 			renderColor.b = (line.color0 & 0xff);
 			renderColor.a = 1.0f;
-			m_eventSystem->Trigger<Event::EDrawPhysicsDebug>(Event::EDrawPhysicsDebug{ ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor });
+			m_eventSystem->Trigger<Event::EDrawLine>(Event::EDrawLine{ ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor });
 		}
 	}
 
@@ -193,7 +226,7 @@ namespace Lina::Physics
 		}
 
 		LINA_ASSERT(mat != nullptr, "Physics material is null!");
-		
+
 		if (shape == CollisionShape::Box)
 			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
 		else if (shape == CollisionShape::Sphere)
@@ -286,7 +319,9 @@ namespace Lina::Physics
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_mass = Math::Clamp(mass, 0.1f, 1000.0f);
-		PxRigidBodyExt::updateMassAndInertia(*m_dynamicActors[body], mass);
+
+		if (phy.GetSimType() == SimulationType::Dynamic)
+			PxRigidBodyExt::updateMassAndInertia(*m_dynamicActors[body], mass);
 	}
 
 	void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& material)
@@ -542,7 +577,7 @@ namespace Lina::Physics
 			m_staticActors[body] = stc;
 			m_pxScene->addActor(*stc);
 		}
-		
+
 		shape->release();
 	}
 

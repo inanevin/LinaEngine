@@ -152,6 +152,7 @@ namespace Lina::ECS
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 
 			m_renderEngine->UpdateShaderData(mat);
+	
 			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.

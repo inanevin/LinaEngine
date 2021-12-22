@@ -70,7 +70,12 @@ namespace Lina::Graphics
 
 		m_eventSystem = Event::EventSystem::Get();
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
-		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
+		m_eventSystem->Connect<Event::EDrawLine, &OpenGLRenderEngine::OnDrawLine>(this);
+		m_eventSystem->Connect<Event::EDrawBox, &OpenGLRenderEngine::OnDrawBox>(this);
+		m_eventSystem->Connect<Event::EDrawCircle, &OpenGLRenderEngine::OnDrawCircle>(this);
+		m_eventSystem->Connect<Event::EDrawSphere, &OpenGLRenderEngine::OnDrawSphere>(this);
+		m_eventSystem->Connect<Event::EDrawHemiSphere, &OpenGLRenderEngine::OnDrawHemiSphere>(this);
+		m_eventSystem->Connect<Event::EDrawCapsule, &OpenGLRenderEngine::OnDrawCapsule>(this);
 		m_eventSystem->Connect<Event::ELoadResourceFromFile, &OpenGLRenderEngine::OnLoadResourceFromFile>(this);
 		m_eventSystem->Connect<Event::ELoadResourceFromMemory, &OpenGLRenderEngine::OnLoadResourceFromMemory>(this);
 	}
@@ -353,9 +358,91 @@ namespace Lina::Graphics
 		}
 	}
 
-	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
+	void OpenGLRenderEngine::OnDrawLine(Event::EDrawLine event)
 	{
 		DrawLine(event.m_from, event.m_to, event.m_color, event.m_lineWidth);
+	}
+
+	void OpenGLRenderEngine::OnDrawBox(Event::EDrawBox event)
+	{
+		const Vector3 pos = event.m_position;
+		const Vector3 extents = event.m_extents;
+		const Vector3 halfExtents = extents / 2.0f;
+
+		const Vector3 bottomLB = pos - halfExtents;
+		const Vector3 bottomLF = pos + Vector3(-halfExtents.x, -halfExtents.y, halfExtents.z);
+		const Vector3 bottomRB = pos + Vector3(halfExtents.x, -halfExtents.y, -halfExtents.z);
+		const Vector3 bottomRF = pos + Vector3(halfExtents.x, -halfExtents.y, halfExtents.z);
+
+		const Vector3 topLB = pos + Vector3(-halfExtents.x, halfExtents.y, -halfExtents.z);
+		const Vector3 topLF = pos + Vector3(-halfExtents.x, halfExtents.y, halfExtents.z);
+		const Vector3 topRB = pos + Vector3(halfExtents.x, halfExtents.y, -halfExtents.z);
+		const Vector3 topRF = pos + Vector3(halfExtents.x, halfExtents.y, halfExtents.z);
+
+		std::vector<Vector3> lines{
+			bottomLB, bottomLF, bottomLF, bottomRF, bottomRF, bottomRB, bottomRB, bottomLB,
+			 topLB, topLF, topLF, topRF, topRF, topRB, topRB, topLB,
+			 bottomLB, topLB, bottomLF, topLF, bottomRF, topRF, bottomRB, topRB
+		};
+
+		for (int i = 0; i < lines.size(); i += 2)
+			DrawLine(lines[i], lines[i + 1], event.m_color, event.m_lineWidth);
+
+
+		lines.clear();
+	}
+
+	void OpenGLRenderEngine::OnDrawCircle(Event::EDrawCircle event)
+	{
+		Vector3 previousPos = (event.m_radius * Vector3(1, 0, 0));
+		const Quaternion rot = event.m_rotation;
+
+		std::vector<std::pair<Vector3, Vector3>> lines;
+
+		const float end = event.m_half ? 200.0f : 380.0f;
+		for (float angle = 20.0f; angle < end; angle += 20.0f)
+		{
+			float radians = Math::ToRadians(angle);
+			float x = event.m_radius * Math::Cos(radians);
+			float y = event.m_radius * Math::Sin(radians);
+			const Vector3 pos = Vector3(x, 0, y);
+			const Vector3 start = rot * previousPos;
+			const Vector3 target = rot * pos;
+			lines.push_back(std::make_pair(start, target));
+			previousPos = pos;
+		}
+
+		for (auto& l : lines)
+			DrawLine(event.m_position + l.first, event.m_position + l.second, event.m_color, event.m_lineWidth);
+	}
+
+	void OpenGLRenderEngine::OnDrawSphere(Event::EDrawSphere event)
+	{
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion() });
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(0, 0, 1), 90) });
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(1, 0, 0), 90) });
+	}
+
+	void OpenGLRenderEngine::OnDrawHemiSphere(Event::EDrawHemiSphere event)
+	{
+		Quaternion q1 = Quaternion(Vector3(1, 0, 0), event.m_top ? -90.0f : 90.0f);
+		Quaternion q2 = q1 * Quaternion(Vector3(0, 0, 1), 90);
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion() });
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, true, q1 });
+		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, true, q2 });
+	}
+
+	void OpenGLRenderEngine::OnDrawCapsule(Event::EDrawCapsule event)
+	{
+		const Vector3 pos = event.m_position;
+		const float rad = event.m_radius;
+		const float height = event.m_height;
+		OnDrawHemiSphere(Event::EDrawHemiSphere{ pos + Vector3(0, height, 0), rad, event.m_color, event.m_lineWidth, true });
+		OnDrawHemiSphere(Event::EDrawHemiSphere{ pos - Vector3(0, height, 0), rad, event.m_color, event.m_lineWidth, false });
+		DrawLine(pos + Vector3(-rad, -height, 0.0f), pos + Vector3(-rad, height, 0.0f), event.m_color, event.m_lineWidth);
+		DrawLine(pos + Vector3(rad, -height, 0.0f), pos + Vector3(rad, height, 0.0f), event.m_color, event.m_lineWidth);
+		DrawLine(pos + Vector3(0.0f, -height, -rad), pos + Vector3(0.0f, height, -rad), event.m_color, event.m_lineWidth);
+		DrawLine(pos + Vector3(0.0f, -height, rad), pos + Vector3(0.0f, height, rad), event.m_color, event.m_lineWidth);
 	}
 
 	void OpenGLRenderEngine::OnWindowResized(Event::EWindowResized event)
@@ -718,37 +805,6 @@ namespace Lina::Graphics
 		m_debugLineQueue.push(DebugLine{ p1, p2, col, width });
 	}
 
-	void OpenGLRenderEngine::DrawAABB(Vector3 center, Vector3 halfWidths, Color color, float width)
-	{
-		Vector3 p1 = center + Vector3(-halfWidths.x, -halfWidths.y, -halfWidths.z);
-		Vector3 p2 = center + Vector3(-halfWidths.x, -halfWidths.y, halfWidths.z);
-		Vector3 p3 = center + Vector3(halfWidths.x, -halfWidths.y, halfWidths.z);
-		Vector3 p4 = center + Vector3(halfWidths.x, -halfWidths.y, -halfWidths.z);
-
-		Vector3 p5 = center + Vector3(-halfWidths.x, halfWidths.y, -halfWidths.z);
-		Vector3 p6 = center + Vector3(-halfWidths.x, halfWidths.y, halfWidths.z);
-		Vector3 p7 = center + Vector3(halfWidths.x, halfWidths.y, halfWidths.z);
-		Vector3 p8 = center + Vector3(halfWidths.x, halfWidths.y, -halfWidths.z);
-
-		// Down horizontal
-		m_debugLineQueue.push(DebugLine{ p1, p2, color, width });
-		m_debugLineQueue.push(DebugLine{ p2, p3, color, width });
-		m_debugLineQueue.push(DebugLine{ p3, p4, color, width });
-		m_debugLineQueue.push(DebugLine{ p4, p1, color, width });
-
-		// Up horizontal
-		m_debugLineQueue.push(DebugLine{ p5, p6, color, width });
-		m_debugLineQueue.push(DebugLine{ p6, p7, color, width });
-		m_debugLineQueue.push(DebugLine{ p7, p8, color, width });
-		m_debugLineQueue.push(DebugLine{ p8, p5, color, width });
-
-		// Vertical
-		m_debugLineQueue.push(DebugLine{ p1, p5, color, width });
-		m_debugLineQueue.push(DebugLine{ p2, p6, color, width });
-		m_debugLineQueue.push(DebugLine{ p3, p7, color, width });
-		m_debugLineQueue.push(DebugLine{ p4, p8, color, width });
-
-	}
 
 	void OpenGLRenderEngine::ProcessDebugQueue()
 	{

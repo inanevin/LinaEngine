@@ -42,6 +42,7 @@ Timestamp: 12/24/2020 7:02:11 PM
 // Headers here.
 #include "Utility/StringId.hpp"
 #include "Math/Vector.hpp"
+#include "Math/Quaternion.hpp"
 #include "Math/Color.hpp"
 #include "Core/Common.hpp"
 #include <string>
@@ -88,13 +89,18 @@ namespace Lina::Event
 	struct EPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
 	struct EPrePhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
 	struct EPostPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
-	struct EDrawPhysicsDebug { Vector3 m_from; Vector3 m_to; Color m_color; float m_lineWidth; };
 
 	// Render
 	struct EPreRender { };
 	struct EPostSceneDraw { };
 	struct EPostRender { };
 	struct ECustomRender{};
+	struct EDrawLine { Vector3 m_from; Vector3 m_to; Color m_color; float m_lineWidth; };
+	struct EDrawBox { Vector3 m_position; Vector3 m_extents; Color m_color; float m_lineWidth; };
+	struct EDrawSphere { Vector3 m_position; float m_radius; Color m_color; float m_lineWidth; };
+	struct EDrawHemiSphere { Vector3 m_position; float m_radius; Color m_color; float m_lineWidth; bool m_top; };
+	struct EDrawCapsule { Vector3 m_position; float m_radius; Color m_color; float m_height; float m_lineWidth; };
+	struct EDrawCircle { Vector3 m_position; float m_radius; Color m_color; float m_lineWidth; bool m_half;  Quaternion m_rotation; };
 
 	// Window
 	struct EWindowContextCreated { void* m_window; };

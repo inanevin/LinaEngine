@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -79,18 +79,6 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
-		Vector2& operator+=(const Vector2& rhs) { x += rhs.x; y += rhs.y; return *this; };
-		Vector2& operator-=(const Vector2& rhs) { x -= rhs.x; y -= rhs.y;	return *this; };
-		Vector2& operator*=(const Vector2& rhs) { x *= rhs.x; y *= rhs.y;	return *this; };
-		Vector2& operator/=(const Vector2& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	return *this; };
-		Vector2& operator+=(const float& rhs) { x += rhs; y += rhs;	return *this; };
-		Vector2& operator-=(const float& rhs) { x -= rhs; y -= rhs;	return *this; };
-		Vector2& operator*=(const float& rhs) { x *= rhs; y *= rhs;	return *this; };
-		Vector2& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs;	return *this; };
-		Vector2& operator=(const Vector2& rhs) { x = rhs.x; y = rhs.y; return *this; };
-		Vector2 operator-(const Vector2& rhs) { return  Vector2(x- rhs.x, y-rhs.y); };
-		Vector2 operator+(const Vector2& rhs) { return  Vector2(x+rhs.x, y+rhs.y); };
-		Vector2 operator*(const Vector2& rhs) { return  Vector2(x*rhs.x, y*rhs.y); };
 		bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
 		bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
 		bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
@@ -114,11 +102,24 @@ namespace Lina
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(x,y);
+			archive(x, y);
 		}
 
 	private:
 	};
+
+	inline Vector2 operator*(float scalar, Vector2 const& v) { return Vector2(scalar * v.x, scalar * v.y); }
+	inline Vector2 operator/(float scalar, Vector2 const& v) { return Vector2(scalar / v.x, scalar / v.y); }
+	inline Vector2 operator+(float scalar, Vector2 const& v) { return Vector2(scalar + v.x, scalar + v.y); }
+	inline Vector2 operator-(float scalar, Vector2 const& v) { return Vector2(scalar - v.x, scalar - v.y); }
+	inline Vector2 operator*(Vector2 const& v, float scalar) { return Vector2(v.x * scalar, v.y * scalar); }
+	inline Vector2 operator/(Vector2 const& v, float scalar) { return Vector2(v.x / scalar, v.y / scalar); }
+	inline Vector2 operator+(Vector2 const& v, float scalar) { return Vector2(v.x + scalar, v.y + scalar); }
+	inline Vector2 operator-(Vector2 const& v, float scalar) { return Vector2(v.x - scalar, v.y - scalar); }
+	inline Vector2 operator*(Vector2 const& v, Vector2 const& v2) { return Vector2(v.x * v2.x, v.y * v2.y); }
+	inline Vector2 operator/(Vector2 const& v, Vector2 const& v2) { return Vector2(v.x / v2.x, v.y / v2.y); }
+	inline Vector2 operator+(Vector2 const& v, Vector2 const& v2) { return Vector2(v.x + v2.x, v.y + v2.y); }
+	inline Vector2 operator-(Vector2 const& v, Vector2 const& v2) { return Vector2(v.x - v2.x, v.y - v2.y); }
 
 
 	class Vector3 : public glm::vec3
@@ -142,7 +143,7 @@ namespace Lina
 		static Vector3 Back;
 		static Vector3 One;
 
-		static Vector3 Lerp(Vector3& from, Vector3& to, float t);
+		static Vector3 Lerp(const Vector3& from, const Vector3& to, float t);
 
 		Vector3 Cross(const Vector3& other) const;
 		Vector3 Abs() const;
@@ -163,18 +164,6 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
-		Vector3& operator+=(const Vector3& rhs) { x += rhs.x; y += rhs.y; z += rhs.z;  return *this; };
-		Vector3& operator-=(const Vector3& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z;	return *this; };
-		Vector3& operator*=(const Vector3& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z;	return *this; };
-		Vector3& operator/=(const Vector3& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; return *this; };
-		Vector3& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; return *this; };
-		Vector3& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; return *this; };
-		Vector3& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; return *this; };
-		Vector3& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; return *this; };
-		Vector3& operator=(const Vector3& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; };
-		Vector3 operator-(const Vector3& rhs) { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
-		Vector3 operator+(const Vector3& rhs) { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z); };
-		Vector3 operator*(const Vector3& rhs) { return Vector3(x * rhs.x, y * rhs.y, z * rhs.z); };
 		bool operator==(const Vector3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
 		bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
 		bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
@@ -199,11 +188,22 @@ namespace Lina
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(x, y,z);
+			archive(x, y, z);
 		}
 	};
 
-
+	inline Vector3 operator*(float scalar, Vector3 const& v) { return Vector3(scalar * v.x, scalar * v.y, scalar * v.z); }
+	inline Vector3 operator/(float scalar, Vector3 const& v) { return Vector3(scalar / v.x, scalar / v.y, scalar / v.z); }
+	inline Vector3 operator+(float scalar, Vector3 const& v) { return Vector3(scalar + v.x, scalar + v.y, scalar + v.z); }
+	inline Vector3 operator-(float scalar, Vector3 const& v) { return Vector3(scalar - v.x, scalar - v.y, scalar - v.z); }
+	inline Vector3 operator*(Vector3 const& v, float scalar) { return Vector3(v.x * scalar, v.y * scalar, v.z * scalar); }
+	inline Vector3 operator/(Vector3 const& v, float scalar) { return Vector3(v.x / scalar, v.y / scalar, v.z / scalar); }
+	inline Vector3 operator+(Vector3 const& v, float scalar) { return Vector3(v.x + scalar, v.y + scalar, v.z + scalar); }
+	inline Vector3 operator-(Vector3 const& v, float scalar) { return Vector3(v.x - scalar, v.y - scalar, v.z - scalar); }
+	inline Vector3 operator*(Vector3 const& v, Vector3 const& v2) { return Vector3(v.x * v2.x, v.y * v2.y, v.z * v2.z); }
+	inline Vector3 operator/(Vector3 const& v, Vector3 const& v2) { return Vector3(v.x / v2.x, v.y / v2.y, v.z / v2.z); }
+	inline Vector3 operator+(Vector3 const& v, Vector3 const& v2) { return Vector3(v.x + v2.x, v.y + v2.y, v.z + v2.z); }
+	inline Vector3 operator-(Vector3 const& v, Vector3 const& v2) { return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z); }
 
 	class Vector4 : public glm::vec4
 	{
@@ -240,21 +240,6 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
-		Vector4& operator+=(const Vector4& rhs) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; };
-		Vector4& operator-=(const Vector4& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; };
-		Vector4& operator*=(const Vector4& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; };
-		Vector4& operator/=(const Vector4& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; w /= rhs.w == 0 ? 0.001f : rhs.w; return *this; };
-		Vector4& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; };
-		Vector4& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; };
-		Vector4& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; };
-		Vector4& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; w /= rhs == 0 ? 0.001f : rhs; return *this; };
-		Vector4& operator=(const Vector4& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; return *this; };
-		Vector4 operator-(const Vector4& rhs) { return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);};
-		Vector4 operator-(const float& rhs) { return Vector4(x - rhs, y - rhs, z - rhs, w - rhs);};
-		Vector4 operator+(const Vector4& rhs) { return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); };
-		Vector4 operator*(const Vector4& rhs) { return Vector4(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); };
-		Vector4 operator*(const float& rhs) { return Vector4(x * rhs, y * rhs, z * rhs, w * rhs); };
-
 		bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
 		bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
 		bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
@@ -278,11 +263,23 @@ namespace Lina
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(x, y,z,w);
+			archive(x, y, z, w);
 		}
 
 	};
 
+	inline Vector4 operator*(float scalar, Vector4 const& v) { return Vector4(scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w); }
+	inline Vector4 operator/(float scalar, Vector4 const& v) { return Vector4(scalar / v.x, scalar / v.y, scalar / v.z, scalar / v.w); }
+	inline Vector4 operator+(float scalar, Vector4 const& v) { return Vector4(scalar + v.x, scalar + v.y, scalar + v.z, scalar + v.w); }
+	inline Vector4 operator-(float scalar, Vector4 const& v) { return Vector4(scalar - v.x, scalar - v.y, scalar - v.z, scalar - v.w); }
+	inline Vector4 operator*(Vector4 const& v, float scalar) { return Vector4(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar); }
+	inline Vector4 operator/(Vector4 const& v, float scalar) { return Vector4(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar); }
+	inline Vector4 operator+(Vector4 const& v, float scalar) { return Vector4(v.x + scalar, v.y + scalar, v.z + scalar, v.w + scalar); }
+	inline Vector4 operator-(Vector4 const& v, float scalar) { return Vector4(v.x - scalar, v.y - scalar, v.z - scalar, v.w - scalar); }
+	inline Vector4 operator*(Vector4 const& v, Vector4 const& v2) { return Vector4(v.x * v2.x, v.y * v2.y, v.z * v2.z, v.w * v2.w); }
+	inline Vector4 operator/(Vector4 const& v, Vector4 const& v2) { return Vector4(v.x / v2.x, v.y / v2.y, v.z / v2.z, v.w * v2.w); }
+	inline Vector4 operator+(Vector4 const& v, Vector4 const& v2) { return Vector4(v.x + v2.x, v.y + v2.y, v.z + v2.z, v.w * v2.w); }
+	inline Vector4 operator-(Vector4 const& v, Vector4 const& v2) { return Vector4(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w * v2.w); }
 }
 
 #endif

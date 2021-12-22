@@ -110,7 +110,6 @@ namespace Lina::Graphics
 
 		void DrawIcon(Vector3 p, StringIDType textureID, float size = 1.0f);
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
-		void DrawAABB(Vector3 center, Vector3 halfWidths, Color col = Color::White, float width = 1.0f);
 		void ProcessDebugQueue();
 
 		Vector2 GetScreenSize() { return m_screenSize; }
@@ -149,7 +148,12 @@ namespace Lina::Graphics
 
 		void OnLoadResourceFromFile(Event::ELoadResourceFromFile event);
 		void OnLoadResourceFromMemory(Event::ELoadResourceFromMemory event);
-		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
+		void OnDrawLine(Event::EDrawLine event);
+		void OnDrawBox(Event::EDrawBox event);
+		void OnDrawCircle(Event::EDrawCircle event);
+		void OnDrawSphere(Event::EDrawSphere event);
+		void OnDrawHemiSphere(Event::EDrawHemiSphere event);
+		void OnDrawCapsule(Event::EDrawCapsule event);
 		void OnWindowResized(Event::EWindowResized event);
 		bool ValidateEngineShaders();
 		void ConstructShader(const std::string& path, unsigned char* data, size_t dataSize);

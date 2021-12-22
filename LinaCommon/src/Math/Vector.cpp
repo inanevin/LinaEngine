@@ -133,7 +133,7 @@ namespace Lina
 
 	//////////////////////////////////////////////////////////////////////////
 
-	Vector3 Vector3::Lerp(Vector3& from, Vector3& to, float t)
+	Vector3 Vector3::Lerp(const Vector3& from, const Vector3& to, float t)
 	{
 		return Vector3(
 			from.x + (to.x - from.x) * t,

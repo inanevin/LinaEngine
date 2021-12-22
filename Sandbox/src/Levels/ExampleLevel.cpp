@@ -82,5 +82,21 @@ void ExampleLevel::Tick(Event::ETick ev)
 		data.SetLocation(location);
 	}
 
+	Color col = Color::Red;
+	float w = 2.0f;
+	
+	Vector3 sphere = Vector3(5, 0, 0);
+	float rad = 2;
+	Lina::Event::EventSystem::Get()->Trigger<Event::EDrawSphere>(Event::EDrawSphere{ sphere, rad, col, w });
+
+	sphere = Vector3(15, 0, 0);
+	Lina::Event::EventSystem::Get()->Trigger<Event::EDrawHemiSphere>(Event::EDrawHemiSphere{ sphere, rad, col, w, true });
+
+	sphere = Vector3(20, 0, 0);
+	Lina::Event::EventSystem::Get()->Trigger<Event::EDrawHemiSphere>(Event::EDrawHemiSphere{ sphere, rad, col, w, false });
+
+	sphere = Vector3(-5, 0, 0);
+	Lina::Event::EventSystem::Get()->Trigger<Event::EDrawCapsule>(Event::EDrawCapsule{ sphere, rad, col, 4.0f, w });
+
 }
 

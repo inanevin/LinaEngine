@@ -31,6 +31,7 @@ set (LINAPHYSICS_SOURCES
 	src/ECS/Systems/RigidbodySystem.cpp
 
 	src/Physics/PhysicsMaterial.cpp
+	src/Physics/Raycast.cpp
 )
 
 #--------------------------------------------------------------------
@@ -51,6 +52,7 @@ set(LINAPHYSICS_HEADERS
 	include/ECS/Components/AABBComponent.hpp
 	
 	include/Physics/PhysicsMaterial.hpp
+	include/Physics/Raycast.hpp
 )
 
 

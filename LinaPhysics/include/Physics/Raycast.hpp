@@ -1,6 +1,6 @@
 /* 
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -27,37 +27,38 @@ SOFTWARE.
 */
 
 /*
-Class: FreeLookSystem
+Class: Raycast
 
-System that manages free look components and the functionality.
 
-Timestamp: 5/2/2019 2:21:35 AM
+
+Timestamp: 12/22/2021 1:33:41 PM
 */
 
 #pragma once
 
-#ifndef FreeLookSystem_HPP
-#define FreeLookSystem_HPP
+#ifndef Raycast_HPP
+#define Raycast_HPP
+
+// Headers here.
 #include "ECS/ECS.hpp"
-#include "Core/InputBackend.hpp"
 
-namespace Lina::ECS
+namespace Lina::Physics
 {
-	class FreeLookSystem : public BaseECSSystem
+	struct HitInfo
 	{
-	public:
-
-		virtual void Initialize();
-		virtual void UpdateComponents(float delta) override;
-
-	private:
-		Lina::Input::InputEngineBackend* m_inputEngine;
-		float m_horizontalKeyAmt = 0.0f;
-		float m_verticalKeyAmt = 0.0f;
-		float m_targetXAngle = 0.0f;
-		float m_targetYAngle = 0.0f;
+		int m_hitCount = 0;
+		Lina::ECS::Entity m_entity = entt::null;
+		Lina::Vector3 m_position = Lina::Vector3::Zero;
+		Lina::Vector3 m_normal = Lina::Vector3::Zero;
+		float m_distance = 0.0f;
 	};
-}
 
+	/// <summary>
+	/// Casts a ray against a box shape sitting in the target position with targetHalfExtents.
+	/// Does not require entity or physics actors. 
+	/// ! Direction should be a unit vector.
+	/// </summary>
+	extern HitInfo RaycastPose(const Lina::Vector3& from, const Lina::Vector3& unitDir, const Lina::Vector3& targetPosition, const Lina::Vector3& targetHalfExtents, float dist = 1000.0f);
+}
 
 #endif

@@ -66,9 +66,9 @@ namespace Lina::ECS
 		Vector3 win = glm::vec3(screenPos.x, screenPos.y, 1.0f);
 		Matrix pp = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 		Matrix vv = renderEngine->GetCameraSystem()->GetViewMatrix();
-		Vector4 camPos = renderEngine->GetCameraSystem()->GetCameraLocation();
-		Vector4 worldPos = glm::unProject(win, vv, pp, viewport);
-		return glm::normalize(worldPos - camPos) * screenPos.z + camPos;
+		Vector3 camPos = renderEngine->GetCameraSystem()->GetCameraLocation();
+		Vector3 worldPos = glm::unProject(win, vv, pp, viewport);
+		return Vector3(glm::normalize(worldPos - camPos)) * screenPos.z + camPos;
 	}
 
 	Vector3 CameraSystem::ViewportToWorldCoordinates(const Vector3& viewport)

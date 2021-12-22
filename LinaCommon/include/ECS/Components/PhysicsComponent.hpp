@@ -80,6 +80,7 @@ namespace Lina::ECS
 		Physics::SimulationType GetSimType() { return m_simType; }
 		std::string GetMaterialPath() { return m_physicsMaterialPath; }
 		StringIDType GetMaterialID() { return m_physicsMaterialID; }
+		Lina::Vector3 GetAABBExtents() { return m_aabbHalfExtents; }
 
 	private:
 
@@ -105,9 +106,7 @@ namespace Lina::ECS
 		std::string m_physicsMaterialPath = "";
 		StringIDType m_physicsMaterialID = 0;
 
-		Physics::CollisionShape m_boundingBox = Physics::CollisionShape::Box;
-		Lina::Vector3 m_bbHalfExtents = Lina::Vector3::One;
-
+		Lina::Vector3 m_aabbHalfExtents = Lina::Vector3::One;
 		Lina::Vector3 m_velocity = Lina::Vector3::Zero;
 		Lina::Vector3 m_angularVelocity = Lina::Vector3::Zero;
 
@@ -130,7 +129,7 @@ namespace Lina::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_physicsMaterialPath, m_simType,  m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled, m_boundingBox, m_bbHalfExtents);
+			archive(m_collisionShape, m_physicsMaterialPath, m_simType,  m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled, m_aabbHalfExtents);
 		}
 
 	};
