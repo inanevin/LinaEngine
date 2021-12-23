@@ -109,9 +109,6 @@ namespace Lina::ECS
 		const Quaternion& GetRotation() { return m_transform.m_rotation; }
 		const Vector3& GetRotationAngles() { return m_transform.m_rotationAngles; }
 		const Vector3& GetScale() { return m_transform.m_scale; }
-		Lina::Vector3 GetHalfBounds() { return m_halfBounds; }
-		Lina::Vector3 GetBoundsMin() { return m_boundsMin; }
-		Lina::Vector3 GetBoundsMax() { return m_boundsMax; }
 
 	private:
 
@@ -136,16 +133,15 @@ namespace Lina::ECS
 #endif
 
 		bool m_isTransformLocked = false;
-		Lina::Vector3 m_halfBounds = Lina::Vector3(0.5f, 0.5f, 0.5f);
-		Lina::Vector3 m_boundsMin = Lina::Vector3(-0.5f, -0.5f, -0.5f);
-		Lina::Vector3 m_boundsMax = Lina::Vector3(0.5f, 0.5f, 0.5f);
+
+
 		Lina::Transformation m_transform;
 		Registry* m_ecs = nullptr;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children, m_boundsMin, m_boundsMax, m_halfBounds);
+			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
 		}
 
 	

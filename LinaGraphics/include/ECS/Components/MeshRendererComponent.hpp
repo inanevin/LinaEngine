@@ -50,7 +50,10 @@ namespace Lina::ECS
 		std::string m_materialPath = "";
 		StringIDType m_modelID = -1;
 		StringIDType m_materialID = -1;
-		Lina::Vector3 m_localOffset = Lina::Vector3::Zero;
+		Lina::Vector3 m_totalVertexCenter = Lina::Vector3::Zero;
+		Lina::Vector3 m_totalBoundsMin = Lina::Vector3::Zero;
+		Lina::Vector3 m_totalBoundsMax = Lina::Vector3::Zero;
+		Lina::Vector3 m_totalHalfBounds = Lina::Vector3::Zero;
 		std::vector<int> m_subMeshes;	// Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
 		bool m_excludeFromDrawList = false;
 
@@ -58,7 +61,7 @@ namespace Lina::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_subMeshes, m_localOffset);
+			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_subMeshes, m_totalVertexCenter, m_totalBoundsMin, m_totalBoundsMax, m_totalHalfBounds);
 		}
 	};
 }

@@ -50,32 +50,6 @@ namespace Lina::ECS
 		return false;
 	}
 
-	bool IsMarkedByInheritance(ECS::Entity entity, std::vector<Entity>& vec)
-	{
-		for (uint32 i = 0; i < vec.size(); i++)
-		{
-			// Added by the user
-			if (entity == vec[i])
-				return true;
-		}
-
-		return false;
-	}
-
-	void MarkChildren(ECS::Entity entity, std::vector<ECS::Entity>& markedByInheritance)
-	{
-		auto* reg = ECS::Registry::Get();
-		auto& data = reg->get<ECS::EntityDataComponent>(entity);
-		for (auto subChild : data.m_children)
-		{
-			if (!EntityIsProcessed(entity))
-			{
-				markedByInheritance.push_back(subChild);
-				MarkChildren(subChild, markedByInheritance);
-			}
-		}
-	}
-
 	// Traverse the child hierarchy of a root entity
 	// Find those entities that were not added by the auto-hierarchy generated from the model.
 	void FindEntitiesToKeep(ECS::Entity entity, std::vector<ECS::Entity>& keepVector)
@@ -92,11 +66,22 @@ namespace Lina::ECS
 		}
 	}
 
+	void RemoveUnprocessedChildren(ECS::Entity entity)
+	{
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+
+		std::vector<ECS::Entity> markedForNullParent;
+		FindEntitiesToKeep(entity, markedForNullParent);
+
+		for (uint32 i = 0; i < markedForNullParent.size(); i++)
+			reg->RemoveFromParent(markedForNullParent[i]);
+	}
+
 	void ModelRendererComponent::ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot)
 	{
 		ECS::Registry* reg = Lina::ECS::Registry::Get();
 		ECS::Entity nodeEntity = entt::null;
-	
+
 		if (isRoot)
 			nodeEntity = parent;
 		else
@@ -118,11 +103,11 @@ namespace Lina::ECS
 
 			if (m_generateMeshPivots)
 			{
-				const Vector3 vertexOffset = mr.m_localOffset * data.GetScale();
-				const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z +
-					data.GetRotation().GetRight() * vertexOffset.x +
-					data.GetRotation().GetUp() * vertexOffset.y;
+				// Calculate vertex offset & offset addition.
+				const Vector3 vertexOffset = mr.m_totalVertexCenter * data.GetScale();
+				const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
 
+				// Create an entity, attach as a child, move to calculated position, make it a parent of the current entity.
 				ECS::Entity pivotParent = reg->CreateEntity(node.m_name + "_pvt");
 				reg->AddChildToEntity(parent, pivotParent);
 				auto& pivotParentData = reg->get<ECS::EntityDataComponent>(pivotParent);
@@ -131,7 +116,7 @@ namespace Lina::ECS
 				reg->AddChildToEntity(pivotParent, nodeEntity);
 				m_processedChildren.push_back(pivotParent);
 			}
-			
+
 		}
 
 		// Process node for each children.
@@ -141,9 +126,10 @@ namespace Lina::ECS
 
 	void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model)
 	{
-		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 		ECS::Registry* reg = Lina::ECS::Registry::Get();
+		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 		auto& mr = reg->emplace<ECS::MeshRendererComponent>(targetEntity);
+		auto& data = reg->get<ECS::EntityDataComponent>(targetEntity);
 		mr.m_subMeshes = meshIndexes;
 		mr.m_modelID = model.GetID();
 		mr.m_modelPath = m_modelPath;
@@ -153,15 +139,40 @@ namespace Lina::ECS
 		mr.m_materialPath = defaultMaterial.GetPath();
 		mr.m_isEnabled = m_isEnabled;
 
-		// Calc local offset from all submeshes.
-		mr.m_localOffset = Vector3::Zero;
-		for (uint32 i = 0; i < mr.m_subMeshes.size(); i++)
-			mr.m_localOffset += model.GetMeshes()[mr.m_subMeshes[i]].GetLocalOffset();
-		mr.m_localOffset /= mr.m_subMeshes.size();
-		
-		// Set the child's bounding volume from mesh data.
-		auto& data = reg->get<ECS::EntityDataComponent>(targetEntity);
-		//data.m_halfBounds = halfBounds;
+		// Calc vertex offset & bounding boxfrom all submeshes.
+		const uint32 numSubmeshes = mr.m_subMeshes.size();
+		mr.m_totalVertexCenter = Vector3::Zero;
+
+		Vector3 minBound = Vector3(1000.0f, 1000.0f, 1000.0f);
+		Vector3 maxBound = Vector3(-1000.0f, -1000.0f, -1000.0f);
+
+		for (uint32 i = 0; i < numSubmeshes; i++)
+		{
+			auto& mesh = model.GetMeshes()[mr.m_subMeshes[i]];
+			mr.m_totalVertexCenter += mesh.GetVertexCenter();
+	
+			const Vector3 meshBoundsMin = mesh.GetBoundsMin();
+			const Vector3 meshBoundsMax = mesh.GetBoundsMax();
+
+			if (meshBoundsMin.x < minBound.x)
+				minBound.x = meshBoundsMin.x;
+			if (meshBoundsMin.y < minBound.y)
+				minBound.y = meshBoundsMin.y;
+			if (meshBoundsMin.z < minBound.z)
+				minBound.z = meshBoundsMin.z;
+
+			if (meshBoundsMax.x > maxBound.x)
+				maxBound.x = meshBoundsMax.x;
+			if (meshBoundsMax.y > maxBound.y)
+				maxBound.y = meshBoundsMax.y;
+			if (meshBoundsMax.z > maxBound.z)
+				maxBound.z = meshBoundsMax.z;
+		}
+
+		mr.m_totalVertexCenter /= numSubmeshes;
+		mr.m_totalBoundsMin = minBound;
+		mr.m_totalBoundsMax = maxBound;
+		mr.m_totalHalfBounds = (maxBound - minBound) / 2.0f;
 	}
 
 	void ModelRendererComponent::SetModel(ECS::Entity parent, Graphics::Model& model)
@@ -176,7 +187,6 @@ namespace Lina::ECS
 		}
 
 		// Assign model data
-		StringIDType previousModelID = m_modelID;
 		m_modelID = model.GetID();
 		m_modelPath = model.GetPath();
 		m_modelParamsPath = model.GetParamsPath();
@@ -184,7 +194,7 @@ namespace Lina::ECS
 		m_materialPaths.resize(model.GetMaterialSpecs().size());
 		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
-		RefreshHierarchy(parent, previousModelID);
+		RefreshHierarchy(parent);
 
 		// Set default material to all the paths.
 		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
@@ -203,8 +213,12 @@ namespace Lina::ECS
 			LINA_ERR("You have to pass the same entity that this model component is attached to in order to remove the model data.");
 			return;
 		}
-		// Make sure children hierarchy of the entity that this component is attached is empty.
+
+		// Make sure the hierarchy is clear.
+		RemoveUnprocessedChildren(parent);
 		reg->DestroyAllChildren(parent);
+		m_processedChildren.clear();
+
 		m_modelID = -1;
 		m_modelParamsPath = "";
 		m_modelPath = "";
@@ -281,22 +295,19 @@ namespace Lina::ECS
 		}
 	}
 
-	void ModelRendererComponent::RefreshHierarchy(ECS::Entity parent, StringIDType previousModelID)
+	void ModelRendererComponent::RefreshHierarchy(ECS::Entity parent)
 	{
 		if (!Graphics::Model::ModelExists(m_modelID)) return;
 		ECS::Registry* reg = Lina::ECS::Registry::Get();
 		ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(parent);
-		
-		std::vector<ECS::Entity> markedForNullParent;
-		FindEntitiesToKeep(parent, markedForNullParent);
-	
-		for (uint32 i = 0; i < markedForNullParent.size(); i++)
-			reg->RemoveFromParent(markedForNullParent[i]);
 
+		RemoveUnprocessedChildren(parent);
 		reg->DestroyAllChildren(parent);
+		m_processedChildren.clear();
+
 		auto& model = Graphics::Model::GetModel(m_modelID);
 		ProcessNode(parent, data.ToMatrix(), model.GetRoot(), model, true);
 	}
-	
+
 
 }

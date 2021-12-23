@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Model.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Math/Math.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -104,7 +105,7 @@ namespace Lina::Graphics
 		{
 			// Build aiMesh reference for each aiMesh.
 			const aiMesh* aiMesh = scene->mMeshes[j];
-			
+
 			// Build and indexed aiMesh for each aiMesh & fill in the data.
 			Mesh currentMesh;
 			currentMesh.SetName(scene->mMeshes[j]->mName.C_Str());
@@ -130,6 +131,8 @@ namespace Lina::Graphics
 			}
 
 			Vector3 totalVertexPos = Vector3::Zero;
+			Vector3 maxVertexPos = Vector3(-1000.0f, -1000.0f, -1000.0f);
+			Vector3 minVertexPos = Vector3(1000.0f, 1000.0f, 1000.0f);
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < aiMesh->mNumVertices; i++)
@@ -149,7 +152,18 @@ namespace Lina::Graphics
 				currentMesh.AddElement(3, tangent.x, tangent.y, tangent.z);
 				currentMesh.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 
+				// Add to the total vertex pos, used to calculate vertex offset.
 				totalVertexPos += AssimpToLinaVector(pos);
+
+				// Set the min & vertex poses. Used to calculate the bounding box.
+				if (pos.x > maxVertexPos.x) maxVertexPos.x = pos.x;
+				else if (pos.x < minVertexPos.x) minVertexPos.x = pos.x;
+
+				if (pos.y > maxVertexPos.y) maxVertexPos.y = pos.y;
+				else if (pos.y < minVertexPos.y) minVertexPos.y = pos.y;
+
+				if (pos.z > maxVertexPos.z) maxVertexPos.z = pos.z;
+				else if (pos.z < minVertexPos.z) minVertexPos.z = pos.z;
 
 				if (vertexBoneIDs.size() > 0)
 				{
@@ -176,12 +190,10 @@ namespace Lina::Graphics
 			}
 
 			// Add aiMesh to array.
-			const Vector3 localPosition = totalVertexPos / (float)aiMesh->mNumVertices;
-			currentMesh.m_localVertexOffset = localPosition;
-			currentMesh.m_boundsMin = AssimpToLinaVector(aiMesh->mAABB.mMin);
-			currentMesh.m_boundsMax = AssimpToLinaVector(aiMesh->mAABB.mMax);
-			const Vector3 half = (currentMesh.m_boundsMax, currentMesh.m_boundsMin) / 2.0f;
-			currentMesh.m_halfBounds = half;
+			currentMesh.m_vertexCenter = totalVertexPos / (float)aiMesh->mNumVertices;
+			currentMesh.m_boundsMin = minVertexPos;
+			currentMesh.m_boundsMax = maxVertexPos;
+			currentMesh.m_boundsHalfSize = (currentMesh.m_boundsMax - currentMesh.m_boundsMin) / 2.0f;
 			model.GetMeshes().push_back(currentMesh);
 		}
 

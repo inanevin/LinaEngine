@@ -77,7 +77,7 @@ namespace Lina::ECS
 		void SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material);
 		void RemoveMaterial(ECS::Entity parent, int materialIndex);
 		bool GetGenerateMeshPivots() { return m_generateMeshPivots; }
-		void RefreshHierarchy(ECS::Entity parent, StringIDType previousModelID);
+		void RefreshHierarchy(ECS::Entity parent);
 		StringIDType GetModelID() { return m_modelID; }
 		std::string GetModelPath() { return m_modelPath; }
 		std::vector<std::string> GetMaterialPaths() { return m_materialPaths; }

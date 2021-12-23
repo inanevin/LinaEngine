@@ -225,7 +225,7 @@ namespace Lina::Editor
 			if (std::string(label).compare("Generate Pivots") == 0)
 			{
 				ModelRendererComponent& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(ent);
-				mr.RefreshHierarchy(ent, mr.GetModelID());
+				mr.RefreshHierarchy(ent);
 			}
 		}
 	}
