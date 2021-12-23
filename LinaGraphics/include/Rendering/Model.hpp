@@ -52,6 +52,14 @@ namespace Lina::Graphics
 {
 	class VertexArray;
 
+	struct ModelNode
+	{
+		std::string m_name = "";
+		std::vector<int> m_meshIndexes;
+		std::vector<ModelNode> m_children;
+		Lina::Matrix m_localTransform;
+	};
+
 	class Model
 	{
 
@@ -94,6 +102,7 @@ namespace Lina::Graphics
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
 		StringIDType GetID() { return m_id; }
+		ModelNode& GetRoot() { return m_rootNode; }
 
 	private:
 
@@ -107,6 +116,7 @@ namespace Lina::Graphics
 		ModelSceneParameters m_worldParameters;
 		ModelParameters m_parameters;
 		std::vector<Mesh> m_meshes;
+		ModelNode m_rootNode;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		Skeleton m_skeleton;
 

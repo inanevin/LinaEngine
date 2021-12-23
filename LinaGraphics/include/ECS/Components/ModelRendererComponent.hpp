@@ -55,6 +55,7 @@ namespace Lina
 	namespace Graphics
 	{
 		class Model;
+		struct ModelNode;
 		class Material;
 	}
 }
@@ -78,6 +79,11 @@ namespace Lina::ECS
 		
 		std::string GetModelPath() { return m_modelPath; }
 		std::vector<std::string> GetMaterialPaths() { return m_materialPaths; }
+
+	private:
+
+		void ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot = false);
+		void AddMeshRenderer(ECS::Entity targetEntity, int meshIndex, const Lina::Vector3& halfBounds, Graphics::Model& model);
 
 	private:
 

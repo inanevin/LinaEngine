@@ -65,6 +65,8 @@ namespace Lina
 
 		static Transformation Interpolate(Transformation& from, Transformation& to, float t);
 
+		void SetMatrix(Matrix& mat);
+
 		Matrix ToMatrix() const
 		{
 			return Matrix::TransformMatrix(m_location, m_rotation, m_scale);

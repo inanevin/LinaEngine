@@ -82,6 +82,8 @@ namespace Lina::ECS
 		/* TRANSFORM OPERATIONS */
 
 		Matrix ToMatrix() { return m_transform.ToMatrix(); }
+		void SetTransformation(Matrix& mat);
+		void SetLocalTransformation(Matrix& mat);
 
 		void AddRotation(const Vector3& angles);
 		void AddLocaRotation(const Vector3& angles);

@@ -42,6 +42,8 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
+
 	Lina::Vector3 AssimpToLinaVector(aiVector3D vec)
 	{
 		return Lina::Vector3(vec.x, vec.y, vec.z);
@@ -55,6 +57,22 @@ namespace Lina::Graphics
 		mat[2][0] = aiMat.a3;	mat[2][1] = aiMat.b3;	mat[2][2] = aiMat.c3;	mat[2][3] = aiMat.d3;
 		mat[3][0] = aiMat.a4;	mat[3][1] = aiMat.b4;	mat[3][2] = aiMat.c4;	mat[3][3] = aiMat.d4;
 		return mat;
+	}
+
+
+	void ProcessNode(aiNode* node, ModelNode& modelNode)
+	{
+		modelNode.m_name = std::string(node->mName.C_Str());
+		modelNode.m_localTransform = AssimpToLinaMatrix(node->mTransformation);
+		
+		for (uint32 i = 0; i < node->mNumMeshes; i++)
+			modelNode.m_meshIndexes.push_back(node->mMeshes[i]);
+
+		for (uint32 i = 0; i < node->mNumChildren; i++)
+		{
+			modelNode.m_children.push_back(ModelNode());
+			ProcessNode(node->mChildren[i], modelNode.m_children[modelNode.m_children.size() - 1]);
+		}
 	}
 
 	bool ModelLoader::LoadModel(const void* scenePtr, Model& model)
@@ -76,6 +94,9 @@ namespace Lina::Graphics
 		worldParams.m_rootInverse = AssimpToLinaMatrix(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
+
+		ProcessNode(scene->mRootNode, model.GetRoot());
+		ModelNode& root = model.GetRoot();
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)

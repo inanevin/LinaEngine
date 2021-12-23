@@ -30,6 +30,28 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
+	void EntityDataComponent::SetTransformation(Matrix& mat)
+	{
+		Vector3 loc;
+		Quaternion rot;
+		Vector3 scale;
+		mat.Decompose(loc, rot, scale);
+		SetLocation(loc);
+		SetRotation(rot);
+		SetScale(scale);
+	}
+
+	void EntityDataComponent::SetLocalTransformation(Matrix& mat)
+	{
+		Vector3 loc;
+		Quaternion rot;
+		Vector3 scale;
+		mat.Decompose(loc, rot, scale);
+		SetLocalLocation(loc);
+		SetLocalRotation(rot);
+		SetLocalScale(scale);
+	}
+
 	void EntityDataComponent::AddRotation(const Vector3& angles)
 	{
 		if (m_isTransformLocked) return;

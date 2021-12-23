@@ -34,10 +34,67 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
+	void ModelRendererComponent::ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot)
+	{
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+
+		ECS::Entity nodeEntity = entt::null;
+
+		if (isRoot)
+			nodeEntity = parent;
+		else
+		{
+			nodeEntity = reg->CreateEntity(node.m_name);
+			reg->AddChildToEntity(parent, nodeEntity);
+		}
+
+		ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(nodeEntity);
+		Matrix mat = parentTransform ;
+		//data.SetTransformation(mat);
+
+		// If only single mesh, add the mesh renderer on this entity.
+		// Else, create a new entity for each mesh renderer & assign the renderers to them.
+		if (node.m_meshIndexes.size() == 1)
+			AddMeshRenderer(nodeEntity, node.m_meshIndexes[0], model.GetMeshes()[0].GetHalfBounds(), model);
+		else if (node.m_meshIndexes.size() > 1)
+		{
+			for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
+			{
+				Graphics::Mesh& mesh = model.GetMeshes()[node.m_meshIndexes[i]];
+				ECS::Entity meshEntity = reg->CreateEntity(mesh.GetName());
+				reg->AddChildToEntity(nodeEntity, meshEntity);
+				AddMeshRenderer(meshEntity, node.m_meshIndexes[i], mesh.GetHalfBounds(), model);
+			}
+		}
+
+		// Process node for each children.
+		for (uint32 i = 0; i < node.m_children.size(); i++)
+			ProcessNode(nodeEntity, mat, node.m_children[i], model);
+	}
+
+	void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, int meshIndex, const Lina::Vector3& halfBounds, Graphics::Model& model)
+	{
+		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+		ECS::Registry* reg = Lina::ECS::Registry::Get();
+		auto& mr = reg->emplace<ECS::MeshRendererComponent>(targetEntity);
+		mr.m_meshIndex = meshIndex;
+		mr.m_modelID = model.GetID();
+		mr.m_modelPath = m_modelPath;
+
+		// Set default material to mesh renderer.
+		mr.m_materialID = defaultMaterial.GetID();
+		mr.m_materialPath = defaultMaterial.GetPath();
+		mr.m_isEnabled = m_isEnabled;
+
+		// Set the child's bounding volume from mesh data.
+		auto& data = reg->get<ECS::EntityDataComponent>(targetEntity);
+		data.m_halfBounds = halfBounds;
+	}
+
 	void ModelRendererComponent::SetModel(ECS::Entity parent, Graphics::Model& model)
 	{
 		ECS::Registry* reg = Lina::ECS::Registry::Get();
-		
+
 		// Assign model data
 		m_modelID = model.GetID();
 		m_modelPath = model.GetPath();
@@ -57,26 +114,29 @@ namespace Lina::ECS
 
 		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
+		ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(parent);
+		ProcessNode(parent, data.ToMatrix(), model.GetRoot(), model, true);
+
 		// Generate entities for each children.
-		for (int i = 0; i < model.GetMeshes().size(); i++)
-		{
-			auto& mesh = model.GetMeshes()[i];
-			ECS::Entity newEntity = reg->CreateEntity(mesh.GetName());
-			reg->AddChildToEntity(parent, newEntity);
-			auto& mr = reg->emplace<ECS::MeshRendererComponent>(newEntity);
-			mr.m_meshIndex = i;
-			mr.m_modelID = model.GetID();
-			mr.m_modelPath = m_modelPath;
-
-			// Set default material to mesh renderer.
-			mr.m_materialID = defaultMaterial.GetID();
-			mr.m_materialPath = defaultMaterial.GetPath();
-			mr.m_isEnabled = m_isEnabled;
-
-			// Set the child's bounding volume from mesh data.
-			auto& data = reg->get<ECS::EntityDataComponent>(newEntity);
-			data.m_halfBounds = mesh.GetHalfBounds();
-		}
+	//for (int i = 0; i < model.GetMeshes().size(); i++)
+	//{
+	//	auto& mesh = model.GetMeshes()[i];
+	//	ECS::Entity nodeEntity = reg->CreateEntity(mesh.GetName());
+	//	reg->AddChildToEntity(parent, nodeEntity);
+	//	auto& mr = reg->emplace<ECS::MeshRendererComponent>(nodeEntity);
+	//	mr.m_meshIndex = i;
+	//	mr.m_modelID = model.GetID();
+	//	mr.m_modelPath = m_modelPath;
+	//
+	//	// Set default material to mesh renderer.
+	//	mr.m_materialID = defaultMaterial.GetID();
+	//	mr.m_materialPath = defaultMaterial.GetPath();
+	//	mr.m_isEnabled = m_isEnabled;
+	//
+	//	// Set the child's bounding volume from mesh data.
+	//	auto& data = reg->get<ECS::EntityDataComponent>(nodeEntity);
+	//	data.m_halfBounds = mesh.GetHalfBounds();
+	//}
 
 		// Set default material to all the paths.
 		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
@@ -167,4 +227,5 @@ namespace Lina::ECS
 			}
 		}
 	}
+
 }
