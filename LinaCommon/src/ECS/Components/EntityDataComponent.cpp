@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void EntityDataComponent::SetTransformation(Matrix& mat)
+	void EntityDataComponent::SetTransformation(Matrix& mat, bool omitScale)
 	{
 		Vector3 loc;
 		Quaternion rot;
@@ -38,10 +38,12 @@ namespace Lina::ECS
 		mat.Decompose(loc, rot, scale);
 		SetLocation(loc);
 		SetRotation(rot);
-		SetScale(scale);
+
+		if (!omitScale)
+			SetScale(scale);
 	}
 
-	void EntityDataComponent::SetLocalTransformation(Matrix& mat)
+	void EntityDataComponent::SetLocalTransformation(Matrix& mat, bool omitScale)
 	{
 		Vector3 loc;
 		Quaternion rot;
@@ -49,7 +51,9 @@ namespace Lina::ECS
 		mat.Decompose(loc, rot, scale);
 		SetLocalLocation(loc);
 		SetLocalRotation(rot);
-		SetLocalScale(scale);
+
+		if (!omitScale)
+			SetLocalScale(scale);
 	}
 
 	void EntityDataComponent::AddRotation(const Vector3& angles)
@@ -80,7 +84,7 @@ namespace Lina::ECS
 	{
 		Transformation t;
 		t.m_location = Vector3::Lerp(m_transform.m_previousLocation, m_transform.m_location, interpolation);
-		t.m_scale = Vector3::Lerp(m_transform.m_previousScale, m_transform.m_scale , interpolation);
+		t.m_scale = Vector3::Lerp(m_transform.m_previousScale, m_transform.m_scale, interpolation);
 		t.m_rotation = Quaternion::Euler(Vector3::Lerp(m_transform.m_previousAngles, m_transform.m_rotation.GetEuler(), interpolation));
 		return t;
 	}

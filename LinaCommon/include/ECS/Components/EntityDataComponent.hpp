@@ -82,8 +82,9 @@ namespace Lina::ECS
 		/* TRANSFORM OPERATIONS */
 
 		Matrix ToMatrix() { return m_transform.ToMatrix(); }
-		void SetTransformation(Matrix& mat);
-		void SetLocalTransformation(Matrix& mat);
+		Matrix ToLocalMatrix() { return m_transform.ToLocalMatrix(); }
+		void SetTransformation(Matrix& mat, bool omitScale = false);
+		void SetLocalTransformation(Matrix& mat, bool omitScale = false);
 
 		void AddRotation(const Vector3& angles);
 		void AddLocaRotation(const Vector3& angles);
@@ -109,6 +110,8 @@ namespace Lina::ECS
 		const Vector3& GetRotationAngles() { return m_transform.m_rotationAngles; }
 		const Vector3& GetScale() { return m_transform.m_scale; }
 		Lina::Vector3 GetHalfBounds() { return m_halfBounds; }
+		Lina::Vector3 GetBoundsMin() { return m_boundsMin; }
+		Lina::Vector3 GetBoundsMax() { return m_boundsMax; }
 
 	private:
 
@@ -134,13 +137,15 @@ namespace Lina::ECS
 
 		bool m_isTransformLocked = false;
 		Lina::Vector3 m_halfBounds = Lina::Vector3(0.5f, 0.5f, 0.5f);
-		Registry* m_ecs = nullptr;
+		Lina::Vector3 m_boundsMin = Lina::Vector3(-0.5f, -0.5f, -0.5f);
+		Lina::Vector3 m_boundsMax = Lina::Vector3(0.5f, 0.5f, 0.5f);
 		Lina::Transformation m_transform;
+		Registry* m_ecs = nullptr;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children, m_halfBounds);
+			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children, m_boundsMin, m_boundsMax, m_halfBounds);
 		}
 
 	

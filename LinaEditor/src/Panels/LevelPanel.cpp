@@ -34,6 +34,7 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/InputBackend.hpp"
 #include "Core/Application.hpp"
@@ -314,7 +315,7 @@ namespace Lina::Editor
 	void LevelPanel::ProcessInput()
 	{
 
-		if (ImGui::IsWindowHovered())
+		if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
 		{
 			// Mouse picking
 			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
@@ -344,7 +345,7 @@ namespace Lina::Editor
 							return;
 						}
 					}
-					
+
 					});
 
 			}
@@ -418,31 +419,65 @@ namespace Lina::Editor
 		// Handle entity transformation manipulation.
 		if (m_selectedTransform != entt::null)
 		{
-			ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(m_selectedTransform);
-			ECS::PhysicsComponent& phy = Lina::ECS::Registry::Get()->get<ECS::PhysicsComponent>(m_selectedTransform);
+			auto* reg = Lina::ECS::Registry::Get();
+			ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(m_selectedTransform);
+			ECS::PhysicsComponent& phy = reg->get<ECS::PhysicsComponent>(m_selectedTransform);
 
-			// Get required matrices.
+			
+			// bool drawLocal = currentTransformGizmoMode == ImGuizmo::MODE::LOCAL && reg->all_of<ECS::MeshRendererComponent>(m_selectedTransform);
+			bool drawLocal = false;
+
 			glm::mat4 object = data.ToMatrix();
+
 			bool useDisabled = (phy.GetSimType() == Physics::SimulationType::Static) || (phy.GetSimType() == Physics::SimulationType::Dynamic && !phy.GetIsKinematic());
 			ImGuizmo::SetCanUse(!useDisabled);
 			ImGuizmo::SetThicknessMultiplier(1.0f);
 			ImGuizmo::SetLineLengthMultiplier(1.0f);
 			ImGuizmo::EnablePlanes(true);
-			// Draw transformation handle.
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0]);
 
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
-
-			if (ImGuizmo::IsUsing())
+			// Draw transformation handle.
+			if (!drawLocal)
 			{
-				glm::vec3 rot = data.GetRotationAngles();
-				glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
-				data.SetRotationAngles(rot + deltaRotation);
+				ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0]);
+				ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
+
+				if (ImGuizmo::IsUsing())
+				{
+					glm::vec3 rot = data.GetRotationAngles();
+					glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
+					data.SetRotationAngles(rot + deltaRotation);
+				}
+
+				data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+				data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+			}
+			else
+			{
+
+				// If we are manipulating a mesh renderer, add the renderer's local offset (calculated via renderer submesh vertices)
+				// to the translation gizmo's position, so we can manipulate from the meshes' center.
+				ECS::MeshRendererComponent& mr = reg->get<ECS::MeshRendererComponent>(m_selectedTransform);
+				const Vector3 vertexOffset = mr.m_localOffset * data.GetScale();
+				const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z +
+					data.GetRotation().GetRight() * vertexOffset.x + 
+					data.GetRotation().GetUp() * vertexOffset.y;
+
+				const Vector3 pivotMatrixLoc = data.GetLocation() + offsetAddition;
+				const Quaternion pivotMatrixRot = data.GetRotation();
+				const Vector3 pivotMatrixScale = data.GetScale();
+				Matrix pivotMatrix = Matrix::TransformMatrix(pivotMatrixLoc, pivotMatrixRot, pivotMatrixScale);
+				ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, ImGuizmo::MODE::LOCAL, &pivotMatrix[0][0]);
+				ImGuizmo::DecomposeMatrixToComponents(&pivotMatrix[0][0], matrixTranslation, matrixRotation, matrixScale);
+				// const Matrix localToPivot = Matrix::TransformMatrix(Vector3::Zero, Quaternion(), Vector3::One);
+				// Matrix finalMatrix = pivotMatrix * localToPivot;
+				// data.SetTransformation(finalMatrix);
+				//Matrix finalMatrix = pivotMatrix * data.ToLocalMatrix();
+				data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
 			}
 
-			data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-			data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+
+			
 
 			// Handle AABB bounding box drawing for the selected entity.
 			if (m_selectedTransform != editorCam)

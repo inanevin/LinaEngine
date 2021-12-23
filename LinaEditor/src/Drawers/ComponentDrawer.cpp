@@ -214,6 +214,24 @@ namespace Lina::Editor
 		return Lina::Graphics::Model::GetModel(modelPath).GetMaterialSpecs()[index].m_name;;
 	}
 
+	template<typename Type>
+	void Drawer_ValueChanged(Lina::ECS::Entity ent, const char* label)
+	{
+		ECS::TypeID tid = GetTypeID<Type>();
+
+		if (tid == GetTypeID<ModelRendererComponent>())
+		{
+			// Generate pivots changed.
+			if (std::string(label).compare("Generate Pivots") == 0)
+			{
+				ModelRendererComponent& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(ent);
+				mr.RefreshHierarchy(ent, mr.GetModelID());
+			}
+		}
+	}
+
+
+
 	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
 		LINA_TRACE("Debug PLIGHT");
 	}
@@ -279,15 +297,17 @@ namespace Lina::Editor
 
 		// Model Renderer
 		auto idt = "matpath_arr"_hs;
+		std::string modelRendererTooltip = "Set true if you want to generate pivot entities at the center of each mesh.\n" + std::string("The center is calculated using the average of vertex positions, on all sub-meshes per mesh.");
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialPathArray, ""));
 		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath, ""));
+		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_generateMeshPivots>("pvts"_hs).props(PROPS("Generate Pivots", ComponentVariableType::Checkmark, modelRendererTooltip.c_str()));
 		entt::meta<ModelRendererComponent>().func<&Drawer_SetModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_GetMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
 		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
-		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering");
+		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering", true, true);
 
 		// Sprite renderer
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
@@ -409,7 +429,7 @@ namespace Lina::Editor
 
 		bool disabled = entity == ecs->GetEntity("Editor Camera");
 		bool disableTransform = (simType == Physics::SimulationType::Dynamic && !phy.m_isKinematic) || (simType == Physics::SimulationType::Static);
-		std::string caretLabel = "Transformation " + std::string((m_isTransformPivotGlobal ? "(Global)" : "(Local)"));
+		std::string caretLabel = "Transformation (Local)";
 
 		if (simType == Physics::SimulationType::Dynamic)
 			caretLabel += " (Physics: Dynamic)";
@@ -427,33 +447,40 @@ namespace Lina::Editor
 		{
 			WidgetsUtility::PropertyLabel("Location");
 
+			if (ImGui::IsItemHovered())
+			{
+				const std::string tooltipData = "Global: " + data.GetLocation().ToString();
+				WidgetsUtility::Tooltip(tooltipData.c_str());
+			}
+
 			if (disableTransform)
 				ImGui::BeginDisabled();
 
-			Vector3 location = m_isTransformPivotGlobal ? data.GetLocation() : data.GetLocalLocation();
+			Vector3 location = data.GetLocalLocation();
 			WidgetsUtility::DragVector3("##loc", &location.x);
-
-			if (m_isTransformPivotGlobal)
-				data.SetLocation(location);
-			else
-				data.SetLocalLocation(location);
+			data.SetLocalLocation(location);
 
 			WidgetsUtility::PropertyLabel("Rotation");
-			Vector3 rot = m_isTransformPivotGlobal ? data.GetRotationAngles() : data.GetLocalRotationAngles();
+			if (ImGui::IsItemHovered())
+			{
+				const std::string tooltipData = "Global: " + data.GetRotation().ToString();
+				WidgetsUtility::Tooltip(tooltipData.c_str());
+			}
+
+			Vector3 rot = data.GetLocalRotationAngles();
 			WidgetsUtility::DragVector3("##rot", &rot.x);
-			if (m_isTransformPivotGlobal)
-				data.SetRotationAngles(rot);
-			else
-				data.SetLocalRotationAngles(rot);
+			data.SetLocalRotationAngles(rot);
 
 			WidgetsUtility::PropertyLabel("Scale");
-			Vector3 scale = m_isTransformPivotGlobal ? data.GetScale() : data.GetLocalScale();
-			WidgetsUtility::DragVector3("##scale", &scale.x);
+			if (ImGui::IsItemHovered())
+			{
+				const std::string tooltipData = "Global: " + data.GetScale().ToString();
+				WidgetsUtility::Tooltip(tooltipData.c_str());
+			}
 
-			if (m_isTransformPivotGlobal)
-				data.SetScale(scale);
-			else
-				data.SetLocalScale(scale);
+			Vector3 scale = data.GetLocalScale();
+			WidgetsUtility::DragVector3("##scale", &scale.x);
+			data.SetLocalScale(scale);
 
 			if (disableTransform)
 				ImGui::EndDisabled();
@@ -476,7 +503,7 @@ namespace Lina::Editor
 			WidgetsUtility::PropertyLabel("Simulation");
 			if (ImGui::IsItemHovered())
 				WidgetsUtility::Tooltip("Simulation type determines how the object will behave in physics world. \nNone = Object is not physically simulated. \nDynamic = Object will be an active rigidbody. You can switch between kinematic & non-kinematic to determine \nwhether the transformation will be user-controlled or fully-simulated. \nStatic = Object will be simulated, but can not move during the gameplay. ");
-		
+
 			Physics::SimulationType currentSimType = phy.m_simType;
 			Physics::SimulationType selectedSimType = (Physics::SimulationType)WidgetsUtility::SimulationTypeComboBox("##simType", (int)phy.m_simType);
 			if (selectedSimType != currentSimType)
@@ -498,7 +525,7 @@ namespace Lina::Editor
 				}
 			}
 
-		
+
 			WidgetsUtility::PropertyLabel("Mass");
 			const float currentMass = phy.m_mass;
 			WidgetsUtility::DragFloat("##mass", nullptr, &phy.m_mass);
@@ -507,7 +534,7 @@ namespace Lina::Editor
 				physicsEngine->SetBodyMass(entity, phy.m_mass);
 			}
 
-			
+
 			WidgetsUtility::PropertyLabel("Physics Material");
 			const std::string currentMaterial = phy.m_physicsMaterialPath;
 			bool removed = false;
@@ -546,7 +573,7 @@ namespace Lina::Editor
 			{
 				WidgetsUtility::PropertyLabel("Radius");
 				const float currentRadius = phy.m_radius;
-				WidgetsUtility::DragFloat("##radius", nullptr, & phy.m_radius);
+				WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
 				if (currentRadius != phy.m_radius)
 				{
 					physicsEngine->SetBodyRadius(entity, phy.m_radius);
@@ -648,6 +675,7 @@ namespace Lina::Editor
 			if (paste)
 				resolvedData.func("paste"_hs).invoke({}, ent);
 
+			auto valueChangedCallback = resolvedData.func("valueChanged"_hs);
 
 			if (m_componentFoldoutState[tid])
 			{
@@ -660,11 +688,10 @@ namespace Lina::Editor
 					auto labelProperty = data.prop("Label"_hs);
 					auto typeProperty = data.prop("Type"_hs);
 					if (!labelProperty || !typeProperty) continue;
+
 					const char* label = labelProperty.value().cast<const char*>();
 					ComponentVariableType type = typeProperty.value().cast<ComponentVariableType>();
-
 					auto displayDependencyProperty = data.prop("DisplayDependency"_hs);
-
 					if (displayDependencyProperty)
 					{
 						entt::hashed_string displayDependencyHash = displayDependencyProperty.value().cast<entt::hashed_string>();
@@ -691,48 +718,78 @@ namespace Lina::Editor
 					if (type == ComponentVariableType::DragFloat)
 					{
 						float variable = data.get(instance).cast<float>();
+						const float prev = variable;
 						WidgetsUtility::DragFloat(varLabelID.c_str(), nullptr, &variable);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
+						
 					}
 					else if (type == ComponentVariableType::DragInt)
 					{
 						int variable = data.get(instance).cast<int>();
+						const int prev = variable;
 						WidgetsUtility::DragInt(varLabelID.c_str(), nullptr, &variable);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::Vector2)
 					{
 						Vector2 variable = data.get(instance).cast<Vector2>();
+						const Vector2 prev = variable;
 						WidgetsUtility::DragVector2(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::Vector3)
 					{
 						Vector3 variable = data.get(instance).cast<Vector3>();
+						const Vector3 prev = variable;
 						WidgetsUtility::DragVector3(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::Vector4)
 					{
 						Vector4 variable = data.get(instance).cast<Vector4>();
+						const Vector4 prev = variable;
 						WidgetsUtility::DragVector4(varLabelID.c_str(), &variable.x);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::Color)
 					{
 						Color variable = data.get(instance).cast<Color>();
+						const Color prev = variable;
 						WidgetsUtility::ColorButton(varLabelID.c_str(), &variable.r);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::Checkmark)
 					{
 						bool variable = data.get(instance).cast<bool>();
+						const bool prev = variable;
 						ImGui::Checkbox(varLabelID.c_str(), &variable);
 						data.set(instance, variable);
+
+						if (valueChangedCallback && prev != variable)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::ModelPath)
 					{
 						std::string modelPath = data.get(instance).cast<std::string>();
+						const std::string prev = modelPath;
 						bool removed = false;
 						Graphics::Model* selectedModel = WidgetsUtility::ModelComboBox(varLabelID.c_str(), StringID(modelPath.c_str()).value(), &removed);
 
@@ -756,6 +813,9 @@ namespace Lina::Editor
 							}
 							ImGui::EndDragDropTarget();
 						}
+
+						if (valueChangedCallback && prev != modelPath)
+							valueChangedCallback.invoke({}, ent, label);
 					}
 					else if (type == ComponentVariableType::MaterialPathArray)
 					{
@@ -799,10 +859,7 @@ namespace Lina::Editor
 							}
 
 						}
-
 					}
-
-
 
 					varCounter++;
 					varLabelID.clear();

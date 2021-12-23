@@ -76,14 +76,16 @@ namespace Lina::ECS
 		void RemoveModel(ECS::Entity parent);
 		void SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material);
 		void RemoveMaterial(ECS::Entity parent, int materialIndex);
-		
+		bool GetGenerateMeshPivots() { return m_generateMeshPivots; }
+		void RefreshHierarchy(ECS::Entity parent, StringIDType previousModelID);
+		StringIDType GetModelID() { return m_modelID; }
 		std::string GetModelPath() { return m_modelPath; }
 		std::vector<std::string> GetMaterialPaths() { return m_materialPaths; }
 
 	private:
 
 		void ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot = false);
-		void AddMeshRenderer(ECS::Entity targetEntity, int meshIndex, const Lina::Vector3& halfBounds, Graphics::Model& model);
+		void AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model);
 
 	private:
 
@@ -97,11 +99,12 @@ namespace Lina::ECS
 		std::string m_modelParamsPath = "";
 		std::vector<std::string> m_materialPaths;
 		int m_materialCount = -1;
+		bool m_generateMeshPivots = false;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_modelPath, m_modelParamsPath, m_materialCount, m_materialPaths, m_isEnabled);
+			archive(m_modelPath, m_modelParamsPath, m_materialCount, m_materialPaths, m_isEnabled, m_generateMeshPivots);
 		}
 	
 	};

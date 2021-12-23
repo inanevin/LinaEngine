@@ -119,7 +119,7 @@ namespace Lina::Editor
 		void OnTransformPivotChanged(ETransformPivotChanged ev);
 
 		template<typename Type>
-		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true)
+		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false)
 		{
 			entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags),
 				std::make_pair("Category"_hs, category));
@@ -135,6 +135,11 @@ namespace Lina::Editor
 			{
 				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_ref_t>("add"_hs);
 				m_addComponentMap[category].push_back(std::make_pair<std::string, Lina::ECS::TypeID>(std::string(title), Lina::ECS::GetTypeID<Type>()));
+			}
+
+			if (addValueChanged)
+			{
+				entt::meta<Type>().func<&Drawer_ValueChanged<Type>, entt::as_ref_t>("valueChanged"_hs);
 			}
 		}
 

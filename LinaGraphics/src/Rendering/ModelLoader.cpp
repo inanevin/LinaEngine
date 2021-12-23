@@ -34,6 +34,7 @@ SOFTWARE.
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/metadata.h>
 
 #include <ozz/animation/offline/tools/import2ozz.h>
 #include <fstream>
@@ -64,7 +65,7 @@ namespace Lina::Graphics
 	{
 		modelNode.m_name = std::string(node->mName.C_Str());
 		modelNode.m_localTransform = AssimpToLinaMatrix(node->mTransformation);
-		
+
 		for (uint32 i = 0; i < node->mNumMeshes; i++)
 			modelNode.m_meshIndexes.push_back(node->mMeshes[i]);
 
@@ -128,6 +129,8 @@ namespace Lina::Graphics
 				vertexBoneWeights.resize(aiMesh->mNumVertices, std::vector<float>(4, 0.0f));
 			}
 
+			Vector3 totalVertexPos = Vector3::Zero;
+
 			// Iterate through vertices.
 			for (uint32 i = 0; i < aiMesh->mNumVertices; i++)
 			{
@@ -146,6 +149,7 @@ namespace Lina::Graphics
 				currentMesh.AddElement(3, tangent.x, tangent.y, tangent.z);
 				currentMesh.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 
+				totalVertexPos += AssimpToLinaVector(pos);
 
 				if (vertexBoneIDs.size() > 0)
 				{
@@ -172,9 +176,11 @@ namespace Lina::Graphics
 			}
 
 			// Add aiMesh to array.
-			const Vector3 min = AssimpToLinaVector(aiMesh->mAABB.mMin);
-			const Vector3 max = AssimpToLinaVector(aiMesh->mAABB.mMax);
-			const Vector3 half = (max - min) / 2.0f;
+			const Vector3 localPosition = totalVertexPos / (float)aiMesh->mNumVertices;
+			currentMesh.m_localVertexOffset = localPosition;
+			currentMesh.m_boundsMin = AssimpToLinaVector(aiMesh->mAABB.mMin);
+			currentMesh.m_boundsMax = AssimpToLinaVector(aiMesh->mAABB.mMax);
+			const Vector3 half = (currentMesh.m_boundsMax, currentMesh.m_boundsMin) / 2.0f;
 			currentMesh.m_halfBounds = half;
 			model.GetMeshes().push_back(currentMesh);
 		}
@@ -206,25 +212,28 @@ namespace Lina::Graphics
 		return true;
 	}
 
-	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& params)
+	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& modelParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (params.m_calculateTangentSpace)
+		if (modelParams.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (params.m_triangulate)
+		if (modelParams.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (params.m_smoothNormals)
+		if (modelParams.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (params.m_flipUVs)
+		if (modelParams.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (params.m_flipWinding)
+		if (modelParams.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
+
+		importFlags |= aiProcess_GlobalScale;
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelParams.m_globalScale);
 
 		const std::string ext = "." + Utility::GetFileExtension(model.GetPath());
 		const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
@@ -233,26 +242,29 @@ namespace Lina::Graphics
 		return LoadModel(scene, model);
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters modelParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (meshParams.m_calculateTangentSpace)
+		if (modelParams.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (meshParams.m_triangulate)
+		if (modelParams.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (meshParams.m_smoothNormals)
+		if (modelParams.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (meshParams.m_flipUVs)
+		if (modelParams.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (meshParams.m_flipWinding)
+		if (modelParams.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
 
+
+		importFlags |= aiProcess_GlobalScale;
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelParams.m_globalScale);
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 

@@ -38,6 +38,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 #include "Utility/StringId.hpp"
 #include "ECS/ECSComponent.hpp"
+#include "Math/Vector.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
@@ -49,14 +50,15 @@ namespace Lina::ECS
 		std::string m_materialPath = "";
 		StringIDType m_modelID = -1;
 		StringIDType m_materialID = -1;
-		int m_meshIndex = -1;	// Index to define which mesh is this in the model's hierarchy. (parallel with the child entity indices under the model renderer component's entity).
+		Lina::Vector3 m_localOffset = Lina::Vector3::Zero;
+		std::vector<int> m_subMeshes;	// Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
 		bool m_excludeFromDrawList = false;
 
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_excludeFromDrawList, m_meshIndex, m_modelPath, m_materialPath, m_isEnabled);
+			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_subMeshes, m_localOffset);
 		}
 	};
 }

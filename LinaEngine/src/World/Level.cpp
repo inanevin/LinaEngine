@@ -101,45 +101,41 @@ namespace Lina::World
 	{
 		ECS::Registry* ecs = ECS::Registry::Get();
 
-		auto view = ecs->view<ECS::ModelRendererComponent>();
+		auto& view = ecs->view<ECS::ModelRendererComponent>();
 
 		for (ECS::Entity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
-
 			// Assign model pointed by the model renderer.
 			if (Graphics::Model::ModelExists(mr.m_modelPath))
-				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
-
-			// Iterate model renderer's children, find all mesh renderer components & assign their mesh & material IDs accordingly.
-			ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
-			for (auto& child : data.m_children)
-			{
-				ECS::MeshRendererComponent* meshRenderer = ecs->try_get<ECS::MeshRendererComponent>(child);
-
-				if (meshRenderer != nullptr)
-				{
-					if (Graphics::Material::MaterialExists(meshRenderer->m_materialPath))
-						meshRenderer->m_materialID = Graphics::Material::GetMaterial(meshRenderer->m_materialPath).GetID();
-					else
-					{
-						Graphics::Material& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-						meshRenderer->m_materialID = mat.GetID();
-						meshRenderer->m_materialPath = mat.GetPath();
-					}
-
-					if (Graphics::Model::ModelExists(meshRenderer->m_modelPath))
-						meshRenderer->m_modelID = Graphics::Model::GetModel(meshRenderer->m_modelPath).GetID();
-					else
-					{
-						meshRenderer->m_modelID = -1;
-						meshRenderer->m_modelPath = "";
-					}
-				}
-			}
+				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();		
 		}
 
-		auto viewSprites = ecs->view<ECS::SpriteRendererComponent>();
+		auto& meshView = ecs->view<ECS::MeshRendererComponent>();
+
+		for (ECS::Entity entity : meshView)
+		{
+			ECS::MeshRendererComponent& meshRenderer = ecs->get<ECS::MeshRendererComponent>(entity);
+			if (Graphics::Material::MaterialExists(meshRenderer.m_materialPath))
+				meshRenderer.m_materialID = Graphics::Material::GetMaterial(meshRenderer.m_materialPath).GetID();
+			else
+			{
+				Graphics::Material& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+				meshRenderer.m_materialID = mat.GetID();
+				meshRenderer.m_materialPath = mat.GetPath();
+			}
+			
+			if (Graphics::Model::ModelExists(meshRenderer.m_modelPath))
+				meshRenderer.m_modelID = Graphics::Model::GetModel(meshRenderer.m_modelPath).GetID();
+			else
+			{
+				meshRenderer.m_modelID = -1;
+				meshRenderer.m_modelPath = "";
+			}
+
+		}
+
+		auto& viewSprites = ecs->view<ECS::SpriteRendererComponent>();
 
 		for (ECS::Entity entity : viewSprites)
 		{
@@ -158,7 +154,7 @@ namespace Lina::World
 			}
 		}
 
-		auto viewPhysics = ecs->view<ECS::PhysicsComponent>();
+		auto& viewPhysics = ecs->view<ECS::PhysicsComponent>();
 
 		for (ECS::Entity entity : viewPhysics)
 		{

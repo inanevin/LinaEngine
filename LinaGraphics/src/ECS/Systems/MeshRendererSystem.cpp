@@ -55,33 +55,34 @@ namespace Lina::ECS
 		for (auto entity : view)
 		{
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
-			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0 || renderer.m_meshIndex < 0) continue;
+			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0) continue;
 			
 			auto& data = view.get<EntityDataComponent>(entity);
 
-	
 			// We get the materials, then according to their surface types we add the model
 			// data into either opaque queue or the transparent queue.
 			Graphics::Model& model = Lina::Graphics::Model::GetModel(renderer.m_modelID);
 
-			auto& mesh = model.GetMeshes()[renderer.m_meshIndex];
-			uint32 materialSlot = mesh.GetMaterialSlotIndex();
-
-			if (!Graphics::Material::MaterialExists(renderer.m_materialID)) continue;
-
-			Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(renderer.m_materialID);
-			Matrix finalMatrix = data.ToMatrix();
-
-			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix);
-			else
+			for (uint32 i = 0; i < renderer.m_subMeshes.size(); i++)
 			{
-				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
-				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
-				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix, priority);
+				auto& mesh = model.GetMeshes()[renderer.m_subMeshes[i]];
+				uint32 materialSlot = mesh.GetMaterialSlotIndex();
 
+				if (!Graphics::Material::MaterialExists(renderer.m_materialID)) continue;
+
+				Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(renderer.m_materialID);
+				Matrix finalMatrix = data.ToMatrix();
+
+				if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+					RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix);
+				else
+				{
+					// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
+					float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
+					RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix, priority);
+
+				}
 			}
-
 		}
 
 	}

@@ -79,6 +79,14 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
+		Vector2& operator*=(Vector2 const& v) { this->x *= v.x;	this->y *= v.y; return *this; }
+		Vector2& operator/=(Vector2 const& v) { this->x /= v.x;	this->y /= v.y; return *this; }
+		Vector2& operator+=(Vector2 const& v) { this->x += v.x;	this->y += v.y; return *this; }
+		Vector2& operator-=(Vector2 const& v) { this->x -= v.x;	this->y -= v.y; return *this; }
+		Vector2& operator*=(float f) { this->x *= f; this->y *= f;  return *this; }
+		Vector2& operator/=(float f) { this->x /= f; this->y /= f;  return *this; }
+		Vector2& operator+=(float f) { this->x += f; this->y += f;  return *this; }
+		Vector2& operator-=(float f) { this->x -= f; this->y -= f;  return *this; }
 		bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
 		bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
 		bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
@@ -164,6 +172,14 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
+		Vector3& operator*=(Vector3 const& v) { this->x *= v.x;	this->y *= v.y;	this->z *= v.z;	return *this; }
+		Vector3& operator/=(Vector3 const& v) { this->x /= v.x;	this->y /= v.y;	this->z /= v.z;	return *this; }
+		Vector3& operator+=(Vector3 const& v) { this->x += v.x;	this->y += v.y;	this->z += v.z;	return *this; }
+		Vector3& operator-=(Vector3 const& v) { this->x -= v.x;	this->y -= v.y;	this->z -= v.z;	return *this; }
+		Vector3& operator*=(float f) { this->x *= f; this->y *= f; this->z *= f; return *this; }
+		Vector3& operator/=(float f) { this->x /= f; this->y /= f; this->z /= f; return *this; }
+		Vector3& operator+=(float f) { this->x += f; this->y += f; this->z += f; return *this; }
+		Vector3& operator-=(float f) { this->x -= f; this->y -= f; this->z -= f; return *this; }
 		bool operator==(const Vector3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
 		bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
 		bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
@@ -240,6 +256,14 @@ namespace Lina
 		float Min() const;
 		void Normalize();
 
+		Vector4& operator*=(Vector4 const& v) { this->x *= v.x;	this->y *= v.y;	this->z *= v.z; this->w *= v.w; return *this; }
+		Vector4& operator/=(Vector4 const& v) { this->x /= v.x;	this->y /= v.y;	this->z /= v.z; this->w /= v.w; return *this; }
+		Vector4& operator+=(Vector4 const& v) { this->x += v.x;	this->y += v.y;	this->z += v.z; this->w += v.w; return *this; }
+		Vector4& operator-=(Vector4 const& v) { this->x -= v.x;	this->y -= v.y;	this->z -= v.z; this->w -= v.w; return *this; }
+		Vector4& operator*=(float f) { this->x *= f; this->y *= f; this->z *= f; this->w *= f; return *this; }
+		Vector4& operator/=(float f) { this->x /= f; this->y /= f; this->z /= f; this->w /= f; return *this; }
+		Vector4& operator+=(float f) { this->x += f; this->y += f; this->z += f; this->w += f; return *this; }
+		Vector4& operator-=(float f) { this->x -= f; this->y -= f; this->z -= f; this->w -= f; return *this; }
 		bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
 		bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
 		bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }

@@ -85,7 +85,10 @@ namespace Lina::Graphics
 		uint32 GetIndexCount() const { return m_indices.size(); }
 		VertexArray& GetVertexArray() { return m_vertexArray; }
 		Vector3 GetHalfBounds() { return m_halfBounds; }
-		
+		Vector3 GetBoundsMin() { return m_boundsMin; }
+		Vector3 GetBoundsMax() { return m_boundsMax; }
+		Vector3 GetLocalOffset() { return m_localVertexOffset; }
+
 	private:
 
 		friend class ModelLoader;
@@ -95,7 +98,10 @@ namespace Lina::Graphics
 		std::vector<BufferData> m_bufferElements;
 		VertexArray m_vertexArray;
 		uint32 m_materialSlot = 0;
+		Lina::Vector3 m_localVertexOffset = Lina::Vector3(0.0f, 0.0f, 0.0f);
 		Lina::Vector3 m_halfBounds = Lina::Vector3(0.5f, 0.5f, 0.5f);
+		Lina::Vector3 m_boundsMin = Lina::Vector3(-0.5f, -0.5f, -0.5f);
+		Lina::Vector3 m_boundsMax = Lina::Vector3(0.5f, 0.5f, 0.5f);
 	};
 }
 
