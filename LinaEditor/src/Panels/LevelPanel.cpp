@@ -335,15 +335,15 @@ namespace Lina::Editor
 
 					if (entity != editorCam)
 					{
-						Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
-						Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
-						Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfSize(), 500.0f);
-
-						if (hitInfo.m_hitCount > 0)
-						{
-							Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ entity });
-							return;
-						}
+						//Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
+						//Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
+						//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfSize(), 500.0f);
+						//
+						//if (hitInfo.m_hitCount > 0)
+						//{
+						//	Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ entity });
+						//	return;
+						//}
 					}
 
 					});
@@ -415,11 +415,11 @@ namespace Lina::Editor
 		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		Matrix& view = renderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = renderEngine->GetCameraSystem()->GetProjectionMatrix();
+		auto* reg = Lina::ECS::Registry::Get();
 
 		// Handle entity transformation manipulation.
 		if (m_selectedEntity != entt::null)
 		{
-			auto* reg = Lina::ECS::Registry::Get();
 			ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(m_selectedEntity);
 			ECS::PhysicsComponent& phy = reg->get<ECS::PhysicsComponent>(m_selectedEntity);
 
@@ -470,8 +470,10 @@ namespace Lina::Editor
 			ImGuizmo::SetLineLengthMultiplier(0.5f);
 			ImGuizmo::EnablePlanes(false);
 			Transformation sceneOrientationTransform;
+			ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(editorCam);
+			const Vector3 camLoc = data.GetLocation();
 			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
-			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3(0, 0, 1000), Vector3::Up);
+			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3(camLoc.x, camLoc.y, camLoc.z + 300), Vector3::Up);
 			glm::mat4 sceneOrientation = sceneOrientationTransform.ToMatrix();
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &sceneOrientation[0][0]);
 		}

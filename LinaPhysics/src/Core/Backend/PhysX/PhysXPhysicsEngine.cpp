@@ -150,40 +150,6 @@ namespace Lina::Physics
 	void PhysXPhysicsEngine::Tick(float fixedDelta)
 	{
 		// Update phy.
-
-		static float x = 0.0f;
-
-		//x += fixedDelta;
-
-		if (x > 2.0f)
-		{
-			x = 0.0f;
-
-			PxRaycastHit hitInfo;
-			PxU32 maxHits = 1;
-			PxTransform pose;
-			pose.p = PxVec3(0, 0, 0);
-			pose.q = ToPxQuat(Quaternion(Vector3(0,0,1), 0));
-
-			HitInfo h = RaycastPose(Vector3(0, 0, -10), Vector3(0, 0, 1), Vector3(5, 0, 0), Vector3(5,5,5), 100);
-
-			LINA_TRACE("Raycast {0}", h.m_hitCount);
-
-			//PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eUV;
-			//PxU32 hitCount = PxGeometryQuery::raycast(PxVec3(0,0, -10), PxVec3(0,0,1),
-			//	PxBoxGeometry(), pose,
-			//	100,
-			//	hitFlags,
-			//	maxHits, &hitInfo);
-			//
-			//
-			//if (hitInfo.actor != nullptr)
-			//	LINA_TRACE("actor aint null");
-			//
-			//LINA_TRACE("RAY CAST {0} pos: {1}", hitCount, ToLinaVector3(hitInfo.position).ToString());
-
-		}
-
 		m_pxScene->simulate(PHYSICS_STEP);
 		m_pxScene->fetchResults(true);
 		m_physicsPipeline.UpdateSystems(fixedDelta);
@@ -207,6 +173,10 @@ namespace Lina::Physics
 			renderColor.a = 1.0f;
 			m_eventSystem->Trigger<Event::EDrawLine>(Event::EDrawLine{ ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor });
 		}
+	}
+
+	void PhysXPhysicsEngine::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
+	{
 	}
 
 	PxShape* PhysXPhysicsEngine::GetCreateShape(ECS::PhysicsComponent& phy)

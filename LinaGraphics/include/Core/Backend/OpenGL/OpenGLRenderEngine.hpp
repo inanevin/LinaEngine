@@ -49,6 +49,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/AnimationSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
+#include "ECS/Systems/FrustumSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
@@ -117,6 +118,7 @@ namespace Lina::Graphics
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 		ECS::LightingSystem* GetLightingSystem() { return &m_lightingSystem; }
 		ECS::MeshRendererSystem* GetMeshRendererSystem() { return &m_meshRendererSystem; }
+		ECS::FrustumSystem* GetFrustumSystem() { return &m_frustumSystem; }
 		Texture& GetHDRICubemap() { return m_hdriCubemap; }
 		static Texture& GetDefaultTexture() { return s_defaultTexture; }
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
@@ -261,6 +263,7 @@ namespace Lina::Graphics
 		Lina::ECS::MeshRendererSystem m_meshRendererSystem;
 		Lina::ECS::SpriteRendererSystem m_spriteRendererSystem;
 		Lina::ECS::LightingSystem m_lightingSystem;
+		Lina::ECS::FrustumSystem m_frustumSystem;
 		Lina::ECS::ECSSystemList m_renderingPipeline;
 		Lina::ECS::ECSSystemList m_animationPipeline;
 

@@ -139,10 +139,13 @@ namespace Lina::Graphics
 		m_spriteRendererSystem.Initialize();
 		m_lightingSystem.Initialize(m_appMode);
 		m_cameraSystem.SetAspectRatio((float)m_screenSize.x / (float)m_screenSize.y);
+		m_frustumSystem.Initialize();
+
 		AddToRenderingPipeline(m_cameraSystem);
 		AddToRenderingPipeline(m_meshRendererSystem);
 		AddToRenderingPipeline(m_spriteRendererSystem);
 		AddToRenderingPipeline(m_lightingSystem);
+		AddToRenderingPipeline(m_frustumSystem);
 
 		// Animation pipeline
 		m_animationSystem.Initialize();

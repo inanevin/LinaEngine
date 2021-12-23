@@ -106,6 +106,7 @@ namespace Lina::ECS
 		void RemoveFromParent(Entity child);
 		void CloneEntity(Entity from, Entity to);
 		void DestroyEntity(Entity entity, bool isRoot = true);
+
 		Entity CreateEntity(const std::string& name);
 		Entity CreateEntity(Entity copy, bool attachParent = true);
 		Entity GetEntity(const std::string& name);

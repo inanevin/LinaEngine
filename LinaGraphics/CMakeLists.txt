@@ -51,6 +51,8 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
 	src/ECS/Systems/AnimationSystem.cpp
+	src/ECS/Systems/FrustumSystem.cpp
+		
 	src/ECS/Components/ModelRendererComponent.cpp
 
 )
@@ -103,6 +105,7 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp
+	include/ECS/Systems/FrustumSystem.hpp
 	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/ModelRendererComponent.hpp
 	include/ECS/Components/CameraComponent.hpp

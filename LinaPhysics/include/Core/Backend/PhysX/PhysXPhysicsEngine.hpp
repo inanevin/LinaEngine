@@ -109,6 +109,7 @@ namespace Lina::Physics
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void OnPostSceneDraw(Event::EPostSceneDraw);
+		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
 		void RemoveBodyFromWorld(ECS::Entity body, bool isDynamic);
 		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
 		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy);
