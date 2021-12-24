@@ -82,18 +82,22 @@ namespace Lina
 #endif
 	}
 
+	namespace Graphics
+	{
+
+	}
 	namespace Resources
 	{
 		enum class ResourceType
 		{
 			Unknown = 0,
 			Model = 1,
-			ModelParams = 2,
+			ModelAssetData = 2,
 			Image = 3,
-			ImageParams = 4,
+			ImageData = 4,
 			HDR = 5,
 			Audio = 6,
-			AudioParams = 7,
+			AudioData = 7,
 			Material = 8,
 			GLSL = 9,
 			GLH,

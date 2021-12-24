@@ -47,7 +47,7 @@ namespace Lina::Resources
 		int priority = 100;
 		std::string paramsExtension = "";
 		
-		if (type == ResourceType::AudioParams || type == ResourceType::ModelParams || type == ResourceType::ImageParams)
+		if (type == ResourceType::AudioData || type == ResourceType::ModelAssetData || type == ResourceType::ImageData)
 		{
 			m_memoryResourcesParams.push_back(MemoryEntry(priority, type, path, data, paramsExtension));
 		}
@@ -58,11 +58,11 @@ namespace Lina::Resources
 			else if (type == ResourceType::GLSL)
 				priority = 1;
 			else if (type == ResourceType::Audio)
-				paramsExtension = ".audioparams";
+				paramsExtension = ".linaaudiodata";
 			else if (type == ResourceType::Model)
-				paramsExtension = ".modelparams";
+				paramsExtension = ".linamodeldata";
 			else if (type == ResourceType::Image || type == ResourceType::HDR)
-				paramsExtension = ".samplerparams";
+				paramsExtension = ".linaimagedata";
 		
 			m_memoryResources.push(MemoryEntry(priority, type, path, data, paramsExtension));
 		}
@@ -144,13 +144,13 @@ namespace Lina::Resources
 		std::string paramsPath = "";
 
 		if (type == ResourceType::Image)
-			paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
 		else if (type == ResourceType::HDR)
-			paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
 		else if (type == ResourceType::Model)
-			paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
+			paramsPath = file.m_folderPath + file.m_pureName + ".linamodeldata";
 		else if (type == ResourceType::Audio)
-			paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+			paramsPath = file.m_folderPath + file.m_pureName + ".linaaudiodata";
 
 		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
 		Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{ type, StringID(file.m_fullPath.c_str()).value() });

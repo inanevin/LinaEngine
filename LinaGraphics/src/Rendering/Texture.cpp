@@ -120,7 +120,6 @@ namespace Lina::Graphics
 	Texture& Texture::ConstructRTTexture(Vector2 size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
 	{
 		// Frame buffer texture.
-
 		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		SamplerParameters params;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
@@ -140,9 +139,7 @@ namespace Lina::Graphics
 		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		SamplerParameters params;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
-	//	m_sampler.Construct(deviceIn, params, m_bindMode);
 		m_id = m_renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
-	//	m_sampler.SetTargetTextureID(m_id);
 		m_size = size;
 		m_isCompressed = false;
 		m_isEmpty = false;
@@ -169,41 +166,41 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	SamplerParameters Texture::LoadParameters(const std::string& path)
+	ImageAssetData Texture::LoadAssetData(const std::string& path)
 	{
-		SamplerParameters params;
+		ImageAssetData assetData;
 
 		std::ifstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryInputArchive iarchive(stream);
-			iarchive(params);
+			iarchive(assetData);
 		}
 
-		return params;
+		return assetData;
 	}
 
-	SamplerParameters Texture::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	ImageAssetData Texture::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
 	{
-		SamplerParameters params;
+		ImageAssetData assetData;
 
 		{
 			std::string data((char*)data, dataSize);
 			std::istringstream stream(data, std::ios::binary);
 			{
 				cereal::PortableBinaryInputArchive iarchive(stream);
-				iarchive(params);
+				iarchive(assetData);
 			}
 		}
 
-		return params;
+		return assetData;
 	}
 
-	void Texture::SaveParameters(const std::string& path, SamplerParameters params)
+	void Texture::SaveAssetData(const std::string& path, ImageAssetData assetData)
 	{
 		std::ofstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(params);
+			oarchive(assetData);
 		}
 	}
 
@@ -234,7 +231,7 @@ namespace Lina::Graphics
 		texture->Construct(*textureBitmap, samplerParams, compress, path);
 		texture->m_sid = sid;
 		texture->m_path = path;
-		texture->m_paramsPath = paramsPath;
+		texture->m_assetDataPath = paramsPath;
 		s_loadedTextures[sid] = texture;
 	
 		// Delete pixel data.
@@ -300,7 +297,7 @@ namespace Lina::Graphics
 		// Build texture & construct.
 		Texture* texture = new Texture();
 		texture->Construct(*textureBitmap, samplerParams, compress, filePath);
-		texture->m_paramsPath = paramsPath;
+		texture->m_assetDataPath = paramsPath;
 		texture->m_sid = sid;
 		s_loadedTextures[sid] = texture;
 

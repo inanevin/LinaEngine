@@ -563,14 +563,14 @@ namespace Lina::Editor
 				if (!textureExists)
 				{
 					//Lina::Graphics::SamplerParameters samplerParams;
-					//std::string samplerParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".samplerparams";
+					//std::string samplerParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".linaimagedata";
 					//
 					//if (Lina::Utility::FileExists(samplerParamsPath))
-					//	samplerParams = Lina::Graphics::Texture::LoadParameters(samplerParamsPath);
+					//	samplerParams = Lina::Graphics::Texture::LoadAssetData(samplerParamsPath);
 					//
 					//Lina::Graphics::Texture::CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
 					//
-					//Lina::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
+					//Lina::Graphics::Texture::SaveAssetData(samplerParamsPath, samplerParams);
 				}
 			}
 			if (file.m_type == FileType::HDRI)
@@ -593,15 +593,15 @@ namespace Lina::Editor
 
 				if (!meshExists)
 				{
-					//Lina::Graphics::ModelParameters meshParams;
-					//std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".modelparams";
+					//Lina::Graphics::ModelAssetData meshParams;
+					//std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".linamodeldata";
 					//
 					//if (Lina::Utility::FileExists(meshParamsPath))
-					//	meshParams = Lina::Graphics::Model::LoadParameters(meshParamsPath);
+					//	meshParams = Lina::Graphics::Model::LoadAssetData(meshParamsPath);
 					//
 					//Lina::Graphics::Model::CreateModel(file.m_path, meshParams, -1, meshParamsPath);
 
-					//Lina::Graphics::Model::SaveParameters(meshParamsPath, meshParams);
+					//Lina::Graphics::Model::SaveAssetData(meshParamsPath, meshParams);
 				}
 			}
 		}

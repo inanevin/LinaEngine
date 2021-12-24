@@ -258,14 +258,18 @@ namespace Lina::Physics
 		bufferData = std::vector<uint8>(buf.getData(), buf.getData() + buf.getSize());
 
 		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-		LINA_TRACE("Cooked!");
+
+		LINA_TRACE("Cooked! Creating convex mesh with sid {0} and node id {1}", sid, nodeIndex);
+
 		CreateConvexMesh(bufferData, sid, nodeIndex);
 	}
 
-	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int meshIndex)
+	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID)
 	{
 		PxDefaultMemoryInputData input(&data[0], data.size());
-		m_convexMeshMap[sid].push_back(std::make_pair(meshIndex, m_pxPhysics->createConvexMesh(input)));
+		m_convexMeshMap[sid].push_back(std::make_pair(nodeID, m_pxPhysics->createConvexMesh(input)));
+
+		LINA_TRACE("Created convex mesh with sid {0} and nodeID {1}", sid, nodeID);
 	}
 
 	void PhysXPhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)

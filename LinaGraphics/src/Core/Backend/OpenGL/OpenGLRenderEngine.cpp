@@ -469,16 +469,16 @@ namespace Lina::Graphics
 		}
 		else if (event.m_resourceType == Resources::ResourceType::Model)
 		{
-			ModelParameters params;
+			ModelAssetData params;
 
 			LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
 
-			if (Utility::FileExists(event.m_paramsPath))
-				params = Model::LoadParameters(event.m_paramsPath);
+			if (Utility::FileExists(event.m_assetDataPath))
+				params = Model::LoadAssetData(event.m_assetDataPath);
 			else
-				Model::SaveParameters(event.m_paramsPath, params);
+				Model::SaveAssetData(event.m_assetDataPath, params);
 
-			Model::CreateModel(event.m_path, params, event.m_paramsPath);
+			Model::CreateModel(event.m_path, params, event.m_assetDataPath);
 		}
 		else if (event.m_resourceType == Resources::ResourceType::Material)
 		{
@@ -491,16 +491,15 @@ namespace Lina::Graphics
 			if (Texture::TextureExists(event.m_path)) return;
 
 			LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
-
-			SamplerParameters params;
-			bool paramsExists = Utility::FileExists(event.m_paramsPath);
+			ImageAssetData assetData;
+			bool paramsExists = Utility::FileExists(event.m_assetDataPath);
 
 			if (paramsExists)
-				params = Texture::LoadParameters(event.m_paramsPath);
+				assetData = Texture::LoadAssetData(event.m_assetDataPath);
 
-			Texture::CreateTexture2D(event.m_path, params, false, false, event.m_paramsPath);
+			Texture::CreateTexture2D(event.m_path, assetData.m_samplerParameters, false, false, event.m_assetDataPath);
 			if (!paramsExists)
-				Texture::SaveParameters(event.m_paramsPath, params);
+				Texture::SaveAssetData(event.m_assetDataPath, assetData);
 
 		}
 		else if (event.m_resourceType == Resources::ResourceType::HDR)
@@ -530,12 +529,12 @@ namespace Lina::Graphics
 		{
 			LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
 
-			ModelParameters params;
+			ModelAssetData params;
 
-			if (event.m_paramsData != nullptr)
-				params = Model::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
+			if (event.m_assetDataBuffer != nullptr)
+				params = Model::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
 
-			Model::CreateModel(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params);
+			Model::CreateModel(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, params);
 		}
 		else if (event.m_resourceType == Resources::ResourceType::Material)
 		{
@@ -546,12 +545,12 @@ namespace Lina::Graphics
 		{
 			LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
 
-			SamplerParameters params;
+			ImageAssetData assetData;
 
-			if (event.m_paramsData != nullptr)
-				params = Texture::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
+			if (event.m_assetDataBuffer != nullptr)
+				assetData = Texture::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
 
-			Texture::CreateTexture2D(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params, false, false);
+			Texture::CreateTexture2D(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, assetData.m_samplerParameters, false, false);
 		}
 		else if (event.m_resourceType == Resources::ResourceType::HDR)
 		{

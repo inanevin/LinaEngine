@@ -75,11 +75,11 @@ namespace Lina::Graphics
 		Vector2 GetSize() { return m_size; }
 		bool GetIsEmpty() { return m_isEmpty; }
 		const std::string& GetPath() const { return m_path; }
-		const std::string& GetParamsPath() const { return m_paramsPath; }
+		const std::string& GetAssetDataPath() const { return m_assetDataPath; }
 
-		static SamplerParameters LoadParameters(const std::string& path);
-		static SamplerParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
-		static void SaveParameters(const std::string& path, SamplerParameters params);
+		static ImageAssetData LoadAssetData(const std::string& path);
+		static ImageAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
+		static void SaveAssetData(const std::string& path, ImageAssetData assetData);
 		static Texture& CreateTexture2D(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 		static Texture& CreateTextureHDRI(const std::string& path, unsigned char* data, size_t dataSize);
 		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
@@ -99,6 +99,7 @@ namespace Lina::Graphics
 
 		TextureBindMode m_bindMode;
 		Sampler m_sampler;
+		ImageAssetData m_assetData;
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_id = 0;
 		StringIDType m_sid = 0;
@@ -107,7 +108,7 @@ namespace Lina::Graphics
 		bool m_hasMipMaps = true;
 		bool m_isEmpty = true;
 		std::string m_path = "";
-		std::string m_paramsPath = "";
+		std::string m_assetDataPath = "";
 
 	};
 }

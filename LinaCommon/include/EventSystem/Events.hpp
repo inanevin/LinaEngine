@@ -122,8 +122,8 @@ namespace Lina::Event
 	struct ELevelInitialized { };
 
 	// Resources.
-	struct ELoadResourceFromFile { Resources::ResourceType m_resourceType;  std::string m_path; std::string m_paramsPath; };
-	struct ELoadResourceFromMemory { Resources::ResourceType m_resourceType; std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
+	struct ELoadResourceFromFile { Resources::ResourceType m_resourceType;  std::string m_path; std::string m_assetDataPath; };
+	struct ELoadResourceFromMemory { Resources::ResourceType m_resourceType; std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_assetDataPath; unsigned char* m_assetDataBuffer; size_t m_assetDataSize; };
 	struct EResourceLoadCompleted { Resources::ResourceType m_type; StringIDType m_sid; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};

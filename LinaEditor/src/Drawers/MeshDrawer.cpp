@@ -42,7 +42,7 @@ namespace Lina::Editor
 	void MeshDrawer::SetSelectedModel(Lina::Graphics::Model& mesh)
 	{
 		m_selectedMesh = &mesh;
-		m_selectedParams = m_selectedMesh->GetParameters();
+		m_selectedParams = m_selectedMesh->GetAssetData();
 	}
 
 	void MeshDrawer::DrawSelectedMesh()
@@ -90,11 +90,11 @@ namespace Lina::Editor
 		{
 			int id = m_selectedMesh->GetID();
 			std::string filePath = m_selectedMesh->GetPath();
-			std::string paramsPath = m_selectedMesh->GetParamsPath();
+			std::string paramsPath = m_selectedMesh->GetAssetDataPath();
 			Lina::Graphics::Model::UnloadModel(id);
-			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelParameters(m_selectedParams), paramsPath);
+			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelAssetData(m_selectedParams), paramsPath);
 			LINA_TRACE("File: {0} Params: {1}", filePath, paramsPath);
-			Lina::Graphics::Model::SaveParameters(paramsPath, m_selectedParams);
+			Lina::Graphics::Model::SaveAssetData(paramsPath, m_selectedParams);
 		}
 
 	}

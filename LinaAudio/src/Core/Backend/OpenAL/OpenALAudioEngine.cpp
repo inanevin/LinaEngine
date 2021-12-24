@@ -159,13 +159,13 @@ namespace Lina::Audio
 		{
 			LINA_TRACE("[Audio Loader] -> Loading (file): {0}", ev.m_path);
 
-			std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".audioparams";
-			AudioParameters params;
+			std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".linaaudiodata";
+			AudioAssetData params;
 
 			if (Utility::FileExists(paramsPath))
-				params = Audio::LoadParameters(paramsPath);
+				params = Audio::LoadAssetData(paramsPath);
 			else
-				Audio::SaveParameters(paramsPath, params);
+				Audio::SaveAssetData(paramsPath, params);
 
 			Audio::CreateAudio(ev.m_path, params);
 		}
@@ -177,10 +177,10 @@ namespace Lina::Audio
 		{
 			LINA_TRACE("[Audio Loader] -> Loading (memory): {0}", ev.m_path);
 
-			AudioParameters params;
+			AudioAssetData params;
 
-			if (ev.m_paramsData != nullptr)
-				params = Audio::LoadParametersFromMemory(ev.m_paramsData, ev.m_paramsDataSize);
+			if (ev.m_assetDataBuffer != nullptr)
+				params = Audio::LoadAssetDataFromMemory(ev.m_assetDataBuffer, ev.m_assetDataSize);
 
 			Audio::CreateAudioFromMemory(ev.m_path, ev.m_data, ev.m_dataSize, params);
 		}

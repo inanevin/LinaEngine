@@ -189,7 +189,7 @@ namespace Lina::ECS
 		// Assign model data
 		m_modelID = model.GetID();
 		m_modelPath = model.GetPath();
-		m_modelParamsPath = model.GetParamsPath();
+		m_modelParamsPath = model.GetAssetDataPath();
 		m_materialPaths.clear();
 		m_materialPaths.resize(model.GetMaterialSpecs().size());
 		auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");

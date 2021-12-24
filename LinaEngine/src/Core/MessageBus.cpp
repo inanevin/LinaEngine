@@ -65,11 +65,23 @@ namespace Lina
 			// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
 			// This is the combined vertex data from sub-meshes.
 			// Now we cook this data & assign a model & node id to it.
-			Physics::PhysicsEngineBackend::Get()->CookConvexMesh(vertices, model.GetParameters().m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
+			Physics::PhysicsEngineBackend::Get()->CookConvexMesh(vertices, model.GetAssetData().m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
 		}
 
 		for (auto& child : node.m_children)
 			CookModelNodeVertices(child, model);
+	}
+
+	void CreateConvexMeshesFromNodes(Graphics::ModelNode& node, Graphics::Model& model)
+	{
+		if (node.m_meshIndexes.size() > 0)
+		{
+			Graphics::ModelAssetData& data = model.GetAssetData();
+			Physics::PhysicsEngine::Get()->CreateConvexMesh(data.m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
+		}
+
+		for (auto& child : node.m_children)
+			CreateConvexMeshesFromNodes(child, model);
 	}
 	void MessageBus::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
 	{
@@ -79,29 +91,26 @@ namespace Lina
 			auto& model = Graphics::Model::GetModel(ev.m_sid);
 			auto& meshes = model.GetMeshes();
 
-			// If the model parameters does not contain a convex mesh data for the current mesh and if we are in editor mode.
-			if (model.GetParameters().m_convexMeshData.size() == 0)
+			if (m_appMode == Lina::ApplicationMode::Editor)
 			{
-				if (m_appMode == Lina::ApplicationMode::Editor)
+				Graphics::ModelNode& root = model.GetRoot();
+
+				// If the model parameters does not contain a convex mesh data for the current mesh or regeneration is marked.
+				if (model.GetAssetData().m_convexMeshData.size() == 0 || model.GetAssetData().m_regenerateConvexMeshes)
 				{
-
-					Graphics::ModelNode& root = model.GetRoot();
-					model.SaveParameters(model.GetParamsPath(), model.GetParameters());
-
+					CookModelNodeVertices(root, model);
+					model.SaveAssetData(model.GetAssetDataPath(), model.GetAssetData());
 				}
 				else
-					LINA_ERR("You are running in Standalone mode but your loaded models does not contain any convex mesh data. This might result in inaccurate collision simulation! {0}", typeid(*this).name());
+					CreateConvexMeshesFromNodes(root, model);
 			}
 			else
 			{
-				//auto& convesMeshes = model.GetParameters().m_convexMeshData;
-				//// Create convex mesh based on cooked data.
-				//for (auto& convexMeshPair : convesMeshes)
-				//{
-				//	Physics::PhysicsEngineBackend::Get()->CreateConvexMesh(convexMeshPair.second, model.GetID(), convexMeshPair.first);
-				//}
-			}
+				if(model.GetAssetData().m_convexMeshData.size() == 0)
+					LINA_ERR("You are running in Standalone mode but your loaded models does not contain any convex mesh data. This might result in inaccurate collision simulation! {0}", typeid(*this).name());
 
+			}
+		
 		}
 	}
 }

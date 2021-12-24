@@ -48,9 +48,9 @@ namespace Lina::Graphics
 		m_materialSpecArray.clear();
 	}
 
-	ModelParameters Model::LoadParameters(const std::string& path)
+	ModelAssetData Model::LoadAssetData(const std::string& path)
 	{
-		ModelParameters params;
+		ModelAssetData params;
 		std::ifstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryInputArchive iarchive(stream);
@@ -59,18 +59,18 @@ namespace Lina::Graphics
 		return params;
 	}
 
-	void Model::SaveParameters(const std::string& path, ModelParameters params)
+	void Model::SaveAssetData(const std::string& path, ModelAssetData modelAssetData)
 	{
 		std::ofstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(params); 
+			oarchive(modelAssetData); 
 		}
 	}
 
-	ModelParameters Model::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	ModelAssetData Model::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
 	{
-		ModelParameters params;
+		ModelAssetData params;
 		{
 			std::string data((char*)data, dataSize);
 			std::istringstream stream(data, std::ios::binary);
@@ -82,15 +82,15 @@ namespace Lina::Graphics
 		return params;
 	}
 
-	Model& Model::CreateModel(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, ModelParameters modelParams)
+	Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData modelAssetData)
 	{
 		StringIDType id = StringID(path.c_str()).value();
 
 		Model& model = s_loadedModels[id];
-		model.SetParameters(modelParams);
-		model.m_paramsPath = paramsPath;
+		model.SetAssetData(modelAssetData);
+		model.m_assetDataPath = assetDataPath;
 		model.m_path = path;
-		ModelLoader::LoadModel(data, dataSize, model, modelParams);
+		ModelLoader::LoadModel(data, dataSize, model, modelAssetData);
 
 		LINA_ASSERT(model.GetMeshes().size() != 0, "Model does not contain any meshes, Lina expects all imported files to contain at least a single mesh!");
 	
@@ -103,20 +103,20 @@ namespace Lina::Graphics
 		// Set id
 		model.m_id = id;
 		model.m_path = path;
-		model.m_paramsPath = paramsPath;
+		model.m_assetDataPath = assetDataPath;
 		return s_loadedModels[id];
 	}
 
 
-	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams,  const std::string& paramsPath)
+	Model& Model::CreateModel(const std::string& filePath, ModelAssetData modelAssetData,  const std::string& assetDataPath)
 	{
 		StringIDType id = StringID(filePath.c_str()).value();
 
 		Model& model = s_loadedModels[id];
-		model.SetParameters(meshParams);
-		model.m_paramsPath = paramsPath;
+		model.SetAssetData(modelAssetData);
+		model.m_assetDataPath = assetDataPath;
 		model.m_path = filePath;
-		ModelLoader::LoadModel(filePath, model, meshParams);
+		ModelLoader::LoadModel(filePath, model, modelAssetData);
 
 		if (model.GetMeshes().size() == 0)
 		{
@@ -134,7 +134,7 @@ namespace Lina::Graphics
 		// Set id
 		model.m_id = id;
 		model.m_path = filePath;
-		model.m_paramsPath = paramsPath;
+		model.m_assetDataPath = assetDataPath;
 		return s_loadedModels[id];
 	}
 

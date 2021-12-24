@@ -44,7 +44,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-	static int s_modelNodeID = 1;
+	static int s_modelNodeID = 0;
 
 	Lina::Vector3 AssimpToLinaVector(aiVector3D vec)
 	{
@@ -62,22 +62,24 @@ namespace Lina::Graphics
 	}
 
 
-	void ProcessNode(aiNode* node, ModelNode& modelNode)
+	void ModelLoader::ProcessNode(const aiNode* ainode, ModelNode& modelNode, Model& model)
 	{
-		modelNode.m_name = std::string(node->mName.C_Str());
-		modelNode.m_localTransform = AssimpToLinaMatrix(node->mTransformation);
+		modelNode.m_name = std::string(ainode->mName.C_Str());
+		modelNode.m_localTransform = AssimpToLinaMatrix(ainode->mTransformation);
+		modelNode.m_nodeID = s_modelNodeID++;
+		model.m_nodeMap[modelNode.m_nodeID] = &modelNode;
 
-		for (uint32 i = 0; i < node->mNumMeshes; i++)
-			modelNode.m_meshIndexes.push_back(node->mMeshes[i]);
+		for (uint32 i = 0; i < ainode->mNumMeshes; i++)
+			modelNode.m_meshIndexes.push_back(ainode->mMeshes[i]);
 
-		for (uint32 i = 0; i < node->mNumChildren; i++)
+		for (uint32 i = 0; i < ainode->mNumChildren; i++)
 		{
 			modelNode.m_children.push_back(ModelNode(s_modelNodeID++));
-			ProcessNode(node->mChildren[i], modelNode.m_children[modelNode.m_children.size() - 1]);
+			ProcessNode(ainode->mChildren[i], modelNode.m_children[modelNode.m_children.size() - 1], model);
 		}
 	}
 
-	bool ModelLoader::LoadModel(const void* scenePtr, Model& model)
+	bool ModelLoader::LoadModel(const aiScene* scenePtr, Model& model)
 	{
 		const aiScene* scene = (aiScene*)scenePtr;
 
@@ -97,11 +99,11 @@ namespace Lina::Graphics
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
 
-		// Reset id counter, start processing by the first node.
-		s_modelNodeID = 1;
-		ProcessNode(scene->mRootNode, model.GetRoot());
-		ModelNode& root = model.GetRoot();
-	
+		// Reset id counter, start processing by the first ainode.
+		s_modelNodeID = 0;
+		ModelNode& root = model.m_rootNode;
+		ProcessNode(scene->mRootNode, root, model);
+
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
@@ -223,31 +225,33 @@ namespace Lina::Graphics
 			defaultSpec.m_name = "Material";
 			model.GetMaterialSpecs().push_back(defaultSpec);
 		}
+
+		model.SaveAssetData(model.GetAssetDataPath(), model.GetAssetData());
 		return true;
 	}
 
-	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& modelParams)
+	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelAssetData& modelData)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (modelParams.m_calculateTangentSpace)
+		if (modelData.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (modelParams.m_triangulate)
+		if (modelData.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (modelParams.m_smoothNormals)
+		if (modelData.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (modelParams.m_flipUVs)
+		if (modelData.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (modelParams.m_flipWinding)
+		if (modelData.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
 
 		importFlags |= aiProcess_GlobalScale;
-		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelParams.m_globalScale);
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelData.m_globalScale);
 
 		const std::string ext = "." + Utility::GetFileExtension(model.GetPath());
 		const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
@@ -256,29 +260,29 @@ namespace Lina::Graphics
 		return LoadModel(scene, model);
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters modelParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelAssetData modelData)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (modelParams.m_calculateTangentSpace)
+		if (modelData.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (modelParams.m_triangulate)
+		if (modelData.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (modelParams.m_smoothNormals)
+		if (modelData.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (modelParams.m_flipUVs)
+		if (modelData.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (modelParams.m_flipWinding)
+		if (modelData.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
 
 
 		importFlags |= aiProcess_GlobalScale;
-		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelParams.m_globalScale);
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelData.m_globalScale);
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 

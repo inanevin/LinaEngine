@@ -43,9 +43,9 @@ namespace Lina::Audio
 		alDeleteBuffers(1, &m_buffer);
 	}
 
-	AudioParameters Audio::LoadParameters(const std::string& path)
+	AudioAssetData Audio::LoadAssetData(const std::string& path)
 	{
-		AudioParameters params;
+		AudioAssetData params;
 		std::ifstream stream(path);
 		{
 			cereal::PortableBinaryInputArchive iarchive(stream);
@@ -54,18 +54,18 @@ namespace Lina::Audio
 		return params;
 	}
 
-	void Audio::SaveParameters(const std::string& path, AudioParameters params)
+	void Audio::SaveAssetData(const std::string& path, AudioAssetData assetData)
 	{
 		std::ofstream stream(path);
 		{
 			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(params);
+			oarchive(assetData);
 		}
 	}
 
-	AudioParameters Audio::LoadParametersFromMemory(unsigned char* data, size_t dataSize)
+	AudioAssetData Audio::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
 	{
-		AudioParameters params;
+		AudioAssetData params;
 
 		{
 			std::string data((char*)data, dataSize);
@@ -80,7 +80,7 @@ namespace Lina::Audio
 	}
 
 
-	Audio& Audio::CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioParameters& params)
+	Audio& Audio::CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioAssetData& assetData)
 	{
 		ALsizei size;
 		ALfloat freq;
@@ -97,7 +97,7 @@ namespace Lina::Audio
 		aud.m_size = size;
 		aud.m_freq = freq;
 		aud.m_sid = sid;
-		aud.m_params = params;
+		aud.m_assetData = assetData;
 
 		alGenBuffers((ALuint)1, &aud.m_buffer);
 		alBufferData(aud.m_buffer, format, aldata, size, freq);
@@ -110,7 +110,7 @@ namespace Lina::Audio
 		return s_loadedAudios[sid];
 	}
 
-	Audio& Audio::CreateAudio(const std::string& path, AudioParameters& params)
+	Audio& Audio::CreateAudio(const std::string& path, AudioAssetData& assetData)
     {
 		ALsizei size;
 		ALfloat freq;
@@ -127,7 +127,7 @@ namespace Lina::Audio
 		aud.m_size = size;
 		aud.m_freq = freq;
 		aud.m_sid = sid;
-		aud.m_params = params;
+		aud.m_assetData = assetData;
 
 		alGenBuffers((ALuint)1, &aud.m_buffer);
 		alBufferData(aud.m_buffer, format, data, size, freq);

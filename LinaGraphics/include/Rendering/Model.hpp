@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -51,20 +51,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 namespace Lina::Graphics
 {
 	class VertexArray;
-
-	struct ModelNode
-	{
-		ModelNode() {};
-		ModelNode(int id) : m_nodeID(id) { };
-
-		int m_nodeID = 0;
-		std::vector<int> m_meshIndexes;
-		std::vector<ModelNode> m_children;
-
-		// *** CAN BE CHANGED BY THE USER, DON'T RELY ON THIS *** //
-		std::string m_name = "";
-		Lina::Matrix m_localTransform;
-	};
+	class ModelLoader;
 
 	class Model
 	{
@@ -74,11 +61,11 @@ namespace Lina::Graphics
 		Model() {};
 		virtual ~Model();
 
-		static ModelParameters LoadParameters(const std::string& path);
-		static void SaveParameters(const std::string& path, ModelParameters params);
-		static ModelParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
-		static Model& CreateModel(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, ModelParameters modelParams = ModelParameters());
-		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), const std::string& paramsPath = "");
+		static ModelAssetData LoadAssetData(const std::string& path);
+		static void SaveAssetData(const std::string& path, ModelAssetData params);
+		static ModelAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
+		static Model& CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData modelAssetData = ModelAssetData());
+		static Model& CreateModel(const std::string& filePath, ModelAssetData modelAssetData = ModelAssetData(), const std::string& paramsPath = "");
 		static Model& GetModel(StringIDType id);
 		static Model& GetModel(const std::string& path);
 		static bool ModelExists(StringIDType id);
@@ -86,42 +73,33 @@ namespace Lina::Graphics
 		static void UnloadModel(StringIDType id);
 		static void UnloadAll();
 		static std::map<StringIDType, Model>& GetLoadedModels() { return s_loadedModels; }
+		void SetAssetData(ModelAssetData params) { m_assetData = params; }
 
-		std::vector<Mesh>& GetMeshes()
-		{
-			return m_meshes;
-		}
-
-		std::vector<ModelMaterial>& GetMaterialSpecs()
-		{
-			return m_materialSpecArray;
-		}
-
-		Skeleton& GetSkeleton()
-		{
-			return m_skeleton;
-		}
-
-		void SetParameters(ModelParameters params) { m_parameters = params; }
-		ModelParameters& GetParameters() { return m_parameters; }
+		std::vector<Mesh>& GetMeshes() { return m_meshes; }
+		std::vector<ModelMaterial>& GetMaterialSpecs() { return m_materialSpecArray; }
+		Skeleton& GetSkeleton() { return m_skeleton; }	// Carry over to skinned model later on.
+		ModelNode& GetRoot() { return m_rootNode; }
+		ModelAssetData& GetAssetData() { return m_assetData; }
 		ModelSceneParameters& GetWorldParameters() { return m_worldParameters; }
 		const std::string& GetPath() const { return m_path; }
-		const std::string& GetParamsPath() const { return m_paramsPath; }
+		const std::string& GetAssetDataPath() const { return m_assetDataPath; }
+		const std::map<int, ModelNode*>& GetNodeMap() { return m_nodeMap; }
 		StringIDType GetID() { return m_id; }
-		ModelNode& GetRoot() { return m_rootNode; }
 
 	private:
 
 		static std::map<StringIDType, Model> s_loadedModels;
 
 		friend class OpenGLRenderEngine;
+		friend class ModelLoader;
 		std::string m_path = "";
-		std::string m_paramsPath = "";
+		std::string m_assetDataPath = "";
 
 		StringIDType m_id = -1;
 		ModelSceneParameters m_worldParameters;
-		ModelParameters m_parameters;
+		ModelAssetData m_assetData;
 		ModelNode m_rootNode;
+		std::map<int, ModelNode*> m_nodeMap;
 		Skeleton m_skeleton;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		std::vector<Mesh> m_meshes;

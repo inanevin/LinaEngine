@@ -356,7 +356,34 @@ namespace Lina::Graphics
 		}
 	};
 
-	struct ModelParameters
+	struct ImageAssetData
+	{
+		SamplerParameters m_samplerParameters;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_samplerParameters);
+		}
+	};
+
+
+	struct ModelNode
+	{
+		ModelNode() {};
+		ModelNode(int id) : m_nodeID(id) { };
+
+		int m_nodeID = -1;
+		std::vector<int> m_meshIndexes;
+		std::vector<ModelNode> m_children;	
+
+		// *** CAN BE CHANGED BY THE USER, DON'T RELY ON THIS *** //
+		std::string m_name = "";
+		Lina::Matrix m_localTransform;
+	};
+
+
+	struct ModelAssetData
 	{
 		float m_globalScale = 1.0f;	// 1 meter file = 1 unit Lina
 		bool m_triangulate = true;
@@ -364,8 +391,7 @@ namespace Lina::Graphics
 		bool m_calculateTangentSpace = true;
 		bool m_flipWinding = false;
 		bool m_flipUVs = false;
-
-		// Key is the model node ID, value is the combined sub-mesh vertex data on the node.
+		bool m_regenerateConvexMeshes = false;
 		std::map<int, std::vector<uint8>> m_convexMeshData;
 
 		template<class Archive>

@@ -46,6 +46,8 @@ Timestamp: 4/26/2019 12:07:47 AM
 #include "Model.hpp"
 #include <string>
 
+struct aiNode;
+struct aiScene;
 
 namespace Lina::Graphics
 {
@@ -55,9 +57,10 @@ namespace Lina::Graphics
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModel(const void* scene, Model& model);
-		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelParameters& params);
-		static bool LoadModel(const std::string& fileName, Model& model, ModelParameters params);
+		static void ProcessNode(const aiNode* aiNode, ModelNode& modelNode, Model& model);
+		static bool LoadModel(const aiScene* scene, Model& model);
+		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelAssetData& params);
+		static bool LoadModel(const std::string& fileName, Model& model, ModelAssetData params);
 		static bool LoadSpriteQuad(Mesh& model);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
 	};

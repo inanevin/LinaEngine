@@ -61,14 +61,14 @@ namespace Lina::Graphics
 		uint32 m_unit = 0;
 		Texture* m_boundTexture = nullptr;
 		std::string m_path = "";
-		std::string m_paramsPath = "";
+		std::string m_assetDataPath = "";
 		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 		bool m_isActive = false;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_unit, m_path, m_paramsPath, m_bindMode, m_isActive);
+			archive(m_unit, m_path, m_assetDataPath, m_bindMode, m_isActive);
 		}
 
 	};

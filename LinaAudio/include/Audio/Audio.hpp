@@ -47,7 +47,7 @@ Timestamp: 12/15/2021 2:12:28 PM
 namespace Lina::Audio
 {
 
-	struct AudioParameters
+	struct AudioAssetData
 	{
 		int m_dummy = 0;
 
@@ -67,12 +67,12 @@ namespace Lina::Audio
 		~Audio();
 	
 
-		static AudioParameters LoadParameters(const std::string& path);
-		static void SaveParameters(const std::string& path, AudioParameters params);
-		static AudioParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
+		static AudioAssetData LoadAssetData(const std::string& path);
+		static void SaveAssetData(const std::string& path, AudioAssetData assetData);
+		static AudioAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
 
-		static Audio& CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioParameters& params);
-		static Audio& CreateAudio(const std::string& path, AudioParameters& params);
+		static Audio& CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioAssetData& assetData);
+		static Audio& CreateAudio(const std::string& path, AudioAssetData& assetData);
 		static std::map<StringIDType, Audio>& GetLoadedAudios() { return s_loadedAudios; }
 		static void UnloadAudio(StringIDType sid);
 		static void UnloadAudio(const std::string& path);
@@ -93,7 +93,7 @@ namespace Lina::Audio
 		static std::map<StringIDType, Audio> s_loadedAudios;
 		int m_size = 0;
 		StringIDType m_sid;
-		AudioParameters m_params;
+		AudioAssetData m_assetData;
 		float m_freq = 0.0f;
 		int m_format = 0;
 		void* m_data = nullptr;

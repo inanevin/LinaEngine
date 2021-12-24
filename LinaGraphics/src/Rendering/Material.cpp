@@ -95,7 +95,7 @@ namespace Lina::Graphics
 			if (texture != nullptr)
 			{
 				m_sampler2Ds[textureName].m_path = texture->GetPath();
-				m_sampler2Ds[textureName].m_paramsPath = texture->GetParamsPath();
+				m_sampler2Ds[textureName].m_assetDataPath = texture->GetAssetDataPath();
 			}
 		}
 		else
