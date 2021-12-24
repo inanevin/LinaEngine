@@ -44,7 +44,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-
+	static int s_modelNodeID = 1;
 
 	Lina::Vector3 AssimpToLinaVector(aiVector3D vec)
 	{
@@ -72,7 +72,7 @@ namespace Lina::Graphics
 
 		for (uint32 i = 0; i < node->mNumChildren; i++)
 		{
-			modelNode.m_children.push_back(ModelNode());
+			modelNode.m_children.push_back(ModelNode(s_modelNodeID++));
 			ProcessNode(node->mChildren[i], modelNode.m_children[modelNode.m_children.size() - 1]);
 		}
 	}
@@ -97,6 +97,8 @@ namespace Lina::Graphics
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
 
+		// Reset id counter, start processing by the first node.
+		s_modelNodeID = 1;
 		ProcessNode(scene->mRootNode, model.GetRoot());
 		ModelNode& root = model.GetRoot();
 	

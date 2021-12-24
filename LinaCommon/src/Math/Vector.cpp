@@ -126,6 +126,11 @@ namespace Lina
 		return glm::min(x, glm::min(y, glm::min(z, w)));
 	}
 
+	float Vector4::Avg() const
+	{
+		return (x + y + z + w) / 4.0f;
+	}
+
 	void Vector4::Normalize()
 	{
 		*this = glm::normalize(*this);
@@ -224,6 +229,11 @@ namespace Lina
 		return glm::min(x, glm::min(y, z));
 	}
 
+	float Vector3::Avg() const
+	{
+		return (x + y + z) / 3.0f;
+	}
+
 	void Vector3::Normalize()
 	{
 		*this = glm::normalize(*this);
@@ -299,6 +309,11 @@ namespace Lina
 	float Vector2::Min() const
 	{
 		return glm::min(x, y);
+	}
+
+	float Vector2::Avg() const
+	{
+		return (x + y) / 2.0f;
 	}
 
 	void Vector2::Normalize()

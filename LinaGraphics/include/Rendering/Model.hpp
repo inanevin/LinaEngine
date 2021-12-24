@@ -54,6 +54,10 @@ namespace Lina::Graphics
 
 	struct ModelNode
 	{
+		ModelNode() {};
+		ModelNode(int id) : m_nodeID(id) { };
+
+		int m_nodeID = 0;
 		std::vector<int> m_meshIndexes;
 		std::vector<ModelNode> m_children;
 

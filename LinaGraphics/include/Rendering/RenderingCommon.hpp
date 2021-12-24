@@ -364,6 +364,8 @@ namespace Lina::Graphics
 		bool m_calculateTangentSpace = true;
 		bool m_flipWinding = false;
 		bool m_flipUVs = false;
+
+		// Key is the model node ID, value is the combined sub-mesh vertex data on the node.
 		std::map<int, std::vector<uint8>> m_convexMeshData;
 
 		template<class Archive>

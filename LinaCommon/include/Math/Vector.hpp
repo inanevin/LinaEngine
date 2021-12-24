@@ -77,6 +77,7 @@ namespace Lina
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
+		float Avg() const;
 		void Normalize();
 
 		Vector2& operator*=(Vector2 const& v) { this->x *= v.x;	this->y *= v.y; return *this; }
@@ -170,6 +171,7 @@ namespace Lina
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
+		float Avg() const;
 		void Normalize();
 
 		Vector3& operator*=(Vector3 const& v) { this->x *= v.x;	this->y *= v.y;	this->z *= v.z;	return *this; }
@@ -254,6 +256,7 @@ namespace Lina
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
+		float Avg() const;
 		void Normalize();
 
 		Vector4& operator*=(Vector4 const& v) { this->x *= v.x;	this->y *= v.y;	this->z *= v.z; this->w *= v.w; return *this; }

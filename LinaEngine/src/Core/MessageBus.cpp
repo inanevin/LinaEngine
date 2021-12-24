@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,44 +41,65 @@ namespace Lina
 
 	}
 
+	void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
+	{
+		std::vector<Vector3> vertices;
+
+		if (node.m_meshIndexes.size() > 0)
+		{
+			// Get model meshes.
+			auto& meshes = model.GetMeshes();
+
+			// For each mesh attach to this node.
+			for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
+			{
+				// Get the mesh & it's vertex position data.
+				auto& mesh = meshes[node.m_meshIndexes[i]];
+				auto& data = mesh.GetVertexPositions();
+
+				// Add each of the 3 positions to the vertices array.
+				for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
+					vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
+			}
+
+			// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
+			// This is the combined vertex data from sub-meshes.
+			// Now we cook this data & assign a model & node id to it.
+			Physics::PhysicsEngineBackend::Get()->CookConvexMesh(vertices, model.GetParameters().m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
+		}
+
+		for (auto& child : node.m_children)
+			CookModelNodeVertices(child, model);
+	}
 	void MessageBus::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
 	{
 		// Handle convex mesh cooking if the loaded model does not contain any.
 		if (ev.m_type == Resources::ResourceType::Model)
 		{
-			auto& mod = Graphics::Model::GetModel(ev.m_sid);
-			auto& meshes = mod.GetMeshes();
+			auto& model = Graphics::Model::GetModel(ev.m_sid);
+			auto& meshes = model.GetMeshes();
 
 			// If the model parameters does not contain a convex mesh data for the current mesh and if we are in editor mode.
-			if (mod.GetParameters().m_convexMeshData.size() == 0)
+			if (model.GetParameters().m_convexMeshData.size() == 0)
 			{
 				if (m_appMode == Lina::ApplicationMode::Editor)
 				{
-					std::vector<Vector3> vertices;
 
-					// Save all sub-mesh vertices into single vertex buffer.
-					for (uint32 i = 0; i < meshes.size(); i++)
-					{
-						Graphics::BufferData& data = meshes[i].GetVertexPositions();
-						for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
-							vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
-					}
+					Graphics::ModelNode& root = model.GetRoot();
+					model.SaveParameters(model.GetParamsPath(), model.GetParameters());
 
-					// Cook the convex mesh data into the model parameter.
-					// Physics::PhysicsEngineBackend::Get()->CookConvexMesh(vertices, mod.GetParameters().m_convexMeshData[i], mod.GetID(), i);
-					mod.SaveParameters(mod.GetParamsPath(), mod.GetParameters());
 				}
 				else
 					LINA_ERR("You are running in Standalone mode but your loaded models does not contain any convex mesh data. This might result in inaccurate collision simulation! {0}", typeid(*this).name());
 			}
 			else
 			{
-				auto& convesMeshes = mod.GetParameters().m_convexMeshData;
-				// Create convex mesh based on cooked data.
-				for (auto& convexMeshPair : convesMeshes)
-				{
-					Physics::PhysicsEngineBackend::Get()->CreateConvexMesh(convexMeshPair.second, mod.GetID(), convexMeshPair.first);
-				}
+				//auto& convesMeshes = model.GetParameters().m_convexMeshData;
+				//// Create convex mesh based on cooked data.
+				//for (auto& convexMeshPair : convesMeshes)
+				//{
+				//	Physics::PhysicsEngineBackend::Get()->CreateConvexMesh(convexMeshPair.second, model.GetID(), convexMeshPair.first);
+				//}
 			}
 
 		}

@@ -56,9 +56,11 @@ namespace Lina::Physics
 	PxPvd* m_pxPvd = nullptr;
 	PxCooking* m_pxCooking = nullptr;
 
-	std::map<ECS::Entity, physx::PxRigidDynamic*> m_dynamicActors;
-	std::map<ECS::Entity, physx::PxRigidStatic*> m_staticActors;
+	std::map<ECS::Entity, physx::PxRigidActor*> m_actors;
 	std::map<StringIDType, physx::PxMaterial*> m_materials;
+	std::map<ECS::Entity, PxShape*> m_shapes;
+
+	// Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
 	std::map<StringIDType, std::vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
 	PhysXPhysicsEngine::PhysXPhysicsEngine()
@@ -117,7 +119,7 @@ namespace Lina::Physics
 		m_ecs->on_construct<ECS::EntityDataComponent>().connect<&PhysXPhysicsEngine::OnPhysicsComponentAdded>(this);
 
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
-		m_rigidbodySystem.Initialize();
+		m_rigidbodySystem.Initialize(this);
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
 
 		// Engine events.
@@ -141,15 +143,11 @@ namespace Lina::Physics
 		LINA_TRACE("[Shutdown] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
-
 	PhysXPhysicsEngine::~PhysXPhysicsEngine()
 	{
 		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 
-		for (auto ent : m_staticActors)
-			ent.second->release();
-
-		for (auto ent : m_dynamicActors)
+		for (auto ent : m_actors)
 			ent.second->release();
 
 		for (auto v : m_convexMeshMap)
@@ -160,8 +158,8 @@ namespace Lina::Physics
 		}
 
 		m_convexMeshMap.clear();
-		m_staticActors.clear();
-		m_dynamicActors.clear();
+		m_actors.clear();
+		m_shapes.clear();
 
 		m_pxScene->release();
 		m_pxDispatcher->release();
@@ -177,7 +175,6 @@ namespace Lina::Physics
 
 		m_pxFoundation->release();
 	}
-
 
 	void PhysXPhysicsEngine::OnPostSceneDraw(Event::EPostSceneDraw)
 	{
@@ -221,15 +218,19 @@ namespace Lina::Physics
 		LINA_ASSERT(mat != nullptr, "Physics material is null!");
 
 		if (shape == CollisionShape::Box)
-			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
+			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat, true);
 		else if (shape == CollisionShape::Sphere)
-			return m_pxPhysics->createShape(PxSphereGeometry(phy.GetRadius()), *m_pxDefaultMaterial);
+			return m_pxPhysics->createShape(PxSphereGeometry(phy.GetRadius()), *m_pxDefaultMaterial, true);
 		else if (shape == CollisionShape::Capsule)
-			return m_pxPhysics->createShape(PxCapsuleGeometry(phy.GetRadius(), phy.GetCapsuleHalfHeight()), *mat);
+		{
+			PxShape* newShape = m_pxPhysics->createShape(PxCapsuleGeometry(phy.GetRadius(), phy.GetCapsuleHalfHeight()), *mat, true);
+			PxTransform relativePose(PxQuat(PxHalfPi, PxVec3(0, 0, 1)));
+			newShape->setLocalPose(relativePose);
+			return newShape;
+		}
 		else if (shape == CollisionShape::ConvexMesh)
 		{
-			
-			return m_pxPhysics->createShape(PxConvexMeshGeometry(m_convexMeshMap[phy.m_attachedModelID][0].second, PxMeshScale(PxVec3(100.0f, 100.0f, 100.0f))), *mat);
+			return m_pxPhysics->createShape(PxConvexMeshGeometry(m_convexMeshMap[phy.m_attachedModelID][0].second, PxMeshScale(PxVec3(100.0f, 100.0f, 100.0f))), *mat, true);
 		}
 
 
@@ -237,7 +238,7 @@ namespace Lina::Physics
 
 	}
 
-	void PhysXPhysicsEngine::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int meshIndex)
+	void PhysXPhysicsEngine::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int nodeIndex)
 	{
 		PxConvexMeshDesc convexDesc;
 		convexDesc.points.count = vertices.size();
@@ -258,7 +259,7 @@ namespace Lina::Physics
 
 		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 		LINA_TRACE("Cooked!");
-		CreateConvexMesh(bufferData, sid, meshIndex);
+		CreateConvexMesh(bufferData, sid, nodeIndex);
 	}
 
 	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int meshIndex)
@@ -316,20 +317,20 @@ namespace Lina::Physics
 		else if (previousType == SimulationType::Static)
 		{
 			if (type == SimulationType::None)
-				RemoveBodyFromWorld(body, false);
+				RemoveBodyFromWorld(body);
 			else if (type == SimulationType::Dynamic)
 			{
-				RemoveBodyFromWorld(body, false);
+				RemoveBodyFromWorld(body);
 				AddBodyToWorld(body, true);
 			}
 		}
 		else if (previousType == SimulationType::Dynamic)
 		{
 			if (type == SimulationType::None)
-				RemoveBodyFromWorld(body, true);
+				RemoveBodyFromWorld(body);
 			else if (type == SimulationType::Static)
 			{
-				RemoveBodyFromWorld(body, true);
+				RemoveBodyFromWorld(body);
 				AddBodyToWorld(body, false);
 			}
 		}
@@ -341,16 +342,15 @@ namespace Lina::Physics
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_collisionShape = shape;
-		UpdateBodyShape(body);
+		RecreateBodyShape(body);
 	}
 
 	void PhysXPhysicsEngine::SetBodyMass(ECS::Entity body, float mass)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_mass = Math::Clamp(mass, 0.1f, 1000.0f);
-
 		if (phy.GetSimType() == SimulationType::Dynamic)
-			PxRigidBodyExt::updateMassAndInertia(*m_dynamicActors[body], mass);
+			PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)m_actors[body], phy.m_mass);
 	}
 
 	void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& material)
@@ -358,28 +358,35 @@ namespace Lina::Physics
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_physicsMaterialID = material.m_materialID;
 		phy.m_physicsMaterialPath = material.m_path;
-		UpdateBodyShape(body);
+
+		PxMaterial* pxMaterial = nullptr;
+		m_shapes[body]->getMaterials(&pxMaterial, 1);
+
+		if (pxMaterial == nullptr) return;
+		pxMaterial->setStaticFriction(material.m_staticFriction);
+		pxMaterial->setDynamicFriction(material.m_dynamicFriction);
+		pxMaterial->setRestitution(material.m_restitution);
 	}
 
 	void PhysXPhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_radius = Math::Clamp(radius, 0.1f, 50.0f);
-		UpdateBodyShape(body);
+		UpdateBodyShapeParameters(body);
 	}
 
 	void PhysXPhysicsEngine::SetBodyHeight(ECS::Entity body, float height)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_capsuleHalfHeight = Math::Clamp(height, 0.5f, 100.0f);
-		UpdateBodyShape(body);
+		UpdateBodyShapeParameters(body);
 	}
 
 	void PhysXPhysicsEngine::SetBodyHalfExtents(ECS::Entity body, const Vector3& extents)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 		phy.m_halfExtents = Vector3(Math::Clamp(extents.x, 0.1f, 50.0f), Math::Clamp(extents.y, 0.1f, 50.0f), Math::Clamp(extents.z, 0.1f, 50.0f));
-		UpdateBodyShape(body);
+		UpdateBodyShapeParameters(body);
 	}
 
 	void PhysXPhysicsEngine::OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent)
@@ -397,39 +404,53 @@ namespace Lina::Physics
 
 
 		auto* data = m_ecs->try_get<ECS::EntityDataComponent>(ent);
-
-		if (data != nullptr)
-		{
-			if (phy->GetSimType() == SimulationType::Dynamic)
-			{
-				if (m_dynamicActors.find(ent) == m_dynamicActors.end())
-					AddBodyToWorld(ent, true);
-			}
-			else if (phy->GetSimType() == SimulationType::Static)
-			{
-				if (m_staticActors.find(ent) == m_staticActors.end())
-					AddBodyToWorld(ent, false);
-			}
-		}
-
+		if (phy->GetSimType() == SimulationType::None) return;
+		
+		if (data != nullptr && m_actors.find(ent) == m_actors.end())
+			AddBodyToWorld(ent, phy->GetSimType() == SimulationType::Dynamic);
 
 	}
 
-	void PhysXPhysicsEngine::UpdateShapeMaterials(ECS::Entity body, physx::PxShape* shape)
+	void PhysXPhysicsEngine::UpdateBodyShapeParameters(ECS::Entity body)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
-		PhysicsMaterial& mat = PhysicsMaterial::GetMaterial(phy.m_physicsMaterialID);
+		if (phy.m_simType == SimulationType::None) return;
 
-		PxMaterial* material = nullptr;
-		shape->getMaterials(&material, 1);
+		PxShape* shape = m_shapes[body];
+		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
 
-		if (material == nullptr) return;
-		material->setStaticFriction(mat.m_staticFriction);
-		material->setDynamicFriction(mat.m_dynamicFriction);
-		material->setRestitution(mat.m_restitution);
+		if (phy.m_collisionShape == CollisionShape::Sphere)
+		{
+			PxSphereGeometry geo;
+			shape->getSphereGeometry(geo);
+			geo.radius = phy.m_radius * data.GetScale().Avg();
+			shape->setGeometry(geo);
+		}
+		else if (phy.m_collisionShape == CollisionShape::Box)
+		{
+			PxBoxGeometry geo;
+			shape->getBoxGeometry(geo);
+			geo.halfExtents = ToPxVector3(phy.m_halfExtents * data.GetScale());
+			shape->setGeometry(geo);
+		}
+		else if (phy.m_collisionShape == CollisionShape::Capsule)
+		{
+			PxCapsuleGeometry geo;
+			shape->getCapsuleGeometry(geo);
+			geo.radius = phy.m_radius * data.GetScale().Avg();;
+			geo.halfHeight = phy.m_capsuleHalfHeight * data.GetScale().y;
+			shape->setGeometry(geo);
+		}
+		else if (phy.m_collisionShape == CollisionShape::ConvexMesh)
+		{
+			PxConvexMeshGeometry geo;
+			shape->getConvexMeshGeometry(geo);
+			geo.scale.scale = ToPxVector3(data.GetScale());
+			shape->setGeometry(geo);
+		}
 	}
 
-	void PhysXPhysicsEngine::UpdateBodyShape(ECS::Entity body)
+	void PhysXPhysicsEngine::RecreateBodyShape(ECS::Entity body)
 	{
 		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
 
@@ -438,24 +459,22 @@ namespace Lina::Physics
 			PxU32 nbShapes = 0;
 			PxShape* currentShape = nullptr;
 			PxShape* newShape = GetCreateShape(phy);
+			auto* actor = m_actors[body];
 
 			if (phy.m_simType == SimulationType::Dynamic)
 			{
-				auto* actor = m_dynamicActors[body];
-				nbShapes = actor->getNbShapes();
-				actor->getShapes(&currentShape, 1);
+				currentShape = m_shapes[body];
 				actor->detachShape(*currentShape);
 				actor->attachShape(*newShape);
 			}
 			else
 			{
-				auto* actor = m_staticActors[body];
-				nbShapes = actor->getNbShapes();
-				actor->getShapes(&currentShape, 1);
+				currentShape = m_shapes[body];
 				actor->detachShape(*currentShape);
 				actor->attachShape(*newShape);
 			}
 
+			m_shapes[body] = newShape;
 			newShape->release();
 		}
 	}
@@ -467,10 +486,11 @@ namespace Lina::Physics
 
 		if (phy.m_simType == SimulationType::Dynamic)
 		{
-			m_dynamicActors[body]->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, kinematic);
+			auto* act = (PxRigidDynamic*)m_actors[body];
+			act->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, kinematic);
 
 			if (!kinematic)
-				m_dynamicActors[body]->wakeUp();
+				act->wakeUp();
 
 		}
 	}
@@ -482,7 +502,7 @@ namespace Lina::Physics
 
 	ECS::Entity PhysXPhysicsEngine::GetEntityOfActor(physx::PxActor* actor)
 	{
-		for (auto& p : m_dynamicActors)
+		for (auto& p : m_actors)
 		{
 			if (p.second == actor)
 				return p.first;
@@ -491,14 +511,9 @@ namespace Lina::Physics
 		return entt::null;
 	}
 
-	std::map<ECS::Entity, physx::PxRigidDynamic*>& PhysXPhysicsEngine::GetAllDynamicActors()
+	std::map<ECS::Entity, physx::PxRigidActor*>& PhysXPhysicsEngine::GetAllActors()
 	{
-		return m_dynamicActors;
-	}
-
-	std::map<ECS::Entity, physx::PxRigidStatic*>& PhysXPhysicsEngine::GetAllStaticActors()
-	{
-		return m_staticActors;
+		return m_actors;
 	}
 
 	std::map<StringIDType, physx::PxMaterial*>& PhysXPhysicsEngine::GetMaterials()
@@ -548,32 +563,20 @@ namespace Lina::Physics
 
 	void PhysXPhysicsEngine::OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent)
 	{
-		if (m_dynamicActors.find(ent) != m_dynamicActors.end())
-			RemoveBodyFromWorld(ent, true);
-		else if (m_staticActors.find(ent) != m_staticActors.end())
-			RemoveBodyFromWorld(ent, false);
+		RemoveBodyFromWorld(ent);
 	}
 
-	void PhysXPhysicsEngine::RemoveBodyFromWorld(ECS::Entity body, bool isDynamic)
+	void PhysXPhysicsEngine::RemoveBodyFromWorld(ECS::Entity body)
 	{
-		if (isDynamic)
-		{
-			LINA_TRACE("Removing dynamic actor to world. {0}", body);
-			m_dynamicActors[body]->release();
-			m_dynamicActors.erase(body);
-		}
-		else
-		{
-			LINA_TRACE("Removing static actor to world. {0}", body);
-			m_staticActors[body]->release();
-			m_staticActors.erase(body);
-		}
+		if (m_actors.find(body) == m_actors.end()) return;
+		LINA_TRACE("Removing body from the world. {0}", body);
+		m_actors[body]->release();
+		m_actors.erase(body);
 	}
 
 	void PhysXPhysicsEngine::AddBodyToWorld(ECS::Entity body, bool isDynamic)
 	{
-		if (isDynamic && m_dynamicActors.find(body) != m_dynamicActors.end()) return;
-		if (!isDynamic && m_staticActors.find(body) != m_staticActors.end()) return;
+		if (isDynamic && m_actors.find(body) != m_actors.end()) return;
 
 		ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(body);
 		ECS::PhysicsComponent& phyComp = m_ecs->get<ECS::PhysicsComponent>(body);
@@ -582,29 +585,25 @@ namespace Lina::Physics
 		pose.q = ToPxQuat(data.GetRotation());
 		PxShape* shape = GetCreateShape(phyComp);
 
-		if (phyComp.GetCollisionShape() == CollisionShape::Capsule)
-		{
-			PxTransform relativePose(PxQuat(PxHalfPi, PxVec3(0, 0, 1)));
-			shape->setLocalPose(relativePose);
-		}
-
 		if (isDynamic)
 		{
-			LINA_TRACE("Adding a dynamic actor to world. {0}", body);
+			LINA_TRACE("Adding a dynamic actor to the world. {0}", body);
 			PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
 			rigid->attachShape(*shape);
 			physx::PxRigidBodyExt::updateMassAndInertia(*rigid, 10.0f);
 			rigid->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, phyComp.GetIsKinematic());
-			m_dynamicActors[body] = rigid;
+			m_actors[body] = rigid;
 			m_pxScene->addActor(*rigid);
+			m_shapes[body] = shape;
 		}
 		else
 		{
-			LINA_TRACE("Adding a static actor to world. {0}", body);
+			LINA_TRACE("Adding a static actor to the world. {0}", body);
 			PxRigidStatic* stc = m_pxPhysics->createRigidStatic(pose);
 			stc->attachShape(*shape);
-			m_staticActors[body] = stc;
+			m_actors[body] = stc;
 			m_pxScene->addActor(*stc);
+			m_shapes[body] = shape;
 		}
 
 		shape->release();

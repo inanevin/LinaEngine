@@ -58,9 +58,8 @@ namespace Lina
 namespace physx
 {
 	class PxShape;
-	class PxRigidDynamic;
+	class PxRigidActor;
 	class PxActor;
-	class PxRigidStatic;
 	class PxMaterial;
 }
 
@@ -77,7 +76,7 @@ namespace Lina::Physics
 		/// Uses the cooking library to create a convex mesh stream using the given vertices.
 		/// Stream is placed into the given buffer data for custom serialization.
 		/// </summary>
-		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int meshIndex);
+		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int nodeID);
 
 		/// <summary>
 		/// Given a convex mesh buffer data, creates a convex mesh object and stores it.
@@ -95,14 +94,9 @@ namespace Lina::Physics
 		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
 
 		/// <summary>
-		/// Returns all Dynamic bodies, regardless of whether they are kinematic or not.
+		/// Returns all Dynamic bodies, regardless of whether they are static or not.
 		/// </summary>
-		std::map<ECS::Entity, physx::PxRigidDynamic*>& GetAllDynamicActors();
-
-		/// <summary>
-		/// Returns all static bodies.
-		/// </summary>
-		std::map<ECS::Entity, physx::PxRigidStatic*>& GetAllStaticActors();
+		std::map<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
 
 		/// <summary>
 		/// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
@@ -123,6 +117,7 @@ namespace Lina::Physics
 		void SetBodyHeight(ECS::Entity body, float height);
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
 		void SetBodyKinematic(ECS::Entity body, bool kinematic);
+		void UpdateBodyShapeParameters(ECS::Entity body);
 
 	private:
 
@@ -136,15 +131,14 @@ namespace Lina::Physics
 	private:
 
 		void OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
-		void UpdateShapeMaterials(ECS::Entity body, physx::PxShape* shape);
-		void UpdateBodyShape(ECS::Entity body);
+		void RecreateBodyShape(ECS::Entity body);
 		void OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev);
 		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void OnPostSceneDraw(Event::EPostSceneDraw);
 		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
-		void RemoveBodyFromWorld(ECS::Entity body, bool isDynamic);
+		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
 		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy);
 

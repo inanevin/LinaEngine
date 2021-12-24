@@ -39,6 +39,12 @@ SOFTWARE.
 using namespace physx;
 namespace Lina::ECS
 {
+	void RigidbodySystem::Initialize(Physics::PhysicsEngine* engine)
+	{
+		BaseECSSystem::Initialize();
+		m_engine = engine;
+	}
+
 	void RigidbodySystem::UpdateComponents(float delta)
 	{
 		auto* physicsEngine = Physics::PhysicsEngineBackend::Get();;
@@ -63,35 +69,35 @@ namespace Lina::ECS
 			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());
 			phyComp.m_turnVelocity = Physics::ToLinaVector(rb->getTurnVelocity());
 
-
-
 		}
 #endif
 #ifdef LINA_PHYSICS_PHYSX
 
 	
 
-		auto& dynamics = physicsEngine->GetAllDynamicActors();
+		auto& actors = physicsEngine->GetAllActors();
 
-		for (auto& p : dynamics)
+		for (auto& p : actors)
 		{
 			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(p.first);
 			PhysicsComponent& phyComp = m_ecs->get<PhysicsComponent>(p.first);
+			if (phyComp.m_simType == Physics::SimulationType::Static) continue;
 
 			if (phyComp.m_isKinematic)
 			{
 				PxTransform destination;
 				destination.p = Physics::ToPxVector3(data.GetLocation());
 				destination.q = Physics::ToPxQuat(data.GetRotation());
-				p.second->setKinematicTarget(destination);
+				((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
+				m_engine->UpdateBodyShapeParameters(p.first);
 			}
 			else
 			{
 				PxU32 nbActiveActors;
-				PxActor** activeActors = Physics::PhysicsEngineBackend::Get()->GetActiveActors(nbActiveActors);
+				PxActor** activeActors = m_engine->GetActiveActors(nbActiveActors);
 				for (PxU32 i = 0; i < nbActiveActors; ++i)
 				{
-					ECS::Entity entity = Physics::PhysicsEngineBackend::Get()->GetEntityOfActor(activeActors[i]);
+					ECS::Entity entity = m_engine->GetEntityOfActor(activeActors[i]);
 
 					if (entity == p.first)
 					{
@@ -102,8 +108,9 @@ namespace Lina::ECS
 					}
 				}
 			}
-	
+			
 		}
+
 
 #endif
 	}
