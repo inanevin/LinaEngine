@@ -29,6 +29,8 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/Texture.cpp
 	src/Rendering/Mesh.cpp
+	src/Rendering/SkinnedMesh.cpp
+	src/Rendering/StaticMesh.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/Material.cpp
 	src/Rendering/Model.cpp
@@ -84,6 +86,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp
 	include/Rendering/Mesh.hpp
+	include/Rendering/SkinnedMesh.hpp
+	include/Rendering/StaticMesh.hpp
 	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp

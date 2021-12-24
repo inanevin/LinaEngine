@@ -64,6 +64,7 @@ namespace Lina::Graphics
 
 	void ModelLoader::ProcessNode(const aiNode* ainode, ModelNode& modelNode, Model& model)
 	{
+		
 		modelNode.m_name = std::string(ainode->mName.C_Str());
 		modelNode.m_localTransform = AssimpToLinaMatrix(ainode->mTransformation);
 		modelNode.m_nodeID = s_modelNodeID++;

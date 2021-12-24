@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/MessageBus.hpp"
-#include "EventSystem/EventSystem.hpp"
+/*
+Class: PhysXCooker
 
 
-namespace Lina
+
+Timestamp: 12/24/2021 7:47:26 PM
+*/
+
+#pragma once
+
+#ifndef PhysXCooker_HPP
+#define PhysXCooker_HPP
+
+// Headers here.
+#include "EventSystem/Events.hpp"
+
+namespace Lina::Graphics
 {
-	void MessageBus::Initialize(ApplicationMode appMode)
-	{
-		auto* eventSystem = Event::EventSystem::Get();
-		m_appMode = appMode;
-	}
+	struct ModelNode;
+	class Model;
 }
+
+namespace physx
+{
+	class PxFoundation;
+}
+
+namespace Lina::Physics
+{
+	class PhysXCooker
+	{
+		
+	public:
+		
+		PhysXCooker() {};
+		~PhysXCooker() {};
+		void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
+
+	private:
+
+		/// <summary>
+		/// Uses the cooking library to create a convex mesh stream using the given vertices.
+		/// Stream is placed into the given buffer data for custom serialization.
+		/// </summary>
+		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
+
+		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
+		void CookModelNodeVertices(Lina::Graphics::ModelNode& node, Lina::Graphics::Model& model);
+
+	private:
+
+		ApplicationMode m_appMode;
+	};
+}
+
+#endif

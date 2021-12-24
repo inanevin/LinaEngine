@@ -55,13 +55,14 @@ namespace Lina::ECS
 		Lina::Vector3 m_totalBoundsMax = Lina::Vector3::Zero;
 		Lina::Vector3 m_totalHalfBounds = Lina::Vector3::Zero;
 		std::vector<int> m_subMeshes;	// Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
+		int m_nodeID = -1;
 		bool m_excludeFromDrawList = false;
 
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_subMeshes, m_totalVertexCenter, m_totalBoundsMin, m_totalBoundsMax, m_totalHalfBounds);
+			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_totalVertexCenter, m_totalBoundsMin, m_totalBoundsMax, m_totalHalfBounds);
 		}
 	};
 }

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Math/Math.hpp"
 #include "Physics/Raycast.hpp"
@@ -54,7 +55,6 @@ namespace Lina::Physics
 	PxScene* m_pxScene = nullptr;
 	PxMaterial* m_pxDefaultMaterial = nullptr;
 	PxPvd* m_pxPvd = nullptr;
-	PxCooking* m_pxCooking = nullptr;
 
 	std::map<ECS::Entity, physx::PxRigidActor*> m_actors;
 	std::map<StringIDType, physx::PxMaterial*> m_materials;
@@ -94,7 +94,6 @@ namespace Lina::Physics
 		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 		m_pxScene = m_pxPhysics->createScene(sceneDesc);
 		m_pxScene->setFlag(PxSceneFlag::eENABLE_ACTIVE_ACTORS, true);
-		m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pxFoundation, PxCookingParams(PxTolerancesScale()));
 
 		if (m_appMode == ApplicationMode::Editor)
 		{
@@ -128,6 +127,8 @@ namespace Lina::Physics
 		m_eventSystem->Connect<Event::ELevelInitialized, &PhysXPhysicsEngine::OnLevelInitialized>(this);
 		m_eventSystem->Connect<Event::ELoadResourceFromFile, &PhysXPhysicsEngine::OnResourceLoadedFromFile>(this);
 		m_eventSystem->Connect<Event::ELoadResourceFromMemory, &PhysXPhysicsEngine::OnResourceLoadedFromMemory>(this);
+
+		m_cooker.Initialize(m_appMode, m_pxFoundation);
 	}
 
 	void PhysXPhysicsEngine::Tick(float fixedDelta)
@@ -191,24 +192,14 @@ namespace Lina::Physics
 		}
 	}
 
-	void PhysXPhysicsEngine::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
-	{
-		if (ev.m_type == Resources::ResourceType::Model)
-		{
-
-		}
-	}
-
-	PxShape* PhysXPhysicsEngine::GetCreateShape(ECS::PhysicsComponent& phy)
+	PxShape* PhysXPhysicsEngine::GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent)
 	{
 		const CollisionShape shape = phy.GetCollisionShape();
 
 		PxMaterial* mat = nullptr;
 
 		if (m_materials.find(phy.GetMaterialID()) != m_materials.end())
-		{
 			mat = m_materials[phy.GetMaterialID()];
-		}
 		else
 		{
 			auto& phyMat = PhysicsMaterial::GetMaterial(phy.GetMaterialID());
@@ -230,38 +221,19 @@ namespace Lina::Physics
 		}
 		else if (shape == CollisionShape::ConvexMesh)
 		{
+			auto* mr = m_ecs->try_get<ECS::MeshRendererComponent>(ent);
+
+			if (mr != nullptr)
+			{
+				// mr->
+				
+			}
 			return m_pxPhysics->createShape(PxConvexMeshGeometry(m_convexMeshMap[phy.m_attachedModelID][0].second, PxMeshScale(PxVec3(100.0f, 100.0f, 100.0f))), *mat, true);
 		}
 
 
 		return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
 
-	}
-
-	void PhysXPhysicsEngine::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int nodeIndex)
-	{
-		PxConvexMeshDesc convexDesc;
-		convexDesc.points.count = vertices.size();
-		convexDesc.points.stride = sizeof(Vector3);
-		convexDesc.points.data = &vertices[0];
-		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-		PxDefaultMemoryOutputStream buf;
-		PxConvexMeshCookingResult::Enum result;
-		if (!m_pxCooking->cookConvexMesh(convexDesc, buf, &result))
-		{
-			LINA_ERR("Cooking convex mesh failed! {0}", typeid(*this).name());
-			return;
-		}
-
-		bufferData.clear();
-		bufferData = std::vector<uint8>(buf.getData(), buf.getData() + buf.getSize());
-
-		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-
-		LINA_TRACE("Cooked! Creating convex mesh with sid {0} and node id {1}", sid, nodeIndex);
-
-		CreateConvexMesh(bufferData, sid, nodeIndex);
 	}
 
 	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID)
@@ -499,32 +471,6 @@ namespace Lina::Physics
 		}
 	}
 
-	physx::PxActor** PhysXPhysicsEngine::GetActiveActors(uint32& size)
-	{
-		return m_pxScene->getActiveActors(size);
-	}
-
-	ECS::Entity PhysXPhysicsEngine::GetEntityOfActor(physx::PxActor* actor)
-	{
-		for (auto& p : m_actors)
-		{
-			if (p.second == actor)
-				return p.first;
-		}
-
-		return entt::null;
-	}
-
-	std::map<ECS::Entity, physx::PxRigidActor*>& PhysXPhysicsEngine::GetAllActors()
-	{
-		return m_actors;
-	}
-
-	std::map<StringIDType, physx::PxMaterial*>& PhysXPhysicsEngine::GetMaterials()
-	{
-		return m_materials;
-	}
-
 	void PhysXPhysicsEngine::OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev)
 	{
 		if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
@@ -612,6 +558,33 @@ namespace Lina::Physics
 
 		shape->release();
 	}
+
+	physx::PxActor** PhysXPhysicsEngine::GetActiveActors(uint32& size)
+	{
+		return m_pxScene->getActiveActors(size);
+	}
+
+	ECS::Entity PhysXPhysicsEngine::GetEntityOfActor(physx::PxActor* actor)
+	{
+		for (auto& p : m_actors)
+		{
+			if (p.second == actor)
+				return p.first;
+		}
+
+		return entt::null;
+	}
+
+	std::map<ECS::Entity, physx::PxRigidActor*>& PhysXPhysicsEngine::GetAllActors()
+	{
+		return m_actors;
+	}
+
+	std::map<StringIDType, physx::PxMaterial*>& PhysXPhysicsEngine::GetMaterials()
+	{
+		return m_materials;
+	}
+
 
 }
 

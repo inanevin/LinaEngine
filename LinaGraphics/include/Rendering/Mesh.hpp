@@ -50,6 +50,7 @@ namespace Lina::Graphics
 	public:
 
 		Mesh() {}
+		virtual ~Mesh() {};
 
 		// Creates a vertex array using render render device.
 		void CreateVertexArray(BufferUsage bufferUsage);
@@ -90,7 +91,7 @@ namespace Lina::Graphics
 		Vector3 GetVertexCenter() { return m_vertexCenter; }
 		BufferData& GetVertexPositions() { return m_bufferElements[0]; }
 
-	private:
+	protected:
 
 		friend class ModelLoader;
 

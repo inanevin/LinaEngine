@@ -27,34 +27,33 @@ SOFTWARE.
 */
 
 /*
-Class: AABB
+Class: StaticMesh
 
-Represents an AABB collision shape box.
 
-Timestamp: 12/8/2020 4:52:07 PM
+
+Timestamp: 12/24/2021 8:54:24 PM
 */
 
 #pragma once
 
-#ifndef AABB_HPP
-#define AABB_HPP
+#ifndef StaticMesh_HPP
+#define StaticMesh_HPP
 
 // Headers here.
-#include "ECS/ECSComponent.hpp"
-#include "Math/Vector.hpp"
+#include "Mesh.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-	struct AABBComponent : public ECSComponent
+	class StaticMesh : public Mesh
 	{
-		Lina::Vector3 m_center = Lina::Vector3::Zero;
-		Lina::Vector3 m_halfWidths = Lina::Vector3::One;
-
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_center, m_halfWidths);
-		}
+		
+	public:
+		
+		StaticMesh() {};
+		virtual ~StaticMesh() {};
+	
+	private:
+	
 	};
 }
 

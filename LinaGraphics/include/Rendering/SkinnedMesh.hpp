@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/MessageBus.hpp"
-#include "EventSystem/EventSystem.hpp"
+/*
+Class: SkinnedMesh
 
 
-namespace Lina
+
+Timestamp: 12/24/2021 8:56:09 PM
+*/
+
+#pragma once
+
+#ifndef SkinnedMesh_HPP
+#define SkinnedMesh_HPP
+
+// Headers here.
+#include "Mesh.hpp"
+
+namespace Lina::Graphics
 {
-	void MessageBus::Initialize(ApplicationMode appMode)
+	class SkinnedMesh : public Mesh
 	{
-		auto* eventSystem = Event::EventSystem::Get();
-		m_appMode = appMode;
-	}
+		
+	public:
+		
+		SkinnedMesh() {};
+		~SkinnedMesh() {};
+	
+	private:
+	
+	};
 }
+
+#endif

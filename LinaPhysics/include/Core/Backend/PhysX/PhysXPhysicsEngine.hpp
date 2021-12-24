@@ -41,9 +41,9 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #include "Core/Common.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "ECS/Components/AABBComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Physics/PhysicsMaterial.hpp"
+#include "Core/Backend/PhysX/PhysXCooker.hpp"
 
 namespace Lina
 {
@@ -71,12 +71,6 @@ namespace Lina::Physics
 	public:
 
 		static PhysXPhysicsEngine* Get() { return s_physicsEngine; }
-
-		/// <summary>
-		/// Uses the cooking library to create a convex mesh stream using the given vertices.
-		/// Stream is placed into the given buffer data for custom serialization.
-		/// </summary>
-		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int nodeID);
 
 		/// <summary>
 		/// Given a convex mesh buffer data, creates a convex mesh object and stores it.
@@ -137,10 +131,9 @@ namespace Lina::Physics
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void OnPostSceneDraw(Event::EPostSceneDraw);
-		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
-		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy);
+		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
 
 	private:
 
@@ -150,8 +143,10 @@ namespace Lina::Physics
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
 		Lina::ECS::ECSSystemList m_physicsPipeline;
 		Lina::Event::EventSystem* m_eventSystem;
-		bool m_debugDrawEnabled = false;
 		Lina::ApplicationMode m_appMode = Lina::ApplicationMode::Editor;
+		PhysXCooker m_cooker;
+		bool m_debugDrawEnabled = false;
+
 	};
 }
 

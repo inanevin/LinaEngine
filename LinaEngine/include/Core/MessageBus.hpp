@@ -59,7 +59,6 @@ namespace Lina
 		friend class Lina::Engine;
 		
 		void Initialize(ApplicationMode appMode);
-		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
 
 	private:
 

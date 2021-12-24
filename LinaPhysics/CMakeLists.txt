@@ -26,6 +26,7 @@ set (LINAPHYSICS_SOURCES
 	# src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
 	# src/Core/Backend/Bullet/BulletGizmoDrawer.cpp
 	src/Core/Backend/PhysX/PhysXPhysicsEngine.cpp
+	src/Core/Backend/PhysX/PhysXCooker.cpp
 
 	src/Core/PhysicsCommon.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
@@ -43,13 +44,13 @@ set(LINAPHYSICS_HEADERS
 	# include/Core/Backend/Bullet/BulletPhysicsEngine.hpp
 	# include/Core/Backend/Bullet/BulletGizmoDrawer.hpp
 	include/Core/Backend/PhysX/PhysXPhysicsEngine.hpp
+	include/Core/Backend/PhysX/PhysXCooker.hpp
 
 	include/Core/PhysicsBackend.hpp
 	include/Core/PhysicsBackendFwd.hpp
 	include/Core/PhysicsCommon.hpp
 
 	include/ECS/Systems/RigidbodySystem.hpp
-	include/ECS/Components/AABBComponent.hpp
 	
 	include/Physics/PhysicsMaterial.hpp
 	include/Physics/Raycast.hpp
@@ -117,6 +118,8 @@ PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATI
 PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXVehicle_static_64.lib
 PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXCooking_64.lib
 PRIVATE Lina::Common
+PRIVATE Lina::Graphics
+
 )
 
 

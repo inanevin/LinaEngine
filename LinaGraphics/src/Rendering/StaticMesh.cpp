@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/MessageBus.hpp"
-#include "EventSystem/EventSystem.hpp"
+#include "Rendering/StaticMesh.hpp"
 
-
-namespace Lina
+namespace Lina::Graphics
 {
-	void MessageBus::Initialize(ApplicationMode appMode)
-	{
-		auto* eventSystem = Event::EventSystem::Get();
-		m_appMode = appMode;
-	}
+	
 }
