@@ -107,6 +107,7 @@ namespace Lina
 		m_ecs.Initialize();
 		m_physicsEngine.Initialize(m_appInfo.m_appMode);
 		m_renderEngine.Initialize(m_appInfo.m_appMode);
+		m_messageBus.Initialize(m_appInfo.m_appMode);
 		
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();

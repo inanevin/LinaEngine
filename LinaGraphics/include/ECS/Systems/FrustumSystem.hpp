@@ -48,18 +48,19 @@ namespace Lina::ECS
 	{
 		
 	public:
-		
+
+		FrustumSystem() {};
+		~FrustumSystem() {};
+
 		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta);
 
 		/// <summary>
 		/// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
-		/// Asserts if not.
+		/// Returns whether entity contains any bounds (renderable or not).
 		/// </summary>
-		/// <param name="ent"></param>
-		void GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent);
-		FrustumSystem();
-		~FrustumSystem();
+		bool GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent);
+
 	
 	private:
 	

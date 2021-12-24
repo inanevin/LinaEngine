@@ -99,7 +99,7 @@ namespace Lina::Graphics
 
 		ProcessNode(scene->mRootNode, model.GetRoot());
 		ModelNode& root = model.GetRoot();
-
+	
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
@@ -193,7 +193,7 @@ namespace Lina::Graphics
 			currentMesh.m_vertexCenter = totalVertexPos / (float)aiMesh->mNumVertices;
 			currentMesh.m_boundsMin = minVertexPos;
 			currentMesh.m_boundsMax = maxVertexPos;
-			currentMesh.m_boundsHalfSize = (currentMesh.m_boundsMax - currentMesh.m_boundsMin) / 2.0f;
+			currentMesh.m_boundsHalfExtents = (currentMesh.m_boundsMax - currentMesh.m_boundsMin) / 2.0f;
 			model.GetMeshes().push_back(currentMesh);
 		}
 

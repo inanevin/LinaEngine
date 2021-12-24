@@ -70,7 +70,7 @@ namespace Lina
 			ConvexMesh = 4,
 		};
 #elif LINA_PHYSICS_PHYSX
-		extern std::string COLLISION_SHAPES[3];
+		extern std::string COLLISION_SHAPES[4];
 
 		enum class CollisionShape : uint8
 		{

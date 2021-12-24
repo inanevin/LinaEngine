@@ -557,7 +557,25 @@ namespace Lina::Editor
 			phy.m_collisionShape = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("##collision", (int)phy.m_collisionShape);
 			if (phy.m_collisionShape != currentShape)
 			{
-				physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
+
+				if (phy.m_collisionShape == Physics::CollisionShape::ConvexMesh)
+				{
+					ECS::ModelRendererComponent* mr = ecs->try_get<ECS::ModelRendererComponent>(entity);
+
+					if (mr != nullptr)
+					{
+						phy.m_attachedModelID = mr->m_modelID;
+						physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
+
+					}
+					else
+					{
+						phy.m_collisionShape = currentShape;
+						LINA_ERR("This entity does not contain a mesh renderer.");
+					}
+				}
+
+
 			}
 			if (phy.m_collisionShape == Physics::CollisionShape::Box)
 			{

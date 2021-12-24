@@ -54,9 +54,11 @@ namespace Lina::Graphics
 
 	struct ModelNode
 	{
-		std::string m_name = "";
 		std::vector<int> m_meshIndexes;
 		std::vector<ModelNode> m_children;
+
+		// *** CAN BE CHANGED BY THE USER, DON'T RELY ON THIS *** //
+		std::string m_name = "";
 		Lina::Matrix m_localTransform;
 	};
 
@@ -115,11 +117,10 @@ namespace Lina::Graphics
 		StringIDType m_id = -1;
 		ModelSceneParameters m_worldParameters;
 		ModelParameters m_parameters;
-		std::vector<Mesh> m_meshes;
 		ModelNode m_rootNode;
-		std::vector<ModelMaterial> m_materialSpecArray;
 		Skeleton m_skeleton;
-
+		std::vector<ModelMaterial> m_materialSpecArray;
+		std::vector<Mesh> m_meshes;
 	};
 }
 

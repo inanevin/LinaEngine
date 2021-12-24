@@ -124,7 +124,7 @@ namespace Lina::Event
 	// Resources.
 	struct ELoadResourceFromFile { Resources::ResourceType m_resourceType;  std::string m_path; std::string m_paramsPath; };
 	struct ELoadResourceFromMemory { Resources::ResourceType m_resourceType; std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
-	struct EResourceLoadCompleted { Resources::ResourceType m_type; StringIDType m_sid };
+	struct EResourceLoadCompleted { Resources::ResourceType m_type; StringIDType m_sid; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};
 	struct EAllResourcesLoaded {};

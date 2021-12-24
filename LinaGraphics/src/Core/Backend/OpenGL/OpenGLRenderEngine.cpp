@@ -157,6 +157,205 @@ namespace Lina::Graphics
 		// Shader::ClearShaderIncludes();
 	}
 
+	void OpenGLRenderEngine::ConstructShader(const std::string& path, unsigned char* data, size_t dataSize)
+	{
+		if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
+		{
+			s_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
+		{
+			m_pointShadowsDepthShader = &Shader::CreateShader(path, true, data, dataSize);
+		}
+		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxColor.glsl") == 0)
+		{
+			m_skyboxSingleColorShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxCubemap.glsl") == 0
+			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0
+			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+		{
+			m_hdriEquirectangularShader = &Shader::CreateShader(path, false, data, dataSize);
+		}
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
+		{
+			m_hdriIrradianceShader = &Shader::CreateShader(path, false, data, dataSize);
+		}
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
+		{
+			m_hdriPrefilterShader = &Shader::CreateShader(path, false, data, dataSize);
+		}
+		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
+		{
+			m_hdriBRDFShader = &Shader::CreateShader(path, false, data, dataSize);
+		}
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl") == 0)
+		{
+			m_sqFinalShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl") == 0)
+		{
+			m_sqBlurShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl") == 0)
+		{
+			m_sqShadowMapShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/Debug/DebugLine.glsl") == 0)
+		{
+			m_debugLineShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/Debug/DebugIcon.glsl") == 0)
+		{
+			m_debugIconShader = &Shader::CreateShader(path, false, data, dataSize);
+			m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else if (path.compare("Resources/Engine/Shaders/2D/Sprite.glsl") == 0)
+		{
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		}
+		else
+		{
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		}
+	}
+
+	bool OpenGLRenderEngine::ValidateEngineShaders()
+	{
+		bool validated = false;
+
+		std::map<StringIDType, Shader*>& loadedShaders = Shader::GetLoadedShaders();
+
+		for (std::map<StringIDType, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
+		{
+			LINA_TRACE("Validating {0}", it->second->GetPath());
+			bool success = m_renderDevice.ValidateShaderProgram(it->second->GetID());
+
+			if (!success)
+				LINA_TRACE("Failed validation");
+
+			validated |= success;
+		}
+
+		return !validated;
+	}
+
+
+	void OpenGLRenderEngine::ConstructEngineMaterials()
+	{
+		Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
+		Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
+		Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
+		Material::SetMaterialShader(m_debugLineMaterial, *m_debugLineShader);
+		Material::SetMaterialShader(m_debugIconMaterial, *m_debugIconShader);
+		Material::SetMaterialShader(m_shadowMapMaterial, *m_sqShadowMapShader);
+		Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
+		Material::SetMaterialShader(s_defaultUnlit, *s_standardUnlitShader);
+		Material::SetMaterialShader(m_pLightShadowDepthMaterial, *m_pointShadowsDepthShader);
+		UpdateRenderSettings();
+	}
+
+	void OpenGLRenderEngine::ConstructRenderTargets()
+	{
+		// Primary
+		m_primaryRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+		m_primaryRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		m_primaryRTParams.m_textureParams.m_minFilter = m_primaryRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		m_primaryRTParams.m_textureParams.m_wrapS = m_primaryRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+		// Ping pong
+		m_pingPongRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+		m_pingPongRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		m_pingPongRTParams.m_textureParams.m_minFilter = m_pingPongRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		m_pingPongRTParams.m_textureParams.m_wrapS = m_pingPongRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+		// Shadows depth.
+		m_shadowsRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_DEPTH;
+		m_shadowsRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_DEPTH;
+		m_shadowsRTParams.m_textureParams.m_minFilter = m_shadowsRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_NEAREST;
+		m_shadowsRTParams.m_textureParams.m_wrapS = m_shadowsRTParams.m_textureParams.m_wrapR = m_shadowsRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+		// Initialize primary RT textures
+		m_primaryMSAARTTexture0.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
+		m_primaryMSAARTTexture1.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
+		m_primaryRTTexture0.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+		m_primaryRTTexture1.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+
+		// Initialize ping pong rt texture
+		m_pingPongRTTexture1.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
+		m_pingPongRTTexture2.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
+
+		// Shadow map RT texture
+		m_shadowMapRTTexture.ConstructRTTexture(m_shadowMapResolution, m_shadowsRTParams, true);
+
+		// Point light RT texture
+		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
+			m_pLightShadowTextures[i].ConstructRTCubemapTexture(m_pLightShadowResolution, m_shadowsRTParams);
+
+		// Initialize primary render buffer
+		m_primaryBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+		m_primaryMSAABuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize, 4);
+
+		// Initialize hdri render buffer
+		m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
+
+		// Initialize primary render target.
+		m_primaryRenderTarget.Construct(m_primaryRTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
+
+		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
+		m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		m_renderDevice.BindTextureToRenderTarget(m_primaryMSAATarget.GetID(), m_primaryMSAARTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
+		m_renderDevice.MultipleDrawBuffersCommand(m_primaryRenderTarget.GetID(), 2, attachments);
+		m_renderDevice.MultipleDrawBuffersCommand(m_primaryMSAATarget.GetID(), 2, attachments);
+
+		// Initialize ping pong render targets
+		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+
+		// Initialize HDRI render target
+		m_hdriCaptureRenderTarget.Construct(m_hdriResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
+
+		// Initialize depth map for shadows
+		m_shadowMapTarget.Construct(m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+
+		// Initialize depth map for point light shadows.
+		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
+			m_pLightShadowTargets[i].Construct(m_pLightShadowTextures[i], m_pLightShadowResolution, TextureBindMode::BINDTEXTURE_TEXTURE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+
+		if (m_appMode == ApplicationMode::Editor)
+		{
+			m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+		}
+	}
 
 	void OpenGLRenderEngine::Shutdown()
 	{
@@ -223,7 +422,6 @@ namespace Lina::Graphics
 		if (m_appMode == ApplicationMode::Editor)
 			m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
 	}
-
 
 	void OpenGLRenderEngine::MaterialUpdated(Material& mat)
 	{
@@ -452,206 +650,6 @@ namespace Lina::Graphics
 		SetScreenDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
 	}
 
-	bool OpenGLRenderEngine::ValidateEngineShaders()
-	{
-		bool validated = false;
-
-		std::map<StringIDType, Shader*>& loadedShaders = Shader::GetLoadedShaders();
-
-		for (std::map<StringIDType, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
-		{
-			LINA_TRACE("Validating {0}", it->second->GetPath());
-			bool success = m_renderDevice.ValidateShaderProgram(it->second->GetID());
-
-			if (!success)
-				LINA_TRACE("Failed validation");
-
-			validated |= success;
-		}
-
-		return !validated;
-	}
-
-	void OpenGLRenderEngine::ConstructShader(const std::string& path, unsigned char* data, size_t dataSize)
-	{
-		if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
-		{
-			s_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
-			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
-		{
-			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
-		{
-			m_pointShadowsDepthShader = &Shader::CreateShader(path, true, data, dataSize);
-		}
-		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxColor.glsl") == 0)
-		{
-			m_skyboxSingleColorShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxCubemap.glsl") == 0
-			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0
-			|| path.compare("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
-		{
-			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-
-		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
-		{
-			m_hdriEquirectangularShader = &Shader::CreateShader(path, false, data, dataSize);
-		}
-		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
-		{
-			m_hdriIrradianceShader = &Shader::CreateShader(path, false, data, dataSize);
-		}
-		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
-		{
-			m_hdriPrefilterShader = &Shader::CreateShader(path, false, data, dataSize);
-		}
-		else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
-		{
-			m_hdriBRDFShader = &Shader::CreateShader(path, false, data, dataSize);
-		}
-		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl") == 0)
-		{
-			m_sqFinalShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl") == 0)
-		{
-			m_sqBlurShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl") == 0)
-		{
-			m_sqShadowMapShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/Debug/DebugLine.glsl") == 0)
-		{
-			m_debugLineShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/Debug/DebugIcon.glsl") == 0)
-		{
-			m_debugIconShader = &Shader::CreateShader(path, false, data, dataSize);
-			m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else if (path.compare("Resources/Engine/Shaders/2D/Sprite.glsl") == 0)
-		{
-			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		}
-		else
-		{
-			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-		}
-	}
-
-	void OpenGLRenderEngine::ConstructEngineMaterials()
-	{
-		Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
-		Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
-		Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
-		Material::SetMaterialShader(m_debugLineMaterial, *m_debugLineShader);
-		Material::SetMaterialShader(m_debugIconMaterial, *m_debugIconShader);
-		Material::SetMaterialShader(m_shadowMapMaterial, *m_sqShadowMapShader);
-		Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
-		Material::SetMaterialShader(s_defaultUnlit, *s_standardUnlitShader);
-		Material::SetMaterialShader(m_pLightShadowDepthMaterial, *m_pointShadowsDepthShader);
-		UpdateRenderSettings();
-	}
-
-
-	void OpenGLRenderEngine::ConstructRenderTargets()
-	{
-		// Primary
-		m_primaryRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
-		m_primaryRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		m_primaryRTParams.m_textureParams.m_minFilter = m_primaryRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
-		m_primaryRTParams.m_textureParams.m_wrapS = m_primaryRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		// Ping pong
-		m_pingPongRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
-		m_pingPongRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		m_pingPongRTParams.m_textureParams.m_minFilter = m_pingPongRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
-		m_pingPongRTParams.m_textureParams.m_wrapS = m_pingPongRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		// Shadows depth.
-		m_shadowsRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_DEPTH;
-		m_shadowsRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_DEPTH;
-		m_shadowsRTParams.m_textureParams.m_minFilter = m_shadowsRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_NEAREST;
-		m_shadowsRTParams.m_textureParams.m_wrapS = m_shadowsRTParams.m_textureParams.m_wrapR = m_shadowsRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		// Initialize primary RT textures
-		m_primaryMSAARTTexture0.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
-		m_primaryMSAARTTexture1.ConstructRTTextureMSAA(m_screenSize, m_primaryRTParams, 4);
-		m_primaryRTTexture0.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
-		m_primaryRTTexture1.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
-
-		// Initialize ping pong rt texture
-		m_pingPongRTTexture1.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
-		m_pingPongRTTexture2.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
-
-		// Shadow map RT texture
-		m_shadowMapRTTexture.ConstructRTTexture(m_shadowMapResolution, m_shadowsRTParams, true);
-
-		// Point light RT texture
-		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
-			m_pLightShadowTextures[i].ConstructRTCubemapTexture(m_pLightShadowResolution, m_shadowsRTParams);
-
-		// Initialize primary render buffer
-		m_primaryBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
-		m_primaryMSAABuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize, 4);
-
-		// Initialize hdri render buffer
-		m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
-
-		// Initialize primary render target.
-		m_primaryRenderTarget.Construct(m_primaryRTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
-
-		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
-		m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-		m_renderDevice.BindTextureToRenderTarget(m_primaryMSAATarget.GetID(), m_primaryMSAARTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
-		m_renderDevice.MultipleDrawBuffersCommand(m_primaryRenderTarget.GetID(), 2, attachments);
-		m_renderDevice.MultipleDrawBuffersCommand(m_primaryMSAATarget.GetID(), 2, attachments);
-
-		// Initialize ping pong render targets
-		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-
-		// Initialize HDRI render target
-		m_hdriCaptureRenderTarget.Construct(m_hdriResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
-
-		// Initialize depth map for shadows
-		m_shadowMapTarget.Construct(m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
-
-		// Initialize depth map for point light shadows.
-		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
-			m_pLightShadowTargets[i].Construct(m_pLightShadowTextures[i], m_pLightShadowResolution, TextureBindMode::BINDTEXTURE_TEXTURE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
-
-		if (m_appMode == ApplicationMode::Editor)
-		{
-			m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
-			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
-			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
-		}
-	}
-
 	void OpenGLRenderEngine::DumpMemory()
 	{
 		while (!m_debugLineQueue.empty())
@@ -670,7 +668,6 @@ namespace Lina::Graphics
 		Material::UnloadAll();
 		Shader::UnloadAll();
 	}
-
 
 	void OpenGLRenderEngine::Draw()
 	{
@@ -731,10 +728,13 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::DrawFinalize()
 	{
-		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
-		m_renderDevice.BlitFrameBuffers(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)1);
+		// Frag color
+		m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
+		
+		// Bright color - HDR
+		m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)1);
 
-		// Below we process bloom post fx based on brightColor output in shaders.
+		// Below we process bloom post fx based on brightColor output in the shaders.
 		bool horizontal = true;
 		if (m_renderSettings.m_bloomEnabled)
 		{
@@ -807,7 +807,6 @@ namespace Lina::Graphics
 		m_debugLineQueue.push(DebugLine{ p1, p2, col, width });
 	}
 
-
 	void OpenGLRenderEngine::ProcessDebugQueue()
 	{
 		while (!m_debugLineQueue.empty())
@@ -854,7 +853,6 @@ namespace Lina::Graphics
 		m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEAMOUNT, m_renderSettings.m_vignetteAmount);
 		m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEPOW, m_renderSettings.m_vignettePow);
 	}
-
 
 	void OpenGLRenderEngine::DrawSkybox()
 	{

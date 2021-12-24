@@ -73,36 +73,37 @@ namespace Lina::Resources
 
 	void ResourceBundle::LoadAllMemoryMaps()
 	{
-		//while (!m_memoryResources.empty())
-		//{
-		//	MemoryEntry entry = m_memoryResources.top();
-		//
-		//	std::string nameOnly = Utility::GetFileWithoutExtension(entry.m_path);
-		//	std::string paramsName = nameOnly + entry.m_paramsExtension;
-		//
-		//	bool wasParamFound = false;
-		//	for (auto& paramEntry : m_memoryResourcesParams)
-		//	{
-		//		
-		//		if (paramEntry.m_path.compare(paramsName) == 0)
-		//		{
-		//			Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type,
-		//				entry.m_path, &entry.m_data[0], entry.m_data.size(), paramEntry.m_path, &paramEntry.m_data[0], paramEntry.m_data.size()
-		//				});
-		//			
-		//			wasParamFound = true;
-		//			break;
-		//		}
-		//	}
-		//
-		//	if (!wasParamFound)
-		//	{
-		//		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size() });
-		//	}
-		//
-		//	m_memoryResources.pop();
-		//}
-		//m_memoryResourcesParams.clear();
+		while (!m_memoryResources.empty())
+		{
+			MemoryEntry entry = m_memoryResources.top();
+		
+			std::string nameOnly = Utility::GetFileWithoutExtension(entry.m_path);
+			std::string paramsName = nameOnly + entry.m_paramsExtension;
+		
+			bool wasParamFound = false;
+			for (auto& paramEntry : m_memoryResourcesParams)
+			{
+				
+				if (paramEntry.m_path.compare(paramsName) == 0)
+				{
+					Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type,
+						entry.m_path, &entry.m_data[0], entry.m_data.size(), paramEntry.m_path, &paramEntry.m_data[0], paramEntry.m_data.size()
+						});
+					
+					wasParamFound = true;
+					break;
+				}
+			}
+		
+			if (!wasParamFound)
+			{
+				Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size() , "", nullptr, 0});
+			}
+		
+			Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{entry.m_type, StringID(entry.m_path.c_str()).value()});
+			m_memoryResources.pop();
+		}
+		m_memoryResourcesParams.clear();
 	}
 
 	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root,const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
@@ -152,6 +153,8 @@ namespace Lina::Resources
 			paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
 
 		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
+		Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{ type, StringID(file.m_fullPath.c_str()).value() });
+
 	}
 
 }

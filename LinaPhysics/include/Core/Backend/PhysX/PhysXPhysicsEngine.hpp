@@ -73,6 +73,44 @@ namespace Lina::Physics
 
 		static PhysXPhysicsEngine* Get() { return s_physicsEngine; }
 
+		/// <summary>
+		/// Uses the cooking library to create a convex mesh stream using the given vertices.
+		/// Stream is placed into the given buffer data for custom serialization.
+		/// </summary>
+		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int meshIndex);
+
+		/// <summary>
+		/// Given a convex mesh buffer data, creates a convex mesh object and stores it.
+		/// </summary>
+		void CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int meshIndex);
+
+		/// <summary>
+		/// Returns all moving actor within the Nvidia PhysX scene.
+		/// </summary>
+		physx::PxActor** GetActiveActors(uint32& size);
+
+		/// <summary>
+		/// Given a PxActor, returns the Entity it belongs to.
+		/// </summary>
+		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
+
+		/// <summary>
+		/// Returns all Dynamic bodies, regardless of whether they are kinematic or not.
+		/// </summary>
+		std::map<ECS::Entity, physx::PxRigidDynamic*>& GetAllDynamicActors();
+
+		/// <summary>
+		/// Returns all static bodies.
+		/// </summary>
+		std::map<ECS::Entity, physx::PxRigidStatic*>& GetAllStaticActors();
+
+		/// <summary>
+		/// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
+		/// value is the PhysX object.
+		/// </summary>
+		std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
+
+
 		void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
 		void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
 		void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
@@ -85,13 +123,9 @@ namespace Lina::Physics
 		void SetBodyHeight(ECS::Entity body, float height);
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
 		void SetBodyKinematic(ECS::Entity body, bool kinematic);
-		physx::PxActor** GetActiveActors(uint32& size);
-		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
-		std::map<ECS::Entity, physx::PxRigidDynamic*>& GetAllDynamicActors();
-		std::map<ECS::Entity, physx::PxRigidStatic*>& GetAllStaticActors();
-		std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
 
 	private:
+
 		friend class Lina::Engine;
 		PhysXPhysicsEngine();
 		~PhysXPhysicsEngine();

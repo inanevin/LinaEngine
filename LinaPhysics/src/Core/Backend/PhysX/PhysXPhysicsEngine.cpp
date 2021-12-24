@@ -36,6 +36,8 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Math/Math.hpp"
 #include "Physics/Raycast.hpp"
+#include <cereal/archives/portable_binary.hpp>
+#include <fstream>
 #include "PxPhysicsAPI.h"
 
 namespace Lina::Physics
@@ -46,44 +48,22 @@ namespace Lina::Physics
 	PxDefaultAllocator m_pxAllocator;
 	PxDefaultErrorCallback	m_pxErrorCallback;
 	PxReal m_pxStackZ = 10.0f;
-	physx::PxFoundation* m_pxFoundation = nullptr;
-	physx::PxPhysics* m_pxPhysics = nullptr;
-	physx::PxDefaultCpuDispatcher* m_pxDispatcher = nullptr;
-	physx::PxScene* m_pxScene = nullptr;
-	physx::PxMaterial* m_pxDefaultMaterial = nullptr;
-	physx::PxPvd* m_pxPvd = nullptr;
+	PxFoundation* m_pxFoundation = nullptr;
+	PxPhysics* m_pxPhysics = nullptr;
+	PxDefaultCpuDispatcher* m_pxDispatcher = nullptr;
+	PxScene* m_pxScene = nullptr;
+	PxMaterial* m_pxDefaultMaterial = nullptr;
+	PxPvd* m_pxPvd = nullptr;
+	PxCooking* m_pxCooking = nullptr;
+
 	std::map<ECS::Entity, physx::PxRigidDynamic*> m_dynamicActors;
 	std::map<ECS::Entity, physx::PxRigidStatic*> m_staticActors;
 	std::map<StringIDType, physx::PxMaterial*> m_materials;
+	std::map<StringIDType, std::vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
 	PhysXPhysicsEngine::PhysXPhysicsEngine()
 	{
 		LINA_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
-	}
-
-	PhysXPhysicsEngine::~PhysXPhysicsEngine()
-	{
-		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
-
-		for (auto ent : m_staticActors)
-			ent.second->release();
-
-		for (auto ent : m_dynamicActors)
-			ent.second->release();
-
-		m_pxScene->release();
-		m_pxDispatcher->release();
-		m_pxPhysics->release();
-
-		if (m_pxPvd)
-		{
-			PxPvdTransport* transport = m_pxPvd->getTransport();
-			m_pxPvd->release();
-			m_pxPvd = NULL;
-			transport->release();
-		}
-
-		m_pxFoundation->release();
 	}
 
 	void PhysXPhysicsEngine::Initialize(Lina::ApplicationMode appMode)
@@ -112,6 +92,7 @@ namespace Lina::Physics
 		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 		m_pxScene = m_pxPhysics->createScene(sceneDesc);
 		m_pxScene->setFlag(PxSceneFlag::eENABLE_ACTIVE_ACTORS, true);
+		m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pxFoundation, PxCookingParams(PxTolerancesScale()));
 
 		if (m_appMode == ApplicationMode::Editor)
 		{
@@ -160,6 +141,44 @@ namespace Lina::Physics
 		LINA_TRACE("[Shutdown] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
+
+	PhysXPhysicsEngine::~PhysXPhysicsEngine()
+	{
+		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
+
+		for (auto ent : m_staticActors)
+			ent.second->release();
+
+		for (auto ent : m_dynamicActors)
+			ent.second->release();
+
+		for (auto v : m_convexMeshMap)
+		{
+			for (uint32 i = 0; i < v.second.size(); i++)
+				v.second[i].second->release();
+			v.second.clear();
+		}
+
+		m_convexMeshMap.clear();
+		m_staticActors.clear();
+		m_dynamicActors.clear();
+
+		m_pxScene->release();
+		m_pxDispatcher->release();
+		m_pxPhysics->release();
+
+		if (m_pxPvd)
+		{
+			PxPvdTransport* transport = m_pxPvd->getTransport();
+			m_pxPvd->release();
+			m_pxPvd = NULL;
+			transport->release();
+		}
+
+		m_pxFoundation->release();
+	}
+
+
 	void PhysXPhysicsEngine::OnPostSceneDraw(Event::EPostSceneDraw)
 	{
 		const PxRenderBuffer& rb = m_pxScene->getRenderBuffer();
@@ -177,6 +196,10 @@ namespace Lina::Physics
 
 	void PhysXPhysicsEngine::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
 	{
+		if (ev.m_type == Resources::ResourceType::Model)
+		{
+
+		}
 	}
 
 	PxShape* PhysXPhysicsEngine::GetCreateShape(ECS::PhysicsComponent& phy)
@@ -203,9 +226,45 @@ namespace Lina::Physics
 			return m_pxPhysics->createShape(PxSphereGeometry(phy.GetRadius()), *m_pxDefaultMaterial);
 		else if (shape == CollisionShape::Capsule)
 			return m_pxPhysics->createShape(PxCapsuleGeometry(phy.GetRadius(), phy.GetCapsuleHalfHeight()), *mat);
-		else
-			return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
+		else if (shape == CollisionShape::ConvexMesh)
+		{
+			
+			return m_pxPhysics->createShape(PxConvexMeshGeometry(m_convexMeshMap[phy.m_attachedModelID][0].second, PxMeshScale(PxVec3(100.0f, 100.0f, 100.0f))), *mat);
+		}
 
+
+		return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
+
+	}
+
+	void PhysXPhysicsEngine::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData, StringIDType sid, int meshIndex)
+	{
+		PxConvexMeshDesc convexDesc;
+		convexDesc.points.count = vertices.size();
+		convexDesc.points.stride = sizeof(Vector3);
+		convexDesc.points.data = &vertices[0];
+		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+		PxDefaultMemoryOutputStream buf;
+		PxConvexMeshCookingResult::Enum result;
+		if (!m_pxCooking->cookConvexMesh(convexDesc, buf, &result))
+		{
+			LINA_ERR("Cooking convex mesh failed! {0}", typeid(*this).name());
+			return;
+		}
+
+		bufferData.clear();
+		bufferData = std::vector<uint8>(buf.getData(), buf.getData() + buf.getSize());
+
+		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+		LINA_TRACE("Cooked!");
+		CreateConvexMesh(bufferData, sid, meshIndex);
+	}
+
+	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int meshIndex)
+	{
+		PxDefaultMemoryInputData input(&data[0], data.size());
+		m_convexMeshMap[sid].push_back(std::make_pair(meshIndex, m_pxPhysics->createConvexMesh(input)));
 	}
 
 	void PhysXPhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)

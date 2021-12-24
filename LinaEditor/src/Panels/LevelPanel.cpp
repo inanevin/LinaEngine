@@ -337,7 +337,7 @@ namespace Lina::Editor
 					{
 						//Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
 						//Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
-						//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfSize(), 500.0f);
+						//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfExtents(), 500.0f);
 						//
 						//if (hitInfo.m_hitCount > 0)
 						//{
@@ -448,16 +448,11 @@ namespace Lina::Editor
 			// Draw the selected entities bounding box.
 			if (m_selectedEntity != editorCam)
 			{
-				auto* meshRenderer = reg->try_get<ECS::MeshRendererComponent>(m_selectedEntity);
-				if (meshRenderer != nullptr)
-				{
-					const Vector3 entityLocation = data.GetLocation();
-					const Vector3 vertexOffset = meshRenderer->m_totalVertexCenter * data.GetScale();
-					const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
-					const Vector3 boundingBoxPosition = entityLocation + offsetAddition;
-					const Vector3 boundingBoxHalfSize = meshRenderer->m_totalHalfBounds * data.GetScale() * data.GetRotation();
+				Vector3 boundingBoxPosition = Vector3::Zero;
+				Vector3 boundingBoxHalfSize = Vector3::Zero;
+				if(renderEngine->GetFrustumSystem()->GetEntityBounds(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
 					Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{ boundingBoxPosition, boundingBoxHalfSize, Color::Red, 2.0f });
-				}
+
 			}
 
 		}

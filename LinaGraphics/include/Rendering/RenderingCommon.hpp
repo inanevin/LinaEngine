@@ -43,6 +43,8 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Math/Matrix.hpp"
 #include "Math/Color.hpp"
 #include "map"
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
 
 namespace Lina::Graphics
 {
@@ -362,11 +364,12 @@ namespace Lina::Graphics
 		bool m_calculateTangentSpace = true;
 		bool m_flipWinding = false;
 		bool m_flipUVs = false;
+		std::map<int, std::vector<uint8>> m_convexMeshData;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale);
+			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData);
 		}
 	};
 }

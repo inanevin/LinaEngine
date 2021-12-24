@@ -84,10 +84,11 @@ namespace Lina::Graphics
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
 		uint32 GetIndexCount() const { return m_indices.size(); }
 		VertexArray& GetVertexArray() { return m_vertexArray; }
-		Vector3 GetBoundsHalfSize() { return m_boundsHalfSize; }
+		Vector3 GetBoundsHalfExtents() { return m_boundsHalfExtents; }
 		Vector3 GetBoundsMin() { return m_boundsMin; }
 		Vector3 GetBoundsMax() { return m_boundsMax; }
 		Vector3 GetVertexCenter() { return m_vertexCenter; }
+		BufferData& GetVertexPositions() { return m_bufferElements[0]; }
 
 	private:
 
@@ -99,7 +100,7 @@ namespace Lina::Graphics
 		VertexArray m_vertexArray;
 		uint32 m_materialSlot = 0;
 		Lina::Vector3 m_vertexCenter = Lina::Vector3(0.0f, 0.0f, 0.0f);
-		Lina::Vector3 m_boundsHalfSize = Lina::Vector3(0.5f, 0.5f, 0.5f);
+		Lina::Vector3 m_boundsHalfExtents = Lina::Vector3(0.5f, 0.5f, 0.5f);
 		Lina::Vector3 m_boundsMin = Lina::Vector3(-0.5f, -0.5f, -0.5f);
 		Lina::Vector3 m_boundsMax = Lina::Vector3(0.5f, 0.5f, 0.5f);
 	};

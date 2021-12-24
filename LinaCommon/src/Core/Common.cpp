@@ -37,7 +37,7 @@ namespace Lina
 #ifdef LINA_PHYSICS_BULLET
 		std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
 #elif LINA_PHYSICS_PHYSX
-		std::string COLLISION_SHAPES[3] = { "Box", "Sphere",  "Capsule" };
+		std::string COLLISION_SHAPES[4] = { "Box", "Sphere",  "Capsule", "ConvexMesh"};
 #endif
 	};
 

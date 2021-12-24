@@ -974,7 +974,7 @@ namespace Lina::Graphics
 		glGenerateMipmap(bindMode);
 	}
 
-	void OpenGLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount)
+	void OpenGLRenderDevice::BlitRenderTargets(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount)
 	{
 		if (m_boundReadFBO != readFBO)
 		{
@@ -1004,45 +1004,6 @@ namespace Lina::Graphics
 		}
 		SetFBO(0);
 		return true;
-	}
-
-
-	// ---------------------------------------------------------------------
-	// ---------------------------------------------------------------------
-	// VERTEX ARRAY OPERATIONS
-	// ---------------------------------------------------------------------
-	// ---------------------------------------------------------------------
-
-
-	void OpenGLRenderDevice::UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
-	{
-		// Terminate if fbo is not valid or does not exist in our map.
-		if (vao == 0)  return;
-		std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
-		if (it == m_vaoMap.end()) return;
-
-		// Get the vertex array object data from the map.
-		const VertexArrayData* vaoData = &it->second;
-
-		// Define a usage according to the VAO data.
-		BufferUsage usage;
-		if (bufferIndex >= vaoData->instanceComponentsStartIndex)
-			usage = BufferUsage::USAGE_DYNAMIC_DRAW;
-		else
-			usage = vaoData->bufferUsage;
-
-		// Use VAO & bind its corresponding buffer.
-		SetVAO(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
-
-		// If buffer size exceeds data size use it as subdata.
-		if (vaoData->bufferSizes[bufferIndex] >= dataSize)
-			glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
-		else
-		{
-			glBufferData(GL_ARRAY_BUFFER, dataSize, data, usage);
-			vaoData->bufferSizes[bufferIndex] = dataSize;
-		}
 	}
 
 	// ---------------------------------------------------------------------
@@ -1075,6 +1036,16 @@ namespace Lina::Graphics
 
 		// Update the uniform data.
 		glBindBufferBase(GL_UNIFORM_BUFFER, m_shaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
+	}
+
+	void OpenGLRenderDevice::ReadPixels(uint32 x, uint32 y, uint32 w, uint32 h, FrameBufferAttachment att, uint32 attachmentNumber, void* data)
+	{
+		GLenum attachmentTypeGL = att + attachmentNumber;
+		GLubyte pixelColor[3];
+		glReadPixels(5,5, 1,1, GL_RGB, GL_UNSIGNED_BYTE, &pixelColor);
+		Vector3 v = Vector3(pixelColor[0],pixelColor[1], pixelColor[2]);
+		LINA_TRACE("Data {0}", v.ToString() );
+
 	}
 
 	void OpenGLRenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)

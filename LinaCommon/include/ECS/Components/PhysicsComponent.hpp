@@ -81,6 +81,7 @@ namespace Lina::ECS
 		Physics::SimulationType GetSimType() { return m_simType; }
 		std::string GetMaterialPath() { return m_physicsMaterialPath; }
 		StringIDType GetMaterialID() { return m_physicsMaterialID; }
+		StringIDType m_attachedModelID = 0;
 
 	private:
 

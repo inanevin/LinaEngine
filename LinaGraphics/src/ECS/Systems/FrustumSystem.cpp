@@ -42,7 +42,7 @@ namespace Lina::ECS
 	{
 	}
 
-	void FrustumSystem::GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent)
+	bool FrustumSystem::GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent)
 	{
 		MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
 
@@ -54,7 +54,7 @@ namespace Lina::ECS
 			const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
 			boundsPosition = entityLocation + offsetAddition;
 			boundsHalfExtent = mr->m_totalHalfBounds * data.GetScale() * data.GetRotation();
-			return;
+			return true;
 		}
 
 		SpriteRendererComponent* sr = m_ecs->try_get<SpriteRendererComponent>(ent);
@@ -64,9 +64,9 @@ namespace Lina::ECS
 			const Vector3 entityLocation = data.GetLocation();
 			boundsPosition = entityLocation;
 			boundsHalfExtent = Vector3(0.5f, 0.5f, 0.5f) * data.GetScale() * data.GetRotation();
-			return;
+			return true;
 		}
 
-		LINA_ERR("Entity is not renderable! {0}", typeid(*this).name());
+		return false;
 	}
 }

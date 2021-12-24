@@ -180,18 +180,34 @@ namespace Lina::Graphics
 		OpenGLWindow* m_appWindow;
 
 		RenderTarget m_primaryRenderTarget;
+		RenderTarget m_secondaryRenderTarget;
+		RenderTarget m_primaryMSAATarget;
 		RenderTarget m_pingPongRenderTarget1;
 		RenderTarget m_pingPongRenderTarget2;
 		RenderTarget m_hdriCaptureRenderTarget;
 		RenderTarget m_shadowMapTarget;
 		RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
 
-		RenderTarget m_secondaryRenderTarget;
-		RenderBuffer m_secondaryRenderBuffer;
-		Texture m_secondaryRTTexture;
-
 		RenderBuffer m_primaryBuffer;
+		RenderBuffer m_primaryMSAABuffer;
+		RenderBuffer m_secondaryRenderBuffer;
 		RenderBuffer m_hdriCaptureRenderBuffer;
+
+		Texture m_primaryMSAARTTexture0;
+		Texture m_primaryMSAARTTexture1;
+		Texture m_primaryRTTexture0;
+		Texture m_primaryRTTexture1;
+		Texture m_secondaryRTTexture;
+		Texture m_pingPongRTTexture1;
+		Texture m_pingPongRTTexture2;
+		Texture m_hdriCubemap;
+		Texture m_hdriIrradianceMap;
+		Texture m_hdriPrefilterMap;
+		Texture m_HDRILutMap;
+		Texture m_shadowMapRTTexture;
+		Texture m_defaultCubemapTexture;
+		Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
+		static Texture s_defaultTexture;
 
 		// Frame buffer texture parameters
 		SamplerParameters m_primaryRTParams;
@@ -224,24 +240,6 @@ namespace Lina::Graphics
 		Shader* m_skyboxSingleColorShader = nullptr;
 		Shader* m_pointShadowsDepthShader = nullptr;
 		static Shader* s_standardUnlitShader;
-
-		Texture m_primaryMSAARTTexture0;
-		Texture m_primaryMSAARTTexture1;
-		RenderTarget m_primaryMSAATarget;
-		RenderBuffer m_primaryMSAABuffer;
-
-		Texture m_primaryRTTexture0;
-		Texture m_primaryRTTexture1;
-		Texture m_pingPongRTTexture1;
-		Texture m_pingPongRTTexture2;
-		Texture m_hdriCubemap;
-		Texture m_hdriIrradianceMap;
-		Texture m_hdriPrefilterMap;
-		Texture m_HDRILutMap;
-		Texture m_shadowMapRTTexture;
-		static Texture s_defaultTexture;
-		Texture m_defaultCubemapTexture;
-		Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
 
 		DrawParams m_defaultDrawParams;
 		DrawParams m_skyboxDrawParams;

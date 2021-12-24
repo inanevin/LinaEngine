@@ -27,42 +27,44 @@ SOFTWARE.
 */
 
 /*
-Class: MeshRendererComponent
-Timestamp: 4/14/2019 1:37:59 AM
+Class: MessageBus
+
+
+
+Timestamp: 12/24/2021 10:43:34 AM
 */
 
 #pragma once
 
-#ifndef RenderableMeshComponent_HPP
-#define RenderableMeshComponent_HPP
+#ifndef MessageBus_HPP
+#define MessageBus_HPP
 
-#include "ECS/ECSComponent.hpp"
-#include "Utility/StringId.hpp"
-#include "Math/Vector.hpp"
-#include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
+// Headers here.
+#include "EventSystem/Events.hpp"
 
-namespace Lina::ECS
+namespace Lina
 {
-	struct MeshRendererComponent : public ECSComponent
+	class Engine;
+
+	class MessageBus
 	{
-		std::string m_modelPath = "";
-		std::string m_materialPath = "";
-		StringIDType m_modelID = -1;
-		StringIDType m_materialID = -1;
-		Lina::Vector3 m_totalVertexCenter = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalBoundsMin = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalBoundsMax = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalHalfBounds = Lina::Vector3::Zero;
-		std::vector<int> m_subMeshes;	// Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
-		bool m_excludeFromDrawList = false;
+		
+	public:
+		
+		MessageBus() {};
+		~MessageBus() {};
 
+	private:
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_subMeshes, m_totalVertexCenter, m_totalBoundsMin, m_totalBoundsMax, m_totalHalfBounds);
-		}
+		friend class Lina::Engine;
+		
+		void Initialize(ApplicationMode appMode);
+		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
+
+	private:
+
+		ApplicationMode m_appMode = ApplicationMode::Editor;
+	
 	};
 }
 

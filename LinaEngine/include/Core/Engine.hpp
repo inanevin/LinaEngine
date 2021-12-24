@@ -46,6 +46,7 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/PhysicsBackend.hpp"
 #include "Core/AudioBackend.hpp"
 #include "Core/WindowBackend.hpp"
+#include "Core/MessageBus.hpp"
 #include "EventSystem/EventSystem.hpp"
 #define DELTA_TIME_HISTORY 11
 
@@ -102,6 +103,7 @@ namespace Lina
 		ECS::Registry m_ecs;
 		ECS::ECSSystemList m_mainECSPipeline;
 		Resources::ResourceManager m_resourceManager;
+		MessageBus m_messageBus;
 
 		ApplicationInfo m_appInfo;
 		bool m_running = false;
