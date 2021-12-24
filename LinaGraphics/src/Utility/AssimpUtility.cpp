@@ -26,45 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ModelLoader
-
-Assimp wrapper, responsible for loading modals and creating the necessary Mesh data.
-
-Timestamp: 4/26/2019 12:07:47 AM
-*/
-
-#pragma once
-
-#ifndef ModelLoader_HPP
-#define ModelLoader_HPP
-
-
-#include "Animation/Animation.hpp"
-#include "Material.hpp"
-#include "Animation/Skeleton.hpp"
-#include "Model.hpp"
-#include <string>
-
-struct aiNode;
-struct aiScene;
+#include "Utility/AssimpUtility.hpp"
 
 namespace Lina::Graphics
 {
-
-	class ModelLoader
+	Lina::Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat)
 	{
-	public:
+		Matrix mat;
+		mat[0][0] = aiMat.a1;	mat[0][1] = aiMat.b1;	mat[0][2] = aiMat.c1;	mat[0][3] = aiMat.d1;
+		mat[1][0] = aiMat.a2;	mat[1][1] = aiMat.b2;	mat[1][2] = aiMat.c2;	mat[1][3] = aiMat.d2;
+		mat[2][0] = aiMat.a3;	mat[2][1] = aiMat.b3;	mat[2][2] = aiMat.c3;	mat[2][3] = aiMat.d3;
+		mat[3][0] = aiMat.a4;	mat[3][1] = aiMat.b4;	mat[3][2] = aiMat.c4;	mat[3][3] = aiMat.d4;
+		return mat;
+	}
 
-		// Load models using ASSIMP
-		static void ProcessNode(const aiNode* aiNode, ModelNode& modelNode, Model& model);
-		static bool LoadModel(const aiScene* scene, Model& model);
-		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelAssetData& params);
-		static bool LoadModel(const std::string& fileName, Model& model, ModelAssetData params);
-		static bool LoadSpriteQuad(Mesh& model);
-		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
-	};
+	Lina::Vector3 AssimpToLinaVector3(const aiVector3D& vec)
+	{
+		return Lina::Vector3(vec.x, vec.y, vec.z);
+	}
 }
-
-
-#endif

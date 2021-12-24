@@ -318,12 +318,35 @@ namespace Lina::Graphics
 		Matrix m_offset;
 	};
 
-	struct ModelSceneParameters
+	enum class ImportTextureType
 	{
-		Vector3 m_worldPosition;
-		Quaternion m_worldRotation;
-		Vector3 m_worldScale;
-		Matrix m_rootInverse;
+		None = 0,
+		Diffuse = 1,
+		Specular = 2,
+		Ambient = 3,
+		Emissive = 4,
+		Height = 5,
+		Normals = 6,
+		Shineness = 7,
+		Opacity = 8,
+		Displacement = 9,
+		Lightmap = 10,
+		Reflection = 11,
+
+		// PBR
+		BaseColor = 12,
+		NormalCamera = 13,
+		EmissiveColor = 14,
+		Metalness = 15,
+		DiffuseRoughness = 16,
+		AmbientOcclusion = 17,
+		Unknown = 18,
+	};
+
+	struct ImportedModelMaterial
+	{
+		std::string m_name = "Material";
+		std::map<ImportTextureType, std::vector<std::string>> m_textures;
 	};
 
 	struct TextureParameters
@@ -366,22 +389,6 @@ namespace Lina::Graphics
 			archive(m_samplerParameters);
 		}
 	};
-
-
-	struct ModelNode
-	{
-		ModelNode() {};
-		ModelNode(int id) : m_nodeID(id) { };
-
-		int m_nodeID = -1;
-		std::vector<int> m_meshIndexes;
-		std::vector<ModelNode> m_children;	
-
-		// *** CAN BE CHANGED BY THE USER, DON'T RELY ON THIS *** //
-		std::string m_name = "";
-		Lina::Matrix m_localTransform;
-	};
-
 
 	struct ModelAssetData
 	{

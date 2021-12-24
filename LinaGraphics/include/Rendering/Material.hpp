@@ -235,22 +235,10 @@ namespace Lina::Graphics
 
 		friend class OpenGLRenderEngine;
 		friend class RenderContext;
-
 		StringIDType m_materialID = -1;
-	
-
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
-
 	};
 
-	struct ModelMaterial
-	{
-		std::string m_name = "";
-		std::map<std::string, std::string> m_textureNames;
-		std::map<std::string, float> m_floats;
-		std::map<std::string, Vector3> m_vectors;
-		std::map<std::string, Matrix> m_matrices;
-	};
 
 }
 

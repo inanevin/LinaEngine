@@ -46,7 +46,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
 #include "Core/SizeDefinitions.hpp"
-
+#include "Rendering/ModelNode.hpp"
 
 namespace Lina::Graphics
 {
@@ -59,7 +59,7 @@ namespace Lina::Graphics
 	public:
 
 		Model() {};
-		virtual ~Model();
+		virtual ~Model() {};
 
 		static ModelAssetData LoadAssetData(const std::string& path);
 		static void SaveAssetData(const std::string& path, ModelAssetData params);
@@ -75,15 +75,11 @@ namespace Lina::Graphics
 		static std::map<StringIDType, Model>& GetLoadedModels() { return s_loadedModels; }
 		void SetAssetData(ModelAssetData params) { m_assetData = params; }
 
-		std::vector<Mesh>& GetMeshes() { return m_meshes; }
-		std::vector<ModelMaterial>& GetMaterialSpecs() { return m_materialSpecArray; }
-		Skeleton& GetSkeleton() { return m_skeleton; }	// Carry over to skinned model later on.
 		ModelNode& GetRoot() { return m_rootNode; }
 		ModelAssetData& GetAssetData() { return m_assetData; }
-		ModelSceneParameters& GetWorldParameters() { return m_worldParameters; }
+		std::vector<ImportedModelMaterial>& GetImportedMaterials() { return m_importedMaterials; }
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetAssetDataPath() const { return m_assetDataPath; }
-		const std::map<int, ModelNode*>& GetNodeMap() { return m_nodeMap; }
 		StringIDType GetID() { return m_id; }
 
 	private:
@@ -96,13 +92,9 @@ namespace Lina::Graphics
 		std::string m_assetDataPath = "";
 
 		StringIDType m_id = -1;
-		ModelSceneParameters m_worldParameters;
 		ModelAssetData m_assetData;
 		ModelNode m_rootNode;
-		std::map<int, ModelNode*> m_nodeMap;
-		Skeleton m_skeleton;
-		std::vector<ModelMaterial> m_materialSpecArray;
-		std::vector<Mesh> m_meshes;
+		std::vector<ImportedModelMaterial> m_importedMaterials;
 	};
 }
 

@@ -50,7 +50,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "ECS/Systems/FrustumSystem.hpp"
-#include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
 #include "Rendering/Model.hpp"

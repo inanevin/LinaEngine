@@ -31,9 +31,9 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Mesh.cpp
 	src/Rendering/SkinnedMesh.cpp
 	src/Rendering/StaticMesh.cpp
-	src/Rendering/ModelLoader.cpp
 	src/Rendering/Material.cpp
 	src/Rendering/Model.cpp
+	src/Rendering/ModelNode.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
 	src/Rendering/RenderSettings.cpp
@@ -44,6 +44,10 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/UniformBuffer.cpp
 	src/Rendering/VertexArray.cpp
 	
+	#Utility 
+	src/Utility/AssimpUtility.cpp
+	src/Utility/ModelLoader.cpp
+
 	src/Core/Backend/OpenGL/OpenGLWindow.cpp
 	src/Core/Backend/OpenGL/OpenGLRenderEngine.cpp
 	src/Core/Backend/OpenGL/OpenGLRenderDevice.cpp
@@ -88,7 +92,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Mesh.hpp
 	include/Rendering/SkinnedMesh.hpp
 	include/Rendering/StaticMesh.hpp
-	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp
 	include/Rendering/Shader.hpp
@@ -96,13 +99,13 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Model.hpp
+	include/Rendering/ModelNode.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp
 	include/Rendering/RenderSettings.hpp
 	include/Rendering/PostProcessEffect.hpp
 	
-
 	
 	include/ECS/Systems/AnimationSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp
@@ -117,6 +120,8 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Components/SpriteRendererComponent.hpp
 	include/ECS/Components/AnimationComponent.hpp
 
+	include/Utility/AssimpUtility.hpp
+	include/Utility/ModelLoader.hpp
 	include/Utility/stb/stb.h
 	include/Utility/stb/stb_c_lexer.h
 	include/Utility/stb/stb_connected_components.h

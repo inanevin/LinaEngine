@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
+#include "Utility/ModelLoader.hpp"
 #include "ECS/ECS.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "ECS/Components/CameraComponent.hpp"

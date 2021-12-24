@@ -29,24 +29,18 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Utility/ModelLoader.hpp"
 #include "Log/Log.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include <stdio.h>
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
-#include "Rendering/Model.hpp"
 
 namespace Lina::Graphics
 {
 
 	std::map<StringIDType, Model> Model::s_loadedModels;
-
-	Model::~Model()
-	{
-		m_meshes.clear();
-		m_materialSpecArray.clear();
-	}
 
 	ModelAssetData Model::LoadAssetData(const std::string& path)
 	{
@@ -92,14 +86,6 @@ namespace Lina::Graphics
 		model.m_path = path;
 		ModelLoader::LoadModel(data, dataSize, model, modelAssetData);
 
-		LINA_ASSERT(model.GetMeshes().size() != 0, "Model does not contain any meshes, Lina expects all imported files to contain at least a single mesh!");
-	
-		// Build vertex array for each model.
-		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
-		{
-			model.GetMeshes()[i].CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
-		}
-
 		// Set id
 		model.m_id = id;
 		model.m_path = path;
@@ -117,19 +103,6 @@ namespace Lina::Graphics
 		model.m_assetDataPath = assetDataPath;
 		model.m_path = filePath;
 		ModelLoader::LoadModel(filePath, model, modelAssetData);
-
-		if (model.GetMeshes().size() == 0)
-		{
-			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning default mesh {0}", filePath);
-			UnloadModel(id);
-			return s_loadedModels[0];
-		}
-
-		// Build vertex array for each model.
-		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
-		{
-			model.GetMeshes()[i].CreateVertexArray( BufferUsage::USAGE_DYNAMIC_DRAW);
-		}
 
 		// Set id
 		model.m_id = id;
