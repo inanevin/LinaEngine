@@ -49,9 +49,9 @@ namespace Lina::Editor
 
 	static int s_itemIDCounter = 0;
 	static int s_selectedItem = -1;
-	static EditorFolder* s_hoveredFolder;
+	//static EditorFolder* s_hoveredFolder;
 	static EditorFile* s_selectedFile;
-	static EditorFolder* s_selectedFolder;
+	//static EditorFolder* s_selectedFolder;
 
 
 	static ImVec4 s_highlightColor;
@@ -67,8 +67,6 @@ namespace Lina::Editor
 	{
 		EditorPanel::Initialize(id);
 
-		Lina::Event::EventSystem::Get()->Connect<ETextureReimported, &ResourcesPanel::TextureReimported>(this);
-		Lina::Event::EventSystem::Get()->Connect<EMaterialTextureSelected, &ResourcesPanel::MaterialTextureSelected>(this);
 		s_highlightColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		s_fileNameColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
 		s_usedFileNameColor = s_fileNameColor;
@@ -81,27 +79,7 @@ namespace Lina::Editor
 	}
 
 
-	void ResourcesPanel::ScanRoot()
-	{
-
-		return;
-		// Build root.
-		EditorFolder root;
-		root.m_name = ROOT_NAME;
-		root.m_path = "Resources";
-		m_resourceFolders.push_back(root);
-
-		// Recursively fill in root.
-		s_itemIDCounter = -1;
-		std::string path = "Resources";
-		ScanFolder(m_resourceFolders[0]);
-
-		// Load resources	
-		LoadFolderResources(m_resourceFolders[0]);
-		LoadFolderDependencies(m_resourceFolders[0]);
-	}
-
-	void ResourcesPanel::ScanFolder(EditorFolder& root)
+	/*void ResourcesPanel::ScanFolder(EditorFolder& root)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(root.m_path))
 		{
@@ -139,7 +117,7 @@ namespace Lina::Editor
 				ScanFolder(root.m_subFolders[folder.m_id]);
 			}
 		}
-	}
+	}*/
 
 	void ResourcesPanel::Draw()
 	{
@@ -244,7 +222,8 @@ namespace Lina::Editor
 
 
 
-	void ResourcesPanel::DrawContextMenu()
+
+	/* void ResourcesPanel::DrawContextMenu()
 	{
 		std::string rootPath = s_hoveredFolder == nullptr ? "Resources" : s_hoveredFolder->m_path;
 
@@ -748,4 +727,5 @@ namespace Lina::Editor
 
 		return false;
 	}
+	*/
 }

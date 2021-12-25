@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,16 +40,18 @@ Timestamp: 12/17/2021 11:58:19 AM
 #define MainToolbarPanel_HPP
 
 // Headers here.
-#include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
 
 namespace Lina::Editor
 {
+	struct ETransformGizmoChanged;
+	struct ETransformPivotChanged;
+
 	class MainToolbarPanel : public EditorPanel
 	{
-		
+
 	public:
-		
+
 		MainToolbarPanel() {};
 		~MainToolbarPanel() {};
 		virtual void Initialize(const char* id);
@@ -58,11 +60,11 @@ namespace Lina::Editor
 
 	private:
 
-		void OnTransformGizmoChanged(ETransformGizmoChanged ev);
-		void OnTransformPivotChanged(ETransformPivotChanged ev);
+		void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
+		void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
 	private:
-	
+
 		int m_toggledTransformSelection = 0;
 		bool m_currentGizmoGlobal;
 	};

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Math/Math.hpp"
 
 #define GLFW_INCLUDE_NONE
@@ -61,7 +62,7 @@ namespace Lina::Input
 		m_mouseUpNewStateMap.clear();
 	}
 
-	void GLFWInputEngine::OnWindowContextCreated(Event::EWindowContextCreated& e)
+	void GLFWInputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
 	{
 		glfwWindow = static_cast<GLFWwindow*>(e.m_window);
 	}

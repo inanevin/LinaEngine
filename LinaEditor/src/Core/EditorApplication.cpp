@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Core/EditorApplication.hpp"
+#include "Log/Log.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Core/Engine.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Panels/ECSPanel.hpp"
@@ -65,7 +68,7 @@ namespace Lina::Editor
 		m_guiLayer.Refresh();
 	}
 
-	void EditorApplication::LevelInitialized(Event::ELevelInitialized ev)
+	void EditorApplication::LevelInitialized(const Event::ELevelInitialized& ev)
 	{
 		Registry* ecs = Lina::ECS::Registry::Get();
 
@@ -93,7 +96,7 @@ namespace Lina::Editor
 
 	}
 
-	void EditorApplication::PlayModeChanged(Event::EPlayModeChanged playMode)
+	void EditorApplication::PlayModeChanged(const Event::EPlayModeChanged& playMode)
 	{
 		bool enabled = playMode.m_playMode;
 

@@ -40,8 +40,6 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
-#include "Log/Log.hpp"
-#include "EventSystem/MainLoopEvents.hpp"
 #include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
 
@@ -52,6 +50,11 @@ namespace Lina
 		class Level;
 	}
 
+	namespace Event
+	{
+		struct EPlayModeChanged;
+		struct ELevelInitialized;
+	}
 }
 
 namespace Lina::Editor
@@ -66,12 +69,12 @@ namespace Lina::Editor
 		static EditorApplication* Get() { return s_editorApplication; }
 		void Initialize();
 		void Refresh();
-		void LevelInitialized(Event::ELevelInitialized ev);
+		void LevelInitialized(const Event::ELevelInitialized& ev);
 		Lina::ECS::EditorCameraSystem& GetCameraSystem() { return m_editorCameraSystem; }
 
 	private:
 
-		void PlayModeChanged(Event::EPlayModeChanged playmode);
+		void PlayModeChanged(const Event::EPlayModeChanged& playmode);
 
 	private:
 

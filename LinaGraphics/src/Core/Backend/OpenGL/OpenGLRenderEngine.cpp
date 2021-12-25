@@ -39,6 +39,9 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Core/Timer.hpp"
 #include "Math/Math.hpp"
 #include "Math/Transformation.hpp"
@@ -454,7 +457,7 @@ namespace Lina::Graphics
 
 	}
 
-	void OpenGLRenderEngine::OnLoadResourceFromFile(Event::ELoadResourceFromFile event)
+	void OpenGLRenderEngine::OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event)
 	{
 		if (event.m_resourceType == Resources::ResourceType::GLSL)
 		{
@@ -514,7 +517,7 @@ namespace Lina::Graphics
 		}
 	}
 
-	void OpenGLRenderEngine::OnLoadResourceFromMemory(Event::ELoadResourceFromMemory event)
+	void OpenGLRenderEngine::OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& event)
 	{
 		if (event.m_resourceType == Resources::ResourceType::GLSL)
 		{
@@ -563,12 +566,12 @@ namespace Lina::Graphics
 		}
 	}
 
-	void OpenGLRenderEngine::OnDrawLine(Event::EDrawLine event)
+	void OpenGLRenderEngine::OnDrawLine(const Event::EDrawLine& event)
 	{
 		DrawLine(event.m_from, event.m_to, event.m_color, event.m_lineWidth);
 	}
 
-	void OpenGLRenderEngine::OnDrawBox(Event::EDrawBox event)
+	void OpenGLRenderEngine::OnDrawBox(const Event::EDrawBox& event)
 	{
 		const Vector3 pos = event.m_position;
 		const Vector3 halfExtents = event.m_halfExtents;
@@ -596,7 +599,7 @@ namespace Lina::Graphics
 		lines.clear();
 	}
 
-	void OpenGLRenderEngine::OnDrawCircle(Event::EDrawCircle event)
+	void OpenGLRenderEngine::OnDrawCircle(const Event::EDrawCircle& event)
 	{
 		Vector3 previousPos = (event.m_radius * Vector3(1, 0, 0));
 		const Quaternion rot = event.m_rotation;
@@ -620,14 +623,14 @@ namespace Lina::Graphics
 			DrawLine(event.m_position + l.first, event.m_position + l.second, event.m_color, event.m_lineWidth);
 	}
 
-	void OpenGLRenderEngine::OnDrawSphere(Event::EDrawSphere event)
+	void OpenGLRenderEngine::OnDrawSphere(const Event::EDrawSphere& event)
 	{
 		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion() });
 		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(0, 0, 1), 90) });
 		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(1, 0, 0), 90) });
 	}
 
-	void OpenGLRenderEngine::OnDrawHemiSphere(Event::EDrawHemiSphere event)
+	void OpenGLRenderEngine::OnDrawHemiSphere(const Event::EDrawHemiSphere& event)
 	{
 		Quaternion q1 = Quaternion(Vector3(1, 0, 0), event.m_top ? -90.0f : 90.0f);
 		Quaternion q2 = q1 * Quaternion(Vector3(0, 0, 1), 90);
@@ -636,7 +639,7 @@ namespace Lina::Graphics
 		OnDrawCircle(Event::EDrawCircle{ event.m_position, event.m_radius, event.m_color, event.m_lineWidth, true, q2 });
 	}
 
-	void OpenGLRenderEngine::OnDrawCapsule(Event::EDrawCapsule event)
+	void OpenGLRenderEngine::OnDrawCapsule(const Event::EDrawCapsule& event)
 	{
 		const Vector3 pos = event.m_position;
 		const float rad = event.m_radius;
@@ -649,7 +652,7 @@ namespace Lina::Graphics
 		DrawLine(pos + Vector3(0.0f, -height, rad), pos + Vector3(0.0f, height, rad), event.m_color, event.m_lineWidth);
 	}
 
-	void OpenGLRenderEngine::OnWindowResized(Event::EWindowResized event)
+	void OpenGLRenderEngine::OnWindowResized(const Event::EWindowResized& event)
 	{
 		SetScreenDisplay(Vector2ui(0,0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
 	}

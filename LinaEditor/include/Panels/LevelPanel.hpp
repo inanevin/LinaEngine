@@ -39,14 +39,23 @@ Timestamp: 6/5/2020 6:51:29 PM
 #ifndef LevelPanel_HPP
 #define LevelPanel_HPP
 
-#include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "EventSystem/LevelEvents.hpp"
-#include "ECS/Registry.hpp"
+#include "Core/CommonECS.hpp"
 
+namespace Lina
+{
+	namespace Event
+	{
+		struct ELevelUninstalled;
+	}
+}
 namespace Lina::Editor
 {
+	struct EEntitySelected;
+	struct EEntityUnselected;
+	struct ETransformGizmoChanged;
+	struct ETransformPivotChanged;
+
 	class LevelPanel : public EditorPanel
 	{
 	
@@ -66,9 +75,9 @@ namespace Lina::Editor
 		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 
-		void EntitySelected(EEntitySelected ev);
-		void Unselected(EEntityUnselected ev);
-		void LevelUninstalled(Event::ELevelUninstalled ev);
+		void EntitySelected(const EEntitySelected& ev);
+		void Unselected(const EEntityUnselected& ev);
+		void LevelUninstalled(const Event::ELevelUninstalled& ev);
 		void ProcessInput();
 		void DrawGizmos();
 		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
@@ -76,8 +85,8 @@ namespace Lina::Editor
 
 	private:
 
-		void OnTransformGizmoChanged(ETransformGizmoChanged ev);
-		void OnTransformPivotChanged(ETransformPivotChanged ev);
+		void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
+		void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
 	private:
 

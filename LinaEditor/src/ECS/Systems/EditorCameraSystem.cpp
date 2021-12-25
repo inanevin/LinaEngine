@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/EditorCameraSystem.hpp"
+#include "Core/InputBackend.hpp"
 #include "ECS/Registry.hpp"
 #include "Core/InputBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"

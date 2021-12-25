@@ -42,7 +42,7 @@ Timestamp: 10/27/2020 4:58:35 PM
 // Headers here.
 #include "ECS/System.hpp"
 #include "Core/CommonECS.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/InputBackendFwd.hpp"
 
 namespace Lina::Editor
 {
@@ -65,7 +65,7 @@ namespace Lina::ECS
 
 		Entity m_editorCamera = entt::null;
 		Lina::Editor::LevelPanel* m_levelPanel;
-		Lina::Input::InputEngineBackend* m_inputEngine;
+		Lina::Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;

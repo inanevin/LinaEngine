@@ -40,7 +40,6 @@ Timestamp: 10/13/2020 2:34:21 PM
 
 #include "Core/CommonECS.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include <functional>
 #include <map>
@@ -51,8 +50,11 @@ Timestamp: 10/13/2020 2:34:21 PM
 #include <entt/meta/node.hpp>
 #include <entt/meta/resolve.hpp>
 
+
 namespace Lina::Editor
 {
+	struct ETransformPivotChanged;
+	struct EComponentOrderSwapped;
 
 	typedef std::map<std::string, std::vector<std::pair<std::string, Lina::ECS::TypeID>>> AddComponentMap;
 	using namespace entt::literals;
@@ -117,7 +119,7 @@ namespace Lina::Editor
 
 	private:
 
-		void OnTransformPivotChanged(ETransformPivotChanged ev);
+		void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
 		template<typename Type>
 		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false)
@@ -144,7 +146,7 @@ namespace Lina::Editor
 			}
 		}
 
-		void OnComponentOrderSwapped(EComponentOrderSwapped ev);
+		void OnComponentOrderSwapped(const EComponentOrderSwapped& ev);
 
 	private:
 

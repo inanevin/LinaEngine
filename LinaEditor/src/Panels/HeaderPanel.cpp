@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Widgets/MenuButton.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "imgui/imgui.h"
@@ -161,7 +162,7 @@ namespace Lina::Editor
 				if (linaLogoID != linaLogoAnimation[0]->GetID())
 					linaLogoID = linaLogoAnimation[0]->GetID();
 
-				logoAnimWaitCounter += Lina::Engine::Get()->GetSmoothDelta();
+				logoAnimWaitCounter += (float)Lina::Engine::Get()->GetSmoothDelta();
 
 				if (logoAnimWaitCounter > logoAnimWait)
 				{
@@ -202,7 +203,7 @@ namespace Lina::Editor
 					appResizeActive = true;
 					ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
 
-					appWindow->SetSize(Vector2ui(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
+					appWindow->SetSize(Vector2ui((unsigned int)(resizeStartSize.x + delta.x), (unsigned int)(resizeStartSize.y + delta.y)));
 				}
 				else
 				{

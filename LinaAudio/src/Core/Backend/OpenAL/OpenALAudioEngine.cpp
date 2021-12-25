@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Backend/OpenAL/OpenALAudioEngine.hpp"  
+#include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "ECS/Registry.hpp"
 #include "Log/Log.hpp"
@@ -153,7 +154,7 @@ namespace Lina::Audio
 		}
 	}
 
-	void OpenALAudioEngine::OnLoadResourceFromFile(Event::ELoadResourceFromFile ev)
+	void OpenALAudioEngine::OnLoadResourceFromFile(const Event::ELoadResourceFromFile& ev)
 	{
 		if (ev.m_resourceType == Resources::ResourceType::Audio)
 		{
@@ -171,7 +172,7 @@ namespace Lina::Audio
 		}
 	}
 
-	void OpenALAudioEngine::OnLoadResourceFromMemory(Event::ELoadResourceFromMemory ev)
+	void OpenALAudioEngine::OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& ev)
 	{
 		if (ev.m_resourceType == Resources::ResourceType::Audio)
 		{

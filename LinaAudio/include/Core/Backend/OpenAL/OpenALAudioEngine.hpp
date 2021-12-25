@@ -40,7 +40,6 @@ Timestamp: 5/1/2019 2:35:28 AM
 #define AudioEngine_HPP
 
 #include "Math/Vector.hpp"
-#include "EventSystem/ResourceEvents.hpp"
 #include "Utility/StringId.hpp"
 #include <map>
 #include <unordered_map>
@@ -63,6 +62,12 @@ namespace Lina
 	{
 		class Registry;
 	}
+
+	namespace Event
+	{
+		struct ELoadResourceFromFile;
+		struct ELoadResourceFromMemory;
+	}
 }
 
 namespace Lina::Audio
@@ -78,8 +83,8 @@ namespace Lina::Audio
 
 	private:
 
-		void OnLoadResourceFromFile(Event::ELoadResourceFromFile ev);
-		void OnLoadResourceFromMemory(Event::ELoadResourceFromMemory ev);
+		void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& ev);
+		void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& ev);
 		void ListAudioDevices(const char* type, const char* list);
 
 	private:

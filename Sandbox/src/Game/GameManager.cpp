@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Game/GameManager.hpp"
 #include "Core/Application.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "Log/Log.hpp"
 #include "Levels/ExampleLevel.hpp"
 
 GameManager* GameManager::s_instance = nullptr;
@@ -42,12 +44,12 @@ void GameManager::Initialize()
 	Lina::Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
 }
 
-void GameManager::OnTick(Event::ETick ev)
+void GameManager::OnTick(const Event::ETick& ev)
 {
 
 }
 
-void GameManager::OnShutdown(Event::EShutdown ev)
+void GameManager::OnShutdown(const Event::EShutdown& ev)
 {
 	delete m_exampleLevel;
 }

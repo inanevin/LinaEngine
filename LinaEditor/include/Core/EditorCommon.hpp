@@ -39,9 +39,8 @@ Timestamp: 5/8/2020 11:04:45 PM
 #ifndef EditorCommon_HPP
 #define EditorCommon_HPP
 
-#include "Utility/EditorUtility.hpp"
 #include "Log/Log.hpp"
-#include "ECS/Registry.hpp"
+#include "Core/CommonECS.hpp"
 #include <string>
 
 namespace Lina
@@ -52,9 +51,8 @@ namespace Lina
 		class Model;
 		class Material;
 	}
-
-
 }
+
 namespace Lina::Editor
 {
 	struct EditorPathConstants
@@ -104,7 +102,6 @@ namespace Lina::Editor
 	struct EMaterialTextureSelected { Graphics::Texture* m_texture; };
 	struct ETextureReimported { Graphics::Texture* m_selected; Graphics::Texture* m_reimported; };
 	struct ETextureSelected { Graphics::Texture* m_texture; };
-	struct EMaterialSelected { EditorFile* m_file; Graphics::Material* m_material; };
 	struct EModelSelected { Graphics::Model* m_model; };
 	struct ETransformGizmoChanged { int m_currentGizmo; };
 	struct ETransformPivotChanged { bool m_isGlobal; };
@@ -121,7 +118,6 @@ namespace Lina::Editor
 
 	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)
-
 
 // HEADER PANEL
 #define ID_HEADER "Header"
@@ -141,34 +137,7 @@ namespace Lina::Editor
 
 // LOG PANEL
 #define ID_LOG "Log"
-#define LOGPANEL_ICONSENABLED false
-#define LOGPANEL_COLOR_ICONDEFAULT ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
-#define LOGPANEL_COLOR_ICONHOVERED ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
-#define LOGPANEL_COLOR_ICONPRESSED  ImVec4(1.0f, 1.0f, 1.0f, .4f);
 
-#define LOGPANEL_COLOR_DEBUG_DEFAULT ImVec4(0.0f, 0.6f, 0.0f, 1.0f) 
-#define LOGPANEL_COLOR_DEBUG_HOVERED ImVec4(0.0f, 0.8f, 0.0f, 1.0f)
-#define LOGPANEL_COLOR_DEBUG_PRESSED ImVec4(0.0f, 0.4f, 0.0f, 1.0f)
-
-#define LOGPANEL_COLOR_INFO_DEFAULT ImVec4(0.8f, 0.8f, 0.8f, 1.0f) 
-#define LOGPANEL_COLOR_INFO_HOVERED ImVec4(0.9f, 0.9f, 0.9f, 1.0f)
-#define LOGPANEL_COLOR_INFO_PRESSED ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-
-#define LOGPANEL_COLOR_TRACE_DEFAULT ImVec4(0.6f, 0.6f, 0.8f, 1.0f) 
-#define LOGPANEL_COLOR_TRACE_HOVERED ImVec4(0.0f, 0.6f, 1.0f, 1.0f)
-#define LOGPANEL_COLOR_TRACE_PRESSED ImVec4(0.0f, 0.2f, 0.4f, 1.0f)
-
-#define LOGPANEL_COLOR_WARN_DEFAULT ImVec4(0.6f, 0.6f, 0.0f, 1.0f) 
-#define LOGPANEL_COLOR_WARN_HOVERED ImVec4(0.8f, 0.8f, 0.0f, 1.0f)
-#define LOGPANEL_COLOR_WARN_PRESSED ImVec4(0.4f, 0.4f, 0.0f, 1.0f)
-
-#define LOGPANEL_COLOR_ERR_DEFAULT ImVec4(0.8f, 0.0f, 0.0f, 1.0f) 
-#define LOGPANEL_COLOR_ERR_HOVERED ImVec4(1.0f, 0.0f, 0.0f, 1.0f)
-#define LOGPANEL_COLOR_ERR_PRESSED ImVec4(0.6f, 0.0f, 0.0f, 1.0f)
-
-#define LOGPANEL_COLOR_CRIT_DEFAULT ImVec4(0.0f, 0.0f, 0.0f, 1.0f) 
-#define LOGPANEL_COLOR_CRIT_HOVERED ImVec4(0.3f, 0.3f, 0.3f, 1.0f)
-#define LOGPANEL_COLOR_CRIT_PRESSED ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
 
 // ECS
 #define ID_ECS "Entities"

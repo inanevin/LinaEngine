@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "World/Level.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorCommon.hpp"
@@ -202,13 +203,13 @@ namespace Lina::Editor
 		}
 	}
 
-	void GlobalSettingsPanel::LevelInstalled(Event::ELevelInstalled ev)
+	void GlobalSettingsPanel::LevelInstalled(const Event::ELevelInstalled& ev)
 	{
 		m_currentLevel = Lina::Application::Get().GetCurrentLevel();
 		m_currentLevel->SetSkyboxMaterial();
 	}
 
-	void GlobalSettingsPanel::LevelIUninstalled(Event::ELevelUninstalled ev)
+	void GlobalSettingsPanel::LevelIUninstalled(const Event::ELevelUninstalled& ev)
 	{
 		m_currentLevel = nullptr;
 	}

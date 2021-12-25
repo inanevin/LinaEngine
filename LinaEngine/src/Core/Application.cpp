@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
+#include "EventSystem/ApplicationEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Log/Log.hpp"
 #include "Core/PlatformMacros.hpp"
 #include "World/Level.hpp"
@@ -106,13 +109,13 @@ namespace Lina
 		m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
 	}
 
-	bool Application::OnWindowClose(Event::EWindowClosed event)
+	bool Application::OnWindowClose(const Event::EWindowClosed& event)
 	{
 		m_engine.m_running = false;
 		return true;
 	}
 
-	void Application::OnWindowResize(Event::EWindowResized event)
+	void Application::OnWindowResize(const Event::EWindowResized& event)
 	{
 		if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
 			m_engine.m_canRender = false;

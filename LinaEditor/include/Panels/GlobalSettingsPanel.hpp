@@ -41,13 +41,18 @@ Timestamp: 10/30/2020 9:37:42 AM
 #define GlobalSettingsPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "EventSystem/LevelEvents.hpp"
 
 namespace Lina
 {
 	namespace World
 	{
 		class Level;
+	}
+
+	namespace Event
+	{
+		struct ELevelInstalled;
+		struct ELevelUninstalled;
 	}
 }
 
@@ -64,8 +69,8 @@ namespace Lina::Editor
 		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 	
-		void LevelInstalled(Event::ELevelInstalled ev);
-		void LevelIUninstalled(Event::ELevelUninstalled ev);
+		void LevelInstalled(const Event::ELevelInstalled& ev);
+		void LevelIUninstalled(const Event::ELevelUninstalled& ev);
 
 	private:
 	

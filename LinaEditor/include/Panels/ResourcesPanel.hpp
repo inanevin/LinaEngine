@@ -66,26 +66,25 @@ namespace Lina::Editor
 
 	private:
 	
-		void ScanRoot();
 		void DrawContextMenu();
 		void DrawFolderMenu(Utility::Folder& folder, float offset);
 		void DrawContents(Utility::Folder& folder);
 		void DrawFile(Utility::File& file);
-		void ScanFolder(EditorFolder& folder);
-		void DrawFolder(EditorFolder& folder, bool isRoot = false);
-		void LoadFolderResources(EditorFolder& folder);
-		void LoadFolderDependencies(EditorFolder& folder);
-		void UnloadFileResource(EditorFile& file);
-		void UnloadFileResourcesInFolder(EditorFolder& folder);
-		bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
-		FileType GetFileType(std::string& extension);
-		void MaterialTextureSelected(EMaterialTextureSelected ev);
-		void TextureReimported(ETextureReimported ev);
-		bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
+		// void ScanFolder(EditorFolder& folder);
+		// void DrawFolder(EditorFolder& folder, bool isRoot = false);
+		// void LoadFolderResources(EditorFolder& folder);
+		// void LoadFolderDependencies(EditorFolder& folder);
+		// void UnloadFileResource(EditorFile& file);
+		// void UnloadFileResourcesInFolder(EditorFolder& folder);
+		// bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
+		// FileType GetFileType(std::string& extension);
+		// void MaterialTextureSelected(EMaterialTextureSelected ev);
+		// void TextureReimported(ETextureReimported ev);
+		// bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
 
 	private:
 
-		std::vector<EditorFolder> m_resourceFolders;
+		//std::vector<EditorFolder> m_resourceFolders;
 		std::vector<Utility::Folder> m_folders;
 		Utility::Folder* m_currentSelectedFolder = nullptr;
 		Utility::Folder* m_currentHoveredFolder = nullptr;

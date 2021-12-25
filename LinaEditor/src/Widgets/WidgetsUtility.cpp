@@ -245,7 +245,7 @@ namespace Lina::Editor
 		ImGui::SetCursorPosX(4 + offset + 12);
 
 		// color , ImVec4(0.7f, 0.7f, 0.7f, 1.0f)
-		Icon(ICON_FA_FOLDER, 0.7f);
+		Icon(ICON_FA_FOLDER, false, 0.7f);
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 			folder.m_isOpen = !folder.m_isOpen;
@@ -1065,7 +1065,7 @@ namespace Lina::Editor
 		if (s_isDraggingWidgetInput && id == s_draggedInput)
 		{
 			const int dragDelta = (int)ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).x;
-			*var = s_valueOnDragStartInt + dragDelta * DRAG_POWER;
+			*var = (int)(s_valueOnDragStartInt + dragDelta * DRAG_POWER);
 		}
 	}
 

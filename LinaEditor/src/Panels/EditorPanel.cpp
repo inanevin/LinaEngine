@@ -48,7 +48,7 @@ namespace Lina::Editor
 		WidgetsUtility::FramePaddingY(0.0f);
 		WidgetsUtility::ItemSpacingY(7.0f);
 		const std::string childID = "##child_" + std::string(m_id);
-		ImGui::BeginChild(childID.c_str(), ImVec2(0, ImGui::IsWindowDocked() ? 0 : -20));
+		ImGui::BeginChild(childID.c_str(), ImVec2(0.0f, ImGui::IsWindowDocked() ? 0.0f : -20.0f));
 
 	}
 

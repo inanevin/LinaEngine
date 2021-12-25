@@ -37,8 +37,6 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #ifndef GUILAYER_HPP
 #define GUILAYER_HPP
 
-#include "Core/EditorCommon.hpp"
-#include "Rendering/RenderingCommon.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
 #include "Panels/LevelPanel.hpp"
@@ -51,7 +49,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/MainToolbarPanel.hpp"
 #include <vector>
 
-class ImFont;
+struct ImFont;
 
 namespace Lina
 {
@@ -88,7 +86,7 @@ namespace Lina::Editor
 		static std::map<const char*, EditorPanel*> s_editorPanels;
 
 		// Menu bar item callback from header panel.
-		void DispatchMenuBarClickedAction(EMenuBarItemClicked event);
+		void DispatchMenuBarClickedAction(const EMenuBarItemClicked& event);
 
 		void Refresh();
 		LevelPanel& GetLevelPanel() { return m_levelPanel; }
@@ -107,7 +105,6 @@ namespace Lina::Editor
 		static ImFont* s_defaultFont;
 		static ImFont* s_bigFont;
 
-		Lina::Graphics::DrawParams m_drawParameters;
 		MainToolbarPanel m_toolbar;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;

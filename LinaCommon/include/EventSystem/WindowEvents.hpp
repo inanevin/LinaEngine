@@ -46,12 +46,13 @@ namespace Lina::Event
 {
 	struct EWindowContextCreated { void* m_window; };
 	struct EWindowResized { void* m_window;  WindowProperties m_windowProps; };
-	struct EWindowMoved { void* m_window; int m_x; int m_y; };
-	struct EWindowRefreshed { void* m_window; };
 	struct EWindowClosed { void* m_window; };
 	struct EWindowFocused { void* m_window; int m_focused; };
-	struct EWindowMaximized { void* m_window; int m_isMaximized; };
-	struct EWindowIconified { void* m_window; int m_isIconified; };
+	// struct EWindowMaximized { void* m_window; int m_isMaximized; };
+	// struct EWindowIconified { void* m_window; int m_isIconified; };
+	// struct EWindowRefreshed { void* m_window; };
+	// struct EWindowMoved { void* m_window; int m_x; int m_y; };
+
 }
 
 #endif

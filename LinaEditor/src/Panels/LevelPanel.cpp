@@ -26,6 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "Log/Log.hpp"
+#include "Core/CommonECS.hpp"
+#include "Core/EditorCommon.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Core/CommonInput.hpp"
 #include "Math/Math.hpp"
 #include "Panels/LevelPanel.hpp"
@@ -41,6 +45,7 @@ SOFTWARE.
 #include "Core/InputBackend.hpp"
 #include "Core/Application.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "Physics/Raycast.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
@@ -114,7 +119,7 @@ namespace Lina::Editor
 			// Resize engine display.
 			if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
 			{
-				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
+				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
 				previousWindowSize = sceneWindowSize;
 			}
 
@@ -186,7 +191,7 @@ namespace Lina::Editor
 				ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
 				ImGui::SetNextWindowPos(cameraSettingsPos);
 				ImGui::SetNextWindowBgAlpha(0.5f);
-				ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
 				float cursorPosLabels = 12;
 				WidgetsUtility::IncrementCursorPosY(6);
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
@@ -267,7 +272,7 @@ namespace Lina::Editor
 			if (!levelPanelFirstRun)
 			{
 				levelPanelFirstRun = true;
-				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2(0, 0), Vector2((int)(sceneWindowSize.x), (int)(sceneWindowSize.y)));
+				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
 			}
 
 
@@ -299,17 +304,17 @@ namespace Lina::Editor
 	}
 
 
-	void LevelPanel::EntitySelected(EEntitySelected ev)
+	void LevelPanel::EntitySelected(const EEntitySelected& ev)
 	{
 		m_selectedEntity = ev.m_entity;
 	}
 
-	void LevelPanel::Unselected(EEntityUnselected ev)
+	void LevelPanel::Unselected(const EEntityUnselected& ev)
 	{
 		m_selectedEntity = entt::null;
 	}
 
-	void LevelPanel::LevelUninstalled(Event::ELevelUninstalled ev)
+	void LevelPanel::LevelUninstalled(const Event::ELevelUninstalled& ev)
 	{
 		Unselected(EEntityUnselected());
 	}
@@ -478,7 +483,7 @@ namespace Lina::Editor
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 	}
 
-	void LevelPanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
+	void LevelPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)
 	{
 		if (ev.m_currentGizmo == 0)
 			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
@@ -488,7 +493,7 @@ namespace Lina::Editor
 			currentTransformGizmoOP = ImGuizmo::SCALE;
 	}
 
-	void LevelPanel::OnTransformPivotChanged(ETransformPivotChanged ev)
+	void LevelPanel::OnTransformPivotChanged(const ETransformPivotChanged& ev)
 	{
 		if (ev.m_isGlobal)
 			currentTransformGizmoMode = ImGuizmo::MODE::WORLD;

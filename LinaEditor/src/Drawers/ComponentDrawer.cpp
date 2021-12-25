@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Drawers/ComponentDrawer.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Material.hpp"
@@ -41,7 +42,6 @@ SOFTWARE.
 #include "ECS/Components/ModelNodeComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Memory/Memory.hpp"
-#include "Core/EditorCommon.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/imguizmo/ImGuizmo.h"
@@ -343,7 +343,7 @@ namespace Lina::Editor
 		std::iter_swap(it1, it2);
 	}
 
-	void ComponentDrawer::OnComponentOrderSwapped(EComponentOrderSwapped ev)
+	void ComponentDrawer::OnComponentOrderSwapped(const EComponentOrderSwapped& ev)
 	{
 		SwapComponentOrder(ev.m_id1, ev.m_id2);
 	}
@@ -417,7 +417,7 @@ namespace Lina::Editor
 			DrawComponent(tid, ent);
 	}
 
-	void ComponentDrawer::OnTransformPivotChanged(ETransformPivotChanged ev)
+	void ComponentDrawer::OnTransformPivotChanged(const ETransformPivotChanged& ev)
 	{
 		m_isTransformPivotGlobal = ev.m_isGlobal;
 	}

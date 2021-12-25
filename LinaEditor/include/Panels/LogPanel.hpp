@@ -39,14 +39,41 @@ Timestamp: 6/7/2020 8:56:39 PM
 #define LogPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "Log/Log.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
-#include "Core/EditorCommon.hpp"
+#include "Log/Log.hpp"
 #include "imgui/imgui.h"
 #include <deque>
 
 namespace Lina::Editor
 {
+#define LOGPANEL_ICONSENABLED false
+#define LOGPANEL_COLOR_ICONDEFAULT ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+#define LOGPANEL_COLOR_ICONHOVERED ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
+#define LOGPANEL_COLOR_ICONPRESSED  ImVec4(1.0f, 1.0f, 1.0f, .4f);
+
+#define LOGPANEL_COLOR_DEBUG_DEFAULT ImVec4(0.0f, 0.6f, 0.0f, 1.0f) 
+#define LOGPANEL_COLOR_DEBUG_HOVERED ImVec4(0.0f, 0.8f, 0.0f, 1.0f)
+#define LOGPANEL_COLOR_DEBUG_PRESSED ImVec4(0.0f, 0.4f, 0.0f, 1.0f)
+
+#define LOGPANEL_COLOR_INFO_DEFAULT ImVec4(0.8f, 0.8f, 0.8f, 1.0f) 
+#define LOGPANEL_COLOR_INFO_HOVERED ImVec4(0.9f, 0.9f, 0.9f, 1.0f)
+#define LOGPANEL_COLOR_INFO_PRESSED ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+
+#define LOGPANEL_COLOR_TRACE_DEFAULT ImVec4(0.6f, 0.6f, 0.8f, 1.0f) 
+#define LOGPANEL_COLOR_TRACE_HOVERED ImVec4(0.0f, 0.6f, 1.0f, 1.0f)
+#define LOGPANEL_COLOR_TRACE_PRESSED ImVec4(0.0f, 0.2f, 0.4f, 1.0f)
+
+#define LOGPANEL_COLOR_WARN_DEFAULT ImVec4(0.6f, 0.6f, 0.0f, 1.0f) 
+#define LOGPANEL_COLOR_WARN_HOVERED ImVec4(0.8f, 0.8f, 0.0f, 1.0f)
+#define LOGPANEL_COLOR_WARN_PRESSED ImVec4(0.4f, 0.4f, 0.0f, 1.0f)
+
+#define LOGPANEL_COLOR_ERR_DEFAULT ImVec4(0.8f, 0.0f, 0.0f, 1.0f) 
+#define LOGPANEL_COLOR_ERR_HOVERED ImVec4(1.0f, 0.0f, 0.0f, 1.0f)
+#define LOGPANEL_COLOR_ERR_PRESSED ImVec4(0.6f, 0.0f, 0.0f, 1.0f)
+
+#define LOGPANEL_COLOR_CRIT_DEFAULT ImVec4(0.0f, 0.0f, 0.0f, 1.0f) 
+#define LOGPANEL_COLOR_CRIT_HOVERED ImVec4(0.3f, 0.3f, 0.3f, 1.0f)
+#define LOGPANEL_COLOR_CRIT_PRESSED ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
 
 	class LogLevelIconButton
 	{
@@ -77,7 +104,7 @@ namespace Lina::Editor
 		// Wrapper for displaying log dumps
 		struct LogDumpEntry
 		{
-			LogDumpEntry(Lina::Event::ELog dump, int count) : m_dump(dump), m_count(count) {};
+			LogDumpEntry(const Lina::Event::ELog& dump, int count) : m_dump(dump), m_count(count) {};
 			Lina::Event::ELog m_dump;
 			int m_count = 1;
 		};
@@ -89,7 +116,7 @@ namespace Lina::Editor
 
 		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
-		void OnLog(Lina::Event::ELog dump);
+		void OnLog(const Lina::Event::ELog& dump);
 
 	private:
 	

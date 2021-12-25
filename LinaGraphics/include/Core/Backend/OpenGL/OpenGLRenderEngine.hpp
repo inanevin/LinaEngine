@@ -42,9 +42,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include "OpenGLRenderDevice.hpp"
 #include "OpenGLWindow.hpp"
-#include "EventSystem/ResourceEvents.hpp"
-#include "EventSystem/GraphicsEvents.hpp"
-#include "EventSystem/WindowEvents.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
@@ -71,6 +68,16 @@ namespace Lina
 	namespace Event
 	{
 		class EventSystem;
+
+		struct ELoadResourceFromFile;
+		struct ELoadResourceFromMemory;
+		struct EDrawLine;
+		struct EDrawBox;
+		struct EDrawCircle;
+		struct EDrawSphere;
+		struct EDrawHemiSphere;
+		struct EDrawCapsule;
+		struct EWindowResized;
 	}
 }
 
@@ -167,15 +174,15 @@ namespace Lina::Graphics
 
 	private:
 
-		void OnLoadResourceFromFile(Event::ELoadResourceFromFile event);
-		void OnLoadResourceFromMemory(Event::ELoadResourceFromMemory event);
-		void OnDrawLine(Event::EDrawLine event);
-		void OnDrawBox(Event::EDrawBox event);
-		void OnDrawCircle(Event::EDrawCircle event);
-		void OnDrawSphere(Event::EDrawSphere event);
-		void OnDrawHemiSphere(Event::EDrawHemiSphere event);
-		void OnDrawCapsule(Event::EDrawCapsule event);
-		void OnWindowResized(Event::EWindowResized event);
+		void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event);
+		void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& event);
+		void OnDrawLine(const Event::EDrawLine& event);
+		void OnDrawBox(const Event::EDrawBox& event);
+		void OnDrawCircle(const Event::EDrawCircle& event);
+		void OnDrawSphere(const Event::EDrawSphere& event);
+		void OnDrawHemiSphere(const Event::EDrawHemiSphere& event);
+		void OnDrawCapsule(const Event::EDrawCapsule& event);
+		void OnWindowResized(const Event::EWindowResized& event);
 		bool ValidateEngineShaders();
 		void ConstructShader(const std::string& path, unsigned char* data, size_t dataSize);
 		void ConstructEngineMaterials();

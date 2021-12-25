@@ -33,10 +33,6 @@ src/ECS/Systems/EditorCameraSystem.cpp
 #Drawers
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
-src/Drawers/TextureDrawer.cpp
-src/Drawers/MaterialDrawer.cpp
-src/Drawers/MeshDrawer.cpp
-src/Drawers/PhysicsMaterialDrawer.cpp
 
 #Modals
 
@@ -92,10 +88,6 @@ include/ECS/Systems/EditorCameraSystem.hpp
 #Drawers
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
-include/Drawers/TextureDrawer.hpp
-include/Drawers/MaterialDrawer.hpp
-include/Drawers/MeshDrawer.hpp
-include/Drawers/PhysicsMaterialDrawer.hpp
 
 # Modals
 

@@ -162,12 +162,12 @@ namespace Lina::Editor
 		ImGui::PopStyleColor();
 	}
 
-	void Lina::Editor::MainToolbarPanel::OnTransformGizmoChanged(ETransformGizmoChanged ev)
+	void Lina::Editor::MainToolbarPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)
 	{
 		m_toggledTransformSelection = ev.m_currentGizmo;
 	}
 
-	void Lina::Editor::MainToolbarPanel::OnTransformPivotChanged(ETransformPivotChanged ev)
+	void Lina::Editor::MainToolbarPanel::OnTransformPivotChanged(const ETransformPivotChanged& ev)
 	{
 		m_currentGizmoGlobal = ev.m_isGlobal;
 	}

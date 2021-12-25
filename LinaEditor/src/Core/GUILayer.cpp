@@ -27,13 +27,14 @@ SOFTWARE.
 */
 
 #include "Core/GUILayer.hpp"
+#include "Core/EditorCommon.hpp"
+
 #include "Core/Engine.hpp"
 #include "Core/Application.hpp"
 #include "Log/Log.hpp"
 #include "Core/PhysicsBackend.hpp"
 #include "Core/InputBackend.hpp"
 #include "Core/RenderBackendFwd.hpp"
-#include "Core/EditorCommon.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -70,6 +71,7 @@ namespace Lina::Editor
 	ImFont* GUILayer::s_defaultFont = nullptr;
 	ImFont* GUILayer::s_bigFont = nullptr;
 	std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
+	Lina::Graphics::DrawParams m_drawParameters;
 
 	void GUILayer::Initialize()
 	{
@@ -290,7 +292,7 @@ namespace Lina::Editor
 #endif
 	}
 
-	void GUILayer::DispatchMenuBarClickedAction(EMenuBarItemClicked event)
+	void GUILayer::DispatchMenuBarClickedAction(const EMenuBarItemClicked& event)
 	{
 		MenuBarItems item = event.m_item;
 
@@ -432,7 +434,7 @@ namespace Lina::Editor
 		ImGui::SetNextWindowPos(ImVec2(40, 310));
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-		ImGui::BeginChild("text", ImVec2(640, 90), ImGuiWindowFlags_NoDecoration);
+		ImGui::BeginChild("text", ImVec2(640, 90), false, ImGuiWindowFlags_NoDecoration);
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
 		ImGui::Text(m_currentlyLoadingResource.c_str());
 		std::string loadData = std::to_string(m_percentage) + "%";

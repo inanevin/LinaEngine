@@ -39,8 +39,6 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
-#include "EventSystem/LevelEvents.hpp"
-#include "EventSystem/MainLoopEvents.hpp"
 #include "Core/CommonECS.hpp"
 #include "ECS/SystemList.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
@@ -55,7 +53,10 @@ namespace Lina
 	namespace Event
 	{
 		class EventSystem;
+		struct ELevelInitialized;
 		struct EPostSceneDraw;
+		struct ELoadResourceFromFile;
+		struct ELoadResourceFromMemory;
 	}
 }
 
@@ -131,11 +132,11 @@ namespace Lina::Physics
 
 		void OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
 		void RecreateBodyShape(ECS::Entity body);
-		void OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev);
-		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
-		void OnLevelInitialized(Event::ELevelInitialized ev);
-		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
+		void OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev);
+		void OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev);
+		void OnLevelInitialized(const Event::ELevelInitialized& ev);
 		void OnPostSceneDraw(const Event::EPostSceneDraw&);
+		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
 		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);

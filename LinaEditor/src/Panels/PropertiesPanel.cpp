@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/PropertiesPanel.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Drawers/EntityDrawer.hpp"
@@ -48,33 +49,33 @@ namespace Lina::Editor
 		EditorPanel::Initialize(id);
 		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
+	//	Lina::Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<ETextureSelected, &PropertiesPanel::TextureSelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &PropertiesPanel::Unselect>(this);
 
 		m_entityDrawer.Initialize();
 	}
 
-	void PropertiesPanel::EntitySelected(EEntitySelected ev)
+	void PropertiesPanel::EntitySelected(const EEntitySelected& ev)
 	{
 		m_entityDrawer.SetSelectedEntity(ev.m_entity);
 		m_currentDrawType = DrawType::Entities;
 	}
 
-	void PropertiesPanel::TextureSelected(ETextureSelected ev)
+	void PropertiesPanel::TextureSelected(const ETextureSelected& ev)
 	{
-		m_textureDrawer.SetSelectedTexture(ev.m_texture);
+		//m_textureDrawer.SetSelectedTexture(ev.m_texture);
 		m_currentDrawType = DrawType::Texture2D;
 	}
 
-	void PropertiesPanel::MaterialSelected(EMaterialSelected ev)
+	// void PropertiesPanel::MaterialSelected(EMaterialSelected ev)
+	// {
+	// 	m_materialDrawer.SetSelectedMaterial(ev.m_file, *ev.m_material);
+	// 	m_currentDrawType = DrawType::Material;
+	// }
+	void PropertiesPanel::ModelSelected(const EModelSelected& ev)
 	{
-		m_materialDrawer.SetSelectedMaterial(ev.m_file, *ev.m_material);
-		m_currentDrawType = DrawType::Material;
-	}
-	void PropertiesPanel::ModelSelected(EModelSelected ev)
-	{
-		m_modelDrawer.SetSelectedModel(*ev.m_model);
+		//m_modelDrawer.SetSelectedModel(*ev.m_model);
 		m_currentDrawType = DrawType::Model;
 	}
 
@@ -88,17 +89,23 @@ namespace Lina::Editor
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::Entities)
 				m_entityDrawer.DrawSelectedEntity();
-			else if (m_currentDrawType == DrawType::Texture2D)
-				m_textureDrawer.DrawSelectedTexture();
-			else if (m_currentDrawType == DrawType::Model)
-				m_modelDrawer.DrawSelectedMesh();
-			else if (m_currentDrawType == DrawType::Material)
-				m_materialDrawer.DrawSelectedMaterial();
+			//else if (m_currentDrawType == DrawType::Texture2D)
+			//	m_textureDrawer.DrawSelectedTexture();
+			//else if (m_currentDrawType == DrawType::Model)
+			//	m_modelDrawer.DrawSelectedMesh();
+			//else if (m_currentDrawType == DrawType::Material)
+			//	m_materialDrawer.DrawSelectedMaterial();
 
 			End();
 
 		}
 	}
+
+	void PropertiesPanel::Unselect(const EEntityUnselected& ev)
+	{
+		m_currentDrawType = DrawType::None;
+	}
+
 
 
 }

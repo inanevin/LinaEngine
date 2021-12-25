@@ -41,12 +41,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #define PropertiesPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "ECS/Registry.hpp"
-#include "Drawers/TextureDrawer.hpp"
 #include "Drawers/EntityDrawer.hpp"
-#include "Drawers/MaterialDrawer.hpp"
-#include "Drawers/MeshDrawer.hpp"
-#include "Rendering/RenderingCommon.hpp"
 #include "Core/EditorCommon.hpp"
 
 namespace Lina
@@ -62,6 +57,10 @@ namespace Lina
 namespace Lina::Editor
 {
 	class EditorFile;
+	struct EEntitySelected;
+	struct ETextureSelected;
+	struct EModelSelected;
+	struct EEntityUnselected;
 
 	class PropertiesPanel : public EditorPanel
 	{
@@ -83,27 +82,13 @@ namespace Lina::Editor
 		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
 
-		void EntitySelected(EEntitySelected ev);
-		void TextureSelected(ETextureSelected ev);
-		void ModelSelected(EModelSelected ev);
-		void MaterialSelected(EMaterialSelected ev);
-
-		void Unselect(EEntityUnselected ev)
-		{
-			m_currentDrawType = DrawType::None;
-		}
-
+		void EntitySelected(const EEntitySelected& ev);
+		void TextureSelected(const ETextureSelected& ev);
+		void ModelSelected(const EModelSelected& ev);
+		void Unselect(const EEntityUnselected& ev);
 
 	private:
 
-		// Selected texture
-		TextureDrawer m_textureDrawer;
-
-		// Selected mesh
-		MeshDrawer m_modelDrawer;
-
-		// Selected material
-		MaterialDrawer m_materialDrawer;
 
 		// Selected entity.
 		EntityDrawer m_entityDrawer;

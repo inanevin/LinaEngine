@@ -184,7 +184,7 @@ namespace Lina::Editor
 	}
 
 
-	void LogPanel::OnLog(Lina::Event::ELog dump)
+	void LogPanel::OnLog(const Lina::Event::ELog& dump)
 	{
 		LogDumpEntry entry(dump, 1);
 

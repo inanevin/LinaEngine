@@ -37,9 +37,14 @@ Timestamp: 12/12/2021 11:33:54 AM
 #ifndef InputAxis_HPP
 #define InputAxis_HPP
 
-// Headers here.
-#include "EventSystem/InputEvents.hpp"
 
+namespace Lina
+{
+	namespace Event
+	{
+		struct EKeyCallback;
+	}
+}
 namespace Lina::Input
 {
 	class InputAxis
@@ -55,7 +60,7 @@ namespace Lina::Input
 
 	private:
 	
-		void OnKey(Event::EKeyCallback key);
+		void OnKey(const Event::EKeyCallback& key);
 
 	private:
 

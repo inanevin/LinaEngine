@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/InputAxis.hpp"
+#include "EventSystem/InputEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 
 namespace Lina::Input
@@ -39,7 +40,7 @@ namespace Lina::Input
 	}
 
 
-	void InputAxis::OnKey(Event::EKeyCallback key)
+	void InputAxis::OnKey(const Event::EKeyCallback& key)
 	{
 		if (key.m_action == InputAction::Pressed)
 		{

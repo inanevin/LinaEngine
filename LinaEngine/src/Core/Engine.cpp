@@ -36,7 +36,9 @@ SOFTWARE.
 #include "ECS/Components/LightComponent.hpp"
 #include "Audio/Audio.hpp"
 #include "Log/Log.hpp"
+#include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/PhysicsEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/Timer.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -233,7 +235,7 @@ namespace Lina
 			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
 			m_physicsEngine.Tick(physicsStep);
 			m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ physicsStep, m_isInPlayMode });
-			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ physicsStep, m_isInPlayMode });
+			m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{ physicsStep, m_isInPlayMode });
 		}
 
 		// Other main systems (engine or game)

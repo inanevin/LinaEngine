@@ -42,13 +42,17 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Core/CommonInput.hpp"
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
-#include "EventSystem/WindowEvents.hpp"
 #include "Math/Vector.hpp"
 #include <map>
 
 namespace Lina
 {
 	class Engine;
+
+	namespace Event
+	{
+		struct EWindowContextCreated;
+	}
 }
 
 namespace Lina::Input
@@ -82,7 +86,7 @@ namespace Lina::Input
 		void Initialize();
 		void Tick();
 		void Shutdown();
-		void OnWindowContextCreated(Event::EWindowContextCreated& e);
+		void OnWindowContextCreated(const Event::EWindowContextCreated& e);
 
 	private:
 

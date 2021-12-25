@@ -38,15 +38,19 @@ Timestamp: 5/23/2020 4:15:06 PM
 #ifndef ECSPanel_HPP
 #define ECSPanel_HPP
 
-#include "EventSystem/LevelEvents.hpp"
 #include "Panels/EditorPanel.hpp"
-#include "ECS/Registry.hpp"
+#include "Core/CommonECS.hpp"
 
 namespace Lina
 {
 	namespace World
 	{
 		class Level;
+	}
+
+	namespace Event
+	{
+		struct ELevelInstalled;
 	}
 }
 
@@ -67,7 +71,7 @@ namespace Lina::Editor
 		virtual void Draw() override;
 		void Refresh();
 		void DrawEntityNode(int id,  Lina::ECS::Entity entity);
-		void OnLevelInstall(Event::ELevelInstalled event);
+		void OnLevelInstall(const Event::ELevelInstalled& event);
 
 	private:
 

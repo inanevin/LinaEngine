@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Math/Math.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
@@ -470,7 +472,7 @@ namespace Lina::Physics
 		}
 	}
 
-	void PhysXPhysicsEngine::OnResourceLoadedFromFile(Event::ELoadResourceFromFile ev)
+	void PhysXPhysicsEngine::OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev)
 	{
 		if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
 		{
@@ -480,7 +482,7 @@ namespace Lina::Physics
 		}
 	}
 
-	void PhysXPhysicsEngine::OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev)
+	void PhysXPhysicsEngine::OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev)
 	{
 		if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
 		{
@@ -490,7 +492,7 @@ namespace Lina::Physics
 		}
 	}
 
-	void PhysXPhysicsEngine::OnLevelInitialized(Event::ELevelInitialized ev)
+	void PhysXPhysicsEngine::OnLevelInitialized(const Event::ELevelInitialized& ev)
 	{
 		auto& physicsMat = PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
 		m_pxDefaultMaterial->setStaticFriction(physicsMat.m_staticFriction);

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/ECSPanel.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Panels/LevelPanel.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
@@ -109,7 +110,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void ECSPanel::OnLevelInstall(Event::ELevelInstalled ev)
+	void ECSPanel::OnLevelInstall(const Event::ELevelInstalled& ev)
 	{
 		Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 		m_selectedEntity = entt::null;

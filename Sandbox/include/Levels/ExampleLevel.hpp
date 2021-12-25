@@ -24,6 +24,15 @@ Timestamp: 5/6/2019 9:22:35 PM
 
 #include "World/Level.hpp"
 
+
+namespace Lina
+{
+	namespace Event
+	{
+		struct ETick;
+	}
+}
+
 using namespace Lina;
 
 class ExampleLevel : public Lina::World::Level
@@ -35,7 +44,7 @@ public:
 
 	virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 	virtual void Initialize() override;
-	virtual void Tick(Event::ETick ev) override;
+	void Tick(const Event::ETick& ev) ;
 
 };
 

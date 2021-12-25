@@ -40,72 +40,16 @@ Timestamp: 5/9/2020 1:22:23
 #define EditorUtility_HPP
 
 #include <string>
-#include <vector>
-#include <map>
-
-namespace Lina
-{
-	namespace Graphics
-	{
-		class Material;
-	}
-}
-
-struct ImVec4;
 
 namespace Lina::Editor
 {
-
-
-	enum class FileType
-	{
-		Unknown,
-		Texture2D,
-		HDRI,
-		Model,
-		Font,
-		Material,
-		Shader
-	};
-
-
-	struct EditorFile
-	{
-		std::string m_name;
-		std::string m_extension;
-		std::string m_path;
-		std::string m_pathToFolder;
-		FileType m_type;
-		int m_id;
-		bool m_markedForErase = false;
-		bool m_markedForHighlight = false;
-	};
-
-
-	class EditorFolder
-	{
-	public:
-
-		EditorFolder() {};
-		~EditorFolder() {};
-		std::string m_path = "";
-		std::string m_name = "";
-		std::map<int, EditorFolder> m_subFolders;
-		std::map<int, EditorFile> m_files;
-		int m_id = 0;
-		bool m_markedForErase = false;
-		bool m_markedForForceOpen = false;
-		EditorFolder* m_parent = nullptr;
-	};
-
-
 	class EditorUtility
 	{
 
 	public:
 
-		EditorUtility();
-		~EditorUtility();
+		EditorUtility() {};
+		~EditorUtility() {};
 
 		static bool CreateFolderInPath(const std::string& path);
 		static bool DeleteDirectory(const std::string& path);

@@ -82,7 +82,6 @@ namespace Lina::World
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
 		virtual void Uninstall();
 		virtual void Initialize() {};
-		virtual void Tick(Lina::Event::ETick ev) {};
 		void ImportLevel(const std::string& path, const std::string& name);
 		void ExportLevel(const std::string& path, const std::string& name);
 

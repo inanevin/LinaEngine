@@ -19,11 +19,15 @@ Timestamp: 5/6/2019 9:22:56 PM
 */
 
 #include "Levels/ExampleLevel.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "Core/Application.hpp"
+#include "Log/Log.hpp"
+#include "Math/Math.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/Model.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Audio/Audio.hpp"
@@ -70,7 +74,7 @@ void ExampleLevel::Initialize()
 
 }
 
-void ExampleLevel::Tick(Event::ETick ev)
+void ExampleLevel::Tick(const Event::ETick& ev)
 {
 	auto entity = ECS::Registry::Get()->GetEntity("Capsule.fbx");
 	if (entity != ECSNULL)
