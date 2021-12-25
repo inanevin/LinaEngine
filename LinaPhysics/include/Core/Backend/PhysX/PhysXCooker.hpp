@@ -42,7 +42,6 @@ Timestamp: 12/24/2021 7:47:26 PM
 // Headers here.
 #include "Core/CommonApplication.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "EventSystem/ResourceEvents.hpp"
 #include "Math/Vector.hpp"
 #include <vector>
 
@@ -50,6 +49,12 @@ namespace Lina::Graphics
 {
 	class ModelNode;
 	class Model;
+}
+
+namespace Lina::Event
+{
+	struct EShutdown;
+	struct EResourceLoadCompleted;
 }
 
 namespace physx
@@ -76,7 +81,8 @@ namespace Lina::Physics
 		/// </summary>
 		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
 
-		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
+		void OnShutdown(const Event::EShutdown& ev);
+		void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
 		void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
 	private:

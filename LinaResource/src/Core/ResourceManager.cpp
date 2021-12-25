@@ -86,7 +86,7 @@ namespace Lina::Resources
 			m_future.get();
 		}
 
-		LINA_TRACE("[Resource Manager] -> Shutdown");
+		LINA_TRACE("[Shutdown] -> Resource Manager {0}", typeid(*this).name());
 	}
 
 	void ResourceManager::ResetProgress()

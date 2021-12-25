@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Log/Log.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
 #include "Core/Backend/PhysX/PhysXCooker.hpp"
 #include "Core/Backend/PhysX/PhysXPhysicsEngine.hpp"
 #include <PxPhysicsAPI.h>
@@ -41,6 +44,7 @@ namespace Lina::Physics
 	{
 		m_appMode = appMode;
 		m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(PxTolerancesScale()));
+		Event::EventSystem::Get()->Connect<Event::EShutdown, &PhysXCooker::OnShutdown>(this);
 	}
 
 	void PhysXCooker::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData)
@@ -67,6 +71,11 @@ namespace Lina::Physics
 		// LINA_TRACE("Cooked! Creating convex mesh with sid {0} and node id {1}", sid, nodeIndex);
 
 		// PHYSICSENGINE CreateConvexMesh(bufferData, sid, nodeIndex);
+	}
+
+	void PhysXCooker::OnShutdown(const Event::EShutdown& ev)
+	{
+		m_pxCooking->release();
 	}
 
 	void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
@@ -112,7 +121,7 @@ namespace Lina::Physics
 		//	CreateConvexMeshesFromNodes(child, model);
 	}
 
-	void PhysXCooker::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
+	void PhysXCooker::OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev)
 	{
 		// Handle convex mesh cooking if the loaded model does not contain any.
 		//if (ev.m_type == Resources::ResourceType::Model)
