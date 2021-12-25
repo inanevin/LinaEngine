@@ -45,6 +45,7 @@ namespace Lina
 
 	Application* Application::s_application = nullptr;
 
+
 	Application::Application()
 	{
 		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
@@ -52,8 +53,8 @@ namespace Lina
 		// Setup static references.
 		s_application = this;
 		m_engine.s_engine = &m_engine;
-		Log::s_onLogSink.connect<&Application::OnLog>(this);
-
+		entt::sink logSink{ Log::s_onLog };
+		logSink.connect<&Application::OnLog>(this);
 	}
 
 	void Application::Initialize(ApplicationInfo& appInfo)
@@ -72,8 +73,8 @@ namespace Lina
 	{
 		m_engine.Run();
 
-		// Cleanup first
-		Log::s_onLogSink.disconnect(this);
+		entt::sink logSink{ Log::s_onLog };
+		logSink.disconnect(this);
 	}
 
 

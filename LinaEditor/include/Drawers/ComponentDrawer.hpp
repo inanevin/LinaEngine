@@ -103,9 +103,7 @@ namespace Lina::Editor
 		void ClearDrawList();
 
 		AddComponentMap GetCurrentAddComponentMap(ECS::Entity entity);
-		void DrawDebugPointLight(ECS::Entity ent);
-		void DrawDebugSpotLight(ECS::Entity ent);
-		void DrawDebugDirectionalLight(ECS::Entity ent);
+
 		void PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent);
 		void DrawAllComponents(ECS::Entity ent);
 
@@ -122,27 +120,32 @@ namespace Lina::Editor
 		void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
 		template<typename Type>
-		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false)
+		void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false, bool addDrawDebug = false)
 		{
 			entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags),
 				std::make_pair("Category"_hs, category));
-			entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_ref_t>("setEnabled"_hs);
+			entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_void_t>("setEnabled"_hs);
 			entt::meta<Type>().func<&Drawer_Get<Type>, entt::as_ref_t>("get"_hs);
-			entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_ref_t>("reset"_hs);
-			entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_ref_t>("remove"_hs);
-			entt::meta<Type>().func<&Drawer_Copy, entt::as_ref_t>("copy"_hs);
-			entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_ref_t>("paste"_hs);
-			entt::meta<Type>().func<&Drawer_Has<Type>, entt::as_ref_t>("has"_hs);
+			entt::meta<Type>().func<&Drawer_Reset<Type>, entt::as_void_t>("reset"_hs);
+			entt::meta<Type>().func<&Drawer_Remove<Type>, entt::as_void_t>("remove"_hs);
+			entt::meta<Type>().func<&Drawer_Copy, entt::as_void_t>("copy"_hs);
+			entt::meta<Type>().func<&Drawer_Paste<Type>, entt::as_void_t>("paste"_hs);
+			entt::meta<Type>().func<&Drawer_Has<Type>>("has"_hs);
 
 			if (canAddComponent)
 			{
-				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_ref_t>("add"_hs);
+				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_void_t>("add"_hs);
 				m_addComponentMap[category].push_back(std::make_pair<std::string, ECS::TypeID>(std::string(title), ECS::GetTypeID<Type>()));
 			}
 
 			if (addValueChanged)
 			{
-				entt::meta<Type>().func<&Drawer_ValueChanged<Type>, entt::as_ref_t>("valueChanged"_hs);
+				entt::meta<Type>().func<&Drawer_ValueChanged<Type>, entt::as_void_t>("valueChanged"_hs);
+			}
+
+			if (addDrawDebug)
+			{
+				entt::meta<Type>().func<&Drawer_Debug<Type>, entt::as_void_t>("drawDebug"_hs);
 			}
 		}
 

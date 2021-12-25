@@ -103,7 +103,6 @@ namespace Lina
 		friend class Application;
 		friend class Editor::LogPanel;
 
-		static Event::Sink<void(const Event::ELog&)> s_onLogSink;
 		static Event::Signal<void(const Event::ELog&)> s_onLog;
 	};
 }

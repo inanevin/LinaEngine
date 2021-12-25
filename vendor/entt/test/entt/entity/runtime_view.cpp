@@ -1,26 +1,28 @@
-#include <iterator>
 #include <algorithm>
+#include <iterator>
 #include <gtest/gtest.h>
 #include <entt/core/type_info.hpp>
 #include <entt/entity/component.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/runtime_view.hpp>
 
-struct stable_type { int value; };
+struct stable_type {
+    int value;
+};
 
 template<>
 struct entt::component_traits<stable_type>: basic_component_traits {
-    using in_place_delete = std::true_type;
+    static constexpr auto in_place_delete = true;
 };
 
 TEST(RuntimeView, Functionalities) {
     entt::registry registry;
 
     // forces the creation of the pools
-    registry.reserve<int>(0);
-    registry.reserve<char>(0);
+    static_cast<void>(registry.storage<int>());
+    static_cast<void>(registry.storage<char>());
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_EQ(view.size_hint(), 0u);
@@ -68,7 +70,7 @@ TEST(RuntimeView, Iterator) {
     registry.emplace<int>(entity);
     registry.emplace<char>(entity);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
     using iterator = typename decltype(view)::iterator;
 
@@ -104,7 +106,7 @@ TEST(RuntimeView, Contains) {
 
     registry.destroy(e0);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_FALSE(view.contains(e0));
@@ -123,7 +125,7 @@ TEST(RuntimeView, Empty) {
     registry.emplace<char>(e1);
     registry.emplace<float>(e1);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value(), entt::type_hash<float>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value(), entt::type_hash<float>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     view.each([](auto) { FAIL(); });
@@ -143,7 +145,7 @@ TEST(RuntimeView, Each) {
     registry.emplace<int>(e1);
     registry.emplace<char>(e1);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
     std::size_t cnt = 0;
 
@@ -165,7 +167,7 @@ TEST(RuntimeView, EachWithHoles) {
     registry.emplace<int>(e0, 0);
     registry.emplace<int>(e2, 2);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     view.each([e0](auto entity) {
@@ -179,7 +181,7 @@ TEST(RuntimeView, MissingPool) {
     const auto e0 = registry.create();
     registry.emplace<int>(e0);
 
-    entt::id_type types[] = { entt::type_hash<int>::value(), entt::type_hash<char>::value() };
+    entt::id_type types[] = {entt::type_hash<int>::value(), entt::type_hash<char>::value()};
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_EQ(view.size_hint(), 0u);
@@ -221,8 +223,8 @@ TEST(RuntimeView, ExcludedComponents) {
     registry.emplace<int>(e1);
     registry.emplace<char>(e1);
 
-    entt::id_type components[] = { entt::type_hash<int>::value() };
-    entt::id_type filter[] = { entt::type_hash<char>::value(), entt::type_hash<double>::value() };
+    entt::id_type components[] = {entt::type_hash<int>::value()};
+    entt::id_type filter[] = {entt::type_hash<char>::value(), entt::type_hash<double>::value()};
     auto view = registry.runtime_view(std::begin(components), std::end(components), std::begin(filter), std::end(filter));
 
     ASSERT_TRUE(view.contains(e0));
@@ -249,7 +251,7 @@ TEST(RuntimeView, StableType) {
 
     registry.remove<stable_type>(e1);
 
-    entt::id_type components[] = { entt::type_hash<int>::value(), entt::type_hash<stable_type>::value() };
+    entt::id_type components[] = {entt::type_hash<int>::value(), entt::type_hash<stable_type>::value()};
     auto view = registry.runtime_view(std::begin(components), std::end(components));
 
     ASSERT_EQ(view.size_hint(), 2u);
@@ -271,4 +273,41 @@ TEST(RuntimeView, StableType) {
     registry.compact();
 
     ASSERT_EQ(view.size_hint(), 1u);
+}
+
+TEST(RuntimeView, StableTypeWithExcludedComponent) {
+    entt::registry registry;
+
+    const auto entity = registry.create();
+    const auto other = registry.create();
+
+    registry.emplace<stable_type>(entity, 0);
+    registry.emplace<stable_type>(other, 42);
+    registry.emplace<int>(entity);
+
+    entt::id_type components[] = {entt::type_hash<stable_type>::value()};
+    entt::id_type filter[] = {entt::type_hash<int>::value()};
+    auto view = registry.runtime_view(std::begin(components), std::end(components), std::begin(filter), std::end(filter));
+
+    ASSERT_EQ(view.size_hint(), 2u);
+    ASSERT_FALSE(view.contains(entity));
+    ASSERT_TRUE(view.contains(other));
+
+    registry.destroy(entity);
+
+    ASSERT_EQ(view.size_hint(), 2u);
+    ASSERT_FALSE(view.contains(entity));
+    ASSERT_TRUE(view.contains(other));
+
+    for(auto entt: view) {
+        constexpr entt::entity tombstone = entt::tombstone;
+        ASSERT_NE(entt, tombstone);
+        ASSERT_EQ(entt, other);
+    }
+
+    view.each([other](const auto entt) {
+        constexpr entt::entity tombstone = entt::tombstone;
+        ASSERT_NE(entt, tombstone);
+        ASSERT_EQ(entt, other);
+    });
 }

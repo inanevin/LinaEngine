@@ -23,11 +23,11 @@ I hope this list can grow much more in the future:
   * [TiltedOnline](https://github.com/tiltedphoques/TiltedOnline) by
     [Tilted Phoques](https://github.com/tiltedphoques): Skyrim and Fallout 4 mod
     to play online.
+  * [Apparently](https://www.youtube.com/watch?v=P8xvOA3ikrQ&t=1105s)
+    [Call of Duty: Vanguard](https://www.callofduty.com/vanguard): I can neither
+    confirm nor deny but there is a license I know in the credits.
   * [Antkeeper](https://github.com/antkeeper/antkeeper-source): an ant colony
     simulation [game](https://antkeeper.com/).
-  * [War of Rights](https://store.steampowered.com/app/424030/War_of_Rights/): a
-    multiplayer game set during the perilous days of the American Civil War, by
-    Campfire Games.
   * [Openblack](https://github.com/openblack/openblack): open source
     reimplementation of the game _Black & White_ (2001).
   * [Land of the Rair](https://github.com/LandOfTheRair/core2): the new backend
@@ -70,8 +70,16 @@ I hope this list can grow much more in the future:
     arcade game about shooting dirty rocks in space, inspired by Asteroids.
   * [Wanderer](https://github.com/albin-johansson/wanderer): a 2D exploration
     based indie game.
-  * [Spelunky® Classic remake](https://github.com/dbeef/spelunky-psp): A truly
+  * [Spelunky® Classic remake](https://github.com/dbeef/spelunky-psp): a truly
     multiplatform experience with a rewrite from scratch.
+  * [CubbyTower](https://github.com/utilForever/CubbyTower): a simple tower
+    defense game using C++ with Entity Component System (ECS).
+  * [Runeterra](https://github.com/utilForever/Runeterra): Legends of Runeterra
+    simulator using C++ with some reinforcement learning.
+  * [Black Sun](https://store.steampowered.com/app/1670930/Black_Sun/): fly your
+    space ship through a large 2D open world.
+  * [PokeMaster](https://github.com/utilForever/PokeMaster): Pokemon Battle
+    simulator using C++ with some reinforcement learning.
 
 * Engines and the like:
   * [Aether Engine](https://hadean.com/spatial-simulation/)
@@ -92,6 +100,9 @@ I hope this list can grow much more in the future:
     vrooooommm.
   * [Antara Gaming SDK](https://github.com/KomodoPlatform/antara-gaming-sdk):
     the Komodo Gaming Software Development Kit.
+  * [XVP](https://ravingbots.com/xvp-expansive-vehicle-physics-for-unreal-engine/):
+    [_eXpansive Vehicle Physics_](https://github.com/raving-bots/xvp/wiki/Plugin-integration-guide)
+    plugin for Unreal Engine.
   * [Apparently](https://teamwisp.github.io/credits/)
     [Wisp](https://teamwisp.github.io/product/) by
     [Team Wisp](https://teamwisp.github.io/): an advanced real-time ray tracing
@@ -116,6 +127,19 @@ I hope this list can grow much more in the future:
     framework in C++17 for backend development.
   * [Unity/EnTT](https://github.com/TongTungGiang/unity-entt): tech demo of a
     native simulation layer using `EnTT` and `Unity` as a rendering engine.
+  * [OverEngine](https://github.com/OverShifted/OverEngine): an over-engineered
+    game engine.
+  * [Electro](https://github.com/Electro-Technologies/Electro): high performance
+    3D game engine with a high emphasis on rendering.
+  * [Kawaii](https://github.com/Mathieu-Lala/Kawaii_Engine): a modern data
+    oriented game engine.
+  * [Becketron](https://github.com/Doctor-Foxling/Becketron): a game engine
+    written mostly in C++.
+  * [Spatial Engine](https://github.com/luizgabriel/Spatial.Engine): A
+    cross-platform engine created on top of google's filament rendering engine.
+  * [Kaguya](https://github.com/KaiH0717/Kaguya): D3D12 Rendering Engine.
+  * [OpenAWE](https://github.com/OpenAWE-Project/OpenAWE): Open implementation
+    of the Alan Wake Engine.
 
 * Articles, videos and blog posts:
   * [Some posts](https://skypjack.github.io/tags/#entt) on my personal
@@ -180,6 +204,8 @@ I hope this list can grow much more in the future:
     controller emulator and renderer.
   * [Ragdoll](https://ragdolldynamics.com/): real-time physics for Autodesk Maya
     2020.
+  * [Project Lagrange](https://github.com/adobe/lagrange): a robust geometry
+    processing library by [Adobe](https://github.com/adobe).
   * [AtomicDEX](https://github.com/KomodoPlatform/atomicDEX-Desktop): a secure
     wallet and non-custodial decentralized exchange rolled into one application.
   * [Apparently](https://www.linkedin.com/in/skypjack/)

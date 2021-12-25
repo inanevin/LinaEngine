@@ -1,4 +1,5 @@
-#include <string.h>
+#include <tuple>
+#include <string>
 #include <gtest/gtest.h>
 #include <entt/core/hashed_string.hpp>
 #include <entt/meta/factory.hpp>
@@ -7,7 +8,8 @@
 
 struct base_1_t {};
 struct base_2_t {};
-struct derived_t: base_1_t, base_2_t {};
+struct base_3_t {};
+struct derived_t: base_1_t, base_2_t, base_3_t {};
 
 struct MetaProp: ::testing::Test {
     void SetUp() override {
@@ -19,19 +21,21 @@ struct MetaProp: ::testing::Test {
 
         entt::meta<base_2_t>()
             .type("base_2"_hs)
-            .prop("bool"_hs, false)
-            .prop("char[]"_hs, "char[]");
+            .props(std::make_pair("bool"_hs, false), std::make_pair("char[]"_hs, "char[]"));
+
+        entt::meta<base_3_t>()
+            .type("base_3"_hs)
+            .prop(std::make_tuple("key_only"_hs, std::make_pair("key"_hs, 42)));
 
         entt::meta<derived_t>()
             .type("derived"_hs)
             .base<base_1_t>()
-            .base<base_2_t>();
+            .base<base_2_t>()
+            .base<base_3_t>();
     }
 
     void TearDown() override {
-        for(auto type: entt::resolve()) {
-            type.reset();
-        }
+        entt::meta_reset();
     }
 };
 
@@ -51,12 +55,18 @@ TEST_F(MetaProp, FromBase) {
     auto type = entt::resolve<derived_t>();
     auto prop_bool = type.prop("bool"_hs);
     auto prop_int = type.prop("int"_hs);
+    auto key_only = type.prop("key_only"_hs);
+    auto key_value = type.prop("key"_hs);
 
     ASSERT_TRUE(prop_bool);
     ASSERT_TRUE(prop_int);
+    ASSERT_TRUE(key_only);
+    ASSERT_TRUE(key_value);
 
     ASSERT_FALSE(prop_bool.value().cast<bool>());
     ASSERT_EQ(prop_int.value().cast<int>(), 42);
+    ASSERT_FALSE(key_only.value());
+    ASSERT_EQ(key_value.value().cast<int>(), 42);
 }
 
 TEST_F(MetaProp, DeducedArrayType) {
@@ -75,7 +85,7 @@ TEST_F(MetaProp, ReRegistration) {
 
     SetUp();
 
-    auto *node = entt::internal::meta_info<base_1_t>::resolve();
+    auto *node = entt::internal::meta_node<base_1_t>::resolve();
     auto type = entt::resolve<base_1_t>();
 
     ASSERT_NE(node->prop, nullptr);

@@ -2,26 +2,47 @@
 #include <vector>
 #include <gtest/gtest.h>
 #include <entt/signal/sigh.hpp>
+#include "../common/throwing_allocator.hpp"
+#include "../common/throwing_type.hpp"
 
 struct sigh_listener {
-    static void f(int &v) { v = 42; }
+    static void f(int &v) {
+        v = 42;
+    }
 
-    bool g(int) { k = !k; return true; }
-    bool h(const int &) { return k; }
+    bool g(int) {
+        k = !k;
+        return true;
+    }
 
-    void i() {}
+    bool h(const int &) {
+        return k;
+    }
+
     // useless definition just because msvc does weird things if both are empty
-    void l() { k = k && k; }
+    void l() {
+        k = true && k;
+    }
 
     bool k{false};
 };
 
 struct before_after {
-    void add(int v) { value += v; }
-    void mul(int v) { value *= v; }
+    void add(int v) {
+        value += v;
+    }
 
-    static void static_add(int v) { before_after::value += v; }
-    static void static_mul(before_after &instance, int v) { instance.value *= v; }
+    void mul(int v) {
+        value *= v;
+    }
+
+    static void static_add(int v) {
+        before_after::value += v;
+    }
+
+    static void static_mul(before_after &instance, int v) {
+        instance.value *= v;
+    }
 
     static inline int value{};
 };
@@ -33,10 +54,22 @@ struct SigH: ::testing::Test {
 };
 
 struct const_nonconst_noexcept {
-    void f() { ++cnt; }
-    void g() noexcept { ++cnt; }
-    void h() const { ++cnt; }
-    void i() const noexcept { ++cnt; }
+    void f() {
+        ++cnt;
+    }
+
+    void g() noexcept {
+        ++cnt;
+    }
+
+    void h() const {
+        ++cnt;
+    }
+
+    void i() const noexcept {
+        ++cnt;
+    }
+
     mutable int cnt{0};
 };
 
@@ -89,7 +122,7 @@ TEST_F(SigH, Swap) {
     ASSERT_FALSE(sigh1.empty());
     ASSERT_TRUE(sigh2.empty());
 
-    std::swap(sigh1, sigh2);
+    sigh1.swap(sigh2);
 
     ASSERT_TRUE(sink1.empty());
     ASSERT_FALSE(sink2.empty());
@@ -191,23 +224,27 @@ TEST_F(SigH, Collector) {
     sink.connect<&sigh_listener::g>(&listener);
     sink.connect<&sigh_listener::h>(listener);
 
-    listener.k = true;
-    sigh.collect([&listener, &cnt](bool value) {
+    auto no_return = [&listener, &cnt](bool value) {
         ASSERT_TRUE(value);
         listener.k = true;
         ++cnt;
-    }, 42);
+    };
+
+    listener.k = true;
+    sigh.collect(std::move(no_return), 42);
 
     ASSERT_FALSE(sigh.empty());
     ASSERT_EQ(cnt, 2);
 
-    cnt = 0;
-    sigh.collect([&cnt](bool value) {
+    auto bool_return = [&cnt](bool value) {
         // gtest and its macro hell are sometimes really annoying...
         [](auto v) { ASSERT_TRUE(v); }(value);
         ++cnt;
         return true;
-    }, 42);
+    };
+
+    cnt = 0;
+    sigh.collect(std::move(bool_return), 42);
 
     ASSERT_EQ(cnt, 1);
 }
@@ -225,11 +262,13 @@ TEST_F(SigH, CollectorVoid) {
     ASSERT_FALSE(sigh.empty());
     ASSERT_EQ(cnt, 2);
 
-    cnt = 0;
-    sigh.collect([&cnt]() {
+    auto test = [&cnt]() {
         ++cnt;
         return true;
-    }, 42);
+    };
+
+    cnt = 0;
+    sigh.collect(std::move(test), 42);
 
     ASSERT_EQ(cnt, 1);
 }
@@ -275,6 +314,55 @@ TEST_F(SigH, ScopedConnection) {
 
     ASSERT_TRUE(sigh.empty());
     ASSERT_TRUE(listener.k);
+}
+
+TEST_F(SigH, ScopedConnectionMove) {
+    sigh_listener listener;
+    entt::sigh<void(int)> sigh;
+    entt::sink sink{sigh};
+
+    entt::scoped_connection outer{sink.connect<&sigh_listener::g>(listener)};
+
+    ASSERT_FALSE(sigh.empty());
+    ASSERT_TRUE(outer);
+
+    {
+        entt::scoped_connection inner{std::move(outer)};
+
+        ASSERT_FALSE(listener.k);
+        ASSERT_FALSE(outer);
+        ASSERT_TRUE(inner);
+
+        sigh.publish(42);
+
+        ASSERT_TRUE(listener.k);
+    }
+
+    ASSERT_TRUE(sigh.empty());
+
+    outer = sink.connect<&sigh_listener::g>(listener);
+
+    ASSERT_FALSE(sigh.empty());
+    ASSERT_TRUE(outer);
+
+    {
+        entt::scoped_connection inner{};
+
+        ASSERT_TRUE(listener.k);
+        ASSERT_TRUE(outer);
+        ASSERT_FALSE(inner);
+
+        inner = std::move(outer);
+
+        ASSERT_FALSE(outer);
+        ASSERT_TRUE(inner);
+
+        sigh.publish(42);
+
+        ASSERT_FALSE(listener.k);
+    }
+
+    ASSERT_TRUE(sigh.empty());
 }
 
 TEST_F(SigH, ScopedConnectionConstructorsAndOperators) {
@@ -441,4 +529,57 @@ TEST_F(SigH, UnboundMemberFunction) {
     sigh.publish(&listener, 42);
 
     ASSERT_TRUE(listener.k);
+}
+
+TEST_F(SigH, CustomAllocator) {
+    test::throwing_allocator<entt::delegate<void(int)>> allocator;
+
+    auto test = [&](auto curr) {
+        ASSERT_EQ(curr.get_allocator(), allocator);
+        ASSERT_FALSE(curr.get_allocator() != allocator);
+        ASSERT_TRUE(curr.empty());
+
+        entt::sink sink{curr};
+        sigh_listener listener;
+        sink.template connect<&sigh_listener::g>(listener);
+
+        decltype(curr) copy{curr, allocator};
+        sink.disconnect(listener);
+
+        ASSERT_TRUE(curr.empty());
+        ASSERT_FALSE(copy.empty());
+
+        curr = copy;
+
+        ASSERT_FALSE(curr.empty());
+        ASSERT_FALSE(copy.empty());
+
+        decltype(curr) move{std::move(copy), allocator};
+
+        ASSERT_TRUE(copy.empty());
+        ASSERT_FALSE(move.empty());
+
+        sink = entt::sink{move};
+        sink.disconnect(&listener);
+
+        ASSERT_TRUE(copy.empty());
+        ASSERT_TRUE(move.empty());
+
+        sink.template connect<&sigh_listener::g>(listener);
+        copy.swap(move);
+
+        ASSERT_FALSE(copy.empty());
+        ASSERT_TRUE(move.empty());
+
+        sink = entt::sink{copy};
+        sink.disconnect();
+
+        ASSERT_TRUE(copy.empty());
+        ASSERT_TRUE(move.empty());
+    };
+
+    entt::sigh<void(int), decltype(allocator)> sigh{allocator};
+
+    test(sigh);
+    test(std::move(sigh));
 }

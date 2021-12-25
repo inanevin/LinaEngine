@@ -1,20 +1,17 @@
 #ifndef ENTT_SIGNAL_SIGH_HPP
 #define ENTT_SIGNAL_SIGH_HPP
 
-
-#include <vector>
-#include <utility>
-#include <iterator>
 #include <algorithm>
 #include <functional>
+#include <iterator>
 #include <type_traits>
+#include <utility>
+#include <vector>
 #include "../config/config.h"
 #include "delegate.hpp"
 #include "fwd.hpp"
 
-
 namespace entt {
-
 
 /**
  * @brief Sink class.
@@ -22,11 +19,10 @@ namespace entt {
  * Primary template isn't defined on purpose. All the specializations give a
  * compile-time error unless the template parameter is a function type.
  *
- * @tparam Function A valid function type.
+ * @tparam Type A valid signal handler type.
  */
-template<typename Function>
+template<typename Type>
 class sink;
-
 
 /**
  * @brief Unmanaged signal handler.
@@ -34,11 +30,11 @@ class sink;
  * Primary template isn't defined on purpose. All the specializations give a
  * compile-time error unless the template parameter is a function type.
  *
- * @tparam Function A valid function type.
+ * @tparam Type A valid function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Function>
+template<typename Type, typename Allocator>
 class sigh;
-
 
 /**
  * @brief Unmanaged signal handler.
@@ -54,17 +50,104 @@ class sigh;
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-class sigh<Ret(Args...)> {
+template<typename Ret, typename... Args, typename Allocator>
+class sigh<Ret(Args...), Allocator> {
     /*! @brief A sink is allowed to modify a signal. */
-    friend class sink<Ret(Args...)>;
+    friend class sink<sigh<Ret(Args...), Allocator>>;
+
+    using allocator_traits = std::allocator_traits<Allocator>;
+    using alloc = typename allocator_traits::template rebind_alloc<delegate<Ret(Args...)>>;
+    using alloc_traits = typename std::allocator_traits<alloc>;
+
+    using container_type = std::vector<delegate<Ret(Args...)>, alloc>;
 
 public:
+    /*! @brief Allocator type. */
+    using allocator_type = Allocator;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Sink type. */
-    using sink_type = sink<Ret(Args...)>;
+    using sink_type = sink<sigh<Ret(Args...), Allocator>>;
+
+    /*! @brief Default constructor. */
+    sigh()
+        : sigh{allocator_type{}} {}
+
+    /**
+     * @brief Constructs a signal handler with a given allocator.
+     * @param allocator The allocator to use.
+     */
+    explicit sigh(const allocator_type &allocator)
+        : calls{allocator} {}
+
+    /**
+     * @brief Default copy constructor.
+     * @param other The instance to copy from.
+     */
+    sigh(const sigh &other)
+        : calls{other.calls} {}
+
+    /**
+     * @brief Allocator-extended copy constructor.
+     * @param other The instance to copy from.
+     * @param allocator The allocator to use.
+     */
+    sigh(const sigh &other, const allocator_type &allocator)
+        : calls{other.calls, allocator} {}
+
+    /**
+     * @brief Default move constructor.
+     * @param other The instance to move from.
+     */
+    sigh(sigh &&other) ENTT_NOEXCEPT
+        : calls{std::move(other.calls)} {}
+
+    /**
+     * @brief Allocator-extended move constructor.
+     * @param other The instance to move from.
+     * @param allocator The allocator to use.
+     */
+    sigh(sigh &&other, const allocator_type &allocator) ENTT_NOEXCEPT
+        : calls{std::move(other.calls), allocator} {}
+
+    /**
+     * @brief Default copy assignment operator.
+     * @param other The instance to copy from.
+     * @return This signal handler.
+     */
+    sigh &operator=(const sigh &other) {
+        calls = other.calls;
+        return *this;
+    }
+
+    /**
+     * @brief Default move assignment operator.
+     * @param other The instance to move from.
+     * @return This signal handler.
+     */
+    sigh &operator=(sigh &&other) ENTT_NOEXCEPT {
+        calls = std::move(other.calls);
+        return *this;
+    }
+
+    /**
+     * @brief Exchanges the contents with those of a given signal handler.
+     * @param other Signal handler to exchange the content with.
+     */
+    void swap(sigh &other) {
+        using std::swap;
+        swap(calls, other.calls);
+    }
+
+    /**
+     * @brief Returns the associated allocator.
+     * @return The associated allocator.
+     */
+    [[nodiscard]] constexpr allocator_type get_allocator() const ENTT_NOEXCEPT {
+        return calls.get_allocator();
+    }
 
     /**
      * @brief Instance type when it comes to connecting member functions.
@@ -138,9 +221,8 @@ public:
     }
 
 private:
-    std::vector<delegate<Ret(Args...)>> calls;
+    container_type calls;
 };
-
 
 /**
  * @brief Connection class.
@@ -155,8 +237,7 @@ class connection {
     friend class sink;
 
     connection(delegate<void(void *)> fn, void *ref)
-        : disconnect{fn}, signal{ref}
-    {}
+        : disconnect{fn}, signal{ref} {}
 
 public:
     /*! @brief Default constructor. */
@@ -183,7 +264,6 @@ private:
     void *signal{};
 };
 
-
 /**
  * @brief Scoped connection class.
  *
@@ -202,11 +282,17 @@ struct scoped_connection {
      * @param other A valid connection object.
      */
     scoped_connection(const connection &other)
-        : conn{other}
-    {}
+        : conn{other} {}
 
     /*! @brief Default copy constructor, deleted on purpose. */
     scoped_connection(const scoped_connection &) = delete;
+
+    /**
+     * @brief Move constructor.
+     * @param other The scoped connection to move from.
+     */
+    scoped_connection(scoped_connection &&other) ENTT_NOEXCEPT
+        : conn{std::exchange(other.conn, {})} {}
 
     /*! @brief Automatically breaks the link on destruction. */
     ~scoped_connection() {
@@ -217,14 +303,24 @@ struct scoped_connection {
      * @brief Default copy assignment operator, deleted on purpose.
      * @return This scoped connection.
      */
-    scoped_connection & operator=(const scoped_connection &) = delete;
+    scoped_connection &operator=(const scoped_connection &) = delete;
+
+    /**
+     * @brief Move assignment operator.
+     * @param other The scoped connection to move from.
+     * @return This scoped connection.
+     */
+    scoped_connection &operator=(scoped_connection &&other) ENTT_NOEXCEPT {
+        conn = std::exchange(other.conn, {});
+        return *this;
+    }
 
     /**
      * @brief Acquires a connection.
      * @param other The connection object to acquire.
      * @return This scoped connection.
      */
-    scoped_connection & operator=(connection other) {
+    scoped_connection &operator=(connection other) {
         conn = std::move(other);
         return *this;
     }
@@ -246,7 +342,6 @@ private:
     connection conn;
 };
 
-
 /**
  * @brief Sink class.
  *
@@ -264,10 +359,11 @@ private:
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-class sink<Ret(Args...)> {
-    using signal_type = sigh<Ret(Args...)>;
+template<typename Ret, typename... Args, typename Allocator>
+class sink<sigh<Ret(Args...), Allocator>> {
+    using signal_type = sigh<Ret(Args...), Allocator>;
     using difference_type = typename std::iterator_traits<typename decltype(signal_type::calls)::iterator>::difference_type;
 
     template<auto Candidate, typename Type>
@@ -285,10 +381,9 @@ public:
      * @brief Constructs a sink that is allowed to modify a given signal.
      * @param ref A valid reference to a signal object.
      */
-    sink(sigh<Ret(Args...)> &ref) ENTT_NOEXCEPT
+    sink(sigh<Ret(Args...), Allocator> &ref) ENTT_NOEXCEPT
         : offset{},
-          signal{&ref}
-    {}
+          signal{&ref} {}
 
     /**
      * @brief Returns false if at least a listener is connected to the sink.
@@ -402,7 +497,7 @@ public:
 
         delegate<void(void *)> conn{};
         conn.template connect<&release<Candidate>>();
-        return { std::move(conn), signal };
+        return {std::move(conn), signal};
     }
 
     /**
@@ -432,7 +527,7 @@ public:
 
         delegate<void(void *)> conn{};
         conn.template connect<&release<Candidate, Type>>(value_or_instance);
-        return { std::move(conn), signal };
+        return {std::move(conn), signal};
     }
 
     /**
@@ -483,9 +578,8 @@ public:
     void disconnect(Type *value_or_instance) {
         if(value_or_instance) {
             auto &calls = signal->calls;
-            calls.erase(std::remove_if(calls.begin(), calls.end(), [value_or_instance](const auto &delegate) {
-                return delegate.instance() == value_or_instance;
-            }), calls.end());
+            auto predicate = [value_or_instance](const auto &delegate) { return delegate.instance() == value_or_instance; };
+            calls.erase(std::remove_if(calls.begin(), calls.end(), std::move(predicate)), calls.end());
         }
     }
 
@@ -499,22 +593,19 @@ private:
     signal_type *signal;
 };
 
-
 /**
  * @brief Deduction guide.
  *
- * It allows to deduce the function type of a sink directly from the signal it
- * refers to.
+ * It allows to deduce the signal handler type of a sink directly from the
+ * signal it refers to.
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-sink(sigh<Ret(Args...)> &)
--> sink<Ret(Args...)>;
+template<typename Ret, typename... Args, typename Allocator>
+sink(sigh<Ret(Args...), Allocator> &) -> sink<sigh<Ret(Args...), Allocator>>;
 
-
-}
-
+} // namespace entt
 
 #endif

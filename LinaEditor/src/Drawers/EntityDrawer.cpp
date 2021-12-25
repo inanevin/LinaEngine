@@ -60,7 +60,7 @@ namespace Lina::Editor
 
 
 		ImGui::SetCursorPosX(12.0f);
-	
+
 		if (WidgetsUtility::Button(ICON_FA_PLUS, ImVec2(22, 22), 0.6f, 4.0f, ImVec2(0.5f, 0.0f)))
 			AddComponentPopup();
 
@@ -120,7 +120,7 @@ namespace Lina::Editor
 								entt::resolve(pair.second).func("add"_hs).invoke({}, m_selectedEntity);
 								ImGui::CloseCurrentPopup();
 							}
-						
+
 						}
 					}
 
@@ -138,10 +138,11 @@ namespace Lina::Editor
 		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
-			{
-				m_componentDrawer.PushComponentToDraw(component.hash(), m_selectedEntity);
-			});
+		for (auto& pool : ECS::Registry::Get()->storage())
+		{
+			if (pool.second.contains(m_selectedEntity))
+				m_componentDrawer.PushComponentToDraw(pool.first, m_selectedEntity);
+		}
 
 		m_componentDrawer.DrawAllComponents(m_selectedEntity);
 

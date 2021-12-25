@@ -143,10 +143,10 @@ namespace Lina::ECS
 
 	void Registry::CloneEntity(Entity from, Entity to)
 	{
-		visit(from, [this, from, to](const auto component)
-			{
-				m_cloneComponentFunctions[component.hash()](from, to);
-			});
+		for (auto& pool : storage())
+		{
+			m_cloneComponentFunctions[pool.first](from, to);
+		}
 	}
 
 	const std::set<Entity>& Registry::GetChildren(Entity parent)

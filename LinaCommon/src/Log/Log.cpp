@@ -32,6 +32,5 @@ SOFTWARE.
 namespace Lina
 {
 	Event::Signal<void(const Event::ELog&)> Log::s_onLog;
-	Event::Sink<void(const Event::ELog&)> Log::s_onLogSink = Event::Sink<void(const Event::ELog&)>{ Log::s_onLog };
 }
 

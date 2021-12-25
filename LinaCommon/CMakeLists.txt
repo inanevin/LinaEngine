@@ -157,7 +157,6 @@ target_precompile_headers(${PROJECT_NAME}
 	include/JobSystem/JobSystem.hpp
 	include/Profiling/Profiler.hpp
 	include/Log/Log.hpp
-	## include/Math/Vector.hpp
 	include/ECS/Component.hpp
 	include/ECS/System.hpp
 	include/ECS/SystemList.hpp

@@ -45,6 +45,7 @@ Timestamp: 12/25/2020 11:54:49 PM
 #include <entt/signal/dispatcher.hpp>
 #include <entt/signal/delegate.hpp>
 #include <entt/signal/sigh.hpp>
+#include <entt/signal/fwd.hpp>
 
 namespace Lina::Event
 {

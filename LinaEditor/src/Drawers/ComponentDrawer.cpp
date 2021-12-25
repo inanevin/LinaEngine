@@ -33,13 +33,13 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelNodeComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Memory/Memory.hpp"
 #include "IconsFontAwesome5.h"
@@ -231,6 +231,40 @@ namespace Lina::Editor
 		}
 	}
 
+	template<typename Type>
+	void Drawer_Debug(ECS::Entity ent)
+	{
+		auto tid = GetTypeID<Type>();
+
+		if (tid == GetTypeID<PointLightComponent>())
+		{
+			ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+			ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
+			Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
+			Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
+			Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
+			Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Color::Red, 1.4f);
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Color::Red, 1.4f);
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Color::Red, 1.4f);
+		}
+		else if (tid == GetTypeID<SpotLightComponent>())
+		{
+			ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+			ECS::SpotLightComponent& sLight = ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
+			Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+		}
+		else if (tid == GetTypeID<DirectionalLightComponent>())
+		{
+			ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+			Vector3 dir = Vector3::Zero - data.GetLocation();
+			Vector3 end1 = data.GetLocation() + dir;
+			Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+		}
+
+	}
 
 
 	void Drawer_DebugPLight(ECS::Entity ent) {
@@ -262,8 +296,7 @@ namespace Lina::Editor
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_color>("cc"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
-		entt::meta<DirectionalLightComponent>().func<&ComponentDrawer::DrawDebugDirectionalLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags, "Lights");
+		RegisterComponentForEditor<DirectionalLightComponent>("Directional Light", ICON_FA_SUN, defaultDrawFlags, "Lights", true, false, true);
 
 		// Spotlight
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_isEnabled>("enabled"_hs);
@@ -274,8 +307,7 @@ namespace Lina::Editor
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_distance>("dist"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat, ""));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_intensity>("int"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<SpotLightComponent>().data<&SpotLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
-		entt::meta<SpotLightComponent>().func<&ComponentDrawer::DrawDebugSpotLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_CS_SPOTLIGHT, defaultDrawFlags, "Lights");
+		RegisterComponentForEditor<SpotLightComponent>("Spot Light", ICON_CS_SPOTLIGHT, defaultDrawFlags, "Lights", true, false, true);
 
 		// Pointlight
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_isEnabled>("enabled"_hs);
@@ -287,8 +319,7 @@ namespace Lina::Editor
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_distance>("ds"_hs).props(PROPS("Distance", ComponentVariableType::DragFloat, ""));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_intensity>("i"_hs).props(PROPS("Intensity", ComponentVariableType::DragFloat, ""));
 		entt::meta<PointLightComponent>().data<&PointLightComponent::m_color>("c"_hs).props(PROPS("Color", ComponentVariableType::Color, ""));
-		entt::meta<PointLightComponent>().func<&ComponentDrawer::DrawDebugPointLight, entt::as_ref_t>("drawDebug"_hs);
-		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags, "Lights");
+		RegisterComponentForEditor<PointLightComponent>("Point Light", ICON_FA_LIGHTBULB, defaultDrawFlags, "Lights", true, false, true);
 
 		// Freelook
 		entt::meta<FreeLookComponent>().data<&FreeLookComponent::m_isEnabled>("enabled"_hs);
@@ -357,6 +388,7 @@ namespace Lina::Editor
 	{
 		AddComponentMap map;
 
+
 		for (auto& category : m_addComponentMap)
 		{
 			for (auto& pair : category.second)
@@ -373,36 +405,6 @@ namespace Lina::Editor
 		}
 
 		return map;
-	}
-
-	void ComponentDrawer::DrawDebugPointLight(ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Color::Red, 1.4f);
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Color::Red, 1.4f);
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Color::Red, 1.4f);
-	}
-
-	void ComponentDrawer::DrawDebugSpotLight(ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::SpotLightComponent& sLight = ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
-		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
-	}
-
-	void ComponentDrawer::DrawDebugDirectionalLight(ECS::Entity ent)
-	{
-		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		Vector3 dir = Vector3::Zero - data.GetLocation();
-		Vector3 end1 = data.GetLocation() + dir;
-		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
 	}
 
 	void ComponentDrawer::PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent)
@@ -902,7 +904,7 @@ namespace Lina::Editor
 						auto debugFunc = resolvedData.func("drawDebug"_hs);
 
 						if (debugFunc)
-							debugFunc.invoke({}, entt::forward_as_meta(*this), ent);
+							debugFunc.invoke({}, ent);
 					}
 				}
 			}
