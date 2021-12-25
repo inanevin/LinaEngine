@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Math/Math.hpp"
 
 #define GLFW_INCLUDE_NONE
-#define GLFW_DLL
 #include <GLFW/glfw3.h>
 
 namespace Lina::Input
