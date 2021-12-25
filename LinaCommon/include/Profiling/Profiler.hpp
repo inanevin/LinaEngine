@@ -30,7 +30,6 @@ SOFTWARE.
 Class: Profiler
 
 
-
 Timestamp: 12/20/2020 12:28:41 AM
 */
 
@@ -40,7 +39,6 @@ Timestamp: 12/20/2020 12:28:41 AM
 #define Profiler_HPP
 
 // Headers here.
-#include "Core/MacroDetection.hpp"
 
 #ifdef LINA_ENABLE_PROFILING
 #define BUILD_WITH_EASY_PROFILER

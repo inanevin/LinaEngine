@@ -26,13 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "LinaPch.hpp"
-#include "Log/Log.hpp"
-#include "Core/MacroDetection.hpp"
 #include "Core/Application.hpp"
-#include "World/DefaultLevel.hpp"
+#include "Log/Log.hpp"
+#include "Core/PlatformMacros.hpp"
+#include "World/Level.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "EventSystem/Events.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
 #ifdef LINA_WINDOWS
@@ -76,7 +74,7 @@ namespace Lina
 	}
 
 
-	void Application::OnLog(Event::ELog dump)
+	void Application::OnLog(const Event::ELog& dump)
 	{
 		std::string msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
 

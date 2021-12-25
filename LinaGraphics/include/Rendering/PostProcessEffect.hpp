@@ -41,10 +41,10 @@ Timestamp: 12/10/2020 6:02:07 PM
 
 // Headers here.
 #include "Core/RenderBackendFwd.hpp"
-#include "Texture.hpp"
-#include "RenderTarget.hpp"
-#include "Material.hpp"
-#include "Shader.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/RenderTarget.hpp"
+#include "Rendering/Material.hpp"
+#include "Rendering/Shader.hpp"
 
 namespace Lina::Graphics
 {

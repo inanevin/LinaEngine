@@ -37,33 +37,13 @@ Timestamp: 1/5/2019 12:42:58 AM
 #ifndef UtilityFunctions_HPP
 #define UtilityFunctions_HPP
 
-#include <string>
-#include <vector>
-#include <functional>
+#include "Core/CommonUtility.hpp"
 #include <map>
 
 namespace Lina
 {
 	namespace Utility
 	{
-		struct File
-		{
-			std::string m_fullPath = "";	// folder + purename + extension
-			std::string m_folderPath = "";
-			std::string m_pureName = "";	// name without extension
-			std::string m_extension = "";
-			std::string m_fullName = "";	// name with extension
-		};
-
-		struct Folder
-		{
-			std::string m_fullPath = "";
-			std::string m_name = "";
-			std::vector<File> m_files;
-			std::vector<Folder> m_folders;
-			bool m_isOpen = false;
-		};
-
 		static int s_uniqueID = 100;
 
 		// Get char* from a WCHAR

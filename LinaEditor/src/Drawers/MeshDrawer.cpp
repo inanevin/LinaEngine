@@ -42,7 +42,7 @@ namespace Lina::Editor
 	void MeshDrawer::SetSelectedModel(Lina::Graphics::Model& mesh)
 	{
 		m_selectedMesh = &mesh;
-		m_selectedParams = m_selectedMesh->GetAssetData();
+		//m_selectedParams = m_selectedMesh->GetAssetData();
 	}
 
 	void MeshDrawer::DrawSelectedMesh()
@@ -56,33 +56,33 @@ namespace Lina::Editor
 		WidgetsUtility::PropertyLabel("Triangulate");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##triangulate", &m_selectedParams.m_triangulate);
+		//ImGui::Checkbox("##triangulate", &m_selectedParams.m_triangulate);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::PropertyLabel("Smooth Normals");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##smoothNormals", &m_selectedParams.m_smoothNormals);
+		//ImGui::Checkbox("##smoothNormals", &m_selectedParams.m_smoothNormals);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::PropertyLabel("Calculate Tangents");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##tangentSpace", &m_selectedParams.m_calculateTangentSpace);
+		//ImGui::Checkbox("##tangentSpace", &m_selectedParams.m_calculateTangentSpace);
 
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::PropertyLabel("Flip UVs");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##flipUVs", &m_selectedParams.m_flipUVs);
+		//ImGui::Checkbox("##flipUVs", &m_selectedParams.m_flipUVs);
 
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::PropertyLabel("Flip Winding (CW)");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##flipWinding", &m_selectedParams.m_flipWinding);
+		//ImGui::Checkbox("##flipWinding", &m_selectedParams.m_flipWinding);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 
@@ -92,9 +92,9 @@ namespace Lina::Editor
 			std::string filePath = m_selectedMesh->GetPath();
 			std::string paramsPath = m_selectedMesh->GetAssetDataPath();
 			Lina::Graphics::Model::UnloadModel(id);
-			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelAssetData(m_selectedParams), paramsPath);
+			//m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelAssetData(m_selectedParams), paramsPath);
 			LINA_TRACE("File: {0} Params: {1}", filePath, paramsPath);
-			Lina::Graphics::Model::SaveAssetData(paramsPath, m_selectedParams);
+			//Lina::Graphics::Model::SaveAssetData(paramsPath, m_selectedParams);
 		}
 
 	}

@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#include "ECS/Registry.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"  
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
@@ -35,7 +35,7 @@ namespace Lina::ECS
 {
 	void FreeLookSystem::Initialize()
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 		m_inputEngine = Lina::Input::InputEngineBackend::Get();
 	}
 

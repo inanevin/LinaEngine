@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "World/Level.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorCommon.hpp"
@@ -58,7 +59,7 @@ namespace Lina::Editor
 
 			if (m_currentLevel != nullptr)
 			{
-				Lina::LevelData& levelData = m_currentLevel->GetLevelData();
+				Lina::World::LevelData& levelData = m_currentLevel->GetLevelData();
 
 				static bool levelSettingsOpen = false;
 				if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))

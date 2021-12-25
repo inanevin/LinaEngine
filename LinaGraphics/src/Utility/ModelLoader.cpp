@@ -28,23 +28,41 @@ SOFTWARE.
 
 #include "Utility/ModelLoader.hpp"  
 #include "Rendering/RenderingCommon.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/Model.hpp"
 #include "Utility/AssimpUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Math/Math.hpp"
+#include "Log/Log.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/metadata.h>
 
-#include <ozz/animation/offline/tools/import2ozz.h>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
 
 namespace Lina::Graphics
 {
+	void CheckIfNodeHierarchiesMatch(aiNode* ainode, const ModelNode* modelNode, bool* mismatch)
+	{
+		if (std::string(ainode->mName.C_Str()).compare(modelNode->GetName()) != 0)
+		{
+			*mismatch = true;
+			return;
+		}
+
+		if (ainode->mNumChildren != modelNode->GetChildren().size())
+		{
+			*mismatch = true;
+			return;
+		}
+
+		for (uint32 i = 0; i < ainode->mNumChildren; i++)
+			CheckIfNodeHierarchiesMatch(ainode->mChildren[i], modelNode->GetChildren()[0], mismatch);
+	}
 
 	void ModelLoader::FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh)
 	{
@@ -141,16 +159,33 @@ namespace Lina::Graphics
 	{
 		const std::string runningDirectory = Utility::GetRunningDirectory();
 
-		// Reset id counter, start processing by the first ainode.
+		// Check loaded hierarchy vs ai hierarchy. 
+		// If they don't match, re-load the hierarchy.
 		ModelNode& root = model.m_rootNode;
-		root.FillNodeHierarchy(scene->mRootNode, scene);
+
+
+		if (root.m_children.size() != 0 || root.m_meshes.size() != 0)
+		{
+			bool mismatch = false;
+
+			LINA_TRACE("Checking if node hierarchies match.");
+			CheckIfNodeHierarchiesMatch(scene->mRootNode, &root, &mismatch);
+			LINA_TRACE("Node hierarchies match ? {0}", !mismatch);
+
+			if (mismatch)
+				root.Clear();
+
+			root.FillNodeHierarchy(scene->mRootNode, scene, model, !mismatch);
+		}
+		else
+			root.FillNodeHierarchy(scene->mRootNode, scene, model, false);
 
 		// Iterate through the materials in the scene.
 		for (uint32 i = 0; i < scene->mNumMaterials; i++)
 		{
 			// Build material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
-			
+
 			ImportedModelMaterial importedMaterial;
 			importedMaterial.m_name = scene->mMaterials[i]->GetName().C_Str();
 
@@ -167,7 +202,7 @@ namespace Lina::Graphics
 			textureCounts.push_back(material->GetTextureCount(aiTextureType_METALNESS));
 			textureCounts.push_back(material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS));
 			textureCounts.push_back(material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION));
-		
+
 			// TODO: Fill in with the texture path.
 			for (uint32 i = 0; i < textureCounts.size(); i++)
 			{
@@ -186,32 +221,33 @@ namespace Lina::Graphics
 			model.GetImportedMaterials().push_back(defaultMaterial);
 		}
 
-		model.SaveAssetData(model.GetAssetDataPath(), model.GetAssetData());
+		model.SaveAssetData(model.GetAssetDataPath());
 		return true;
 	}
 
-	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelAssetData& modelData)
+	bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (modelData.m_calculateTangentSpace)
+		ModelAssetData& assetData = model.GetAssetData();
+		if (assetData.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (modelData.m_triangulate)
+		if (assetData.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (modelData.m_smoothNormals)
+		if (assetData.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (modelData.m_flipUVs)
+		if (assetData.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (modelData.m_flipWinding)
+		if (assetData.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
 
 		importFlags |= aiProcess_GlobalScale;
-		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelData.m_globalScale);
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale);
 
 		const std::string ext = "." + Utility::GetFileExtension(model.GetPath());
 		const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
@@ -220,29 +256,30 @@ namespace Lina::Graphics
 		return LoadModel(scene, model);
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelAssetData modelData)
+	bool ModelLoader::LoadModel(const std::string& fileName, Model& model)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (modelData.m_calculateTangentSpace)
+		ModelAssetData& assetData = model.GetAssetData();
+		if (assetData.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (modelData.m_triangulate)
+		if (assetData.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (modelData.m_smoothNormals)
+		if (assetData.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
-		if (modelData.m_flipUVs)
+		if (assetData.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
-		if (modelData.m_flipWinding)
+		if (assetData.m_flipWinding)
 			importFlags |= aiProcess_FlipWindingOrder;
 
 
 		importFlags |= aiProcess_GlobalScale;
-		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", modelData.m_globalScale);
+		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale);
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 

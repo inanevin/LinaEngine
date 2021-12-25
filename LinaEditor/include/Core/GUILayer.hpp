@@ -59,6 +59,13 @@ namespace Lina
 	{
 		class Level;
 	}
+
+	namespace Event
+	{
+		struct EShutdown;
+		struct EPostRender;
+		struct EResourceLoadUpdated;
+	}
 }
 
 namespace Lina::Editor
@@ -74,8 +81,8 @@ namespace Lina::Editor
 		~GUILayer() {};
 
 		void Initialize();
-		void OnShutdown(Event::EShutdown ev);
-		void OnPostRender(Event::EPostRender);
+		void OnShutdown(const Event::EShutdown& ev);
+		void OnPostRender(const Event::EPostRender&);
 		static ImFont* GetDefaultFont() { return s_defaultFont; }
 		static ImFont* GetBigFont() { return s_bigFont; }
 		static std::map<const char*, EditorPanel*> s_editorPanels;
@@ -89,7 +96,7 @@ namespace Lina::Editor
 	private:
 
 		void DrawSplashScreen();
-		void OnResourceLoadUpdated(Event::EResourceLoadUpdated ev);
+		void OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev);
 
 		void DrawFPSCounter(int corner = 0);
 		void DrawCentralDockingSpace();

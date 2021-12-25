@@ -39,9 +39,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 #ifndef ModelLoader_HPP
 #define ModelLoader_HPP
 
-
-#include "RenderingCommon.hpp"
-#include "Material.hpp"
+#include <vector>
 #include <string>
 
 struct aiNode;
@@ -60,8 +58,8 @@ namespace Lina::Graphics
 		// Load models using ASSIMP
 		static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
 		static bool LoadModel(const aiScene* scene, Model& model);
-		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model, ModelAssetData& params);
-		static bool LoadModel(const std::string& fileName, Model& model, ModelAssetData params);
+		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model);
+		static bool LoadModel(const std::string& fileName, Model& model);
 		static bool LoadSpriteQuad(Mesh& model);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
 	};

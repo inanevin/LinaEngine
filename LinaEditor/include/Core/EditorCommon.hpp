@@ -41,7 +41,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 
 #include "Utility/EditorUtility.hpp"
 #include "Log/Log.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include <string>
 
 namespace Lina

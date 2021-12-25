@@ -48,12 +48,12 @@ namespace Lina::Editor
 	{
 		LINA_TRACE("[Initialize] -> Editor Application ({0})", typeid(*this).name());
 
+
 		s_editorApplication = this;
 		m_guiLayer.Initialize();
 
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
 		Lina::Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
-
 		m_editorCameraSystem.Initialize(m_guiLayer.GetLevelPanel());
 		m_editorCameraSystem.SystemActivation(true);
 

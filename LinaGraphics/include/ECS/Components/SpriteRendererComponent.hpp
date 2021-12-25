@@ -36,11 +36,12 @@ Timestamp: 10/1/2020 9:26:21 AM
 #ifndef SpriteRendererComponent_HPP
 #define SpriteRendererComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
+#include <string>
 
 namespace Lina::ECS
 {
-	struct SpriteRendererComponent : public ECSComponent
+	struct SpriteRendererComponent : public Component
 	{
 		int m_materialID = -1;
 		std::string m_materialPaths = "";

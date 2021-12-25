@@ -49,7 +49,7 @@ namespace Lina::World
 	public:
 		
 		DefaultLevel() {};
-		~DefaultLevel();
+		virtual ~DefaultLevel() {};
 	
 	private:
 	

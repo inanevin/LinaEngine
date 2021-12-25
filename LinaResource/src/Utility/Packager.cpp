@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Utility/Packager.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Core/ResourceBundle.hpp"
 #include "Core/ResourceManager.hpp"
 #include <bit7z/include/bitcompressor.hpp>
 #include <bit7z/include/bitformat.hpp>
@@ -65,7 +64,7 @@ namespace Lina::Resources
 			compressor.setTotalCallback([=](uint64_t size) {
 				loadingData->m_state = ResourceProgressState::Pending;
 				pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = static_cast<int>((100.0 * processedSize) / size); });
+					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
 				});
 
 			compressor.setFileCallback([=](std::wstring file)
@@ -82,8 +81,10 @@ namespace Lina::Resources
 			const size_t outputSize = strlen(outputchr);
 			std::wstring wdir(dirSize, L'#');
 			std::wstring woutput(outputSize, L'#');
-			mbstowcs(&wdir[0], dirchr, dirSize);
-			mbstowcs(&woutput[0], outputchr, outputSize);
+			size_t numConverted;
+			size_t numConverted2;
+			mbstowcs_s(&numConverted, &wdir[0], dirSize, dirchr, dirSize - 1);
+			mbstowcs_s(&numConverted2, &wdir[0], outputSize, outputchr, outputSize - 1);
 
 			// compress.
 			compressor.compressDirectory(wdir, woutput);
@@ -127,7 +128,7 @@ namespace Lina::Resources
 			compressor.setTotalCallback([=](uint64_t size) {
 				loadingData->m_state = ResourceProgressState::Pending;
 				pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = static_cast<int>((100.0 * processedSize) / size); });
+					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
 				});
 
 			compressor.setFileCallback([=](std::wstring file)
@@ -144,7 +145,8 @@ namespace Lina::Resources
 			{
 				const size_t size = strlen(file.c_str());
 				std::wstring wfile(size, L'#');
-				mbstowcs(&wfile[0], file.c_str(), size);
+				size_t numConverted;
+				mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);
 				wfiles.push_back(wfile);
 			}
 
@@ -152,8 +154,9 @@ namespace Lina::Resources
 			const char* outputchr = output.c_str();
 			const size_t outSize = strlen(outputchr);
 			std::wstring woutput(outSize, L'#');
-			mbstowcs(&woutput[0], outputchr, outSize);
-
+			size_t numConverted;
+			mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
+			
 			// compress.
 			compressor.compress(wfiles, woutput);
 			LINA_TRACE("[Packager] -> Successfully packed files.");
@@ -184,7 +187,8 @@ namespace Lina::Resources
 			const char* filePathChr = filePath.c_str();
 			const size_t dirSize = strlen(filePathChr);
 			std::wstring wdir(dirSize, L'#');
-			mbstowcs(&wdir[0], filePathChr, dirSize);
+			size_t numConverted;
+			mbstowcs_s(&numConverted, &wdir[0], dirSize, filePathChr, dirSize - 1);
 
 			// Progress callback.
 			bit7z::BitExtractor* pExtractor = &extractor;
@@ -197,7 +201,7 @@ namespace Lina::Resources
 			extractor.setTotalCallback([=](uint64_t size) {
 				loadingData->m_state = ResourceProgressState::Pending;
 				pExtractor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = static_cast<int>((100.0 * processedSize) / size); });
+					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
 				});
 
 			extractor.setFileCallback([=](std::wstring file)

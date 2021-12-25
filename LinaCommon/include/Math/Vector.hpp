@@ -49,6 +49,33 @@ timestamp: 10/29/2018 11:04:54 PM
 
 namespace Lina
 {
+	class Vector2ui : public glm::uvec2
+	{
+	public:
+		Vector2ui() {};
+		Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y) {};
+		Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs) {};
+		Vector2ui(unsigned int val) : glm::uvec2(val, val) {};
+		Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y) {};
+
+		std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "X:" << x << "   Y:" << y;
+		}
+
+		std::string ToString() const
+		{
+			std::stringstream ss;
+			ss << "X:" << x << "   Y:" << y;
+			return ss.str();
+		}
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(x, y);
+		}
+	};
 
 	class Vector2 : public glm::vec2
 	{

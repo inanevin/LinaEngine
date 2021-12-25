@@ -41,7 +41,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #define PropertiesPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include "Drawers/TextureDrawer.hpp"
 #include "Drawers/EntityDrawer.hpp"
 #include "Drawers/MaterialDrawer.hpp"

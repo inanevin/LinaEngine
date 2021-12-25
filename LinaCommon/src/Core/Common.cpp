@@ -26,60 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Common.hpp"
+#include "Core/CommonApplication.hpp"
+#include "Core/CommonPhysics.hpp"
+#include "Core/CommonResources.hpp"
 
 namespace Lina
 {
-	namespace Physics
-	{
-		std::string SIMULATION_TYPES[3] = { "None", "Static", "Dynamic" };
-
-#ifdef LINA_PHYSICS_BULLET
-		std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
-#elif LINA_PHYSICS_PHYSX
-		std::string COLLISION_SHAPES[4] = { "Box", "Sphere",  "Capsule", "ConvexMesh"};
-#endif
-	};
-
-	namespace Resources
-	{
-		
-		std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable =
-		{
-			{ StringID("png"), ResourceType::Image},
-			{ StringID("jpg"), ResourceType::Image },
-			{ StringID("jpeg"), ResourceType::Image },
-			{ StringID("tga"), ResourceType::Image },
-			{ StringID("linaimagedata"), ResourceType::ImageData },
-			{ StringID("hdr"), ResourceType::HDR },
-			{ StringID("fbx"), ResourceType::Model },
-			{ StringID("obj"), ResourceType::Model },
-			{ StringID("3ds"), ResourceType::Model },
-			{ StringID("linamodeldata"), ResourceType::ModelAssetData },
-			{ StringID("wav"), ResourceType::Audio },
-			{ StringID("mp3"), ResourceType::Audio },
-			{ StringID("ogg"), ResourceType::Audio },
-			{ StringID("linaaudiodata"), ResourceType::AudioData },
-			{ StringID("mat"), ResourceType::Material },
-			{ StringID("glsl"), ResourceType::GLSL },
-			{ StringID("glh"), ResourceType::GLH },
-			{ StringID("spv"), ResourceType::SPIRV },
-			{ StringID("ttf"), ResourceType::Font },
-			{ StringID("otf"), ResourceType::Font },
-			{ StringID("phymat"), ResourceType::PhysicsMaterial },
-		};
-
-		void RegisterUserDefinedResource(const std::string& extension)
-		{
-			m_resourceTypeTable[StringID(extension.c_str())] = ResourceType::UserAsset;
-		}
-
-		ResourceType GetResourceType(const std::string& extension)
-		{
-			return m_resourceTypeTable[StringID(extension.c_str())];
-		}
-	}
-
 	std::string LogLevelAsString(LogLevel level)
 	{
 		switch (level)
@@ -101,5 +53,54 @@ namespace Lina
 		default:
 			return "";
 		}
+	}
+}
+
+namespace Lina::Physics
+{
+	std::string SIMULATION_TYPES[3] = { "None", "Static", "Dynamic" };
+
+#ifdef LINA_PHYSICS_BULLET
+	std::string COLLISION_SHAPES[4] = { "Box", "Sphere", "Cylinder", "Capsule" };
+#elif LINA_PHYSICS_PHYSX
+	std::string COLLISION_SHAPES[4] = { "Box", "Sphere",  "Capsule", "ConvexMesh" };
+#endif
+}
+
+namespace Lina::Resources
+{
+	std::unordered_map<StringIDType, Resources::ResourceType> m_resourceTypeTable =
+	{
+		{ StringID("png"), ResourceType::Image},
+		{ StringID("jpg"), ResourceType::Image },
+		{ StringID("jpeg"),ResourceType::Image },
+		{ StringID("tga"), ResourceType::Image },
+		{ StringID("linaimagedata"), ResourceType::ImageData },
+		{ StringID("hdr"), ResourceType::HDR },
+		{ StringID("fbx"), ResourceType::Model },
+		{ StringID("obj"), ResourceType::Model },
+		{ StringID("3ds"), ResourceType::Model },
+		{ StringID("linamodeldata"), ResourceType::ModelAssetData },
+		{ StringID("wav"), ResourceType::Audio },
+		{ StringID("mp3"), ResourceType::Audio },
+		{ StringID("ogg"), ResourceType::Audio },
+		{ StringID("linaaudiodata"), ResourceType::AudioData },
+		{ StringID("mat"), ResourceType::Material },
+		{ StringID("glsl"), ResourceType::GLSL },
+		{ StringID("glh"), ResourceType::GLH },
+		{ StringID("spv"), ResourceType::SPIRV },
+		{ StringID("ttf"), ResourceType::Font },
+		{ StringID("otf"), ResourceType::Font },
+		{ StringID("phymat"), ResourceType::PhysicsMaterial },
+	};
+
+	void RegisterUserDefinedResource(const std::string& extension)
+	{
+		m_resourceTypeTable[StringID(extension.c_str())] = ResourceType::UserAsset;
+	}
+
+	ResourceType GetResourceType(const std::string& extension)
+	{
+		return m_resourceTypeTable[StringID(extension.c_str())];
 	}
 }

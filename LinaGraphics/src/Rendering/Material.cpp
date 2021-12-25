@@ -30,7 +30,9 @@ SOFTWARE.
 #include "Core/RenderEngineBackend.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
+#include "Rendering/RenderConstants.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Log/Log.hpp"
 #include <stdio.h>
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
@@ -124,9 +126,24 @@ namespace Lina::Graphics
 		else
 		{
 			LINA_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
-			return Texture();
+			return Lina::Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
 		}
 	}
+
+	void Material::SetSurfaceType(MaterialSurfaceType type)
+	{
+		m_surfaceType = type;
+		SetInt(MAT_SURFACETYPE, type);
+	}
+
+	void Material::SetInt(const std::string& name, int value)
+	{
+		m_ints[name] = value;
+
+		if (name == MAT_SURFACETYPE)
+			m_surfaceType = static_cast<MaterialSurfaceType>(value);
+	}
+
 	Material& Material::CreateMaterial(Shader& shader, const std::string& path)
 	{
 		StringIDType sid = StringID(path.c_str()).value();

@@ -39,12 +39,12 @@ Timestamp: 9/30/2020 2:52:58 AM
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
-#include "ECS/ECS.hpp"
+#include "ECS/System.hpp"
 #include "Core/PhysicsBackendFwd.hpp"
 
 namespace Lina::ECS
 {
-	class RigidbodySystem : public BaseECSSystem
+	class RigidbodySystem : public System
 	{
 	public:
 

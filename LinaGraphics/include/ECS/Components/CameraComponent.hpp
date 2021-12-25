@@ -39,13 +39,13 @@ Timestamp: 5/2/2019 12:20:42 AM
 #ifndef CameraComponent_HPP
 #define CameraComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
 #include "Math/Color.hpp"
 
 namespace Lina::ECS
 {
 
-	struct CameraComponent : public ECSComponent
+	struct CameraComponent : public Component
 	{
 		Lina::Color m_clearColor = Lina::Color(0.1f, 0.1f, 0.1f, 1.0f);
 		float m_fieldOfView = 90.0f;

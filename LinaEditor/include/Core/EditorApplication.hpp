@@ -41,9 +41,9 @@ Timestamp: 10/15/2020 10:44:39 PM
 #define EditorApplication_HPP
 
 #include "Log/Log.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
-#include "EventSystem/Events.hpp"
 
 namespace Lina
 {

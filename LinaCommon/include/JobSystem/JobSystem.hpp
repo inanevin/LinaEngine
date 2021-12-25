@@ -39,18 +39,14 @@ Timestamp: 12/19/2020 11:33:56 PM
 #ifndef JobSystem_HPP
 #define JobSystem_HPP
 
-// Headers here.
-#define TF_ENABLE_PROFILER
 #include <taskflow/taskflow.hpp>
 
 namespace Lina
 {
 	typedef tf::Executor Executor;
 	typedef tf::Taskflow TaskFlow;
-	
 	template<typename T>
 	using Future = tf::Future<T>;
-
 }
 
 #endif

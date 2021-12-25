@@ -39,7 +39,10 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
-#include "Core/Common.hpp"
+#include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "Core/CommonECS.hpp"
+#include "ECS/SystemList.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Physics/PhysicsMaterial.hpp"
@@ -52,6 +55,7 @@ namespace Lina
 	namespace Event
 	{
 		class EventSystem;
+		struct EPostSceneDraw;
 	}
 }
 
@@ -121,6 +125,7 @@ namespace Lina::Physics
 		void Initialize(Lina::ApplicationMode appMode);
 		void Tick(float fixedDelta);
 		void Shutdown();
+		float GetStepTime() { return m_stepTime; }
 
 	private:
 
@@ -130,7 +135,7 @@ namespace Lina::Physics
 		void OnResourceLoadedFromMemory(Event::ELoadResourceFromMemory ev);
 		void OnLevelInitialized(Event::ELevelInitialized ev);
 		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
-		void OnPostSceneDraw(Event::EPostSceneDraw);
+		void OnPostSceneDraw(const Event::EPostSceneDraw&);
 		void RemoveBodyFromWorld(ECS::Entity body);
 		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
 		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
@@ -141,12 +146,12 @@ namespace Lina::Physics
 		Lina::ECS::Registry* m_ecs = nullptr;
 		static PhysXPhysicsEngine* s_physicsEngine;
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
-		Lina::ECS::ECSSystemList m_physicsPipeline;
+		Lina::ECS::SystemList m_physicsPipeline;
 		Lina::Event::EventSystem* m_eventSystem;
 		Lina::ApplicationMode m_appMode = Lina::ApplicationMode::Editor;
 		PhysXCooker m_cooker;
 		bool m_debugDrawEnabled = false;
-
+		float m_stepTime = 0.016f;
 	};
 }
 

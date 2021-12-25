@@ -40,12 +40,12 @@ Timestamp: 12/7/2021 4:13:25 PM
 #define AnimationComponent_HPP
 
 // Headers here.
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
 #include <string>
 
 namespace Lina::ECS
 {
-	struct AnimationComponent : public ECSComponent
+	struct AnimationComponent : public Component
 	{
 		std::string m_animationName;
 	};

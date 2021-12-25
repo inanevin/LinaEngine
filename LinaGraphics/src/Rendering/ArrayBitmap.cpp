@@ -26,15 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define STB_IMAGE_IMPLEMENTATION 
 #include "Rendering/ArrayBitmap.hpp"  
+#include "Log/Log.hpp"
 #include "Utility/stb/stb_image.h"
 #include "Memory/Memory.hpp"
 
 namespace Lina::Graphics
 {
-
-
 	ArrayBitmap::~ArrayBitmap()
 	{
 		if (m_pixels != nullptr)
@@ -61,7 +59,7 @@ namespace Lina::Graphics
 	int ArrayBitmap::Load(unsigned char* data, size_t dataSize)
 	{
 		int32 texWidth, texHeight, nrComps;
-		m_pixels = stbi_load_from_memory(data, dataSize, &texWidth, &texHeight, &nrComps, 4);
+		m_pixels = stbi_load_from_memory(data, (int)dataSize, &texWidth, &texHeight, &nrComps, 4);
 		LINA_ASSERT(m_pixels != nullptr, "Bitmap could not be loaded!");
 		m_width = texWidth;
 		m_height = texHeight;
@@ -85,7 +83,7 @@ namespace Lina::Graphics
 
 	float* ArrayBitmap::LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels)
 	{
-		return stbi_loadf_from_memory(data, dataSize, &w, &h, &nrChannels, 0);
+		return stbi_loadf_from_memory(data, (int)dataSize, &w, &h, &nrChannels, 0);
 	}
 
 	bool ArrayBitmap::Free(unsigned char* data)

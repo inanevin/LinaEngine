@@ -27,19 +27,21 @@ SOFTWARE.
 */
 
 #include "Core/RenderEngineBackend.hpp"
+#include "ECS/Registry.hpp"
 #include "Math/Matrix.hpp"
 #include "ECS/Systems/CameraSystem.hpp"  
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "Math/Math.hpp"
+#include "Log/Log.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina::ECS
 {
 
-	void CameraSystem::Initialize()
+	void CameraSystem::Initialize(float aspect)
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
+		SetAspectRatio(aspect);
 		m_ecs->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
 	}
 
@@ -97,7 +99,6 @@ namespace Lina::ECS
 		Vector3 screen = WorldToScreenCoordinates(world);
 		return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);
 	}
-
 
 	void CameraSystem::UpdateComponents(float interpolation)
 	{

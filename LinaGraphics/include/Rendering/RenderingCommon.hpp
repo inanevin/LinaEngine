@@ -38,11 +38,13 @@ Timestamp: 4/14/2019 11:59:32 AM
 #define RenderingCommon_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include <string>
+#include "Utility/StringId.hpp"
+
 #include "Math/Vector.hpp"
 #include "Math/Matrix.hpp"
 #include "Math/Color.hpp"
-#include "map"
+#include <map>
+#include <string>
 #include <cereal/types/map.hpp>
 #include <cereal/types/vector.hpp>
 
@@ -370,7 +372,7 @@ namespace Lina::Graphics
 	struct SamplerParameters
 	{
 		TextureParameters m_textureParams = TextureParameters();
-		int m_anisotropy = 0.0f;
+		int m_anisotropy = 0;
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -390,6 +392,7 @@ namespace Lina::Graphics
 		}
 	};
 
+
 	struct ModelAssetData
 	{
 		float m_globalScale = 1.0f;	// 1 meter file = 1 unit Lina
@@ -400,12 +403,47 @@ namespace Lina::Graphics
 		bool m_flipUVs = false;
 		bool m_regenerateConvexMeshes = false;
 		std::map<int, std::vector<uint8>> m_convexMeshData;
+		std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData);
+			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
 		}
+	};
+
+	// Vertex array struct for storage & vertex array data transportation.
+	struct VertexArrayData
+	{
+		uint32* buffers;
+		uintptr* bufferSizes;
+		uint32  numBuffers;
+		uint32  numElements;
+		uint32  instanceComponentsStartIndex;
+		BufferUsage bufferUsage;
+	};
+
+	// Shader program struct for storage.
+	struct ShaderProgram
+	{
+		std::vector<uint32> shaders;
+		std::map<std::string, int32> uniformBlockMap;
+		std::map<std::string, int32> samplerMap;
+		std::map<std::string, int32> uniformMap;
+	};
+
+
+	struct BufferData
+	{
+		BufferData() {};
+		BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced) {};
+
+		uint32 m_attrib;
+		uint32 m_elementSize;
+		bool m_isFloat;
+		bool m_isInstanced;
+		std::vector<float> m_floatElements;
+		std::vector<int> m_intElements;
 	};
 }
 

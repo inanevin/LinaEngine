@@ -40,24 +40,26 @@ Timestamp: 5/2/2019 12:40:46 AM
 #ifndef CameraSystem_HPP
 #define CameraSystem_HPP
 
-#include "Core/RenderBackendFwd.hpp"
-#include "ECS/ECS.hpp"
+#include "Core/CommonECS.hpp"
+#include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
-#include "Math/Color.hpp"
-#include "ECS/Components/LightComponent.hpp"
+
+namespace Lina
+{
+	class Color;
+}
 
 namespace Lina::ECS
 {
 	struct EntityDataComponent;
 	struct CameraComponent;
 
-
-	class CameraSystem : public BaseECSSystem
+	class CameraSystem : public System
 	{
 	public:
 
 		CameraSystem() {};
-		virtual void Initialize() override;
+		void Initialize(float aspect);
 		virtual void UpdateComponents(float delta) override;
 
 		/// <summary>

@@ -40,11 +40,10 @@ Timestamp: 5/1/2019 2:35:28 AM
 #define ResourceEngine_HPP
 
 #include "ResourceBundle.hpp"
+#include "Core/CommonApplication.hpp"
 #include "Utility/StringId.hpp"
 #include "JobSystem/JobSystem.hpp"
-#include "ECS/ECS.hpp"
 #include "Utility/Packager.hpp"
-#include "EventSystem/Events.hpp"
 
 namespace Lina
 {
@@ -59,6 +58,7 @@ namespace Lina
 	{
 		class EventSystem;
 	}
+
 }
 
 namespace Lina::Resources
@@ -67,7 +67,6 @@ namespace Lina::Resources
 	class ResourceManager
 	{
 
-
 	public:
 
 		static ResourceManager* Get() { return s_resourceManager; }
@@ -75,7 +74,14 @@ namespace Lina::Resources
 		static void ResetProgress();
 		static void TriggerResourceUpdatedEvent();
 
+		/// <summary>
+		/// Start packing the project Resource contents into a Lina Bundle.
+		/// </summary>
 		void PackageProject(const std::string& path, const std::string& name);
+
+		/// <summary>
+		/// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
+		/// </summary>
 		void ImportResourceBundle(const std::string& path, const std::string& name);
 		
 	private:
@@ -84,6 +90,7 @@ namespace Lina::Resources
 		ResourceManager() {};
 		~ResourceManager() {};
 
+		void Initialize(Lina::ApplicationInfo& appInfo);
 		void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
 		void LoadEditorResources();
 		void Shutdown();
@@ -92,7 +99,7 @@ namespace Lina::Resources
 
 		static ResourceManager* s_resourceManager ;
 		Event::EventSystem* m_eventSys = nullptr;
-		ECS::Registry* m_ecs = nullptr;
+		Lina::ApplicationInfo m_appInfo;
 		Packager m_packager;
 		Executor m_executor;
 		TaskFlow m_taskflow;

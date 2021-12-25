@@ -40,7 +40,7 @@ Timestamp: 10/12/2020 1:02:29 AM
 #ifndef EntityDrawer_HPP
 #define EntityDrawer_HPP
 
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include "ComponentDrawer.hpp"
 
 namespace Lina::Editor

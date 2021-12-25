@@ -29,8 +29,6 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Core/Backend/PhysX/PhysXCooker.hpp"
 #include "Core/Backend/PhysX/PhysXPhysicsEngine.hpp"
-#include "Rendering/Model.hpp"
-#include "Rendering/RenderingCommon.hpp"
 #include <PxPhysicsAPI.h>
 
 namespace Lina::Physics
@@ -48,7 +46,7 @@ namespace Lina::Physics
 	void PhysXCooker::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData)
 	{
 		PxConvexMeshDesc convexDesc;
-		convexDesc.points.count = vertices.size();
+		convexDesc.points.count = (PxU32)vertices.size();
 		convexDesc.points.stride = sizeof(Vector3);
 		convexDesc.points.data = &vertices[0];
 		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
@@ -75,73 +73,73 @@ namespace Lina::Physics
 	{
 		std::vector<Vector3> vertices;
 
-		if (node.m_meshIndexes.size() > 0)
-		{
-			// Get model meshes.
-			auto& meshes = model.GetMeshes();
-
-			// For each mesh attach to this node.
-			for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
-			{
-				// Get the mesh & it's vertex position data.
-				auto& mesh = meshes[node.m_meshIndexes[i]];
-				auto& data = mesh.GetVertexPositions();
-
-				// Add each of the 3 positions to the vertices array.
-				for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
-					vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
-			}
-
-			// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
-			// This is the combined vertex data from sub-meshes.
-			// Now we cook this data & assign a model & node id to it.
-			CookConvexMesh(vertices, model.GetAssetData().m_convexMeshData[node.m_nodeID]);
-		}
-
-		for (auto& child : node.m_children)
-			CookModelNodeVertices(child, model);
+		//if (node.m_meshIndexes.size() > 0)
+		//{
+		//	// Get model meshes.
+		//	auto& meshes = model.GetMeshes();
+		//
+		//	// For each mesh attach to this node.
+		//	for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
+		//	{
+		//		// Get the mesh & it's vertex position data.
+		//		auto& mesh = meshes[node.m_meshIndexes[i]];
+		//		auto& data = mesh.GetVertexPositions();
+		//
+		//		// Add each of the 3 positions to the vertices array.
+		//		for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
+		//			vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
+		//	}
+		//
+		//	// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
+		//	// This is the combined vertex data from sub-meshes.
+		//	// Now we cook this data & assign a model & node id to it.
+		//	CookConvexMesh(vertices, model.GetAssetData().m_convexMeshData[node.m_nodeID]);
+		//}
+		//
+		//for (auto& child : node.m_children)
+		//	CookModelNodeVertices(child, model);
 	}
 
 	void CreateConvexMeshesFromNodes(Graphics::ModelNode& node, Graphics::Model& model)
 	{
-		if (node.m_meshIndexes.size() > 0)
-		{
-			Graphics::ModelAssetData& data = model.GetAssetData();
-			Physics::PhysicsEngine::Get()->CreateConvexMesh(data.m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
-		}
-
-		for (auto& child : node.m_children)
-			CreateConvexMeshesFromNodes(child, model);
+		//if (node.m_meshIndexes.size() > 0)
+		//{
+		//	Graphics::ModelAssetData& data = model.GetAssetData();
+		//	Physics::PhysicsEngine::Get()->CreateConvexMesh(data.m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
+		//}
+		//
+		//for (auto& child : node.m_children)
+		//	CreateConvexMeshesFromNodes(child, model);
 	}
 
 	void PhysXCooker::OnResourceLoadCompleted(Event::EResourceLoadCompleted ev)
 	{
 		// Handle convex mesh cooking if the loaded model does not contain any.
-		if (ev.m_type == Resources::ResourceType::Model)
-		{
-			auto& model = Graphics::Model::GetModel(ev.m_sid);
-			auto& meshes = model.GetMeshes();
-
-			if (m_appMode == Lina::ApplicationMode::Editor)
-			{
-				Graphics::ModelNode& root = model.GetRoot();
-
-				// If the model parameters does not contain a convex mesh data for the current mesh or regeneration is marked.
-				if (model.GetAssetData().m_convexMeshData.size() == 0 || model.GetAssetData().m_regenerateConvexMeshes)
-				{
-					CookModelNodeVertices(root, model);
-					model.SaveAssetData(model.GetAssetDataPath(), model.GetAssetData());
-				}
-				else
-					CreateConvexMeshesFromNodes(root, model);
-			}
-			else
-			{
-				if (model.GetAssetData().m_convexMeshData.size() == 0)
-					LINA_ERR("You are running in Standalone mode but your loaded models does not contain any convex mesh data. This might result in inaccurate collision simulation! {0}", typeid(*this).name());
-
-			}
-
-		}
+		//if (ev.m_type == Resources::ResourceType::Model)
+		//{
+		//	auto& model = Graphics::Model::GetModel(ev.m_sid);
+		//	auto& meshes = model.GetMeshes();
+		//
+		//	if (m_appMode == Lina::ApplicationMode::Editor)
+		//	{
+		//		Graphics::ModelNode& root = model.GetRoot();
+		//
+		//		// If the model parameters does not contain a convex mesh data for the current mesh or regeneration is marked.
+		//		if (model.GetAssetData().m_convexMeshData.size() == 0 || model.GetAssetData().m_regenerateConvexMeshes)
+		//		{
+		//			CookModelNodeVertices(root, model);
+		//			model.SaveAssetData(model.GetAssetDataPath(), model.GetAssetData());
+		//		}
+		//		else
+		//			CreateConvexMeshesFromNodes(root, model);
+		//	}
+		//	else
+		//	{
+		//		if (model.GetAssetData().m_convexMeshData.size() == 0)
+		//			LINA_ERR("You are running in Standalone mode but your loaded models does not contain any convex mesh data. This might result in inaccurate collision simulation! {0}", typeid(*this).name());
+		//
+		//	}
+		//
+		//}
 	}
 }

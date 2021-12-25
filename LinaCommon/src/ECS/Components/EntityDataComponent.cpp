@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Registry.hpp"
 
 namespace Lina::ECS
 {

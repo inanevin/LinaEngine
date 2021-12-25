@@ -39,11 +39,12 @@ Timestamp: 4/26/2019 9:13:05 PM
 #ifndef RenderTarget_HPP
 #define RenderTarget_HPP
 
-#include "Texture.hpp"
-#include "Log/Log.hpp"
+#include "Rendering/RenderingCommon.hpp"
 
 namespace Lina::Graphics
 {
+	class Texture;
+
 	class RenderTarget
 	{
 	public:
@@ -51,9 +52,9 @@ namespace Lina::Graphics
 		RenderTarget() {}
 		~RenderTarget();
 
-		void Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
-		void Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
-		void Construct(Vector2 size, FrameBufferAttachment rboAttachment, uint32 rbo);
+		void Construct(Texture& texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
+		void Construct(Texture& texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
+		void Construct(FrameBufferAttachment rboAttachment, uint32 rbo);
 		void CheckCompressed(const Texture& texture);
 
 		uint32 GetID() { return m_engineBoundID; }

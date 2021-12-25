@@ -40,7 +40,8 @@ Timestamp: 10/27/2020 4:58:35 PM
 #define EditorCameraSystem_HPP
 
 // Headers here.
-#include "ECS/ECS.hpp"
+#include "ECS/System.hpp"
+#include "Core/CommonECS.hpp"
 #include "Core/InputBackend.hpp"
 
 namespace Lina::Editor
@@ -50,7 +51,7 @@ namespace Lina::Editor
 
 namespace Lina::ECS
 {
-	class EditorCameraSystem : public BaseECSSystem
+	class EditorCameraSystem : public System
 	{
 	public:
 

@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Math/Quaternion.hpp"  
-#include "Log/Log.hpp"
 #include <glm/gtx/quaternion.hpp>
 
 namespace Lina

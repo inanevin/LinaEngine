@@ -33,35 +33,8 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-
-	static float test = 0.0f;
-
 	void AnimationSystem::UpdateComponents(float delta)
 	{
 	
-		auto view = m_ecs->view<MeshRendererComponent, AnimationComponent>();
-		test += delta * 0.1f;
-
-		if (test > 1.0f)
-			test = 0.0f;
-		
-		for (auto entity : view)
-		{
-			MeshRendererComponent& mr = view.get<MeshRendererComponent>(entity);
-			AnimationComponent& ar = view.get<AnimationComponent>(entity);
-
-			//Graphics::Model& mesh = Graphics::Model::GetModel(mr.m_meshID);
-			//Graphics::Skeleton& skeleton = mesh.GetSkeleton();
-			//
-			//auto& meshAnimations = skeleton.GetAnimations();
-			//
-			//if (meshAnimations.find(ar.m_animationName) != meshAnimations.end())
-			//{
-			//	Graphics::Animation* anim = meshAnimations[ar.m_animationName];
-			//
-			//
-			//	
-			//}
-		}
 	}
 }

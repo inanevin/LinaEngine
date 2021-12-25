@@ -40,12 +40,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #ifndef Material_HPP
 #define Material_HPP
 
-
-#include "Math/Matrix.hpp"
-#include "Math/Color.hpp"
-#include "Rendering/RenderConstants.hpp"
 #include "Rendering/RenderingCommon.hpp"
-#include "Utility/StringId.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
 #include <set>
@@ -100,103 +95,90 @@ namespace Lina::Graphics
 		void RemoveTexture(const std::string& textureName);
 		Texture& GetTexture(const std::string& name);
 
-		void SetFloat(const std::string& name, float value)
+		inline void SetFloat(const std::string& name, float value)
 		{
 			m_floats[name] = value;
 		}
 
 
-		void SetBool(const std::string& name, bool value)
+		inline void SetBool(const std::string& name, bool value)
 		{
 			m_bools[name] = value;
 		}
 
-		void SetInt(const std::string& name, int value)
-		{
-			m_ints[name] = value;
-
-			if (name == MAT_SURFACETYPE)
-				m_surfaceType = static_cast<MaterialSurfaceType>(value);
-		}
-
-		void SetColor(const std::string& name, const Color& color)
+		inline void SetColor(const std::string& name, const Color& color)
 		{
 			m_colors[name] = color;
 		}
 
-		void SetVector2(const std::string& name, const Vector2& vector)
+		inline void SetVector2(const std::string& name, const Vector2& vector)
 		{
 			m_vector2s[name] = vector;
 		}
 
-		void SetVector3(const std::string& name, const Vector3& vector)
+		inline void SetVector3(const std::string& name, const Vector3& vector)
 		{
 			m_vector3s[name] = vector;
 		}
 
-		void SetVector4(const std::string& name, const Vector4& vector)
+		inline void SetVector4(const std::string& name, const Vector4& vector)
 		{
 			m_vector4s[name] = vector;
 		}
 
-		void SetMatrix4(const std::string& name, const Matrix& matrix)
+		inline void SetMatrix4(const std::string& name, const Matrix& matrix)
 		{
 			m_matrices[name] = matrix;
 		}
 
-		float GetFloat(const std::string& name)
+		inline float GetFloat(const std::string& name)
 		{
 			return m_floats[name];
 		}
 
-		float GetBool(const std::string& name)
+		inline float GetBool(const std::string& name)
 		{
 			return m_bools[name];
 		}
 
-		int GetInt(const std::string& name)
+		inline int GetInt(const std::string& name)
 		{
 			return m_ints[name];
 		}
 
-		Color GetColor(const std::string& name)
+		inline Color GetColor(const std::string& name)
 		{
 			return m_colors[name];
 		}
 
-		Vector2 GetVector2(const std::string& name)
+		inline Vector2 GetVector2(const std::string& name)
 		{
 			return m_vector2s[name];
 		}
 
-		Vector3 GetVector3(const std::string& name)
+		inline Vector3 GetVector3(const std::string& name)
 		{
 			return m_vector3s[name];
 		}
 
-		Vector4 GetVector4(const std::string& name)
+		inline Vector4 GetVector4(const std::string& name)
 		{
 			return m_vector4s[name];
 		}
 
-		Matrix GetMatrix(const std::string& name)
+		inline Matrix GetMatrix(const std::string& name)
 		{
 			return m_matrices[name];
 		}
 
-		int GetID() const { return m_materialID; }
-		const std::string& GetPath() const { return m_path; }
-		uint32 GetShaderID() { return m_shaderID; }
-		StringIDType GetShaderSID() { return m_shaderSID; }
+		void SetSurfaceType(MaterialSurfaceType type);
+		void SetInt(const std::string& name, int value);
 
-		void SetSurfaceType(MaterialSurfaceType type)
-		{
-			m_surfaceType = type;
-			SetInt(MAT_SURFACETYPE, type);
-		}
-
-		MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
-
+		inline int GetID() const { return m_materialID; }
+		inline const std::string& GetPath() const { return m_path; }
+		inline uint32 GetShaderID() { return m_shaderID; }
+		inline StringIDType GetShaderSID() { return m_shaderSID; }
+		inline MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
 
 		friend class cereal::access;
 

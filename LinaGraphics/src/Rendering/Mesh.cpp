@@ -36,14 +36,14 @@ namespace Lina::Graphics
 		if(m_bufferElements[elementIndex].m_isFloat)
 			m_bufferElements[elementIndex].m_floatElements.push_back(e0);
 		else
-			m_bufferElements[elementIndex].m_intElements.push_back(e0);
+			m_bufferElements[elementIndex].m_intElements.push_back((int)e0);
 	}
 
 	void Mesh::AddElement(uint32 elementIndex, int e0)
 	{
 
 		if (m_bufferElements[elementIndex].m_isFloat)
-			m_bufferElements[elementIndex].m_floatElements.push_back(e0);
+			m_bufferElements[elementIndex].m_floatElements.push_back((float)e0);
 		else
 			m_bufferElements[elementIndex].m_intElements.push_back(e0);
 	}
@@ -63,8 +63,8 @@ namespace Lina::Graphics
 
 	void Mesh::CreateVertexArray(BufferUsage bufferUsage)
 	{
-		uint32 numVertices = m_bufferElements[0].m_floatElements.size() / m_bufferElements[0].m_elementSize;
-		uint32 numIndices = m_indices.size();
+		uint32 numVertices = (uint32)m_bufferElements[0].m_floatElements.size() / m_bufferElements[0].m_elementSize;
+		uint32 numIndices = (uint32)m_indices.size();
 		
 		int totalVertexComponents = 0;
 		for (int i = 0; i < m_bufferElements.size(); i++)
@@ -73,7 +73,7 @@ namespace Lina::Graphics
 				totalVertexComponents++;
 		}
 
-		int totalInstanceComponents = m_bufferElements.size() - totalVertexComponents;
+		int totalInstanceComponents = (uint32)m_bufferElements.size() - totalVertexComponents;
 
 		// Init vertex array.
 		uint32 id = RenderEngineBackend::Get()->GetRenderDevice()->CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);

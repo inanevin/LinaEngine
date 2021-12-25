@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/PhysicsCommon.hpp"
 
 #ifdef LINA_PHYSICS_PHYSX
-#include "PxPhysicsAPI.h"
+#include <PxPhysicsAPI.h>
 using namespace physx;
 #endif
 namespace Lina::Physics

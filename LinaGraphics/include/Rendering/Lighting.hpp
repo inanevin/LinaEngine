@@ -33,27 +33,27 @@ namespace LinaEngine::Graphics
 
 		BaseLight(LinaEngine::Color color = LinaEngine::Color(1,1,1,1), float intensity = 1.0f) : m_Color(color), m_Intensity(intensity) {};
 
-		FORCEINLINE LinaEngine::Color GetColor()
+		inline LinaEngine::Color GetColor()
 		{
 			return m_Color;
 		}
 
-		FORCEINLINE Vector3F GetColorVector()
+		inline Vector3F GetColorVector()
 		{
 			return Vector3F(m_Color.R(), m_Color.G(), m_Color.B());
 		}
 
-		FORCEINLINE float GetIntensity() const
+		inline float GetIntensity() const
 		{
 			return m_Intensity;
 		}
 
-		FORCEINLINE void SetColor(LinaEngine::Color newColor)
+		inline void SetColor(LinaEngine::Color newColor)
 		{
 			m_Color = newColor;
 		}
 
-		FORCEINLINE void SetIntensity(float newIntensity)
+		inline void SetIntensity(float newIntensity)
 		{
 			m_Intensity = newIntensity;
 		}

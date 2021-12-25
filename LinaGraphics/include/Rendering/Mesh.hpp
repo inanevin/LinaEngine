@@ -39,9 +39,8 @@ Timestamp: 4/26/2019 12:11:36 AM
 #ifndef Mesh_HPP
 #define Mesh_HPP
 
-#include "Core/SizeDefinitions.hpp"
+#include "Rendering/RenderingCommon.hpp"
 #include "Rendering/VertexArray.hpp"
-#include "Core/RenderDeviceBackend.hpp"
 
 namespace Lina::Graphics
 {
@@ -83,13 +82,13 @@ namespace Lina::Graphics
 		std::string& GetName() { return m_name; }
 
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
-		uint32 GetIndexCount() const { return m_indices.size(); }
-		VertexArray& GetVertexArray() { return m_vertexArray; }
-		Vector3 GetBoundsHalfExtents() { return m_boundsHalfExtents; }
-		Vector3 GetBoundsMin() { return m_boundsMin; }
-		Vector3 GetBoundsMax() { return m_boundsMax; }
-		Vector3 GetVertexCenter() { return m_vertexCenter; }
-		BufferData& GetVertexPositions() { return m_bufferElements[0]; }
+		inline uint32 GetIndexCount() const { return (uint32)m_indices.size(); }
+		inline VertexArray& GetVertexArray() { return m_vertexArray; }
+		inline Vector3 GetBoundsHalfExtents() { return m_boundsHalfExtents; }
+		inline Vector3 GetBoundsMin() { return m_boundsMin; }
+		inline Vector3 GetBoundsMax() { return m_boundsMax; }
+		inline Vector3 GetVertexCenter() { return m_vertexCenter; }
+		inline BufferData& GetVertexPositions() { return m_bufferElements[0]; }
 
 	protected:
 

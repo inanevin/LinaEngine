@@ -39,11 +39,9 @@ Timestamp: 12/30/2018 1:54:10 AM
 #ifndef Log_HPP
 #define Log_HPP
 
-#include "Core/MacroDetection.hpp"
-#include "EventSystem/Events.hpp"
+#include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/EventCommon.hpp"
 #include "fmt/core.h"
-#include <functional>
 
 #ifdef LINA_ENABLE_LOGGING
 
@@ -55,7 +53,6 @@ Timestamp: 12/30/2018 1:54:10 AM
 #define LINA_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::LogLevel::Critical, __VA_ARGS__);
 
 #else
-
 #define LINA_ERR(...)		
 #define LINA_WARN(...)		
 #define LINA_INFO(...)		
@@ -77,15 +74,9 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 
 #ifdef LINA_DEBUG_BUILD
-
 #define LINA_ASSERT(x,...) { if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-
-
 #else
-
 #define LINA_ASSERT(x,...)
-
-
 #endif
 
 #define FMT_HEADER_ONLY
@@ -97,7 +88,7 @@ namespace Lina
 		class LogPanel;
 	}
 
-	class  Log
+	class Log
 	{
 	public:
 
@@ -112,8 +103,8 @@ namespace Lina
 		friend class Application;
 		friend class Editor::LogPanel;
 
-		static Event::Sink<void(Event::ELog)> s_onLogSink;
-		static Event::Signal<void(Event::ELog)> s_onLog;
+		static Event::Sink<void(const Event::ELog&)> s_onLogSink;
+		static Event::Signal<void(const Event::ELog&)> s_onLog;
 	};
 }
 

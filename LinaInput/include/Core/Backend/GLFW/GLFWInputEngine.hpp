@@ -39,12 +39,12 @@ Timestamp: 4/14/2019 7:46:20 PM
 #ifndef GLFWInputEngine_HPP
 #define GLFWInputEngine_HPP
 
-#include "Core/InputCommon.hpp"
+#include "Core/CommonInput.hpp"
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
-#include "ECS/ECS.hpp"
-#include "EventSystem/Events.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Math/Vector.hpp"
+#include <map>
 
 namespace Lina
 {
@@ -59,7 +59,6 @@ namespace Lina::Input
 	public:
 
 		static GLFWInputEngine* Get() { return s_inputEngine; }
-
 		bool GetKey(int keyCode);
 		bool GetKeyDown(int keyCode);
 		bool GetKeyUp(int keyCode);
@@ -72,7 +71,6 @@ namespace Lina::Input
 		Vector2 GetRawMouseAxis();
 		Vector2 GetMouseAxis();
 		CursorMode GetCursorMode() { return m_cursorMode; }
-
 		float GetHorizontalAxisValue() { return m_horizontalAxis.GetValue(); }
 		float GetVerticalAxisValue() { return m_verticalAxis.GetValue(); }
 

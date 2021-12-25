@@ -38,9 +38,9 @@ Timestamp: 5/23/2020 4:15:06 PM
 #ifndef ECSPanel_HPP
 #define ECSPanel_HPP
 
-#include "EventSystem/Events.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Panels/EditorPanel.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 
 namespace Lina
 {

@@ -52,7 +52,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend/OpenGL/OpenGLRenderEngine.cpp
 	src/Core/Backend/OpenGL/OpenGLRenderDevice.cpp
 
-	src/ECS/Systems/MeshRendererSystem.cpp
+	src/ECS/Systems/ModelNodeSystem.cpp
 	src/ECS/Systems/SpriteRendererSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
@@ -60,7 +60,6 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/FrustumSystem.cpp
 		
 	src/ECS/Components/ModelRendererComponent.cpp
-
 )
 
 #--------------------------------------------------------------------
@@ -109,40 +108,25 @@ set(LINAGRAPHICS_HEADERS
 	
 	include/ECS/Systems/AnimationSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp
-	include/ECS/Systems/MeshRendererSystem.hpp
+	include/ECS/Systems/ModelNodeSystem.hpp
 	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp
 	include/ECS/Systems/FrustumSystem.hpp
+	
 	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/ModelRendererComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/LightComponent.hpp
 	include/ECS/Components/SpriteRendererComponent.hpp
 	include/ECS/Components/AnimationComponent.hpp
+	include/ECS/Components/ModelNodeComponent.hpp
 
 	include/Utility/AssimpUtility.hpp
 	include/Utility/ModelLoader.hpp
-	include/Utility/stb/stb.h
-	include/Utility/stb/stb_c_lexer.h
-	include/Utility/stb/stb_connected_components.h
-	include/Utility/stb/stb_divide.h
-	include/Utility/stb/stb_ds.h
-	include/Utility/stb/stb_dxt.h
-	include/Utility/stb/stb_easy_font.h
-	include/Utility/stb/stb_herringbone_wang_tile.h
+
 	include/Utility/stb/stb_image.h
-	include/Utility/stb/stb_image_resize.h
-	include/Utility/stb/stb_image_write.h
-	include/Utility/stb/stb_leakcheck.h
-	include/Utility/stb/stb_perlin.h
-	include/Utility/stb/stb_rect_pack.h
-	include/Utility/stb/stb_sprintf.h
-	include/Utility/stb/stb_textedit.h
-	include/Utility/stb/stb_tilemap_editor.h
-	include/Utility/stb/stb_truetype.h
-	include/Utility/stb/stb_vorbis.c
-	include/Utility/stb/stb_voxel_render.h
-	include/Utility/stb/stretchy_buffer.h
+
+
 )
 
 
@@ -161,7 +145,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
 
@@ -173,12 +156,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation_offline.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation_tools.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_base.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_geometry.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_options.lib
 	PRIVATE Lina::Common
 )
 	

@@ -40,7 +40,7 @@ Timestamp: 12/7/2021 4:10:26 PM
 #define AnimationSystem_HPP
 
 // Headers here.
-#include "ECS/ECS.hpp"
+#include "ECS/System.hpp"
 
 namespace Lina
 {
@@ -51,7 +51,7 @@ namespace Lina
 }
 namespace Lina::ECS
 {
-	class AnimationSystem : public BaseECSSystem
+	class AnimationSystem : public System
 	{
 		
 	public:

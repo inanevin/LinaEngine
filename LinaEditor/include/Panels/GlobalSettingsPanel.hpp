@@ -41,7 +41,7 @@ Timestamp: 10/30/2020 9:37:42 AM
 #define GlobalSettingsPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "EventSystem/Events.hpp"
+#include "EventSystem/LevelEvents.hpp"
 
 namespace Lina
 {

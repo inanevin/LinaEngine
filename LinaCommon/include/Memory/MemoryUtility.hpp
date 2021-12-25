@@ -44,7 +44,6 @@ Timestamp: 12/19/2020 1:32:31 AM
 // Headers here.
 #include <cstddef>
 
-
 namespace Lina
 {
 	class MemoryUtility

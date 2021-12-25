@@ -40,8 +40,8 @@ Timestamp: 12/20/2020 8:56:18 PM
 #define Packager_HPP
 
 // Headers here.
-#include "Core/ResourcesCommon.hpp"
-#include "JobSystem/JobSystem.hpp"
+#include "Core/CommonResources.hpp"
+#include <unordered_map>
 
 namespace Lina
 {

@@ -85,7 +85,7 @@ namespace Lina::Audio
 		ALsizei size;
 		ALfloat freq;
 		ALenum format;
-		ALvoid* aldata = alutLoadMemoryFromFileImage(data, dataSize, &format, &size, &freq);
+		ALvoid* aldata = alutLoadMemoryFromFileImage(data, (ALsizei)dataSize, &format, &size, &freq);
 
 		ALenum err = alutGetError();
 		LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
@@ -100,7 +100,7 @@ namespace Lina::Audio
 		aud.m_assetData = assetData;
 
 		alGenBuffers((ALuint)1, &aud.m_buffer);
-		alBufferData(aud.m_buffer, format, aldata, size, freq);
+		alBufferData(aud.m_buffer, format, aldata, size, (ALsizei)freq);
 		free(aldata);
 
 #ifndef LINA_PRODUCTION_BUILD
@@ -130,7 +130,7 @@ namespace Lina::Audio
 		aud.m_assetData = assetData;
 
 		alGenBuffers((ALuint)1, &aud.m_buffer);
-		alBufferData(aud.m_buffer, format, data, size, freq);
+		alBufferData(aud.m_buffer, format, data, size, (ALsizei)freq);
 		free(data);
 
 #ifndef LINA_PRODUCTION_BUILD

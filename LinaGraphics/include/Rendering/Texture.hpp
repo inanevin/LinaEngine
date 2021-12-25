@@ -41,9 +41,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #define Texture_HPP
 
 #include "Core/RenderBackendFwd.hpp"
-#include "Rendering/RenderingCommon.hpp"
-#include "Core/Common.hpp"
-#include "Sampler.hpp"
+#include "Rendering/Sampler.hpp"
 
 namespace Lina::Graphics
 {
@@ -60,11 +58,12 @@ namespace Lina::Graphics
 
 		Texture& Construct( const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
 		Texture& ConstructCubemap( SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-		Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path = "");
-		Texture& ConstructRTCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::string& path = "");
-		Texture& ConstructRTTexture(Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
-		Texture& ConstructRTTextureMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
+		Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2ui size, float* data, const std::string& path = "");
+		Texture& ConstructRTCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::string& path = "");
+		Texture& ConstructRTTexture(Vector2ui size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
+		Texture& ConstructRTTextureMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
 		Texture& ConstructEmpty( SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
+		void SaveAssetData(const std::string& path);
 
 		uint32 GetID() const { return m_id; };
 		StringIDType GetSID() const { return m_sid; }
@@ -72,14 +71,13 @@ namespace Lina::Graphics
 		Sampler& GetSampler() { return m_sampler; }
 		bool IsCompressed() const { return m_isCompressed; }
 		bool HasMipmaps() const { return m_hasMipMaps; }
-		Vector2 GetSize() { return m_size; }
+		Vector2ui GetSize() { return m_size; }
 		bool GetIsEmpty() { return m_isEmpty; }
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetAssetDataPath() const { return m_assetDataPath; }
 
 		static ImageAssetData LoadAssetData(const std::string& path);
 		static ImageAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
-		static void SaveAssetData(const std::string& path, ImageAssetData assetData);
 		static Texture& CreateTexture2D(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 		static Texture& CreateTextureHDRI(const std::string& path, unsigned char* data, size_t dataSize);
 		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
@@ -103,7 +101,7 @@ namespace Lina::Graphics
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_id = 0;
 		StringIDType m_sid = 0;
-		Vector2 m_size = Vector2::One;
+		Vector2ui m_size = Vector2::One;
 		bool m_isCompressed = false;
 		bool m_hasMipMaps = true;
 		bool m_isEmpty = true;

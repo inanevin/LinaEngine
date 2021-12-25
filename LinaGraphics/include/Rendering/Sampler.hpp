@@ -39,7 +39,7 @@ Timestamp: 4/26/2019 6:20:27 PM
 #ifndef Sampler_HPP
 #define Sampler_HPP
 
-#include "RenderingCommon.hpp"
+#include "Rendering/RenderingCommon.hpp"
 #include "Core/RenderBackendFwd.hpp"
 
 namespace Lina::Graphics

@@ -43,7 +43,7 @@ SOFTWARE.
 
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
-Lina::Vector2 resizeStartSize;
+Lina::Vector2ui resizeStartSize;
 bool appResizeActive;
 bool isAxisPivotLocal;
 
@@ -202,7 +202,7 @@ namespace Lina::Editor
 					appResizeActive = true;
 					ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
 
-					appWindow->SetSize(Vector2(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
+					appWindow->SetSize(Vector2ui(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
 				}
 				else
 				{

@@ -94,7 +94,7 @@ namespace Lina
         const std::size_t headerAddress = (std::size_t) affectedNode + alignmentPadding;
         const std::size_t dataAddress = headerAddress + allocationHeaderSize;
         ((FreeListAllocator::AllocationHeader*) headerAddress)->blockSize = requiredSize;
-        ((FreeListAllocator::AllocationHeader*) headerAddress)->padding = alignmentPadding;
+        ((FreeListAllocator::AllocationHeader*) headerAddress)->padding = (char)alignmentPadding;
 
         m_used += requiredSize;
         m_peak = std::max(m_peak, m_used);

@@ -38,11 +38,8 @@ Timestamp: 12/29/2018 11:28:02 PM
 #ifndef EventSystem_HPP
 #define EventSystem_HPP
 
-#include "Core/Common.hpp"
-#include "Utility/StringId.hpp"
 #include "EventCommon.hpp"
 #include <mutex>
-
 
 namespace Lina
 {
@@ -58,7 +55,7 @@ namespace Lina::Event
 		EventSystem() {}
 		~EventSystem() {};
 
-		FORCEINLINE static EventSystem* Get() { return s_eventSystem; }
+		inline static EventSystem* Get() { return s_eventSystem; }
 
 		template<typename T>
 		bool IsEmpty()
@@ -92,6 +89,19 @@ namespace Lina::Event
 			m_mainDispatcher.sink<T>().disconnect<Candidate>();
 		}
 
+		template<typename Type>
+		void Trigger(const Type&& args)
+		{
+			// std::lock_guard<std::recursive_mutex> l(m_mutex);
+			m_mainDispatcher.trigger<Type>(args);
+		}
+
+		template<typename Type>
+		void Trigger(const Type& args)
+		{
+			// std::lock_guard<std::recursive_mutex> l(m_mutex);
+			m_mainDispatcher.trigger<Type>(args);
+		}
 		template<typename Type>
 		void Trigger(Type&& args)
 		{

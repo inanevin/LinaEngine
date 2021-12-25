@@ -40,17 +40,23 @@ Timestamp: 5/13/2019 12:49:19 AM
 #ifndef LightingSystem_HPP
 #define LightingSystem_HPP
 
-#include "ECS/ECS.hpp"
+#include "Core/CommonApplication.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "ECS/System.hpp"
 #include "Math/Color.hpp"
-#include "Math/Vector.hpp"
+#include "Math/Matrix.hpp"
 #include "Core/RenderBackendFwd.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-
+#include <vector>
+#include <tuple>
 
 namespace Lina::ECS
 {
-	class LightingSystem : public BaseECSSystem
+	struct EntityDataComponent;
+	struct DirectionalLightComponent;
+	struct PointLightComponent;
+	struct SpotLightComponent;
+
+	class LightingSystem : public System
 	{
 	public:
 
@@ -64,7 +70,7 @@ namespace Lina::ECS
 
 		Matrix GetDirectionalLightMatrix();
 		Matrix GetDirLightBiasMatrix();
-		std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2 m_resolution, float near, float farPlane);
+		std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2ui m_resolution, float near, float farPlane);
 		const Vector3& GetDirectionalLightPos();
 
 		DirectionalLightComponent* GetDirLight() { return std::get<1>(m_directionalLight); }

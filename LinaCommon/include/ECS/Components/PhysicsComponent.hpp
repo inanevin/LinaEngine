@@ -36,9 +36,10 @@ Timestamp: 9/30/2020 2:46:27 AM
 #ifndef PhysicsbodyComponent_HPP
 #define PhysicsbodyComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
-#include "Core/Common.hpp"
+#include "Core/CommonPhysics.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina
 {
@@ -68,7 +69,7 @@ namespace Lina::ECS
 	class RigidbodySystem;
 	class Registry;
 
-	struct PhysicsComponent : public ECSComponent
+	struct PhysicsComponent : public Component
 	{
 
 		Lina::Vector3 GetVelocity() { return m_velocity; }

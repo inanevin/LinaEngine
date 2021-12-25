@@ -42,7 +42,8 @@ Timestamp: 6/5/2020 6:51:29 PM
 #include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/ECS.hpp"
+#include "EventSystem/LevelEvents.hpp"
+#include "ECS/Registry.hpp"
 
 namespace Lina::Editor
 {

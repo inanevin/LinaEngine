@@ -42,8 +42,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include "Math/Color.hpp"
-#include "Core/Common.hpp"
-#include "EventSystem/Events.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include <string>
 #include <cereal/archives/portable_binary.hpp>
 
@@ -57,14 +56,28 @@ namespace Lina
 
 namespace Lina::World
 {
-	
+	struct LevelData
+	{
+		std::string m_skyboxMaterialPath = "";
+		int m_skyboxMaterialID = -1;
+		int m_selectedSkyboxMatID = -1;
+		std::string m_selectedSkyboxMatPath = "";
+		Color m_ambientColor = Color(0);
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
+		}
+	};
+
 
 	class Level
 	{
 	public:
 
-		Level() { };
-		virtual ~Level() {  };
+		Level() {};
+		virtual ~Level() {};
 
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
 		virtual void Uninstall();

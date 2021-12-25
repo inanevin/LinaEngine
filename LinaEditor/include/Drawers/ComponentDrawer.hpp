@@ -38,7 +38,8 @@ Timestamp: 10/13/2020 2:34:21 PM
 #ifndef ComponentDrawer_HPP
 #define ComponentDrawer_HPP
 
-#include "ECS/ECS.hpp"
+#include "Core/CommonECS.hpp"
+#include "Core/SizeDefinitions.hpp"
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include <functional>
@@ -81,7 +82,7 @@ namespace Lina::Editor
 		Matrix,
 		Checkmark,
 		MaterialPath,
-		MaterialPathArray,
+		MaterialArray,
 		ModelPath,
 		ModelPathArray
 	};

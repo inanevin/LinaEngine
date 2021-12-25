@@ -38,7 +38,7 @@ Timestamp: 12/12/2021 11:33:54 AM
 #define InputAxis_HPP
 
 // Headers here.
-#include "EventSystem/Events.hpp"
+#include "EventSystem/InputEvents.hpp"
 
 namespace Lina::Input
 {

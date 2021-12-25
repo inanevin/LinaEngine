@@ -48,6 +48,10 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/WindowBackend.hpp"
 #include "Core/MessageBus.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "ECS/SystemList.hpp"
+#include "ECS/System.hpp"
+#include "ECS/Registry.hpp"
+
 #define DELTA_TIME_HISTORY 11
 
 namespace Lina
@@ -66,7 +70,7 @@ namespace Lina
 		void SetPlayMode(bool enabled);
 		void SetIsPaused(bool paused);
 		void SkipNextFrame();
-		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
+		void AddToMainPipeline(ECS::System& system) { m_mainECSPipeline.AddSystem(system); }
 		int GetCurrentFPS() { return m_currentFPS; }
 		int GetCurrentUPS() { return m_currentUPS; }
 		double GetRawDelta() { return m_rawDeltaTime; }
@@ -101,7 +105,7 @@ namespace Lina
 		Graphics::WindowBackend m_window;
 		Event::EventSystem m_eventSystem;
 		ECS::Registry m_ecs;
-		ECS::ECSSystemList m_mainECSPipeline;
+		ECS::SystemList m_mainECSPipeline;
 		Resources::ResourceManager m_resourceManager;
 		MessageBus m_messageBus;
 

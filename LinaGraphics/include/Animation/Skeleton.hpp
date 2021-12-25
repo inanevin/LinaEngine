@@ -40,11 +40,9 @@ Timestamp: 12/7/2021 2:13:56 PM
 #define Skeleton_HPP
 
 // Headers here.
-#include "Math/Matrix.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include <string>
 #include <map>
-
 
 namespace Lina::Graphics
 {
@@ -71,9 +69,7 @@ namespace Lina::Graphics
 			return m_animationMap;
 		}
 
-
 	private:
-
 
 		bool m_loaded = false;
 		std::vector<VertexBoneData> m_vertexBoneData;

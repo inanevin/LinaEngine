@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Rendering/RenderTarget.hpp"
 #include "Core/RenderEngineBackend.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Graphics
 {
@@ -41,26 +42,26 @@ namespace Lina::Graphics
 
 	// TODO: Take care of texture compression. Should not be compressed.
 	// Constructors create the target through render engine.
-	void RenderTarget::Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite , uint32 attachmentNumber, uint32 mipLevel)
+	void RenderTarget::Construct(Texture& texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite , uint32 attachmentNumber, uint32 mipLevel)
 	{
 		m_constructed = true;
-		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
+		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(texture.GetID(),  bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
 		CheckCompressed(texture);
 	}
 
-	void RenderTarget::Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber, uint32 mipLevel )
+	void RenderTarget::Construct(Texture& texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber, uint32 mipLevel )
 	{
 		m_constructed = true;
 		m_rbo = rbo;
-		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
+		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(texture.GetID(), bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
 		CheckCompressed(texture);
 	}
 
-	void RenderTarget::Construct(Vector2 size, FrameBufferAttachment rboAttachment, uint32 rbo)
+	void RenderTarget::Construct(FrameBufferAttachment rboAttachment, uint32 rbo)
 	{
 		m_constructed = true;
 		m_rbo = rbo;
-		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(0, size.x, size.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, false, true, rboAttachment, rbo, false);
+		m_engineBoundID = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderTarget(0, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, false, true, rboAttachment, rbo, false);
 	}
 
 	// Check if the texture is compressed. It should not be so to properly create the target.

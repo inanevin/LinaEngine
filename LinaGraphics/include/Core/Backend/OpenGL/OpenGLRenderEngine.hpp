@@ -40,25 +40,26 @@ Timestamp: 4/15/2019 12:26:31 PM
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
-#include "EventSystem/Events.hpp"
-#include "Core/Common.hpp"
+#include "OpenGLRenderDevice.hpp"
+#include "OpenGLWindow.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Rendering/RenderingCommon.hpp"
-#include "ECS/ECS.hpp"
-#include "ECS/Systems/CameraSystem.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
-#include "ECS/Systems/AnimationSystem.hpp"
-#include "ECS/Systems/MeshRendererSystem.hpp"
-#include "ECS/Systems/SpriteRendererSystem.hpp"
-#include "ECS/Systems/FrustumSystem.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/UniformBuffer.hpp"
-#include "Rendering/RenderContext.hpp"
-#include "Core/Backend/OpenGL/OpenGLWindow.hpp"
-#include "Math/Color.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/RenderSettings.hpp"
 #include "Rendering/PostProcessEffect.hpp"
+#include "ECS/SystemList.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/Systems/LightingSystem.hpp"
+#include "ECS/Systems/AnimationSystem.hpp"
+#include "ECS/Systems/ModelNodeSystem.hpp"
+#include "ECS/Systems/SpriteRendererSystem.hpp"
+#include "ECS/Systems/FrustumSystem.hpp"
 #include <functional>
 #include <set>
 #include <queue>
@@ -89,19 +90,38 @@ namespace Lina::Graphics
 
 		static OpenGLRenderEngine* Get() { return s_renderEngine; }
 
-		void AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system);
-		void SetScreenDisplay(Vector2 offset, Vector2 size);
-		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
+		/// <summary>
+		/// Any system added to the rendering pipeline will be updated within the render loop.
+		/// </summary>
+		void AddToRenderingPipeline(Lina::ECS::System& system);
+
+		/// <summary>
+		/// Sets the screen position and size, resizes the framebuffers accordingly.
+		/// </summary>
+		void SetScreenDisplay(Vector2ui offset, Vector2ui size);
 		void MaterialUpdated(Material& mat);
 		void UpdateShaderData(Material* mat);
 		void SetDrawParameters(const DrawParams& params);
 		void UpdateRenderSettings();
-		void* GetFinalImage();
-		void* GetShadowMapImage();
-		void UpdateSystems(float interpolation);
+
 		void BindShaderToViewBuffer(Shader& shader);
 		void BindShaderToDebugBuffer(Shader& shader);
 		void BindShaderToLightBuffer(Shader& shader);
+
+		/// <summary>
+		/// Sets the current skybox material used to draw the scene.
+		/// </summary>
+		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
+
+		/// <summary>
+		/// Returns a texture pointer to the final drawed image, which is usually drawn to the screen as a full-screen quad.
+		/// </summary>
+		uint32 GetFinalImage();
+
+		/// <summary>
+		/// Returns a texture pointer to the current shadow map.
+		/// </summary>
+		uint32 GetShadowMapImage();
 
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
@@ -112,27 +132,24 @@ namespace Lina::Graphics
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 		void ProcessDebugQueue();
 
-		Vector2 GetScreenSize() { return m_screenSize; }
-		Vector2 GetScreenPos() { return m_screenPos; }
+		UniformBuffer& GetViewBuffer() { return m_globalDataBuffer; }
+		PostProcessEffect& AddPostProcessEffect(Shader& shader);
+		DrawParams GetMainDrawParams() { return m_defaultDrawParams; }
+		OpenGLRenderDevice* GetRenderDevice() { return &m_renderDevice; }
+		RenderSettings& GetRenderSettings() { return m_renderSettings; }
+		Texture& GetHDRICubemap() { return m_hdriCubemap; }
+		uint32 GetScreenQuadVAO() { return m_screenQuadVAO; }
+		Vector2ui GetScreenSize() { return m_screenSize; }
+		Vector2ui GetScreenPos() { return m_screenPos; }
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 		ECS::LightingSystem* GetLightingSystem() { return &m_lightingSystem; }
-		ECS::MeshRendererSystem* GetMeshRendererSystem() { return &m_meshRendererSystem; }
+		ECS::ModelNodeSystem* GetModelNodeSystem() { return &m_modelNodeSystem; }
 		ECS::FrustumSystem* GetFrustumSystem() { return &m_frustumSystem; }
-		Texture& GetHDRICubemap() { return m_hdriCubemap; }
 		static Texture& GetDefaultTexture() { return s_defaultTexture; }
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
 		static Shader& GetDefaultShader() { return *s_standardUnlitShader; }
-		RenderSettings& GetRenderSettings() { return m_renderSettings; }
-		OpenGLRenderDevice* GetRenderDevice() { return &m_renderDevice; }
-
-		DrawParams GetMainDrawParams() { return m_defaultDrawParams; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
-		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool completeFlush = true);
-		void DrawSkybox();
-		uint32 GetScreenQuadVAO() { return m_screenQuadVAO; }
-		PostProcessEffect& AddPostProcessEffect(Shader& shader);
-		UniformBuffer& GetViewBuffer() { return m_globalDataBuffer; }
 
 
 	private:
@@ -144,6 +161,9 @@ namespace Lina::Graphics
 		void Shutdown();
 		void Tick(float delta);
 		void Render(float interpolation);
+		void UpdateSystems(float interpolation);
+		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool completeFlush = true);
+		void DrawSkybox();
 
 	private:
 
@@ -164,7 +184,7 @@ namespace Lina::Graphics
 		void Draw();
 		void DrawFinalize();
 		void UpdateUniformBuffers();
-		
+
 		// Generating necessary maps for HDRI specular highlighting
 		void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
 		void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
@@ -173,10 +193,10 @@ namespace Lina::Graphics
 	private:
 
 		static OpenGLRenderEngine* s_renderEngine;
-		ApplicationMode m_appMode;
-		Event::EventSystem* m_eventSystem;
+		ApplicationMode m_appMode = ApplicationMode::Editor;
+		OpenGLWindow* m_appWindow = nullptr;
 		OpenGLRenderDevice m_renderDevice;
-		OpenGLWindow* m_appWindow;
+		Event::EventSystem* m_eventSystem = nullptr;
 
 		RenderTarget m_primaryRenderTarget;
 		RenderTarget m_secondaryRenderTarget;
@@ -257,12 +277,12 @@ namespace Lina::Graphics
 
 		Lina::ECS::AnimationSystem m_animationSystem;
 		Lina::ECS::CameraSystem m_cameraSystem;
-		Lina::ECS::MeshRendererSystem m_meshRendererSystem;
+		Lina::ECS::ModelNodeSystem m_modelNodeSystem;
 		Lina::ECS::SpriteRendererSystem m_spriteRendererSystem;
 		Lina::ECS::LightingSystem m_lightingSystem;
 		Lina::ECS::FrustumSystem m_frustumSystem;
-		Lina::ECS::ECSSystemList m_renderingPipeline;
-		Lina::ECS::ECSSystemList m_animationPipeline;
+		Lina::ECS::SystemList m_renderingPipeline;
+		Lina::ECS::SystemList m_animationPipeline;
 
 	private:
 
@@ -275,19 +295,17 @@ namespace Lina::Graphics
 		int m_currentPointLightCount = 0;
 		bool m_hdriDataCaptured = false;
 
-		Vector2 m_hdriResolution = Vector2(512, 512);
-		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
-		Vector2 m_screenPos = Vector2::Zero;
-		Vector2 m_screenSize = Vector2::Zero;
-		Vector2 m_pLightShadowResolution = Vector2(1024, 1024);
+		Vector2ui m_hdriResolution = Vector2(512, 512);
+		Vector2ui m_shadowMapResolution = Vector2(2048, 2048);
+		Vector2ui m_screenPos = Vector2ui(0, 0);
+		Vector2ui m_screenSize = Vector2ui(0, 0);
+		Vector2ui m_pLightShadowResolution = Vector2(1024, 1024);
 
 		bool m_firstFrameDrawn = false;
 
 		std::queue<DebugLine> m_debugLineQueue;
 		std::queue<DebugIcon> m_debugIconQueue;
 		std::map<Shader*, PostProcessEffect> m_postProcessMap;
-
-		DISALLOW_COPY_ASSIGN_MOVE(OpenGLRenderEngine)
 	};
 
 }

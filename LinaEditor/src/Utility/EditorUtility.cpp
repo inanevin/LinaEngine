@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/EditorUtility.hpp"
+#include "Log/Log.hpp"
 #include "Rendering/Material.hpp"
 #include <filesystem>
 #include <cereal/archives/binary.hpp>

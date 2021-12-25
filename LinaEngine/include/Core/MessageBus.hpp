@@ -40,7 +40,7 @@ Timestamp: 12/24/2021 10:43:34 AM
 #define MessageBus_HPP
 
 // Headers here.
-#include "EventSystem/Events.hpp"
+#include "Core/CommonApplication.hpp"
 
 namespace Lina
 {

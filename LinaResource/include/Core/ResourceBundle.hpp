@@ -40,8 +40,8 @@ Timestamp: 12/22/2020 12:26:55 AM
 #define ResourceBundle_HPP
 
 // Headers here.
-#include "ResourcesCommon.hpp"
-#include "Utility/UtilityFunctions.hpp"
+#include "Core/CommonResources.hpp"
+#include "Core/CommonUtility.hpp"
 #include <queue>
 
 namespace Lina

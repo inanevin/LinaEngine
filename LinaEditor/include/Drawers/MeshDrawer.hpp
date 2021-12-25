@@ -40,7 +40,6 @@ Timestamp: 10/22/2020 1:33:48 AM
 #define MeshDrawer_HPP
 #include "Rendering/RenderingCommon.hpp"
 
-
 namespace Lina
 {
 	namespace Graphics
@@ -48,7 +47,6 @@ namespace Lina
 		class Model;
 	}
 }
-
 namespace Lina::Editor
 {
 	class MeshDrawer
@@ -66,7 +64,7 @@ namespace Lina::Editor
 	private:
 	
 		Lina::Graphics::Model* m_selectedMesh = nullptr;
-		Lina::Graphics::ModelAssetData m_selectedParams;
+		//Lina::Graphics::ModelAssetData m_selectedParams;
 	};
 }
 

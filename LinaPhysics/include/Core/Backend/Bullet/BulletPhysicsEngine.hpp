@@ -104,7 +104,7 @@ namespace Lina::Physics
 		btDiscreteDynamicsWorld* m_world = nullptr;
 		BulletGizmoDrawer m_gizmoDrawer;
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
-		Lina::ECS::ECSSystemList m_physicsPipeline;
+		Lina::ECS::SystemList m_physicsPipeline;
 		Lina::Event::EventSystem* m_eventSystem;
 		std::map<ECS::Entity, btRigidBody*> s_bodies;		
 		bool m_debugDrawEnabled = false;

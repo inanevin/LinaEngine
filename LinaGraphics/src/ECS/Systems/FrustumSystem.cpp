@@ -27,15 +27,16 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/FrustumSystem.hpp"
+#include "ECS/Registry.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina::ECS
 {
 	void FrustumSystem::Initialize()
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 	}
 
 	void FrustumSystem::UpdateComponents(float delta)
@@ -44,18 +45,18 @@ namespace Lina::ECS
 
 	bool FrustumSystem::GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent)
 	{
-		MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
-
-		if (mr != nullptr)
-		{
-			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(ent);
-			const Vector3 entityLocation = data.GetLocation();
-			const Vector3 vertexOffset = mr->m_totalVertexCenter * data.GetScale();
-			const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
-			boundsPosition = entityLocation + offsetAddition;
-			boundsHalfExtent = mr->m_totalHalfBounds * data.GetScale() * data.GetRotation();
-			return true;
-		}
+	// MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
+	// 
+	// if (mr != nullptr)
+	// {
+	// 	EntityDataComponent& data = m_ecs->get<EntityDataComponent>(ent);
+	// 	const Vector3 entityLocation = data.GetLocation();
+	// 	const Vector3 vertexOffset = mr->m_totalVertexCenter * data.GetScale();
+	// 	const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
+	// 	boundsPosition = entityLocation + offsetAddition;
+	// 	boundsHalfExtent = mr->m_totalHalfBounds * data.GetScale() * data.GetRotation();
+	// 	return true;
+	// }
 
 		SpriteRendererComponent* sr = m_ecs->try_get<SpriteRendererComponent>(ent);
 		if (sr != nullptr)

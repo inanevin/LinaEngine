@@ -40,8 +40,8 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef Shader_HPP
 #define Shader_HPP
 
-#include "Core/Common.hpp"
-#include "UniformBuffer.hpp"
+#include "Rendering/RenderingCommon.hpp"
+#include "Rendering/UniformBuffer.hpp"
 #include <string>
 
 namespace Lina::Graphics

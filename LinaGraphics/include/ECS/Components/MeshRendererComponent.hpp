@@ -36,7 +36,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 #ifndef RenderableMeshComponent_HPP
 #define RenderableMeshComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
 #include "Utility/StringId.hpp"
 #include "Math/Vector.hpp"
 #include <cereal/types/string.hpp>
@@ -44,7 +44,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 namespace Lina::ECS
 {
-	struct MeshRendererComponent : public ECSComponent
+	struct MeshRendererComponent : public Component
 	{
 		std::string m_modelPath = "";
 		std::string m_materialPath = "";

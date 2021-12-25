@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/EditorCameraSystem.hpp"
+#include "ECS/Registry.hpp"
 #include "Core/InputBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/Application.hpp"
@@ -40,7 +41,7 @@ namespace Lina::ECS
 
 	void EditorCameraSystem::Initialize(Lina::Editor::LevelPanel& scenePanel)
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 		m_levelPanel = &scenePanel;
 		m_inputEngine = Lina::Input::InputEngineBackend::Get();
 	}

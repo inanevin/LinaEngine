@@ -43,31 +43,65 @@ Timestamp: 12/24/2021 9:00:02 PM
 #include "Utility/StringId.hpp"
 #include "Math/Matrix.hpp"
 #include <vector>
+#include <memory>
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
 
 struct aiNode;
 struct aiScene;
 
+namespace Lina
+{
+	namespace ECS
+	{
+		class ModelNodeSystem;
+	}
+}
+
 namespace Lina::Graphics
 {
 	class Mesh;
+	class Model;
+	class ModelLoader;
 
 	class ModelNode
 	{
 		
 	public:
 		
-		ModelNode() {};
+		ModelNode();
 		~ModelNode();
-	
-		void FillNodeHierarchy(const aiNode* node, const aiScene* scene);
+		ModelNode(const ModelNode& old_obj);
+
+		void FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly);
+		inline const std::vector<Mesh*>& GetMeshes() const { return m_meshes; }
+		inline const std::string& GetName() const { return m_name; }
+		inline const std::vector<ModelNode*>& GetChildren() const { return m_children; }
 
 	private:
 
-		std::vector<Mesh*> m_meshes;
+		void Clear()
+		{
+			m_id = 0;
+			m_name = "";
+			m_localTransform = Matrix();
+			m_defaultMaterials.clear();
+			m_children.clear();
+		}
+
+	private:
+
+		friend class Lina::ECS::ModelNodeSystem;
+		friend class Lina::Graphics::ModelLoader;
+		friend class cereal::access;
+
 		StringIDType m_id = 0;
+		std::vector<StringIDType> m_defaultMaterials;
+		std::vector<Mesh*> m_meshes;
 		std::string m_name = "";
 		Lina::Matrix m_localTransform;
-		std::vector<ModelNode> m_children;
+		std::vector<ModelNode*> m_children;
+		
 	};
 }
 

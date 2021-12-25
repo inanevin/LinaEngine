@@ -108,7 +108,7 @@ namespace Lina
 
 	float Vector4::Magnitude() const
 	{
-		return length();
+		return glm::length(glm::vec4(*this));
 	}
 
 	float Vector4::MagnitudeSqrt() const
@@ -293,7 +293,7 @@ namespace Lina
 
 	float Vector2::Magnitude() const
 	{
-		return length();
+		return glm::length(glm::vec2(*this));
 	}
 
 	float Vector2::MagnitudeSqrt() const

@@ -39,12 +39,12 @@ Timestamp: 5/2/2019 1:40:16 AM
 #ifndef FreeLookComponent_HPP
 #define FreeLookComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
+#include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
 
 namespace Lina::ECS
 {
-	struct FreeLookComponent : public ECSComponent
+	struct FreeLookComponent : public Component
 	{
 		Vector2 m_angles = Vector2::Zero;
 		Vector2 m_movementSpeeds = Vector2(12,12);

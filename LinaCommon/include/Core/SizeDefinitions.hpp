@@ -40,7 +40,6 @@ Timestamp: 4/7/2019 3:29:18 PM
 #ifndef SizeDefinitions_HPP
 #define SizeDefinitions_HPP
 
-
 #if defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && _MSC_VER >= 1600)
 #include <stdint.h>
 #elif defined(_MSC_VER)
@@ -56,13 +55,6 @@ typedef uint64_t uintptr_t;
 typedef int64_t intptr_t;
 typedef int16_t wchar_t;
 #else
-// TODO: Have a better "if all else fails" condition.
-//
-// Preferably, make all sizes at least big enough for the data size.
-// Also, try including C++11 standard types if possible.
-//
-// List of C++'s standard data sizing rules:
-// 
 // sizeof(char) == 1
 // sizeof(char) <= sizeof(short)
 // sizeof(short) <= sizeof(int)

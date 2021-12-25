@@ -42,7 +42,8 @@ Timestamp: 12/24/2021 9:09:36 PM
 // Headers here.
 #include "Math/Vector.hpp"
 #include "Math/Matrix.hpp"
-#include <assimp/scene.h>
+#include <assimp/matrix4x4.h>
+#include <assimp/vector3.h>
 
 namespace Lina::Graphics
 {

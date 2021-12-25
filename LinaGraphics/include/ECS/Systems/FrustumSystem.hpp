@@ -40,11 +40,17 @@ Timestamp: 12/24/2021 12:59:35 AM
 #define FrustumSystem_HPP
 
 // Headers here.
-#include "ECS/ECS.hpp"
+#include "ECS/System.hpp"
+#include "Core/CommonECS.hpp"
+
+namespace Lina
+{
+	class Vector3;
+}
 
 namespace Lina::ECS
 {
-	class FrustumSystem : public BaseECSSystem
+	class FrustumSystem : public System
 	{
 		
 	public:

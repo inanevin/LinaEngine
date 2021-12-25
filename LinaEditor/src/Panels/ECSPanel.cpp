@@ -216,7 +216,7 @@ namespace Lina::Editor
 
 					auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
-					for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+					for (int i = 0; i < model.GetImportedMaterials().size(); i++)
 						mr.SetMaterial(entity, i, mat);
 				}
 

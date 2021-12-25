@@ -41,6 +41,8 @@ SOFTWARE.
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/CustomFontIcons.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -237,7 +239,7 @@ namespace Lina::Editor
 		// OnPostRender(Event::EPostRender());
 	}
 
-	void GUILayer::OnShutdown(Event::EShutdown ev)
+	void GUILayer::OnShutdown(const Event::EShutdown& ev)
 	{
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
@@ -246,7 +248,7 @@ namespace Lina::Editor
 		ImPlot::DestroyContext();
 	}
 
-	void GUILayer::OnPostRender(Event::EPostRender ev)
+	void GUILayer::OnPostRender(const Event::EPostRender& ev)
 	{
 		// Set draw params first.
 		Lina::Graphics::RenderEngineBackend::Get()->SetDrawParameters(m_drawParameters);
@@ -404,7 +406,7 @@ namespace Lina::Editor
 		m_ecsPanel.Refresh();
 	}
 
-	void GUILayer::OnResourceLoadUpdated(Event::EResourceLoadUpdated ev)
+	void GUILayer::OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev)
 	{
 		m_currentlyLoadingResource = ev.m_currentResource;
 		m_percentage = ev.m_percentage;
@@ -544,7 +546,7 @@ namespace Lina::Editor
 
 		auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
-		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+		for (int i = 0; i < model.GetImportedMaterials().size(); i++)
 			mr.SetMaterial(entity, i, mat);
 	}
 }

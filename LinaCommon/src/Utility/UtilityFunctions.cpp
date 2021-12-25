@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/UtilityFunctions.hpp"
+#include "Core/PlatformMacros.hpp"
 #include "Log/Log.hpp"
 #include <fstream>
 #include <iostream>
@@ -35,6 +36,7 @@ SOFTWARE.
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 double g_timerFrequency;
@@ -72,7 +74,8 @@ namespace Lina
 #endif
 
 #ifdef LINA_UNKNOWN_PLATFORM
-			return (double)glfwGetTime();
+			LINA_ERR("Uknown platform!");
+			return 0.0f;
 #endif
 		}
 
@@ -87,6 +90,7 @@ namespace Lina
 			size_t convertedSize;
 			std::wcstombs_s(&convertedSize, buffer, size, input, size);
 #else
+#pragma warning(disable : 4996)
 			std::wcstombs(buffer, input, size);
 #endif
 			return buffer;
@@ -330,14 +334,14 @@ namespace Lina
 		std::string GetRunningDirectory()
 		{
 #ifdef LINA_PLATFORM_WINDOWS
-
 			TCHAR buffer[MAX_PATH] = { 0 };
 			GetModuleFileName(NULL, buffer, MAX_PATH);
 			std::string exeFilename = std::string(buffer);
 			std::string runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
 			return runningDirectory;
+#else
+	LINA_ERR("GetRunningDirectory() implementation missing for other platforms!");
 #endif
-
 			return "";
 		}
 		std::string ToLower(const std::string& input)

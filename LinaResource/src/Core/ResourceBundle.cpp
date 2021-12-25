@@ -26,11 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
 #include "Core/ResourceBundle.hpp"
-#include "Log/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Math/Math.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Resources
 {

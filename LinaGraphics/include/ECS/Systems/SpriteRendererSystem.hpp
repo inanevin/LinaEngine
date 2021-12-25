@@ -40,22 +40,25 @@ Timestamp: 10/1/2020 9:27:40 AM
 #define SpriteRendererSystem_HPP
 
 
-#include "ECS/ECS.hpp"
-#include "Rendering/VertexArray.hpp"
-#include "Rendering/Mesh.hpp"
+#include "ECS/System.hpp"
+#include "Math/Matrix.hpp"
 #include "Core/RenderBackendFwd.hpp"
+#include <vector>
+#include <map>
 
 namespace Lina
 {
 	namespace Graphics
 	{
 		class Material;
+		class Mesh;
+		struct DrawParams;
 	}
 }
 
 namespace Lina::ECS
 {
-	class SpriteRendererSystem : public BaseECSSystem
+	class SpriteRendererSystem : public System
 	{
 
 		struct BatchModelData
@@ -66,7 +69,7 @@ namespace Lina::ECS
 	public:
 		
 		SpriteRendererSystem() {};
-		~SpriteRendererSystem() {};
+		~SpriteRendererSystem();
 	
 		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta) override;
@@ -79,7 +82,7 @@ namespace Lina::ECS
 		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
 		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
 
-		Graphics::Mesh m_quadMesh;
+		Graphics::Mesh* m_quadMesh;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;
 	};
 }

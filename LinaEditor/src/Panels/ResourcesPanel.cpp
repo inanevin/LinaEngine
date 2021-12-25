@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Rendering/Shader.hpp"
+#include "Math/Math.hpp"
 #include "IconsFontAwesome5.h"
 #include "imgui/imgui.h"
 #include <filesystem>

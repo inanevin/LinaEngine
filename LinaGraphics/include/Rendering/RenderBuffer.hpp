@@ -40,7 +40,6 @@ Timestamp: 5/19/2020 8:10:11 PM
 #ifndef RenderBuffer_HPP
 #define RenderBuffer_HPP
 
-#include "Core/SizeDefinitions.hpp"
 #include "Rendering/RenderingCommon.hpp"
 
 namespace Lina::Graphics
@@ -53,7 +52,7 @@ namespace Lina::Graphics
 		RenderBuffer() {};
 		~RenderBuffer();
 		
-		void Construct(RenderBufferStorage storage, const Vector2& size, int sampleCount = 0);
+		void Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount = 0);
 
 		uint32 GetID() { return m_id; }
 

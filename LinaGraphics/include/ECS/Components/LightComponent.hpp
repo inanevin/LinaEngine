@@ -42,13 +42,12 @@ Timestamp: 5/13/2019 9:00:55 PM
 #include "Math/Color.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Math.hpp"
-#include "ECS/ECSComponent.hpp"
-
+#include "ECS/Component.hpp"
 
 namespace Lina::ECS
 {
 
-	struct LightComponent : public ECSComponent
+	struct LightComponent : public Component
 	{
 		Color m_color = Color::White;
 		float m_intensity = 1.0f;

@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "Log/Log.hpp"
+#include "Core/CommonInput.hpp"
+#include "Math/Math.hpp"
 #include "Panels/LevelPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/InputMappings.hpp"
@@ -284,7 +286,7 @@ namespace Lina::Editor
 
 					auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 
-					for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+					for (int i = 0; i < model.GetImportedMaterials().size(); i++)
 						mr.SetMaterial(entity, i, mat);
 				}
 				ImGui::EndDragDropTarget();

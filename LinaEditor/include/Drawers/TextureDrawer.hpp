@@ -40,7 +40,6 @@ Timestamp: 10/16/2020 6:27:20 PM
 #define TextureDrawer_HPP
 
 #include "Rendering/RenderingCommon.hpp"
-#include "Core/Common.hpp"
 
 namespace Lina
 {

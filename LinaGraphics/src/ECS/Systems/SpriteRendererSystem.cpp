@@ -29,18 +29,28 @@ SOFTWARE.
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
+#include "ECS/Registry.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Core/RenderDeviceBackend.hpp"
+#include "Utility/ModelLoader.hpp"
+#include "Rendering/Mesh.hpp"
 
 namespace Lina::ECS
 {
+	SpriteRendererSystem::~SpriteRendererSystem()
+	{
+		delete m_quadMesh;
+	}
+
 	void SpriteRendererSystem::Initialize()
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 		m_renderEngine = Graphics::RenderEngineBackend::Get();
 		m_renderDevice = m_renderEngine->GetRenderDevice();
-		Graphics::ModelLoader::LoadSpriteQuad(m_quadMesh);
-		m_quadMesh.CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
+
+		m_quadMesh = new Graphics::Mesh();
+		Graphics::ModelLoader::LoadSpriteQuad(*m_quadMesh);
+		m_quadMesh->CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
@@ -87,10 +97,10 @@ namespace Lina::ECS
 			Graphics::Material* mat = overrideMaterial == nullptr ? it->first : overrideMaterial;
 
 			// Update the buffer w/ each transform.
-			m_quadMesh.GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
+			m_quadMesh->GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			m_renderDevice->Draw(m_quadMesh.GetVertexArray().GetID(), drawParams, numTransforms, m_quadMesh.GetVertexArray().GetIndexCount(), false);
+			m_renderDevice->Draw(m_quadMesh->GetVertexArray().GetID(), drawParams, (uint32)numTransforms, m_quadMesh->GetVertexArray().GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

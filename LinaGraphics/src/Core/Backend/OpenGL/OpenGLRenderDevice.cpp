@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Backend/OpenGL/OpenGLRenderDevice.hpp"  
+#include "Log/Log.hpp"
 #include "Math/Color.hpp"
 #include "Memory/Memory.hpp"
 #include "glad/glad.h"
@@ -254,7 +255,7 @@ namespace Lina::Graphics
 	// ---------------------------------------------------------------------
 
 
-	uint32 OpenGLRenderDevice::CreateTexture2D(Vector2 size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
+	uint32 OpenGLRenderDevice::CreateTexture2D(Vector2ui size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -285,7 +286,7 @@ namespace Lina::Graphics
 		return textureHandle;
 	}
 
-	uint32 OpenGLRenderDevice::CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams)
+	uint32 OpenGLRenderDevice::CreateTextureHDRI(Vector2ui size, float* data, SamplerParameters samplerParams)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -317,7 +318,7 @@ namespace Lina::Graphics
 		return textureHandle;
 	}
 
-	uint32 OpenGLRenderDevice::CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
+	uint32 OpenGLRenderDevice::CreateCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
 	{
 		GLuint textureHandle;
 		// Declare formats, target & handle for the texture.
@@ -350,7 +351,7 @@ namespace Lina::Graphics
 		return textureHandle;
 	}
 
-	uint32 OpenGLRenderDevice::CreateCubemapTextureEmpty(Vector2 size, SamplerParameters samplerParams)
+	uint32 OpenGLRenderDevice::CreateCubemapTextureEmpty(Vector2ui size, SamplerParameters samplerParams)
 	{
 		GLuint textureHandle;
 		// Declare formats, target & handle for the texture.
@@ -382,7 +383,7 @@ namespace Lina::Graphics
 		return textureHandle;
 	}
 
-	uint32 OpenGLRenderDevice::CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount)
+	uint32 OpenGLRenderDevice::CreateTexture2DMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -413,7 +414,7 @@ namespace Lina::Graphics
 		return textureHandle;
 	}
 
-	uint32 OpenGLRenderDevice::CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams)
+	uint32 OpenGLRenderDevice::CreateTexture2DEmpty(Vector2ui size, SamplerParameters samplerParams)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -447,11 +448,11 @@ namespace Lina::Graphics
 	void OpenGLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder, float* borderColor)
 	{
 		// OpenGL texture params.
-		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
-		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, (GLfloat)samplerParams.m_textureParams.m_minFilter);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, (GLfloat)samplerParams.m_textureParams.m_magFilter);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, (GLint)samplerParams.m_textureParams.m_wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, (GLint)samplerParams.m_textureParams.m_wrapT);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, (GLint)samplerParams.m_textureParams.m_wrapR);
 
 		if (useBorder)
 		{
@@ -463,11 +464,11 @@ namespace Lina::Graphics
 	void OpenGLRenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
 	{
 		glBindTexture(bindMode, id);
-		glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
-		glTexParameterf(bindMode, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
+		glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, (GLfloat)samplerParams.m_textureParams.m_minFilter);
+		glTexParameterf(bindMode, GL_TEXTURE_MAG_FILTER, (GLfloat)samplerParams.m_textureParams.m_magFilter);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_S, (GLint)samplerParams.m_textureParams.m_wrapS);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_T, (GLint)samplerParams.m_textureParams.m_wrapT);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_R, (GLint)samplerParams.m_textureParams.m_wrapR);
 
 		// Enable mipmaps if needed.
 		if (samplerParams.m_textureParams.m_generateMipMaps)
@@ -719,7 +720,7 @@ namespace Lina::Graphics
 			glSamplerParameteri(result, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
 		// Set m_anisotropy if applicable.
 		if (samplerParams.m_anisotropy != 0.0f && samplerParams.m_textureParams.m_minFilter != FILTER_NEAREST && samplerParams.m_textureParams.m_minFilter != FILTER_LINEAR)
-			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.m_anisotropy);
+			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, (GLfloat)samplerParams.m_anisotropy);
 
 		return result;
 	}
@@ -847,7 +848,7 @@ namespace Lina::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 OpenGLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo, bool errorCheck)
+	uint32 OpenGLRenderDevice::CreateRenderTarget(uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo, bool errorCheck)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -909,7 +910,7 @@ namespace Lina::Graphics
 		SetFBO(0);
 	}
 
-	void OpenGLRenderDevice::ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
+	void OpenGLRenderDevice::ResizeRTTexture(uint32 texture, Vector2ui newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
 	{
 		glBindTexture(bindMode, texture);
 		GLint format = GetOpenGLFormat(m_pixelFormat);
@@ -918,7 +919,7 @@ namespace Lina::Graphics
 		glBindTexture(bindMode, 0);
 	}
 
-	void OpenGLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
+	void OpenGLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2ui newSize, RenderBufferStorage storage)
 	{
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 		glRenderbufferStorage(GL_RENDERBUFFER, storage, (uint32)newSize.x, (uint32)newSize.y);
@@ -964,7 +965,7 @@ namespace Lina::Graphics
 
 		// Set m_anisotropy if applicable.
 		if (samplerParams.m_anisotropy != 0.0f && samplerParams.m_textureParams.m_minFilter != FILTER_NEAREST && samplerParams.m_textureParams.m_minFilter != FILTER_LINEAR)
-			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.m_anisotropy);
+			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, (GLfloat)samplerParams.m_anisotropy);
 
 	}
 
@@ -1134,7 +1135,7 @@ namespace Lina::Graphics
 			GLenum type = 0;
 			GLsizei actualLength = 0;
 			// Get sampler uniform data & store it on our sampler map.
-			glGetActiveUniform(shader, uniform, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
+			glGetActiveUniform(shader, uniform, (GLsizei)uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
 			std::string nameStr = &uniformName[0];
 			//	for (int j = 0; j < uniformName.size(); j++)
@@ -1366,7 +1367,7 @@ namespace Lina::Graphics
 		m_boundVAO = vao;
 	}
 
-	void OpenGLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2 captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
+	void OpenGLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2ui captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
 	{
 		uint32 captureFBO;
 		glGenFramebuffers(1, &captureFBO);
@@ -1396,7 +1397,7 @@ namespace Lina::Graphics
 		m_boundRBO = rbo;
 	}
 
-	void OpenGLRenderDevice::SetViewport(Vector2 pos, Vector2 size)
+	void OpenGLRenderDevice::SetViewport(Vector2ui pos, Vector2ui size)
 	{
 		// Update viewport according to the render targets if exist.
 		// if (fbo == m_ViewportFBO) return;
@@ -1732,7 +1733,7 @@ namespace Lina::Graphics
 			GLsizei actualLength = 0;
 
 			// Use appropriate attribute location.
-			glGetActiveAttrib(program, attrib, nameData.size(), &actualLength, &arraySize, &type, &nameData[0]);
+			glGetActiveAttrib(program, attrib, (GLsizei)nameData.size(), &actualLength, &arraySize, &type, &nameData[0]);
 			glBindAttribLocation(program, attrib, (char*)&nameData[0]);
 
 		}
@@ -1770,7 +1771,7 @@ namespace Lina::Graphics
 			GLsizei actualLength = 0;
 
 			// Get sampler uniform data & store it on our sampler map.
-			glGetActiveUniform(shaderProgram, uniform, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
+			glGetActiveUniform(shaderProgram, uniform, (GLsizei)uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
 			/*if (type != GL_SAMPLER_2D)
 			{

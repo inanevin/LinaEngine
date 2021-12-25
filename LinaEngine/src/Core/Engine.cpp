@@ -28,16 +28,17 @@ SOFTWARE.
 
 #include "Core/Engine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include "Audio/Audio.hpp"
+#include "Log/Log.hpp"
+#include "EventSystem/PhysicsEvents.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/Timer.hpp"
-#include "Core/PhysicsCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
 namespace Lina
@@ -90,6 +91,7 @@ namespace Lina
 		m_appInfo = appInfo;
 		m_eventSystem.Initialize();
 		m_inputEngine.Initialize();
+		m_resourceManager.Initialize(m_appInfo);
 
 		// Build main window.
 		bool windowCreationSuccess = m_window.CreateContext(appInfo);
@@ -117,9 +119,8 @@ namespace Lina
 		m_ecs.RegisterComponent<ECS::PointLightComponent>();
 		m_ecs.RegisterComponent<ECS::SpotLightComponent>();
 		m_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
-		m_ecs.RegisterComponent<ECS::MeshRendererComponent>();
-		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
 		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
+		m_ecs.RegisterComponent<ECS::ModelNodeComponent>();
 	}
 
 	void Engine::StartLoadingResources()
@@ -224,13 +225,15 @@ namespace Lina
 
 		// Physics events & physics tick.
 		m_physicsAccumulator += deltaTime;
-		if (m_physicsAccumulator >= PHYSICS_STEP)
+		float physicsStep = m_physicsEngine.GetStepTime();
+
+		if (m_physicsAccumulator >= physicsStep)
 		{
-			m_physicsAccumulator -= PHYSICS_STEP;
+			m_physicsAccumulator -= physicsStep;
 			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-			m_physicsEngine.Tick(PHYSICS_STEP);
-			m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_STEP, m_isInPlayMode });
-			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_STEP, m_isInPlayMode });
+			m_physicsEngine.Tick(physicsStep);
+			m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ physicsStep, m_isInPlayMode });
+			m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ physicsStep, m_isInPlayMode });
 		}
 
 		// Other main systems (engine or game)

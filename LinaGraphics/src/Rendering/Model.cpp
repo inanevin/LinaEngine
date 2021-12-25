@@ -53,12 +53,12 @@ namespace Lina::Graphics
 		return params;
 	}
 
-	void Model::SaveAssetData(const std::string& path, ModelAssetData modelAssetData)
+	void Model::SaveAssetData(const std::string& path)
 	{
 		std::ofstream stream(path, std::ios::binary);
 		{
 			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(modelAssetData); 
+			oarchive(m_assetData); 
 		}
 	}
 
@@ -76,15 +76,15 @@ namespace Lina::Graphics
 		return params;
 	}
 
-	Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData modelAssetData)
+	Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData)
 	{
 		StringIDType id = StringID(path.c_str()).value();
 
 		Model& model = s_loadedModels[id];
-		model.SetAssetData(modelAssetData);
+		model.m_assetData = modelAssetData;
 		model.m_assetDataPath = assetDataPath;
 		model.m_path = path;
-		ModelLoader::LoadModel(data, dataSize, model, modelAssetData);
+		ModelLoader::LoadModel(data, dataSize, model);
 
 		// Set id
 		model.m_id = id;
@@ -94,15 +94,15 @@ namespace Lina::Graphics
 	}
 
 
-	Model& Model::CreateModel(const std::string& filePath, ModelAssetData modelAssetData,  const std::string& assetDataPath)
+	Model& Model::CreateModel(const std::string& filePath, ModelAssetData& modelAssetData,  const std::string& assetDataPath)
 	{
 		StringIDType id = StringID(filePath.c_str()).value();
 
 		Model& model = s_loadedModels[id];
-		model.SetAssetData(modelAssetData);
+		model.m_assetData = modelAssetData;
 		model.m_assetDataPath = assetDataPath;
 		model.m_path = filePath;
-		ModelLoader::LoadModel(filePath, model, modelAssetData);
+		ModelLoader::LoadModel(filePath, model);
 
 		// Set id
 		model.m_id = id;

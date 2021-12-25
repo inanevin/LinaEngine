@@ -39,7 +39,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-#include "EventSystem/Events.hpp"
+#include "EventSystem/ApplicationEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Core/Engine.hpp"
 
 namespace Lina
@@ -75,7 +76,7 @@ namespace Lina
 	private:
 
 		// Callbacks.
-		void OnLog(Event::ELog dump);
+		void OnLog(const Event::ELog& dump);
 		bool OnWindowClose(Event::EWindowClosed);
 		void OnWindowResize(Event::EWindowResized);
 

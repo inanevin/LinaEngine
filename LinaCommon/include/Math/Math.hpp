@@ -40,11 +40,8 @@ Timestamp: 4/8/2019 9:14:44 PM
 #define Math_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Core/Common.hpp"
-
 #include <cmath>
 #include <cstdlib>
-
 
 #define MATH_PI 3.1415926535897932f
 #define MATH_TWO_PI 6.28318530717959f

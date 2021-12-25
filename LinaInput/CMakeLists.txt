@@ -39,7 +39,6 @@ set(LINAINPUT_HEADERS
 	#Input
 	include/Core/Backend/GLFW/GLFWInputEngine.hpp
 	include/Core/InputMappings.hpp
-	include/Core/InputCommon.hpp
 	include/Core/InputBackend.hpp
 	include/Core/InputAxis.hpp
 	include/Core/InputBackendFwd.hpp

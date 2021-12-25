@@ -32,17 +32,20 @@ SOFTWARE.
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include "Utility/ModelLoader.hpp"
-#include "ECS/ECS.hpp"
-#include "Utility/UtilityFunctions.hpp"
+#include "ECS/Registry.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
-#include "Core/Backend/OpenGL/OpenGLRenderDevice.hpp"
-#include "Helpers/DrawParameterHelper.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/Timer.hpp"
-#include "..\..\..\..\include\Core\Backend\OpenGL\OpenGLRenderEngine.hpp"
+#include "Math/Math.hpp"
+#include "Math/Transformation.hpp"
+#include "Log/Log.hpp"
+#include "Helpers/DrawParameterHelper.hpp"
+#include "Utility/UtilityFunctions.hpp"
+#include "Utility/ModelLoader.hpp"
 
 namespace Lina::Graphics
 {
@@ -135,15 +138,14 @@ namespace Lina::Graphics
 		m_defaultCubemapTexture.ConstructRTCubemapTexture(m_screenSize, SamplerParameters());
 
 		// Add the ECS systems into the pipeline.
-		m_cameraSystem.Initialize();
-		m_meshRendererSystem.Initialize();
-		m_spriteRendererSystem.Initialize();
+		m_cameraSystem.Initialize((float)m_screenSize.x / (float)m_screenSize.y);
 		m_lightingSystem.Initialize(m_appMode);
-		m_cameraSystem.SetAspectRatio((float)m_screenSize.x / (float)m_screenSize.y);
+		m_modelNodeSystem.Initialize(m_appMode);
+		m_spriteRendererSystem.Initialize();
 		m_frustumSystem.Initialize();
 
 		AddToRenderingPipeline(m_cameraSystem);
-		AddToRenderingPipeline(m_meshRendererSystem);
+		AddToRenderingPipeline(m_modelNodeSystem);
 		AddToRenderingPipeline(m_spriteRendererSystem);
 		AddToRenderingPipeline(m_lightingSystem);
 		AddToRenderingPipeline(m_frustumSystem);
@@ -326,8 +328,8 @@ namespace Lina::Graphics
 		m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
 
 		// Initialize primary render target.
-		m_primaryRenderTarget.Construct(m_primaryRTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
+		m_primaryRenderTarget.Construct(m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
 		m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
@@ -337,24 +339,24 @@ namespace Lina::Graphics
 		m_renderDevice.MultipleDrawBuffersCommand(m_primaryMSAATarget.GetID(), 2, attachments);
 
 		// Initialize ping pong render targets
-		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget1.Construct(m_pingPongRTTexture1,  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget2.Construct(m_pingPongRTTexture2,  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize HDRI render target
-		m_hdriCaptureRenderTarget.Construct(m_hdriResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
+		m_hdriCaptureRenderTarget.Construct( FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
 
 		// Initialize depth map for shadows
-		m_shadowMapTarget.Construct(m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+		m_shadowMapTarget.Construct(m_shadowMapRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 		// Initialize depth map for point light shadows.
 		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
-			m_pLightShadowTargets[i].Construct(m_pLightShadowTextures[i], m_pLightShadowResolution, TextureBindMode::BINDTEXTURE_TEXTURE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+			m_pLightShadowTargets[i].Construct(m_pLightShadowTextures[i], TextureBindMode::BINDTEXTURE_TEXTURE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 		if (m_appMode == ApplicationMode::Editor)
 		{
 			m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
 			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
-			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
 		}
 	}
 
@@ -394,12 +396,12 @@ namespace Lina::Graphics
 		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 	}
 
-	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system)
+	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::System& system)
 	{
 		m_renderingPipeline.AddSystem(system);
 	}
 
-	void OpenGLRenderEngine::SetScreenDisplay(Vector2 pos, Vector2 size)
+	void OpenGLRenderEngine::SetScreenDisplay(Vector2ui pos, Vector2ui size)
 	{
 		m_renderDevice.SetViewport(pos, size);
 		m_screenPos = pos;
@@ -474,12 +476,14 @@ namespace Lina::Graphics
 
 			LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
 
-			if (Utility::FileExists(event.m_assetDataPath))
+			bool assetDataExists = Utility::FileExists(event.m_assetDataPath);
+			if (assetDataExists)
 				params = Model::LoadAssetData(event.m_assetDataPath);
-			else
-				Model::SaveAssetData(event.m_assetDataPath, params);
 
-			Model::CreateModel(event.m_path, params, event.m_assetDataPath);
+			auto& model = Model::CreateModel(event.m_path, params, event.m_assetDataPath);
+
+			if (!assetDataExists)
+				model.SaveAssetData(event.m_assetDataPath);
 		}
 		else if (event.m_resourceType == Resources::ResourceType::Material)
 		{
@@ -498,9 +502,9 @@ namespace Lina::Graphics
 			if (paramsExists)
 				assetData = Texture::LoadAssetData(event.m_assetDataPath);
 
-			Texture::CreateTexture2D(event.m_path, assetData.m_samplerParameters, false, false, event.m_assetDataPath);
+			auto& texture = Texture::CreateTexture2D(event.m_path, assetData.m_samplerParameters, false, false, event.m_assetDataPath);
 			if (!paramsExists)
-				Texture::SaveAssetData(event.m_assetDataPath, assetData);
+				texture.SaveAssetData(event.m_assetDataPath);
 
 		}
 		else if (event.m_resourceType == Resources::ResourceType::HDR)
@@ -530,12 +534,12 @@ namespace Lina::Graphics
 		{
 			LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
 
-			ModelAssetData params;
+			ModelAssetData assetData;
 
 			if (event.m_assetDataBuffer != nullptr)
-				params = Model::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
+				assetData = Model::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
 
-			Model::CreateModel(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, params);
+			Model::CreateModel(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, assetData);
 		}
 		else if (event.m_resourceType == Resources::ResourceType::Material)
 		{
@@ -647,7 +651,7 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnWindowResized(Event::EWindowResized event)
 	{
-		SetScreenDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
+		SetScreenDisplay(Vector2ui(0,0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
 	}
 
 	void OpenGLRenderEngine::DumpMemory()
@@ -790,7 +794,7 @@ namespace Lina::Graphics
 		if (m_screenQuadFinalMaterial.m_bools[MAT_BLOOMENABLED])
 			m_screenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_pingPongRTTexture1 : &m_pingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
-		Vector2 inverseMapSize = 1.0f / m_primaryRTTexture0.GetSize();
+		Vector2 inverseMapSize = 1.0f / Vector2((float)m_primaryRTTexture0.GetSize().x, (float)(m_primaryRTTexture0.GetSize().y));
 		m_screenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
 
 		UpdateShaderData(&m_screenQuadFinalMaterial);
@@ -881,8 +885,8 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool completeFlush)
 	{
-		m_meshRendererSystem.FlushOpaque(drawParams, overrideMaterial, completeFlush);
-		m_meshRendererSystem.FlushTransparent(drawParams, overrideMaterial, completeFlush);
+		m_modelNodeSystem.FlushOpaque(drawParams, overrideMaterial, completeFlush);
+		m_modelNodeSystem.FlushTransparent(drawParams, overrideMaterial, completeFlush);
 		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, completeFlush);
 		Lina::Event::EventSystem::Get()->Trigger<Lina::Event::EPostSceneDraw>(Lina::Event::EPostSceneDraw{});
 	}
@@ -1165,10 +1169,10 @@ namespace Lina::Graphics
 		for (uint32 mip = 0; mip < maxMipLevels; ++mip)
 		{
 			// reisze framebuffer according to mip-level size.
-			unsigned int mipWidth = 128 * std::pow(0.5, mip);
-			unsigned int mipHeight = 128 * std::pow(0.5, mip);
-			m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
-			m_renderDevice.SetViewport(Vector2::Zero, Vector2(mipWidth, mipHeight));
+			unsigned int mipWidth = (unsigned int)(128* std::pow(0.5, mip));
+			unsigned int mipHeight = (unsigned int)(128 * std::pow(0.5, mip));
+			m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), Vector2ui((int)mipWidth, (int)mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
+			m_renderDevice.SetViewport(Vector2ui(0,0), Vector2ui((int)mipWidth, (int)mipHeight));
 
 			// Draw prefiltered map
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
@@ -1247,18 +1251,18 @@ namespace Lina::Graphics
 
 	}
 
-	void* OpenGLRenderEngine::GetFinalImage()
+	uint32 OpenGLRenderEngine::GetFinalImage()
 	{
 		if (m_appMode == ApplicationMode::Editor)
-			return (void*)m_secondaryRTTexture.GetID();
+			return m_secondaryRTTexture.GetID();
 		else
-			return (void*)m_primaryRTTexture0.GetID();
+			return m_primaryRTTexture0.GetID();
 
 	}
 
-	void* OpenGLRenderEngine::GetShadowMapImage()
+	uint32 OpenGLRenderEngine::GetShadowMapImage()
 	{
-		return (void*)m_shadowMapRTTexture.GetID();
+		return m_shadowMapRTTexture.GetID();
 	}
 
 	void OpenGLRenderEngine::UpdateSystems(float delta)

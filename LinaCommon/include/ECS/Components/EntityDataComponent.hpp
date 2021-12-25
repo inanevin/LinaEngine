@@ -41,8 +41,10 @@ Timestamp: 12/8/2021 5:35:25 PM
 
 // Headers here.
 #include "Math/Transformation.hpp"
-#include "ECS/ECSComponent.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Component.hpp"
+#include "Core/CommonECS.hpp"
+#include <cereal/types/string.hpp>
+#include <cereal/types/set.hpp>
 
 namespace Lina
 {
@@ -60,7 +62,7 @@ namespace Lina::ECS
 {
 	struct ModelRendererComponent;
 
-	struct EntityDataComponent : public ECSComponent
+	struct EntityDataComponent : public Component
 	{
 		EntityDataComponent(bool hidden, bool enabled, bool serialized, std::string name)
 		{
@@ -124,7 +126,6 @@ namespace Lina::ECS
 
 		friend class cereal::access;
 		friend class Registry;
-		friend class Lina::ECS::ModelRendererComponent;
 
 #ifdef LINA_PHYSICS_BULLET
 		friend class Lina::Physics::BulletPhysicsEngine;

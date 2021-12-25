@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "ECS/Registry.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
@@ -41,7 +42,7 @@ namespace Lina::ECS
 {
 	void RigidbodySystem::Initialize(Physics::PhysicsEngine* engine)
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 		m_engine = engine;
 	}
 

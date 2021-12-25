@@ -40,10 +40,8 @@ Timestamp: 4/8/2019 9:04:58 PM
 #ifndef Memory_HPP
 #define Memory_HPP
 
-#include <cstring>
 #include "Core/SizeDefinitions.hpp"
-#include "Core/Common.hpp"
-
+#include <cstring>
 
 #define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
 
@@ -70,7 +68,7 @@ namespace Lina
 		}
 
 		template<typename T>
-		static FORCEINLINE void* memset(void* destIn, T val, uintptr amt)
+		static inline void* memset(void* destIn, T val, uintptr amt)
 		{
 			T* dest = (T*)destIn;
 			uintptr amtT = amt / sizeof(T);
@@ -127,7 +125,7 @@ namespace Lina
 	};
 
 	template<>
-	FORCEINLINE void* Memory::memset(void* dest, uint8 val, uintptr amt)
+	inline void* Memory::memset(void* dest, uint8 val, uintptr amt)
 	{
 		return ::memset(dest, val, amt);
 	}

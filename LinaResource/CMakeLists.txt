@@ -23,7 +23,6 @@ project(LinaResource)
 set (LINARESOURCE_SOURCES
 	
 	src/Core/ResourceManager.cpp
-	src/Core/ResourcesCommon.cpp
 	src/Core/ResourceBundle.cpp
 	
 	src/Utility/Packager.cpp
@@ -34,9 +33,7 @@ set (LINARESOURCE_SOURCES
 #--------------------------------------------------------------------
 set(LINARESOURCE_HEADERS
 
-
 	include/Core/ResourceManager.hpp
-	include/Core/ResourcesCommon.hpp
 	include/Core/ResourceBundle.hpp
 	include/Utility/Packager.hpp
 )

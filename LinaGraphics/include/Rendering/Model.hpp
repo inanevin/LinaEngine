@@ -27,10 +27,8 @@ SOFTWARE.
 */
 
 /*
-Class: Mesh
+Class: Model
 
-Responsible for storing vertex array data generated into Meshs. MeshRenderers point to a particular
-mesh instance in the engine.
 
 Timestamp: 5/6/2019 4:23:45 PM
 */
@@ -40,12 +38,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-#include "ECS/ECS.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/Mesh.hpp"
-#include "Rendering/Material.hpp"
-#include "Animation/Skeleton.hpp"
-#include "Core/SizeDefinitions.hpp"
+#include "Rendering/RenderingCommon.hpp"
 #include "Rendering/ModelNode.hpp"
 
 namespace Lina::Graphics
@@ -61,11 +54,31 @@ namespace Lina::Graphics
 		Model() {};
 		virtual ~Model() {};
 
+		/// <summary>
+		/// De-serializes the asset data at the given path & returns it.
+		/// </summary>
+		/// <returns>Loaded asset data.</returns>
 		static ModelAssetData LoadAssetData(const std::string& path);
-		static void SaveAssetData(const std::string& path, ModelAssetData params);
+
+		/// <summary>
+		/// De-serializes asset data from a memory buffer & returns it.
+		/// </summary>
+		/// <returns>Loaded asset data.</returns>
 		static ModelAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
-		static Model& CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData modelAssetData = ModelAssetData());
-		static Model& CreateModel(const std::string& filePath, ModelAssetData modelAssetData = ModelAssetData(), const std::string& paramsPath = "");
+
+		/// <summary>
+		/// Loads a model file given via a memory buffer.
+		/// </summary>
+		/// <returns>Constructed model.</returns>
+		static Model& CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData);
+
+		/// <summary>
+		/// Loads a model file with the given path & constructs a model out of it.
+		/// </summary>
+		/// <returns>Constructed model.</returns>
+		static Model& CreateModel(const std::string& filePath, ModelAssetData& modelAssetData, const std::string& paramsPath = "");
+
+
 		static Model& GetModel(StringIDType id);
 		static Model& GetModel(const std::string& path);
 		static bool ModelExists(StringIDType id);
@@ -73,24 +86,29 @@ namespace Lina::Graphics
 		static void UnloadModel(StringIDType id);
 		static void UnloadAll();
 		static std::map<StringIDType, Model>& GetLoadedModels() { return s_loadedModels; }
-		void SetAssetData(ModelAssetData params) { m_assetData = params; }
 
-		ModelNode& GetRoot() { return m_rootNode; }
-		ModelAssetData& GetAssetData() { return m_assetData; }
-		std::vector<ImportedModelMaterial>& GetImportedMaterials() { return m_importedMaterials; }
-		const std::string& GetPath() const { return m_path; }
-		const std::string& GetAssetDataPath() const { return m_assetDataPath; }
-		StringIDType GetID() { return m_id; }
+		inline ModelAssetData& GetAssetData() { return m_assetData; }
+		inline std::vector<ImportedModelMaterial>& GetImportedMaterials() { return m_importedMaterials; }
+		inline const std::string& GetPath() const { return m_path; }
+		inline const std::string& GetAssetDataPath() const { return m_assetDataPath; }
+		inline StringIDType GetID() { return m_id; }
+		inline void SetAssetData(ModelAssetData& data) { m_assetData = data; }
+		ModelNode& GetRootNode() { return m_rootNode; }
+
+		/// <summary>
+		/// Serializes the given asset data to the path.
+		/// </summary>
+		void SaveAssetData(const std::string& path);
 
 	private:
 
-		static std::map<StringIDType, Model> s_loadedModels;
-
 		friend class OpenGLRenderEngine;
 		friend class ModelLoader;
+		friend class ModelNode;
+
+		static std::map<StringIDType, Model> s_loadedModels;
 		std::string m_path = "";
 		std::string m_assetDataPath = "";
-
 		StringIDType m_id = -1;
 		ModelAssetData m_assetData;
 		ModelNode m_rootNode;

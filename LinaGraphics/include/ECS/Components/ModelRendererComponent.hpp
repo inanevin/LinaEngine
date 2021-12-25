@@ -40,8 +40,10 @@ Timestamp: 12/8/2021 12:27:21 PM
 #define ModelRendererComponent_HPP
 
 // Headers here.
-#include "ECS/ECSComponent.hpp"
-#include "ECS/ECS.hpp"
+#include "Math/Matrix.hpp"
+#include "ECS/Component.hpp"
+#include "Core/CommonECS.hpp"
+#include "Utility/StringId.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
@@ -55,7 +57,7 @@ namespace Lina
 	namespace Graphics
 	{
 		class Model;
-		struct ModelNode;
+		class ModelNode;
 		class Material;
 	}
 }
@@ -67,9 +69,9 @@ namespace Lina::Editor
 
 namespace Lina::ECS
 {
-	class MeshRendererSystem;
+	class ModelNodeSystem;
 
-	struct ModelRendererComponent : public ECSComponent
+	struct ModelRendererComponent : public Component
 	{
 
 		void SetModel(ECS::Entity parent, Graphics::Model& model);
@@ -90,7 +92,7 @@ namespace Lina::ECS
 	private:
 
 		friend class cereal::access;
-		friend class ECS::MeshRendererSystem;
+		friend class ECS::ModelNodeSystem;
 		friend class Lina::World::Level;
 		friend class Lina::Editor::ComponentDrawer;
 

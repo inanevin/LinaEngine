@@ -40,11 +40,15 @@ Timestamp: 12/24/2021 7:47:26 PM
 #define PhysXCooker_HPP
 
 // Headers here.
-#include "EventSystem/Events.hpp"
+#include "Core/CommonApplication.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "Math/Vector.hpp"
+#include <vector>
 
 namespace Lina::Graphics
 {
-	struct ModelNode;
+	class ModelNode;
 	class Model;
 }
 

@@ -27,19 +27,18 @@ SOFTWARE.
 */
 
 #include "Core/PhysicsCommon.hpp"
-#include "Core/Backend/PhysX/PhysXPhysicsEngine.hpp"  
-#include "Log/Log.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "Math/Color.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Physics/PhysicsMaterial.hpp"
-#include "Math/Math.hpp"
 #include "Physics/Raycast.hpp"
+#include "Core/Backend/PhysX/PhysXPhysicsEngine.hpp"  
+#include "ECS/Registry.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "Log/Log.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
+#include "Math/Math.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
-#include "PxPhysicsAPI.h"
+#include <PxPhysicsAPI.h>
 
 namespace Lina::Physics
 {
@@ -134,7 +133,7 @@ namespace Lina::Physics
 	void PhysXPhysicsEngine::Tick(float fixedDelta)
 	{
 		// Update phy.
-		m_pxScene->simulate(PHYSICS_STEP);
+		m_pxScene->simulate((PxReal)m_stepTime);
 		m_pxScene->fetchResults(true);
 		m_physicsPipeline.UpdateSystems(fixedDelta);
 	}
@@ -177,16 +176,16 @@ namespace Lina::Physics
 		m_pxFoundation->release();
 	}
 
-	void PhysXPhysicsEngine::OnPostSceneDraw(Event::EPostSceneDraw)
+	void PhysXPhysicsEngine::OnPostSceneDraw(const Event::EPostSceneDraw&)
 	{
 		const PxRenderBuffer& rb = m_pxScene->getRenderBuffer();
 		for (PxU32 i = 0; i < rb.getNbLines(); i++)
 		{
 			const PxDebugLine& line = rb.getLines()[i];
 			Color renderColor;
-			renderColor.r = (line.color0 >> 16) & 0xff;
-			renderColor.g = (line.color0 >> 8) & 0xff;
-			renderColor.b = (line.color0 & 0xff);
+			renderColor.r = (float)((line.color0 >> 16) & 0xff);
+			renderColor.g = (float)((line.color0 >> 8) & 0xff);
+			renderColor.b = (float)((line.color0 & 0xff));
 			renderColor.a = 1.0f;
 			m_eventSystem->Trigger<Event::EDrawLine>(Event::EDrawLine{ ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor });
 		}
@@ -221,13 +220,13 @@ namespace Lina::Physics
 		}
 		else if (shape == CollisionShape::ConvexMesh)
 		{
-			auto* mr = m_ecs->try_get<ECS::MeshRendererComponent>(ent);
-
-			if (mr != nullptr)
-			{
-				// mr->
-				
-			}
+			// auto* mr = m_ecs->try_get<ECS::MeshRendererComponent>(ent);
+			// 
+			// if (mr != nullptr)
+			// {
+			// 	// mr->
+			// 	
+			// }
 			return m_pxPhysics->createShape(PxConvexMeshGeometry(m_convexMeshMap[phy.m_attachedModelID][0].second, PxMeshScale(PxVec3(100.0f, 100.0f, 100.0f))), *mat, true);
 		}
 
@@ -238,7 +237,7 @@ namespace Lina::Physics
 
 	void PhysXPhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID)
 	{
-		PxDefaultMemoryInputData input(&data[0], data.size());
+		PxDefaultMemoryInputData input(&data[0], (PxU32)data.size());
 		m_convexMeshMap[sid].push_back(std::make_pair(nodeID, m_pxPhysics->createConvexMesh(input)));
 
 		LINA_TRACE("Created convex mesh with sid {0} and nodeID {1}", sid, nodeID);

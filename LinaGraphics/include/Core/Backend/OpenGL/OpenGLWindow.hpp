@@ -39,7 +39,9 @@ Timestamp: 4/14/2019 5:12:19 PM
 #ifndef OpenGLWindow_HPP
 #define OpenGLWindow_HPP
 
-#include "Rendering/RenderingCommon.hpp"
+#include "Core/CommonWindow.hpp"
+#include "Core/CommonApplication.hpp"
+#include "Math/Vector.hpp"
 
 struct GLFWwindow;
 
@@ -58,16 +60,16 @@ namespace Lina::Graphics
 		static OpenGLWindow* Get() { return s_openglWindow; }
 		virtual void* GetNativeWindow() const { return m_window; }
 
-		Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
-		Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
-		float GetWidth() { return m_windowProperties.m_width; }
-		float GetHeight() { return m_windowProperties.m_height; }
+		Vector2ui GetSize() { return Vector2ui(m_windowProperties.m_width, m_windowProperties.m_height); }
+		Vector2ui GetPos() { return Vector2ui(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
+		int GetWidth() { return m_windowProperties.m_width; }
+		int GetHeight() { return m_windowProperties.m_height; }
 		const WindowProperties& GetProperties() const { return m_windowProperties; }
 
 		void SetVsync(int interval);
-		void SetSize(const Vector2& newSize);
-		void SetPos(const Vector2& newPos);
-		void SetPosCentered(const Vector2 newPos);
+		void SetSize(const Vector2ui& newSize);
+		void SetPos(const Vector2ui& newPos);
+		void SetPosCentered(const Vector2ui newPos);
 		void Iconify();
 		void Maximize();
 		void Close();

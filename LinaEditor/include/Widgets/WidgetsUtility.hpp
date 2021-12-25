@@ -41,7 +41,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/StringId.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"

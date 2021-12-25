@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Shader.hpp"
 #include "Core/RenderEngineBackend.hpp"
+#include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
 namespace Lina::Graphics
@@ -37,7 +38,7 @@ namespace Lina::Graphics
 
 	Shader::~Shader()
 	{
-	m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
+		m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
 	}
 
 	Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)

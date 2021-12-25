@@ -52,7 +52,9 @@ set (LINACOMMON_SOURCES
 	src/Utility/StringID.cpp
 	
 	# ECS 
-	src/ECS/ECS.cpp
+	src/ECS/SystemList.cpp
+	src/ECS/System.cpp
+	src/ECS/Registry.cpp
 	src/ECS/Components/EntityDataComponent.cpp
 
 )
@@ -63,10 +65,16 @@ set (LINACOMMON_SOURCES
 set(LINACOMMON_HEADERS
 
 	#CORE
-	include/Core/Common.hpp
+	include/Core/CommonApplication.hpp
+	include/Core/CommonWindow.hpp
+	include/Core/CommonInput.hpp
+	include/Core/CommonPhysics.hpp
+	include/Core/CommonResources.hpp
+	include/Core/CommonECS.hpp
+	include/Core/CommonUtility.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Timer.hpp
-	include/Core/MacroDetection.hpp
+	include/Core/PlatformMacros.hpp
 	
 	# Job System
 	include/JobSystem/JobSystem.hpp
@@ -87,7 +95,14 @@ set(LINACOMMON_HEADERS
 	
 	# Events
 	include/EventSystem/EventCommon.hpp
-	include/EventSystem/Events.hpp
+	include/EventSystem/PhysicsEvents.hpp
+	include/EventSystem/WindowEvents.hpp
+	include/EventSystem/InputEvents.hpp
+	include/EventSystem/LevelEvents.hpp
+	include/EventSystem/GraphicsEvents.hpp
+	include/EventSystem/MainLoopEvents.hpp
+	include/EventSystem/ApplicationEvents.hpp
+	include/EventSystem/ResourceEvents.hpp
 	include/EventSystem/EventSystem.hpp
 
 	# Log
@@ -107,8 +122,10 @@ set(LINACOMMON_HEADERS
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
 	include/ECS/Components/PhysicsComponent.hpp
-	include/ECS/ECS.hpp
-	include/ECS/ECSComponent.hpp
+	include/ECS/Registry.hpp
+	include/ECS/Component.hpp
+	include/ECS/System.hpp
+	include/ECS/SystemList.hpp
 	
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
@@ -138,7 +155,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/tas
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-
 
 #--------------------------------------------------------------------
 # Subdirectories & linking

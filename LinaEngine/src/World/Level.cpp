@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Log/Log.hpp"
 #include "World/Level.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/Application.hpp"
 #include "Core/RenderEngineBackend.hpp"

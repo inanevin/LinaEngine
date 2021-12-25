@@ -30,11 +30,14 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"  
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Core/ResourcesCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 
 namespace Lina::Resources
 {
+
+#define RESOURCEPACKAGE_EXTENSION ".linabundle"
+
 	ResourceManager* ResourceManager::s_resourceManager = nullptr;
 	ResourceProgressData ResourceManager::s_currentProgressData;
 
@@ -71,7 +74,7 @@ namespace Lina::Resources
 		m_bundle.LoadResourcesInFolder(root, excludes);
 
 		Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
-		ResetProgress();
+		ResourceManager::ResetProgress();
 	}
 
 	void ResourceManager::Shutdown()
@@ -86,7 +89,7 @@ namespace Lina::Resources
 		LINA_TRACE("[Resource Manager] -> Shutdown");
 	}
 
-	void Lina::Resources::ResourceManager::ResetProgress()
+	void ResourceManager::ResetProgress()
 	{
 		s_currentProgressData.m_currentProcessedFiles = s_currentProgressData.m_currentTotalFiles = 0;
 		s_currentProgressData.m_currentResourceName = s_currentProgressData.m_progressTitle = "";
@@ -94,7 +97,7 @@ namespace Lina::Resources
 		s_currentProgressData.m_currentProgress = 0.0f;
 	}
 
-	void Lina::Resources::ResourceManager::TriggerResourceUpdatedEvent()
+	void ResourceManager::TriggerResourceUpdatedEvent()
 	{
 		Event::EventSystem::Get()->Trigger<Event::EResourceLoadUpdated>(Event::EResourceLoadUpdated{ ResourceManager::s_currentProgressData.m_currentResourceName, ResourceManager::s_currentProgressData.m_currentProgress });
 	}
@@ -110,9 +113,15 @@ namespace Lina::Resources
 		AddAllResourcesToPack(filesToPack, root);
 
 		// Export resources.
-		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS);
+		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
 	}
 
+
+	void ResourceManager::Initialize(Lina::ApplicationInfo& appInfo)
+	{
+		m_appInfo = appInfo;
+		m_eventSys = Lina::Event::EventSystem::Get();
+	}
 
 	void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)
 	{
@@ -140,7 +149,7 @@ namespace Lina::Resources
 
 		// Start unpacking.
 		std::unordered_map<std::string, ResourceType> unpackedResources;
-		m_packager.Unpack(fullBundlePath, PACKAGE_PASS, &m_bundle, unpackedResources);
+		m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle, unpackedResources);
 
 		m_bundle.LoadAllMemoryMaps();
 

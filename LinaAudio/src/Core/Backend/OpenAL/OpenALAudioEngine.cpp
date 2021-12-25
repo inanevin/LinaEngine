@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/Backend/OpenAL/OpenALAudioEngine.hpp"  
 #include "EventSystem/EventSystem.hpp"
-#include "ECS/ECS.hpp"
+#include "ECS/Registry.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Audio/Audio.hpp"

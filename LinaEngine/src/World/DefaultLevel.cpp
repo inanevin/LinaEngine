@@ -30,10 +30,6 @@ SOFTWARE.
 
 namespace Lina::World
 {
-	DefaultLevel::~DefaultLevel()
-	{
-	}
-
 	bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		return Level::Install(loadFromFile, path, levelName);
@@ -41,5 +37,6 @@ namespace Lina::World
 
 	void DefaultLevel::Initialize()
 	{
+
 	}
 }

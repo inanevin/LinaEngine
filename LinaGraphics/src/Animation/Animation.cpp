@@ -28,9 +28,6 @@ SOFTWARE.
 
 #include "Animation/Animation.hpp"
 #include "Log/Log.hpp"
-#include <ozz/animation/runtime/animation.h>
-#include <ozz/base/io/stream.h>
-#include <ozz/base/io/archive.h>
 
 namespace Lina::Graphics
 {

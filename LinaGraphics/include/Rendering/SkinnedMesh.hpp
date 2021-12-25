@@ -40,7 +40,7 @@ Timestamp: 12/24/2021 8:56:09 PM
 #define SkinnedMesh_HPP
 
 // Headers here.
-#include "Mesh.hpp"
+#include "Rendering/Mesh.hpp"
 
 namespace Lina::Graphics
 {

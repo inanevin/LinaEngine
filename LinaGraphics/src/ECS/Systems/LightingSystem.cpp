@@ -27,8 +27,12 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/LightingSystem.hpp"  
+#include "ECS/Registry.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/RenderDeviceBackend.hpp"
 #include "Core/RenderEngineBackend.hpp"
+#include "Rendering/RenderConstants.hpp"
 
 namespace Lina::ECS
 {
@@ -42,12 +46,10 @@ namespace Lina::ECS
 
 	void LightingSystem::Initialize(Lina::ApplicationMode& appMode)
 	{
-		BaseECSSystem::Initialize();
+		System::Initialize();
 		m_renderEngine = Graphics::RenderEngineBackend::Get();
 		m_renderDevice = m_renderEngine->GetRenderDevice();
 		m_appMode = appMode;
-
-		
 	}
 
 
@@ -236,7 +238,7 @@ namespace Lina::ECS
 		return directionalLightData->GetLocation();
 	}
 
-	std::vector<Matrix> LightingSystem::GetPointLightMatrices(Vector3 lp, Vector2 m_resolution, float near, float farPlane)
+	std::vector<Matrix> LightingSystem::GetPointLightMatrices(Vector3 lp, Vector2ui m_resolution, float near, float farPlane)
 	{
 		// Used for point light shadow mapping.
 

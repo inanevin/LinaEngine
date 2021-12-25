@@ -40,7 +40,8 @@ Timestamp: 12/22/2021 1:33:41 PM
 #define Raycast_HPP
 
 // Headers here.
-#include "ECS/ECS.hpp"
+#include "Core/CommonECS.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina::Physics
 {

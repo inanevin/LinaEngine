@@ -80,6 +80,7 @@ int main(int argc, char** argv)
 	appInfo.m_appMode = ApplicationMode::Editor;
 	appInfo.m_appName = "Lina Sandbox Game";
 	appInfo.m_bundleName = "Example";
+	appInfo.m_packagePass = L"1234";
 	appInfo.m_windowProperties.m_width = 1440;
 	appInfo.m_windowProperties.m_height = 900;
 	appInfo.m_windowProperties.m_windowState = WindowState::Maximized;

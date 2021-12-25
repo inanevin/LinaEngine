@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Core/Backend/OpenGL/OpenGLWindow.hpp"
+#include "Core/CommonInput.hpp"
+#include "EventSystem/WindowEvents.hpp"
+#include "EventSystem/InputEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Log/Log.hpp"
 #include "glad/glad.h"
@@ -107,8 +110,8 @@ namespace Lina::Graphics
 			glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
 			m_windowProperties.m_workingAreaWidth = width;
 			m_windowProperties.m_workingAreaHeight = height;
-			SetPos(Vector2::Zero);
-			SetSize(Vector2(width, height));
+			SetPos(Vector2ui(0,0));
+			SetSize(Vector2ui(width, height));
 		}
 
 		// Update OpenGL about the window data.
@@ -137,11 +140,11 @@ namespace Lina::Graphics
 		{
 			auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
 
-			InputAction inputAction = InputAction::Pressed;
+			Lina::Input::InputAction inputAction = Lina::Input::InputAction::Pressed;
 			if (action == GLFW_RELEASE)
-				inputAction = InputAction::Released;
+				inputAction = Lina::Input::InputAction::Released;
 			else if (action == GLFW_REPEAT)
-				inputAction = InputAction::Repeated;
+				inputAction = Lina::Input::InputAction::Repeated;
 
  			Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{ window->m_window, key, scancode, inputAction, modes });
 		};
@@ -150,11 +153,11 @@ namespace Lina::Graphics
 		{
 			auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
 
-			InputAction inputAction = InputAction::Pressed;
+			Lina::Input::InputAction inputAction = Lina::Input::InputAction::Pressed;
 			if (action == GLFW_RELEASE)
-				inputAction = InputAction::Released;
+				inputAction = Lina::Input::InputAction::Released;
 			else if (action == GLFW_REPEAT)
-				inputAction = InputAction::Repeated;
+				inputAction = Lina::Input::InputAction::Repeated;
 
 			Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{ window->m_window, button, inputAction, modes });
 		};
@@ -210,24 +213,25 @@ namespace Lina::Graphics
 		return glfwGetTime();
 	}
 
-	void OpenGLWindow::SetSize(const Vector2& newSize)
+	void OpenGLWindow::SetSize(const Vector2ui& newSize)
 	{
 		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
 		m_windowProperties.m_width = newSize.x;
 		m_windowProperties.m_height = newSize.y;
 	}
 
-	void OpenGLWindow::SetPos(const Vector2& newPos)
+	void OpenGLWindow::SetPos(const Vector2ui& newPos)
 	{
 		m_windowProperties.m_xPos = newPos.x;
 		m_windowProperties.m_yPos = newPos.y;
 		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
 	}
 
-	void OpenGLWindow::SetPosCentered(const Vector2 newPos)
+	void OpenGLWindow::SetPosCentered(const Vector2ui newPos)
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		SetPos(Lina::Vector2(mode->width / 2.0f + newPos.x - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + newPos.y - m_windowProperties.m_height / 2.0f));
+		SetPos(Lina::Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x - (float)m_windowProperties.m_width / 2.0f),
+			(int)((float)mode->height / 2.0f + (float)newPos.y - (float)m_windowProperties.m_height / 2.0f)));
 	}
 
 
@@ -245,15 +249,15 @@ namespace Lina::Graphics
 			m_windowProperties.m_heightBeforeMaximize = m_windowProperties.m_height;
 			m_windowProperties.m_xPosBeforeMaximize = m_windowProperties.m_xPos;
 			m_windowProperties.m_yPosBeforeMaximize = m_windowProperties.m_yPos;
-			SetPos(Vector2::Zero);
-			SetSize(Vector2(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
+			SetPos(Vector2ui(0,0));
+			SetSize(Vector2ui(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
 			m_windowProperties.m_windowState = WindowState::Maximized;
 			//glfwMaximizeWindow(m_glfwWindow);
 		}
 		else
 		{
-			SetPos(Vector2(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
-			SetSize(Vector2(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
+			SetPos(Vector2ui(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
+			SetSize(Vector2ui(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
 			m_windowProperties.m_windowState = WindowState::Normal;
 			//glfwRestoreWindow(m_glfwWindow);
 		}

@@ -41,7 +41,6 @@ Timestamp: 4/26/2019 12:30:15 AM
 
 #include "Core/SizeDefinitions.hpp"
 #include "Core/RenderBackendFwd.hpp"
-#include "RenderingCommon.hpp"
 
 namespace Lina::Graphics
 {

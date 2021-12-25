@@ -38,6 +38,7 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Memory/Memory.hpp"
 #include "Core/EditorCommon.hpp"
@@ -211,7 +212,7 @@ namespace Lina::Editor
 	std::string Drawer_GetMaterialName(Lina::ECS::Entity ent, int index)
 	{
 		std::string modelPath = Lina::ECS::Registry::Get()->template get<Type>(ent).GetModelPath();
-		return Lina::Graphics::Model::GetModel(modelPath).GetMaterialSpecs()[index].m_name;;
+		return Lina::Graphics::Model::GetModel(modelPath).GetImportedMaterials()[index].m_name;;
 	}
 
 	template<typename Type>
@@ -296,18 +297,23 @@ namespace Lina::Editor
 		RegisterComponentForEditor<FreeLookComponent>("Freelook", ICON_FA_EYE, defaultDrawFlags, "View");
 
 		// Model Renderer
-		auto idt = "matpath_arr"_hs;
-		std::string modelRendererTooltip = "Set true if you want to generate pivot entities at the center of each mesh.\n" + std::string("The center is calculated using the average of vertex positions, on all sub-meshes per mesh.");
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_isEnabled>("enabled"_hs);
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialPathArray, ""));
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath, ""));
-		entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_generateMeshPivots>("pvts"_hs).props(PROPS("Generate Pivots", ComponentVariableType::Checkmark, modelRendererTooltip.c_str()));
-		entt::meta<ModelRendererComponent>().func<&Drawer_SetModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
-		entt::meta<ModelRendererComponent>().func<&Drawer_GetMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
-		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
-		entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
-		entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
-		RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering", true, true);
+		// auto idt = "matpath_arr"_hs;
+		// std::string modelRendererTooltip = "Set true if you want to generate pivot entities at the center of each mesh.\n" + std::string("The center is calculated using the average of vertex positions, on all sub-meshes per mesh.");
+		// entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_isEnabled>("enabled"_hs);
+		// entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_materialPaths>(idt).props(PROPS("Materials", ComponentVariableType::MaterialArray, ""));
+		// entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_modelPath>("modpath"_hs).props(PROPS("Model", ComponentVariableType::ModelPath, ""));
+		// entt::meta<ModelRendererComponent>().data<&ModelRendererComponent::m_generateMeshPivots>("pvts"_hs).props(PROPS("Generate Pivots", ComponentVariableType::Checkmark, modelRendererTooltip.c_str()));
+		// entt::meta<ModelRendererComponent>().func<&Drawer_SetModel<ModelRendererComponent>, entt::as_ref_t>("setModel"_hs);
+		// entt::meta<ModelRendererComponent>().func<&Drawer_GetMaterialName<ModelRendererComponent>, entt::as_ref_t>("getMaterialName"_hs);
+		// entt::meta<ModelRendererComponent>().func<&Drawer_RemoveModel<ModelRendererComponent>, entt::as_ref_t>("removeModel"_hs);
+		// entt::meta<ModelRendererComponent>().func<&Drawer_SetMaterial<ModelRendererComponent>, entt::as_ref_t>("setMaterial"_hs);
+		// entt::meta<ModelRendererComponent>().func<&Drawer_RemoveMaterial<ModelRendererComponent>, entt::as_ref_t>("removeMaterial"_hs);
+		// RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering", true, true);
+
+		// Model Node
+		std::string modelNodeTooltip = "Model node refers to a node in an imported model hierarchy. This is the main component used to draw a model's meshes.";
+		entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_isEnabled>("enabled"_hs);
+		entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_materialIDs>("mats"_hs).props(PROPS("Materials", ComponentVariableType::MaterialArray, ""));
 
 		// Sprite renderer
 		entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
@@ -835,7 +841,7 @@ namespace Lina::Editor
 						if (valueChangedCallback && prev != modelPath)
 							valueChangedCallback.invoke({}, ent, label);
 					}
-					else if (type == ComponentVariableType::MaterialPathArray)
+					else if (type == ComponentVariableType::MaterialArray)
 					{
 						ImGui::NewLine();
 
@@ -900,218 +906,7 @@ namespace Lina::Editor
 					}
 				}
 			}
-
-
-
 		}
-
 	}
-
-	/*
-
-	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
-		TypeID id = GetTypeID<EntityDataComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<EntityDataComponent>(), "Entity Data", ICON_FA_ARROWS_ALT, &refreshPressed, nullptr, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 0), true);
-
-		// Refresh
-		if (refreshPressed)
-		{
-			data.SetLocalLocation(Vector3::Zero);
-			data.SetLocalRotation(Quaternion());
-			data.SetLocalScale(Vector3::One);
-		}
-
-		// Draw component
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::PropertyLabel("Location");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 location = data.GetLocalLocation();
-			ImGui::DragFloat3("##loc", &location.x);
-			// data.SetLocalLocation(location);
-			data.SetLocalLocation(location);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::PropertyLabel("Rotation");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			glm::vec3 rot = data.GetLocalRotationAngles();
-			ImGui::DragFloat3("##rot", &rot.x);
-			data.SetLocalRotationAngles(rot);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::PropertyLabel("Scale");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 scale = data.GetLocalScale();
-			ImGui::DragFloat3("##scale", &scale.x);
-			data.SetLocalScale(scale);
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-			ImGui::SetCursorPosX(cursorPosLabels);
-
-			bool caretGlobal = WidgetsUtility::Caret("##transform_globalValues");
-			ImGui::SameLine();
-			ImGui::AlignTextToFramePadding();
-			WidgetsUtility::IncrementCursorPosY(-5);
-			ImGui::Text("Global Values");
-
-			if (caretGlobal)
-			{
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Location");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				Vector3 globalLocation = data.GetLocation();
-				ImGui::InputFloat3("##dbg_loc", &globalLocation.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Rotation");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				Quaternion globalRotation = data.GetRotation();
-				Vector3 angles = data.GetRotationAngles();
-				ImGui::InputFloat3("##dbg_rot", &angles.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Scale");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				Vector3 globalScale = data.GetScale();
-				ImGui::InputFloat3("##dbg_scl", &globalScale.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			}
-
-
-		}
-
-		// Draw bevel line
-		WidgetsUtility::DrawBeveledLine();
-	}
-
-
-	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Entity entity)
-	{
-		// Get component
-		auto* ecs = Lina::ECS::Registry::Get();
-		PhysicsComponent& rb = ecs->get<PhysicsComponent>(entity);
-		TypeID id = GetTypeID<PhysicsComponent>();
-
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-		// Draw title.
-		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PhysicsComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs->remove<PhysicsComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs->replace<PhysicsComponent>(entity, PhysicsComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-
-			ComponentDrawer::s_activeInstance->m_currentCollisionShape = (int)rb.m_collisionShape;
-
-			// Draw collision shape.
-			static ImGuiComboFlags flags = 0;
-			static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
-			const char* collisionShapeLabel = rigidbodyShapes[ComponentDrawer::s_activeInstance->m_currentCollisionShape];
-
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::PropertyLabel("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);
-			if (ImGui::BeginCombo("##collshape", collisionShapeLabel, flags))
-			{
-				for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
-				{
-					const bool is_selected = (ComponentDrawer::s_activeInstance->m_currentCollisionShape == i);
-					if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
-					{
-						selectedCollisionShape = (ECS::CollisionShape)i;
-						ComponentDrawer::s_activeInstance->m_currentCollisionShape = i;
-						rb.m_collisionShape = selectedCollisionShape;
-					}
-
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-
-			}
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::PropertyLabel("Mass");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##mass", &rb.m_mass);
-
-			if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::Cylinder)
-			{
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Half Extents");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat3("##halfextents", &rb.m_halfExtents.x);
-			}
-			else if (rb.m_collisionShape == ECS::CollisionShape::Sphere)
-			{
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Radius");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##radius", &rb.m_radius);
-			}
-			else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
-			{
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Radius");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##radius", &rb.m_radius);
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::PropertyLabel("Height");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::DragFloat("##height", &rb.m_capsuleHalfHeight);
-			}
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			if (ImGui::Button("Apply"))
-				ecs->replace<Lina::ECS::PhysicsComponent>(entity, rb);
-
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-		}
-
-		// Draw bevel line
-		WidgetsUtility::DrawBeveledLine();
-	}
-	*/
 
 }
