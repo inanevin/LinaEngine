@@ -109,19 +109,37 @@ namespace Lina::Graphics
         /// Sets the screen position and size, resizes the framebuffers accordingly.
         /// </summary>
         void SetScreenDisplay(Vector2ui offset, Vector2ui size);
-        void MaterialUpdated(Material& mat);
-        void UpdateShaderData(Material* mat);
+
+        /// <summary>
+        /// Use this to change current draw parameters. Will be replaced with in-engine parameters every frame.
+        /// </summary>
+        /// <param name="params"></param>
         void SetDrawParameters(const DrawParams& params);
+
+        /// <summary>
+        /// Sets uniform render settings from the current Render Settings struct.
+        /// </summary>
         void UpdateRenderSettings();
 
+        /// <summary>
+        /// Allows the shader to receive data from the View Uniform Buffer, such as projection & view matrices.
+        /// </summary>
         void BindShaderToViewBuffer(Shader& shader);
+
+        /// <summary>
+        /// Allows the shader to receive data from the Debug Uniform Buffer, such as depth information.
+        /// </summary>
         void BindShaderToDebugBuffer(Shader& shader);
+
+        /// <summary>
+        /// Allows the shader to receive data from the Light Uniform Buffer, such as light positions & parameters.
+        /// </summary>
         void BindShaderToLightBuffer(Shader& shader);
 
         /// <summary>
         /// Sets the current skybox material used to draw the scene.
         /// </summary>
-        void SetSkyboxMaterial(Material* skyboxMaterial)
+        inline void SetSkyboxMaterial(Material* skyboxMaterial)
         {
             m_skyboxMaterial = skyboxMaterial;
         }
@@ -136,81 +154,96 @@ namespace Lina::Graphics
         /// </summary>
         uint32 GetShadowMapImage();
 
-        // Initializes the setup process for loading an HDRI image to the scene
+        /// <summary>
+        /// Given an HDRI loaded texture, captures & calculates HDRI cube probes & writes it into global HRDI buffer.
+        /// This buffer will be sent to the materials whose HDRI support is enabled.
+        /// </summary>
         void CaptureCalculateHDRI(Texture& hdriTexture);
-        void SetHDRIData(Material* mat);
-        void RemoveHDRIData(Material* mat);
 
+        /// <summary>
+        /// Add the texture with the given StringID to the debug icon buffer.
+        /// </summary>
         void DrawIcon(Vector3 p, StringIDType textureID, float size = 1.0f);
-        void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
-        void ProcessDebugQueue();
 
-        UniformBuffer& GetViewBuffer()
+        /// <summary>
+        /// Adds a line to the debug buffer with given parameters.
+        /// </summary>
+        void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
+
+        /// <summary>
+        /// Pass in any run-time constructed shader. The shader will be drawn to a full-screen quad & added as a
+        /// post-process effect.
+        /// </summary>
+        PostProcessEffect& AddPostProcessEffect(Shader& shader);
+
+        void MaterialUpdated(Material& mat);
+        void UpdateShaderData(Material* mat);
+
+        inline UniformBuffer& GetViewBuffer()
         {
             return m_globalDataBuffer;
         }
-        PostProcessEffect& AddPostProcessEffect(Shader& shader);
-        DrawParams         GetMainDrawParams()
+        inline DrawParams GetMainDrawParams()
         {
             return m_defaultDrawParams;
         }
-        OpenGLRenderDevice* GetRenderDevice()
+        inline OpenGLRenderDevice* GetRenderDevice()
         {
             return &m_renderDevice;
         }
-        RenderSettings& GetRenderSettings()
+        inline RenderSettings& GetRenderSettings()
         {
             return m_renderSettings;
         }
-        Texture& GetHDRICubemap()
+        inline Texture& GetHDRICubemap()
         {
             return m_hdriCubemap;
         }
-        uint32 GetScreenQuadVAO()
+        inline uint32 GetScreenQuadVAO()
         {
             return m_screenQuadVAO;
         }
-        Vector2ui GetScreenSize()
+        inline Vector2ui GetScreenSize()
         {
             return m_screenSize;
         }
-        Vector2ui GetScreenPos()
+        inline Vector2ui GetScreenPos()
         {
             return m_screenPos;
         }
-        ECS::CameraSystem* GetCameraSystem()
+        inline ECS::CameraSystem* GetCameraSystem()
         {
             return &m_cameraSystem;
         }
-        ECS::LightingSystem* GetLightingSystem()
+        inline ECS::LightingSystem* GetLightingSystem()
         {
             return &m_lightingSystem;
         }
-        ECS::ModelNodeSystem* GetModelNodeSystem()
+        inline ECS::ModelNodeSystem* GetModelNodeSystem()
         {
             return &m_modelNodeSystem;
         }
-        ECS::FrustumSystem* GetFrustumSystem()
+        inline ECS::FrustumSystem* GetFrustumSystem()
         {
             return &m_frustumSystem;
         }
-        static Texture& GetDefaultTexture()
+        inline static Texture& GetDefaultTexture()
         {
             return s_defaultTexture;
         }
-        static Material& GetDefaultUnlitMaterial()
+        inline static Material& GetDefaultUnlitMaterial()
         {
             return s_defaultUnlit;
         }
-        static Shader& GetDefaultShader()
+        inline static Shader& GetDefaultShader()
         {
             return *s_standardUnlitShader;
         }
-        void SetCurrentPLightCount(int count)
+        inline void SetCurrentPLightCount(int count)
         {
             m_currentPointLightCount = count;
         }
-        void SetCurrentSLightCount(int count)
+        inline void SetCurrentSLightCount(int count)
         {
             m_currentSpotLightCount = count;
         }
@@ -227,6 +260,9 @@ namespace Lina::Graphics
         void UpdateSystems(float interpolation);
         void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool completeFlush = true);
         void DrawSkybox();
+        void SetHDRIData(Material* mat);
+        void RemoveHDRIData(Material* mat);
+        void ProcessDebugQueue();
 
     private:
         void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event);
@@ -246,8 +282,6 @@ namespace Lina::Graphics
         void Draw();
         void DrawFinalize();
         void UpdateUniformBuffers();
-
-        // Generating necessary maps for HDRI specular highlighting
         void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
         void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
         void CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6]);
