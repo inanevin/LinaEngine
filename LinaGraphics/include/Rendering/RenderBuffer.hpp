@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,22 +44,23 @@ Timestamp: 5/19/2020 8:10:11 PM
 
 namespace Lina::Graphics
 {
-	class RenderBuffer
-	{
+    class RenderBuffer
+    {
 
-	public:
+    public:
+        RenderBuffer(){};
+        ~RenderBuffer();
 
-		RenderBuffer() {};
-		~RenderBuffer();
-		
-		void Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount = 0);
+        void Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount = 0);
 
-		uint32 GetID() { return m_id; }
+        uint32 GetID()
+        {
+            return m_id;
+        }
 
-	private:
-
-		uint32 m_id = 0;
-	};
-}
+    private:
+        uint32 m_id = 0;
+    };
+} // namespace Lina::Graphics
 
 #endif

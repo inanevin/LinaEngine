@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,40 +44,40 @@ Timestamp: 12/25/2021 12:21:22 PM
 
 namespace Lina
 {
-	enum LogLevel
-	{
-		None = 1 << 0,
-		Debug = 1 << 1,
-		Info = 1 << 2,
-		Critical = 1 << 3,
-		Error = 1 << 4,
-		Trace = 1 << 5,
-		Warn = 1 << 6
-	};
+    enum LogLevel
+    {
+        None     = 1 << 0,
+        Debug    = 1 << 1,
+        Info     = 1 << 2,
+        Critical = 1 << 3,
+        Error    = 1 << 4,
+        Trace    = 1 << 5,
+        Warn     = 1 << 6
+    };
 
-	enum class ApplicationMode
-	{
-		Editor = 1 << 0,
-		Standalone = 1 << 1
-	};
+    enum class ApplicationMode
+    {
+        Editor     = 1 << 0,
+        Standalone = 1 << 1
+    };
 
-	struct ApplicationInfo
-	{
-		// Bundle name that is used to load resources package on Standalone builds.
-		std::string m_bundleName = "";
+    struct ApplicationInfo
+    {
+        // Bundle name that is used to load resources package on Standalone builds.
+        std::string m_bundleName = "";
 
-		// App Info
-		const char* m_appName = "";
-		const wchar_t* m_packagePass = nullptr;
-		int m_appMajor = 0;
-		int m_appMinor = 0;
-		int m_appPatch = 0;
+        // App Info
+        const char*    m_appName     = "";
+        const wchar_t* m_packagePass = nullptr;
+        int            m_appMajor    = 0;
+        int            m_appMinor    = 0;
+        int            m_appPatch    = 0;
 
-		ApplicationMode m_appMode = ApplicationMode::Editor;
-		WindowProperties m_windowProperties = WindowProperties();
-	};
+        ApplicationMode  m_appMode          = ApplicationMode::Editor;
+        WindowProperties m_windowProperties = WindowProperties();
+    };
 
-	extern std::string LogLevelAsString(LogLevel level);
-}
+    extern std::string LogLevelAsString(LogLevel level);
+} // namespace Lina
 
 #endif

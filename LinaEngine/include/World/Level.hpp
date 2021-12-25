@@ -41,59 +41,60 @@ Timestamp: 5/6/2019 5:10:23 PM
 #ifndef Level_HPP
 #define Level_HPP
 
-#include "Math/Color.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include <string>
+#include "Math/Color.hpp"
+
 #include <cereal/archives/portable_binary.hpp>
+#include <string>
 
 namespace Lina
 {
-	namespace ECS
-	{
-		class Registry;
-	}
-}
+    namespace ECS
+    {
+        class Registry;
+    }
+} // namespace Lina
 
 namespace Lina::World
 {
-	struct LevelData
-	{
-		std::string m_skyboxMaterialPath = "";
-		int m_skyboxMaterialID = -1;
-		int m_selectedSkyboxMatID = -1;
-		std::string m_selectedSkyboxMatPath = "";
-		Color m_ambientColor = Color(0);
+    struct LevelData
+    {
+        std::string m_skyboxMaterialPath    = "";
+        int         m_skyboxMaterialID      = -1;
+        int         m_selectedSkyboxMatID   = -1;
+        std::string m_selectedSkyboxMatPath = "";
+        Color       m_ambientColor          = Color(0);
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
-		}
-	};
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
+        }
+    };
 
+    class Level
+    {
+    public:
+        Level(){};
+        virtual ~Level(){};
 
-	class Level
-	{
-	public:
+        virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
+        virtual void Uninstall();
+        virtual void Initialize(){};
+        void         ImportLevel(const std::string& path, const std::string& name);
+        void         ExportLevel(const std::string& path, const std::string& name);
 
-		Level() {};
-		virtual ~Level() {};
+        void       SetSkyboxMaterial();
+        LevelData& GetLevelData()
+        {
+            return m_levelData;
+        }
 
-		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
-		virtual void Uninstall();
-		virtual void Initialize() {};
-		void ImportLevel(const std::string& path, const std::string& name);
-		void ExportLevel(const std::string& path, const std::string& name);
+    private:
+        void LoadLevelResources();
 
-		void SetSkyboxMaterial();
-		LevelData& GetLevelData() { return m_levelData; }
-
-	private:
-		void LoadLevelResources();
-
-	private:
-		LevelData m_levelData;
-	};
-}
+    private:
+        LevelData m_levelData;
+    };
+} // namespace Lina::World
 
 #endif

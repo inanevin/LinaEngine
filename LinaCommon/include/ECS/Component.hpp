@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,15 +43,14 @@ Timestamp: 5/23/2020 5:17:02 PM
 
 namespace Lina::ECS
 {
-	class Component
-	{
+    class Component
+    {
 
-	public:
-
-		Component() {};
-		virtual ~Component() {};
-		bool m_isEnabled = true;
-	};
-}
+    public:
+        Component(){};
+        virtual ~Component(){};
+        bool m_isEnabled = true;
+    };
+} // namespace Lina::ECS
 
 #endif

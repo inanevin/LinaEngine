@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -46,8 +46,8 @@ Timestamp: 12/22/2020 6:07:35 PM
 namespace Lina::Audio
 {
 #ifdef LINA_AUDIO_OPENAL
-	typedef OpenALAudioEngine AudioEngineBackend;
+    typedef OpenALAudioEngine AudioEngineBackend;
 #endif
-}
+} // namespace Lina::Audio
 
 #endif

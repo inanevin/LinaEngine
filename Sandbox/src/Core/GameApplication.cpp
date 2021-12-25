@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,69 +27,68 @@ SOFTWARE.
 */
 
 #include "Core/GameApplication.hpp"
+
 #include "Core/EditorApplication.hpp"
 #include "Core/Engine.hpp"
 
 namespace Lina
 {
-	void GameApplication::Initialize(ApplicationInfo appInfo)
-	{
+    void GameApplication::Initialize(ApplicationInfo appInfo)
+    {
 
-		Application::Initialize(appInfo);
+        Application::Initialize(appInfo);
 
-		if (appInfo.m_appMode == ApplicationMode::Editor)
-		{	
-			m_editor = new Editor::EditorApplication();
-			m_editor->Initialize();
-			m_editor->Refresh();
+        if (appInfo.m_appMode == ApplicationMode::Editor)
+        {
+            m_editor = new Editor::EditorApplication();
+            m_editor->Initialize();
+            m_editor->Refresh();
 
-			// Update props.
-			auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
+            // Update props.
+            auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
 
-			// Set the app window size back to original after loading editor resources.
-			Graphics::WindowBackend::Get()->SetPos(Vector2ui(0,0));
-			Graphics::WindowBackend::Get()->SetSize(Vector2ui(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
+            // Set the app window size back to original after loading editor resources.
+            Graphics::WindowBackend::Get()->SetPos(Vector2ui(0, 0));
+            Graphics::WindowBackend::Get()->SetSize(Vector2ui(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
-			Engine::Get()->SetPlayMode(false);
-		}
-		else
-		{
-			Engine::Get()->StartLoadingResources();
-			Engine::Get()->SetPlayMode(true);
-		}
+            Engine::Get()->SetPlayMode(false);
+        }
+        else
+        {
+            Engine::Get()->StartLoadingResources();
+            Engine::Get()->SetPlayMode(true);
+        }
 
-		// Initialize game manager.
-		m_gameManager.Initialize();
+        // Initialize game manager.
+        m_gameManager.Initialize();
 
-		// Set vsync
-		// Graphics::WindowBackend::Get()->SetVsync(2);
+        // Set vsync
+        // Graphics::WindowBackend::Get()->SetVsync(2);
 
-		 Run();
+        Run();
 
-		// After engine has finished running.
-		if (m_editor != nullptr)
-			delete m_editor;
-
-	}
-}
-
+        // After engine has finished running.
+        if (m_editor != nullptr)
+            delete m_editor;
+    }
+} // namespace Lina
 
 int main(int argc, char** argv)
 {
-	GameApplication* game = new GameApplication();
-	ApplicationInfo appInfo;
-	appInfo.m_appMode = ApplicationMode::Editor;
-	appInfo.m_appName = "Lina Sandbox Game";
-	appInfo.m_bundleName = "Example";
-	appInfo.m_packagePass = L"1234";
-	appInfo.m_windowProperties.m_width = 1440;
-	appInfo.m_windowProperties.m_height = 900;
-	appInfo.m_windowProperties.m_windowState = WindowState::Maximized;
-	appInfo.m_windowProperties.m_decorated = false;
-	appInfo.m_windowProperties.m_resizable = true;
-	appInfo.m_windowProperties.m_fullscreen = false;
-	appInfo.m_windowProperties.m_msaaSamples = 4;
-	appInfo.m_windowProperties.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
-	game->Initialize(appInfo);
-	delete game;
+    GameApplication* game = new GameApplication();
+    ApplicationInfo  appInfo;
+    appInfo.m_appMode                        = ApplicationMode::Editor;
+    appInfo.m_appName                        = "Lina Sandbox Game";
+    appInfo.m_bundleName                     = "Example";
+    appInfo.m_packagePass                    = L"1234";
+    appInfo.m_windowProperties.m_width       = 1440;
+    appInfo.m_windowProperties.m_height      = 900;
+    appInfo.m_windowProperties.m_windowState = WindowState::Maximized;
+    appInfo.m_windowProperties.m_decorated   = false;
+    appInfo.m_windowProperties.m_resizable   = true;
+    appInfo.m_windowProperties.m_fullscreen  = false;
+    appInfo.m_windowProperties.m_msaaSamples = 4;
+    appInfo.m_windowProperties.m_title       = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+    game->Initialize(appInfo);
+    delete game;
 }

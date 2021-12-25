@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,38 +40,45 @@ Timestamp: 10/27/2020 4:58:35 PM
 #define EditorCameraSystem_HPP
 
 // Headers here.
-#include "ECS/System.hpp"
 #include "Core/CommonECS.hpp"
 #include "Core/InputBackendFwd.hpp"
+#include "ECS/System.hpp"
 
 namespace Lina::Editor
 {
-	class LevelPanel;
+    class LevelPanel;
 }
 
 namespace Lina::ECS
 {
-	class EditorCameraSystem : public System
-	{
-	public:
+    class EditorCameraSystem : public System
+    {
+    public:
+        void         Initialize(Editor::LevelPanel& scenePanel);
+        virtual void UpdateComponents(float delta) override;
+        void         SetEditorCamera(Entity entity)
+        {
+            m_editorCamera = entity;
+        }
+        Entity GetEditorCamera()
+        {
+            return m_editorCamera;
+        }
+        void SetCameraSpeedMultiplier(float multiplier)
+        {
+            m_cameraSpeedMultiplier = multiplier;
+        }
 
-		void Initialize(Editor::LevelPanel& scenePanel);
-		virtual void UpdateComponents(float delta) override;
-		void SetEditorCamera(Entity entity) { m_editorCamera = entity; }
-		Entity GetEditorCamera() { return m_editorCamera; }
-		void SetCameraSpeedMultiplier(float multiplier) { m_cameraSpeedMultiplier = multiplier; }
-
-	private:
-
-		Entity m_editorCamera = entt::null;
-		Editor::LevelPanel* m_levelPanel;
-		Input::InputEngine* m_inputEngine;
-		float m_horizontalKeyAmt = 0.0f;
-		float m_verticalKeyAmt = 0.0f;
-		float m_targetXAngle = 0.0f;
-		float m_targetYAngle = 0.0f;
-		float m_cameraSpeedMultiplier = 1.0f;
-	};
-}
+    private:
+        Entity              m_editorCamera = entt::null;
+        Editor::LevelPanel* m_levelPanel;
+        Input::InputEngine* m_inputEngine;
+        float               m_horizontalKeyAmt      = 0.0f;
+        float               m_verticalKeyAmt        = 0.0f;
+        float               m_targetXAngle          = 0.0f;
+        float               m_targetYAngle          = 0.0f;
+        float               m_cameraSpeedMultiplier = 1.0f;
+    };
+} // namespace Lina::ECS
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,19 +44,17 @@ Timestamp: 12/7/2021 11:34:48 AM
 
 namespace Lina::Graphics
 {
-	class Animation
-	{
-		
-	public:
-		
-		Animation() {};
-		~Animation() {};
+    class Animation
+    {
 
-		bool LoadAnimation(const std::string& animPath);
+    public:
+        Animation(){};
+        ~Animation(){};
 
-	private:
-	
-	};
-}
+        bool LoadAnimation(const std::string& animPath);
+
+    private:
+    };
+} // namespace Lina::Graphics
 
 #endif

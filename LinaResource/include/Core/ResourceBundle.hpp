@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,79 +42,78 @@ Timestamp: 12/22/2020 12:26:55 AM
 // Headers here.
 #include "Core/CommonResources.hpp"
 #include "Core/CommonUtility.hpp"
+
 #include <queue>
 
 namespace Lina
 {
-	namespace Event
-	{
-		class EventSystem;
-	}
-}
+    namespace Event
+    {
+        class EventSystem;
+    }
+} // namespace Lina
 
 namespace Lina::Resources
 {
-	class MemoryEntry
-	{
-	public:
-		MemoryEntry() {};
-		~MemoryEntry();
+    class MemoryEntry
+    {
+    public:
+        MemoryEntry(){};
+        ~MemoryEntry();
 
-		MemoryEntry(int priority, ResourceType type, const std::string& path, std::vector<unsigned char>& data, std::string& paramsExtension)
-		{
-			m_priority = priority;
-			m_type = type;
-			m_path = path;
-			m_data = data;
-			m_paramsExtension = paramsExtension;
-		}
+        MemoryEntry(int priority, ResourceType type, const std::string& path, std::vector<unsigned char>& data, std::string& paramsExtension)
+        {
+            m_priority        = priority;
+            m_type            = type;
+            m_path            = path;
+            m_data            = data;
+            m_paramsExtension = paramsExtension;
+        }
 
-		ResourceType m_type = ResourceType::Unknown;
-		int m_priority = 100;
-		std::string m_path = "";
-		std::string m_paramsExtension = "";
-		std::vector<unsigned char> m_data;
-	};
+        ResourceType               m_type            = ResourceType::Unknown;
+        int                        m_priority        = 100;
+        std::string                m_path            = "";
+        std::string                m_paramsExtension = "";
+        std::vector<unsigned char> m_data;
+    };
 
-	struct CompareMemEntry {
-		bool operator()(MemoryEntry const& p1, MemoryEntry const& p2)
-		{
-			// return "true" if "p1" is ordered
-			// before "p2", for example:
-			return p1.m_priority < p2.m_priority;
-		}
-	};
+    struct CompareMemEntry
+    {
+        bool operator()(MemoryEntry const& p1, MemoryEntry const& p2)
+        {
+            // return "true" if "p1" is ordered
+            // before "p2", for example:
+            return p1.m_priority < p2.m_priority;
+        }
+    };
 
-	class MemoryMapCompare
-	{
-	public:
-		
-	};
+    class MemoryMapCompare
+    {
+    public:
+    };
 
-	class ResourceBundle
-	{
+    class ResourceBundle
+    {
 
-	private:
+    private:
+        friend class ResourceManager;
+        friend class Packager;
 
-		friend class ResourceManager;
-		friend class Packager;
+        // Pushes the given memory buffer to a resource map.
+        void PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data);
 
-		// Pushes the given memory buffer to a resource map.
-		void PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data);
+        // Loads all memory buffers stored in maps.
+        void LoadAllMemoryMaps();
 
-		// Loads all memory buffers stored in maps.
-		void LoadAllMemoryMaps();
+        // Calls LoadResourceFromFile on all resources within the folder.
+        void LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
-		// Calls LoadResourceFromFile on all resources within the folder.
-		void LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
+        // Loads given resource from a file path into memory.
+        void LoadResourceFromFile(Utility::File& file, ResourceType type);
 
-		// Loads given resource from a file path into memory.
-		void LoadResourceFromFile(Utility::File& file, ResourceType type);
-
-		std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
-		std::vector<MemoryEntry> m_memoryResourcesParams;
-
-	};
-}
+        std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
+        std::vector<MemoryEntry>                                                    m_memoryResourcesParams;
+    };
+} // namespace Lina::Resources
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -36,7 +36,6 @@ Timestamp: 12/12/2021 11:55:32 AM
 
 #pragma once
 
-
 #ifndef PhysicsBackendFwd_HPP
 #define PhysicsBackendFwd_HPP
 
@@ -44,19 +43,18 @@ Timestamp: 12/12/2021 11:55:32 AM
 
 namespace Lina::Physics
 {
-	class BulletPhysicsEngine;
-	typedef BulletPhysicsEngine PhysicsEngine;
-}
+    class BulletPhysicsEngine;
+    typedef BulletPhysicsEngine PhysicsEngine;
+} // namespace Lina::Physics
 #endif
 
 #ifdef LINA_PHYSICS_PHYSX
 
 namespace Lina::Physics
 {
-	class PhysXPhysicsEngine;
-	typedef PhysXPhysicsEngine PhysicsEngine;
-}
+    class PhysXPhysicsEngine;
+    typedef PhysXPhysicsEngine PhysicsEngine;
+} // namespace Lina::Physics
 #endif
 
 #endif
-

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,86 +27,89 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/SpriteRendererSystem.hpp"
+
+#include "Core/RenderDeviceBackend.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Registry.hpp"
-#include "Core/RenderEngineBackend.hpp"
-#include "Core/RenderDeviceBackend.hpp"
-#include "Utility/ModelLoader.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Utility/ModelLoader.hpp"
 
 namespace Lina::ECS
 {
-	SpriteRendererSystem::~SpriteRendererSystem()
-	{
-		delete m_quadMesh;
-	}
+    SpriteRendererSystem::~SpriteRendererSystem()
+    {
+        delete m_quadMesh;
+    }
 
-	void SpriteRendererSystem::Initialize()
-	{
-		System::Initialize();
-		m_renderEngine = Graphics::RenderEngineBackend::Get();
-		m_renderDevice = m_renderEngine->GetRenderDevice();
+    void SpriteRendererSystem::Initialize()
+    {
+        System::Initialize();
+        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderDevice = m_renderEngine->GetRenderDevice();
 
-		m_quadMesh = new Graphics::Mesh();
-		Graphics::ModelLoader::LoadSpriteQuad(*m_quadMesh);
-		m_quadMesh->CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
-	}
+        m_quadMesh = new Graphics::Mesh();
+        Graphics::ModelLoader::LoadSpriteQuad(*m_quadMesh);
+        m_quadMesh->CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
+    }
 
-	void SpriteRendererSystem::UpdateComponents(float delta)
-	{
-		auto view = m_ecs->view<EntityDataComponent, SpriteRendererComponent>();
+    void SpriteRendererSystem::UpdateComponents(float delta)
+    {
+        auto view = m_ecs->view<EntityDataComponent, SpriteRendererComponent>();
 
-		// Find the sprites and add them to the render queue.
-		for (auto entity : view)
-		{
-			SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>(entity);
-			if (!renderer.m_isEnabled) return;
+        // Find the sprites and add them to the render queue.
+        for (auto entity : view)
+        {
+            SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>(entity);
+            if (!renderer.m_isEnabled)
+                return;
 
-			EntityDataComponent& data= view.get<EntityDataComponent>(entity);
+            EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 
-			// Dont draw if mesh or material does not exist.
-			if (renderer.m_materialID < 0) continue;
+            // Dont draw if mesh or material does not exist.
+            if (renderer.m_materialID < 0)
+                continue;
 
-			Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
-			Render(mat, data.ToMatrix());
-		}
-	}
+            Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
+            Render(mat, data.ToMatrix());
+        }
+    }
 
-	void SpriteRendererSystem::Render(Graphics::Material& material, const Matrix& transformIn)
-	{
-		m_renderBatch[&material].m_models.push_back(transformIn);
-	}
+    void SpriteRendererSystem::Render(Graphics::Material& material, const Matrix& transformIn)
+    {
+        m_renderBatch[&material].m_models.push_back(transformIn);
+    }
 
+    void SpriteRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
+    {
+        // When flushed, all the data is delegated to the render device to do the actual
+        // drawing. Then the data is cleared if complete flush is requested.
 
-	void SpriteRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
-	{
-		// When flushed, all the data is delegated to the render device to do the actual
-		// drawing. Then the data is cleared if complete flush is requested.
+        for (std::map<Graphics::Material*, BatchModelData>::iterator it = m_renderBatch.begin(); it != m_renderBatch.end(); ++it)
+        {
+            // Get references.
+            BatchModelData& modelData     = it->second;
+            size_t          numTransforms = modelData.m_models.size();
+            if (numTransforms == 0)
+                continue;
 
-		for (std::map<Graphics::Material*, BatchModelData>::iterator it = m_renderBatch.begin(); it != m_renderBatch.end(); ++it)
-		{
-			// Get references.
-			BatchModelData& modelData = it->second;
-			size_t numTransforms = modelData.m_models.size();
-			if (numTransforms == 0) continue;
+            Matrix* models = &modelData.m_models[0];
 
-			Matrix* models = &modelData.m_models[0];
+            // Get the material for drawing, object's own material or overriden material.
+            Graphics::Material* mat = overrideMaterial == nullptr ? it->first : overrideMaterial;
 
-			// Get the material for drawing, object's own material or overriden material.
-			Graphics::Material* mat = overrideMaterial == nullptr ? it->first : overrideMaterial;
+            // Update the buffer w/ each transform.
+            m_quadMesh->GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
 
-			// Update the buffer w/ each transform.
-			m_quadMesh->GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
+            m_renderEngine->UpdateShaderData(mat);
+            m_renderDevice->Draw(m_quadMesh->GetVertexArray().GetID(), drawParams, (uint32)numTransforms, m_quadMesh->GetVertexArray().GetIndexCount(), false);
 
-			m_renderEngine->UpdateShaderData(mat);
-			m_renderDevice->Draw(m_quadMesh->GetVertexArray().GetID(), drawParams, (uint32)numTransforms, m_quadMesh->GetVertexArray().GetIndexCount(), false);
-
-			// Clear the buffer.
-			if (completeFlush)
-			{
-				modelData.m_models.clear();
-			}
-		}
-	}
-}
+            // Clear the buffer.
+            if (completeFlush)
+            {
+                modelData.m_models.clear();
+            }
+        }
+    }
+} // namespace Lina::ECS

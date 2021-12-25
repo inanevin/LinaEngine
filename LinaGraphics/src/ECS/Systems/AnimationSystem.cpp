@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,14 +27,14 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/AnimationSystem.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
+
 #include "ECS/Components/AnimationComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Rendering/Model.hpp"
 
 namespace Lina::ECS
 {
-	void AnimationSystem::UpdateComponents(float delta)
-	{
-	
-	}
-}
+    void AnimationSystem::UpdateComponents(float delta)
+    {
+    }
+} // namespace Lina::ECS

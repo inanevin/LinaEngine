@@ -37,26 +37,25 @@ Timestamp: 10/1/2020 9:26:21 AM
 #define SpriteRendererComponent_HPP
 
 #include "ECS/Component.hpp"
+
 #include <string>
 
 namespace Lina::ECS
 {
-	struct SpriteRendererComponent : public Component
-	{
-		int m_materialID = -1;
-		std::string m_materialPaths = "";
+    struct SpriteRendererComponent : public Component
+    {
+        int         m_materialID    = -1;
+        std::string m_materialPaths = "";
 
-		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
-		int m_selectedMatID = -1;
-		std::string m_selectedMatPath = "";
+        // Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
+        int         m_selectedMatID   = -1;
+        std::string m_selectedMatPath = "";
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_materialPaths, m_isEnabled); // serialize things by passing them to the archive
-		}
-
-	};
-}
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_materialPaths, m_isEnabled); // serialize things by passing them to the archive
+        }
+    };
+} // namespace Lina::ECS
 
 #endif

@@ -1,5 +1,5 @@
-/* 
-/* 
+/*
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,38 +44,36 @@ Timestamp: 10/30/2020 9:37:42 AM
 
 namespace Lina
 {
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-	namespace Event
-	{
-		struct ELevelInstalled;
-		struct ELevelUninstalled;
-	}
-}
+    namespace Event
+    {
+        struct ELevelInstalled;
+        struct ELevelUninstalled;
+    } // namespace Event
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class GlobalSettingsPanel : public EditorPanel
-	{
-		
-	public:
-		
-		GlobalSettingsPanel() {};
-		~GlobalSettingsPanel() {};
+    class GlobalSettingsPanel : public EditorPanel
+    {
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
-	
-		void LevelInstalled(const Event::ELevelInstalled& ev);
-		void LevelIUninstalled(const Event::ELevelUninstalled& ev);
+    public:
+        GlobalSettingsPanel(){};
+        ~GlobalSettingsPanel(){};
 
-	private:
-	
-		World::Level* m_currentLevel = nullptr;
-	};
-}
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
+
+        void LevelInstalled(const Event::ELevelInstalled& ev);
+        void LevelIUninstalled(const Event::ELevelUninstalled& ev);
+
+    private:
+        World::Level* m_currentLevel = nullptr;
+    };
+} // namespace Lina::Editor
 
 #endif

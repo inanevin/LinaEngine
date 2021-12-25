@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,55 +42,65 @@ Timestamp: 2/16/2019 1:47:28 AM
 
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/UniformBuffer.hpp"
+
 #include <string>
 
 namespace Lina::Graphics
 {
 
-	class Shader
-	{
-	public:
+    class Shader
+    {
+    public:
+        Shader(){};
 
-		Shader() {};
+        ~Shader();
 
-		~Shader();
+        Shader& Construct(const std::string& text, bool usesGeometryShader);
+        void    SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
+        void    BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
 
-		Shader& Construct(const std::string& text, bool usesGeometryShader);
-		void SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
-		void BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
+        static void                             ClearShaderIncludes();
+        static void                             PushShaderInclude(const std::string& name, const std::string& text);
+        static Shader&                          CreateShader(const std::string& path, bool usesGeometryShader = false, unsigned char* data = nullptr, size_t dataSize = 0);
+        static Shader&                          GetShader(const std::string& path);
+        static Shader&                          GetShader(StringIDType id);
+        static bool                             ShaderExists(const std::string& path);
+        static bool                             ShaderExists(StringIDType id);
+        static void                             UnloadAll();
+        static std::map<StringIDType, Shader*>& GetLoadedShaders()
+        {
+            return s_loadedShaders;
+        }
 
-		static void ClearShaderIncludes();
-		static void PushShaderInclude(const std::string& name, const std::string& text);
-		static Shader& CreateShader(const std::string& path, bool usesGeometryShader = false, unsigned char* data = nullptr, size_t dataSize = 0);
-		static Shader& GetShader(const std::string& path);
-		static Shader& GetShader(StringIDType id);
-		static bool ShaderExists(const std::string& path);
-		static bool ShaderExists(StringIDType id);
-		static void UnloadAll();
-		static std::map<StringIDType, Shader*>& GetLoadedShaders() { return s_loadedShaders; }
+        ShaderUniformData& GetUniformData()
+        {
+            return m_uniformData;
+        }
+        StringIDType GetSID()
+        {
+            return m_sid;
+        }
+        uint32 GetID()
+        {
+            return m_engineBoundID;
+        }
+        const std::string& GetPath()
+        {
+            return m_path;
+        }
 
+    private:
+        static Shader& CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader = false);
 
-		ShaderUniformData& GetUniformData() { return m_uniformData; }
-		StringIDType GetSID() { return m_sid; }
-		uint32 GetID() { return m_engineBoundID; }
-		const std::string& GetPath() { return m_path; }
-
-
-	private:
-
-		static Shader& CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader = false);
-	private:
-
-		ShaderUniformData m_uniformData;
-		RenderDevice* m_renderDevice = nullptr;
-		uint32 m_engineBoundID = 0;
-		StringIDType m_sid;
-		std::string m_path = "";
-		static std::map<StringIDType, Shader*> s_loadedShaders;
-		static std::map<std::string, std::string> s_loadedShaderIncludes;
-	
-	};
-}
-
+    private:
+        ShaderUniformData                         m_uniformData;
+        RenderDevice*                             m_renderDevice  = nullptr;
+        uint32                                    m_engineBoundID = 0;
+        StringIDType                              m_sid;
+        std::string                               m_path = "";
+        static std::map<StringIDType, Shader*>    s_loadedShaders;
+        static std::map<std::string, std::string> s_loadedShaderIncludes;
+    };
+} // namespace Lina::Graphics
 
 #endif

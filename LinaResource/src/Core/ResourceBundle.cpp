@@ -26,138 +26,134 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #include "Core/ResourceBundle.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "EventSystem/ResourceEvents.hpp"
-#include "EventSystem/EventSystem.hpp"
+
 #include "Core/ResourceManager.hpp"
-#include "Math/Math.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
+#include "Math/Math.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 namespace Lina::Resources
 {
-	MemoryEntry::~MemoryEntry()
-	{
-		m_data.clear();
-		LINA_TRACE("Memory entry popped");
-	}
+    MemoryEntry::~MemoryEntry()
+    {
+        m_data.clear();
+        LINA_TRACE("Memory entry popped");
+    }
 
-	void ResourceBundle::PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data)
-	{
-		StringIDType sid = StringID(path.c_str()).value();
-		
-		int priority = 100;
-		std::string paramsExtension = "";
-		
-		if (type == ResourceType::AudioData || type == ResourceType::ModelAssetData || type == ResourceType::ImageData)
-		{
-			m_memoryResourcesParams.push_back(MemoryEntry(priority, type, path, data, paramsExtension));
-		}
-		else
-		{
-			if (type == ResourceType::GLH)
-				priority = 0;
-			else if (type == ResourceType::GLSL)
-				priority = 1;
-			else if (type == ResourceType::Audio)
-				paramsExtension = ".linaaudiodata";
-			else if (type == ResourceType::Model)
-				paramsExtension = ".linamodeldata";
-			else if (type == ResourceType::Image || type == ResourceType::HDR)
-				paramsExtension = ".linaimagedata";
-		
-			m_memoryResources.push(MemoryEntry(priority, type, path, data, paramsExtension));
-		}
-		
-		
-		data.clear();
-	}
+    void ResourceBundle::PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data)
+    {
+        StringIDType sid = StringID(path.c_str()).value();
 
-	void ResourceBundle::LoadAllMemoryMaps()
-	{
-		while (!m_memoryResources.empty())
-		{
-			MemoryEntry entry = m_memoryResources.top();
-		
-			std::string nameOnly = Utility::GetFileWithoutExtension(entry.m_path);
-			std::string paramsName = nameOnly + entry.m_paramsExtension;
-		
-			bool wasParamFound = false;
-			for (auto& paramEntry : m_memoryResourcesParams)
-			{
-				
-				if (paramEntry.m_path.compare(paramsName) == 0)
-				{
-					Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type,
-						entry.m_path, &entry.m_data[0], entry.m_data.size(), paramEntry.m_path, &paramEntry.m_data[0], paramEntry.m_data.size()
-						});
-					
-					wasParamFound = true;
-					break;
-				}
-			}
-		
-			if (!wasParamFound)
-			{
-				Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{ entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size() , "", nullptr, 0});
-			}
-		
-			Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{entry.m_type, StringID(entry.m_path.c_str()).value()});
-			m_memoryResources.pop();
-		}
-		m_memoryResourcesParams.clear();
-	}
+        int         priority        = 100;
+        std::string paramsExtension = "";
 
-	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root,const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
-	{
-		for (auto& folder : root.m_folders)
-		{
-			LoadResourcesInFolder(folder,  excludes, onlyLoad);
-		}
+        if (type == ResourceType::AudioData || type == ResourceType::ModelAssetData || type == ResourceType::ImageData)
+        {
+            m_memoryResourcesParams.push_back(MemoryEntry(priority, type, path, data, paramsExtension));
+        }
+        else
+        {
+            if (type == ResourceType::GLH)
+                priority = 0;
+            else if (type == ResourceType::GLSL)
+                priority = 1;
+            else if (type == ResourceType::Audio)
+                paramsExtension = ".linaaudiodata";
+            else if (type == ResourceType::Model)
+                paramsExtension = ".linamodeldata";
+            else if (type == ResourceType::Image || type == ResourceType::HDR)
+                paramsExtension = ".linaimagedata";
 
-		// Initialize each file into memory where they will persist during the editor lifetime.
-		for (auto& file : root.m_files)
-		{
-			ResourceType resType = GetResourceType(file.m_extension);
+            m_memoryResources.push(MemoryEntry(priority, type, path, data, paramsExtension));
+        }
 
-			if (onlyLoad != ResourceType::Unknown && resType != onlyLoad)
-				continue;
+        data.clear();
+    }
 
-			if (excludes.size() != 0)
-			{
-				for (const auto rt : excludes)
-				{
-					if (resType == rt)
-						continue;
-				}
-			}
+    void ResourceBundle::LoadAllMemoryMaps()
+    {
+        while (!m_memoryResources.empty())
+        {
+            MemoryEntry entry = m_memoryResources.top();
 
-			ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
-			ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
-			ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
-			ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
-			ResourceManager::TriggerResourceUpdatedEvent();
-			LoadResourceFromFile(file, resType);
-		}
-	}
+            std::string nameOnly   = Utility::GetFileWithoutExtension(entry.m_path);
+            std::string paramsName = nameOnly + entry.m_paramsExtension;
 
-	void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type)
-	{
-		std::string paramsPath = "";
+            bool wasParamFound = false;
+            for (auto& paramEntry : m_memoryResourcesParams)
+            {
 
-		if (type == ResourceType::Image)
-			paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
-		else if (type == ResourceType::HDR)
-			paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
-		else if (type == ResourceType::Model)
-			paramsPath = file.m_folderPath + file.m_pureName + ".linamodeldata";
-		else if (type == ResourceType::Audio)
-			paramsPath = file.m_folderPath + file.m_pureName + ".linaaudiodata";
+                if (paramEntry.m_path.compare(paramsName) == 0)
+                {
+                    Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size(), paramEntry.m_path, &paramEntry.m_data[0], paramEntry.m_data.size()});
 
-		Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
-		Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{ type, StringID(file.m_fullPath.c_str()).value() });
+                    wasParamFound = true;
+                    break;
+                }
+            }
 
-	}
+            if (!wasParamFound)
+            {
+                Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromMemory>(Event::ELoadResourceFromMemory{entry.m_type, entry.m_path, &entry.m_data[0], entry.m_data.size(), "", nullptr, 0});
+            }
 
-}
+            Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{entry.m_type, StringID(entry.m_path.c_str()).value()});
+            m_memoryResources.pop();
+        }
+        m_memoryResourcesParams.clear();
+    }
+
+    void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
+    {
+        for (auto& folder : root.m_folders)
+        {
+            LoadResourcesInFolder(folder, excludes, onlyLoad);
+        }
+
+        // Initialize each file into memory where they will persist during the editor lifetime.
+        for (auto& file : root.m_files)
+        {
+            ResourceType resType = GetResourceType(file.m_extension);
+
+            if (onlyLoad != ResourceType::Unknown && resType != onlyLoad)
+                continue;
+
+            if (excludes.size() != 0)
+            {
+                for (const auto rt : excludes)
+                {
+                    if (resType == rt)
+                        continue;
+                }
+            }
+
+            ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
+            ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
+            ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
+            ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+            ResourceManager::TriggerResourceUpdatedEvent();
+            LoadResourceFromFile(file, resType);
+        }
+    }
+
+    void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type)
+    {
+        std::string paramsPath = "";
+
+        if (type == ResourceType::Image)
+            paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
+        else if (type == ResourceType::HDR)
+            paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
+        else if (type == ResourceType::Model)
+            paramsPath = file.m_folderPath + file.m_pureName + ".linamodeldata";
+        else if (type == ResourceType::Audio)
+            paramsPath = file.m_folderPath + file.m_pureName + ".linaaudiodata";
+
+        Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
+        Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{type, StringID(file.m_fullPath.c_str()).value()});
+    }
+
+} // namespace Lina::Resources

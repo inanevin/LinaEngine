@@ -27,29 +27,29 @@ SOFTWARE.
 */
 
 #include "Game/GameManager.hpp"
+
 #include "Core/Application.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include "Log/Log.hpp"
 #include "Levels/ExampleLevel.hpp"
+#include "Log/Log.hpp"
 
 GameManager* GameManager::s_instance = nullptr;
 
 void GameManager::Initialize()
 {
-	LINA_TRACE("Game Manager Attached!");
-	s_instance = this;
-	m_exampleLevel = new ExampleLevel();
-	Application::Get().InstallLevel(*m_exampleLevel, true, "Resources/Sandbox/Levels/", "ExampleLevel");
-	Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
-	Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
+    LINA_TRACE("Game Manager Attached!");
+    s_instance     = this;
+    m_exampleLevel = new ExampleLevel();
+    Application::Get().InstallLevel(*m_exampleLevel, true, "Resources/Sandbox/Levels/", "ExampleLevel");
+    Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
+    Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
 }
 
 void GameManager::OnTick(const Event::ETick& ev)
 {
-
 }
 
 void GameManager::OnShutdown(const Event::EShutdown& ev)
 {
-	delete m_exampleLevel;
+    delete m_exampleLevel;
 }

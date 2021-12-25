@@ -40,8 +40,8 @@ Timestamp: 12/20/2021 1:05:42 PM
 #define PhysicsCommon_HPP
 
 // Headers here.
-#include "Math/Vector.hpp"
 #include "Math/Quaternion.hpp"
+#include "Math/Vector.hpp"
 
 #ifdef LINA_PHYSICS_BULLET
 #include "btBulletDynamicsCommon.h"
@@ -55,23 +55,23 @@ namespace Lina::Physics
 
 #ifdef LINA_PHYSICS_BULLET
 
-	extern btVector3 ToBtVector(const Vector3& v);
-	extern btQuaternion ToBtQuat(const Quaternion& q);
-	extern Vector3 ToLinaVector(const btVector3& v);
-	extern Quaternion ToLinaQuat(const btQuaternion& q);
+    extern btVector3    ToBtVector(const Vector3& v);
+    extern btQuaternion ToBtQuat(const Quaternion& q);
+    extern Vector3      ToLinaVector(const btVector3& v);
+    extern Quaternion   ToLinaQuat(const btQuaternion& q);
 
 #endif
 #ifdef LINA_PHYSICS_PHYSX
-	extern physx::PxVec2 ToPxVector2(const Vector2& v);
-	extern physx::PxVec3 ToPxVector3(const Vector3& v);
-	extern physx::PxVec4 ToPxVector4(const Vector4& v);
-	extern physx::PxQuat ToPxQuat(const Quaternion& q);
-	extern Vector2 ToLinaVector2(const physx::PxVec2& v);
-	extern Vector3 ToLinaVector3(const physx::PxVec3& v);
-	extern Vector4 ToLinaVector4(const physx::PxVec4& v);
-	extern Quaternion ToLinaQuat(const physx::PxQuat& q);
+    extern physx::PxVec2 ToPxVector2(const Vector2& v);
+    extern physx::PxVec3 ToPxVector3(const Vector3& v);
+    extern physx::PxVec4 ToPxVector4(const Vector4& v);
+    extern physx::PxQuat ToPxQuat(const Quaternion& q);
+    extern Vector2       ToLinaVector2(const physx::PxVec2& v);
+    extern Vector3       ToLinaVector3(const physx::PxVec3& v);
+    extern Vector4       ToLinaVector4(const physx::PxVec4& v);
+    extern Quaternion    ToLinaQuat(const physx::PxQuat& q);
 #endif
 
-}
+} // namespace Lina::Physics
 
 #endif

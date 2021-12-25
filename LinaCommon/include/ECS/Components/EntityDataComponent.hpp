@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,113 +40,137 @@ Timestamp: 12/8/2021 5:35:25 PM
 #define EntityDataComponent_HPP
 
 // Headers here.
-#include "Math/Transformation.hpp"
-#include "ECS/Component.hpp"
 #include "Core/CommonECS.hpp"
-#include <cereal/types/string.hpp>
+#include "ECS/Component.hpp"
+#include "Math/Transformation.hpp"
+
 #include <cereal/types/set.hpp>
+#include <cereal/types/string.hpp>
 
 namespace Lina
 {
-	namespace Physics
-	{
+    namespace Physics
+    {
 #ifdef LINA_PHYSICS_BULLET
-		class BulletPhysicsEngine;
+        class BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		class PhysXPhysicsEngine;
+        class PhysXPhysicsEngine;
 #endif
-	}
-};
+    } // namespace Physics
+};    // namespace Lina
 
 namespace Lina::ECS
 {
-	struct ModelRendererComponent;
+    struct ModelRendererComponent;
 
-	struct EntityDataComponent : public Component
-	{
-		EntityDataComponent(bool hidden, bool enabled, bool serialized, std::string name)
-		{
-			m_isHidden = hidden;
-			m_isEnabled = enabled;
-			m_serialized = serialized;
-			m_name = name;
-		}
+    struct EntityDataComponent : public Component
+    {
+        EntityDataComponent(bool hidden, bool enabled, bool serialized, std::string name)
+        {
+            m_isHidden   = hidden;
+            m_isEnabled  = enabled;
+            m_serialized = serialized;
+            m_name       = name;
+        }
 
-		EntityDataComponent() {};
+        EntityDataComponent(){};
 
-		bool m_isHidden = false;
-		bool m_isEnabled = true;
-		bool m_serialized = true;
-		std::string m_name = "";
-		std::set<Entity> m_children;
-		Entity m_parent = entt::null;
+        bool             m_isHidden   = false;
+        bool             m_isEnabled  = true;
+        bool             m_serialized = true;
+        std::string      m_name       = "";
+        std::set<Entity> m_children;
+        Entity           m_parent = entt::null;
 
-		/* TRANSFORM OPERATIONS */
+        /* TRANSFORM OPERATIONS */
 
-		Matrix ToMatrix() { return m_transform.ToMatrix(); }
-		Matrix ToLocalMatrix() { return m_transform.ToLocalMatrix(); }
-		void SetTransformation(Matrix& mat, bool omitScale = false);
-		void SetLocalTransformation(Matrix& mat, bool omitScale = false);
+        Matrix ToMatrix()
+        {
+            return m_transform.ToMatrix();
+        }
+        Matrix ToLocalMatrix()
+        {
+            return m_transform.ToLocalMatrix();
+        }
+        void SetTransformation(Matrix& mat, bool omitScale = false);
+        void SetLocalTransformation(Matrix& mat, bool omitScale = false);
 
-		void AddRotation(const Vector3& angles);
-		void AddLocaRotation(const Vector3& angles);
-		void AddLocation(const Vector3& loc);
-		void AddLocalLocation(const Vector3& loc);
+        void AddRotation(const Vector3& angles);
+        void AddLocaRotation(const Vector3& angles);
+        void AddLocation(const Vector3& loc);
+        void AddLocalLocation(const Vector3& loc);
 
-		Transformation GetInterpolated(float interpolation);
-		void SetLocalLocation(const Vector3& loc);
-		void SetLocation(const Vector3& loc);
-		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-		void SetScale(const Vector3& scale, bool isThisPivot = true);
+        Transformation GetInterpolated(float interpolation);
+        void           SetLocalLocation(const Vector3& loc);
+        void           SetLocation(const Vector3& loc);
+        void           SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+        void           SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
+        void           SetRotation(const Quaternion& rot, bool isThisPivot = true);
+        void           SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+        void           SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+        void           SetScale(const Vector3& scale, bool isThisPivot = true);
 
-		const Vector3& GetLocalRotationAngles() { return m_transform.m_localRotationAngles; }
-		const Vector3& GetLocalLocation() { return m_transform.m_localLocation; }
-		const Quaternion& GetLocalRotation() { return m_transform.m_localRotation; }
-		const Vector3& GetLocalScale() { return m_transform.m_localScale; }
-		const Vector3& GetLocation() { return m_transform.m_location; }
-		const Quaternion& GetRotation() { return m_transform.m_rotation; }
-		const Vector3& GetRotationAngles() { return m_transform.m_rotationAngles; }
-		const Vector3& GetScale() { return m_transform.m_scale; }
+        const Vector3& GetLocalRotationAngles()
+        {
+            return m_transform.m_localRotationAngles;
+        }
+        const Vector3& GetLocalLocation()
+        {
+            return m_transform.m_localLocation;
+        }
+        const Quaternion& GetLocalRotation()
+        {
+            return m_transform.m_localRotation;
+        }
+        const Vector3& GetLocalScale()
+        {
+            return m_transform.m_localScale;
+        }
+        const Vector3& GetLocation()
+        {
+            return m_transform.m_location;
+        }
+        const Quaternion& GetRotation()
+        {
+            return m_transform.m_rotation;
+        }
+        const Vector3& GetRotationAngles()
+        {
+            return m_transform.m_rotationAngles;
+        }
+        const Vector3& GetScale()
+        {
+            return m_transform.m_scale;
+        }
 
-	private:
+    private:
+        void UpdateGlobalLocation();
+        void UpdateLocalLocation();
+        void UpdateGlobalRotation();
+        void UpdateLocalRotation();
+        void UpdateGlobalScale();
+        void UpdateLocalScale();
 
-		void UpdateGlobalLocation();
-		void UpdateLocalLocation();
-		void UpdateGlobalRotation();
-		void UpdateLocalRotation();
-		void UpdateGlobalScale();
-		void UpdateLocalScale();
-
-
-	private:
-
-		friend class cereal::access;
-		friend class Registry;
+    private:
+        friend class cereal::access;
+        friend class Registry;
 
 #ifdef LINA_PHYSICS_BULLET
-		friend class Physics::BulletPhysicsEngine;
+        friend class Physics::BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		friend class Physics::PhysXPhysicsEngine;
+        friend class Physics::PhysXPhysicsEngine;
 #endif
 
-		bool m_isTransformLocked = false;
+        bool m_isTransformLocked = false;
 
+        Transformation m_transform;
+        Registry*      m_ecs = nullptr;
 
-		Transformation m_transform;
-		Registry* m_ecs = nullptr;
-
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
-		}
-
-	
-	};
-}
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
+        }
+    };
+} // namespace Lina::ECS
 
 #endif

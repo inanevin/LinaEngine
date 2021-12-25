@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,69 +40,75 @@ Timestamp: 12/24/2021 9:00:02 PM
 #define ModelNode_HPP
 
 // Headers here.
-#include "Utility/StringId.hpp"
 #include "Math/Matrix.hpp"
-#include <vector>
-#include <memory>
+#include "Utility/StringId.hpp"
+
 #include <cereal/access.hpp>
 #include <cereal/types/memory.hpp>
+#include <memory>
+#include <vector>
 
 struct aiNode;
 struct aiScene;
 
 namespace Lina
 {
-	namespace ECS
-	{
-		class ModelNodeSystem;
-	}
-}
+    namespace ECS
+    {
+        class ModelNodeSystem;
+    }
+} // namespace Lina
 
 namespace Lina::Graphics
 {
-	class Mesh;
-	class Model;
-	class ModelLoader;
+    class Mesh;
+    class Model;
+    class ModelLoader;
 
-	class ModelNode
-	{
-		
-	public:
-		
-		ModelNode();
-		~ModelNode();
-		ModelNode(const ModelNode& old_obj);
+    class ModelNode
+    {
 
-		void FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly);
-		inline const std::vector<Mesh*>& GetMeshes() const { return m_meshes; }
-		inline const std::string& GetName() const { return m_name; }
-		inline const std::vector<ModelNode*>& GetChildren() const { return m_children; }
+    public:
+        ModelNode();
+        ~ModelNode();
+        ModelNode(const ModelNode& old_obj);
 
-	private:
+        void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly);
+        inline const std::vector<Mesh*>& GetMeshes() const
+        {
+            return m_meshes;
+        }
+        inline const std::string& GetName() const
+        {
+            return m_name;
+        }
+        inline const std::vector<ModelNode*>& GetChildren() const
+        {
+            return m_children;
+        }
 
-		void Clear()
-		{
-			m_id = 0;
-			m_name = "";
-			m_localTransform = Matrix();
-			m_defaultMaterials.clear();
-			m_children.clear();
-		}
+    private:
+        void Clear()
+        {
+            m_id             = 0;
+            m_name           = "";
+            m_localTransform = Matrix();
+            m_defaultMaterials.clear();
+            m_children.clear();
+        }
 
-	private:
+    private:
+        friend class ECS::ModelNodeSystem;
+        friend class Graphics::ModelLoader;
+        friend class cereal::access;
 
-		friend class ECS::ModelNodeSystem;
-		friend class Graphics::ModelLoader;
-		friend class cereal::access;
-
-		StringIDType m_id = 0;
-		std::vector<StringIDType> m_defaultMaterials;
-		std::vector<Mesh*> m_meshes;
-		std::string m_name = "";
-		Matrix m_localTransform;
-		std::vector<ModelNode*> m_children;
-		
-	};
-}
+        StringIDType              m_id = 0;
+        std::vector<StringIDType> m_defaultMaterials;
+        std::vector<Mesh*>        m_meshes;
+        std::string               m_name = "";
+        Matrix                    m_localTransform;
+        std::vector<ModelNode*>   m_children;
+    };
+} // namespace Lina::Graphics
 
 #endif

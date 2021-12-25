@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,14 +27,13 @@ SOFTWARE.
 */
 
 #include "ECS/System.hpp"
+
 #include "ECS/Registry.hpp"
 
 namespace Lina::ECS
 {
-	void System::Initialize()
-	{
-		m_ecs = ECS::Registry::Get();
-	}
-}
-
-
+    void System::Initialize()
+    {
+        m_ecs = ECS::Registry::Get();
+    }
+} // namespace Lina::ECS

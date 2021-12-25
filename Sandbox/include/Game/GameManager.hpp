@@ -39,15 +39,14 @@ Timestamp: 12/7/2020 9:11:14 PM
 #ifndef GameManager_HPP
 #define GameManager_HPP
 
-
 namespace Lina
 {
-	namespace Event
-	{
-		struct EShutdown;
-		struct ETick;
-	}
-}
+    namespace Event
+    {
+        struct EShutdown;
+        struct ETick;
+    } // namespace Event
+} // namespace Lina
 
 class ExampleLevel;
 
@@ -55,19 +54,19 @@ class GameManager
 {
 
 public:
-
-	GameManager() {};
-	~GameManager() {};
-	void Initialize();
-	void OnTick(const Event::ETick& ev);
-	void OnShutdown(const Event::EShutdown& ev);
-	static GameManager* GetInstance() { return s_instance; }
+    GameManager(){};
+    ~GameManager(){};
+    void                Initialize();
+    void                OnTick(const Event::ETick& ev);
+    void                OnShutdown(const Event::EShutdown& ev);
+    static GameManager* GetInstance()
+    {
+        return s_instance;
+    }
 
 private:
-
-	static GameManager* s_instance;
-	ExampleLevel* m_exampleLevel;
+    static GameManager* s_instance;
+    ExampleLevel*       m_exampleLevel;
 };
-
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,71 +41,69 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
+
 #include <map>
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
 struct ALCcontext;
 struct ALCdevice;
 
-
 namespace Lina
 {
-	class Engine;
+    class Engine;
 
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-	namespace ECS
-	{
-		class Registry;
-	}
+    namespace ECS
+    {
+        class Registry;
+    }
 
-	namespace Event
-	{
-		struct ELoadResourceFromFile;
-		struct ELoadResourceFromMemory;
-	}
-}
+    namespace Event
+    {
+        struct ELoadResourceFromFile;
+        struct ELoadResourceFromMemory;
+    } // namespace Event
+} // namespace Lina
 
 namespace Lina::Audio
 {
-	class Audio;
+    class Audio;
 
-	class OpenALAudioEngine
-	{
-	public:
+    class OpenALAudioEngine
+    {
+    public:
+        void                      PlayOneShot(Audio& audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
+        static OpenALAudioEngine* Get()
+        {
+            return s_audioEngine;
+        }
 
-		void PlayOneShot(Audio& audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
-		static OpenALAudioEngine* Get() { return s_audioEngine; }
+    private:
+        void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& ev);
+        void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& ev);
+        void ListAudioDevices(const char* type, const char* list);
 
-	private:
+    private:
+        friend class Engine;
+        OpenALAudioEngine(){};
+        ~OpenALAudioEngine(){};
+        void Initialize();
+        void Shutdown();
 
-		void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& ev);
-		void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& ev);
-		void ListAudioDevices(const char* type, const char* list);
-
-	private:
-
-		friend class Engine;
-		OpenALAudioEngine() {};
-		~OpenALAudioEngine() {};
-		void Initialize();	
-		void Shutdown();
-
-	private:
-
-		static OpenALAudioEngine* s_audioEngine;
-		ECS::Registry* m_ecs = nullptr;
-		mutable std::mutex m_mutex;
-		ALCcontext* m_context = nullptr;
-		ALCdevice* m_device = nullptr;
-		Vector3 m_mainListenerLastPos = Vector3::Zero;
-		std::map<StringIDType, unsigned int> m_generatedSources;
-	};
-}
-
+    private:
+        static OpenALAudioEngine*            s_audioEngine;
+        ECS::Registry*                       m_ecs = nullptr;
+        mutable std::mutex                   m_mutex;
+        ALCcontext*                          m_context             = nullptr;
+        ALCdevice*                           m_device              = nullptr;
+        Vector3                              m_mainListenerLastPos = Vector3::Zero;
+        std::map<StringIDType, unsigned int> m_generatedSources;
+    };
+} // namespace Lina::Audio
 
 #endif

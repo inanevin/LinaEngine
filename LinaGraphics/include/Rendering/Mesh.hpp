@@ -44,67 +44,92 @@ Timestamp: 4/26/2019 12:11:36 AM
 
 namespace Lina::Graphics
 {
-	class Mesh
-	{
-	public:
+    class Mesh
+    {
+    public:
+        Mesh()
+        {
+        }
+        virtual ~Mesh(){};
 
-		Mesh() {}
-		virtual ~Mesh() {};
+        // Creates a vertex array using render render device.
+        void CreateVertexArray(BufferUsage bufferUsage);
 
-		// Creates a vertex array using render render device.
-		void CreateVertexArray(BufferUsage bufferUsage);
+        // Sets the element size array according to the desired size.
+        void AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced = false);
 
-		// Sets the element size array according to the desired size.
-		void AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced = false);
+        void AddElement(uint32 elementIndex, float e0);
+        void AddElement(uint32 elementIndex, int e0);
 
-		void AddElement(uint32 elementIndex, float e0);
-		void AddElement(uint32 elementIndex, int e0);
+        template <typename T, typename... Args> void AddElement(uint32 elementIndex, T first, Args... args)
+        {
+            AddElement(elementIndex, first);
+            AddElement(elementIndex, args...);
+        }
 
-		template <typename T, typename ... Args>
-		void AddElement(uint32 elementIndex, T first, Args ... args)
-		{
-			AddElement(elementIndex, first);
-			AddElement(elementIndex, args...);
-		}
+        void SetMaterialSlot(uint32 slotIndex)
+        {
+            m_materialSlot = slotIndex;
+        }
 
-		void SetMaterialSlot(uint32 slotIndex)
-		{
-			m_materialSlot = slotIndex;
-		}
+        uint32 GetMaterialSlotIndex()
+        {
+            return m_materialSlot;
+        }
 
-		uint32 GetMaterialSlotIndex() { return m_materialSlot; }
+        void SetName(const std::string& name)
+        {
+            m_name = name;
+        }
 
-		void SetName(const std::string& name)
-		{
-			m_name = name;
-		}
+        std::string& GetName()
+        {
+            return m_name;
+        }
 
-		std::string& GetName() { return m_name; }
+        void          AddIndices(uint32 i0, uint32 i1, uint32 i2);
+        inline uint32 GetIndexCount() const
+        {
+            return (uint32)m_indices.size();
+        }
+        inline VertexArray& GetVertexArray()
+        {
+            return m_vertexArray;
+        }
+        inline Vector3 GetBoundsHalfExtents()
+        {
+            return m_boundsHalfExtents;
+        }
+        inline Vector3 GetBoundsMin()
+        {
+            return m_boundsMin;
+        }
+        inline Vector3 GetBoundsMax()
+        {
+            return m_boundsMax;
+        }
+        inline Vector3 GetVertexCenter()
+        {
+            return m_vertexCenter;
+        }
+        inline BufferData& GetVertexPositions()
+        {
+            return m_bufferElements[0];
+        }
 
-		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
-		inline uint32 GetIndexCount() const { return (uint32)m_indices.size(); }
-		inline VertexArray& GetVertexArray() { return m_vertexArray; }
-		inline Vector3 GetBoundsHalfExtents() { return m_boundsHalfExtents; }
-		inline Vector3 GetBoundsMin() { return m_boundsMin; }
-		inline Vector3 GetBoundsMax() { return m_boundsMax; }
-		inline Vector3 GetVertexCenter() { return m_vertexCenter; }
-		inline BufferData& GetVertexPositions() { return m_bufferElements[0]; }
+    protected:
+        friend class ModelLoader;
 
-	protected:
-
-		friend class ModelLoader;
-
-		std::string m_name = "";
-		std::vector<uint32> m_indices;
-		std::vector<BufferData> m_bufferElements;
-		VertexArray m_vertexArray;
-		uint32 m_materialSlot = 0;
-		Vector3 m_vertexCenter = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 m_boundsHalfExtents = Vector3(0.5f, 0.5f, 0.5f);
-		Vector3 m_boundsMin = Vector3(-0.5f, -0.5f, -0.5f);
-		Vector3 m_boundsMax = Vector3(0.5f, 0.5f, 0.5f);
-	};
-}
-
+        std::string             m_name = "";
+        std::vector<uint32>     m_indices;
+        std::vector<BufferData> m_bufferElements;
+        VertexArray             m_vertexArray;
+        uint32                  m_materialSlot      = 0;
+        Vector3                 m_vertexCenter      = Vector3(0.0f, 0.0f, 0.0f);
+        Vector3                 m_boundsHalfExtents = Vector3(0.5f, 0.5f, 0.5f);
+        Vector3                 m_boundsMin         = Vector3(-0.5f, -0.5f, -0.5f);
+        Vector3                 m_boundsMax         = Vector3(0.5f, 0.5f, 0.5f);
+    };
+} // namespace Lina::Graphics
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Physics/Raycast.hpp"
+
 #include "Core/PhysicsCommon.hpp"
 
 #ifdef LINA_PHYSICS_PHYSX
@@ -35,30 +36,26 @@ using namespace physx;
 #endif
 namespace Lina::Physics
 {
-	HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist)
-	{
+    HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist)
+    {
 #ifdef LINA_PHYSICS_PHYSX
-		HitInfo hitInfo;
-		PxRaycastHit pxHit;
-		PxU32 maxHits = 1;
-		PxTransform pose;
-		pose.p = ToPxVector3(targetPosition);
-		pose.q = ToPxQuat(Quaternion(Vector3(0, 0, 1), 0));
-		PxBoxGeometry boxGeometry = PxBoxGeometry(ToPxVector3(targetHalfExtents));
+        HitInfo      hitInfo;
+        PxRaycastHit pxHit;
+        PxU32        maxHits = 1;
+        PxTransform  pose;
+        pose.p                    = ToPxVector3(targetPosition);
+        pose.q                    = ToPxQuat(Quaternion(Vector3(0, 0, 1), 0));
+        PxBoxGeometry boxGeometry = PxBoxGeometry(ToPxVector3(targetHalfExtents));
 
-		PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eUV;
-		PxU32 hitCount = PxGeometryQuery::raycast(ToPxVector3(from), ToPxVector3(unitDir),
-			boxGeometry, pose,
-			dist,
-			hitFlags,
-			maxHits, &pxHit);
+        PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eUV;
+        PxU32      hitCount = PxGeometryQuery::raycast(ToPxVector3(from), ToPxVector3(unitDir), boxGeometry, pose, dist, hitFlags, maxHits, &pxHit);
 
-		hitInfo.m_hitCount = hitCount;
-		hitInfo.m_position = ToLinaVector3(pxHit.position);
-		hitInfo.m_distance = pxHit.distance;
-		hitInfo.m_normal = ToLinaVector3(pxHit.normal);
-		return hitInfo;
+        hitInfo.m_hitCount = hitCount;
+        hitInfo.m_position = ToLinaVector3(pxHit.position);
+        hitInfo.m_distance = pxHit.distance;
+        hitInfo.m_normal   = ToLinaVector3(pxHit.normal);
+        return hitInfo;
 #endif
-		return HitInfo();
-	}
-}
+        return HitInfo();
+    }
+} // namespace Lina::Physics

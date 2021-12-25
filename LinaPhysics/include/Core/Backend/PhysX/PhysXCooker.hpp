@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,52 +43,50 @@ Timestamp: 12/24/2021 7:47:26 PM
 #include "Core/CommonApplication.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Math/Vector.hpp"
+
 #include <vector>
 
 namespace Lina::Graphics
 {
-	class ModelNode;
-	class Model;
-}
+    class ModelNode;
+    class Model;
+} // namespace Lina::Graphics
 
 namespace Lina::Event
 {
-	struct EShutdown;
-	struct EResourceLoadCompleted;
-}
+    struct EShutdown;
+    struct EResourceLoadCompleted;
+} // namespace Lina::Event
 
 namespace physx
 {
-	class PxFoundation;
+    class PxFoundation;
 }
 
 namespace Lina::Physics
 {
-	class PhysXCooker
-	{
-		
-	public:
-		
-		PhysXCooker() {};
-		~PhysXCooker() {};
-		void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
+    class PhysXCooker
+    {
 
-	private:
+    public:
+        PhysXCooker(){};
+        ~PhysXCooker(){};
+        void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
 
-		/// <summary>
-		/// Uses the cooking library to create a convex mesh stream using the given vertices.
-		/// Stream is placed into the given buffer data for custom serialization.
-		/// </summary>
-		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
+    private:
+        /// <summary>
+        /// Uses the cooking library to create a convex mesh stream using the given vertices.
+        /// Stream is placed into the given buffer data for custom serialization.
+        /// </summary>
+        void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
 
-		void OnShutdown(const Event::EShutdown& ev);
-		void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
-		void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
+        void OnShutdown(const Event::EShutdown& ev);
+        void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
+        void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
-	private:
-
-		ApplicationMode m_appMode;
-	};
-}
+    private:
+        ApplicationMode m_appMode;
+    };
+} // namespace Lina::Physics
 
 #endif

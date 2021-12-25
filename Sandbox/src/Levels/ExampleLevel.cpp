@@ -19,71 +19,68 @@ Timestamp: 5/6/2019 9:22:56 PM
 */
 
 #include "Levels/ExampleLevel.hpp"
-#include "EventSystem/MainLoopEvents.hpp"
+
+#include "Audio/Audio.hpp"
 #include "Core/Application.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "ECS/Components/AnimationComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
-#include "ECS/Components/AnimationComponent.hpp"
-#include "Rendering/Model.hpp"
-#include "Core/RenderEngineBackend.hpp"
-#include "ECS/Components/ModelRendererComponent.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Systems/CameraSystem.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "Audio/Audio.hpp"
 #include "Physics/PhysicsMaterial.hpp"
+#include "Rendering/Model.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 using namespace Graphics;
 using namespace ECS;
 
-
 bool ExampleLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 {
-	Level::Install(loadFromFile, path, levelName);
-	return true;
+    Level::Install(loadFromFile, path, levelName);
+    return true;
 }
 
 void ExampleLevel::Initialize()
 {
-	LINA_TRACE("ExampleLevel initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
-	Level::Initialize();
+    LINA_TRACE("ExampleLevel initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
+    Level::Initialize();
 
-	// auto& reg = Application::GetECSRegistry();
-	// auto entity = reg.CreateEntity("Test");
-	// auto& mr = reg.emplace<ECS::ModelRendererComponent>(entity);
-	// 
-	// auto& model = Graphics::Model::CreateModel("Resources/SandboxMeshes/MarkerMan.fbx");
-	// mr.SetModel(reg, entity, model);
-	// 
-	// auto& mat = Graphics::Material::LoadMaterialFromFile("Resources/SandboxNewMaterial207.mat");
-	// mr.SetMaterial(reg, entity, 1, mat);
-	//auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
-	//anim.m_animationName = "Armature_Move";
+    // auto& reg = Application::GetECSRegistry();
+    // auto entity = reg.CreateEntity("Test");
+    // auto& mr = reg.emplace<ECS::ModelRendererComponent>(entity);
+    //
+    // auto& model = Graphics::Model::CreateModel("Resources/SandboxMeshes/MarkerMan.fbx");
+    // mr.SetModel(reg, entity, model);
+    //
+    // auto& mat = Graphics::Material::LoadMaterialFromFile("Resources/SandboxNewMaterial207.mat");
+    // mr.SetMaterial(reg, entity, 1, mat);
+    // auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
+    // anim.m_animationName = "Armature_Move";
 
-	// Texture* hdri = &Texture::GetTexture("Resources/SandboxHDRI/studio.hdr");
-	// Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
-	// Material& mat = Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"));
-	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
-	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
-	//Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
-	//auto entity = ECS::Registry::Get()->GetEntity("Entity");
-	//ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
-	//mr.SetModel(entity, Graphics::Model::GetModel("Resources/SandboxTarget/RicochetTarget.fbx"));
-
+    // Texture* hdri = &Texture::GetTexture("Resources/SandboxHDRI/studio.hdr");
+    // Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
+    // Material& mat = Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"));
+    // mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+    // Application::GetRenderEngine().SetSkyboxMaterial(&mat);
+    // Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
+    // Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(ECS::Registry::Get()->GetEntity("Entity"));
+    // auto entity = ECS::Registry::Get()->GetEntity("Entity");
+    // ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+    // mr.SetModel(entity, Graphics::Model::GetModel("Resources/SandboxTarget/RicochetTarget.fbx"));
 }
 
 void ExampleLevel::Tick(const Event::ETick& ev)
 {
-	auto entity = ECS::Registry::Get()->GetEntity("Capsule.fbx");
-	if (entity != ECSNULL)
-	{
-		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
-		data.AddRotation(Vector3(65 * ev.m_deltaTime, 0, 0));
-		Vector3 location = data.GetLocation();
-		location.x = Math::Sin((float)Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
-		data.SetLocation(location);
-	}
-
+    auto entity = ECS::Registry::Get()->GetEntity("Capsule.fbx");
+    if (entity != ECSNULL)
+    {
+        auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
+        data.AddRotation(Vector3(65 * ev.m_deltaTime, 0, 0));
+        Vector3 location = data.GetLocation();
+        location.x       = Math::Sin((float)Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
+        data.SetLocation(location);
+    }
 }
-

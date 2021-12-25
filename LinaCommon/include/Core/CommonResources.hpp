@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,65 +41,63 @@ Timestamp: 12/25/2021 11:44:29 AM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+
 #include <string>
 #include <unordered_map>
 
 namespace Lina::Resources
 {
-	enum class ResourceType
-	{
-		Unknown = 0,
-		Model = 1,
-		ModelAssetData = 2,
-		Image = 3,
-		ImageData = 4,
-		HDR = 5,
-		Audio = 6,
-		AudioData = 7,
-		Material = 8,
-		GLSL = 9,
-		GLH,
-		SPIRV = 11,
-		Font = 12,
-		PhysicsMaterial = 13,
-		UserAsset = 20
-	};
+    enum class ResourceType
+    {
+        Unknown        = 0,
+        Model          = 1,
+        ModelAssetData = 2,
+        Image          = 3,
+        ImageData      = 4,
+        HDR            = 5,
+        Audio          = 6,
+        AudioData      = 7,
+        Material       = 8,
+        GLSL           = 9,
+        GLH,
+        SPIRV           = 11,
+        Font            = 12,
+        PhysicsMaterial = 13,
+        UserAsset       = 20
+    };
 
-	enum class ResourceProgressState
-	{
-		None,
-		Pending,
-		InProgress
-	};
+    enum class ResourceProgressState
+    {
+        None,
+        Pending,
+        InProgress
+    };
 
-	class ResourceProgressData
-	{
-	public:
+    class ResourceProgressData
+    {
+    public:
+        ResourceProgressData(){};
+        ~ResourceProgressData(){};
 
-		ResourceProgressData() {};
-		~ResourceProgressData() {  };
+        ResourceProgressState m_state                 = ResourceProgressState::None;
+        std::string           m_currentResourceName   = "";
+        std::string           m_progressTitle         = "";
+        float                 m_currentProgress       = 0.0f;
+        int                   m_currentTotalFiles     = 0;
+        int                   m_currentProcessedFiles = 0;
 
-		ResourceProgressState m_state = ResourceProgressState::None;
-		std::string m_currentResourceName = "";
-		std::string m_progressTitle = "";
-		float m_currentProgress = 0.0f;
-		int m_currentTotalFiles = 0;
-		int m_currentProcessedFiles = 0;
+    private:
+        ResourceProgressData(const ResourceProgressData&);            // = delete
+        ResourceProgressData& operator=(const ResourceProgressData&); // = delete
+    };
 
-	private:
-		ResourceProgressData(const ResourceProgressData&); // = delete
-		ResourceProgressData& operator=(const ResourceProgressData&); // = delete
-
-	};
-
-	/// <summary>
-	/// Register a user defined resource to be picked-up & request to load by the resource manager.
-	/// Pass in the extension without '.'
-	/// </summary>
-	extern void RegisterUserDefinedResource(const std::string& extension);
-	extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
-	extern ResourceType GetResourceType(const std::string& extension);
-}
-
+    /// <summary>
+    /// Register a user defined resource to be picked-up & request to load by the resource manager.
+    /// Pass in the extension without '.'
+    /// </summary>
+    extern void                                           RegisterUserDefinedResource(const std::string& extension);
+    extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
+    extern ResourceType                                   GetResourceType(const std::string& extension);
+} // namespace Lina::Resources
 
 #endif

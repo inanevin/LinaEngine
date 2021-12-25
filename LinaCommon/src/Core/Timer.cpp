@@ -27,33 +27,34 @@ SOFTWARE.
 */
 
 #include "Core/Timer.hpp"
+
 #include "Log/Log.hpp"
 
 namespace Lina
 {
-	std::map<std::string, Timer*> Timer::s_activeTimers;
+    std::map<std::string, Timer*> Timer::s_activeTimers;
 
-	void Timer::Stop()
-	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
-		m_active = false;
-	}
+    void Timer::Stop()
+    {
+        std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli>                   ms  = now - m_startTimePoint;
+        m_duration                                                      = ms.count();
+        m_active                                                        = false;
+    }
 
-	Timer& Timer::GetTimer(const std::string& name)
-	{
-		if (s_activeTimers.find(name) == s_activeTimers.end())
-			s_activeTimers[name] = new Timer();
+    Timer& Timer::GetTimer(const std::string& name)
+    {
+        if (s_activeTimers.find(name) == s_activeTimers.end())
+            s_activeTimers[name] = new Timer();
 
-		return *s_activeTimers[name];
-	}
+        return *s_activeTimers[name];
+    }
 
-	void Timer::UnloadTimers()
-	{
-		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-			delete it->second;
+    void Timer::UnloadTimers()
+    {
+        for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
+            delete it->second;
 
-		s_activeTimers.clear();
-	}
-}
+        s_activeTimers.clear();
+    }
+} // namespace Lina

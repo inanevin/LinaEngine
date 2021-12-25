@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,15 +44,14 @@ Timestamp: 12/22/2020 6:28:36 PM
 #elif LINA_GRAPHICS_OPENGL
 namespace Lina::Graphics
 {
-	class OpenGLRenderDevice;
-	class OpenGLRenderEngine;
-	class OpenGLWindow;
+    class OpenGLRenderDevice;
+    class OpenGLRenderEngine;
+    class OpenGLWindow;
 
-	typedef OpenGLRenderDevice RenderDevice;
-	typedef OpenGLRenderEngine RenderEngine;
-	typedef OpenGLWindow Window;
-}
+    typedef OpenGLRenderDevice RenderDevice;
+    typedef OpenGLRenderEngine RenderEngine;
+    typedef OpenGLWindow       Window;
+} // namespace Lina::Graphics
 #endif
-
 
 #endif

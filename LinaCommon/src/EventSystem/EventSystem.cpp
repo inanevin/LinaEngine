@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,21 +27,21 @@ SOFTWARE.
 */
 
 #include "EventSystem/EventSystem.hpp"
+
 #include "Log/Log.hpp"
 
 namespace Lina::Event
 {
-	EventSystem* EventSystem::s_eventSystem = nullptr;
+    EventSystem* EventSystem::s_eventSystem = nullptr;
 
-	void EventSystem::Initialize()
-	{
-		LINA_TRACE("[Initialization] -> Event System ({0})", typeid(*this).name());
-	}
+    void EventSystem::Initialize()
+    {
+        LINA_TRACE("[Initialization] -> Event System ({0})", typeid(*this).name());
+    }
 
-	void EventSystem::Shutdown()
-	{
-		LINA_TRACE("[Shutdown] -> Event System ({0})", typeid(*this).name());
-		m_mainDispatcher.clear();
-	}
-}
-
+    void EventSystem::Shutdown()
+    {
+        LINA_TRACE("[Shutdown] -> Event System ({0})", typeid(*this).name());
+        m_mainDispatcher.clear();
+    }
+} // namespace Lina::Event

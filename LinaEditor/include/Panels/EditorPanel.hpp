@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,38 +43,48 @@ Timestamp: 5/23/2020 4:16:05 PM
 
 namespace Lina::Editor
 {
-	class GUILayer;
+    class GUILayer;
 
-	class EditorPanel
-	{	
+    class EditorPanel
+    {
 
-	public:
-		
-		EditorPanel() { };
-		virtual ~EditorPanel() {};
-		virtual void Initialize(const char* id);
-		virtual void Draw() = 0;
-		virtual void Begin();
-		virtual void End();
-		virtual void Open() { m_show = true; }
-		virtual void Close() { m_show = false; }
-		virtual void ToggleCollapse();
-		virtual void ToggleMaximize();
-		virtual bool CanDrawContent();
-		virtual bool IsMaximized() { return m_maximized; }
-		virtual bool IsCollapsed() { return m_collapsed; }
+    public:
+        EditorPanel(){};
+        virtual ~EditorPanel(){};
+        virtual void Initialize(const char* id);
+        virtual void Draw() = 0;
+        virtual void Begin();
+        virtual void End();
+        virtual void Open()
+        {
+            m_show = true;
+        }
+        virtual void Close()
+        {
+            m_show = false;
+        }
+        virtual void ToggleCollapse();
+        virtual void ToggleMaximize();
+        virtual bool CanDrawContent();
+        virtual bool IsMaximized()
+        {
+            return m_maximized;
+        }
+        virtual bool IsCollapsed()
+        {
+            return m_collapsed;
+        }
 
-	protected:
-
-		bool m_show = true;
-		bool m_collapsed = false;
-		bool m_maximized = false;
-		Vector2 m_sizeBeforeMaximize = Vector2::Zero;
-		Vector2 m_sizeBeforeCollapse = Vector2::Zero;
-		Vector2 m_posBeforeMaximize = Vector2::Zero;
-		const char* m_id;
-		int m_windowFlags;
-	};
-}
+    protected:
+        bool        m_show               = true;
+        bool        m_collapsed          = false;
+        bool        m_maximized          = false;
+        Vector2     m_sizeBeforeMaximize = Vector2::Zero;
+        Vector2     m_sizeBeforeCollapse = Vector2::Zero;
+        Vector2     m_posBeforeMaximize  = Vector2::Zero;
+        const char* m_id;
+        int         m_windowFlags;
+    };
+} // namespace Lina::Editor
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,52 +39,50 @@ Timestamp: 10/1/2020 9:27:40 AM
 #ifndef SpriteRendererSystem_HPP
 #define SpriteRendererSystem_HPP
 
-
+#include "Core/RenderBackendFwd.hpp"
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
-#include "Core/RenderBackendFwd.hpp"
-#include <vector>
+
 #include <map>
+#include <vector>
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class Material;
-		class Mesh;
-		struct DrawParams;
-	}
-}
+    namespace Graphics
+    {
+        class Material;
+        class Mesh;
+        struct DrawParams;
+    } // namespace Graphics
+} // namespace Lina
 
 namespace Lina::ECS
 {
-	class SpriteRendererSystem : public System
-	{
+    class SpriteRendererSystem : public System
+    {
 
-		struct BatchModelData
-		{
-			std::vector<Matrix> m_models;
-		};
+        struct BatchModelData
+        {
+            std::vector<Matrix> m_models;
+        };
 
-	public:
-		
-		SpriteRendererSystem() {};
-		~SpriteRendererSystem();
-	
-		virtual void Initialize() override;
-		virtual void UpdateComponents(float delta) override;
+    public:
+        SpriteRendererSystem(){};
+        ~SpriteRendererSystem();
 
-		void Render(Graphics::Material& material, const Matrix& transformIn);
-		void Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
+        virtual void Initialize() override;
+        virtual void UpdateComponents(float delta) override;
 
-	private:
+        void Render(Graphics::Material& material, const Matrix& transformIn);
+        void Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
-		Graphics::RenderDevice* m_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
+    private:
+        Graphics::RenderDevice* m_renderDevice = nullptr;
+        Graphics::RenderEngine* m_renderEngine = nullptr;
 
-		Graphics::Mesh* m_quadMesh;
-		std::map<Graphics::Material*, BatchModelData> m_renderBatch;
-	};
-}
+        Graphics::Mesh*                               m_quadMesh;
+        std::map<Graphics::Material*, BatchModelData> m_renderBatch;
+    };
+} // namespace Lina::ECS
 
 #endif

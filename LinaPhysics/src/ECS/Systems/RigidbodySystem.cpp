@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,12 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Registry.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/PhysicsComponent.hpp"
+
 #include "Core/PhysicsBackend.hpp"
 #include "Core/PhysicsCommon.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
+#include "ECS/Registry.hpp"
 
 #ifdef LINA_PHYSICS_PHYSX
 #include "PxPhysics.h"
@@ -40,81 +41,77 @@ SOFTWARE.
 using namespace physx;
 namespace Lina::ECS
 {
-	void RigidbodySystem::Initialize(Physics::PhysicsEngine* engine)
-	{
-		System::Initialize();
-		m_engine = engine;
-	}
+    void RigidbodySystem::Initialize(Physics::PhysicsEngine* engine)
+    {
+        System::Initialize();
+        m_engine = engine;
+    }
 
-	void RigidbodySystem::UpdateComponents(float delta)
-	{
-		auto* physicsEngine = Physics::PhysicsEngineBackend::Get();;
+    void RigidbodySystem::UpdateComponents(float delta)
+    {
+        auto* physicsEngine = Physics::PhysicsEngineBackend::Get();
+        ;
 
 #ifdef LINA_PHYSICS_BULLET
 
-		auto view = m_ecs->view<EntityDataComponent, PhysicsComponent>();
+        auto view = m_ecs->view<EntityDataComponent, PhysicsComponent>();
 
-		// Find all entities with rigidbody component and transform component attached to them.
-		for (auto entity : view)
-		{
-			PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
-			if (!phyComp.GetIsSimulated()) continue;
-			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
-			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
-			btTransform btTrans;
-			rb->getMotionState()->getWorldTransform(btTrans);
-			Vector3 location = Physics::ToLinaVector(rb->getWorldTransform().getOrigin());
-			data.SetLocation(location);
-			data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
-			phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
-			phyComp.m_velocity = Physics::ToLinaVector(rb->getLinearVelocity());
-			phyComp.m_turnVelocity = Physics::ToLinaVector(rb->getTurnVelocity());
-
-		}
+        // Find all entities with rigidbody component and transform component attached to them.
+        for (auto entity : view)
+        {
+            PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
+            if (!phyComp.GetIsSimulated())
+                continue;
+            EntityDataComponent& data = view.get<EntityDataComponent>(entity);
+            btRigidBody*         rb   = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
+            btTransform          btTrans;
+            rb->getMotionState()->getWorldTransform(btTrans);
+            Vector3 location = Physics::ToLinaVector(rb->getWorldTransform().getOrigin());
+            data.SetLocation(location);
+            data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
+            phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
+            phyComp.m_velocity        = Physics::ToLinaVector(rb->getLinearVelocity());
+            phyComp.m_turnVelocity    = Physics::ToLinaVector(rb->getTurnVelocity());
+        }
 #endif
 #ifdef LINA_PHYSICS_PHYSX
 
-	
+        auto& actors = physicsEngine->GetAllActors();
 
-		auto& actors = physicsEngine->GetAllActors();
+        for (auto& p : actors)
+        {
+            EntityDataComponent& data    = m_ecs->get<EntityDataComponent>(p.first);
+            PhysicsComponent&    phyComp = m_ecs->get<PhysicsComponent>(p.first);
+            if (phyComp.m_simType == Physics::SimulationType::Static)
+                continue;
 
-		for (auto& p : actors)
-		{
-			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(p.first);
-			PhysicsComponent& phyComp = m_ecs->get<PhysicsComponent>(p.first);
-			if (phyComp.m_simType == Physics::SimulationType::Static) continue;
+            if (phyComp.m_isKinematic)
+            {
+                PxTransform destination;
+                destination.p = Physics::ToPxVector3(data.GetLocation());
+                destination.q = Physics::ToPxQuat(data.GetRotation());
+                ((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
+                m_engine->UpdateBodyShapeParameters(p.first);
+            }
+            else
+            {
+                PxU32     nbActiveActors;
+                PxActor** activeActors = m_engine->GetActiveActors(nbActiveActors);
+                for (PxU32 i = 0; i < nbActiveActors; ++i)
+                {
+                    ECS::Entity entity = m_engine->GetEntityOfActor(activeActors[i]);
 
-			if (phyComp.m_isKinematic)
-			{
-				PxTransform destination;
-				destination.p = Physics::ToPxVector3(data.GetLocation());
-				destination.q = Physics::ToPxQuat(data.GetRotation());
-				((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
-				m_engine->UpdateBodyShapeParameters(p.first);
-			}
-			else
-			{
-				PxU32 nbActiveActors;
-				PxActor** activeActors = m_engine->GetActiveActors(nbActiveActors);
-				for (PxU32 i = 0; i < nbActiveActors; ++i)
-				{
-					ECS::Entity entity = m_engine->GetEntityOfActor(activeActors[i]);
-
-					if (entity == p.first)
-					{
-						PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
-						auto& pose = rigid->getGlobalPose();
-						data.SetLocation(Physics::ToLinaVector3(pose.p));
-						data.SetRotation(Physics::ToLinaQuat(pose.q));
-					}
-				}
-			}
-			
-		}
-
+                    if (entity == p.first)
+                    {
+                        PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
+                        auto&           pose  = rigid->getGlobalPose();
+                        data.SetLocation(Physics::ToLinaVector3(pose.p));
+                        data.SetRotation(Physics::ToLinaQuat(pose.q));
+                    }
+                }
+            }
+        }
 
 #endif
-	}
-}
-
-
+    }
+} // namespace Lina::ECS

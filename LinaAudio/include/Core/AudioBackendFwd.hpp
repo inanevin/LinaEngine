@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -36,7 +36,6 @@ Timestamp: 12/12/2021 11:55:32 AM
 
 #pragma once
 
-
 #ifndef AudioBackendFwd_HPP
 #define AudioBackendFwd_HPP
 
@@ -44,11 +43,9 @@ Timestamp: 12/12/2021 11:55:32 AM
 
 namespace Lina::Audio
 {
-	class OpenALAudioEngine;
-	typedef OpenALAudioEngine AudioEngine;
-}
+    class OpenALAudioEngine;
+    typedef OpenALAudioEngine AudioEngine;
+} // namespace Lina::Audio
 #endif
 
-
 #endif
-

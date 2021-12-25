@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,9 +43,21 @@ Timestamp: 12/25/2021 12:18:08 PM
 
 namespace Lina::Event
 {
-	struct EPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
-	struct EPrePhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
-	struct EPostPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
-}
+    struct EPhysicsTick
+    {
+        float m_fixedDelta;
+        bool  m_isInPlayMode;
+    };
+    struct EPrePhysicsTick
+    {
+        float m_fixedDelta;
+        bool  m_isInPlayMode;
+    };
+    struct EPostPhysicsTick
+    {
+        float m_fixedDelta;
+        bool  m_isInPlayMode;
+    };
+} // namespace Lina::Event
 
 #endif

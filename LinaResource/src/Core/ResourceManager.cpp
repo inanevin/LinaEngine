@@ -26,135 +26,134 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/ResourceManager.hpp"
 
-#include "Core/ResourceManager.hpp"  
-#include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Utility/UtilityFunctions.hpp"
 #include "EventSystem/ResourceEvents.hpp"
+#include "Log/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 namespace Lina::Resources
 {
 
 #define RESOURCEPACKAGE_EXTENSION ".linabundle"
 
-	ResourceManager* ResourceManager::s_resourceManager = nullptr;
-	ResourceProgressData ResourceManager::s_currentProgressData;
+    ResourceManager*     ResourceManager::s_resourceManager = nullptr;
+    ResourceProgressData ResourceManager::s_currentProgressData;
 
-	void ResourceManager::LoadEditorResources()
-	{
-		LINA_WARN("[Resource Manager] -> Loading Editor Resources");
+    void ResourceManager::LoadEditorResources()
+    {
+        LINA_WARN("[Resource Manager] -> Loading Editor Resources");
 
-		// Find resources.
-		Utility::Folder root;
-		root.m_fullPath = "Resources/";
-		Utility::ScanFolder(root, true, &s_currentProgressData.m_currentTotalFiles);
+        // Find resources.
+        Utility::Folder root;
+        root.m_fullPath = "Resources/";
+        Utility::ScanFolder(root, true, &s_currentProgressData.m_currentTotalFiles);
 
-		// Set progress & fill.
-		s_currentProgressData.m_state = ResourceProgressState::Pending;
-		s_currentProgressData.m_progressTitle = "Loading resources...";
-		s_currentProgressData.m_state = ResourceProgressState::InProgress;
-		s_currentProgressData.m_currentProcessedFiles = 0;
-		std::unordered_map<std::string, ResourceType> filledResources;
+        // Set progress & fill.
+        s_currentProgressData.m_state                 = ResourceProgressState::Pending;
+        s_currentProgressData.m_progressTitle         = "Loading resources...";
+        s_currentProgressData.m_state                 = ResourceProgressState::InProgress;
+        s_currentProgressData.m_currentProcessedFiles = 0;
+        std::unordered_map<std::string, ResourceType> filledResources;
 
-		// Load all editor resources, first only load the shader includes & shaders
-		std::vector<ResourceType> excludes;
-		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLH);
-		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLSL);
-		excludes.push_back(ResourceType::GLH);
-		excludes.push_back(ResourceType::GLSL);
-		
-		// Then load the textures.
-		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::HDR);
-		excludes.push_back(ResourceType::HDR);
-		m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::Image);
-		excludes.push_back(ResourceType::Image);
+        // Load all editor resources, first only load the shader includes & shaders
+        std::vector<ResourceType> excludes;
+        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLH);
+        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLSL);
+        excludes.push_back(ResourceType::GLH);
+        excludes.push_back(ResourceType::GLSL);
 
-		// Then load the rest.
-		m_bundle.LoadResourcesInFolder(root, excludes);
+        // Then load the textures.
+        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::HDR);
+        excludes.push_back(ResourceType::HDR);
+        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::Image);
+        excludes.push_back(ResourceType::Image);
 
-		Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
-		ResourceManager::ResetProgress();
-	}
+        // Then load the rest.
+        m_bundle.LoadResourcesInFolder(root, excludes);
 
-	void ResourceManager::Shutdown()
-	{
-		// Make sure we don't have any packing/unpacking going on.
-		if (m_future.valid())
-		{
-			m_future.cancel();
-			m_future.get();
-		}
+        Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
+        ResourceManager::ResetProgress();
+    }
 
-		LINA_TRACE("[Shutdown] -> Resource Manager {0}", typeid(*this).name());
-	}
+    void ResourceManager::Shutdown()
+    {
+        // Make sure we don't have any packing/unpacking going on.
+        if (m_future.valid())
+        {
+            m_future.cancel();
+            m_future.get();
+        }
 
-	void ResourceManager::ResetProgress()
-	{
-		s_currentProgressData.m_currentProcessedFiles = s_currentProgressData.m_currentTotalFiles = 0;
-		s_currentProgressData.m_currentResourceName = s_currentProgressData.m_progressTitle = "";
-		s_currentProgressData.m_state = ResourceProgressState::None;
-		s_currentProgressData.m_currentProgress = 0.0f;
-	}
+        LINA_TRACE("[Shutdown] -> Resource Manager {0}", typeid(*this).name());
+    }
 
-	void ResourceManager::TriggerResourceUpdatedEvent()
-	{
-		Event::EventSystem::Get()->Trigger<Event::EResourceLoadUpdated>(Event::EResourceLoadUpdated{ ResourceManager::s_currentProgressData.m_currentResourceName, ResourceManager::s_currentProgressData.m_currentProgress });
-	}
+    void ResourceManager::ResetProgress()
+    {
+        s_currentProgressData.m_currentProcessedFiles = s_currentProgressData.m_currentTotalFiles = 0;
+        s_currentProgressData.m_currentResourceName = s_currentProgressData.m_progressTitle = "";
+        s_currentProgressData.m_state                                                       = ResourceProgressState::None;
+        s_currentProgressData.m_currentProgress                                             = 0.0f;
+    }
 
-	void ResourceManager::PackageProject(const std::string& path, const std::string& name)
-	{
-		// Find out which resources to export.
-		std::vector<std::string> filesToPack;
+    void ResourceManager::TriggerResourceUpdatedEvent()
+    {
+        Event::EventSystem::Get()->Trigger<Event::EResourceLoadUpdated>(Event::EResourceLoadUpdated{ResourceManager::s_currentProgressData.m_currentResourceName, ResourceManager::s_currentProgressData.m_currentProgress});
+    }
 
-		Utility::Folder root;
-		root.m_fullPath = "Resources/";
-		Utility::ScanFolder(root);
-		AddAllResourcesToPack(filesToPack, root);
+    void ResourceManager::PackageProject(const std::string& path, const std::string& name)
+    {
+        // Find out which resources to export.
+        std::vector<std::string> filesToPack;
 
-		// Export resources.
-		m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
-	}
+        Utility::Folder root;
+        root.m_fullPath = "Resources/";
+        Utility::ScanFolder(root);
+        AddAllResourcesToPack(filesToPack, root);
 
+        // Export resources.
+        m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
+    }
 
-	void ResourceManager::Initialize(ApplicationInfo& appInfo)
-	{
-		m_appInfo = appInfo;
-		m_eventSys = Event::EventSystem::Get();
-	}
+    void ResourceManager::Initialize(ApplicationInfo& appInfo)
+    {
+        m_appInfo  = appInfo;
+        m_eventSys = Event::EventSystem::Get();
+    }
 
-	void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)
-	{
-		for (auto& childFolder : folder.m_folders)
-			AddAllResourcesToPack(resources, childFolder);
+    void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)
+    {
+        for (auto& childFolder : folder.m_folders)
+            AddAllResourcesToPack(resources, childFolder);
 
-		for (auto& file : folder.m_files)
-			resources.push_back(file.m_fullPath);
-	}
+        for (auto& file : folder.m_files)
+            resources.push_back(file.m_fullPath);
+    }
 
-	void ResourceManager::ImportResourceBundle(const std::string& path, const std::string& name)
-	{
-		const std::string fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
-		if (!Utility::FileExists(fullPath))
-		{
-			LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
-			return;
-		}
-		std::string fullBundlePath = fullPath;
-		s_currentProgressData.m_progressTitle = "Unpacking level resources...";
-		s_currentProgressData.m_currentResourceName = fullBundlePath;
+    void ResourceManager::ImportResourceBundle(const std::string& path, const std::string& name)
+    {
+        const std::string fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
+        if (!Utility::FileExists(fullPath))
+        {
+            LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
+            return;
+        }
+        std::string fullBundlePath                  = fullPath;
+        s_currentProgressData.m_progressTitle       = "Unpacking level resources...";
+        s_currentProgressData.m_currentResourceName = fullBundlePath;
 
-		// Start unpacking process, preceeded & followed by an event dispatch.
-		// m_eventSys->Trigger<Event::EResourceProgressStarted>();
+        // Start unpacking process, preceeded & followed by an event dispatch.
+        // m_eventSys->Trigger<Event::EResourceProgressStarted>();
 
-		// Start unpacking.
-		std::unordered_map<std::string, ResourceType> unpackedResources;
-		m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle, unpackedResources);
+        // Start unpacking.
+        std::unordered_map<std::string, ResourceType> unpackedResources;
+        m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle, unpackedResources);
 
-		m_bundle.LoadAllMemoryMaps();
+        m_bundle.LoadAllMemoryMaps();
 
-		// Set progress end.
-		ResetProgress();
-	}
+        // Set progress end.
+        ResetProgress();
+    }
 
-}
+} // namespace Lina::Resources

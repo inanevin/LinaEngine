@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,26 +44,24 @@ Timestamp: 12/7/2021 4:10:26 PM
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class OpenGLRenderEngine;
-	}
-}
+    namespace Graphics
+    {
+        class OpenGLRenderEngine;
+    }
+} // namespace Lina
 namespace Lina::ECS
 {
-	class AnimationSystem : public System
-	{
-		
-	public:
-		
-		AnimationSystem() {};
-		~AnimationSystem() {};
+    class AnimationSystem : public System
+    {
 
-		virtual void UpdateComponents(float delta) override;
+    public:
+        AnimationSystem(){};
+        ~AnimationSystem(){};
 
-	protected:
+        virtual void UpdateComponents(float delta) override;
 
-	};
-}
+    protected:
+    };
+} // namespace Lina::ECS
 
 #endif

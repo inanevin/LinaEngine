@@ -1,0 +1,18 @@
+﻿---
+BasedOnStyle: Microsoft
+AccessModifierOffset: '-4'
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+BinPackParameters: 'false'
+ColumnLimit: '300'
+IncludeBlocks: Regroup
+Language: Cpp
+NamespaceIndentation: All
+PointerAlignment: Left
+ReflowComments: 'true'
+SortIncludes: 'true'
+Standard: Cpp11
+
+...

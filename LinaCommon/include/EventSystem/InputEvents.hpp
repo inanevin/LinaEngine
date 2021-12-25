@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,10 +44,33 @@ Timestamp: 12/25/2021 12:20:28 PM
 
 namespace Lina::Event
 {
-	struct EKeyCallback { void* m_window; int m_key; int m_scancode; Input::InputAction m_action; int m_mods; };
-	struct EMouseButtonCallback { void* m_window; int m_button; Input::InputAction m_action; int m_mods; };
-	struct EMouseScrollCallback { void* m_window; double m_xoff; double m_yoff; };
-	struct EMouseCursorCallback { void* m_window; double m_xpos; double m_ypos; };
-}
+    struct EKeyCallback
+    {
+        void*              m_window;
+        int                m_key;
+        int                m_scancode;
+        Input::InputAction m_action;
+        int                m_mods;
+    };
+    struct EMouseButtonCallback
+    {
+        void*              m_window;
+        int                m_button;
+        Input::InputAction m_action;
+        int                m_mods;
+    };
+    struct EMouseScrollCallback
+    {
+        void*  m_window;
+        double m_xoff;
+        double m_yoff;
+    };
+    struct EMouseCursorCallback
+    {
+        void*  m_window;
+        double m_xpos;
+        double m_ypos;
+    };
+} // namespace Lina::Event
 
 #endif

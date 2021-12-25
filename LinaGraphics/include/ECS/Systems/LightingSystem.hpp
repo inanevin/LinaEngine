@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,53 +41,63 @@ Timestamp: 5/13/2019 12:49:19 AM
 #define LightingSystem_HPP
 
 #include "Core/CommonApplication.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "ECS/System.hpp"
 #include "Math/Color.hpp"
 #include "Math/Matrix.hpp"
-#include "Core/RenderBackendFwd.hpp"
-#include <vector>
+
 #include <tuple>
+#include <vector>
 
 namespace Lina::ECS
 {
-	struct EntityDataComponent;
-	struct DirectionalLightComponent;
-	struct PointLightComponent;
-	struct SpotLightComponent;
+    struct EntityDataComponent;
+    struct DirectionalLightComponent;
+    struct PointLightComponent;
+    struct SpotLightComponent;
 
-	class LightingSystem : public System
-	{
-	public:
+    class LightingSystem : public System
+    {
+    public:
+        LightingSystem(){};
 
-		LightingSystem() {};
+        void         Initialize(ApplicationMode& appMode);
+        virtual void UpdateComponents(float delta) override;
+        void         SetLightingShaderData(uint32 shaderID);
+        void         ResetLightData();
+        void         SetAmbientColor(Color col)
+        {
+            m_ambientColor = col;
+        }
 
-		void Initialize(ApplicationMode& appMode);
-		virtual void UpdateComponents(float delta) override;
-		void SetLightingShaderData(uint32 shaderID);
-		void ResetLightData();
-		void SetAmbientColor(Color col) {m_ambientColor = col;}
+        Matrix              GetDirectionalLightMatrix();
+        Matrix              GetDirLightBiasMatrix();
+        std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2ui m_resolution, float near, float farPlane);
+        const Vector3&      GetDirectionalLightPos();
 
-		Matrix GetDirectionalLightMatrix();
-		Matrix GetDirLightBiasMatrix();
-		std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2ui m_resolution, float near, float farPlane);
-		const Vector3& GetDirectionalLightPos();
+        DirectionalLightComponent* GetDirLight()
+        {
+            return std::get<1>(m_directionalLight);
+        }
+        Color GetAmbientColor()
+        {
+            return m_ambientColor;
+        }
+        std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights()
+        {
+            return m_pointLights;
+        }
 
-		DirectionalLightComponent* GetDirLight() { return std::get<1>(m_directionalLight); }
-		Color GetAmbientColor() { return m_ambientColor; }
-		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights() { return m_pointLights; }
-
-	private:
-
-		ApplicationMode m_appMode;
-		Graphics::RenderDevice* m_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
-		std::tuple < EntityDataComponent*, DirectionalLightComponent*> m_directionalLight;
-		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
-		std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>> m_spotLights;
-		Color m_ambientColor = Color(0.0f, 0.0f, 0.0f);
-	};
-}
-
+    private:
+        ApplicationMode                                                     m_appMode;
+        Graphics::RenderDevice*                                             m_renderDevice = nullptr;
+        Graphics::RenderEngine*                                             m_renderEngine = nullptr;
+        std::tuple<EntityDataComponent*, DirectionalLightComponent*>        m_directionalLight;
+        std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
+        std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>>  m_spotLights;
+        Color                                                               m_ambientColor = Color(0.0f, 0.0f, 0.0f);
+    };
+} // namespace Lina::ECS
 
 #endif

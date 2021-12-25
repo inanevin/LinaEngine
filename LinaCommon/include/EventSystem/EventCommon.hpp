@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,24 +42,21 @@ Timestamp: 12/25/2020 11:54:49 PM
 // Headers here.
 
 #define ENTT_USE_ATOMIC
-#include <entt/signal/dispatcher.hpp>
 #include <entt/signal/delegate.hpp>
-#include <entt/signal/sigh.hpp>
+#include <entt/signal/dispatcher.hpp>
 #include <entt/signal/fwd.hpp>
+#include <entt/signal/sigh.hpp>
 
 namespace Lina::Event
 {
-	template<typename T>
-	using Signal = entt::sigh<T>;
+    template <typename T> using Signal = entt::sigh<T>;
 
-	template<typename T>
-	using Sink = entt::sink<T>;
+    template <typename T> using Sink = entt::sink<T>;
 
-	using Dispatcher = entt::dispatcher;
+    using Dispatcher = entt::dispatcher;
 
-	template<typename T>
-	using Delegate = entt::delegate<T>;
+    template <typename T> using Delegate = entt::delegate<T>;
 
-}
+} // namespace Lina::Event
 
 #endif

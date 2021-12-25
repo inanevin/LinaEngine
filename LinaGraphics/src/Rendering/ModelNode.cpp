@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,91 +27,91 @@ SOFTWARE.
 */
 
 #include "Rendering/ModelNode.hpp"
-#include "Utility/AssimpUtility.hpp"
+
+#include "Log/Log.hpp"
+#include "Rendering/Model.hpp"
 #include "Rendering/SkinnedMesh.hpp"
 #include "Rendering/StaticMesh.hpp"
-#include "Rendering/Model.hpp"
-#include "Log/Log.hpp"
+#include "Utility/AssimpUtility.hpp"
 #include "Utility/ModelLoader.hpp"
-#include <vector>
-#include <assimp/scene.h>
+
 #include <assimp/matrix4x4.h>
+#include <assimp/scene.h>
+#include <vector>
 
 namespace Lina::Graphics
 {
-	ModelNode::ModelNode()
-	{
-		LINA_TRACE("Constructed node {0}", m_name);
-	}
+    ModelNode::ModelNode()
+    {
+        LINA_TRACE("Constructed node {0}", m_name);
+    }
 
-	ModelNode::~ModelNode()
-	{
-		LINA_TRACE("Deleting Node {0}", m_name);
-		for (uint32 i = 0; i < m_meshes.size(); i++)
-			delete m_meshes[i];
+    ModelNode::~ModelNode()
+    {
+        LINA_TRACE("Deleting Node {0}", m_name);
+        for (uint32 i = 0; i < m_meshes.size(); i++)
+            delete m_meshes[i];
 
-		for (uint32 i = 0; i < m_children.size(); i++)
-			delete m_children[i];
+        for (uint32 i = 0; i < m_children.size(); i++)
+            delete m_children[i];
 
-		m_children.clear();
-		m_meshes.clear();
-	}
+        m_children.clear();
+        m_meshes.clear();
+    }
 
-	ModelNode::ModelNode(const ModelNode& old_obj)
-	{
-		LINA_TRACE("Copy constructor, old name {0}", old_obj.m_name);
-	}
+    ModelNode::ModelNode(const ModelNode& old_obj)
+    {
+        LINA_TRACE("Copy constructor, old name {0}", old_obj.m_name);
+    }
 
-	void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly)
-	{
-		if (!fillMeshesOnly)
-		{
-			m_name = std::string(node->mName.C_Str());
-			const std::string sidName = parentModel.GetPath() + m_name;
-			m_id = StringID(sidName.c_str()).value();
-			m_localTransform = AssimpToLinaMatrix(node->mTransformation);
-		}
-		
-		LINA_TRACE("Filling Node {0}", m_name);
+    void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly)
+    {
+        if (!fillMeshesOnly)
+        {
+            m_name                    = std::string(node->mName.C_Str());
+            const std::string sidName = parentModel.GetPath() + m_name;
+            m_id                      = StringID(sidName.c_str()).value();
+            m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
+        }
 
-		for (uint32 i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
-			Mesh* addedMesh = nullptr;
+        LINA_TRACE("Filling Node {0}", m_name);
 
-			if (aimesh->HasBones())
-			{
-				SkinnedMesh* skinned = new SkinnedMesh();
-				m_meshes.push_back(skinned);
-				addedMesh = skinned;
-			}
-			else
-			{
-				StaticMesh* staticMesh = new StaticMesh();
-				m_meshes.push_back(staticMesh);
-				addedMesh = staticMesh;
-			}
+        for (uint32 i = 0; i < node->mNumMeshes; i++)
+        {
+            aiMesh* aimesh    = scene->mMeshes[node->mMeshes[i]];
+            Mesh*   addedMesh = nullptr;
 
-			ModelLoader::FillMeshData(aimesh, addedMesh);
+            if (aimesh->HasBones())
+            {
+                SkinnedMesh* skinned = new SkinnedMesh();
+                m_meshes.push_back(skinned);
+                addedMesh = skinned;
+            }
+            else
+            {
+                StaticMesh* staticMesh = new StaticMesh();
+                m_meshes.push_back(staticMesh);
+                addedMesh = staticMesh;
+            }
 
-			// Finally, construct the vertex array object for the mesh.
-			addedMesh->CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
-		}
+            ModelLoader::FillMeshData(aimesh, addedMesh);
 
-		// Recursively fill the other nodes.
-		for (uint32 i = 0; i < node->mNumChildren; i++)
-		{
-			if (!fillMeshesOnly)
-			{
-				LINA_TRACE("Adding Children {0}", node->mChildren[i]->mName.C_Str());
-				ModelNode* newNode = new ModelNode();
-				m_children.push_back(newNode);
-				newNode->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
-			}
-			else
-				m_children[i]->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
-		
-		}
-		
-	}
-}
+            // Finally, construct the vertex array object for the mesh.
+            addedMesh->CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
+        }
+
+        // Recursively fill the other nodes.
+        for (uint32 i = 0; i < node->mNumChildren; i++)
+        {
+            if (!fillMeshesOnly)
+            {
+                LINA_TRACE("Adding Children {0}", node->mChildren[i]->mName.C_Str());
+                ModelNode* newNode = new ModelNode();
+                m_children.push_back(newNode);
+                newNode->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
+            }
+            else
+                m_children[i]->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
+        }
+    }
+} // namespace Lina::Graphics

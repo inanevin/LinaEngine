@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -43,44 +43,39 @@ Timestamp: 12/19/2020 1:44:39 AM
 
 // Headers here.
 
-
 namespace Lina
 {
-    template <class T>
-    class StackLinkedList 
+    template <class T> class StackLinkedList
     {
     public:
-
-        struct Node 
+        struct Node
         {
-            T data;
+            T     data;
             Node* next = nullptr;
         };
 
         Node* head = nullptr;
 
-        StackLinkedList() = default;
+        StackLinkedList()                                 = default;
         StackLinkedList(StackLinkedList& stackLinkedList) = delete;
-        void push(Node* newNode);
+        void  push(Node* newNode);
         Node* pop();
-
     };
 
 #include "SinglyLinkedList.hpp"
 
-
-    template <class T>
-    void StackLinkedList<T>::push(Node* newNode) {
+    template <class T> void StackLinkedList<T>::push(Node* newNode)
+    {
         newNode->next = head;
-        head = newNode;
+        head          = newNode;
     }
 
-    template <class T>
-    typename StackLinkedList<T>::Node* StackLinkedList<T>::pop() {
+    template <class T> typename StackLinkedList<T>::Node* StackLinkedList<T>::pop()
+    {
         Node* top = head;
-        head = head->next;
+        head      = head->next;
         return top;
     }
-}
+} // namespace Lina
 
 #endif

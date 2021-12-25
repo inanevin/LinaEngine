@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,14 +41,15 @@ Timestamp: 12/7/2021 4:13:25 PM
 
 // Headers here.
 #include "ECS/Component.hpp"
+
 #include <string>
 
 namespace Lina::ECS
 {
-	struct AnimationComponent : public Component
-	{
-		std::string m_animationName;
-	};
-}
+    struct AnimationComponent : public Component
+    {
+        std::string m_animationName;
+    };
+} // namespace Lina::ECS
 
 #endif

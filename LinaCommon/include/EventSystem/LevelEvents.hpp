@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,11 +40,17 @@ Timestamp: 12/25/2021 12:19:08 PM
 #define LevelEvents_HPP
 
 namespace Lina::Event
-{	
-	// Level
-	struct ELevelInstalled { };
-	struct ELevelUninstalled { };
-	struct ELevelInitialized { };
-}
+{
+    // Level
+    struct ELevelInstalled
+    {
+    };
+    struct ELevelUninstalled
+    {
+    };
+    struct ELevelInitialized
+    {
+    };
+} // namespace Lina::Event
 
 #endif

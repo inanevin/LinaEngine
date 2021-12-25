@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina AudioEngine
 https://github.com/inanevin/LinaEngine
 
@@ -29,24 +29,23 @@ SOFTWARE.
 */
 
 #include "Memory/FreeListAllocator.hpp"
+
 #include "Log/Log.hpp"
-#include "Memory/MemoryUtility.hpp"  
+#include "Memory/MemoryUtility.hpp"
 
-#include <stdlib.h>   
-#include <cassert>   
+#include <algorithm>
+#include <cassert>
 #include <limits>
-#include <algorithm>  
-
-
+#include <stdlib.h>
 
 namespace Lina
 {
-    FreeListAllocator::FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy): MemoryAllocator(totalSize)
+    FreeListAllocator::FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy) : MemoryAllocator(totalSize)
     {
         m_pPolicy = pPolicy;
     }
 
-    void FreeListAllocator::Init() 
+    void FreeListAllocator::Init()
     {
         if (m_start_ptr != nullptr)
         {
@@ -58,7 +57,7 @@ namespace Lina
         this->Reset();
     }
 
-    FreeListAllocator::~FreeListAllocator() 
+    FreeListAllocator::~FreeListAllocator()
     {
         free(m_start_ptr);
         m_start_ptr = nullptr;
@@ -67,35 +66,34 @@ namespace Lina
     void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment)
     {
         const std::size_t allocationHeaderSize = sizeof(FreeListAllocator::AllocationHeader);
-        const std::size_t freeHeaderSize = sizeof(FreeListAllocator::FreeHeader);
+        const std::size_t freeHeaderSize       = sizeof(FreeListAllocator::FreeHeader);
         LINA_ASSERT("Allocation size must be bigger", size >= sizeof(Node));
         LINA_ASSERT("Alignment must be 8 at least", alignment >= 8);
 
         // Search through the free list for a free block that has enough space to allocate our data
         std::size_t padding;
-        Node* affectedNode,  * previousNode;
+        Node *      affectedNode, *previousNode;
         this->Find(size, alignment, padding, previousNode, affectedNode);
-        LINA_ASSERT(affectedNode != nullptr ,"Not enough memory");
-
+        LINA_ASSERT(affectedNode != nullptr, "Not enough memory");
 
         const std::size_t alignmentPadding = padding - allocationHeaderSize;
-        const std::size_t requiredSize = size + padding;
-        const std::size_t rest = affectedNode->data.blockSize - requiredSize;
+        const std::size_t requiredSize     = size + padding;
+        const std::size_t rest             = affectedNode->data.blockSize - requiredSize;
 
         if (rest > 0)
         {
             // We have to split the block into the data block and a free block of size 'rest'
-            Node* newFreeNode = (Node*)((std::size_t) affectedNode + requiredSize);
+            Node* newFreeNode           = (Node*)((std::size_t)affectedNode + requiredSize);
             newFreeNode->data.blockSize = rest;
             m_freeList.insert(affectedNode, newFreeNode);
         }
         m_freeList.remove(previousNode, affectedNode);
 
         // Setup data block
-        const std::size_t headerAddress = (std::size_t) affectedNode + alignmentPadding;
-        const std::size_t dataAddress = headerAddress + allocationHeaderSize;
-        ((FreeListAllocator::AllocationHeader*) headerAddress)->blockSize = requiredSize;
-        ((FreeListAllocator::AllocationHeader*) headerAddress)->padding = (char)alignmentPadding;
+        const std::size_t headerAddress                                  = (std::size_t)affectedNode + alignmentPadding;
+        const std::size_t dataAddress                                    = headerAddress + allocationHeaderSize;
+        ((FreeListAllocator::AllocationHeader*)headerAddress)->blockSize = requiredSize;
+        ((FreeListAllocator::AllocationHeader*)headerAddress)->padding   = (char)alignmentPadding;
 
         m_used += requiredSize;
         m_peak = std::max(m_peak, m_used);
@@ -118,83 +116,82 @@ namespace Lina
 
     void FreeListAllocator::FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode)
     {
-        //Iterate list and return the first free block with a size >= than given size
-        Node* it = m_freeList.head, * itPrev = nullptr;
+        // Iterate list and return the first free block with a size >= than given size
+        Node *it = m_freeList.head, *itPrev = nullptr;
 
-        while (it != nullptr) 
+        while (it != nullptr)
         {
-            padding = MemoryUtility::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::AllocationHeader));
+            padding                         = MemoryUtility::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::AllocationHeader));
             const std::size_t requiredSpace = size + padding;
-            if (it->data.blockSize >= requiredSpace) 
+            if (it->data.blockSize >= requiredSpace)
                 break;
-            
+
             itPrev = it;
-            it = it->next;
+            it     = it->next;
         }
         previousNode = itPrev;
-        foundNode = it;
+        foundNode    = it;
     }
 
-    void FreeListAllocator::FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode) 
+    void FreeListAllocator::FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode)
     {
         // Iterate WHOLE list keeping a pointer to the best fit
         std::size_t smallestDiff = std::numeric_limits<std::size_t>::max();
-        Node* bestBlock = nullptr;
-        Node* it = m_freeList.head,  * itPrev = nullptr;
+        Node*       bestBlock    = nullptr;
+        Node *      it = m_freeList.head, *itPrev = nullptr;
         while (it != nullptr)
         {
-            padding = MemoryUtility::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::AllocationHeader));
+            padding                         = MemoryUtility::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::AllocationHeader));
             const std::size_t requiredSpace = size + padding;
-            if (it->data.blockSize >= requiredSpace && (it->data.blockSize - requiredSpace < smallestDiff)) 
+            if (it->data.blockSize >= requiredSpace && (it->data.blockSize - requiredSpace < smallestDiff))
                 bestBlock = it;
-            
+
             itPrev = it;
-            it = it->next;
+            it     = it->next;
         }
         previousNode = itPrev;
-        foundNode = bestBlock;
+        foundNode    = bestBlock;
     }
 
-    void FreeListAllocator::Free(void* ptr) 
+    void FreeListAllocator::Free(void* ptr)
     {
         // Insert it in a sorted position by the address number
-        const std::size_t currentAddress = (std::size_t) ptr;
-        const std::size_t headerAddress = currentAddress - sizeof(FreeListAllocator::AllocationHeader);
-        const FreeListAllocator::AllocationHeader* allocationHeader{ (FreeListAllocator::AllocationHeader*) headerAddress };
+        const std::size_t                          currentAddress = (std::size_t)ptr;
+        const std::size_t                          headerAddress  = currentAddress - sizeof(FreeListAllocator::AllocationHeader);
+        const FreeListAllocator::AllocationHeader* allocationHeader{(FreeListAllocator::AllocationHeader*)headerAddress};
 
-        Node* freeNode = (Node*)(headerAddress);
+        Node* freeNode           = (Node*)(headerAddress);
         freeNode->data.blockSize = allocationHeader->blockSize + allocationHeader->padding;
-        freeNode->next = nullptr;
+        freeNode->next           = nullptr;
 
-        Node* it = m_freeList.head;
+        Node* it     = m_freeList.head;
         Node* itPrev = nullptr;
-        while (it != nullptr) 
+        while (it != nullptr)
         {
-            if (ptr < it) 
+            if (ptr < it)
             {
                 m_freeList.insert(itPrev, freeNode);
                 break;
             }
             itPrev = it;
-            it = it->next;
+            it     = it->next;
         }
 
         m_used -= freeNode->data.blockSize;
 
         // Merge contiguous nodes
         Coalescence(itPrev, freeNode);
-
     }
 
-    void FreeListAllocator::Coalescence(Node* previousNode, Node* freeNode) 
+    void FreeListAllocator::Coalescence(Node* previousNode, Node* freeNode)
     {
-        if (freeNode->next != nullptr && (std::size_t) freeNode + freeNode->data.blockSize == (std::size_t) freeNode->next) 
+        if (freeNode->next != nullptr && (std::size_t)freeNode + freeNode->data.blockSize == (std::size_t)freeNode->next)
         {
             freeNode->data.blockSize += freeNode->next->data.blockSize;
             m_freeList.remove(freeNode, freeNode->next);
         }
 
-        if (previousNode != nullptr &&  (std::size_t) previousNode + previousNode->data.blockSize == (std::size_t) freeNode) 
+        if (previousNode != nullptr && (std::size_t)previousNode + previousNode->data.blockSize == (std::size_t)freeNode)
         {
             previousNode->data.blockSize += freeNode->data.blockSize;
             m_freeList.remove(previousNode, freeNode);
@@ -203,12 +200,12 @@ namespace Lina
 
     void FreeListAllocator::Reset()
     {
-        m_used = 0;
-        m_peak = 0;
-        Node* firstNode = (Node*)m_start_ptr;
+        m_used                    = 0;
+        m_peak                    = 0;
+        Node* firstNode           = (Node*)m_start_ptr;
         firstNode->data.blockSize = m_totalSize;
-        firstNode->next = nullptr;
-        m_freeList.head = nullptr;
+        firstNode->next           = nullptr;
+        m_freeList.head           = nullptr;
         m_freeList.insert(nullptr, firstNode);
     }
-}
+} // namespace Lina

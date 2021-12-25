@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,67 +45,68 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 #ifdef LINA_ENABLE_LOGGING
 
-#define LINA_ERR(...)			Log::LogMessage(LogLevel::Error, __VA_ARGS__);
-#define LINA_WARN(...)			Log::LogMessage(LogLevel::Warn, __VA_ARGS__); 
-#define LINA_INFO(...)			Log::LogMessage(LogLevel::Info,  __VA_ARGS__); 
-#define LINA_TRACE(...)			Log::LogMessage(LogLevel::Trace, __VA_ARGS__);
-#define LINA_DEBUG(...)			Log::LogMessage(LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CRITICAL(...)		Log::LogMessage(LogLevel::Critical, __VA_ARGS__);
+#define LINA_ERR(...)      Log::LogMessage(LogLevel::Error, __VA_ARGS__);
+#define LINA_WARN(...)     Log::LogMessage(LogLevel::Warn, __VA_ARGS__);
+#define LINA_INFO(...)     Log::LogMessage(LogLevel::Info, __VA_ARGS__);
+#define LINA_TRACE(...)    Log::LogMessage(LogLevel::Trace, __VA_ARGS__);
+#define LINA_DEBUG(...)    Log::LogMessage(LogLevel::Debug, __VA_ARGS__);
+#define LINA_CRITICAL(...) Log::LogMessage(LogLevel::Critical, __VA_ARGS__);
 
 #else
-#define LINA_ERR(...)		
-#define LINA_WARN(...)		
-#define LINA_INFO(...)		
-#define LINA_TRACE(...)	
-#define LINA_FATAL(...)	
-#define LINA_ERR(...)		
-#define LINA_WARN(...)		
-#define LINA_INFO(...)		
-#define LINA_TRACE(...)	
-#define LINA_FATAL(...)	
-#define LINA_ERR_R(...)		
-#define LINA_WARN_R(...)	
-#define LINA_INFO_R(...)	
-#define LINA_TRACE_R(...)	
-#define LINA_DEBUG_R(...)	
+#define LINA_ERR(...)
+#define LINA_WARN(...)
+#define LINA_INFO(...)
+#define LINA_TRACE(...)
+#define LINA_FATAL(...)
+#define LINA_ERR(...)
+#define LINA_WARN(...)
+#define LINA_INFO(...)
+#define LINA_TRACE(...)
+#define LINA_FATAL(...)
+#define LINA_ERR_R(...)
+#define LINA_WARN_R(...)
+#define LINA_INFO_R(...)
+#define LINA_TRACE_R(...)
+#define LINA_DEBUG_R(...)
 #define LINA_CRITICAL_R(...)
 #endif
 
-
-
 #ifdef LINA_DEBUG_BUILD
-#define LINA_ASSERT(x,...) { if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_ASSERT(x, ...)                                                                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                                                                      \
+        if (!(x))                                                                                                                                                                                                                                                                                          \
+        {                                                                                                                                                                                                                                                                                                  \
+            LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__);                                                                                                                                                                                                                                           \
+            __debugbreak();                                                                                                                                                                                                                                                                                \
+        }                                                                                                                                                                                                                                                                                                  \
+    }
 #else
-#define LINA_ASSERT(x,...)
+#define LINA_ASSERT(x, ...)
 #endif
 
 #define FMT_HEADER_ONLY
 
 namespace Lina
 {
-	namespace Editor
-	{
-		class LogPanel;
-	}
+    namespace Editor
+    {
+        class LogPanel;
+    }
 
-	class Log
-	{
-	public:
+    class Log
+    {
+    public:
+        template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
+        {
+            s_onLog.publish(Event::ELog(level, fmt::format(args...)));
+        }
 
-		template<typename... Args>
-		static void LogMessage(LogLevel level, const Args &... args)
-		{
-			s_onLog.publish(Event::ELog(level, fmt::format(args...)));
-		}
+    private:
+        friend class Application;
+        friend class Editor::LogPanel;
 
-	private:
-
-		friend class Application;
-		friend class Editor::LogPanel;
-
-		static Event::Signal<void(const Event::ELog&)> s_onLog;
-	};
-}
-
+        static Event::Signal<void(const Event::ELog&)> s_onLog;
+    };
+} // namespace Lina
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,24 +41,23 @@ Timestamp: 12/25/2021 12:39:49 PM
 
 // Headers here.
 #define ENTT_USE_ATOMIC
-#include <entt/entity/entity.hpp>
 #include <cereal/archives/portable_binary.hpp>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
 namespace Lina::ECS
 {
 #define ECSNULL entt::null
 
-	typedef entt::entity Entity;
-	typedef entt::id_type TypeID;
-	typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)> ComponentSerializeFunction;
-	typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
+    typedef entt::entity                                                                      Entity;
+    typedef entt::id_type                                                                     TypeID;
+    typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)>       ComponentSerializeFunction;
+    typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
 
-	template<typename T>
-	TypeID GetTypeID()
-	{
-		return entt::type_hash<T>::value();
-	}
-}
+    template <typename T> TypeID GetTypeID()
+    {
+        return entt::type_hash<T>::value();
+    }
+} // namespace Lina::ECS
 
 #endif

@@ -38,87 +38,94 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #define GUILAYER_HPP
 
 #include "Panels/ECSPanel.hpp"
-#include "Panels/ResourcesPanel.hpp"
-#include "Panels/LevelPanel.hpp"
-#include "Panels/PropertiesPanel.hpp"
-#include "Panels/LogPanel.hpp"
-#include "Panels/HeaderPanel.hpp"
-#include "Panels/ProfilerPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
-#include "World/DefaultLevel.hpp"
+#include "Panels/HeaderPanel.hpp"
+#include "Panels/LevelPanel.hpp"
+#include "Panels/LogPanel.hpp"
 #include "Panels/MainToolbarPanel.hpp"
+#include "Panels/ProfilerPanel.hpp"
+#include "Panels/PropertiesPanel.hpp"
+#include "Panels/ResourcesPanel.hpp"
+#include "World/DefaultLevel.hpp"
+
 #include <vector>
 
 struct ImFont;
 
 namespace Lina
 {
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-	namespace Event
-	{
-		struct EShutdown;
-		struct EPostRender;
-		struct EResourceLoadUpdated;
-	}
-}
+    namespace Event
+    {
+        struct EShutdown;
+        struct EPostRender;
+        struct EResourceLoadUpdated;
+    } // namespace Event
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	
 
-	class GUILayer 
-	{
+    class GUILayer
+    {
 
-	public:
+    public:
+        GUILayer()
+        {
+        }
+        ~GUILayer(){};
 
-		GUILayer() {}
-		~GUILayer() {};
+        void           Initialize();
+        void           OnShutdown(const Event::EShutdown& ev);
+        void           OnPostRender(const Event::EPostRender&);
+        static ImFont* GetDefaultFont()
+        {
+            return s_defaultFont;
+        }
+        static ImFont* GetBigFont()
+        {
+            return s_bigFont;
+        }
+        static std::map<const char*, EditorPanel*> s_editorPanels;
 
-		void Initialize();
-		void OnShutdown(const Event::EShutdown& ev);
-		void OnPostRender(const Event::EPostRender&);
-		static ImFont* GetDefaultFont() { return s_defaultFont; }
-		static ImFont* GetBigFont() { return s_bigFont; }
-		static std::map<const char*, EditorPanel*> s_editorPanels;
+        // Menu bar item callback from header panel.
+        void DispatchMenuBarClickedAction(const EMenuBarItemClicked& event);
 
-		// Menu bar item callback from header panel.
-		void DispatchMenuBarClickedAction(const EMenuBarItemClicked& event);
+        void        Refresh();
+        LevelPanel& GetLevelPanel()
+        {
+            return m_levelPanel;
+        }
 
-		void Refresh();
-		LevelPanel& GetLevelPanel() { return m_levelPanel; }
+    private:
+        void DrawSplashScreen();
+        void OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev);
 
-	private:
+        void DrawFPSCounter(int corner = 0);
+        void DrawCentralDockingSpace();
+        void CreateObjectInLevel(const std::string& modelPath);
 
-		void DrawSplashScreen();
-		void OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev);
+    private:
+        static ImFont* s_defaultFont;
+        static ImFont* s_bigFont;
 
-		void DrawFPSCounter(int corner = 0);
-		void DrawCentralDockingSpace();
-		void CreateObjectInLevel(const std::string& modelPath);
-
-	private:
-
-		static ImFont* s_defaultFont;
-		static ImFont* s_bigFont;
-
-		MainToolbarPanel m_toolbar;
-		ECSPanel m_ecsPanel;
-		ResourcesPanel m_resourcesPanel;
-		LevelPanel m_levelPanel;
-		PropertiesPanel m_propertiesPanel;
-		LogPanel m_logPanel;
-		HeaderPanel m_headerPanel;
-		ProfilerPanel m_profilerPanel;
-		GlobalSettingsPanel m_globalSettingsPanel;
-		World::DefaultLevel m_defaultLevel;
-		std::string m_currentlyLoadingResource = "";
-		float m_percentage = 0.0f;
-	
-	};
-}
+        MainToolbarPanel    m_toolbar;
+        ECSPanel            m_ecsPanel;
+        ResourcesPanel      m_resourcesPanel;
+        LevelPanel          m_levelPanel;
+        PropertiesPanel     m_propertiesPanel;
+        LogPanel            m_logPanel;
+        HeaderPanel         m_headerPanel;
+        ProfilerPanel       m_profilerPanel;
+        GlobalSettingsPanel m_globalSettingsPanel;
+        World::DefaultLevel m_defaultLevel;
+        std::string         m_currentlyLoadingResource = "";
+        float               m_percentage               = 0.0f;
+    };
+} // namespace Lina::Editor
 
 #endif

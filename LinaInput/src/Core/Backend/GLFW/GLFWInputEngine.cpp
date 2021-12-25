@@ -27,186 +27,189 @@ SOFTWARE.
 */
 
 #include "Core/Backend/GLFW/GLFWInputEngine.hpp"
-#include "Profiling/Profiler.hpp"
-#include "Log/Log.hpp"
+
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
+#include "Log/Log.hpp"
 #include "Math/Math.hpp"
+#include "Profiling/Profiler.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 namespace Lina::Input
 {
-#define AXIS_SENSITIVITY 0.1f
-#define MOUSE_SENSITIVITY  5.0f
-	GLFWwindow* glfwWindow = nullptr;
-	GLFWInputEngine* GLFWInputEngine::s_inputEngine = nullptr;
+#define AXIS_SENSITIVITY  0.1f
+#define MOUSE_SENSITIVITY 5.0f
+    GLFWwindow*      glfwWindow                     = nullptr;
+    GLFWInputEngine* GLFWInputEngine::s_inputEngine = nullptr;
 
+    void GLFWInputEngine::Initialize()
+    {
+        LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
+        Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
+        m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
+        m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
+    }
 
-	void GLFWInputEngine::Initialize()
-	{
-		LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
-		Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
-		m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
-		m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
-	}
+    void GLFWInputEngine::Shutdown()
+    {
+        LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
+        m_keyDownNewStateMap.clear();
+        m_keyUpNewStateMap.clear();
+        m_mouseDownNewStateMap.clear();
+        m_mouseUpNewStateMap.clear();
+    }
 
-	void GLFWInputEngine::Shutdown()
-	{
-		LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
-		m_keyDownNewStateMap.clear();
-		m_keyUpNewStateMap.clear();
-		m_mouseDownNewStateMap.clear();
-		m_mouseUpNewStateMap.clear();
-	}
+    void GLFWInputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
+    {
+        glfwWindow = static_cast<GLFWwindow*>(e.m_window);
+    }
 
-	void GLFWInputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
-	{
-		glfwWindow = static_cast<GLFWwindow*>(e.m_window);
-	}
+    bool GLFWInputEngine::GetKey(int keycode)
+    {
+        int state = glfwGetKey(glfwWindow, keycode);
+        return state == GLFW_PRESS || state == GLFW_REPEAT;
+    }
 
-	bool GLFWInputEngine::GetKey(int keycode)
-	{
-		int state = glfwGetKey(glfwWindow, keycode);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
-	}
+    bool GLFWInputEngine::GetKeyDown(int keyCode)
+    {
+        int  newState                 = glfwGetKey(glfwWindow, keyCode);
+        bool flag                     = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
+        m_keyDownNewStateMap[keyCode] = newState;
+        return flag;
+    }
+    bool GLFWInputEngine::GetKeyUp(int keyCode)
+    {
+        int  newState               = glfwGetKey(glfwWindow, keyCode);
+        bool flag                   = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
+        m_keyUpNewStateMap[keyCode] = newState;
+        return flag;
+    }
+    bool GLFWInputEngine::GetMouseButton(int button)
+    {
+        int state = glfwGetMouseButton(glfwWindow, button);
+        return state == GLFW_PRESS || state == GLFW_REPEAT;
+    }
+    bool GLFWInputEngine::GetMouseButtonDown(int button)
+    {
+        int  newState                  = glfwGetMouseButton(glfwWindow, button);
+        bool flag                      = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
+        m_mouseDownNewStateMap[button] = newState;
+        return flag;
+    }
+    bool GLFWInputEngine::GetMouseButtonUp(int button)
+    {
+        int  newState                = glfwGetMouseButton(glfwWindow, button);
+        bool flag                    = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
+        m_mouseUpNewStateMap[button] = newState;
+        return flag;
+    }
 
-	bool GLFWInputEngine::GetKeyDown(int keyCode)
-	{
-		int newState = glfwGetKey(glfwWindow, keyCode);
-		bool flag = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
-		m_keyDownNewStateMap[keyCode] = newState;
-		return flag;
-	}
-	bool GLFWInputEngine::GetKeyUp(int keyCode)
-	{
-		int newState = glfwGetKey(glfwWindow, keyCode);
-		bool flag = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
-		m_keyUpNewStateMap[keyCode] = newState;
-		return flag;
-	}
-	bool GLFWInputEngine::GetMouseButton(int button)
-	{
-		int state = glfwGetMouseButton(glfwWindow, button);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
-	}
-	bool GLFWInputEngine::GetMouseButtonDown(int button)
-	{
-		int newState = glfwGetMouseButton(glfwWindow, button);
-		bool flag = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
-		m_mouseDownNewStateMap[button] = newState;
-		return flag;
-	}
-	bool GLFWInputEngine::GetMouseButtonUp(int button)
-	{
-		int newState = glfwGetMouseButton(glfwWindow, button);
-		bool flag = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
-		m_mouseUpNewStateMap[button] = newState;
-		return flag;
-	}
+    Vector2 GLFWInputEngine::GetRawMouseAxis()
+    {
+        // Storage for previous mouse position.
+        static Vector2 oldMousePosition;
 
-	Vector2 GLFWInputEngine::GetRawMouseAxis()
-	{
-		// Storage for previous mouse position.
-		static Vector2 oldMousePosition;
+        // Get the cursor position.
+        double posX, posY;
+        glfwGetCursorPos(glfwWindow, &posX, &posY);
 
-		// Get the cursor position.
-		double posX, posY;
-		glfwGetCursorPos(glfwWindow, &posX, &posY);
+        // Get the delta mouse position.
+        Vector2 currentMousePosition = Vector2((float)posX, (float)posY);
+        Vector2 diff                 = currentMousePosition - oldMousePosition;
+        Vector2 raw                  = Vector2::Zero;
 
-		// Get the delta mouse position.
-		Vector2 currentMousePosition = Vector2((float)posX, (float)posY);
-		Vector2 diff = currentMousePosition - oldMousePosition;
-		Vector2 raw = Vector2::Zero;
+        // Set raw axis values depending on the direction of the axis.
+        if (diff.x > 0.0f)
+            raw.x = 1.0f;
+        else if (diff.x < 0.0f)
+            raw.x = -1.0f;
+        if (diff.y > 0)
+            raw.y = 1.0f;
+        else if (diff.y < 0)
+            raw.y = -1.0f;
 
-		// Set raw axis values depending on the direction of the axis.
-		if (diff.x > 0.0f) raw.x = 1.0f;
-		else if (diff.x < 0.0f) raw.x = -1.0f;
-		if (diff.y > 0) raw.y = 1.0f;
-		else if (diff.y < 0) raw.y = -1.0f;
+        // Set previous position.
+        oldMousePosition = currentMousePosition;
 
-		// Set previous position.
-		oldMousePosition = currentMousePosition;
+        // Return raw.
+        return raw;
+    }
 
-		// Return raw.
-		return raw;
-	}
+    Vector2 GLFWInputEngine::GetMouseAxis()
+    {
+        static Vector2 oldMousePos;
 
-	Vector2 GLFWInputEngine::GetMouseAxis()
-	{
-		static Vector2 oldMousePos;
+        double posX, posY;
+        glfwGetCursorPos(glfwWindow, &posX, &posY);
 
-		double posX, posY;
-		glfwGetCursorPos(glfwWindow, &posX, &posY);
+        // Delta
+        Vector2 diff = Vector2((float)(posX - oldMousePos.x), (float)(posY - oldMousePos.y));
 
-		// Delta
-		Vector2 diff = Vector2((float)(posX - oldMousePos.x), (float)(posY - oldMousePos.y));
+        // Clamp and remap delta mouse position.
+        diff.x = Math::Clamp(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
+        diff.y = Math::Clamp(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
+        diff.x = Math::Remap(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
+        diff.y = Math::Remap(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
 
-		// Clamp and remap delta mouse position.
-		diff.x = Math::Clamp(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
-		diff.y = Math::Clamp(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
-		diff.x = Math::Remap(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
-		diff.y = Math::Remap(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
+        // Set the previous position.
+        oldMousePos = Vector2((float)posX, (float)posY);
 
-		// Set the previous position.
-		oldMousePos = Vector2((float)posX, (float)posY);
+        return diff;
+    }
 
-		return diff;
-	}
+    Vector2 GLFWInputEngine::GetMousePosition()
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(glfwWindow, &xpos, &ypos);
+        return Vector2((float)xpos, (float)ypos);
+    }
 
-	Vector2 GLFWInputEngine::GetMousePosition()
-	{
-		double xpos, ypos;
-		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
-		return Vector2((float)xpos, (float)ypos);
-	}
+    void GLFWInputEngine::SetCursorMode(CursorMode mode)
+    {
+        m_cursorMode = mode;
 
+        switch (mode)
+        {
+        case CursorMode::Visible:
+            glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
 
-	void GLFWInputEngine::SetCursorMode(CursorMode mode)
-	{
-		m_cursorMode = mode;
+        case CursorMode::Hidden:
+            glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            break;
 
-		switch (mode)
-		{
-		case CursorMode::Visible:
-			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			break;
+        case CursorMode::Disabled:
+            glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            break;
+        }
+    }
 
-		case CursorMode::Hidden:
-			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-			break;
+    void GLFWInputEngine::SetMousePosition(const Vector2& v) const
+    {
+        glfwSetCursorPos(glfwWindow, v.x, v.y);
+    }
 
-		case CursorMode::Disabled:
-			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			break;
-		}
-	}
+    void GLFWInputEngine::Tick()
+    {
+        // Refresh the key states from previous frame.
+        for (auto& pair : m_keyDownNewStateMap)
+            m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];
 
-	void GLFWInputEngine::SetMousePosition(const Vector2& v) const
-	{
-		glfwSetCursorPos(glfwWindow, v.x, v.y);
-	}
-	
-	void GLFWInputEngine::Tick()
-	{
-		// Refresh the key states from previous frame.
-		for (auto& pair : m_keyDownNewStateMap)
-			m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];
+        for (auto& pair : m_keyUpNewStateMap)
+            m_keyStatesUp[pair.first] = m_keyUpNewStateMap[pair.first];
 
-		for (auto& pair : m_keyUpNewStateMap)
-			m_keyStatesUp[pair.first] = m_keyUpNewStateMap[pair.first];
+        for (auto& pair : m_mouseDownNewStateMap)
+            m_mouseStatesDown[pair.first] = m_mouseDownNewStateMap[pair.first];
 
-		for (auto& pair : m_mouseDownNewStateMap)
-			m_mouseStatesDown[pair.first] = m_mouseDownNewStateMap[pair.first];
+        for (auto& pair : m_mouseUpNewStateMap)
+            m_mouseStatesUp[pair.first] = m_mouseUpNewStateMap[pair.first];
 
-		for (auto& pair : m_mouseUpNewStateMap)
-			m_mouseStatesUp[pair.first] = m_mouseUpNewStateMap[pair.first];
-
-		m_keyDownNewStateMap.clear();
-		m_keyUpNewStateMap.clear();
-		m_mouseDownNewStateMap.clear();
-		m_mouseUpNewStateMap.clear();
-		glfwPollEvents();
-	}
-}
+        m_keyDownNewStateMap.clear();
+        m_keyUpNewStateMap.clear();
+        m_mouseDownNewStateMap.clear();
+        m_mouseUpNewStateMap.clear();
+        glfwPollEvents();
+    }
+} // namespace Lina::Input

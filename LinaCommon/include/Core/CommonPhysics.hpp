@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,41 +41,42 @@ Timestamp: 12/25/2021 11:44:20 AM
 
 // Headers here.
 #include "SizeDefinitions.hpp"
+
 #include <string>
 
 namespace Lina::Physics
 {
-	extern std::string SIMULATION_TYPES[3];
+    extern std::string SIMULATION_TYPES[3];
 
-	enum class SimulationType : uint8
-	{
-		None = 0,
-		Static = 1,
-		Dynamic = 2,
-	};
+    enum class SimulationType : uint8
+    {
+        None    = 0,
+        Static  = 1,
+        Dynamic = 2,
+    };
 
 #ifdef LINA_PHYSICS_BULLET
-	extern std::string COLLISION_SHAPES[4];
+    extern std::string COLLISION_SHAPES[4];
 
-	enum class CollisionShape : uint8
-	{
-		Box = 0,
-		Sphere = 1,
-		Cylinder = 2,
-		Capsule = 3,
-		ConvexMesh = 4,
-	};
+    enum class CollisionShape : uint8
+    {
+        Box        = 0,
+        Sphere     = 1,
+        Cylinder   = 2,
+        Capsule    = 3,
+        ConvexMesh = 4,
+    };
 #elif LINA_PHYSICS_PHYSX
-	extern std::string COLLISION_SHAPES[4];
+    extern std::string COLLISION_SHAPES[4];
 
-	enum class CollisionShape : uint8
-	{
-		Box = 0,
-		Sphere = 1,
-		Capsule = 2,
-		ConvexMesh = 3,
-	};
+    enum class CollisionShape : uint8
+    {
+        Box        = 0,
+        Sphere     = 1,
+        Capsule    = 2,
+        ConvexMesh = 3,
+    };
 #endif
-}
+} // namespace Lina::Physics
 
 #endif

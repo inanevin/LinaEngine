@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,34 +43,32 @@ Timestamp: 10/30/2020 9:17:05 AM
 
 namespace Lina::Graphics
 {
-	class RenderSettings
-	{
-		
-	public:
-		
-		RenderSettings() {};
-		~RenderSettings() {};
+    class RenderSettings
+    {
 
-		static void SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName);
-		static RenderSettings DeserializeRenderSettings(const std::string& path, const std::string& fileName);
-		
-		template<class Archive>
-		void serialize(Archive& archive) 
-		{
-			archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure, m_vignetteEnabled, m_vignetteAmount, m_vignettePow);
-		}
+    public:
+        RenderSettings(){};
+        ~RenderSettings(){};
 
-		bool m_bloomEnabled = false;
-		bool m_fxaaEnabled = false;
-		bool m_vignetteEnabled = false;
-		float m_fxaaReduceMin = 1.0f / 128.0f;
-		float m_fxaaReduceMul = 1.0f / 8.0f;
-		float m_fxaaSpanMax = 8.0f;
-		float m_gamma = 2.2f;
-		float m_exposure = 1.0f;
-		float m_vignetteAmount = 25.0f;
-		float m_vignettePow = 0.75f;
-	};
-}
+        static void           SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName);
+        static RenderSettings DeserializeRenderSettings(const std::string& path, const std::string& fileName);
+
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure, m_vignetteEnabled, m_vignetteAmount, m_vignettePow);
+        }
+
+        bool  m_bloomEnabled    = false;
+        bool  m_fxaaEnabled     = false;
+        bool  m_vignetteEnabled = false;
+        float m_fxaaReduceMin   = 1.0f / 128.0f;
+        float m_fxaaReduceMul   = 1.0f / 8.0f;
+        float m_fxaaSpanMax     = 8.0f;
+        float m_gamma           = 2.2f;
+        float m_exposure        = 1.0f;
+        float m_vignetteAmount  = 25.0f;
+        float m_vignettePow     = 0.75f;
+    };
+} // namespace Lina::Graphics
 
 #endif

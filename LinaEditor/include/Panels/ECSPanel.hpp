@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -38,45 +38,43 @@ Timestamp: 5/23/2020 4:15:06 PM
 #ifndef ECSPanel_HPP
 #define ECSPanel_HPP
 
-#include "Panels/EditorPanel.hpp"
 #include "Core/CommonECS.hpp"
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina
 {
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-	namespace Event
-	{
-		struct ELevelInstalled;
-	}
-}
+    namespace Event
+    {
+        struct ELevelInstalled;
+    }
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class ScenePanel;
-	class PropertiesPanel;
+    class ScenePanel;
+    class PropertiesPanel;
 
-	class ECSPanel : public EditorPanel
-	{
-		
-	public:
-		
-		ECSPanel() {};
-		virtual ~ECSPanel() {};
+    class ECSPanel : public EditorPanel
+    {
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
-		void Refresh();
-		void DrawEntityNode(int id,  ECS::Entity entity);
-		void OnLevelInstall(const Event::ELevelInstalled& event);
+    public:
+        ECSPanel(){};
+        virtual ~ECSPanel(){};
 
-	private:
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
+        void         Refresh();
+        void         DrawEntityNode(int id, ECS::Entity entity);
+        void         OnLevelInstall(const Event::ELevelInstalled& event);
 
-		ECS::Entity m_selectedEntity;
-	};
-}
+    private:
+        ECS::Entity m_selectedEntity;
+    };
+} // namespace Lina::Editor
 
 #endif

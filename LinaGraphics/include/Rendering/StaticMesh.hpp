@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,17 +44,15 @@ Timestamp: 12/24/2021 8:54:24 PM
 
 namespace Lina::Graphics
 {
-	class StaticMesh : public Mesh
-	{
-		
-	public:
-		
-		StaticMesh() {};
-		virtual ~StaticMesh() {};
-	
-	private:
-	
-	};
-}
+    class StaticMesh : public Mesh
+    {
+
+    public:
+        StaticMesh(){};
+        virtual ~StaticMesh(){};
+
+    private:
+    };
+} // namespace Lina::Graphics
 
 #endif

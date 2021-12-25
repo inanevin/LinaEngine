@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,21 +45,18 @@ Timestamp: 5/2/2019 12:20:42 AM
 namespace Lina::ECS
 {
 
-	struct CameraComponent : public Component
-	{
-		Color m_clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
-		float m_fieldOfView = 90.0f;
-		float m_zNear = 0.01f;
-		float m_zFar = 1000.0f;
+    struct CameraComponent : public Component
+    {
+        Color m_clearColor  = Color(0.1f, 0.1f, 0.1f, 1.0f);
+        float m_fieldOfView = 90.0f;
+        float m_zNear       = 0.01f;
+        float m_zFar        = 1000.0f;
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isEnabled); // serialize things by passing them to the archive
-		}
-
-	};
-}
-
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isEnabled); // serialize things by passing them to the archive
+        }
+    };
+} // namespace Lina::ECS
 
 #endif

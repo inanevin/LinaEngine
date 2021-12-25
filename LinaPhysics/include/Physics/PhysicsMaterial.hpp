@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,6 +40,7 @@ Timestamp: 12/20/2021 10:16:40 PM
 #define PhysicsMaterial_HPP
 
 #include "Utility/StringId.hpp"
+
 #include <cereal/types/string.hpp>
 
 namespace Lina::Editor
@@ -49,65 +50,79 @@ namespace Lina::Editor
 
 namespace Lina
 {
-	namespace World
-	{
-		class Level;
-	}
-}
+    namespace World
+    {
+        class Level;
+    }
+} // namespace Lina
 namespace Lina::Physics
 {
-	class PhysicsMaterial
-	{
-		
-	public:
-		
-		PhysicsMaterial() {};
-		~PhysicsMaterial() {};
+    class PhysicsMaterial
+    {
 
-		static PhysicsMaterial& CreateMaterial(const std::string& name, float staticFriction, float dynamicFriction, float restitution);
-		static PhysicsMaterial& LoadMaterialFromFile(const std::string& path = "");
-		static PhysicsMaterial& LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
-		static PhysicsMaterial& GetMaterial(StringIDType id);
-		static PhysicsMaterial& GetMaterial(const std::string& path);
-		static bool MaterialExists(StringIDType id);
-		static bool MaterialExists(const std::string& path);
-		static void UnloadMaterialResource(StringIDType id);
-		static void LoadMaterialData(PhysicsMaterial& mat, const std::string& path);
-		static void SaveMaterialData(const PhysicsMaterial& mat, const std::string& path);
-		static void UnloadAll();
-		static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials() { return s_loadedMaterials; }
-	
-		StringIDType GetID() { return m_materialID; }
-		std::string GetPath() { return m_path; }
-		float GetStaticFriction() { return m_staticFriction; }
-		float GetDynamicFriction() { return m_dynamicFriction; }
-		float GetRestitution() { return m_restitution; }
+    public:
+        PhysicsMaterial(){};
+        ~PhysicsMaterial(){};
 
-	private:
+        static PhysicsMaterial&                         CreateMaterial(const std::string& name, float staticFriction, float dynamicFriction, float restitution);
+        static PhysicsMaterial&                         LoadMaterialFromFile(const std::string& path = "");
+        static PhysicsMaterial&                         LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
+        static PhysicsMaterial&                         GetMaterial(StringIDType id);
+        static PhysicsMaterial&                         GetMaterial(const std::string& path);
+        static bool                                     MaterialExists(StringIDType id);
+        static bool                                     MaterialExists(const std::string& path);
+        static void                                     UnloadMaterialResource(StringIDType id);
+        static void                                     LoadMaterialData(PhysicsMaterial& mat, const std::string& path);
+        static void                                     SaveMaterialData(const PhysicsMaterial& mat, const std::string& path);
+        static void                                     UnloadAll();
+        static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials()
+        {
+            return s_loadedMaterials;
+        }
 
-		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
-		friend class cereal::access;
-		friend class World::Level;
+        StringIDType GetID()
+        {
+            return m_materialID;
+        }
+        std::string GetPath()
+        {
+            return m_path;
+        }
+        float GetStaticFriction()
+        {
+            return m_staticFriction;
+        }
+        float GetDynamicFriction()
+        {
+            return m_dynamicFriction;
+        }
+        float GetRestitution()
+        {
+            return m_restitution;
+        }
+
+    private:
+        static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
+        friend class cereal::access;
+        friend class World::Level;
 
 #ifdef LINA_PHYSICS_BULLET
-		friend class BulletPhysicsEngine;
+        friend class BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		friend class PhysXPhysicsEngine;
+        friend class PhysXPhysicsEngine;
 #endif
 
-		StringIDType m_materialID = -1;
-		std::string m_path = "";
-		float m_staticFriction = 0.5f;
-		float m_dynamicFriction = 0.5f;
-		float m_restitution = 0.5f;
+        StringIDType m_materialID      = -1;
+        std::string  m_path            = "";
+        float        m_staticFriction  = 0.5f;
+        float        m_dynamicFriction = 0.5f;
+        float        m_restitution     = 0.5f;
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_staticFriction, m_dynamicFriction, m_restitution);
-		}
-
-	};
-}
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_staticFriction, m_dynamicFriction, m_restitution);
+        }
+    };
+} // namespace Lina::Physics
 
 #endif

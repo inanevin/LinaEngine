@@ -41,188 +41,203 @@ Timestamp: 4/26/2019 1:12:18 AM
 #define Material_HPP
 
 #include "Rendering/RenderingCommon.hpp"
-#include <cereal/types/string.hpp>
+
 #include <cereal/types/map.hpp>
+#include <cereal/types/string.hpp>
 #include <set>
 
 namespace Lina::Graphics
 {
-	class OpenGLRenderEngine;
-	class Texture;
-	class Shader;
+    class OpenGLRenderEngine;
+    class Texture;
+    class Shader;
 
-	struct MaterialSampler2D
-	{
-		uint32 m_unit = 0;
-		Texture* m_boundTexture = nullptr;
-		std::string m_path = "";
-		std::string m_assetDataPath = "";
-		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		bool m_isActive = false;
+    struct MaterialSampler2D
+    {
+        uint32          m_unit          = 0;
+        Texture*        m_boundTexture  = nullptr;
+        std::string     m_path          = "";
+        std::string     m_assetDataPath = "";
+        TextureBindMode m_bindMode      = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+        bool            m_isActive      = false;
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_unit, m_path, m_assetDataPath, m_bindMode, m_isActive);
-		}
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_unit, m_path, m_assetDataPath, m_bindMode, m_isActive);
+        }
+    };
 
-	};
+    class Material
+    {
+    public:
+        static Material&            CreateMaterial(Shader& shader, const std::string& path = "");
+        static Material&            LoadMaterialFromFile(const std::string& path = "");
+        static Material&            LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
+        static Material&            GetMaterial(StringIDType id);
+        static Material&            GetMaterial(const std::string& path);
+        static bool                 MaterialExists(StringIDType id);
+        static bool                 MaterialExists(const std::string& path);
+        static void                 UnloadMaterialResource(StringIDType id);
+        static void                 LoadMaterialData(Material& mat, const std::string& path);
+        static void                 SaveMaterialData(const Material& mat, const std::string& path);
+        static Material&            SetMaterialShader(Material& material, Shader& shader, bool onlySetID = false);
+        static void                 SetMaterialContainers(Material& material);
+        static void                 UnloadAll();
+        static std::set<Material*>& GetShadowMappedMaterials()
+        {
+            return s_shadowMappedMaterials;
+        }
+        static std::set<Material*>& GetHDRIMaterials()
+        {
+            return s_hdriMaterials;
+        }
+        static std::map<StringIDType, Material>& GetLoadedMaterials()
+        {
+            return s_loadedMaterials;
+        }
 
-	class Material
-	{
-	public:
+        void     UpdateMaterialData();
+        void     PostLoadMaterialData();
+        void     SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
+        void     RemoveTexture(const std::string& textureName);
+        Texture& GetTexture(const std::string& name);
 
-		static Material& CreateMaterial(Shader& shader, const std::string& path = "");
-		static Material& LoadMaterialFromFile(const std::string& path = "");
-		static Material& LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
-		static Material& GetMaterial(StringIDType id);
-		static Material& GetMaterial(const std::string& path);
-		static bool MaterialExists(StringIDType id);
-		static bool MaterialExists(const std::string& path);
-		static void UnloadMaterialResource(StringIDType id);
-		static void LoadMaterialData(Material& mat, const std::string& path);
-		static void SaveMaterialData(const Material& mat, const std::string& path);
-		static Material& SetMaterialShader(Material& material, Shader& shader, bool onlySetID = false);
-		static void SetMaterialContainers(Material& material);
-		static void UnloadAll();
-		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }
-		static std::set<Material*>& GetHDRIMaterials() { return s_hdriMaterials; }
-		static std::map<StringIDType, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
+        inline void SetFloat(const std::string& name, float value)
+        {
+            m_floats[name] = value;
+        }
 
-		void UpdateMaterialData();
-		void PostLoadMaterialData();
-		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		void RemoveTexture(const std::string& textureName);
-		Texture& GetTexture(const std::string& name);
+        inline void SetBool(const std::string& name, bool value)
+        {
+            m_bools[name] = value;
+        }
 
-		inline void SetFloat(const std::string& name, float value)
-		{
-			m_floats[name] = value;
-		}
+        inline void SetColor(const std::string& name, const Color& color)
+        {
+            m_colors[name] = color;
+        }
 
+        inline void SetVector2(const std::string& name, const Vector2& vector)
+        {
+            m_vector2s[name] = vector;
+        }
 
-		inline void SetBool(const std::string& name, bool value)
-		{
-			m_bools[name] = value;
-		}
+        inline void SetVector3(const std::string& name, const Vector3& vector)
+        {
+            m_vector3s[name] = vector;
+        }
 
-		inline void SetColor(const std::string& name, const Color& color)
-		{
-			m_colors[name] = color;
-		}
+        inline void SetVector4(const std::string& name, const Vector4& vector)
+        {
+            m_vector4s[name] = vector;
+        }
 
-		inline void SetVector2(const std::string& name, const Vector2& vector)
-		{
-			m_vector2s[name] = vector;
-		}
+        inline void SetMatrix4(const std::string& name, const Matrix& matrix)
+        {
+            m_matrices[name] = matrix;
+        }
 
-		inline void SetVector3(const std::string& name, const Vector3& vector)
-		{
-			m_vector3s[name] = vector;
-		}
+        inline float GetFloat(const std::string& name)
+        {
+            return m_floats[name];
+        }
 
-		inline void SetVector4(const std::string& name, const Vector4& vector)
-		{
-			m_vector4s[name] = vector;
-		}
+        inline float GetBool(const std::string& name)
+        {
+            return m_bools[name];
+        }
 
-		inline void SetMatrix4(const std::string& name, const Matrix& matrix)
-		{
-			m_matrices[name] = matrix;
-		}
+        inline int GetInt(const std::string& name)
+        {
+            return m_ints[name];
+        }
 
-		inline float GetFloat(const std::string& name)
-		{
-			return m_floats[name];
-		}
+        inline Color GetColor(const std::string& name)
+        {
+            return m_colors[name];
+        }
 
-		inline float GetBool(const std::string& name)
-		{
-			return m_bools[name];
-		}
+        inline Vector2 GetVector2(const std::string& name)
+        {
+            return m_vector2s[name];
+        }
 
-		inline int GetInt(const std::string& name)
-		{
-			return m_ints[name];
-		}
+        inline Vector3 GetVector3(const std::string& name)
+        {
+            return m_vector3s[name];
+        }
 
-		inline Color GetColor(const std::string& name)
-		{
-			return m_colors[name];
-		}
+        inline Vector4 GetVector4(const std::string& name)
+        {
+            return m_vector4s[name];
+        }
 
-		inline Vector2 GetVector2(const std::string& name)
-		{
-			return m_vector2s[name];
-		}
+        inline Matrix GetMatrix(const std::string& name)
+        {
+            return m_matrices[name];
+        }
 
-		inline Vector3 GetVector3(const std::string& name)
-		{
-			return m_vector3s[name];
-		}
+        void SetSurfaceType(MaterialSurfaceType type);
+        void SetInt(const std::string& name, int value);
 
-		inline Vector4 GetVector4(const std::string& name)
-		{
-			return m_vector4s[name];
-		}
+        inline int GetID() const
+        {
+            return m_materialID;
+        }
+        inline const std::string& GetPath() const
+        {
+            return m_path;
+        }
+        inline uint32 GetShaderID()
+        {
+            return m_shaderID;
+        }
+        inline StringIDType GetShaderSID()
+        {
+            return m_shaderSID;
+        }
+        inline MaterialSurfaceType GetSurfaceType()
+        {
+            return m_surfaceType;
+        }
 
-		inline Matrix GetMatrix(const std::string& name)
-		{
-			return m_matrices[name];
-		}
+        friend class cereal::access;
 
-		void SetSurfaceType(MaterialSurfaceType type);
-		void SetInt(const std::string& name, int value);
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+        }
 
-		inline int GetID() const { return m_materialID; }
-		inline const std::string& GetPath() const { return m_path; }
-		inline uint32 GetShaderID() { return m_shaderID; }
-		inline StringIDType GetShaderSID() { return m_shaderSID; }
-		inline MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
+        std::map<std::string, float>             m_floats;
+        std::map<std::string, int>               m_ints;
+        std::map<std::string, MaterialSampler2D> m_sampler2Ds;
+        std::map<std::string, Color>             m_colors;
+        std::map<std::string, Vector2>           m_vector2s;
+        std::map<std::string, Vector3>           m_vector3s;
+        std::map<std::string, Vector4>           m_vector4s;
+        std::map<std::string, Matrix>            m_matrices;
+        std::map<std::string, bool>              m_bools;
 
-		friend class cereal::access;
+        bool         m_isPBR          = false;
+        bool         m_usesHDRI       = false;
+        bool         m_isShadowMapped = false;
+        std::string  m_shaderPath     = "";
+        uint32       m_shaderID       = 0;
+        StringIDType m_shaderSID      = 0;
+        std::string  m_path           = "";
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
-		}
+    private:
+        static std::map<StringIDType, Material> s_loadedMaterials;
+        static std::set<Material*>              s_shadowMappedMaterials;
+        static std::set<Material*>              s_hdriMaterials;
 
+    private:
+        friend class OpenGLRenderEngine;
+        friend class RenderContext;
+        StringIDType        m_materialID  = -1;
+        MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
+    };
 
-		std::map<std::string, float> m_floats;
-		std::map<std::string, int> m_ints;
-		std::map<std::string, MaterialSampler2D> m_sampler2Ds;
-		std::map<std::string, Color> m_colors;
-		std::map<std::string, Vector2> m_vector2s;
-		std::map<std::string, Vector3> m_vector3s;
-		std::map<std::string, Vector4> m_vector4s;
-		std::map<std::string, Matrix> m_matrices;
-		std::map<std::string, bool> m_bools;
-
-		bool m_isPBR = false;
-		bool m_usesHDRI = false;
-		bool m_isShadowMapped = false;
-		std::string m_shaderPath = "";
-		uint32 m_shaderID = 0;
-		StringIDType m_shaderSID = 0;
-		std::string m_path = "";
-
-	private:
-
-		static std::map<StringIDType, Material> s_loadedMaterials;
-		static std::set<Material*> s_shadowMappedMaterials;
-		static std::set<Material*> s_hdriMaterials;
-
-	private:
-
-		friend class OpenGLRenderEngine;
-		friend class RenderContext;
-		StringIDType m_materialID = -1;
-		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
-	};
-
-
-}
-
+} // namespace Lina::Graphics
 
 #endif

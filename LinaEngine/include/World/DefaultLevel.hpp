@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,21 +43,18 @@ Timestamp: 10/16/2020 12:58:01 AM
 
 namespace Lina::World
 {
-	class DefaultLevel : public Level
-	{
-		
-	public:
-		
-		DefaultLevel() {};
-		virtual ~DefaultLevel() {};
-	
-	private:
-	
+    class DefaultLevel : public Level
+    {
 
-		// Inherited via Level
-		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
-		virtual void Initialize() override;
-	};
-}
+    public:
+        DefaultLevel(){};
+        virtual ~DefaultLevel(){};
+
+    private:
+        // Inherited via Level
+        virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
+        virtual void Initialize() override;
+    };
+} // namespace Lina::World
 
 #endif

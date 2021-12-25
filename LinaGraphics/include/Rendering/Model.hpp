@@ -38,82 +38,103 @@ Timestamp: 5/6/2019 4:23:45 PM
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-#include "Rendering/RenderingCommon.hpp"
 #include "Rendering/ModelNode.hpp"
+#include "Rendering/RenderingCommon.hpp"
 
 namespace Lina::Graphics
 {
-	class VertexArray;
-	class ModelLoader;
+    class VertexArray;
+    class ModelLoader;
 
-	class Model
-	{
+    class Model
+    {
 
-	public:
+    public:
+        Model(){};
+        virtual ~Model(){};
 
-		Model() {};
-		virtual ~Model() {};
+        /// <summary>
+        /// De-serializes the asset data at the given path & returns it.
+        /// </summary>
+        /// <returns>Loaded asset data.</returns>
+        static ModelAssetData LoadAssetData(const std::string& path);
 
-		/// <summary>
-		/// De-serializes the asset data at the given path & returns it.
-		/// </summary>
-		/// <returns>Loaded asset data.</returns>
-		static ModelAssetData LoadAssetData(const std::string& path);
+        /// <summary>
+        /// De-serializes asset data from a memory buffer & returns it.
+        /// </summary>
+        /// <returns>Loaded asset data.</returns>
+        static ModelAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
 
-		/// <summary>
-		/// De-serializes asset data from a memory buffer & returns it.
-		/// </summary>
-		/// <returns>Loaded asset data.</returns>
-		static ModelAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
+        /// <summary>
+        /// Loads a model file given via a memory buffer.
+        /// </summary>
+        /// <returns>Constructed model.</returns>
+        static Model& CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData);
 
-		/// <summary>
-		/// Loads a model file given via a memory buffer.
-		/// </summary>
-		/// <returns>Constructed model.</returns>
-		static Model& CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData);
+        /// <summary>
+        /// Loads a model file with the given path & constructs a model out of it.
+        /// </summary>
+        /// <returns>Constructed model.</returns>
+        static Model& CreateModel(const std::string& filePath, ModelAssetData& modelAssetData, const std::string& paramsPath = "");
 
-		/// <summary>
-		/// Loads a model file with the given path & constructs a model out of it.
-		/// </summary>
-		/// <returns>Constructed model.</returns>
-		static Model& CreateModel(const std::string& filePath, ModelAssetData& modelAssetData, const std::string& paramsPath = "");
+        static Model&                         GetModel(StringIDType id);
+        static Model&                         GetModel(const std::string& path);
+        static bool                           ModelExists(StringIDType id);
+        static bool                           ModelExists(const std::string& path);
+        static void                           UnloadModel(StringIDType id);
+        static void                           UnloadAll();
+        static std::map<StringIDType, Model>& GetLoadedModels()
+        {
+            return s_loadedModels;
+        }
 
+        inline ModelAssetData& GetAssetData()
+        {
+            return m_assetData;
+        }
+        inline std::vector<ImportedModelMaterial>& GetImportedMaterials()
+        {
+            return m_importedMaterials;
+        }
+        inline const std::string& GetPath() const
+        {
+            return m_path;
+        }
+        inline const std::string& GetAssetDataPath() const
+        {
+            return m_assetDataPath;
+        }
+        inline StringIDType GetID()
+        {
+            return m_id;
+        }
+        inline void SetAssetData(ModelAssetData& data)
+        {
+            m_assetData = data;
+        }
+        ModelNode& GetRootNode()
+        {
+            return m_rootNode;
+        }
 
-		static Model& GetModel(StringIDType id);
-		static Model& GetModel(const std::string& path);
-		static bool ModelExists(StringIDType id);
-		static bool ModelExists(const std::string& path);
-		static void UnloadModel(StringIDType id);
-		static void UnloadAll();
-		static std::map<StringIDType, Model>& GetLoadedModels() { return s_loadedModels; }
+        /// <summary>
+        /// Serializes the given asset data to the path.
+        /// </summary>
+        void SaveAssetData(const std::string& path);
 
-		inline ModelAssetData& GetAssetData() { return m_assetData; }
-		inline std::vector<ImportedModelMaterial>& GetImportedMaterials() { return m_importedMaterials; }
-		inline const std::string& GetPath() const { return m_path; }
-		inline const std::string& GetAssetDataPath() const { return m_assetDataPath; }
-		inline StringIDType GetID() { return m_id; }
-		inline void SetAssetData(ModelAssetData& data) { m_assetData = data; }
-		ModelNode& GetRootNode() { return m_rootNode; }
+    private:
+        friend class OpenGLRenderEngine;
+        friend class ModelLoader;
+        friend class ModelNode;
 
-		/// <summary>
-		/// Serializes the given asset data to the path.
-		/// </summary>
-		void SaveAssetData(const std::string& path);
-
-	private:
-
-		friend class OpenGLRenderEngine;
-		friend class ModelLoader;
-		friend class ModelNode;
-
-		static std::map<StringIDType, Model> s_loadedModels;
-		std::string m_path = "";
-		std::string m_assetDataPath = "";
-		StringIDType m_id = -1;
-		ModelAssetData m_assetData;
-		ModelNode m_rootNode;
-		std::vector<ImportedModelMaterial> m_importedMaterials;
-	};
-}
+        static std::map<StringIDType, Model> s_loadedModels;
+        std::string                          m_path          = "";
+        std::string                          m_assetDataPath = "";
+        StringIDType                         m_id            = -1;
+        ModelAssetData                       m_assetData;
+        ModelNode                            m_rootNode;
+        std::vector<ImportedModelMaterial>   m_importedMaterials;
+    };
+} // namespace Lina::Graphics
 
 #endif

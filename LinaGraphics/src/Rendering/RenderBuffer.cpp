@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,17 +27,18 @@ SOFTWARE.
 */
 
 #include "Rendering/RenderBuffer.hpp"
+
 #include "Core/RenderEngineBackend.hpp"
 
 namespace Lina::Graphics
 {
-	RenderBuffer::~RenderBuffer()
-	{
-		m_id = RenderEngineBackend::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
-	}
+    RenderBuffer::~RenderBuffer()
+    {
+        m_id = RenderEngineBackend::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
+    }
 
-	void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount)
-	{
-		m_id = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
-	}
-}
+    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount)
+    {
+        m_id = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
+    }
+} // namespace Lina::Graphics

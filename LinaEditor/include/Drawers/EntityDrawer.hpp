@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,32 +40,30 @@ Timestamp: 10/12/2020 1:02:29 AM
 #ifndef EntityDrawer_HPP
 #define EntityDrawer_HPP
 
-#include "Core/CommonECS.hpp"
 #include "ComponentDrawer.hpp"
+#include "Core/CommonECS.hpp"
 
 namespace Lina::Editor
 {
-	class EntityDrawer
-	{
-	public:
+    class EntityDrawer
+    {
+    public:
+        EntityDrawer(){};
+        ~EntityDrawer(){};
 
-		EntityDrawer() {};
-		~EntityDrawer() {};
-		
-		void Initialize();
-		void SetSelectedEntity(ECS::Entity entity);
-		void DrawSelectedEntity();
-		void DrawEntityData();
-		void AddComponentPopup();
+        void Initialize();
+        void SetSelectedEntity(ECS::Entity entity);
+        void DrawSelectedEntity();
+        void DrawEntityData();
+        void AddComponentPopup();
 
-	private:
-
-		ComponentDrawer m_componentDrawer;
-		ECS::Entity m_selectedEntity;
-		bool m_shouldCopyEntityName = true;
-		bool m_transformationFoldoutOpen = false;
-		bool m_physicsFoldoutOpen = false;
-	};
-}
+    private:
+        ComponentDrawer m_componentDrawer;
+        ECS::Entity     m_selectedEntity;
+        bool            m_shouldCopyEntityName      = true;
+        bool            m_transformationFoldoutOpen = false;
+        bool            m_physicsFoldoutOpen        = false;
+    };
+} // namespace Lina::Editor
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,26 +40,24 @@ Timestamp: 10/22/2020 11:22:48 PM
 #define ProfilerPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+
 #include <deque>
 
 namespace Lina::Editor
 {
-	class ProfilerPanel : public EditorPanel
-	{
-		
-	public:
-		
-		ProfilerPanel() {};
-		~ProfilerPanel() {};
+    class ProfilerPanel : public EditorPanel
+    {
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
-		
-	private:
+    public:
+        ProfilerPanel(){};
+        ~ProfilerPanel(){};
 
-		float m_lastMSDisplayTime = 0.0f;
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
 
-	};
-}
+    private:
+        float m_lastMSDisplayTime = 0.0f;
+    };
+} // namespace Lina::Editor
 
 #endif

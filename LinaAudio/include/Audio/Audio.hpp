@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,64 +41,72 @@ Timestamp: 12/15/2021 2:12:28 PM
 
 // Headers here.
 #include "Utility/StringId.hpp"
-#include <string>
+
 #include <map>
+#include <string>
 
 namespace Lina::Audio
 {
 
-	struct AudioAssetData
-	{
-		int m_dummy = 0;
+    struct AudioAssetData
+    {
+        int m_dummy = 0;
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_dummy);
-		}
-	};
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_dummy);
+        }
+    };
 
-	class Audio
-	{
-		
-	public:
-		
-		Audio() {}
-		~Audio();
-	
+    class Audio
+    {
 
-		static AudioAssetData LoadAssetData(const std::string& path);
-		static void SaveAssetData(const std::string& path, AudioAssetData assetData);
-		static AudioAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
+    public:
+        Audio()
+        {
+        }
+        ~Audio();
 
-		static Audio& CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioAssetData& assetData);
-		static Audio& CreateAudio(const std::string& path, AudioAssetData& assetData);
-		static std::map<StringIDType, Audio>& GetLoadedAudios() { return s_loadedAudios; }
-		static void UnloadAudio(StringIDType sid);
-		static void UnloadAudio(const std::string& path);
-		static void UnloadAll();
-		static bool AudioExists(const std::string& path);
-		static bool AudioExists(StringIDType sid);
-		static Audio& GetAudio(StringIDType sid);
-		static Audio& GetAudio(const std::string& path);
+        static AudioAssetData LoadAssetData(const std::string& path);
+        static void           SaveAssetData(const std::string& path, AudioAssetData assetData);
+        static AudioAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
 
-		unsigned int GetBuffer() { return m_buffer; }
-		StringIDType GetSID() { return m_sid; }
-	private:
+        static Audio&                         CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioAssetData& assetData);
+        static Audio&                         CreateAudio(const std::string& path, AudioAssetData& assetData);
+        static std::map<StringIDType, Audio>& GetLoadedAudios()
+        {
+            return s_loadedAudios;
+        }
+        static void   UnloadAudio(StringIDType sid);
+        static void   UnloadAudio(const std::string& path);
+        static void   UnloadAll();
+        static bool   AudioExists(const std::string& path);
+        static bool   AudioExists(StringIDType sid);
+        static Audio& GetAudio(StringIDType sid);
+        static Audio& GetAudio(const std::string& path);
 
-		static void CheckForError();
+        unsigned int GetBuffer()
+        {
+            return m_buffer;
+        }
+        StringIDType GetSID()
+        {
+            return m_sid;
+        }
 
-	private:
+    private:
+        static void CheckForError();
 
-		static std::map<StringIDType, Audio> s_loadedAudios;
-		int m_size = 0;
-		StringIDType m_sid;
-		AudioAssetData m_assetData;
-		float m_freq = 0.0f;
-		int m_format = 0;
-		void* m_data = nullptr;
-		unsigned int m_buffer = 0;
-	};
-}
+    private:
+        static std::map<StringIDType, Audio> s_loadedAudios;
+        int                                  m_size = 0;
+        StringIDType                         m_sid;
+        AudioAssetData                       m_assetData;
+        float                                m_freq   = 0.0f;
+        int                                  m_format = 0;
+        void*                                m_data   = nullptr;
+        unsigned int                         m_buffer = 0;
+    };
+} // namespace Lina::Audio
 
 #endif

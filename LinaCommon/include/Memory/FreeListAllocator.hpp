@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina AudioEngine
 https://github.com/inanevin/LinaEngine
 
@@ -51,14 +51,13 @@ namespace Lina
     class FreeListAllocator : public MemoryAllocator
     {
     public:
-        enum PlacementPolicy 
+        enum PlacementPolicy
         {
             FIND_FIRST,
             FIND_BEST
         };
 
     private:
-
         struct FreeHeader
         {
             std::size_t blockSize;
@@ -66,23 +65,22 @@ namespace Lina
         struct AllocationHeader
         {
             std::size_t blockSize;
-            char padding;
+            char        padding;
         };
 
         typedef Lina::SinglyLinkedList<FreeHeader>::Node Node;
 
-        void* m_start_ptr = nullptr;
-        PlacementPolicy m_pPolicy;
+        void*                              m_start_ptr = nullptr;
+        PlacementPolicy                    m_pPolicy;
         Lina::SinglyLinkedList<FreeHeader> m_freeList;
 
     public:
-
         FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy);
         virtual ~FreeListAllocator();
         virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void Free(void* ptr) override;
-        virtual void Init() override;
-        virtual void Reset();
+        virtual void  Free(void* ptr) override;
+        virtual void  Init() override;
+        virtual void  Reset();
 
     private:
         FreeListAllocator(FreeListAllocator& freeListAllocator);
@@ -93,6 +91,6 @@ namespace Lina
         void FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
     };
 
-}
+} // namespace Lina
 
 #endif

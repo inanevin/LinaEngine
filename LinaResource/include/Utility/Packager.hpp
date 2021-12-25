@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,31 +41,29 @@ Timestamp: 12/20/2020 8:56:18 PM
 
 // Headers here.
 #include "Core/CommonResources.hpp"
+
 #include <unordered_map>
 
 namespace Lina
 {
-	namespace Resources
-	{
-		class ResourceBundle;
-	}
-}
+    namespace Resources
+    {
+        class ResourceBundle;
+    }
+} // namespace Lina
 namespace Lina::Resources
 {
-	class Packager
-	{
+    class Packager
+    {
 
-	private:
+    private:
+        friend class ResourceManager;
 
-		friend class ResourceManager;
+        void PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass);
+        void PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass);
+        void Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources);
+    };
 
-		void PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass);
-		void PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass);
-		void Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources);
-
-	};
-
-};
-	
+}; // namespace Lina::Resources
 
 #endif

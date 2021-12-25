@@ -43,71 +43,79 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
 #include "Math/Vector.hpp"
+
 #include <map>
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 
-	namespace Event
-	{
-		struct EWindowContextCreated;
-	}
-}
+    namespace Event
+    {
+        struct EWindowContextCreated;
+    }
+} // namespace Lina
 
 namespace Lina::Input
 {
-	class GLFWInputEngine 
-	{
+    class GLFWInputEngine
+    {
 
-	public:
+    public:
+        static GLFWInputEngine* Get()
+        {
+            return s_inputEngine;
+        }
+        bool       GetKey(int keyCode);
+        bool       GetKeyDown(int keyCode);
+        bool       GetKeyUp(int keyCode);
+        bool       GetMouseButton(int index);
+        bool       GetMouseButtonDown(int index);
+        bool       GetMouseButtonUp(int index);
+        void       SetCursorMode(CursorMode mode);
+        void       SetMousePosition(const Vector2& v) const;
+        Vector2    GetMousePosition();
+        Vector2    GetRawMouseAxis();
+        Vector2    GetMouseAxis();
+        CursorMode GetCursorMode()
+        {
+            return m_cursorMode;
+        }
+        float GetHorizontalAxisValue()
+        {
+            return m_horizontalAxis.GetValue();
+        }
+        float GetVerticalAxisValue()
+        {
+            return m_verticalAxis.GetValue();
+        }
 
-		static GLFWInputEngine* Get() { return s_inputEngine; }
-		bool GetKey(int keyCode);
-		bool GetKeyDown(int keyCode);
-		bool GetKeyUp(int keyCode);
-		bool GetMouseButton(int index);
-		bool GetMouseButtonDown(int index);
-		bool GetMouseButtonUp(int index);
-		void SetCursorMode(CursorMode mode);
-		void SetMousePosition(const Vector2& v) const;
-		Vector2 GetMousePosition();
-		Vector2 GetRawMouseAxis();
-		Vector2 GetMouseAxis();
-		CursorMode GetCursorMode() { return m_cursorMode; }
-		float GetHorizontalAxisValue() { return m_horizontalAxis.GetValue(); }
-		float GetVerticalAxisValue() { return m_verticalAxis.GetValue(); }
+    private:
+        friend class Engine;
+        GLFWInputEngine()
+        {
+        }
+        ~GLFWInputEngine(){};
+        void Initialize();
+        void Tick();
+        void Shutdown();
+        void OnWindowContextCreated(const Event::EWindowContextCreated& e);
 
-	private:
-
-		friend class Engine;
-		GLFWInputEngine() {}
-		~GLFWInputEngine() {};
-		void Initialize();
-		void Tick();
-		void Shutdown();
-		void OnWindowContextCreated(const Event::EWindowContextCreated& e);
-
-	private:
-
-		friend class Engine;
-		static GLFWInputEngine* s_inputEngine;
-		int m_keyStatesDown[NUM_KEY_STATES];
-		int m_keyStatesUp[NUM_KEY_STATES];
-		int m_mouseStatesDown[NUM_MOUSE_STATES];
-		int m_mouseStatesUp[NUM_MOUSE_STATES];
-		std::map<int, int> m_keyDownNewStateMap;
-		std::map<int, int> m_keyUpNewStateMap;
-		std::map<int, int> m_mouseDownNewStateMap;
-		std::map<int, int> m_mouseUpNewStateMap;
-		InputAxis m_horizontalAxis;
-		InputAxis m_verticalAxis;
-		CursorMode m_cursorMode = CursorMode::Visible;
-			
-	};
-}
+    private:
+        friend class Engine;
+        static GLFWInputEngine* s_inputEngine;
+        int                     m_keyStatesDown[NUM_KEY_STATES];
+        int                     m_keyStatesUp[NUM_KEY_STATES];
+        int                     m_mouseStatesDown[NUM_MOUSE_STATES];
+        int                     m_mouseStatesUp[NUM_MOUSE_STATES];
+        std::map<int, int>      m_keyDownNewStateMap;
+        std::map<int, int>      m_keyUpNewStateMap;
+        std::map<int, int>      m_mouseDownNewStateMap;
+        std::map<int, int>      m_mouseUpNewStateMap;
+        InputAxis               m_horizontalAxis;
+        InputAxis               m_verticalAxis;
+        CursorMode              m_cursorMode = CursorMode::Visible;
+    };
+} // namespace Lina::Input
 
 #endif
-
-
-

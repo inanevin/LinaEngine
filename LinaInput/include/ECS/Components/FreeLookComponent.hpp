@@ -44,20 +44,17 @@ Timestamp: 5/2/2019 1:40:16 AM
 
 namespace Lina::ECS
 {
-	struct FreeLookComponent : public Component
-	{
-		Vector2 m_angles = Vector2::Zero;
-		Vector2 m_movementSpeeds = Vector2(12,12);
-		Vector2 m_rotationSpeeds = Vector2(3, 3);
+    struct FreeLookComponent : public Component
+    {
+        Vector2 m_angles         = Vector2::Zero;
+        Vector2 m_movementSpeeds = Vector2(12, 12);
+        Vector2 m_rotationSpeeds = Vector2(3, 3);
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
-		}
-
-	};
-}
-
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
+        }
+    };
+} // namespace Lina::ECS
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -47,31 +47,31 @@ Timestamp: 12/19/2020 1:43:16 AM
 
 namespace Lina
 {
-    class PoolAllocator : public MemoryAllocator {
-    
-    public:
+    class PoolAllocator : public MemoryAllocator
+    {
 
+    public:
         PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
         virtual ~PoolAllocator();
 
         virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void Free(void* ptr) override;
-        virtual void Init() override;
-        virtual void Reset();
+        virtual void  Free(void* ptr) override;
+        virtual void  Init() override;
+        virtual void  Reset();
 
     private:
         PoolAllocator(PoolAllocator& poolAllocator);
 
-
     private:
-        struct  FreeHeader { };
+        struct FreeHeader
+        {
+        };
         using Node = StackLinkedList<FreeHeader>::Node;
         StackLinkedList<FreeHeader> m_freeList;
 
-        void* m_start_ptr = nullptr;
+        void*       m_start_ptr = nullptr;
         std::size_t m_chunkSize;
-
-	};
-}
+    };
+} // namespace Lina
 
 #endif

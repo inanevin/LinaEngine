@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,10 +43,9 @@ Timestamp: 12/19/2020 11:33:56 PM
 
 namespace Lina
 {
-	typedef tf::Executor Executor;
-	typedef tf::Taskflow TaskFlow;
-	template<typename T>
-	using Future = tf::Future<T>;
-}
+    typedef tf::Executor Executor;
+    typedef tf::Taskflow TaskFlow;
+    template <typename T> using Future = tf::Future<T>;
+} // namespace Lina
 
 #endif

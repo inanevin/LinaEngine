@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,47 +42,56 @@ Timestamp: 4/14/2019 11:59:32 AM
 #define ArrayBitmap_HPP
 
 #include "Core/SizeDefinitions.hpp"
+
 #include <string>
 
 namespace Lina::Graphics
 {
-	class ArrayBitmap
-	{
-	public:
-		
+    class ArrayBitmap
+    {
+    public:
+        // Param constructors including width, height, pixel array and offsets
+        ~ArrayBitmap();
 
-		// Param constructors including width, height, pixel array and offsets
-		~ArrayBitmap();
+        // Load the bitmap from a file in resources.
+        int Load(const std::string& fileName);
 
-		// Load the bitmap from a file in resources.
-		int Load(const std::string& fileName);
+        // Load the bätmap from memory-
+        int Load(unsigned char* data, size_t dataSize);
 
-		// Load the bätmap from memory-
-		int Load(unsigned char* data, size_t dataSize);
+        static void           SetImageFlip(bool flip);
+        static unsigned char* LoadImmediate(const char* filename, int& w, int& h, int& nrchannels);
+        static float*         LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
+        static float*         LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels);
+        static bool           Free(unsigned char* data);
 
-		static void SetImageFlip(bool flip);
-		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
-		static float* LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
-		static float* LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels);
-		static bool Free(unsigned char* data);
+        // Clr colors.
+        void Clear(int32 color);
 
-		// Clr colors.
-		void Clear(int32 color);
+        // Accessors & Mutators.
+        int32 GetWidth() const
+        {
+            return m_width;
+        };
+        int32 GetHeight() const
+        {
+            return m_height;
+        };
 
-		// Accessors & Mutators.
-		int32 GetWidth() const { return m_width; };
-		int32 GetHeight() const { return m_height; };
+        unsigned char* GetPixelArray()
+        {
+            return m_pixels;
+        }
+        const unsigned char* GetPixelArray() const
+        {
+            return m_pixels;
+        }
 
-		unsigned char* GetPixelArray() { return m_pixels; }
-		const unsigned char* GetPixelArray() const { return m_pixels; }
-
-	private:
-		int32 m_width = 0;
-		int32 m_height = 0;
-		unsigned char* m_pixels = nullptr;
-
-	};
-}
-
+    private:
+        int32          m_width  = 0;
+        int32          m_height = 0;
+        unsigned char* m_pixels = nullptr;
+    };
+} // namespace Lina::Graphics
 
 #endif

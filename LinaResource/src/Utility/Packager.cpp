@@ -27,218 +27,216 @@ SOFTWARE.
 */
 
 #include "Utility/Packager.hpp"
+
+#include "Core/ResourceManager.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Core/ResourceManager.hpp"
+
 #include <bit7z/include/bitcompressor.hpp>
-#include <bit7z/include/bitformat.hpp>
 #include <bit7z/include/bitexception.hpp>
+#include <bit7z/include/bitextractor.hpp>
+#include <bit7z/include/bitformat.hpp>
 #include <bit7z/include/bitmemextractor.hpp>
 #include <bit7z/include/bittypes.hpp>
-#include <bit7z/include/bitextractor.hpp>
 
 namespace Lina::Resources
 {
-	void Packager::PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass)
-	{
-		try
-		{
-			// Delete first if exists.
-			if (Utility::FileExists(output))
-				Utility::DeleteFileInPath(output);
+    void Packager::PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass)
+    {
+        try
+        {
+            // Delete first if exists.
+            if (Utility::FileExists(output))
+                Utility::DeleteFileInPath(output);
 
-			// Setup compression.
-			bit7z::Bit7zLibrary lib{ L"7z.dll" };
-			bit7z::BitCompressor compressor{ lib, bit7z::BitFormat::SevenZip };
-			compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
-			compressor.setPassword(pass);
+            // Setup compression.
+            bit7z::Bit7zLibrary  lib{L"7z.dll"};
+            bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
+            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
+            compressor.setPassword(pass);
 
-			// Progress callback.
-			bit7z::BitCompressor* pCompressor = &compressor;
-			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
-			loadingData->m_currentResourceName = "Packing directory";
-			loadingData->m_currentProgress = 0;
-			loadingData->m_state = ResourceProgressState::Pending;
-			loadingData->m_progressTitle = "Packing directory" + std::string(dir);
+            // Progress callback.
+            bit7z::BitCompressor* pCompressor  = &compressor;
+            ResourceProgressData* loadingData  = &ResourceManager::s_currentProgressData;
+            loadingData->m_currentResourceName = "Packing directory";
+            loadingData->m_currentProgress     = 0;
+            loadingData->m_state               = ResourceProgressState::Pending;
+            loadingData->m_progressTitle       = "Packing directory" + std::string(dir);
 
-			compressor.setTotalCallback([=](uint64_t size) {
-				loadingData->m_state = ResourceProgressState::Pending;
-				pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
-				});
+            compressor.setTotalCallback([=](uint64_t size) {
+                loadingData->m_state = ResourceProgressState::Pending;
+                pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) { loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
+            });
 
-			compressor.setFileCallback([=](std::wstring file)
-				{
-					char* chr = Utility::WCharToChar(file.c_str());
-					loadingData->m_currentResourceName = std::string(chr);
-					delete chr;
-				});
+            compressor.setFileCallback([=](std::wstring file) {
+                char* chr                          = Utility::WCharToChar(file.c_str());
+                loadingData->m_currentResourceName = std::string(chr);
+                delete chr;
+            });
 
-			// Setup path.
-			const char* dirchr = dir.c_str();
-			const char* outputchr = output.c_str();
-			const size_t dirSize = strlen(dirchr);
-			const size_t outputSize = strlen(outputchr);
-			std::wstring wdir(dirSize, L'#');
-			std::wstring woutput(outputSize, L'#');
-			size_t numConverted;
-			size_t numConverted2;
-			mbstowcs_s(&numConverted, &wdir[0], dirSize, dirchr, dirSize - 1);
-			mbstowcs_s(&numConverted2, &wdir[0], outputSize, outputchr, outputSize - 1);
+            // Setup path.
+            const char*  dirchr     = dir.c_str();
+            const char*  outputchr  = output.c_str();
+            const size_t dirSize    = strlen(dirchr);
+            const size_t outputSize = strlen(outputchr);
+            std::wstring wdir(dirSize, L'#');
+            std::wstring woutput(outputSize, L'#');
+            size_t       numConverted;
+            size_t       numConverted2;
+            mbstowcs_s(&numConverted, &wdir[0], dirSize, dirchr, dirSize - 1);
+            mbstowcs_s(&numConverted2, &wdir[0], outputSize, outputchr, outputSize - 1);
 
-			// compress.
-			compressor.compressDirectory(wdir, woutput);
+            // compress.
+            compressor.compressDirectory(wdir, woutput);
 
-			LINA_TRACE("[Packager] -> Successfully packed directory {0}", dir);
-		}
-		catch (const bit7z::BitException& ex)
-		{
-			LINA_ERR("[Packager] -> Failed packaging directory {0} {1}", dir, ex.what());
-		}
-	}
+            LINA_TRACE("[Packager] -> Successfully packed directory {0}", dir);
+        }
+        catch (const bit7z::BitException& ex)
+        {
+            LINA_ERR("[Packager] -> Failed packaging directory {0} {1}", dir, ex.what());
+        }
+    }
 
-	void Packager::PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass)
-	{
-		try
-		{
+    void Packager::PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass)
+    {
+        try
+        {
 
-			if (files.empty())
-			{
-				LINA_TRACE("[Packager] -> No files found in fileset, aborting packing...");
-				return;
-			}
-			// Delete first if exists.
-			if (Utility::FileExists(output))
-				Utility::DeleteFileInPath(output);
+            if (files.empty())
+            {
+                LINA_TRACE("[Packager] -> No files found in fileset, aborting packing...");
+                return;
+            }
+            // Delete first if exists.
+            if (Utility::FileExists(output))
+                Utility::DeleteFileInPath(output);
 
-			// Setup compression.
-			bit7z::Bit7zLibrary lib{ L"7z.dll" };
-			bit7z::BitCompressor compressor{ lib, bit7z::BitFormat::SevenZip };
-			compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
-			compressor.setPassword(pass);
+            // Setup compression.
+            bit7z::Bit7zLibrary  lib{L"7z.dll"};
+            bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
+            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
+            compressor.setPassword(pass);
 
-			// Progress callback.
-			bit7z::BitCompressor* pCompressor = &compressor;
-			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
-			loadingData->m_currentResourceName = "Packing directory";
-			loadingData->m_currentProgress = 0.0f;
-			loadingData->m_state = ResourceProgressState::Pending;
-			loadingData->m_progressTitle = "Packing multiple files...";
+            // Progress callback.
+            bit7z::BitCompressor* pCompressor  = &compressor;
+            ResourceProgressData* loadingData  = &ResourceManager::s_currentProgressData;
+            loadingData->m_currentResourceName = "Packing directory";
+            loadingData->m_currentProgress     = 0.0f;
+            loadingData->m_state               = ResourceProgressState::Pending;
+            loadingData->m_progressTitle       = "Packing multiple files...";
 
-			compressor.setTotalCallback([=](uint64_t size) {
-				loadingData->m_state = ResourceProgressState::Pending;
-				pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
-				});
+            compressor.setTotalCallback([=](uint64_t size) {
+                loadingData->m_state = ResourceProgressState::Pending;
+                pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) { loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
+            });
 
-			compressor.setFileCallback([=](std::wstring file)
-				{
-					char* chr = Utility::WCharToChar(file.c_str());
-					loadingData->m_currentResourceName = std::string(chr);
-					LINA_TRACE("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
-					delete chr;
-				});
+            compressor.setFileCallback([=](std::wstring file) {
+                char* chr                          = Utility::WCharToChar(file.c_str());
+                loadingData->m_currentResourceName = std::string(chr);
+                LINA_TRACE("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
+                delete chr;
+            });
 
-			// Create a vector of unicode file paths.
-			std::vector<std::wstring> wfiles;
-			for (auto& file : files)
-			{
-				const size_t size = strlen(file.c_str());
-				std::wstring wfile(size, L'#');
-				size_t numConverted;
-				mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);
-				wfiles.push_back(wfile);
-			}
+            // Create a vector of unicode file paths.
+            std::vector<std::wstring> wfiles;
+            for (auto& file : files)
+            {
+                const size_t size = strlen(file.c_str());
+                std::wstring wfile(size, L'#');
+                size_t       numConverted;
+                mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);
+                wfiles.push_back(wfile);
+            }
 
-			// Setup output path.
-			const char* outputchr = output.c_str();
-			const size_t outSize = strlen(outputchr);
-			std::wstring woutput(outSize, L'#');
-			size_t numConverted;
-			mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
-			
-			// compress.
-			compressor.compress(wfiles, woutput);
-			LINA_TRACE("[Packager] -> Successfully packed files.");
-		}
-		catch (const bit7z::BitException& ex)
-		{
-			LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
-		}
-	}
+            // Setup output path.
+            const char*  outputchr = output.c_str();
+            const size_t outSize   = strlen(outputchr);
+            std::wstring woutput(outSize, L'#');
+            size_t       numConverted;
+            mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
 
-	void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources)
-	{
-		try {
+            // compress.
+            compressor.compress(wfiles, woutput);
+            LINA_TRACE("[Packager] -> Successfully packed files.");
+        }
+        catch (const bit7z::BitException& ex)
+        {
+            LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
+        }
+    }
 
-			// Delete first if exists.
-			if (!Utility::FileExists(filePath))
-			{
-				LINA_ERR("[Packager] -> Failed unpacking file, file does not exist: {0}", filePath);
-				return;
-			}
+    void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources)
+    {
+        try
+        {
 
-			// Setup extractor.
-			bit7z::Bit7zLibrary lib{ L"7z.dll" };
-			bit7z::BitExtractor extractor{ lib, bit7z::BitFormat::SevenZip };
-			extractor.setPassword(pass);
+            // Delete first if exists.
+            if (!Utility::FileExists(filePath))
+            {
+                LINA_ERR("[Packager] -> Failed unpacking file, file does not exist: {0}", filePath);
+                return;
+            }
 
-			// Setup path.
-			const char* filePathChr = filePath.c_str();
-			const size_t dirSize = strlen(filePathChr);
-			std::wstring wdir(dirSize, L'#');
-			size_t numConverted;
-			mbstowcs_s(&numConverted, &wdir[0], dirSize, filePathChr, dirSize - 1);
+            // Setup extractor.
+            bit7z::Bit7zLibrary lib{L"7z.dll"};
+            bit7z::BitExtractor extractor{lib, bit7z::BitFormat::SevenZip};
+            extractor.setPassword(pass);
 
-			// Progress callback.
-			bit7z::BitExtractor* pExtractor = &extractor;
-			ResourceProgressData* loadingData = &ResourceManager::s_currentProgressData;
-			loadingData->m_currentResourceName = "nofile";
-			loadingData->m_currentProgress = 0;
-			loadingData->m_state = ResourceProgressState::Pending;
-			loadingData->m_progressTitle = "Unpacking file " + filePath;
+            // Setup path.
+            const char*  filePathChr = filePath.c_str();
+            const size_t dirSize     = strlen(filePathChr);
+            std::wstring wdir(dirSize, L'#');
+            size_t       numConverted;
+            mbstowcs_s(&numConverted, &wdir[0], dirSize, filePathChr, dirSize - 1);
 
-			extractor.setTotalCallback([=](uint64_t size) {
-				loadingData->m_state = ResourceProgressState::Pending;
-				pExtractor->setProgressCallback([size, loadingData](uint64_t processedSize)
-					{loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
-				});
+            // Progress callback.
+            bit7z::BitExtractor*  pExtractor   = &extractor;
+            ResourceProgressData* loadingData  = &ResourceManager::s_currentProgressData;
+            loadingData->m_currentResourceName = "nofile";
+            loadingData->m_currentProgress     = 0;
+            loadingData->m_state               = ResourceProgressState::Pending;
+            loadingData->m_progressTitle       = "Unpacking file " + filePath;
 
-			extractor.setFileCallback([=](std::wstring file)
-				{
-					char* chr = Utility::WCharToChar(file.c_str());
-					loadingData->m_currentResourceName = std::string(chr);
-					LINA_TRACE("[Packager] -> Unpacking {0}", loadingData->m_currentResourceName);
-					delete chr;
-				});
+            extractor.setTotalCallback([=](uint64_t size) {
+                loadingData->m_state = ResourceProgressState::Pending;
+                pExtractor->setProgressCallback([size, loadingData](uint64_t processedSize) { loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
+            });
 
-			// Extract.
-			std::map <std::wstring, std::vector<bit7z::byte_t>> map;
-			extractor.extract(wdir, map);
+            extractor.setFileCallback([=](std::wstring file) {
+                char* chr                          = Utility::WCharToChar(file.c_str());
+                loadingData->m_currentResourceName = std::string(chr);
+                LINA_TRACE("[Packager] -> Unpacking {0}", loadingData->m_currentResourceName);
+                delete chr;
+            });
 
-			// Sort the resources into their respective packages in the bundle.
-			for (auto& item : map)
-			{
-				// Setup paths
-				const char* filePath = Utility::WCharToChar(item.first.c_str());
-				std::string filePathStr = filePath;
-				std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
-				std::string ext = Utility::GetFileExtension(filePath);
+            // Extract.
+            std::map<std::wstring, std::vector<bit7z::byte_t>> map;
+            extractor.extract(wdir, map);
 
-				// Fill the reference table to be used after unpacking.
-				ResourceType resType = GetResourceType(ext);
-				unpackedResources[filePathStr] = resType;
+            // Sort the resources into their respective packages in the bundle.
+            for (auto& item : map)
+            {
+                // Setup paths
+                const char* filePath    = Utility::WCharToChar(item.first.c_str());
+                std::string filePathStr = filePath;
+                std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
+                std::string ext = Utility::GetFileExtension(filePath);
 
-				// Pass the resource to bundle.
-				// outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
-				outBundle->PushResourceFromMemory(filePathStr, resType, item.second);
-			}
+                // Fill the reference table to be used after unpacking.
+                ResourceType resType           = GetResourceType(ext);
+                unpackedResources[filePathStr] = resType;
 
-			LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);
-		}
-		catch (const bit7z::BitException& ex) {
-			LINA_ERR("[Packager] -> Failed unpacking file {0} {1}", filePath, ex.what());
-		}
-	}
+                // Pass the resource to bundle.
+                // outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
+                outBundle->PushResourceFromMemory(filePathStr, resType, item.second);
+            }
 
-}
+            LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);
+        }
+        catch (const bit7z::BitException& ex)
+        {
+            LINA_ERR("[Packager] -> Failed unpacking file {0} {1}", filePath, ex.what());
+        }
+    }
+
+} // namespace Lina::Resources

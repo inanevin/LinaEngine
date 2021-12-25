@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,113 +42,111 @@ Timestamp: 4/27/2019 5:38:44 PM
 
 #include "Core/CommonApplication.hpp"
 #include "Core/CommonECS.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
-#include "Core/RenderBackendFwd.hpp"
+
 #include <map>
 #include <queue>
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class Material;
-		class Skeleton;
-		class VertexArray;
-		struct DrawParams;
+    namespace Graphics
+    {
+        class Material;
+        class Skeleton;
+        class VertexArray;
+        struct DrawParams;
 
-		struct BatchDrawData
-		{
-			Graphics::VertexArray* m_vertexArray;
-			Graphics::Material* m_material;
-			float m_distance;
-		};
+        struct BatchDrawData
+        {
+            Graphics::VertexArray* m_vertexArray;
+            Graphics::Material*    m_material;
+            float                  m_distance;
+        };
 
-		struct BatchModelData
-		{
-			std::vector<Matrix> m_models;
-			std::vector<Matrix> m_boneTransformations;
-		};
+        struct BatchModelData
+        {
+            std::vector<Matrix> m_models;
+            std::vector<Matrix> m_boneTransformations;
+        };
 
-		class ModelNode;
-		class Model;
-	}
-}
+        class ModelNode;
+        class Model;
+    } // namespace Graphics
+} // namespace Lina
 
 namespace Lina::ECS
 {
-	struct EntityDataComponent;
+    struct EntityDataComponent;
 
-	class ModelNodeSystem : public System
-	{
+    class ModelNodeSystem : public System
+    {
 
-	public:
+    public:
+        typedef std::tuple<Graphics::BatchDrawData, Graphics::BatchModelData> BatchPair;
 
-		typedef std::tuple<Graphics::BatchDrawData, Graphics::BatchModelData>  BatchPair;
+        struct BatchComparison
+        {
+            bool const operator()(const BatchPair& lhs, const BatchPair& rhs) const
+            {
+                return std::get<0>(lhs).m_distance < std::get<0>(rhs).m_distance;
+            }
+        };
 
-		struct BatchComparison
-		{
-			bool const operator()(const BatchPair& lhs, const BatchPair& rhs) const
-			{
-				return std::get<0>(lhs).m_distance < std::get<0>(rhs).m_distance;
-			}
-		};
+        struct BatchDrawDataComp
+        {
+            bool const operator()(const Graphics::BatchDrawData& lhs, const Graphics::BatchDrawData& rhs) const
+            {
+                return std::tie(lhs.m_vertexArray, lhs.m_material) < std::tie(rhs.m_vertexArray, rhs.m_material);
+            }
+        };
 
-		struct BatchDrawDataComp
-		{
-			bool const operator()(const Graphics::BatchDrawData& lhs, const Graphics::BatchDrawData& rhs) const
-			{
-				return std::tie(lhs.m_vertexArray, lhs.m_material) < std::tie(rhs.m_vertexArray, rhs.m_material);
-			}
-		};
+        ModelNodeSystem(){};
+        virtual ~ModelNodeSystem(){};
 
-		ModelNodeSystem() {};
-		virtual ~ModelNodeSystem() {};
+        void         Initialize(ApplicationMode appMode);
+        virtual void UpdateComponents(float delta) override;
 
-		void Initialize(ApplicationMode appMode);
-		virtual void UpdateComponents(float delta) override;
+        /// <summary>
+        /// Creates a full entity hierarchy based on the given model, automatically fills the parent-child relationships and model node components.
+        /// </summary>
+        /// <param name="model"></param>
+        void CreateModelHierarchy(Graphics::Model& model);
 
-		/// <summary>
-		/// Creates a full entity hierarchy based on the given model, automatically fills the parent-child relationships and model node components.
-		/// </summary>
-		/// <param name="model"></param>
-		void CreateModelHierarchy(Graphics::Model& model);
+        /// <summary>
+        /// Pushes an object into the opaque render stack.
+        /// </summary>
+        void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
 
-		/// <summary>
-		/// Pushes an object into the opaque render stack.
-		/// </summary>
-		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
-		
-		/// <summary>
-		/// Pushes the given vertex array into the transparent render stack.
-		/// </summary>
-		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
-		
-		/// <summary>
-		/// Draws all objects in the opaque stack.
-		/// </summary>
-		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
-		
-		/// <summary>
-		/// Draws all objects in the transparent stack.
-		/// </summary>
-		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
+        /// <summary>
+        /// Pushes the given vertex array into the transparent render stack.
+        /// </summary>
+        void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
 
-	private:
+        /// <summary>
+        /// Draws all objects in the opaque stack.
+        /// </summary>
+        void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
-		void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);
-		void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
+        /// <summary>
+        /// Draws all objects in the transparent stack.
+        /// </summary>
+        void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
-	private:
-		Graphics::RenderDevice* m_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
-		ApplicationMode m_appMode = ApplicationMode::Editor;
+    private:
+        void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);
+        void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
-		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.
-		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
-		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_transparentRenderBatch;
-	};
-}
+    private:
+        Graphics::RenderDevice* m_renderDevice = nullptr;
+        Graphics::RenderEngine* m_renderEngine = nullptr;
+        ApplicationMode         m_appMode      = ApplicationMode::Editor;
 
+        // Map & queue to see the list of same vertex array & textures to compress them into single draw call.
+        std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
+        std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison>        m_transparentRenderBatch;
+    };
+} // namespace Lina::ECS
 
 #endif

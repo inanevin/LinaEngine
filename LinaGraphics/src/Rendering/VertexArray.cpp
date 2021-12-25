@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,28 +27,27 @@ SOFTWARE.
 */
 
 #include "Rendering/VertexArray.hpp"
+
 #include "Core/RenderEngineBackend.hpp"
 
 namespace Lina::Graphics
 {
 
-	VertexArray::~VertexArray()
-	{
-		m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
-	}
+    VertexArray::~VertexArray()
+    {
+        m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
+    }
 
+    void VertexArray::UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
+    {
+        return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
+    }
 
-	void VertexArray::UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
-	{
-		return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
-	}
+    void VertexArray::Initialize(uint32 engineBoundID, uint32 indexCount)
+    {
+        m_renderDevice  = Graphics::RenderEngineBackend::Get()->GetRenderDevice();
+        m_engineBoundID = engineBoundID;
+        m_indexCount    = indexCount;
+    }
 
-
-	void VertexArray::Initialize(uint32 engineBoundID, uint32 indexCount)
-	{
-		m_renderDevice = Graphics::RenderEngineBackend::Get()->GetRenderDevice();
-		m_engineBoundID = engineBoundID;
-		m_indexCount = indexCount;
-	}
-
-}
+} // namespace Lina::Graphics

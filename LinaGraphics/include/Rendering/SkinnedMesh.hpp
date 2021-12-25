@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,17 +44,15 @@ Timestamp: 12/24/2021 8:56:09 PM
 
 namespace Lina::Graphics
 {
-	class SkinnedMesh : public Mesh
-	{
-		
-	public:
-		
-		SkinnedMesh() {};
-		~SkinnedMesh() {};
-	
-	private:
-	
-	};
-}
+    class SkinnedMesh : public Mesh
+    {
+
+    public:
+        SkinnedMesh(){};
+        ~SkinnedMesh(){};
+
+    private:
+    };
+} // namespace Lina::Graphics
 
 #endif

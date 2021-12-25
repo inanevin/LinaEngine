@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,27 +44,23 @@ Timestamp: 12/24/2021 10:43:34 AM
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 
-	class MessageBus
-	{
-		
-	public:
-		
-		MessageBus() {};
-		~MessageBus() {};
+    class MessageBus
+    {
 
-	private:
+    public:
+        MessageBus(){};
+        ~MessageBus(){};
 
-		friend class Engine;
-		
-		void Initialize(ApplicationMode appMode);
+    private:
+        friend class Engine;
 
-	private:
+        void Initialize(ApplicationMode appMode);
 
-		ApplicationMode m_appMode = ApplicationMode::Editor;
-	
-	};
-}
+    private:
+        ApplicationMode m_appMode = ApplicationMode::Editor;
+    };
+} // namespace Lina
 
 #endif

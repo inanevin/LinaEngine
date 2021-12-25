@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,62 +31,62 @@ SOFTWARE.
 namespace Lina::Physics
 {
 #ifdef LINA_PHYSICS_BULLET
-	btVector3 ToBtVector(const Vector3& v)
-	{
-		return btVector3(v.x, v.y, v.z);
-	}
+    btVector3 ToBtVector(const Vector3& v)
+    {
+        return btVector3(v.x, v.y, v.z);
+    }
 
-	btQuaternion ToBtQuat(const Quaternion& q)
-	{
-		return btQuaternion(q.x, q.y, q.z, q.w);
-	}
+    btQuaternion ToBtQuat(const Quaternion& q)
+    {
+        return btQuaternion(q.x, q.y, q.z, q.w);
+    }
 
-	Vector3 ToLinaVector(const btVector3& v)
-	{
-		return Vector3(v.getX(), v.getY(), v.getZ());
-	}
+    Vector3 ToLinaVector(const btVector3& v)
+    {
+        return Vector3(v.getX(), v.getY(), v.getZ());
+    }
 
-	Quaternion ToLinaQuat(const btQuaternion& q)
-	{
-		return Quaternion(q.getX(), q.getY(), q.getZ(), q.getW());
-	}
+    Quaternion ToLinaQuat(const btQuaternion& q)
+    {
+        return Quaternion(q.getX(), q.getY(), q.getZ(), q.getW());
+    }
 
 #endif
 
 #ifdef LINA_PHYSICS_PHYSX
 
-	physx::PxVec2 ToPxVector2(const Vector2& v)
-	{
-		return physx::PxVec2(v.x, v.y);
-	}
-	physx::PxVec3 ToPxVector3(const Vector3& v)
-	{
-		return physx::PxVec3(v.x, v.y, v.z);
-	}
-	physx::PxVec4 ToPxVector4(const Vector4& v)
-	{
-		return physx::PxVec4(v.x, v.y, v.z, v.w);
-	}
-	physx::PxQuat ToPxQuat(const Quaternion& q)
-	{
-		return physx::PxQuat(q.x, q.y, q.z, q.w);
-	}
-	Vector2 ToLinaVector2(const physx::PxVec2& v)
-	{
-		return Vector2(v.x, v.y);
-	}
-	Vector3 ToLinaVector3(const physx::PxVec3& v)
-	{
-		return Vector3(v.x, v.y, v.z);
-	}
-	Vector4 ToLinaVector4(const physx::PxVec4& v)
-	{
-		return Vector4(v.x, v.y, v.z, v.w);
-	}
-	Quaternion ToLinaQuat(const physx::PxQuat& q)
-	{
-		return Quaternion(q.x, q.y, q.z, q.w);
-	}
+    physx::PxVec2 ToPxVector2(const Vector2& v)
+    {
+        return physx::PxVec2(v.x, v.y);
+    }
+    physx::PxVec3 ToPxVector3(const Vector3& v)
+    {
+        return physx::PxVec3(v.x, v.y, v.z);
+    }
+    physx::PxVec4 ToPxVector4(const Vector4& v)
+    {
+        return physx::PxVec4(v.x, v.y, v.z, v.w);
+    }
+    physx::PxQuat ToPxQuat(const Quaternion& q)
+    {
+        return physx::PxQuat(q.x, q.y, q.z, q.w);
+    }
+    Vector2 ToLinaVector2(const physx::PxVec2& v)
+    {
+        return Vector2(v.x, v.y);
+    }
+    Vector3 ToLinaVector3(const physx::PxVec3& v)
+    {
+        return Vector3(v.x, v.y, v.z);
+    }
+    Vector4 ToLinaVector4(const physx::PxVec4& v)
+    {
+        return Vector4(v.x, v.y, v.z, v.w);
+    }
+    Quaternion ToLinaQuat(const physx::PxQuat& q)
+    {
+        return Quaternion(q.x, q.y, q.z, q.w);
+    }
 
 #endif
-}
+} // namespace Lina::Physics

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,22 +44,21 @@ Timestamp: 12/25/2021 12:35:15 PM
 
 namespace Lina::ECS
 {
-	class System;
+    class System;
 
-	class SystemList
-	{
-	public:
+    class SystemList
+    {
+    public:
+        SystemList(){};
+        ~SystemList(){};
 
-		SystemList() {};
-		~SystemList() {};
-		
-		bool AddSystem(System& system);
-		void UpdateSystems(float delta);
-		bool RemoveSystem(System& system);
+        bool AddSystem(System& system);
+        void UpdateSystems(float delta);
+        bool RemoveSystem(System& system);
 
-	private:
-		std::vector<System*> m_systems;
-	};
-}
+    private:
+        std::vector<System*> m_systems;
+    };
+} // namespace Lina::ECS
 
 #endif

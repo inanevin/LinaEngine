@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina AudioEngine
 https://github.com/inanevin/Lina
 
@@ -39,27 +39,24 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "ECS/System.hpp"
 #include "Core/InputBackend.hpp"
+#include "ECS/System.hpp"
 
 namespace Lina::ECS
 {
-	class FreeLookSystem : public System
-	{
-	public:
+    class FreeLookSystem : public System
+    {
+    public:
+        virtual void Initialize();
+        virtual void UpdateComponents(float delta) override;
 
-		virtual void Initialize();
-		virtual void UpdateComponents(float delta) override;
-
-	private:
-
-		Input::InputEngineBackend* m_inputEngine;
-		float m_horizontalKeyAmt = 0.0f;
-		float m_verticalKeyAmt = 0.0f;
-		float m_targetXAngle = 0.0f;
-		float m_targetYAngle = 0.0f;
-	};
-}
-
+    private:
+        Input::InputEngineBackend* m_inputEngine;
+        float                      m_horizontalKeyAmt = 0.0f;
+        float                      m_verticalKeyAmt   = 0.0f;
+        float                      m_targetXAngle     = 0.0f;
+        float                      m_targetYAngle     = 0.0f;
+    };
+} // namespace Lina::ECS
 
 #endif

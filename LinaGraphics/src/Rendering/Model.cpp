@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,129 +27,129 @@ SOFTWARE.
 */
 
 #include "Rendering/Model.hpp"
-#include "Rendering/VertexArray.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "Utility/ModelLoader.hpp"
-#include "Log/Log.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
+
 #include "Core/RenderEngineBackend.hpp"
-#include <stdio.h>
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "Log/Log.hpp"
+#include "Rendering/VertexArray.hpp"
+#include "Utility/ModelLoader.hpp"
+#include "Utility/UtilityFunctions.hpp"
+
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
+#include <stdio.h>
 
 namespace Lina::Graphics
 {
 
-	std::map<StringIDType, Model> Model::s_loadedModels;
+    std::map<StringIDType, Model> Model::s_loadedModels;
 
-	ModelAssetData Model::LoadAssetData(const std::string& path)
-	{
-		ModelAssetData params;
-		std::ifstream stream(path, std::ios::binary);
-		{
-			cereal::PortableBinaryInputArchive iarchive(stream);
-			iarchive(params);
-		}
-		return params;
-	}
+    ModelAssetData Model::LoadAssetData(const std::string& path)
+    {
+        ModelAssetData params;
+        std::ifstream  stream(path, std::ios::binary);
+        {
+            cereal::PortableBinaryInputArchive iarchive(stream);
+            iarchive(params);
+        }
+        return params;
+    }
 
-	void Model::SaveAssetData(const std::string& path)
-	{
-		std::ofstream stream(path, std::ios::binary);
-		{
-			cereal::PortableBinaryOutputArchive oarchive(stream);
-			oarchive(m_assetData); 
-		}
-	}
+    void Model::SaveAssetData(const std::string& path)
+    {
+        std::ofstream stream(path, std::ios::binary);
+        {
+            cereal::PortableBinaryOutputArchive oarchive(stream);
+            oarchive(m_assetData);
+        }
+    }
 
-	ModelAssetData Model::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
-	{
-		ModelAssetData params;
-		{
-			std::string data((char*)data, dataSize);
-			std::istringstream stream(data, std::ios::binary);
-			{
-				cereal::PortableBinaryInputArchive iarchive(stream);
-				iarchive(params);
-			}
-		}
-		return params;
-	}
+    ModelAssetData Model::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
+    {
+        ModelAssetData params;
+        {
+            std::string        data((char*)data, dataSize);
+            std::istringstream stream(data, std::ios::binary);
+            {
+                cereal::PortableBinaryInputArchive iarchive(stream);
+                iarchive(params);
+            }
+        }
+        return params;
+    }
 
-	Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData)
-	{
-		StringIDType id = StringID(path.c_str()).value();
+    Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData)
+    {
+        StringIDType id = StringID(path.c_str()).value();
 
-		Model& model = s_loadedModels[id];
-		model.m_assetData = modelAssetData;
-		model.m_assetDataPath = assetDataPath;
-		model.m_path = path;
-		ModelLoader::LoadModel(data, dataSize, model);
+        Model& model          = s_loadedModels[id];
+        model.m_assetData     = modelAssetData;
+        model.m_assetDataPath = assetDataPath;
+        model.m_path          = path;
+        ModelLoader::LoadModel(data, dataSize, model);
 
-		// Set id
-		model.m_id = id;
-		model.m_path = path;
-		model.m_assetDataPath = assetDataPath;
-		return s_loadedModels[id];
-	}
+        // Set id
+        model.m_id            = id;
+        model.m_path          = path;
+        model.m_assetDataPath = assetDataPath;
+        return s_loadedModels[id];
+    }
 
+    Model& Model::CreateModel(const std::string& filePath, ModelAssetData& modelAssetData, const std::string& assetDataPath)
+    {
+        StringIDType id = StringID(filePath.c_str()).value();
 
-	Model& Model::CreateModel(const std::string& filePath, ModelAssetData& modelAssetData,  const std::string& assetDataPath)
-	{
-		StringIDType id = StringID(filePath.c_str()).value();
+        Model& model          = s_loadedModels[id];
+        model.m_assetData     = modelAssetData;
+        model.m_assetDataPath = assetDataPath;
+        model.m_path          = filePath;
+        ModelLoader::LoadModel(filePath, model);
 
-		Model& model = s_loadedModels[id];
-		model.m_assetData = modelAssetData;
-		model.m_assetDataPath = assetDataPath;
-		model.m_path = filePath;
-		ModelLoader::LoadModel(filePath, model);
+        // Set id
+        model.m_id            = id;
+        model.m_path          = filePath;
+        model.m_assetDataPath = assetDataPath;
+        return s_loadedModels[id];
+    }
 
-		// Set id
-		model.m_id = id;
-		model.m_path = filePath;
-		model.m_assetDataPath = assetDataPath;
-		return s_loadedModels[id];
-	}
+    Model& Model::GetModel(StringIDType id)
+    {
+        bool model = ModelExists(id);
+        LINA_ASSERT(model, "Model does not exist!");
+        return s_loadedModels[id];
+    }
 
-	Model& Model::GetModel(StringIDType id)
-	{
-		bool model = ModelExists(id);
-		LINA_ASSERT(model, "Model does not exist!");
-		return s_loadedModels[id];
-	}
+    Model& Model::GetModel(const std::string& path)
+    {
+        return GetModel(StringID(path.c_str()).value());
+    }
 
-	Model& Model::GetModel(const std::string& path)
-	{
-		return GetModel(StringID(path.c_str()).value());
-	}
+    bool Model::ModelExists(StringIDType id)
+    {
+        if (id < 0)
+            return false;
+        return !(s_loadedModels.find(id) == s_loadedModels.end());
+    }
 
-	bool Model::ModelExists(StringIDType id)
-	{
-		if (id < 0) return false;
-		return !(s_loadedModels.find(id) == s_loadedModels.end());
-	}
+    bool Model::ModelExists(const std::string& path)
+    {
+        return ModelExists(StringID(path.c_str()).value());
+    }
 
-	bool Model::ModelExists(const std::string& path)
-	{
-		return ModelExists(StringID(path.c_str()).value());
-	}
+    void Model::UnloadModel(StringIDType id)
+    {
+        if (!ModelExists(id))
+        {
+            LINA_WARN("Mesh not found! Aborting... ");
+            return;
+        }
 
-	void Model::UnloadModel(StringIDType id)
-	{
-		if (!ModelExists(id))
-		{
-			LINA_WARN("Mesh not found! Aborting... ");
-			return;
-		}
+        s_loadedModels.erase(id);
+    }
 
-		s_loadedModels.erase(id);
-	}
+    void Model::UnloadAll()
+    {
+        s_loadedModels.clear();
+    }
 
-	void Model::UnloadAll()
-	{
-		s_loadedModels.clear();
-	}
-
-	
-}
-
+} // namespace Lina::Graphics

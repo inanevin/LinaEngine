@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -39,81 +39,78 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef ResourceEngine_HPP
 #define ResourceEngine_HPP
 
-#include "ResourceBundle.hpp"
 #include "Core/CommonApplication.hpp"
-#include "Utility/StringId.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "ResourceBundle.hpp"
 #include "Utility/Packager.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 
-	namespace Utility
-	{
-		struct Folder;
-	}
+    namespace Utility
+    {
+        struct Folder;
+    }
 
-	namespace Event
-	{
-		class EventSystem;
-	}
+    namespace Event
+    {
+        class EventSystem;
+    }
 
-}
+} // namespace Lina
 
 namespace Lina::Resources
 {
 
-	class ResourceManager
-	{
+    class ResourceManager
+    {
 
-	public:
+    public:
+        static ResourceManager* Get()
+        {
+            return s_resourceManager;
+        }
+        static ResourceProgressData s_currentProgressData;
+        static void                 ResetProgress();
+        static void                 TriggerResourceUpdatedEvent();
 
-		static ResourceManager* Get() { return s_resourceManager; }
-		static ResourceProgressData s_currentProgressData;
-		static void ResetProgress();
-		static void TriggerResourceUpdatedEvent();
+        /// <summary>
+        /// Start packing the project Resource contents into a Lina Bundle.
+        /// </summary>
+        void PackageProject(const std::string& path, const std::string& name);
 
-		/// <summary>
-		/// Start packing the project Resource contents into a Lina Bundle.
-		/// </summary>
-		void PackageProject(const std::string& path, const std::string& name);
+        /// <summary>
+        /// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
+        /// </summary>
+        void ImportResourceBundle(const std::string& path, const std::string& name);
 
-		/// <summary>
-		/// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
-		/// </summary>
-		void ImportResourceBundle(const std::string& path, const std::string& name);
-		
-	private:
+    private:
+        friend class Engine;
+        ResourceManager(){};
+        ~ResourceManager(){};
 
-		friend class Engine;
-		ResourceManager() {};
-		~ResourceManager() {};
+        void Initialize(ApplicationInfo& appInfo);
+        void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
+        void LoadEditorResources();
+        void Shutdown();
 
-		void Initialize(ApplicationInfo& appInfo);
-		void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
-		void LoadEditorResources();
-		void Shutdown();
+    private:
+        static ResourceManager* s_resourceManager;
+        Event::EventSystem*     m_eventSys = nullptr;
+        ApplicationInfo         m_appInfo;
+        Packager                m_packager;
+        Executor                m_executor;
+        TaskFlow                m_taskflow;
+        TaskFlow                m_taskflowLoop;
+        Future<void>            m_future;
+        Future<void>            m_futureLoop;
 
-	private:
-
-		static ResourceManager* s_resourceManager ;
-		Event::EventSystem* m_eventSys = nullptr;
-		ApplicationInfo m_appInfo;
-		Packager m_packager;
-		Executor m_executor;
-		TaskFlow m_taskflow;
-		TaskFlow m_taskflowLoop;
-		Future<void> m_future;
-		Future<void> m_futureLoop;
-
-	private:
-
-		ResourceBundle m_bundle;
-		ApplicationMode m_appMode = ApplicationMode::Editor;
-
-	};
-}
-
+    private:
+        ResourceBundle  m_bundle;
+        ApplicationMode m_appMode = ApplicationMode::Editor;
+    };
+} // namespace Lina::Resources
 
 #endif

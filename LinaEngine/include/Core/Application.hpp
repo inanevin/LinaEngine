@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,68 +39,68 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-
 #include "Core/Engine.hpp"
-
 
 namespace Lina
 {
 
-	namespace Event
-	{
-		struct ELog;
-		struct EWindowClosed;
-		struct EWindowResized;
-	}
+    namespace Event
+    {
+        struct ELog;
+        struct EWindowClosed;
+        struct EWindowResized;
+    } // namespace Event
 
-	class Application
-	{
-	public:
-
+    class Application
+    {
+    public:
 #define DELTA_TIME_HISTORY 11
 
-		Application();
-		virtual ~Application() {};
+        Application();
+        virtual ~Application(){};
 
-		bool InstallLevel(World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
-		void InitializeLevel(World::Level& level);
-		void PackageProject(const std::string& folderPath, const std::string& fileName);
-		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
-		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
-		void RestartLevel();
-		void UninstallLevel();
-		bool GetActiveLevelExists() { return m_activeLevelExists; }
+        bool InstallLevel(World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
+        void InitializeLevel(World::Level& level);
+        void PackageProject(const std::string& folderPath, const std::string& fileName);
+        void SaveLevelData(const std::string& folderPath, const std::string& fileName);
+        void LoadLevelData(const std::string& folderPath, const std::string& fileName);
+        void RestartLevel();
+        void UninstallLevel();
+        bool GetActiveLevelExists()
+        {
+            return m_activeLevelExists;
+        }
 
-		World::Level* GetCurrentLevel() { return m_currentLevel; }
+        World::Level* GetCurrentLevel()
+        {
+            return m_currentLevel;
+        }
 
-		static Application& Get() { return *s_application; }
+        static Application& Get()
+        {
+            return *s_application;
+        }
 
-	protected:
+    protected:
+        virtual void Initialize(ApplicationInfo& appInfo);
+        void         Run();
 
-		virtual void Initialize(ApplicationInfo& appInfo);
-		void Run();
+    private:
+        // Callbacks.
+        void OnLog(const Event::ELog& dump);
+        bool OnWindowClose(const Event::EWindowClosed& ev);
+        void OnWindowResize(const Event::EWindowResized& ev);
 
-	private:
+    private:
+        // Active engines running in the application.
+        static Application* s_application;
+        World::Level*       m_currentLevel = nullptr;
+        Engine              m_engine;
+        ApplicationInfo     m_appInfo;
 
-		// Callbacks.
-		void OnLog(const Event::ELog& dump);
-		bool OnWindowClose(const Event::EWindowClosed& ev);
-		void OnWindowResize(const Event::EWindowResized& ev);
+        bool m_activeLevelExists = false;
+    };
 
-	private:
-
-		// Active engines running in the application.
-		static Application* s_application;
-		World::Level* m_currentLevel = nullptr;
-		Engine m_engine;
-		ApplicationInfo m_appInfo;
-
-		bool m_activeLevelExists = false;
-
-
-	};
-
-};
-
+}; // namespace Lina
 
 #endif

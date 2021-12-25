@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,152 +43,151 @@ Timestamp: 10/29/2020 6:57:41 PM
 
 namespace Lina::Graphics
 {
-	class DrawParameterHelper
-	{
-		
-	public:
-		
-		DrawParameterHelper() {};
-		~DrawParameterHelper() {};
+    class DrawParameterHelper
+    {
 
-		static DrawParams GetDefault()
-		{
-			// Set default drawing parameters.
-			DrawParams params;
-			params.skipParameters = false;
-			params.useScissorTest = false;
-			params.useDepthTest = true;
-			params.useStencilTest = true;
-			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-			params.faceCulling = FaceCulling::FACE_CULL_BACK;
-			params.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-			params.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-			params.shouldWriteDepth = true;
-			params.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-			params.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-			params.stencilComparisonVal = 1;
-			params.stencilTestMask = 0xFF;
-			params.stencilWriteMask = 0x00;
-			params.stencilFail = StencilOp::STENCIL_KEEP;
-			params.stencilPass = StencilOp::STENCIL_REPLACE;
-			params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-			params.scissorStartX = 0;
-			params.scissorStartY = 0;
-			params.scissorWidth = 0;
-			params.scissorHeight = 0;
+    public:
+        DrawParameterHelper(){};
+        ~DrawParameterHelper(){};
 
-			return params;
-		}
+        static DrawParams GetDefault()
+        {
+            // Set default drawing parameters.
+            DrawParams params;
+            params.skipParameters          = false;
+            params.useScissorTest          = false;
+            params.useDepthTest            = true;
+            params.useStencilTest          = true;
+            params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLES;
+            params.faceCulling             = FaceCulling::FACE_CULL_BACK;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+            params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.shouldWriteDepth        = true;
+            params.depthFunc               = DrawFunc::DRAW_FUNC_LESS;
+            params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;
+            params.stencilComparisonVal    = 1;
+            params.stencilTestMask         = 0xFF;
+            params.stencilWriteMask        = 0x00;
+            params.stencilFail             = StencilOp::STENCIL_KEEP;
+            params.stencilPass             = StencilOp::STENCIL_REPLACE;
+            params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+            params.scissorStartX           = 0;
+            params.scissorStartY           = 0;
+            params.scissorWidth            = 0;
+            params.scissorHeight           = 0;
 
-		static DrawParams GetSkybox()
-		{
-			DrawParams params;
-			params.skipParameters = false;
-			params.useScissorTest = false;
-			params.useDepthTest = true;
-			params.useStencilTest = true;
-			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLE_STRIP;
-			params.faceCulling = FaceCulling::FACE_CULL_NONE;
-			params.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-			params.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-			params.shouldWriteDepth = false;
-			params.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-			params.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-			params.stencilComparisonVal = 0;
-			params.stencilTestMask = 0xFF;
-			params.stencilWriteMask = 0xFF;
-			params.stencilFail = StencilOp::STENCIL_KEEP;
-			params.stencilPass = StencilOp::STENCIL_REPLACE;
-			params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-			params.scissorStartX = 0;
-			params.scissorStartY = 0;
-			params.scissorWidth = 0;
-			params.scissorHeight = 0;
-			return params;
-		}
+            return params;
+        }
 
-		static DrawParams GetFullScreenQuad()
-		{
-			DrawParams params;
-			params.skipParameters = false;
-			params.useScissorTest = false;
-			params.useDepthTest = false;
-			params.useStencilTest = true;
-			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-			params.faceCulling = FaceCulling::FACE_CULL_NONE;
-			params.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-			params.destBlend = BlendFunc::BLEND_FUNC_NONE;
-			params.shouldWriteDepth = true;
-			params.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-			params.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-			params.stencilComparisonVal = 1;
-			params.stencilTestMask = 0xFF;
-			params.stencilWriteMask = 0xFF;
-			params.stencilFail = StencilOp::STENCIL_KEEP;
-			params.stencilPass = StencilOp::STENCIL_REPLACE;
-			params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-			params.scissorStartX = 0;
-			params.scissorStartY = 0;
-			params.scissorWidth = 0;
-			params.scissorHeight = 0;
-			return params;
-		}
-	
-		static DrawParams GetShadowMap()
-		{
-			DrawParams params;
-			params.skipParameters = false;
-			params.useScissorTest = false;
-			params.useDepthTest = true;
-			params.useStencilTest = false;
-			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-			params.faceCulling = FaceCulling::FACE_CULL_NONE;
-			params.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-			params.destBlend = BlendFunc::BLEND_FUNC_NONE;
-			params.shouldWriteDepth = true;
-			params.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-			params.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-			params.stencilComparisonVal = 1;
-			params.stencilTestMask = 0xFF;
-			params.stencilWriteMask = 0xFF;
-			params.stencilFail = StencilOp::STENCIL_KEEP;
-			params.stencilPass = StencilOp::STENCIL_REPLACE;
-			params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-			params.scissorStartX = 0;
-			params.scissorStartY = 0;
-			params.scissorWidth = 0;
-			params.scissorHeight = 0;
-			return params;
-		}
+        static DrawParams GetSkybox()
+        {
+            DrawParams params;
+            params.skipParameters          = false;
+            params.useScissorTest          = false;
+            params.useDepthTest            = true;
+            params.useStencilTest          = true;
+            params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLE_STRIP;
+            params.faceCulling             = FaceCulling::FACE_CULL_NONE;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+            params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.shouldWriteDepth        = false;
+            params.depthFunc               = DrawFunc::DRAW_FUNC_LEQUAL;
+            params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;
+            params.stencilComparisonVal    = 0;
+            params.stencilTestMask         = 0xFF;
+            params.stencilWriteMask        = 0xFF;
+            params.stencilFail             = StencilOp::STENCIL_KEEP;
+            params.stencilPass             = StencilOp::STENCIL_REPLACE;
+            params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+            params.scissorStartX           = 0;
+            params.scissorStartY           = 0;
+            params.scissorWidth            = 0;
+            params.scissorHeight           = 0;
+            return params;
+        }
 
-		static DrawParams GetGUILayer() 
-		{
-			DrawParams params;
-			params.useScissorTest = false;
-			params.useDepthTest = true;
-			params.useStencilTest = true;
-			params.primitiveType = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
-			params.faceCulling = Graphics::FaceCulling::FACE_CULL_BACK;
-			params.sourceBlend = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
-			params.destBlend = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-			params.shouldWriteDepth = true;
-			params.depthFunc = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
-			params.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
-			params.stencilComparisonVal = 0;
-			params.stencilTestMask = 0xFF;
-			params.stencilWriteMask = 0xFF;
-			params.stencilFail = Graphics::StencilOp::STENCIL_KEEP;
-			params.stencilPass = Graphics::StencilOp::STENCIL_REPLACE;
-			params.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
-			params.scissorStartX = 0;
-			params.scissorStartY = 0;
-			params.scissorWidth = 0;
-			params.scissorHeight = 0;
-			return params;
-		}
-	private:
-	
-	};
-}
+        static DrawParams GetFullScreenQuad()
+        {
+            DrawParams params;
+            params.skipParameters          = false;
+            params.useScissorTest          = false;
+            params.useDepthTest            = false;
+            params.useStencilTest          = true;
+            params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLES;
+            params.faceCulling             = FaceCulling::FACE_CULL_NONE;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_NONE;
+            params.destBlend               = BlendFunc::BLEND_FUNC_NONE;
+            params.shouldWriteDepth        = true;
+            params.depthFunc               = DrawFunc::DRAW_FUNC_LESS;
+            params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;
+            params.stencilComparisonVal    = 1;
+            params.stencilTestMask         = 0xFF;
+            params.stencilWriteMask        = 0xFF;
+            params.stencilFail             = StencilOp::STENCIL_KEEP;
+            params.stencilPass             = StencilOp::STENCIL_REPLACE;
+            params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+            params.scissorStartX           = 0;
+            params.scissorStartY           = 0;
+            params.scissorWidth            = 0;
+            params.scissorHeight           = 0;
+            return params;
+        }
+
+        static DrawParams GetShadowMap()
+        {
+            DrawParams params;
+            params.skipParameters          = false;
+            params.useScissorTest          = false;
+            params.useDepthTest            = true;
+            params.useStencilTest          = false;
+            params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLES;
+            params.faceCulling             = FaceCulling::FACE_CULL_NONE;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_NONE;
+            params.destBlend               = BlendFunc::BLEND_FUNC_NONE;
+            params.shouldWriteDepth        = true;
+            params.depthFunc               = DrawFunc::DRAW_FUNC_LESS;
+            params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;
+            params.stencilComparisonVal    = 1;
+            params.stencilTestMask         = 0xFF;
+            params.stencilWriteMask        = 0xFF;
+            params.stencilFail             = StencilOp::STENCIL_KEEP;
+            params.stencilPass             = StencilOp::STENCIL_REPLACE;
+            params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+            params.scissorStartX           = 0;
+            params.scissorStartY           = 0;
+            params.scissorWidth            = 0;
+            params.scissorHeight           = 0;
+            return params;
+        }
+
+        static DrawParams GetGUILayer()
+        {
+            DrawParams params;
+            params.useScissorTest          = false;
+            params.useDepthTest            = true;
+            params.useStencilTest          = true;
+            params.primitiveType           = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
+            params.faceCulling             = Graphics::FaceCulling::FACE_CULL_BACK;
+            params.sourceBlend             = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
+            params.destBlend               = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.shouldWriteDepth        = true;
+            params.depthFunc               = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
+            params.stencilFunc             = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+            params.stencilComparisonVal    = 0;
+            params.stencilTestMask         = 0xFF;
+            params.stencilWriteMask        = 0xFF;
+            params.stencilFail             = Graphics::StencilOp::STENCIL_KEEP;
+            params.stencilPass             = Graphics::StencilOp::STENCIL_REPLACE;
+            params.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
+            params.scissorStartX           = 0;
+            params.scissorStartY           = 0;
+            params.scissorWidth            = 0;
+            params.scissorHeight           = 0;
+            return params;
+        }
+
+    private:
+    };
+} // namespace Lina::Graphics
 
 #endif

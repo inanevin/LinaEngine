@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,25 +44,28 @@ Timestamp: 12/25/2021 12:18:26 PM
 
 namespace Lina::Event
 {
-	struct ELog
-	{
-		ELog() {};
-		ELog(LogLevel level, const std::string& message) : m_level(level), m_message(message) {};
-		LogLevel m_level = LogLevel::Info;
-		std::string m_message = "";
+    struct ELog
+    {
+        ELog(){};
+        ELog(LogLevel level, const std::string& message) : m_level(level), m_message(message){};
+        LogLevel    m_level   = LogLevel::Info;
+        std::string m_message = "";
 
-		friend bool operator== (const ELog c1, const ELog& c2)
-		{
-			return (c1.m_level == c2.m_level);
-		}
+        friend bool operator==(const ELog c1, const ELog& c2)
+        {
+            return (c1.m_level == c2.m_level);
+        }
 
-		friend bool operator!= (const ELog c1, const ELog& c2)
-		{
-			return (c1.m_level != c2.m_level);
-		}
-	};
+        friend bool operator!=(const ELog c1, const ELog& c2)
+        {
+            return (c1.m_level != c2.m_level);
+        }
+    };
 
-	struct EAppLoad { ApplicationInfo* m_appInfo = nullptr; };
-}
+    struct EAppLoad
+    {
+        ApplicationInfo* m_appInfo = nullptr;
+    };
+} // namespace Lina::Event
 
 #endif

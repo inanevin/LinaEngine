@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,67 +39,68 @@ Timestamp: 6/5/2020 6:51:29 PM
 #ifndef LevelPanel_HPP
 #define LevelPanel_HPP
 
-#include "Panels/EditorPanel.hpp"
 #include "Core/CommonECS.hpp"
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina
 {
-	namespace Event
-	{
-		struct ELevelUninstalled;
-	}
-}
+    namespace Event
+    {
+        struct ELevelUninstalled;
+    }
+} // namespace Lina
 namespace Lina::Editor
 {
-	struct EEntitySelected;
-	struct EEntityUnselected;
-	struct ETransformGizmoChanged;
-	struct ETransformPivotChanged;
+    struct EEntitySelected;
+    struct EEntityUnselected;
+    struct ETransformGizmoChanged;
+    struct ETransformPivotChanged;
 
-	class LevelPanel : public EditorPanel
-	{
-	
-		
-	public:
+    class LevelPanel : public EditorPanel
+    {
 
-		enum class DrawMode
-		{
-			FinalImage,
-			ShadowMap
-		};
-		
-		LevelPanel() {};
-		virtual ~LevelPanel() {};
+    public:
+        enum class DrawMode
+        {
+            FinalImage,
+            ShadowMap
+        };
 
+        LevelPanel(){};
+        virtual ~LevelPanel(){};
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
 
-		void EntitySelected(const EEntitySelected& ev);
-		void Unselected(const EEntityUnselected& ev);
-		void LevelUninstalled(const Event::ELevelUninstalled& ev);
-		void ProcessInput();
-		void DrawGizmos();
-		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
-		bool IsFocused() { return m_isFocused; }
+        void EntitySelected(const EEntitySelected& ev);
+        void Unselected(const EEntityUnselected& ev);
+        void LevelUninstalled(const Event::ELevelUninstalled& ev);
+        void ProcessInput();
+        void DrawGizmos();
+        void SetDrawMode(DrawMode mode)
+        {
+            m_drawMode = mode;
+        }
+        bool IsFocused()
+        {
+            return m_isFocused;
+        }
 
-	private:
+    private:
+        void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
+        void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
-		void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
-		void OnTransformPivotChanged(const ETransformPivotChanged& ev);
-
-	private:
-
-		float m_borderAlpha = 0.0f;
-		bool m_isFocused = true;
-		bool m_shouldShowCameraSettings = false;
-		bool m_shouldShowGizmos= false;
-		float m_cameraSettingsWindowYMultiplier = 0.0f;
-		float m_editorCameraSpeed = 1.0f;
-		float m_editorCameraSpeedMultiplier = 1.0f;
-		ECS::Entity m_selectedEntity = entt::null;
-		DrawMode m_drawMode = DrawMode::FinalImage;
-	};
-}
+    private:
+        float       m_borderAlpha                     = 0.0f;
+        bool        m_isFocused                       = true;
+        bool        m_shouldShowCameraSettings        = false;
+        bool        m_shouldShowGizmos                = false;
+        float       m_cameraSettingsWindowYMultiplier = 0.0f;
+        float       m_editorCameraSpeed               = 1.0f;
+        float       m_editorCameraSpeedMultiplier     = 1.0f;
+        ECS::Entity m_selectedEntity                  = entt::null;
+        DrawMode    m_drawMode                        = DrawMode::FinalImage;
+    };
+} // namespace Lina::Editor
 
 #endif

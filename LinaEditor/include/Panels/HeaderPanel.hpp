@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,35 +40,32 @@ Timestamp: 10/8/2020 1:39:03 PM
 #define HeaderPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+
 #include <vector>
 
 namespace Lina::Editor
 {
-	class MenuButton;
-	enum class MenuBarItems;
+    class MenuButton;
+    enum class MenuBarItems;
 
-	class HeaderPanel : public EditorPanel
-	{
+    class HeaderPanel : public EditorPanel
+    {
 
-	public:
+    public:
+        HeaderPanel(){};
+        virtual ~HeaderPanel();
 
-		HeaderPanel() {};
-		virtual ~HeaderPanel();
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
+    private:
+        void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
-	private:
-
-		void DispatchMenuBarClickedAction(const MenuBarItems& item);
-
-	private:
-
-		std::string m_title = "";
-		std::vector<MenuButton*> m_menuBarButtons;
-		std::vector<MenuButton*> m_toolButtons;
-
-	};
-}
+    private:
+        std::string              m_title = "";
+        std::vector<MenuButton*> m_menuBarButtons;
+        std::vector<MenuButton*> m_toolButtons;
+    };
+} // namespace Lina::Editor
 
 #endif

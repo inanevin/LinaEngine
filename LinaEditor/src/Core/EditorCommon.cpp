@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,5 +30,5 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	std::string& EditorPathConstants::contentsPath = std::string("ProjectContents/");
+    std::string& EditorPathConstants::contentsPath = std::string("ProjectContents/");
 }

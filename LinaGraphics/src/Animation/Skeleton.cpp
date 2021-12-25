@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Animation/Skeleton.hpp"
+
 #include "Log/Log.hpp"
 
 namespace Lina::Graphics
@@ -41,11 +42,9 @@ namespace Lina::Graphics
     }
     void Skeleton::SetVertexBoneDataToDefault(VertexBoneData& vertex)
     {
-        
     }
 
     void Skeleton::SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight)
     {
-        
     }
-}
+} // namespace Lina::Graphics

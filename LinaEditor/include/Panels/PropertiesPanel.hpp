@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,62 +40,57 @@ Timestamp: 6/7/2020 5:13:24 PM
 #ifndef PropertiesPanel_HPP
 #define PropertiesPanel_HPP
 
-#include "Panels/EditorPanel.hpp"
-#include "Drawers/EntityDrawer.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Drawers/EntityDrawer.hpp"
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class Model;
-		class Material;
-	}
-}
-
+    namespace Graphics
+    {
+        class Model;
+        class Material;
+    } // namespace Graphics
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class EditorFile;
-	struct EEntitySelected;
-	struct ETextureSelected;
-	struct EModelSelected;
-	struct EEntityUnselected;
+    class EditorFile;
+    struct EEntitySelected;
+    struct ETextureSelected;
+    struct EModelSelected;
+    struct EEntityUnselected;
 
-	class PropertiesPanel : public EditorPanel
-	{
+    class PropertiesPanel : public EditorPanel
+    {
 
-		enum class DrawType
-		{
-			None,
-			Entities,
-			Texture2D,
-			Model,
-			Material
-		};
+        enum class DrawType
+        {
+            None,
+            Entities,
+            Texture2D,
+            Model,
+            Material
+        };
 
-	public:
+    public:
+        PropertiesPanel(){};
+        virtual ~PropertiesPanel(){};
 
-		PropertiesPanel() {};
-		virtual ~PropertiesPanel() {};
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
 
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
+        void EntitySelected(const EEntitySelected& ev);
+        void TextureSelected(const ETextureSelected& ev);
+        void ModelSelected(const EModelSelected& ev);
+        void Unselect(const EEntityUnselected& ev);
 
-		void EntitySelected(const EEntitySelected& ev);
-		void TextureSelected(const ETextureSelected& ev);
-		void ModelSelected(const EModelSelected& ev);
-		void Unselect(const EEntityUnselected& ev);
+    private:
+        // Selected entity.
+        EntityDrawer m_entityDrawer;
 
-	private:
-
-
-		// Selected entity.
-		EntityDrawer m_entityDrawer;
-
-		DrawType m_currentDrawType = DrawType::None;
-
-	};
-}
+        DrawType m_currentDrawType = DrawType::None;
+    };
+} // namespace Lina::Editor
 
 #endif

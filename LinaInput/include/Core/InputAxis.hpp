@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -37,37 +37,36 @@ Timestamp: 12/12/2021 11:33:54 AM
 #ifndef InputAxis_HPP
 #define InputAxis_HPP
 
-
 namespace Lina
 {
-	namespace Event
-	{
-		struct EKeyCallback;
-	}
-}
+    namespace Event
+    {
+        struct EKeyCallback;
+    }
+} // namespace Lina
 namespace Lina::Input
 {
-	class InputAxis
-	{
-		
-	public:
-		
-		InputAxis() {};
-		~InputAxis() {};
-	
-		void BindAxis(int positiveKey, int negativeKey);
-		float GetValue() { return m_value; }
+    class InputAxis
+    {
 
-	private:
-	
-		void OnKey(const Event::EKeyCallback& key);
+    public:
+        InputAxis(){};
+        ~InputAxis(){};
 
-	private:
+        void  BindAxis(int positiveKey, int negativeKey);
+        float GetValue()
+        {
+            return m_value;
+        }
 
-		int m_positiveKey = 0;
-		int m_negativeKey = 0;
-		float m_value = 0.0f;
-	};
-}
+    private:
+        void OnKey(const Event::EKeyCallback& key);
+
+    private:
+        int   m_positiveKey = 0;
+        int   m_negativeKey = 0;
+        float m_value       = 0.0f;
+    };
+} // namespace Lina::Input
 
 #endif

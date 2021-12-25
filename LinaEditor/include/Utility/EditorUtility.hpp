@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,7 +31,7 @@ Class: EditorUtility
 
 Various utility functions for the editor.
 
-Timestamp: 5/9/2020 1:22:23 
+Timestamp: 5/9/2020 1:22:23
 */
 
 #pragma once
@@ -43,25 +43,22 @@ Timestamp: 5/9/2020 1:22:23
 
 namespace Lina::Editor
 {
-	class EditorUtility
-	{
+    class EditorUtility
+    {
 
-	public:
+    public:
+        EditorUtility(){};
+        ~EditorUtility(){};
 
-		EditorUtility() {};
-		~EditorUtility() {};
+        static bool        CreateFolderInPath(const std::string& path);
+        static bool        DeleteDirectory(const std::string& path);
+        static std::string RemoveExtensionFromFilename(const std::string& filename);
+        static std::string OpenFile(const char* filter, void* window);
+        static std::string SaveFile(const char* filter, void* window);
+        static bool        ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
 
-		static bool CreateFolderInPath(const std::string& path);
-		static bool DeleteDirectory(const std::string& path);
-		static std::string RemoveExtensionFromFilename(const std::string& filename);
-		static std::string OpenFile(const char* filter, void* window);
-		static std::string SaveFile(const char* filter, void* window);
-		static bool ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
-
-	private:
-
-	};
-}
-
+    private:
+    };
+} // namespace Lina::Editor
 
 #endif

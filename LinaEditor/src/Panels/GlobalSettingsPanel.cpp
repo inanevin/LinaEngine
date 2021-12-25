@@ -26,191 +26,183 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level.hpp"
-#include "EventSystem/LevelEvents.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
-#include "Widgets/WidgetsUtility.hpp"
+
+#include "Core/Application.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/RenderEngineBackend.hpp"
-#include "Core/Application.hpp"
-#include "Rendering/RenderSettings.hpp"
-#include "World/Level.hpp"
-#include "Rendering/Material.hpp"
-#include "imgui/imgui.h"
+#include "EventSystem/LevelEvents.hpp"
 #include "IconsFontAwesome5.h"
+#include "Rendering/Material.hpp"
+#include "Rendering/RenderSettings.hpp"
+#include "Widgets/WidgetsUtility.hpp"
+#include "World/Level.hpp"
+#include "imgui/imgui.h"
 
 namespace Lina::Editor
 {
-#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_X_LABELS     12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
-	void GlobalSettingsPanel::Initialize(const char* id)
-	{
-		EditorPanel::Initialize(id);
-		Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
-		Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
-		m_show = true;
-	}
+    void GlobalSettingsPanel::Initialize(const char* id)
+    {
+        EditorPanel::Initialize(id);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
+        m_show = true;
+    }
 
-	void GlobalSettingsPanel::Draw()
-	{
-		if (m_show)
-		{
-			Begin();
+    void GlobalSettingsPanel::Draw()
+    {
+        if (m_show)
+        {
+            Begin();
 
-			if (m_currentLevel != nullptr)
-			{
-				World::LevelData& levelData = m_currentLevel->GetLevelData();
+            if (m_currentLevel != nullptr)
+            {
+                World::LevelData& levelData = m_currentLevel->GetLevelData();
 
-				static bool levelSettingsOpen = false;
-				if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
-				{
-					WidgetsUtility::PropertyLabel("Ambient Color");
-					WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-					Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
+                static bool levelSettingsOpen = false;
+                if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
+                {
+                    WidgetsUtility::PropertyLabel("Ambient Color");
+                    WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
+                    Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 
-					// Material selection
-					if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
-					{
-						levelData.m_selectedSkyboxMatID = levelData.m_skyboxMaterialID;
-						levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
-					}
+                    // Material selection
+                    if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+                    {
+                        levelData.m_selectedSkyboxMatID   = levelData.m_skyboxMaterialID;
+                        levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
+                    }
 
-					// Material selection.
-					char matPathC[128] = "";
-					strcpy_s(matPathC, levelData.m_skyboxMaterialPath.c_str());
+                    // Material selection.
+                    char matPathC[128] = "";
+                    strcpy_s(matPathC, levelData.m_skyboxMaterialPath.c_str());
 
-					WidgetsUtility::PropertyLabel("Material");
-					bool removed = false;
-					Graphics::Material* mat = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
+                    WidgetsUtility::PropertyLabel("Material");
+                    bool                removed = false;
+                    Graphics::Material* mat     = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
 
-					if (removed)
-					{
-						levelData.m_skyboxMaterialID = -1;
-						levelData.m_skyboxMaterialPath = "";
-						m_currentLevel->SetSkyboxMaterial();
-					}
+                    if (removed)
+                    {
+                        levelData.m_skyboxMaterialID   = -1;
+                        levelData.m_skyboxMaterialPath = "";
+                        m_currentLevel->SetSkyboxMaterial();
+                    }
 
-					if (mat != nullptr)
-					{
-						levelData.m_skyboxMaterialID = mat->GetID();
-						levelData.m_skyboxMaterialPath = mat->GetPath();
-					}
+                    if (mat != nullptr)
+                    {
+                        levelData.m_skyboxMaterialID   = mat->GetID();
+                        levelData.m_skyboxMaterialPath = mat->GetPath();
+                    }
 
-					// Material drag & drop.
-					if (ImGui::BeginDragDropTarget())
-					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-						{
-							IM_ASSERT(payload->DataSize == sizeof(uint32));
-							levelData.m_skyboxMaterialID = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
-							levelData.m_skyboxMaterialPath = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
-							m_currentLevel->SetSkyboxMaterial();
-						}
+                    // Material drag & drop.
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(uint32));
+                            levelData.m_skyboxMaterialID   = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
+                            levelData.m_skyboxMaterialPath = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
+                            m_currentLevel->SetSkyboxMaterial();
+                        }
 
-						ImGui::EndDragDropTarget();
-					}
+                        ImGui::EndDragDropTarget();
+                    }
 
-					if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
-					{
-						auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
-						if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
-						{
-							auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
-							if (shader.GetPath().compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0)
-							{
-								if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
-								{
-									auto& texture = mat.GetTexture("material.environmentMap");
-									if (!texture.GetIsEmpty())
-										Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
-								}
-							}
-						}
-					}
-				}
+                    if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+                    {
+                        auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
+                        if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
+                        {
+                            auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
+                            if (shader.GetPath().compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0)
+                            {
+                                if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
+                                {
+                                    auto& texture = mat.GetTexture("material.environmentMap");
+                                    if (!texture.GetIsEmpty())
+                                        Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-			}
+            Graphics::RenderSettings& renderSettings = Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 
-			Graphics::RenderSettings& renderSettings = Graphics::RenderEngineBackend::Get()->GetRenderSettings();
+            static bool ppSettingsOpen = false;
+            if (WidgetsUtility::Header("Post Process", &ppSettingsOpen))
+            {
+                static bool toneSettingsOpen     = false;
+                static bool fxaaSettingsOpen     = false;
+                static bool bloomSettingsOpen    = false;
+                static bool vignetteSettingsOpen = false;
 
-			static bool ppSettingsOpen = false;
-			if (WidgetsUtility::Header("Post Process", &ppSettingsOpen))
-			{
-				static bool toneSettingsOpen = false;
-				static bool fxaaSettingsOpen = false;
-				static bool bloomSettingsOpen = false;
-				static bool vignetteSettingsOpen = false;
+                if (WidgetsUtility::CaretTitle("Tonemapping", &toneSettingsOpen))
+                {
+                    WidgetsUtility::PropertyLabel("Gamma");
+                    ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
 
-				if (WidgetsUtility::CaretTitle("Tonemapping", &toneSettingsOpen))
-				{
-					WidgetsUtility::PropertyLabel("Gamma");
-					ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
+                    WidgetsUtility::PropertyLabel("Exposure");
+                    ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
+                }
 
-					WidgetsUtility::PropertyLabel("Exposure");
-					ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
-				}
+                if (WidgetsUtility::CaretTitle("FXAA", &fxaaSettingsOpen))
+                {
+                    WidgetsUtility::PropertyLabel("Enabled");
+                    ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
 
-				if (WidgetsUtility::CaretTitle("FXAA", &fxaaSettingsOpen))
-				{
-					WidgetsUtility::PropertyLabel("Enabled");
-					ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
+                    WidgetsUtility::PropertyLabel("Reduce Min");
+                    ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
 
-					WidgetsUtility::PropertyLabel("Reduce Min");
-					ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
+                    WidgetsUtility::PropertyLabel("Reduce Mul");
+                    ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
 
-					WidgetsUtility::PropertyLabel("Reduce Mul");
-					ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
+                    WidgetsUtility::PropertyLabel("Span Max");
+                    ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
+                }
 
-					WidgetsUtility::PropertyLabel("Span Max");
-					ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
-				}
+                if (WidgetsUtility::CaretTitle("Bloom", &bloomSettingsOpen))
+                {
+                    WidgetsUtility::PropertyLabel("Enabled");
+                    ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
+                }
 
-				if (WidgetsUtility::CaretTitle("Bloom", &bloomSettingsOpen))
-				{
-					WidgetsUtility::PropertyLabel("Enabled");
-					ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
-				}
+                if (WidgetsUtility::CaretTitle("Vignette", &vignetteSettingsOpen))
+                {
+                    WidgetsUtility::PropertyLabel("Enabled");
+                    ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
 
+                    WidgetsUtility::PropertyLabel("Amount");
+                    ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
 
-				if (WidgetsUtility::CaretTitle("Vignette", &vignetteSettingsOpen))
-				{
-					WidgetsUtility::PropertyLabel("Enabled");
-					ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
+                    WidgetsUtility::PropertyLabel("Pow");
+                    ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
+                }
+            }
 
-					WidgetsUtility::PropertyLabel("Amount");
-					ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
+            Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
+            const ImVec2 buttonSize = ImVec2(90, 30);
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
 
-					WidgetsUtility::PropertyLabel("Pow");
-					ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
+            if (WidgetsUtility::Button("Save Settings", buttonSize))
+                Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
-				}
+            End();
+        }
+    }
 
-			}
+    void GlobalSettingsPanel::LevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        m_currentLevel = Application::Get().GetCurrentLevel();
+        m_currentLevel->SetSkyboxMaterial();
+    }
 
-			Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
-			const ImVec2 buttonSize = ImVec2(90, 30);
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
-
-			if (WidgetsUtility::Button("Save Settings", buttonSize))
-				Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
-
-		
-		
-			End();
-
-
-		}
-	}
-
-	void GlobalSettingsPanel::LevelInstalled(const Event::ELevelInstalled& ev)
-	{
-		m_currentLevel = Application::Get().GetCurrentLevel();
-		m_currentLevel->SetSkyboxMaterial();
-	}
-
-	void GlobalSettingsPanel::LevelIUninstalled(const Event::ELevelUninstalled& ev)
-	{
-		m_currentLevel = nullptr;
-	}
-}
+    void GlobalSettingsPanel::LevelIUninstalled(const Event::ELevelUninstalled& ev)
+    {
+        m_currentLevel = nullptr;
+    }
+} // namespace Lina::Editor

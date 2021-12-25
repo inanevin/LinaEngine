@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,44 +41,45 @@ Timestamp: 12/7/2021 2:13:56 PM
 
 // Headers here.
 #include "Rendering/RenderingCommon.hpp"
-#include <string>
+
 #include <map>
+#include <string>
 
 namespace Lina::Graphics
 {
-	class Animation;
+    class Animation;
 
-	class Skeleton
-	{
-		
-	public:
-		
-		Skeleton() {};
-		~Skeleton();
-	
-		bool LoadSkeleton(const std::string& path);
+    class Skeleton
+    {
 
-		bool IsLoaded() const { return m_loaded; }
+    public:
+        Skeleton(){};
+        ~Skeleton();
 
-		void SetVertexBoneDataToDefault(VertexBoneData& vertex);
-		void SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight);
-		
+        bool LoadSkeleton(const std::string& path);
 
-		std::map<std::string, Animation*>& GetAnimations()
-		{
-			return m_animationMap;
-		}
+        bool IsLoaded() const
+        {
+            return m_loaded;
+        }
 
-	private:
+        void SetVertexBoneDataToDefault(VertexBoneData& vertex);
+        void SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight);
 
-		bool m_loaded = false;
-		std::vector<VertexBoneData> m_vertexBoneData;
-		std::map<std::string, Animation*> m_animationMap;
-		std::map<std::string, BoneInfo> m_boneInfoMap;
+        std::map<std::string, Animation*>& GetAnimations()
+        {
+            return m_animationMap;
+        }
 
-		int m_boneIDs[MAX_BONE_INFLUENCE];
-		float m_boneWeights[MAX_BONE_INFLUENCE];
-	};
-}
+    private:
+        bool                              m_loaded = false;
+        std::vector<VertexBoneData>       m_vertexBoneData;
+        std::map<std::string, Animation*> m_animationMap;
+        std::map<std::string, BoneInfo>   m_boneInfoMap;
+
+        int   m_boneIDs[MAX_BONE_INFLUENCE];
+        float m_boneWeights[MAX_BONE_INFLUENCE];
+    };
+} // namespace Lina::Graphics
 
 #endif

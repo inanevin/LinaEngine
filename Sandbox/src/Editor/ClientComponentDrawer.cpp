@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -28,10 +28,7 @@ SOFTWARE.
 
 #include "Editor/ClientComponentDrawer.hpp"
 
-
 namespace Lina
 {
-
-
 
 }

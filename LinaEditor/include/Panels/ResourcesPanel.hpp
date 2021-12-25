@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,57 +39,53 @@ Timestamp: 6/5/2020 12:54:52 AM
 #ifndef ResourcesPanel_HPP
 #define ResourcesPanel_HPP
 
-#include "Panels/EditorPanel.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
+
 #include <map>
 #include <vector>
 
-namespace Lina::Editor 
+namespace Lina::Editor
 {
-	
 
-	class PropertiesPanel;
+    class PropertiesPanel;
 
-	class ResourcesPanel : public EditorPanel
-	{
+    class ResourcesPanel : public EditorPanel
+    {
 
-	public:
+    public:
+        ResourcesPanel(){};
+        virtual ~ResourcesPanel(){};
 
-		
-		ResourcesPanel() {};
-		virtual ~ResourcesPanel() {};
-	
-		virtual void Initialize(const char* id) override;
-		virtual void Draw() override;
+        virtual void Initialize(const char* id) override;
+        virtual void Draw() override;
 
-	private:
-	
-		void DrawContextMenu();
-		void DrawFolderMenu(Utility::Folder& folder, float offset);
-		void DrawContents(Utility::Folder& folder);
-		void DrawFile(Utility::File& file);
-		// void ScanFolder(EditorFolder& folder);
-		// void DrawFolder(EditorFolder& folder, bool isRoot = false);
-		// void LoadFolderResources(EditorFolder& folder);
-		// void LoadFolderDependencies(EditorFolder& folder);
-		// void UnloadFileResource(EditorFile& file);
-		// void UnloadFileResourcesInFolder(EditorFolder& folder);
-		// bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
-		// FileType GetFileType(std::string& extension);
-		// void MaterialTextureSelected(EMaterialTextureSelected ev);
-		// void TextureReimported(ETextureReimported ev);
-		// bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
+    private:
+        void DrawContextMenu();
+        void DrawFolderMenu(Utility::Folder& folder, float offset);
+        void DrawContents(Utility::Folder& folder);
+        void DrawFile(Utility::File& file);
+        // void ScanFolder(EditorFolder& folder);
+        // void DrawFolder(EditorFolder& folder, bool isRoot = false);
+        // void LoadFolderResources(EditorFolder& folder);
+        // void LoadFolderDependencies(EditorFolder& folder);
+        // void UnloadFileResource(EditorFile& file);
+        // void UnloadFileResourcesInFolder(EditorFolder& folder);
+        // bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
+        // FileType GetFileType(std::string& extension);
+        // void MaterialTextureSelected(EMaterialTextureSelected ev);
+        // void TextureReimported(ETextureReimported ev);
+        // bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
 
-	private:
-
-		//std::vector<EditorFolder> m_resourceFolders;
-		std::vector<Utility::Folder> m_folders;
-		Utility::Folder* m_currentSelectedFolder = nullptr;
-		Utility::Folder* m_currentHoveredFolder = nullptr;
-		Utility::File* m_currentSelectedFile = nullptr;
-	};
-}
+    private:
+        // std::vector<EditorFolder> m_resourceFolders;
+        std::vector<Utility::Folder> m_folders;
+        Utility::Folder*             m_currentSelectedFolder = nullptr;
+        Utility::Folder*             m_currentHoveredFolder  = nullptr;
+        Utility::File*               m_currentSelectedFile   = nullptr;
+    };
+} // namespace Lina::Editor
 
 #endif

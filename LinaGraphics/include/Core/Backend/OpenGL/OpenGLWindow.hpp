@@ -39,60 +39,77 @@ Timestamp: 4/14/2019 5:12:19 PM
 #ifndef OpenGLWindow_HPP
 #define OpenGLWindow_HPP
 
-#include "Core/CommonWindow.hpp"
 #include "Core/CommonApplication.hpp"
+#include "Core/CommonWindow.hpp"
 #include "Math/Vector.hpp"
 
 struct GLFWwindow;
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 }
 
 namespace Lina::Graphics
 {
 
-	class OpenGLWindow
-	{
-	public:
+    class OpenGLWindow
+    {
+    public:
+        static OpenGLWindow* Get()
+        {
+            return s_openglWindow;
+        }
+        virtual void* GetNativeWindow() const
+        {
+            return m_window;
+        }
 
-		static OpenGLWindow* Get() { return s_openglWindow; }
-		virtual void* GetNativeWindow() const { return m_window; }
+        Vector2ui GetSize()
+        {
+            return Vector2ui(m_windowProperties.m_width, m_windowProperties.m_height);
+        }
+        Vector2ui GetPos()
+        {
+            return Vector2ui(m_windowProperties.m_xPos, m_windowProperties.m_yPos);
+        }
+        int GetWidth()
+        {
+            return m_windowProperties.m_width;
+        }
+        int GetHeight()
+        {
+            return m_windowProperties.m_height;
+        }
+        const WindowProperties& GetProperties() const
+        {
+            return m_windowProperties;
+        }
 
-		Vector2ui GetSize() { return Vector2ui(m_windowProperties.m_width, m_windowProperties.m_height); }
-		Vector2ui GetPos() { return Vector2ui(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
-		int GetWidth() { return m_windowProperties.m_width; }
-		int GetHeight() { return m_windowProperties.m_height; }
-		const WindowProperties& GetProperties() const { return m_windowProperties; }
+        void   SetVsync(int interval);
+        void   SetSize(const Vector2ui& newSize);
+        void   SetPos(const Vector2ui& newPos);
+        void   SetPosCentered(const Vector2ui newPos);
+        void   Iconify();
+        void   Maximize();
+        void   Close();
+        void   Tick();
+        double GetTime();
 
-		void SetVsync(int interval);
-		void SetSize(const Vector2ui& newSize);
-		void SetPos(const Vector2ui& newPos);
-		void SetPosCentered(const Vector2ui newPos);
-		void Iconify();
-		void Maximize();
-		void Close();
-		void Tick();
-		double GetTime();
+    private:
+        friend class Engine;
+        OpenGLWindow(){};
+        ~OpenGLWindow(){};
+        bool CreateContext(ApplicationInfo& appInfo);
+        void Shutdown();
+        void Sleep(int milliseconds);
 
-	private:
-
-		friend class Engine;
-		OpenGLWindow() {};
-		~OpenGLWindow() {};
-		bool CreateContext(ApplicationInfo& appInfo);
-		void Shutdown();
-		void Sleep(int milliseconds);
-
-	private:
-
-		static OpenGLWindow* s_openglWindow;
-		WindowProperties m_windowProperties = WindowProperties();
-		void* m_window = nullptr;
-		GLFWwindow* m_glfwWindow = nullptr;
-	};
-}
-
+    private:
+        static OpenGLWindow* s_openglWindow;
+        WindowProperties     m_windowProperties = WindowProperties();
+        void*                m_window           = nullptr;
+        GLFWwindow*          m_glfwWindow       = nullptr;
+    };
+} // namespace Lina::Graphics
 
 #endif

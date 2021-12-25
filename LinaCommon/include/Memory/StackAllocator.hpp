@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -50,24 +50,21 @@ namespace Lina
     {
 
     public:
-
-        StackAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize) {}
+        StackAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize)
+        {
+        }
         virtual ~StackAllocator();
 
         virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void Free(void* ptr);
-        virtual void Init() override;
-        virtual void Reset();
-
+        virtual void  Free(void* ptr);
+        virtual void  Init() override;
+        virtual void  Reset();
 
     protected:
-
-        void* m_start_ptr = nullptr;
-        std::size_t m_offset = 0;
-
+        void*       m_start_ptr = nullptr;
+        std::size_t m_offset    = 0;
 
     private:
-
         StackAllocator(StackAllocator& stackAllocator);
 
         struct AllocationHeader
@@ -75,6 +72,6 @@ namespace Lina
             char padding;
         };
     };
-}
+} // namespace Lina
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,13 +30,12 @@ SOFTWARE.
 
 namespace Lina::World
 {
-	bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
-	{
-		return Level::Install(loadFromFile, path, levelName);
-	}
+    bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
+    {
+        return Level::Install(loadFromFile, path, levelName);
+    }
 
-	void DefaultLevel::Initialize()
-	{
-
-	}
-}
+    void DefaultLevel::Initialize()
+    {
+    }
+} // namespace Lina::World

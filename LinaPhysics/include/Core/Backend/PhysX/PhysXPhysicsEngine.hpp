@@ -39,122 +39,124 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
+#include "Core/Backend/PhysX/PhysXCooker.hpp"
 #include "Core/CommonECS.hpp"
+#include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/SystemList.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "ECS/Components/PhysicsComponent.hpp"
 #include "Physics/PhysicsMaterial.hpp"
-#include "Core/Backend/PhysX/PhysXCooker.hpp"
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 
-	namespace Event
-	{
-		class EventSystem;
-		struct ELevelInitialized;
-		struct EPostSceneDraw;
-		struct ELoadResourceFromFile;
-		struct ELoadResourceFromMemory;
-	}
-}
+    namespace Event
+    {
+        class EventSystem;
+        struct ELevelInitialized;
+        struct EPostSceneDraw;
+        struct ELoadResourceFromFile;
+        struct ELoadResourceFromMemory;
+    } // namespace Event
+} // namespace Lina
 
 namespace physx
 {
-	class PxShape;
-	class PxRigidActor;
-	class PxActor;
-	class PxMaterial;
-}
+    class PxShape;
+    class PxRigidActor;
+    class PxActor;
+    class PxMaterial;
+} // namespace physx
 
 namespace Lina::Physics
 {
 
-	class PhysXPhysicsEngine
-	{
-	public:
+    class PhysXPhysicsEngine
+    {
+    public:
+        static PhysXPhysicsEngine* Get()
+        {
+            return s_physicsEngine;
+        }
 
-		static PhysXPhysicsEngine* Get() { return s_physicsEngine; }
+        /// <summary>
+        /// Given a convex mesh buffer data, creates a convex mesh object and stores it.
+        /// </summary>
+        void CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID);
 
-		/// <summary>
-		/// Given a convex mesh buffer data, creates a convex mesh object and stores it.
-		/// </summary>
-		void CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID);
+        /// <summary>
+        /// Returns all moving actor within the Nvidia PhysX scene.
+        /// </summary>
+        physx::PxActor** GetActiveActors(uint32& size);
 
-		/// <summary>
-		/// Returns all moving actor within the Nvidia PhysX scene.
-		/// </summary>
-		physx::PxActor** GetActiveActors(uint32& size);
+        /// <summary>
+        /// Given a PxActor, returns the Entity it belongs to.
+        /// </summary>
+        ECS::Entity GetEntityOfActor(physx::PxActor* actor);
 
-		/// <summary>
-		/// Given a PxActor, returns the Entity it belongs to.
-		/// </summary>
-		ECS::Entity GetEntityOfActor(physx::PxActor* actor);
+        /// <summary>
+        /// Returns all Dynamic bodies, regardless of whether they are static or not.
+        /// </summary>
+        std::map<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
 
-		/// <summary>
-		/// Returns all Dynamic bodies, regardless of whether they are static or not.
-		/// </summary>
-		std::map<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
+        /// <summary>
+        /// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
+        /// value is the PhysX object.
+        /// </summary>
+        std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
 
-		/// <summary>
-		/// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
-		/// value is the PhysX object.
-		/// </summary>
-		std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
+        void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
+        void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
+        void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
+        void SetDebugDraw(bool enabled)
+        {
+            m_debugDrawEnabled = enabled;
+        }
+        void SetBodySimulation(ECS::Entity body, SimulationType type);
+        void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
+        void SetBodyMass(ECS::Entity body, float mass);
+        void SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& mat);
+        void SetBodyRadius(ECS::Entity body, float radius);
+        void SetBodyHeight(ECS::Entity body, float height);
+        void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
+        void SetBodyKinematic(ECS::Entity body, bool kinematic);
+        void UpdateBodyShapeParameters(ECS::Entity body);
 
+    private:
+        friend class Engine;
+        PhysXPhysicsEngine();
+        ~PhysXPhysicsEngine();
+        void  Initialize(ApplicationMode appMode);
+        void  Tick(float fixedDelta);
+        void  Shutdown();
+        float GetStepTime()
+        {
+            return m_stepTime;
+        }
 
-		void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
-		void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
-		void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
-		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
-		void SetBodySimulation(ECS::Entity body, SimulationType type);
-		void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
-		void SetBodyMass(ECS::Entity body, float mass);
-		void SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& mat);
-		void SetBodyRadius(ECS::Entity body, float radius);
-		void SetBodyHeight(ECS::Entity body, float height);
-		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
-		void SetBodyKinematic(ECS::Entity body, bool kinematic);
-		void UpdateBodyShapeParameters(ECS::Entity body);
+    private:
+        void            OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
+        void            RecreateBodyShape(ECS::Entity body);
+        void            OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev);
+        void            OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev);
+        void            OnLevelInitialized(const Event::ELevelInitialized& ev);
+        void            OnPostSceneDraw(const Event::EPostSceneDraw&);
+        void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
+        void            RemoveBodyFromWorld(ECS::Entity body);
+        void            AddBodyToWorld(ECS::Entity body, bool isDynamic);
+        physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
 
-	private:
-
-		friend class Engine;
-		PhysXPhysicsEngine();
-		~PhysXPhysicsEngine();
-		void Initialize(ApplicationMode appMode);
-		void Tick(float fixedDelta);
-		void Shutdown();
-		float GetStepTime() { return m_stepTime; }
-
-	private:
-
-		void OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
-		void RecreateBodyShape(ECS::Entity body);
-		void OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev);
-		void OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev);
-		void OnLevelInitialized(const Event::ELevelInitialized& ev);
-		void OnPostSceneDraw(const Event::EPostSceneDraw&);
-		void OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
-		void RemoveBodyFromWorld(ECS::Entity body);
-		void AddBodyToWorld(ECS::Entity body, bool isDynamic);
-		physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
-
-	private:
-
-		
-		static PhysXPhysicsEngine* s_physicsEngine;
-		ECS::Registry* m_ecs = nullptr;
-		ECS::RigidbodySystem m_rigidbodySystem;
-		ECS::SystemList m_physicsPipeline;
-		Event::EventSystem* m_eventSystem;
-		ApplicationMode m_appMode = ApplicationMode::Editor;
-		PhysXCooker m_cooker;
-		bool m_debugDrawEnabled = false;
-		float m_stepTime = 0.016f;
-	};
-}
-
+    private:
+        static PhysXPhysicsEngine* s_physicsEngine;
+        ECS::Registry*             m_ecs = nullptr;
+        ECS::RigidbodySystem       m_rigidbodySystem;
+        ECS::SystemList            m_physicsPipeline;
+        Event::EventSystem*        m_eventSystem;
+        ApplicationMode            m_appMode = ApplicationMode::Editor;
+        PhysXCooker                m_cooker;
+        bool                       m_debugDrawEnabled = false;
+        float                      m_stepTime         = 0.016f;
+    };
+} // namespace Lina::Physics
 
 #endif

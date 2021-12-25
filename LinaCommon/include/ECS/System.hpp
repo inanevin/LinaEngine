@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,25 +41,26 @@ Timestamp: 12/25/2021 12:38:18 PM
 
 namespace Lina::ECS
 {
-	class Registry;
+    class Registry;
 
-	class System
-	{
-		
-	public:
+    class System
+    {
 
-		System() {};
-		virtual ~System() {};
+    public:
+        System(){};
+        virtual ~System(){};
 
-		virtual void Initialize();
-		virtual void UpdateComponents(float delta) = 0;
-		virtual void SystemActivation(bool active) { m_isActive = active; }
+        virtual void Initialize();
+        virtual void UpdateComponents(float delta) = 0;
+        virtual void SystemActivation(bool active)
+        {
+            m_isActive = active;
+        }
 
-	protected:
-
-		Registry* m_ecs = nullptr;
-		bool m_isActive = false;
-	};
-}
+    protected:
+        Registry* m_ecs      = nullptr;
+        bool      m_isActive = false;
+    };
+} // namespace Lina::ECS
 
 #endif

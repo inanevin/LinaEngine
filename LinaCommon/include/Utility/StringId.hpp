@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -43,10 +43,10 @@ Timestamp: 12/19/2020 3:11:17 AM
 
 namespace Lina
 {
-	typedef entt::hashed_string::hash_type StringIDType;
-	typedef entt::hashed_string StringID;
+    typedef entt::hashed_string::hash_type StringIDType;
+    typedef entt::hashed_string            StringID;
 
 #define SID_EMPTY StringID("")
-}
+} // namespace Lina
 
 #endif

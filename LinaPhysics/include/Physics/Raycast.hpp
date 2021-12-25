@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,21 +45,21 @@ Timestamp: 12/22/2021 1:33:41 PM
 
 namespace Lina::Physics
 {
-	struct HitInfo
-	{
-		int m_hitCount = 0;
-		ECS::Entity m_entity = entt::null;
-		Vector3 m_position = Vector3::Zero;
-		Vector3 m_normal = Vector3::Zero;
-		float m_distance = 0.0f;
-	};
+    struct HitInfo
+    {
+        int         m_hitCount = 0;
+        ECS::Entity m_entity   = entt::null;
+        Vector3     m_position = Vector3::Zero;
+        Vector3     m_normal   = Vector3::Zero;
+        float       m_distance = 0.0f;
+    };
 
-	/// <summary>
-	/// Casts a ray against a box shape sitting in the target position with targetHalfExtents.
-	/// Does not require entity or physics actors. 
-	/// ! Direction should be a unit vector.
-	/// </summary>
-	extern HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist = 1000.0f);
-}
+    /// <summary>
+    /// Casts a ray against a box shape sitting in the target position with targetHalfExtents.
+    /// Does not require entity or physics actors.
+    /// ! Direction should be a unit vector.
+    /// </summary>
+    extern HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist = 1000.0f);
+} // namespace Lina::Physics
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,23 +45,23 @@ Timestamp: 12/25/2021 1:24:11 PM
 
 namespace Lina::Utility
 {
-	struct File
-	{
-		std::string m_fullPath = "";	// folder + purename + extension
-		std::string m_folderPath = "";
-		std::string m_pureName = "";	// name without extension
-		std::string m_extension = "";
-		std::string m_fullName = "";	// name with extension
-	};
+    struct File
+    {
+        std::string m_fullPath   = ""; // folder + purename + extension
+        std::string m_folderPath = "";
+        std::string m_pureName   = ""; // name without extension
+        std::string m_extension  = "";
+        std::string m_fullName   = ""; // name with extension
+    };
 
-	struct Folder
-	{
-		std::string m_fullPath = "";
-		std::string m_name = "";
-		std::vector<File> m_files;
-		std::vector<Folder> m_folders;
-		bool m_isOpen = false;
-	};
-}
+    struct Folder
+    {
+        std::string         m_fullPath = "";
+        std::string         m_name     = "";
+        std::vector<File>   m_files;
+        std::vector<Folder> m_folders;
+        bool                m_isOpen = false;
+    };
+} // namespace Lina::Utility
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -48,11 +48,11 @@ Timestamp: 12/22/2020 6:28:36 PM
 namespace Lina::Graphics
 {
 #ifdef LINA_GRAPHICS_VULKAN
-	
+
 #elif LINA_GRAPHICS_OPENGL
-	typedef OpenGLRenderDevice RenderDeviceBackend;
-	#define FW_RenderDeviceBackend class OpenGLRenderDevice
+    typedef OpenGLRenderDevice RenderDeviceBackend;
+#define FW_RenderDeviceBackend class OpenGLRenderDevice
 #endif
-}
+} // namespace Lina::Graphics
 
 #endif

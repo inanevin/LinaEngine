@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,37 +40,34 @@ Timestamp: 12/24/2021 12:59:35 AM
 #define FrustumSystem_HPP
 
 // Headers here.
-#include "ECS/System.hpp"
 #include "Core/CommonECS.hpp"
+#include "ECS/System.hpp"
 
 namespace Lina
 {
-	class Vector3;
+    class Vector3;
 }
 
 namespace Lina::ECS
 {
-	class FrustumSystem : public System
-	{
-		
-	public:
+    class FrustumSystem : public System
+    {
 
-		FrustumSystem() {};
-		~FrustumSystem() {};
+    public:
+        FrustumSystem(){};
+        ~FrustumSystem(){};
 
-		virtual void Initialize() override;
-		virtual void UpdateComponents(float delta);
+        virtual void Initialize() override;
+        virtual void UpdateComponents(float delta);
 
-		/// <summary>
-		/// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
-		/// Returns whether entity contains any bounds (renderable or not).
-		/// </summary>
-		bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
+        /// <summary>
+        /// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
+        /// Returns whether entity contains any bounds (renderable or not).
+        /// </summary>
+        bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
 
-	
-	private:
-	
-	};
-}
+    private:
+    };
+} // namespace Lina::ECS
 
 #endif

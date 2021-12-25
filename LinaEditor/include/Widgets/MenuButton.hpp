@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,82 +39,79 @@ Timestamp: 10/8/2020 9:02:33 PM
 #ifndef MenuButton_HPP
 #define MenuButton_HPP
 
-
 #include "Math/Color.hpp"
+
 #include <functional>
 
 namespace Lina::Editor
 {
-	class MenuElement
-	{
-	public:
+    class MenuElement
+    {
+    public:
+        MenuElement(const char* icon, const char* title) : m_icon(icon), m_title(title){};
+        ~MenuElement()
+        {
+        }
 
-		MenuElement(const char* icon, const char* title) : m_icon(icon), m_title(title) {};
-		~MenuElement() {}
+        // Draw this element.
+        virtual void Draw(){};
 
-		// Draw this element.
-		virtual void Draw() {};
+    protected:
+        const char* m_icon;
+        const char* m_title;
 
-	protected:
+    private:
+        friend class MenuButton;
+        friend class MenuItem;
+        MenuButton* m_parent;
+    };
 
-		const char* m_icon;
-		const char* m_title;
+    class MenuItem : public MenuElement
+    {
+    public:
+        MenuItem(const char* icon, const char* title, std::function<void()> onClick) : MenuElement(icon, title), m_onClick(onClick){};
+        ~MenuItem(){};
 
-	private:
+        virtual void Draw() override;
 
-		friend class MenuButton;
-		friend class MenuItem;
-		MenuButton* m_parent;
+    private:
+        friend class MenuButton;
 
-	};
+        bool                  m_isHovered = false;
+        Color                 m_color     = Color(0, 0, 0, 0);
+        std::function<void()> m_onClick;
+    };
 
-	class MenuItem : public MenuElement
-	{
-	public:
+    class MenuButton : public MenuElement
+    {
 
-		MenuItem(const char* icon, const char* title, std::function<void()> onClick) : MenuElement(icon, title), m_onClick(onClick) {};
-		~MenuItem() {};
+    public:
+        MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Color& bgColor = Color(0, 0, 0, 0), bool useSameLine = false);
+        ~MenuButton();
 
-		virtual void Draw() override;
+        virtual void Draw() override;
 
-	private:
+        // Closes children popup
+        void ClosePopup();
 
-		friend class MenuButton;
+        // Set on click explicitly.
+        void SetOnClick(std::function<void()> onClick)
+        {
+            m_onClick = onClick;
+        }
 
-		bool m_isHovered = false;
-		Color m_color = Color(0, 0, 0, 0);
-		std::function<void()> m_onClick;
-	};
+        bool GetIsPopupOpen();
 
-	class MenuButton : public MenuElement
-	{
-		
-	public:
-		
-		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Color& bgColor = Color(0,0,0,0), bool useSameLine = false);
-		~MenuButton();
+        static bool s_anyButtonFocused;
 
-		virtual void Draw() override;
-	
-		// Closes children popup
-		void ClosePopup();
-
-		// Set on click explicitly.
-		void SetOnClick(std::function<void()> onClick) { m_onClick = onClick; }
-
-		bool GetIsPopupOpen();
-
-		static bool s_anyButtonFocused;
-
-	private:
-	
-		const char* m_popupID = "";
-		bool m_popupOpen = false;
-		bool m_useSameLine = false;
-		std::function<void()> m_onClick;
-		std::vector<MenuElement*> m_children;
-		Color m_bgColor = Color::Black;
-	};
-}
+    private:
+        const char*               m_popupID     = "";
+        bool                      m_popupOpen   = false;
+        bool                      m_useSameLine = false;
+        std::function<void()>     m_onClick;
+        std::vector<MenuElement*> m_children;
+        Color                     m_bgColor = Color::Black;
+    };
+} // namespace Lina::Editor
 
 #endif

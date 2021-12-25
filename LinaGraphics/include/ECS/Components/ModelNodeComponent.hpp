@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,39 +42,37 @@ Timestamp: 12/24/2021 10:20:14 PM
 // Headers here.
 #include "ECS/Component.hpp"
 #include "Utility/StringId.hpp"
-#include <cereal/types/vector.hpp>
+
 #include <cereal/access.hpp>
+#include <cereal/types/vector.hpp>
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class ModelNode;
-	}
-}
+    namespace Graphics
+    {
+        class ModelNode;
+    }
+} // namespace Lina
 
 namespace Lina::ECS
 {
-	struct ModelNodeComponent : public Component
-	{
-		Graphics::ModelNode* m_modelNode = nullptr;
-		std::vector<StringIDType> m_materialIDs;
+    struct ModelNodeComponent : public Component
+    {
+        Graphics::ModelNode*      m_modelNode = nullptr;
+        std::vector<StringIDType> m_materialIDs;
 
-	private:
+    private:
+        friend class cereal::access;
 
-		friend class cereal::access;
+        StringIDType m_modelNodeID = 0;
+        StringIDType m_modelID     = 0;
 
-		StringIDType m_modelNodeID = 0;
-		StringIDType m_modelID = 0;
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_modelNodeID, m_materialIDs, m_isEnabled);
+        }
+    };
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_modelNodeID, m_materialIDs, m_isEnabled);
-		}
-	};
-
-
-}
+} // namespace Lina::ECS
 
 #endif

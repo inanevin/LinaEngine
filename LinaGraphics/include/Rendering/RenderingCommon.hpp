@@ -38,414 +38,400 @@ Timestamp: 4/14/2019 11:59:32 AM
 #define RenderingCommon_HPP
 
 #include "Core/SizeDefinitions.hpp"
+#include "Math/Color.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 
-#include "Math/Vector.hpp"
-#include "Math/Matrix.hpp"
-#include "Math/Color.hpp"
-#include <map>
-#include <string>
 #include <cereal/types/map.hpp>
 #include <cereal/types/vector.hpp>
+#include <map>
+#include <string>
 
 namespace Lina::Graphics
 {
-#define INTERNAL_MAT_PATH "__internal"
-#define MAX_POINT_LIGHTS 12
-#define RENDERSETTINGS_FULLPATH "Resources/Engine/DefaultSettings.rendersettings"
+#define INTERNAL_MAT_PATH         "__internal"
+#define MAX_POINT_LIGHTS          12
+#define RENDERSETTINGS_FULLPATH   "Resources/Engine/DefaultSettings.rendersettings"
 #define RENDERSETTINGS_FOLDERPATH "Resources/Engine"
-#define RENDERSETTINGS_FILE "defaultSettings"
-#define MAX_BONE_INFLUENCE 4
+#define RENDERSETTINGS_FILE       "defaultSettings"
+#define MAX_BONE_INFLUENCE        4
 
-	enum BufferUsage
-	{
-		USAGE_STATIC_DRAW = LINA_GRAPHICS_USAGE_STATIC_DRAW,
-		USAGE_STREAM_DRAW = LINA_GRAPHICS_USAGE_STREAM_DRAW,
-		USAGE_DYNAMIC_DRAW = LINA_GRAPHICS_USAGE_DYNAMIC_DRAW,
-		USAGE_STATIC_COPY = LINA_GRAPHICS_USAGE_STATIC_COPY,
-		USAGE_STREAM_COPY = LINA_GRAPHICS_USAGE_STREAM_COPY,
-		USAGE_DYNAMIC_COPY = LINA_GRAPHICS_USAGE_DYNAMIC_COPY,
-		USAGE_STATIC_READ = LINA_GRAPHICS_USAGE_STATIC_READ,
-		USAGE_STREAM_READ = LINA_GRAPHICS_USAGE_STREAM_READ,
-		USAGE_DYNAMIC_READ = LINA_GRAPHICS_USAGE_DYNAMIC_READ,
-	};
+    enum BufferUsage
+    {
+        USAGE_STATIC_DRAW  = LINA_GRAPHICS_USAGE_STATIC_DRAW,
+        USAGE_STREAM_DRAW  = LINA_GRAPHICS_USAGE_STREAM_DRAW,
+        USAGE_DYNAMIC_DRAW = LINA_GRAPHICS_USAGE_DYNAMIC_DRAW,
+        USAGE_STATIC_COPY  = LINA_GRAPHICS_USAGE_STATIC_COPY,
+        USAGE_STREAM_COPY  = LINA_GRAPHICS_USAGE_STREAM_COPY,
+        USAGE_DYNAMIC_COPY = LINA_GRAPHICS_USAGE_DYNAMIC_COPY,
+        USAGE_STATIC_READ  = LINA_GRAPHICS_USAGE_STATIC_READ,
+        USAGE_STREAM_READ  = LINA_GRAPHICS_USAGE_STREAM_READ,
+        USAGE_DYNAMIC_READ = LINA_GRAPHICS_USAGE_DYNAMIC_READ,
+    };
 
-	enum BufferBit
-	{
-		BIT_COLOR = LINA_GRAPHICS_BUFFERBIT_COLOR,
-		BIT_DEPTH = LINA_GRAPHICS_BUFFERBIT_DEPTH,
-		BIT_STENCIL = LINA_GRAPHICS_BUFFERBIT_STENCIL
-	};
+    enum BufferBit
+    {
+        BIT_COLOR   = LINA_GRAPHICS_BUFFERBIT_COLOR,
+        BIT_DEPTH   = LINA_GRAPHICS_BUFFERBIT_DEPTH,
+        BIT_STENCIL = LINA_GRAPHICS_BUFFERBIT_STENCIL
+    };
 
-	enum SamplerFilter
-	{
-		FILTER_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST,
-		FILTER_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR,
-		FILTER_NEAREST_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST,
-		FILTER_LINEAR_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST,
-		FILTER_NEAREST_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR,
-		FILTER_LINEAR_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR,
-	};
+    enum SamplerFilter
+    {
+        FILTER_NEAREST                = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST,
+        FILTER_LINEAR                 = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR,
+        FILTER_NEAREST_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST,
+        FILTER_LINEAR_MIPMAP_NEAREST  = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST,
+        FILTER_NEAREST_MIPMAP_LINEAR  = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR,
+        FILTER_LINEAR_MIPMAP_LINEAR   = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR,
+    };
 
-	enum SamplerWrapMode
-	{
-		WRAP_CLAMP_EDGE = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP,
-		WRAP_CLAMP_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_MIRROR,
-		WRAP_CLAMP_BORDER = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_BORDER,
-		WRAP_REPEAT = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT,
-		WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR
-	};
+    enum SamplerWrapMode
+    {
+        WRAP_CLAMP_EDGE    = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP,
+        WRAP_CLAMP_MIRROR  = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_MIRROR,
+        WRAP_CLAMP_BORDER  = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_BORDER,
+        WRAP_REPEAT        = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT,
+        WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR
+    };
 
-	enum TextureBindMode
-	{
-		BINDTEXTURE_NONE,
-		BINDTEXTURE_TEXTURE,
-		BINDTEXTURE_TEXTURE2D = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D,
-		BINDTEXTURE_CUBEMAP = LINA_GRAPHICS_BINDTEXTURE_CUBEMAP,
-		BINDTEXTURE_CUBEMAP_POSITIVE_X = LINA_GRAPHICS_BINDTEXTURE_CUBEMAP_POSITIVE_X,
-		BINDTEXTURE_TEXTURE2D_MULTISAMPLE = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D_MULTISAMPLE
-	};
+    enum TextureBindMode
+    {
+        BINDTEXTURE_NONE,
+        BINDTEXTURE_TEXTURE,
+        BINDTEXTURE_TEXTURE2D             = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D,
+        BINDTEXTURE_CUBEMAP               = LINA_GRAPHICS_BINDTEXTURE_CUBEMAP,
+        BINDTEXTURE_CUBEMAP_POSITIVE_X    = LINA_GRAPHICS_BINDTEXTURE_CUBEMAP_POSITIVE_X,
+        BINDTEXTURE_TEXTURE2D_MULTISAMPLE = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D_MULTISAMPLE
+    };
 
-	enum PixelFormat
-	{
-		FORMAT_R = 0,
-		FORMAT_RG = 1,
-		FORMAT_RGB = 2,
-		FORMAT_RGBA = 3,
-		FORMAT_RGB16F = 4,
-		FORMAT_RGBA16F = 5,
-		FORMAT_DEPTH = 6,
-		FORMAT_DEPTH_AND_STENCIL = 7,
-		FORMAT_SRGB = 8,
-		FORMAT_SRGBA = 9,
-		FORMAT_DEPTH16 = 10
-	};
+    enum PixelFormat
+    {
+        FORMAT_R                 = 0,
+        FORMAT_RG                = 1,
+        FORMAT_RGB               = 2,
+        FORMAT_RGBA              = 3,
+        FORMAT_RGB16F            = 4,
+        FORMAT_RGBA16F           = 5,
+        FORMAT_DEPTH             = 6,
+        FORMAT_DEPTH_AND_STENCIL = 7,
+        FORMAT_SRGB              = 8,
+        FORMAT_SRGBA             = 9,
+        FORMAT_DEPTH16           = 10
+    };
 
+    enum PrimitiveType
+    {
+        PRIMITIVE_TRIANGLES                = LINA_GRAPHICS_PRIMITIVE_TRIANGLES,
+        PRIMITIVE_POINTS                   = LINA_GRAPHICS_PRIMITIVE_POINTS,
+        PRIMITIVE_LINE_STRIP               = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP,
+        PRIMITIVE_LINE_LOOP                = LINA_GRAPHICS_PRIMITIVE_LINE_LOOP,
+        PRIMITIVE_LINES                    = LINA_GRAPHICS_PRIMITIVE_LINES,
+        PRIMITIVE_LINE_STRIP_ADJACENCY     = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP_ADJACENCY,
+        PRIMITIVE_LINES_ADJACENCY          = LINA_GRAPHICS_PRIMITIVE_LINES_ADJACENCY,
+        PRIMITIVE_TRIANGLE_STRIP           = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP,
+        PRIMITIVE_TRIANGLE_FAN             = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_FAN,
+        PRIMITIVE_TRAINGLE_STRIP_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP_ADJACENCY,
+        PRIMITIVE_TRIANGLES_ADJACENCY      = LINA_GRAPHICS_PRIMITIVE_TRIANGLES_ADJACENCY,
+        PRIMITIVE_PATCHES                  = LINA_GRAPHICS_PRIMITIVE_PATCHES,
+    };
 
+    enum FaceCulling
+    {
+        FACE_CULL_NONE,
+        FACE_CULL_BACK           = LINA_GRAPHICS_FACE_CULL_BACK,
+        FACE_CULL_FRONT          = LINA_GRAPHICS_FACE_CULL_FRONT,
+        FACE_CULL_FRONT_AND_BACK = LINA_GRAPHICS_FACE_CULL_FRONT_AND_BACK,
+    };
 
-	enum PrimitiveType
-	{
-		PRIMITIVE_TRIANGLES = LINA_GRAPHICS_PRIMITIVE_TRIANGLES,
-		PRIMITIVE_POINTS = LINA_GRAPHICS_PRIMITIVE_POINTS,
-		PRIMITIVE_LINE_STRIP = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP,
-		PRIMITIVE_LINE_LOOP = LINA_GRAPHICS_PRIMITIVE_LINE_LOOP,
-		PRIMITIVE_LINES = LINA_GRAPHICS_PRIMITIVE_LINES,
-		PRIMITIVE_LINE_STRIP_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP_ADJACENCY,
-		PRIMITIVE_LINES_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_LINES_ADJACENCY,
-		PRIMITIVE_TRIANGLE_STRIP = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP,
-		PRIMITIVE_TRIANGLE_FAN = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_FAN,
-		PRIMITIVE_TRAINGLE_STRIP_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP_ADJACENCY,
-		PRIMITIVE_TRIANGLES_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_TRIANGLES_ADJACENCY,
-		PRIMITIVE_PATCHES = LINA_GRAPHICS_PRIMITIVE_PATCHES,
-	};
+    enum DrawFunc
+    {
+        DRAW_FUNC_NEVER     = LINA_GRAPHICS_DRAW_FUNC_NEVER,
+        DRAW_FUNC_ALWAYS    = LINA_GRAPHICS_DRAW_FUNC_ALWAYS,
+        DRAW_FUNC_LESS      = LINA_GRAPHICS_DRAW_FUNC_LESS,
+        DRAW_FUNC_GREATER   = LINA_GRAPHICS_DRAW_FUNC_GREATER,
+        DRAW_FUNC_LEQUAL    = LINA_GRAPHICS_DRAW_FUNC_LEQUAL,
+        DRAW_FUNC_GEQUAL    = LINA_GRAPHICS_DRAW_FUNC_GEQUAL,
+        DRAW_FUNC_EQUAL     = LINA_GRAPHICS_DRAW_FUNC_EQUAL,
+        DRAW_FUNC_NOT_EQUAL = LINA_GRAPHICS_DRAW_FUNC_NOT_EQUAL,
+    };
 
-	enum FaceCulling
-	{
-		FACE_CULL_NONE,
-		FACE_CULL_BACK = LINA_GRAPHICS_FACE_CULL_BACK,
-		FACE_CULL_FRONT = LINA_GRAPHICS_FACE_CULL_FRONT,
-		FACE_CULL_FRONT_AND_BACK = LINA_GRAPHICS_FACE_CULL_FRONT_AND_BACK,
-	};
+    enum FrameBufferAttachment
+    {
+        ATTACHMENT_COLOR             = LINA_GRAPHICS_ATTACHMENT_COLOR,
+        ATTACHMENT_DEPTH             = LINA_GRAPHICS_ATTACHMENT_DEPTH,
+        ATTACHMENT_STENCIL           = LINA_GRAPHICS_ATTACHMENT_STENCIL,
+        ATTACHMENT_DEPTH_AND_STENCIL = LINA_GRAPHICS_ATTACHMENT_DEPTHANDSTENCIL,
+    };
 
-	enum DrawFunc
-	{
-		DRAW_FUNC_NEVER = LINA_GRAPHICS_DRAW_FUNC_NEVER,
-		DRAW_FUNC_ALWAYS = LINA_GRAPHICS_DRAW_FUNC_ALWAYS,
-		DRAW_FUNC_LESS = LINA_GRAPHICS_DRAW_FUNC_LESS,
-		DRAW_FUNC_GREATER = LINA_GRAPHICS_DRAW_FUNC_GREATER,
-		DRAW_FUNC_LEQUAL = LINA_GRAPHICS_DRAW_FUNC_LEQUAL,
-		DRAW_FUNC_GEQUAL = LINA_GRAPHICS_DRAW_FUNC_GEQUAL,
-		DRAW_FUNC_EQUAL = LINA_GRAPHICS_DRAW_FUNC_EQUAL,
-		DRAW_FUNC_NOT_EQUAL = LINA_GRAPHICS_DRAW_FUNC_NOT_EQUAL,
-	};
+    enum RenderBufferStorage
+    {
+        STORAGE_DEPTH             = LINA_GRAPHICS_STORAGE_D,
+        STORAGE_DEPTH_COMP16      = LINA_GRAPHICS_STORAGE_DC16,
+        STORAGE_DEPTH_COMP24      = LINA_GRAPHICS_sTORAGE_DC24,
+        STORAGE_DEPTH_COMP32F     = LINA_GRAPHICS_STORAGE_DC32F,
+        STORAGE_DEPTH24_STENCIL8  = LINA_GRAPHICS_STORAGE_D24S8,
+        STORAGE_DEPTH32F_STENCIL8 = LINA_GRAPHICS_STORAGE_D32FS8,
+        STORAGE_STENCIL_INDEX8    = LINA_GRAPHICS_STORAGE_SI8
+    };
 
-	enum FrameBufferAttachment
-	{
-		ATTACHMENT_COLOR = LINA_GRAPHICS_ATTACHMENT_COLOR,
-		ATTACHMENT_DEPTH = LINA_GRAPHICS_ATTACHMENT_DEPTH,
-		ATTACHMENT_STENCIL = LINA_GRAPHICS_ATTACHMENT_STENCIL,
-		ATTACHMENT_DEPTH_AND_STENCIL = LINA_GRAPHICS_ATTACHMENT_DEPTHANDSTENCIL,
-	};
+    enum BlendFunc
+    {
+        BLEND_FUNC_NONE,
+        BLEND_FUNC_ONE                 = LINA_GRAPHICS_BLEND_FUNC_ONE,
+        BLEND_FUNC_SRC_ALPHA           = LINA_GRAPHICS_BLEND_FUNC_SRC_ALPHA,
+        BLEND_FUNC_ONE_MINUS_SRC_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_SRC_ALPHA,
+        BLEND_FUNC_ONE_MINUS_DST_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_DST_ALPHA,
+        BLEND_FUNC_DST_ALPHA           = LINA_GRAPHICS_BLEND_FUNC_DST_ALPHA,
+    };
 
+    enum StencilOp
+    {
+        STENCIL_KEEP      = LINA_GRAPHICS_STENCIL_KEEP,
+        STENCIL_ZERO      = LINA_GRAPHICS_STENCIL_ZERO,
+        STENCIL_REPLACE   = LINA_GRAPHICS_STENCIL_REPLACE,
+        STENICL_INCR      = LINA_GRAPHICS_STENCIL_INCR,
+        STENCIL_INCR_WRAP = LINA_GRAPHICS_STENCIL_INCR_WRAP,
+        STENCIL_DECR_WRAP = LINA_GRAPHICS_STENCIL_DECR_WRAP,
+        STENCIL_DECR      = LINA_GRAPHICS_STENCIL_DECR,
+        STENCIL_INVERT    = LINA_GRAPHICS_STENCIL_INVERT,
+    };
 
-	enum RenderBufferStorage
-	{
-		STORAGE_DEPTH = LINA_GRAPHICS_STORAGE_D,
-		STORAGE_DEPTH_COMP16 = LINA_GRAPHICS_STORAGE_DC16,
-		STORAGE_DEPTH_COMP24 = LINA_GRAPHICS_sTORAGE_DC24,
-		STORAGE_DEPTH_COMP32F = LINA_GRAPHICS_STORAGE_DC32F,
-		STORAGE_DEPTH24_STENCIL8 = LINA_GRAPHICS_STORAGE_D24S8,
-		STORAGE_DEPTH32F_STENCIL8 = LINA_GRAPHICS_STORAGE_D32FS8,
-		STORAGE_STENCIL_INDEX8 = LINA_GRAPHICS_STORAGE_SI8
-	};
+    enum UniformType
+    {
+        UT_Matrix4,
+        UT_Vector3,
+        UT_Vector4,
+        UT_Vector2,
+        UT_Float,
+        UT_Int
+    };
 
-	enum BlendFunc
-	{
-		BLEND_FUNC_NONE,
-		BLEND_FUNC_ONE = LINA_GRAPHICS_BLEND_FUNC_ONE,
-		BLEND_FUNC_SRC_ALPHA = LINA_GRAPHICS_BLEND_FUNC_SRC_ALPHA,
-		BLEND_FUNC_ONE_MINUS_SRC_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_SRC_ALPHA,
-		BLEND_FUNC_ONE_MINUS_DST_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_DST_ALPHA,
-		BLEND_FUNC_DST_ALPHA = LINA_GRAPHICS_BLEND_FUNC_DST_ALPHA,
-	};
+    struct ShaderSamplerData
+    {
+        uint32          m_unit     = 0;
+        TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+    };
 
-	enum StencilOp
-	{
-		STENCIL_KEEP = LINA_GRAPHICS_STENCIL_KEEP,
-		STENCIL_ZERO = LINA_GRAPHICS_STENCIL_ZERO,
-		STENCIL_REPLACE = LINA_GRAPHICS_STENCIL_REPLACE,
-		STENICL_INCR = LINA_GRAPHICS_STENCIL_INCR,
-		STENCIL_INCR_WRAP = LINA_GRAPHICS_STENCIL_INCR_WRAP,
-		STENCIL_DECR_WRAP = LINA_GRAPHICS_STENCIL_DECR_WRAP,
-		STENCIL_DECR = LINA_GRAPHICS_STENCIL_DECR,
-		STENCIL_INVERT = LINA_GRAPHICS_STENCIL_INVERT,
-	};
+    struct ShaderUniformData
+    {
+        std::map<std::string, float>             m_floats;
+        std::map<std::string, int>               m_ints;
+        std::map<std::string, ShaderSamplerData> m_sampler2Ds;
+        std::map<std::string, Color>             m_colors;
+        std::map<std::string, Vector2>           m_vector2s;
+        std::map<std::string, Vector3>           m_vector3s;
+        std::map<std::string, Vector4>           m_vector4s;
+        std::map<std::string, Matrix>            m_matrices;
+        std::map<std::string, bool>              m_bools;
+    };
 
-	enum UniformType
-	{
-		UT_Matrix4,
-		UT_Vector3,
-		UT_Vector4,
-		UT_Vector2,
-		UT_Float,
-		UT_Int
-	};
+    struct SamplerData
+    {
+        SamplerFilter   m_minFilter  = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
+        SamplerFilter   maxFilter    = SamplerFilter::FILTER_LINEAR;
+        SamplerWrapMode m_wrapS      = SamplerWrapMode::WRAP_CLAMP_EDGE;
+        SamplerWrapMode m_wrapT      = SamplerWrapMode::WRAP_CLAMP_EDGE;
+        float           m_anisotropy = 0.0f;
+    };
 
-	struct ShaderSamplerData
-	{
-		uint32 m_unit = 0;
-		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-	};
+    struct DrawParams
+    {
+        bool          skipParameters          = false;
+        PrimitiveType primitiveType           = PRIMITIVE_TRIANGLES;
+        FaceCulling   faceCulling             = FACE_CULL_NONE;
+        DrawFunc      depthFunc               = DRAW_FUNC_ALWAYS;
+        DrawFunc      stencilFunc             = DRAW_FUNC_ALWAYS;
+        StencilOp     stencilFail             = STENCIL_KEEP;
+        StencilOp     stencilPassButDepthFail = STENCIL_KEEP;
+        StencilOp     stencilPass             = STENCIL_REPLACE;
+        BlendFunc     sourceBlend             = BLEND_FUNC_NONE;
+        BlendFunc     destBlend               = BLEND_FUNC_NONE;
+        bool          shouldWriteDepth        = true;
+        bool          useDepthTest            = true;
+        bool          useStencilTest          = false;
+        bool          useScissorTest          = false;
+        uint32        scissorStartX           = 0;
+        uint32        scissorStartY           = 0;
+        uint32        scissorWidth            = 0;
+        uint32        scissorHeight           = 0;
+        uint32        stencilTestMask         = 0;
+        uint32        stencilWriteMask        = 0;
+        int32         stencilComparisonVal    = 0;
+    };
 
-	struct ShaderUniformData
-	{
-		std::map<std::string, float> m_floats;
-		std::map<std::string, int> m_ints;
-		std::map<std::string, ShaderSamplerData> m_sampler2Ds;
-		std::map<std::string, Color> m_colors;
-		std::map<std::string, Vector2> m_vector2s;
-		std::map<std::string, Vector3> m_vector3s;
-		std::map<std::string, Vector4> m_vector4s;
-		std::map<std::string, Matrix> m_matrices;
-		std::map<std::string, bool> m_bools;
-	};
+    struct RenderingDebugData
+    {
+        bool visualizeDepth;
+    };
 
+    enum MaterialSurfaceType
+    {
+        Opaque      = 0,
+        Transparent = 1
+    };
 
-	struct SamplerData
-	{
-		SamplerFilter m_minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
-		SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		float m_anisotropy = 0.0f;
-	};
+    extern char* g_materialSurfaceTypeStr[2];
 
-	struct DrawParams
-	{
-		bool skipParameters = false;
-		PrimitiveType primitiveType = PRIMITIVE_TRIANGLES;
-		FaceCulling faceCulling = FACE_CULL_NONE;
-		DrawFunc depthFunc = DRAW_FUNC_ALWAYS;
-		DrawFunc stencilFunc = DRAW_FUNC_ALWAYS;
-		StencilOp stencilFail = STENCIL_KEEP;
-		StencilOp stencilPassButDepthFail = STENCIL_KEEP;
-		StencilOp stencilPass = STENCIL_REPLACE;
-		BlendFunc sourceBlend = BLEND_FUNC_NONE;
-		BlendFunc destBlend = BLEND_FUNC_NONE;
-		bool shouldWriteDepth = true;
-		bool useDepthTest = true;
-		bool useStencilTest = false;
-		bool useScissorTest = false;
-		uint32 scissorStartX = 0;
-		uint32 scissorStartY = 0;
-		uint32 scissorWidth = 0;
-		uint32 scissorHeight = 0;
-		uint32 stencilTestMask = 0;
-		uint32 stencilWriteMask = 0;
-		int32 stencilComparisonVal = 0;
-	};
+    enum Primitives
+    {
+        Plane     = 0,
+        Cube      = 1,
+        Sphere    = 2,
+        Icosphere = 3,
+        Cone      = 4,
+        Cylinder  = 5,
+        Capsule   = 6,
+        Quad      = 7
+    };
 
-	struct RenderingDebugData
-	{
-		bool visualizeDepth;
-	};
+    struct DebugLine
+    {
+        Vector3 m_from  = Vector3::Zero;
+        Vector3 m_to    = Vector3::Zero;
+        Color   m_color = Color::White;
+        float   m_width = 0.0f;
+    };
 
+    struct DebugIcon
+    {
+        Vector3      m_center;
+        StringIDType m_textureID;
+        float        m_size = 1.0f;
+    };
 
-	enum MaterialSurfaceType
-	{
-		Opaque = 0,
-		Transparent = 1
-	};
+    struct VertexBoneData
+    {
+        int   m_boneIDs[MAX_BONE_INFLUENCE];
+        float m_boneWeights[MAX_BONE_INFLUENCE];
+    };
 
-	extern char* g_materialSurfaceTypeStr[2];
+    struct BoneInfo
+    {
+        int    m_id;
+        Matrix m_offset;
+    };
 
+    enum class ImportTextureType
+    {
+        None         = 0,
+        Diffuse      = 1,
+        Specular     = 2,
+        Ambient      = 3,
+        Emissive     = 4,
+        Height       = 5,
+        Normals      = 6,
+        Shineness    = 7,
+        Opacity      = 8,
+        Displacement = 9,
+        Lightmap     = 10,
+        Reflection   = 11,
 
-	enum Primitives
-	{
-		Plane = 0,
-		Cube = 1,
-		Sphere = 2,
-		Icosphere = 3,
-		Cone = 4,
-		Cylinder = 5,
-		Capsule = 6,
-		Quad = 7
-	};
+        // PBR
+        BaseColor        = 12,
+        NormalCamera     = 13,
+        EmissiveColor    = 14,
+        Metalness        = 15,
+        DiffuseRoughness = 16,
+        AmbientOcclusion = 17,
+        Unknown          = 18,
+    };
 
+    struct ImportedModelMaterial
+    {
+        std::string                                           m_name = "Material";
+        std::map<ImportTextureType, std::vector<std::string>> m_textures;
+    };
 
-	struct DebugLine
-	{
-		Vector3 m_from = Vector3::Zero;
-		Vector3 m_to = Vector3::Zero;
-		Color m_color = Color::White;
-		float m_width = 0.0f;
-	};
+    struct TextureParameters
+    {
+        PixelFormat     m_pixelFormat         = PixelFormat::FORMAT_RGBA;
+        PixelFormat     m_internalPixelFormat = PixelFormat::FORMAT_RGBA;
+        SamplerFilter   m_minFilter           = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+        SamplerFilter   m_magFilter           = SamplerFilter::FILTER_LINEAR;
+        SamplerWrapMode m_wrapS               = SamplerWrapMode::WRAP_REPEAT;
+        SamplerWrapMode m_wrapT               = SamplerWrapMode::WRAP_REPEAT;
+        SamplerWrapMode m_wrapR               = SamplerWrapMode::WRAP_REPEAT;
+        bool            m_generateMipMaps     = false;
 
-	struct DebugIcon
-	{
-		Vector3 m_center;
-		StringIDType m_textureID;
-		float m_size = 1.0f;
-	};
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_pixelFormat, m_internalPixelFormat, m_minFilter, m_magFilter, m_wrapS, m_wrapT, m_wrapR, m_generateMipMaps);
+        }
+    };
 
-	struct VertexBoneData
-	{
-		int m_boneIDs[MAX_BONE_INFLUENCE];
-		float m_boneWeights[MAX_BONE_INFLUENCE];
-	};
+    struct SamplerParameters
+    {
+        TextureParameters m_textureParams = TextureParameters();
+        int               m_anisotropy    = 0;
 
-	struct BoneInfo
-	{
-		int m_id;
-		Matrix m_offset;
-	};
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_anisotropy, m_textureParams);
+        }
+    };
 
-	enum class ImportTextureType
-	{
-		None = 0,
-		Diffuse = 1,
-		Specular = 2,
-		Ambient = 3,
-		Emissive = 4,
-		Height = 5,
-		Normals = 6,
-		Shineness = 7,
-		Opacity = 8,
-		Displacement = 9,
-		Lightmap = 10,
-		Reflection = 11,
+    struct ImageAssetData
+    {
+        SamplerParameters m_samplerParameters;
 
-		// PBR
-		BaseColor = 12,
-		NormalCamera = 13,
-		EmissiveColor = 14,
-		Metalness = 15,
-		DiffuseRoughness = 16,
-		AmbientOcclusion = 17,
-		Unknown = 18,
-	};
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_samplerParameters);
+        }
+    };
 
-	struct ImportedModelMaterial
-	{
-		std::string m_name = "Material";
-		std::map<ImportTextureType, std::vector<std::string>> m_textures;
-	};
+    struct ModelAssetData
+    {
+        float                                             m_globalScale            = 1.0f; // 1 meter file = 1 unit Lina
+        bool                                              m_triangulate            = true;
+        bool                                              m_smoothNormals          = true;
+        bool                                              m_calculateTangentSpace  = true;
+        bool                                              m_flipWinding            = false;
+        bool                                              m_flipUVs                = false;
+        bool                                              m_regenerateConvexMeshes = false;
+        std::map<int, std::vector<uint8>>                 m_convexMeshData;
+        std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
 
-	struct TextureParameters
-	{
-		PixelFormat m_pixelFormat = PixelFormat::FORMAT_RGBA;
-		PixelFormat m_internalPixelFormat = PixelFormat::FORMAT_RGBA;
-		SamplerFilter m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-		SamplerFilter m_magFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_REPEAT;
-		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_REPEAT;
-		SamplerWrapMode m_wrapR = SamplerWrapMode::WRAP_REPEAT;
-		bool m_generateMipMaps = false;
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
+        }
+    };
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_pixelFormat, m_internalPixelFormat, m_minFilter, m_magFilter, m_wrapS, m_wrapT, m_wrapR, m_generateMipMaps);
-		}
-	};
+    // Vertex array struct for storage & vertex array data transportation.
+    struct VertexArrayData
+    {
+        uint32*     buffers;
+        uintptr*    bufferSizes;
+        uint32      numBuffers;
+        uint32      numElements;
+        uint32      instanceComponentsStartIndex;
+        BufferUsage bufferUsage;
+    };
 
-	struct SamplerParameters
-	{
-		TextureParameters m_textureParams = TextureParameters();
-		int m_anisotropy = 0;
+    // Shader program struct for storage.
+    struct ShaderProgram
+    {
+        std::vector<uint32>          shaders;
+        std::map<std::string, int32> uniformBlockMap;
+        std::map<std::string, int32> samplerMap;
+        std::map<std::string, int32> uniformMap;
+    };
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_anisotropy, m_textureParams);
-		}
-	};
+    struct BufferData
+    {
+        BufferData(){};
+        BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced){};
 
-	struct ImageAssetData
-	{
-		SamplerParameters m_samplerParameters;
-
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_samplerParameters);
-		}
-	};
-
-
-	struct ModelAssetData
-	{
-		float m_globalScale = 1.0f;	// 1 meter file = 1 unit Lina
-		bool m_triangulate = true;
-		bool m_smoothNormals = true;
-		bool m_calculateTangentSpace = true;
-		bool m_flipWinding = false;
-		bool m_flipUVs = false;
-		bool m_regenerateConvexMeshes = false;
-		std::map<int, std::vector<uint8>> m_convexMeshData;
-		std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
-
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
-		}
-	};
-
-	// Vertex array struct for storage & vertex array data transportation.
-	struct VertexArrayData
-	{
-		uint32* buffers;
-		uintptr* bufferSizes;
-		uint32  numBuffers;
-		uint32  numElements;
-		uint32  instanceComponentsStartIndex;
-		BufferUsage bufferUsage;
-	};
-
-	// Shader program struct for storage.
-	struct ShaderProgram
-	{
-		std::vector<uint32> shaders;
-		std::map<std::string, int32> uniformBlockMap;
-		std::map<std::string, int32> samplerMap;
-		std::map<std::string, int32> uniformMap;
-	};
-
-
-	struct BufferData
-	{
-		BufferData() {};
-		BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced) {};
-
-		uint32 m_attrib;
-		uint32 m_elementSize;
-		bool m_isFloat;
-		bool m_isInstanced;
-		std::vector<float> m_floatElements;
-		std::vector<int> m_intElements;
-	};
-}
-
+        uint32             m_attrib;
+        uint32             m_elementSize;
+        bool               m_isFloat;
+        bool               m_isInstanced;
+        std::vector<float> m_floatElements;
+        std::vector<int>   m_intElements;
+    };
+} // namespace Lina::Graphics
 
 #endif

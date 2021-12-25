@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,48 +40,51 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
-#include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
+#include "ECS/Systems/EditorCameraSystem.hpp"
 
 namespace Lina
 {
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-	namespace Event
-	{
-		struct EPlayModeChanged;
-		struct ELevelInitialized;
-	}
-}
+    namespace Event
+    {
+        struct EPlayModeChanged;
+        struct ELevelInitialized;
+    } // namespace Event
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class EditorApplication
-	{
-	public:
+    class EditorApplication
+    {
+    public:
+        EditorApplication(){};
+        ~EditorApplication(){};
 
-		EditorApplication() {};
-		~EditorApplication() {};
+        static EditorApplication* Get()
+        {
+            return s_editorApplication;
+        }
+        void                     Initialize();
+        void                     Refresh();
+        void                     LevelInitialized(const Event::ELevelInitialized& ev);
+        ECS::EditorCameraSystem& GetCameraSystem()
+        {
+            return m_editorCameraSystem;
+        }
 
-		static EditorApplication* Get() { return s_editorApplication; }
-		void Initialize();
-		void Refresh();
-		void LevelInitialized(const Event::ELevelInitialized& ev);
-		ECS::EditorCameraSystem& GetCameraSystem() { return m_editorCameraSystem; }
+    private:
+        void PlayModeChanged(const Event::EPlayModeChanged& playmode);
 
-	private:
-
-		void PlayModeChanged(const Event::EPlayModeChanged& playmode);
-
-	private:
-
-		static EditorApplication* s_editorApplication;
-		ECS::EditorCameraSystem m_editorCameraSystem;
-		GUILayer m_guiLayer;
-	};
-}
+    private:
+        static EditorApplication* s_editorApplication;
+        ECS::EditorCameraSystem   m_editorCameraSystem;
+        GUILayer                  m_guiLayer;
+    };
+} // namespace Lina::Editor
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,31 +27,32 @@ SOFTWARE.
 */
 
 #include "Rendering/RenderSettings.hpp"
-#include <stdio.h>
+
 #include <cereal/archives/binary.hpp>
 #include <fstream>
+#include <stdio.h>
 
 namespace Lina::Graphics
 {
-	void RenderSettings::SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName)
-	{
-		std::ofstream stream(path + "/" + fileName + ".rendersettings");
-		{
-			cereal::BinaryOutputArchive oarchive(stream);
-			oarchive(settings);
-		}
-	}
+    void RenderSettings::SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName)
+    {
+        std::ofstream stream(path + "/" + fileName + ".rendersettings");
+        {
+            cereal::BinaryOutputArchive oarchive(stream);
+            oarchive(settings);
+        }
+    }
 
-	RenderSettings RenderSettings::DeserializeRenderSettings(const std::string& path, const std::string& fileName)
-	{
-		RenderSettings settings;
+    RenderSettings RenderSettings::DeserializeRenderSettings(const std::string& path, const std::string& fileName)
+    {
+        RenderSettings settings;
 
-		std::ifstream stream(path + "/" + fileName + ".rendersettings");
-		{
-			cereal::BinaryInputArchive iarchive(stream);
-			iarchive(settings);
-		}
+        std::ifstream stream(path + "/" + fileName + ".rendersettings");
+        {
+            cereal::BinaryInputArchive iarchive(stream);
+            iarchive(settings);
+        }
 
-		return settings;
-	}
-}
+        return settings;
+    }
+} // namespace Lina::Graphics

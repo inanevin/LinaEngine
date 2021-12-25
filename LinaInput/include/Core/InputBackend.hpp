@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -46,8 +46,8 @@ Timestamp: 12/22/2020 6:06:47 PM
 namespace Lina::Input
 {
 #ifdef LINA_INPUT_GLFW
-	typedef GLFWInputEngine InputEngineBackend;
+    typedef GLFWInputEngine InputEngineBackend;
 #endif
-}
+} // namespace Lina::Input
 
 #endif

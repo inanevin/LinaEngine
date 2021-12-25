@@ -36,103 +36,130 @@ Timestamp: 9/30/2020 2:46:27 AM
 #ifndef PhysicsbodyComponent_HPP
 #define PhysicsbodyComponent_HPP
 
+#include "Core/CommonPhysics.hpp"
 #include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
-#include "Core/CommonPhysics.hpp"
 #include "Utility/StringId.hpp"
 
 namespace Lina
 {
-	namespace Editor
-	{
-		class ComponentDrawer;
-	}
+    namespace Editor
+    {
+        class ComponentDrawer;
+    }
 
-	namespace Physics
-	{
+    namespace Physics
+    {
 #ifdef LINA_PHYSICS_BULLET
-		class BulletPhysicsEngine;
+        class BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		class PhysXPhysicsEngine;
+        class PhysXPhysicsEngine;
 #endif
-	}
+    } // namespace Physics
 
-	namespace World
-	{
-		class Level;
-	}
+    namespace World
+    {
+        class Level;
+    }
 
-};
+}; // namespace Lina
 
 namespace Lina::ECS
 {
-	class RigidbodySystem;
-	class Registry;
+    class RigidbodySystem;
+    class Registry;
 
-	struct PhysicsComponent : public Component
-	{
+    struct PhysicsComponent : public Component
+    {
 
-		Vector3 GetVelocity() { return m_velocity; }
-		Vector3 GetAngularVelocity() { return m_angularVelocity; }
-		Vector3 GetHalfExtents() { return m_halfExtents; }
-		float GetRadius() { return m_radius; }
-		float GetCapsuleHalfHeight() { return m_capsuleHalfHeight; }
-		bool GetIsKinematic() { return m_isKinematic; }
-		Physics::CollisionShape GetCollisionShape() { return m_collisionShape; }
-		Physics::SimulationType GetSimType() { return m_simType; }
-		std::string GetMaterialPath() { return m_physicsMaterialPath; }
-		StringIDType GetMaterialID() { return m_physicsMaterialID; }
-		StringIDType m_attachedModelID = 0;
+        Vector3 GetVelocity()
+        {
+            return m_velocity;
+        }
+        Vector3 GetAngularVelocity()
+        {
+            return m_angularVelocity;
+        }
+        Vector3 GetHalfExtents()
+        {
+            return m_halfExtents;
+        }
+        float GetRadius()
+        {
+            return m_radius;
+        }
+        float GetCapsuleHalfHeight()
+        {
+            return m_capsuleHalfHeight;
+        }
+        bool GetIsKinematic()
+        {
+            return m_isKinematic;
+        }
+        Physics::CollisionShape GetCollisionShape()
+        {
+            return m_collisionShape;
+        }
+        Physics::SimulationType GetSimType()
+        {
+            return m_simType;
+        }
+        std::string GetMaterialPath()
+        {
+            return m_physicsMaterialPath;
+        }
+        StringIDType GetMaterialID()
+        {
+            return m_physicsMaterialID;
+        }
+        StringIDType m_attachedModelID = 0;
 
-	private:
-
-		friend class cereal::access;
-		friend class World::Level;
-		friend class ECS::Registry;
-		friend class Editor::ComponentDrawer;
-		friend class ECS::RigidbodySystem;
+    private:
+        friend class cereal::access;
+        friend class World::Level;
+        friend class ECS::Registry;
+        friend class Editor::ComponentDrawer;
+        friend class ECS::RigidbodySystem;
 
 #ifdef LINA_PHYSICS_BULLET
-		friend class Physics::BulletPhysicsEngine;
+        friend class Physics::BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		friend class Physics::PhysXPhysicsEngine;
+        friend class Physics::PhysXPhysicsEngine;
 #endif
 
-		Physics::SimulationType m_simType = Physics::SimulationType::None;
-		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
-		Vector3 m_halfExtents = Vector3(0.5f, 0.5f, 0.5f); 
-		Vector3 m_velocity = Vector3::Zero;
-		Vector3 m_angularVelocity = Vector3::Zero;
-		float m_mass = 1.0f;
-		float m_radius = 1.0f;
-		float m_capsuleHalfHeight = 1.0f;
-		bool m_isKinematic = true;
-		std::string m_physicsMaterialPath = "";
-		StringIDType m_physicsMaterialID = 0;
+        Physics::SimulationType m_simType             = Physics::SimulationType::None;
+        Physics::CollisionShape m_collisionShape      = Physics::CollisionShape::Box;
+        Vector3                 m_halfExtents         = Vector3(0.5f, 0.5f, 0.5f);
+        Vector3                 m_velocity            = Vector3::Zero;
+        Vector3                 m_angularVelocity     = Vector3::Zero;
+        float                   m_mass                = 1.0f;
+        float                   m_radius              = 1.0f;
+        float                   m_capsuleHalfHeight   = 1.0f;
+        bool                    m_isKinematic         = true;
+        std::string             m_physicsMaterialPath = "";
+        StringIDType            m_physicsMaterialID   = 0;
 
-		void ResetRuntimeState()
-		{
-			m_velocity = Vector3::Zero;
-			m_angularVelocity = Vector3::Zero;
-			m_simType = Physics::SimulationType::None;
-		}
+        void ResetRuntimeState()
+        {
+            m_velocity        = Vector3::Zero;
+            m_angularVelocity = Vector3::Zero;
+            m_simType         = Physics::SimulationType::None;
+        }
 
-		void Reset()
-		{
-			m_mass = 1.0f;
-			m_radius = 1.0f;
-			m_capsuleHalfHeight = 2.0f;
-			m_collisionShape = Physics::CollisionShape::Box;
-			ResetRuntimeState();
-		}
+        void Reset()
+        {
+            m_mass              = 1.0f;
+            m_radius            = 1.0f;
+            m_capsuleHalfHeight = 2.0f;
+            m_collisionShape    = Physics::CollisionShape::Box;
+            ResetRuntimeState();
+        }
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_collisionShape, m_physicsMaterialPath, m_simType,  m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
-		}
-
-	};
-}
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(m_collisionShape, m_physicsMaterialPath, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
+        }
+    };
+} // namespace Lina::ECS
 
 #endif

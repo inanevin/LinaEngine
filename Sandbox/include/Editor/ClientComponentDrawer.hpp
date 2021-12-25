@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,21 +39,17 @@ Timestamp: 11/3/2020 1:49:15 PM
 #ifndef ClientComponentDrawer_HPP
 #define ClientComponentDrawer_HPP
 
-
 namespace Lina
 {
-	class ClientComponentDrawer
-	{
-		
-	public:
-		
-		ClientComponentDrawer() {};
-		~ClientComponentDrawer() {};
+    class ClientComponentDrawer
+    {
 
-		
-	private:
+    public:
+        ClientComponentDrawer(){};
+        ~ClientComponentDrawer(){};
 
-	};
-}
+    private:
+    };
+} // namespace Lina
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,12 +50,12 @@ Timestamp: 12/22/2020 6:07:35 PM
 namespace Lina::Physics
 {
 #ifdef LINA_PHYSICS_BULLET
-	typedef BulletPhysicsEngine PhysicsEngineBackend;
+    typedef BulletPhysicsEngine PhysicsEngineBackend;
 #endif
 
 #ifdef LINA_PHYSICS_PHYSX
-	typedef PhysXPhysicsEngine PhysicsEngineBackend;
+    typedef PhysXPhysicsEngine PhysicsEngineBackend;
 #endif
-}
+} // namespace Lina::Physics
 
 #endif

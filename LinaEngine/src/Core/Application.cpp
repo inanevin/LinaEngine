@@ -27,14 +27,15 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
-#include "EventSystem/ApplicationEvents.hpp"
-#include "EventSystem/WindowEvents.hpp"
-#include "EventSystem/LevelEvents.hpp"
-#include "Log/Log.hpp"
+
 #include "Core/PlatformMacros.hpp"
-#include "World/Level.hpp"
+#include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
+#include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "World/Level.hpp"
 
 #ifdef LINA_WINDOWS
 #include <windows.h>
@@ -43,148 +44,140 @@ SOFTWARE.
 namespace Lina
 {
 
-	Application* Application::s_application = nullptr;
+    Application* Application::s_application = nullptr;
 
+    Application::Application()
+    {
+        LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 
-	Application::Application()
-	{
-		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
+        // Setup static references.
+        s_application     = this;
+        m_engine.s_engine = &m_engine;
+        entt::sink logSink{Log::s_onLog};
+        logSink.connect<&Application::OnLog>(this);
+    }
 
-		// Setup static references.
-		s_application = this;
-		m_engine.s_engine = &m_engine;
-		entt::sink logSink{ Log::s_onLog };
-		logSink.connect<&Application::OnLog>(this);
-	}
+    void Application::Initialize(ApplicationInfo& appInfo)
+    {
+        LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
 
-	void Application::Initialize(ApplicationInfo& appInfo)
-	{
-		LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
+        m_engine.Initialize(appInfo);
 
-		m_engine.Initialize(appInfo);
+        // Connect events.
+        m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
+        m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
+    }
 
-		// Connect events.
-		m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
-		m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
+    void Application::Run()
+    {
+        m_engine.Run();
 
-	}
+        entt::sink logSink{Log::s_onLog};
+        logSink.disconnect(this);
+    }
 
-	void Application::Run()
-	{
-		m_engine.Run();
-
-		entt::sink logSink{ Log::s_onLog };
-		logSink.disconnect(this);
-	}
-
-
-	void Application::OnLog(const Event::ELog& dump)
-	{
-		std::string msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
+    void Application::OnLog(const Event::ELog& dump)
+    {
+        std::string msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
 
 #ifdef LINA_WINDOWS
-		HANDLE hConsole;
-		int color = 15;
+        HANDLE hConsole;
+        int    color = 15;
 
-		if (dump.m_level == LogLevel::Trace || dump.m_level == LogLevel::Debug)
-			color = 3;
-		else if (dump.m_level == LogLevel::Info || dump.m_level == LogLevel::None)
-			color = 15;
-		else if (dump.m_level == LogLevel::Warn)
-			color = 6;
-		else if (dump.m_level == LogLevel::Error || dump.m_level == LogLevel::Critical)
-			color = 4;
+        if (dump.m_level == LogLevel::Trace || dump.m_level == LogLevel::Debug)
+            color = 3;
+        else if (dump.m_level == LogLevel::Info || dump.m_level == LogLevel::None)
+            color = 15;
+        else if (dump.m_level == LogLevel::Warn)
+            color = 6;
+        else if (dump.m_level == LogLevel::Error || dump.m_level == LogLevel::Critical)
+            color = 4;
 
-		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hConsole, color);
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleTextAttribute(hConsole, color);
 
 #elif LINA_LINUX
-		if (dump.m_level == LogLevel::Error)
-			msg = "\033{1;31m" + dump.m_message + "\033[0m";
-		else if (dump.m_level == LogLevel::Warn)
-			msg = "\033{1;33m" + dump.m_message + "\033[0m";
+        if (dump.m_level == LogLevel::Error)
+            msg = "\033{1;31m" + dump.m_message + "\033[0m";
+        else if (dump.m_level == LogLevel::Warn)
+            msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
 #endif
-		std::cout << msg << std::endl;
+        std::cout << msg << std::endl;
 
-		m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
-	}
+        m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
+    }
 
-	bool Application::OnWindowClose(const Event::EWindowClosed& event)
-	{
-		m_engine.m_running = false;
-		return true;
-	}
+    bool Application::OnWindowClose(const Event::EWindowClosed& event)
+    {
+        m_engine.m_running = false;
+        return true;
+    }
 
-	void Application::OnWindowResize(const Event::EWindowResized& event)
-	{
-		if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
-			m_engine.m_canRender = false;
-		else
-			m_engine.m_canRender = true;
+    void Application::OnWindowResize(const Event::EWindowResized& event)
+    {
+        if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
+            m_engine.m_canRender = false;
+        else
+            m_engine.m_canRender = true;
+    }
 
-	}
+    bool Application::InstallLevel(World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
+    {
+        UninstallLevel();
 
-	bool Application::InstallLevel(World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
-	{
-		UninstallLevel();
+        // New levels are created with path as ""
+        if (path.compare("") != 0 && Utility::FileExists(path + "/" + levelName + ".linalevel"))
+            level.ImportLevel(path, levelName);
 
-		// New levels are created with path as ""
-		if (path.compare("") != 0 && Utility::FileExists(path + "/" + levelName + ".linalevel"))
-			level.ImportLevel(path, levelName);
+        bool install   = level.Install(loadFromFile, path, levelName);
+        m_currentLevel = &level;
+        m_engine.m_eventSystem.Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
+        InitializeLevel(level);
+        return install;
+    }
 
-		bool install = level.Install(loadFromFile, path, levelName);
-		m_currentLevel = &level;
-		m_engine.m_eventSystem.Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
-		InitializeLevel(level);
-		return install;
-	}
+    void Application::InitializeLevel(World::Level& level)
+    {
+        m_currentLevel->Initialize();
+        m_engine.m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});
+        m_activeLevelExists = true;
+    }
 
-	void Application::InitializeLevel(World::Level& level)
-	{
-		m_currentLevel->Initialize();
-		m_engine.m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});
-		m_activeLevelExists = true;
-	}
+    void Application::PackageProject(const std::string& folderPath, const std::string& fileName)
+    {
+        Resources::ResourceManager::Get()->PackageProject(folderPath, fileName);
+    }
 
-	void Application::PackageProject(const std::string& folderPath, const std::string& fileName)
-	{
-		Resources::ResourceManager::Get()->PackageProject(folderPath, fileName);
-	}
+    void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
+    {
+        if (m_currentLevel != nullptr)
+            m_currentLevel->ExportLevel(folderPath, fileName);
+    }
 
-	void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
-	{
-		if (m_currentLevel != nullptr)
-			m_currentLevel->ExportLevel(folderPath, fileName);
-	}
+    void Application::LoadLevelData(const std::string& folderPath, const std::string& fileName)
+    {
+        if (m_currentLevel != nullptr)
+        {
+            InstallLevel(*m_currentLevel, true, folderPath, fileName);
+        }
+    }
 
-	void Application::LoadLevelData(const std::string& folderPath, const std::string& fileName)
-	{
-		if (m_currentLevel != nullptr)
-		{
-			InstallLevel(*m_currentLevel, true, folderPath, fileName);
-		}
-	}
+    void Application::RestartLevel()
+    {
+        InstallLevel(*m_currentLevel);
+    }
 
-	void Application::RestartLevel()
-	{
-		InstallLevel(*m_currentLevel);
-	}
+    void Application::UninstallLevel()
+    {
+        if (m_currentLevel != nullptr)
+        {
+            m_currentLevel->Uninstall();
+            m_engine.m_ecs.each([this](auto entity) { m_engine.m_ecs.DestroyEntity(entity); });
+            m_engine.m_ecs.clear();
+            m_engine.m_eventSystem.Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
+            m_currentLevel = nullptr;
+        }
+    }
 
-	void Application::UninstallLevel()
-	{
-		if (m_currentLevel != nullptr)
-		{
-			m_currentLevel->Uninstall();
-			m_engine.m_ecs.each([this](auto entity)
-				{
-					m_engine.m_ecs.DestroyEntity(entity);
-				});
-			m_engine.m_ecs.clear();
-			m_engine.m_eventSystem.Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
-			m_currentLevel = nullptr;
-		}
-	}
-
-}
-
+} // namespace Lina

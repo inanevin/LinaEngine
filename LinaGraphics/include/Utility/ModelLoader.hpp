@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,8 +39,8 @@ Timestamp: 4/26/2019 12:07:47 AM
 #ifndef ModelLoader_HPP
 #define ModelLoader_HPP
 
-#include <vector>
 #include <string>
+#include <vector>
 
 struct aiNode;
 struct aiScene;
@@ -48,22 +48,20 @@ struct aiMesh;
 
 namespace Lina::Graphics
 {
-	class Mesh;
-	class Model;
+    class Mesh;
+    class Model;
 
-	class ModelLoader
-	{
-	public:
-
-		// Load models using ASSIMP
-		static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
-		static bool LoadModel(const aiScene* scene, Model& model);
-		static bool LoadModel(unsigned char* data, size_t dataSize, Model& model);
-		static bool LoadModel(const std::string& fileName, Model& model);
-		static bool LoadSpriteQuad(Mesh& model);
-		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
-	};
-}
-
+    class ModelLoader
+    {
+    public:
+        // Load models using ASSIMP
+        static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
+        static bool LoadModel(const aiScene* scene, Model& model);
+        static bool LoadModel(unsigned char* data, size_t dataSize, Model& model);
+        static bool LoadModel(const std::string& fileName, Model& model);
+        static bool LoadSpriteQuad(Mesh& model);
+        static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
+    };
+} // namespace Lina::Graphics
 
 #endif

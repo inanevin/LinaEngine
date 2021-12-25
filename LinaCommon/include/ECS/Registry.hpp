@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,94 +41,86 @@ Timestamp: 4/8/2019 5:28:34 PM
 #define Registry_HPP
 
 #include "Core/CommonECS.hpp"
+
 #include <entt/config/config.h>
 #include <entt/entity/snapshot.hpp>
-
 #include <map>
 #include <set>
 
 namespace Lina
 {
-	class Engine;
+    class Engine;
 }
 
 namespace Lina::ECS
 {
 
-	class Registry : public entt::registry
-	{
-	public:
+    class Registry : public entt::registry
+    {
+    public:
+        inline static Registry* Get()
+        {
+            return s_ecs;
+        }
 
-		inline static Registry* Get() { return s_ecs; }
+        // Registering a component enables serialization as well as duplication functionality in & out editor.
+        template <typename T> void RegisterComponent(bool onlyClone = false)
+        {
+            TypeID id = GetTypeID<T>();
+            if (!onlyClone)
+            {
+                m_serializeFunctions[id].first.connect<&Registry::SerializeComponent<T>>(this);
+                m_serializeFunctions[id].second.connect<&Registry::DeserializeComponent<T>>(this);
+            }
 
-		// Registering a component enables serialization as well as duplication functionality in & out editor.
-		template<typename T>
-		void RegisterComponent(bool onlyClone = false)
-		{
-			TypeID id = GetTypeID<T>();
-			if (!onlyClone)
-			{
-				m_serializeFunctions[id].first.connect<&Registry::SerializeComponent<T>>(this);
-				m_serializeFunctions[id].second.connect<&Registry::DeserializeComponent<T>>(this);
-			}
-		
-			m_cloneComponentFunctions[id] = std::bind(&Registry::CloneComponent<T>, this, std::placeholders::_1, std::placeholders::_2);
-		}
+            m_cloneComponentFunctions[id] = std::bind(&Registry::CloneComponent<T>, this, std::placeholders::_1, std::placeholders::_2);
+        }
 
-		void SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
-		void DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
-		void AddChildToEntity(Entity parent, Entity child);
-		void DestroyAllChildren(Entity parent);
-		void RemoveChildFromEntity(Entity parent, Entity child);
-		void RemoveFromParent(Entity child);
-		void CloneEntity(Entity from, Entity to);
-		void DestroyEntity(Entity entity, bool isRoot = true);
+        void SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
+        void DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
+        void AddChildToEntity(Entity parent, Entity child);
+        void DestroyAllChildren(Entity parent);
+        void RemoveChildFromEntity(Entity parent, Entity child);
+        void RemoveFromParent(Entity child);
+        void CloneEntity(Entity from, Entity to);
+        void DestroyEntity(Entity entity, bool isRoot = true);
 
-		Entity CreateEntity(const std::string& name);
-		Entity CreateEntity(Entity copy, bool attachParent = true);
-		Entity GetEntity(const std::string& name);
-		const std::set<Entity>& GetChildren(Entity parent);
+        Entity                  CreateEntity(const std::string& name);
+        Entity                  CreateEntity(Entity copy, bool attachParent = true);
+        Entity                  GetEntity(const std::string& name);
+        const std::set<Entity>& GetChildren(Entity parent);
 
-	private:
+    private:
+        friend class Engine;
+        Registry(){};
+        virtual ~Registry(){};
+        void Initialize();
+        void Shutdown();
 
-		friend class Engine;
-		Registry() {};
-		virtual ~Registry() {};
-		void Initialize();
-		void Shutdown();
+    private:
+        template <typename Type> void CloneComponent(Entity from, Entity to)
+        {
+            Type component = get<Type>(from);
+            emplace<Type>(to, component);
+        }
 
-	private:
+        template <typename Type> void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
+        {
+            snapshot.component<Type>(archive);
+        }
 
+        template <typename Type> void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
+        {
+            loader.component<Type>(archive);
+        }
 
-		template<typename Type>
-		void CloneComponent(Entity from, Entity to)
-		{
-			Type component = get<Type>(from);
-			emplace<Type>(to, component);
-		}
+        void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
 
-		template<typename Type>
-		void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
-		{
-			snapshot.component<Type>(archive);
-		}
-
-		template<typename Type>
-		void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
-		{
-			loader.component<Type>(archive);
-		}
-
-		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
-
-	private:
-
-		static Registry* s_ecs;
-		std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
-		std::map<TypeID, std::function<void(Entity, Entity)>> m_cloneComponentFunctions;
-
-	};
-}
-
+    private:
+        static Registry*                                                                                s_ecs;
+        std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
+        std::map<TypeID, std::function<void(Entity, Entity)>>                                           m_cloneComponentFunctions;
+    };
+} // namespace Lina::ECS
 
 #endif

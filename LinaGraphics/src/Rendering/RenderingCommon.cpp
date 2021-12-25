@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,9 +31,5 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-	char* g_materialSurfaceTypeStr[2]
-	{
-	   "Opaque",
-	   "Transparent"
-	};
+    char* g_materialSurfaceTypeStr[2]{"Opaque", "Transparent"};
 }

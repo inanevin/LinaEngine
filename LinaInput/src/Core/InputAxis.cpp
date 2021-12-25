@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,32 +27,32 @@ SOFTWARE.
 */
 
 #include "Core/InputAxis.hpp"
-#include "EventSystem/InputEvents.hpp"
+
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/InputEvents.hpp"
 
 namespace Lina::Input
 {
-	void InputAxis::BindAxis(int positiveKey, int negativeKey)
-	{
-		m_positiveKey = positiveKey;
-		m_negativeKey = negativeKey;
-		Event::EventSystem::Get()->Connect<Event::EKeyCallback, &InputAxis::OnKey>(this);
-	}
+    void InputAxis::BindAxis(int positiveKey, int negativeKey)
+    {
+        m_positiveKey = positiveKey;
+        m_negativeKey = negativeKey;
+        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &InputAxis::OnKey>(this);
+    }
 
-
-	void InputAxis::OnKey(const Event::EKeyCallback& key)
-	{
-		if (key.m_action == InputAction::Pressed)
-		{
-			if (key.m_key == m_positiveKey)
-				m_value = 1.0f;
-			else if (key.m_key == m_negativeKey)
-				m_value = -1.0f;
-		}
-		else if (key.m_action == InputAction::Released)
-		{
-			if (key.m_key == m_positiveKey || key.m_key == m_negativeKey)
-				m_value = 0.0f;
-		}
-	}
-}
+    void InputAxis::OnKey(const Event::EKeyCallback& key)
+    {
+        if (key.m_action == InputAction::Pressed)
+        {
+            if (key.m_key == m_positiveKey)
+                m_value = 1.0f;
+            else if (key.m_key == m_negativeKey)
+                m_value = -1.0f;
+        }
+        else if (key.m_action == InputAction::Released)
+        {
+            if (key.m_key == m_positiveKey || key.m_key == m_negativeKey)
+                m_value = 0.0f;
+        }
+    }
+} // namespace Lina::Input

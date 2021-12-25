@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,41 +41,50 @@ Timestamp: 12/10/2020 6:02:07 PM
 
 // Headers here.
 #include "Core/RenderBackendFwd.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/RenderTarget.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/RenderTarget.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Texture.hpp"
 
 namespace Lina::Graphics
 {
 
-	class PostProcessEffect
-	{
-		
-	public:
-		
-		PostProcessEffect() {};
-		~PostProcessEffect() {};
+    class PostProcessEffect
+    {
 
-		void Construct(Shader& shader);
-		void Draw(Texture* screenMap);
-		Material& GetMaterial() { return m_material; }
-		Texture& GetTexture() { return m_rtTexture; }
-		RenderTarget& GetRenderTarget() { return m_renderTarget; }
-		SamplerParameters& GetParams() { return m_samplerParams; }
+    public:
+        PostProcessEffect(){};
+        ~PostProcessEffect(){};
 
-	private:
+        void      Construct(Shader& shader);
+        void      Draw(Texture* screenMap);
+        Material& GetMaterial()
+        {
+            return m_material;
+        }
+        Texture& GetTexture()
+        {
+            return m_rtTexture;
+        }
+        RenderTarget& GetRenderTarget()
+        {
+            return m_renderTarget;
+        }
+        SamplerParameters& GetParams()
+        {
+            return m_samplerParams;
+        }
 
-		RenderDevice* m_renderDevice = nullptr;
-		RenderEngine* m_renderEngine = nullptr;
+    private:
+        RenderDevice* m_renderDevice = nullptr;
+        RenderEngine* m_renderEngine = nullptr;
 
-		DrawParams m_drawParams;
-		Texture m_rtTexture;
-		RenderTarget m_renderTarget;
-		SamplerParameters m_samplerParams;
-		Material m_material;
-
-	};
-}
+        DrawParams        m_drawParams;
+        Texture           m_rtTexture;
+        RenderTarget      m_renderTarget;
+        SamplerParameters m_samplerParams;
+        Material          m_material;
+    };
+} // namespace Lina::Graphics
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,26 +45,24 @@ Timestamp: 12/14/2021 2:03:29 PM
 
 namespace Lina
 {
-	namespace Editor
-	{
-		class EditorApplication;
-	}
+    namespace Editor
+    {
+        class EditorApplication;
+    }
 
-	class GameApplication : public Application
-	{
-		
-	public:
+    class GameApplication : public Application
+    {
 
-		GameApplication() : Application() {};
-		virtual ~GameApplication() {};
-	
-		void Initialize(ApplicationInfo appInfo);
+    public:
+        GameApplication() : Application(){};
+        virtual ~GameApplication(){};
 
-	private:
-	
-		GameManager m_gameManager;
-		Editor::EditorApplication* m_editor = nullptr;
-	};
-}
+        void Initialize(ApplicationInfo appInfo);
+
+    private:
+        GameManager                m_gameManager;
+        Editor::EditorApplication* m_editor = nullptr;
+    };
+} // namespace Lina
 
 #endif
