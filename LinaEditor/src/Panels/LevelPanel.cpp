@@ -123,14 +123,16 @@ namespace Lina::Editor
 				previousWindowSize = sceneWindowSize;
 			}
 
+#pragma warning( disable : 4312 )	// ImTextureID requires a void* conversion.
+
 			// Draw final image.
 			ImVec2 imageRectMin = sceneWindowPos;
 			ImVec2 imageRectMax = ImVec2(sceneWindowPos.x + sceneWindowSize.x, sceneWindowPos.y + sceneWindowSize.y);
 
 			if (m_drawMode == DrawMode::FinalImage)
-				ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+				ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetFinalImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 			else if (m_drawMode == DrawMode::ShadowMap)
-				ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+				ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetShadowMapImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 			if (Lina::Engine::Get()->GetPlayMode())
 			{

@@ -59,6 +59,7 @@ set (LINACOMMON_SOURCES
 
 )
 
+
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
@@ -136,7 +137,8 @@ set(LINACOMMON_HEADERS
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
-
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------

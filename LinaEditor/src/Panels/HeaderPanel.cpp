@@ -271,11 +271,13 @@ namespace Lina::Editor
 			ImGui::SetCursorPosY(5);
 			WidgetsUtility::WindowButtons(nullptr, 6.0f, true);
 
+#pragma warning( disable : 4312 )
+
 			// Logo
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - HEADER_LINALOGO_SIZE.x / 2.0f);
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + HEADER_LINALOGO_SIZE.y / 2.0f);
-			ImGui::Image((void*)linaLogoID, HEADER_LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((void*)(linaLogoID), HEADER_LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(30);

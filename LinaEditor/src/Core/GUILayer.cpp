@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/GUILayer.hpp"
 #include "Core/EditorCommon.hpp"
-
 #include "Core/Engine.hpp"
 #include "Core/Application.hpp"
 #include "Log/Log.hpp"
@@ -428,9 +427,11 @@ namespace Lina::Editor
 		ImGui::SetNextWindowSize(viewport->Size);
 
 		// Draw window.
+#pragma warning( disable : 4312 )
+
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
-		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::GetWindowDrawList()->AddImage((void*)(splashScreenTexture->GetID()), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::SetNextWindowPos(ImVec2(40, 310));
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);

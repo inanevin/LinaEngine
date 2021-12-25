@@ -78,7 +78,7 @@ namespace Lina::Editor
 
 					// Material selection.
 					char matPathC[128] = "";
-					strcpy(matPathC, levelData.m_skyboxMaterialPath.c_str());
+					strcpy_s(matPathC, levelData.m_skyboxMaterialPath.c_str());
 
 					WidgetsUtility::PropertyLabel("Material");
 					bool removed = false;

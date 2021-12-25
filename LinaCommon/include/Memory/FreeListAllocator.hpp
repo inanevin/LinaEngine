@@ -69,11 +69,11 @@ namespace Lina
             char padding;
         };
 
-        typedef SinglyLinkedList<FreeHeader>::Node Node;
+        typedef Lina::SinglyLinkedList<FreeHeader>::Node Node;
 
         void* m_start_ptr = nullptr;
         PlacementPolicy m_pPolicy;
-        SinglyLinkedList<FreeHeader> m_freeList;
+        Lina::SinglyLinkedList<FreeHeader> m_freeList;
 
     public:
 

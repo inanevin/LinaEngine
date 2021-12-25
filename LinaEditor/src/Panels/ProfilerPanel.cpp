@@ -89,7 +89,7 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosY(11);
 
 
-			float currentTime = Engine::Get()->GetElapsedTime();
+			float currentTime = (float)Engine::Get()->GetElapsedTime();
 
 			bool displayMS = false;
 			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
@@ -133,8 +133,8 @@ namespace Lina::Editor
 
 			int fps = Lina::Engine::Get()->GetCurrentFPS();
 			int ups = Lina::Engine::Get()->GetCurrentUPS();
-			float rawDelta = Lina::Engine::Get()->GetRawDelta();
-			float smoothDelta = Lina::Engine::Get()->GetSmoothDelta();
+			float rawDelta = (float)Lina::Engine::Get()->GetRawDelta();
+			float smoothDelta = (float)Lina::Engine::Get()->GetSmoothDelta();
 
 			static RollingBuffer fpsData;
 			static RollingBuffer upsData;

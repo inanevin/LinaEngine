@@ -40,6 +40,8 @@ include/Editor/ClientComponentDrawer.hpp
 #--------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 add_executable(Lina::Sandbox ALIAS ${PROJECT_NAME}) 
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
 # Options & Definitions

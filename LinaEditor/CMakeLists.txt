@@ -74,6 +74,21 @@ src/imgui/implot/implot_items.cpp
 
 )
 
+set_source_files_properties( src/imgui/imgui_impl_opengl3.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui_impl_glfw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui_draw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui_widgets.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imgui_tables.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imguizmo/ImCurveEdit.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imguizmo/ImGradient.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imguizmo/ImGuizmo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/imguizmo/ImSequencer.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/implot/implot_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/implot/implot.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+set_source_files_properties( src/imgui/implot/implot_items.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+
 set(LINAEDITOR_HEADERS
 
 # Core
@@ -138,6 +153,8 @@ CMakeLists.txt
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 add_library(Lina::Editor ALIAS ${PROJECT_NAME}) 
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
 # Options & Definitions

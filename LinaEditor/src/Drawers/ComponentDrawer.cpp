@@ -256,7 +256,7 @@ namespace Lina::Editor
 		// Dirlight
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_isEnabled>("enabled"_hs);
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_drawDebug>("debug"_hs).props(PROPS("Enable Debug", ComponentVariableType::Checkmark, "Enables debug drawing of light's reach."));
-		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "Far plane distance used in shadow rendering.", "castShadows"_hs, ));
+		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZFar>("szf"_hs).props(PROPS_DEP("Shadow Far", ComponentVariableType::DragFloat, "Far plane distance used in shadow rendering.", "castShadows"_hs));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowZNear>("szn"_hs).props(PROPS_DEP("Shadow Near", ComponentVariableType::DragFloat, "Near plane distance used in shadow rendering.", "castShadows"_hs));
 		entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_shadowOrthoProjection>("so"_hs).props(PROPS_DEP("Shadow Projection", ComponentVariableType::Vector4, "Shadow projection matrix (ortho).", "castShadows"_hs));
 		//entt::meta<DirectionalLightComponent>().data<&DirectionalLightComponent::m_castsShadows>("castShadows"_hs).props(PROPS("Cast Shadows", ComponentVariableType::Checkmark));
@@ -851,7 +851,7 @@ namespace Lina::Editor
 						{
 							// Material selection.
 							char matPathC[128] = "";
-							strcpy(matPathC, materials[i].c_str());
+							strcpy_s(matPathC, materials[i].c_str());
 
 							// Draw material name
 							std::string materialName = resolvedData.func("getMaterialName"_hs).invoke({}, ent, i).cast<std::string>();

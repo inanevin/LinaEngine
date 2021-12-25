@@ -70,8 +70,9 @@ namespace Lina::Editor
 		const ImVec2 currentCursor = ImGui::GetCursorPos();
 		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
 		const ImRect absoluteRect = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
-
-		ImGui::ItemAdd(absoluteRect, ImGuiID(id));
+		
+		
+		ImGui::ItemAdd(absoluteRect, ImHashStr(id));
 		ImGui::ItemSize(size);
 
 		bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
@@ -115,7 +116,7 @@ namespace Lina::Editor
 		const ImVec2 currentPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
 		const ImRect absoluteRect = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
 
-		ImGui::ItemAdd(absoluteRect, ImGuiID(id));
+		ImGui::ItemAdd(absoluteRect, ImHashStr(id));
 		ImGui::ItemSize(size);
 
 		bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
@@ -1098,7 +1099,7 @@ namespace Lina::Editor
 		const std::string rectID = std::string(id) + "_rect";
 
 		if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
-			ImGui::SetHoveredID(ImGuiID(rectID.c_str()));
+			ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
 
 		FramePaddingX(itemHeight + 1);
 		bool result = ImGui::InputFloat(id, var);

@@ -44,12 +44,12 @@ set(LINARESOURCE_HEADERS
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINARESOURCE_SOURCES} ${LINARESOURCE_HEADERS})
 add_library(Lina::Resource ALIAS ${PROJECT_NAME}) 
-
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
