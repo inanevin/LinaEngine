@@ -114,7 +114,7 @@ namespace Lina::Editor
 		HeaderPanel m_headerPanel;
 		ProfilerPanel m_profilerPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
-		Lina::World::DefaultLevel m_defaultLevel;
+		World::DefaultLevel m_defaultLevel;
 		std::string m_currentlyLoadingResource = "";
 		float m_percentage = 0.0f;
 	

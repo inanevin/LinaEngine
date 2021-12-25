@@ -47,8 +47,8 @@ Timestamp: 12/24/2021 9:09:36 PM
 
 namespace Lina::Graphics
 {
-	extern Lina::Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat);
-	extern Lina::Vector3 AssimpToLinaVector3(const aiVector3D& vec);
+	extern Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat);
+	extern Vector3 AssimpToLinaVector3(const aiVector3D& vec);
 }
 
 #endif

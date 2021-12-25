@@ -53,7 +53,7 @@ namespace Lina::ECS
 
 	private:
 
-		Lina::Input::InputEngineBackend* m_inputEngine;
+		Input::InputEngineBackend* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;

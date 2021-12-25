@@ -74,7 +74,7 @@ namespace Lina::Editor
 
 	private:
 	
-		Lina::World::Level* m_currentLevel = nullptr;
+		World::Level* m_currentLevel = nullptr;
 	};
 }
 

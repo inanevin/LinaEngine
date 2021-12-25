@@ -112,7 +112,7 @@ namespace Lina::ECS
 		/// Creates a full entity hierarchy based on the given model, automatically fills the parent-child relationships and model node components.
 		/// </summary>
 		/// <param name="model"></param>
-		void CreateModelHierarchy(Lina::Graphics::Model& model);
+		void CreateModelHierarchy(Graphics::Model& model);
 
 		/// <summary>
 		/// Pushes an object into the opaque render stack.
@@ -140,8 +140,8 @@ namespace Lina::ECS
 		void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
 	private:
-		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
-		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
+		Graphics::RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 		ApplicationMode m_appMode = ApplicationMode::Editor;
 
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.

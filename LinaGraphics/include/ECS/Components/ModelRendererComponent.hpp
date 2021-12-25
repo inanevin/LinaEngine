@@ -86,15 +86,15 @@ namespace Lina::ECS
 
 	private:
 
-		void ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot = false);
+		void ProcessNode(ECS::Entity parent, const Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot = false);
 		void AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model);
 
 	private:
 
 		friend class cereal::access;
 		friend class ECS::ModelNodeSystem;
-		friend class Lina::World::Level;
-		friend class Lina::Editor::ComponentDrawer;
+		friend class World::Level;
+		friend class Editor::ComponentDrawer;
 
 		StringIDType m_modelID = 0;
 		std::string m_modelPath = "";

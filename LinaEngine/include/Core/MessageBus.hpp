@@ -56,7 +56,7 @@ namespace Lina
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		
 		void Initialize(ApplicationMode appMode);
 

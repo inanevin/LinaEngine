@@ -69,9 +69,9 @@ namespace Lina::Editor
 		bool m_show = true;
 		bool m_collapsed = false;
 		bool m_maximized = false;
-		Lina::Vector2 m_sizeBeforeMaximize = Lina::Vector2::Zero;
-		Lina::Vector2 m_sizeBeforeCollapse = Lina::Vector2::Zero;
-		Lina::Vector2 m_posBeforeMaximize = Lina::Vector2::Zero;
+		Vector2 m_sizeBeforeMaximize = Vector2::Zero;
+		Vector2 m_sizeBeforeCollapse = Vector2::Zero;
+		Vector2 m_posBeforeMaximize = Vector2::Zero;
 		const char* m_id;
 		int m_windowFlags;
 	};

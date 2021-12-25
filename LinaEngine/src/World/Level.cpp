@@ -52,7 +52,7 @@ namespace Lina::World
 		if (Utility::FileExists(finalPath))
 			Utility::DeleteFileInPath(finalPath);
 
-		Lina::ECS::Registry* registry = ECS::Registry::Get();
+		ECS::Registry* registry = ECS::Registry::Get();
 		{
 
 			std::ofstream levelDataStream(finalPath, std::ios::binary);
@@ -66,7 +66,7 @@ namespace Lina::World
 
 	void Level::ImportLevel(const std::string& path, const std::string& name)
 	{
-		Lina::ECS::Registry* registry = ECS::Registry::Get();
+		ECS::Registry* registry = ECS::Registry::Get();
 
 		{
 			std::ifstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
@@ -83,7 +83,7 @@ namespace Lina::World
 	{
 		if (loadFromFile)
 		{
-			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
+			if (Utility::FileExists(path + "/" + levelName + ".linalevel"))
 				LoadLevelResources();
 		}
 
@@ -171,7 +171,7 @@ namespace Lina::World
 			}
 		}
 
-		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
+		Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 
 		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{
@@ -186,7 +186,7 @@ namespace Lina::World
 
 	void Level::SetSkyboxMaterial()
 	{
-		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
+		Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 
 		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{

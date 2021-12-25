@@ -28,6 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#define NOMINMAX
 #include "Memory/FrameAllocator.hpp"
 #include "Memory/MemoryUtility.hpp"
 #include "Log/Log.hpp"

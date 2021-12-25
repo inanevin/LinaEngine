@@ -39,9 +39,9 @@ void GameManager::Initialize()
 	LINA_TRACE("Game Manager Attached!");
 	s_instance = this;
 	m_exampleLevel = new ExampleLevel();
-	Lina::Application::Get().InstallLevel(*m_exampleLevel, true, "Resources/Sandbox/Levels/", "ExampleLevel");
-	Lina::Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
-	Lina::Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
+	Application::Get().InstallLevel(*m_exampleLevel, true, "Resources/Sandbox/Levels/", "ExampleLevel");
+	Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
+	Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
 }
 
 void GameManager::OnTick(const Event::ETick& ev)

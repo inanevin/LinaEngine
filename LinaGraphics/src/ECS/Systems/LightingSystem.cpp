@@ -44,7 +44,7 @@ namespace Lina::ECS
 	StringIDType dLightIconID = -1;
 
 
-	void LightingSystem::Initialize(Lina::ApplicationMode& appMode)
+	void LightingSystem::Initialize(ApplicationMode& appMode)
 	{
 		System::Initialize();
 		m_renderEngine = Graphics::RenderEngineBackend::Get();
@@ -56,7 +56,7 @@ namespace Lina::ECS
 
 	void LightingSystem::UpdateComponents(float delta)
 	{
-		if (m_appMode == Lina::ApplicationMode::Editor || pLightIconID == -1)
+		if (m_appMode == ApplicationMode::Editor || pLightIconID == -1)
 		{
 			// Create debug icon textures for lights
 			pLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/PLightIcon.png").GetSID();
@@ -84,7 +84,7 @@ namespace Lina::ECS
 			std::get<0>(m_directionalLight) = &data;
 			std::get<1>(m_directionalLight) = dirLight;
 
-			if (m_appMode == Lina::ApplicationMode::Editor)
+			if (m_appMode == ApplicationMode::Editor)
 				m_renderEngine->DrawIcon(data.GetLocation(), dLightIconID, 0.12f);
 		}
 
@@ -102,7 +102,7 @@ namespace Lina::ECS
 			EntityDataComponent& data = pointLightView.get<EntityDataComponent>(*it);
 			m_pointLights.push_back(std::make_pair(&data, pLight));
 
-			if (m_appMode == Lina::ApplicationMode::Editor)
+			if (m_appMode == ApplicationMode::Editor)
 				m_renderEngine->DrawIcon(data.GetLocation(), pLightIconID, 0.12f);
 		}
 
@@ -116,7 +116,7 @@ namespace Lina::ECS
 			EntityDataComponent& data = spotLightView.get<EntityDataComponent>(*it);
 			m_spotLights.push_back(std::make_pair(&data, sLight));
 
-			if (m_appMode == Lina::ApplicationMode::Editor)
+			if (m_appMode == ApplicationMode::Editor)
 				m_renderEngine->DrawIcon(data.GetLocation(), sLightIconID, 0.12f);
 		}
 	}

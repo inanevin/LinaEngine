@@ -91,15 +91,15 @@ namespace Lina::Graphics
 
 	private:
 
-		friend class Lina::ECS::ModelNodeSystem;
-		friend class Lina::Graphics::ModelLoader;
+		friend class ECS::ModelNodeSystem;
+		friend class Graphics::ModelLoader;
 		friend class cereal::access;
 
 		StringIDType m_id = 0;
 		std::vector<StringIDType> m_defaultMaterials;
 		std::vector<Mesh*> m_meshes;
 		std::string m_name = "";
-		Lina::Matrix m_localTransform;
+		Matrix m_localTransform;
 		std::vector<ModelNode*> m_children;
 		
 	};

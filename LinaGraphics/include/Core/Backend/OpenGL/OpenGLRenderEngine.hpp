@@ -100,7 +100,7 @@ namespace Lina::Graphics
 		/// <summary>
 		/// Any system added to the rendering pipeline will be updated within the render loop.
 		/// </summary>
-		void AddToRenderingPipeline(Lina::ECS::System& system);
+		void AddToRenderingPipeline(ECS::System& system);
 
 		/// <summary>
 		/// Sets the screen position and size, resizes the framebuffers accordingly.
@@ -160,7 +160,7 @@ namespace Lina::Graphics
 
 
 	private:
-		friend class Lina::Engine;
+		friend class Engine;
 		OpenGLRenderEngine() {};
 		~OpenGLRenderEngine() {};
 		void ConnectEvents();
@@ -282,14 +282,14 @@ namespace Lina::Graphics
 		// Structure that keeps track of current buffer values
 		BufferValueRecord m_bufferValueRecord;
 
-		Lina::ECS::AnimationSystem m_animationSystem;
-		Lina::ECS::CameraSystem m_cameraSystem;
-		Lina::ECS::ModelNodeSystem m_modelNodeSystem;
-		Lina::ECS::SpriteRendererSystem m_spriteRendererSystem;
-		Lina::ECS::LightingSystem m_lightingSystem;
-		Lina::ECS::FrustumSystem m_frustumSystem;
-		Lina::ECS::SystemList m_renderingPipeline;
-		Lina::ECS::SystemList m_animationPipeline;
+		ECS::AnimationSystem m_animationSystem;
+		ECS::CameraSystem m_cameraSystem;
+		ECS::ModelNodeSystem m_modelNodeSystem;
+		ECS::SpriteRendererSystem m_spriteRendererSystem;
+		ECS::LightingSystem m_lightingSystem;
+		ECS::FrustumSystem m_frustumSystem;
+		ECS::SystemList m_renderingPipeline;
+		ECS::SystemList m_animationPipeline;
 
 	private:
 

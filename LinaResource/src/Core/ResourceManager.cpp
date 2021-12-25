@@ -117,10 +117,10 @@ namespace Lina::Resources
 	}
 
 
-	void ResourceManager::Initialize(Lina::ApplicationInfo& appInfo)
+	void ResourceManager::Initialize(ApplicationInfo& appInfo)
 	{
 		m_appInfo = appInfo;
-		m_eventSys = Lina::Event::EventSystem::Get();
+		m_eventSys = Event::EventSystem::Get();
 	}
 
 	void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)

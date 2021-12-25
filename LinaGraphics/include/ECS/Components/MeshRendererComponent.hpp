@@ -50,10 +50,10 @@ namespace Lina::ECS
 		std::string m_materialPath = "";
 		StringIDType m_modelID = -1;
 		StringIDType m_materialID = -1;
-		Lina::Vector3 m_totalVertexCenter = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalBoundsMin = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalBoundsMax = Lina::Vector3::Zero;
-		Lina::Vector3 m_totalHalfBounds = Lina::Vector3::Zero;
+		Vector3 m_totalVertexCenter = Vector3::Zero;
+		Vector3 m_totalBoundsMin = Vector3::Zero;
+		Vector3 m_totalBoundsMax = Vector3::Zero;
+		Vector3 m_totalHalfBounds = Vector3::Zero;
 		std::vector<int> m_subMeshes;	// Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
 		int m_nodeID = -1;
 		bool m_excludeFromDrawList = false;

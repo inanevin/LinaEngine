@@ -65,7 +65,7 @@ namespace Lina::Graphics
 		if (data.size() != 6)
 		{
 			LINA_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, returning un-constructed texture...");
-			return Lina::Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
+			return Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
 		}
 
 		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();

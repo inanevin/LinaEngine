@@ -391,7 +391,7 @@ namespace Lina::Editor
 		if (Button(ICON_FA_MINUS, ImVec2(20, 20), 0.6f, 0.0f, ImVec2(0.5f, 1.0f)))
 		{
 			if (isAppWindow)
-				Lina::Graphics::WindowBackend::Get()->Iconify();
+				Graphics::WindowBackend::Get()->Iconify();
 			else
 				GUILayer::s_editorPanels[windowID]->ToggleCollapse();
 		}
@@ -400,11 +400,11 @@ namespace Lina::Editor
 		ImGui::SetCursorPosX(windowWidth - offset1 - gap);
 		ImGui::SetCursorPosY(cursorY);
 
-		bool isMaximized = isAppWindow ? Lina::Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::s_editorPanels[windowID]->IsMaximized();
+		bool isMaximized = isAppWindow ? Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::s_editorPanels[windowID]->IsMaximized();
 		if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, ImVec2(20, 20), 0.6f, 0.0f, ImVec2(0.0f, 1.0f)))
 		{
 			if (isAppWindow)
-				Lina::Graphics::WindowBackend::Get()->Maximize();
+				Graphics::WindowBackend::Get()->Maximize();
 			else
 				GUILayer::s_editorPanels[windowID]->ToggleMaximize();
 		}
@@ -417,7 +417,7 @@ namespace Lina::Editor
 		if (Button(ICON_FA_TIMES, ImVec2(20, 20), 0.6f))
 		{
 			if (isAppWindow)
-				Lina::Graphics::WindowBackend::Get()->Close();
+				Graphics::WindowBackend::Get()->Close();
 			else
 				GUILayer::s_editorPanels[windowID]->Close();
 		}
@@ -450,7 +450,7 @@ namespace Lina::Editor
 		WindowButtons(label, 5.0f);
 	}
 
-	bool WidgetsUtility::ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
+	bool WidgetsUtility::ComponentHeader(ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
 	{
 		const ImVec2 cursorPos = ImGui::GetCursorPos();
 		const ImVec2 windowPos = ImGui::GetWindowPos();
@@ -466,7 +466,7 @@ namespace Lina::Editor
 		const ImVec2 rectMax = ImVec2(rectMin.x + rectSize.x, rectMin.y + rectSize.y);
 		const bool bgHovered = !disableHeader && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
 		const bool bgPressed = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-		const bool bgReleased = bgHovered && Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
+		const bool bgReleased = bgHovered && Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
 		const ImVec4 bgColor = disableHeader ? disabledColor : bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
 		ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
 
@@ -475,7 +475,7 @@ namespace Lina::Editor
 
 		static float w = 2.0f;
 
-		w += Lina::Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
+		w += Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
 
 		IncrementCursorPosY(2.0f);
 		ImGui::SetCursorPosX(CURSOR_X_LABELS);
@@ -499,9 +499,9 @@ namespace Lina::Editor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
 			{
-				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
-				Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->Data;
-				Lina::Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{ payloadID, tid });
+				IM_ASSERT(payload->DataSize == sizeof(ECS::TypeID));
+				ECS::TypeID payloadID = *(const ECS::TypeID*)payload->Data;
+				Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{ payloadID, tid });
 			}
 
 			ImGui::EndDragDropTarget();
@@ -687,7 +687,7 @@ namespace Lina::Editor
 		}
 	}
 
-	bool Lina::Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
+	bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
 	{
 		float currentCursor = ImGui::GetCursorPosX();
 		float windowWidth = ImGui::GetWindowWidth();
@@ -698,7 +698,7 @@ namespace Lina::Editor
 		return ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
 	}
 
-	bool Lina::Editor::WidgetsUtility::PostComboBox(const char* id)
+	bool Editor::WidgetsUtility::PostComboBox(const char* id)
 	{
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::SameLine(0.0f, 0.0f);
@@ -712,7 +712,7 @@ namespace Lina::Editor
 		return button;
 	}
 
-	Lina::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
+	Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
 	{
 		Graphics::Material* materialToReturn = nullptr;
 
@@ -751,9 +751,9 @@ namespace Lina::Editor
 		return materialToReturn;
 	}
 
-	Lina::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID, bool* removed)
+	Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID, bool* removed)
 	{
-		Lina::Graphics::Model* modelToReturn = nullptr;
+		Graphics::Model* modelToReturn = nullptr;
 
 		std::string modelLabel = "";
 		if (Graphics::Model::ModelExists(currentModelID))
@@ -791,9 +791,9 @@ namespace Lina::Editor
 		return modelToReturn;
 	}
 
-	Lina::Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID, bool* removed)
+	Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID, bool* removed)
 	{
-		Lina::Graphics::Shader* shaderToReturn = nullptr;
+		Graphics::Shader* shaderToReturn = nullptr;
 
 		std::string shaderLabel = "";
 		if (Graphics::Shader::ShaderExists(currentShaderID))
@@ -804,7 +804,7 @@ namespace Lina::Editor
 
 		if (BeginComboBox(comboID, shaderLabel.c_str(), true))
 		{
-			auto& loadedShaders = Lina::Graphics::Shader::GetLoadedShaders();
+			auto& loadedShaders = Graphics::Shader::GetLoadedShaders();
 
 			for (auto& shader : loadedShaders)
 			{
@@ -832,7 +832,7 @@ namespace Lina::Editor
 		return shaderToReturn;
 	}
 
-	Lina::Physics::PhysicsMaterial* Lina::Editor::WidgetsUtility::PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
+	Physics::PhysicsMaterial* Editor::WidgetsUtility::PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
 	{
 		Physics::PhysicsMaterial* materialToReturn = nullptr;
 
@@ -844,9 +844,9 @@ namespace Lina::Editor
 
 		static float w = 0.0f;
 
-		if (Lina::Input::InputEngineBackend::Get()->GetKey(LINA_KEY_Q))
+		if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_Q))
 			w += 0.01f;
-		if (Lina::Input::InputEngineBackend::Get()->GetKey(LINA_KEY_E))
+		if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_E))
 			w -= 0.01f;
 
 		if (BeginComboBox(comboID, materialLabel.c_str(), true))
@@ -878,18 +878,18 @@ namespace Lina::Editor
 		return materialToReturn;
 	}
 
-	int Lina::Editor::WidgetsUtility::SimulationTypeComboBox(const char* comboID, int currentShapeID)
+	int Editor::WidgetsUtility::SimulationTypeComboBox(const char* comboID, int currentShapeID)
 	{
 		int simTypeToReturn = currentShapeID;
 	
-		if (BeginComboBox(comboID, Lina::Physics::SIMULATION_TYPES[currentShapeID].c_str(), false))
+		if (BeginComboBox(comboID, Physics::SIMULATION_TYPES[currentShapeID].c_str(), false))
 		{
 			int counter = 0;
-			for (auto& shape : Lina::Physics::SIMULATION_TYPES)
+			for (auto& shape : Physics::SIMULATION_TYPES)
 			{
 				const bool selected = currentShapeID == counter;
 
-				if (ImGui::Selectable(Lina::Physics::SIMULATION_TYPES[counter].c_str(), selected))
+				if (ImGui::Selectable(Physics::SIMULATION_TYPES[counter].c_str(), selected))
 					simTypeToReturn = counter;
 
 				if (selected)
@@ -904,18 +904,18 @@ namespace Lina::Editor
 		return simTypeToReturn;
 	}
 
-	int Lina::Editor::WidgetsUtility::CollisionShapeComboBox(const char* comboID, int currentShapeID)
+	int Editor::WidgetsUtility::CollisionShapeComboBox(const char* comboID, int currentShapeID)
 	{
 		int shapeToReturn = currentShapeID;
 
-		if (BeginComboBox(comboID, Lina::Physics::COLLISION_SHAPES[currentShapeID].c_str(), false))
+		if (BeginComboBox(comboID, Physics::COLLISION_SHAPES[currentShapeID].c_str(), false))
 		{
 			int counter = 0;
-			for (auto& shape : Lina::Physics::COLLISION_SHAPES)
+			for (auto& shape : Physics::COLLISION_SHAPES)
 			{
 				const bool selected = currentShapeID == counter;
 
-				if (ImGui::Selectable(Lina::Physics::COLLISION_SHAPES[counter].c_str(), selected))
+				if (ImGui::Selectable(Physics::COLLISION_SHAPES[counter].c_str(), selected))
 					shapeToReturn = counter;
 
 				if (selected)
@@ -996,7 +996,7 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void Lina::Editor::WidgetsUtility::DragBehaviour(const char* id, float* var, ImRect rect)
+	void Editor::WidgetsUtility::DragBehaviour(const char* id, float* var, ImRect rect)
 	{
 
 		if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max))
@@ -1006,7 +1006,7 @@ namespace Lina::Editor
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 			}
 
-			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+			if (Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
 			{
 				s_isDraggingWidgetInput = true;
 				s_draggedInput = id;
@@ -1030,7 +1030,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void Lina::Editor::WidgetsUtility::DragBehaviour(const char* id, int* var)
+	void Editor::WidgetsUtility::DragBehaviour(const char* id, int* var)
 	{
 
 		if (ImGui::IsItemHovered())
@@ -1040,7 +1040,7 @@ namespace Lina::Editor
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 			}
 
-			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+			if (Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
 			{
 				s_isDraggingWidgetInput = true;
 				s_draggedInput = id;
@@ -1070,7 +1070,7 @@ namespace Lina::Editor
 		}
 	}
 
-	bool Lina::Editor::WidgetsUtility::DragFloat(const char* id, const char* label, float* var, float width)
+	bool Editor::WidgetsUtility::DragFloat(const char* id, const char* label, float* var, float width)
 	{
 		bool isIcon = label == nullptr;
 
@@ -1121,7 +1121,7 @@ namespace Lina::Editor
 		return result;
 	}
 
-	bool Lina::Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, int count)
+	bool Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, int count)
 	{
 		if (label != nullptr)
 		{
@@ -1156,7 +1156,7 @@ namespace Lina::Editor
 		return ImGui::InputInt(id, var);
 	}
 
-	bool Lina::Editor::WidgetsUtility::DragVector2(const char* id, float* var)
+	bool Editor::WidgetsUtility::DragVector2(const char* id, float* var)
 	{
 		float windowWidth = ImGui::GetWindowWidth();
 		float currentCursor = ImGui::GetCursorPosX();
@@ -1172,7 +1172,7 @@ namespace Lina::Editor
 		return x || y ;
 	}
 
-	bool Lina::Editor::WidgetsUtility::DragVector3(const char* id, float* var)
+	bool Editor::WidgetsUtility::DragVector3(const char* id, float* var)
 	{
 		float windowWidth = ImGui::GetWindowWidth();
 		float currentCursor = ImGui::GetCursorPosX();
@@ -1191,7 +1191,7 @@ namespace Lina::Editor
 		return x || y || z;
 	}
 
-	bool Lina::Editor::WidgetsUtility::DragVector4(const char* id, float* var)
+	bool Editor::WidgetsUtility::DragVector4(const char* id, float* var)
 	{
 		float windowWidth = ImGui::GetWindowWidth();
 		float currentCursor = ImGui::GetCursorPosX();

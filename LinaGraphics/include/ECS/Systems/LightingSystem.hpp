@@ -62,7 +62,7 @@ namespace Lina::ECS
 
 		LightingSystem() {};
 
-		void Initialize(Lina::ApplicationMode& appMode);
+		void Initialize(ApplicationMode& appMode);
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
@@ -79,9 +79,9 @@ namespace Lina::ECS
 
 	private:
 
-		Lina::ApplicationMode m_appMode;
-		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
-		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
+		ApplicationMode m_appMode;
+		Graphics::RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::tuple < EntityDataComponent*, DirectionalLightComponent*> m_directionalLight;
 		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
 		std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>> m_spotLights;

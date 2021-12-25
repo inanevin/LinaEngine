@@ -65,11 +65,11 @@ namespace Lina::Editor
 	void LevelPanel::Initialize(const char* id)
 	{
 		EditorPanel::Initialize(id);
-		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &LevelPanel::Unselected>(this);
-		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &LevelPanel::EntitySelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &LevelPanel::OnTransformGizmoChanged>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &LevelPanel::OnTransformPivotChanged>(this);
+		Event::EventSystem::Get()->Connect<EEntityUnselected, &LevelPanel::Unselected>(this);
+		Event::EventSystem::Get()->Connect<EEntitySelected, &LevelPanel::EntitySelected>(this);
+		Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);
+		Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &LevelPanel::OnTransformGizmoChanged>(this);
+		Event::EventSystem::Get()->Connect<ETransformPivotChanged, &LevelPanel::OnTransformPivotChanged>(this);
 
 		m_shouldShowGizmos = true;
 	}
@@ -88,7 +88,7 @@ namespace Lina::Editor
 				| ImGuiWindowFlags_NoScrollbar
 				| ImGuiWindowFlags_NoSavedSettings;
 
-			Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
+			Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 
 			ImGui::Begin(m_id, NULL, m_windowFlags);
 			WidgetsUtility::WindowTitlebar(m_id);
@@ -119,7 +119,7 @@ namespace Lina::Editor
 			// Resize engine display.
 			if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
 			{
-				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+				Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
 				previousWindowSize = sceneWindowSize;
 			}
 
@@ -134,10 +134,10 @@ namespace Lina::Editor
 			else if (m_drawMode == DrawMode::ShadowMap)
 				ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetShadowMapImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
-			if (Lina::Engine::Get()->GetPlayMode())
+			if (Engine::Get()->GetPlayMode())
 			{
 				if (m_borderAlpha < 1.0f)
-					m_borderAlpha = Math::Lerp(m_borderAlpha, 1.1f, Lina::Engine::Get()->GetRawDelta() * 1.2f);
+					m_borderAlpha = Math::Lerp(m_borderAlpha, 1.1f, Engine::Get()->GetRawDelta() * 1.2f);
 
 				ImGui::GetWindowDrawList()->AddRect(imageRectMin, ImVec2(imageRectMax.x, imageRectMax.y - 4), ImGui::ColorConvertFloat4ToU32(ImVec4(0.33f, 0.54f, 0.78f, m_borderAlpha)), 0, 0, 5);
 			}
@@ -185,7 +185,7 @@ namespace Lina::Editor
 				// Smoothly animate window size
 				if (m_cameraSettingsWindowYMultiplier < 1.0f)
 				{
-					m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Lina::Engine::Get()->GetRawDelta() * 6.0f);
+					m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Engine::Get()->GetRawDelta() * 6.0f);
 					m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
 				}
 
@@ -274,7 +274,7 @@ namespace Lina::Editor
 			if (!levelPanelFirstRun)
 			{
 				levelPanelFirstRun = true;
-				Lina::Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+				Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
 			}
 
 
@@ -285,8 +285,8 @@ namespace Lina::Editor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto* ecs = Lina::ECS::Registry::Get();
-					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->Data);
+					auto* ecs = ECS::Registry::Get();
+					auto& model = Graphics::Model::GetModel(*(uint32*)payload->Data);
 					auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(entity, model);
@@ -327,26 +327,26 @@ namespace Lina::Editor
 		if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
 		{
 			// Mouse picking
-			if (Lina::Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+			if (Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
 			{
-				auto* reg = Lina::ECS::Registry::Get();
-				auto* rend = Lina::Graphics::RenderEngineBackend::Get();
-				Lina::ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
-				Lina::ECS::EntityDataComponent& camData = reg->get<ECS::EntityDataComponent>(editorCam);
+				auto* reg = ECS::Registry::Get();
+				auto* rend = Graphics::RenderEngineBackend::Get();
+				ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
+				ECS::EntityDataComponent& camData = reg->get<ECS::EntityDataComponent>(editorCam);
 				Vector2 windowPos = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
 				Vector2 mousePos = Vector2(ImGui::GetMousePos().x - windowPos.x, ImGui::GetMousePos().y - windowPos.y);
 
 				const Vector3 camLocation = camData.GetLocation();
-				const Vector3 clickPos = Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
+				const Vector3 clickPos = Graphics::RenderEngineBackend::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
 				const Vector3 rayDir = (clickPos - camLocation).Normalized();
 
 				reg->each([reg, camLocation, rayDir, editorCam](auto entity) {
 
 					if (entity != editorCam)
 					{
-						//Lina::ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
-						//Lina::ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
-						//Lina::Physics::HitInfo hitInfo = Lina::Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfExtents(), 500.0f);
+						//ECS::EntityDataComponent& entityData = reg->get<ECS::EntityDataComponent>(entity);
+						//ECS::PhysicsComponent& entityPhy = reg->get<ECS::PhysicsComponent>(entity);
+						//Physics::HitInfo hitInfo = Physics::RaycastPose(camLocation, rayDir, entityData.GetLocation(), entityData.GetBoundsHalfExtents(), 500.0f);
 						//
 						//if (hitInfo.m_hitCount > 0)
 						//{
@@ -368,38 +368,38 @@ namespace Lina::Editor
 			if (ImGui::IsKeyPressed(LINA_KEY_T))
 				Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{ currentTransformGizmoMode == ImGuizmo::LOCAL });
 
-			bool isInPlay = Lina::Engine::Get()->GetPlayMode();
-			auto* inputEngine = Lina::Input::InputEngineBackend::Get();
+			bool isInPlay = Engine::Get()->GetPlayMode();
+			auto* inputEngine = Input::InputEngineBackend::Get();
 
 			if (inputEngine->GetKey(LINA_KEY_LCTRL) && inputEngine->GetKeyDown(LINA_KEY_SPACE))
 			{
 				if (isInPlay)
 				{
-					Lina::Engine::Get()->SetPlayMode(false);
-					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+					Engine::Get()->SetPlayMode(false);
+					Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
 					// unconfine mouse
 				}
 				else
 				{
-					Lina::Engine::Get()->SetPlayMode(true);
-					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+					Engine::Get()->SetPlayMode(true);
+					Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
 					// confine mouse
 				}
 			}
 
 			if (isInPlay)
 			{
-				if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_ESCAPE))
+				if (Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_ESCAPE))
 				{
-					Lina::Input::CursorMode currentMode = Lina::Input::InputEngineBackend::Get()->GetCursorMode();
+					Input::CursorMode currentMode = Input::InputEngineBackend::Get()->GetCursorMode();
 
-					if (currentMode == Lina::Input::CursorMode::Visible)
+					if (currentMode == Input::CursorMode::Visible)
 					{
-						Lina::Engine::Get()->SetPlayMode(false);
+						Engine::Get()->SetPlayMode(false);
 					}
 					else
 					{
-						Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Visible);
+						Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
 						// unconfine
 					}
 				}
@@ -407,7 +407,7 @@ namespace Lina::Editor
 
 				if (m_isFocused && inputEngine->GetMouseButtonDown(LINA_MOUSE_1))
 				{
-					Lina::Input::InputEngineBackend::Get()->SetCursorMode(Lina::Input::CursorMode::Disabled);
+					Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
 					// confine
 				}
 			}
@@ -418,13 +418,13 @@ namespace Lina::Editor
 
 	void LevelPanel::DrawGizmos()
 	{
-		if (Lina::Engine::Get()->GetPlayMode() || !m_shouldShowGizmos) return;
+		if (Engine::Get()->GetPlayMode() || !m_shouldShowGizmos) return;
 
-		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
+		Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 		ECS::Entity editorCam = EditorApplication::Get()->GetCameraSystem().GetEditorCamera();
 		Matrix& view = renderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = renderEngine->GetCameraSystem()->GetProjectionMatrix();
-		auto* reg = Lina::ECS::Registry::Get();
+		auto* reg = ECS::Registry::Get();
 
 		// Handle entity transformation manipulation.
 		if (m_selectedEntity != entt::null)
@@ -476,7 +476,7 @@ namespace Lina::Editor
 			Transformation sceneOrientationTransform;
 			ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(editorCam);
 			const Vector3 camLoc = data.GetLocation();
-			sceneOrientationTransform.m_location = Lina::ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
+			sceneOrientationTransform.m_location = ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
 			sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3(camLoc.x, camLoc.y, camLoc.z + 300), Vector3::Up);
 			glm::mat4 sceneOrientation = sceneOrientationTransform.ToMatrix();
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &sceneOrientation[0][0]);

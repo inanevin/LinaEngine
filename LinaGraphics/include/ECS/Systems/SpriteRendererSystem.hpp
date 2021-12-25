@@ -79,8 +79,8 @@ namespace Lina::ECS
 
 	private:
 
-		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
-		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
+		Graphics::RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 
 		Graphics::Mesh* m_quadMesh;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;

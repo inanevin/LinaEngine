@@ -72,9 +72,9 @@ namespace Lina::ECS
 	struct PhysicsComponent : public Component
 	{
 
-		Lina::Vector3 GetVelocity() { return m_velocity; }
-		Lina::Vector3 GetAngularVelocity() { return m_angularVelocity; }
-		Lina::Vector3 GetHalfExtents() { return m_halfExtents; }
+		Vector3 GetVelocity() { return m_velocity; }
+		Vector3 GetAngularVelocity() { return m_angularVelocity; }
+		Vector3 GetHalfExtents() { return m_halfExtents; }
 		float GetRadius() { return m_radius; }
 		float GetCapsuleHalfHeight() { return m_capsuleHalfHeight; }
 		bool GetIsKinematic() { return m_isKinematic; }
@@ -87,22 +87,22 @@ namespace Lina::ECS
 	private:
 
 		friend class cereal::access;
-		friend class Lina::World::Level;
-		friend class Lina::ECS::Registry;
-		friend class Lina::Editor::ComponentDrawer;
-		friend class Lina::ECS::RigidbodySystem;
+		friend class World::Level;
+		friend class ECS::Registry;
+		friend class Editor::ComponentDrawer;
+		friend class ECS::RigidbodySystem;
 
 #ifdef LINA_PHYSICS_BULLET
-		friend class Lina::Physics::BulletPhysicsEngine;
+		friend class Physics::BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		friend class Lina::Physics::PhysXPhysicsEngine;
+		friend class Physics::PhysXPhysicsEngine;
 #endif
 
 		Physics::SimulationType m_simType = Physics::SimulationType::None;
 		Physics::CollisionShape m_collisionShape = Physics::CollisionShape::Box;
-		Lina::Vector3 m_halfExtents = Lina::Vector3(0.5f, 0.5f, 0.5f); 
-		Lina::Vector3 m_velocity = Lina::Vector3::Zero;
-		Lina::Vector3 m_angularVelocity = Lina::Vector3::Zero;
+		Vector3 m_halfExtents = Vector3(0.5f, 0.5f, 0.5f); 
+		Vector3 m_velocity = Vector3::Zero;
+		Vector3 m_angularVelocity = Vector3::Zero;
 		float m_mass = 1.0f;
 		float m_radius = 1.0f;
 		float m_capsuleHalfHeight = 1.0f;

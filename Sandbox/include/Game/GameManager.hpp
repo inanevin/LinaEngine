@@ -49,7 +49,6 @@ namespace Lina
 	}
 }
 
-using namespace Lina;
 class ExampleLevel;
 
 class GameManager

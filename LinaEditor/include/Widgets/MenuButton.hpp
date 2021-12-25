@@ -82,7 +82,7 @@ namespace Lina::Editor
 		friend class MenuButton;
 
 		bool m_isHovered = false;
-		Lina::Color m_color = Lina::Color(0, 0, 0, 0);
+		Color m_color = Color(0, 0, 0, 0);
 		std::function<void()> m_onClick;
 	};
 
@@ -91,7 +91,7 @@ namespace Lina::Editor
 		
 	public:
 		
-		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Lina::Color& bgColor = Lina::Color(0,0,0,0), bool useSameLine = false);
+		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Color& bgColor = Color(0,0,0,0), bool useSameLine = false);
 		~MenuButton();
 
 		virtual void Draw() override;
@@ -113,7 +113,7 @@ namespace Lina::Editor
 		bool m_useSameLine = false;
 		std::function<void()> m_onClick;
 		std::vector<MenuElement*> m_children;
-		Lina::Color m_bgColor = Lina::Color::Black;
+		Color m_bgColor = Color::Black;
 	};
 }
 

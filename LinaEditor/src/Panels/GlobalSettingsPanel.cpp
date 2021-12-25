@@ -47,8 +47,8 @@ namespace Lina::Editor
 	void GlobalSettingsPanel::Initialize(const char* id)
 	{
 		EditorPanel::Initialize(id);
-		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
-		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
+		Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
+		Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
 		m_show = true;
 	}
 
@@ -60,17 +60,17 @@ namespace Lina::Editor
 
 			if (m_currentLevel != nullptr)
 			{
-				Lina::World::LevelData& levelData = m_currentLevel->GetLevelData();
+				World::LevelData& levelData = m_currentLevel->GetLevelData();
 
 				static bool levelSettingsOpen = false;
 				if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
 				{
 					WidgetsUtility::PropertyLabel("Ambient Color");
 					WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-					Lina::Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
+					Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 
 					// Material selection
-					if (Lina::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+					if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 					{
 						levelData.m_selectedSkyboxMatID = levelData.m_skyboxMaterialID;
 						levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
@@ -82,7 +82,7 @@ namespace Lina::Editor
 
 					WidgetsUtility::PropertyLabel("Material");
 					bool removed = false;
-					Lina::Graphics::Material* mat = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
+					Graphics::Material* mat = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
 
 					if (removed)
 					{
@@ -103,8 +103,8 @@ namespace Lina::Editor
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 						{
 							IM_ASSERT(payload->DataSize == sizeof(uint32));
-							levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
-							levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
+							levelData.m_skyboxMaterialID = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
+							levelData.m_skyboxMaterialPath = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
 							m_currentLevel->SetSkyboxMaterial();
 						}
 
@@ -123,7 +123,7 @@ namespace Lina::Editor
 								{
 									auto& texture = mat.GetTexture("material.environmentMap");
 									if (!texture.GetIsEmpty())
-										Lina::Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
+										Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
 								}
 							}
 						}
@@ -132,7 +132,7 @@ namespace Lina::Editor
 
 			}
 
-			Lina::Graphics::RenderSettings& renderSettings = Lina::Graphics::RenderEngineBackend::Get()->GetRenderSettings();
+			Graphics::RenderSettings& renderSettings = Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 
 			static bool ppSettingsOpen = false;
 			if (WidgetsUtility::Header("Post Process", &ppSettingsOpen))
@@ -188,12 +188,12 @@ namespace Lina::Editor
 
 			}
 
-			Lina::Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
+			Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
 			const ImVec2 buttonSize = ImVec2(90, 30);
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
 
 			if (WidgetsUtility::Button("Save Settings", buttonSize))
-				Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+				Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 		
 		
@@ -205,7 +205,7 @@ namespace Lina::Editor
 
 	void GlobalSettingsPanel::LevelInstalled(const Event::ELevelInstalled& ev)
 	{
-		m_currentLevel = Lina::Application::Get().GetCurrentLevel();
+		m_currentLevel = Application::Get().GetCurrentLevel();
 		m_currentLevel->SetSkyboxMaterial();
 	}
 

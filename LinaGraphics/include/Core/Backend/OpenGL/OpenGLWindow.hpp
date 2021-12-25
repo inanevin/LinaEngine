@@ -78,7 +78,7 @@ namespace Lina::Graphics
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		OpenGLWindow() {};
 		~OpenGLWindow() {};
 		bool CreateContext(ApplicationInfo& appInfo);

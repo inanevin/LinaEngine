@@ -99,10 +99,10 @@ namespace Lina::Graphics
 		std::vector<BufferData> m_bufferElements;
 		VertexArray m_vertexArray;
 		uint32 m_materialSlot = 0;
-		Lina::Vector3 m_vertexCenter = Lina::Vector3(0.0f, 0.0f, 0.0f);
-		Lina::Vector3 m_boundsHalfExtents = Lina::Vector3(0.5f, 0.5f, 0.5f);
-		Lina::Vector3 m_boundsMin = Lina::Vector3(-0.5f, -0.5f, -0.5f);
-		Lina::Vector3 m_boundsMax = Lina::Vector3(0.5f, 0.5f, 0.5f);
+		Vector3 m_vertexCenter = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 m_boundsHalfExtents = Vector3(0.5f, 0.5f, 0.5f);
+		Vector3 m_boundsMin = Vector3(-0.5f, -0.5f, -0.5f);
+		Vector3 m_boundsMax = Vector3(0.5f, 0.5f, 0.5f);
 	};
 }
 

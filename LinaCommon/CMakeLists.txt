@@ -139,6 +139,30 @@ add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
+target_precompile_headers(${PROJECT_NAME}
+  PUBLIC
+	include/Memory/MemoryAllocator.hpp
+	include/Memory/StackAllocator.hpp
+	include/Memory/MemoryUtility.hpp
+	include/Memory/FrameAllocator.hpp
+	include/Memory/PoolAllocator.hpp
+	include/Memory/StackLinkedList.hpp
+	include/Memory/SinglyLinkedList.hpp
+	include/Memory/FreeListAllocator.hpp	
+	include/Memory/Memory.hpp
+	include/Core/SizeDefinitions.hpp
+	include/Core/Timer.hpp
+	include/Core/PlatformMacros.hpp
+	include/JobSystem/JobSystem.hpp
+	include/Profiling/Profiler.hpp
+	include/Log/Log.hpp
+	## include/Math/Vector.hpp
+	include/ECS/Component.hpp
+	include/ECS/System.hpp
+	include/ECS/SystemList.hpp
+	include/Utility/StringID.hpp
+)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------

@@ -43,25 +43,25 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	using namespace Lina::ECS;
+	using namespace ECS;
 	using namespace Lina;
 
 	void ECSPanel::Initialize(const char* id)
 	{
 		EditorPanel::Initialize(id);
-		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
+		Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
 	}
 
 	void ECSPanel::Refresh()
 	{
 		m_selectedEntity = entt::null;
-		Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+		Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 	}
 
-	void ECSPanel::DrawEntityNode(int id, Lina::ECS::Entity entity)
+	void ECSPanel::DrawEntityNode(int id, ECS::Entity entity)
 	{
-		Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
-		Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(entity);
+		ECS::Registry* ecs = ECS::Registry::Get();
+		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
@@ -75,7 +75,7 @@ namespace Lina::Editor
 		if (ImGui::IsItemClicked())
 		{
 			m_selectedEntity = entity;
-			Lina::Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
+			Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
 		}
 
 
@@ -112,7 +112,7 @@ namespace Lina::Editor
 
 	void ECSPanel::OnLevelInstall(const Event::ELevelInstalled& ev)
 	{
-		Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+		Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 		m_selectedEntity = entt::null;
 	}
 
@@ -120,7 +120,7 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
+			ECS::Registry* ecs = ECS::Registry::Get();
 			
 			Begin();
 
@@ -129,14 +129,14 @@ namespace Lina::Editor
 			WidgetsUtility::WindowPadding(ImVec2(3, 4));
 
 			// Handle Right Click.
-			if (Lina::Application::Get().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+			if (Application::Get().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
 			{
 				if (ImGui::BeginMenu("Create"))
 				{
 					if (ImGui::MenuItem("Entity"))
 					{
 						m_selectedEntity = ecs->CreateEntity("Entity");
-						Lina::Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
+						Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
 					}
 
 					ImGui::EndMenu();
@@ -149,11 +149,11 @@ namespace Lina::Editor
 			WidgetsUtility::FramePadding(ImVec2(0, 0));
 			WidgetsUtility::IncrementCursorPosY(7);
 			int entityCounter = 0;
-			auto singleView = ecs->view<Lina::ECS::EntityDataComponent>();
+			auto singleView = ecs->view<ECS::EntityDataComponent>();
 
 			for (auto entity : singleView)
 			{
-				Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(entity);
+				ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 
 				if (data.m_parent == entt::null)
 					DrawEntityNode(entityCounter, entity);
@@ -161,7 +161,7 @@ namespace Lina::Editor
 				// Deselect.
 				if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
-					Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+					Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 					m_selectedEntity = entt::null;
 				}
 
@@ -176,16 +176,16 @@ namespace Lina::Editor
 			if (m_selectedEntity != entt::null)
 			{
 				// Duplicate
-				if (ImGui::IsKeyDown(Lina::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Lina::Input::InputCode::D))
+				if (ImGui::IsKeyDown(Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Input::InputCode::D))
 				{
 					m_selectedEntity = ecs->CreateEntity(m_selectedEntity);
-					Lina::Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
+					Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ m_selectedEntity });
 				}
 
 				// Delete
-				if (ImGui::IsKeyReleased(Lina::Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
+				if (ImGui::IsKeyReleased(Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
 				{
-					Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+					Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 					ecs->DestroyEntity(m_selectedEntity);
 					m_selectedEntity = entt::null;
 				}
@@ -209,8 +209,8 @@ namespace Lina::Editor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto* ecs = Lina::ECS::Registry::Get();
-					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->Data);
+					auto* ecs = ECS::Registry::Get();
+					auto& model = Graphics::Model::GetModel(*(uint32*)payload->Data);
 					auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(entity, model);

@@ -42,6 +42,8 @@ Timestamp: 12/19/2020 1:28:46 AM
 #define MemoryAllocator_HPP
 
 // Headers here.
+#define NOMINMAX
+
 #include <cstddef>
 
 namespace Lina

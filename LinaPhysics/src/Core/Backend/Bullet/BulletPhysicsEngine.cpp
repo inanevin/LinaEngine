@@ -76,13 +76,13 @@ namespace Lina::Physics
 		delete m_collisionConfig;
 	}
 
-	void BulletPhysicsEngine::Initialize(Lina::ApplicationMode appMode)
+	void BulletPhysicsEngine::Initialize(ApplicationMode appMode)
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 		m_appMode = appMode;
-		m_ecs = Lina::ECS::Registry::Get();
+		m_ecs = ECS::Registry::Get();
 
-		if (m_appMode == Lina::ApplicationMode::Editor)
+		if (m_appMode == ApplicationMode::Editor)
 			SetDebugDraw(true);
 
 		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
@@ -265,7 +265,7 @@ namespace Lina::Physics
 		m_world->addRigidBody(rb);
 	}
 
-	btCollisionShape* BulletPhysicsEngine::GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb)
+	btCollisionShape* BulletPhysicsEngine::GetCreateCollisionShape(ECS::PhysicsComponent rb)
 	{
 		btCollisionShape* colShape = nullptr;
 

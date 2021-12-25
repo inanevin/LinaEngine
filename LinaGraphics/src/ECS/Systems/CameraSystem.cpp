@@ -131,9 +131,9 @@ namespace Lina::ECS
 		return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<EntityDataComponent>(m_activeCameraEntity).GetLocation();
 	}
 
-	Lina::Color& CameraSystem::GetCurrentClearColor()
+	Color& CameraSystem::GetCurrentClearColor()
 	{
-		return m_activeCameraEntity == entt::null ? Lina::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
+		return m_activeCameraEntity == entt::null ? Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
 	}
 
 	CameraComponent* CameraSystem::GetActiveCameraComponent()

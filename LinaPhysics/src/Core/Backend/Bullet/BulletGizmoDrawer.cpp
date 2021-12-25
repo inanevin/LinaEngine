@@ -34,7 +34,7 @@ SOFTWARE.
 
 void BulletGizmoDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-	Lina::Event::EventSystem::Get()->Trigger<Lina::Event::EDrawPhysicsDebug>(Lina::Event::EDrawPhysicsDebug{
-		Lina::Vector3(from.getX(), from.getY(), from.getZ()), Lina::Vector3(to.getX(), to.getY(), to.getZ()), Lina::Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH
+	Event::EventSystem::Get()->Trigger<Event::EDrawPhysicsDebug>(Event::EDrawPhysicsDebug{
+		Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH
 		});
 }

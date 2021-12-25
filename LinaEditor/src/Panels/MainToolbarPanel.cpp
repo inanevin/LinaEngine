@@ -115,23 +115,23 @@ namespace Lina::Editor
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
-		bool playMode = Lina::Engine::Get()->GetPlayMode();
+		bool playMode = Engine::Get()->GetPlayMode();
 		char* playLabel = playMode ? ICON_FA_STOP : ICON_FA_PLAY;
 		if (WidgetsUtility::ToolbarToggleIcon(playLabel, ImVec2(30, 22), 1, playMode, cursorPos, "Play/Stop", ImVec4(0.0f, 0.8f, 0.0f, 1.0f)))
-			Lina::Engine::Get()->SetPlayMode(!playMode);
+			Engine::Get()->SetPlayMode(!playMode);
 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
-		bool paused = Lina::Engine::Get()->GetPauseMode();
+		bool paused = Engine::Get()->GetPauseMode();
 		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_PAUSE, ImVec2(30, 22), 1, paused, cursorPos, "Pause"))
-			Lina::Engine::Get()->SetIsPaused(!paused);
+			Engine::Get()->SetIsPaused(!paused);
 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(10);
 
 		if (WidgetsUtility::ToolbarToggleIcon(ICON_FA_FORWARD, ImVec2(30, 22), 1, false, cursorPos, "Skip Frame"))
-			Lina::Engine::Get()->SkipNextFrame();
+			Engine::Get()->SkipNextFrame();
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -162,12 +162,12 @@ namespace Lina::Editor
 		ImGui::PopStyleColor();
 	}
 
-	void Lina::Editor::MainToolbarPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)
+	void Editor::MainToolbarPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)
 	{
 		m_toggledTransformSelection = ev.m_currentGizmo;
 	}
 
-	void Lina::Editor::MainToolbarPanel::OnTransformPivotChanged(const ETransformPivotChanged& ev)
+	void Editor::MainToolbarPanel::OnTransformPivotChanged(const ETransformPivotChanged& ev)
 	{
 		m_currentGizmoGlobal = ev.m_isGlobal;
 	}

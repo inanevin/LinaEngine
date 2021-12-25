@@ -169,7 +169,7 @@ include(../CMake/ProjectSettings.cmake)
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
-PRIVATE Lina::Engine
+PRIVATE Engine
 )
 
 #--------------------------------------------------------------------

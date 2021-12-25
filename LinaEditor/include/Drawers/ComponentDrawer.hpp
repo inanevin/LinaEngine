@@ -56,7 +56,7 @@ namespace Lina::Editor
 	struct ETransformPivotChanged;
 	struct EComponentOrderSwapped;
 
-	typedef std::map<std::string, std::vector<std::pair<std::string, Lina::ECS::TypeID>>> AddComponentMap;
+	typedef std::map<std::string, std::vector<std::pair<std::string, ECS::TypeID>>> AddComponentMap;
 	using namespace entt::literals;
 
 #define PROPS(LABEL, TYPE, TOOLTIP) std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("Tooltip"_hs, TOOLTIP)
@@ -98,19 +98,19 @@ namespace Lina::Editor
 		~ComponentDrawer() {};
 
 		void Initialize();
-		void SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2);
-		void AddIDToDrawList(Lina::ECS::TypeID id);
+		void SwapComponentOrder(ECS::TypeID id1, ECS::TypeID id2);
+		void AddIDToDrawList(ECS::TypeID id);
 		void ClearDrawList();
 
-		AddComponentMap GetCurrentAddComponentMap(Lina::ECS::Entity entity);
-		void DrawDebugPointLight(Lina::ECS::Entity ent);
-		void DrawDebugSpotLight(Lina::ECS::Entity ent);
-		void DrawDebugDirectionalLight(Lina::ECS::Entity ent);
-		void PushComponentToDraw(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
-		void DrawAllComponents(Lina::ECS::Entity ent);
+		AddComponentMap GetCurrentAddComponentMap(ECS::Entity entity);
+		void DrawDebugPointLight(ECS::Entity ent);
+		void DrawDebugSpotLight(ECS::Entity ent);
+		void DrawDebugDirectionalLight(ECS::Entity ent);
+		void PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent);
+		void DrawAllComponents(ECS::Entity ent);
 
-		void DrawEntityData(Lina::ECS::Entity ent, bool* transformDataOpen, bool* physicsDataOpen);
-		void DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent);
+		void DrawEntityData(ECS::Entity ent, bool* transformDataOpen, bool* physicsDataOpen);
+		void DrawComponent(ECS::TypeID tid, ECS::Entity ent);
 
 	public:
 
@@ -137,7 +137,7 @@ namespace Lina::Editor
 			if (canAddComponent)
 			{
 				entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_ref_t>("add"_hs);
-				m_addComponentMap[category].push_back(std::make_pair<std::string, Lina::ECS::TypeID>(std::string(title), Lina::ECS::GetTypeID<Type>()));
+				m_addComponentMap[category].push_back(std::make_pair<std::string, ECS::TypeID>(std::string(title), ECS::GetTypeID<Type>()));
 			}
 
 			if (addValueChanged)
@@ -151,8 +151,8 @@ namespace Lina::Editor
 	private:
 
 		AddComponentMap m_addComponentMap; 	// Category - vector of pairs - pair.first = component title, pair.second component id.
-		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
-		std::vector<Lina::ECS::TypeID> m_componentDrawList;
+		std::map<ECS::Entity, std::map<ECS::TypeID, bool>> m_foldoutStateMap;
+		std::vector<ECS::TypeID> m_componentDrawList;
 		bool m_isTransformPivotGlobal = true;
 	};
 

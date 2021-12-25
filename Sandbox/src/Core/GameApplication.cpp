@@ -46,15 +46,15 @@ namespace Lina
 			auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
 
 			// Set the app window size back to original after loading editor resources.
-			Graphics::WindowBackend::Get()->SetPos(Vector2::Zero);
-			Graphics::WindowBackend::Get()->SetSize(Vector2(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
+			Graphics::WindowBackend::Get()->SetPos(Vector2ui(0,0));
+			Graphics::WindowBackend::Get()->SetSize(Vector2ui(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
-			Lina::Engine::Get()->SetPlayMode(false);
+			Engine::Get()->SetPlayMode(false);
 		}
 		else
 		{
-			Lina::Engine::Get()->StartLoadingResources();
-			Lina::Engine::Get()->SetPlayMode(true);
+			Engine::Get()->StartLoadingResources();
+			Engine::Get()->SetPlayMode(true);
 		}
 
 		// Initialize game manager.
@@ -75,7 +75,7 @@ namespace Lina
 
 int main(int argc, char** argv)
 {
-	Lina::GameApplication* game = new Lina::GameApplication();
+	GameApplication* game = new GameApplication();
 	ApplicationInfo appInfo;
 	appInfo.m_appMode = ApplicationMode::Editor;
 	appInfo.m_appName = "Lina Sandbox Game";

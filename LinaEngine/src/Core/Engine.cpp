@@ -174,12 +174,12 @@ namespace Lina
 			LINA_TIMER_START("Update MS");
 			UpdateGame((float)m_rawDeltaTime);
 			LINA_TIMER_STOP("Update MS");
-			m_updateTime = Lina::Timer::GetTimer("UPDATE MS").GetDuration();
+			m_updateTime = Timer::GetTimer("UPDATE MS").GetDuration();
 
 			LINA_TIMER_START("RENDER MS");
 			DisplayGame(1.0f);
 			LINA_TIMER_STOP("RENDER MS");
-			m_renderTime = Lina::Timer::GetTimer("RENDER MS").GetDuration();
+			m_renderTime = Timer::GetTimer("RENDER MS").GetDuration();
 			frames++;
 
 			double now = GetElapsedTime();

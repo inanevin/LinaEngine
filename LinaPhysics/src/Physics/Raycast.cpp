@@ -35,7 +35,7 @@ using namespace physx;
 #endif
 namespace Lina::Physics
 {
-	HitInfo RaycastPose(const Lina::Vector3& from, const Lina::Vector3& unitDir, const Lina::Vector3& targetPosition, const Lina::Vector3& targetHalfExtents, float dist)
+	HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist)
 	{
 #ifdef LINA_PHYSICS_PHYSX
 		HitInfo hitInfo;

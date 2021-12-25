@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-	Lina::Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat)
+	Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat)
 	{
 		Matrix mat;
 		mat[0][0] = aiMat.a1;	mat[0][1] = aiMat.b1;	mat[0][2] = aiMat.c1;	mat[0][3] = aiMat.d1;
@@ -40,8 +40,8 @@ namespace Lina::Graphics
 		return mat;
 	}
 
-	Lina::Vector3 AssimpToLinaVector3(const aiVector3D& vec)
+	Vector3 AssimpToLinaVector3(const aiVector3D& vec)
 	{
-		return Lina::Vector3(vec.x, vec.y, vec.z);
+		return Vector3(vec.x, vec.y, vec.z);
 	}
 }

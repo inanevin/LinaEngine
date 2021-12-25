@@ -43,7 +43,7 @@ SOFTWARE.
 namespace Lina
 {
 
-	Lina::Application* Application::s_application = nullptr;
+	Application* Application::s_application = nullptr;
 
 	Application::Application()
 	{
@@ -98,9 +98,9 @@ namespace Lina
 		SetConsoleTextAttribute(hConsole, color);
 
 #elif LINA_LINUX
-		if (dump.m_level == Lina::LogLevel::Error)
+		if (dump.m_level == LogLevel::Error)
 			msg = "\033{1;31m" + dump.m_message + "\033[0m";
-		else if (dump.m_level == Lina::LogLevel::Warn)
+		else if (dump.m_level == LogLevel::Warn)
 			msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
 #endif
@@ -124,7 +124,7 @@ namespace Lina
 
 	}
 
-	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
+	bool Application::InstallLevel(World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		UninstallLevel();
 
@@ -139,7 +139,7 @@ namespace Lina
 		return install;
 	}
 
-	void Application::InitializeLevel(Lina::World::Level& level)
+	void Application::InitializeLevel(World::Level& level)
 	{
 		m_currentLevel->Initialize();
 		m_engine.m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});

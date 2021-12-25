@@ -128,15 +128,15 @@ namespace Lina::ECS
 		friend class Registry;
 
 #ifdef LINA_PHYSICS_BULLET
-		friend class Lina::Physics::BulletPhysicsEngine;
+		friend class Physics::BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-		friend class Lina::Physics::PhysXPhysicsEngine;
+		friend class Physics::PhysXPhysicsEngine;
 #endif
 
 		bool m_isTransformLocked = false;
 
 
-		Lina::Transformation m_transform;
+		Transformation m_transform;
 		Registry* m_ecs = nullptr;
 
 		template<class Archive>

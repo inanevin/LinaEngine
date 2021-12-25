@@ -57,7 +57,7 @@ include(../CMake/ProjectSettings.cmake)
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
-PRIVATE Lina::Engine
+PRIVATE Engine
 PRIVATE Lina::Editor
 PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 )

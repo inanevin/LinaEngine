@@ -43,7 +43,7 @@ namespace Lina::ECS
 	{
 	}
 
-	bool FrustumSystem::GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent)
+	bool FrustumSystem::GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent)
 	{
 	// MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
 	// 

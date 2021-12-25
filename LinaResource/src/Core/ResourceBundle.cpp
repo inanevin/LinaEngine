@@ -136,7 +136,7 @@ namespace Lina::Resources
 			ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
 			ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
 			ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
-			ResourceManager::s_currentProgressData.m_currentProgress = Lina::Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+			ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
 			ResourceManager::TriggerResourceUpdatedEvent();
 			LoadResourceFromFile(file, resType);
 		}

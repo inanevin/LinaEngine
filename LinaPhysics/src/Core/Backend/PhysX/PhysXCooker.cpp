@@ -69,7 +69,7 @@ namespace Lina::Physics
 		// PHYSICSENGINE CreateConvexMesh(bufferData, sid, nodeIndex);
 	}
 
-	void PhysXCooker::CookModelNodeVertices(Lina::Graphics::ModelNode& node, Lina::Graphics::Model& model)
+	void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
 	{
 		std::vector<Vector3> vertices;
 
@@ -120,7 +120,7 @@ namespace Lina::Physics
 		//	auto& model = Graphics::Model::GetModel(ev.m_sid);
 		//	auto& meshes = model.GetMeshes();
 		//
-		//	if (m_appMode == Lina::ApplicationMode::Editor)
+		//	if (m_appMode == ApplicationMode::Editor)
 		//	{
 		//		Graphics::ModelNode& root = model.GetRoot();
 		//

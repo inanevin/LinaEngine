@@ -90,7 +90,7 @@ namespace Lina::Resources
 		ResourceManager() {};
 		~ResourceManager() {};
 
-		void Initialize(Lina::ApplicationInfo& appInfo);
+		void Initialize(ApplicationInfo& appInfo);
 		void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
 		void LoadEditorResources();
 		void Shutdown();
@@ -99,7 +99,7 @@ namespace Lina::Resources
 
 		static ResourceManager* s_resourceManager ;
 		Event::EventSystem* m_eventSys = nullptr;
-		Lina::ApplicationInfo m_appInfo;
+		ApplicationInfo m_appInfo;
 		Packager m_packager;
 		Executor m_executor;
 		TaskFlow m_taskflow;

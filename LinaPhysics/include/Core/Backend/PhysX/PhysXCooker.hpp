@@ -77,7 +77,7 @@ namespace Lina::Physics
 		void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
 
 		void OnResourceLoadCompleted(Event::EResourceLoadCompleted ev);
-		void CookModelNodeVertices(Lina::Graphics::ModelNode& node, Lina::Graphics::Model& model);
+		void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
 	private:
 

@@ -127,7 +127,7 @@ namespace Lina::ECS
 
 	}
 
-	void ModelNodeSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
+	void ModelNodeSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.
@@ -143,7 +143,7 @@ namespace Lina::ECS
 
 	}
 
-	void ModelNodeSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
+	void ModelNodeSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.

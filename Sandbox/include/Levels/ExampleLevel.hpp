@@ -33,9 +33,7 @@ namespace Lina
 	}
 }
 
-using namespace Lina;
-
-class ExampleLevel : public Lina::World::Level
+class ExampleLevel : public World::Level
 {
 public:
 

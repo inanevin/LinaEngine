@@ -48,9 +48,9 @@ namespace Lina::Physics
 	struct HitInfo
 	{
 		int m_hitCount = 0;
-		Lina::ECS::Entity m_entity = entt::null;
-		Lina::Vector3 m_position = Lina::Vector3::Zero;
-		Lina::Vector3 m_normal = Lina::Vector3::Zero;
+		ECS::Entity m_entity = entt::null;
+		Vector3 m_position = Vector3::Zero;
+		Vector3 m_normal = Vector3::Zero;
 		float m_distance = 0.0f;
 	};
 
@@ -59,7 +59,7 @@ namespace Lina::Physics
 	/// Does not require entity or physics actors. 
 	/// ! Direction should be a unit vector.
 	/// </summary>
-	extern HitInfo RaycastPose(const Lina::Vector3& from, const Lina::Vector3& unitDir, const Lina::Vector3& targetPosition, const Lina::Vector3& targetHalfExtents, float dist = 1000.0f);
+	extern HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist = 1000.0f);
 }
 
 #endif

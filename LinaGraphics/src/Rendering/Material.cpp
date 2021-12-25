@@ -126,7 +126,7 @@ namespace Lina::Graphics
 		else
 		{
 			LINA_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
-			return Lina::Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
+			return Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
 		}
 	}
 

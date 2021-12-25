@@ -80,7 +80,7 @@ namespace Lina::Editor
 		{
 			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 			float cursorPosLabels = CURSORPOS_X_LABELS;
-			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
+			const std::map<std::string, Timer*>& map = Timer::GetTimerMap();
 
 			Begin();
 
@@ -100,21 +100,21 @@ namespace Lina::Editor
 
 			WidgetsUtility::IncrementCursorPosX(12);
 
-			double updateTime = Lina::Engine::Get()->GetUpdateTime();
+			double updateTime = Engine::Get()->GetUpdateTime();
 			const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
 			WidgetsUtility::PropertyLabel(updateTimeStr.c_str());
 
-			double renderTime = Lina::Engine::Get()->GetRenderTime();
+			double renderTime = Engine::Get()->GetRenderTime();
 			const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
 			WidgetsUtility::PropertyLabel(renderTimeStr.c_str());
 
-			double frameTime = Lina::Engine::Get()->GetFrameTime();
+			double frameTime = Engine::Get()->GetFrameTime();
 			const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
 			WidgetsUtility::PropertyLabel(frameTimeStr.c_str());
 
 
 
-			for (std::map<std::string, Lina::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+			for (std::map<std::string, Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
 			{
 				std::string txt = "";
 				txt = it->first + " " + m_timerMSStorage[it->first] + " ms";
@@ -131,10 +131,10 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosX(12);
 			WidgetsUtility::IncrementCursorPosY(12);
 
-			int fps = Lina::Engine::Get()->GetCurrentFPS();
-			int ups = Lina::Engine::Get()->GetCurrentUPS();
-			float rawDelta = (float)Lina::Engine::Get()->GetRawDelta();
-			float smoothDelta = (float)Lina::Engine::Get()->GetSmoothDelta();
+			int fps = Engine::Get()->GetCurrentFPS();
+			int ups = Engine::Get()->GetCurrentUPS();
+			float rawDelta = (float)Engine::Get()->GetRawDelta();
+			float smoothDelta = (float)Engine::Get()->GetSmoothDelta();
 
 			static RollingBuffer fpsData;
 			static RollingBuffer upsData;

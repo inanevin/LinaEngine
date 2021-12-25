@@ -120,10 +120,10 @@ namespace Lina::Physics
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		PhysXPhysicsEngine();
 		~PhysXPhysicsEngine();
-		void Initialize(Lina::ApplicationMode appMode);
+		void Initialize(ApplicationMode appMode);
 		void Tick(float fixedDelta);
 		void Shutdown();
 		float GetStepTime() { return m_stepTime; }
@@ -144,12 +144,12 @@ namespace Lina::Physics
 	private:
 
 		
-		Lina::ECS::Registry* m_ecs = nullptr;
 		static PhysXPhysicsEngine* s_physicsEngine;
-		Lina::ECS::RigidbodySystem m_rigidbodySystem;
-		Lina::ECS::SystemList m_physicsPipeline;
-		Lina::Event::EventSystem* m_eventSystem;
-		Lina::ApplicationMode m_appMode = Lina::ApplicationMode::Editor;
+		ECS::Registry* m_ecs = nullptr;
+		ECS::RigidbodySystem m_rigidbodySystem;
+		ECS::SystemList m_physicsPipeline;
+		Event::EventSystem* m_eventSystem;
+		ApplicationMode m_appMode = ApplicationMode::Editor;
 		PhysXCooker m_cooker;
 		bool m_debugDrawEnabled = false;
 		float m_stepTime = 0.016f;

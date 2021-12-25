@@ -231,7 +231,7 @@ namespace Lina::ECS
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
-			Lina::Matrix global = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+			Matrix global = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
 			Vector3 translation = global.GetTranslation();
 			m_transform.m_previousLocation = m_transform.m_location;
 			m_transform.m_location = translation;
@@ -253,7 +253,7 @@ namespace Lina::ECS
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
-			Lina::Matrix global = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
+			Matrix global = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
 			m_transform.m_localLocation = global.GetTranslation();
 		}
 	}

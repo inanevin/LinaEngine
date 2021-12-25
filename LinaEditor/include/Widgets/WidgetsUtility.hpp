@@ -139,7 +139,7 @@ namespace Lina::Editor
 		/// <summary>
 		/// Draws a horizontal reactangle, with foldout caret, component title, icon, and component buttons.
 		/// </summary>
-		static bool ComponentHeader(Lina::ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton = true, bool disableHeader = false);
+		static bool ComponentHeader(ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton = true, bool disableHeader = false);
 
 		/// <summary>
 		/// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.
@@ -171,22 +171,22 @@ namespace Lina::Editor
 		/// <summary>
 		/// Drop-down combo-box for selecting any loaded material in the project.
 		/// </summary>
-		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
+		static Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
 
 		/// <summary>
 		/// Drop-down combo-box for selecting any loaded model in the project.
 		/// </summary>
-		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
+		static Graphics::Model* ModelComboBox(const char* comboID, int currentModelID, bool* removed = nullptr);
 
 		/// <summary>
 		/// Drop-down combo-box for selecting any loaded shader material in the project.
 		/// </summary>
-		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
+		static Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID, bool* removed = nullptr);
 
 		/// <summary>
 		/// Drop-down combo-box for selecting any loaded physics material in the project.
 		/// </summary>
-		static Lina::Physics::PhysicsMaterial* PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
+		static Physics::PhysicsMaterial* PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed = nullptr);
 
 		/// <summary>
 		/// Drop-down combo-box for selecting physics simulation type.

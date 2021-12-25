@@ -65,7 +65,7 @@ namespace Lina::ECS
 
 	void RemoveUnprocessedChildren(ECS::Entity entity)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//
 		//std::vector<ECS::Entity> markedForNullParent;
 		//FindEntitiesToKeep(entity, markedForNullParent);
@@ -74,9 +74,9 @@ namespace Lina::ECS
 		//	reg->RemoveFromParent(markedForNullParent[i]);
 	}
 
-	void ModelRendererComponent::ProcessNode(ECS::Entity parent, const Lina::Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot)
+	void ModelRendererComponent::ProcessNode(ECS::Entity parent, const Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//ECS::Entity nodeEntity = entt::null;
 		//
 		//if (isRoot)
@@ -123,7 +123,7 @@ namespace Lina::ECS
 
 	void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
 		//auto& mr = reg->emplace<ECS::MeshRendererComponent>(targetEntity);
 		//auto& data = reg->get<ECS::EntityDataComponent>(targetEntity);
@@ -175,7 +175,7 @@ namespace Lina::ECS
 	void ModelRendererComponent::SetModel(ECS::Entity parent, Graphics::Model& model)
 	{
 
-	//ECS::Registry* reg = Lina::ECS::Registry::Get();
+	//ECS::Registry* reg = ECS::Registry::Get();
 	//ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 	//if (this != modelRendererInEntity)
 	//{
@@ -203,7 +203,7 @@ namespace Lina::ECS
 
 	void ModelRendererComponent::RemoveModel(ECS::Entity parent)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		//if (this != modelRendererInEntity)
 		//{
@@ -224,7 +224,7 @@ namespace Lina::ECS
 
 	void ModelRendererComponent::SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//
 		//ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		//if (this != modelRendererInEntity)
@@ -261,7 +261,7 @@ namespace Lina::ECS
 
 	void ModelRendererComponent::RemoveMaterial(ECS::Entity parent, int materialIndex)
 	{
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//
 		//ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		//if (this != modelRendererInEntity)
@@ -295,7 +295,7 @@ namespace Lina::ECS
 	void ModelRendererComponent::RefreshHierarchy(ECS::Entity parent)
 	{
 		//if (!Graphics::Model::ModelExists(m_modelID)) return;
-		//ECS::Registry* reg = Lina::ECS::Registry::Get();
+		//ECS::Registry* reg = ECS::Registry::Get();
 		//ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(parent);
 		//
 		//RemoveUnprocessedChildren(parent);

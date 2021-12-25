@@ -149,7 +149,7 @@ namespace Lina::Event
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		void Initialize();
 		void Shutdown();
 

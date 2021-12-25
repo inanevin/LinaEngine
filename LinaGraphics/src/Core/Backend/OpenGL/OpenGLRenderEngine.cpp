@@ -399,7 +399,7 @@ namespace Lina::Graphics
 		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 	}
 
-	void OpenGLRenderEngine::AddToRenderingPipeline(Lina::ECS::System& system)
+	void OpenGLRenderEngine::AddToRenderingPipeline(ECS::System& system)
 	{
 		m_renderingPipeline.AddSystem(system);
 	}
@@ -891,7 +891,7 @@ namespace Lina::Graphics
 		m_modelNodeSystem.FlushOpaque(drawParams, overrideMaterial, completeFlush);
 		m_modelNodeSystem.FlushTransparent(drawParams, overrideMaterial, completeFlush);
 		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, completeFlush);
-		Lina::Event::EventSystem::Get()->Trigger<Lina::Event::EPostSceneDraw>(Lina::Event::EPostSceneDraw{});
+		Event::EventSystem::Get()->Trigger<Event::EPostSceneDraw>(Event::EPostSceneDraw{});
 	}
 
 	void OpenGLRenderEngine::UpdateUniformBuffers()

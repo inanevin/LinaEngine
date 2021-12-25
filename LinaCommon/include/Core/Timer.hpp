@@ -45,8 +45,8 @@ Timestamp: 10/22/2020 11:04:40 PM
 
 #ifdef LINA_ENABLE_TIMEPROFILING
 
-#define LINA_TIMER_START(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Initialize()
-#define LINA_TIMER_STOP(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Stop()
+#define LINA_TIMER_START(...) ::Timer::GetTimer(__VA_ARGS__).Initialize()
+#define LINA_TIMER_STOP(...) ::Timer::GetTimer(__VA_ARGS__).Stop()
 
 
 #else

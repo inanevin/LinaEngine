@@ -47,7 +47,7 @@ namespace Lina::ECS
 
 	struct CameraComponent : public Component
 	{
-		Lina::Color m_clearColor = Lina::Color(0.1f, 0.1f, 0.1f, 1.0f);
+		Color m_clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
 		float m_fieldOfView = 90.0f;
 		float m_zNear = 0.01f;
 		float m_zFar = 1000.0f;

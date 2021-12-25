@@ -57,7 +57,7 @@ namespace Lina::ECS
 {
 	struct ModelNodeComponent : public Component
 	{
-		Lina::Graphics::ModelNode* m_modelNode = nullptr;
+		Graphics::ModelNode* m_modelNode = nullptr;
 		std::vector<StringIDType> m_materialIDs;
 
 	private:

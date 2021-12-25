@@ -63,14 +63,14 @@ static bool s_physicsDebugEnabled = false;
 static bool s_dockWindowInit = true;
 static const char* s_saveLevelDialogID = "id_saveLevel";
 static const char* s_loadLevelDialogID = "id_loadLevel";
-Lina::Graphics::Texture* splashScreenTexture;
+Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
 	ImFont* GUILayer::s_defaultFont = nullptr;
 	ImFont* GUILayer::s_bigFont = nullptr;
 	std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
-	Lina::Graphics::DrawParams m_drawParameters;
+	Graphics::DrawParams m_drawParameters;
 
 	void GUILayer::Initialize()
 	{
@@ -78,7 +78,7 @@ namespace Lina::Editor
 		Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
 
 		// Listen to menu bar clicked events.
-		Lina::Event::EventSystem::Get()->Connect<EMenuBarItemClicked, &GUILayer::DispatchMenuBarClickedAction>(this);
+		Event::EventSystem::Get()->Connect<EMenuBarItemClicked, &GUILayer::DispatchMenuBarClickedAction>(this);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -115,7 +115,7 @@ namespace Lina::Editor
 	//	io.ConfigViewportsNoTaskBarIcon = true;
 
 #ifdef LINA_GRAPHICS_OPENGL
-		GLFWwindow* window = static_cast<GLFWwindow*>(Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
+		GLFWwindow* window = static_cast<GLFWwindow*>(Graphics::WindowBackend::Get()->GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -215,13 +215,13 @@ namespace Lina::Editor
 		m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
 		// Splash screen
-		Lina::Graphics::WindowBackend* splashWindow = Lina::Graphics::WindowBackend::Get();
+		Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		Vector2 splashSize = Vector2(720, 450);
 		splashWindow->SetSize(splashSize);
 		splashWindow->SetPosCentered(Vector2(0, 0));
 		Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
+		splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
 		DrawSplashScreen();
 
 
@@ -252,7 +252,7 @@ namespace Lina::Editor
 	void GUILayer::OnPostRender(const Event::EPostRender& ev)
 	{
 		// Set draw params first.
-		Lina::Graphics::RenderEngineBackend::Get()->SetDrawParameters(m_drawParameters);
+		Graphics::RenderEngineBackend::Get()->SetDrawParameters(m_drawParameters);
 
 #ifdef LINA_GRAPHICS_OPENGL
 		//Setup
@@ -311,14 +311,14 @@ namespace Lina::Editor
 		else if (item == MenuBarItems::PackageProject)
 		{
 			std::string fullPath = "";
-			fullPath = EditorUtility::SaveFile(".linabundle", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
+			fullPath = EditorUtility::SaveFile(".linabundle", Graphics::WindowBackend::Get()->GetNativeWindow());
 
 			if (fullPath.compare("") != 0)
 			{
 				size_t lastIndex = fullPath.find_last_of("/");
 				std::string folderPath = fullPath.substr(0, lastIndex);
 				std::string fileName = fullPath.substr(lastIndex + 1);
-				Lina::Application::Get().PackageProject(folderPath, fileName);
+				Application::Get().PackageProject(folderPath, fileName);
 			}
 		}
 
@@ -331,32 +331,32 @@ namespace Lina::Editor
 		else if (item == MenuBarItems::NewLevelData)
 		{
 			// Build a new level.
-			Lina::Application::Get().InstallLevel(m_defaultLevel);
+			Application::Get().InstallLevel(m_defaultLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			std::string fullPath = "";
-			fullPath = EditorUtility::SaveFile(".linaleveldata", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
+			fullPath = EditorUtility::SaveFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
 
 			if (fullPath.compare("") != 0)
 			{
 				size_t lastIndex = fullPath.find_last_of("/");
 				std::string folderPath = fullPath.substr(0, lastIndex);
 				std::string fileName = fullPath.substr(lastIndex + 1);
-				Lina::Application::Get().SaveLevelData(folderPath, fileName);
+				Application::Get().SaveLevelData(folderPath, fileName);
 			}
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
 			std::string fullPath = "";
-			fullPath = EditorUtility::OpenFile(".linaleveldata", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
+			fullPath = EditorUtility::OpenFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
 
 			if (fullPath.compare("") != 0)
 			{
 				size_t lastIndex = fullPath.find_last_of("/");
 				std::string folderPath = fullPath.substr(0, lastIndex);
 				std::string fileName = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
-				Lina::Application::Get().LoadLevelData(folderPath, fileName);
+				Application::Get().LoadLevelData(folderPath, fileName);
 			}
 		}
 
@@ -381,10 +381,10 @@ namespace Lina::Editor
 
 		// Debug
 		else if (item == MenuBarItems::DebugViewShadows)
-			m_levelPanel.SetDrawMode(Lina::Editor::LevelPanel::DrawMode::ShadowMap);
+			m_levelPanel.SetDrawMode(Editor::LevelPanel::DrawMode::ShadowMap);
 
 		else if (item == MenuBarItems::DebugViewNormal)
-			m_levelPanel.SetDrawMode(Lina::Editor::LevelPanel::DrawMode::FinalImage);
+			m_levelPanel.SetDrawMode(Editor::LevelPanel::DrawMode::FinalImage);
 
 		// Objects
 
@@ -463,7 +463,7 @@ namespace Lina::Editor
 		}
 
 		// swap buffers.
-		Lina::Graphics::WindowBackend::Get()->Tick();
+		Graphics::WindowBackend::Get()->Tick();
 	}
 
 	void GUILayer::DrawFPSCounter(int corner)
@@ -488,7 +488,7 @@ namespace Lina::Editor
 		{
 			ImGui::Text("FPS Overlay");
 			ImGui::Separator();
-			std::string fpsText = std::to_string(Lina::Engine::Get()->GetCurrentFPS()) + " Frames per second";
+			std::string fpsText = std::to_string(Engine::Get()->GetCurrentFPS()) + " Frames per second";
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();
@@ -514,7 +514,7 @@ namespace Lina::Editor
 		if (s_setDockspaceLayout)
 		{
 			s_setDockspaceLayout = false;
-			Vector2 screenSize = Lina::Graphics::WindowBackend::Get()->GetSize();
+			Vector2 screenSize = Graphics::WindowBackend::Get()->GetSize();
 			ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 			ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
 			ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y - FOOTER_HEIGHT));
@@ -541,8 +541,8 @@ namespace Lina::Editor
 
 	void GUILayer::CreateObjectInLevel(const std::string& modelPath)
 	{
-		auto* ecs = Lina::ECS::Registry::Get();
-		auto& model = Lina::Graphics::Model::GetModel(modelPath);
+		auto* ecs = ECS::Registry::Get();
+		auto& model = Graphics::Model::GetModel(modelPath);
 		auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 		auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 		mr.SetModel(entity, model);

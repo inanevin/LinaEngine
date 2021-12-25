@@ -47,84 +47,84 @@ SOFTWARE.
 #include "imgui/imguizmo/ImGuizmo.h"
 #include "Core/CustomFontIcons.hpp"
 
-using namespace Lina::ECS;
-using namespace Lina::Editor;
+using namespace ECS;
+using namespace Editor;
 
 
 namespace Lina::Editor
 {
 
 
-	std::map<Lina::ECS::TypeID, bool> m_componentFoldoutState;
-	std::pair<Lina::ECS::Entity, Lina::ECS::TypeID> m_copyBuffer;
+	std::map<ECS::TypeID, bool> m_componentFoldoutState;
+	std::pair<ECS::Entity, ECS::TypeID> m_copyBuffer;
 
 	template<typename Type>
-	void Drawer_SetEnabled(Lina::ECS::Entity ent, bool enabled)
+	void Drawer_SetEnabled(ECS::Entity ent, bool enabled)
 	{
-		Lina::ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
+		ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
 
 		// If we are toggling model renderer component, toggle every mesh renderer component below it.
 		if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
 		{
-			auto& data = Lina::ECS::Registry::Get()->get<EntityDataComponent>(ent);
+			auto& data = ECS::Registry::Get()->get<EntityDataComponent>(ent);
 			for (auto child : data.m_children)
 			{
-				auto* meshRenderer = Lina::ECS::Registry::Get()->try_get<MeshRendererComponent>(child);
+				auto* meshRenderer = ECS::Registry::Get()->try_get<MeshRendererComponent>(child);
 				meshRenderer->m_isEnabled = enabled;
 			}
 		}
 	}
 
 	template<typename Type>
-	Type& Drawer_Get(Lina::ECS::Entity entity)
+	Type& Drawer_Get(ECS::Entity entity)
 	{
-		return Lina::ECS::Registry::Get()->template get<Type>(entity);
+		return ECS::Registry::Get()->template get<Type>(entity);
 	}
 
 	template<typename Type>
-	void Drawer_Add(Lina::ECS::Entity entity)
+	void Drawer_Add(ECS::Entity entity)
 	{
-		Lina::ECS::Registry::Get()->template emplace<Type>(entity);
+		ECS::Registry::Get()->template emplace<Type>(entity);
 	}
 
 	template<typename Type>
-	bool Drawer_Has(Lina::ECS::Entity entity)
+	bool Drawer_Has(ECS::Entity entity)
 	{
-		return Lina::ECS::Registry::Get()->all_of<Type>(entity);
+		return ECS::Registry::Get()->all_of<Type>(entity);
 	}
 
 	template<typename Type>
-	void Drawer_Reset(Lina::ECS::Entity entity)
+	void Drawer_Reset(ECS::Entity entity)
 	{
 		ECS::TypeID tid = GetTypeID<Type>();
 
 		if (tid == GetTypeID<EntityDataComponent>())
 		{
-			EntityDataComponent& comp = Lina::ECS::Registry::Get()->get<EntityDataComponent>(entity);
+			EntityDataComponent& comp = ECS::Registry::Get()->get<EntityDataComponent>(entity);
 			comp.SetLocalLocation(Vector3::Zero);
 			comp.SetLocalRotation(Quaternion());
 			comp.SetLocalScale(Vector3::One);
 		}
 		else
-			Lina::ECS::Registry::Get()->template replace<Type>(entity, Type());
+			ECS::Registry::Get()->template replace<Type>(entity, Type());
 	}
 
 	template<typename Type>
-	void Drawer_Remove(Lina::ECS::Entity entity)
+	void Drawer_Remove(ECS::Entity entity)
 	{
-		Lina::ECS::Registry::Get()->template remove<Type>(entity);
+		ECS::Registry::Get()->template remove<Type>(entity);
 	}
 
-	void Drawer_Copy(Lina::ECS::Entity entity, Lina::ECS::TypeID tid)
+	void Drawer_Copy(ECS::Entity entity, ECS::TypeID tid)
 	{
 		m_copyBuffer.first = entity;
 		m_copyBuffer.second = tid;
 	}
 
 	template<typename Type>
-	void Drawer_Paste(Lina::ECS::Entity entity)
+	void Drawer_Paste(ECS::Entity entity)
 	{
-		Lina::ECS::TypeID pastedTid = Lina::ECS::GetTypeID<Type>();
+		ECS::TypeID pastedTid = ECS::GetTypeID<Type>();
 
 
 		if (pastedTid == m_copyBuffer.second)
@@ -133,20 +133,20 @@ namespace Lina::Editor
 			{
 				if (pastedTid == GetTypeID<EntityDataComponent>())
 				{
-					EntityDataComponent& copy = Lina::ECS::Registry::Get()->get<EntityDataComponent>(m_copyBuffer.first);
+					EntityDataComponent& copy = ECS::Registry::Get()->get<EntityDataComponent>(m_copyBuffer.first);
 
-					auto& data = Lina::ECS::Registry::Get()->get<EntityDataComponent>(entity);
+					auto& data = ECS::Registry::Get()->get<EntityDataComponent>(entity);
 					data.SetLocation(copy.GetLocation());
 					data.SetRotation(copy.GetRotation());
 					data.SetScale(copy.GetScale());
 				}
 				else
 				{
-					Type* copy = Lina::ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
+					Type* copy = ECS::Registry::Get()->try_get<Type>(m_copyBuffer.first);
 
 					if (copy != nullptr)
 					{
-						Lina::ECS::Registry::Get()->replace<Type>(entity, *copy);
+						ECS::Registry::Get()->replace<Type>(entity, *copy);
 						Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
 					}
 				}
@@ -158,19 +158,19 @@ namespace Lina::Editor
 		// manually set the pasted model & materials on the renderer.
 		if (pastedTid == GetTypeID<ModelRendererComponent>())
 		{
-			auto& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+			auto& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
 			std::string modelPath = mr.GetModelPath();
 			std::vector<std::string> materials = mr.GetMaterialPaths();
-			if (Lina::Graphics::Model::ModelExists(modelPath))
+			if (Graphics::Model::ModelExists(modelPath))
 			{
-				mr.SetModel(entity, Lina::Graphics::Model::GetModel(modelPath));
+				mr.SetModel(entity, Graphics::Model::GetModel(modelPath));
 
 				for (int i = 0; i < materials.size(); i++)
 				{
-					if (Lina::Graphics::Material::MaterialExists(materials[i]))
-						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial(materials[i]));
+					if (Graphics::Material::MaterialExists(materials[i]))
+						mr.SetMaterial(entity, i, Graphics::Material::GetMaterial(materials[i]));
 					else
-						mr.SetMaterial(entity, i, Lina::Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
+						mr.SetMaterial(entity, i, Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
 				}
 			}
 			else
@@ -182,41 +182,41 @@ namespace Lina::Editor
 	}
 
 	template<typename Type>
-	void Drawer_SetModel(Lina::ECS::Entity ent, Lina::Graphics::Model* model)
+	void Drawer_SetModel(ECS::Entity ent, Graphics::Model* model)
 	{
-		Lina::ECS::Registry::Get()->get<Type>(ent).SetModel(ent, *model);
+		ECS::Registry::Get()->get<Type>(ent).SetModel(ent, *model);
 	}
 
 	template<typename Type>
-	void Drawer_RemoveModel(Lina::ECS::Entity ent)
+	void Drawer_RemoveModel(ECS::Entity ent)
 	{
-		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
+		Type& comp = ECS::Registry::Get()->template get<Type>(ent);
 		comp.RemoveModel(ent);
 	}
 
 	template<typename Type>
-	void Drawer_SetMaterial(Lina::ECS::Entity ent, int materialIndex, const Graphics::Material& material)
+	void Drawer_SetMaterial(ECS::Entity ent, int materialIndex, const Graphics::Material& material)
 	{
-		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
+		Type& comp = ECS::Registry::Get()->template get<Type>(ent);
 		comp.SetMaterial(ent, materialIndex, material);
 	}
 
 	template<typename Type>
-	void Drawer_RemoveMaterial(Lina::ECS::Entity ent, int materialIndex)
+	void Drawer_RemoveMaterial(ECS::Entity ent, int materialIndex)
 	{
-		Type& comp = Lina::ECS::Registry::Get()->template get<Type>(ent);
+		Type& comp = ECS::Registry::Get()->template get<Type>(ent);
 		comp.RemoveMaterial(ent, materialIndex);
 	}
 
 	template<typename Type>
-	std::string Drawer_GetMaterialName(Lina::ECS::Entity ent, int index)
+	std::string Drawer_GetMaterialName(ECS::Entity ent, int index)
 	{
-		std::string modelPath = Lina::ECS::Registry::Get()->template get<Type>(ent).GetModelPath();
-		return Lina::Graphics::Model::GetModel(modelPath).GetImportedMaterials()[index].m_name;;
+		std::string modelPath = ECS::Registry::Get()->template get<Type>(ent).GetModelPath();
+		return Graphics::Model::GetModel(modelPath).GetImportedMaterials()[index].m_name;;
 	}
 
 	template<typename Type>
-	void Drawer_ValueChanged(Lina::ECS::Entity ent, const char* label)
+	void Drawer_ValueChanged(ECS::Entity ent, const char* label)
 	{
 		ECS::TypeID tid = GetTypeID<Type>();
 
@@ -225,7 +225,7 @@ namespace Lina::Editor
 			// Generate pivots changed.
 			if (std::string(label).compare("Generate Pivots") == 0)
 			{
-				ModelRendererComponent& mr = Lina::ECS::Registry::Get()->get<ModelRendererComponent>(ent);
+				ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(ent);
 				mr.RefreshHierarchy(ent);
 			}
 		}
@@ -233,7 +233,7 @@ namespace Lina::Editor
 
 
 
-	void Drawer_DebugPLight(Lina::ECS::Entity ent) {
+	void Drawer_DebugPLight(ECS::Entity ent) {
 		LINA_TRACE("Debug PLIGHT");
 	}
 
@@ -324,18 +324,18 @@ namespace Lina::Editor
 
 	void ComponentDrawer::Initialize()
 	{
-		Lina::Event::EventSystem::Get()->Connect<EComponentOrderSwapped, &ComponentDrawer::OnComponentOrderSwapped>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ComponentDrawer::OnTransformPivotChanged>(this);
+		Event::EventSystem::Get()->Connect<EComponentOrderSwapped, &ComponentDrawer::OnComponentOrderSwapped>(this);
+		Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ComponentDrawer::OnTransformPivotChanged>(this);
 	}
 
-	void ComponentDrawer::AddIDToDrawList(Lina::ECS::TypeID id)
+	void ComponentDrawer::AddIDToDrawList(ECS::TypeID id)
 	{
 		// Add only if it doesn't exists.
 		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
 			m_componentDrawList.push_back(id);
 	}
 
-	void ComponentDrawer::SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2)
+	void ComponentDrawer::SwapComponentOrder(ECS::TypeID id1, ECS::TypeID id2)
 	{
 		// Swap iterators.
 		std::vector<TypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id1);
@@ -353,7 +353,7 @@ namespace Lina::Editor
 		m_componentDrawList.clear();
 	}
 
-	AddComponentMap ComponentDrawer::GetCurrentAddComponentMap(Lina::ECS::Entity entity)
+	AddComponentMap ComponentDrawer::GetCurrentAddComponentMap(ECS::Entity entity)
 	{
 		AddComponentMap map;
 
@@ -361,7 +361,7 @@ namespace Lina::Editor
 		{
 			for (auto& pair : category.second)
 			{
-				Lina::ECS::TypeID tid = pair.second;
+				ECS::TypeID tid = pair.second;
 				auto meta = entt::resolve(tid);
 				bool hasComponent = meta.func("has"_hs).invoke({}, entity).cast<bool>();
 
@@ -375,43 +375,43 @@ namespace Lina::Editor
 		return map;
 	}
 
-	void ComponentDrawer::DrawDebugPointLight(Lina::ECS::Entity ent)
+	void ComponentDrawer::DrawDebugPointLight(ECS::Entity ent)
 	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::PointLightComponent& pLight = Lina::ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
+		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
 		Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
 		Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
 		Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
 		Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Color::Red, 1.4f);
 	}
 
-	void ComponentDrawer::DrawDebugSpotLight(Lina::ECS::Entity ent)
+	void ComponentDrawer::DrawDebugSpotLight(ECS::Entity ent)
 	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-		ECS::SpotLightComponent& sLight = Lina::ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
+		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::SpotLightComponent& sLight = ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
 		Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
 	}
 
-	void ComponentDrawer::DrawDebugDirectionalLight(Lina::ECS::Entity ent)
+	void ComponentDrawer::DrawDebugDirectionalLight(ECS::Entity ent)
 	{
-		ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+		ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
 		Vector3 dir = Vector3::Zero - data.GetLocation();
 		Vector3 end1 = data.GetLocation() + dir;
-		Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+		Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
 	}
 
-	void ComponentDrawer::PushComponentToDraw(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
+	void ComponentDrawer::PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent)
 	{
 		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), tid) == m_componentDrawList.end())
 			m_componentDrawList.push_back(tid);
 	}
 
-	void ComponentDrawer::DrawAllComponents(Lina::ECS::Entity ent)
+	void ComponentDrawer::DrawAllComponents(ECS::Entity ent)
 	{
 		for (auto tid : m_componentDrawList)
 			DrawComponent(tid, ent);
@@ -422,14 +422,14 @@ namespace Lina::Editor
 		m_isTransformPivotGlobal = ev.m_isGlobal;
 	}
 
-	void ComponentDrawer::DrawEntityData(Lina::ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
+	void ComponentDrawer::DrawEntityData(ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
 	{
 
-		auto* ecs = Lina::ECS::Registry::Get();
-		auto* physicsEngine = Lina::Physics::PhysicsEngineBackend::Get();
+		auto* ecs = ECS::Registry::Get();
+		auto* physicsEngine = Physics::PhysicsEngineBackend::Get();
 		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
-		Lina::ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
-		Lina::ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
+		ECS::TypeID entityDataTid = GetTypeID<EntityDataComponent>();
+		ECS::TypeID physicsTid = GetTypeID<PhysicsComponent>();
 		PhysicsComponent& phy = ecs->get<PhysicsComponent>(entity);
 		Physics::SimulationType simType = phy.m_simType;
 
@@ -645,7 +645,7 @@ namespace Lina::Editor
 			ImGui::EndDisabled();
 	}
 
-	void ComponentDrawer::DrawComponent(Lina::ECS::TypeID tid, Lina::ECS::Entity ent)
+	void ComponentDrawer::DrawComponent(ECS::TypeID tid, ECS::Entity ent)
 	{
 		auto* ecs = ECS::Registry::Get();
 		auto resolvedData = entt::resolve(tid);
@@ -679,7 +679,7 @@ namespace Lina::Editor
 			{
 				resolvedData.func("remove"_hs).invoke({}, ent);
 
-				for (std::vector<Lina::ECS::TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
+				for (std::vector<ECS::TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
 				{
 					if (*it == tid)
 					{
@@ -832,7 +832,7 @@ namespace Lina::Editor
 							{
 								IM_ASSERT(payload->DataSize == sizeof(StringIDType));
 
-								auto& model = Lina::Graphics::Model::GetModel(*(StringIDType*)payload->Data);
+								auto& model = Graphics::Model::GetModel(*(StringIDType*)payload->Data);
 								resolvedData.func("setModel"_hs).invoke({}, ent, model);
 							}
 							ImGui::EndDragDropTarget();
@@ -860,7 +860,7 @@ namespace Lina::Editor
 
 							const std::string cboxID = "##modRendMat " + std::to_string(i);
 							bool removed = false;
-							Lina::Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
+							Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
 
 							if (selectedMaterial != nullptr)
 								resolvedData.func("setMaterial"_hs).invoke({}, ent, i, *selectedMaterial);
@@ -876,7 +876,7 @@ namespace Lina::Editor
 								{
 									IM_ASSERT(payload->DataSize == sizeof(StringIDType));
 
-									auto& mat = Lina::Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
+									auto& mat = Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
 									resolvedData.func("setMaterial"_hs).invoke({}, ent, i, mat);
 								}
 								ImGui::EndDragDropTarget();

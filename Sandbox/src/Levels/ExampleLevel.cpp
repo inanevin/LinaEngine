@@ -33,9 +33,8 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Audio/Audio.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 
-using namespace Lina::Graphics;
-using namespace Lina::ECS;
-using namespace Lina;
+using namespace Graphics;
+using namespace ECS;
 
 
 bool ExampleLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
@@ -63,7 +62,7 @@ void ExampleLevel::Initialize()
 
 	// Texture* hdri = &Texture::GetTexture("Resources/SandboxHDRI/studio.hdr");
 	// Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
-	// Material& mat = Lina::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"));
+	// Material& mat = Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"));
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
@@ -82,7 +81,7 @@ void ExampleLevel::Tick(const Event::ETick& ev)
 		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
 		data.AddRotation(Vector3(65 * ev.m_deltaTime, 0, 0));
 		Vector3 location = data.GetLocation();
-		location.x = Math::Sin(Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
+		location.x = Math::Sin((float)Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
 		data.SetLocation(location);
 	}
 

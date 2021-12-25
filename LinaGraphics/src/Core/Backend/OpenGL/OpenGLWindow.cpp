@@ -140,11 +140,11 @@ namespace Lina::Graphics
 		{
 			auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
 
-			Lina::Input::InputAction inputAction = Lina::Input::InputAction::Pressed;
+			Input::InputAction inputAction = Input::InputAction::Pressed;
 			if (action == GLFW_RELEASE)
-				inputAction = Lina::Input::InputAction::Released;
+				inputAction = Input::InputAction::Released;
 			else if (action == GLFW_REPEAT)
-				inputAction = Lina::Input::InputAction::Repeated;
+				inputAction = Input::InputAction::Repeated;
 
  			Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{ window->m_window, key, scancode, inputAction, modes });
 		};
@@ -153,11 +153,11 @@ namespace Lina::Graphics
 		{
 			auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
 
-			Lina::Input::InputAction inputAction = Lina::Input::InputAction::Pressed;
+			Input::InputAction inputAction = Input::InputAction::Pressed;
 			if (action == GLFW_RELEASE)
-				inputAction = Lina::Input::InputAction::Released;
+				inputAction = Input::InputAction::Released;
 			else if (action == GLFW_REPEAT)
-				inputAction = Lina::Input::InputAction::Repeated;
+				inputAction = Input::InputAction::Repeated;
 
 			Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{ window->m_window, button, inputAction, modes });
 		};
@@ -230,7 +230,7 @@ namespace Lina::Graphics
 	void OpenGLWindow::SetPosCentered(const Vector2ui newPos)
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		SetPos(Lina::Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x - (float)m_windowProperties.m_width / 2.0f),
+		SetPos(Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x - (float)m_windowProperties.m_width / 2.0f),
 			(int)((float)mode->height / 2.0f + (float)newPos.y - (float)m_windowProperties.m_height / 2.0f)));
 	}
 

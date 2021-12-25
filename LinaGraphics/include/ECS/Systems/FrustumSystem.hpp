@@ -65,7 +65,7 @@ namespace Lina::ECS
 		/// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
 		/// Returns whether entity contains any bounds (renderable or not).
 		/// </summary>
-		bool GetEntityBounds(Entity ent, Lina::Vector3& boundsPosition, Lina::Vector3& boundsHalfExtent);
+		bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
 
 	
 	private:

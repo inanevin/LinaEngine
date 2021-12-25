@@ -53,7 +53,7 @@ namespace Lina::Editor
 		~EntityDrawer() {};
 		
 		void Initialize();
-		void SetSelectedEntity(Lina::ECS::Entity entity);
+		void SetSelectedEntity(ECS::Entity entity);
 		void DrawSelectedEntity();
 		void DrawEntityData();
 		void AddComponentPopup();
@@ -61,7 +61,7 @@ namespace Lina::Editor
 	private:
 
 		ComponentDrawer m_componentDrawer;
-		Lina::ECS::Entity m_selectedEntity;
+		ECS::Entity m_selectedEntity;
 		bool m_shouldCopyEntityName = true;
 		bool m_transformationFoldoutOpen = false;
 		bool m_physicsFoldoutOpen = false;

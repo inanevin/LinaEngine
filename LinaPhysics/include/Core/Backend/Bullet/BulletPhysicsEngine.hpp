@@ -76,13 +76,13 @@ namespace Lina::Physics
 		void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
 
 	private:
-		btCollisionShape* GetCreateCollisionShape(Lina::ECS::PhysicsComponent rb);
+		btCollisionShape* GetCreateCollisionShape(ECS::PhysicsComponent rb);
 
 	private:
-		friend class Lina::Engine;
+		friend class Engine;
 		BulletPhysicsEngine();
 		~BulletPhysicsEngine();
-		void Initialize(Lina::ApplicationMode appMode);
+		void Initialize(ApplicationMode appMode);
 		void Tick(float fixedDelta);
 		void Shutdown();
 
@@ -95,7 +95,7 @@ namespace Lina::Physics
 
 	private:
 
-		Lina::ECS::Registry* m_ecs = nullptr;
+		ECS::Registry* m_ecs = nullptr;
 		static BulletPhysicsEngine* s_physicsEngine;
 		btDefaultCollisionConfiguration* m_collisionConfig = nullptr;
 		btCollisionDispatcher* m_collisionDispatcher = nullptr;
@@ -103,12 +103,12 @@ namespace Lina::Physics
 		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
 		btDiscreteDynamicsWorld* m_world = nullptr;
 		BulletGizmoDrawer m_gizmoDrawer;
-		Lina::ECS::RigidbodySystem m_rigidbodySystem;
-		Lina::ECS::SystemList m_physicsPipeline;
-		Lina::Event::EventSystem* m_eventSystem;
+		ECS::RigidbodySystem m_rigidbodySystem;
+		ECS::SystemList m_physicsPipeline;
+		Event::EventSystem* m_eventSystem;
 		std::map<ECS::Entity, btRigidBody*> s_bodies;		
 		bool m_debugDrawEnabled = false;
-		Lina::ApplicationMode m_appMode = Lina::ApplicationMode::Editor;
+		ApplicationMode m_appMode = ApplicationMode::Editor;
 	};
 }
 

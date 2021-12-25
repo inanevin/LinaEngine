@@ -90,7 +90,7 @@ namespace Lina::Editor
 		const char* m_id = "";
 		const char* m_tooltip = "";
 		const char* m_icon = "";
-		unsigned int m_targetLevel = Lina::LogLevel::None;
+		unsigned int m_targetLevel = LogLevel::None;
 		ImVec4 m_colorDefault = ImVec4(0, 0, 0, 0);
 		ImVec4 m_colorHovered = ImVec4(0, 0, 0, 0);
 		ImVec4 m_colorPressed = ImVec4(0, 0, 0, 0);
@@ -104,8 +104,8 @@ namespace Lina::Editor
 		// Wrapper for displaying log dumps
 		struct LogDumpEntry
 		{
-			LogDumpEntry(const Lina::Event::ELog& dump, int count) : m_dump(dump), m_count(count) {};
-			Lina::Event::ELog m_dump;
+			LogDumpEntry(const Event::ELog& dump, int count) : m_dump(dump), m_count(count) {};
+			Event::ELog m_dump;
 			int m_count = 1;
 		};
 
@@ -116,11 +116,11 @@ namespace Lina::Editor
 
 		virtual void Initialize(const char* id) override;
 		virtual void Draw() override;
-		void OnLog(const Lina::Event::ELog& dump);
+		void OnLog(const Event::ELog& dump);
 
 	private:
 	
-		unsigned int m_logLevelFlags = Lina::LogLevel::None;
+		unsigned int m_logLevelFlags = LogLevel::None;
 		std::vector<LogLevelIconButton> m_logLevelIconButtons;
 		std::deque<LogDumpEntry> m_logDeque;
 	};

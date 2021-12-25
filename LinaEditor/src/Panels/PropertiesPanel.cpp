@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	using namespace Lina::ECS;
+	using namespace ECS;
 	using namespace Lina;
 	static bool s_openCompExistsModal;
 
@@ -47,11 +47,11 @@ namespace Lina::Editor
 	void PropertiesPanel::Initialize(const char* id)
 	{
 		EditorPanel::Initialize(id);
-		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
-	//	Lina::Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<ETextureSelected, &PropertiesPanel::TextureSelected>(this);
-		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &PropertiesPanel::Unselect>(this);
+		Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
+		Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
+	//	Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
+		Event::EventSystem::Get()->Connect<ETextureSelected, &PropertiesPanel::TextureSelected>(this);
+		Event::EventSystem::Get()->Connect<EEntityUnselected, &PropertiesPanel::Unselect>(this);
 
 		m_entityDrawer.Initialize();
 	}

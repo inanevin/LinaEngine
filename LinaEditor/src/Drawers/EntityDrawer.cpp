@@ -39,7 +39,7 @@ namespace Lina::Editor
 	{
 		m_componentDrawer.Initialize();
 	}
-	void EntityDrawer::SetSelectedEntity(Lina::ECS::Entity entity)
+	void EntityDrawer::SetSelectedEntity(ECS::Entity entity)
 	{
 		m_shouldCopyEntityName = true;
 		m_selectedEntity = entity;
@@ -49,8 +49,8 @@ namespace Lina::Editor
 
 	void EntityDrawer::DrawSelectedEntity()
 	{
-		Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
-		Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
+		ECS::Registry* ecs = ECS::Registry::Get();
+		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(m_selectedEntity);
 		ImVec2 windowPos = ImGui::GetWindowPos();
 		ImVec2 windowSize = ImGui::GetWindowSize();
 		bool isEditorCamera = m_selectedEntity == ecs->GetEntity("Editor Camera");
@@ -72,7 +72,7 @@ namespace Lina::Editor
 		{
 			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name;
+			std::string str = ecs->get<ECS::EntityDataComponent>(m_selectedEntity).m_name;
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -81,7 +81,7 @@ namespace Lina::Editor
 		WidgetsUtility::IncrementCursorPosY(0.9f);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
+		ecs->get<ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
@@ -138,7 +138,7 @@ namespace Lina::Editor
 		m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		Lina::ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
+		ECS::Registry::Get()->visit(m_selectedEntity, [this](const auto component)
 			{
 				m_componentDrawer.PushComponentToDraw(component.hash(), m_selectedEntity);
 			});

@@ -55,7 +55,7 @@ namespace Lina::ECS
 	{
 	public:
 
-		void Initialize(Lina::Editor::LevelPanel& scenePanel);
+		void Initialize(Editor::LevelPanel& scenePanel);
 		virtual void UpdateComponents(float delta) override;
 		void SetEditorCamera(Entity entity) { m_editorCamera = entity; }
 		Entity GetEditorCamera() { return m_editorCamera; }
@@ -64,8 +64,8 @@ namespace Lina::ECS
 	private:
 
 		Entity m_editorCamera = entt::null;
-		Lina::Editor::LevelPanel* m_levelPanel;
-		Lina::Input::InputEngine* m_inputEngine;
+		Editor::LevelPanel* m_levelPanel;
+		Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;

@@ -90,7 +90,7 @@ namespace Lina::Input
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		static GLFWInputEngine* s_inputEngine;
 		int m_keyStatesDown[NUM_KEY_STATES];
 		int m_keyStatesUp[NUM_KEY_STATES];

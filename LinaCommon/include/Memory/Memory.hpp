@@ -40,6 +40,8 @@ Timestamp: 4/8/2019 9:04:58 PM
 #ifndef Memory_HPP
 #define Memory_HPP
 
+#define NOMINMAX
+
 #include "Core/SizeDefinitions.hpp"
 #include <cstring>
 

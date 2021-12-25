@@ -44,12 +44,12 @@ SOFTWARE.
 
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
-Lina::Vector2ui resizeStartSize;
+Vector2ui resizeStartSize;
 bool appResizeActive;
 bool isAxisPivotLocal;
 
-Lina::Graphics::Texture* windowIcon;
-Lina::Graphics::Texture* linaLogoAnimation[HEADER_LINALOGO_ANIMSIZE];
+Graphics::Texture* windowIcon;
+Graphics::Texture* linaLogoAnimation[HEADER_LINALOGO_ANIMSIZE];
 uint32 linaLogoID;
 float logoAnimRatio = 0.0f;
 float logoAnimSpeed = 1.2f;
@@ -72,7 +72,7 @@ namespace Lina::Editor
 		EditorPanel::Initialize(id);
 
 		// Logo texture
-		windowIcon = &Lina::Graphics::Texture::GetTexture("Resources/Editor/Textures/linaEngineIcon.png");
+		windowIcon = &Graphics::Texture::GetTexture("Resources/Editor/Textures/linaEngineIcon.png");
 
 		// Logo animation textures
 		for (int i = 0; i < HEADER_LINALOGO_ANIMSIZE; i++)
@@ -82,7 +82,7 @@ namespace Lina::Editor
 				logoID = ("00" + std::to_string(i));
 			else if (i < 100)
 				logoID = ("0" + std::to_string(i));
-			linaLogoAnimation[i] = &Lina::Graphics::Texture::GetTexture("Resources/Editor/Textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
+			linaLogoAnimation[i] = &Graphics::Texture::GetTexture("Resources/Editor/Textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
 		}
 
 		linaLogoID = linaLogoAnimation[0]->GetID();
@@ -141,18 +141,18 @@ namespace Lina::Editor
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
-		m_title = Lina::Graphics::WindowBackend::Get()->GetProperties().m_title;
+		m_title = Graphics::WindowBackend::Get()->GetProperties().m_title;
 	}
 
 	void HeaderPanel::Draw()
 	{
 		if (m_show)
 		{
-			Lina::Graphics::WindowBackend* appWindow = Lina::Graphics::WindowBackend::Get();
+			Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
 			// Logo animation
 			if (logoAnimRatio < 0.99f)
 			{
-				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, Lina::Engine::Get()->GetSmoothDelta() * logoAnimSpeed);
+				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, Engine::Get()->GetSmoothDelta() * logoAnimSpeed);
 				logoAnimRatio = Math::Clamp(logoAnimRatio, 0.0f, 1.0f);
 				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE - 1);
 				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
@@ -162,7 +162,7 @@ namespace Lina::Editor
 				if (linaLogoID != linaLogoAnimation[0]->GetID())
 					linaLogoID = linaLogoAnimation[0]->GetID();
 
-				logoAnimWaitCounter += (float)Lina::Engine::Get()->GetSmoothDelta();
+				logoAnimWaitCounter += (float)Engine::Get()->GetSmoothDelta();
 
 				if (logoAnimWaitCounter > logoAnimWait)
 				{
@@ -307,7 +307,7 @@ namespace Lina::Editor
 
 	void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)
 	{
-		Lina::Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{ item });
+		Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{ item });
 
 	}
 }

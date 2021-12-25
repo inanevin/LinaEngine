@@ -69,13 +69,13 @@ namespace Lina::Physics
 		LINA_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
-	void PhysXPhysicsEngine::Initialize(Lina::ApplicationMode appMode)
+	void PhysXPhysicsEngine::Initialize(ApplicationMode appMode)
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 		m_appMode = appMode;
-		m_ecs = Lina::ECS::Registry::Get();
+		m_ecs = ECS::Registry::Get();
 
-		if (m_appMode == Lina::ApplicationMode::Editor)
+		if (m_appMode == ApplicationMode::Editor)
 			SetDebugDraw(true);
 
 		m_pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_pxAllocator, m_pxErrorCallback);

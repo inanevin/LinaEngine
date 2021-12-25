@@ -40,14 +40,14 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-	void EditorCameraSystem::Initialize(Lina::Editor::LevelPanel& scenePanel)
+	void EditorCameraSystem::Initialize(Editor::LevelPanel& scenePanel)
 	{
 		System::Initialize();
 		m_levelPanel = &scenePanel;
-		m_inputEngine = Lina::Input::InputEngineBackend::Get();
+		m_inputEngine = Input::InputEngineBackend::Get();
 	}
 
-	void Lina::ECS::EditorCameraSystem::UpdateComponents(float delta)
+	void ECS::EditorCameraSystem::UpdateComponents(float delta)
 	{
 		if (!m_isActive || !m_levelPanel->IsFocused()) return;
 
@@ -61,13 +61,13 @@ namespace Lina::ECS
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
 			// Holding right click enables rotating.
-			if (m_inputEngine->GetMouseButton(Lina::Input::InputCode::Mouse::Mouse2))
+			if (m_inputEngine->GetMouseButton(Input::InputCode::Mouse::Mouse2))
 			{
 				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x;
 				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y;
 
-				freeLook.m_angles.y = Lina::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
-				freeLook.m_angles.x = Lina::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
+				freeLook.m_angles.y = Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
+				freeLook.m_angles.x = Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
 
 				Quaternion qX = Quaternion::AxisAngle(Vector3::Up, freeLook.m_angles.x);
 				Quaternion qY = Quaternion::AxisAngle(Vector3::Right, freeLook.m_angles.y);
@@ -78,7 +78,7 @@ namespace Lina::ECS
 			// Handle movement.
 			float horizontalKey = m_inputEngine->GetHorizontalAxisValue();
 			float verticalKey = m_inputEngine->GetVerticalAxisValue();
-			float sprintMultiplier = Lina::Input::InputEngineBackend::Get()->GetKey(Lina::Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
+			float sprintMultiplier = Input::InputEngineBackend::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
 			Quaternion rotation = data.GetRotation();
 			Vector3 fw = rotation.GetForward();
 			Vector3 up = rotation.GetUp();

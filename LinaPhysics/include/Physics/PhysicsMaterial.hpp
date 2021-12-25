@@ -87,7 +87,7 @@ namespace Lina::Physics
 
 		static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
 		friend class cereal::access;
-		friend class Lina::World::Level;
+		friend class World::Level;
 
 #ifdef LINA_PHYSICS_BULLET
 		friend class BulletPhysicsEngine;

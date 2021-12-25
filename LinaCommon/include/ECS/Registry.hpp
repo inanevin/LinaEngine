@@ -91,7 +91,7 @@ namespace Lina::ECS
 
 	private:
 
-		friend class Lina::Engine;
+		friend class Engine;
 		Registry() {};
 		virtual ~Registry() {};
 		void Initialize();
