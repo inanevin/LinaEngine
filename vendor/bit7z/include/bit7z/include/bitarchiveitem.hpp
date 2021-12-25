@@ -16,8 +16,8 @@
  * along with bit7z; if not, see https://www.gnu.org/licenses/.
  */
 
-#ifndef BITARCHIVEITEMREADER_HPP
-#define BITARCHIVEITEMREADER_HPP
+#ifndef BITARCHIVEITEM_HPP
+#define BITARCHIVEITEM_HPP
 
 #include <map>
 
@@ -94,7 +94,7 @@ namespace bit7z {
             map< BitProperty, BitPropVariant > itemProperties() const;
 
         private:
-            const uint32_t mItemIndex;
+            uint32_t mItemIndex;
             map< BitProperty, BitPropVariant > mItemProperties;
 
             /* BitArchiveItem objects can be created and updated only by BitArchiveReader */
@@ -104,6 +104,13 @@ namespace bit7z {
 
             friend class BitArchiveInfo;
     };
+
+    /* Ensuring that users can apply the operations in <algorithm> on the vector returned by BitArchiveInfo::items().
+     * E.g., calling std::sort on a std::vector<T> requires the type T to be MoveConstructible and MoveAssignable. */
+    static_assert(std::is_copy_constructible<BitArchiveItem>::value, "BitArchiveItem must be copy-constructible!");
+    static_assert(std::is_copy_assignable<BitArchiveItem>::value, "BitArchiveItem must be copy-assignable!");
+    static_assert(std::is_move_constructible<BitArchiveItem>::value, "BitArchiveItem must be move-constructible!");
+    static_assert(std::is_move_assignable<BitArchiveItem>::value, "BitArchiveItem must be move-assignable!");
 }
 
-#endif // BITARCHIVEITEMREADER_HPP
+#endif // BITARCHIVEITEM_HPP
