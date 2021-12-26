@@ -26,17 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUILayer.hpp"
+#ifdef LINA_PLATFORM_WINDOWS
+#include <windows.h>
+#include <shellapi.h>
+#endif
 
 #include "Core/Application.hpp"
 #include "Core/CustomFontIcons.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/Engine.hpp"
+#include "Core/GUILayer.hpp"
 #include "Core/InputBackend.hpp"
 #include "Core/PhysicsBackend.hpp"
 #include "Core/RenderBackendFwd.hpp"
-#include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
@@ -46,6 +50,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Widgets/MenuButton.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -84,7 +89,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
 
         // Listen to menu bar clicked events.
-        Event::EventSystem::Get()->Connect<EMenuBarItemClicked, &GUILayer::DispatchMenuBarClickedAction>(this);
+        Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &GUILayer::OnMenuBarElementClicked>(this);
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -145,7 +150,7 @@ namespace Lina::Editor
         // style.WindowRounding = 0.0f;
         // style.TabRounding = 2.0f;
         // style.ChildRounding = 0.0f;
-        // style.PopupRounding = 3.0f;
+        style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
         // style.FramePadding  = ImVec2(5, 5);
@@ -179,7 +184,7 @@ namespace Lina::Editor
         // colors[ImGuiCol_CheckMark]             = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
         // colors[ImGuiCol_SliderGrab]            = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
         // colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-        colors[ImGuiCol_Button]        = ImVec4(0.186f, 0.186f, 0.186f, 1.000f);
+        colors[ImGuiCol_Button]        = ImVec4(0.235f, 0.235f, 0.235f, 1.000f);
         colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.49f, 0.62f, 1.00f);
         colors[ImGuiCol_ButtonActive]  = ImVec4(0.24f, 0.37f, 0.53f, 1.00f);
         colors[ImGuiCol_ButtonLocked]  = ImVec4(0.10f, 0.15f, 0.20f, 1.00f);
@@ -305,21 +310,21 @@ namespace Lina::Editor
 #endif
     }
 
-    void GUILayer::DispatchMenuBarClickedAction(const EMenuBarItemClicked& event)
+    void GUILayer::OnMenuBarElementClicked(const EMenuBarElementClicked& event)
     {
-        MenuBarItems item = event.m_item;
+        MenuBarElementType item = event.m_item;
 
         // File
-        if (item == MenuBarItems::NewProject)
+        if (item == MenuBarElementType::NewProject)
         {
         }
-        else if (item == MenuBarItems::LoadProject)
+        else if (item == MenuBarElementType::LoadProject)
         {
         }
-        else if (item == MenuBarItems::SaveProject)
+        else if (item == MenuBarElementType::SaveProject)
         {
         }
-        else if (item == MenuBarItems::PackageProject)
+        else if (item == MenuBarElementType::PackageProject)
         {
             std::string fullPath = "";
             fullPath             = EditorUtility::SaveFile(".linabundle", Graphics::WindowBackend::Get()->GetNativeWindow());
@@ -329,21 +334,17 @@ namespace Lina::Editor
                 size_t      lastIndex  = fullPath.find_last_of("/");
                 std::string folderPath = fullPath.substr(0, lastIndex);
                 std::string fileName   = fullPath.substr(lastIndex + 1);
-                Application::Get().PackageProject(folderPath, fileName);
+                Application::Get()->PackageProject(folderPath, fileName);
             }
         }
 
-        // Edit
-
-        // View
-
         // Level
-        else if (item == MenuBarItems::NewLevelData)
+        else if (item == MenuBarElementType::NewLevelData)
         {
             // Build a new level.
-            Application::Get().InstallLevel(m_defaultLevel);
+            Application::Get()->InstallLevel(m_defaultLevel);
         }
-        else if (item == MenuBarItems::SaveLevelData)
+        else if (item == MenuBarElementType::SaveLevelData)
         {
             std::string fullPath = "";
             fullPath             = EditorUtility::SaveFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
@@ -353,10 +354,10 @@ namespace Lina::Editor
                 size_t      lastIndex  = fullPath.find_last_of("/");
                 std::string folderPath = fullPath.substr(0, lastIndex);
                 std::string fileName   = fullPath.substr(lastIndex + 1);
-                Application::Get().SaveLevelData(folderPath, fileName);
+                Application::Get()->SaveLevelData(folderPath, fileName);
             }
         }
-        else if (item == MenuBarItems::LoadLevelData)
+        else if (item == MenuBarElementType::LoadLevelData)
         {
             std::string fullPath = "";
             fullPath             = EditorUtility::OpenFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
@@ -366,49 +367,76 @@ namespace Lina::Editor
                 size_t      lastIndex  = fullPath.find_last_of("/");
                 std::string folderPath = fullPath.substr(0, lastIndex);
                 std::string fileName   = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
-                Application::Get().LoadLevelData(folderPath, fileName);
+                Application::Get()->LoadLevelData(folderPath, fileName);
             }
         }
 
         // Panels.
-        else if (item == MenuBarItems::ECSPanel)
+        else if (item == MenuBarElementType::ECSPanel)
             m_ecsPanel.Open();
-        else if (item == MenuBarItems::ScenePanel)
+        else if (item == MenuBarElementType::ScenePanel)
             m_levelPanel.Open();
-        else if (item == MenuBarItems::ResourcesPanel)
+        else if (item == MenuBarElementType::ResourcesPanel)
             m_resourcesPanel.Open();
-        else if (item == MenuBarItems::PropertiesPanel)
+        else if (item == MenuBarElementType::PropertiesPanel)
             m_propertiesPanel.Open();
-        else if (item == MenuBarItems::LogPanel)
+        else if (item == MenuBarElementType::LogPanel)
             m_logPanel.Open();
-        else if (item == MenuBarItems::GlobalSettingsPanel)
+        else if (item == MenuBarElementType::GlobalSettingsPanel)
             m_globalSettingsPanel.Open();
-        else if (item == MenuBarItems::ProfilerPanel)
+        else if (item == MenuBarElementType::ProfilerPanel)
             m_profilerPanel.Open();
-        else if (item == MenuBarItems::ImGuiPanel)
-            s_showIMGUIDemo = true;
 
         // Debug
-        else if (item == MenuBarItems::DebugViewShadows)
-            m_levelPanel.SetDrawMode(Editor::LevelPanel::DrawMode::ShadowMap);
-
-        else if (item == MenuBarItems::DebugViewNormal)
-            m_levelPanel.SetDrawMode(Editor::LevelPanel::DrawMode::FinalImage);
+        else if (item == MenuBarElementType::ImGuiPanel)
+            s_showIMGUIDemo = true;
 
         // Objects
-
-        else if (item == MenuBarItems::Cube)
+        else if (item == MenuBarElementType::Empty)
+            ECS::Registry::Get()->CreateEntity("Empty");
+        else if (item == MenuBarElementType::Cube)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cube.fbx"));
-        else if (item == MenuBarItems::Cylinder)
+        else if (item == MenuBarElementType::Cylinder)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
-        else if (item == MenuBarItems::Capsule)
+        else if (item == MenuBarElementType::Capsule)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Capsule.fbx"));
-        else if (item == MenuBarItems::Quad)
+        else if (item == MenuBarElementType::Quad)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Quad.fbx"));
-        else if (item == MenuBarItems::Sphere)
+        else if (item == MenuBarElementType::Sphere)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Sphere.fbx"));
-        else if (item == MenuBarItems::Plane)
+        else if (item == MenuBarElementType::Plane)
             Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Plane.fbx"));
+        else if (item == MenuBarElementType::PLight)
+        {
+            auto ent = ECS::Registry::Get()->CreateEntity("Point Light");
+            ECS::Registry::Get()->emplace<ECS::PointLightComponent>(ent);
+        }
+        else if (item == MenuBarElementType::DLight)
+        {
+            auto ent = ECS::Registry::Get()->CreateEntity("Point Light");
+            ECS::Registry::Get()->emplace<ECS::DirectionalLightComponent>(ent);
+        }
+        else if (item == MenuBarElementType::SLight)
+        {
+            auto ent = ECS::Registry::Get()->CreateEntity("Point Light");
+            ECS::Registry::Get()->emplace<ECS::SpotLightComponent>(ent);
+        }
+
+        // About
+        else if (item == MenuBarElementType::Github)
+        {
+
+#ifdef LINA_PLATFORM_WINDOWS
+            ShellExecute(NULL, NULL, "http://www.github.com/inanevin/LinaEngine", NULL, NULL, SW_SHOWNORMAL);
+#endif
+        }
+        else if (item == MenuBarElementType::Website)
+        {
+#ifdef LINA_PLATFORM_WINDOWS
+            ShellExecute(NULL, NULL, "http://www.inanevin.com", NULL, NULL, SW_SHOWNORMAL);
+
+#endif
+        }
     }
 
     void GUILayer::Refresh()

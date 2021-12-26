@@ -67,9 +67,10 @@ namespace Lina
         std::string m_bundleName = "";
 
         // App Info
-        const char*    m_appName     = "";
+        const char*    m_appName     = "Lina Engine";
         const wchar_t* m_packagePass = nullptr;
-        int            m_appMajor    = 0;
+        int            m_build       = 0;
+        int            m_appMajor    = 1;
         int            m_appMinor    = 0;
         int            m_appPatch    = 0;
 

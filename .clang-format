@@ -12,4 +12,5 @@ NamespaceIndentation: All
 PointerAlignment: Left
 ReflowComments: 'true'
 Standard: Cpp11
+SortIncludes: 'false'
 ...

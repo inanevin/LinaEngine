@@ -44,11 +44,57 @@ Timestamp: 10/8/2020 9:02:33 PM
 
 namespace Lina::Editor
 {
+
+    enum class MenuBarElementType
+    {
+        None = 0,
+        NewProject     = 1,
+        LoadProject    = 2,
+        SaveProject    = 3,
+        PackageProject = 4,
+
+        Edit = 10,
+        View = 20,
+
+        SaveLevelData = 30,
+        LoadLevelData = 31,
+        NewLevelData  = 32,
+
+        ECSPanel            = 40,
+        HeaderPanel         = 11,
+        LogPanel            = 42,
+        PropertiesPanel     = 44,
+        ResourcesPanel      = 45,
+        ScenePanel          = 46,
+        ProfilerPanel       = 47,
+        GlobalSettingsPanel = 48,
+        ImGuiPanel          = 50,
+
+        DebugViewShadows = 62,
+        DebugViewNormal  = 63,
+
+        Empty    = 80,
+        Cube     = 81,
+        Sphere   = 82,
+        Capsule  = 83,
+        Cylinder = 84,
+        Plane    = 85,
+        Quad     = 86,
+
+        PLight = 100,
+        SLight = 101,
+        DLight = 102,
+
+        Github  = 110,
+        Website = 111,
+    };
+
     class MenuBarElement
     {
 
     public:
-        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID) : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID){};
+        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None)
+            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type (elem) {};
         ~MenuBarElement();
 
         void AddChild(MenuBarElement* child);
@@ -58,6 +104,7 @@ namespace Lina::Editor
         const char* m_title   = "";
 
     private:
+        MenuBarElementType           m_type = MenuBarElementType::None;
         const char*                  m_icon    = "";
         const char*                  m_tooltip = "";
         std::vector<MenuBarElement*> m_children;
@@ -66,7 +113,8 @@ namespace Lina::Editor
     class MenuButton
     {
     public:
-        MenuButton(const char* title) : m_title(title){};
+        MenuButton(const char* title)
+            : m_title(title){};
         ~MenuButton();
 
         void AddElement(MenuBarElement* elem);

@@ -376,13 +376,11 @@ namespace Lina::Editor
         ImVec2 windowPos   = ImGui::GetWindowPos();
         float  windowWidth = ImGui::GetWindowWidth();
 
-        static float offset1                   = 35.0f;
-        static float gap                       = 28;
+        const float offset1                   = 35.0f;
+        const float gap                       = 25.0f;
         const ImVec2 buttonSize                = ImVec2(25, 20);
         const float  closeButtonAdditionalSize = 8;
-        const float  frameRounding             = 1.0f;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+        const float  frameRounding             = 0.4f;
 
         ImGui::SetCursorPosY(yOffset);
         const float cursorY = ImGui::GetCursorPosY();
@@ -426,7 +424,6 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
         ImGui::PopFont();
-        ImGui::PopStyleVar();
     }
 
     void WidgetsUtility::WindowTitlebar(const char* label)
@@ -1355,26 +1352,26 @@ namespace Lina::Editor
         }
     }
 
-    void Lina::Editor::WidgetsUtility::IconSmall(const char* icon)
+    void WidgetsUtility::IconSmall(const char* icon)
     {
         PushIconFontSmall();
         ImGui::Text(icon);
         ImGui::PopFont();
     }
 
-    void Lina::Editor::WidgetsUtility::IconDefault(const char* icon)
+    void WidgetsUtility::IconDefault(const char* icon)
     {
         PushIconFontDefault();
         ImGui::Text(icon);
         ImGui::PopFont();
     }
 
-    void Lina::Editor::WidgetsUtility::PushIconFontDefault()
+    void WidgetsUtility::PushIconFontDefault()
     {
         ImGui::PushFont(GUILayer::GetIconFontDefault());
     }
 
-    void Lina::Editor::WidgetsUtility::PushIconFontSmall()
+    void WidgetsUtility::PushIconFontSmall()
     {
         ImGui::PushFont(GUILayer::GetIconFontSmall());
     }

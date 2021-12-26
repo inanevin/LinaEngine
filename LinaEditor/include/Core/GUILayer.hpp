@@ -101,7 +101,7 @@ namespace Lina::Editor
         static std::map<const char*, EditorPanel*> s_editorPanels;
 
         // Menu bar item callback from header panel.
-        void DispatchMenuBarClickedAction(const EMenuBarItemClicked& event);
+        void OnMenuBarElementClicked(const EMenuBarElementClicked& event);
 
         void        Refresh();
         LevelPanel& GetLevelPanel()

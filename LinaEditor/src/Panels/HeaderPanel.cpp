@@ -26,8 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/Application.hpp"
 #include "Panels/HeaderPanel.hpp"
-
+#include "Widgets/MenuButton.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
@@ -39,7 +40,6 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Math/Vector.hpp"
 #include "Rendering/Texture.hpp"
-#include "Widgets/MenuButton.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
@@ -102,48 +102,48 @@ namespace Lina::Editor
         m_menuButtons.push_back(aboutMenu);
 
         // ****** FILE MENU
-        fileMenu->AddElement(new MenuBarElement(ICON_FA_FOLDER_OPEN, "Open Project", "CTRL+A", 0));
+        fileMenu->AddElement(new MenuBarElement(ICON_FA_FOLDER_OPEN, "New Project", "", 0));
         fileMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save", "CTRL+K", 0));
-        fileMenu->AddElement(new MenuBarElement(ICON_FA_BOXES, "Package Project", "", 1));
+        fileMenu->AddElement(new MenuBarElement(ICON_FA_BOXES, "Package Project", "CTRL + P", 1, MenuBarElementType::PackageProject));
 
         // ****** LEVEL MENU
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_DOWNLOAD, "New Level", "", 0));
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save Level", "", 0));
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_UPLOAD, "Load Level", "", 0));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_DOWNLOAD, "New Level", "", 0, MenuBarElementType::NewLevelData));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save Level", "", 0, MenuBarElementType::SaveLevelData));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_UPLOAD, "Load Level", "", 0, MenuBarElementType::LoadLevelData));
 
         // ****** ENTITY MENU
         MenuBarElement* primitives = new MenuBarElement("", "Primitives", "", 1);
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cube", "", 0));
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Capsule", "", 0));
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cylinder", "", 0));
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Plane", "", 0));
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sphere", "", 0));
-        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Quad", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cube", "", 0, MenuBarElementType::Cube));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Capsule", "", 0, MenuBarElementType::Capsule));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cylinder", "", 0, MenuBarElementType::Cylinder));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Plane", "", 0, MenuBarElementType::Plane));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sphere", "", 0, MenuBarElementType::Sphere));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Quad", "", 0, MenuBarElementType::Quad));
 
         MenuBarElement* lights = new MenuBarElement("", "Lights", "", 2);
-        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sun Light", "", 0));
-        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Point Light", "", 0));
-        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Spot Light", "", 0));
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sun Light", "", 0, MenuBarElementType::DLight));
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Point Light", "", 0, MenuBarElementType::PLight));
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Spot Light", "", 0, MenuBarElementType::SLight));
 
-        entityMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Empty", "CTRL + E", 0));
+        entityMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Empty", "CTRL + E", 0, MenuBarElementType::Empty));
         entityMenu->AddElement(primitives);
         entityMenu->AddElement(lights);
 
         // ****** PANELS MENU
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "CTRL ZAA", 0));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Scene", "", 0));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE, "Resources", "", 0));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_COG, "Properties", "", 0));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CLIPBOARD, "Log", "", 0));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_GLOBE, "Global Settings", "", 1));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CHART_LINE, "Profiler", "", 1));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "", 0, MenuBarElementType::ECSPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Scene", "", 0, MenuBarElementType::ScenePanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE, "Resources", "", 0, MenuBarElementType::ResourcesPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_COG, "Properties", "", 0, MenuBarElementType::PropertiesPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CLIPBOARD, "Log", "", 0, MenuBarElementType::LogPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_GLOBE, "Global Settings", "", 1, MenuBarElementType::GlobalSettingsPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CHART_LINE, "Profiler", "", 1, MenuBarElementType::ProfilerPanel));
 
         // ****** DEBUG MENU
-        debugMenu->AddElement(new MenuBarElement("", "ImGui Panel", "", 0));
+        debugMenu->AddElement(new MenuBarElement("", "ImGui Panel", "", 0, MenuBarElementType::ImGuiPanel));
 
         // ****** ABOUTMENU
-        aboutMenu->AddElement(new MenuBarElement("", "Github", "", 0));
-        aboutMenu->AddElement(new MenuBarElement("", "Website", "", 0));
+        aboutMenu->AddElement(new MenuBarElement("", "Github", "", 0, MenuBarElementType::Github));
+        aboutMenu->AddElement(new MenuBarElement("", "Website", "", 0, MenuBarElementType::Website));
         m_title = Graphics::WindowBackend::Get()->GetProperties().m_title;
     }
 
@@ -229,9 +229,6 @@ namespace Lina::Editor
     }
     void HeaderPanel::Draw()
     {
-        static bool showdemo = false;
-        ImGui::ShowDemoWindow(&showdemo);
-
         if (m_show)
         {
             AnimateLinaLogo();
@@ -294,6 +291,24 @@ namespace Lina::Editor
             const ImVec2 logoMin = ImVec2(viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, logoWindowSize.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
             const ImVec2 logoMax = ImVec2(logoMin.x + LINALOGO_SIZE.x, logoMin.y + LINALOGO_SIZE.y);
             ImGui::GetForegroundDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
+
+            // Versioning information when hovered on logo.
+            if (ImGui::IsMouseHoveringRect(logoMin, logoMax))
+            {
+                auto& appInfo = Application::Get()->GetAppInfo();
+
+                const std::string tooltipStr = std::string("Lina Engine - Build: ") + std::string(LINA_BUILD) + "\n" +
+                                               std::string("Version: ") + std::to_string(LINA_MAJOR) + "." + std::to_string(LINA_MINOR) +
+                                               "." + std::to_string(LINA_PATCH) +
+                                               std::string("\nApp: ") + std::string(appInfo.m_appName);
+
+                const ImVec2 tooltipRectMin = ImGui::GetMousePos();
+                const ImVec2 tooltipRectMax = ImVec2(tooltipRectMin.x + 140, tooltipRectMin.y + 100);
+                ImGui::GetForegroundDrawList()->AddRectFilled(tooltipRectMin, tooltipRectMax, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)));
+
+                const ImVec2 textRectMin = ImVec2(tooltipRectMin.x + 8, tooltipRectMin.y + 8);
+                ImGui::GetForegroundDrawList()->AddText(textRectMin, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), tooltipStr.c_str());
+            }
         }
     }
 
@@ -321,8 +336,4 @@ namespace Lina::Editor
         ImGui::EndChild();
     }
 
-    void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)
-    {
-        Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{item});
-    }
 } // namespace Lina::Editor

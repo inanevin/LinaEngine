@@ -76,9 +76,14 @@ namespace Lina
             return m_currentLevel;
         }
 
-        static Application& Get()
+        static Application* Get()
         {
-            return *s_application;
+            return s_application;
+        }
+
+        const ApplicationInfo& GetAppInfo()
+        {
+            return m_appInfo;
         }
 
     protected:

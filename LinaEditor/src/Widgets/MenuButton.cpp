@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "Widgets/MenuButton.hpp"
-
+#include "EventSystem/EventSystem.hpp"
 #include "Core/EditorCommon.hpp"
-#include "IconsFontAwesome5.h"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
+#include "IconsFontAwesome5.h"
 #include <iostream>
 
 namespace Lina::Editor
@@ -61,7 +61,6 @@ namespace Lina::Editor
     {
         if (m_elements.size() > 0)
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
             for (int i = 0; i < m_elements.size(); i++)
             {
                 auto* element = m_elements[i];
@@ -76,8 +75,6 @@ namespace Lina::Editor
                     }
                 }
             }
-
-            ImGui::PopStyleVar();
         }
     }
 
@@ -109,9 +106,16 @@ namespace Lina::Editor
         }
         else
         {
-            if (ImGui::Selectable(itemStr.c_str(), false))
+            if (m_type == MenuBarElementType::None)
+                ImGui::BeginDisabled();
+            ImGui::Selectable(itemStr.c_str(), false);
+            if (ImGui::IsItemClicked())
             {
+                Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{m_type}); 
             }
+            if (m_type == MenuBarElementType::None)
+                ImGui::EndDisabled();
+
         }
 
         bool tooltipOrArrowExists = false;

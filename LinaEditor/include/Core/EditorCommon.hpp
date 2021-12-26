@@ -61,44 +61,9 @@ namespace Lina::Editor
         static std::string& contentsPath;
     };
 
-    enum class MenuBarItems
+    struct EMenuBarElementClicked
     {
-        NewProject     = 0,
-        LoadProject    = 1,
-        SaveProject    = 2,
-        PackageProject = 3,
-
-        Edit = 10,
-        View = 20,
-
-        SaveLevelData = 30,
-        LoadLevelData = 31,
-        NewLevelData  = 32,
-
-        ECSPanel            = 40,
-        HeaderPanel         = 11,
-        LogPanel            = 42,
-        PropertiesPanel     = 44,
-        ResourcesPanel      = 45,
-        ScenePanel          = 46,
-        ProfilerPanel       = 47,
-        GlobalSettingsPanel = 48,
-        ImGuiPanel          = 50,
-
-        DebugViewShadows = 62,
-        DebugViewNormal  = 63,
-
-        Cube     = 80,
-        Sphere   = 81,
-        Capsule  = 82,
-        Cylinder = 83,
-        Plane    = 84,
-        Quad     = 85
-    };
-
-    struct EMenuBarItemClicked
-    {
-        MenuBarItems m_item;
+        MenuBarElementType m_item;
     };
     struct EEntityUnselected
     {
