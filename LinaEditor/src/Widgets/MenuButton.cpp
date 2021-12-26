@@ -29,125 +29,112 @@ SOFTWARE.
 #include "Widgets/MenuButton.hpp"
 
 #include "Core/EditorCommon.hpp"
+#include "IconsFontAwesome5.h"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
-
 #include <iostream>
 
 namespace Lina::Editor
 {
-    bool MenuButton::s_anyButtonFocused = false;
-
-    void MenuItem::Draw()
+    MenuBarElement::~MenuBarElement()
     {
-        ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-        ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + ImGui::GetFrameHeight());
+        for (auto* child : m_children)
+            delete child;
 
-        // Draw bg.
-        if (m_isHovered)
-            ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)));
-
-        // Draw icon.
-        WidgetsUtility::IncrementCursorPosY(6);
-        // WidgetsUtility::PropertyLabel(m_icon);
-        WidgetsUtility::Icon(m_icon, false, 0.65f);
-        ImGui::SameLine();
-
-        // Draw title.
-        WidgetsUtility::IncrementCursorPosY(-7);
-        ImGui::SetCursorPosX(23);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text(m_title);
-        // WidgetsUtility::PropertyLabel(m_title, false);
-
-        // Handle click
-        m_isHovered = ImGui::IsMouseHoveringRect(min, max);
-        if (m_isHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-        {
-            if (m_onClick)
-                m_onClick();
-
-            m_parent->ClosePopup();
-        }
-    }
-
-    MenuButton::MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Color& bgColor, bool sameLine) : MenuElement("", title)
-    {
-        m_children    = children;
-        m_bgColor     = bgColor;
-        m_useSameLine = sameLine;
-        m_popupID     = popupID;
-
-        for (int i = 0; i < m_children.size(); i++)
-            m_children[i]->m_parent = this;
+        m_children.clear();
     }
 
     MenuButton::~MenuButton()
     {
-        for (int i = 0; i < m_children.size(); i++)
-            delete m_children[i];
+        for (auto* element : m_elements)
+            delete element;
+
+        m_elements.clear();
+        ;
+    }
+    void MenuButton::AddElement(MenuBarElement* elem)
+    {
+        m_elements.push_back(elem);
     }
 
     void MenuButton::Draw()
     {
-
-        if (m_useSameLine)
-            ImGui::SameLine();
-
-        // Background color
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(m_bgColor.r, m_bgColor.g, m_bgColor.b, m_bgColor.a));
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
-
-        // Active color if popup is open
-        if (m_popupOpen)
-            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
-
-        // Draw button.
-        if (ImGui::Button(m_title))
-            s_anyButtonFocused = true;
-
-        // Open popup
-        if (s_anyButtonFocused && ImGui::GetTopMostPopupModal() == nullptr && ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
-            ImGui::OpenPopup(m_popupID);
-
-        if (m_popupOpen)
-            ImGui::PopStyleColor();
-
-        ImGui::PopStyleColor();
-        ImGui::PopStyleVar();
-
-        // Draw popup
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_WINDOWPADDING_MENUBUTTON);
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-        m_popupOpen = ImGui::BeginPopup(m_popupID);
-        if (m_popupOpen)
+        if (m_elements.size() > 0)
         {
-            if (m_children.size() == 0)
+            ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
+            for (int i = 0; i < m_elements.size(); i++)
             {
-                if (m_onClick)
-                    m_onClick();
+                auto* element = m_elements[i];
+                element->Draw();
+
+                if (i < m_elements.size() - 1)
+                {
+                    const int nextElement = i + 1;
+                    if (element->m_groupID != m_elements[nextElement]->m_groupID)
+                    {
+                        ImGui::Separator();
+                    }
+                }
             }
-            else
+
+            ImGui::PopStyleVar();
+        }
+    }
+
+    void MenuBarElement::AddChild(MenuBarElement* child)
+    {
+        m_children.push_back(child);
+    }
+
+    void MenuBarElement::Draw()
+    {
+        const std::string emptyLabel = "      ";
+        const float emptyLabelSize = ImGui::CalcTextSize(emptyLabel.c_str()).x;
+        const std::string itemStr   = emptyLabel + std::string(m_title);
+        const ImVec2      cursorPos = ImVec2(ImGui::GetCursorScreenPos().x + 16, ImGui::GetCursorScreenPos().y);
+
+        if (m_children.size() > 0)
+        {
+            // Makes the upcoming sub-menu seperated properly from the current menu.
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, ImGui::GetStyle().ItemInnerSpacing.y));
+            if (ImGui::BeginMenu(itemStr.c_str()))
             {
+
                 for (int i = 0; i < m_children.size(); i++)
                     m_children[i]->Draw();
-            }
 
-            ImGui::EndPopup();
+                ImGui::EndMenu();
+            }
+            ImGui::PopStyleVar();
+        }
+        else
+        {
+            if (ImGui::Selectable(itemStr.c_str(), false))
+            {
+            }
         }
 
-        ImGui::PopStyleVar();
-    }
+        bool tooltipOrArrowExists = false;
+        if (std::string(m_tooltip).compare("") != 0)
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(110);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+            ImGui::Text(m_tooltip);
+            ImGui::PopStyleColor();
+        }
 
-    void MenuButton::ClosePopup()
-    {
-        ImGui::CloseCurrentPopup();
-        m_popupOpen = false;
-    }
+        if (m_children.size() > 0)
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(175);
+            WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
+     
+        }
 
-    bool MenuButton::GetIsPopupOpen()
-    {
-        return ImGui::IsPopupOpen(m_popupID);
-    }
+        ImGui::SameLine();
+        ImGui::InvisibleButton(emptyLabel.c_str(), ImVec2(emptyLabelSize - ImGui::GetStyle().ItemSpacing.x, 5));
 
+     
+    }
 } // namespace Lina::Editor

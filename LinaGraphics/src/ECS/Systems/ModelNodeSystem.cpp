@@ -60,7 +60,9 @@ namespace Lina::ECS
         {
             ModelNodeComponent& nodeComponent = m_ecs->emplace<ModelNodeComponent>(entity);
             nodeComponent.m_modelNode         = node;
-            nodeComponent.m_materialIDs.resize(meshes.size());
+            
+            for (uint32 i = 0; i < node->m_defaultMaterials.size(); i++)
+                nodeComponent.m_materialIDs.push_back(node->m_defaultMaterials[i]);
         }
 
         for (uint32 i = 0; i < node->m_children.size(); i++)

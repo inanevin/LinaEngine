@@ -54,8 +54,10 @@ SOFTWARE.
 #include "imgui/implot/implot.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+
+// AFTER GLAD
+#include <GLFW/glfw3.h>
 
 static ImGuiTreeNodeFlags s_baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool               s_showIMGUIDemo;
@@ -68,9 +70,12 @@ Graphics::Texture*        splashScreenTexture;
 
 namespace Lina::Editor
 {
-    ImFont*                             GUILayer::s_defaultFont = nullptr;
-    ImFont*                             GUILayer::s_bigFont     = nullptr;
+    ImFont*                             GUILayer::s_defaultFont     = nullptr;
+    ImFont*                             GUILayer::s_bigFont         = nullptr;
+    ImFont*                             GUILayer::s_iconFontSmall   = nullptr;
+    ImFont*                             GUILayer::s_iconFontDefault = nullptr;
     std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
+    float                               GUILayer::s_headerSize = 0.0f;
     Graphics::DrawParams                m_drawParameters;
 
     void GUILayer::Initialize()
@@ -93,19 +98,24 @@ namespace Lina::Editor
 
         // merge in icons from Font Awesome
         static const ImWchar icons_rangesFA[]   = {ICON_MIN_FA, ICON_MAX_FA, 0};
-        static const ImWchar icons_rangesFK[]   = {ICON_MIN_FK, ICON_MAX_FK, 0};
-        static const ImWchar icons_rangesMD[]   = {ICON_MIN_MD, ICON_MAX_MD, 0};
         static const ImWchar icons_rangesCUST[] = {ICON_MIN_CS, ICON_MAX_CS, 0};
 
         ImFontConfig icons_config;
-        icons_config.MergeMode     = true;
-        icons_config.PixelSnapH    = true;
-        icons_config.GlyphOffset.y = 3.5f;
+        icons_config.MergeMode     = false;
+        icons_config.PixelSnapH    = false;
+        icons_config.GlyphOffset.y = 1.2f;
 
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 20.0f, &icons_config, icons_rangesCUST);
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
+        s_iconFontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 18.0f, &icons_config, icons_rangesFA);
+
+        icons_config.MergeMode = true;
+        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 18.0f, &icons_config, icons_rangesCUST);
+
+        icons_config.GlyphOffset.y = 2.25f;
+        icons_config.MergeMode     = false;
+        s_iconFontSmall            = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 13.0f, &icons_config, icons_rangesFA);
+
+        icons_config.MergeMode = true;
+        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 13.0f, &icons_config, icons_rangesCUST);
 
         s_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
         s_defaultFont = io.FontDefault;
@@ -133,84 +143,87 @@ namespace Lina::Editor
         style.PopupBorderSize = 1.0f;
         // style.AntiAliasedFill = false;
         // style.WindowRounding = 0.0f;
-        style.TabRounding = 2.0f;
+        // style.TabRounding = 2.0f;
         // style.ChildRounding = 0.0f;
         // style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
-        style.FramePadding  = ImVec2(5, 5);
-        style.WindowPadding = ImVec2(0, 5);
+        // style.FramePadding  = ImVec2(5, 5);
+        // style.WindowPadding = ImVec2(0, 5);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;
-        style.GrabMinSize     = 6.0f;
-        style.ChildBorderSize = 0.0f;
+        // style.GrabMinSize     = 6.0f;
+        // style.ChildBorderSize = 0.0f;
         // style.TabBorderSize = 0.0f;
         // style.WindowBorderSize = 0.0f;
-        style.WindowMenuButtonPosition         = ImGuiDir_None;
-        colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        colors[ImGuiCol_TextDisabled]          = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-        colors[ImGuiCol_WindowBg]              = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-        colors[ImGuiCol_ChildBg]               = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-        colors[ImGuiCol_PopupBg]               = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_Border]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_FrameBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.54f);
-        colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]         = ImVec4(0.45f, 0.34f, 0.46f, 1.00f);
-        colors[ImGuiCol_TitleBg]               = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]         = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]             = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-        colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-        colors[ImGuiCol_CheckMark]             = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_SliderGrab]            = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-        colors[ImGuiCol_Button]                = ImVec4(0.21f, 0.32f, 0.46f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]         = ImVec4(0.35f, 0.49f, 0.62f, 1.00f);
-        colors[ImGuiCol_ButtonActive]          = ImVec4(0.24f, 0.37f, 0.53f, 1.00f);
-        colors[ImGuiCol_Header]                = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]         = ImVec4(0.46f, 0.34f, 0.47f, 1.00f);
-        colors[ImGuiCol_HeaderActive]          = ImVec4(0.47f, 0.39f, 0.47f, 1.00f);
-        colors[ImGuiCol_Separator]             = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_SeparatorActive]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_ResizeGrip]            = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
-        colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
-        colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
-        colors[ImGuiCol_Tab]                   = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-        colors[ImGuiCol_TabHovered]            = ImVec4(0.24f, 0.25f, 0.26f, 1.00f);
-        colors[ImGuiCol_TabActive]             = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TabUnfocused]          = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-        colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_DockingPreview]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_DockingEmptyBg]        = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PlotLines]             = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-        colors[ImGuiCol_PlotLinesHovered]      = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-        colors[ImGuiCol_PlotHistogram]         = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
-        colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-        colors[ImGuiCol_TableHeaderBg]         = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-        colors[ImGuiCol_TableBorderStrong]     = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-        colors[ImGuiCol_TableBorderLight]      = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-        colors[ImGuiCol_TableRowBg]            = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_TableRowBgAlt]         = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-        colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-        colors[ImGuiCol_DragDropTarget]        = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-        colors[ImGuiCol_NavHighlight]          = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
-        colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-        colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-        colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
-        colors[ImGuiCol_ButtonLocked]          = ImVec4(0.10f, 0.15f, 0.20f, 1.00f);
-        colors[ImGuiCol_Icon]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        colors[ImGuiCol_TitleHeader]           = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_TitleHeaderHover]      = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_TitleHeaderPressed]    = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
-        colors[ImGuiCol_TitleHeaderBorder]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_TitleHeaderDisabled]   = ImVec4(0.17f, 0.00f, 0.00f, 1.00f);
-        ImPlot::GetStyle().AntiAliasedLines    = true;
+        // style.WindowMenuButtonPosition         = ImGuiDir_None;
+        // colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        // colors[ImGuiCol_TextDisabled]          = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+        // colors[ImGuiCol_WindowBg]              = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+        // colors[ImGuiCol_ChildBg]               = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+        // colors[ImGuiCol_PopupBg]               = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+        colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        // colors[ImGuiCol_FrameBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.54f);
+        // colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_FrameBgActive]         = ImVec4(0.45f, 0.34f, 0.46f, 1.00f);
+        // colors[ImGuiCol_TitleBg]               = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_TitleBgActive]         = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_MenuBarBg]             = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        // colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+        // colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        // colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
+        // colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+        // colors[ImGuiCol_CheckMark]             = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_SliderGrab]            = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
+        colors[ImGuiCol_Button]        = ImVec4(0.186f, 0.186f, 0.186f, 1.000f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.49f, 0.62f, 1.00f);
+        colors[ImGuiCol_ButtonActive]  = ImVec4(0.24f, 0.37f, 0.53f, 1.00f);
+        colors[ImGuiCol_ButtonLocked]  = ImVec4(0.10f, 0.15f, 0.20f, 1.00f);
+        colors[ImGuiCol_Toolbar]       = ImVec4(0.058f, 0.058f, 0.058f, 1.00f);
+        // colors[ImGuiCol_Header]                = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_HeaderHovered]         = ImVec4(0.46f, 0.34f, 0.47f, 1.00f);
+        // colors[ImGuiCol_HeaderActive]          = ImVec4(0.47f, 0.39f, 0.47f, 1.00f);
+        // colors[ImGuiCol_Separator]             = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_SeparatorActive]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_ResizeGrip]            = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
+        // colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
+        // colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
+        // colors[ImGuiCol_Tab]                   = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+        // colors[ImGuiCol_TabHovered]            = ImVec4(0.24f, 0.25f, 0.26f, 1.00f);
+        // colors[ImGuiCol_TabActive]             = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+        // colors[ImGuiCol_TabUnfocused]          = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+        // colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+        // colors[ImGuiCol_DockingPreview]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_DockingEmptyBg]        = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_PlotLines]             = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        // colors[ImGuiCol_PlotLinesHovered]      = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+        // colors[ImGuiCol_PlotHistogram]         = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
+        // colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+        // colors[ImGuiCol_TableHeaderBg]         = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+        // colors[ImGuiCol_TableBorderStrong]     = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+        // colors[ImGuiCol_TableBorderLight]      = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+        // colors[ImGuiCol_TableRowBg]            = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        // colors[ImGuiCol_TableRowBgAlt]         = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+        // colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
+        // colors[ImGuiCol_DragDropTarget]        = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+        // colors[ImGuiCol_NavHighlight]          = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+        // colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+        // colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+        // colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
+
+        // colors[ImGuiCol_Icon]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        // colors[ImGuiCol_TitleHeader]           = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+        // colors[ImGuiCol_TitleHeaderHover]      = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        // colors[ImGuiCol_TitleHeaderPressed]    = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
+        // colors[ImGuiCol_TitleHeaderBorder]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        // colors[ImGuiCol_TitleHeaderDisabled]   = ImVec4(0.17f, 0.00f, 0.00f, 1.00f);
+
+        ImPlot::GetStyle().AntiAliasedLines = true;
 
         s_setDockspaceLayout = true;
 
@@ -265,16 +278,17 @@ namespace Lina::Editor
             ImGui::ShowDemoWindow(&s_showIMGUIDemo);
 
         m_headerPanel.Draw();
-        DrawCentralDockingSpace();
         m_toolbar.Draw();
-        m_resourcesPanel.Draw();
-        m_ecsPanel.Draw();
-        m_levelPanel.Draw();
-        m_logPanel.Draw();
-        m_profilerPanel.Draw();
-        m_propertiesPanel.Draw();
-        m_globalSettingsPanel.Draw();
-        m_toolbar.DrawFooter();
+        // DrawCentralDockingSpace();
+
+        // m_resourcesPanel.Draw();
+        // m_ecsPanel.Draw();
+        // m_levelPanel.Draw();
+        // m_logPanel.Draw();
+        // m_profilerPanel.Draw();
+        // m_propertiesPanel.Draw();
+        // m_globalSettingsPanel.Draw();
+        // m_toolbar.DrawFooter();
 
         // Rendering
         ImGui::Render();
@@ -384,17 +398,17 @@ namespace Lina::Editor
         // Objects
 
         else if (item == MenuBarItems::Cube)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Cube.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cube.fbx"));
         else if (item == MenuBarItems::Cylinder)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
         else if (item == MenuBarItems::Capsule)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Capsule.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Capsule.fbx"));
         else if (item == MenuBarItems::Quad)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Quad.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Quad.fbx"));
         else if (item == MenuBarItems::Sphere)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Sphere.fbx"));
         else if (item == MenuBarItems::Plane)
-            CreateObjectInLevel("Resources/Engine/Meshes/Primitives/Plane.fbx");
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Plane.fbx"));
     }
 
     void GUILayer::Refresh()
@@ -532,17 +546,4 @@ namespace Lina::Editor
         ImGui::End();
     }
 
-    void GUILayer::CreateObjectInLevel(const std::string& modelPath)
-    {
-        auto* ecs    = ECS::Registry::Get();
-        auto& model  = Graphics::Model::GetModel(modelPath);
-        auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-        auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
-        mr.SetModel(entity, model);
-
-        auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-
-        for (int i = 0; i < model.GetImportedMaterials().size(); i++)
-            mr.SetMaterial(entity, i, mat);
-    }
 } // namespace Lina::Editor

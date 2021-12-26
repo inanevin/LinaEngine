@@ -60,10 +60,10 @@ namespace Lina
         unsigned int m_yPos                 = 0;
         unsigned int m_xPosBeforeMaximize   = 0;
         unsigned int m_yPosBeforeMaximize   = 0;
-        unsigned int m_widthBeforeMaximize  = 256;
-        unsigned int m_heightBeforeMaximize = 256;
-        unsigned int m_workingAreaWidth     = 256;
-        unsigned int m_workingAreaHeight    = 256;
+        unsigned int m_widthBeforeMaximize  = 768;
+        unsigned int m_heightBeforeMaximize = 768;
+        unsigned int m_workingAreaWidth     = 768;
+        unsigned int m_workingAreaHeight    = 768;
         int          m_vsync                = 0;
         bool         m_decorated            = true;
         bool         m_resizable            = true;

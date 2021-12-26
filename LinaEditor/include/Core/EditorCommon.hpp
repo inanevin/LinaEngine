@@ -160,8 +160,6 @@ namespace Lina::Editor
 #define HEADER_RESIZE_THRESHOLD           10
 #define HEADER_HEIGHT                     60
 #define HEADER_OFFSET_TOPBUTTONS          80
-#define HEADER_LINALOGO_ANIMSIZE          132
-#define HEADER_LINALOGO_SIZE              ImVec2(180, 29)
 #define TOOLBAR_HEIGHT                    30
 #define FOOTER_HEIGHT                     20
 #define DOCKSPACE_OFFSET                  0

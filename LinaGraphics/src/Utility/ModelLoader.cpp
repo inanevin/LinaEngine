@@ -46,24 +46,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void CheckIfNodeHierarchiesMatch(aiNode* ainode, const ModelNode* modelNode, bool* mismatch)
-    {
-        if (std::string(ainode->mName.C_Str()).compare(modelNode->GetName()) != 0)
-        {
-            *mismatch = true;
-            return;
-        }
-
-        if (ainode->mNumChildren != modelNode->GetChildren().size())
-        {
-            *mismatch = true;
-            return;
-        }
-
-        for (uint32 i = 0; i < ainode->mNumChildren; i++)
-            CheckIfNodeHierarchiesMatch(ainode->mChildren[i], modelNode->GetChildren()[0], mismatch);
-    }
-
     void ModelLoader::FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh)
     {
         // Build and indexed aiMesh for each aiMesh & fill in the data.
@@ -165,25 +147,9 @@ namespace Lina::Graphics
     {
         const std::string runningDirectory = Utility::GetRunningDirectory();
 
-        // Check loaded hierarchy vs ai hierarchy.
-        // If they don't match, re-load the hierarchy.
+        // Load the ai hierarchy into the root node.
         ModelNode& root = model.m_rootNode;
-
-        if (root.m_children.size() != 0 || root.m_meshes.size() != 0)
-        {
-            bool mismatch = false;
-
-            LINA_TRACE("Checking if node hierarchies match.");
-            CheckIfNodeHierarchiesMatch(scene->mRootNode, &root, &mismatch);
-            LINA_TRACE("Node hierarchies match ? {0}", !mismatch);
-
-            if (mismatch)
-                root.Clear();
-
-            root.FillNodeHierarchy(scene->mRootNode, scene, model, !mismatch);
-        }
-        else
-            root.FillNodeHierarchy(scene->mRootNode, scene, model, false);
+        root.FillNodeHierarchy(scene->mRootNode, scene, model);
 
         // Iterate through the materials in the scene.
         for (uint32 i = 0; i < scene->mNumMaterials; i++)
@@ -251,7 +217,7 @@ namespace Lina::Graphics
             importFlags |= aiProcess_FlipWindingOrder;
 
         importFlags |= aiProcess_GlobalScale;
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale * 100.0f);
 
         const std::string ext   = "." + Utility::GetFileExtension(model.GetPath());
         const aiScene*    scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
@@ -282,7 +248,7 @@ namespace Lina::Graphics
             importFlags |= aiProcess_FlipWindingOrder;
 
         importFlags |= aiProcess_GlobalScale;
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale * 100.0f);
 
         const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 

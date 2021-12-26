@@ -27,8 +27,9 @@ SOFTWARE.
 */
 
 #include "Rendering/ModelNode.hpp"
-
+#include "Core/RenderEngineBackend.hpp"
 #include "Log/Log.hpp"
+#include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/SkinnedMesh.hpp"
 #include "Rendering/StaticMesh.hpp"
@@ -41,11 +42,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    ModelNode::ModelNode()
-    {
-        LINA_TRACE("Constructed node {0}", m_name);
-    }
-
     ModelNode::~ModelNode()
     {
         LINA_TRACE("Deleting Node {0}", m_name);
@@ -59,22 +55,12 @@ namespace Lina::Graphics
         m_meshes.clear();
     }
 
-    ModelNode::ModelNode(const ModelNode& old_obj)
+    void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel)
     {
-        LINA_TRACE("Copy constructor, old name {0}", old_obj.m_name);
-    }
-
-    void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly)
-    {
-        if (!fillMeshesOnly)
-        {
-            m_name                    = std::string(node->mName.C_Str());
-            const std::string sidName = parentModel.GetPath() + m_name;
-            m_id                      = StringID(sidName.c_str()).value();
-            m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
-        }
-
-        LINA_TRACE("Filling Node {0}", m_name);
+        m_name                    = std::string(node->mName.C_Str());
+        const std::string sidName = parentModel.GetPath() + m_name;
+        m_id                      = StringID(sidName.c_str()).value();
+        m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
 
         for (uint32 i = 0; i < node->mNumMeshes; i++)
         {
@@ -98,20 +84,37 @@ namespace Lina::Graphics
 
             // Finally, construct the vertex array object for the mesh.
             addedMesh->CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
+            m_defaultMaterials.push_back(StringIDType());
+        }
+
+        // Check the user data to see if user has saved any material data for this node asset.
+        // If so, assign it, if not, pass the default engine material.
+        auto& defaultMaterial = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
+        auto& nodeMaterialMap = parentModel.GetAssetData().m_nodeMaterialMapping;
+        if (nodeMaterialMap.find(m_id) != nodeMaterialMap.end())
+        {
+            auto& materialVector = nodeMaterialMap[m_id];
+
+            for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
+            {
+                if (materialVector.size() > i)
+                    m_defaultMaterials[i] = materialVector[i];
+                else
+                    m_defaultMaterials[i] = defaultMaterial.GetID();
+            }
+        }
+        else
+        {
+            for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
+                m_defaultMaterials[i] = defaultMaterial.GetID();
         }
 
         // Recursively fill the other nodes.
         for (uint32 i = 0; i < node->mNumChildren; i++)
         {
-            if (!fillMeshesOnly)
-            {
-                LINA_TRACE("Adding Children {0}", node->mChildren[i]->mName.C_Str());
-                ModelNode* newNode = new ModelNode();
-                m_children.push_back(newNode);
-                newNode->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
-            }
-            else
-                m_children[i]->FillNodeHierarchy(node->mChildren[i], scene, parentModel, fillMeshesOnly);
+            ModelNode* newNode = new ModelNode();
+            m_children.push_back(newNode);
+            newNode->FillNodeHierarchy(node->mChildren[i], scene, parentModel);
         }
     }
 } // namespace Lina::Graphics

@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     appInfo.m_windowProperties.m_resizable   = true;
     appInfo.m_windowProperties.m_fullscreen  = false;
     appInfo.m_windowProperties.m_msaaSamples = 4;
-    appInfo.m_windowProperties.m_title       = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+    appInfo.m_windowProperties.m_title       = "Lina Engine - Demo Sandbox Project";
     game->Initialize(appInfo);
     delete game;
 }

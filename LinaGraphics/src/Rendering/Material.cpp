@@ -63,8 +63,8 @@ namespace Lina::Graphics
         }
         else
         {
-            m_shaderID  = OpenGLRenderEngine::GetDefaultShader().GetID();
-            m_shaderSID = OpenGLRenderEngine::GetDefaultShader().GetSID();
+            m_shaderID  = OpenGLRenderEngine::Get()->GetDefaultLitShader().GetID();
+            m_shaderSID = OpenGLRenderEngine::Get()->GetDefaultLitShader().GetSID();
         }
     }
 
@@ -173,7 +173,7 @@ namespace Lina::Graphics
         if (Shader::ShaderExists(mat.m_shaderPath))
             SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
         else
-            SetMaterialShader(mat, OpenGLRenderEngine::GetDefaultShader(), true);
+            SetMaterialShader(mat, OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
         SetMaterialContainers(mat);
 
@@ -208,7 +208,7 @@ namespace Lina::Graphics
         if (Shader::ShaderExists(mat.m_shaderPath))
             SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
         else
-            SetMaterialShader(mat, OpenGLRenderEngine::GetDefaultShader(), true);
+            SetMaterialShader(mat, OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
         SetMaterialContainers(mat);
 

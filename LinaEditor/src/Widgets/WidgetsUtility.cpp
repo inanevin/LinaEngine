@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Widgets/MenuButton.hpp"
 
 namespace Lina::Editor
 {
@@ -371,20 +372,24 @@ namespace Lina::Editor
 
     void WidgetsUtility::WindowButtons(const char* windowID, float yOffset, bool isAppWindow)
     {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
 
         ImVec2 windowPos   = ImGui::GetWindowPos();
         float  windowWidth = ImGui::GetWindowWidth();
 
-        static float offset1 = 28.0f;
-        static float gap     = 25;
+        static float offset1                   = 35.0f;
+        static float gap                       = 28;
+        const ImVec2 buttonSize                = ImVec2(25, 20);
+        const float  closeButtonAdditionalSize = 8;
+        const float  frameRounding             = 1.0f;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 
         ImGui::SetCursorPosY(yOffset);
         const float cursorY = ImGui::GetCursorPosY();
-        ImGui::SetCursorPosX(windowWidth - offset1 - gap * 2);
-        if (Button(ICON_FA_MINUS, ImVec2(20, 20), 0.6f, 0.0f, ImVec2(0.5f, 1.0f)))
+        ImGui::SetCursorPosX(windowWidth - offset1 - closeButtonAdditionalSize - gap * 2);
+
+        PushIconFontSmall();
+        if (Button(ICON_FA_MINUS, buttonSize, 1.0f, frameRounding, ImVec2(0.0f, -0.6f)))
         {
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Iconify();
@@ -393,11 +398,11 @@ namespace Lina::Editor
         }
 
         ImGui::SameLine();
-        ImGui::SetCursorPosX(windowWidth - offset1 - gap);
+        ImGui::SetCursorPosX(windowWidth - offset1 - closeButtonAdditionalSize - gap);
         ImGui::SetCursorPosY(cursorY);
 
         bool isMaximized = isAppWindow ? Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::s_editorPanels[windowID]->IsMaximized();
-        if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, ImVec2(20, 20), 0.6f, 0.0f, ImVec2(0.0f, 1.0f)))
+        if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, buttonSize, 1.0f, frameRounding, ImVec2(0.0f, -2.0f)))
         {
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Maximize();
@@ -406,22 +411,22 @@ namespace Lina::Editor
         }
 
         ImGui::SameLine();
-        ImGui::SetCursorPosX(windowWidth - offset1);
+        ImGui::SetCursorPosX(windowWidth - offset1 - closeButtonAdditionalSize);
         ImGui::SetCursorPosY(cursorY);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-        if (Button(ICON_FA_TIMES, ImVec2(20, 20), 0.6f))
+        if (Button(ICON_FA_TIMES, ImVec2(buttonSize.x + closeButtonAdditionalSize, buttonSize.y), 1.0f, frameRounding, ImVec2(0.0f, -2.2f)))
         {
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Close();
             else
                 GUILayer::s_editorPanels[windowID]->Close();
         }
+
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
+        ImGui::PopFont();
+        ImGui::PopStyleVar();
     }
 
     void WidgetsUtility::WindowTitlebar(const char* label)
@@ -924,7 +929,9 @@ namespace Lina::Editor
     bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset)
     {
         FrameRounding(rounding);
-        WidgetsUtility::PushScaledFont(textSize);
+
+        if (textSize != 1.0f)
+            WidgetsUtility::PushScaledFont(textSize);
 
         bool button = false;
         if (contentOffset.x == 0.0f && contentOffset.y == 0.0f)
@@ -945,7 +952,9 @@ namespace Lina::Editor
 
         ImGui::SetItemAllowOverlap();
         ImGui::PopStyleVar();
-        WidgetsUtility::PopScaledFont();
+
+        if (textSize != 1.0f)
+            WidgetsUtility::PopScaledFont();
         return button;
     }
 
@@ -1344,6 +1353,30 @@ namespace Lina::Editor
             ImGui::PopStyleColor();
             return false;
         }
+    }
+
+    void Lina::Editor::WidgetsUtility::IconSmall(const char* icon)
+    {
+        PushIconFontSmall();
+        ImGui::Text(icon);
+        ImGui::PopFont();
+    }
+
+    void Lina::Editor::WidgetsUtility::IconDefault(const char* icon)
+    {
+        PushIconFontDefault();
+        ImGui::Text(icon);
+        ImGui::PopFont();
+    }
+
+    void Lina::Editor::WidgetsUtility::PushIconFontDefault()
+    {
+        ImGui::PushFont(GUILayer::GetIconFontDefault());
+    }
+
+    void Lina::Editor::WidgetsUtility::PushIconFontSmall()
+    {
+        ImGui::PushFont(GUILayer::GetIconFontSmall());
     }
 
     ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()

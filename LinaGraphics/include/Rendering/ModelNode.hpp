@@ -69,11 +69,12 @@ namespace Lina::Graphics
     {
 
     public:
-        ModelNode();
+        ModelNode()
+        {
+        };
         ~ModelNode();
-        ModelNode(const ModelNode& old_obj);
 
-        void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel, bool fillMeshesOnly);
+        void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel);
         inline const std::vector<Mesh*>& GetMeshes() const
         {
             return m_meshes;

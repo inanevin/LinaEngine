@@ -32,9 +32,11 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
-#include "GLFW/glfw3.h"
 #include "Log/Log.hpp"
 #include "glad/glad.h"
+
+// After GLAD
+#include "GLFW/glfw3.h"
 
 namespace Lina::Graphics
 {

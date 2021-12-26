@@ -227,17 +227,25 @@ namespace Lina::Graphics
         {
             return &m_frustumSystem;
         }
-        inline static Texture& GetDefaultTexture()
+        inline Texture& GetDefaultTexture()
         {
-            return s_defaultTexture;
+            return m_defaultTexture;
         }
-        inline static Material& GetDefaultUnlitMaterial()
+        inline Material& GetDefaultUnlitMaterial()
         {
-            return s_defaultUnlit;
+            return *m_defaultUnlit;
         }
-        inline static Shader& GetDefaultShader()
+        inline Material& GetDefaultLitMaterial()
         {
-            return *s_standardUnlitShader;
+            return *m_defaultLit;
+        }
+        inline Shader& GetDefaultUnlitShader()
+        {
+            return *m_standardUnlitShader;
+        }
+        inline Shader& GetDefaultLitShader()
+        {
+            return *m_standardLitShader;
         }
         inline void SetCurrentPLightCount(int count)
         {
@@ -308,21 +316,21 @@ namespace Lina::Graphics
         RenderBuffer m_secondaryRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
 
-        Texture        m_primaryMSAARTTexture0;
-        Texture        m_primaryMSAARTTexture1;
-        Texture        m_primaryRTTexture0;
-        Texture        m_primaryRTTexture1;
-        Texture        m_secondaryRTTexture;
-        Texture        m_pingPongRTTexture1;
-        Texture        m_pingPongRTTexture2;
-        Texture        m_hdriCubemap;
-        Texture        m_hdriIrradianceMap;
-        Texture        m_hdriPrefilterMap;
-        Texture        m_HDRILutMap;
-        Texture        m_shadowMapRTTexture;
-        Texture        m_defaultCubemapTexture;
-        Texture        m_pLightShadowTextures[MAX_POINT_LIGHTS];
-        static Texture s_defaultTexture;
+        Texture m_primaryMSAARTTexture0;
+        Texture m_primaryMSAARTTexture1;
+        Texture m_primaryRTTexture0;
+        Texture m_primaryRTTexture1;
+        Texture m_secondaryRTTexture;
+        Texture m_pingPongRTTexture1;
+        Texture m_pingPongRTTexture2;
+        Texture m_hdriCubemap;
+        Texture m_hdriIrradianceMap;
+        Texture m_hdriPrefilterMap;
+        Texture m_HDRILutMap;
+        Texture m_shadowMapRTTexture;
+        Texture m_defaultCubemapTexture;
+        Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
+        Texture m_defaultTexture;
 
         // Frame buffer texture parameters
         SamplerParameters m_primaryRTParams;
@@ -331,30 +339,32 @@ namespace Lina::Graphics
 
         Mesh m_quadMesh;
 
-        Material        m_screenQuadFinalMaterial;
-        Material        m_screenQuadBlurMaterial;
-        Material        m_screenQuadOutlineMaterial;
-        Material*       m_skyboxMaterial = nullptr;
-        Material        m_debugLineMaterial;
-        Material        m_debugIconMaterial;
-        Material        m_hdriMaterial;
-        Material        m_shadowMapMaterial;
-        Material        m_defaultSkyboxMaterial;
-        Material        m_pLightShadowDepthMaterial;
-        static Material s_defaultUnlit;
+        Material  m_screenQuadFinalMaterial;
+        Material  m_screenQuadBlurMaterial;
+        Material  m_screenQuadOutlineMaterial;
+        Material* m_skyboxMaterial = nullptr;
+        Material  m_debugLineMaterial;
+        Material  m_debugIconMaterial;
+        Material  m_hdriMaterial;
+        Material  m_shadowMapMaterial;
+        Material  m_defaultSkyboxMaterial;
+        Material  m_pLightShadowDepthMaterial;
+        Material* m_defaultUnlit = nullptr;
+        Material* m_defaultLit   = nullptr;
 
-        Shader*        m_hdriBRDFShader            = nullptr;
-        Shader*        m_hdriPrefilterShader       = nullptr;
-        Shader*        m_hdriEquirectangularShader = nullptr;
-        Shader*        m_hdriIrradianceShader      = nullptr;
-        Shader*        m_sqFinalShader             = nullptr;
-        Shader*        m_sqBlurShader              = nullptr;
-        Shader*        m_sqShadowMapShader         = nullptr;
-        Shader*        m_debugLineShader           = nullptr;
-        Shader*        m_debugIconShader           = nullptr;
-        Shader*        m_skyboxSingleColorShader   = nullptr;
-        Shader*        m_pointShadowsDepthShader   = nullptr;
-        static Shader* s_standardUnlitShader;
+        Shader* m_hdriBRDFShader            = nullptr;
+        Shader* m_hdriPrefilterShader       = nullptr;
+        Shader* m_hdriEquirectangularShader = nullptr;
+        Shader* m_hdriIrradianceShader      = nullptr;
+        Shader* m_sqFinalShader             = nullptr;
+        Shader* m_sqBlurShader              = nullptr;
+        Shader* m_sqShadowMapShader         = nullptr;
+        Shader* m_debugLineShader           = nullptr;
+        Shader* m_debugIconShader           = nullptr;
+        Shader* m_skyboxSingleColorShader   = nullptr;
+        Shader* m_pointShadowsDepthShader   = nullptr;
+        Shader* m_standardUnlitShader;
+        Shader* m_standardLitShader;
 
         DrawParams m_defaultDrawParams;
         DrawParams m_skyboxDrawParams;

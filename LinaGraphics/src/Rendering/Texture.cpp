@@ -277,7 +277,7 @@ namespace Lina::Graphics
         {
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
             delete textureBitmap;
-            return RenderEngineBackend::GetDefaultTexture();
+            return RenderEngineBackend::Get()->GetDefaultTexture();
         }
 
         if (useDefaultFormats)
@@ -317,7 +317,7 @@ namespace Lina::Graphics
         if (!data)
         {
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-            return RenderEngineBackend::GetDefaultTexture();
+            return RenderEngineBackend::Get()->GetDefaultTexture();
         }
 
         // Build texture & construct.

@@ -1,4 +1,4 @@
-// dear imgui, v1.86 WIP
+// dear imgui, v1.86
 // (main code and documentation)
 
 // Help:
@@ -390,6 +390,7 @@ CODE
  - 2021/XX/XX (1.XX) - Moved IME support functions from io.ImeSetInputScreenPosFn, io.ImeWindowHandle to the PlatformIO api.
 
 
+ - 2021/12/20 (1.86) - backends: removed obsolete Marmalade backend (imgui_impl_marmalade.cpp) + example. Find last supported version at https://github.com/ocornut/imgui/wiki/Bindings
  - 2021/11/04 (1.86) - removed CalcListClipping() function. Prefer using ImGuiListClipper which can return non-contiguous ranges. Please open an issue if you think you really need this function.
  - 2021/08/23 (1.85) - removed GetWindowContentRegionWidth() function. keep inline redirection helper. can use 'GetWindowContentRegionMax().x - GetWindowContentRegionMin().x' instead for generally 'GetContentRegionAvail().x' is more useful.
  - 2021/07/26 (1.84) - commented out redirecting functions/enums names that were marked obsolete in 1.67 and 1.69 (March 2019):
@@ -2782,7 +2783,17 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_Button: return "Button";
     case ImGuiCol_ButtonHovered: return "ButtonHovered";
     case ImGuiCol_ButtonActive: return "ButtonActive";
-    case ImGuiCol_ButtonLocked: return "ButtonLocked";
+    case ImGuiCol_ButtonLocked:  return "ButtonLocked";
+    case ImGuiCol_ButtonSecondary: return "ButtonSecondary";
+    case ImGuiCol_ButtonSecondaryHovered:return "ButtonSecondaryHovered";
+    case ImGuiCol_ButtonSecondaryActive:  return "ButtonSecondaryActive";
+    case ImGuiCol_ButtonSecondaryLocked:  return "ButtonSecondaryLocked";
+    case ImGuiCol_Icon:  return "Icon";
+    case ImGuiCol_TitleHeader: return "TitleHeader";
+    case ImGuiCol_TitleHeaderHover:return "TitleHeaderHover";
+    case ImGuiCol_TitleHeaderPressed : return "TitleHeaderPressed";
+    case ImGuiCol_TitleHeaderBorder: return "TitleHeaderBorder";
+    case ImGuiCol_TitleHeaderDisabled:  return "TitleHeaderDisabled";  
     case ImGuiCol_Header: return "Header";
     case ImGuiCol_HeaderHovered: return "HeaderHovered";
     case ImGuiCol_HeaderActive: return "HeaderActive";
@@ -2814,12 +2825,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_NavWindowingHighlight: return "NavWindowingHighlight";
     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
-    case ImGuiCol_Icon: return "Icon";
-    case ImGuiCol_TitleHeader: return "TitleHeader";
-    case ImGuiCol_TitleHeaderHover: return "TitleHeaderHover";
-    case ImGuiCol_TitleHeaderPressed: return "TitleHeaderPressed";
-    case ImGuiCol_TitleHeaderBorder: return "TitleHeaderBorder";
-    case ImGuiCol_TitleHeaderDisabled: return "TitleHeaderDisabled";
+    case ImGuiCol_Toolbar: return "Toolbar";             
     }
     IM_ASSERT(0);
     return "Unknown";
@@ -6085,18 +6091,8 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
         // in order for their pos/size to be matching their undocking state.)
         if (!(flags & ImGuiWindowFlags_NoTitleBar) && !window->DockIsActive)
         {
-           // ImU32 title_bar_col = GetColorU32(title_bar_is_highlight ? ImGuiCol_TitleBgActive : ImGuiCol_TitleBg);
-           // window->DrawList->AddRectFilled(title_bar_rect.Min, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawFlags_RoundCornersTop);
             ImU32 title_bar_col = GetColorU32(title_bar_is_highlight ? ImGuiCol_TitleBgActive : ImGuiCol_TitleBg);
-            ImVec2 titleRectMin = title_bar_rect.Min;
-
-            if (ImGui::IsWindowFocused())
-            {
-                ImVec2 activeLineMax = ImVec2(title_bar_rect.Max.x, title_bar_rect.Min.y + 3.5f);
-                titleRectMin = ImVec2(title_bar_rect.Min.x, activeLineMax.y);
-                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), window_rounding, ImDrawCornerFlags_Top);
-            }
-            window->DrawList->AddRectFilled(titleRectMin, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawCornerFlags_Top);
+            window->DrawList->AddRectFilled(title_bar_rect.Min, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawFlags_RoundCornersTop);
         }
 
         // Menu bar
@@ -6226,7 +6222,7 @@ void ImGui::RenderWindowTitleBarContents(ImGuiWindow* window, const ImRect& titl
         pad_r = ImMax(pad_r, pad_extend * centerness);
     }
 
-    ImRect layout_r(title_bar_rect.Min.x + pad_l + 4.5f, title_bar_rect.Min.y, title_bar_rect.Max.x - pad_r, title_bar_rect.Max.y);
+    ImRect layout_r(title_bar_rect.Min.x + pad_l, title_bar_rect.Min.y, title_bar_rect.Max.x - pad_r, title_bar_rect.Max.y);
     ImRect clip_r(layout_r.Min.x, layout_r.Min.y, ImMin(layout_r.Max.x + g.Style.ItemInnerSpacing.x, title_bar_rect.Max.x), layout_r.Max.y);
     if (flags & ImGuiWindowFlags_UnsavedDocument)
     {
@@ -14985,9 +14981,8 @@ static void ImGui::DockNodeCalcTabBarLayout(const ImGuiDockNode* node, ImRect* o
     float button_sz = g.FontSize;
 
     ImVec2 window_menu_button_pos = r.Min;
-    r.Min.x -= 1;
-   //r.Min.x += style.FramePadding.x;
-   //r.Max.x -= style.FramePadding.x;
+    r.Min.x += style.FramePadding.x;
+    r.Max.x -= style.FramePadding.x;
     if (node->HasCloseButton)
     {
         r.Max.x -= button_sz;
@@ -18140,6 +18135,9 @@ void ImGui::DebugHookIdInfo(ImGuiID id, ImGuiDataType data_type, const void* dat
 // Stack Tool: Display UI
 void ImGui::ShowStackToolWindow(bool* p_open)
 {
+    ImGuiContext& g = *GImGui;
+    if (!(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSize))
+        SetNextWindowSize(ImVec2(0.0f, GetFontSize() * 8.0f), ImGuiCond_FirstUseEver);
     if (!Begin("Dear ImGui Stack Tool", p_open) || GetCurrentWindow()->BeginCount > 1)
     {
         End();
@@ -18147,7 +18145,6 @@ void ImGui::ShowStackToolWindow(bool* p_open)
     }
 
     // Display hovered/active status
-    ImGuiContext& g = *GImGui;
     const ImGuiID hovered_id = g.HoveredIdPreviousFrame;
     const ImGuiID active_id = g.ActiveId;
 #ifdef IMGUI_ENABLE_TEST_ENGINE

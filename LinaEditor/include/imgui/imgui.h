@@ -1,4 +1,4 @@
-// dear imgui, v1.86 WIP
+// dear imgui, v1.86
 // (headers)
 
 // Help:
@@ -64,8 +64,8 @@ Index of this file:
 
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
-#define IMGUI_VERSION               "1.86 WIP"
-#define IMGUI_VERSION_NUM           18522
+#define IMGUI_VERSION               "1.86"
+#define IMGUI_VERSION_NUM           18600
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(ImDrawIdx))
 #define IMGUI_HAS_TABLE
 #define IMGUI_HAS_VIEWPORT          // Viewport WIP branch
@@ -1550,6 +1550,18 @@ enum ImGuiCol_
     ImGuiCol_Button,
     ImGuiCol_ButtonHovered,
     ImGuiCol_ButtonActive,
+    ImGuiCol_ButtonLocked,
+    ImGuiCol_ButtonSecondary,
+    ImGuiCol_ButtonSecondaryHovered,
+    ImGuiCol_ButtonSecondaryActive,
+    ImGuiCol_ButtonSecondaryLocked,
+    ImGuiCol_Toolbar,
+    ImGuiCol_Icon,
+    ImGuiCol_TitleHeader,
+    ImGuiCol_TitleHeaderHover,
+    ImGuiCol_TitleHeaderPressed,
+    ImGuiCol_TitleHeaderBorder,
+    ImGuiCol_TitleHeaderDisabled,
     ImGuiCol_Header,                // Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
     ImGuiCol_HeaderHovered,
     ImGuiCol_HeaderActive,
@@ -1581,13 +1593,6 @@ enum ImGuiCol_
     ImGuiCol_NavWindowingHighlight, // Highlight window when using CTRL+TAB
     ImGuiCol_NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
     ImGuiCol_ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
-    ImGuiCol_ButtonLocked, // CUSTOM BUTTONS START
-    ImGuiCol_Icon,
-    ImGuiCol_TitleHeader,
-    ImGuiCol_TitleHeaderHover,
-    ImGuiCol_TitleHeaderPressed,
-    ImGuiCol_TitleHeaderBorder,
-    ImGuiCol_TitleHeaderDisabled,
     ImGuiCol_COUNT
 };
 

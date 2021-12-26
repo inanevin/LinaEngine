@@ -69,6 +69,9 @@ namespace Lina
 
 namespace Lina::Editor
 {
+    class MenuBarElement;
+    class MenuButton;
+
     class WidgetsUtility
     {
 
@@ -369,6 +372,27 @@ namespace Lina::Editor
         /// Draws an icon, with button functionality. Use ImGuiCol_ButtonX to style colors.
         /// </summary>
         static bool IconButton(const char* id, const char* label, bool align, float scale = 0.6f, bool disabled = false);
+
+        /// <summary>
+        /// Pushes the small icon font to the font stack & draws icon, then pops the stack.
+        /// </summary>
+        static void IconSmall(const char* icon);
+
+        /// <summary>
+        /// Pushes the default icon font to the font stack & draws icon, then pops the stack.
+        /// </summary>
+        /// <param name="icon"></param>
+        static void IconDefault(const char* icon);
+
+        /// <summary>
+        /// Pushes the default icon font.
+        /// </summary>
+        static void PushIconFontDefault();
+
+        /// <summary>
+        /// Pushes the small icon font.
+        /// </summary>
+        static void PushIconFontSmall();
     };
 } // namespace Lina::Editor
 

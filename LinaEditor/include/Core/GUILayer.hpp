@@ -90,6 +90,14 @@ namespace Lina::Editor
         {
             return s_bigFont;
         }
+        static ImFont* GetIconFontSmall()
+        {
+            return s_iconFontSmall;
+        }
+        static ImFont* GetIconFontDefault()
+        {
+            return s_iconFontDefault;
+        }
         static std::map<const char*, EditorPanel*> s_editorPanels;
 
         // Menu bar item callback from header panel.
@@ -101,19 +109,21 @@ namespace Lina::Editor
             return m_levelPanel;
         }
 
+        static float s_headerSize;
+
     private:
         void DrawSplashScreen();
         void OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev);
 
         void DrawFPSCounter(int corner = 0);
         void DrawCentralDockingSpace();
-        void CreateObjectInLevel(const std::string& modelPath);
 
     private:
-        static ImFont* s_defaultFont;
-        static ImFont* s_bigFont;
 
-        MainToolbarPanel    m_toolbar;
+        static ImFont*      s_defaultFont;
+        static ImFont*      s_bigFont;
+        static ImFont*      s_iconFontSmall;
+        static ImFont*      s_iconFontDefault;
         ECSPanel            m_ecsPanel;
         ResourcesPanel      m_resourcesPanel;
         LevelPanel          m_levelPanel;
@@ -122,6 +132,7 @@ namespace Lina::Editor
         HeaderPanel         m_headerPanel;
         ProfilerPanel       m_profilerPanel;
         GlobalSettingsPanel m_globalSettingsPanel;
+        MainToolbarPanel    m_toolbar;
         World::DefaultLevel m_defaultLevel;
         std::string         m_currentlyLoadingResource = "";
         float               m_percentage               = 0.0f;

@@ -44,11 +44,11 @@ namespace Lina::Editor
     void EditorPanel::Begin()
     {
         ImGui::Begin(m_id, NULL, m_windowFlags);
-        WidgetsUtility::WindowTitlebar(m_id);
+        //WidgetsUtility::WindowTitlebar(m_id);
         if (!CanDrawContent())
             return;
-        WidgetsUtility::FramePaddingY(0.0f);
-        WidgetsUtility::ItemSpacingY(7.0f);
+        //WidgetsUtility::FramePaddingY(0.0f);
+       // WidgetsUtility::ItemSpacingY(7.0f);
         const std::string childID = "##child_" + std::string(m_id);
         ImGui::BeginChild(childID.c_str(), ImVec2(0.0f, ImGui::IsWindowDocked() ? 0.0f : -20.0f));
     }
@@ -56,8 +56,8 @@ namespace Lina::Editor
     void EditorPanel::End()
     {
         ImGui::EndChild();
-        ImGui::PopStyleVar();
-        ImGui::PopStyleVar();
+        //ImGui::PopStyleVar();
+        // ImGui::PopStyleVar();
         ImGui::End();
     }
 

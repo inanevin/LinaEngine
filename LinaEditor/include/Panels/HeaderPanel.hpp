@@ -59,12 +59,12 @@ namespace Lina::Editor
         virtual void Draw() override;
 
     private:
+        void DrawMenuBarChild();
         void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
     private:
         std::string              m_title = "";
-        std::vector<MenuButton*> m_menuBarButtons;
-        std::vector<MenuButton*> m_toolButtons;
+        std::vector<MenuButton*> m_menuButtons;
     };
 } // namespace Lina::Editor
 

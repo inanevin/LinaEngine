@@ -43,6 +43,9 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
+#define LINALOGO_ANIMSIZE 80
+#define LINALOGO_SIZE     ImVec2(183, 22)
+
 ImVec2    resizeStartPos;
 ImVec2    headerClickPos;
 Vector2ui resizeStartSize;
@@ -50,7 +53,7 @@ bool      appResizeActive;
 bool      isAxisPivotLocal;
 
 Graphics::Texture* windowIcon;
-Graphics::Texture* linaLogoAnimation[HEADER_LINALOGO_ANIMSIZE];
+Graphics::Texture* linaLogoAnimation[LINALOGO_ANIMSIZE];
 uint32             linaLogoID;
 float              logoAnimRatio       = 0.0f;
 float              logoAnimSpeed       = 1.2f;
@@ -63,8 +66,8 @@ namespace Lina::Editor
     HeaderPanel::~HeaderPanel()
     {
         LINA_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
-        for (int i = 0; i < m_menuBarButtons.size(); i++)
-            delete m_menuBarButtons[i];
+        for (int i = 0; i < m_menuButtons.size(); i++)
+            delete m_menuButtons[i];
     }
 
     void HeaderPanel::Initialize(const char* id)
@@ -75,227 +78,247 @@ namespace Lina::Editor
         windowIcon = &Graphics::Texture::GetTexture("Resources/Editor/Textures/linaEngineIcon.png");
 
         // Logo animation textures
-        for (int i = 0; i < HEADER_LINALOGO_ANIMSIZE; i++)
-        {
-            std::string logoID = std::to_string(i);
-            if (i < 10)
-                logoID = ("00" + std::to_string(i));
-            else if (i < 100)
-                logoID = ("0" + std::to_string(i));
-            linaLogoAnimation[i] = &Graphics::Texture::GetTexture("Resources/Editor/Textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
-        }
+        for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
+            linaLogoAnimation[i] = &Graphics::Texture::GetTexture("Resources/Editor/Textures/LinaLogoJitterAnimation/LogoAnimation (" + std::to_string(i + 1) + ").png");
 
         linaLogoID = linaLogoAnimation[0]->GetID();
 
         // Add menu bar buttons.
+        MenuButton* fileMenu   = new MenuButton("File");
+        MenuButton* editMenu   = new MenuButton("Edit");
+        MenuButton* viewMenu   = new MenuButton("View");
+        MenuButton* levelMenu  = new MenuButton("Level");
+        MenuButton* entityMenu = new MenuButton("Entity");
+        MenuButton* panelsMenu = new MenuButton("Panels");
+        MenuButton* debugMenu  = new MenuButton("Debug");
+        MenuButton* aboutMenu  = new MenuButton("About");
+        m_menuButtons.push_back(fileMenu);
+        m_menuButtons.push_back(editMenu);
+        m_menuButtons.push_back(viewMenu);
+        m_menuButtons.push_back(levelMenu);
+        m_menuButtons.push_back(entityMenu);
+        m_menuButtons.push_back(panelsMenu);
+        m_menuButtons.push_back(debugMenu);
+        m_menuButtons.push_back(aboutMenu);
 
-        // File menu.
-        std::vector<MenuElement*> fileItems;
-        fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS, " New Project", nullptr));
-        fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN, " Open Project", nullptr));
-        fileItems.emplace_back(new MenuItem(ICON_FA_SAVE, " Save Project", nullptr));
-        fileItems.emplace_back(new MenuItem(ICON_FA_PALETTE, " Package Project", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PackageProject)));
-        m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_COLOR_BG, false));
+        // ****** FILE MENU
+        fileMenu->AddElement(new MenuBarElement(ICON_FA_FOLDER_OPEN, "Open Project", "CTRL+A", 0));
+        fileMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save", "CTRL+K", 0));
+        fileMenu->AddElement(new MenuBarElement(ICON_FA_BOXES, "Package Project", "", 1));
 
-        // Edit menu.
-        std::vector<MenuElement*> edit;
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EDIT*/ "Edit", "pu_edit", edit, HEADER_COLOR_BG, true));
+        // ****** LEVEL MENU
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_DOWNLOAD, "New Level", "", 0));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save Level", "", 0));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_UPLOAD, "Load Level", "", 0));
 
-        // View menu.
-        std::vector<MenuElement*> view;
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EYE*/ "View", "pu_view", view, HEADER_COLOR_BG, true));
+        // ****** ENTITY MENU
+        MenuBarElement* primitives = new MenuBarElement("", "Primitives", "", 1);
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cube", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Capsule", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Cylinder", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Plane", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sphere", "", 0));
+        primitives->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Quad", "", 0));
 
-        // Levels menu.
-        std::vector<MenuElement*> level;
-        level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " New Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::NewLevelData)));
-        level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::SaveLevelData)));
-        level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LoadLevelData)));
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_COLOR_BG, true));
+        MenuBarElement* lights = new MenuBarElement("", "Lights", "", 2);
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Sun Light", "", 0));
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Point Light", "", 0));
+        lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Spot Light", "", 0));
 
-        // Object Menu
-        std::vector<MenuElement*> objects;
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Cube", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Cube)));
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Capsule", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Capsule)));
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Cylinder", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Cylinder)));
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Plane", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Plane)));
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Sphere", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Sphere)));
-        objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Quad", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Quad)));
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Objecs", "pu_objects", objects, HEADER_COLOR_BG, true));
+        entityMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Empty", "CTRL + E", 0));
+        entityMenu->AddElement(primitives);
+        entityMenu->AddElement(lights);
 
-        // Panels menu
-        std::vector<MenuElement*> panels;
-        panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ECSPanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ScenePanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PropertiesPanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ResourcesPanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LogPanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_GLOBE, " Global Settings", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::GlobalSettingsPanel)));
-        panels.emplace_back(new MenuItem(ICON_FA_CHART_LINE, " Profiler", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ProfilerPanel)));
-        panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ImGuiPanel)));
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_COLOR_BG, true));
+        // ****** PANELS MENU
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "CTRL ZAA", 0));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Scene", "", 0));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE, "Resources", "", 0));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_COG, "Properties", "", 0));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CLIPBOARD, "Log", "", 0));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_GLOBE, "Global Settings", "", 1));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_CHART_LINE, "Profiler", "", 1));
 
-        // Debug menu
-        std::vector<MenuElement*> debug;
-        debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewShadows)));
-        debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
-        m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
+        // ****** DEBUG MENU
+        debugMenu->AddElement(new MenuBarElement("", "ImGui Panel", "", 0));
 
+        // ****** ABOUTMENU
+        aboutMenu->AddElement(new MenuBarElement("", "Github", "", 0));
+        aboutMenu->AddElement(new MenuBarElement("", "Website", "", 0));
         m_title = Graphics::WindowBackend::Get()->GetProperties().m_title;
     }
 
-    void HeaderPanel::Draw()
+    void HandleAppWindowResize()
     {
-        if (m_show)
+        Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
+        ImGuiViewport*           viewport  = ImGui::GetMainViewport();
+
+        bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < HEADER_RESIZE_THRESHOLD;
+        bool verticalResize   = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < HEADER_RESIZE_THRESHOLD;
+
+        if (horizontalResize && !verticalResize)
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+        else if (verticalResize && !horizontalResize)
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+        else if (verticalResize && horizontalResize)
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+
+        static bool clicked = false;
+        if (horizontalResize || verticalResize || appResizeActive)
         {
-            Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
-            // Logo animation
-            if (logoAnimRatio < 0.99f)
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                clicked = true;
+
+            if (clicked)
             {
-                logoAnimRatio     = Math::Lerp(logoAnimRatio, 1.0f, Engine::Get()->GetSmoothDelta() * logoAnimSpeed);
-                logoAnimRatio     = Math::Clamp(logoAnimRatio, 0.0f, 1.0f);
-                int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE - 1);
-                linaLogoID        = linaLogoAnimation[logoAnimIndex]->GetID();
+                appResizeActive = true;
+                ImVec2 delta    = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
+                appWindow->SetSize(Vector2ui((unsigned int)(resizeStartSize.x + delta.x), (unsigned int)(resizeStartSize.y + delta.y)));
             }
             else
             {
-                if (linaLogoID != linaLogoAnimation[0]->GetID())
-                    linaLogoID = linaLogoAnimation[0]->GetID();
-
-                logoAnimWaitCounter += (float)Engine::Get()->GetSmoothDelta();
-
-                if (logoAnimWaitCounter > logoAnimWait)
-                {
-                    logoAnimWaitCounter = 0.0f;
-                    logoAnimRatio       = 0.0f;
-                }
+                resizeStartSize = appWindow->GetSize();
+                resizeStartPos  = ImGui::GetMousePos();
+                appResizeActive = false;
             }
+        }
 
-            ImGuiViewport* viewport = ImGui::GetMainViewport();
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+            clicked = false;
 
-            // Handle app window resize.
-            bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < HEADER_RESIZE_THRESHOLD;
-            bool verticalResize   = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < HEADER_RESIZE_THRESHOLD;
+        // Handle window movement.
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        {
+            headerClickPos = ImGui::GetMousePos();
 
-            if (horizontalResize && !verticalResize)
+            ImVec2  delta     = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+            Vector2 windowPos = appWindow->GetPos();
+            Vector2 newPos    = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
+
+            if (newPos.x < 0.0f)
+                newPos.x = 0.0f;
+
+            if (newPos.y < 0.0f)
+                newPos.y = 0.0f;
+
+            appWindow->SetPos(newPos);
+        }
+    }
+
+    void AnimateLinaLogo()
+    {
+        if (logoAnimRatio < 0.99f)
+        {
+            logoAnimRatio     = Math::Lerp(logoAnimRatio, 1.0f, Engine::Get()->GetSmoothDelta() * logoAnimSpeed);
+            logoAnimRatio     = Math::Clamp(logoAnimRatio, 0.0f, 1.0f);
+            int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)LINALOGO_ANIMSIZE - 1);
+            linaLogoID        = linaLogoAnimation[logoAnimIndex]->GetID();
+        }
+        else
+        {
+            if (linaLogoID != linaLogoAnimation[0]->GetID())
+                linaLogoID = linaLogoAnimation[0]->GetID();
+
+            logoAnimWaitCounter += (float)Engine::Get()->GetSmoothDelta();
+
+            if (logoAnimWaitCounter > logoAnimWait)
             {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+                logoAnimWaitCounter = 0.0f;
+                logoAnimRatio       = 0.0f;
             }
-            else if (verticalResize && !horizontalResize)
+        }
+    }
+    void HeaderPanel::Draw()
+    {
+        static bool showdemo = false;
+        ImGui::ShowDemoWindow(&showdemo);
+
+        if (m_show)
+        {
+            AnimateLinaLogo();
+
+            ImGuiWindowFlags headerFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration;
+            ImGuiViewport*   viewport    = ImGui::GetMainViewport();
+
+            ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
+            ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
+            if (ImGui::Begin(m_id, NULL, headerFlags))
             {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+                // App resize & movement.
+                HandleAppWindowResize();
+
+                // Set header size so the other systems can stack below us.
+                GUILayer::s_headerSize = ImGui::GetWindowSize().y;
+
+                // Icon
+                ImGui::SetCursorPosX(11.8f);
+                WidgetsUtility::IconSmall(ICON_FA_FIRE);
+
+                // Title
+                ImGui::SameLine();
+                ImGui::Text(m_title.c_str());
+
+                // Window Buttons
+                ImGui::SameLine();
+                WidgetsUtility::WindowButtons(nullptr, 6.0f, true);
+
+                // Draw a sep. child for the menu bar.
+                ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
+                DrawMenuBarChild();
+                ImGui::PopStyleColor();
+
+                ImGui::End();
             }
-            else if (verticalResize && horizontalResize)
-            {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
-            }
-
-            static bool clicked = false;
-            if (horizontalResize || verticalResize || appResizeActive)
-            {
-                if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                    clicked = true;
-
-                if (clicked)
-                {
-                    appResizeActive = true;
-                    ImVec2 delta    = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
-
-                    appWindow->SetSize(Vector2ui((unsigned int)(resizeStartSize.x + delta.x), (unsigned int)(resizeStartSize.y + delta.y)));
-                }
-                else
-                {
-                    resizeStartSize = appWindow->GetSize();
-                    resizeStartPos  = ImGui::GetMousePos();
-                    appResizeActive = false;
-                }
-            }
-
-            if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-                clicked = false;
-
-            // Start drawing window.
-            const ImVec2 headerPos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y);
-            const ImVec2 headerSize = ImVec2(viewport->WorkSize.x, HEADER_HEIGHT);
-            ImGui::SetNextWindowBgAlpha(1.0f);
-            ImGui::SetNextWindowPos(headerPos);
-            ImGui::SetNextWindowSize(headerSize);
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_FILEMENU);
-
-            ImGui::Begin(m_id, NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
-
-            ImVec2 windowPos  = ImGui::GetWindowPos();
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            ImRect border     = ImRect(windowPos, ImVec2(windowPos.x + windowSize.x, windowPos.y));
-            ImGui::GetWindowDrawList()->AddLine(border.Min, border.Max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), 4.0f);
-
-            // Handle window movement.
-            if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
-            {
-                headerClickPos = ImGui::GetMousePos();
-
-                ImVec2  delta     = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-                Vector2 windowPos = appWindow->GetPos();
-                Vector2 newPos    = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
-
-                if (newPos.x < 0.0f)
-                    newPos.x = 0.0f;
-
-                if (newPos.y < 0.0f)
-                    newPos.y = 0.0f;
-
-                appWindow->SetPos(newPos);
-            }
-
-            // Icon
-            ImGui::SetCursorPosX(12);
-            ImGui::SetCursorPosY(12.0f);
-            WidgetsUtility::PushScaledFont(0.7f);
-            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-            ImGui::Text(ICON_FA_FIRE);
             ImGui::PopStyleColor();
-            WidgetsUtility::PopScaledFont();
-
-            // Title
-            ImGui::SameLine();
-            WidgetsUtility::IncrementCursorPosY(-5);
-            ImGui::Text(m_title.c_str());
-
-            // Minimize, maximize, exit buttons.
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS);
-            ImGui::SetCursorPosY(5);
-            WidgetsUtility::WindowButtons(nullptr, 6.0f, true);
+            ImGui::PopStyleVar();
 
 #pragma warning(disable : 4312)
 
-            // Logo
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - HEADER_LINALOGO_SIZE.x / 2.0f);
-            ImGui::SetCursorPosY(ImGui::GetCursorPos().y + HEADER_LINALOGO_SIZE.y / 2.0f);
-            ImGui::Image((void*)(linaLogoID), HEADER_LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
+            // Add a poly background for the logo.
+            const ImVec2 logoWindowSize = ImVec2(500, 36.0f);
+            const ImVec2 logoWindowPos  = ImVec2(viewport->GetWorkCenter().x - logoWindowSize.x / 2.0f, 0);
 
-            // Draw bar buttons & items.
-            ImGui::SetCursorPosY(30);
-            ImGui::SetCursorPosX(12);
+            ImVec2 points[5] = {
+                ImVec2(logoWindowPos.x, 0.0f),
+                ImVec2(logoWindowPos.x + 20, GUILayer::s_headerSize / 2.0f + 4),
+                ImVec2(logoWindowPos.x + logoWindowSize.x - 20, GUILayer::s_headerSize / 2.0f + 4),
+                ImVec2(logoWindowPos.x + logoWindowSize.x, 0.0f),
+                ImVec2(logoWindowPos.x, 0.0f)};
 
-            for (int i = 0; i < m_menuBarButtons.size(); i++)
-                m_menuBarButtons[i]->Draw();
+            const ImU32 polyBackground = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Toolbar));
+            ImGui::GetForegroundDrawList()->AddConvexPolyFilled(&points[0], 5, polyBackground);
+            ImGui::GetForegroundDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
 
-            // By setting the flags below we make sure that we need to re-click any menu bar button
-            // to enable the popups after the menu bar loses focus. Otherwise the popups will open
-            // whenever mouse hovers on them.
-            bool anyPopupOpen = false;
-            for (int i = 0; i < m_menuBarButtons.size(); i++)
-                anyPopupOpen |= m_menuBarButtons[i]->GetIsPopupOpen();
-
-            if (!anyPopupOpen)
-                MenuButton::s_anyButtonFocused = false;
-
-            ImGui::End();
-            ImGui::PopStyleColor();
-            ImGui::PopStyleVar();
+            // Add animated logo.
+            const ImVec2 logoMin = ImVec2(viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, logoWindowSize.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
+            const ImVec2 logoMax = ImVec2(logoMin.x + LINALOGO_SIZE.x, logoMin.y + LINALOGO_SIZE.y);
+            ImGui::GetForegroundDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
         }
+    }
+
+    void HeaderPanel::DrawMenuBarChild()
+    {
+        ImGuiWindowFlags  headerFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_MenuBar;
+        const std::string childID     = std::string(m_id) + "_menubar";
+        ImGui::BeginChild(childID.c_str(), ImVec2(0, ImGui::GetFrameHeight() - 2), false, headerFlags);
+
+        // Draw menu bar.
+        if (ImGui::BeginMenuBar())
+        {
+            for (auto* element : m_menuButtons)
+            {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
+                if (ImGui::BeginMenu(element->m_title))
+                {
+                    element->Draw();
+                    ImGui::EndMenu();
+                }
+                ImGui::PopStyleVar();
+            }
+            ImGui::EndMenuBar();
+        }
+        ImGui::EndChild();
     }
 
     void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)

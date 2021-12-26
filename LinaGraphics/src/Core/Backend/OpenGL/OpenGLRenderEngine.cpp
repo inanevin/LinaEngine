@@ -54,9 +54,6 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     OpenGLRenderEngine* OpenGLRenderEngine::s_renderEngine = nullptr;
-    Texture             OpenGLRenderEngine::s_defaultTexture;
-    Material            OpenGLRenderEngine::s_defaultUnlit;
-    Shader*             OpenGLRenderEngine::s_standardUnlitShader;
 
     constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE      = (sizeof(Matrix) * 4) + (sizeof(Vector4)) + (sizeof(float) * 2);
     constexpr int    UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
@@ -136,7 +133,7 @@ namespace Lina::Graphics
         ConstructRenderTargets();
 
         // Build default textures.
-        s_defaultTexture.ConstructEmpty();
+        m_defaultTexture.ConstructEmpty();
         m_defaultCubemapTexture.ConstructRTCubemapTexture(m_screenSize, SamplerParameters());
 
         // Add the ECS systems into the pipeline.
@@ -166,17 +163,17 @@ namespace Lina::Graphics
     {
         if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
         {
-            s_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
-            s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-            s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-            s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            m_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
+            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
         }
         else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
         {
-            Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            m_standardLitShader = &Shader::CreateShader(path, false, data, dataSize);
+            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
         }
         else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
         {
@@ -278,7 +275,6 @@ namespace Lina::Graphics
         Material::SetMaterialShader(m_debugIconMaterial, *m_debugIconShader);
         Material::SetMaterialShader(m_shadowMapMaterial, *m_sqShadowMapShader);
         Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
-        Material::SetMaterialShader(s_defaultUnlit, *s_standardUnlitShader);
         Material::SetMaterialShader(m_pLightShadowDepthMaterial, *m_pointShadowsDepthShader);
         UpdateRenderSettings();
     }
@@ -486,9 +482,13 @@ namespace Lina::Graphics
         }
         else if (event.m_resourceType == Resources::ResourceType::Material)
         {
-
             LINA_TRACE("[Material Loader] -> Loading (file): {0}", event.m_path);
             Material::LoadMaterialFromFile(event.m_path);
+
+            if (m_defaultLit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultLit.mat") == 0)
+                m_defaultLit = &Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+            if (m_defaultUnlit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultUnlit.mat") == 0)
+                m_defaultUnlit = &Material::GetMaterial("Resources/Engine/Materials/DefaultUnlit.mat");
         }
         else if (event.m_resourceType == Resources::ResourceType::Image)
         {
@@ -545,6 +545,11 @@ namespace Lina::Graphics
         {
             LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
             Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
+
+            if (m_defaultLit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultLit.mat") == 0)
+                m_defaultLit = &Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+            if (m_defaultUnlit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultUnlit.mat") == 0)
+                m_defaultUnlit = &Material::GetMaterial("Resources/Engine/Materials/DefaultUnlit.mat");
         }
         else if (event.m_resourceType == Resources::ResourceType::Image)
         {
@@ -999,7 +1004,7 @@ namespace Lina::Graphics
             {
 
                 if (d.second.m_bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
-                    m_renderDevice.SetTexture(s_defaultTexture.GetID(), s_defaultTexture.GetSamplerID(), d.second.m_unit, BINDTEXTURE_TEXTURE2D);
+                    m_renderDevice.SetTexture(m_defaultTexture.GetID(), m_defaultTexture.GetSamplerID(), d.second.m_unit, BINDTEXTURE_TEXTURE2D);
                 else
                     m_renderDevice.SetTexture(m_defaultCubemapTexture.GetID(), m_defaultCubemapTexture.GetSamplerID(), d.second.m_unit, BINDTEXTURE_CUBEMAP);
             }
