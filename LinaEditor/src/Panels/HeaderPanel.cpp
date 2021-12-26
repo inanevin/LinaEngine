@@ -131,7 +131,7 @@ namespace Lina::Editor
 
         // ****** PANELS MENU
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "", 0, MenuBarElementType::ECSPanel));
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Scene", "", 0, MenuBarElementType::ScenePanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Level", "", 0, MenuBarElementType::LevelPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE, "Resources", "", 0, MenuBarElementType::ResourcesPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_COG, "Properties", "", 0, MenuBarElementType::PropertiesPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_CLIPBOARD, "Log", "", 0, MenuBarElementType::LogPanel));
@@ -239,7 +239,7 @@ namespace Lina::Editor
             ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
             ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 8.0f));
             if (ImGui::Begin(m_id, NULL, headerFlags))
             {
                 // App resize & movement.
@@ -324,12 +324,14 @@ namespace Lina::Editor
             for (auto* element : m_menuButtons)
             {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
+                ImGui::PushStyleColor(ImGuiCol_Separator, ImVec4(0.303f, 0.303f, 0.303f, 1.000f));
                 if (ImGui::BeginMenu(element->m_title))
                 {
                     element->Draw();
                     ImGui::EndMenu();
                 }
                 ImGui::PopStyleVar();
+                ImGui::PopStyleColor();
             }
             ImGui::EndMenuBar();
         }

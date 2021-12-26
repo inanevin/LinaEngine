@@ -52,7 +52,7 @@ namespace Lina::Editor
 
     public:
         MainToolbarPanel(){};
-        ~MainToolbarPanel(){};
+        virtual ~MainToolbarPanel();
         virtual void Initialize(const char* id);
         virtual void Draw();
         void         DrawFooter();

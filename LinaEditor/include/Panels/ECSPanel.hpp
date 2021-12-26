@@ -56,7 +56,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
-    class ScenePanel;
+    class LevelPanel;
     class PropertiesPanel;
 
     class ECSPanel : public EditorPanel

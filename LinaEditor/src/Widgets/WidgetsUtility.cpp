@@ -59,12 +59,10 @@ namespace Lina::Editor
         if (s_isDraggingWidgetInput)
             return;
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(9, 2));
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::BeginTooltip();
         ImGui::Text(tooltip);
         ImGui::EndTooltip();
-        ImGui::PopStyleVar();
         ImGui::PopStyleColor();
     }
 

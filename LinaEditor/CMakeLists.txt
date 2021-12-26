@@ -55,6 +55,7 @@ src/Utility/EditorUtility.cpp
 # Widgets
 src/Widgets/MenuButton.cpp
 src/Widgets/WidgetsUtility.cpp
+src/Widgets/ToolbarItem.cpp
 
 # ImGui
 src/imgui/imgui_impl_opengl3.cpp
@@ -125,6 +126,7 @@ include/Utility/EditorUtility.hpp
 # Widgets
 include/Widgets/MenuButton.hpp
 include/Widgets/WidgetsUtility.hpp
+include/Widgets/ToolbarItem.hpp
 
 # ImGui
 include/imgui/dirent.h

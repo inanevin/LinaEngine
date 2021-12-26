@@ -111,7 +111,7 @@ namespace Lina::Editor
             ImGui::Selectable(itemStr.c_str(), false);
             if (ImGui::IsItemClicked())
             {
-                Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{m_type}); 
+                Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{static_cast<uint8>(m_type)}); 
             }
             if (m_type == MenuBarElementType::None)
                 ImGui::EndDisabled();

@@ -65,7 +65,7 @@ namespace Lina::Editor
         LogPanel            = 42,
         PropertiesPanel     = 44,
         ResourcesPanel      = 45,
-        ScenePanel          = 46,
+        LevelPanel          = 46,
         ProfilerPanel       = 47,
         GlobalSettingsPanel = 48,
         ImGuiPanel          = 50,

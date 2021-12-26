@@ -37,7 +37,8 @@ namespace Lina::Editor
     void EditorPanel::Initialize(const char* id)
     {
         m_id                         = id;
-        m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+       // m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        m_windowFlags                = 0;
         GUILayer::s_editorPanels[id] = this;
     }
 

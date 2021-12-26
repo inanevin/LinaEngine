@@ -40,6 +40,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 #define EditorCommon_HPP
 
 #include "Core/CommonECS.hpp"
+#include "Core/SizeDefinitions.hpp"
 #include "Log/Log.hpp"
 
 #include <string>
@@ -63,8 +64,14 @@ namespace Lina::Editor
 
     struct EMenuBarElementClicked
     {
-        MenuBarElementType m_item;
+        uint8 m_item;
     };
+
+    struct EToolbarItemClicked
+    {
+        uint8 m_item;
+    };
+
     struct EEntityUnselected
     {
     };

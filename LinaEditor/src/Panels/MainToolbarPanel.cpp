@@ -33,6 +33,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "IconsFontAwesome5.h"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Widgets/ToolbarItem.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -42,6 +43,17 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
+    std::vector<ToolbarGroup*> m_toolbarGroups;
+
+    MainToolbarPanel::~MainToolbarPanel()
+    {
+        for (int i = 0; i < m_toolbarGroups.size(); i++)
+            delete m_toolbarGroups[i];
+
+        m_toolbarGroups.clear();
+    }
+
     void MainToolbarPanel::Initialize(const char* id)
     {
         EditorPanel::Initialize(id);
@@ -50,6 +62,18 @@ namespace Lina::Editor
         m_currentGizmoGlobal        = true;
         Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &MainToolbarPanel::OnTransformGizmoChanged>(this);
         Event::EventSystem::Get()->Connect<ETransformPivotChanged, &MainToolbarPanel::OnTransformPivotChanged>(this);
+
+        const Vector2 buttonSize = Vector2(34, 22);
+
+        ToolbarGroup* transformationHandles = new ToolbarGroup(buttonSize);
+        ToolbarItem*  moveHandle            = new ToolbarItem(ICON_FA_ARROWS_ALT, "Move", true, false, ToolbarItemType::MoveHandle);
+        ToolbarItem*  rotateHandle          = new ToolbarItem(ICON_FA_SYNC_ALT, "Rotate", true, false, ToolbarItemType::RotateHandle);
+        ToolbarItem*  scaleHandle           = new ToolbarItem(ICON_FA_COMPRESS_ALT, "Scale", true, false, ToolbarItemType::ScaleHandle);
+        transformationHandles->AddItem(moveHandle);
+        transformationHandles->AddItem(rotateHandle);
+        transformationHandles->AddItem(scaleHandle);
+
+        m_toolbarGroups.push_back(transformationHandles);
     }
 
     void MainToolbarPanel::Draw()
@@ -58,12 +82,18 @@ namespace Lina::Editor
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         const ImVec2         pos      = ImVec2(0.0f, GUILayer::s_headerSize);
         const ImVec2         size     = ImVec2(viewport->WorkSize.x, 0.0f);
-      
+
         ImGui::SetNextWindowPos(pos);
         ImGui::SetNextWindowSize(size);
         ImGui::Begin(m_id, NULL, flags);
 
-        ImGui::Text("Sa");
+        WidgetsUtility::IncrementCursorPosX(5.0f);
+
+        for (auto* group : m_toolbarGroups)
+        {
+            group->Draw();
+        }
+
         ImGui::End();
         return;
 
@@ -150,15 +180,13 @@ namespace Lina::Editor
         ImGuiWindowFlags flags = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->WorkSize.y - FOOTER_HEIGHT));
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->WorkSize.y - GUILayer::s_footerSize));
 
-        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, FOOTER_HEIGHT));
+        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, GUILayer::s_footerSize));
         ImGui::SetNextWindowViewport(viewport->ID);
-        //ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_AppBar));
         ImGui::Begin("##toolbar_footer", NULL, flags);
 
         ImGui::End();
-       // ImGui::PopStyleColor();
     }
 
     void Editor::MainToolbarPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)

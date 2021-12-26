@@ -110,6 +110,7 @@ namespace Lina::Editor
         }
 
         static float s_headerSize;
+        static float s_footerSize;
 
     private:
         void DrawSplashScreen();
