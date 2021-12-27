@@ -122,7 +122,6 @@ namespace Lina::Editor
         void OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev);
 
         void DrawFPSCounter(int corner = 0);
-        void DrawCentralDockingSpace();
 
     private:
         static const char*  s_linaLogoIcon;

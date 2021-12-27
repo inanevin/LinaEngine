@@ -233,8 +233,9 @@ namespace Lina::Editor
         {
             AnimateLinaLogo();
 
-            ImGuiWindowFlags headerFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration;
-            ImGuiViewport*   viewport    = ImGui::GetMainViewport();
+            ImGuiWindowFlags headerFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                           ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration;
+            ImGuiViewport* viewport = ImGui::GetMainViewport();
 
             ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
             ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60));
@@ -265,6 +266,46 @@ namespace Lina::Editor
                 // Draw a sep. child for the menu bar.
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
                 DrawMenuBarChild();
+
+                  // Add a poly background for the logo.
+                const ImVec2 logoBounds = ImVec2(500, 36.0f);
+                const ImVec2 logoPos    = ImVec2(viewport->GetWorkCenter().x - logoBounds.x / 2.0f, 0);
+
+                ImVec2 points[5] = {
+                    ImVec2(logoPos.x, 0.0f),
+                    ImVec2(logoPos.x + 20, GUILayer::s_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x - 20, GUILayer::s_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x, 0.0f),
+                    ImVec2(logoPos.x, 0.0f)};
+
+                const ImU32 polyBackground = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Toolbar));
+                ImGui::GetWindowDrawList()->AddConvexPolyFilled(&points[0], 5, polyBackground);
+                ImGui::GetWindowDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
+
+                // Add animated logo.
+                const ImVec2 logoMin = ImVec2(viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, logoBounds.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
+                const ImVec2 logoMax = ImVec2(logoMin.x + LINALOGO_SIZE.x, logoMin.y + LINALOGO_SIZE.y);
+                ImGui::GetWindowDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
+
+                // Versioning information when hovered on logo.
+                if (ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(logoMin, logoMax))
+                {
+                    auto& appInfo = Application::Get()->GetAppInfo();
+
+                    const std::string tooltipStr = std::string("Lina Engine - Build: ") + std::string(LINA_BUILD) + "\n" +
+                                                   std::string("Version: ") + std::to_string(LINA_MAJOR) + "." + std::to_string(LINA_MINOR) +
+                                                   "." + std::to_string(LINA_PATCH) +
+                                                   std::string("\nApp: ") + std::string(appInfo.m_appName);
+
+                    const ImVec2 tooltipRectMin = ImGui::GetMousePos();
+                    const ImVec2 tooltipRectMax = ImVec2(tooltipRectMin.x + 140, tooltipRectMin.y + 100);
+                    ImGui::GetForegroundDrawList()->AddRectFilled(tooltipRectMin, tooltipRectMax, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)));
+
+                    const ImVec2 textRectMin = ImVec2(tooltipRectMin.x + 8, tooltipRectMin.y + 8);
+                    ImGui::GetForegroundDrawList()->AddText(textRectMin, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), tooltipStr.c_str());
+                }
+
+
                 ImGui::PopStyleColor();
 
                 ImGui::End();
@@ -275,43 +316,7 @@ namespace Lina::Editor
 
 #pragma warning(disable : 4312)
 
-            // Add a poly background for the logo.
-            const ImVec2 logoWindowSize = ImVec2(500, 36.0f);
-            const ImVec2 logoWindowPos  = ImVec2(viewport->GetWorkCenter().x - logoWindowSize.x / 2.0f, 0);
-
-            ImVec2 points[5] = {
-                ImVec2(logoWindowPos.x, 0.0f),
-                ImVec2(logoWindowPos.x + 20, GUILayer::s_headerSize / 2.0f + 4),
-                ImVec2(logoWindowPos.x + logoWindowSize.x - 20, GUILayer::s_headerSize / 2.0f + 4),
-                ImVec2(logoWindowPos.x + logoWindowSize.x, 0.0f),
-                ImVec2(logoWindowPos.x, 0.0f)};
-
-            const ImU32 polyBackground = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Toolbar));
-            ImGui::GetForegroundDrawList()->AddConvexPolyFilled(&points[0], 5, polyBackground);
-            ImGui::GetForegroundDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
-
-            // Add animated logo.
-            const ImVec2 logoMin = ImVec2(viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, logoWindowSize.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
-            const ImVec2 logoMax = ImVec2(logoMin.x + LINALOGO_SIZE.x, logoMin.y + LINALOGO_SIZE.y);
-            ImGui::GetForegroundDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
-
-            // Versioning information when hovered on logo.
-            if (ImGui::IsMouseHoveringRect(logoMin, logoMax))
-            {
-                auto& appInfo = Application::Get()->GetAppInfo();
-
-                const std::string tooltipStr = std::string("Lina Engine - Build: ") + std::string(LINA_BUILD) + "\n" +
-                                               std::string("Version: ") + std::to_string(LINA_MAJOR) + "." + std::to_string(LINA_MINOR) +
-                                               "." + std::to_string(LINA_PATCH) +
-                                               std::string("\nApp: ") + std::string(appInfo.m_appName);
-
-                const ImVec2 tooltipRectMin = ImGui::GetMousePos();
-                const ImVec2 tooltipRectMax = ImVec2(tooltipRectMin.x + 140, tooltipRectMin.y + 100);
-                ImGui::GetForegroundDrawList()->AddRectFilled(tooltipRectMin, tooltipRectMax, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)));
-
-                const ImVec2 textRectMin = ImVec2(tooltipRectMin.x + 8, tooltipRectMin.y + 8);
-                ImGui::GetForegroundDrawList()->AddText(textRectMin, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), tooltipStr.c_str());
-            }
+          
         }
     }
 

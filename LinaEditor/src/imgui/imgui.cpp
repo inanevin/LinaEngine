@@ -15846,11 +15846,11 @@ ImGuiID ImGui::DockSpaceOverViewport(const ImGuiViewport* viewport, ImGuiDockNod
     Begin(label, NULL, host_window_flags);
     PopStyleVar(3);
 
-    ImGuiID dockspace_id = GetID("DockSpace");
-    DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
+    ImGuiID dockspaceID = GetID("DockSpace");
+    DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
     End();
 
-    return dockspace_id;
+    return dockspaceID;
 }
 
 //-----------------------------------------------------------------------------

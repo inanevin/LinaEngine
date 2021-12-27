@@ -377,7 +377,6 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::Render(float interpolation)
     {
-
         m_eventSystem->Trigger<Event::EPreRender>(Event::EPreRender{});
 
         Draw();

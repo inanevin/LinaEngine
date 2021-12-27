@@ -7739,8 +7739,8 @@ void ShowExampleAppDockSpace(bool* p_open)
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+        ImGuiID dockspaceID = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
     else
     {
@@ -8015,8 +8015,8 @@ void ShowExampleAppDocuments(bool* p_open)
             NotifyOfDocumentsClosedElsewhere(app);
 
             // Create a DockSpace node where any window can be docked
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id);
+            ImGuiID dockspaceID = ImGui::GetID("MyDockSpace");
+            ImGui::DockSpace(dockspaceID);
 
             // Create Windows
             for (int doc_n = 0; doc_n < app.Documents.Size; doc_n++)
@@ -8025,7 +8025,7 @@ void ShowExampleAppDocuments(bool* p_open)
                 if (!doc->Open)
                     continue;
 
-                ImGui::SetNextWindowDockID(dockspace_id, redock_all ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowDockID(dockspaceID, redock_all ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
                 ImGuiWindowFlags window_flags = (doc->Dirty ? ImGuiWindowFlags_UnsavedDocument : 0);
                 bool visible = ImGui::Begin(doc->Name, &doc->Open, window_flags);
 

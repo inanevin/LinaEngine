@@ -30,13 +30,13 @@ SOFTWARE.
 #include <windows.h>
 #include <shellapi.h>
 #endif
-
+#include "Core/GUILayer.hpp"
+#include "Core/CentralDockingSpace.hpp"
 #include "Core/Application.hpp"
 #include "Core/CustomFontIcons.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/Engine.hpp"
-#include "Core/GUILayer.hpp"
 #include "Core/InputBackend.hpp"
 #include "Core/PhysicsBackend.hpp"
 #include "Core/RenderBackendFwd.hpp"
@@ -52,11 +52,6 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_internal.h"
-#include "imgui/implot/implot.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -64,14 +59,13 @@ SOFTWARE.
 // AFTER GLAD
 #include <GLFW/glfw3.h>
 
-static ImGuiTreeNodeFlags s_baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-static bool               s_showIMGUIDemo;
-static bool               s_setDockspaceLayout  = true;
-static bool               s_physicsDebugEnabled = false;
-static bool               s_dockWindowInit      = true;
-static const char*        s_saveLevelDialogID   = "id_saveLevel";
-static const char*        s_loadLevelDialogID   = "id_loadLevel";
-Graphics::Texture*        splashScreenTexture;
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/implot/implot.h"
+
+static bool        s_showIMGUIDemo;
+Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
@@ -90,8 +84,6 @@ namespace Lina::Editor
     {
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
-
-        // Listen to menu bar clicked events.
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &GUILayer::OnMenuBarElementClicked>(this);
 
         // Setup Dear ImGui context
@@ -132,28 +124,14 @@ namespace Lina::Editor
 
         // Setup configuration flags.
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        ImGui::StyleColorsDark();
-        //	io.ConfigViewportsNoAutoMerge = true;
-        //	io.ConfigViewportsNoTaskBarIcon = true;
 
-#ifdef LINA_GRAPHICS_OPENGL
-        GLFWwindow* window = static_cast<GLFWwindow*>(Graphics::WindowBackend::Get()->GetNativeWindow());
-
-        // Setup Platform/Renderer bindings
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init();
-#else
-        LINA_ERR("Undefined platform for IMGUI!");
-#endif
-
-        // Setup Dear ImGui style
         ImGuiStyle& style     = ImGui::GetStyle();
         ImVec4*     colors    = ImGui::GetStyle().Colors;
         style.FrameBorderSize = 1.0f;
         style.PopupBorderSize = 1.0f;
         // style.AntiAliasedFill = false;
         // style.WindowRounding = 0.0f;
-        style.TabRounding = 0.0f;
+        style.TabRounding = 3.0f;
         // style.ChildRounding = 0.0f;
         style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
@@ -237,21 +215,35 @@ namespace Lina::Editor
         colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            style.WindowRounding              = 0.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
+
         ImPlot::GetStyle().AntiAliasedLines = true;
 
-        s_setDockspaceLayout = true;
+#ifdef LINA_GRAPHICS_OPENGL
+        GLFWwindow* window = static_cast<GLFWwindow*>(Graphics::WindowBackend::Get()->GetNativeWindow());
+        // Setup Platform/Renderer bindings
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init();
+
+#else
+        LINA_ERR("Undefined platform for IMGUI!");
+#endif
 
         m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
-        // Splash screen
-        Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
-        const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        Vector2                  splashSize   = Vector2(720, 450);
-        splashWindow->SetSize(splashSize);
-        splashWindow->SetPosCentered(Vector2(0, 0));
-        Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-        splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
-        DrawSplashScreen();
+       // Splash screen
+       Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
+       const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
+       Vector2                  splashSize   = Vector2(720, 450);
+       splashWindow->SetSize(splashSize);
+       splashWindow->SetPosCentered(Vector2(0, 0));
+       Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
+       splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
+       DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();
         m_toolbar.Initialize(ID_TOOLBAR, nullptr);
@@ -263,9 +255,6 @@ namespace Lina::Editor
         m_levelPanel.Initialize(ID_SCENE, ICON_FA_GAMEPAD);
         m_resourcesPanel.Initialize(ID_RESOURCES, ICON_FA_FILE);
         m_globalSettingsPanel.Initialize(ID_GLOBAL, ICON_FA_GLOBE);
-
-        // Imgui first frame initialization.
-        // OnPostRender(Event::EPostRender());
     }
 
     void GUILayer::OnShutdown(const Event::EShutdown& ev)
@@ -276,6 +265,10 @@ namespace Lina::Editor
         ImGui::DestroyContext();
         ImPlot::DestroyContext();
     }
+
+    bool   show_demo_window    = true;
+    bool   show_another_window = false;
+    ImVec4 clear_color         = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     void GUILayer::OnPostRender(const Event::EPostRender& ev)
     {
@@ -293,30 +286,31 @@ namespace Lina::Editor
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
-        m_headerPanel.Draw();
-        DrawCentralDockingSpace();
-        m_resourcesPanel.Draw();
 
+        m_headerPanel.Draw();
+        CentralDockingSpace::Draw();
+        m_resourcesPanel.Draw();
         m_ecsPanel.Draw();
         m_levelPanel.Draw();
         m_logPanel.Draw();
         m_profilerPanel.Draw();
         m_propertiesPanel.Draw();
-
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
+
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();
+
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
-            //GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
-            //glfwMakeContextCurrent(backup_current_context);
+            glfwMakeContextCurrent(backup_current_context);
         }
 
 #endif
@@ -539,49 +533,6 @@ namespace Lina::Editor
             ImGui::Separator();
             std::string fpsText = std::to_string(Engine::Get()->GetCurrentFPS()) + " Frames per second";
             ImGui::Text(fpsText.c_str());
-        }
-        ImGui::End();
-    }
-
-    void GUILayer::DrawCentralDockingSpace()
-    {
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
-
-        ImGuiWindowFlags windowFlags = 0;
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
-        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        ImGuiViewport* viewport      = ImGui::GetMainViewport();
-        ImVec2         dockspaceSize = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - s_headerSize - s_footerSize);
-        ImVec2         dockspacePos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + s_headerSize);
-        ImGui::SetNextWindowPos(dockspacePos);
-        ImGui::SetNextWindowSize(dockspaceSize);
-        ImGui::Begin("Lina Engine Dock Space", NULL, windowFlags);
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-
-        ImGui::DockSpace(dockspace_id, ImVec2(0, 0), dockspace_flags);
-
-        if (s_setDockspaceLayout)
-        {
-            s_setDockspaceLayout = false;
-            Vector2 screenSize   = Graphics::WindowBackend::Get()->GetSize();
-            ImGui::DockBuilderRemoveNode(dockspace_id);                            // Clear out existing layout
-            ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
-            ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y - FOOTER_HEIGHT));
-
-            ImGuiID dock_main_id        = dockspace_id; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
-            ImGuiID dock_id_prop        = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.15f, NULL, &dock_main_id);
-            ImGuiID dock_id_propBottom  = ImGui::DockBuilderSplitNode(dock_id_prop, ImGuiDir_Down, 0.6f, NULL, &dock_id_prop);
-            ImGuiID dock_id_right       = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, NULL, &dock_main_id);
-            ImGuiID dock_id_rightBottom = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.20f, NULL, &dock_id_right);
-            ImGuiID dock_id_bottom      = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.45f, NULL, &dock_main_id);
-
-            ImGui::DockBuilderDockWindow(ID_RESOURCES, dock_id_bottom);
-            ImGui::DockBuilderDockWindow(ID_ECS, dock_id_prop);
-            ImGui::DockBuilderDockWindow(ID_SCENE, dock_main_id);
-            ImGui::DockBuilderDockWindow(ID_LOG, dock_id_rightBottom);
-            ImGui::DockBuilderDockWindow(ID_GLOBAL, dock_id_rightBottom);
-            ImGui::DockBuilderDockWindow(ID_PROPERTIES, dock_id_right);
-            ImGui::DockBuilderFinish(dockspace_id);
         }
         ImGui::End();
     }

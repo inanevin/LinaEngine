@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,59 +27,28 @@ SOFTWARE.
 */
 
 /*
-Class: ECSPanel
+Class: CenteralDockingSpace
 
-Draws all the alive entities in the current loaded level.
 
-Timestamp: 5/23/2020 4:15:06 PM
+
+Timestamp: 12/27/2021 4:36:19 PM
 */
+
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef CenteralDockingSpace_HPP
+#define CenteralDockingSpace_HPP
 
-#include "Core/CommonECS.hpp"
-#include "Panels/EditorPanel.hpp"
-
-namespace Lina
-{
-    namespace World
-    {
-        class Level;
-    }
-
-    namespace Event
-    {
-        struct ELevelInstalled;
-    }
-
-    namespace ECS
-    {
-        class Registry;
-    }
-} // namespace Lina
+// Headers here.
 
 namespace Lina::Editor
 {
-    class LevelPanel;
-    class PropertiesPanel;
-
-    class ECSPanel : public EditorPanel
+    class CentralDockingSpace
     {
-
     public:
-        ECSPanel(){};
-        virtual ~ECSPanel(){};
-
-        virtual void Initialize(const char* id, const char* icon) override;
-        virtual void Draw() override;
-        void         Refresh();
-        void         DrawEntityNode(int id, ECS::Entity entity);
-        void         OnLevelInstall(const Event::ELevelInstalled& event);
-
+        static void Draw();
     private:
-        ECS::Registry* m_ecs;
-        ECS::Entity    m_selectedEntity;
+        static void BuildDockspace();
     };
 } // namespace Lina::Editor
 

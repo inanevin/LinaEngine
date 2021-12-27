@@ -25,6 +25,7 @@ set(LINAEDITOR_SOURCES
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
+src/Core/CentralDockingSpace.cpp
 
 
 # ECS
@@ -97,6 +98,7 @@ include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/EditorApplication.hpp
 include/Core/CustomFontIcons.hpp
+include/Core/CentralDockingSpace.hpp
 
 # ECS
 include/ECS/Systems/EditorCameraSystem.hpp

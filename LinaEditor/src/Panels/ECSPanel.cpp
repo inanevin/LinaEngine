@@ -51,6 +51,7 @@ namespace Lina::Editor
     {
         EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
+        m_ecs = ECS::Registry::Get();
     }
 
     void ECSPanel::Refresh()
@@ -61,52 +62,84 @@ namespace Lina::Editor
 
     void ECSPanel::DrawEntityNode(int id, ECS::Entity entity)
     {
-        ECS::Registry*            ecs        = ECS::Registry::Get();
-        ECS::EntityDataComponent& data       = ecs->get<ECS::EntityDataComponent>(entity);
-        static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-        static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
-        ImGuiTreeNodeFlags        flags      = data.m_children.size() == 0 ? leaf_flags : base_flags;
 
-        if (entity == m_selectedEntity)
-            flags |= ImGuiTreeNodeFlags_Selected;
+        ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
 
-        bool nodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
 
-        if (ImGui::IsItemClicked())
+        if (data.m_children.size() > 0)
         {
-            m_selectedEntity = entity;
-            Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
-        }
+            bool open = ImGui::TreeNodeEx(data.m_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth);
+            ImGui::TableNextColumn();
+            ImGui::TextDisabled("--");
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted("type");
 
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-        {
-            ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
-
-            // Display preview
-            ImGui::Text(data.m_name.c_str());
-            ImGui::EndDragDropSource();
-        }
-
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+            if (open)
             {
-                IM_ASSERT(payload->DataSize == sizeof(Entity));
-                ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
+                for (auto child : data.m_children)
+                    DrawEntityNode(0, child);
+                ImGui::TreePop();
             }
-            ImGui::EndDragDropTarget();
+        }
+        else
+        {
+            ImGui::TreeNodeEx(data.m_name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", 2);
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted("type");
         }
 
-        if (nodeOpen)
-        {
-            int counter = 0;
-            for (Entity child : data.m_children)
-            {
-                DrawEntityNode(counter, child);
-                counter++;
-            }
-            ImGui::TreePop();
-        }
+        return;
+
+        // ECS::Registry*            ecs        = ECS::Registry::Get();
+        // ECS::EntityDataComponent& data       = ecs->get<ECS::EntityDataComponent>(entity);
+        // static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+        // static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
+        // ImGuiTreeNodeFlags        flags      = data.m_children.size() == 0 ? leaf_flags : base_flags;
+        //
+        // if (entity == m_selectedEntity)
+        //     flags |= ImGuiTreeNodeFlags_Selected;
+        //
+        // bool nodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
+        //
+        // if (ImGui::IsItemClicked())
+        // {
+        //     m_selectedEntity = entity;
+        //     Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
+        // }
+        //
+        // if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        // {
+        //     ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
+        //
+        //     // Display preview
+        //     ImGui::Text(data.m_name.c_str());
+        //     ImGui::EndDragDropSource();
+        // }
+        //
+        // if (ImGui::BeginDragDropTarget())
+        // {
+        //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+        //     {
+        //         IM_ASSERT(payload->DataSize == sizeof(Entity));
+        //         ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
+        //     }
+        //     ImGui::EndDragDropTarget();
+        // }
+        //
+        // if (nodeOpen)
+        // {
+        //     int counter = 0;
+        //     for (Entity child : data.m_children)
+        //     {
+        //         DrawEntityNode(counter, child);
+        //         counter++;
+        //     }
+        //     ImGui::TreePop();
+        // }
     }
 
     void ECSPanel::OnLevelInstall(const Event::ELevelInstalled& ev)
@@ -119,7 +152,41 @@ namespace Lina::Editor
     {
         if (m_show)
         {
-            ECS::Registry* ecs = ECS::Registry::Get();
+            Begin();
+
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_Icon));
+            ImGui::BeginChild("ecs_child", ImVec2(0,-30), true);
+
+            
+            const float            TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
+            static ImGuiTableFlags flags           = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+
+            if (ImGui::BeginTable("entitiesTable", 3, flags))
+            {
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
+                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
+                ImGui::TableHeadersRow();
+
+                auto singleView = m_ecs->view<ECS::EntityDataComponent>();
+
+                for (auto entity : singleView)
+                {
+                    ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
+
+                    if (data.m_parent == entt::null)
+                        DrawEntityNode(0, entity);
+                }
+
+                ImGui::EndTable();
+            }
+
+            ImGui::EndChild();
+            ImGui::PopStyleColor();
+
+            End();
+
+            return;
 
             Begin();
 
@@ -134,7 +201,7 @@ namespace Lina::Editor
                 {
                     if (ImGui::MenuItem("Entity"))
                     {
-                        m_selectedEntity = ecs->CreateEntity("Entity");
+                        m_selectedEntity = m_ecs->CreateEntity("Entity");
                         Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
                     }
 
@@ -148,11 +215,11 @@ namespace Lina::Editor
             WidgetsUtility::FramePadding(ImVec2(0, 0));
             WidgetsUtility::IncrementCursorPosY(7);
             int  entityCounter = 0;
-            auto singleView    = ecs->view<ECS::EntityDataComponent>();
+            auto singleView    = m_ecs->view<ECS::EntityDataComponent>();
 
             for (auto entity : singleView)
             {
-                ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
+                ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
 
                 if (data.m_parent == entt::null)
                     DrawEntityNode(entityCounter, entity);
@@ -175,7 +242,7 @@ namespace Lina::Editor
                 // Duplicate
                 if (ImGui::IsKeyDown(Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Input::InputCode::D))
                 {
-                    m_selectedEntity = ecs->CreateEntity(m_selectedEntity);
+                    m_selectedEntity = m_ecs->CreateEntity(m_selectedEntity);
                     Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
                 }
 
@@ -183,7 +250,7 @@ namespace Lina::Editor
                 if (ImGui::IsKeyReleased(Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
                 {
                     Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-                    ecs->DestroyEntity(m_selectedEntity);
+                    m_ecs->DestroyEntity(m_selectedEntity);
                     m_selectedEntity = entt::null;
                 }
             }
