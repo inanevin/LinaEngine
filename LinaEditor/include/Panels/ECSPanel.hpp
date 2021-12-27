@@ -66,7 +66,7 @@ namespace Lina::Editor
         ECSPanel(){};
         virtual ~ECSPanel(){};
 
-        virtual void Initialize(const char* id) override;
+        virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
         void         Refresh();
         void         DrawEntityNode(int id, ECS::Entity entity);

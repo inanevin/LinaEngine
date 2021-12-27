@@ -112,7 +112,7 @@ namespace Lina::Editor
         LogPanel(){};
         virtual ~LogPanel();
 
-        virtual void Initialize(const char* id) override;
+        virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
         void         OnLog(const Event::ELog& dump);
 

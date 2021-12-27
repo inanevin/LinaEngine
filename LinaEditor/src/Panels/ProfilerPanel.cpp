@@ -1,4 +1,5 @@
 /*
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -66,9 +67,9 @@ namespace Lina::Editor
 
     std::map<std::string, std::string> m_timerMSStorage;
 
-    void ProfilerPanel::Initialize(const char* id)
+    void ProfilerPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
         m_show = false;
     }
 

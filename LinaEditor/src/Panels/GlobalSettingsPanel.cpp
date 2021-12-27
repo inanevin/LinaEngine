@@ -44,9 +44,9 @@ namespace Lina::Editor
 #define CURSORPOS_X_LABELS     12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
-    void GlobalSettingsPanel::Initialize(const char* id)
+    void GlobalSettingsPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
         m_show = true;

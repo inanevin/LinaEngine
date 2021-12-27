@@ -70,9 +70,9 @@ namespace Lina::Editor
             delete m_menuButtons[i];
     }
 
-    void HeaderPanel::Initialize(const char* id)
+    void HeaderPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
 
         // Logo texture
         windowIcon = &Graphics::Texture::GetTexture("Resources/Editor/Textures/linaEngineIcon.png");
@@ -240,6 +240,8 @@ namespace Lina::Editor
             ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 8.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+
             if (ImGui::Begin(m_id, NULL, headerFlags))
             {
                 // App resize & movement.
@@ -267,8 +269,9 @@ namespace Lina::Editor
 
                 ImGui::End();
             }
-            ImGui::PopStyleColor();
             ImGui::PopStyleVar();
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
 
 #pragma warning(disable : 4312)
 
@@ -323,14 +326,18 @@ namespace Lina::Editor
         {
             for (auto* element : m_menuButtons)
             {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
                 ImGui::PushStyleColor(ImGuiCol_Separator, ImVec4(0.303f, 0.303f, 0.303f, 1.000f));
+                ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
+                ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
                 if (ImGui::BeginMenu(element->m_title))
                 {
                     element->Draw();
                     ImGui::EndMenu();
                 }
                 ImGui::PopStyleVar();
+                ImGui::PopStyleVar();
+                ImGui::PopStyleColor();
                 ImGui::PopStyleColor();
             }
             ImGui::EndMenuBar();

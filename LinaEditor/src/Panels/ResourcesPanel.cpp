@@ -65,9 +65,9 @@ namespace Lina::Editor
     static float s_colorLerpDuration = 1.0f;
     static float s_colorLerpItemID;
 
-    void ResourcesPanel::Initialize(const char* id)
+    void ResourcesPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
 
         s_highlightColor    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
         s_fileNameColor     = ImGui::GetStyleColorVec4(ImGuiCol_Text);

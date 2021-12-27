@@ -55,7 +55,7 @@ namespace Lina::Editor
         HeaderPanel(){};
         virtual ~HeaderPanel();
 
-        virtual void Initialize(const char* id) override;
+        virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
     private:

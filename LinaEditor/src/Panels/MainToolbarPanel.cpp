@@ -54,9 +54,9 @@ namespace Lina::Editor
         m_toolbarGroups.clear();
     }
 
-    void MainToolbarPanel::Initialize(const char* id)
+    void MainToolbarPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
 
         m_toggledTransformSelection = -1;
         m_currentGizmoGlobal        = true;

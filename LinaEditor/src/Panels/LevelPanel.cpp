@@ -63,9 +63,9 @@ namespace Lina::Editor
 {
     bool levelPanelFirstRun = false;
 
-    void LevelPanel::Initialize(const char* id)
+    void LevelPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<EEntityUnselected, &LevelPanel::Unselected>(this);
         Event::EventSystem::Get()->Connect<EEntitySelected, &LevelPanel::EntitySelected>(this);
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);

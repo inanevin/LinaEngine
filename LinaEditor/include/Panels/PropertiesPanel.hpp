@@ -77,7 +77,7 @@ namespace Lina::Editor
         PropertiesPanel(){};
         virtual ~PropertiesPanel(){};
 
-        virtual void Initialize(const char* id) override;
+        virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
         void EntitySelected(const EEntitySelected& ev);

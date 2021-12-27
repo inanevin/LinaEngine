@@ -126,6 +126,8 @@ namespace Lina::Editor
         s_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
         s_defaultFont = io.FontDefault;
 
+        ImGui::GetCurrentContext()->iconFont = s_iconFontSmall;
+
         // Setup configuration flags.
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         ImGui::StyleColorsDark();
@@ -149,35 +151,36 @@ namespace Lina::Editor
         style.PopupBorderSize = 1.0f;
         // style.AntiAliasedFill = false;
         // style.WindowRounding = 0.0f;
-        // style.TabRounding = 2.0f;
+        style.TabRounding = 0.0f;
         // style.ChildRounding = 0.0f;
         style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
-        // style.FramePadding  = ImVec2(5, 5);
-        style.WindowPadding = ImVec2(0, 0);
+         style.FramePadding  = ImVec2(8, 2);
+        style.WindowPadding = ImVec2(8, 8);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;
         // style.GrabMinSize     = 6.0f;
-        // style.ChildBorderSize = 0.0f;
+        style.ChildBorderSize = 0.0f;
         // style.TabBorderSize = 0.0f;
-        // style.WindowBorderSize = 0.0f;
+        style.WindowBorderSize = 0.0f;
         // style.WindowMenuButtonPosition         = ImGuiDir_None;
         colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
         colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
         colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
+        colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
         colors[ImGuiCol_Border]                 = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        colors[ImGuiCol_PopupBorder]             = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
         colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_FrameBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.54f);
+        colors[ImGuiCol_FrameBg]                = ImVec4(0.04f, 0.04f, 0.04f, 0.54f);
         colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
         colors[ImGuiCol_FrameBgActive]          = ImVec4(0.45f, 0.34f, 0.46f, 1.00f);
-        colors[ImGuiCol_TitleBg]                = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_TitleBg]                = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
         colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
         colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
         colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
@@ -195,8 +198,8 @@ namespace Lina::Editor
         colors[ImGuiCol_ButtonSecondaryLocked]  = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_Toolbar]                = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
         colors[ImGuiCol_Icon]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        colors[ImGuiCol_TitleHeader]            = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_TitleHeaderHover]       = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        colors[ImGuiCol_TitleHeader]            = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+        colors[ImGuiCol_TitleHeaderHover]       = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
         colors[ImGuiCol_TitleHeaderPressed]     = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
         colors[ImGuiCol_TitleHeaderBorder]      = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
         colors[ImGuiCol_TitleHeaderDisabled]    = ImVec4(0.17f, 0.00f, 0.00f, 1.00f);
@@ -209,11 +212,11 @@ namespace Lina::Editor
         colors[ImGuiCol_ResizeGrip]             = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
         colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
         colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
-        colors[ImGuiCol_Tab]                    = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+        colors[ImGuiCol_Tab]                    = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
         colors[ImGuiCol_TabHovered]             = ImVec4(0.24f, 0.25f, 0.26f, 1.00f);
-        colors[ImGuiCol_TabActive]              = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-        colors[ImGuiCol_TabUnfocused]           = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-        colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_TabActive]              = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        colors[ImGuiCol_TabUnfocused]           = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
+        colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
         colors[ImGuiCol_DockingPreview]         = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
         colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
         colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
@@ -233,6 +236,7 @@ namespace Lina::Editor
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 
 
+
         ImPlot::GetStyle().AntiAliasedLines = true;
 
         s_setDockspaceLayout = true;
@@ -250,15 +254,15 @@ namespace Lina::Editor
         DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();
-        m_toolbar.Initialize(ID_TOOLBAR);
-        m_ecsPanel.Initialize(ID_ECS);
-        m_headerPanel.Initialize(ID_HEADER);
-        m_logPanel.Initialize(ID_LOG);
-        m_profilerPanel.Initialize(ID_PROFILER);
-        m_propertiesPanel.Initialize(ID_PROPERTIES);
-        m_levelPanel.Initialize(ID_SCENE);
-        m_resourcesPanel.Initialize(ID_RESOURCES);
-        m_globalSettingsPanel.Initialize(ID_GLOBAL);
+        m_toolbar.Initialize(ID_TOOLBAR, nullptr);
+        m_ecsPanel.Initialize(ID_ECS, ICON_FA_CUBE);
+        m_headerPanel.Initialize(ID_HEADER, nullptr);
+        m_logPanel.Initialize(ID_LOG, ICON_FA_CLIPBOARD);
+        m_profilerPanel.Initialize(ID_PROFILER, ICON_FA_CHART_LINE);
+        m_propertiesPanel.Initialize(ID_PROPERTIES, ICON_FA_COG);
+        m_levelPanel.Initialize(ID_SCENE, ICON_FA_GAMEPAD);
+        m_resourcesPanel.Initialize(ID_RESOURCES, ICON_FA_FILE);
+        m_globalSettingsPanel.Initialize(ID_GLOBAL, ICON_FA_GLOBE);
 
         // Imgui first frame initialization.
         // OnPostRender(Event::EPostRender());
@@ -287,18 +291,22 @@ namespace Lina::Editor
         if (s_showIMGUIDemo)
             ImGui::ShowDemoWindow(&s_showIMGUIDemo);
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
         m_headerPanel.Draw();
         DrawCentralDockingSpace();
-
         m_resourcesPanel.Draw();
+
         m_ecsPanel.Draw();
         m_levelPanel.Draw();
         m_logPanel.Draw();
         m_profilerPanel.Draw();
         m_propertiesPanel.Draw();
+
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
-
+        ImGui::PopStyleVar();
+        ImGui::PopStyleVar();
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -417,12 +425,12 @@ namespace Lina::Editor
         }
         else if (item == MenuBarElementType::DLight)
         {
-            auto ent = ECS::Registry::Get()->CreateEntity("Point Light");
+            auto ent = ECS::Registry::Get()->CreateEntity("Sun Light");
             ECS::Registry::Get()->emplace<ECS::DirectionalLightComponent>(ent);
         }
         else if (item == MenuBarElementType::SLight)
         {
-            auto ent = ECS::Registry::Get()->CreateEntity("Point Light");
+            auto ent = ECS::Registry::Get()->CreateEntity("Spot Light");
             ECS::Registry::Get()->emplace<ECS::SpotLightComponent>(ent);
         }
 
@@ -537,7 +545,7 @@ namespace Lina::Editor
 
     void GUILayer::DrawCentralDockingSpace()
     {
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton;
+        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
 
         ImGuiWindowFlags windowFlags = 0;
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
@@ -550,7 +558,7 @@ namespace Lina::Editor
         ImGui::Begin("Lina Engine Dock Space", NULL, windowFlags);
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 
-        ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton);
+        ImGui::DockSpace(dockspace_id, ImVec2(0, 0), dockspace_flags);
 
         if (s_setDockspaceLayout)
         {

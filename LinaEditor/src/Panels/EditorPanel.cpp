@@ -34,23 +34,31 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void EditorPanel::Initialize(const char* id)
+    void EditorPanel::Initialize(const char* id, const char* icon)
     {
-        m_id                         = id;
-       // m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        m_id   = id;
+        m_icon = icon;
+        // m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         m_windowFlags                = 0;
         GUILayer::s_editorPanels[id] = this;
+
+        if (m_icon != nullptr)
+            ImGui::AddWindowIcon(m_id, m_icon);
     }
 
     void EditorPanel::Begin()
     {
-        ImGui::Begin(m_id, NULL, m_windowFlags);
+
+
+        ImGui::Begin(m_id, &m_show, m_windowFlags);
+
         //WidgetsUtility::WindowTitlebar(m_id);
         if (!CanDrawContent())
             return;
-        //WidgetsUtility::FramePaddingY(0.0f);
-       // WidgetsUtility::ItemSpacingY(7.0f);
-        const std::string childID = "##child_" + std::string(m_id);
+        // WidgetsUtility::FramePaddingY(0.0f);
+        // WidgetsUtility::ItemSpacingY(7.0f);
+        const std::string childID    = "##child_" + std::string(m_id);
+        const float       previousFP = ImGui::GetStyle().FramePadding.x;
         ImGui::BeginChild(childID.c_str(), ImVec2(0.0f, ImGui::IsWindowDocked() ? 0.0f : -20.0f));
     }
 
@@ -60,6 +68,7 @@ namespace Lina::Editor
         //ImGui::PopStyleVar();
         // ImGui::PopStyleVar();
         ImGui::End();
+   
     }
 
     void EditorPanel::ToggleCollapse()

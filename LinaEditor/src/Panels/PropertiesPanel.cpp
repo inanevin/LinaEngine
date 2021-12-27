@@ -44,9 +44,9 @@ namespace Lina::Editor
     using namespace Lina;
     static bool s_openCompExistsModal;
 
-    void PropertiesPanel::Initialize(const char* id)
+    void PropertiesPanel::Initialize(const char* id, const char* icon)
     {
-        EditorPanel::Initialize(id);
+        EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
         Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
         //	Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);

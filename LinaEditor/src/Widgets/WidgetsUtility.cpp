@@ -84,7 +84,8 @@ namespace Lina::Editor
         const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
         const ImVec4 lockedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
         const ImVec4 hoverColor  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-        const ImVec4 rectCol     = locked ? lockedColor : pressing ? normalColor : (hovered ? hoverColor : normalColor);
+        const ImVec4 rectCol     = locked ? lockedColor : pressing ? normalColor
+                                                                   : (hovered ? hoverColor : normalColor);
         const ImU32  borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
         ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
 
@@ -127,7 +128,8 @@ namespace Lina::Editor
         const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
         const ImVec4 lockedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
         const ImVec4 hoverColor  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-        const ImVec4 rectCol     = pressing ? normalColor : (hovered ? hoverColor : toggled ? lockedColor : normalColor);
+        const ImVec4 rectCol     = pressing ? normalColor : (hovered ? hoverColor : toggled ? lockedColor
+                                                                                            : normalColor);
         const ImU32  borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
         ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
         IncrementCursorPosY(size.y / 2.0f);
@@ -334,7 +336,8 @@ namespace Lina::Editor
         if (v != nullptr && ImGui::IsItemClicked())
             *v = !*v;
 
-        float t = v == nullptr ? 1.0f : *v ? 1.0f : 0.0f;
+        float t = v == nullptr ? 1.0f : *v ? 1.0f
+                                           : 0.0f;
 
         ImVec4 usedActiveColor = activeColor;
         if (v == nullptr)
@@ -374,8 +377,8 @@ namespace Lina::Editor
         ImVec2 windowPos   = ImGui::GetWindowPos();
         float  windowWidth = ImGui::GetWindowWidth();
 
-        const float offset1                   = 35.0f;
-        const float gap                       = 25.0f;
+        const float  offset1                   = 35.0f;
+        const float  gap                       = 25.0f;
         const ImVec2 buttonSize                = ImVec2(25, 20);
         const float  closeButtonAdditionalSize = 8;
         const float  frameRounding             = 0.4f;
@@ -464,7 +467,9 @@ namespace Lina::Editor
         const bool   bgHovered     = !disableHeader && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
         const bool   bgPressed     = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
         const bool   bgReleased    = bgHovered && Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
-        const ImVec4 bgColor       = disableHeader ? disabledColor : bgPressed ? pressColor : bgHovered ? hoverColor : normalColor;
+        const ImVec4 bgColor       = disableHeader ? disabledColor : bgPressed ? pressColor
+                                                                 : bgHovered   ? hoverColor
+                                                                               : normalColor;
         ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
 
         const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);
@@ -682,13 +687,12 @@ namespace Lina::Editor
 
     bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
     {
-        float currentCursor = ImGui::GetCursorPosX();
-        float windowWidth   = ImGui::GetWindowWidth();
-        float remaining     = windowWidth - currentCursor;
-        float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
-        ImGui::SetNextItemWidth(comboWidth);
-
-        return ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+        const float currentCursor = ImGui::GetCursorPosX();
+        const float windowWidth   = ImGui::GetWindowWidth();
+        const float remaining     = windowWidth - currentCursor;
+        const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+        const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+        return combo;
     }
 
     bool Editor::WidgetsUtility::PostComboBox(const char* id)
