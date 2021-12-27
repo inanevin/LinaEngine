@@ -438,12 +438,14 @@ namespace Lina::Editor
         const float  lineOffset = 2.0f;
 
         ImRect titleRect      = ImRect(ImVec2(windowPos.x, windowPos.y), ImVec2(windowPos.x + windowSize.x, windowPos.y + height));
-        ImVec4 titleRectColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+        ImVec4 titleRectColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleBg);
         ImGui::GetWindowDrawList()->AddRectFilled(titleRect.Min, titleRect.Max, ImGui::ColorConvertFloat4ToU32(titleRectColor));
-        ImGui::GetWindowDrawList()->AddLine(ImVec2(windowPos.x, windowPos.y + lineOffset), ImVec2(windowPos.x + windowSize.x, windowPos.y + lineOffset), ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)), 4.0f);
 
         // Draw title
         ImGui::SetCursorPosX(12.5f);
+        IncrementCursorPosY(4);
+        IconSmall(GUILayer::s_windowIconMap[label]);
+        ImGui::SameLine();
         ImGui::Text(label);
 
         // Draw Buttons

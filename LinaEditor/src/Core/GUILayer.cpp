@@ -80,8 +80,10 @@ namespace Lina::Editor
     ImFont*                             GUILayer::s_iconFontSmall   = nullptr;
     ImFont*                             GUILayer::s_iconFontDefault = nullptr;
     std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
-    float                               GUILayer::s_headerSize = 0.0f;
-    float                               GUILayer::s_footerSize = 20.0f;
+    float                               GUILayer::s_headerSize   = 0.0f;
+    float                               GUILayer::s_footerSize   = 20.0f;
+    const char*                         GUILayer::s_linaLogoIcon = ICON_FA_FIRE;
+    std::map<const char*, const char*>  GUILayer::s_windowIconMap;
     Graphics::DrawParams                m_drawParameters;
 
     void GUILayer::Initialize()
@@ -156,7 +158,7 @@ namespace Lina::Editor
         style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
-         style.FramePadding  = ImVec2(8, 2);
+        style.FramePadding  = ImVec2(8, 2);
         style.WindowPadding = ImVec2(8, 8);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
@@ -164,15 +166,15 @@ namespace Lina::Editor
         // style.GrabMinSize     = 6.0f;
         style.ChildBorderSize = 0.0f;
         // style.TabBorderSize = 0.0f;
-        style.WindowBorderSize = 0.0f;
-        // style.WindowMenuButtonPosition         = ImGuiDir_None;
+        style.WindowBorderSize                  = 1.0f;
+        style.WindowMenuButtonPosition          = ImGuiDir_None;
         colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
         colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
         colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
         colors[ImGuiCol_Border]                 = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PopupBorder]             = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+        colors[ImGuiCol_PopupBorder]            = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
         colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_FrameBg]                = ImVec4(0.04f, 0.04f, 0.04f, 0.54f);
         colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
@@ -234,8 +236,6 @@ namespace Lina::Editor
         colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
         colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
-
-
 
         ImPlot::GetStyle().AntiAliasedLines = true;
 

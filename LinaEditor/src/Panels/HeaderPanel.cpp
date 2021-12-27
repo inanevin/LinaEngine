@@ -252,7 +252,7 @@ namespace Lina::Editor
 
                 // Icon
                 ImGui::SetCursorPosX(11.8f);
-                WidgetsUtility::IconSmall(ICON_FA_FIRE);
+                WidgetsUtility::IconSmall(GUILayer::GetLinaLogoIcon());
 
                 // Title
                 ImGui::SameLine();

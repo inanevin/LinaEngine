@@ -36,23 +36,23 @@ namespace Lina::Editor
 {
     void EditorPanel::Initialize(const char* id, const char* icon)
     {
-        m_id   = id;
-        m_icon = icon;
-        // m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-        m_windowFlags                = 0;
+        m_id                         = id;
+        m_icon                       = icon;
+        m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
         GUILayer::s_editorPanels[id] = this;
 
         if (m_icon != nullptr)
             ImGui::AddWindowIcon(m_id, m_icon);
+
+        GUILayer::s_windowIconMap[m_id] = m_icon;
     }
 
     void EditorPanel::Begin()
     {
 
-
         ImGui::Begin(m_id, &m_show, m_windowFlags);
 
-        //WidgetsUtility::WindowTitlebar(m_id);
+        WidgetsUtility::WindowTitlebar(m_id);
         if (!CanDrawContent())
             return;
         // WidgetsUtility::FramePaddingY(0.0f);
@@ -68,7 +68,6 @@ namespace Lina::Editor
         //ImGui::PopStyleVar();
         // ImGui::PopStyleVar();
         ImGui::End();
-   
     }
 
     void EditorPanel::ToggleCollapse()
