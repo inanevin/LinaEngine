@@ -54,8 +54,10 @@ namespace Lina
     struct WindowProperties
     {
         std::string  m_title;
-        int          m_width;
-        int          m_height;
+        int          m_width                = 1440;
+        int          m_height               = 900;
+        int          m_monitorWidth         = 0;
+        int          m_monitorHeight        = 0;
         unsigned int m_xPos                 = 0;
         unsigned int m_yPos                 = 0;
         unsigned int m_xPosBeforeMaximize   = 0;

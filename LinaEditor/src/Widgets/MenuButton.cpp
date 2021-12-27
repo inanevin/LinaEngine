@@ -38,8 +38,11 @@ namespace Lina::Editor
 {
     MenuBarElement::~MenuBarElement()
     {
-        for (auto* child : m_children)
-            delete child;
+        if (m_ownsChildren)
+        {
+            for (auto* child : m_children)
+                delete child;
+        }
 
         m_children.clear();
     }
@@ -85,10 +88,10 @@ namespace Lina::Editor
 
     void MenuBarElement::Draw()
     {
-        const std::string emptyLabel = "      ";
-        const float emptyLabelSize = ImGui::CalcTextSize(emptyLabel.c_str()).x;
-        const std::string itemStr   = emptyLabel + std::string(m_title);
-        const ImVec2      cursorPos = ImVec2(ImGui::GetCursorScreenPos().x + 16, ImGui::GetCursorScreenPos().y);
+        const std::string emptyLabel     = "      ";
+        const float       emptyLabelSize = ImGui::CalcTextSize(emptyLabel.c_str()).x;
+        const std::string itemStr        = emptyLabel + std::string(m_title);
+        const ImVec2      cursorPos      = ImVec2(ImGui::GetCursorScreenPos().x + 16, ImGui::GetCursorScreenPos().y);
 
         if (m_children.size() > 0)
         {
@@ -106,20 +109,19 @@ namespace Lina::Editor
         }
         else
         {
-            if (m_type == MenuBarElementType::None)
+            if (m_type == MenuBarElementType::None && m_children.size() == 0)
                 ImGui::BeginDisabled();
+
             ImGui::Selectable(itemStr.c_str(), false);
             if (ImGui::IsItemClicked())
-            {
-                Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{static_cast<uint8>(m_type)}); 
-            }
-            if (m_type == MenuBarElementType::None)
-                ImGui::EndDisabled();
+                Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{static_cast<uint8>(m_type)});
 
+            if (m_type == MenuBarElementType::None && m_children.size() == 0)
+                ImGui::EndDisabled();
         }
 
         bool tooltipOrArrowExists = false;
-        if (std::string(m_tooltip).compare("") != 0)
+        if (m_tooltip != nullptr && std::string(m_tooltip).compare("") != 0)
         {
             ImGui::SameLine();
             ImGui::SetCursorPosX(110);
@@ -133,12 +135,9 @@ namespace Lina::Editor
             ImGui::SameLine();
             ImGui::SetCursorPosX(175);
             WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
-     
         }
 
         ImGui::SameLine();
         ImGui::InvisibleButton(emptyLabel.c_str(), ImVec2(emptyLabelSize - ImGui::GetStyle().ItemSpacing.x, 5));
-
-     
     }
 } // namespace Lina::Editor

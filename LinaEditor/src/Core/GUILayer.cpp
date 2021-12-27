@@ -69,10 +69,11 @@ Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
-    ImFont*                             GUILayer::s_defaultFont     = nullptr;
-    ImFont*                             GUILayer::s_bigFont         = nullptr;
-    ImFont*                             GUILayer::s_iconFontSmall   = nullptr;
-    ImFont*                             GUILayer::s_iconFontDefault = nullptr;
+    Vector2                             GUILayer::s_defaultWindowPadding = Vector2(8, 8);
+    ImFont*                             GUILayer::s_defaultFont          = nullptr;
+    ImFont*                             GUILayer::s_bigFont              = nullptr;
+    ImFont*                             GUILayer::s_iconFontSmall        = nullptr;
+    ImFont*                             GUILayer::s_iconFontDefault      = nullptr;
     std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
     float                               GUILayer::s_headerSize   = 0.0f;
     float                               GUILayer::s_footerSize   = 20.0f;
@@ -124,6 +125,8 @@ namespace Lina::Editor
 
         // Setup configuration flags.
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigDockingTransparentPayload = true;
 
         ImGuiStyle& style     = ImGui::GetStyle();
         ImVec4*     colors    = ImGui::GetStyle().Colors;
@@ -137,7 +140,7 @@ namespace Lina::Editor
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
         style.FramePadding  = ImVec2(8, 2);
-        style.WindowPadding = ImVec2(8, 8);
+        style.WindowPadding = ImVec2(s_defaultWindowPadding.x, s_defaultWindowPadding.y);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;
@@ -204,7 +207,7 @@ namespace Lina::Editor
         colors[ImGuiCol_PlotHistogram]          = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
         colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-        colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+        colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.156f, 0.156f, 0.156f, 1.000f);
         colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
         colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
@@ -235,20 +238,25 @@ namespace Lina::Editor
 
         m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
-       // Splash screen
-       Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
-       const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
-       Vector2                  splashSize   = Vector2(720, 450);
-       splashWindow->SetSize(splashSize);
-       splashWindow->SetPosCentered(Vector2(0, 0));
-       Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-       splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
-       DrawSplashScreen();
+        // Splash screen
+        Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
+        const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        Vector2                  splashSize   = Vector2(720, 450);
+        splashWindow->SetPosCentered(Vector2((int)(-splashSize.x / 2.0f), (int)(-splashSize.y / 2.0f)));
+        splashWindow->SetSize(splashSize);
+
+        Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
+        splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
+        DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();
+
+        // Initialize first.
+        m_headerPanel.Initialize(ID_HEADER, nullptr);
+
+        // Init rest.
         m_toolbar.Initialize(ID_TOOLBAR, nullptr);
         m_ecsPanel.Initialize(ID_ECS, ICON_FA_CUBE);
-        m_headerPanel.Initialize(ID_HEADER, nullptr);
         m_logPanel.Initialize(ID_LOG, ICON_FA_CLIPBOARD);
         m_profilerPanel.Initialize(ID_PROFILER, ICON_FA_CHART_LINE);
         m_propertiesPanel.Initialize(ID_PROPERTIES, ICON_FA_COG);
@@ -466,7 +474,7 @@ namespace Lina::Editor
 
         // Setup wndow.
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
 
         // Draw window.
@@ -474,8 +482,13 @@ namespace Lina::Editor
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
-        ImGui::GetWindowDrawList()->AddImage((void*)(splashScreenTexture->GetID()), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SetNextWindowPos(ImVec2(40, 310));
+
+        const ImVec2 splashMin  = viewport->Pos;
+        const ImVec2 splashSize = viewport->Size;
+        const ImVec2 splashMax  = ImVec2(splashMin.x + splashSize.x, splashMin.y + splashSize.y);
+
+        ImGui::GetWindowDrawList()->AddImage((void*)(splashScreenTexture->GetID()), splashMin, splashMax, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::SetNextWindowPos(ImVec2(splashMin.x + 40, splashMin.y + 310));
         ImGui::SetNextWindowBgAlpha(0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
         ImGui::BeginChild("text", ImVec2(640, 90), false, ImGuiWindowFlags_NoDecoration);

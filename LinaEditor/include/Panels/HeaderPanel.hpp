@@ -58,12 +58,18 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
+        static std::vector<MenuBarElement*>& GetCreateEntityElements()
+        {
+            return s_createEntityElements;
+        }
+
     private:
         void DrawMenuBarChild();
 
     private:
-        std::string              m_title = "";
-        std::vector<MenuButton*> m_menuButtons;
+        static std::vector<MenuBarElement*> s_createEntityElements;
+        std::string                         m_title = "";
+        std::vector<MenuButton*>            m_menuButtons;
     };
 } // namespace Lina::Editor
 

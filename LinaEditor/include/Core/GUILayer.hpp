@@ -102,6 +102,10 @@ namespace Lina::Editor
         {
             return s_linaLogoIcon;
         }
+        static Vector2 GetDefaultWindowPadding()
+        {
+            return s_defaultWindowPadding;
+        }
         static std::map<const char*, EditorPanel*> s_editorPanels;
 
         // Menu bar item callback from header panel.
@@ -113,8 +117,8 @@ namespace Lina::Editor
             return m_levelPanel;
         }
 
-        static float s_headerSize;
-        static float s_footerSize;
+        static float                              s_headerSize;
+        static float                              s_footerSize;
         static std::map<const char*, const char*> s_windowIconMap;
 
     private:
@@ -124,6 +128,7 @@ namespace Lina::Editor
         void DrawFPSCounter(int corner = 0);
 
     private:
+        static Vector2      s_defaultWindowPadding;
         static const char*  s_linaLogoIcon;
         static ImFont*      s_defaultFont;
         static ImFont*      s_bigFont;

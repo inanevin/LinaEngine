@@ -689,11 +689,13 @@ namespace Lina::Editor
 
     bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
     {
+        PushPopupStyle();
         const float currentCursor = ImGui::GetCursorPosX();
         const float windowWidth   = ImGui::GetWindowWidth();
         const float remaining     = windowWidth - currentCursor;
         const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+        PopPopupStyle();
         return combo;
     }
 
@@ -1313,6 +1315,21 @@ namespace Lina::Editor
     void WidgetsUtility::WindowRounding(float rounding)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);
+    }
+
+    void WidgetsUtility::PushPopupStyle()
+    {
+        const Vector2 padding = GUILayer::GetDefaultWindowPadding();
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(padding.x, padding.y));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
+    }
+
+    void WidgetsUtility::PopPopupStyle()
+    {
+        ImGui::PopStyleVar();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
     }
 
     void WidgetsUtility::PopStyleVar()

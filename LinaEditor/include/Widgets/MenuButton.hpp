@@ -47,7 +47,7 @@ namespace Lina::Editor
 
     enum class MenuBarElementType
     {
-        None = 0,
+        None           = 0,
         NewProject     = 1,
         LoadProject    = 2,
         SaveProject    = 3,
@@ -93,8 +93,8 @@ namespace Lina::Editor
     {
 
     public:
-        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None)
-            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type (elem) {};
+        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None, bool ownsChildren = true)
+            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren) {};
         ~MenuBarElement();
 
         void AddChild(MenuBarElement* child);
@@ -104,9 +104,10 @@ namespace Lina::Editor
         const char* m_title   = "";
 
     private:
-        MenuBarElementType           m_type = MenuBarElementType::None;
-        const char*                  m_icon    = "";
-        const char*                  m_tooltip = "";
+        bool                         m_ownsChildren = true;
+        MenuBarElementType           m_type         = MenuBarElementType::None;
+        const char*                  m_icon         = "";
+        const char*                  m_tooltip      = "";
         std::vector<MenuBarElement*> m_children;
     };
 

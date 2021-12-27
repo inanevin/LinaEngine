@@ -72,18 +72,21 @@ namespace Lina::Graphics
 #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-        if (m_windowProperties.m_fullscreen)
-        {
-
-            m_windowProperties.m_width  = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
-            m_windowProperties.m_height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
-        }
 
         // Build window
-        m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), m_windowProperties.m_fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL));
+        auto*              primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode           = glfwGetVideoMode(primaryMonitor);
 
-        // Set window position.
-        SetPosCentered(Vector2::Zero);
+        m_windowProperties.m_monitorWidth  = mode->width;
+        m_windowProperties.m_monitorHeight = mode->height;
+
+        if (m_windowProperties.m_fullscreen)
+        {
+            m_windowProperties.m_width  = m_windowProperties.m_monitorWidth;
+            m_windowProperties.m_height = m_windowProperties.m_monitorHeight;
+        }
+
+        m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), m_windowProperties.m_fullscreen ? primaryMonitor : NULL, NULL));
 
         if (!m_glfwWindow)
         {
@@ -104,6 +107,8 @@ namespace Lina::Graphics
             return false;
         }
 
+        SetPos(Vector2ui(0, 0));
+
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
             int xpos, ypos, width, height;
@@ -111,8 +116,12 @@ namespace Lina::Graphics
             glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
             m_windowProperties.m_workingAreaWidth  = width;
             m_windowProperties.m_workingAreaHeight = height;
-            SetPos(Vector2ui(0, 0));
             SetSize(Vector2ui(width, height));
+        }
+        else
+        {
+            m_windowProperties.m_workingAreaWidth  = m_windowProperties.m_width;
+            m_windowProperties.m_workingAreaHeight = m_windowProperties.m_height;
         }
 
         // Update OpenGL about the window data.
@@ -220,10 +229,10 @@ namespace Lina::Graphics
         glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
     }
 
-    void OpenGLWindow::SetPosCentered(const Vector2ui newPos)
+    void OpenGLWindow::SetPosCentered(const Vector2 newPos)
     {
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        SetPos(Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x - (float)m_windowProperties.m_width / 2.0f), (int)((float)mode->height / 2.0f + (float)newPos.y - (float)m_windowProperties.m_height / 2.0f)));
+        SetPos(Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x), (int)((float)mode->height / 2.0f + (float)newPos.y)));
     }
 
     void OpenGLWindow::Iconify()

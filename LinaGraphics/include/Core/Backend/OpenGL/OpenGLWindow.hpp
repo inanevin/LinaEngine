@@ -89,7 +89,7 @@ namespace Lina::Graphics
         void   SetVsync(int interval);
         void   SetSize(const Vector2ui& newSize);
         void   SetPos(const Vector2ui& newPos);
-        void   SetPosCentered(const Vector2ui newPos);
+        void   SetPosCentered(const Vector2 newPos);
         void   Iconify();
         void   Maximize();
         void   Close();

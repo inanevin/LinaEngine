@@ -38,20 +38,33 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Panels/LevelPanel.hpp"
 #include "Rendering/Material.hpp"
+#include "Panels/HeaderPanel.hpp"
 #include "Rendering/Model.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Widgets/MenuButton.hpp"
 
 namespace Lina::Editor
 {
     using namespace ECS;
     using namespace Lina;
 
+    ECSPanel::~ECSPanel()
+    {
+        delete m_createMenuBarElement;
+    }
+
     void ECSPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
         m_ecs = ECS::Registry::Get();
+
+        m_createMenuBarElement = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
+        
+        auto& createElements = HeaderPanel::GetCreateEntityElements();
+        for (auto* elem : createElements)
+            m_createMenuBarElement->AddChild(elem);
     }
 
     void ECSPanel::Refresh()
@@ -63,33 +76,56 @@ namespace Lina::Editor
     void ECSPanel::DrawEntityNode(int id, ECS::Entity entity)
     {
 
-        ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
+        ECS::EntityDataComponent& data        = m_ecs->get<ECS::EntityDataComponent>(entity);
+        const bool                hasChildren = data.m_children.size() > 0;
+
+        const ImGuiTreeNodeFlags parent = ImGuiTreeNodeFlags_SpanFullWidth;
+        const ImGuiTreeNodeFlags leaf   = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
+        ImGuiTreeNodeFlags       flags  = hasChildren ? parent : leaf;
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
 
-        if (data.m_children.size() > 0)
-        {
-            bool open = ImGui::TreeNodeEx(data.m_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth);
-            ImGui::TableNextColumn();
-            ImGui::TextDisabled("--");
-            ImGui::TableNextColumn();
-            ImGui::TextUnformatted("type");
+        if (entity == m_selectedEntity)
+            flags |= ImGuiTreeNodeFlags_Selected;
 
-            if (open)
-            {
-                for (auto child : data.m_children)
-                    DrawEntityNode(0, child);
-                ImGui::TreePop();
-            }
-        }
-        else
+        bool open = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
+
+        if (ImGui::IsItemClicked())
         {
-            ImGui::TreeNodeEx(data.m_name.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", 2);
-            ImGui::TableNextColumn();
-            ImGui::TextUnformatted("type");
+            m_selectedEntity = entity;
+            Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
+        }
+
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
+
+            // Display preview
+            ImGui::Text(data.m_name.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(Entity));
+                m_ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("--");
+        ImGui::TableNextColumn();
+        ImGui::TextUnformatted("type");
+
+        if (open && hasChildren)
+        {
+            for (auto child : data.m_children)
+                DrawEntityNode(0, child);
+            ImGui::TreePop();
         }
 
         return;
@@ -154,10 +190,9 @@ namespace Lina::Editor
         {
             Begin();
 
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_Icon));
-            ImGui::BeginChild("ecs_child", ImVec2(0,-30), true);
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+            ImGui::BeginChild("ecs_child", ImVec2(0, -30), true);
 
-            
             const float            TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
             static ImGuiTableFlags flags           = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
 
@@ -180,6 +215,23 @@ namespace Lina::Editor
 
                 ImGui::EndTable();
             }
+
+            if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            {
+                m_selectedEntity = entt::null;
+                Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected());
+            }
+
+            WidgetsUtility::PushPopupStyle();
+
+             // Handle Right Click.
+            if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+            {
+                m_createMenuBarElement->Draw();
+                ImGui::EndPopup();
+            }
+
+            WidgetsUtility::PopPopupStyle();
 
             ImGui::EndChild();
             ImGui::PopStyleColor();

@@ -359,6 +359,16 @@ namespace Lina::Editor
         static void WindowRounding(float rounding);
 
         /// <summary>
+        /// Pushes style vars for creating a uniform popup accross the engine.
+        /// </summary>
+        static void PushPopupStyle();
+
+        /// <summary>
+        /// Pops the last popup style.
+        /// </summary>
+        static void PopPopupStyle();
+
+        /// <summary>
         /// Pops ImGui StyleVar Stack (ImGui::PopStyleVar)
         /// </summary>
         static void PopStyleVar();

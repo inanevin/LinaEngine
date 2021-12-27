@@ -63,13 +63,14 @@ namespace Lina::Editor
 {
     class LevelPanel;
     class PropertiesPanel;
+    class MenuBarElement;
 
     class ECSPanel : public EditorPanel
     {
 
     public:
         ECSPanel(){};
-        virtual ~ECSPanel(){};
+        virtual ~ECSPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
@@ -78,8 +79,9 @@ namespace Lina::Editor
         void         OnLevelInstall(const Event::ELevelInstalled& event);
 
     private:
-        ECS::Registry* m_ecs;
-        ECS::Entity    m_selectedEntity;
+        ECS::Registry*  m_ecs = nullptr;
+        ECS::Entity     m_selectedEntity;
+        MenuBarElement* m_createMenuBarElement = nullptr;
     };
 } // namespace Lina::Editor
 

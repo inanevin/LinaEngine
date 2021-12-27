@@ -43,25 +43,24 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
-#define LINALOGO_ANIMSIZE 80
-#define LINALOGO_SIZE     ImVec2(183, 22)
-
-ImVec2    resizeStartPos;
-ImVec2    headerClickPos;
-Vector2ui resizeStartSize;
-bool      appResizeActive;
-bool      isAxisPivotLocal;
-
-Graphics::Texture* windowIcon;
-Graphics::Texture* linaLogoAnimation[LINALOGO_ANIMSIZE];
-uint32             linaLogoID;
-float              logoAnimRatio       = 0.0f;
-float              logoAnimSpeed       = 1.2f;
-float              logoAnimWait        = 5.0f;
-float              logoAnimWaitCounter = 0.0f;
-
 namespace Lina::Editor
 {
+
+#define LINALOGO_ANIMSIZE 80
+#define LINALOGO_SIZE     ImVec2(183, 22)
+    Graphics::Texture*           windowIcon;
+    Graphics::Texture*           linaLogoAnimation[LINALOGO_ANIMSIZE];
+    uint32                       linaLogoID;
+    ImVec2                       resizeStartPos;
+    ImVec2                       headerClickPos;
+    Vector2ui                    resizeStartSize;
+    bool                         appResizeActive;
+    bool                         isAxisPivotLocal;
+    float                        logoAnimRatio       = 0.0f;
+    float                        logoAnimSpeed       = 1.2f;
+    float                        logoAnimWait        = 5.0f;
+    float                        logoAnimWaitCounter = 0.0f;
+    std::vector<MenuBarElement*> HeaderPanel::s_createEntityElements;
 
     HeaderPanel::~HeaderPanel()
     {
@@ -125,9 +124,15 @@ namespace Lina::Editor
         lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Point Light", "", 0, MenuBarElementType::PLight));
         lights->AddChild(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Spot Light", "", 0, MenuBarElementType::SLight));
 
-        entityMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Empty", "CTRL + E", 0, MenuBarElementType::Empty));
+        MenuBarElement* empty = new MenuBarElement(ICON_FA_OBJECT_GROUP, "Empty", "CTRL + E", 0, MenuBarElementType::Empty);
+        entityMenu->AddElement(empty);
         entityMenu->AddElement(primitives);
         entityMenu->AddElement(lights);
+
+        // Store them in case we want to access these elements from somewhere else.
+        s_createEntityElements.push_back(primitives);
+        s_createEntityElements.push_back(lights);
+        s_createEntityElements.push_back(empty);
 
         // ****** PANELS MENU
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "", 0, MenuBarElementType::ECSPanel));
@@ -267,7 +272,7 @@ namespace Lina::Editor
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
                 DrawMenuBarChild();
 
-                  // Add a poly background for the logo.
+                // Add a poly background for the logo.
                 const ImVec2 logoBounds = ImVec2(500, 36.0f);
                 const ImVec2 logoPos    = ImVec2(viewport->GetWorkCenter().x - logoBounds.x / 2.0f, 0);
 
@@ -305,7 +310,6 @@ namespace Lina::Editor
                     ImGui::GetForegroundDrawList()->AddText(textRectMin, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), tooltipStr.c_str());
                 }
 
-
                 ImGui::PopStyleColor();
 
                 ImGui::End();
@@ -315,8 +319,6 @@ namespace Lina::Editor
             ImGui::PopStyleColor();
 
 #pragma warning(disable : 4312)
-
-          
         }
     }
 
