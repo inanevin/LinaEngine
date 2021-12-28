@@ -50,8 +50,8 @@ namespace Lina
     {
 
     public:
-        MessageBus(){};
-        ~MessageBus(){};
+        MessageBus() = default;
+        ~MessageBus() = default;
 
     private:
         friend class Engine;

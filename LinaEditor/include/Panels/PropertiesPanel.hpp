@@ -74,8 +74,8 @@ namespace Lina::Editor
         };
 
     public:
-        PropertiesPanel(){};
-        virtual ~PropertiesPanel(){};
+        PropertiesPanel() = default;
+        virtual ~PropertiesPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;

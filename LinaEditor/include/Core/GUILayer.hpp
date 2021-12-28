@@ -46,6 +46,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ProfilerPanel.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
+#include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
 
 #include <vector>
@@ -69,57 +70,67 @@ namespace Lina
 
 namespace Lina::Editor
 {
+    class EditorApplication;
 
     class GUILayer
     {
 
     public:
-        GUILayer()
-        {
-        }
-        ~GUILayer(){};
+        GUILayer()  = default;
+        ~GUILayer() = default;
 
-        void           Initialize();
-        void           OnShutdown(const Event::EShutdown& ev);
-        void           OnPostRender(const Event::EPostRender&);
-        static ImFont* GetDefaultFont()
+        inline static GUILayer* Get()
         {
-            return s_defaultFont;
+            return s_guiLayer;
         }
-        static ImFont* GetBigFont()
+
+        void Initialize();
+        void OnShutdown(const Event::EShutdown& ev);
+        void OnPostRender(const Event::EPostRender&);
+
+        ImFont* GetDefaultFont()
         {
-            return s_bigFont;
+            return m_defaultFont;
         }
-        static ImFont* GetIconFontSmall()
+        ImFont* GetBigFont()
         {
-            return s_iconFontSmall;
+            return m_bigFont;
         }
-        static ImFont* GetIconFontDefault()
+        ImFont* GetIconFontSmall()
         {
-            return s_iconFontDefault;
+            return m_iconFontSmall;
         }
-        static const char* GetLinaLogoIcon()
+        ImFont* GetIconFontDefault()
         {
-            return s_linaLogoIcon;
+            return m_iconFontDefault;
         }
-        static Vector2 GetDefaultWindowPadding()
+        const char* GetLinaLogoIcon()
         {
-            return s_defaultWindowPadding;
+            return m_linaLogoIcon;
         }
-        static std::map<const char*, EditorPanel*> s_editorPanels;
+        Vector2 GetDefaultWindowPadding()
+        {
+            return m_defaultWindowPadding;
+        }
+
+        std::map<const char*, EditorPanel*> m_editorPanels;
+
+        inline ShortcutManager& GetShortcutManager()
+        {
+            return m_shortcutManager;
+        }
 
         // Menu bar item callback from header panel.
         void OnMenuBarElementClicked(const EMenuBarElementClicked& event);
 
-        void        Refresh();
         LevelPanel& GetLevelPanel()
         {
             return m_levelPanel;
         }
 
-        static float                              s_headerSize;
-        static float                              s_footerSize;
-        static std::map<const char*, const char*> s_windowIconMap;
+        float                              m_headerSize = 0.0f;
+        float                              m_footerSize = 20.0f;
+        std::map<const char*, const char*> m_windowIconMap;
 
     private:
         void DrawSplashScreen();
@@ -128,12 +139,16 @@ namespace Lina::Editor
         void DrawFPSCounter(int corner = 0);
 
     private:
-        static Vector2      s_defaultWindowPadding;
-        static const char*  s_linaLogoIcon;
-        static ImFont*      s_defaultFont;
-        static ImFont*      s_bigFont;
-        static ImFont*      s_iconFontSmall;
-        static ImFont*      s_iconFontDefault;
+        friend class EditorApplication;
+        static GUILayer* s_guiLayer;
+
+        Vector2             m_defaultWindowPadding = Vector2(8, 8);
+        const char*         m_linaLogoIcon         = nullptr;
+        ImFont*             m_defaultFont          = nullptr;
+        ImFont*             m_bigFont              = nullptr;
+        ImFont*             m_iconFontSmall        = nullptr;
+        ImFont*             m_iconFontDefault      = nullptr;
+        ShortcutManager     m_shortcutManager;
         ECSPanel            m_ecsPanel;
         ResourcesPanel      m_resourcesPanel;
         LevelPanel          m_levelPanel;

@@ -109,7 +109,7 @@ namespace Lina::Editor
         };
 
     public:
-        LogPanel(){};
+        LogPanel() = default;
         virtual ~LogPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;

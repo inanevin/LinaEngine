@@ -66,8 +66,8 @@ namespace Lina::Editor
             ShadowMap
         };
 
-        LevelPanel(){};
-        virtual ~LevelPanel(){};
+        LevelPanel() = default;
+        virtual ~LevelPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;

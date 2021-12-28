@@ -49,8 +49,8 @@ namespace Lina::Editor
     {
 
     public:
-        ProfilerPanel(){};
-        ~ProfilerPanel(){};
+        ProfilerPanel() = default;
+        ~ProfilerPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;

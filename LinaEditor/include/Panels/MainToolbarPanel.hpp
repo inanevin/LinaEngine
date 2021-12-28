@@ -51,7 +51,7 @@ namespace Lina::Editor
     {
 
     public:
-        MainToolbarPanel(){};
+        MainToolbarPanel() = default;
         virtual ~MainToolbarPanel();
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw();

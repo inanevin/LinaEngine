@@ -55,7 +55,7 @@ namespace Lina::ECS
     {
 
     public:
-        Component(){};
+        Component() = default;
         virtual ~Component(){};
 
         inline virtual void SetIsEnabled(bool enabled)

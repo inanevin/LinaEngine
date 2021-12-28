@@ -254,11 +254,11 @@ namespace Lina::Editor
                 HandleAppWindowResize();
 
                 // Set header size so the other systems can stack below us.
-                GUILayer::s_headerSize = ImGui::GetWindowSize().y;
+                GUILayer::Get()->m_headerSize = ImGui::GetWindowSize().y;
 
                 // Icon
                 ImGui::SetCursorPosX(11.8f);
-                WidgetsUtility::IconSmall(GUILayer::GetLinaLogoIcon());
+                WidgetsUtility::IconSmall(GUILayer::Get()->GetLinaLogoIcon());
 
                 // Title
                 ImGui::SameLine();
@@ -278,8 +278,8 @@ namespace Lina::Editor
 
                 ImVec2 points[5] = {
                     ImVec2(logoPos.x, 0.0f),
-                    ImVec2(logoPos.x + 20, GUILayer::s_headerSize / 2.0f + 4),
-                    ImVec2(logoPos.x + logoBounds.x - 20, GUILayer::s_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + 20, GUILayer::Get()->m_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x - 20, GUILayer::Get()->m_headerSize / 2.0f + 4),
                     ImVec2(logoPos.x + logoBounds.x, 0.0f),
                     ImVec2(logoPos.x, 0.0f)};
 

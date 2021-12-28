@@ -58,7 +58,7 @@ namespace Lina::Resources
     class MemoryEntry
     {
     public:
-        MemoryEntry(){};
+        MemoryEntry() = default;
         ~MemoryEntry();
 
         MemoryEntry(int priority, ResourceType type, const std::string& path, std::vector<unsigned char>& data, std::string& paramsExtension)

@@ -47,8 +47,8 @@ namespace Lina::Graphics
     {
 
     public:
-        DrawParameterHelper(){};
-        ~DrawParameterHelper(){};
+        DrawParameterHelper() = default;
+        ~DrawParameterHelper() = default;
 
         static DrawParams GetDefault()
         {

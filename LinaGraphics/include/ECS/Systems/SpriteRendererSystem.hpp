@@ -67,7 +67,7 @@ namespace Lina::ECS
         };
 
     public:
-        SpriteRendererSystem(){};
+        SpriteRendererSystem() = default;
         ~SpriteRendererSystem();
 
         virtual void Initialize() override;

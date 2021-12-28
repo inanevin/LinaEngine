@@ -62,23 +62,25 @@ namespace Lina::Editor
     class EditorApplication
     {
     public:
-        EditorApplication(){};
-        ~EditorApplication(){};
+
+        EditorApplication() = default;
+        ~EditorApplication() = default;
 
         static EditorApplication* Get()
         {
             return s_editorApplication;
         }
+
         void                     Initialize();
-        void                     Refresh();
-        void                     LevelInitialized(const Event::ELevelInitialized& ev);
         ECS::EditorCameraSystem& GetCameraSystem()
         {
             return m_editorCameraSystem;
         }
 
     private:
+
         void PlayModeChanged(const Event::EPlayModeChanged& playmode);
+        void LevelInitialized(const Event::ELevelInitialized& ev);
 
     private:
         static EditorApplication* s_editorApplication;

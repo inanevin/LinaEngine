@@ -70,8 +70,8 @@ namespace Lina::Editor
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
         windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
         const ImGuiViewport* viewport      = ImGui::GetMainViewport();
-        const ImVec2         dockspaceSize = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - GUILayer::s_headerSize - GUILayer::s_footerSize);
-        const ImVec2         dockspacePos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + GUILayer::s_headerSize);
+        const ImVec2         dockspaceSize = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - GUILayer::Get()->m_headerSize - GUILayer::Get()->m_footerSize);
+        const ImVec2         dockspacePos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + GUILayer::Get()->m_headerSize);
         ImGui::SetNextWindowPos(dockspacePos);
         ImGui::SetNextWindowSize(dockspaceSize);
         ImGui::Begin("Lina Engine Dock Space", NULL, windowFlags);

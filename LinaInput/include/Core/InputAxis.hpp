@@ -50,8 +50,8 @@ namespace Lina::Input
     {
 
     public:
-        InputAxis(){};
-        ~InputAxis(){};
+        InputAxis() = default;
+        ~InputAxis() = default;
 
         void  BindAxis(int positiveKey, int negativeKey);
         float GetValue()

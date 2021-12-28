@@ -76,8 +76,8 @@ namespace Lina::Resources
     class ResourceProgressData
     {
     public:
-        ResourceProgressData(){};
-        ~ResourceProgressData(){};
+        ResourceProgressData() = default;
+        ~ResourceProgressData() = default;
 
         ResourceProgressState m_state                 = ResourceProgressState::None;
         std::string           m_currentResourceName   = "";

@@ -60,7 +60,7 @@ namespace Lina::ECS
     class LightingSystem : public System
     {
     public:
-        LightingSystem(){};
+        LightingSystem() = default;
 
         void         Initialize(ApplicationMode& appMode);
         virtual void UpdateComponents(float delta) override;

@@ -73,7 +73,7 @@ namespace Lina::ECS
             m_wasPreviouslyEnabled = m_isEnabled;
         }
 
-        EntityDataComponent(){};
+        EntityDataComponent() = default;
 
         bool             m_serialized = true;
         std::string      m_name       = "";

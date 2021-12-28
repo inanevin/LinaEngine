@@ -49,8 +49,8 @@ namespace Lina::Editor
     {
 
     public:
-        EditorPanel(){};
-        virtual ~EditorPanel(){};
+        EditorPanel() = default;
+        virtual ~EditorPanel() = default;
         virtual void Initialize(const char* id, const char* icon);
         virtual void Draw() = 0;
         virtual void Begin();

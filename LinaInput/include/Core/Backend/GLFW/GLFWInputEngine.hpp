@@ -92,10 +92,8 @@ namespace Lina::Input
 
     private:
         friend class Engine;
-        GLFWInputEngine()
-        {
-        }
-        ~GLFWInputEngine(){};
+        GLFWInputEngine() = default;
+        ~GLFWInputEngine() = default;
         void Initialize();
         void Tick();
         void Shutdown();

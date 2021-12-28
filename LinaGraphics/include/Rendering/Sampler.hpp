@@ -47,7 +47,7 @@ namespace Lina::Graphics
     class Sampler
     {
     public:
-        Sampler(){};
+        Sampler() = default;
 
         // Destructor releases sampler data through render engine
         ~Sampler();

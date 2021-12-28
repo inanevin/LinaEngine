@@ -90,8 +90,8 @@ namespace Lina::Editor
         ToolbarItem(const char* icon, const char* tooltip, bool useToggle = false, bool startToggled = false, ToolbarItemType type = ToolbarItemType::None)
             : m_icon(icon), m_tooltip(tooltip), m_useToggle(useToggle), m_toggled(startToggled), m_type(type){};
 
-        ToolbarItem(){};
-        ~ToolbarItem(){};
+        ToolbarItem() = default;
+        ~ToolbarItem() = default;
 
         void Draw(const Vector2& size);
         bool m_toggled = false;

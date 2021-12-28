@@ -48,8 +48,8 @@ namespace Lina::Graphics
     {
 
     public:
-        SkinnedMesh(){};
-        ~SkinnedMesh(){};
+        SkinnedMesh() = default;
+        ~SkinnedMesh() = default;
 
     private:
     };

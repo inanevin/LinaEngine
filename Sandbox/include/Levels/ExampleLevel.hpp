@@ -35,8 +35,8 @@ namespace Lina
 class ExampleLevel : public World::Level
 {
 public:
-    ExampleLevel(){};
-    ~ExampleLevel(){};
+    ExampleLevel() = default;
+    ~ExampleLevel() = default;
 
     virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
     virtual void Initialize() override;

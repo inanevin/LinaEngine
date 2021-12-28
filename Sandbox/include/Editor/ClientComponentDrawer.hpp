@@ -45,8 +45,8 @@ namespace Lina
     {
 
     public:
-        ClientComponentDrawer(){};
-        ~ClientComponentDrawer(){};
+        ClientComponentDrawer() = default;
+        ~ClientComponentDrawer() = default;
 
     private:
     };

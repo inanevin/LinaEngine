@@ -47,8 +47,8 @@ namespace Lina::Editor
     {
 
     public:
-        EditorUtility(){};
-        ~EditorUtility(){};
+        EditorUtility() = default;
+        ~EditorUtility() = default;
 
         static bool        CreateFolderInPath(const std::string& path);
         static bool        DeleteDirectory(const std::string& path);

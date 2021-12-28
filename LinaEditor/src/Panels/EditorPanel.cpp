@@ -38,12 +38,12 @@ namespace Lina::Editor
         m_id                         = id;
         m_icon                       = icon;
         m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
-        GUILayer::s_editorPanels[id] = this;
+        GUILayer::Get()->m_editorPanels[id] = this;
 
         if (m_icon != nullptr)
             ImGui::AddWindowIcon(m_id, m_icon);
 
-        GUILayer::s_windowIconMap[m_id] = m_icon;
+        GUILayer::Get()->m_windowIconMap[m_id] = m_icon;
     }
 
     void EditorPanel::Begin()

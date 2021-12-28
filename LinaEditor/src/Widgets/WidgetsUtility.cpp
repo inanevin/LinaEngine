@@ -349,20 +349,20 @@ namespace Lina::Editor
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Iconify();
             else
-                GUILayer::s_editorPanels[windowID]->ToggleCollapse();
+                GUILayer::Get()->m_editorPanels[windowID]->ToggleCollapse();
         }
 
         ImGui::SameLine();
         ImGui::SetCursorPosX(windowWidth - offset1 - closeButtonAdditionalSize - gap);
         ImGui::SetCursorPosY(cursorY);
 
-        bool isMaximized = isAppWindow ? Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::s_editorPanels[windowID]->IsMaximized();
+        bool isMaximized = isAppWindow ? Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::Get()->m_editorPanels[windowID]->IsMaximized();
         if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, buttonSize, 1.0f, frameRounding, ImVec2(0.0f, -2.0f)))
         {
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Maximize();
             else
-                GUILayer::s_editorPanels[windowID]->ToggleMaximize();
+                GUILayer::Get()->m_editorPanels[windowID]->ToggleMaximize();
         }
 
         ImGui::SameLine();
@@ -375,7 +375,7 @@ namespace Lina::Editor
             if (isAppWindow)
                 Graphics::WindowBackend::Get()->Close();
             else
-                GUILayer::s_editorPanels[windowID]->Close();
+                GUILayer::Get()->m_editorPanels[windowID]->Close();
         }
 
         ImGui::PopStyleColor();
@@ -400,7 +400,7 @@ namespace Lina::Editor
         // Draw title
         ImGui::SetCursorPosX(12.5f);
         IncrementCursorPosY(4);
-        IconSmall(GUILayer::s_windowIconMap[label]);
+        IconSmall(GUILayer::Get()->m_windowIconMap[label]);
         ImGui::SameLine();
         ImGui::Text(label);
 
@@ -1315,7 +1315,7 @@ namespace Lina::Editor
 
     void WidgetsUtility::PushPopupStyle()
     {
-        const Vector2 padding = GUILayer::GetDefaultWindowPadding();
+        const Vector2 padding = GUILayer::Get()->GetDefaultWindowPadding();
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(padding.x, padding.y));
         ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
@@ -1363,12 +1363,12 @@ namespace Lina::Editor
 
     void WidgetsUtility::PushIconFontDefault()
     {
-        ImGui::PushFont(GUILayer::GetIconFontDefault());
+        ImGui::PushFont(GUILayer::Get()->GetIconFontDefault());
     }
 
     void WidgetsUtility::PushIconFontSmall()
     {
-        ImGui::PushFont(GUILayer::GetIconFontSmall());
+        ImGui::PushFont(GUILayer::Get()->GetIconFontSmall());
     }
 
     ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()

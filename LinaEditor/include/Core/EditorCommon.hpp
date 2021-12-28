@@ -109,6 +109,12 @@ namespace Lina::Editor
         ECS::TypeID m_id1;
         ECS::TypeID m_id2;
     };
+    struct EShortcut
+    {
+        std::string m_name;
+        int         m_heldKey;
+        int         m_pressedKey;
+    };
 
 #define EDITOR_CAMERA_NAME        "Editor Camera"
 #define CURSOR_X_LABELS           12

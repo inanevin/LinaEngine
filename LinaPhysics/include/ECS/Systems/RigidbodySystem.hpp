@@ -47,7 +47,7 @@ namespace Lina::ECS
     class RigidbodySystem : public System
     {
     public:
-        RigidbodySystem(){};
+        RigidbodySystem() = default;
 
         virtual void Initialize(Physics::PhysicsEngine* engine);
         virtual void UpdateComponents(float delta) override;

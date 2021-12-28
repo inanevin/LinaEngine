@@ -258,8 +258,8 @@ namespace Lina::Graphics
 
     private:
         friend class Engine;
-        OpenGLRenderEngine(){};
-        ~OpenGLRenderEngine(){};
+        OpenGLRenderEngine()  = default;
+        ~OpenGLRenderEngine() = default;
         void ConnectEvents();
         void Initialize(ApplicationMode appMode);
         void Shutdown();

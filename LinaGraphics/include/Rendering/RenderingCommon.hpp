@@ -422,7 +422,7 @@ namespace Lina::Graphics
 
     struct BufferData
     {
-        BufferData(){};
+        BufferData() = default;
         BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced){};
 
         uint32             m_attrib;

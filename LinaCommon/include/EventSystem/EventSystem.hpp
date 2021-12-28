@@ -52,82 +52,93 @@ namespace Lina::Event
     class EventSystem
     {
     public:
-        EventSystem()
-        {
-        }
-        ~EventSystem(){};
+        EventSystem()  = default;
+        ~EventSystem() = default;
 
         inline static EventSystem* Get()
         {
             return s_eventSystem;
         }
 
-        template <typename T> bool IsEmpty()
+        template <typename T>
+        bool IsEmpty()
         {
             return m_mainDispatcher.sink<T>().empty();
         }
 
-        template <typename T, auto Candidate, typename Type> void Connect(Type&& value_or_instance...)
+        template <typename T, auto Candidate, typename Type>
+        void Connect(Type&& value_or_instance...)
         {
             m_mainDispatcher.sink<T>().connect<Candidate>(value_or_instance);
         }
 
-        template <typename T, auto Candidate> void Connect()
+        template <typename T, auto Candidate>
+        void Connect()
         {
             m_mainDispatcher.sink<T>().connect<Candidate>();
         }
 
-        template <typename T, auto Candidate, typename Type> void Disconnect(Type&& value_or_instance...)
+        template <typename T, auto Candidate, typename Type>
+        void Disconnect(Type&& value_or_instance...)
         {
             m_mainDispatcher.sink<T>().disconnect<Candidate>(value_or_instance);
         }
 
-        template <typename T, typename Type> void Disconnect(Type&& value_or_instance...)
+        template <typename T, typename Type>
+        void Disconnect(Type&& value_or_instance...)
         {
             m_mainDispatcher.sink<T>().disconnect(value_or_instance);
         }
 
-        template <typename T, auto Candidate> void Disconnect()
+        template <typename T, auto Candidate>
+        void Disconnect()
         {
             m_mainDispatcher.sink<T>().disconnect<Candidate>();
         }
 
-        template <typename Type> void Trigger(const Type&& args)
+        template <typename Type>
+        void Trigger(const Type&& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.trigger<Type>(args);
         }
 
-        template <typename Type> void Trigger(const Type& args)
+        template <typename Type>
+        void Trigger(const Type& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.trigger<Type>(args);
         }
-        template <typename Type> void Trigger(Type&& args)
+        template <typename Type>
+        void Trigger(Type&& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.trigger<Type>(args);
         }
 
-        template <typename Type> void Trigger(Type& args)
+        template <typename Type>
+        void Trigger(Type& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.trigger<Type>(args);
         }
 
-        template <typename Type> void Trigger()
+        template <typename Type>
+        void Trigger()
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.trigger<Type>();
         }
 
-        template <typename Type> void Enqueue(Type&& args)
+        template <typename Type>
+        void Enqueue(Type&& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.enqueue<Type>(args);
         }
 
-        template <typename Type> void Update()
+        template <typename Type>
+        void Update()
         {
             std::lock_guard<std::recursive_mutex> l(m_mutex);
             if (!m_mainDispatcher.sink<Type>().empty())

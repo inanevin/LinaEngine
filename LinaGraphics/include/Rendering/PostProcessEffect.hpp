@@ -53,8 +53,8 @@ namespace Lina::Graphics
     {
 
     public:
-        PostProcessEffect(){};
-        ~PostProcessEffect(){};
+        PostProcessEffect() = default;
+        ~PostProcessEffect() = default;
 
         void      Construct(Shader& shader);
         void      Draw(Texture* screenMap);

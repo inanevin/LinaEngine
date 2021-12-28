@@ -53,7 +53,7 @@ namespace Lina::Graphics
     {
 
     public:
-        Skeleton(){};
+        Skeleton() = default;
         ~Skeleton();
 
         bool LoadSkeleton(const std::string& path);

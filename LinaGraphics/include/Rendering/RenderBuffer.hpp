@@ -48,7 +48,7 @@ namespace Lina::Graphics
     {
 
     public:
-        RenderBuffer(){};
+        RenderBuffer() = default;
         ~RenderBuffer();
 
         void Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount = 0);

@@ -74,8 +74,8 @@ namespace Lina::World
     class Level
     {
     public:
-        Level(){};
-        virtual ~Level(){};
+        Level() = default;
+        virtual ~Level() = default;
 
         virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
         virtual void Uninstall();

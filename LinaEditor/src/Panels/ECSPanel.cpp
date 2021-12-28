@@ -67,12 +67,6 @@ namespace Lina::Editor
             m_createMenuBarElement->AddChild(elem);
     }
 
-    void ECSPanel::Refresh()
-    {
-        m_selectedEntity = entt::null;
-        Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-    }
-
     void ECSPanel::DrawEntityNode(int id, ECS::Entity entity)
     {
 
@@ -91,14 +85,6 @@ namespace Lina::Editor
 
         const std::string treeLabel =  data.m_name;
         bool              open      = WidgetsUtility::TreeNode((void*)(intptr_t)entity, flags, treeLabel.c_str(), hasChildren);
-      //ImGui::SameLine();
-      //
-      //const char* visibilityIcon      = data.m_isEnabled ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
-      //const float visibilityIconWidth = ImGui::CalcTextSize("AB").x;
-      //const float previousCP          = ImGui::GetCursorPosX();
-      //ImGui::SetCursorPosX(8);
-      //WidgetsUtility::IconButton(visibilityIcon);
-
 
         if (ImGui::IsItemClicked())
         {
@@ -177,7 +163,7 @@ namespace Lina::Editor
                 {
                     ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
 
-                    if (data.m_parent == entt::null)
+                    if (data.m_parent == entt::null && data.m_name.compare(EDITOR_CAMERA_NAME) != 0)
                         DrawEntityNode(0, entity);
                 }
 

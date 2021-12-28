@@ -52,7 +52,7 @@ namespace Lina::Graphics
     {
 
     public:
-        Texture(){};
+        Texture() = default;
         ~Texture();
 
         Texture& Construct(const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");

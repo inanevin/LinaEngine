@@ -47,8 +47,8 @@ namespace Lina::World
     {
 
     public:
-        DefaultLevel(){};
-        virtual ~DefaultLevel(){};
+        DefaultLevel() = default;
+        virtual ~DefaultLevel() = default;
 
     private:
         // Inherited via Level

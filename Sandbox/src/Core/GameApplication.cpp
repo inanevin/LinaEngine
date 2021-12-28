@@ -42,7 +42,6 @@ namespace Lina
         {
             m_editor = new Editor::EditorApplication();
             m_editor->Initialize();
-            m_editor->Refresh();
 
             // Update props.
             auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();

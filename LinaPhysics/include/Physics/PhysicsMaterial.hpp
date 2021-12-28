@@ -61,8 +61,8 @@ namespace Lina::Physics
     {
 
     public:
-        PhysicsMaterial(){};
-        ~PhysicsMaterial(){};
+        PhysicsMaterial() = default;
+        ~PhysicsMaterial() = default;
 
         static PhysicsMaterial&                         CreateMaterial(const std::string& name, float staticFriction, float dynamicFriction, float restitution);
         static PhysicsMaterial&                         LoadMaterialFromFile(const std::string& path = "");

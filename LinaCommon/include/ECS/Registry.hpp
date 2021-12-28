@@ -93,8 +93,8 @@ namespace Lina::ECS
 
     private:
         friend class Engine;
-        Registry(){};
-        virtual ~Registry(){};
+        Registry() = default;
+        virtual ~Registry() = default;
         void Initialize();
         void Shutdown();
 

@@ -55,7 +55,7 @@ namespace Lina
 
     public:
         GameApplication() : Application(){};
-        virtual ~GameApplication(){};
+        virtual ~GameApplication() = default;
 
         void Initialize(ApplicationInfo appInfo);
 

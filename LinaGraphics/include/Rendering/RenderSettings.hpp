@@ -47,8 +47,8 @@ namespace Lina::Graphics
     {
 
     public:
-        RenderSettings(){};
-        ~RenderSettings(){};
+        RenderSettings() = default;
+        ~RenderSettings() = default;
 
         static void           SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName);
         static RenderSettings DeserializeRenderSettings(const std::string& path, const std::string& fileName);

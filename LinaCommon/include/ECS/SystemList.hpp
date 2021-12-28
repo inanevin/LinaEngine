@@ -49,8 +49,8 @@ namespace Lina::ECS
     class SystemList
     {
     public:
-        SystemList(){};
-        ~SystemList(){};
+        SystemList()  = default;
+        ~SystemList() = default;
 
         bool AddSystem(System& system);
         void UpdateSystems(float delta);

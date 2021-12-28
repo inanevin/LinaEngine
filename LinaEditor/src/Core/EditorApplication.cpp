@@ -52,6 +52,7 @@ namespace Lina::Editor
         LINA_TRACE("[Initialize] -> Editor Application ({0})", typeid(*this).name());
 
         s_editorApplication = this;
+        m_guiLayer.s_guiLayer = &m_guiLayer;
         m_guiLayer.Initialize();
 
         Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
@@ -62,10 +63,6 @@ namespace Lina::Editor
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);
     }
 
-    void EditorApplication::Refresh()
-    {
-        m_guiLayer.Refresh();
-    }
 
     void EditorApplication::LevelInitialized(const Event::ELevelInitialized& ev)
     {
@@ -83,7 +80,6 @@ namespace Lina::Editor
             ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
             Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
             m_editorCameraSystem.SetEditorCamera(editorCamera);
-            Refresh();
         }
         else
         {

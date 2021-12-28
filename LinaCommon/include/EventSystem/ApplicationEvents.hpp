@@ -46,7 +46,7 @@ namespace Lina::Event
 {
     struct ELog
     {
-        ELog(){};
+        ELog() = default;
         ELog(LogLevel level, const std::string& message) : m_level(level), m_message(message){};
         LogLevel    m_level   = LogLevel::Info;
         std::string m_message = "";

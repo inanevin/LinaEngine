@@ -88,8 +88,8 @@ namespace Lina::Resources
 
     private:
         friend class Engine;
-        ResourceManager(){};
-        ~ResourceManager(){};
+        ResourceManager() = default;
+        ~ResourceManager() = default;
 
         void Initialize(ApplicationInfo& appInfo);
         void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);

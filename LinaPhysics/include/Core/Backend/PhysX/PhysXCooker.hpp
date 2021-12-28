@@ -69,8 +69,8 @@ namespace Lina::Physics
     {
 
     public:
-        PhysXCooker(){};
-        ~PhysXCooker(){};
+        PhysXCooker() = default;
+        ~PhysXCooker() = default;
         void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
 
     private:

@@ -116,8 +116,8 @@ namespace Lina
     private:
         friend class Application;
 
-        Engine(){};
-        ~Engine(){};
+        Engine() = default;
+        ~Engine() = default;
 
         void   Initialize(ApplicationInfo& appInfo);
         void   Run();

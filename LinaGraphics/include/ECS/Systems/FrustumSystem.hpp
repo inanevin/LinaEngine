@@ -54,8 +54,8 @@ namespace Lina::ECS
     {
 
     public:
-        FrustumSystem(){};
-        ~FrustumSystem(){};
+        FrustumSystem()  = default;
+        ~FrustumSystem() = default;
 
         virtual void Initialize() override;
         virtual void UpdateComponents(float delta);

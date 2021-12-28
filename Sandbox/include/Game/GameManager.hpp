@@ -54,8 +54,8 @@ class GameManager
 {
 
 public:
-    GameManager(){};
-    ~GameManager(){};
+    GameManager() = default;
+    ~GameManager() = default;
     void                Initialize();
     void                OnTick(const Event::ETick& ev);
     void                OnShutdown(const Event::EShutdown& ev);

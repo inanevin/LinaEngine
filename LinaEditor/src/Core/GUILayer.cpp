@@ -69,20 +69,15 @@ Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
-    Vector2                             GUILayer::s_defaultWindowPadding = Vector2(8, 8);
-    ImFont*                             GUILayer::s_defaultFont          = nullptr;
-    ImFont*                             GUILayer::s_bigFont              = nullptr;
-    ImFont*                             GUILayer::s_iconFontSmall        = nullptr;
-    ImFont*                             GUILayer::s_iconFontDefault      = nullptr;
-    std::map<const char*, EditorPanel*> GUILayer::s_editorPanels;
-    float                               GUILayer::s_headerSize   = 0.0f;
-    float                               GUILayer::s_footerSize   = 20.0f;
-    const char*                         GUILayer::s_linaLogoIcon = ICON_FA_FIRE;
-    std::map<const char*, const char*>  GUILayer::s_windowIconMap;
+    
     Graphics::DrawParams                m_drawParameters;
 
     void GUILayer::Initialize()
     {
+        m_footerSize = 20.0f;
+        m_linaLogoIcon = ICON_FA_FIRE;
+        m_defaultWindowPadding = Vector2(8,8);
+
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &GUILayer::OnMenuBarElementClicked>(this);
@@ -106,22 +101,22 @@ namespace Lina::Editor
         icons_config.PixelSnapH    = false;
         icons_config.GlyphOffset.y = 1.2f;
 
-        s_iconFontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 18.0f, &icons_config, icons_rangesFA);
+        m_iconFontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 18.0f, &icons_config, icons_rangesFA);
 
         icons_config.MergeMode = true;
         io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 18.0f, &icons_config, icons_rangesCUST);
 
         icons_config.GlyphOffset.y = 2.25f;
         icons_config.MergeMode     = false;
-        s_iconFontSmall            = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 13.0f, &icons_config, icons_rangesFA);
+        m_iconFontSmall            = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 13.0f, &icons_config, icons_rangesFA);
 
         icons_config.MergeMode = true;
         io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 13.0f, &icons_config, icons_rangesCUST);
 
-        s_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
-        s_defaultFont = io.FontDefault;
+        m_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
+        m_defaultFont = io.FontDefault;
 
-        ImGui::GetCurrentContext()->iconFont = s_iconFontSmall;
+        ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
 
         // Setup configuration flags.
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -140,7 +135,7 @@ namespace Lina::Editor
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
         style.FramePadding  = ImVec2(8, 2);
-        style.WindowPadding = ImVec2(s_defaultWindowPadding.x, s_defaultWindowPadding.y);
+        style.WindowPadding = ImVec2(m_defaultWindowPadding.x, m_defaultWindowPadding.y);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;
@@ -252,6 +247,7 @@ namespace Lina::Editor
         Engine::Get()->StartLoadingResources();
 
         // Initialize first.
+        m_shortcutManager.Initialize();
         m_headerPanel.Initialize(ID_HEADER, nullptr);
 
         // Init rest.
@@ -451,11 +447,6 @@ namespace Lina::Editor
 
 #endif
         }
-    }
-
-    void GUILayer::Refresh()
-    {
-        m_ecsPanel.Refresh();
     }
 
     void GUILayer::OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev)

@@ -50,8 +50,8 @@ namespace Lina::Graphics
     {
 
     public:
-        Model(){};
-        virtual ~Model(){};
+        Model()          = default;
+        virtual ~Model() = default;
 
         /// <summary>
         /// De-serializes the asset data at the given path & returns it.

@@ -98,8 +98,8 @@ namespace Lina::Graphics
 
     private:
         friend class Engine;
-        OpenGLWindow(){};
-        ~OpenGLWindow(){};
+        OpenGLWindow()  = default;
+        ~OpenGLWindow() = default;
         bool CreateContext(ApplicationInfo& appInfo);
         void Shutdown();
         void Sleep(int milliseconds);

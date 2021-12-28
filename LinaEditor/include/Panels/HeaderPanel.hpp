@@ -52,7 +52,7 @@ namespace Lina::Editor
     {
 
     public:
-        HeaderPanel(){};
+        HeaderPanel() = default;
         virtual ~HeaderPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;

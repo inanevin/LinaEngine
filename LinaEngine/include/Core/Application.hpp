@@ -57,7 +57,7 @@ namespace Lina
 #define DELTA_TIME_HISTORY 11
 
         Application();
-        virtual ~Application(){};
+        virtual ~Application() = default;
 
         bool InstallLevel(World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
         void InitializeLevel(World::Level& level);

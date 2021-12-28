@@ -80,7 +80,7 @@ namespace Lina::Editor
     {
         ImGuiWindowFlags     flags    = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        const ImVec2         pos      = ImVec2(0.0f, GUILayer::s_headerSize);
+        const ImVec2         pos      = ImVec2(0.0f, GUILayer::Get()->m_headerSize);
         const ImVec2         size     = ImVec2(viewport->WorkSize.x, 0.0f);
 
         ImGui::SetNextWindowPos(pos);
@@ -180,9 +180,9 @@ namespace Lina::Editor
         ImGuiWindowFlags flags = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->WorkSize.y - GUILayer::s_footerSize));
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->WorkSize.y - GUILayer::Get()->m_footerSize));
 
-        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, GUILayer::s_footerSize));
+        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, GUILayer::Get()->m_footerSize));
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::Begin("##toolbar_footer", NULL, flags);
 

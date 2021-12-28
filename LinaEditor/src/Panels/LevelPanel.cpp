@@ -243,7 +243,7 @@ namespace Lina::Editor
                 ImGui::SetNextWindowPos(pos);
                 ImGui::SetNextWindowBgAlpha(0.8f);
                 ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
-                ImGui::PushFont(GUILayer::GetBigFont());
+                ImGui::PushFont(GUILayer::Get()->GetBigFont());
                 ImGui::BeginChild("##scenepanel_nocam", size, false, emptyChildFlags);
                 const char* noCamAvab        = "No camera available!";
                 const char* latestViewMatrix = "(Using latest view matrix)";

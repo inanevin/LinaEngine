@@ -69,12 +69,11 @@ namespace Lina::Editor
     {
 
     public:
-        ECSPanel(){};
+        ECSPanel() = default;
         virtual ~ECSPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
-        void         Refresh();
         void         DrawEntityNode(int id, ECS::Entity entity);
         void         OnLevelInstall(const Event::ELevelInstalled& event);
 

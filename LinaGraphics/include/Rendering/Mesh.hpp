@@ -50,7 +50,7 @@ namespace Lina::Graphics
         Mesh()
         {
         }
-        virtual ~Mesh(){};
+        virtual ~Mesh() = default;
 
         // Creates a vertex array using render render device.
         void CreateVertexArray(BufferUsage bufferUsage);

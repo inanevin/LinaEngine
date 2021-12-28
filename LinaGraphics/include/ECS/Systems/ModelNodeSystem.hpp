@@ -102,8 +102,8 @@ namespace Lina::ECS
             }
         };
 
-        ModelNodeSystem(){};
-        virtual ~ModelNodeSystem(){};
+        ModelNodeSystem() = default;
+        virtual ~ModelNodeSystem() = default;
 
         void         Initialize(ApplicationMode appMode);
         virtual void UpdateComponents(float delta) override;

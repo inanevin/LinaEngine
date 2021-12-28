@@ -90,8 +90,8 @@ namespace Lina::Audio
 
     private:
         friend class Engine;
-        OpenALAudioEngine(){};
-        ~OpenALAudioEngine(){};
+        OpenALAudioEngine() = default;
+        ~OpenALAudioEngine() = default;
         void Initialize();
         void Shutdown();
 

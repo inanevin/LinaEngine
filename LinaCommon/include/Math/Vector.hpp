@@ -53,7 +53,7 @@ namespace Lina
     class Vector2ui : public glm::uvec2
     {
     public:
-        Vector2ui(){};
+        Vector2ui() = default;
         Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y){};
         Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
         Vector2ui(unsigned int val) : glm::uvec2(val, val){};
@@ -80,7 +80,7 @@ namespace Lina
     class Vector2 : public glm::vec2
     {
     public:
-        Vector2(){};
+        Vector2() = default;
         Vector2(float x, float y) : glm::vec2(x, y){};
         Vector2(const Vector2& rhs) : glm::vec2(rhs){};
         Vector2(float val) : glm::vec2(val, val){};
@@ -256,7 +256,7 @@ namespace Lina
     {
 
     public:
-        Vector3(){};
+        Vector3() = default;
         Vector3(float x, float y, float z) : glm::vec3(x, y, z){};
         Vector3(const Vector3& rhs) : glm::vec3(rhs){};
         Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
@@ -453,7 +453,7 @@ namespace Lina
     {
 
     public:
-        Vector4(){};
+        Vector4() = default;
         Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
         Vector4(const Vector4& rhs) : glm::vec4(rhs){};
         Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};

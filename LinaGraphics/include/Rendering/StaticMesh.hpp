@@ -48,8 +48,8 @@ namespace Lina::Graphics
     {
 
     public:
-        StaticMesh(){};
-        virtual ~StaticMesh(){};
+        StaticMesh() = default;
+        virtual ~StaticMesh() = default;
 
     private:
     };

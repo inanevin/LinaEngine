@@ -51,7 +51,7 @@ namespace Lina::Graphics
     class Shader
     {
     public:
-        Shader(){};
+        Shader() = default;
 
         ~Shader();
 

@@ -57,7 +57,7 @@ namespace Lina::ECS
     class CameraSystem : public System
     {
     public:
-        CameraSystem(){};
+        CameraSystem() = default;
         void         Initialize(float aspect);
         virtual void UpdateComponents(float delta) override;
 

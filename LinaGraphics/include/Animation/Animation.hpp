@@ -48,8 +48,8 @@ namespace Lina::Graphics
     {
 
     public:
-        Animation(){};
-        ~Animation(){};
+        Animation() = default;
+        ~Animation() = default;
 
         bool LoadAnimation(const std::string& animPath);
 

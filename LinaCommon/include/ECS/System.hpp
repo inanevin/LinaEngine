@@ -47,8 +47,8 @@ namespace Lina::ECS
     {
 
     public:
-        System(){};
-        virtual ~System(){};
+        System() = default;
+        virtual ~System() = default;
 
         virtual void Initialize();
         virtual void UpdateComponents(float delta) = 0;

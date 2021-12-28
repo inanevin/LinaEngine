@@ -61,9 +61,9 @@ namespace Lina
     {
 
     public:
-        Timer(){};
+        Timer() = default;
 
-        ~Timer(){};
+        ~Timer() = default;
 
         void Initialize()
         {

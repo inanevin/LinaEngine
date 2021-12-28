@@ -94,7 +94,7 @@ namespace Lina::Editor
 
     public:
         ComponentDrawer();
-        ~ComponentDrawer(){};
+        ~ComponentDrawer() = default;
 
         void Initialize();
         void SwapComponentOrder(ECS::TypeID id1, ECS::TypeID id2);

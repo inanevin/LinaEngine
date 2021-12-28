@@ -62,8 +62,8 @@ namespace Lina::Editor
     {
 
     public:
-        GlobalSettingsPanel(){};
-        ~GlobalSettingsPanel(){};
+        GlobalSettingsPanel() = default;
+        ~GlobalSettingsPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
