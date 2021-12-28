@@ -232,6 +232,7 @@ namespace Lina::Editor
             }
         }
     }
+
     void HeaderPanel::Draw()
     {
         if (m_show)

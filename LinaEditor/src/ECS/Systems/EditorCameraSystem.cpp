@@ -89,9 +89,9 @@ namespace Lina::ECS
             data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * fw.Normalized());
             data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * rg.Normalized());
 
-            const float scrollY = Input::InputEngineBackend::Get()->GetMouseScroll().y;
+            const float scrollY = -Input::InputEngineBackend::Get()->GetMouseScroll().y;
 
-            data.AddLocation(scrollY * delta * -fw.Normalized() * freeLook.m_movementSpeeds.x * m_cameraSpeedMultiplier * sprintMultiplier);
+            data.AddLocation(scrollY * 1.8f * delta * -fw.Normalized() * freeLook.m_movementSpeeds.x * m_cameraSpeedMultiplier * sprintMultiplier);
         }
     }
 } // namespace Lina::ECS
