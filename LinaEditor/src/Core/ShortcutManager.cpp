@@ -41,6 +41,8 @@ namespace Lina::Editor
         m_eventSystem->Connect<Event::EMouseButtonCallback, &ShortcutManager::OnMouseCallback>(this);
 
         RegisterShortcut(EShortcut{"duplicate", LINA_KEY_LCTRL, LINA_KEY_D});
+        RegisterShortcut(EShortcut{"playmode", LINA_KEY_LCTRL, LINA_KEY_SPACE});
+        RegisterShortcut(EShortcut{"create_empty", LINA_KEY_LCTRL, LINA_KEY_E});
     }
 
     void ShortcutManager::RegisterShortcut(EShortcut& shortcut)
@@ -58,9 +60,7 @@ namespace Lina::Editor
                     shortcut.second = true;
                 else if (shortcut.first.m_pressedKey == ev.m_key && shortcut.second)
                 {
-                    shortcut.second = false;
                     m_eventSystem->Trigger<EShortcut>(shortcut.first);
-                    LINA_TRACE("Triggering shortcut");
                 }
             }
             else if (ev.m_action == Input::InputAction::Released)
@@ -73,7 +73,6 @@ namespace Lina::Editor
 
     void ShortcutManager::OnMouseCallback(const Event::EMouseButtonCallback& ev)
     {
-
     }
 
 } // namespace Lina::Editor

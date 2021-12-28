@@ -50,6 +50,7 @@ namespace Lina::Editor
 {
 
     static bool        s_isDraggingWidgetInput = false;
+    static bool        s_mouseReleased         = true;
     static std::string s_draggedInput          = "";
     static float       s_valueOnDragStart      = 0.0f;
     static int         s_valueOnDragStartInt   = 0;
@@ -274,7 +275,7 @@ namespace Lina::Editor
 
     bool WidgetsUtility::ToggleButton(const char* label, bool* v, ImVec2 size)
     {
-        bool isPressed = false;
+        bool         isPressed            = false;
         const ImVec4 inactiveColor        = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
         const ImVec4 inactiveHoveredColor = ImVec4(0.78f, 0.78f, 0.78f, 1.0f);
         const ImVec4 activeColor          = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -924,7 +925,7 @@ namespace Lina::Editor
         const ImVec2 rectMin     = ImGui::GetCursorScreenPos();
         const ImVec2 rectMax     = ImVec2(rectMin.x + size.x, rectMin.y + size.y);
         const bool   hovered     = ImGui::IsMouseHoveringRect(rectMin, rectMax);
-        const bool   pressed     = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+        const bool   pressed     = hovered && Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_1);
 
         const ImVec4 iconColor = pressed ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered)
                                                                                                      : ImGui::GetStyleColorVec4(ImGuiCol_Text);
@@ -932,7 +933,7 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
         IconSmall(icon);
         ImGui::PopStyleColor();
-        return hovered && Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
+        return hovered && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_1);
     }
 
     bool WidgetsUtility::TreeNode(const void* id, ImGuiTreeNodeFlags flags, const char* name, bool drawArrow)

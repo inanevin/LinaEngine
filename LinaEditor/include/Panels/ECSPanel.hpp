@@ -40,6 +40,7 @@ Timestamp: 5/23/2020 4:15:06 PM
 
 #include "Core/CommonECS.hpp"
 #include "Panels/EditorPanel.hpp"
+#include <EventSystem\InputEvents.hpp>
 
 namespace Lina
 {
@@ -51,7 +52,8 @@ namespace Lina
     namespace Event
     {
         struct ELevelInstalled;
-    }
+        struct EKeyCallback;
+    } // namespace Event
 
     namespace ECS
     {
@@ -64,6 +66,7 @@ namespace Lina::Editor
     class LevelPanel;
     class PropertiesPanel;
     class MenuBarElement;
+    struct EShortcut;
 
     class ECSPanel : public EditorPanel
     {
@@ -75,7 +78,11 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
         void         DrawEntityNode(int id, ECS::Entity entity);
-        void         OnLevelInstall(const Event::ELevelInstalled& event);
+
+    private:
+        void OnLevelInstall(const Event::ELevelInstalled& event);
+        void OnShortcut(const EShortcut& event);
+        void OnKeyCallback(const Event::EKeyCallback& event);
 
     private:
         ECS::Registry*  m_ecs = nullptr;

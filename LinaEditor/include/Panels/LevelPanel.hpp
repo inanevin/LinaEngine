@@ -47,14 +47,18 @@ namespace Lina
     namespace Event
     {
         struct ELevelUninstalled;
-    }
+        struct EKeyCallback;
+        struct EMouseButtonCallback;
+    } // namespace Event
 } // namespace Lina
+
 namespace Lina::Editor
 {
     struct EEntitySelected;
     struct EEntityUnselected;
     struct ETransformGizmoChanged;
     struct ETransformPivotChanged;
+    struct EShortcut;
 
     class LevelPanel : public EditorPanel
     {
@@ -66,7 +70,7 @@ namespace Lina::Editor
             ShadowMap
         };
 
-        LevelPanel() = default;
+        LevelPanel()          = default;
         virtual ~LevelPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
@@ -89,6 +93,9 @@ namespace Lina::Editor
     private:
         void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
         void OnTransformPivotChanged(const ETransformPivotChanged& ev);
+        void OnShortcut(const EShortcut& ev);
+        void OnKeyCallback(const Event::EKeyCallback& ev);
+        void OnMouseButtonCallback(const Event::EMouseButtonCallback& ev);
 
     private:
         float       m_borderAlpha                     = 0.0f;

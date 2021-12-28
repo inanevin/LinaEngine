@@ -49,6 +49,9 @@ namespace Lina::Editor
     using namespace ECS;
     using namespace Lina;
 
+    std::map<Entity, bool> m_visibilityMouseMap;
+    bool                   m_isMouseDragging;
+
     ECSPanel::~ECSPanel()
     {
         delete m_createMenuBarElement;
@@ -58,6 +61,9 @@ namespace Lina::Editor
     {
         EditorPanel::Initialize(id, icon);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
+        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &ECSPanel::OnKeyCallback>(this);
+        Event::EventSystem::Get()->Connect<EShortcut, &ECSPanel::OnShortcut>(this);
+
         m_ecs = ECS::Registry::Get();
 
         m_createMenuBarElement = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
@@ -69,29 +75,30 @@ namespace Lina::Editor
 
     void ECSPanel::DrawEntityNode(int id, ECS::Entity entity)
     {
-
         ECS::EntityDataComponent& data        = m_ecs->get<ECS::EntityDataComponent>(entity);
         const bool                hasChildren = data.m_children.size() > 0;
+        const ImGuiTreeNodeFlags  parent      = ImGuiTreeNodeFlags_SpanFullWidth;
+        const ImGuiTreeNodeFlags  leaf        = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
+        ImGuiTreeNodeFlags        flags       = hasChildren ? parent : leaf;
 
-        const ImGuiTreeNodeFlags parent = ImGuiTreeNodeFlags_SpanFullWidth;
-        const ImGuiTreeNodeFlags leaf   = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
-        ImGuiTreeNodeFlags       flags  = hasChildren ? parent : leaf;
-
+        // Label as treenode.
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-        
+
         if (entity == m_selectedEntity)
             flags |= ImGuiTreeNodeFlags_Selected;
 
-        const std::string treeLabel =  data.m_name;
+        const std::string treeLabel = data.m_name;
         bool              open      = WidgetsUtility::TreeNode((void*)(intptr_t)entity, flags, treeLabel.c_str(), hasChildren);
 
+        // Select entity.
         if (ImGui::IsItemClicked())
         {
             m_selectedEntity = entity;
             Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
         }
 
+        // Drag and drop.
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
@@ -111,21 +118,31 @@ namespace Lina::Editor
             ImGui::EndDragDropTarget();
         }
 
+        // Visibility icon.
         ImGui::TableNextColumn();
-
         const char* visibilityIcon      = data.GetIsEnabled() ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
         const float visibilityIconWidth = ImGui::CalcTextSize("AB").x;
-        WidgetsUtility::TableAlignCenter(visibilityIconWidth);
 
         ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
         textColor.w -= data.GetIsEnabled() ? 0.2f : 0.5f;
+        WidgetsUtility::TableAlignCenter(visibilityIconWidth);
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::ColorConvertFloat4ToU32(textColor));
 
-        if(WidgetsUtility::IconButton(visibilityIcon))
+        if (WidgetsUtility::IconButton(visibilityIcon))
+        {
             ECS::Registry::Get()->SetEntityEnabled(entity, !data.GetIsEnabled());
+        }
+
+        // If the middle mouse is being dragged switch visibility for once, resetted when drag ends.
+        if (ImGui::IsItemHovered() && !m_visibilityMouseMap[entity] && m_isMouseDragging)
+        {
+            m_visibilityMouseMap[entity] = true;
+            ECS::Registry::Get()->SetEntityEnabled(entity, !data.GetIsEnabled());
+        }
 
         ImGui::PopStyleColor();
 
+        // Draw children.
         if (open && hasChildren)
         {
             for (auto child : data.m_children)
@@ -134,6 +151,35 @@ namespace Lina::Editor
         }
     }
 
+    void ECSPanel::OnShortcut(const EShortcut& event)
+    {
+        if (event.m_name.compare("duplicate") == 0)
+        {
+            if (m_selectedEntity != entt::null)
+            {
+                m_selectedEntity = m_ecs->CreateEntity(m_selectedEntity);
+                Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
+            }
+        }
+        else if (event.m_name.compare("create_empty") == 0)
+        {
+            auto ent = m_ecs->CreateEntity("Empty");
+            Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{ent});
+        }
+    }
+
+    void ECSPanel::OnKeyCallback(const Event::EKeyCallback& ev)
+    {
+        if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_DELETE)
+        {
+            if (m_selectedEntity != entt::null)
+            {
+                Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
+                m_ecs->DestroyEntity(m_selectedEntity);
+                m_selectedEntity = entt::null;
+            }
+        }
+    }
     void ECSPanel::OnLevelInstall(const Event::ELevelInstalled& ev)
     {
         Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
@@ -170,6 +216,15 @@ namespace Lina::Editor
                 ImGui::EndTable();
             }
 
+            // Switch visibility using mouse drag.
+            if (Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_3))
+                m_isMouseDragging = true;
+            if (m_isMouseDragging && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_3))
+            {
+                m_isMouseDragging = false;
+                m_visibilityMouseMap.clear();
+            }
+
             if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             {
                 m_selectedEntity = entt::null;
@@ -189,108 +244,6 @@ namespace Lina::Editor
 
             ImGui::EndChild();
             ImGui::PopStyleColor();
-
-            End();
-
-            return;
-
-            Begin();
-
-            // Statics.
-            static char entityName[256] = "Entity";
-            WidgetsUtility::WindowPadding(ImVec2(3, 4));
-
-            // Handle Right Click.
-            if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
-            {
-                if (ImGui::BeginMenu("Create"))
-                {
-                    if (ImGui::MenuItem("Entity"))
-                    {
-                        m_selectedEntity = m_ecs->CreateEntity("Entity");
-                        Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
-                    }
-
-                    ImGui::EndMenu();
-                }
-                ImGui::EndPopup();
-            }
-
-            WidgetsUtility::PopStyleVar();
-            WidgetsUtility::WindowPadding(ImVec2(0, 0));
-            WidgetsUtility::FramePadding(ImVec2(0, 0));
-            WidgetsUtility::IncrementCursorPosY(7);
-            int  entityCounter = 0;
-            auto singleView    = m_ecs->view<ECS::EntityDataComponent>();
-
-            for (auto entity : singleView)
-            {
-                ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
-
-                if (data.m_parent == entt::null)
-                    DrawEntityNode(entityCounter, entity);
-
-                // Deselect.
-                if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                {
-                    Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-                    m_selectedEntity = entt::null;
-                }
-
-                entityCounter++;
-            }
-
-            WidgetsUtility::PopStyleVar();
-            WidgetsUtility::PopStyleVar();
-
-            if (m_selectedEntity != entt::null)
-            {
-                // Duplicate
-                if (ImGui::IsKeyDown(Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Input::InputCode::D))
-                {
-                    m_selectedEntity = m_ecs->CreateEntity(m_selectedEntity);
-                    Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
-                }
-
-                // Delete
-                if (ImGui::IsKeyReleased(Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
-                {
-                    Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-                    m_ecs->DestroyEntity(m_selectedEntity);
-                    m_selectedEntity = entt::null;
-                }
-            }
-            ImGuiID id  = ImGui::GetWindowDockID();
-            ImVec2  min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-            ImVec2  max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
-
-            /*if (ImGui::BeginDragDropTargetCustom(ImRect(min, max), id))
-            {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(Entity));
-                    Entity entity = *(Entity*)payload->Data;
-                    ecs->RemoveFromParent(entity);
-                }
-
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(uint32));
-
-                    auto* ecs = ECS::Registry::Get();
-                    auto& model = Graphics::Model::GetModel(*(uint32*)payload->Data);
-                    auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-                    auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
-                    mr.SetModel(entity, model);
-
-                    auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-
-                    for (int i = 0; i < model.GetImportedMaterials().size(); i++)
-                        mr.SetMaterial(entity, i, mat);
-                }
-
-                ImGui::EndDragDropTarget();
-            }*/
 
             End();
         }

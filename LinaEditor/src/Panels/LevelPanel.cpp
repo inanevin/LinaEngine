@@ -71,6 +71,9 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &LevelPanel::LevelUninstalled>(this);
         Event::EventSystem::Get()->Connect<ETransformGizmoChanged, &LevelPanel::OnTransformGizmoChanged>(this);
         Event::EventSystem::Get()->Connect<ETransformPivotChanged, &LevelPanel::OnTransformPivotChanged>(this);
+        Event::EventSystem::Get()->Connect<EShortcut, &LevelPanel::OnShortcut>(this);
+        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &LevelPanel::OnKeyCallback>(this);
+        Event::EventSystem::Get()->Connect<Event::EMouseButtonCallback, &LevelPanel::OnMouseButtonCallback>(this);
 
         m_shouldShowGizmos = true;
     }
@@ -312,7 +315,6 @@ namespace Lina::Editor
 
     void LevelPanel::ProcessInput()
     {
-
         if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
         {
             // Mouse picking
@@ -343,58 +345,6 @@ namespace Lina::Editor
                         //}
                     }
                 });
-            }
-
-            if (ImGui::IsKeyPressed(LINA_KEY_Q))
-                Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{0});
-            if (ImGui::IsKeyPressed(LINA_KEY_E))
-                Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{1});
-            if (ImGui::IsKeyPressed(LINA_KEY_R))
-                Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{2});
-            if (ImGui::IsKeyPressed(LINA_KEY_T))
-                Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{currentTransformGizmoMode == ImGuizmo::LOCAL});
-
-            bool  isInPlay    = Engine::Get()->GetPlayMode();
-            auto* inputEngine = Input::InputEngineBackend::Get();
-
-            if (inputEngine->GetKey(LINA_KEY_LCTRL) && inputEngine->GetKeyDown(LINA_KEY_SPACE))
-            {
-                if (isInPlay)
-                {
-                    Engine::Get()->SetPlayMode(false);
-                    Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
-                    // unconfine mouse
-                }
-                else
-                {
-                    Engine::Get()->SetPlayMode(true);
-                    Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
-                    // confine mouse
-                }
-            }
-
-            if (isInPlay)
-            {
-                if (Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_ESCAPE))
-                {
-                    Input::CursorMode currentMode = Input::InputEngineBackend::Get()->GetCursorMode();
-
-                    if (currentMode == Input::CursorMode::Visible)
-                    {
-                        Engine::Get()->SetPlayMode(false);
-                    }
-                    else
-                    {
-                        Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
-                        // unconfine
-                    }
-                }
-
-                if (m_isFocused && inputEngine->GetMouseButtonDown(LINA_MOUSE_1))
-                {
-                    Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
-                    // confine
-                }
             }
         }
     }
@@ -483,6 +433,66 @@ namespace Lina::Editor
             currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
         else
             currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
+    }
+
+    void LevelPanel::OnShortcut(const EShortcut& ev)
+    {
+        if (ev.m_name.compare("playmode") == 0)
+        {
+            if (Engine::Get()->GetPlayMode())
+            {
+                Engine::Get()->SetPlayMode(false);
+                Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
+                // unconfine mouse
+            }
+            else
+            {
+                Engine::Get()->SetPlayMode(true);
+                Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
+                // confine mouse
+            }
+        }
+    }
+
+    void LevelPanel::OnMouseButtonCallback(const Event::EMouseButtonCallback& ev)
+    {
+        if (Engine::Get()->GetPlayMode() && m_isFocused && ev.m_action == Input::InputAction::Pressed && ev.m_button == LINA_MOUSE_1)
+        {
+            Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Disabled);
+            // confine
+        }
+    }
+
+    void LevelPanel::OnKeyCallback(const Event::EKeyCallback& ev)
+    {
+        if (Engine::Get()->GetPlayMode())
+        {
+            if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_ESCAPE)
+            {
+                Input::CursorMode currentMode = Input::InputEngineBackend::Get()->GetCursorMode();
+
+                if (currentMode == Input::CursorMode::Visible)
+                {
+                    Engine::Get()->SetPlayMode(false);
+                }
+                else
+                {
+                    Input::InputEngineBackend::Get()->SetCursorMode(Input::CursorMode::Visible);
+                    // unconfine
+                }
+            }
+        }
+        if (!m_isFocused)
+            return;
+
+        if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_Q)
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{0});
+        if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_E)
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{1});
+        if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_R)
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{2});
+        if (ev.m_action == Input::InputAction::Pressed && ev.m_key == LINA_KEY_T)
+            Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{currentTransformGizmoMode == ImGuizmo::LOCAL});
     }
 
 } // namespace Lina::Editor

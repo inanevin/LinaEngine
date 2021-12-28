@@ -69,14 +69,14 @@ Graphics::Texture* splashScreenTexture;
 
 namespace Lina::Editor
 {
-    
-    Graphics::DrawParams                m_drawParameters;
+    GUILayer*            GUILayer::s_guiLayer = nullptr;
+    Graphics::DrawParams m_drawParameters;
 
     void GUILayer::Initialize()
     {
-        m_footerSize = 20.0f;
-        m_linaLogoIcon = ICON_FA_FIRE;
-        m_defaultWindowPadding = Vector2(8,8);
+        m_footerSize           = 20.0f;
+        m_linaLogoIcon         = ICON_FA_FIRE;
+        m_defaultWindowPadding = Vector2(8, 8);
 
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);

@@ -151,7 +151,8 @@ namespace Lina::ECS
     {
         for (auto& pool : storage())
         {
-            m_cloneComponentFunctions[pool.first](from, to);
+            if (pool.second.contains(from))
+                m_cloneComponentFunctions[pool.first](from, to);
         }
     }
 
@@ -251,8 +252,6 @@ namespace Lina::ECS
                 if (childData.m_wasPreviouslyEnabled)
                     SetEntityEnabled(child, true);
             }
-
-         
         }
     }
 
