@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/EntityEvents.hpp"
 #include "Log/Log.hpp"
 
 namespace Lina::ECS
@@ -78,6 +80,7 @@ namespace Lina::ECS
 
     void Registry::AddChildToEntity(Entity parent, Entity child)
     {
+     
         if (parent == child)
             return;
 
@@ -160,7 +163,7 @@ namespace Lina::ECS
     Entity Registry::CreateEntity(const std::string& name)
     {
         entt::entity ent = create();
-        emplace<EntityDataComponent>(ent, EntityDataComponent(false, true, true, name));
+        emplace<EntityDataComponent>(ent, EntityDataComponent(true, true, name));
         emplace<PhysicsComponent>(ent, PhysicsComponent());
         return ent;
     }
@@ -223,6 +226,16 @@ namespace Lina::ECS
             RemoveFromParent(entity);
 
         destroy(entity);
+    }
+
+    void Registry::SetEntityEnabled(Entity entity, bool isEnabled)
+    {
+        auto& data = get<EntityDataComponent>(entity);
+
+        if (data.m_isEnabled == isEnabled) return;
+
+        data.m_isEnabled = isEnabled;
+        Event::EventSystem::Get()->Trigger<Event::EEntityEnabledChanged>(Event::EEntityEnabledChanged{entity, isEnabled});
     }
 
 } // namespace Lina::ECS

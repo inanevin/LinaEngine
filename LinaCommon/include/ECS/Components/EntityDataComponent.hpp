@@ -65,9 +65,8 @@ namespace Lina::ECS
 
     struct EntityDataComponent : public Component
     {
-        EntityDataComponent(bool hidden, bool enabled, bool serialized, std::string name)
+        EntityDataComponent(bool enabled, bool serialized, std::string name)
         {
-            m_isHidden   = hidden;
             m_isEnabled  = enabled;
             m_serialized = serialized;
             m_name       = name;
@@ -75,8 +74,6 @@ namespace Lina::ECS
 
         EntityDataComponent(){};
 
-        bool             m_isHidden   = false;
-        bool             m_isEnabled  = true;
         bool             m_serialized = true;
         std::string      m_name       = "";
         std::set<Entity> m_children;
@@ -162,13 +159,15 @@ namespace Lina::ECS
 #endif
 
         bool m_isTransformLocked = false;
+        bool m_isEnabled         = true;
 
         Transformation m_transform;
         Registry*      m_ecs = nullptr;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
-            archive(m_isHidden, m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
+            archive(m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
         }
     };
 } // namespace Lina::ECS

@@ -49,7 +49,7 @@ namespace Lina::ECS
         for (auto entity : view)
         {
             FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(entity);
-            if (!freeLook.m_isEnabled)
+            if (!freeLook.GetIsEnabled())
                 return;
 
             EntityDataComponent& data = m_ecs->get<EntityDataComponent>(entity);

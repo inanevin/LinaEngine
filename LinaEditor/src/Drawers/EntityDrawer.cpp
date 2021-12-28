@@ -88,7 +88,14 @@ namespace Lina::Editor
         ImGui::SameLine();
         WidgetsUtility::IncrementCursorPosY(3.0f);
         ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-        WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled);
+
+        const bool prev          = data.GetIsEnabled();
+        bool       enabledToggle = prev;
+        if (WidgetsUtility::ToggleButton("##eactive", &enabledToggle))
+        {
+            if (enabledToggle != prev)
+                ECS::Registry::Get()->SetEntityEnabled(m_selectedEntity, enabledToggle);
+        }
 
         // Add Component Popup
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 4));

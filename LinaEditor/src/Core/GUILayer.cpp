@@ -242,7 +242,7 @@ namespace Lina::Editor
         Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
         const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
         Vector2                  splashSize   = Vector2(720, 450);
-        splashWindow->SetPosCentered(Vector2((int)(-splashSize.x / 2.0f), (int)(-splashSize.y / 2.0f)));
+        splashWindow->SetPosCentered(Vector2((-splashSize.x / 2.0f), (-splashSize.y / 2.0f)));
         splashWindow->SetSize(splashSize);
 
         Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);

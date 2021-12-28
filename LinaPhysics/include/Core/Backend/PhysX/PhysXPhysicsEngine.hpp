@@ -57,6 +57,8 @@ namespace Lina
         struct EPostSceneDraw;
         struct ELoadResourceFromFile;
         struct ELoadResourceFromMemory;
+        struct ELoadResourceFromMemory;
+        struct EEntityEnabledChanged;
     } // namespace Event
 } // namespace Lina
 
@@ -105,6 +107,11 @@ namespace Lina::Physics
         /// </summary>
         std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
 
+        /// <summary>
+        /// Returns true if the given entity is alive in the physics world, static or dynamic.
+        /// </summary>
+        bool IsEntityAPhysicsActor(ECS::Entity ent);
+
         void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
@@ -142,6 +149,7 @@ namespace Lina::Physics
         void            OnLevelInitialized(const Event::ELevelInitialized& ev);
         void            OnPostSceneDraw(const Event::EPostSceneDraw&);
         void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
+        void            OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev);
         void            RemoveBodyFromWorld(ECS::Entity body);
         void            AddBodyToWorld(ECS::Entity body, bool isDynamic);
         physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);

@@ -64,7 +64,8 @@ namespace Lina::ECS
         }
 
         // Registering a component enables serialization as well as duplication functionality in & out editor.
-        template <typename T> void RegisterComponent(bool onlyClone = false)
+        template <typename T>
+        void RegisterComponent(bool onlyClone = false)
         {
             TypeID id = GetTypeID<T>();
             if (!onlyClone)
@@ -76,15 +77,15 @@ namespace Lina::ECS
             m_cloneComponentFunctions[id] = std::bind(&Registry::CloneComponent<T>, this, std::placeholders::_1, std::placeholders::_2);
         }
 
-        void SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
-        void DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
-        void AddChildToEntity(Entity parent, Entity child);
-        void DestroyAllChildren(Entity parent);
-        void RemoveChildFromEntity(Entity parent, Entity child);
-        void RemoveFromParent(Entity child);
-        void CloneEntity(Entity from, Entity to);
-        void DestroyEntity(Entity entity, bool isRoot = true);
-
+        void                    SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
+        void                    DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
+        void                    AddChildToEntity(Entity parent, Entity child);
+        void                    DestroyAllChildren(Entity parent);
+        void                    RemoveChildFromEntity(Entity parent, Entity child);
+        void                    RemoveFromParent(Entity child);
+        void                    CloneEntity(Entity from, Entity to);
+        void                    DestroyEntity(Entity entity, bool isRoot = true);
+        void                    SetEntityEnabled(Entity entity, bool isEnabled);
         Entity                  CreateEntity(const std::string& name);
         Entity                  CreateEntity(Entity copy, bool attachParent = true);
         Entity                  GetEntity(const std::string& name);
@@ -98,18 +99,21 @@ namespace Lina::ECS
         void Shutdown();
 
     private:
-        template <typename Type> void CloneComponent(Entity from, Entity to)
+        template <typename Type>
+        void CloneComponent(Entity from, Entity to)
         {
             Type component = get<Type>(from);
             emplace<Type>(to, component);
         }
 
-        template <typename Type> void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
+        template <typename Type>
+        void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
         {
             snapshot.component<Type>(archive);
         }
 
-        template <typename Type> void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
+        template <typename Type>
+        void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
         {
             loader.component<Type>(archive);
         }

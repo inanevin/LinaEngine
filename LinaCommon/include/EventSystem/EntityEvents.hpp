@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,42 +27,27 @@ SOFTWARE.
 */
 
 /*
-Class: ECSComponent
+Class: EntityEvents
 
-Defines the base component class as well as macros for drawing components
-via the sandbox editor.
 
-Timestamp: 5/23/2020 5:17:02 PM
 
+Timestamp: 12/28/2021 2:58:34 PM
 */
 
 #pragma once
 
-#ifndef ECSComponent_HPP
-#define ECSComponent_HPP
+#ifndef EntityEvents_HPP
+#define EntityEvents_HPP
 
-namespace Lina::ECS
+#include "Core/CommonECS.hpp"
+
+namespace Lina::Event
 {
-    class Component
+    struct EEntityEnabledChanged
     {
-
-    public:
-        Component(){};
-        virtual ~Component(){};
-
-        inline void SetIsEnabled(bool enabled)
-        {
-            m_isEnabled = enabled;
-        }
-
-        inline bool GetIsEnabled()
-        {
-            return m_isEnabled;
-        }
-
-    protected:
-        bool m_isEnabled = true;
+        ECS::Entity m_entity;
+        bool        m_enabled;
     };
-} // namespace Lina::ECS
+} // namespace Lina::Event
 
 #endif

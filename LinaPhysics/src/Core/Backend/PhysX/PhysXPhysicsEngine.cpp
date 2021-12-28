@@ -35,6 +35,7 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/EntityEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
 #include "Physics/PhysicsMaterial.hpp"
@@ -243,6 +244,11 @@ namespace Lina::Physics
         m_convexMeshMap[sid].push_back(std::make_pair(nodeID, m_pxPhysics->createConvexMesh(input)));
 
         LINA_TRACE("Created convex mesh with sid {0} and nodeID {1}", sid, nodeID);
+    }
+
+    bool PhysXPhysicsEngine::IsEntityAPhysicsActor(ECS::Entity ent)
+    {
+        return m_actors.find(ent) != m_actors.end();
     }
 
     void PhysXPhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)
@@ -516,6 +522,22 @@ namespace Lina::Physics
     void PhysXPhysicsEngine::OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent)
     {
         RemoveBodyFromWorld(ent);
+    }
+
+    void PhysXPhysicsEngine::OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev)
+    {
+        if (IsEntityAPhysicsActor(ev.m_entity))
+        {
+            if (ev.m_enabled)
+            {
+                auto& phy = m_ecs->get<ECS::PhysicsComponent>(ev.m_entity);
+
+                if (phy.m_simType != SimulationType::None)
+                    AddBodyToWorld(ev.m_entity, phy.m_simType == SimulationType::Dynamic);
+            }
+            else
+                RemoveBodyFromWorld(ev.m_entity);
+        }
     }
 
     void PhysXPhysicsEngine::RemoveBodyFromWorld(ECS::Entity body)

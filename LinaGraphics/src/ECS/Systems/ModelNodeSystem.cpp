@@ -60,7 +60,7 @@ namespace Lina::ECS
         {
             ModelNodeComponent& nodeComponent = m_ecs->emplace<ModelNodeComponent>(entity);
             nodeComponent.m_modelNode         = node;
-            
+
             for (uint32 i = 0; i < node->m_defaultMaterials.size(); i++)
                 nodeComponent.m_materialIDs.push_back(node->m_defaultMaterials[i]);
         }
@@ -98,10 +98,11 @@ namespace Lina::ECS
         for (auto entity : view)
         {
             ModelNodeComponent& nodeComponent = view.get<ModelNodeComponent>(entity);
-            if (!nodeComponent.m_isEnabled)
+            auto&               data          = view.get<EntityDataComponent>(entity);
+
+            if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
                 return;
 
-            auto& data   = view.get<EntityDataComponent>(entity);
             auto* node   = nodeComponent.m_modelNode;
             auto& meshes = node->GetMeshes();
 

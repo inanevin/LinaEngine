@@ -6391,9 +6391,13 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
         RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, true, style.FrameRounding);
         RenderNavHighlight(frame_bb, id, nav_highlight_flags);
         if (flags & ImGuiTreeNodeFlags_Bullet)
-            RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
+        {
+           // RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
+        }
         else if (!is_leaf)
-            RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+        {
+            // RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+        }
         else // Leaf without bullet, left-adjusted text
             text_pos.x -= text_offset_x;
         if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton)
@@ -6413,10 +6417,12 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
             RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, false);
         }
         RenderNavHighlight(frame_bb, id, nav_highlight_flags);
-        if (flags & ImGuiTreeNodeFlags_Bullet)
-            RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.5f, text_pos.y + g.FontSize * 0.5f), text_col);
-        else if (!is_leaf)
-            RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 0.70f);
+
+        //if (flags & ImGuiTreeNodeFlags_Bullet)
+        //    RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.5f, text_pos.y + g.FontSize * 0.5f), text_col);
+        //else if (!is_leaf)
+        //    RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 0.70f);
+
         if (g.LogEnabled)
             LogSetNextTextDecoration(">", NULL);
         RenderText(text_pos, label, label_end, false);
@@ -8834,20 +8840,18 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 
     bool hasIcon = false;
     for (int i = 0; i < g.windowsWithIcons.size(); i++)
+    {
+        if (strcmp(label, g.windowsWithIcons[i]) == 0)
         {
-            if (strcmp(label, g.windowsWithIcons[i]) == 0)
-            {
-                PushFont(g.iconFont);
-                draw_list->AddText(ImVec2(bb.Min.x + frame_padding.x, bb.Min.y + frame_padding.y), ColorConvertFloat4ToU32(GetStyleColorVec4(ImGuiCol_Text)), g.windowIcons[i]);
-                PopFont();
-                hasIcon = true;
-            }
+            PushFont(g.iconFont);
+            draw_list->AddText(ImVec2(bb.Min.x + frame_padding.x, bb.Min.y + frame_padding.y), ColorConvertFloat4ToU32(GetStyleColorVec4(ImGuiCol_Text)), g.windowIcons[i]);
+            PopFont();
+            hasIcon = true;
         }
+    }
     // Render text label (with clipping + alpha gradient) + unsaved marker
     ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + (hasIcon ? 20 : 3), bb.Min.y + frame_padding.y, bb.Max.x - frame_padding.x, bb.Max.y);
     ImRect text_ellipsis_clip_bb = text_pixel_clip_bb;
-
-    
 
     // Return clipped state ignoring the close button
     if (out_text_clipped)

@@ -62,10 +62,11 @@ namespace Lina::ECS
         for (auto entity : view)
         {
             SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>(entity);
-            if (!renderer.m_isEnabled)
+            EntityDataComponent&     data     = view.get<EntityDataComponent>(entity);
+
+            if (!renderer.GetIsEnabled() || !data.GetIsEnabled())
                 return;
 
-            EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 
             // Dont draw if mesh or material does not exist.
             if (renderer.m_materialID < 0)

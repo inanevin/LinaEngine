@@ -82,12 +82,6 @@ namespace Lina::Editor
         static void Tooltip(const char* tooltip);
 
         /// <summary>
-        /// Draws a button with the given size, with an option to draw an icon/text in the middle.
-        /// Use ImGuiCol_ButtonX to style, ImGuiCol_Icon to style the icon color.</summary>
-        /// <returns></returns>
-        static bool CustomButton(const char* id, ImVec2 size, bool* isHovered = nullptr, bool locked = false, const char* icon = nullptr, float rounding = 0.0f, const char* tooltip = nullptr);
-
-        /// <summary>
         /// Draws a button with the given size, with an option to draw an icon/text in the middle. Use the toggled parameter to
         /// keep the button pressed/unpressed. Use ImGuiCol_ButtonLocked to style the toggled state, ImGuiCol_Icon to style the icon color.</summary>
         /// </summary>
@@ -207,6 +201,16 @@ namespace Lina::Editor
         static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentOffset = ImVec2(0.0f, 0.0f));
 
         /// <summary>
+        /// Draws a simple icon button with no background, hovering sets icon color.
+        /// </summary>
+        static bool IconButton(const char* icon, bool useSmallIcon = true);
+
+        /// <summary>
+        /// Tree node with a custom arrow.
+        /// </summary>
+        static bool TreeNode(const void* id, ImGuiTreeNodeFlags flags, const char* name, bool drawArrow);
+
+        /// <summary>
         /// Draws icon buttons used in the main toolbar.
         /// </summary>
         static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
@@ -257,6 +261,13 @@ namespace Lina::Editor
         /// </summary>
         /// <returns></returns>
         static ImVec2 GetWindowSizeWithContentRegion();
+
+        /// <summary>
+        /// Sets the cursor pos X such that the next item will be positioned in the middle of the column,
+        /// given item width.
+        /// </summary>
+        /// <param name="itemWidth"></param>
+        static void TableAlignCenter(float itemWidth);
 
         /// <summary>
         /// Draws a text centered within the current window.
@@ -377,11 +388,6 @@ namespace Lina::Editor
         /// Draws a simple icon in the current cursor position, offers to modify the cursor to align.
         /// </summary>
         static void Icon(const char* label, bool align, float scale = 0.6f);
-
-        /// <summary>
-        /// Draws an icon, with button functionality. Use ImGuiCol_ButtonX to style colors.
-        /// </summary>
-        static bool IconButton(const char* id, const char* label, bool align, float scale = 0.6f, bool disabled = false);
 
         /// <summary>
         /// Pushes the small icon font to the font stack & draws icon, then pops the stack.

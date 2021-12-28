@@ -66,51 +66,6 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
     }
 
-    bool WidgetsUtility::CustomButton(const char* id, ImVec2 size, bool* isHovered, bool locked, const char* icon, float rounding, const char* tooltip)
-    {
-        const ImVec2 currentCursor = ImGui::GetCursorPos();
-        const ImVec2 currentPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
-        const ImRect absoluteRect  = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
-
-        ImGui::ItemAdd(absoluteRect, ImHashStr(id));
-        ImGui::ItemSize(size);
-
-        bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
-        if (isHovered != nullptr)
-            *isHovered = hovered;
-
-        const bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-
-        const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-        const ImVec4 lockedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
-        const ImVec4 hoverColor  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-        const ImVec4 rectCol     = locked ? lockedColor : pressing ? normalColor
-                                                                   : (hovered ? hoverColor : normalColor);
-        const ImU32  borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
-        ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
-
-        if (icon != nullptr)
-        {
-            const float iconScale = size.y * 0.035f;
-            PushScaledFont(iconScale);
-            ImVec2 textSize = ImGui::CalcTextSize(icon);
-
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(currentCursor.x + size.x / 2.0f - textSize.x / 2.0f);
-            ImGui::SetCursorPosY(currentCursor.y + size.y / 2.0f - textSize.y / 2.0f + 0.6f);
-            ImGui::Text(icon);
-            PopScaledFont();
-        }
-
-        if (tooltip != nullptr && hovered)
-            Tooltip(tooltip);
-
-        if (!locked && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
-            return true;
-
-        return false;
-    }
-
     bool WidgetsUtility::CustomToggle(const char* id, ImVec2 size, bool toggled, bool* hoveredPtr, const char* icon, float rounding, const char* tooltip)
     {
         const ImVec2 currentCursor = ImGui::GetCursorPos();
@@ -319,6 +274,7 @@ namespace Lina::Editor
 
     bool WidgetsUtility::ToggleButton(const char* label, bool* v, ImVec2 size)
     {
+        bool isPressed = false;
         const ImVec4 inactiveColor        = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
         const ImVec4 inactiveHoveredColor = ImVec4(0.78f, 0.78f, 0.78f, 1.0f);
         const ImVec4 activeColor          = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -694,7 +650,7 @@ namespace Lina::Editor
         const float windowWidth   = ImGui::GetWindowWidth();
         const float remaining     = windowWidth - currentCursor;
         const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
-        const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+        const bool  combo         = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
         return combo;
     }
@@ -959,6 +915,41 @@ namespace Lina::Editor
         if (textSize != 1.0f)
             WidgetsUtility::PopScaledFont();
         return button;
+    }
+
+    bool WidgetsUtility::IconButton(const char* icon, bool useSmallIcon)
+    {
+        const float  frameHeight = ImGui::GetFrameHeight() - 5;
+        const ImVec2 size        = ImVec2(frameHeight, frameHeight);
+        const ImVec2 rectMin     = ImGui::GetCursorScreenPos();
+        const ImVec2 rectMax     = ImVec2(rectMin.x + size.x, rectMin.y + size.y);
+        const bool   hovered     = ImGui::IsMouseHoveringRect(rectMin, rectMax);
+        const bool   pressed     = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+
+        const ImVec4 iconColor = pressed ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered)
+                                                                                                     : ImGui::GetStyleColorVec4(ImGuiCol_Text);
+
+        ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
+        IconSmall(icon);
+        ImGui::PopStyleColor();
+        return hovered && Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
+    }
+
+    bool WidgetsUtility::TreeNode(const void* id, ImGuiTreeNodeFlags flags, const char* name, bool drawArrow)
+    {
+        FramePaddingX(4);
+        const ImVec2 iconMin = ImVec2(ImGui::GetCursorScreenPos().x + 10, ImGui::GetCursorScreenPos().y);
+        const bool   node    = ImGui::TreeNodeEx(id, flags, name);
+
+        if (drawArrow)
+        {
+            PushIconFontSmall();
+            const char* arrow = node ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+            ImGui::GetWindowDrawList()->AddText(iconMin, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), arrow);
+            ImGui::PopFont();
+        }
+        ImGui::PopStyleVar();
+        return node;
     }
 
     bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color, float scale)
@@ -1227,6 +1218,11 @@ namespace Lina::Editor
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
     }
 
+    void WidgetsUtility::TableAlignCenter(float itemWidth)
+    {
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - itemWidth / 2.0f);
+    }
+
     void WidgetsUtility::CenteredText(const char* label)
     {
         float textW = ImGui::CalcTextSize(label).x;
@@ -1349,28 +1345,6 @@ namespace Lina::Editor
         }
         ImGui::Text(label);
         PopScaledFont();
-    }
-
-    bool WidgetsUtility::IconButton(const char* id, const char* label, bool align, float scale, bool disabled)
-    {
-
-        if (!disabled)
-        {
-            Icon(label, align, scale);
-            bool pressed      = ImGui::IsItemClicked();
-            bool hovered      = ImGui::IsItemHovered();
-            bool beingPressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-            bool released     = hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
-            return released;
-        }
-        else
-        {
-            ImVec4 disabledColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-            ImGui::PushStyleColor(ImGuiCol_Text, disabledColor);
-            Icon(label, align, scale);
-            ImGui::PopStyleColor();
-            return false;
-        }
     }
 
     void WidgetsUtility::IconSmall(const char* icon)

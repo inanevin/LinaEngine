@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Widgets/MenuButton.hpp"
-
+#include "IconsFontAwesome5.h"
 namespace Lina::Editor
 {
     using namespace ECS;
@@ -61,7 +61,7 @@ namespace Lina::Editor
         m_ecs = ECS::Registry::Get();
 
         m_createMenuBarElement = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
-        
+
         auto& createElements = HeaderPanel::GetCreateEntityElements();
         for (auto* elem : createElements)
             m_createMenuBarElement->AddChild(elem);
@@ -85,11 +85,20 @@ namespace Lina::Editor
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-
+        
         if (entity == m_selectedEntity)
             flags |= ImGuiTreeNodeFlags_Selected;
 
-        bool open = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
+        const std::string treeLabel =  data.m_name;
+        bool              open      = WidgetsUtility::TreeNode((void*)(intptr_t)entity, flags, treeLabel.c_str(), hasChildren);
+      //ImGui::SameLine();
+      //
+      //const char* visibilityIcon      = data.m_isEnabled ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+      //const float visibilityIconWidth = ImGui::CalcTextSize("AB").x;
+      //const float previousCP          = ImGui::GetCursorPosX();
+      //ImGui::SetCursorPosX(8);
+      //WidgetsUtility::IconButton(visibilityIcon);
+
 
         if (ImGui::IsItemClicked())
         {
@@ -117,9 +126,19 @@ namespace Lina::Editor
         }
 
         ImGui::TableNextColumn();
-        ImGui::TextDisabled("--");
-        ImGui::TableNextColumn();
-        ImGui::TextUnformatted("type");
+
+        const char* visibilityIcon      = data.GetIsEnabled() ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+        const float visibilityIconWidth = ImGui::CalcTextSize("AB").x;
+        WidgetsUtility::TableAlignCenter(visibilityIconWidth);
+
+        ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+        textColor.w -= data.GetIsEnabled() ? 0.2f : 0.5f;
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::ColorConvertFloat4ToU32(textColor));
+
+        if(WidgetsUtility::IconButton(visibilityIcon))
+            ECS::Registry::Get()->SetEntityEnabled(entity, !data.GetIsEnabled());
+
+        ImGui::PopStyleColor();
 
         if (open && hasChildren)
         {
@@ -127,55 +146,6 @@ namespace Lina::Editor
                 DrawEntityNode(0, child);
             ImGui::TreePop();
         }
-
-        return;
-
-        // ECS::Registry*            ecs        = ECS::Registry::Get();
-        // ECS::EntityDataComponent& data       = ecs->get<ECS::EntityDataComponent>(entity);
-        // static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-        // static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
-        // ImGuiTreeNodeFlags        flags      = data.m_children.size() == 0 ? leaf_flags : base_flags;
-        //
-        // if (entity == m_selectedEntity)
-        //     flags |= ImGuiTreeNodeFlags_Selected;
-        //
-        // bool nodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
-        //
-        // if (ImGui::IsItemClicked())
-        // {
-        //     m_selectedEntity = entity;
-        //     Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
-        // }
-        //
-        // if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-        // {
-        //     ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
-        //
-        //     // Display preview
-        //     ImGui::Text(data.m_name.c_str());
-        //     ImGui::EndDragDropSource();
-        // }
-        //
-        // if (ImGui::BeginDragDropTarget())
-        // {
-        //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
-        //     {
-        //         IM_ASSERT(payload->DataSize == sizeof(Entity));
-        //         ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
-        //     }
-        //     ImGui::EndDragDropTarget();
-        // }
-        //
-        // if (nodeOpen)
-        // {
-        //     int counter = 0;
-        //     for (Entity child : data.m_children)
-        //     {
-        //         DrawEntityNode(counter, child);
-        //         counter++;
-        //     }
-        //     ImGui::TreePop();
-        // }
     }
 
     void ECSPanel::OnLevelInstall(const Event::ELevelInstalled& ev)
@@ -193,14 +163,12 @@ namespace Lina::Editor
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
             ImGui::BeginChild("ecs_child", ImVec2(0, -30), true);
 
-            const float            TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
-            static ImGuiTableFlags flags           = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
 
-            if (ImGui::BeginTable("entitiesTable", 3, flags))
+            if (ImGui::BeginTable("entitiesTable", 2, flags))
             {
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-                ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
-                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40);
                 ImGui::TableHeadersRow();
 
                 auto singleView = m_ecs->view<ECS::EntityDataComponent>();
@@ -224,7 +192,7 @@ namespace Lina::Editor
 
             WidgetsUtility::PushPopupStyle();
 
-             // Handle Right Click.
+            // Handle Right Click.
             if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
             {
                 m_createMenuBarElement->Draw();

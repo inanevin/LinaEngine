@@ -58,7 +58,7 @@ namespace Lina::Editor
 
     template <typename Type> void Drawer_SetEnabled(ECS::Entity ent, bool enabled)
     {
-        ECS::Registry::Get()->template get<Type>(ent).m_isEnabled = enabled;
+        ECS::Registry::Get()->template get<Type>(ent).SetIsEnabled(enabled);
 
         // If we are toggling model renderer component, toggle every mesh renderer component below it.
         if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
@@ -67,7 +67,7 @@ namespace Lina::Editor
             for (auto child : data.m_children)
             {
                 auto* meshRenderer        = ECS::Registry::Get()->try_get<MeshRendererComponent>(child);
-                meshRenderer->m_isEnabled = enabled;
+                meshRenderer->SetEnabled(enabled);
             }
         }
     }
@@ -137,7 +137,7 @@ namespace Lina::Editor
                     if (copy != nullptr)
                     {
                         ECS::Registry::Get()->replace<Type>(entity, *copy);
-                        Drawer_SetEnabled<Type>(entity, copy->m_isEnabled);
+                        Drawer_SetEnabled<Type>(entity, copy->GetIsEnabled());
                     }
                 }
             }

@@ -76,7 +76,7 @@ namespace Lina::ECS
         for (auto& entity : dirLightView)
         {
             DirectionalLightComponent* dirLight = &dirLightView.get<DirectionalLightComponent>(entity);
-            if (!dirLight->m_isEnabled)
+            if (!dirLight->GetIsEnabled())
                 continue;
 
             EntityDataComponent& data       = dirLightView.get<EntityDataComponent>(entity);
@@ -96,7 +96,7 @@ namespace Lina::ECS
         for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
         {
             PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
-            if (!pLight->m_isEnabled)
+            if (!pLight->GetIsEnabled())
                 continue;
 
             EntityDataComponent& data = pointLightView.get<EntityDataComponent>(*it);
@@ -111,7 +111,7 @@ namespace Lina::ECS
         for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
         {
             SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);
-            if (!sLight->m_isEnabled)
+            if (!sLight->GetIsEnabled())
                 continue;
 
             EntityDataComponent& data = spotLightView.get<EntityDataComponent>(*it);
