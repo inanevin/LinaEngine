@@ -49,7 +49,7 @@ namespace Lina::Graphics
     Texture& Texture::Construct(const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
-        m_size         = Vector2ui((unsigned int)data.GetWidth(), (unsigned int)data.GetHeight());
+        m_size         = Vector2i((unsigned int)data.GetWidth(), (unsigned int)data.GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         m_sampler.Construct(samplerParams, m_bindMode);
         m_id = m_renderDevice->CreateTexture2D(m_size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
@@ -70,7 +70,7 @@ namespace Lina::Graphics
         }
 
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
-        m_size         = Vector2ui((unsigned int)data[0]->GetWidth(), (unsigned int)data[0]->GetHeight());
+        m_size         = Vector2i((unsigned int)data[0]->GetWidth(), (unsigned int)data[0]->GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
         std::vector<unsigned char*> cubeMapData;
@@ -89,7 +89,7 @@ namespace Lina::Graphics
         return *this;
     }
 
-    Texture& Texture::ConstructHDRI(SamplerParameters samplerParams, Vector2ui size, float* data, const std::string& path)
+    Texture& Texture::ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
         m_size         = size;
@@ -104,7 +104,7 @@ namespace Lina::Graphics
         return *this;
     }
 
-    Texture& Texture::ConstructRTCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::string& path)
+    Texture& Texture::ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
         m_size         = size;
@@ -119,7 +119,7 @@ namespace Lina::Graphics
         return *this;
     }
 
-    Texture& Texture::ConstructRTTexture(Vector2ui size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
+    Texture& Texture::ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
     {
         // Frame buffer texture.
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
@@ -136,7 +136,7 @@ namespace Lina::Graphics
         return *this;
     }
 
-    Texture& Texture::ConstructRTTextureMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
+    Texture& Texture::ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
         SamplerParameters params;
@@ -259,7 +259,7 @@ namespace Lina::Graphics
 
         StringIDType sid     = StringID(path.c_str()).value();
         Texture*     texture = new Texture();
-        texture->ConstructHDRI(samplerParams, Vector2ui(w, h), bitmapData, path);
+        texture->ConstructHDRI(samplerParams, Vector2i(w, h), bitmapData, path);
         texture->m_sid        = sid;
         s_loadedTextures[sid] = texture;
 
@@ -329,7 +329,7 @@ namespace Lina::Graphics
 
         StringIDType sid     = StringID(filePath.c_str()).value();
         Texture*     texture = new Texture();
-        texture->ConstructHDRI(samplerParams, Vector2ui(w, h), data, filePath);
+        texture->ConstructHDRI(samplerParams, Vector2i(w, h), data, filePath);
         texture->m_sid        = sid;
         s_loadedTextures[sid] = texture;
 

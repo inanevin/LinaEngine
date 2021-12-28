@@ -54,10 +54,17 @@ namespace Lina
     {
     public:
         Vector2ui() = default;
-        Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y){};
-        Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
-        Vector2ui(unsigned int val) : glm::uvec2(val, val){};
-        Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y){};
+        Vector2ui(unsigned int x, unsigned int y)
+            : glm::uvec2(x, y){};
+        Vector2ui(const Vector2ui& rhs)
+            : glm::uvec2(rhs){};
+        Vector2ui(unsigned int val)
+            : glm::uvec2(val, val){};
+        Vector2ui(const glm::vec2& rhs)
+            : glm::uvec2(rhs.x, rhs.y){};
+
+        static Vector2ui Zero;
+        static Vector2ui One;
 
         std::ostream& operator<<(std::ostream& os)
         {
@@ -71,7 +78,42 @@ namespace Lina
             return ss.str();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(x, y);
+        }
+    };
+
+    class Vector2i : public glm::ivec2
+    {
+    public:
+        Vector2i() = default;
+        Vector2i(int x, int y)
+            : glm::ivec2(x, y){};
+        Vector2i(const Vector2i& rhs)
+            : glm::ivec2(rhs){};
+        Vector2i(unsigned int val)
+            : glm::ivec2(val, val){};
+        Vector2i(const glm::vec2& rhs)
+            : glm::ivec2(rhs.x, rhs.y){};
+
+        static Vector2i Zero;
+        static Vector2i One;
+        std::ostream&   operator<<(std::ostream& os)
+        {
+            return os << "X:" << x << "   Y:" << y;
+        }
+
+        std::string ToString() const
+        {
+            std::stringstream ss;
+            ss << "X:" << x << "   Y:" << y;
+            return ss.str();
+        }
+
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -81,10 +123,14 @@ namespace Lina
     {
     public:
         Vector2() = default;
-        Vector2(float x, float y) : glm::vec2(x, y){};
-        Vector2(const Vector2& rhs) : glm::vec2(rhs){};
-        Vector2(float val) : glm::vec2(val, val){};
-        Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
+        Vector2(float x, float y)
+            : glm::vec2(x, y){};
+        Vector2(const Vector2& rhs)
+            : glm::vec2(rhs){};
+        Vector2(float val)
+            : glm::vec2(val, val){};
+        Vector2(const glm::vec2& rhs)
+            : glm::vec2(rhs.x, rhs.y){};
 
         static Vector2 Zero;
         static Vector2 One;
@@ -195,7 +241,8 @@ namespace Lina
             return ss.str();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -257,11 +304,16 @@ namespace Lina
 
     public:
         Vector3() = default;
-        Vector3(float x, float y, float z) : glm::vec3(x, y, z){};
-        Vector3(const Vector3& rhs) : glm::vec3(rhs){};
-        Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
-        Vector3(float val) : glm::vec3(val, val, val){};
-        Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z){};
+        Vector3(float x, float y, float z)
+            : glm::vec3(x, y, z){};
+        Vector3(const Vector3& rhs)
+            : glm::vec3(rhs){};
+        Vector3(const Vector2& rhs)
+            : glm::vec3(rhs.x, rhs.y, 0.0f){};
+        Vector3(float val)
+            : glm::vec3(val, val, val){};
+        Vector3(const glm::vec3& rhs)
+            : glm::vec3(rhs.x, rhs.y, rhs.z){};
 
         static Vector3 Zero;
         static Vector3 Up;
@@ -394,7 +446,8 @@ namespace Lina
             return ss.str();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(x, y, z);
         }
@@ -454,13 +507,20 @@ namespace Lina
 
     public:
         Vector4() = default;
-        Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
-        Vector4(const Vector4& rhs) : glm::vec4(rhs){};
-        Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
-        Vector4(const Vector2& rhs) : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
-        Vector4(float f) : glm::vec4(f, f, f, f){};
-        Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
-        Vector4(const Vector3& src, float w) : glm::vec4(src, w){};
+        Vector4(float x, float y, float z, float w)
+            : glm::vec4(x, y, z, w){};
+        Vector4(const Vector4& rhs)
+            : glm::vec4(rhs){};
+        Vector4(const Vector3& rhs)
+            : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
+        Vector4(const Vector2& rhs)
+            : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
+        Vector4(float f)
+            : glm::vec4(f, f, f, f){};
+        Vector4(const glm::vec4& rhs)
+            : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+        Vector4(const Vector3& src, float w)
+            : glm::vec4(src, w){};
         static Vector4 Zero;
         static Vector4 One;
 
@@ -595,7 +655,8 @@ namespace Lina
             return ss.str();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(x, y, z, w);
         }

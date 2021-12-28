@@ -401,7 +401,7 @@ namespace Lina::Graphics
         m_animationPipeline.AddSystem(system);
     }
 
-    void OpenGLRenderEngine::SetScreenDisplay(Vector2ui pos, Vector2ui size)
+    void OpenGLRenderEngine::SetScreenDisplay(Vector2i pos, Vector2i size)
     {
         m_renderDevice.SetViewport(pos, size);
         m_screenPos  = pos;
@@ -655,7 +655,7 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::OnWindowResized(const Event::EWindowResized& event)
     {
-        SetScreenDisplay(Vector2ui(0, 0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
+        SetScreenDisplay(Vector2i(0, 0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
     }
 
     void OpenGLRenderEngine::DumpMemory()
@@ -1163,8 +1163,8 @@ namespace Lina::Graphics
             // reisze framebuffer according to mip-level size.
             unsigned int mipWidth  = (unsigned int)(128 * std::pow(0.5, mip));
             unsigned int mipHeight = (unsigned int)(128 * std::pow(0.5, mip));
-            m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), Vector2ui((int)mipWidth, (int)mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
-            m_renderDevice.SetViewport(Vector2ui(0, 0), Vector2ui((int)mipWidth, (int)mipHeight));
+            m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), Vector2i((int)mipWidth, (int)mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
+            m_renderDevice.SetViewport(Vector2i(0, 0), Vector2i((int)mipWidth, (int)mipHeight));
 
             // Draw prefiltered map
             float roughness = (float)mip / (float)(maxMipLevels - 1);

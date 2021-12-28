@@ -53,7 +53,7 @@ namespace Lina::Editor
     uint32                       linaLogoID;
     ImVec2                       resizeStartPos;
     ImVec2                       headerClickPos;
-    Vector2ui                    resizeStartSize;
+    Vector2i                     resizeStartSize;
     bool                         appResizeActive;
     bool                         isAxisPivotLocal;
     float                        logoAnimRatio       = 0.0f;
@@ -177,7 +177,7 @@ namespace Lina::Editor
             {
                 appResizeActive = true;
                 ImVec2 delta    = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
-                appWindow->SetSize(Vector2ui((unsigned int)(resizeStartSize.x + delta.x), (unsigned int)(resizeStartSize.y + delta.y)));
+                appWindow->SetSize(Vector2i((int)(resizeStartSize.x + delta.x), (int)(resizeStartSize.y + delta.y)));
             }
             else
             {
@@ -191,21 +191,35 @@ namespace Lina::Editor
             clicked = false;
 
         // Handle window movement.
-        if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        if (ImGui::IsWindowHovered())
         {
-            headerClickPos = ImGui::GetMousePos();
+            headerClickPos                 = ImGui::GetMousePos();
+            static ImVec2   pressPos       = ImVec2(0, 0);
+            static Vector2i pressWindowPos = Vector2i::Zero;
+            static bool     mouseDragging  = false;
+            if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+            {
+                pressWindowPos = appWindow->GetPos();
+                LINA_TRACE("Press Pos {0}", pressWindowPos.ToString());
+            }
 
-            ImVec2  delta     = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-            Vector2 windowPos = appWindow->GetPos();
-            Vector2 newPos    = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
+            mouseDragging = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
 
-            if (newPos.x < 0.0f)
-                newPos.x = 0.0f;
+            if (mouseDragging)
+            {
+                const ImVec2   delta     = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+                const Vector2  windowPos = appWindow->GetPos();
+                const Vector2i newPos    = Vector2i(pressWindowPos.x + (int)delta.x, pressWindowPos.y + (int)delta.y);
+                
+                // TODO: Find all monitors min and max.
+                // if (newPos.x < 0.0f)
+                //     newPos.x = 0.0f;
+                //
+                // if (newPos.y < 0.0f)
+                //     newPos.y = 0.0f;
 
-            if (newPos.y < 0.0f)
-                newPos.y = 0.0f;
-
-            appWindow->SetPos(newPos);
+                appWindow->SetPos(newPos);
+            }
         }
     }
 
@@ -273,23 +287,27 @@ namespace Lina::Editor
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
                 DrawMenuBarChild();
 
+                Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
+                const ImVec2             windowPos = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
+                const ImVec2             windowSize = ImVec2((float)appWindow->GetSize().x, (float)appWindow->GetSize().y);
+
                 // Add a poly background for the logo.
                 const ImVec2 logoBounds = ImVec2(500, 36.0f);
-                const ImVec2 logoPos    = ImVec2(viewport->GetWorkCenter().x - logoBounds.x / 2.0f, 0);
+                const ImVec2 logoPos    = ImVec2(windowPos.x + windowSize.x / 2.0f - logoBounds.x / 2.0f, windowPos.y);
 
                 ImVec2 points[5] = {
-                    ImVec2(logoPos.x, 0.0f),
-                    ImVec2(logoPos.x + 20, GUILayer::Get()->m_headerSize / 2.0f + 4),
-                    ImVec2(logoPos.x + logoBounds.x - 20, GUILayer::Get()->m_headerSize / 2.0f + 4),
-                    ImVec2(logoPos.x + logoBounds.x, 0.0f),
-                    ImVec2(logoPos.x, 0.0f)};
+                    ImVec2(logoPos.x, logoPos.y),
+                    ImVec2(logoPos.x + 20,  logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x - 20,  logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x, logoPos.y),
+                    ImVec2(logoPos.x, logoPos.y)};
 
                 const ImU32 polyBackground = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Toolbar));
                 ImGui::GetWindowDrawList()->AddConvexPolyFilled(&points[0], 5, polyBackground);
                 ImGui::GetWindowDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
 
                 // Add animated logo.
-                const ImVec2 logoMin = ImVec2(viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, logoBounds.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
+                const ImVec2 logoMin = ImVec2(windowPos.x + viewport->WorkSize.x / 2.0f - LINALOGO_SIZE.x / 2.0f, windowPos.y + logoBounds.y / 2.0f - LINALOGO_SIZE.y / 2.0f);
                 const ImVec2 logoMax = ImVec2(logoMin.x + LINALOGO_SIZE.x, logoMin.y + LINALOGO_SIZE.y);
                 ImGui::GetWindowDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
 

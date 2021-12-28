@@ -38,18 +38,22 @@ SOFTWARE.
 namespace Lina
 {
 
-    Vector4 Vector4::Zero    = Vector4(0.0f);
-    Vector4 Vector4::One     = Vector4(1.0f);
-    Vector3 Vector3::Zero    = Vector3(0.0f);
-    Vector3 Vector3::One     = Vector3(1.0f);
-    Vector3 Vector3::Forward = Vector3(0.0f, 0.0f, 1.0f);
-    Vector3 Vector3::Up      = Vector3(0.0f, 1.0f, 0.0f);
-    Vector3 Vector3::Right   = Vector3(1.0f, 0.0f, 0.0f);
-    Vector3 Vector3::Back    = Vector3(0.0f, 0.0f, -1.0f);
-    Vector3 Vector3::Down    = Vector3(0.0f, -1.0f, 0.0f);
-    Vector3 Vector3::Left    = Vector3(-1.0f, 0.0f, 0.0f);
-    Vector2 Vector2::Zero    = Vector2(0.0f);
-    Vector2 Vector2::One     = Vector2(1.0f);
+    Vector4   Vector4::Zero    = Vector4(0.0f);
+    Vector4   Vector4::One     = Vector4(1.0f);
+    Vector3   Vector3::Zero    = Vector3(0.0f);
+    Vector3   Vector3::One     = Vector3(1.0f);
+    Vector3   Vector3::Forward = Vector3(0.0f, 0.0f, 1.0f);
+    Vector3   Vector3::Up      = Vector3(0.0f, 1.0f, 0.0f);
+    Vector3   Vector3::Right   = Vector3(1.0f, 0.0f, 0.0f);
+    Vector3   Vector3::Back    = Vector3(0.0f, 0.0f, -1.0f);
+    Vector3   Vector3::Down    = Vector3(0.0f, -1.0f, 0.0f);
+    Vector3   Vector3::Left    = Vector3(-1.0f, 0.0f, 0.0f);
+    Vector2   Vector2::Zero    = Vector2(0.0f);
+    Vector2   Vector2::One     = Vector2(1.0f);
+    Vector2ui Vector2ui::Zero  = Vector2ui(0);
+    Vector2ui Vector2ui::One   = Vector2ui(1);
+    Vector2i  Vector2i::Zero   = Vector2i(0);
+    Vector2i  Vector2i::One    = Vector2i(1);
 
     Vector4 Vector4::Abs() const
     {

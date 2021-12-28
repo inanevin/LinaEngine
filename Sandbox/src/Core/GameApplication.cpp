@@ -47,8 +47,8 @@ namespace Lina
             auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
 
             // Set the app window size back to original after loading editor resources.
-            Graphics::WindowBackend::Get()->SetPos(Vector2ui(0, 0));
-            Graphics::WindowBackend::Get()->SetSize(Vector2ui(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
+            Graphics::WindowBackend::Get()->SetPos(Vector2i(0, 0));
+            Graphics::WindowBackend::Get()->SetSize(Vector2i(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
             Engine::Get()->SetPlayMode(false);
         }

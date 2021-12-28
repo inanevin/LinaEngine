@@ -51,7 +51,7 @@ namespace Lina::Graphics
         RenderBuffer() = default;
         ~RenderBuffer();
 
-        void Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount = 0);
+        void Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount = 0);
 
         uint32 GetID()
         {

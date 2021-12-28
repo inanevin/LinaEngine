@@ -70,32 +70,32 @@ namespace Lina::Graphics
         /// <summary>
         /// Creates 2D texture in GL, use CreateTexture2DEmpty for framebuffer textures.
         /// </summary>
-        uint32 CreateTexture2D(Vector2ui size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder = false, Color borderColor = Color::White);
+        uint32 CreateTexture2D(Vector2i size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder = false, Color borderColor = Color::White);
 
         /// <summary>
         /// Creates HDRI texture in GL.
         /// </summary>
-        uint32 CreateTextureHDRI(Vector2ui size, float* data, SamplerParameters samplerParams);
+        uint32 CreateTextureHDRI(Vector2i size, float* data, SamplerParameters samplerParams);
 
         /// <summary>
         /// Creates a cubemap texture, used for skyboxes & probes.
         /// </summary>
-        uint32 CreateCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize = 6);
+        uint32 CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize = 6);
 
         /// <summary>
         /// Creates an empty cubemap texture
         /// </summary>
-        uint32 CreateCubemapTextureEmpty(Vector2ui size, SamplerParameters samplerParams);
+        uint32 CreateCubemapTextureEmpty(Vector2i size, SamplerParameters samplerParams);
 
         /// <summary>
         /// Creates texture with MSAA flags.
         /// </summary>
-        uint32 CreateTexture2DMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount);
+        uint32 CreateTexture2DMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount);
 
         /// <summary>
         /// Creates xexture with null data, can be used for framebuffers.
         /// </summary>
-        uint32 CreateTexture2DEmpty(Vector2ui size, SamplerParameters samplerParams);
+        uint32 CreateTexture2DEmpty(Vector2i size, SamplerParameters samplerParams);
 
         /// <summary>
         /// Updates existing texture sampler parameters.
@@ -201,12 +201,12 @@ namespace Lina::Graphics
         /// <summary>
         /// Resizes the given framebuffer texture.
         /// </summary>
-        void ResizeRTTexture(uint32 texture, Vector2ui newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool compress = false);
+        void ResizeRTTexture(uint32 texture, Vector2i newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool compress = false);
 
         /// <summary>
         /// Resizes the given render buffer.
         /// </summary>
-        void ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2ui newSize, RenderBufferStorage storage);
+        void ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2i newSize, RenderBufferStorage storage);
 
         /// <summary>
         /// Deletes the given framebuffer.
@@ -275,8 +275,8 @@ namespace Lina::Graphics
         void UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data);
         void SetFBO(uint32 fbo);
         void SetVAO(uint32 vao);
-        void SetViewport(Vector2ui pos, Vector2ui size);
-        void CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2ui captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader);
+        void SetViewport(Vector2i pos, Vector2i size);
+        void CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2i captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader);
 
         /// <summary>
         /// Calls glClearColor, pass in boolean arguments to determine which bits.
@@ -309,8 +309,8 @@ namespace Lina::Graphics
         uint32                            m_boundRBO      = 0;
         uint32                            m_boundUBO;
         uint32                            m_boundTextureUnit;
-        Vector2ui                         m_boundViewportSize;
-        Vector2ui                         m_boundViewportPos;
+        Vector2i                         m_boundViewportSize;
+        Vector2i                         m_boundViewportPos;
         std::map<uint32, VertexArrayData> m_vaoMap;
         std::map<uint32, ShaderProgram>   m_shaderProgramMap;
         std::string                       m_shaderVersion;

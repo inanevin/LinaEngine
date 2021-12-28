@@ -102,7 +102,6 @@ namespace Lina::Editor
         {
             AddComponentMap map            = m_componentDrawer.GetCurrentAddComponentMap(m_selectedEntity);
             static char     filterChr[128] = "";
-
             const char* addCompText = "Add Component";
             WidgetsUtility::CenteredText(addCompText);
             ImGui::SetNextItemWidth(250);

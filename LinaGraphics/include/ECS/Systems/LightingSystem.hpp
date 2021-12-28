@@ -73,7 +73,7 @@ namespace Lina::ECS
 
         Matrix              GetDirectionalLightMatrix();
         Matrix              GetDirLightBiasMatrix();
-        std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2ui m_resolution, float near, float farPlane);
+        std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2i m_resolution, float near, float farPlane);
         const Vector3&      GetDirectionalLightPos();
 
         DirectionalLightComponent* GetDirLight()

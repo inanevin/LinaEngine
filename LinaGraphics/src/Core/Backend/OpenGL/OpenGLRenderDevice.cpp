@@ -209,7 +209,7 @@ namespace Lina::Graphics
     // TEXTURE OPERATIONS
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateTexture2D(Vector2ui size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
+    uint32 OpenGLRenderDevice::CreateTexture2D(Vector2i size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -240,7 +240,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTextureHDRI(Vector2ui size, float* data, SamplerParameters samplerParams)
+    uint32 OpenGLRenderDevice::CreateTextureHDRI(Vector2i size, float* data, SamplerParameters samplerParams)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -271,7 +271,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
+    uint32 OpenGLRenderDevice::CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
     {
         GLuint textureHandle;
         // Declare formats, target & handle for the texture.
@@ -303,7 +303,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateCubemapTextureEmpty(Vector2ui size, SamplerParameters samplerParams)
+    uint32 OpenGLRenderDevice::CreateCubemapTextureEmpty(Vector2i size, SamplerParameters samplerParams)
     {
         GLuint textureHandle;
         // Declare formats, target & handle for the texture.
@@ -335,7 +335,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTexture2DMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount)
+    uint32 OpenGLRenderDevice::CreateTexture2DMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -366,7 +366,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTexture2DEmpty(Vector2ui size, SamplerParameters samplerParams)
+    uint32 OpenGLRenderDevice::CreateTexture2DEmpty(Vector2i size, SamplerParameters samplerParams)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -863,7 +863,7 @@ namespace Lina::Graphics
         SetFBO(0);
     }
 
-    void OpenGLRenderDevice::ResizeRTTexture(uint32 texture, Vector2ui newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
+    void OpenGLRenderDevice::ResizeRTTexture(uint32 texture, Vector2i newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
     {
         glBindTexture(bindMode, texture);
         GLint format         = GetOpenGLFormat(m_pixelFormat);
@@ -872,7 +872,7 @@ namespace Lina::Graphics
         glBindTexture(bindMode, 0);
     }
 
-    void OpenGLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2ui newSize, RenderBufferStorage storage)
+    void OpenGLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2i newSize, RenderBufferStorage storage)
     {
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, storage, (uint32)newSize.x, (uint32)newSize.y);
@@ -1309,7 +1309,7 @@ namespace Lina::Graphics
         m_boundVAO = vao;
     }
 
-    void OpenGLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2ui captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
+    void OpenGLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2i captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
     {
         uint32 captureFBO;
         glGenFramebuffers(1, &captureFBO);
@@ -1339,7 +1339,7 @@ namespace Lina::Graphics
         m_boundRBO = rbo;
     }
 
-    void OpenGLRenderDevice::SetViewport(Vector2ui pos, Vector2ui size)
+    void OpenGLRenderDevice::SetViewport(Vector2i pos, Vector2i size)
     {
         // Update viewport according to the render targets if exist.
         // if (fbo == m_ViewportFBO) return;

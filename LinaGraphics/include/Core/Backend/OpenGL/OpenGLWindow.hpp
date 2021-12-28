@@ -65,13 +65,13 @@ namespace Lina::Graphics
             return m_window;
         }
 
-        Vector2ui GetSize()
+        Vector2i GetSize()
         {
-            return Vector2ui(m_windowProperties.m_width, m_windowProperties.m_height);
+            return Vector2i(m_windowProperties.m_width, m_windowProperties.m_height);
         }
-        Vector2ui GetPos()
+        Vector2i GetPos()
         {
-            return Vector2ui(m_windowProperties.m_xPos, m_windowProperties.m_yPos);
+            return Vector2i(m_windowProperties.m_xPos, m_windowProperties.m_yPos);
         }
         int GetWidth()
         {
@@ -87,8 +87,8 @@ namespace Lina::Graphics
         }
 
         void   SetVsync(int interval);
-        void   SetSize(const Vector2ui& newSize);
-        void   SetPos(const Vector2ui& newPos);
+        void   SetSize(const Vector2i& newSize);
+        void   SetPos(const Vector2i& newPos);
         void   SetPosCentered(const Vector2 newPos);
         void   Iconify();
         void   Maximize();

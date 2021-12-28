@@ -88,7 +88,7 @@ namespace Lina::Editor
 
             Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 
-            ImGui::Begin(m_id, NULL, m_windowFlags);
+            ImGui::Begin(m_id, &m_show, m_windowFlags);
             WidgetsUtility::WindowTitlebar(m_id);
             if (!CanDrawContent())
                 return;
@@ -118,7 +118,7 @@ namespace Lina::Editor
             // Resize engine display.
             if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
             {
-                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
                 previousWindowSize = sceneWindowSize;
             }
 
@@ -269,7 +269,7 @@ namespace Lina::Editor
             if (!levelPanelFirstRun)
             {
                 levelPanelFirstRun = true;
-                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2ui(0, 0), Vector2ui((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
             }
 
             // Model drag & drop.

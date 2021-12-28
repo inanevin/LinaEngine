@@ -37,7 +37,7 @@ namespace Lina::Graphics
         m_id = RenderEngineBackend::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
     }
 
-    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2ui& size, int sampleCount)
+    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount)
     {
         m_id = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
     }

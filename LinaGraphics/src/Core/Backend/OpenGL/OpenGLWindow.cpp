@@ -107,7 +107,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        SetPos(Vector2ui(0, 0));
+        SetPos(Vector2i(0, 0));
 
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
@@ -116,7 +116,7 @@ namespace Lina::Graphics
             glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
             m_windowProperties.m_workingAreaWidth  = width;
             m_windowProperties.m_workingAreaHeight = height;
-            SetSize(Vector2ui(width, height));
+            SetSize(Vector2i(width, height));
         }
         else
         {
@@ -215,14 +215,14 @@ namespace Lina::Graphics
         return glfwGetTime();
     }
 
-    void OpenGLWindow::SetSize(const Vector2ui& newSize)
+    void OpenGLWindow::SetSize(const Vector2i& newSize)
     {
         glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
         m_windowProperties.m_width  = newSize.x;
         m_windowProperties.m_height = newSize.y;
     }
 
-    void OpenGLWindow::SetPos(const Vector2ui& newPos)
+    void OpenGLWindow::SetPos(const Vector2i& newPos)
     {
         m_windowProperties.m_xPos = newPos.x;
         m_windowProperties.m_yPos = newPos.y;
@@ -232,7 +232,7 @@ namespace Lina::Graphics
     void OpenGLWindow::SetPosCentered(const Vector2 newPos)
     {
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        SetPos(Vector2ui((int)((float)mode->width / 2.0f + (float)newPos.x), (int)((float)mode->height / 2.0f + (float)newPos.y)));
+        SetPos(Vector2i((int)((float)mode->width / 2.0f + (float)newPos.x), (int)((float)mode->height / 2.0f + (float)newPos.y)));
     }
 
     void OpenGLWindow::Iconify()
@@ -249,15 +249,15 @@ namespace Lina::Graphics
             m_windowProperties.m_heightBeforeMaximize = m_windowProperties.m_height;
             m_windowProperties.m_xPosBeforeMaximize   = m_windowProperties.m_xPos;
             m_windowProperties.m_yPosBeforeMaximize   = m_windowProperties.m_yPos;
-            SetPos(Vector2ui(0, 0));
-            SetSize(Vector2ui(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
+            SetPos(Vector2i(0, 0));
+            SetSize(Vector2i(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
             m_windowProperties.m_windowState = WindowState::Maximized;
             // glfwMaximizeWindow(m_glfwWindow);
         }
         else
         {
-            SetPos(Vector2ui(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
-            SetSize(Vector2ui(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
+            SetPos(Vector2i(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
+            SetSize(Vector2i(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
             m_windowProperties.m_windowState = WindowState::Normal;
             // glfwRestoreWindow(m_glfwWindow);
         }

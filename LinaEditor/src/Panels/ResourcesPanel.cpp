@@ -126,33 +126,74 @@ namespace Lina::Editor
         {
             Begin();
 
-            float  windowWidth  = ImGui::GetWindowWidth();
-            float  windowHeight = ImGui::GetWindowHeight();
-            ImVec2 pos          = ImGui::GetWindowPos();
-            ImVec2 min          = ImVec2(0, 0);
-            ImVec2 max          = ImVec2(500, 500);
-
-            ImGui::BeginChild("##res_sb", ImVec2(0, 10));
-
+            const ImVec2 leftPaneSize  = ImVec2(280, 0);
+            const ImVec2 rightPanePos  = ImVec2(ImGui::GetWindowPos().x + leftPaneSize.x, ImGui::GetWindowPos().y);
+            const ImVec2 rightPaneSize = ImVec2(ImGui::GetWindowWidth() - leftPaneSize.x, ImGui::GetWindowHeight());
+            ImGui::BeginChild("resources_leftPane", leftPaneSize);
+            DrawLeftPane();
             ImGui::EndChild();
-            // WidgetsUtility::HorizontalDivider(10);
 
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
-            const float yPadding = 0.0f;
-            const float xPadding = 0.0f;
-            ImGui::SetNextWindowPos(ImVec2(pos.x + xPadding, pos.y + ImGui::GetCursorPosY() + yPadding));
-            ImGui::BeginChild("folders", ImVec2((windowWidth * 0.2f) - (2.0f * xPadding), -yPadding * 2.0f), true);
-            DrawFolderMenu(m_folders[0], 0.0f);
+            ImGui::SetNextWindowPos(rightPanePos);
+            ImGui::BeginChild("resources_rightPane", rightPaneSize);
+            DrawRightPane();
+            ImGui::EndChild();
 
-            ImGui::EndChild();
-            ImGui::PopStyleColor();
-            ImGui::SameLine();
-            ImGui::BeginChild("files", ImVec2(windowWidth * 0.8f, windowHeight), true);
-            // DrawContents();
-            ImGui::EndChild();
+            // float  windowWidth  = ImGui::GetWindowWidth();
+            // float  windowHeight = ImGui::GetWindowHeight();
+            // ImVec2 pos          = ImGui::GetWindowPos();
+            // ImVec2 min          = ImVec2(0, 0);
+            // ImVec2 max          = ImVec2(500, 500);
+            //
+            // ImGui::BeginChild("##res_sb", ImVec2(0, 10));
+            //
+            // ImGui::EndChild();
+            // // WidgetsUtility::HorizontalDivider(10);
+            //
+            // ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+            // const float yPadding = 0.0f;
+            // const float xPadding = 0.0f;
+            // ImGui::SetNextWindowPos(ImVec2(pos.x + xPadding, pos.y + ImGui::GetCursorPosY() + yPadding));
+            // ImGui::BeginChild("folders", ImVec2((windowWidth * 0.2f) - (2.0f * xPadding), -yPadding * 2.0f), true);
+            // DrawFolderMenu(m_folders[0], 0.0f);
+            //
+            // ImGui::EndChild();
+            // ImGui::PopStyleColor();
+            // ImGui::SameLine();
+            // ImGui::BeginChild("files", ImVec2(windowWidth * 0.8f, windowHeight), true);
+            // // DrawContents();
+            // ImGui::EndChild();
 
             End();
         }
+    }
+
+    void ResourcesPanel::DrawLeftPane()
+    {
+        const float topBarSize = 30;
+
+        // Search bar & other utilities.
+        ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
+
+        static char filterChr[128] = "search...";
+        const float filterWidth = 200.0f;
+        ImGui::SetNextItemWidth(filterWidth);
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - filterWidth / 2.0f);
+        ImGui::InputText("##resources_filefilter", filterChr, IM_ARRAYSIZE(filterChr));
+
+        ImGui::EndChild();
+
+        // Resource folders.
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5,5));
+        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(0, -20), false, ImGuiWindowFlags_AlwaysUseWindowPadding);
+
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
+
+    void ResourcesPanel::DrawRightPane()
+    {
     }
 
     void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, float offset)

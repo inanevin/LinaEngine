@@ -113,7 +113,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Sets the screen position and size, resizes the framebuffers accordingly.
         /// </summary>
-        void SetScreenDisplay(Vector2ui offset, Vector2ui size);
+        void SetScreenDisplay(Vector2i offset, Vector2i size);
 
         /// <summary>
         /// Use this to change current draw parameters. Will be replaced with in-engine parameters every frame.
@@ -208,11 +208,11 @@ namespace Lina::Graphics
         {
             return m_screenQuadVAO;
         }
-        inline Vector2ui GetScreenSize()
+        inline Vector2i GetScreenSize()
         {
             return m_screenSize;
         }
-        inline Vector2ui GetScreenPos()
+        inline Vector2i GetScreenPos()
         {
             return m_screenPos;
         }
@@ -413,11 +413,11 @@ namespace Lina::Graphics
         int  m_currentPointLightCount = 0;
         bool m_hdriDataCaptured       = false;
 
-        Vector2ui m_hdriResolution         = Vector2(512, 512);
-        Vector2ui m_shadowMapResolution    = Vector2(2048, 2048);
-        Vector2ui m_screenPos              = Vector2ui(0, 0);
-        Vector2ui m_screenSize             = Vector2ui(0, 0);
-        Vector2ui m_pLightShadowResolution = Vector2(1024, 1024);
+        Vector2i m_hdriResolution         = Vector2(512, 512);
+        Vector2i m_shadowMapResolution    = Vector2(2048, 2048);
+        Vector2i m_screenPos              = Vector2i(0, 0);
+        Vector2i m_screenSize             = Vector2i(0, 0);
+        Vector2i m_pLightShadowResolution = Vector2(1024, 1024);
 
         bool m_firstFrameDrawn = false;
 

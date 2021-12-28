@@ -63,6 +63,10 @@ namespace Lina::Editor
         virtual void Draw() override;
 
     private:
+
+        void DrawLeftPane();
+        void DrawRightPane();
+
         void DrawContextMenu();
         void DrawFolderMenu(Utility::Folder& folder, float offset);
         void DrawContents(Utility::Folder& folder);

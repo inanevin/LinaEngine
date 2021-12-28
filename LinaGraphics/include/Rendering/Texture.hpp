@@ -57,10 +57,10 @@ namespace Lina::Graphics
 
         Texture& Construct(const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
         Texture& ConstructCubemap(SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-        Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2ui size, float* data, const std::string& path = "");
-        Texture& ConstructRTCubemapTexture(Vector2ui size, SamplerParameters samplerParams, const std::string& path = "");
-        Texture& ConstructRTTexture(Vector2ui size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
-        Texture& ConstructRTTextureMSAA(Vector2ui size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
+        Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path = "");
+        Texture& ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
+        Texture& ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
+        Texture& ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
         Texture& ConstructEmpty(SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
         void     SaveAssetData(const std::string& path);
 
@@ -88,7 +88,7 @@ namespace Lina::Graphics
         {
             return m_hasMipMaps;
         }
-        Vector2ui GetSize()
+        Vector2i GetSize()
         {
             return m_size;
         }
@@ -129,7 +129,7 @@ namespace Lina::Graphics
         RenderDevice*   m_renderDevice  = nullptr;
         uint32          m_id            = 0;
         StringIDType    m_sid           = 0;
-        Vector2ui       m_size          = Vector2::One;
+        Vector2i       m_size          = Vector2::One;
         bool            m_isCompressed  = false;
         bool            m_hasMipMaps    = true;
         bool            m_isEmpty       = true;
