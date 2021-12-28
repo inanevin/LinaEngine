@@ -70,16 +70,15 @@ namespace Lina::ECS
         SpriteRendererSystem() = default;
         ~SpriteRendererSystem();
 
-        virtual void Initialize() override;
+        virtual void Initialize(const std::string& name) override;
         virtual void UpdateComponents(float delta) override;
 
         void Render(Graphics::Material& material, const Matrix& transformIn);
         void Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
     private:
-        Graphics::RenderDevice* m_renderDevice = nullptr;
-        Graphics::RenderEngine* m_renderEngine = nullptr;
-
+        Graphics::RenderDevice*                       m_renderDevice = nullptr;
+        Graphics::RenderEngine*                       m_renderEngine = nullptr;
         Graphics::Mesh*                               m_quadMesh;
         std::map<Graphics::Material*, BatchModelData> m_renderBatch;
     };

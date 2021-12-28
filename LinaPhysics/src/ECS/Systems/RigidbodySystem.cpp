@@ -41,9 +41,10 @@ SOFTWARE.
 using namespace physx;
 namespace Lina::ECS
 {
-    void RigidbodySystem::Initialize(Physics::PhysicsEngine* engine)
+
+    void RigidbodySystem::Initialize(const std::string& name, Physics::PhysicsEngine* engine)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_engine = engine;
     }
 
@@ -77,6 +78,7 @@ namespace Lina::ECS
 #ifdef LINA_PHYSICS_PHYSX
 
         auto& actors = physicsEngine->GetAllActors();
+        m_poolSize   = (int)actors.size();
 
         for (auto& p : actors)
         {

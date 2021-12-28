@@ -72,51 +72,56 @@ namespace Lina
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
-        void   AddToMainPipeline(ECS::System& system)
+
+        inline void AddToMainPipeline(ECS::System& system)
         {
             m_mainECSPipeline.AddSystem(system);
         }
-        int GetCurrentFPS()
+        inline int GetCurrentFPS()
         {
             return m_currentFPS;
         }
-        int GetCurrentUPS()
+        inline int GetCurrentUPS()
         {
             return m_currentUPS;
         }
-        double GetRawDelta()
+        inline double GetRawDelta()
         {
             return m_rawDeltaTime;
         }
-        double GetSmoothDelta()
+        inline double GetSmoothDelta()
         {
             return m_smoothDeltaTime;
         }
-        double GetFrameTime()
+        inline double GetFrameTime()
         {
             return m_frameTime;
         }
-        double GetRenderTime()
+        inline double GetRenderTime()
         {
             return m_renderTime;
         }
-        double GetUpdateTime()
+        inline double GetUpdateTime()
         {
             return m_updateTime;
         }
-        bool GetPlayMode()
+        inline bool GetPlayMode()
         {
             return m_isInPlayMode;
         }
-        bool GetPauseMode()
+        inline bool GetPauseMode()
         {
             return m_paused;
+        }
+        inline const ECS::SystemList& GetPipeline()
+        {
+            return m_mainECSPipeline;
         }
 
     private:
         friend class Application;
 
-        Engine() = default;
+        Engine()  = default;
         ~Engine() = default;
 
         void   Initialize(ApplicationInfo& appInfo);

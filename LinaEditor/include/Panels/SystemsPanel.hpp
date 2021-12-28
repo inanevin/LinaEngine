@@ -27,47 +27,52 @@ SOFTWARE.
 */
 
 /*
-Class: FrustumSystem
+Class: EntitiesPanel
 
+Draws all the alive entities in the current loaded level.
 
-
-Timestamp: 12/24/2021 12:59:35 AM
+Timestamp: 5/23/2020 4:15:06 PM
 */
-
 #pragma once
 
-#ifndef FrustumSystem_HPP
-#define FrustumSystem_HPP
+#ifndef SYSTEMS_HPP
+#define SYSTEMS_HPP
 
-// Headers here.
 #include "Core/CommonECS.hpp"
-#include "ECS/System.hpp"
+#include "Panels/EditorPanel.hpp"
 
 namespace Lina
 {
-    class Vector3;
-}
+    namespace ECS
+    {
+        class Registry;
+		class System;
+    }
+} // namespace Lina
 
-namespace Lina::ECS
+namespace Lina::Editor
 {
-    class FrustumSystem : public System
+    class LevelPanel;
+    class PropertiesPanel;
+    class MenuBarElement;
+    struct EShortcut;
+
+    class SystemsPanel : public EditorPanel
     {
 
     public:
-        FrustumSystem()  = default;
-        ~FrustumSystem() = default;
+        SystemsPanel() = default;
+        virtual ~SystemsPanel() = default;
 
-        virtual void Initialize(const std::string& name) override;
-        virtual void UpdateComponents(float delta);
-
-        /// <summary>
-        /// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
-        /// Returns whether entity contains any bounds (renderable or not).
-        /// </summary>
-        bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
+        virtual void Initialize(const char* id, const char* icon) override;
+        virtual void Draw() override;
 
     private:
+		void DrawSystem(const ECS::System* system, const std::string& pipeline);
+		
+    private:
+        ECS::Registry*  m_ecs = nullptr;
     };
-} // namespace Lina::ECS
+} // namespace Lina::Editor
 
 #endif

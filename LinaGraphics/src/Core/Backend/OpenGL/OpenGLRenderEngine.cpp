@@ -137,11 +137,11 @@ namespace Lina::Graphics
         m_defaultCubemapTexture.ConstructRTCubemapTexture(m_screenSize, SamplerParameters());
 
         // Add the ECS systems into the pipeline.
-        m_cameraSystem.Initialize((float)m_screenSize.x / (float)m_screenSize.y);
-        m_lightingSystem.Initialize(m_appMode);
-        m_modelNodeSystem.Initialize(m_appMode);
-        m_spriteRendererSystem.Initialize();
-        m_frustumSystem.Initialize();
+        m_cameraSystem.Initialize("Camera System", (float)m_screenSize.x / (float)m_screenSize.y);
+        m_lightingSystem.Initialize("Lighting System", m_appMode);
+        m_modelNodeSystem.Initialize("Model Node System", m_appMode);
+        m_spriteRendererSystem.Initialize("Sprite System");
+        m_frustumSystem.Initialize("Frustum System");
 
         AddToRenderingPipeline(m_cameraSystem);
         AddToRenderingPipeline(m_modelNodeSystem);
@@ -150,7 +150,7 @@ namespace Lina::Graphics
         AddToRenderingPipeline(m_frustumSystem);
 
         // Animation pipeline
-        m_animationSystem.Initialize();
+        m_animationSystem.Initialize("Animation System");
         m_animationPipeline.AddSystem(m_animationSystem);
 
         // Set debug values.
@@ -394,6 +394,11 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::AddToRenderingPipeline(ECS::System& system)
     {
         m_renderingPipeline.AddSystem(system);
+    }
+
+    void OpenGLRenderEngine::AddToAnimationPipeline(ECS::System& system)
+    {
+        m_animationPipeline.AddSystem(system);
     }
 
     void OpenGLRenderEngine::SetScreenDisplay(Vector2ui pos, Vector2ui size)

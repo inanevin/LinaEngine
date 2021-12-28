@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "ECS/Systems/FreeLookSystem.hpp"
-
+#include "Core/InputBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -34,9 +34,9 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void FreeLookSystem::Initialize()
+    void FreeLookSystem::Initialize(const std::string& name)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_inputEngine = Input::InputEngineBackend::Get();
     }
 
@@ -46,6 +46,8 @@ namespace Lina::ECS
             return;
 
         auto& view = m_ecs->view<FreeLookComponent>();
+        m_poolSize = (int)view.size();
+
         for (auto entity : view)
         {
             FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(entity);

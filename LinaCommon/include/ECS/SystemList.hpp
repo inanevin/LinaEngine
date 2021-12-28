@@ -56,6 +56,11 @@ namespace Lina::ECS
         void UpdateSystems(float delta);
         bool RemoveSystem(System& system);
 
+        inline const std::vector<System*>& GetSystems() const
+        {
+            return m_systems;
+        }
+
     private:
         std::vector<System*> m_systems;
     };

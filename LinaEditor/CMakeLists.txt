@@ -41,7 +41,8 @@ src/Drawers/ComponentDrawer.cpp
 
 # Panels
 src/Panels/EditorPanel.cpp
-src/Panels/ECSPanel.cpp
+src/Panels/EntitiesPanel.cpp
+src/Panels/SystemsPanel.cpp
 src/Panels/ResourcesPanel.cpp
 src/Panels/LevelPanel.cpp
 src/Panels/PropertiesPanel.cpp
@@ -114,7 +115,8 @@ include/Drawers/ComponentDrawer.hpp
 # Panels
 include/Panels/MainToolbarPanel.hpp
 include/Panels/EditorPanel.hpp
-include/Panels/ECSPanel.hpp
+include/Panels/EntitiesPanel.hpp
+include/Panels/SystemsPanel.hpp
 include/Panels/ResourcesPanel.hpp
 include/Panels/LevelPanel.hpp
 include/Panels/PropertiesPanel.hpp

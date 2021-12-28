@@ -43,9 +43,9 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void ModelNodeSystem::Initialize(ApplicationMode appMode)
+    void ModelNodeSystem::Initialize(const std::string& name, ApplicationMode appMode)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_appMode      = appMode;
         m_renderEngine = Graphics::RenderEngineBackend::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
@@ -86,7 +86,7 @@ namespace Lina::ECS
     void ModelNodeSystem::UpdateComponents(float delta)
     {
         auto view = m_ecs->view<EntityDataComponent, ModelNodeComponent>();
-
+        m_poolSize = (int)view.size_hint();
         t += 0.016f;
 
         if (t > 3.0f)

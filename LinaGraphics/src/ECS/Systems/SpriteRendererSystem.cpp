@@ -43,9 +43,9 @@ namespace Lina::ECS
         delete m_quadMesh;
     }
 
-    void SpriteRendererSystem::Initialize()
+    void SpriteRendererSystem::Initialize(const std::string& name)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_renderEngine = Graphics::RenderEngineBackend::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
 
@@ -54,9 +54,11 @@ namespace Lina::ECS
         m_quadMesh->CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
     }
 
+
     void SpriteRendererSystem::UpdateComponents(float delta)
     {
         auto view = m_ecs->view<EntityDataComponent, SpriteRendererComponent>();
+        m_poolSize = (int)view.size_hint();
 
         // Find the sprites and add them to the render queue.
         for (auto entity : view)

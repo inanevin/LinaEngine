@@ -40,6 +40,8 @@ Timestamp: 4/14/2019 7:46:20 PM
 #define GLFWInputEngine_HPP
 
 #include "Core/CommonInput.hpp"
+#include "ECS/Systems/FreeLookSystem.hpp"
+#include "ECS/SystemList.hpp"
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
 #include "Math/Vector.hpp"
@@ -53,7 +55,9 @@ namespace Lina
     namespace Event
     {
         struct EWindowContextCreated;
-    }
+        struct EMouseScrollCallback;
+    } // namespace Event
+
 } // namespace Lina
 
 namespace Lina::Input
@@ -66,38 +70,53 @@ namespace Lina::Input
         {
             return s_inputEngine;
         }
-        bool       GetKey(int keyCode);
-        bool       GetKeyDown(int keyCode);
-        bool       GetKeyUp(int keyCode);
-        bool       GetMouseButton(int index);
-        bool       GetMouseButtonDown(int index);
-        bool       GetMouseButtonUp(int index);
-        void       SetCursorMode(CursorMode mode);
-        void       SetMousePosition(const Vector2& v) const;
-        Vector2    GetMousePosition();
-        Vector2    GetRawMouseAxis();
-        Vector2    GetMouseAxis();
-        CursorMode GetCursorMode()
+        bool           GetKey(int keyCode);
+        bool           GetKeyDown(int keyCode);
+        bool           GetKeyUp(int keyCode);
+        bool           GetMouseButton(int index);
+        bool           GetMouseButtonDown(int index);
+        bool           GetMouseButtonUp(int index);
+        void           SetCursorMode(CursorMode mode);
+        void           SetMousePosition(const Vector2& v) const;
+        Vector2        GetMousePosition();
+        Vector2        GetRawMouseAxis();
+        Vector2        GetMouseAxis();
+        inline Vector2 GetMouseScroll()
+        {
+            return m_currentMouseScroll;
+        }
+
+        /// <summary>
+        /// Any system added to the input pipeline will get updated during polling inputs.
+        /// </summary>
+        void AddToInputPipeline(ECS::System& system);
+
+        inline CursorMode GetCursorMode()
         {
             return m_cursorMode;
         }
-        float GetHorizontalAxisValue()
+        inline float GetHorizontalAxisValue()
         {
             return m_horizontalAxis.GetValue();
         }
-        float GetVerticalAxisValue()
+        inline float GetVerticalAxisValue()
         {
             return m_verticalAxis.GetValue();
+        }
+        inline const ECS::SystemList& GetPipeline()
+        {
+            return m_inputPipeline;
         }
 
     private:
         friend class Engine;
-        GLFWInputEngine() = default;
+        GLFWInputEngine()  = default;
         ~GLFWInputEngine() = default;
         void Initialize();
         void Tick();
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
+        void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
 
     private:
         friend class Engine;
@@ -113,6 +132,9 @@ namespace Lina::Input
         InputAxis               m_horizontalAxis;
         InputAxis               m_verticalAxis;
         CursorMode              m_cursorMode = CursorMode::Visible;
+        ECS::FreeLookSystem     m_freeLookSystem;
+        ECS::SystemList         m_inputPipeline;
+        Vector2                 m_currentMouseScroll = Vector2::Zero;
     };
 } // namespace Lina::Input
 

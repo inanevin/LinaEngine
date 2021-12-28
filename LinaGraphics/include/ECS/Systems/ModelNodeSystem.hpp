@@ -102,10 +102,10 @@ namespace Lina::ECS
             }
         };
 
-        ModelNodeSystem() = default;
+        ModelNodeSystem()          = default;
         virtual ~ModelNodeSystem() = default;
 
-        void         Initialize(ApplicationMode appMode);
+        void         Initialize(const std::string& name, ApplicationMode appMode);
         virtual void UpdateComponents(float delta) override;
 
         /// <summary>
@@ -142,7 +142,6 @@ namespace Lina::ECS
         Graphics::RenderDevice* m_renderDevice = nullptr;
         Graphics::RenderEngine* m_renderEngine = nullptr;
         ApplicationMode         m_appMode      = ApplicationMode::Editor;
-
         // Map & queue to see the list of same vertex array & textures to compress them into single draw call.
         std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
         std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison>        m_transparentRenderBatch;

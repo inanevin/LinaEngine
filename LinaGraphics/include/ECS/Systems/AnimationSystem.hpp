@@ -55,9 +55,10 @@ namespace Lina::ECS
     {
 
     public:
-        AnimationSystem() = default;
+        AnimationSystem()  = default;
         ~AnimationSystem() = default;
 
+        virtual void Initialize(const std::string& name) override;
         virtual void UpdateComponents(float delta) override;
 
     protected:

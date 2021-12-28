@@ -122,7 +122,7 @@ namespace Lina::Physics
         m_ecs->on_construct<ECS::EntityDataComponent>().connect<&PhysXPhysicsEngine::OnPhysicsComponentAdded>(this);
 
         // Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
-        m_rigidbodySystem.Initialize(this);
+        m_rigidbodySystem.Initialize("Rigidbody System", this);
         m_physicsPipeline.AddSystem(m_rigidbodySystem);
 
         // Engine events.
@@ -250,6 +250,11 @@ namespace Lina::Physics
     bool PhysXPhysicsEngine::IsEntityAPhysicsActor(ECS::Entity ent)
     {
         return m_actors.find(ent) != m_actors.end();
+    }
+
+    void PhysXPhysicsEngine::AddToPhysicsPipeline(ECS::System& system)
+    {
+        m_physicsPipeline.AddSystem(system);
     }
 
     void PhysXPhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)

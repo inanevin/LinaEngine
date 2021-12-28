@@ -53,7 +53,8 @@ namespace Lina::Editor
         ImGuiID dock_id_bottom      = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.45f, NULL, &dock_main_id);
 
         ImGui::DockBuilderDockWindow(ID_RESOURCES, dock_id_bottom);
-        ImGui::DockBuilderDockWindow(ID_ECS, dock_id_prop);
+        ImGui::DockBuilderDockWindow(ID_ENTITIES, dock_id_prop);
+        ImGui::DockBuilderDockWindow(ID_SYSTEMS, dock_id_propBottom);
         ImGui::DockBuilderDockWindow(ID_SCENE, dock_main_id);
         ImGui::DockBuilderDockWindow(ID_LOG, dock_id_rightBottom);
         ImGui::DockBuilderDockWindow(ID_GLOBAL, dock_id_rightBottom);

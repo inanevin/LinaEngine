@@ -39,7 +39,7 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "Core/InputBackend.hpp"
+#include "Core/InputBackendFwd.hpp"
 #include "ECS/System.hpp"
 
 namespace Lina::ECS
@@ -47,15 +47,15 @@ namespace Lina::ECS
     class FreeLookSystem : public System
     {
     public:
-        virtual void Initialize();
+        virtual void Initialize(const std::string& name);
         virtual void UpdateComponents(float delta) override;
 
     private:
-        Input::InputEngineBackend* m_inputEngine;
-        float                      m_horizontalKeyAmt = 0.0f;
-        float                      m_verticalKeyAmt   = 0.0f;
-        float                      m_targetXAngle     = 0.0f;
-        float                      m_targetYAngle     = 0.0f;
+        Input::InputEngine* m_inputEngine;
+        float               m_horizontalKeyAmt = 0.0f;
+        float               m_verticalKeyAmt   = 0.0f;
+        float               m_targetXAngle     = 0.0f;
+        float               m_targetYAngle     = 0.0f;
     };
 } // namespace Lina::ECS
 

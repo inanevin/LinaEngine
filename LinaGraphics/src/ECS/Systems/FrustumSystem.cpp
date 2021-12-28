@@ -35,9 +35,9 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void FrustumSystem::Initialize()
+    void FrustumSystem::Initialize(const std::string& name)
     {
-        System::Initialize();
+        System::Initialize(name);
     }
 
     void FrustumSystem::UpdateComponents(float delta)

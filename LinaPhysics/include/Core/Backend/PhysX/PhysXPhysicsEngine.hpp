@@ -116,6 +116,19 @@ namespace Lina::Physics
         /// </summary>
         bool IsEntityAPhysicsActor(ECS::Entity ent);
 
+        /// <summary>
+        /// Gets a const reference to the main physics pipeline, which contains a list of physics systems.
+        /// </summary>
+        inline const ECS::SystemList& GetPipeline()
+        {
+            return m_physicsPipeline;
+        }
+
+        /// <summary>
+        /// Any system added to the physics pipeline will get updated during the physics update.
+        /// </summary>
+        void AddToPhysicsPipeline(ECS::System& system);
+
         void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
@@ -135,7 +148,6 @@ namespace Lina::Physics
         }
 
     private:
-
         friend class Engine;
         friend struct ECS::PhysicsComponent;
 

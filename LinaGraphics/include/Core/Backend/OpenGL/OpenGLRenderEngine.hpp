@@ -106,6 +106,11 @@ namespace Lina::Graphics
         void AddToRenderingPipeline(ECS::System& system);
 
         /// <summary>
+        /// Any system added to the animation pipeline will be updated within the animation loop.
+        /// </summary>
+        void AddToAnimationPipeline(ECS::System& system);
+
+        /// <summary>
         /// Sets the screen position and size, resizes the framebuffers accordingly.
         /// </summary>
         void SetScreenDisplay(Vector2ui offset, Vector2ui size);
@@ -254,6 +259,14 @@ namespace Lina::Graphics
         inline void SetCurrentSLightCount(int count)
         {
             m_currentSpotLightCount = count;
+        }
+        inline const ECS::SystemList& GetRenderingPipeline()
+        {
+            return m_renderingPipeline;
+        }
+        inline const ECS::SystemList& GetAnimationPipeline()
+        {
+            return m_animationPipeline;
         }
 
     private:

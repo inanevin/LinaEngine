@@ -60,7 +60,7 @@ namespace Lina::Editor
         LoadLevelData = 31,
         NewLevelData  = 32,
 
-        ECSPanel            = 40,
+        EntitiesPanel       = 40,
         HeaderPanel         = 11,
         LogPanel            = 42,
         PropertiesPanel     = 44,
@@ -68,6 +68,7 @@ namespace Lina::Editor
         LevelPanel          = 46,
         ProfilerPanel       = 47,
         GlobalSettingsPanel = 48,
+        SystemsPanel        = 49,
         ImGuiPanel          = 50,
 
         DebugViewShadows = 62,
@@ -94,7 +95,7 @@ namespace Lina::Editor
 
     public:
         MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None, bool ownsChildren = true)
-            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren) {};
+            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren){};
         ~MenuBarElement();
 
         void AddChild(MenuBarElement* child);

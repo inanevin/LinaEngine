@@ -49,11 +49,11 @@ namespace Lina::ECS
     public:
         RigidbodySystem() = default;
 
-        virtual void Initialize(Physics::PhysicsEngine* engine);
+        virtual void Initialize(const std::string& name, Physics::PhysicsEngine* engine);
         virtual void UpdateComponents(float delta) override;
 
     private:
-        Physics::PhysicsEngine* m_engine = nullptr;
+        Physics::PhysicsEngine* m_engine   = nullptr;
     };
 } // namespace Lina::ECS
 

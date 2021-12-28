@@ -135,7 +135,7 @@ namespace Lina::Editor
         s_createEntityElements.push_back(empty);
 
         // ****** PANELS MENU
-        panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entity", "", 0, MenuBarElementType::ECSPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_OBJECT_GROUP, "Entities", "", 0, MenuBarElementType::EntitiesPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_EYE, "Level", "", 0, MenuBarElementType::LevelPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE, "Resources", "", 0, MenuBarElementType::ResourcesPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_COG, "Properties", "", 0, MenuBarElementType::PropertiesPanel));

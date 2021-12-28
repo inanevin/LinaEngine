@@ -252,7 +252,8 @@ namespace Lina::Editor
 
         // Init rest.
         m_toolbar.Initialize(ID_TOOLBAR, nullptr);
-        m_ecsPanel.Initialize(ID_ECS, ICON_FA_CUBE);
+        m_entitiesPanel.Initialize(ID_ENTITIES, ICON_FA_CUBE);
+        m_systemsPanel.Initialize(ID_SYSTEMS, ICON_FA_COGS);
         m_logPanel.Initialize(ID_LOG, ICON_FA_CLIPBOARD);
         m_profilerPanel.Initialize(ID_PROFILER, ICON_FA_CHART_LINE);
         m_propertiesPanel.Initialize(ID_PROPERTIES, ICON_FA_COG);
@@ -294,7 +295,8 @@ namespace Lina::Editor
         m_headerPanel.Draw();
         CentralDockingSpace::Draw();
         m_resourcesPanel.Draw();
-        m_ecsPanel.Draw();
+        m_entitiesPanel.Draw();
+        m_systemsPanel.Draw();
         m_levelPanel.Draw();
         m_logPanel.Draw();
         m_profilerPanel.Draw();
@@ -382,8 +384,10 @@ namespace Lina::Editor
         }
 
         // Panels.
-        else if (item == MenuBarElementType::ECSPanel)
-            m_ecsPanel.Open();
+        else if (item == MenuBarElementType::EntitiesPanel)
+            m_entitiesPanel.Open();
+        else if (item == MenuBarElementType::SystemsPanel)
+            m_systemsPanel.Open();
         else if (item == MenuBarElementType::LevelPanel)
             m_levelPanel.Open();
         else if (item == MenuBarElementType::ResourcesPanel)

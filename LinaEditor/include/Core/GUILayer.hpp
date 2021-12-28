@@ -37,7 +37,8 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #ifndef GUILAYER_HPP
 #define GUILAYER_HPP
 
-#include "Panels/ECSPanel.hpp"
+#include "Panels/EntitiesPanel.hpp"
+#include "Panels/SystemsPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "Panels/HeaderPanel.hpp"
 #include "Panels/LevelPanel.hpp"
@@ -142,25 +143,26 @@ namespace Lina::Editor
         friend class EditorApplication;
         static GUILayer* s_guiLayer;
 
-        Vector2             m_defaultWindowPadding = Vector2(8, 8);
-        const char*         m_linaLogoIcon         = nullptr;
-        ImFont*             m_defaultFont          = nullptr;
-        ImFont*             m_bigFont              = nullptr;
-        ImFont*             m_iconFontSmall        = nullptr;
-        ImFont*             m_iconFontDefault      = nullptr;
-        ShortcutManager     m_shortcutManager;
-        ECSPanel            m_ecsPanel;
-        ResourcesPanel      m_resourcesPanel;
-        LevelPanel          m_levelPanel;
-        PropertiesPanel     m_propertiesPanel;
-        LogPanel            m_logPanel;
-        HeaderPanel         m_headerPanel;
-        ProfilerPanel       m_profilerPanel;
-        GlobalSettingsPanel m_globalSettingsPanel;
-        MainToolbarPanel    m_toolbar;
-        World::DefaultLevel m_defaultLevel;
-        std::string         m_currentlyLoadingResource = "";
-        float               m_percentage               = 0.0f;
+        Vector2                   m_defaultWindowPadding = Vector2(8, 8);
+        const char*               m_linaLogoIcon         = nullptr;
+        ImFont*                   m_defaultFont          = nullptr;
+        ImFont*                   m_bigFont              = nullptr;
+        ImFont*                   m_iconFontSmall        = nullptr;
+        ImFont*                   m_iconFontDefault      = nullptr;
+        ShortcutManager           m_shortcutManager;
+        EntitiesPanel             m_entitiesPanel;
+        SystemsPanel              m_systemsPanel;
+        ResourcesPanel            m_resourcesPanel;
+        LevelPanel                m_levelPanel;
+        PropertiesPanel           m_propertiesPanel;
+        LogPanel                  m_logPanel;
+        HeaderPanel               m_headerPanel;
+        ProfilerPanel             m_profilerPanel;
+        GlobalSettingsPanel       m_globalSettingsPanel;
+        MainToolbarPanel          m_toolbar;
+        World::DefaultLevel       m_defaultLevel;
+        std::string               m_currentlyLoadingResource = "";
+        float                     m_percentage               = 0.0f;
     };
 } // namespace Lina::Editor
 

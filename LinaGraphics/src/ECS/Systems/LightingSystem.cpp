@@ -44,9 +44,9 @@ namespace Lina::ECS
     StringIDType sLightIconID = -1;
     StringIDType dLightIconID = -1;
 
-    void LightingSystem::Initialize(ApplicationMode& appMode)
+    void LightingSystem::Initialize(const std::string& name, ApplicationMode& appMode)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_renderEngine = Graphics::RenderEngineBackend::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
         m_appMode      = appMode;
@@ -120,6 +120,8 @@ namespace Lina::ECS
             if (m_appMode == ApplicationMode::Editor)
                 m_renderEngine->DrawIcon(data.GetLocation(), sLightIconID, 0.12f);
         }
+
+        m_poolSize = (int)dirLightView.size_hint() + (int)spotLightView.size_hint() + (int)pointLightView.size_hint();
     }
 
     void LightingSystem::SetLightingShaderData(uint32 shaderID)

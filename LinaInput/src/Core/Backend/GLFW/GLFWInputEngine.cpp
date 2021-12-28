@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Backend/GLFW/GLFWInputEngine.hpp"
-
+#include "EventSystem/InputEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "Log/Log.hpp"
@@ -48,8 +48,11 @@ namespace Lina::Input
     {
         LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
         Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &GLFWInputEngine::OnMouseScrollCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
+        m_freeLookSystem.Initialize("Free Look");
+        m_inputPipeline.AddSystem(m_freeLookSystem);
     }
 
     void GLFWInputEngine::Shutdown()
@@ -64,6 +67,12 @@ namespace Lina::Input
     void GLFWInputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
     {
         glfwWindow = static_cast<GLFWwindow*>(e.m_window);
+    }
+
+    void GLFWInputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
+    {
+        m_currentMouseScroll.x = (float)e.m_xoff;
+        m_currentMouseScroll.y = (float)e.m_yoff;
     }
 
     bool GLFWInputEngine::GetKey(int keycode)
@@ -159,6 +168,11 @@ namespace Lina::Input
         return diff;
     }
 
+    void GLFWInputEngine::AddToInputPipeline(ECS::System& system)
+    {
+        m_inputPipeline.AddSystem(system);
+    }
+
     Vector2 GLFWInputEngine::GetMousePosition()
     {
         double xpos, ypos;
@@ -210,6 +224,8 @@ namespace Lina::Input
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
         m_mouseUpNewStateMap.clear();
+
+        m_currentMouseScroll = Vector2::Zero;
         glfwPollEvents();
     }
 } // namespace Lina::Input

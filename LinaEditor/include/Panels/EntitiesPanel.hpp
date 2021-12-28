@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: ECSPanel
+Class: EntitiesPanel
 
 Draws all the alive entities in the current loaded level.
 
@@ -35,8 +35,8 @@ Timestamp: 5/23/2020 4:15:06 PM
 */
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef ENTITIES_HPP
+#define ENTITIES_HPP
 
 #include "Core/CommonECS.hpp"
 #include "Panels/EditorPanel.hpp"
@@ -68,12 +68,12 @@ namespace Lina::Editor
     class MenuBarElement;
     struct EShortcut;
 
-    class ECSPanel : public EditorPanel
+    class EntitiesPanel : public EditorPanel
     {
 
     public:
-        ECSPanel() = default;
-        virtual ~ECSPanel();
+        EntitiesPanel() = default;
+        virtual ~EntitiesPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;

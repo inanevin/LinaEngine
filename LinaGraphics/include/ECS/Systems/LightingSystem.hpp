@@ -62,7 +62,7 @@ namespace Lina::ECS
     public:
         LightingSystem() = default;
 
-        void         Initialize(ApplicationMode& appMode);
+        void         Initialize(const std::string& name, ApplicationMode& appMode);
         virtual void UpdateComponents(float delta) override;
         void         SetLightingShaderData(uint32 shaderID);
         void         ResetLightData();

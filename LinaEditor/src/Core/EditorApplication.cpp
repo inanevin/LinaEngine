@@ -39,7 +39,7 @@ SOFTWARE.
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Log/Log.hpp"
-#include "Panels/ECSPanel.hpp"
+#include "Panels/EntitiesPanel.hpp"
 
 using namespace ECS;
 
@@ -57,7 +57,7 @@ namespace Lina::Editor
 
         Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
-        m_editorCameraSystem.Initialize(m_guiLayer.GetLevelPanel());
+        m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
         m_editorCameraSystem.SystemActivation(true);
 
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);

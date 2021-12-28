@@ -26,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Panels/ECSPanel.hpp"
-
+#include "Panels/EntitiesPanel.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/GUILayer.hpp"
@@ -194,7 +193,7 @@ namespace Lina::Editor
             Begin();
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-            ImGui::BeginChild("entities_child", ImVec2(0, -30), true);
+            ImGui::BeginChild("ecs_child", ImVec2(0, -30), true);
 
             static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
 
@@ -245,7 +244,7 @@ namespace Lina::Editor
 
             ImGui::EndChild();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-            WidgetsUtility::HorizontalDivider();
+            WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
 

@@ -54,7 +54,7 @@ namespace Lina::ECS
     class EditorCameraSystem : public System
     {
     public:
-        void         Initialize(Editor::LevelPanel& scenePanel);
+        void         Initialize(const std::string& name, Editor::LevelPanel& scenePanel);
         virtual void UpdateComponents(float delta) override;
         void         SetEditorCamera(Entity entity)
         {

@@ -40,11 +40,12 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-    void EditorCameraSystem::Initialize(Editor::LevelPanel& scenePanel)
+    void EditorCameraSystem::Initialize(const std::string& name, Editor::LevelPanel& scenePanel)
     {
-        System::Initialize();
+        System::Initialize(name);
         m_levelPanel  = &scenePanel;
         m_inputEngine = Input::InputEngineBackend::Get();
+        m_poolSize = 1;
     }
 
     void ECS::EditorCameraSystem::UpdateComponents(float delta)
@@ -87,6 +88,10 @@ namespace Lina::ECS
 
             data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * fw.Normalized());
             data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * m_cameraSpeedMultiplier * sprintMultiplier * rg.Normalized());
+
+            const float scrollY = Input::InputEngineBackend::Get()->GetMouseScroll().y;
+
+            data.AddLocation(scrollY * delta * -fw.Normalized() * freeLook.m_movementSpeeds.x * m_cameraSpeedMultiplier * sprintMultiplier);
         }
     }
 } // namespace Lina::ECS

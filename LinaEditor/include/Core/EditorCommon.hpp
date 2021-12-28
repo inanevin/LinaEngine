@@ -145,9 +145,13 @@ namespace Lina::Editor
 // LOG PANEL
 #define ID_LOG "Log"
 
-// ECS
-#define ID_ECS         "Entities"
+// Entities
+#define ID_ENTITIES         "Entities"
 #define ECS_MOVEENTITY "ECS_MOVE_ENTITY"
+
+// Systems
+#define ID_SYSTEMS "Systems"
+
 
 // Resources
 #define ID_RESOURCES              "Resources"

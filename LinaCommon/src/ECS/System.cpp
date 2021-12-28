@@ -32,8 +32,9 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void System::Initialize()
+    void System::Initialize(const std::string& name)
     {
         m_ecs = ECS::Registry::Get();
+        m_name = name;
     }
 } // namespace Lina::ECS

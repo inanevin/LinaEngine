@@ -39,9 +39,9 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-    void CameraSystem::Initialize(float aspect)
+    void CameraSystem::Initialize(const std::string& name, float aspect)
     {
-        System::Initialize();
+        System::Initialize(name);
         SetAspectRatio(aspect);
         m_ecs->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
     }
@@ -101,8 +101,9 @@ namespace Lina::ECS
         return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);
     }
 
-    void CameraSystem::UpdateComponents(float interpolation)
+    void CameraSystem::UpdateComponents(float delta)
     {
+
         if (m_activeCameraEntity != entt::null)
         {
             CameraComponent&     camera = m_ecs->get<CameraComponent>(m_activeCameraEntity);
@@ -123,7 +124,11 @@ namespace Lina::ECS
                 m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);
             else
                 m_projMatrixInjected = false;
+
+            m_poolSize = 1;
         }
+        else
+            m_poolSize = 0;
     }
 
     Vector3 CameraSystem::GetCameraLocation()

@@ -39,27 +39,41 @@ Timestamp: 12/25/2021 12:38:18 PM
 #ifndef System_HPP
 #define System_HPP
 
+#include <string>
+
 namespace Lina::ECS
 {
     class Registry;
-
     class System
     {
 
     public:
-        System() = default;
+        System()          = default;
         virtual ~System() = default;
 
-        virtual void Initialize();
+        virtual void Initialize(const std::string& name);
         virtual void UpdateComponents(float delta) = 0;
+
+        virtual int GetPoolSize() const
+        {
+            return m_poolSize;
+        }
+
         virtual void SystemActivation(bool active)
         {
             m_isActive = active;
         }
 
+        inline const std::string& GetName() const
+        {
+            return m_name;
+        }
+
     protected:
-        Registry* m_ecs      = nullptr;
-        bool      m_isActive = false;
+        int         m_poolSize = 0;
+        std::string m_name     = "";
+        Registry*   m_ecs      = nullptr;
+        bool        m_isActive = false;
     };
 } // namespace Lina::ECS
 
