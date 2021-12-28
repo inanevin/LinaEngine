@@ -27,11 +27,16 @@ SOFTWARE.
 */
 
 #include "ECS/Components/EntityDataComponent.hpp"
-
+#include "Log/Log.hpp"
 #include "ECS/Registry.hpp"
 
 namespace Lina::ECS
 {
+    void EntityDataComponent::SetIsEnabled(bool isEnabled)
+    {
+        LINA_WARN("Setting the enabled state of data component does nothing. If you are trying to disable/enable the entity, use the Registry::SetEntityEnabled()");
+    }
+
     void EntityDataComponent::SetTransformation(Matrix& mat, bool omitScale)
     {
         Vector3    loc;

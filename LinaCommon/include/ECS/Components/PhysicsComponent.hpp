@@ -71,6 +71,7 @@ namespace Lina::ECS
 
     struct PhysicsComponent : public Component
     {
+        virtual void SetIsEnabled(bool isEnabled) override;
 
         Vector3 GetVelocity()
         {
@@ -115,6 +116,7 @@ namespace Lina::ECS
         StringIDType m_attachedModelID = 0;
 
     private:
+
         friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
@@ -155,7 +157,8 @@ namespace Lina::ECS
             ResetRuntimeState();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_collisionShape, m_physicsMaterialPath, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
         }

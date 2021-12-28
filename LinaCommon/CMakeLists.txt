@@ -56,6 +56,7 @@ set (LINACOMMON_SOURCES
 	src/ECS/System.cpp
 	src/ECS/Registry.cpp
 	src/ECS/Components/EntityDataComponent.cpp
+	src/ECS/Components/PhysicsComponent.cpp
 
 )
 

@@ -91,11 +91,10 @@ namespace Lina::Editor
 
         const bool prev          = data.GetIsEnabled();
         bool       enabledToggle = prev;
-        if (WidgetsUtility::ToggleButton("##eactive", &enabledToggle))
-        {
-            if (enabledToggle != prev)
-                ECS::Registry::Get()->SetEntityEnabled(m_selectedEntity, enabledToggle);
-        }
+        WidgetsUtility::ToggleButton("##eactive", &enabledToggle);
+
+        if (enabledToggle != prev)
+            ECS::Registry::Get()->SetEntityEnabled(m_selectedEntity, enabledToggle);
 
         // Add Component Popup
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6, 4));

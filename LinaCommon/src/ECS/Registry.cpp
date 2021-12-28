@@ -80,7 +80,7 @@ namespace Lina::ECS
 
     void Registry::AddChildToEntity(Entity parent, Entity child)
     {
-     
+
         if (parent == child)
             return;
 
@@ -231,11 +231,29 @@ namespace Lina::ECS
     void Registry::SetEntityEnabled(Entity entity, bool isEnabled)
     {
         auto& data = get<EntityDataComponent>(entity);
-
-        if (data.m_isEnabled == isEnabled) return;
+        if (data.m_isEnabled == isEnabled)
+            return;
 
         data.m_isEnabled = isEnabled;
         Event::EventSystem::Get()->Trigger<Event::EEntityEnabledChanged>(Event::EEntityEnabledChanged{entity, isEnabled});
+
+        for (auto child : data.m_children)
+        {
+            auto& childData = get<EntityDataComponent>(child);
+
+            if (!isEnabled)
+            {
+                childData.m_wasPreviouslyEnabled = childData.m_isEnabled;
+                SetEntityEnabled(child, false);
+            }
+            else
+            {
+                if (childData.m_wasPreviouslyEnabled)
+                    SetEntityEnabled(child, true);
+            }
+
+         
+        }
     }
 
 } // namespace Lina::ECS

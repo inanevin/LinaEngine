@@ -101,7 +101,7 @@ namespace Lina::ECS
             auto&               data          = view.get<EntityDataComponent>(entity);
 
             if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
-                return;
+                continue;
 
             auto* node   = nodeComponent.m_modelNode;
             auto& meshes = node->GetMeshes();

@@ -131,6 +131,7 @@ namespace Lina::Physics
         m_eventSystem->Connect<Event::ELevelInitialized, &PhysXPhysicsEngine::OnLevelInitialized>(this);
         m_eventSystem->Connect<Event::ELoadResourceFromFile, &PhysXPhysicsEngine::OnResourceLoadedFromFile>(this);
         m_eventSystem->Connect<Event::ELoadResourceFromMemory, &PhysXPhysicsEngine::OnResourceLoadedFromMemory>(this);
+        m_eventSystem->Connect<Event::EEntityEnabledChanged, &PhysXPhysicsEngine::OnEntityEnabledChanged>(this);
 
         m_cooker.Initialize(m_appMode, m_pxFoundation);
     }
@@ -526,17 +527,18 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev)
     {
+
         if (IsEntityAPhysicsActor(ev.m_entity))
         {
-            if (ev.m_enabled)
-            {
-                auto& phy = m_ecs->get<ECS::PhysicsComponent>(ev.m_entity);
-
-                if (phy.m_simType != SimulationType::None)
-                    AddBodyToWorld(ev.m_entity, phy.m_simType == SimulationType::Dynamic);
-            }
-            else
+            if (!ev.m_enabled)
                 RemoveBodyFromWorld(ev.m_entity);
+        }
+        else
+        {
+            auto& phy = m_ecs->get<ECS::PhysicsComponent>(ev.m_entity);
+
+            if (ev.m_enabled && phy.m_simType != SimulationType::None)
+                AddBodyToWorld(ev.m_entity, phy.m_simType == SimulationType::Dynamic);
         }
     }
 

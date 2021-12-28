@@ -55,7 +55,7 @@ namespace Lina::ECS
         if (m_editorCamera != entt::null)
         {
             FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(m_editorCamera);
-            if (!freeLook.m_isEnabled)
+            if (!freeLook.GetIsEnabled())
                 return;
 
             EntityDataComponent& data = m_ecs->get<EntityDataComponent>(m_editorCamera);

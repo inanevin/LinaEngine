@@ -60,16 +60,7 @@ namespace Lina::Editor
     {
         ECS::Registry::Get()->template get<Type>(ent).SetIsEnabled(enabled);
 
-        // If we are toggling model renderer component, toggle every mesh renderer component below it.
-        if (entt::type_id<Type>().hash() == entt::type_id<ModelRendererComponent>().hash())
-        {
-            auto& data = ECS::Registry::Get()->get<EntityDataComponent>(ent);
-            for (auto child : data.m_children)
-            {
-                auto* meshRenderer        = ECS::Registry::Get()->try_get<MeshRendererComponent>(child);
-                meshRenderer->SetEnabled(enabled);
-            }
-        }
+        
     }
 
     template <typename Type> Type& Drawer_Get(ECS::Entity entity)

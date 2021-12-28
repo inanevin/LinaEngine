@@ -70,6 +70,7 @@ namespace Lina::ECS
             m_isEnabled  = enabled;
             m_serialized = serialized;
             m_name       = name;
+            m_wasPreviouslyEnabled = m_isEnabled;
         }
 
         EntityDataComponent(){};
@@ -79,6 +80,7 @@ namespace Lina::ECS
         std::set<Entity> m_children;
         Entity           m_parent = entt::null;
 
+        virtual void SetIsEnabled(bool isEnabled) override;
         /* TRANSFORM OPERATIONS */
 
         Matrix ToMatrix()
@@ -159,15 +161,14 @@ namespace Lina::ECS
 #endif
 
         bool m_isTransformLocked = false;
-        bool m_isEnabled         = true;
-
+        bool m_wasPreviouslyEnabled = false;
         Transformation m_transform;
         Registry*      m_ecs = nullptr;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_transform, m_isTransformLocked, m_isEnabled, m_name, m_parent, m_children);
+            archive(m_transform, m_isTransformLocked, m_isEnabled, m_wasPreviouslyEnabled, m_name, m_parent, m_children);
         }
     };
 } // namespace Lina::ECS

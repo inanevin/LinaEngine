@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,53 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ECSComponent
-
-Defines the base component class as well as macros for drawing components
-via the sandbox editor.
-
-Timestamp: 5/23/2020 5:17:02 PM
-
-*/
-
-#pragma once
-
-#ifndef ECSComponent_HPP
-#define ECSComponent_HPP
-
-namespace Lina
-{
-    namespace Editor
-    {
-        class ComponentDrawer;
-    }
-} // namespace Lina
+#include "ECS/Components/PhysicsComponent.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::ECS
 {
-    class Component
+    void PhysicsComponent::SetIsEnabled(bool isEnabled)
     {
-
-    public:
-        Component(){};
-        virtual ~Component(){};
-
-        inline virtual void SetIsEnabled(bool enabled)
-        {
-            m_isEnabled = enabled;
-        }
-
-        inline bool GetIsEnabled()
-        {
-            return m_isEnabled;
-        }
-
-    protected:
-
-        friend class Editor::ComponentDrawer;
-        bool m_isEnabled = true;
-    };
+        LINA_WARN("Setting the enabled state of PhysicsComponent does nothing. If you are trying to disable/enable simulation, use PhysicsEngineBackend::SetBodySimulation()");
+    }
 } // namespace Lina::ECS
-
-#endif

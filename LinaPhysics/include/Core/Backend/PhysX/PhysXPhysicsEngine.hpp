@@ -50,6 +50,10 @@ namespace Lina
 {
     class Engine;
 
+    namespace ECS
+    {
+        struct PhysicsComponent;
+    }
     namespace Event
     {
         class EventSystem;
@@ -115,10 +119,6 @@ namespace Lina::Physics
         void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
-        void SetDebugDraw(bool enabled)
-        {
-            m_debugDrawEnabled = enabled;
-        }
         void SetBodySimulation(ECS::Entity body, SimulationType type);
         void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
         void SetBodyMass(ECS::Entity body, float mass);
@@ -129,8 +129,16 @@ namespace Lina::Physics
         void SetBodyKinematic(ECS::Entity body, bool kinematic);
         void UpdateBodyShapeParameters(ECS::Entity body);
 
+        void SetDebugDraw(bool enabled)
+        {
+            m_debugDrawEnabled = enabled;
+        }
+
     private:
+
         friend class Engine;
+        friend struct ECS::PhysicsComponent;
+
         PhysXPhysicsEngine();
         ~PhysXPhysicsEngine();
         void  Initialize(ApplicationMode appMode);
