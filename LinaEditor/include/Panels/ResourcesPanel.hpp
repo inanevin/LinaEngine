@@ -41,9 +41,7 @@ Timestamp: 6/5/2020 12:54:52 AM
 
 #include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
 #include <map>
 #include <vector>
 
@@ -64,26 +62,17 @@ namespace Lina::Editor
 
     private:
         void HandleLeftPaneResize(bool canResize);
+  
         void DrawLeftPane();
         void DrawRightPane();
 
         void DrawContextMenu();
-        void DrawFolderMenu(Utility::Folder& folder, float offset);
+        void DrawFolderMenu(Utility::Folder& folder, bool performFilterCheck);
         void DrawContents(Utility::Folder& folder);
         void DrawFile(Utility::File& file);
-        // void ScanFolder(EditorFolder& folder);
-        // void DrawFolder(EditorFolder& folder, bool isRoot = false);
-        // void LoadFolderResources(EditorFolder& folder);
-        // void LoadFolderDependencies(EditorFolder& folder);
-        // void UnloadFileResource(EditorFile& file);
-        // void UnloadFileResourcesInFolder(EditorFolder& folder);
-        // bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
-        // FileType GetFileType(std::string& extension);
-        // void MaterialTextureSelected(EMaterialTextureSelected ev);
-        // void TextureReimported(ETextureReimported ev);
-        // bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
 
     private:
+        std::string                  m_searchFilter              = "";
         bool                         m_draggingChildWindowBorder = false;
         float                        m_leftPaneWidth             = 280.0f;
         float                        m_leftPaneMinWidth          = 200.0f;

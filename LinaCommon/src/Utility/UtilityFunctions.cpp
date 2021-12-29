@@ -264,6 +264,44 @@ namespace Lina
             return fileName.substr(0, lastindex);
         }
 
+        bool FileContainsFilter(const File& file, const std::string& filter)
+        {
+            const std::string filterLowercase = Utility::ToLower(filter);
+            const std::string fileLower       = Utility::ToLower(file.m_fullName);
+            return fileLower.find(filterLowercase) != std::string::npos;
+        }
+
+        bool FolderContainsFilter(const Folder& folder, const std::string& filter)
+        {
+            const std::string filterLowercase = Utility::ToLower(filter);
+            const std::string folderLower     = Utility::ToLower(folder.m_name);
+            const bool        folderContains  = folderLower.find(filterLowercase) != std::string::npos;
+            return folderContains;
+        }
+
+        bool SubfoldersContainFilter(const Folder& folder, const std::string& filter)
+        {
+            bool subFoldersContain = false;
+
+            for (auto& folder : folder.m_folders)
+            {
+                if (Utility::FolderContainsFilter(folder, filter))
+                {
+                    subFoldersContain = true;
+                    break;
+                }
+
+                if (Utility::SubfoldersContainFilter(folder, filter))
+                {
+                    subFoldersContain = true;
+                    break;
+                }
+            }
+
+
+            return subFoldersContain;
+        }
+
         bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap)
         {
             std::istringstream iss(output);

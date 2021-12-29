@@ -49,6 +49,13 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
+    struct InputTextCallback_UserData
+    {
+        std::string*           Str;
+        ImGuiInputTextCallback ChainCallback;
+        void*                  ChainCallbackUserData;
+    };
+
     void ResourcesPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
@@ -64,45 +71,26 @@ namespace Lina::Editor
         Utility::ScanFolder(m_folders[0]);
     }
 
-    /*void ResourcesPanel::ScanFolder(EditorFolder& root)
+    static int InputTextCallback(ImGuiInputTextCallbackData* data)
     {
-        for (const auto& entry : std::filesystem::directory_iterator(root.m_path))
+        InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
         {
-            if (entry.path().has_extension())
-            {
-                // Is a file
-                EditorFile file;
-                file.m_name = entry.path().filename().string();
-                file.m_pathToFolder = entry.path().parent_path().string() + "/";
-                std::string replacedPath = entry.path().relative_path().string();
-                std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                file.m_path = replacedPath;
-                file.m_extension = file.m_name.substr(file.m_name.find(".") + 1);
-                file.m_type = GetFileType(file.m_extension);
-                file.m_id = ++s_itemIDCounter;
-
-                // Add to the folder data.
-                root.m_files[file.m_id] = file;
-            }
-            else
-            {
-                // Is a folder
-                EditorFolder folder;
-                folder.m_name = entry.path().filename().string();
-                std::string replacedPath = entry.path().relative_path().string();
-                std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                folder.m_path = replacedPath;
-                folder.m_id = ++s_itemIDCounter;
-                folder.m_parent = &root;
-
-                // Add to the sub folders.
-                root.m_subFolders[folder.m_id] = folder;
-
-                // Iterate recursively.
-                ScanFolder(root.m_subFolders[folder.m_id]);
-            }
+            // Resize string callback
+            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+            std::string* str = user_data->Str;
+            IM_ASSERT(data->Buf == str->c_str());
+            str->resize(data->BufTextLen);
+            data->Buf = (char*)str->c_str();
         }
-    }*/
+        else if (user_data->ChainCallback)
+        {
+            // Forward to user callback, if any
+            data->UserData = user_data->ChainCallbackUserData;
+            return user_data->ChainCallback(data);
+        }
+        return 0;
+    }
 
     void ResourcesPanel::Draw()
     {
@@ -209,15 +197,20 @@ namespace Lina::Editor
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
 
-        static char filterChr[128] = "";
-        const float filterWidth    = 200.0f;
+        // Settings Icon
         WidgetsUtility::IncrementCursorPosY(8);
         WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
         WidgetsUtility::IconButton(ICON_FA_COG);
         ImGui::SameLine();
+
+        // Search bar.
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &m_searchFilter;
+
+        const float filterWidth = 200.0f;
         WidgetsUtility::IncrementCursorPosY(-3);
         ImGui::PushItemWidth(-spaceFromLeft);
-        ImGui::InputTextWithHint("##resources_fileFilter", "search...", filterChr, IM_ARRAYSIZE(filterChr));
+        ImGui::InputTextWithHint("##resources_fileFilter", "search...", (char*)m_searchFilter.c_str(), m_searchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
         ImGui::EndChild();
 
         // Resource folders.
@@ -225,7 +218,7 @@ namespace Lina::Editor
         WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
         ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20), false);
         WidgetsUtility::IncrementCursorPosY(4);
-        DrawFolderMenu(m_folders[0], 0.0f);
+        DrawFolderMenu(m_folders[0], true);
         ImGui::EndChild();
         ImGui::PopStyleColor();
     }
@@ -234,22 +227,53 @@ namespace Lina::Editor
     {
     }
 
-    void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, float offset)
+    void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, bool performFilterCheck)
     {
-        static bool colorToggle = false;
+        bool dontDraw               = false;
+        bool shouldSubsPerformCheck = performFilterCheck;
 
-        ImVec4     childBG = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
-        const bool open    = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
+        if (performFilterCheck)
+        {
+            const bool containSearchFilter = Utility::FolderContainsFilter(folder, m_searchFilter);
 
-        if (ImGui::IsItemClicked())
-            m_currentSelectedFolder = &folder;
+            if (containSearchFilter)
+            {
+                dontDraw               = false;
+                shouldSubsPerformCheck = false;
+            }
+            else
+            {
+                const bool subfoldersContain = Utility::SubfoldersContainFilter(folder, m_searchFilter);
 
-        if (open && folder.m_folders.size() > 0)
+                if (subfoldersContain)
+                {
+                    dontDraw               = false;
+                    shouldSubsPerformCheck = true;
+                }
+                else
+                {
+                    dontDraw = true;
+                }
+            }
+        }
+
+        ImVec4 childBG = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+
+        if (!dontDraw)
+        {
+            folder.m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
+
+            if (ImGui::IsItemClicked())
+                m_currentSelectedFolder = &folder;
+        }
+
+        if (folder.m_isOpen && folder.m_folders.size() > 0)
         {
             for (auto& f : folder.m_folders)
-                DrawFolderMenu(f, offset + 15.0f);
+                DrawFolderMenu(f, shouldSubsPerformCheck);
 
-            ImGui::TreePop();
+            if (!dontDraw)
+                ImGui::TreePop();
         }
 
         return;

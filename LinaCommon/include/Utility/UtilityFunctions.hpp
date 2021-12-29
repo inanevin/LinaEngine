@@ -95,6 +95,15 @@ namespace Lina
         // Returns only the file extension, no path or no dots.
         extern std::string GetFileExtension(const std::string& file);
 
+        // Checks if the given folder contain the given filter within the folder name.
+        extern bool FolderContainsFilter(const Folder& folder, const std::string& filter);
+
+        // Checks if the folder's sub-folders contain the given filter as folder name.
+        extern bool SubfoldersContainFilter(const Folder& folder, const std::string& filter);
+
+        // Checks if the given file contains the given filter within the file name, including extension.
+        extern bool FileContainsFilter(const File& file, const std::string& filter);
+
         // Used for loading shaders from memory.
         extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
 
@@ -112,6 +121,9 @@ namespace Lina
 
         // Converts all string characters to uppercase
         extern std::string ToUpper(const std::string& input);
+
+        extern std::string CharArrayToString(char* arr, int size);
+
     } // namespace Utility
 } // namespace Lina
 
