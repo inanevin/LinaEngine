@@ -48,7 +48,12 @@ namespace Lina::Editor
 
     void EditorPanel::Begin()
     {
-        ImGui::Begin(m_id, &m_show, m_windowFlags);
+        ImGuiWindowFlags flags = m_windowFlags;
+
+        if (m_lockWindowPos)
+            flags |= ImGuiWindowFlags_NoMove;
+
+        ImGui::Begin(m_id, &m_show, flags);
 
         WidgetsUtility::WindowTitlebar(m_id);
         if (!CanDrawContent())

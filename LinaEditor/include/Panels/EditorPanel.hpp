@@ -49,7 +49,7 @@ namespace Lina::Editor
     {
 
     public:
-        EditorPanel() = default;
+        EditorPanel()          = default;
         virtual ~EditorPanel() = default;
         virtual void Initialize(const char* id, const char* icon);
         virtual void Draw() = 0;
@@ -82,6 +82,7 @@ namespace Lina::Editor
         Vector2     m_sizeBeforeMaximize = Vector2::Zero;
         Vector2     m_sizeBeforeCollapse = Vector2::Zero;
         Vector2     m_posBeforeMaximize  = Vector2::Zero;
+        bool        m_lockWindowPos      = false;
         const char* m_id                 = nullptr;
         const char* m_icon               = nullptr;
         int         m_windowFlags        = 0;

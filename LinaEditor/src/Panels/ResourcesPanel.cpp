@@ -49,29 +49,13 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    static int s_itemIDCounter = 0;
-    static int s_selectedItem  = -1;
-    // static EditorFolder* s_hoveredFolder;
-    static EditorFile* s_selectedFile;
-    // static EditorFolder* s_selectedFolder;
-
-    static ImVec4 s_highlightColor;
-    static ImVec4 s_fileNameColor;
-    static ImVec4 s_usedFileNameColor;
-    ;
-    static bool  s_highlightColorSet;
-    static bool  m_drawInternals = true;
-    static float s_colorLerpTimestamp;
-    static float s_colorLerpDuration = 1.0f;
-    static float s_colorLerpItemID;
-
     void ResourcesPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
 
-        s_highlightColor    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-        s_fileNameColor     = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-        s_usedFileNameColor = s_fileNameColor;
+        m_leftPaneWidth    = 280.0f;
+        m_leftPaneMinWidth = 200.0f;
+        m_leftPaneMaxWidth = 500.0f;
 
         Utility::Folder root;
         root.m_fullPath = "Resources/";
@@ -126,54 +110,95 @@ namespace Lina::Editor
         {
             Begin();
 
-            const ImVec2 windowPos     = ImGui::GetWindowPos();
-            const ImVec2 windowSize    = ImGui::GetWindowSize();
-            const ImVec2 cursorPos     = ImGui::GetCursorScreenPos();
-            const ImVec2 leftPaneSize  = ImVec2(280, 0);
-            const ImVec2 rightPanePos  = ImVec2(cursorPos.x + leftPaneSize.x, cursorPos.y);
-            const ImVec2 rightPaneSize = ImVec2(windowSize.x - leftPaneSize.x, 0);
+            const ImVec2 windowPos       = ImGui::GetWindowPos();
+            const ImVec2 windowSize      = ImGui::GetWindowSize();
+            const ImVec2 cursorPos       = ImGui::GetCursorScreenPos();
+            const ImVec2 leftPaneSize    = ImVec2(m_leftPaneWidth, 0);
+            const ImVec2 rightPanePos    = ImVec2(cursorPos.x + leftPaneSize.x, cursorPos.y);
+            const ImVec2 rightPaneSize   = ImVec2(windowSize.x - leftPaneSize.x, 0);
+            bool         anyChildHovered = false;
+            bool         isWindowHovered = ImGui::IsWindowHovered();
 
             ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
             ImGui::BeginChild("resources_leftPane", leftPaneSize);
             DrawLeftPane();
-            ImGui::EndChild();
 
-            const ImVec2 borderLineMin = ImVec2(windowPos.x + leftPaneSize.x, windowPos.y - 1);
-            const ImVec2 borderLineMax = ImVec2(borderLineMin.x, borderLineMin.y + windowSize.y);
-            ImGui::GetWindowDrawList()->AddLine(borderLineMin, borderLineMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 1.5f);
+            if (ImGui::IsWindowHovered())
+                anyChildHovered = true;
+
+            ImGui::EndChild();
 
             ImGui::SameLine();
             ImGui::BeginChild("resources_rightPane");
             DrawRightPane();
+
+            if (ImGui::IsWindowHovered())
+                anyChildHovered = true;
+
             ImGui::EndChild();
 
-            // float  windowWidth  = ImGui::GetWindowWidth();
-            // float  windowHeight = ImGui::GetWindowHeight();
-            // ImVec2 pos          = ImGui::GetWindowPos();
-            // ImVec2 min          = ImVec2(0, 0);
-            // ImVec2 max          = ImVec2(500, 500);
-            //
-            // ImGui::BeginChild("##res_sb", ImVec2(0, 10));
-            //
-            // ImGui::EndChild();
-            // // WidgetsUtility::HorizontalDivider(10);
-            //
-            // ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
-            // const float yPadding = 0.0f;
-            // const float xPadding = 0.0f;
-            // ImGui::SetNextWindowPos(ImVec2(pos.x + xPadding, pos.y + ImGui::GetCursorPosY() + yPadding));
-            // ImGui::BeginChild("folders", ImVec2((windowWidth * 0.2f) - (2.0f * xPadding), -yPadding * 2.0f), true);
-            // DrawFolderMenu(m_folders[0], 0.0f);
-            //
-            // ImGui::EndChild();
-            // ImGui::PopStyleColor();
-            // ImGui::SameLine();
-            // ImGui::BeginChild("files", ImVec2(windowWidth * 0.8f, windowHeight), true);
-            // // DrawContents();
-            // ImGui::EndChild();
+            HandleLeftPaneResize(anyChildHovered || isWindowHovered);
 
             End();
         }
+    }
+
+    void ResourcesPanel::HandleLeftPaneResize(bool canResize)
+    {
+        const ImVec2 windowPos     = ImGui::GetWindowPos();
+        const ImVec2 windowSize    = ImGui::GetWindowSize();
+        const ImVec2 borderLineMin = ImVec2(windowPos.x + m_leftPaneWidth, windowPos.y - 1);
+        const ImVec2 borderLineMax = ImVec2(borderLineMin.x, borderLineMin.y + windowSize.y);
+        ImGui::GetWindowDrawList()->AddLine(borderLineMin, borderLineMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 1.5f);
+
+        const ImVec2   hoverRectMin     = ImVec2(borderLineMin.x - 10, borderLineMin.y);
+        const ImVec2   hoverRectMax     = ImVec2(borderLineMin.x + 10, borderLineMax.y);
+        static float   pressedPos       = 0.0f;
+        static Vector2 windowPosOnPress = Vector2::Zero;
+
+        if (canResize)
+        {
+            bool canDrag = false;
+
+            if (ImGui::IsMouseHoveringRect(hoverRectMin, hoverRectMax))
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+                canDrag         = true;
+                m_lockWindowPos = true;
+            }
+            else
+                m_lockWindowPos = false;
+
+            if (canDrag)
+            {
+
+                if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+                {
+                    pressedPos                  = m_leftPaneWidth;
+                    m_draggingChildWindowBorder = true;
+                }
+            }
+        }
+        else
+            m_lockWindowPos = false;
+
+        if (m_draggingChildWindowBorder && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+        {
+
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            const float delta  = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).x;
+            float       newPos = pressedPos + delta;
+
+            if (newPos < m_leftPaneMinWidth)
+                newPos = m_leftPaneMinWidth;
+            else if (newPos > m_leftPaneMaxWidth)
+                newPos = m_leftPaneMaxWidth;
+
+            m_leftPaneWidth = newPos;
+        }
+
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+            m_draggingChildWindowBorder = false;
     }
 
     void ResourcesPanel::DrawLeftPane()
@@ -213,9 +238,8 @@ namespace Lina::Editor
     {
         static bool colorToggle = false;
 
-        ImVec4 childBG         = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
-        m_currentHoveredFolder = nullptr;
-        const bool open        = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
+        ImVec4     childBG = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+        const bool open    = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
 
         if (ImGui::IsItemClicked())
             m_currentSelectedFolder = &folder;

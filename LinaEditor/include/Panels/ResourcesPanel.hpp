@@ -56,14 +56,14 @@ namespace Lina::Editor
     {
 
     public:
-        ResourcesPanel() = default;
+        ResourcesPanel()          = default;
         virtual ~ResourcesPanel() = default;
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
     private:
-
+        void HandleLeftPaneResize(bool canResize);
         void DrawLeftPane();
         void DrawRightPane();
 
@@ -84,10 +84,12 @@ namespace Lina::Editor
         // bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
 
     private:
-        // std::vector<EditorFolder> m_resourceFolders;
+        bool                         m_draggingChildWindowBorder = false;
+        float                        m_leftPaneWidth             = 280.0f;
+        float                        m_leftPaneMinWidth          = 200.0f;
+        float                        m_leftPaneMaxWidth          = 500.0f;
         std::vector<Utility::Folder> m_folders;
         Utility::Folder*             m_currentSelectedFolder = nullptr;
-        Utility::Folder*             m_currentHoveredFolder  = nullptr;
         Utility::File*               m_currentSelectedFile   = nullptr;
     };
 } // namespace Lina::Editor
