@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Widgets/MenuButton.hpp"
+#include "Widgets/Snackbar.hpp"
 #include "imgui/imgui.h"
 
 #include <filesystem>

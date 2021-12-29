@@ -115,6 +115,9 @@ namespace Lina::Editor
         int         m_heldKey;
         int         m_pressedKey;
     };
+    struct EGUILayerRender
+    {
+    };
 
 #define EDITOR_CAMERA_NAME        "Editor Camera"
 #define CURSOR_X_LABELS           12

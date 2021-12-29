@@ -51,15 +51,15 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ELog, &LogPanel::OnLog>(this);
 
         // Add icon buttons.
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
-        m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
-
-        // To be retrieved from editor settings file later on.
-        m_logLevelFlags = LogLevel::Critical | LogLevel::Debug | LogLevel::Trace | LogLevel::Info | LogLevel::Error | LogLevel::Warn;
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
+        // m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
+        // 
+        // // To be retrieved from editor settings file later on.
+        // m_logLevelFlags = LogLevel::Critical | LogLevel::Debug | LogLevel::Trace | LogLevel::Info | LogLevel::Error | LogLevel::Warn;
 
         // Update icon colors depending on the chosen log levels
         for (int i = 0; i < m_logLevelIconButtons.size(); i++)
@@ -68,7 +68,7 @@ namespace Lina::Editor
 
     void LogPanel::Draw()
     {
-
+        return;
         if (m_show)
         {
             Begin();
@@ -117,14 +117,14 @@ namespace Lina::Editor
                 WidgetsUtility::IncrementCursorPosY(11);
                 for (std::deque<LogDumpEntry>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
                 {
-                    if (!(m_logLevelFlags & it->m_dump.m_level))
-                        continue;
+                   //if (!(m_logLevelFlags & it->m_dump.m_level))
+                   //    continue;
 
-                    ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
+                   // ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
 
                     // Draw the level icon.
                     // WidgetsUtility::IncrementCursorPos(ImVec2(15, 0)); // for icons
-                    WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
+                 //   WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
 
                     //// Draw the icon depending on the log level type also set the text color ready.
                     // if (it->m_dump.m_level == LogLevel::Critical)

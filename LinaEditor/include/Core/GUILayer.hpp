@@ -97,6 +97,10 @@ namespace Lina::Editor
         {
             return m_bigFont;
         }
+        inline ImFont* GetMediumFont()
+        {
+            return m_mediumFont;
+        }
         inline ImFont* GetIconFontSmall()
         {
             return m_iconFontSmall;
@@ -152,6 +156,7 @@ namespace Lina::Editor
         const char*         m_linaLogoIcon         = nullptr;
         ImFont*             m_defaultFont          = nullptr;
         ImFont*             m_bigFont              = nullptr;
+        ImFont*             m_mediumFont           = nullptr;
         ImFont*             m_iconFontSmall        = nullptr;
         ImFont*             m_iconFontDefault      = nullptr;
         ShortcutManager     m_shortcutManager;

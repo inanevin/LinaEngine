@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,58 +27,39 @@ SOFTWARE.
 */
 
 /*
-Class: CommonApplication
+Class: Snackbar
 
 
 
-Timestamp: 12/25/2021 12:21:22 PM
+Timestamp: 12/29/2021 11:56:59 PM
 */
 
 #pragma once
 
-#ifndef CommonApplication_HPP
-#define CommonApplication_HPP
+#ifndef Snackbar_HPP
+#define Snackbar_HPP
 
 // Headers here.
-#include "Core/CommonWindow.hpp"
+#include <string>
 
 namespace Lina
 {
-    enum class LogLevel
+    enum class LogLevel;
+}
+namespace Lina::Editor
+{
+    class Snackbar
     {
-        None     = 1 << 0,
-        Debug    = 1 << 1,
-        Info     = 1 << 2,
-        Critical = 1 << 3,
-        Error    = 1 << 4,
-        Trace    = 1 << 5,
-        Warn     = 1 << 6
+
+    public:
+
+        /// <summary>
+        /// Sends in a snackbar from the side of the window informing the user with the given text & log level.
+        /// </summary>
+        static void PushSnackbar(LogLevel level, const std::string& text);
+
+    private:
     };
-
-    enum class ApplicationMode
-    {
-        Editor     = 1 << 0,
-        Standalone = 1 << 1
-    };
-
-    struct ApplicationInfo
-    {
-        // Bundle name that is used to load resources package on Standalone builds.
-        std::string m_bundleName = "";
-
-        // App Info
-        const char*    m_appName     = "Lina Engine";
-        const wchar_t* m_packagePass = nullptr;
-        int            m_build       = 0;
-        int            m_appMajor    = 1;
-        int            m_appMinor    = 0;
-        int            m_appPatch    = 0;
-
-        ApplicationMode  m_appMode          = ApplicationMode::Editor;
-        WindowProperties m_windowProperties = WindowProperties();
-    };
-
-    extern std::string LogLevelAsString(LogLevel level);
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

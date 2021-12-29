@@ -115,6 +115,7 @@ namespace Lina::Editor
         io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 13.0f, &icons_config, icons_rangesCUST);
 
         m_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
+        m_mediumFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 24, NULL);
         m_defaultFont = io.FontDefault;
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
@@ -308,6 +309,8 @@ namespace Lina::Editor
         m_propertiesPanel.Draw();
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
+
+        Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
 
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();

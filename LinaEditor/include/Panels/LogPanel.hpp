@@ -89,7 +89,7 @@ namespace Lina::Editor
         const char*  m_id               = "";
         const char*  m_tooltip          = "";
         const char*  m_icon             = "";
-        unsigned int m_targetLevel      = LogLevel::None;
+        unsigned int m_targetLevel      = 0;
         ImVec4       m_colorDefault     = ImVec4(0, 0, 0, 0);
         ImVec4       m_colorHovered     = ImVec4(0, 0, 0, 0);
         ImVec4       m_colorPressed     = ImVec4(0, 0, 0, 0);
@@ -117,7 +117,7 @@ namespace Lina::Editor
         void         OnLog(const Event::ELog& dump);
 
     private:
-        unsigned int                    m_logLevelFlags = LogLevel::None;
+        unsigned int                    m_logLevelFlags = 0;
         std::vector<LogLevelIconButton> m_logLevelIconButtons;
         std::deque<LogDumpEntry>        m_logDeque;
     };
