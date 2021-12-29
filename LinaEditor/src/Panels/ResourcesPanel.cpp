@@ -80,7 +80,7 @@ namespace Lina::Editor
 
         m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
     }
-        
+
     static int InputTextCallback(ImGuiInputTextCallbackData* data)
     {
         InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
@@ -274,25 +274,37 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(8);
 
         // Selected folder hierarchy.
+        const float cursorYBeforeIcon = ImGui::GetCursorPosY();
+        WidgetsUtility::IncrementCursorPosY(2.9f);
         WidgetsUtility::IconSmall(ICON_FA_FOLDER_OPEN);
         ImGui::SameLine();
+        ImGui::SetCursorPosY(cursorYBeforeIcon);
 
         if (m_currentSelectedFolder != nullptr)
         {
             std::vector<Utility::Folder*> hierarchy;
             Utility::GetFolderHierarchToRoot(m_currentSelectedFolder, hierarchy);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));
 
             for (int i = (int)hierarchy.size() - 1; i > -1; i--)
             {
                 auto* folder = hierarchy[i];
 
-                ImGui::Text(folder->m_name.c_str());
+                // S
+                if (WidgetsUtility::Button(folder->m_name.c_str()))
+                {
+                    m_currentSelectedFile   = nullptr;
+                    m_currentSelectedFolder = folder;
+                }
                 ImGui::SameLine();
                 WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
                 ImGui::SameLine();
             }
 
-            ImGui::Text(m_currentSelectedFolder->m_name.c_str());
+            WidgetsUtility::Button(m_currentSelectedFolder->m_name.c_str());
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
             ImGui::SameLine();
         }
         else
@@ -418,11 +430,67 @@ namespace Lina::Editor
         {
             m_showEngineFolders              = !m_showEngineFolders;
             m_showEngineFoldersMB->m_tooltip = m_showEngineFolders ? ICON_FA_CHECK : "";
+
+            // If we are disabling viewing the engine folders and the current
+            // selected folder is the engine folder, or a subfolder underneath,
+            // deselect it and the file.
+            if (!m_showEngineFolders && m_currentSelectedFolder != nullptr)
+            {
+                Utility::Folder* f                     = m_currentSelectedFolder;
+                bool             currentIsEngineFolder = m_currentSelectedFolder->m_fullPath.compare("Resources/Engine") == 0;
+
+                if (!currentIsEngineFolder)
+                {
+                    while (f->m_parent != nullptr)
+                    {
+                        if (f->m_parent->m_fullPath.compare("Resources/Engine") == 0)
+                        {
+                            currentIsEngineFolder = true;
+                            break;
+                        }
+                        f = f->m_parent;
+                    }
+                }
+
+                if (currentIsEngineFolder)
+                {
+                    m_currentSelectedFile   = nullptr;
+                    m_currentSelectedFolder = nullptr;
+                }
+            }
         }
         else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEditorFolders))
         {
             m_showEditorFolders              = !m_showEditorFolders;
             m_showEditorFoldersMB->m_tooltip = m_showEditorFolders ? ICON_FA_CHECK : "";
+
+            // If we are disabling viewing the editor  folders and the current
+            // selected folder is the editor folder, or a subfolder underneath,
+            // deselect it and the file.
+            if (!m_showEditorFolders && m_currentSelectedFolder != nullptr)
+            {
+                Utility::Folder* f                     = m_currentSelectedFolder;
+                bool             currentIsEditorFolder = m_currentSelectedFolder->m_fullPath.compare("Resources/Editor") == 0;
+
+                if (!currentIsEditorFolder)
+                {
+                    while (f->m_parent != nullptr)
+                    {
+                        if (f->m_parent->m_fullPath.compare("Resources/Editor") == 0)
+                        {
+                            currentIsEditorFolder = true;
+                            break;
+                        }
+                        f = f->m_parent;
+                    }
+                }
+
+                if (currentIsEditorFolder)
+                {
+                    m_currentSelectedFile   = nullptr;
+                    m_currentSelectedFolder = nullptr;
+                }
+            }
         }
     }
 

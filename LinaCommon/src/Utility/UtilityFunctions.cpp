@@ -113,8 +113,8 @@ namespace Lina
                     File* file = new File();
                     root->m_files.push_back(file);
 
-                    file->m_fullName          = entry.path().filename().string();
-                    file->m_folderPath        = entry.path().parent_path().string() + "/";
+                    file->m_fullName         = entry.path().filename().string();
+                    file->m_folderPath       = entry.path().parent_path().string() + "/";
                     std::string replacedPath = entry.path().string();
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
                     file->m_fullPath  = replacedPath;
@@ -126,15 +126,14 @@ namespace Lina
                 }
                 else
                 {
-                    Folder* folder                     = new Folder();
+                    Folder* folder = new Folder();
                     root->m_folders.push_back(folder);
-                    folder->m_name            = entry.path().filename().string();
+                    folder->m_name           = entry.path().filename().string();
                     std::string replacedPath = entry.path().string();
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
                     folder->m_fullPath = replacedPath;
                     folder->m_parent   = root;
 
-                    LINA_TRACE("Creating folder {0}, parent is {1}", folder->m_name, folder->m_parent->m_name);
                     if (recursive)
                         ScanFolder(folder, recursive, totalFiles);
                 }
