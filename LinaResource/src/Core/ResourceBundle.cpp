@@ -106,17 +106,17 @@ namespace Lina::Resources
         m_memoryResourcesParams.clear();
     }
 
-    void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
+    void ResourceBundle::LoadResourcesInFolder(Utility::Folder* root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
     {
-        for (auto& folder : root.m_folders)
+        for (auto& folder : root->m_folders)
         {
             LoadResourcesInFolder(folder, excludes, onlyLoad);
         }
 
         // Initialize each file into memory where they will persist during the editor lifetime.
-        for (auto& file : root.m_files)
+        for (auto& file : root->m_files)
         {
-            ResourceType resType = GetResourceType(file.m_extension);
+            ResourceType resType = GetResourceType(file->m_extension);
 
             if (onlyLoad != ResourceType::Unknown && resType != onlyLoad)
                 continue;
@@ -130,7 +130,7 @@ namespace Lina::Resources
                 }
             }
 
-            ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
+            ResourceManager::s_currentProgressData.m_currentResourceName = file->m_fullPath;
             ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
             ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
             ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
@@ -139,21 +139,21 @@ namespace Lina::Resources
         }
     }
 
-    void ResourceBundle::LoadResourceFromFile(Utility::File& file, ResourceType type)
+    void ResourceBundle::LoadResourceFromFile(Utility::File* file, ResourceType type)
     {
         std::string paramsPath = "";
 
         if (type == ResourceType::Image)
-            paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
+            paramsPath = file->m_folderPath + file->m_pureName + ".linaimagedata";
         else if (type == ResourceType::HDR)
-            paramsPath = file.m_folderPath + file.m_pureName + ".linaimagedata";
+            paramsPath = file->m_folderPath + file->m_pureName + ".linaimagedata";
         else if (type == ResourceType::Model)
-            paramsPath = file.m_folderPath + file.m_pureName + ".linamodeldata";
+            paramsPath = file->m_folderPath + file->m_pureName + ".linamodeldata";
         else if (type == ResourceType::Audio)
-            paramsPath = file.m_folderPath + file.m_pureName + ".linaaudiodata";
+            paramsPath = file->m_folderPath + file->m_pureName + ".linaaudiodata";
 
-        Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file.m_fullPath, paramsPath});
-        Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{type, StringID(file.m_fullPath.c_str()).value()});
+        Event::EventSystem::Get()->Trigger<Event::ELoadResourceFromFile>(Event::ELoadResourceFromFile{type, file->m_fullPath, paramsPath});
+        Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{type, StringID(file->m_fullPath.c_str()).value()});
     }
 
 } // namespace Lina::Resources

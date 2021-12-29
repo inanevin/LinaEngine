@@ -95,7 +95,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a folder in the style of Resources Panel.
         /// </summary>
-        static bool DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder);
+        static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder);
 
         /// <summary>
         /// Button with color-picker pop-up

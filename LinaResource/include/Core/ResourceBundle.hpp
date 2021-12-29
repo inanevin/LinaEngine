@@ -106,10 +106,10 @@ namespace Lina::Resources
         void LoadAllMemoryMaps();
 
         // Calls LoadResourceFromFile on all resources within the folder.
-        void LoadResourcesInFolder(Utility::Folder& root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
+        void LoadResourcesInFolder(Utility::Folder* root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
         // Loads given resource from a file path into memory.
-        void LoadResourceFromFile(Utility::File& file, ResourceType type);
+        void LoadResourceFromFile(Utility::File* file, ResourceType type);
 
         std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
         std::vector<MemoryEntry>                                                    m_memoryResourcesParams;

@@ -51,7 +51,10 @@ namespace Lina
         extern char* WCharToChar(const wchar_t* input);
 
         // Scans the given folder & fills it's child folder data
-        extern void ScanFolder(Folder& root, bool recursive = true, int* totalFiles = nullptr);
+        extern void ScanFolder(Folder* root, bool recursive = true, int* totalFiles = nullptr);
+
+        // Fills the given array with the parent folders up to the top most.
+        extern void GetFolderHierarchToRoot(Folder* folder, std::vector<Folder*>& hierarchy);
 
         // Removes file from OS.
         extern bool DeleteFileInPath(const std::string& path);
@@ -96,10 +99,10 @@ namespace Lina
         extern std::string GetFileExtension(const std::string& file);
 
         // Checks if the given folder contain the given filter within the folder name.
-        extern bool FolderContainsFilter(const Folder& folder, const std::string& filter);
+        extern bool FolderContainsFilter(const Folder* folder, const std::string& filter);
 
         // Checks if the folder's sub-folders contain the given filter as folder name.
-        extern bool SubfoldersContainFilter(const Folder& folder, const std::string& filter);
+        extern bool SubfoldersContainFilter(const Folder* folder, const std::string& filter);
 
         // Checks if the given file contains the given filter within the file name, including extension.
         extern bool FileContainsFilter(const File& file, const std::string& filter);

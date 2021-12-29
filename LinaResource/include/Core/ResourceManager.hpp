@@ -86,13 +86,21 @@ namespace Lina::Resources
         /// </summary>
         void ImportResourceBundle(const std::string& path, const std::string& name);
 
+        /// <summary>
+        /// !! Root folder will be nullptr during Standalone builds, which are required to run through the package import system instead of a file system.
+        /// </summary>
+        inline Utility::Folder* GetRootFolder()
+        {
+            return m_rootFolder;
+        }
+
     private:
         friend class Engine;
-        ResourceManager() = default;
+        ResourceManager()  = default;
         ~ResourceManager() = default;
 
         void Initialize(ApplicationInfo& appInfo);
-        void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
+        void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder);
         void LoadEditorResources();
         void Shutdown();
 
@@ -106,10 +114,9 @@ namespace Lina::Resources
         TaskFlow                m_taskflowLoop;
         Future<void>            m_future;
         Future<void>            m_futureLoop;
-
-    private:
-        ResourceBundle  m_bundle;
-        ApplicationMode m_appMode = ApplicationMode::Editor;
+        ResourceBundle          m_bundle;
+        Utility::Folder*        m_rootFolder = nullptr;
+        ApplicationMode         m_appMode    = ApplicationMode::Editor;
     };
 } // namespace Lina::Resources
 

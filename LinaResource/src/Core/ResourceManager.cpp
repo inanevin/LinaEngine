@@ -46,9 +46,10 @@ namespace Lina::Resources
         LINA_WARN("[Resource Manager] -> Loading Editor Resources");
 
         // Find resources.
-        Utility::Folder root;
-        root.m_fullPath = "Resources/";
-        Utility::ScanFolder(root, true, &s_currentProgressData.m_currentTotalFiles);
+        m_rootFolder = new Utility::Folder();
+        m_rootFolder->m_fullPath = "Resources/";
+        m_rootFolder->m_name    = "Resources";
+        Utility::ScanFolder(m_rootFolder, true, &s_currentProgressData.m_currentTotalFiles);
 
         // Set progress & fill.
         s_currentProgressData.m_state                 = ResourceProgressState::Pending;
@@ -59,19 +60,19 @@ namespace Lina::Resources
 
         // Load all editor resources, first only load the shader includes & shaders
         std::vector<ResourceType> excludes;
-        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLH);
-        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::GLSL);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::GLH);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::GLSL);
         excludes.push_back(ResourceType::GLH);
         excludes.push_back(ResourceType::GLSL);
 
         // Then load the textures.
-        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::HDR);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::HDR);
         excludes.push_back(ResourceType::HDR);
-        m_bundle.LoadResourcesInFolder(root, excludes, ResourceType::Image);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::Image);
         excludes.push_back(ResourceType::Image);
 
         // Then load the rest.
-        m_bundle.LoadResourcesInFolder(root, excludes);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes);
 
         Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
         ResourceManager::ResetProgress();
@@ -85,6 +86,8 @@ namespace Lina::Resources
             m_future.cancel();
             m_future.get();
         }
+
+        delete m_rootFolder;
 
         LINA_TRACE("[Shutdown] -> Resource Manager {0}", typeid(*this).name());
     }
@@ -106,11 +109,7 @@ namespace Lina::Resources
     {
         // Find out which resources to export.
         std::vector<std::string> filesToPack;
-
-        Utility::Folder root;
-        root.m_fullPath = "Resources/";
-        Utility::ScanFolder(root);
-        AddAllResourcesToPack(filesToPack, root);
+        AddAllResourcesToPack(filesToPack, m_rootFolder);
 
         // Export resources.
         m_packager.PackageFileset(filesToPack, path + "/" + name + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
@@ -118,17 +117,17 @@ namespace Lina::Resources
 
     void ResourceManager::Initialize(ApplicationInfo& appInfo)
     {
-        m_appInfo  = appInfo;
-        m_eventSys = Event::EventSystem::Get();
+        m_appInfo    = appInfo;
+        m_eventSys   = Event::EventSystem::Get();
     }
 
-    void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)
+    void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder)
     {
-        for (auto& childFolder : folder.m_folders)
+        for (auto& childFolder : folder->m_folders)
             AddAllResourcesToPack(resources, childFolder);
 
-        for (auto& file : folder.m_files)
-            resources.push_back(file.m_fullPath);
+        for (auto& file : folder->m_files)
+            resources.push_back(file->m_fullPath);
     }
 
     void ResourceManager::ImportResourceBundle(const std::string& path, const std::string& name)
@@ -139,6 +138,7 @@ namespace Lina::Resources
             LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
             return;
         }
+
         std::string fullBundlePath                  = fullPath;
         s_currentProgressData.m_progressTitle       = "Unpacking level resources...";
         s_currentProgressData.m_currentResourceName = fullBundlePath;

@@ -41,9 +41,17 @@ Timestamp: 6/5/2020 12:54:52 AM
 
 #include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
-#include "Utility/UtilityFunctions.hpp"
 #include <map>
 #include <vector>
+
+namespace Lina
+{
+    namespace Utility
+    {
+        struct Folder;
+        struct File;
+    }
+}
 
 namespace Lina::Editor
 {
@@ -69,24 +77,25 @@ namespace Lina::Editor
         void DrawRightPane();
 
         void DrawContextMenu();
-        void DrawFolderMenu(Utility::Folder& folder, bool performFilterCheck);
-        void DrawContents(Utility::Folder& folder);
+        void DrawFolderMenu(Utility::Folder* folder, bool performFilterCheck);
+        void DrawContents(Utility::Folder* folder);
         void DrawFile(Utility::File& file);
 
     private:
         void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
 
     private:
-        std::string                  m_searchFilter              = "";
-        bool                         m_draggingChildWindowBorder = false;
-        bool                         m_showEditorFolders         = true;
-        bool                         m_showEngineFolders         = true;
-        float                        m_leftPaneWidth             = 280.0f;
-        float                        m_leftPaneMinWidth          = 200.0f;
-        float                        m_leftPaneMaxWidth          = 500.0f;
-        std::vector<Utility::Folder> m_folders;
-        Utility::Folder*             m_currentSelectedFolder = nullptr;
-        Utility::File*               m_currentSelectedFile   = nullptr;
+        std::string      m_folderSearchFilter        = "";
+        std::string      m_fileSearchFilter          = "";
+        bool             m_draggingChildWindowBorder = false;
+        bool             m_showEditorFolders         = true;
+        bool             m_showEngineFolders         = true;
+        float            m_leftPaneWidth             = 280.0f;
+        float            m_leftPaneMinWidth          = 200.0f;
+        float            m_leftPaneMaxWidth          = 500.0f;
+        Utility::Folder* m_rootFolder                = nullptr;
+        Utility::Folder* m_currentSelectedFolder     = nullptr;
+        Utility::File*   m_currentSelectedFile       = nullptr;
     };
 } // namespace Lina::Editor
 

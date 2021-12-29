@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/ResourcesPanel.hpp"
-
+#include "Utility/UtilityFunctions.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
@@ -45,11 +45,9 @@ SOFTWARE.
 
 #include <filesystem>
 
-#define ROOT_NAME "###Resources"
-
 namespace Lina::Editor
 {
-    Menu*           m_leftPaneMenu    = nullptr;
+    Menu*           m_leftPaneMenu        = nullptr;
     MenuBarElement* m_showEditorFoldersMB = nullptr;
     MenuBarElement* m_showEngineFoldersMB = nullptr;
 
@@ -73,20 +71,16 @@ namespace Lina::Editor
         m_leftPaneMinWidth = 200.0f;
         m_leftPaneMaxWidth = 500.0f;
 
-        m_leftPaneMenu    = new Menu("");
+        m_leftPaneMenu        = new Menu("");
         m_showEditorFoldersMB = new MenuBarElement("", "Show Editor Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEditorFolders, true, true);
         m_showEngineFoldersMB = new MenuBarElement("", "Show Engine Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEngineFolders, true, true);
         m_leftPaneMenu->AddElement(m_showEditorFoldersMB);
         m_leftPaneMenu->AddElement(m_showEngineFoldersMB);
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &ResourcesPanel::OnMenuBarElementClicked>(this);
 
-        Utility::Folder root;
-        root.m_fullPath = "Resources/";
-        root.m_name     = "Resources";
-        m_folders.push_back(root);
-        Utility::ScanFolder(m_folders[0]);
+        m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
     }
-
+        
     static int InputTextCallback(ImGuiInputTextCallbackData* data)
     {
         InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
@@ -236,12 +230,11 @@ namespace Lina::Editor
 
         // Search bar.
         InputTextCallback_UserData cb_user_data;
-        cb_user_data.Str = &m_searchFilter;
-
+        cb_user_data.Str        = &m_folderSearchFilter;
         const float filterWidth = 200.0f;
         WidgetsUtility::IncrementCursorPosY(-3);
         ImGui::PushItemWidth(-spaceFromLeft);
-        ImGui::InputTextWithHint("##resources_fileFilter", "search...", (char*)m_searchFilter.c_str(), m_searchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
+        ImGui::InputTextWithHint("##resources_folderFilter", "search...", (char*)m_folderSearchFilter.c_str(), m_folderSearchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
         ImGui::EndChild();
 
         // Resource folders.
@@ -255,7 +248,11 @@ namespace Lina::Editor
         const ImVec2 childSize = ImGui::GetWindowSize();
 
         WidgetsUtility::IncrementCursorPosY(4);
-        DrawFolderMenu(m_folders[0], true);
+        DrawFolderMenu(m_rootFolder, true);
+
+        // Deselect folder
+        if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+            m_currentSelectedFolder = nullptr;
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -265,9 +262,48 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawRightPane()
     {
-        const float topBarSize = 40;
+        const float                topBarSize    = 40;
+        const float                spaceFromLeft = 10;
+        const float                filterWidth   = 180.0f;
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &m_fileSearchFilter;
+
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));
         ImGui::BeginChild("resources_rightPane_topBar", ImVec2(0, topBarSize), true);
+        ImGui::SetCursorPosY(topBarSize / 2.0f - ImGui::GetFrameHeight() / 2.0f);
+        ImGui::SetCursorPosX(8);
+
+        // Selected folder hierarchy.
+        WidgetsUtility::IconSmall(ICON_FA_FOLDER_OPEN);
+        ImGui::SameLine();
+
+        if (m_currentSelectedFolder != nullptr)
+        {
+            std::vector<Utility::Folder*> hierarchy;
+            Utility::GetFolderHierarchToRoot(m_currentSelectedFolder, hierarchy);
+
+            for (int i = (int)hierarchy.size() - 1; i > -1; i--)
+            {
+                auto* folder = hierarchy[i];
+
+                ImGui::Text(folder->m_name.c_str());
+                ImGui::SameLine();
+                WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
+                ImGui::SameLine();
+            }
+
+            ImGui::Text(m_currentSelectedFolder->m_name.c_str());
+            ImGui::SameLine();
+        }
+        else
+        {
+        }
+
+        // Search bar.
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - filterWidth - spaceFromLeft);
+        ImGui::PushItemWidth(-spaceFromLeft);
+        ImGui::InputTextWithHint("##resources_fileFilter", "search...", (char*)m_fileSearchFilter.c_str(), m_fileSearchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
+
         ImGui::EndChild();
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
         WidgetsUtility::HorizontalDivider(-4.0f, 1.5f);
@@ -276,21 +312,21 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
     }
 
-    void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, bool performFilterCheck)
+    void ResourcesPanel::DrawFolderMenu(Utility::Folder* folder, bool performFilterCheck)
     {
         bool dontDraw               = false;
         bool shouldSubsPerformCheck = performFilterCheck;
 
-        if (!m_showEngineFolders && folder.m_fullPath.compare("Resources/Engine") == 0)
+        if (!m_showEngineFolders && folder->m_fullPath.compare("Resources/Engine") == 0)
             return;
 
-        if (!m_showEditorFolders && folder.m_fullPath.compare("Resources/Editor") == 0)
+        if (!m_showEditorFolders && folder->m_fullPath.compare("Resources/Editor") == 0)
             return;
 
         // Here
         if (performFilterCheck)
         {
-            const bool containSearchFilter = Utility::FolderContainsFilter(folder, m_searchFilter);
+            const bool containSearchFilter = Utility::FolderContainsFilter(folder, m_folderSearchFilter);
 
             if (containSearchFilter)
             {
@@ -299,7 +335,7 @@ namespace Lina::Editor
             }
             else
             {
-                const bool subfoldersContain = Utility::SubfoldersContainFilter(folder, m_searchFilter);
+                const bool subfoldersContain = Utility::SubfoldersContainFilter(folder, m_folderSearchFilter);
 
                 if (subfoldersContain)
                 {
@@ -317,15 +353,15 @@ namespace Lina::Editor
 
         if (!dontDraw)
         {
-            folder.m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
+            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
 
             if (ImGui::IsItemClicked())
-                m_currentSelectedFolder = &folder;
+                m_currentSelectedFolder = folder;
         }
 
-        if (folder.m_isOpen && folder.m_folders.size() > 0)
+        if (folder->m_isOpen && folder->m_folders.size() > 0)
         {
-            for (auto& f : folder.m_folders)
+            for (auto& f : folder->m_folders)
                 DrawFolderMenu(f, shouldSubsPerformCheck);
 
             if (!dontDraw)
@@ -368,7 +404,7 @@ namespace Lina::Editor
         //}
     }
 
-    void ResourcesPanel::DrawContents(Utility::Folder& folder)
+    void ResourcesPanel::DrawContents(Utility::Folder* folder)
     {
     }
 

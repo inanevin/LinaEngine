@@ -104,38 +104,49 @@ namespace Lina
             return (stat(path.c_str(), &buffer) == 0);
         }
 
-        void ScanFolder(Folder& root, bool recursive, int* totalFiles)
+        void ScanFolder(Folder* root, bool recursive, int* totalFiles)
         {
-            for (const auto& entry : std::filesystem::directory_iterator(root.m_fullPath))
+            for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath))
             {
                 if (entry.path().has_extension())
                 {
-                    root.m_files.push_back(File());
-                    File& file = root.m_files.back();
+                    File* file = new File();
+                    root->m_files.push_back(file);
 
-                    file.m_fullName          = entry.path().filename().string();
-                    file.m_folderPath        = entry.path().parent_path().string() + "/";
+                    file->m_fullName          = entry.path().filename().string();
+                    file->m_folderPath        = entry.path().parent_path().string() + "/";
                     std::string replacedPath = entry.path().string();
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                    file.m_fullPath  = replacedPath;
-                    file.m_extension = file.m_fullName.substr(file.m_fullName.find(".") + 1);
-                    file.m_pureName  = GetFileWithoutExtension(file.m_fullName);
+                    file->m_fullPath  = replacedPath;
+                    file->m_extension = file->m_fullName.substr(file->m_fullName.find(".") + 1);
+                    file->m_pureName  = GetFileWithoutExtension(file->m_fullName);
 
                     if (totalFiles != nullptr)
                         (*totalFiles) = (*totalFiles) + 1;
                 }
                 else
                 {
-                    root.m_folders.push_back(Folder());
-                    Folder& folder           = root.m_folders.back();
-                    folder.m_name            = entry.path().filename().string();
+                    Folder* folder                     = new Folder();
+                    root->m_folders.push_back(folder);
+                    folder->m_name            = entry.path().filename().string();
                     std::string replacedPath = entry.path().string();
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                    folder.m_fullPath = replacedPath;
+                    folder->m_fullPath = replacedPath;
+                    folder->m_parent   = root;
 
+                    LINA_TRACE("Creating folder {0}, parent is {1}", folder->m_name, folder->m_parent->m_name);
                     if (recursive)
                         ScanFolder(folder, recursive, totalFiles);
                 }
+            }
+        }
+
+        void GetFolderHierarchToRoot(Folder* folder, std::vector<Folder*>& hierarchy)
+        {
+            if (folder->m_parent != nullptr)
+            {
+                hierarchy.push_back(folder->m_parent);
+                GetFolderHierarchToRoot(folder->m_parent, hierarchy);
             }
         }
 
@@ -271,19 +282,19 @@ namespace Lina
             return fileLower.find(filterLowercase) != std::string::npos;
         }
 
-        bool FolderContainsFilter(const Folder& folder, const std::string& filter)
+        bool FolderContainsFilter(const Folder* folder, const std::string& filter)
         {
             const std::string filterLowercase = Utility::ToLower(filter);
-            const std::string folderLower     = Utility::ToLower(folder.m_name);
+            const std::string folderLower     = Utility::ToLower(folder->m_name);
             const bool        folderContains  = folderLower.find(filterLowercase) != std::string::npos;
             return folderContains;
         }
 
-        bool SubfoldersContainFilter(const Folder& folder, const std::string& filter)
+        bool SubfoldersContainFilter(const Folder* folder, const std::string& filter)
         {
             bool subFoldersContain = false;
 
-            for (auto& folder : folder.m_folders)
+            for (auto* folder : folder->m_folders)
             {
                 if (Utility::FolderContainsFilter(folder, filter))
                 {
@@ -297,7 +308,6 @@ namespace Lina
                     break;
                 }
             }
-
 
             return subFoldersContain;
         }
