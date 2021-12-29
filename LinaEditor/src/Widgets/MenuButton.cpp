@@ -47,7 +47,7 @@ namespace Lina::Editor
         m_children.clear();
     }
 
-    MenuButton::~MenuButton()
+    Menu::~Menu()
     {
         for (auto* element : m_elements)
             delete element;
@@ -55,12 +55,12 @@ namespace Lina::Editor
         m_elements.clear();
         ;
     }
-    void MenuButton::AddElement(MenuBarElement* elem)
+    void Menu::AddElement(MenuBarElement* elem)
     {
         m_elements.push_back(elem);
     }
 
-    void MenuButton::Draw()
+    void Menu::Draw()
     {
         if (m_elements.size() > 0)
         {
@@ -99,9 +99,19 @@ namespace Lina::Editor
             ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, ImGui::GetStyle().ItemInnerSpacing.y));
             if (ImGui::BeginMenu(itemStr.c_str()))
             {
-
                 for (int i = 0; i < m_children.size(); i++)
+                {
                     m_children[i]->Draw();
+
+                    if (i < m_children.size() - 1)
+                    {
+                        const int nextElement = i + 1;
+                        if (m_children[i]->m_groupID != m_children[nextElement]->m_groupID)
+                        {
+                            ImGui::Separator();
+                        }
+                    }
+                }
 
                 ImGui::EndMenu();
             }
@@ -120,20 +130,33 @@ namespace Lina::Editor
                 ImGui::EndDisabled();
         }
 
-        bool tooltipOrArrowExists = false;
+        const float textSize = ImGui::CalcTextSize(itemStr.c_str()).x;
+        float textAddition = 0.0f;
+        if (textSize > 100)
+            textAddition = 30.0f;
+
+        bool arrowExists = m_children.size() > 0;
         if (m_tooltip != nullptr && std::string(m_tooltip).compare("") != 0)
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosX(110);
-            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-            ImGui::Text(m_tooltip);
-            ImGui::PopStyleColor();
+            ImGui::SetCursorPosX(textAddition + 110);
+            if (m_tooltipIsIcon)
+            {
+                WidgetsUtility::IconSmall(m_tooltip);
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+                ImGui::Text(m_tooltip);
+                ImGui::PopStyleColor();
+            }
+      
         }
 
-        if (m_children.size() > 0)
+        if (arrowExists)
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosX(175);
+            ImGui::SetCursorPosX(textAddition + 175);
             WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
         }
 

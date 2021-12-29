@@ -65,7 +65,7 @@ namespace Lina::Editor
 {
     class LevelPanel;
     class PropertiesPanel;
-    class MenuBarElement;
+    class Menu;
     struct EShortcut;
 
     class EntitiesPanel : public EditorPanel
@@ -87,7 +87,7 @@ namespace Lina::Editor
     private:
         ECS::Registry*  m_ecs = nullptr;
         ECS::Entity     m_selectedEntity;
-        MenuBarElement* m_createMenuBarElement = nullptr;
+        Menu* m_rightClickMenu = nullptr;
     };
 } // namespace Lina::Editor
 

@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Widgets/MenuButton.hpp"
 #include "imgui/imgui.h"
 
 #include <filesystem>
@@ -48,6 +49,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+    Menu*           m_leftPaneMenu    = nullptr;
+    MenuBarElement* m_showEditorFoldersMB = nullptr;
+    MenuBarElement* m_showEngineFoldersMB = nullptr;
 
     struct InputTextCallback_UserData
     {
@@ -56,6 +60,11 @@ namespace Lina::Editor
         void*                  ChainCallbackUserData;
     };
 
+    ResourcesPanel::~ResourcesPanel()
+    {
+        delete m_leftPaneMenu;
+    }
+
     void ResourcesPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
@@ -63,6 +72,13 @@ namespace Lina::Editor
         m_leftPaneWidth    = 280.0f;
         m_leftPaneMinWidth = 200.0f;
         m_leftPaneMaxWidth = 500.0f;
+
+        m_leftPaneMenu    = new Menu("");
+        m_showEditorFoldersMB = new MenuBarElement("", "Show Editor Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEditorFolders, true, true);
+        m_showEngineFoldersMB = new MenuBarElement("", "Show Engine Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEngineFolders, true, true);
+        m_leftPaneMenu->AddElement(m_showEditorFoldersMB);
+        m_leftPaneMenu->AddElement(m_showEngineFoldersMB);
+        Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &ResourcesPanel::OnMenuBarElementClicked>(this);
 
         Utility::Folder root;
         root.m_fullPath = "Resources/";
@@ -117,6 +133,8 @@ namespace Lina::Editor
             ImGui::EndChild();
 
             ImGui::SameLine();
+            WidgetsUtility::IncrementCursorPosX(-ImGui::GetStyle().ItemSpacing.x + 2);
+
             ImGui::BeginChild("resources_rightPane");
             DrawRightPane();
 
@@ -193,6 +211,7 @@ namespace Lina::Editor
     {
         const float topBarSize    = 30;
         const float spaceFromLeft = 10;
+        const float childRounding = 3.0f;
 
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
@@ -200,7 +219,19 @@ namespace Lina::Editor
         // Settings Icon
         WidgetsUtility::IncrementCursorPosY(8);
         WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
-        WidgetsUtility::IconButton(ICON_FA_COG);
+        if (WidgetsUtility::IconButton(ICON_FA_COG))
+        {
+            ImGui::OpenPopup("ResourcesLeftPaneSettings");
+        }
+
+        WidgetsUtility::PushPopupStyle();
+        if (ImGui::BeginPopup("ResourcesLeftPaneSettings"))
+        {
+            m_leftPaneMenu->Draw();
+            ImGui::EndPopup();
+        }
+        WidgetsUtility::PopPopupStyle();
+
         ImGui::SameLine();
 
         // Search bar.
@@ -214,17 +245,35 @@ namespace Lina::Editor
         ImGui::EndChild();
 
         // Resource folders.
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
-        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20), false);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20), true);
+
+        const ImVec2 childPos  = ImGui::GetWindowPos();
+        const ImVec2 childSize = ImGui::GetWindowSize();
+
         WidgetsUtility::IncrementCursorPosY(4);
         DrawFolderMenu(m_folders[0], true);
+
         ImGui::EndChild();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleVar();
         ImGui::PopStyleColor();
     }
 
     void ResourcesPanel::DrawRightPane()
     {
+        const float topBarSize = 40;
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));
+        ImGui::BeginChild("resources_rightPane_topBar", ImVec2(0, topBarSize), true);
+        ImGui::EndChild();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+        WidgetsUtility::HorizontalDivider(-4.0f, 1.5f);
+
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
     }
 
     void ResourcesPanel::DrawFolderMenu(Utility::Folder& folder, bool performFilterCheck)
@@ -232,6 +281,13 @@ namespace Lina::Editor
         bool dontDraw               = false;
         bool shouldSubsPerformCheck = performFilterCheck;
 
+        if (!m_showEngineFolders && folder.m_fullPath.compare("Resources/Engine") == 0)
+            return;
+
+        if (!m_showEditorFolders && folder.m_fullPath.compare("Resources/Editor") == 0)
+            return;
+
+        // Here
         if (performFilterCheck)
         {
             const bool containSearchFilter = Utility::FolderContainsFilter(folder, m_searchFilter);
@@ -318,6 +374,20 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawFile(Utility::File& file)
     {
+    }
+
+    void ResourcesPanel::OnMenuBarElementClicked(const EMenuBarElementClicked& ev)
+    {
+        if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEngineFolders))
+        {
+            m_showEngineFolders              = !m_showEngineFolders;
+            m_showEngineFoldersMB->m_tooltip = m_showEngineFolders ? ICON_FA_CHECK : "";
+        }
+        else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEditorFolders))
+        {
+            m_showEditorFolders              = !m_showEditorFolders;
+            m_showEditorFoldersMB->m_tooltip = m_showEditorFolders ? ICON_FA_CHECK : "";
+        }
     }
 
     /* void ResourcesPanel::DrawContextMenu()

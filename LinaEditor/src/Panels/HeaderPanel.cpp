@@ -83,14 +83,14 @@ namespace Lina::Editor
         linaLogoID = linaLogoAnimation[0]->GetID();
 
         // Add menu bar buttons.
-        MenuButton* fileMenu   = new MenuButton("File");
-        MenuButton* editMenu   = new MenuButton("Edit");
-        MenuButton* viewMenu   = new MenuButton("View");
-        MenuButton* levelMenu  = new MenuButton("Level");
-        MenuButton* entityMenu = new MenuButton("Entity");
-        MenuButton* panelsMenu = new MenuButton("Panels");
-        MenuButton* debugMenu  = new MenuButton("Debug");
-        MenuButton* aboutMenu  = new MenuButton("About");
+        Menu* fileMenu   = new Menu("File");
+        Menu* editMenu   = new Menu("Edit");
+        Menu* viewMenu   = new Menu("View");
+        Menu* levelMenu  = new Menu("Level");
+        Menu* entityMenu = new Menu("Entity");
+        Menu* panelsMenu = new Menu("Panels");
+        Menu* debugMenu  = new Menu("Debug");
+        Menu* aboutMenu  = new Menu("About");
         m_menuButtons.push_back(fileMenu);
         m_menuButtons.push_back(editMenu);
         m_menuButtons.push_back(viewMenu);
@@ -210,7 +210,7 @@ namespace Lina::Editor
                 const ImVec2   delta     = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
                 const Vector2  windowPos = appWindow->GetPos();
                 const Vector2i newPos    = Vector2i(pressWindowPos.x + (int)delta.x, pressWindowPos.y + (int)delta.y);
-                
+
                 // TODO: Find all monitors min and max.
                 // if (newPos.x < 0.0f)
                 //     newPos.x = 0.0f;
@@ -287,8 +287,8 @@ namespace Lina::Editor
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
                 DrawMenuBarChild();
 
-                Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
-                const ImVec2             windowPos = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
+                Graphics::WindowBackend* appWindow  = Graphics::WindowBackend::Get();
+                const ImVec2             windowPos  = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
                 const ImVec2             windowSize = ImVec2((float)appWindow->GetSize().x, (float)appWindow->GetSize().y);
 
                 // Add a poly background for the logo.
@@ -297,8 +297,8 @@ namespace Lina::Editor
 
                 ImVec2 points[5] = {
                     ImVec2(logoPos.x, logoPos.y),
-                    ImVec2(logoPos.x + 20,  logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
-                    ImVec2(logoPos.x + logoBounds.x - 20,  logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + 20, logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
+                    ImVec2(logoPos.x + logoBounds.x - 20, logoPos.y + GUILayer::Get()->m_headerSize / 2.0f + 4),
                     ImVec2(logoPos.x + logoBounds.x, logoPos.y),
                     ImVec2(logoPos.x, logoPos.y)};
 
@@ -352,19 +352,13 @@ namespace Lina::Editor
         {
             for (auto* element : m_menuButtons)
             {
-                ImGui::PushStyleColor(ImGuiCol_Separator, ImVec4(0.303f, 0.303f, 0.303f, 1.000f));
-                ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, ImGui::GetStyle().WindowPadding.y));
-                ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
+                WidgetsUtility::PushPopupStyle();
                 if (ImGui::BeginMenu(element->m_title))
                 {
                     element->Draw();
                     ImGui::EndMenu();
                 }
-                ImGui::PopStyleVar();
-                ImGui::PopStyleVar();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
+                WidgetsUtility::PopPopupStyle();
             }
             ImGui::EndMenuBar();
         }

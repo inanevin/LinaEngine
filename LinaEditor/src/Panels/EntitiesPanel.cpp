@@ -53,7 +53,7 @@ namespace Lina::Editor
 
     EntitiesPanel::~EntitiesPanel()
     {
-        delete m_createMenuBarElement;
+        delete m_rightClickMenu;
     }
 
     void EntitiesPanel::Initialize(const char* id, const char* icon)
@@ -65,11 +65,13 @@ namespace Lina::Editor
 
         m_ecs = ECS::Registry::Get();
 
-        m_createMenuBarElement = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
+        m_rightClickMenu = new Menu("RC");
+        MenuBarElement* m = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
+        m_rightClickMenu->AddElement(m);
 
         auto& createElements = HeaderPanel::GetCreateEntityElements();
         for (auto* elem : createElements)
-            m_createMenuBarElement->AddChild(elem);
+            m->AddChild(elem);
     }
 
     void EntitiesPanel::DrawEntityNode(int id, ECS::Entity entity)
@@ -236,7 +238,7 @@ namespace Lina::Editor
             // Handle Right Click.
             if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
             {
-                m_createMenuBarElement->Draw();
+                m_rightClickMenu->Draw();
                 ImGui::EndPopup();
             }
 

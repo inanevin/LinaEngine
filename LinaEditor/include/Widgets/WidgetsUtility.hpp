@@ -70,7 +70,7 @@ namespace Lina
 namespace Lina::Editor
 {
     class MenuBarElement;
-    class MenuButton;
+    class Menu;
 
     class WidgetsUtility
     {

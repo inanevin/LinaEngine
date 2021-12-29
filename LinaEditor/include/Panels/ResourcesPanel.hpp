@@ -48,21 +48,23 @@ Timestamp: 6/5/2020 12:54:52 AM
 namespace Lina::Editor
 {
 
+    struct EMenuBarElementClicked;
+
     class PropertiesPanel;
 
     class ResourcesPanel : public EditorPanel
     {
 
     public:
-        ResourcesPanel()          = default;
-        virtual ~ResourcesPanel() = default;
+        ResourcesPanel() = default;
+        virtual ~ResourcesPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
     private:
         void HandleLeftPaneResize(bool canResize);
-  
+
         void DrawLeftPane();
         void DrawRightPane();
 
@@ -72,8 +74,13 @@ namespace Lina::Editor
         void DrawFile(Utility::File& file);
 
     private:
+        void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
+
+    private:
         std::string                  m_searchFilter              = "";
         bool                         m_draggingChildWindowBorder = false;
+        bool                         m_showEditorFolders         = true;
+        bool                         m_showEngineFolders         = true;
         float                        m_leftPaneWidth             = 280.0f;
         float                        m_leftPaneMinWidth          = 200.0f;
         float                        m_leftPaneMaxWidth          = 500.0f;

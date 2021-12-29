@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: MenuButton
+Class: Menu
 
 Menu button elements are used for creating a custom menu barç
 
@@ -88,14 +88,17 @@ namespace Lina::Editor
 
         Github  = 110,
         Website = 111,
+
+        Resources_ShowEditorFolders = 120,
+        Resources_ShowEngineFolders = 121,
     };
 
     class MenuBarElement
     {
 
     public:
-        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None, bool ownsChildren = true)
-            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren){};
+        MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None, bool ownsChildren = true, bool tooltipIsIcon = false)
+            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren), m_tooltipIsIcon(tooltipIsIcon) {};
         ~MenuBarElement();
 
         void AddChild(MenuBarElement* child);
@@ -103,21 +106,22 @@ namespace Lina::Editor
 
         int         m_groupID = -1;
         const char* m_title   = "";
+        const char* m_tooltip = "";
+        bool m_tooltipIsIcon = false;
 
     private:
         bool                         m_ownsChildren = true;
         MenuBarElementType           m_type         = MenuBarElementType::None;
         const char*                  m_icon         = "";
-        const char*                  m_tooltip      = "";
         std::vector<MenuBarElement*> m_children;
     };
 
-    class MenuButton
+    class Menu
     {
     public:
-        MenuButton(const char* title)
+        Menu(const char* title)
             : m_title(title){};
-        ~MenuButton();
+        ~Menu();
 
         void AddElement(MenuBarElement* elem);
         void Draw();

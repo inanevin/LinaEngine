@@ -1349,8 +1349,10 @@ namespace Lina::Editor
 
     void WidgetsUtility::PushPopupStyle()
     {
+        ImGui::PushStyleColor(ImGuiCol_Separator, ImVec4(0.303f, 0.303f, 0.303f, 1.000f));
         const Vector2 padding = GUILayer::Get()->GetDefaultWindowPadding();
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(padding.x, padding.y));
         ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
     }
@@ -1359,6 +1361,8 @@ namespace Lina::Editor
     {
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
         ImGui::PopStyleColor();
     }
 
