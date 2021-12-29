@@ -126,15 +126,24 @@ namespace Lina::Editor
         {
             Begin();
 
+            const ImVec2 windowPos     = ImGui::GetWindowPos();
+            const ImVec2 windowSize    = ImGui::GetWindowSize();
+            const ImVec2 cursorPos     = ImGui::GetCursorScreenPos();
             const ImVec2 leftPaneSize  = ImVec2(280, 0);
-            const ImVec2 rightPanePos  = ImVec2(ImGui::GetWindowPos().x + leftPaneSize.x, ImGui::GetWindowPos().y);
-            const ImVec2 rightPaneSize = ImVec2(ImGui::GetWindowWidth() - leftPaneSize.x, ImGui::GetWindowHeight());
+            const ImVec2 rightPanePos  = ImVec2(cursorPos.x + leftPaneSize.x, cursorPos.y);
+            const ImVec2 rightPaneSize = ImVec2(windowSize.x - leftPaneSize.x, 0);
+
+            ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
             ImGui::BeginChild("resources_leftPane", leftPaneSize);
             DrawLeftPane();
             ImGui::EndChild();
 
-            ImGui::SetNextWindowPos(rightPanePos);
-            ImGui::BeginChild("resources_rightPane", rightPaneSize);
+            const ImVec2 borderLineMin = ImVec2(windowPos.x + leftPaneSize.x, windowPos.y - 1);
+            const ImVec2 borderLineMax = ImVec2(borderLineMin.x, borderLineMin.y + windowSize.y);
+            ImGui::GetWindowDrawList()->AddLine(borderLineMin, borderLineMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 1.5f);
+
+            ImGui::SameLine();
+            ImGui::BeginChild("resources_rightPane");
             DrawRightPane();
             ImGui::EndChild();
 
@@ -169,26 +178,30 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawLeftPane()
     {
-        const float topBarSize = 30;
+        const float topBarSize    = 30;
+        const float spaceFromLeft = 10;
 
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
 
-        static char filterChr[128] = "search...";
-        const float filterWidth = 200.0f;
-        ImGui::SetNextItemWidth(filterWidth);
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - filterWidth / 2.0f);
-        ImGui::InputText("##resources_filefilter", filterChr, IM_ARRAYSIZE(filterChr));
-
+        static char filterChr[128] = "";
+        const float filterWidth    = 200.0f;
+        WidgetsUtility::IncrementCursorPosY(8);
+        WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
+        WidgetsUtility::IconButton(ICON_FA_COG);
+        ImGui::SameLine();
+        WidgetsUtility::IncrementCursorPosY(-3);
+        ImGui::PushItemWidth(-spaceFromLeft);
+        ImGui::InputTextWithHint("##resources_fileFilter", "search...", filterChr, IM_ARRAYSIZE(filterChr));
         ImGui::EndChild();
 
         // Resource folders.
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5,5));
-        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(0, -20), false, ImGuiWindowFlags_AlwaysUseWindowPadding);
-
+        WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
+        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20), false);
+        WidgetsUtility::IncrementCursorPosY(4);
+        DrawFolderMenu(m_folders[0], 0.0f);
         ImGui::EndChild();
-        ImGui::PopStyleVar();
         ImGui::PopStyleColor();
     }
 
@@ -202,12 +215,17 @@ namespace Lina::Editor
 
         ImVec4 childBG         = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
         m_currentHoveredFolder = nullptr;
-        WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder, m_currentHoveredFolder, 22, offset, childBG);
+        const bool open        = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
 
-        if (folder.m_isOpen)
+        if (ImGui::IsItemClicked())
+            m_currentSelectedFolder = &folder;
+
+        if (open && folder.m_folders.size() > 0)
         {
             for (auto& f : folder.m_folders)
                 DrawFolderMenu(f, offset + 15.0f);
+
+            ImGui::TreePop();
         }
 
         return;

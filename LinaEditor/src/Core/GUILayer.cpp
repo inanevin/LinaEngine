@@ -77,6 +77,7 @@ namespace Lina::Editor
         m_footerSize           = 20.0f;
         m_linaLogoIcon         = ICON_FA_FIRE;
         m_defaultWindowPadding = Vector2(8, 8);
+        m_defaultFramePadding  = Vector2(8, 2);
 
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
@@ -134,8 +135,9 @@ namespace Lina::Editor
         style.PopupRounding = 3.0f;
         // style.FrameRounding = 0.0f;
         // style.ScrollbarRounding = 5.0f;
-        style.FramePadding  = ImVec2(8, 2);
+        style.FramePadding  = ImVec2(m_defaultFramePadding.x, m_defaultFramePadding.y);
         style.WindowPadding = ImVec2(m_defaultWindowPadding.x, m_defaultWindowPadding.y);
+        style.CellPadding   = ImVec2(9, 2);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;
@@ -150,7 +152,7 @@ namespace Lina::Editor
         colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
         colors[ImGuiCol_Border]                 = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PopupBorder]             = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+        colors[ImGuiCol_PopupBorder]            = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
         colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_FrameBg]                = ImVec4(0.04f, 0.04f, 0.04f, 0.54f);
         colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.44f, 0.26f, 0.26f, 1.00f);
@@ -212,8 +214,6 @@ namespace Lina::Editor
         colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
         colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
-
-
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {

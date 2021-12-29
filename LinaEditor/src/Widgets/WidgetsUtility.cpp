@@ -117,98 +117,131 @@ namespace Lina::Editor
         return (col1.x == col2.x && col1.y == col2.y && col1.z == col2.z && col1.w == col2.w);
     }
 
-    void WidgetsUtility::DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground, ImVec4 selectedBackground)
+    bool WidgetsUtility::DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder)
     {
+        FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x);
+        const ImVec2             iconArrowMin  = ImVec2(ImGui::GetCursorScreenPos().x + 10, ImGui::GetCursorScreenPos().y);
+        const ImVec2             iconFolderMin = ImVec2(ImGui::GetCursorScreenPos().x + 22, ImGui::GetCursorScreenPos().y);
+        const ImGuiTreeNodeFlags parent        = ImGuiTreeNodeFlags_SpanFullWidth;
+        const ImGuiTreeNodeFlags leaf          = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
+        const bool               hasChildren   = folder.m_folders.size() > 0;
+        ImGuiTreeNodeFlags       flags         = hasChildren ? parent : leaf;
 
-        if (ColorsEqual(hoverBackground, ImVec4(0, 0, 0, 0)))
-            hoverBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered);
+        if (&folder == selectedFolder)
+            flags |= ImGuiTreeNodeFlags_Selected;
 
-        if (ColorsEqual(selectedBackground, ImVec4(0, 0, 0, 0)))
-            selectedBackground = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        // Tree node.
+        IncrementCursorPosX(4);
+        const bool node = ImGui::TreeNodeEx((void*)&folder.m_fullPath, flags, folder.m_name.c_str());
 
-        ImVec2 pos  = ImGui::GetCurrentWindow()->Pos;
-        ImVec2 size = ImGui::GetCurrentWindow()->Size;
-        ImVec2 min  = ImVec2(ImGui::GetCurrentWindow()->Pos.x, -ImGui::GetScrollY() + ImGui::GetCursorPosY() + ImGui::GetCurrentWindow()->Pos.y);
-        ImVec2 max  = ImVec2(min.x + size.x, min.y + height);
-
-        // Hover state.
-        if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsWindowFocused())
-            hoveredFolder = &folder;
-
-        bool hovered  = hoveredFolder == &folder;
-        bool selected = selectedFolder == &folder;
-        bool open     = folder.m_isOpen;
-
-        // Color & selection
-        ImVec4 background     = selected ? selectedBackground : (hovered ? hoverBackground : defaultBackground);
-        ImVec4 usedBackground = background;
-        if (hovered)
+        if (hasChildren)
         {
-            if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
-            {
-                usedBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive);
-            }
-            if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-            {
-                selectedFolder = &folder;
-            }
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-            {
-                selectedFolder = &folder;
-            }
+            PushIconFontSmall();
+            const char* arrow = folder.m_isOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+            ImGui::GetWindowDrawList()->AddText(iconArrowMin, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), arrow);
+            ImGui::PopFont();
         }
 
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-        {
-            if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
-                selectedFolder = nullptr;
-        }
+        // Folder icon
+        const ImVec4 folderColor = ImVec4(1.0f, 1.0f, 1.0f, 0.65f);
+        PushIconFontSmall();
+        ImGui::PushStyleColor(ImGuiCol_Text, folderColor);
+        ImGui::GetWindowDrawList()->AddText(iconFolderMin, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_FOLDER);
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
 
-        // Background
-        ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(usedBackground));
+        PopStyleVar();
+        return node;
 
-        if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-            folder.m_isOpen = !folder.m_isOpen;
-
-        // Draw the folder data
-        PushScaledFont(0.7f);
-
-        IncrementCursorPosY(6);
-        ImGui::SetCursorPosX(4 + offset);
-
-        if (folder.m_folders.size() != 0)
-        {
-            if (selected)
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-            else
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
-
-            if (open)
-                ImGui::Text(ICON_FA_CARET_DOWN);
-            else
-                ImGui::Text(ICON_FA_CARET_RIGHT);
-
-            ImGui::PopStyleColor();
-
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
-                folder.m_isOpen = !folder.m_isOpen;
-
-            ImGui::SameLine();
-        }
-
-        IncrementCursorPosY(0);
-        PopScaledFont();
-        ImGui::SetCursorPosX(4 + offset + 12);
-
-        // color , ImVec4(0.7f, 0.7f, 0.7f, 1.0f)
-        Icon(ICON_FA_FOLDER, false, 0.7f);
-
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
-            folder.m_isOpen = !folder.m_isOpen;
-
-        ImGui::SameLine();
-        IncrementCursorPosY(-5);
-        ImGui::Text(folder.m_name.c_str());
+        // if (ColorsEqual(hoverBackground, ImVec4(0, 0, 0, 0)))
+        //     hoverBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered);
+        //
+        // if (ColorsEqual(selectedBackground, ImVec4(0, 0, 0, 0)))
+        //     selectedBackground = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        //
+        // ImVec2 pos  = ImGui::GetCurrentWindow()->Pos;
+        // ImVec2 size = ImGui::GetCurrentWindow()->Size;
+        // ImVec2 min  = ImVec2(ImGui::GetCurrentWindow()->Pos.x, -ImGui::GetScrollY() + ImGui::GetCursorPosY() + ImGui::GetCurrentWindow()->Pos.y);
+        // ImVec2 max  = ImVec2(min.x + size.x, min.y + height);
+        //
+        // // Hover state.
+        // if (ImGui::IsMouseHoveringRect(min, max) && ImGui::IsWindowFocused())
+        //     hoveredFolder = &folder;
+        //
+        // bool hovered  = hoveredFolder == &folder;
+        // bool selected = selectedFolder == &folder;
+        // bool open     = folder.m_isOpen;
+        //
+        // // Color & selection
+        // ImVec4 background     = selected ? selectedBackground : (hovered ? hoverBackground : defaultBackground);
+        // ImVec4 usedBackground = background;
+        // if (hovered)
+        // {
+        //     if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        //     {
+        //         usedBackground = ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive);
+        //     }
+        //     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        //     {
+        //         selectedFolder = &folder;
+        //     }
+        //     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        //     {
+        //         selectedFolder = &folder;
+        //     }
+        // }
+        //
+        // if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        // {
+        //     if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
+        //         selectedFolder = nullptr;
+        // }
+        //
+        // // Background
+        // ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(usedBackground));
+        //
+        // if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        //     folder.m_isOpen = !folder.m_isOpen;
+        //
+        // // Draw the folder data
+        // PushScaledFont(0.7f);
+        //
+        // IncrementCursorPosY(6);
+        // ImGui::SetCursorPosX(4 + offset);
+        //
+        // if (folder.m_folders.size() != 0)
+        // {
+        //     if (selected)
+        //         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+        //     else
+        //         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
+        //
+        //     if (open)
+        //         ImGui::Text(ICON_FA_CARET_DOWN);
+        //     else
+        //         ImGui::Text(ICON_FA_CARET_RIGHT);
+        //
+        //     ImGui::PopStyleColor();
+        //
+        //     if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+        //         folder.m_isOpen = !folder.m_isOpen;
+        //
+        //     ImGui::SameLine();
+        // }
+        //
+        // IncrementCursorPosY(0);
+        // PopScaledFont();
+        // ImGui::SetCursorPosX(4 + offset + 12);
+        //
+        // // color , ImVec4(0.7f, 0.7f, 0.7f, 1.0f)
+        // Icon(ICON_FA_FOLDER, false, 0.7f);
+        //
+        // if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+        //     folder.m_isOpen = !folder.m_isOpen;
+        //
+        // ImGui::SameLine();
+        // IncrementCursorPosY(-5);
+        // ImGui::Text(folder.m_name.c_str());
 
         //	ImGui::EndChild();
         //	ImGui::PopStyleVar();

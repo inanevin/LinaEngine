@@ -35,9 +35,9 @@ namespace Lina::Editor
 {
     void EditorPanel::Initialize(const char* id, const char* icon)
     {
-        m_id                         = id;
-        m_icon                       = icon;
-        m_windowFlags                = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
+        m_id                                = id;
+        m_icon                              = icon;
+        m_windowFlags                       = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
         GUILayer::Get()->m_editorPanels[id] = this;
 
         if (m_icon != nullptr)
@@ -55,7 +55,10 @@ namespace Lina::Editor
             return;
         const std::string childID    = "##child_" + std::string(m_id);
         const float       previousFP = ImGui::GetStyle().FramePadding.x;
-        ImGui::BeginChild(childID.c_str(), ImVec2(0.0f, ImGui::IsWindowDocked() ? 0.0f : -20.0f));
+        ImGui::BeginChild(childID.c_str());
+
+        if (!ImGui::IsWindowDocked())
+            WidgetsUtility::IncrementCursorPosY(2.0f);
     }
 
     void EditorPanel::End()

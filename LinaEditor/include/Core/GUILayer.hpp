@@ -89,29 +89,33 @@ namespace Lina::Editor
         void OnShutdown(const Event::EShutdown& ev);
         void OnPostRender(const Event::EPostRender&);
 
-        ImFont* GetDefaultFont()
+        inline ImFont* GetDefaultFont()
         {
             return m_defaultFont;
         }
-        ImFont* GetBigFont()
+        inline ImFont* GetBigFont()
         {
             return m_bigFont;
         }
-        ImFont* GetIconFontSmall()
+        inline ImFont* GetIconFontSmall()
         {
             return m_iconFontSmall;
         }
-        ImFont* GetIconFontDefault()
+        inline ImFont* GetIconFontDefault()
         {
             return m_iconFontDefault;
         }
-        const char* GetLinaLogoIcon()
+        inline const char* GetLinaLogoIcon()
         {
             return m_linaLogoIcon;
         }
-        Vector2 GetDefaultWindowPadding()
+        inline Vector2 GetDefaultWindowPadding()
         {
             return m_defaultWindowPadding;
+        }
+        inline Vector2 GetDefaultFramePadding()
+        {
+            return m_defaultFramePadding;
         }
 
         std::map<const char*, EditorPanel*> m_editorPanels;
@@ -143,26 +147,27 @@ namespace Lina::Editor
         friend class EditorApplication;
         static GUILayer* s_guiLayer;
 
-        Vector2                   m_defaultWindowPadding = Vector2(8, 8);
-        const char*               m_linaLogoIcon         = nullptr;
-        ImFont*                   m_defaultFont          = nullptr;
-        ImFont*                   m_bigFont              = nullptr;
-        ImFont*                   m_iconFontSmall        = nullptr;
-        ImFont*                   m_iconFontDefault      = nullptr;
-        ShortcutManager           m_shortcutManager;
-        EntitiesPanel             m_entitiesPanel;
-        SystemsPanel              m_systemsPanel;
-        ResourcesPanel            m_resourcesPanel;
-        LevelPanel                m_levelPanel;
-        PropertiesPanel           m_propertiesPanel;
-        LogPanel                  m_logPanel;
-        HeaderPanel               m_headerPanel;
-        ProfilerPanel             m_profilerPanel;
-        GlobalSettingsPanel       m_globalSettingsPanel;
-        MainToolbarPanel          m_toolbar;
-        World::DefaultLevel       m_defaultLevel;
-        std::string               m_currentlyLoadingResource = "";
-        float                     m_percentage               = 0.0f;
+        Vector2             m_defaultWindowPadding = Vector2(8, 8);
+        Vector2             m_defaultFramePadding  = Vector2(8, 2);
+        const char*         m_linaLogoIcon         = nullptr;
+        ImFont*             m_defaultFont          = nullptr;
+        ImFont*             m_bigFont              = nullptr;
+        ImFont*             m_iconFontSmall        = nullptr;
+        ImFont*             m_iconFontDefault      = nullptr;
+        ShortcutManager     m_shortcutManager;
+        EntitiesPanel       m_entitiesPanel;
+        SystemsPanel        m_systemsPanel;
+        ResourcesPanel      m_resourcesPanel;
+        LevelPanel          m_levelPanel;
+        PropertiesPanel     m_propertiesPanel;
+        LogPanel            m_logPanel;
+        HeaderPanel         m_headerPanel;
+        ProfilerPanel       m_profilerPanel;
+        GlobalSettingsPanel m_globalSettingsPanel;
+        MainToolbarPanel    m_toolbar;
+        World::DefaultLevel m_defaultLevel;
+        std::string         m_currentlyLoadingResource = "";
+        float               m_percentage               = 0.0f;
     };
 } // namespace Lina::Editor
 

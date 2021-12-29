@@ -95,7 +95,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a folder in the style of Resources Panel.
         /// </summary>
-        static void DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder, Utility::Folder*& hoveredFolder, float height, float offset, ImVec4 defaultBackground, ImVec4 hoverBackground = ImVec4(0, 0, 0, 0), ImVec4 selectedBackground = ImVec4(0, 0, 0, 0));
+        static bool DrawTreeFolder(Utility::Folder& folder, Utility::Folder*& selectedFolder);
 
         /// <summary>
         /// Button with color-picker pop-up

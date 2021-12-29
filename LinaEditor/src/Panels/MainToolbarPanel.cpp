@@ -177,10 +177,11 @@ namespace Lina::Editor
     void MainToolbarPanel::DrawFooter()
     {
 
-        ImGuiWindowFlags flags = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
-
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->WorkSize.y - GUILayer::Get()->m_footerSize));
+        ImGuiWindowFlags         flags        = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
+        Graphics::WindowBackend* appWindow    = Graphics::WindowBackend::Get();
+        const ImVec2             appWindowPos = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
+        ImGuiViewport*           viewport     = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(appWindowPos.x, appWindowPos.y + viewport->WorkSize.y - GUILayer::Get()->m_footerSize));
 
         ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, GUILayer::Get()->m_footerSize));
         ImGui::SetNextWindowViewport(viewport->ID);
