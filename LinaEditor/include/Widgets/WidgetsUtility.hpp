@@ -42,6 +42,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #include "ECS/Registry.hpp"
 #include "Utility/StringId.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Core/CommonResources.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -96,6 +97,13 @@ namespace Lina::Editor
         /// Draws a folder in the style of Resources Panel.
         /// </summary>
         static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder);
+
+        /// <summary>
+        /// Draws the rectangular nodes in the Resources right pane.
+        /// </summary>
+        /// <param name="isFolder"></param>
+        /// <param name="fullPath"></param>
+        static void DrawResourceNode(Resources::ResourceType type, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier = 1.0f);
 
         /// <summary>
         /// Button with color-picker pop-up

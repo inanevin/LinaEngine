@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "Widgets/WidgetsUtility.hpp"
-
+#include "Rendering/Texture.hpp"
 #include "Core/CommonPhysics.hpp"
 #include "Core/CustomFontIcons.hpp"
 #include "Core/EditorCommon.hpp"
@@ -152,6 +152,87 @@ namespace Lina::Editor
 
         PopStyleVar();
         return node;
+    }
+
+    void WidgetsUtility::DrawResourceNode(Resources::ResourceType type, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier)
+    {
+#pragma warning(disable : 4312)
+
+        const ImVec2 cursorPosScreen    = ImGui::GetCursorScreenPos();
+        const ImVec2 cursorPos          = ImGui::GetCursorPos();
+        const float  fileTypeRectHeight = 5;
+        const ImVec2 imageSize          = ImVec2(70, 70);
+        const ImVec2 totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
+        const float  windowWidth        = ImGui::GetWindowWidth();
+        const ImVec2 itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
+        const ImVec2 itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
+        const bool   hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
+        ImVec4       childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
+                                                                                                               : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+        if (selected)
+            LINA_TRACE("Selected {0}", fullPath);
+
+        ImGui::BeginChild(fullPath.c_str(), totalSize, false, ImGuiWindowFlags_NoScrollbar);
+
+        // Background.
+        ImGui::GetWindowDrawList()->AddRectFilled(cursorPosScreen, ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y), ImGui::ColorConvertFloat4ToU32(childBG), 2.0f);
+
+        uint32 textureID = 0;
+
+        if (type == Resources::ResourceType::Folder)
+            textureID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Folder.png").GetID();
+        else
+        {
+            if (type == Resources::ResourceType::Image)
+                textureID = Graphics::Texture::GetTexture(fullPath).GetID();
+        }
+
+        // Prepare border sizes from incremented cursor.
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - imageSize.x / 2.0f);
+        WidgetsUtility::IncrementCursorPosY(5);
+        const ImVec2 borderMin = ImGui::GetCursorScreenPos();
+        const ImVec2 borderMax = ImVec2(borderMin.x + imageSize.x, borderMin.y + imageSize.y);
+
+        // Add checkered background to cover transparents.
+        if (type != Resources::ResourceType::Folder)
+            ImGui::GetWindowDrawList()->AddImage((void*)Graphics::Texture::GetTexture("Resources/Editor/Textures/Checkered.png").GetID(), borderMin, borderMax, ImVec2(0, 1), ImVec2(1, 0));
+
+        // Add the actual resource image.
+        ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        // Draw a small colored rect indicating resource type.
+        if (type != Resources::ResourceType::Folder)
+        {
+            const ImVec2 extRectMin = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
+            const ImVec2 extRectMax = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
+            const Color extColorLina = Resources::GetResourceTypeColor(type);
+            const ImVec4 extColor   = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
+            ImGui::GetWindowDrawList()->AddRectFilled(extRectMin, extRectMax, ImGui::ColorConvertFloat4ToU32(extColor), 2.0f, ImDrawFlags_RoundCornersTop);
+        }
+
+        // Add image border afterwards, should overlay the image.
+        if (type != Resources::ResourceType::Folder)
+            ImGui::GetWindowDrawList()->AddRect(borderMin, borderMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 0.0f, 0, 1.5f);
+
+        const std::string name           = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(fullPath));
+        const float       textSize       = ImGui::CalcTextSize(name.c_str()).x;
+        const bool        shouldWrapText = textSize >= imageSize.x + 3;
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - textSize / 2.0f);
+
+        if (shouldWrapText)
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + totalSize.x);
+
+        ImGui::Text(name.c_str());
+
+        if (shouldWrapText)
+            ImGui::PopTextWrapPos();
+
+        ImGui::EndChild();
+
+        if (cursorPos.x + (totalSize.x + ImGui::GetStyle().ItemSpacing.x) * 2.0f < windowWidth)
+            ImGui::SameLine();
+        else
+            ImGui::SetCursorPosX(startCursorX);
     }
 
     void WidgetsUtility::ColorButton(const char* id, float* colorX)

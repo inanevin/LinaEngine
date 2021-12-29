@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/ResourcesPanel.hpp"
+#include "Core/CommonResources.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
@@ -47,9 +48,22 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    Menu*           m_leftPaneMenu        = nullptr;
-    MenuBarElement* m_showEditorFoldersMB = nullptr;
-    MenuBarElement* m_showEngineFoldersMB = nullptr;
+    Menu*                                m_leftPaneMenu           = nullptr;
+    MenuBarElement*                      m_showEditorFoldersMB    = nullptr;
+    MenuBarElement*                      m_showEngineFoldersMB    = nullptr;
+    float                                m_fileNodeStartCursorPos = 16.0f;
+    std::vector<Resources::ResourceType> m_resourceTypesToDraw{
+        Resources::ResourceType::Audio,
+        Resources::ResourceType::Font,
+        Resources::ResourceType::GLSL,
+        Resources::ResourceType::HDR,
+        Resources::ResourceType::Image,
+        Resources::ResourceType::Material,
+        Resources::ResourceType::Model,
+        Resources::ResourceType::PhysicsMaterial,
+        Resources::ResourceType::Folder,
+        Resources::ResourceType::UserAsset,
+    };
 
     struct InputTextCallback_UserData
     {
@@ -252,7 +266,7 @@ namespace Lina::Editor
 
         // Deselect folder
         if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
-            m_currentSelectedFolder = nullptr;
+            DeselectNodes(true);
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -280,10 +294,10 @@ namespace Lina::Editor
         ImGui::SameLine();
         ImGui::SetCursorPosY(cursorYBeforeIcon);
 
-        if (m_currentSelectedFolder != nullptr)
+        if (m_selectedFolder != nullptr)
         {
             std::vector<Utility::Folder*> hierarchy;
-            Utility::GetFolderHierarchToRoot(m_currentSelectedFolder, hierarchy);
+            Utility::GetFolderHierarchToRoot(m_selectedFolder, hierarchy);
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));
 
@@ -291,24 +305,21 @@ namespace Lina::Editor
             {
                 auto* folder = hierarchy[i];
 
-                // S
+                // Switch the selected folder.
                 if (WidgetsUtility::Button(folder->m_name.c_str()))
                 {
-                    m_currentSelectedFile   = nullptr;
-                    m_currentSelectedFolder = folder;
+                    DeselectNodes(false);
+                    m_selectedFolder = folder;
                 }
                 ImGui::SameLine();
                 WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
                 ImGui::SameLine();
             }
 
-            WidgetsUtility::Button(m_currentSelectedFolder->m_name.c_str());
+            WidgetsUtility::Button(m_selectedFolder->m_name.c_str());
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
             ImGui::SameLine();
-        }
-        else
-        {
         }
 
         // Search bar.
@@ -319,9 +330,20 @@ namespace Lina::Editor
         ImGui::EndChild();
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
         WidgetsUtility::HorizontalDivider(-4.0f, 1.5f);
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
 
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
+        ImGui::BeginChild("resources_rightPane_bottom");
+
+        // Draw the selected folders contents.
+        if (m_selectedFolder != nullptr)
+        {
+            ImGui::SetCursorPosX(m_fileNodeStartCursorPos);
+            WidgetsUtility::IncrementCursorPosY(8);
+            DrawContents(m_selectedFolder);
+        }
+
+        ImGui::EndChild();
     }
 
     void ResourcesPanel::DrawFolderMenu(Utility::Folder* folder, bool performFilterCheck)
@@ -365,10 +387,10 @@ namespace Lina::Editor
 
         if (!dontDraw)
         {
-            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_currentSelectedFolder);
+            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder);
 
             if (ImGui::IsItemClicked())
-                m_currentSelectedFolder = folder;
+                m_selectedFolder = folder;
         }
 
         if (folder->m_isOpen && folder->m_folders.size() > 0)
@@ -387,7 +409,7 @@ namespace Lina::Editor
         // static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
         // static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
         //
-        // ImGuiTreeNodeFlags folderFlags = m_currentSelectedFolder == &folder ? folderFlagsSelected : folderFlagsNotSelected;
+        // ImGuiTreeNodeFlags folderFlags = m_selectedFolder == &folder ? folderFlagsSelected : folderFlagsNotSelected;
         //
         // std::string id = "##" + folder.m_name;
         // bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
@@ -399,8 +421,8 @@ namespace Lina::Editor
         //// Click
         // if (ImGui::IsItemClicked())
         //{
-        //	m_currentSelectedFile = nullptr;
-        //	m_currentSelectedFolder = &folder;
+        //	m_selectedFile = nullptr;
+        //	m_selectedFolder = &folder;
         //}
         //
         //
@@ -418,6 +440,52 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawContents(Utility::Folder* folder)
     {
+        // Deselect the right panel upon empty click.
+        if (!ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            DeselectNodes(false);
+
+        // First draw the folders.
+        for (auto* subfolder : folder->m_folders)
+        {
+            WidgetsUtility::DrawResourceNode(Resources::ResourceType::Folder, subfolder == m_selectedSubfolder, subfolder->m_fullPath, m_fileNodeStartCursorPos);
+
+            if (ImGui::IsItemClicked())
+            {
+                m_selectedSubfolder = subfolder;
+            }
+
+            if (ImGui::IsItemHovered())
+            {
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
+                {
+                    DeselectNodes(false);
+                    m_selectedFolder = subfolder;
+                }
+            }
+        }
+        // Then draw the files.
+        for (auto* file : folder->m_files)
+        {
+            Resources::ResourceType type = Resources::GetResourceType(Utility::GetFileExtension(file->m_fullPath));
+
+            bool shouldDraw = false;
+            for (int i = 0; i < m_resourceTypesToDraw.size(); i++)
+            {
+                if (type == m_resourceTypesToDraw[i])
+                {
+                    shouldDraw = true;
+                    break;
+                }
+            }
+
+            if (shouldDraw)
+            {
+                WidgetsUtility::DrawResourceNode(type, file == m_selectedFile, file->m_fullPath, m_fileNodeStartCursorPos);
+
+                if (ImGui::IsItemClicked())
+                    m_selectedFile = file;
+            }
+        }
     }
 
     void ResourcesPanel::DrawFile(Utility::File& file)
@@ -434,10 +502,10 @@ namespace Lina::Editor
             // If we are disabling viewing the engine folders and the current
             // selected folder is the engine folder, or a subfolder underneath,
             // deselect it and the file.
-            if (!m_showEngineFolders && m_currentSelectedFolder != nullptr)
+            if (!m_showEngineFolders && m_selectedFolder != nullptr)
             {
-                Utility::Folder* f                     = m_currentSelectedFolder;
-                bool             currentIsEngineFolder = m_currentSelectedFolder->m_fullPath.compare("Resources/Engine") == 0;
+                Utility::Folder* f                     = m_selectedFolder;
+                bool             currentIsEngineFolder = m_selectedFolder->m_fullPath.compare("Resources/Engine") == 0;
 
                 if (!currentIsEngineFolder)
                 {
@@ -453,10 +521,7 @@ namespace Lina::Editor
                 }
 
                 if (currentIsEngineFolder)
-                {
-                    m_currentSelectedFile   = nullptr;
-                    m_currentSelectedFolder = nullptr;
-                }
+                    DeselectNodes(true);
             }
         }
         else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEditorFolders))
@@ -467,10 +532,10 @@ namespace Lina::Editor
             // If we are disabling viewing the editor  folders and the current
             // selected folder is the editor folder, or a subfolder underneath,
             // deselect it and the file.
-            if (!m_showEditorFolders && m_currentSelectedFolder != nullptr)
+            if (!m_showEditorFolders && m_selectedFolder != nullptr)
             {
-                Utility::Folder* f                     = m_currentSelectedFolder;
-                bool             currentIsEditorFolder = m_currentSelectedFolder->m_fullPath.compare("Resources/Editor") == 0;
+                Utility::Folder* f                     = m_selectedFolder;
+                bool             currentIsEditorFolder = m_selectedFolder->m_fullPath.compare("Resources/Editor") == 0;
 
                 if (!currentIsEditorFolder)
                 {
@@ -486,12 +551,18 @@ namespace Lina::Editor
                 }
 
                 if (currentIsEditorFolder)
-                {
-                    m_currentSelectedFile   = nullptr;
-                    m_currentSelectedFolder = nullptr;
-                }
+                    DeselectNodes(true);
             }
         }
+    }
+
+    void ResourcesPanel::DeselectNodes(bool deselectAll)
+    {
+        m_selectedFile      = nullptr;
+        m_selectedSubfolder = nullptr;
+
+        if (deselectAll)
+            m_selectedFolder = nullptr;
     }
 
     /* void ResourcesPanel::DrawContextMenu()
@@ -934,9 +1005,9 @@ namespace Lina::Editor
             }
         }
 
-        for (auto& subFolder : folder.m_subFolders)
+        for (auto& subfolder : folder.m_subFolders)
         {
-            if (ExpandFileResource(subFolder.second, path, type))
+            if (ExpandFileResource(subfolder.second, path, type))
                 break;
         }
     }

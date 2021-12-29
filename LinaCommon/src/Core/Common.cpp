@@ -102,4 +102,31 @@ namespace Lina::Resources
     {
         return m_resourceTypeTable[StringID(extension.c_str())];
     }
+
+    Color GetResourceTypeColor(ResourceType type)
+    {
+        switch (type)
+        {
+        case ResourceType::Audio:
+            return Color(255, 235, 170, 255, true);
+        case ResourceType::Font:
+            return Color(170, 255, 255, 255, true);
+        case ResourceType::GLSL:
+            return Color(255, 71, 108, 255, true);
+        case ResourceType::HDR:
+            return Color(204, 86, 255, 255, true);
+        case ResourceType::Image:
+            return Color(204, 86, 255, 255, true);
+        case ResourceType::Material:
+            return Color(56, 79, 255, 255, true);
+        case ResourceType::PhysicsMaterial:
+            return Color(17, 120, 255, 255, true);
+        case ResourceType::Model:
+            return Color(255, 146, 22, 255, true);
+        case ResourceType::UserAsset:
+            return Color(200, 200, 200, 255, true);
+        default:
+            return Color(0, 0, 0, 255, true);
+        }
+    }
 } // namespace Lina::Resources

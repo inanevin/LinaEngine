@@ -50,8 +50,8 @@ namespace Lina
     {
         struct Folder;
         struct File;
-    }
-}
+    } // namespace Utility
+} // namespace Lina
 
 namespace Lina::Editor
 {
@@ -82,7 +82,9 @@ namespace Lina::Editor
         void DrawFile(Utility::File& file);
 
     private:
+
         void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
+        void DeselectNodes(bool deselectAll);
 
     private:
         std::string      m_folderSearchFilter        = "";
@@ -94,8 +96,9 @@ namespace Lina::Editor
         float            m_leftPaneMinWidth          = 200.0f;
         float            m_leftPaneMaxWidth          = 500.0f;
         Utility::Folder* m_rootFolder                = nullptr;
-        Utility::Folder* m_currentSelectedFolder     = nullptr;
-        Utility::File*   m_currentSelectedFile       = nullptr;
+        Utility::Folder* m_selectedFolder            = nullptr;
+        Utility::File*   m_selectedFile              = nullptr;
+        Utility::Folder* m_selectedSubfolder        = nullptr;
     };
 } // namespace Lina::Editor
 

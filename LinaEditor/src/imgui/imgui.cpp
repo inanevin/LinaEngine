@@ -2789,6 +2789,9 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_ButtonSecondaryHovered:return "ButtonSecondaryHovered";
     case ImGuiCol_ButtonSecondaryActive:  return "ButtonSecondaryActive";
     case ImGuiCol_ButtonSecondaryLocked:  return "ButtonSecondaryLocked";
+    case ImGuiCol_Folder: return "Folder";
+    case ImGuiCol_FolderHovered:  return "FolderHovered";
+    case ImGuiCol_FolderActive:   return "FolderActive";
     case ImGuiCol_Icon:  return "Icon";
     case ImGuiCol_TitleHeader: return "TitleHeader";
     case ImGuiCol_TitleHeaderHover:return "TitleHeaderHover";

@@ -171,11 +171,14 @@ namespace Lina::Editor
         colors[ImGuiCol_Button]                 = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
         colors[ImGuiCol_ButtonHovered]          = ImVec4(0.35f, 0.49f, 0.62f, 1.00f);
         colors[ImGuiCol_ButtonActive]           = ImVec4(0.24f, 0.37f, 0.53f, 1.00f);
-        colors[ImGuiCol_ButtonLocked]           = ImVec4(0.10f, 0.15f, 0.20f, 1.00f);
+        colors[ImGuiCol_ButtonLocked]           = ImVec4(0.183f, 0.273f, 0.364f, 1.000f);
         colors[ImGuiCol_ButtonSecondary]        = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_ButtonSecondaryHovered] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_ButtonSecondaryActive]  = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_ButtonSecondaryLocked]  = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_Folder]                 = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
+        colors[ImGuiCol_FolderHovered]          = ImVec4(0.35f, 0.49f, 0.62f, 1.00f);
+        colors[ImGuiCol_FolderActive]           = ImVec4(0.24f, 0.37f, 0.53f, 1.00f);
         colors[ImGuiCol_Toolbar]                = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
         colors[ImGuiCol_Icon]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TitleHeader]            = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);

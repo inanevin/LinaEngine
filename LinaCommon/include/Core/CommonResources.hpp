@@ -41,6 +41,7 @@ Timestamp: 12/25/2021 11:44:29 AM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+#include "Math/Color.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -49,20 +50,21 @@ namespace Lina::Resources
 {
     enum class ResourceType
     {
-        Unknown        = 0,
-        Model          = 1,
-        ModelAssetData = 2,
-        Image          = 3,
-        ImageData      = 4,
-        HDR            = 5,
-        Audio          = 6,
-        AudioData      = 7,
-        Material       = 8,
-        GLSL           = 9,
-        GLH,
+        Unknown         = 0,
+        Model           = 1,
+        ModelAssetData  = 2,
+        Image           = 3,
+        ImageData       = 4,
+        HDR             = 5,
+        Audio           = 6,
+        AudioData       = 7,
+        Material        = 8,
+        GLSL            = 9,
+        GLH             = 10,
         SPIRV           = 11,
         Font            = 12,
         PhysicsMaterial = 13,
+        Folder          = 14,
         UserAsset       = 20
     };
 
@@ -76,7 +78,7 @@ namespace Lina::Resources
     class ResourceProgressData
     {
     public:
-        ResourceProgressData() = default;
+        ResourceProgressData()  = default;
         ~ResourceProgressData() = default;
 
         ResourceProgressState m_state                 = ResourceProgressState::None;
@@ -98,6 +100,7 @@ namespace Lina::Resources
     extern void                                           RegisterUserDefinedResource(const std::string& extension);
     extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
     extern ResourceType                                   GetResourceType(const std::string& extension);
+    extern Color                                          GetResourceTypeColor(ResourceType type);
 } // namespace Lina::Resources
 
 #endif
