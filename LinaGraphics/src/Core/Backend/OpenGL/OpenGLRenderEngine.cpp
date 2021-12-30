@@ -514,6 +514,8 @@ namespace Lina::Graphics
         {
             if (Texture::TextureExists(event.m_path))
                 return;
+
+            LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
             Texture::CreateTextureHDRI(event.m_path);
         }
     }
@@ -568,6 +570,7 @@ namespace Lina::Graphics
         }
         else if (event.m_resourceType == Resources::ResourceType::HDR)
         {
+            LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
             Texture::CreateTextureHDRI(event.m_path, event.m_data, event.m_dataSize);
         }
     }
@@ -1028,7 +1031,7 @@ namespace Lina::Graphics
         // Build projection & view matrices for capturing HDRI data.
         Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
         Matrix captureViews[]    = {Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-                                 Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),  Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+                                 Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
                                  Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
 
         // Calculate HDRI, Irradiance, Prefilter and BRDF

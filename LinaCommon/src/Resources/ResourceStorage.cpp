@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,37 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: CommonECS
+#include "Resources/ResourceStorage.hpp"
 
-
-
-Timestamp: 12/25/2021 12:39:49 PM
-*/
-
-#pragma once
-
-#ifndef CommonECS_HPP
-#define CommonECS_HPP
-
-// Headers here.
-#define ENTT_USE_ATOMIC
-#include <cereal/archives/portable_binary.hpp>
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-namespace Lina::ECS
+namespace Lina::Resources
 {
-#define ECSNULL entt::null
-
-    typedef entt::entity                                                                      Entity;
-    typedef entt::id_type                                                                     TypeID;
-    typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)>       ComponentSerializeFunction;
-    typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
-
-    template <typename T> TypeID GetTypeID()
-    {
-        return entt::type_hash<T>::value();
-    }
-} // namespace Lina::ECS
-
-#endif
+	ResourceStorage* ResourceStorage::s_instance = nullptr;
+}

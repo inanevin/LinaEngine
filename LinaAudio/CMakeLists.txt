@@ -42,6 +42,7 @@ set(LINAAUDIO_HEADERS
 	
 	# Audio
 	include/Audio/Audio.hpp
+	include/Audio/AudioAssetData.hpp
 	
 )
 

@@ -41,23 +41,13 @@ Timestamp: 12/15/2021 2:12:28 PM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+#include "Audio/AudioAssetData.hpp"
 
 #include <map>
 #include <string>
 
 namespace Lina::Audio
 {
-
-    struct AudioAssetData
-    {
-        int m_dummy = 0;
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_dummy);
-        }
-    };
-
     class Audio
     {
 

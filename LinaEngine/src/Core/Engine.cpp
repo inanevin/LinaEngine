@@ -88,8 +88,9 @@ namespace Lina
         Input::InputEngineBackend::s_inputEngine       = &m_inputEngine;
         Resources::ResourceManager::s_resourceManager  = &m_resourceManager;
         Audio::AudioEngineBackend::s_audioEngine       = &m_audioEngine;
-
-        m_appInfo = appInfo;
+        Resources::ResourceStorage::s_instance         = &m_resourceStorage;
+        m_appInfo                                      = appInfo;
+        
         m_eventSystem.Initialize();
         m_inputEngine.Initialize();
         m_resourceManager.Initialize(m_appInfo);

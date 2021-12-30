@@ -46,6 +46,10 @@ Timestamp: 6/5/2020 12:54:52 AM
 
 namespace Lina
 {
+    namespace Event
+    {
+        struct EKeyCallback;
+    }
     namespace Utility
     {
         struct Folder;
@@ -82,8 +86,8 @@ namespace Lina::Editor
         void DrawFile(Utility::File& file);
 
     private:
-
         void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
+        void OnKeyCallback(const Event::EKeyCallback& ev);
         void DeselectNodes(bool deselectAll);
 
     private:
@@ -92,13 +96,15 @@ namespace Lina::Editor
         bool             m_draggingChildWindowBorder = false;
         bool             m_showEditorFolders         = true;
         bool             m_showEngineFolders         = true;
+        bool             m_leftPaneFocused           = false;
+        bool             m_rightPaneFocused          = false;
         float            m_leftPaneWidth             = 280.0f;
         float            m_leftPaneMinWidth          = 200.0f;
         float            m_leftPaneMaxWidth          = 500.0f;
         Utility::Folder* m_rootFolder                = nullptr;
         Utility::Folder* m_selectedFolder            = nullptr;
         Utility::File*   m_selectedFile              = nullptr;
-        Utility::Folder* m_selectedSubfolder        = nullptr;
+        Utility::Folder* m_selectedSubfolder         = nullptr;
     };
 } // namespace Lina::Editor
 

@@ -47,6 +47,7 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/RenderEngineBackend.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Core/WindowBackend.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "ECS/Registry.hpp"
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"
@@ -142,6 +143,7 @@ namespace Lina
         ECS::Registry                 m_ecs;
         ECS::SystemList               m_mainECSPipeline;
         Resources::ResourceManager    m_resourceManager;
+        Resources::ResourceStorage    m_resourceStorage;
         MessageBus                    m_messageBus;
 
         ApplicationInfo m_appInfo;

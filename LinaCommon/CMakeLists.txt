@@ -57,6 +57,9 @@ set (LINACOMMON_SOURCES
 	src/ECS/Registry.cpp
 	src/ECS/Components/EntityDataComponent.cpp
 	src/ECS/Components/PhysicsComponent.cpp
+	
+	# Reosurces
+	src/Resources/ResourceStorage.cpp
 
 )
 
@@ -129,6 +132,11 @@ set(LINACOMMON_HEADERS
 	include/ECS/Component.hpp
 	include/ECS/System.hpp
 	include/ECS/SystemList.hpp
+	
+	# Resources
+	include/Resources/IResource.hpp
+	include/Resources/ResourceStorage.hpp
+	include/Resources/ResourceHandle.hpp
 	
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp

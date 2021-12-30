@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Panels/ResourcesPanel.hpp"
 #include "Core/CommonResources.hpp"
+#include "EventSystem/InputEvents.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
@@ -92,6 +93,7 @@ namespace Lina::Editor
         m_leftPaneMenu->AddElement(m_showEditorFoldersMB);
         m_leftPaneMenu->AddElement(m_showEngineFoldersMB);
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &ResourcesPanel::OnMenuBarElementClicked>(this);
+        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &ResourcesPanel::OnKeyCallback>(this);
 
         m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
     }
@@ -135,6 +137,7 @@ namespace Lina::Editor
             ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
             ImGui::BeginChild("resources_leftPane", leftPaneSize);
             DrawLeftPane();
+            m_leftPaneFocused = ImGui::IsWindowFocused();
 
             if (ImGui::IsWindowHovered())
                 anyChildHovered = true;
@@ -146,6 +149,7 @@ namespace Lina::Editor
 
             ImGui::BeginChild("resources_rightPane");
             DrawRightPane();
+            m_rightPaneFocused = ImGui::IsWindowFocused();
 
             if (ImGui::IsWindowHovered())
                 anyChildHovered = true;
@@ -224,6 +228,7 @@ namespace Lina::Editor
 
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
+
 
         // Settings Icon
         WidgetsUtility::IncrementCursorPosY(8);
@@ -553,6 +558,27 @@ namespace Lina::Editor
 
                 if (currentIsEditorFolder)
                     DeselectNodes(true);
+            }
+        }
+    }
+
+    void ResourcesPanel::OnKeyCallback(const Event::EKeyCallback& ev)
+    {
+        if (m_leftPaneFocused && m_selectedFolder != nullptr && ev.m_key == LINA_KEY_F2)
+        {
+            LINA_TRACE("Left rename");
+        }
+        if (m_rightPaneFocused && ev.m_key == LINA_KEY_F2)
+        {
+            if (m_selectedFile != nullptr)
+            {
+                LINA_TRACE("Right file rename");
+
+            }
+            else if (m_selectedSubfolder != nullptr)
+            {
+                LINA_TRACE("Right sf rename");
+
             }
         }
     }
