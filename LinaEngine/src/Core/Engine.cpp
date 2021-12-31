@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Rendering/Texture.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/ShaderInclude.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Rendering/Shader.hpp"
@@ -139,6 +140,7 @@ namespace Lina
         else
             m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
 
+        m_renderEngine.SetupEngineShaders();
         m_renderEngine.ConstructEngineMaterials();
 
         // Initialize any listeners.
@@ -307,63 +309,71 @@ namespace Lina
     {
         m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
             Resources::ResourceTypeData{
+                0,
                 std::bind(Resources::CreateResource<Audio::AudioAssetData>),
-                std::vector<std::string>{"linaaudiodata"}},
-            true);
+                std::vector<std::string>{"linaaudiodata"}});
+
+        m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
+            Resources::ResourceTypeData{
+                0,
+                std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
+                std::vector<std::string>{"glh"}});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
+            5,
             std::bind(Resources::CreateResource<Audio::Audio>),
             std::vector<std::string>{"wav", "mp3"}});
 
         m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
+            5,
             std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
             std::vector<std::string>{"linaphymat"},
-            });
-}
-
-double Engine::SmoothDeltaTime(double dt)
-{
-
-    if (m_deltaFirstFill < DELTA_TIME_HISTORY)
-    {
-        m_deltaFirstFill++;
+        });
     }
-    else if (!m_deltaFilled)
-        m_deltaFilled = true;
 
-    m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
-    m_deltaTimeArrOffset++;
-
-    if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
-        m_deltaTimeArrOffset = 0;
-
-    if (!m_deltaFilled)
-        return dt;
-
-    // Remove the biggest & smalles 2 deltas.
-    RemoveOutliers(true);
-    RemoveOutliers(true);
-    RemoveOutliers(false);
-    RemoveOutliers(false);
-
-    double avg   = 0.0;
-    int    index = 0;
-    for (double d : m_deltaTimeArray)
+    double Engine::SmoothDeltaTime(double dt)
     {
-        if (d < 0.0)
+
+        if (m_deltaFirstFill < DELTA_TIME_HISTORY)
         {
-            m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
+            m_deltaFirstFill++;
+        }
+        else if (!m_deltaFilled)
+            m_deltaFilled = true;
+
+        m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
+        m_deltaTimeArrOffset++;
+
+        if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
+            m_deltaTimeArrOffset = 0;
+
+        if (!m_deltaFilled)
+            return dt;
+
+        // Remove the biggest & smalles 2 deltas.
+        RemoveOutliers(true);
+        RemoveOutliers(true);
+        RemoveOutliers(false);
+        RemoveOutliers(false);
+
+        double avg   = 0.0;
+        int    index = 0;
+        for (double d : m_deltaTimeArray)
+        {
+            if (d < 0.0)
+            {
+                m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
+                index++;
+                continue;
+            }
+
+            avg += d;
             index++;
-            continue;
         }
 
-        avg += d;
-        index++;
+        avg /= DELTA_TIME_HISTORY - 4;
+
+        return avg;
     }
-
-    avg /= DELTA_TIME_HISTORY - 4;
-
-    return avg;
-}
 
 } // namespace Lina

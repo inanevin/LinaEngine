@@ -138,26 +138,26 @@ namespace Lina::Editor
 
         // If we pasted a model renderer, it's data will be copied but we still need to
         // manually set the pasted model & materials on the renderer.
-        if (pastedTid == GetTypeID<ModelRendererComponent>())
-        {
-            auto&                    mr        = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
-            std::string              modelPath = mr.GetModelPath();
-            std::vector<std::string> materials = mr.GetMaterialPaths();
-            if (Graphics::Model::ModelExists(modelPath))
-            {
-                mr.SetModel(entity, Graphics::Model::GetModel(modelPath));
-
-                for (int i = 0; i < materials.size(); i++)
-                {
-                    if (Graphics::Material::MaterialExists(materials[i]))
-                        mr.SetMaterial(entity, i, Graphics::Material::GetMaterial(materials[i]));
-                    else
-                        mr.SetMaterial(entity, i, Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
-                }
-            }
-            else
-                mr.RemoveModel(entity);
-        }
+      // if (pastedTid == GetTypeID<ModelRendererComponent>())
+      // {
+      //     auto&                    mr        = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
+      //     std::string              modelPath = mr.GetModelPath();
+      //     std::vector<std::string> materials = mr.GetMaterialPaths();
+      //     if (Graphics::Model::ModelExists(modelPath))
+      //     {
+      //         mr.SetModel(entity, Graphics::Model::GetModel(modelPath));
+      //
+      //         for (int i = 0; i < materials.size(); i++)
+      //         {
+      //             if (Graphics::Material::MaterialExists(materials[i]))
+      //                 mr.SetMaterial(entity, i, Graphics::Material::GetMaterial(materials[i]));
+      //             else
+      //                 mr.SetMaterial(entity, i, Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
+      //         }
+      //     }
+      //     else
+      //         mr.RemoveModel(entity);
+      // }
     }
 
     template <typename Type> void Drawer_SetModel(ECS::Entity ent, Graphics::Model* model)
@@ -837,18 +837,18 @@ namespace Lina::Editor
                             if (removed)
                                 resolvedData.func("removeMaterial"_hs).invoke({}, ent, i);
 
-                            // Material drag & drop.
-                            if (ImGui::BeginDragDropTarget())
-                            {
-                                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-                                {
-                                    IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-
-                                    auto& mat = Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
-                                    resolvedData.func("setMaterial"_hs).invoke({}, ent, i, mat);
-                                }
-                                ImGui::EndDragDropTarget();
-                            }
+                           // // Material drag & drop.
+                           // if (ImGui::BeginDragDropTarget())
+                           // {
+                           //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+                           //     {
+                           //         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                           //
+                           //         auto& mat = Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
+                           //         resolvedData.func("setMaterial"_hs).invoke({}, ent, i, mat);
+                           //     }
+                           //     ImGui::EndDragDropTarget();
+                           // }
                         }
                     }
 

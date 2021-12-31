@@ -107,12 +107,6 @@ namespace Lina
         // Checks if the given file contains the given filter within the file name, including extension.
         extern bool FileContainsFilter(const File& file, const std::string& filter);
 
-        // Used for loading shaders from memory.
-        extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
-
-        // Mostly used for loading shaders.
-        extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
-
         // Returns the whole file content as string
         extern std::string GetFileContents(const std::string& filePath);
 

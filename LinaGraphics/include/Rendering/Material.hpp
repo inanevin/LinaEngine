@@ -41,7 +41,8 @@ Timestamp: 4/26/2019 1:12:18 AM
 #define Material_HPP
 
 #include "Rendering/RenderingCommon.hpp"
-
+#include "Resources/IResource.hpp"
+#include "Resources/ResourceHandle.hpp"
 #include <cereal/types/map.hpp>
 #include <cereal/types/string.hpp>
 #include <set>
@@ -61,46 +62,35 @@ namespace Lina::Graphics
         TextureBindMode m_bindMode      = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         bool            m_isActive      = false;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_unit, m_path, m_assetDataPath, m_bindMode, m_isActive);
         }
     };
 
-    class Material
+    class Material : public Resources::IResource
     {
     public:
-        static Material&            CreateMaterial(Shader& shader, const std::string& path = "");
-        static Material&            LoadMaterialFromFile(const std::string& path = "");
-        static Material&            LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
-        static Material&            GetMaterial(StringIDType id);
-        static Material&            GetMaterial(const std::string& path);
-        static bool                 MaterialExists(StringIDType id);
-        static bool                 MaterialExists(const std::string& path);
-        static void                 UnloadMaterialResource(StringIDType id);
-        static void                 LoadMaterialData(Material& mat, const std::string& path);
-        static void                 SaveMaterialData(const Material& mat, const std::string& path);
-        static Material&            SetMaterialShader(Material& material, Shader& shader, bool onlySetID = false);
-        static void                 SetMaterialContainers(Material& material);
-        static void                 UnloadAll();
-        static std::set<Material*>& GetShadowMappedMaterials()
+        static Material* CreateMaterial(Shader* shader, const std::string& savePath);
+        virtual void*    LoadFromFile(const std::string& path) override;
+        virtual void*    LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        void             SetMaterialContainers();
+        void             SetShader(Shader* shader, bool onlySetID = false);
+        void             UpdateMaterialData();
+        void             PostLoadMaterialData();
+        void             SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
+        void             RemoveTexture(const std::string& textureName);
+        Texture&         GetTexture(const std::string& name);
+
+        inline static std::set<Material*>& GetShadowMappedMaterials()
         {
             return s_shadowMappedMaterials;
         }
-        static std::set<Material*>& GetHDRIMaterials()
+        inline static std::set<Material*>& GetHDRIMaterials()
         {
             return s_hdriMaterials;
         }
-        static std::map<StringIDType, Material>& GetLoadedMaterials()
-        {
-            return s_loadedMaterials;
-        }
-
-        void     UpdateMaterialData();
-        void     PostLoadMaterialData();
-        void     SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
-        void     RemoveTexture(const std::string& textureName);
-        Texture& GetTexture(const std::string& name);
 
         inline void SetFloat(const std::string& name, float value)
         {
@@ -180,22 +170,11 @@ namespace Lina::Graphics
         void SetSurfaceType(MaterialSurfaceType type);
         void SetInt(const std::string& name, int value);
 
-        inline int GetID() const
+        inline Resources::ResourceHandle<Shader> GetShaderHandle()
         {
-            return m_materialID;
+            return m_shaderHandle;
         }
-        inline const std::string& GetPath() const
-        {
-            return m_path;
-        }
-        inline uint32 GetShaderID()
-        {
-            return m_shaderID;
-        }
-        inline StringIDType GetShaderSID()
-        {
-            return m_shaderSID;
-        }
+
         inline MaterialSurfaceType GetSurfaceType()
         {
             return m_surfaceType;
@@ -203,9 +182,10 @@ namespace Lina::Graphics
 
         friend class cereal::access;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
-            archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+            archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
         }
 
         std::map<std::string, float>             m_floats;
@@ -218,13 +198,10 @@ namespace Lina::Graphics
         std::map<std::string, Matrix>            m_matrices;
         std::map<std::string, bool>              m_bools;
 
-        bool         m_isPBR          = false;
-        bool         m_usesHDRI       = false;
-        bool         m_isShadowMapped = false;
-        std::string  m_shaderPath     = "";
-        uint32       m_shaderID       = 0;
-        StringIDType m_shaderSID      = 0;
-        std::string  m_path           = "";
+        bool                              m_isPBR          = false;
+        bool                              m_usesHDRI       = false;
+        bool                              m_isShadowMapped = false;
+        Resources::ResourceHandle<Shader> m_shaderHandle;
 
     private:
         static std::map<StringIDType, Material> s_loadedMaterials;
@@ -234,7 +211,6 @@ namespace Lina::Graphics
     private:
         friend class OpenGLRenderEngine;
         friend class RenderContext;
-        StringIDType        m_materialID  = -1;
         MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
     };
 

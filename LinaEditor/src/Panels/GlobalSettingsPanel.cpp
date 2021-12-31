@@ -61,6 +61,7 @@ namespace Lina::Editor
             if (m_currentLevel != nullptr)
             {
                 World::LevelData& levelData = m_currentLevel->GetLevelData();
+                auto* storage = Resources::ResourceStorage::Get();
 
                 static bool levelSettingsOpen = false;
                 if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
@@ -70,64 +71,52 @@ namespace Lina::Editor
                     Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 
                     // Material selection
-                    if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
-                    {
-                        levelData.m_selectedSkyboxMatID   = levelData.m_skyboxMaterialID;
-                        levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
-                    }
-
-                    // Material selection.
-                    char matPathC[128] = "";
-                    strcpy_s(matPathC, levelData.m_skyboxMaterialPath.c_str());
-
-                    WidgetsUtility::PropertyLabel("Material");
-                    bool                removed = false;
-                    Graphics::Material* mat     = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
-
-                    if (removed)
-                    {
-                        levelData.m_skyboxMaterialID   = -1;
-                        levelData.m_skyboxMaterialPath = "";
-                        m_currentLevel->SetSkyboxMaterial();
-                    }
-
-                    if (mat != nullptr)
-                    {
-                        levelData.m_skyboxMaterialID   = mat->GetID();
-                        levelData.m_skyboxMaterialPath = mat->GetPath();
-                    }
-
-                    // Material drag & drop.
-                    if (ImGui::BeginDragDropTarget())
-                    {
-                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(uint32));
-                            levelData.m_skyboxMaterialID   = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
-                            levelData.m_skyboxMaterialPath = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
-                            m_currentLevel->SetSkyboxMaterial();
-                        }
-
-                        ImGui::EndDragDropTarget();
-                    }
-
-                    if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
-                    {
-                        auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
-                        if (Graphics::Shader::ShaderExists(mat.GetShaderSID()))
-                        {
-                            auto& shader = Graphics::Shader::GetShader(mat.GetShaderSID());
-                            if (shader.GetPath().compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0)
-                            {
-                                if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
-                                {
-                                    auto& texture = mat.GetTexture("material.environmentMap");
-                                    if (!texture.GetIsEmpty())
-                                        Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
-                                }
-                            }
-                        }
-                    }
+                   //  if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+                   //  {
+                   //      levelData.m_selectedSkyboxMatID   = levelData.m_skyboxMaterialID;
+                   //      levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
+                   //  }
+                   // 
+                   //  // Material selection.
+                   //  char matPathC[128] = "";
+                   //  strcpy_s(matPathC, levelData.m_skyboxMaterialPath.c_str());
+                   // 
+                   //  WidgetsUtility::PropertyLabel("Material");
+                   //  bool                removed = false;
+                   //  Graphics::Material* mat     = WidgetsUtility::MaterialComboBox("##globalSettings_levelMat", levelData.m_selectedSkyboxMatPath, &removed);
+                   // 
+                   //  if (removed)
+                   //  {
+                   //      levelData.m_skyboxMaterialID   = -1;
+                   //      levelData.m_skyboxMaterialPath = "";
+                   //      m_currentLevel->SetSkyboxMaterial();
+                   //  }
+                   // 
+                   //  if (mat != nullptr)
+                   //  {
+                   //      levelData.m_skyboxMaterialID   = mat->GetID();
+                   //      levelData.m_skyboxMaterialPath = mat->GetPath();
+                   //  }
+                   // 
+                   //  // Material drag & drop.
+                   //  if (ImGui::BeginDragDropTarget())
+                   //  {
+                   //      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+                   //      {
+                   //          IM_ASSERT(payload->DataSize == sizeof(uint32));
+                   //          levelData.m_skyboxMaterialID   = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetID();
+                   //          levelData.m_skyboxMaterialPath = Graphics::Material::GetMaterial(*(uint32*)payload->Data).GetPath();
+                   //          m_currentLevel->SetSkyboxMaterial();
+                   //      }
+                   // 
+                   //      ImGui::EndDragDropTarget();
+                   //  }
+                   // 
+                   //  if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+                   //  {
+                   //      auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
+                   //      // TODO: HDRI SHADER SELECTION
+                   //  }
                 }
             }
 

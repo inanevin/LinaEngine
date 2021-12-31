@@ -40,6 +40,7 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
@@ -116,9 +117,6 @@ namespace Lina::Graphics
         m_globalDebugBuffer.Construct(UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
         m_globalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
 
-        // Initialize engine materials
-        // ConstructEngineMaterials();
-
         // Initialize built-in vertex array objects.
         m_skyboxVAO     = m_renderDevice.CreateSkyboxVertexArray();
         m_hdriCubeVAO   = m_renderDevice.CreateHDRICubeVertexArray();
@@ -159,90 +157,96 @@ namespace Lina::Graphics
         // Shader::ClearShaderIncludes();
     }
 
-    void OpenGLRenderEngine::ConstructShader(const std::string& path, unsigned char* data, size_t dataSize)
+    void OpenGLRenderEngine::SetupEngineShaders()
     {
-        if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
-        {
-            m_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-            m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
-        {
-            m_standardLitShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-            m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
-        {
-            m_pointShadowsDepthShader = &Shader::CreateShader(path, true, data, dataSize);
-        }
-        else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxColor.glsl") == 0)
-        {
-            m_skyboxSingleColorShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxCubemap.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxProcedural.glsl") == 0 ||
-                 path.compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
-        {
-            Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
+        auto* storage     = Resources::ResourceStorage::Get();
+        auto& shaderCache = storage->GetCache<Shader>();
 
-        else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+        for (auto& shaderResource : shaderCache)
         {
-            m_hdriEquirectangularShader = &Shader::CreateShader(path, false, data, dataSize);
-        }
-        else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
-        {
-            m_hdriIrradianceShader = &Shader::CreateShader(path, false, data, dataSize);
-        }
-        else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
-        {
-            m_hdriPrefilterShader = &Shader::CreateShader(path, false, data, dataSize);
-        }
-        else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
-        {
-            m_hdriBRDFShader = &Shader::CreateShader(path, false, data, dataSize);
-        }
-        else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl") == 0)
-        {
-            m_sqFinalShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl") == 0)
-        {
-            m_sqBlurShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl") == 0)
-        {
-            m_sqShadowMapShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/Debug/DebugLine.glsl") == 0)
-        {
-            m_debugLineShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/Debug/DebugIcon.glsl") == 0)
-        {
-            m_debugIconShader = &Shader::CreateShader(path, false, data, dataSize);
-            m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else if (path.compare("Resources/Engine/Shaders/2D/Sprite.glsl") == 0)
-        {
-            Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-        }
-        else
-        {
-            Shader& shader = Shader::CreateShader(path, false, data, dataSize);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-            shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            Shader*           shader = storage->GetResource<Shader>(shaderResource.first);
+            const std::string path   = shader->GetPath();
+
+            if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
+            {
+                m_standardUnlitShader = shader;
+                m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+                m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+                m_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0)
+            {
+                m_standardLitShader = shader;
+                m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+                m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+                m_standardLitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl") == 0)
+            {
+                m_pointShadowsDepthShader = shader;
+            }
+            else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxColor.glsl") == 0)
+            {
+                m_skyboxSingleColorShader = shader;
+                m_skyboxSingleColorShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/Skybox/SkyboxGradient.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxCubemap.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxProcedural.glsl") == 0 ||
+                     path.compare("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl") == 0 || path.compare("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
+            {
+                shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+            {
+                m_hdriEquirectangularShader = shader;
+            }
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
+            {
+                m_hdriIrradianceShader = shader;
+            }
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
+            {
+                m_hdriPrefilterShader = shader;
+            }
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
+            {
+                m_hdriBRDFShader = shader;
+            }
+            else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl") == 0)
+            {
+                m_sqFinalShader = shader;
+                m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl") == 0)
+            {
+                m_sqBlurShader = shader;
+                m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl") == 0)
+            {
+                m_sqShadowMapShader = shader;
+                m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/Debug/DebugLine.glsl") == 0)
+            {
+                m_debugLineShader = shader;
+                m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/Debug/DebugIcon.glsl") == 0)
+            {
+                m_debugIconShader = shader;
+                m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else if (path.compare("Resources/Engine/Shaders/2D/Sprite.glsl") == 0)
+            {
+                shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            }
+            else
+            {
+                shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+                shader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+                shader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            }
         }
     }
 
@@ -250,12 +254,15 @@ namespace Lina::Graphics
     {
         bool validated = false;
 
-        std::map<StringIDType, Shader*>& loadedShaders = Shader::GetLoadedShaders();
+        auto* storage     = Resources::ResourceStorage::Get();
+        auto& shaderCache = storage->GetCache<Shader>();
 
-        for (std::map<StringIDType, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
+        for (auto& shaderResource : shaderCache)
         {
-            LINA_TRACE("Validating {0}", it->second->GetPath());
-            bool success = m_renderDevice.ValidateShaderProgram(it->second->GetID());
+            Shader* shader = storage->GetResource<Shader>(shaderResource.first);
+
+            LINA_TRACE("Validating {0}", shader->GetPath());
+            bool success = m_renderDevice.ValidateShaderProgram(shader->GetID());
 
             if (!success)
                 LINA_TRACE("Failed validation");
@@ -268,14 +275,18 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
-        Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
-        Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
-        Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
-        Material::SetMaterialShader(m_debugLineMaterial, *m_debugLineShader);
-        Material::SetMaterialShader(m_debugIconMaterial, *m_debugIconShader);
-        Material::SetMaterialShader(m_shadowMapMaterial, *m_sqShadowMapShader);
-        Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
-        Material::SetMaterialShader(m_pLightShadowDepthMaterial, *m_pointShadowsDepthShader);
+        auto* storage = Resources::ResourceStorage::Get();
+        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.mat");
+        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.mat");
+
+        m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
+        m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
+        m_hdriMaterial.SetShader(m_hdriEquirectangularShader);
+        m_debugLineMaterial.SetShader(m_debugLineShader);
+        m_debugIconMaterial.SetShader(m_debugIconShader);
+        m_shadowMapMaterial.SetShader(m_sqShadowMapShader);
+        m_defaultSkyboxMaterial.SetShader(m_skyboxSingleColorShader);
+        m_pLightShadowDepthMaterial.SetShader(m_pointShadowsDepthShader);
         UpdateRenderSettings();
     }
 
@@ -455,21 +466,8 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event)
     {
-        if (event.m_resourceType == Resources::ResourceType::GLSL)
-        {
-            if (!Shader::ShaderExists(event.m_path))
-            {
-                LINA_TRACE("[Shader Loader] -> Loading (file): {0}", event.m_path);
-                ConstructShader(event.m_path, nullptr, 0);
-            }
-        }
-        else if (event.m_resourceType == Resources::ResourceType::GLH)
-        {
-            const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
-            const std::string& text = Utility::GetFileContents(event.m_path);
-            Shader::PushShaderInclude(name, text);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Model)
+
+        if (event.m_resourceType == Resources::ResourceType::Model)
         {
             ModelAssetData params;
 
@@ -483,16 +481,6 @@ namespace Lina::Graphics
 
             if (!assetDataExists)
                 model.SaveAssetData(event.m_assetDataPath);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Material)
-        {
-            LINA_TRACE("[Material Loader] -> Loading (file): {0}", event.m_path);
-            Material::LoadMaterialFromFile(event.m_path);
-
-            if (m_defaultLit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultLit.mat") == 0)
-                m_defaultLit = &Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-            if (m_defaultUnlit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultUnlit.mat") == 0)
-                m_defaultUnlit = &Material::GetMaterial("Resources/Engine/Materials/DefaultUnlit.mat");
         }
         else if (event.m_resourceType == Resources::ResourceType::Image)
         {
@@ -522,21 +510,7 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& event)
     {
-        if (event.m_resourceType == Resources::ResourceType::GLSL)
-        {
-            if (!Shader::ShaderExists(event.m_path))
-            {
-                LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
-                ConstructShader(event.m_path, event.m_data, event.m_dataSize);
-            }
-        }
-        else if (event.m_resourceType == Resources::ResourceType::GLH)
-        {
-            const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
-            const std::string& text = std::string(reinterpret_cast<char*>(event.m_data), event.m_dataSize);
-            Shader::PushShaderInclude(name, text);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Model)
+        if (event.m_resourceType == Resources::ResourceType::Model)
         {
             LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
 
@@ -546,16 +520,6 @@ namespace Lina::Graphics
                 assetData = Model::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
 
             Model::CreateModel(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, assetData);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Material)
-        {
-            LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
-            Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
-
-            if (m_defaultLit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultLit.mat") == 0)
-                m_defaultLit = &Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-            if (m_defaultUnlit == nullptr && event.m_path.compare("Resources/Engine/Materials/DefaultUnlit.mat") == 0)
-                m_defaultUnlit = &Material::GetMaterial("Resources/Engine/Materials/DefaultUnlit.mat");
         }
         else if (event.m_resourceType == Resources::ResourceType::Image)
         {
@@ -676,8 +640,6 @@ namespace Lina::Graphics
         // Clear dumps.
         Model::UnloadAll();
         Texture::UnloadAll();
-        Material::UnloadAll();
-        Shader::UnloadAll();
     }
 
     void OpenGLRenderEngine::Draw()
@@ -821,9 +783,9 @@ namespace Lina::Graphics
         while (!m_debugLineQueue.empty())
         {
             DebugLine line = m_debugLineQueue.front();
-            m_renderDevice.SetShader(m_debugLineMaterial.m_shaderID);
-            m_renderDevice.UpdateShaderUniformColor(m_debugLineMaterial.m_shaderID, MAT_COLOR, line.m_color);
-            m_renderDevice.DrawLine(m_debugLineMaterial.m_shaderID, Matrix::Identity(), line.m_from, line.m_to, line.m_width);
+            m_renderDevice.SetShader(m_debugLineMaterial.m_shaderHandle.m_value->GetID());
+            m_renderDevice.UpdateShaderUniformColor(m_debugLineMaterial.m_shaderHandle.m_value->GetID(), MAT_COLOR, line.m_color);
+            m_renderDevice.DrawLine(m_debugLineMaterial.m_shaderHandle.m_value->GetID(), Matrix::Identity(), line.m_from, line.m_to, line.m_width);
             m_debugLineQueue.pop();
         }
 
@@ -876,15 +838,15 @@ namespace Lina::Graphics
         }
     }
 
-    PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader& shader)
+    PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader* shader)
     {
-        if (m_postProcessMap.find(&shader) == m_postProcessMap.end())
+        if (m_postProcessMap.find(shader) == m_postProcessMap.end())
         {
-            m_postProcessMap[&shader] = PostProcessEffect();
-            m_postProcessMap[&shader].Construct(shader);
+            m_postProcessMap[shader] = PostProcessEffect();
+            m_postProcessMap[shader].Construct(shader);
         }
 
-        return m_postProcessMap[&shader];
+        return m_postProcessMap[shader];
     }
 
     void OpenGLRenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool completeFlush)
@@ -954,31 +916,32 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::UpdateShaderData(Material* data)
     {
 
-        m_renderDevice.SetShader(data->GetShaderID());
+        uint32 shaderID = data->m_shaderHandle.m_value->GetID();
+        m_renderDevice.SetShader(shaderID);
 
         for (auto const& d : (*data).m_floats)
-            m_renderDevice.UpdateShaderUniformFloat(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformFloat(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_bools)
-            m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformInt(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_colors)
-            m_renderDevice.UpdateShaderUniformColor(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformColor(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_ints)
-            m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformInt(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_vector2s)
-            m_renderDevice.UpdateShaderUniformVector2(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformVector2(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_vector3s)
-            m_renderDevice.UpdateShaderUniformVector3(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformVector3(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_vector4s)
-            m_renderDevice.UpdateShaderUniformVector4F(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformVector4F(shaderID, d.first, d.second);
 
         for (auto const& d : (*data).m_matrices)
-            m_renderDevice.UpdateShaderUniformMatrix(data->m_shaderID, d.first, d.second);
+            m_renderDevice.UpdateShaderUniformMatrix(shaderID, d.first, d.second);
 
         // Set material's shadow textures to the FBO textures.
         if (data->m_isPBR)
@@ -999,10 +962,10 @@ namespace Lina::Graphics
         {
             // Set whether the texture is active or not.
             bool isActive = (d.second.m_isActive && d.second.m_boundTexture != nullptr && !d.second.m_boundTexture->GetIsEmpty()) ? true : false;
-            m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
+            m_renderDevice.UpdateShaderUniformInt(shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
 
             // Set the texture to corresponding active unit.
-            m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.m_unit);
+            m_renderDevice.UpdateShaderUniformInt(shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.m_unit);
 
             // Set texture
             if (isActive)
@@ -1018,11 +981,11 @@ namespace Lina::Graphics
         }
 
         if (data->m_isPBR)
-            m_lightingSystem.SetLightingShaderData(data->GetShaderID());
+            m_lightingSystem.SetLightingShaderData(shaderID);
 
         if (!m_firstFrameDrawn)
         {
-            m_renderDevice.ValidateShaderProgram(data->GetShaderID());
+            m_renderDevice.ValidateShaderProgram(shaderID);
         }
     }
 

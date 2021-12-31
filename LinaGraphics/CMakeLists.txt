@@ -36,6 +36,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/ModelNode.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
+	src/Rendering/ShaderInclude.cpp
 	src/Rendering/RenderSettings.cpp
 	src/Rendering/PostProcessEffect.cpp
 	src/Rendering/RenderBuffer.cpp
@@ -94,6 +95,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp
 	include/Rendering/Shader.hpp
+	include/Rendering/ShaderInclude.hpp
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp

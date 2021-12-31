@@ -139,28 +139,41 @@ namespace Lina::Resources
         }
     }
 
-    void ResourceBundle::LoadResourcesInFolder(Utility::Folder* folder, bool loadAssetDataTypes)
+    void ResourceBundle::ScanFileResources(Utility::Folder* folder)
     {
-        // Recursively load children.
+        // Recursively scan children.
         for (auto* folder : folder->m_folders)
-            LoadResourcesInFolder(folder, loadAssetDataTypes);
+            ScanFileResources(folder);
 
+        // We find the resource type id by extension,
+        // get it's priority from the storage and add it into a priority queue.
         auto* storage = ResourceStorage::Get();
-
         for (auto* file : folder->m_files)
         {
             TypeID tid = storage->GetTypeIDFromExtension(file->m_extension);
 
             if (tid != -1)
             {
-                if (!loadAssetDataTypes || (loadAssetDataTypes && storage->IsPriorityResource(tid)))
-                {
-                    auto& typeData       = storage->GetTypeData(tid);
-                    IResource* res = typeData.m_createFunc();
-                    void* loadedResource = res->LoadFromFile(file->m_fullPath);
-                    storage->Add(loadedResource, tid, StringID(file->m_fullPath.c_str()).value());
-                }
+                auto& typeData = storage->GetTypeData(tid);
+                m_fileResources.push(FileEntry(typeData.m_loadPriority, file));
             }
+        }
+    }
+
+
+    void ResourceBundle::LoadAllFileResources()
+    {
+        // We load every single entry in the file resource priority queue.
+        auto* storage = ResourceStorage::Get();
+        while (!m_fileResources.empty())
+        {
+            auto fileEntry = m_fileResources.top();
+            TypeID tid       = storage->GetTypeIDFromExtension(fileEntry.m_file->m_extension);
+            auto&      typeData       = storage->GetTypeData(tid);
+            IResource* res            = typeData.m_createFunc();
+            void*      loadedResource = res->LoadFromFile(fileEntry.m_file->m_fullPath);
+            storage->Add(loadedResource, tid, StringID(fileEntry.m_file->m_fullPath.c_str()).value());
+            m_fileResources.pop();
         }
     }
 

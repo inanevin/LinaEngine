@@ -113,21 +113,21 @@ namespace Lina::ECS
                 auto*  mesh         = meshes[i];
                 uint32 materialSlot = mesh->GetMaterialSlotIndex();
 
-                // Check if material exists.
-                const StringIDType materialSID = nodeComponent.m_materialIDs[i];
-                if (!Graphics::Material::MaterialExists(materialSID))
-                    continue;
-
-                // Render the material & vertex array.
-                Graphics::Material& mat = Graphics::Material::GetMaterial(materialSID);
-
-                if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-                    RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
-                else
-                {
-                    float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
-                    RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
-                }
+               // // Check if material exists.
+               // const StringIDType materialSID = nodeComponent.m_materialIDs[i];
+               // if (!Graphics::Material::MaterialExists(materialSID))
+               //     continue;
+               // 
+               // // Render the material & vertex array.
+               // Graphics::Material& mat = Graphics::Material::GetMaterial(materialSID);
+               // 
+               // if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+               //     RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
+               // else
+               // {
+               //     float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
+               //     RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
+               // }
             }
         }
     }

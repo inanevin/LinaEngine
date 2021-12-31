@@ -100,13 +100,13 @@ namespace Lina::Graphics
                 if (materialVector.size() > i)
                     m_defaultMaterials[i] = materialVector[i];
                 else
-                    m_defaultMaterials[i] = defaultMaterial.GetID();
+                    m_defaultMaterials[i] = defaultMaterial.GetSID();
             }
         }
         else
         {
             for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
-                m_defaultMaterials[i] = defaultMaterial.GetID();
+                m_defaultMaterials[i] = defaultMaterial.GetSID();
         }
 
         // Recursively fill the other nodes.

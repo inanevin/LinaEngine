@@ -74,8 +74,8 @@ namespace Lina::ECS
             if (renderer.m_materialID < 0)
                 continue;
 
-            Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
-            Render(mat, data.ToMatrix());
+          //  Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
+          //  Render(mat, data.ToMatrix());
         }
     }
 

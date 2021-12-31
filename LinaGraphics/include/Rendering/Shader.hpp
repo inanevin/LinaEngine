@@ -40,66 +40,41 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef Shader_HPP
 #define Shader_HPP
 
+#include "Resources/IResource.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/UniformBuffer.hpp"
-
 #include <string>
 
 namespace Lina::Graphics
 {
 
-    class Shader
+    class Shader : public Resources::IResource
     {
     public:
         Shader() = default;
-
         ~Shader();
+
+        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const std::string& path) override;
 
         Shader& Construct(const std::string& text, bool usesGeometryShader);
         void    SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
         void    BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
 
-        static void                             ClearShaderIncludes();
-        static void                             PushShaderInclude(const std::string& name, const std::string& text);
-        static Shader&                          CreateShader(const std::string& path, bool usesGeometryShader = false, unsigned char* data = nullptr, size_t dataSize = 0);
-        static Shader&                          GetShader(const std::string& path);
-        static Shader&                          GetShader(StringIDType id);
-        static bool                             ShaderExists(const std::string& path);
-        static bool                             ShaderExists(StringIDType id);
-        static void                             UnloadAll();
-        static std::map<StringIDType, Shader*>& GetLoadedShaders()
-        {
-            return s_loadedShaders;
-        }
-
-        ShaderUniformData& GetUniformData()
+        const ShaderUniformData& GetUniformData() const
         {
             return m_uniformData;
         }
-        StringIDType GetSID()
-        {
-            return m_sid;
-        }
+
         uint32 GetID()
         {
             return m_engineBoundID;
         }
-        const std::string& GetPath()
-        {
-            return m_path;
-        }
 
     private:
-        static Shader& CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader = false);
-
-    private:
-        ShaderUniformData                         m_uniformData;
-        RenderDevice*                             m_renderDevice  = nullptr;
-        uint32                                    m_engineBoundID = 0;
-        StringIDType                              m_sid;
-        std::string                               m_path = "";
-        static std::map<StringIDType, Shader*>    s_loadedShaders;
-        static std::map<std::string, std::string> s_loadedShaderIncludes;
+        ShaderUniformData m_uniformData;
+        RenderDevice*     m_renderDevice  = nullptr;
+        uint32            m_engineBoundID = 0;
     };
 } // namespace Lina::Graphics
 

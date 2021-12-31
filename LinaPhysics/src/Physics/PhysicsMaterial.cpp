@@ -35,6 +35,25 @@ SOFTWARE.
 
 namespace Lina::Physics
 {
+    PhysicsMaterial* PhysicsMaterial::CreatePhysicsMaterial(const std::string& savePath, float staticFriction, float dynamicFriction, float restitution)
+    {
+        auto* storage = Resources::ResourceStorage::Get();
+
+        if (storage->Exists<PhysicsMaterial>(savePath))
+        {
+            LINA_WARN("Physics Material already exists with the given path. {0}", savePath);
+            return storage->GetResource<PhysicsMaterial>(savePath);
+        }
+
+        PhysicsMaterial* mat = new PhysicsMaterial();
+        mat->SetSID(savePath);
+        mat->m_staticFriction = staticFriction;
+        mat->m_dynamicFriction = dynamicFriction;
+        mat->m_restitution = restitution;
+        storage->Add(static_cast<void*>(mat), GetTypeID<PhysicsMaterial>(), mat->m_sid);
+        Resources::SaveArchiveToFile<PhysicsMaterial>(savePath, *mat);
+        return mat;
+    }
     void* PhysicsMaterial::LoadFromFile(const std::string& path)
     {
         LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);

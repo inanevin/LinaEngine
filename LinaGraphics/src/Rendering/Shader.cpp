@@ -34,12 +34,29 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    std::map<StringIDType, Shader*>    Shader::s_loadedShaders;
-    std::map<std::string, std::string> Shader::s_loadedShaderIncludes;
-
     Shader::~Shader()
     {
         m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
+    }
+
+    void* Shader::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    {
+        Resources::IResource::SetSID(path);
+        std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
+        Graphics::LoadTextWithIncludes(shaderText, "#include");
+        const bool usesGeometryShader = shaderText.find("GS_BUILD") != std::string::npos;
+        this->Construct(shaderText, usesGeometryShader);
+        return static_cast<void*>(this);
+    }
+
+    void* Shader::LoadFromFile(const std::string& path)
+    {
+        Resources::IResource::SetSID(path);
+        std::string shaderText;
+        Graphics::LoadTextFileWithIncludes(shaderText, path, "#include");
+        const bool usesGeometryShader = shaderText.find("GS_BUILD") != std::string::npos;
+        this->Construct(shaderText, usesGeometryShader);
+        return static_cast<void*>(this);
     }
 
     Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)
@@ -57,78 +74,6 @@ namespace Lina::Graphics
     void Shader::BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
     {
         m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
-    }
-
-    Shader& Shader::CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader)
-    {
-        std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
-        Utility::LoadTextWithIncludes(shaderText, "#include", s_loadedShaderIncludes);
-        StringIDType sid    = StringID(path.c_str()).value();
-        Shader*      shader = new Shader();
-        shader->Construct(shaderText, usesGeometryShader);
-        shader->m_path       = path;
-        shader->m_sid        = sid;
-        s_loadedShaders[sid] = shader;
-        return *shader;
-    }
-
-    void Shader::ClearShaderIncludes()
-    {
-        s_loadedShaderIncludes.clear();
-    }
-
-    void Shader::PushShaderInclude(const std::string& name, const std::string& text)
-    {
-        s_loadedShaderIncludes[name] = text;
-    }
-
-    Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader, unsigned char* data, size_t dataSize)
-    {
-        if (data != nullptr)
-            return CreateShaderFromMemory(path, data, dataSize, usesGeometryShader);
-
-        std::string shaderText;
-        Utility::LoadTextFileWithIncludes(shaderText, path, "#include", s_loadedShaderIncludes);
-        StringIDType sid    = StringID(path.c_str()).value();
-        Shader*      shader = new Shader();
-        shader->Construct(shaderText, usesGeometryShader);
-        shader->m_path       = path;
-        shader->m_sid        = sid;
-        s_loadedShaders[sid] = shader;
-        return *shader;
-    }
-
-    Shader& Shader::GetShader(const std::string& path)
-    {
-        return GetShader(StringID(path.c_str()).value());
-    }
-
-    Shader& Shader::GetShader(StringIDType id)
-    {
-        bool shaderExists = ShaderExists(id);
-        LINA_ASSERT(shaderExists, "Shader does not exist!");
-        return *s_loadedShaders[id];
-    }
-
-    bool Shader::ShaderExists(const std::string& path)
-    {
-        return ShaderExists(StringID(path.c_str()).value());
-    }
-
-    bool Shader::ShaderExists(StringIDType id)
-    {
-        if (id < 0)
-            return false;
-        return !(s_loadedShaders.find(id) == s_loadedShaders.end());
-    }
-
-    void Shader::UnloadAll()
-    {
-        // Delete textures.
-        for (std::map<StringIDType, Shader*>::iterator it = s_loadedShaders.begin(); it != s_loadedShaders.end(); it++)
-            delete it->second;
-
-        s_loadedShaders.clear();
     }
 
 } // namespace Lina::Graphics

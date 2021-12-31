@@ -179,7 +179,7 @@ namespace Lina::Graphics
         /// Pass in any run-time constructed shader. The shader will be drawn to a full-screen quad & added as a
         /// post-process effect.
         /// </summary>
-        PostProcessEffect& AddPostProcessEffect(Shader& shader);
+        PostProcessEffect& AddPostProcessEffect(Shader* shader);
 
         void MaterialUpdated(Material& mat);
         void UpdateShaderData(Material* mat);
@@ -244,13 +244,13 @@ namespace Lina::Graphics
         {
             return *m_defaultLit;
         }
-        inline Shader& GetDefaultUnlitShader()
+        inline Shader* GetDefaultUnlitShader()
         {
-            return *m_standardUnlitShader;
+            return m_standardUnlitShader;
         }
-        inline Shader& GetDefaultLitShader()
+        inline Shader* GetDefaultLitShader()
         {
-            return *m_standardLitShader;
+            return m_standardLitShader;
         }
         inline void SetCurrentPLightCount(int count)
         {
@@ -296,7 +296,7 @@ namespace Lina::Graphics
         void OnDrawCapsule(const Event::EDrawCapsule& event);
         void OnWindowResized(const Event::EWindowResized& event);
         bool ValidateEngineShaders();
-        void ConstructShader(const std::string& path, unsigned char* data, size_t dataSize);
+        void SetupEngineShaders();
         void ConstructEngineMaterials();
         void ConstructRenderTargets();
         void DumpMemory();

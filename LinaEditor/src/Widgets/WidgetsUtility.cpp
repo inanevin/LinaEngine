@@ -696,32 +696,32 @@ namespace Lina::Editor
     {
         Graphics::Material* materialToReturn = nullptr;
 
-        std::string materialLabel = "";
-        if (Graphics::Material::MaterialExists(currentPath))
-        {
-            materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
-        }
-
-        if (BeginComboBox(comboID, materialLabel.c_str(), true))
-        {
-            auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
-
-            for (auto& material : loadedMaterials)
-            {
-                const bool selected = currentPath == material.second.GetPath();
-
-                std::string label = material.second.GetPath();
-                label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-                if (ImGui::Selectable(label.c_str(), selected))
-                {
-                    materialToReturn = &material.second;
-                }
-
-                if (selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
+       // std::string materialLabel = "";
+       // if (Graphics::Material::MaterialExists(currentPath))
+       // {
+       //     materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
+       // }
+       // 
+       // if (BeginComboBox(comboID, materialLabel.c_str(), true))
+       // {
+       //     auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
+       // 
+       //     for (auto& material : loadedMaterials)
+       //     {
+       //         const bool selected = currentPath == material.second.GetPath();
+       // 
+       //         std::string label = material.second.GetPath();
+       //         label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+       //         if (ImGui::Selectable(label.c_str(), selected))
+       //         {
+       //             materialToReturn = &material.second;
+       //         }
+       // 
+       //         if (selected)
+       //             ImGui::SetItemDefaultFocus();
+       //     }
+       //     ImGui::EndCombo();
+       // }
 
         const std::string comboEndID = std::string(comboID) + "_comboEnd";
         if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
@@ -773,28 +773,30 @@ namespace Lina::Editor
     Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID, bool* removed)
     {
         Graphics::Shader* shaderToReturn = nullptr;
+        auto*             storage        = Resources::ResourceStorage::Get();
+        auto&             shaderCache    = storage->GetCache<Graphics::Shader>();
 
         std::string shaderLabel = "";
-        if (Graphics::Shader::ShaderExists(currentShaderID))
+        if (storage->Exists<Graphics::Shader>(currentShaderID))
         {
-            const std::string shaderLabelFull = Graphics::Shader::GetShader(currentShaderID).GetPath();
+            const std::string shaderLabelFull = storage->GetResource<Graphics::Shader>(currentShaderID)->GetPath();
             shaderLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(shaderLabelFull));
         }
 
         if (BeginComboBox(comboID, shaderLabel.c_str(), true))
         {
-            auto& loadedShaders = Graphics::Shader::GetLoadedShaders();
 
-            for (auto& shader : loadedShaders)
+            for (auto& shaderResource : shaderCache)
             {
-                const bool selected = currentShaderID == shader.second->GetSID();
+                Graphics::Shader* shader = storage->GetResource<Graphics::Shader>(shaderResource.first);
 
-                std::string label = shader.second->GetPath();
+                const bool selected = currentShaderID == shader->GetSID();
+
+                std::string label = shader->GetPath();
                 label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+
                 if (ImGui::Selectable(label.c_str(), selected))
-                {
-                    shaderToReturn = shader.second;
-                }
+                    shaderToReturn = shader;
 
                 if (selected)
                     ImGui::SetItemDefaultFocus();

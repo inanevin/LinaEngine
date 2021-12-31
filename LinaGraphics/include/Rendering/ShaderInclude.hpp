@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,64 +27,40 @@ SOFTWARE.
 */
 
 /*
-Class: PostProcessEffect
+Class: ShaderInclude
 
 
 
-Timestamp: 12/10/2020 6:02:07 PM
+Timestamp: 12/31/2021 5:09:30 PM
 */
 
 #pragma once
 
-#ifndef PostProcessEffect_HPP
-#define PostProcessEffect_HPP
+#ifndef ShaderInclude_HPP
+#define ShaderInclude_HPP
 
 // Headers here.
-#include "Core/RenderBackendFwd.hpp"
-#include "Rendering/Material.hpp"
-#include "Rendering/RenderTarget.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/Texture.hpp"
+#include "Resources/IResource.hpp"
 
 namespace Lina::Graphics
 {
-
-    class PostProcessEffect
-    {
-
-    public:
-        PostProcessEffect() = default;
-        ~PostProcessEffect() = default;
-
-        void      Construct(Shader* shader);
-        void      Draw(Texture* screenMap);
-        Material& GetMaterial()
+	class ShaderInclude : public Resources::IResource
+	{
+		
+	public:
+		
+		virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const std::string& path) override;
+	
+		const std::string& GetText() const
         {
-            return m_material;
-        }
-        Texture& GetTexture()
-        {
-            return m_rtTexture;
-        }
-        RenderTarget& GetRenderTarget()
-        {
-            return m_renderTarget;
-        }
-        SamplerParameters& GetParams()
-        {
-            return m_samplerParams;
-        }
+			return m_text;
+		}
+	private:
+	
+		std::string m_text;
 
-    private:
-        RenderDevice* m_renderDevice = nullptr;
-        RenderEngine* m_renderEngine = nullptr;
-
-        DrawParams        m_drawParams;
-        Texture           m_rtTexture;
-        RenderTarget      m_renderTarget;
-        SamplerParameters m_samplerParams;
-        Material          m_material;
-    };
-} // namespace Lina::Graphics
+	};
+}
 
 #endif

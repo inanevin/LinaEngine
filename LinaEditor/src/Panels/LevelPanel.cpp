@@ -273,25 +273,25 @@ namespace Lina::Editor
             }
 
             // Model drag & drop.
-            if (ImGui::BeginDragDropTarget())
-            {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(uint32));
-
-                    auto* ecs    = ECS::Registry::Get();
-                    auto& model  = Graphics::Model::GetModel(*(uint32*)payload->Data);
-                    auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-                    auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
-                    mr.SetModel(entity, model);
-
-                    auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
-
-                    for (int i = 0; i < model.GetImportedMaterials().size(); i++)
-                        mr.SetMaterial(entity, i, mat);
-                }
-                ImGui::EndDragDropTarget();
-            }
+           // if (ImGui::BeginDragDropTarget())
+           // {
+           //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+           //     {
+           //         IM_ASSERT(payload->DataSize == sizeof(uint32));
+           //
+           //         auto* ecs    = ECS::Registry::Get();
+           //         auto& model  = Graphics::Model::GetModel(*(uint32*)payload->Data);
+           //         auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+           //         auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
+           //         mr.SetModel(entity, model);
+           //
+           //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+           //
+           //         for (int i = 0; i < model.GetImportedMaterials().size(); i++)
+           //             mr.SetMaterial(entity, i, mat);
+           //     }
+           //     ImGui::EndDragDropTarget();
+           // }
 
             WidgetsUtility::PopStyleVar();
             ImGui::End();

@@ -35,7 +35,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    void PostProcessEffect::Construct(Shader& shader)
+    void PostProcessEffect::Construct(Shader* shader)
     {
         m_renderEngine                                        = RenderEngineBackend::Get();
         m_renderDevice                                        = m_renderEngine->GetRenderDevice();
@@ -46,7 +46,7 @@ namespace Lina::Graphics
         m_rtTexture.ConstructRTTexture(m_renderEngine->GetScreenSize(), m_samplerParams, false);
         m_renderTarget.Construct(m_rtTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
         m_drawParams = DrawParameterHelper::GetFullScreenQuad();
-        Material::SetMaterialShader(m_material, shader);
+        m_material.SetShader(shader);
     }
 
     void PostProcessEffect::Draw(Texture* screenMap)

@@ -34,20 +34,20 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 #include <stdio.h>
 
 namespace Lina::Graphics
 {
-
-    std::map<StringIDType, Material> Material::s_loadedMaterials;
-    std::set<Material*>              Material::s_shadowMappedMaterials;
-    std::set<Material*>              Material::s_hdriMaterials;
+    std::set<Material*> Material::s_shadowMappedMaterials;
+    std::set<Material*> Material::s_hdriMaterials;
 
     void Material::PostLoadMaterialData()
     {
+        auto* storage = Resources::ResourceStorage::Get();
+
         for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
         {
             if (Texture::TextureExists(it->second.m_path))
@@ -56,33 +56,14 @@ namespace Lina::Graphics
             }
         }
 
-        if (Shader::ShaderExists(m_shaderPath))
+        if (storage->Exists<Shader>(m_shaderHandle.m_sid))
         {
-            m_shaderID  = Shader::GetShader(m_shaderPath).GetID();
-            m_shaderSID = Shader::GetShader(m_shaderPath).GetSID();
+            m_shaderHandle.m_value = storage->GetResource<Shader>(m_shaderHandle.m_sid);
         }
         else
         {
-            m_shaderID  = OpenGLRenderEngine::Get()->GetDefaultLitShader().GetID();
-            m_shaderSID = OpenGLRenderEngine::Get()->GetDefaultLitShader().GetSID();
-        }
-    }
-
-    void Material::LoadMaterialData(Material& mat, const std::string& path)
-    {
-        std::ifstream stream(path, std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(mat);
-        }
-    }
-
-    void Material::SaveMaterialData(const Material& mat, const std::string& path)
-    {
-        std::ofstream stream(path, std::ios::binary);
-        {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(mat);
+            m_shaderHandle.m_value = OpenGLRenderEngine::Get()->GetDefaultLitShader();
+            m_shaderHandle.m_sid   = m_shaderHandle.m_value->GetSID();
         }
     }
 
@@ -133,7 +114,7 @@ namespace Lina::Graphics
     void Material::SetSurfaceType(MaterialSurfaceType type)
     {
         m_surfaceType = type;
-        SetInt(MAT_SURFACETYPE, type);
+        SetInt(MAT_SURFACETYPE, static_cast<int>(type));
     }
 
     void Material::SetInt(const std::string& name, int value)
@@ -144,142 +125,129 @@ namespace Lina::Graphics
             m_surfaceType = static_cast<MaterialSurfaceType>(value);
     }
 
-    Material& Material::CreateMaterial(Shader& shader, const std::string& path)
+    Material* Material::CreateMaterial(Shader* shader, const std::string& savePath)
     {
-        StringIDType sid = StringID(path.c_str()).value();
+        auto* storage = Resources::ResourceStorage::Get();
 
-        if (MaterialExists(sid))
+        if (storage->Exists<Material>(savePath))
         {
-            LINA_WARN("Material already exists with the given path. {0}", path);
-            return s_loadedMaterials[sid];
+            LINA_WARN("Material already exists with the given path. {0}", savePath);
+            return storage->GetResource<Material>(savePath);
         }
 
-        // Build material & set it's shader.
-        Material& mat = s_loadedMaterials[sid];
-        SetMaterialShader(mat, shader);
-        SetMaterialContainers(mat);
-        mat.m_materialID = sid;
-        mat.m_path       = path.compare("") == 0 ? INTERNAL_MAT_PATH : path;
-        return s_loadedMaterials[sid];
+        Material* mat = new Material();
+        mat->SetSID(savePath);
+        mat->SetShader(shader);
+        mat->SetMaterialContainers();
+        Resources::SaveArchiveToFile<Material>(savePath, *mat);
+        storage->Add(static_cast<void*>(mat), GetTypeID<Material>(), mat->GetSID());
+        return mat;
     }
 
-    Material& Material::LoadMaterialFromFile(const std::string& path)
+    void* Material::LoadFromFile(const std::string& path)
     {
-        // Build material & set it's shader.
-        StringIDType id  = StringID(path.c_str()).value();
-        Material&    mat = s_loadedMaterials[id];
-        Material::LoadMaterialData(mat, path);
+        *this = Resources::LoadArchiveFromFile<Material>(path);
+        IResource::SetSID(path);
 
-        if (Shader::ShaderExists(mat.m_shaderPath))
-            SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
+        auto* storage = Resources::ResourceStorage::Get();
+
+        if (storage->Exists<Shader>(m_shaderHandle.m_sid))
+            SetShader(storage->GetResource<Shader>(m_shaderHandle.m_sid), true);
         else
-            SetMaterialShader(mat, OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
+            SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
-        SetMaterialContainers(mat);
+        SetMaterialContainers();
+        UpdateMaterialData();
 
-        mat.m_materialID = id;
-        mat.m_path       = path;
-        mat.UpdateMaterialData();
-
-        for (auto& sampler : mat.m_sampler2Ds)
+        for (auto& sampler : m_sampler2Ds)
         {
             if (Texture::TextureExists(sampler.second.m_path))
-                mat.SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+                SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
         }
 
-        return s_loadedMaterials[id];
+        return static_cast<void*>(this);
     }
 
-    Material& Material::LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Material::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        // Build material & set it's shader.
-        StringIDType id  = StringID(path.c_str()).value();
-        Material&    mat = s_loadedMaterials[id];
+        *this         = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+        auto* storage = Resources::ResourceStorage::Get();
 
-        {
-            std::string        data((char*)data, dataSize);
-            std::istringstream stream(data, std::ios::binary);
-            {
-                cereal::PortableBinaryInputArchive iarchive(stream);
-                iarchive(mat);
-            }
-        }
-
-        if (Shader::ShaderExists(mat.m_shaderPath))
-            SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
+        if (storage->Exists<Shader>(m_shaderHandle.m_sid))
+            SetShader(storage->GetResource<Shader>(m_shaderHandle.m_sid), true);
         else
-            SetMaterialShader(mat, OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
+            SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
-        SetMaterialContainers(mat);
+        SetMaterialContainers();
+        UpdateMaterialData();
 
-        mat.m_materialID = id;
-        mat.m_path       = path;
-        mat.UpdateMaterialData();
-
-        for (auto& sampler : mat.m_sampler2Ds)
+        for (auto& sampler : m_sampler2Ds)
         {
             if (Texture::TextureExists(sampler.second.m_path))
-                mat.SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+                SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
         }
 
-        return s_loadedMaterials[id];
+        return static_cast<void*>(this);
     }
 
     void Material::UpdateMaterialData()
     {
-        if (Shader::ShaderExists(m_shaderSID))
-        {
-            ShaderUniformData data = Shader::GetShader(m_shaderSID).GetUniformData();
+        auto* storage = Resources::ResourceStorage::Get();
 
-            for (auto& e : data.m_colors)
+        if (storage->Exists<Shader>(m_shaderHandle.m_sid))
+        {
+            Shader*                  shader = storage->GetResource<Shader>(m_shaderHandle.m_sid);
+            const ShaderUniformData& data   = shader->GetUniformData();
+
+            for (const auto& e : data.m_colors)
             {
                 if (m_colors.find(e.first) == m_colors.end())
                     m_colors[e.first] = e.second;
             }
 
-            for (auto& e : data.m_floats)
+            for (const auto& e : data.m_floats)
             {
                 if (m_floats.find(e.first) == m_floats.end())
                     m_floats[e.first] = e.second;
             }
 
-            for (auto& e : data.m_bools)
+            for (const auto& e : data.m_bools)
             {
                 if (m_bools.find(e.first) == m_bools.end())
                     m_bools[e.first] = e.second;
             }
 
-            for (auto& e : data.m_ints)
+            for (const auto& e : data.m_ints)
             {
                 if (m_ints.find(e.first) == m_ints.end())
                     m_ints[e.first] = e.second;
             }
 
-            for (auto& e : data.m_vector2s)
+            for (const auto& e : data.m_vector2s)
             {
                 if (m_vector2s.find(e.first) == m_vector2s.end())
                     m_vector2s[e.first] = e.second;
             }
 
-            for (auto& e : data.m_vector3s)
+            for (const auto& e : data.m_vector3s)
             {
                 if (m_vector3s.find(e.first) == m_vector3s.end())
                     m_vector3s[e.first] = e.second;
             }
 
-            for (auto& e : data.m_vector4s)
+            for (const auto& e : data.m_vector4s)
             {
                 if (m_vector4s.find(e.first) == m_vector4s.end())
                     m_vector4s[e.first] = e.second;
             }
 
-            for (auto& e : data.m_matrices)
+            for (const auto& e : data.m_matrices)
             {
                 if (m_matrices.find(e.first) == m_matrices.end())
                     m_matrices[e.first] = e.second;
             }
 
-            for (auto& e : data.m_sampler2Ds)
+            for (const auto& e : data.m_sampler2Ds)
             {
                 if (m_sampler2Ds.find(e.first) == m_sampler2Ds.end())
                     m_sampler2Ds[e.first] = {e.second.m_unit, nullptr, "", "", e.second.m_bindMode, false};
@@ -287,99 +255,48 @@ namespace Lina::Graphics
         }
     }
 
-    Material& Material::GetMaterial(StringIDType id)
+    void Material::SetShader(Shader* shader, bool onlySetID)
     {
-        bool materialExists = MaterialExists(id);
-        LINA_ASSERT(materialExists, "Material does not exist!");
-        return s_loadedMaterials[id];
-    }
-
-    Material& Material::GetMaterial(const std::string& path)
-    {
-        return GetMaterial(StringID(path.c_str()).value());
-    }
-
-    Material& Material::SetMaterialShader(Material& material, Shader& shader, bool onlySetID)
-    {
-
-        material.m_shaderID   = shader.GetID();
-        material.m_shaderSID  = shader.GetSID();
-        material.m_shaderPath = shader.GetPath();
+        m_shaderHandle.m_sid   = shader->GetSID();
+        m_shaderHandle.m_value = shader;
 
         if (onlySetID)
-            return material;
+            return;
 
         // Clear all shader related material data.
-        material.m_sampler2Ds.clear();
-        material.m_colors.clear();
-        material.m_floats.clear();
-        material.m_ints.clear();
-        material.m_vector3s.clear();
-        material.m_vector2s.clear();
-        material.m_matrices.clear();
-        material.m_vector4s.clear();
-        material.m_isShadowMapped = false;
-        material.m_isPBR          = shader.GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
-        material.m_usesHDRI       = false;
+        m_sampler2Ds.clear();
+        m_colors.clear();
+        m_floats.clear();
+        m_ints.clear();
+        m_vector3s.clear();
+        m_vector2s.clear();
+        m_matrices.clear();
+        m_vector4s.clear();
+        m_isShadowMapped = false;
+        m_isPBR          = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
+        m_usesHDRI       = false;
 
-        ShaderUniformData data = shader.GetUniformData();
-        material.m_colors      = data.m_colors;
-        material.m_floats      = data.m_floats;
-        material.m_bools       = data.m_bools;
-        material.m_ints        = data.m_ints;
-        material.m_vector2s    = data.m_vector2s;
-        material.m_vector3s    = data.m_vector3s;
-        material.m_vector4s    = data.m_vector4s;
-        material.m_matrices    = data.m_matrices;
+        ShaderUniformData data = shader->GetUniformData();
+        m_colors               = data.m_colors;
+        m_floats               = data.m_floats;
+        m_bools                = data.m_bools;
+        m_ints                 = data.m_ints;
+        m_vector2s             = data.m_vector2s;
+        m_vector3s             = data.m_vector3s;
+        m_vector4s             = data.m_vector4s;
+        m_matrices             = data.m_matrices;
 
         for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
-        {
-            material.m_sampler2Ds[it->first] = {it->second.m_unit, nullptr, "", "", it->second.m_bindMode, false};
-        }
-
-        return material;
+            m_sampler2Ds[it->first] = {it->second.m_unit, nullptr, "", "", it->second.m_bindMode, false};
     }
 
-    void Material::SetMaterialContainers(Material& material)
+    void Material::SetMaterialContainers()
     {
-        if (material.m_usesHDRI)
-            s_hdriMaterials.emplace(&material);
+        if (m_usesHDRI)
+            s_hdriMaterials.emplace(this);
 
-        if (material.m_isShadowMapped)
-            s_shadowMappedMaterials.emplace(&material);
+        if (m_isShadowMapped)
+            s_shadowMappedMaterials.emplace(this);
     }
 
-    void Material::UnloadAll()
-    {
-        s_loadedMaterials.clear();
-        s_hdriMaterials.clear();
-        s_shadowMappedMaterials.clear();
-    }
-
-    bool Material::MaterialExists(StringIDType id)
-    {
-        if (id < 0)
-            return false;
-        return !(s_loadedMaterials.find(id) == s_loadedMaterials.end());
-    }
-
-    bool Material::MaterialExists(const std::string& path)
-    {
-        return MaterialExists(StringID(path.c_str()).value());
-    }
-
-    void Material::UnloadMaterialResource(StringIDType id)
-    {
-        if (!MaterialExists(id))
-        {
-            LINA_WARN("Material not found! Aborting... ");
-            return;
-        }
-
-        // If its in the internal list, remove first.
-        if (s_shadowMappedMaterials.find(&s_loadedMaterials[id]) != s_shadowMappedMaterials.end())
-            s_shadowMappedMaterials.erase(&s_loadedMaterials[id]);
-
-        s_loadedMaterials.erase(id);
-    }
 } // namespace Lina::Graphics

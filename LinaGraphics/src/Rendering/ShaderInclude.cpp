@@ -26,49 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Resources/ResourceStorage.hpp"
+#include "Rendering/ShaderInclude.hpp"
+#include "Utility/UtilityFunctions.hpp"
+#include "Log/Log.hpp"
 
-namespace Lina::Resources
+namespace Lina::Graphics
 {
-    ResourceStorage* ResourceStorage::s_instance = nullptr;
-
-    ResourceStorage::~ResourceStorage()
+    void* ShaderInclude::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        for (auto& p : m_resources)
-        {
-            for (auto& rp : p.second)
-                delete rp.second;
-
-            p.second.clear();
-        }
-
-        m_resources.clear();
+        LINA_TRACE("Shader Include Loader - Memory] -> Loading: {0}", path);
+        const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(path));
+        m_text = std::string(reinterpret_cast<char*>(data), dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
     }
-    TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)
+    void* ShaderInclude::LoadFromFile(const std::string& path)
     {
-        bool   found = false;
-        TypeID tid   = -1;
-
-        for (auto& p : m_resourceTypes)
-        {
-            auto& extensions = p.second.m_associatedExtensions;
-
-            for (int i = 0; i < extensions.size(); i++)
-            {
-                if (extensions[i].compare(extension) == 0)
-                {
-                    tid   = p.first;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found)
-                break;
-        }
-
-        return tid;
+        LINA_TRACE("Shader Include Loader - File] -> Loading: {0}", path);
+        const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(path));
+        m_text = Utility::GetFileContents(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
     }
-
-   
-} // namespace Lina::Resources
+} // namespace Lina::Graphics

@@ -58,8 +58,8 @@ namespace Lina::Resources
         s_currentProgressData.m_currentProcessedFiles = 0;
         std::unordered_map<std::string, ResourceType> filledResources;
 
-        m_bundle.LoadResourcesInFolder(m_rootFolder, true);
-        m_bundle.LoadResourcesInFolder(m_rootFolder, false);
+        m_bundle.ScanFileResources(m_rootFolder);
+        m_bundle.LoadAllFileResources();
 
         // Load all editor resources, first only load the shader includes & shaders
         std::vector<ResourceType> excludes;

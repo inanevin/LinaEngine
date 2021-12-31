@@ -58,6 +58,7 @@ namespace Lina::Resources
 
     struct ResourceTypeData
     {
+        int m_loadPriority = 0;
         ResourceCreateFunc       m_createFunc;
         std::vector<std::string> m_associatedExtensions;
     };
@@ -161,13 +162,10 @@ namespace Lina::Resources
         /// <typeparam name="T"></typeparam>
         /// <param name="extensions"></param>
         template <typename T>
-        void RegisterResource(const ResourceTypeData& data, bool isAssetData = false)
+        void RegisterResource(const ResourceTypeData& data)
         {
             TypeID tid           = GetTypeID<T>();
             m_resourceTypes[tid] = data;
-
-            if (isAssetData)
-                m_priorityResourceTypes.push_back(tid);
         }
 
         template <typename T>
@@ -180,13 +178,6 @@ namespace Lina::Resources
         /// Returns the type ID of the resource associated with the given extension.
         /// </summary>
         TypeID GetTypeIDFromExtension(const std::string& extension);
-
-        /// <summary>
-        /// Checks if the given type id is contained within the priority assets type list.
-        /// Priority assets are the ones that needs to be loaded before others, such as Image Asset Data,
-        /// Audio Asset Data, Shader Include etc.
-        /// </summary>
-        bool IsPriorityResource(TypeID tid);
 
         /// <summary>
         /// Returns the binded type data with the resource type.
@@ -210,7 +201,6 @@ namespace Lina::Resources
         static ResourceStorage*                      s_instance;
         std::unordered_map<StringIDType, Cache>      m_resources;
         std::unordered_map<TypeID, ResourceTypeData> m_resourceTypes;
-        std::vector<TypeID>                          m_priorityResourceTypes;
     };
 } // namespace Lina::Resources
 

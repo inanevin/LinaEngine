@@ -266,7 +266,7 @@ namespace Lina::Graphics
         bool visualizeDepth;
     };
 
-    enum MaterialSurfaceType
+    enum class MaterialSurfaceType
     {
         Opaque      = 0,
         Transparent = 1
@@ -432,6 +432,17 @@ namespace Lina::Graphics
         std::vector<float> m_floatElements;
         std::vector<int>   m_intElements;
     };
+
+    /// <summary>
+    /// Used for loading shaders from memory.
+    /// </summary>
+    extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword);
+
+    /// <summary>
+    /// Used for loading shaders from file.
+    /// </summary>
+    extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+
 } // namespace Lina::Graphics
 
 #endif

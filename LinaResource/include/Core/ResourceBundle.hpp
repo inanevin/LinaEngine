@@ -87,9 +87,30 @@ namespace Lina::Resources
         }
     };
 
-    class MemoryMapCompare
+    class FileEntry
     {
     public:
+        FileEntry()  = default;
+        ~FileEntry() = default;
+
+        FileEntry(int priority, Utility::File* file)
+        {
+            m_priority = priority;
+            m_file     = file;
+        }
+
+        Utility::File* m_file     = nullptr;
+        int            m_priority = 100;
+    };
+
+    struct CompareFileEntry
+    {
+        bool operator()(FileEntry const& p1, FileEntry const& p2)
+        {
+            // return "true" if "p1" is ordered
+            // before "p2", for example:
+            return p1.m_priority < p2.m_priority;
+        }
     };
 
     class ResourceBundle
@@ -108,13 +129,16 @@ namespace Lina::Resources
         // Calls LoadResourceFromFile on all resources within the folder.
         void LoadResourcesInFolder(Utility::Folder* root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
-        void LoadResourcesInFolder(Utility::Folder* folder, bool loadAssetDataTypes);
+        void ScanFileResources(Utility::Folder* folder);
+        void LoadAllFileResources();
 
         // Loads given resource from a file path into memory.
         void LoadResourceFromFile(Utility::File* file, ResourceType type);
 
         std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
         std::vector<MemoryEntry>                                                    m_memoryResourcesParams;
+
+        std::priority_queue<FileEntry, std::vector<FileEntry>, CompareFileEntry> m_fileResources;
     };
 } // namespace Lina::Resources
 

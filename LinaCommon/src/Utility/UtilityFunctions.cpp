@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/PlatformMacros.hpp"
 #include "Log/Log.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -311,66 +311,6 @@ namespace Lina
             return subFoldersContain;
         }
 
-        bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap)
-        {
-            std::istringstream iss(output);
-
-            std::stringstream ss;
-
-            for (std::string line; std::getline(iss, line);)
-            {
-                if (line.find(includeKeyword) == std::string::npos)
-                    ss << line << "\n";
-                else
-                {
-                    std::string includeFileName = Split(line, ' ')[1];
-                    includeFileName             = includeFileName.substr(1, includeFileName.length() - 2);
-                    const std::string includeID = GetFileWithoutExtension(GetFileNameOnly(includeFileName));
-                    std::string       toAppend  = includesMap[includeID];
-                    ss << toAppend << "\n";
-                }
-            }
-
-            output = ss.str();
-            return true;
-        }
-
-        bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap)
-        {
-            std::ifstream file;
-            file.open(fileName.c_str());
-            std::string       filePath = GetFilePath(fileName);
-            std::stringstream ss;
-            std::string       line;
-
-            if (file.is_open())
-            {
-                while (file.good())
-                {
-                    getline(file, line);
-
-                    if (line.find(includeKeyword) == std::string::npos)
-                        ss << line << "\n";
-
-                    else
-                    {
-                        std::string includeFileName = Split(line, ' ')[1];
-                        includeFileName             = includeFileName.substr(1, includeFileName.length() - 2);
-                        const std::string includeID = GetFileWithoutExtension(GetFileNameOnly(includeFileName));
-                        std::string       toAppend  = includesMap[includeID];
-                        ss << toAppend << "\n";
-                    }
-                }
-            }
-            else
-            {
-                LINA_ERR("File could not be loaded! {0}", fileName);
-                return false;
-            }
-
-            output = ss.str();
-            return true;
-        }
 
         std::string GetFileContents(const std::string& filePath)
         {

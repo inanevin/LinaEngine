@@ -43,6 +43,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Math/Color.hpp"
+#include "Resources/ResourceHandle.hpp"
 
 #include <cereal/archives/portable_binary.hpp>
 #include <string>
@@ -59,15 +60,12 @@ namespace Lina::World
 {
     struct LevelData
     {
-        std::string m_skyboxMaterialPath    = "";
-        int         m_skyboxMaterialID      = -1;
-        int         m_selectedSkyboxMatID   = -1;
-        std::string m_selectedSkyboxMatPath = "";
+        Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;
         Color       m_ambientColor          = Color(0);
 
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
+            archive(m_skyboxMaterial, m_ambientColor);
         }
     };
 
