@@ -90,7 +90,7 @@ namespace Lina::Resources
         {StringID("spv"), ResourceType::SPIRV},
         {StringID("ttf"), ResourceType::Font},
         {StringID("otf"), ResourceType::Font},
-        {StringID("phymat"), ResourceType::PhysicsMaterial},
+        {StringID("linaphymat"), ResourceType::PhysicsMaterial},
     };
 
     void RegisterUserDefinedResource(const std::string& extension)

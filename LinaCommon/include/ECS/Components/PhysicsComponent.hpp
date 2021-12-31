@@ -39,8 +39,7 @@ Timestamp: 9/30/2020 2:46:27 AM
 #include "Core/CommonPhysics.hpp"
 #include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
-#include "Utility/StringId.hpp"
-
+#include "Resources/ResourceHandle.hpp"
 namespace Lina
 {
     namespace Editor
@@ -50,6 +49,8 @@ namespace Lina
 
     namespace Physics
     {
+        class PhysicsMaterial;
+
 #ifdef LINA_PHYSICS_BULLET
         class BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
@@ -105,18 +106,10 @@ namespace Lina::ECS
         {
             return m_simType;
         }
-        std::string GetMaterialPath()
-        {
-            return m_physicsMaterialPath;
-        }
-        StringIDType GetMaterialID()
-        {
-            return m_physicsMaterialID;
-        }
+        
         StringIDType m_attachedModelID = 0;
 
     private:
-
         friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
@@ -129,17 +122,16 @@ namespace Lina::ECS
         friend class Physics::PhysXPhysicsEngine;
 #endif
 
-        Physics::SimulationType m_simType             = Physics::SimulationType::None;
-        Physics::CollisionShape m_collisionShape      = Physics::CollisionShape::Box;
-        Vector3                 m_halfExtents         = Vector3(0.5f, 0.5f, 0.5f);
-        Vector3                 m_velocity            = Vector3::Zero;
-        Vector3                 m_angularVelocity     = Vector3::Zero;
-        float                   m_mass                = 1.0f;
-        float                   m_radius              = 1.0f;
-        float                   m_capsuleHalfHeight   = 1.0f;
-        bool                    m_isKinematic         = true;
-        std::string             m_physicsMaterialPath = "";
-        StringIDType            m_physicsMaterialID   = 0;
+        Physics::SimulationType                             m_simType           = Physics::SimulationType::None;
+        Physics::CollisionShape                             m_collisionShape    = Physics::CollisionShape::Box;
+        Vector3                                             m_halfExtents       = Vector3(0.5f, 0.5f, 0.5f);
+        Vector3                                             m_velocity          = Vector3::Zero;
+        Vector3                                             m_angularVelocity   = Vector3::Zero;
+        float                                               m_mass              = 1.0f;
+        float                                               m_radius            = 1.0f;
+        float                                               m_capsuleHalfHeight = 1.0f;
+        bool                                                m_isKinematic       = true;
+        Resources::ResourceHandle<Physics::PhysicsMaterial> m_material;
 
         void ResetRuntimeState()
         {
@@ -160,7 +152,7 @@ namespace Lina::ECS
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_collisionShape, m_physicsMaterialPath, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
+            archive(m_collisionShape, m_material, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
         }
     };
 } // namespace Lina::ECS

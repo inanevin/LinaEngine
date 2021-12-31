@@ -27,6 +27,7 @@ set (LINAAUDIO_SOURCES
 
 	# Audio
 	src/Audio/Audio.cpp
+	src/Audio/AudioAssetData.cpp
 
 )
 

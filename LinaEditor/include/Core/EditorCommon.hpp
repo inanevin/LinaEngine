@@ -42,6 +42,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 #include "Core/CommonECS.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Log/Log.hpp"
+#include "Utility/StringId.hpp"
 
 #include <string>
 
@@ -106,8 +107,8 @@ namespace Lina::Editor
     };
     struct EComponentOrderSwapped
     {
-        ECS::TypeID m_id1;
-        ECS::TypeID m_id2;
+        TypeID m_id1;
+        TypeID m_id2;
     };
     struct EShortcut
     {

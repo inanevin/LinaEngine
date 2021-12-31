@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Math/Quaternion.hpp"
 #include "Physics/PhysicsMaterial.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"
@@ -203,10 +204,10 @@ namespace Lina::Editor
         // Draw a small colored rect indicating resource type.
         if (type != Resources::ResourceType::Folder)
         {
-            const ImVec2 extRectMin = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
-            const ImVec2 extRectMax = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
-            const Color extColorLina = Resources::GetResourceTypeColor(type);
-            const ImVec4 extColor   = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
+            const ImVec2 extRectMin   = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
+            const ImVec2 extRectMax   = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
+            const Color  extColorLina = Resources::GetResourceTypeColor(type);
+            const ImVec4 extColor     = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
             ImGui::GetWindowDrawList()->AddRectFilled(extRectMin, extRectMax, ImGui::ColorConvertFloat4ToU32(extColor), 2.0f, ImDrawFlags_RoundCornersTop);
         }
 
@@ -430,7 +431,7 @@ namespace Lina::Editor
         WindowButtons(label, 5.0f);
     }
 
-    bool WidgetsUtility::ComponentHeader(ECS::TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
+    bool WidgetsUtility::ComponentHeader(TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
     {
         const ImVec2 cursorPos  = ImGui::GetCursorPos();
         const ImVec2 windowPos  = ImGui::GetWindowPos();
@@ -481,8 +482,8 @@ namespace Lina::Editor
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
             {
-                IM_ASSERT(payload->DataSize == sizeof(ECS::TypeID));
-                ECS::TypeID payloadID = *(const ECS::TypeID*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(TypeID));
+                TypeID payloadID = *(const TypeID*)payload->Data;
                 Event::EventSystem::Get()->Trigger<EComponentOrderSwapped>(EComponentOrderSwapped{payloadID, tid});
             }
 
@@ -811,34 +812,29 @@ namespace Lina::Editor
 
     Physics::PhysicsMaterial* Editor::WidgetsUtility::PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
     {
+        auto*                     storage          = Resources::ResourceStorage::Get();
         Physics::PhysicsMaterial* materialToReturn = nullptr;
-
-        std::string materialLabel = "";
-        if (Physics::PhysicsMaterial::MaterialExists(currentPath))
+        std::string               materialLabel    = "";
+        if (storage->Exists<Physics::PhysicsMaterial>(currentPath))
         {
             materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
         }
 
-        static float w = 0.0f;
-
-        if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_Q))
-            w += 0.01f;
-        if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_E))
-            w -= 0.01f;
-
         if (BeginComboBox(comboID, materialLabel.c_str(), true))
         {
-            auto& loadedMaterials = Physics::PhysicsMaterial::GetLoadedMaterials();
+            auto* storage = Resources::ResourceStorage::Get();
+            auto& cache   = storage->GetCache<Physics::PhysicsMaterial>();
 
-            for (auto& material : loadedMaterials)
+            for (const auto& p : cache)
             {
-                const bool selected = currentPath == material.second.GetPath();
+                auto*      material = storage->GetResource<Physics::PhysicsMaterial>(p.first);
+                const bool selected = currentPath == material->GetPath();
 
-                std::string label = material.second.GetPath();
+                std::string label = material->GetPath();
                 label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
                 if (ImGui::Selectable(label.c_str(), selected))
                 {
-                    materialToReturn = &material.second;
+                    materialToReturn = material;
                 }
 
                 if (selected)

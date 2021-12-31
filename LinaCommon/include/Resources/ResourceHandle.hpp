@@ -40,21 +40,24 @@ Timestamp: 12/30/2021 9:37:53 PM
 #define ResourceHandle_HPP
 
 // Headers here.
+#include <Utility/StringId.hpp>
 
-
-namespace Lina
+namespace Lina::Resources
 {
-	class ResourceHandle
-	{
-		
-	public:
-		
-		ResourceHandle();
-		~ResourceHandle();
-	
-	private:
-	
-	};
-}
+    template <typename T>
+    class ResourceHandle
+    {
+    public:
+        StringIDType m_sid;
+        T*           m_value = nullptr;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_sid);
+        }
+    };
+
+} // namespace Lina::Resources
 
 #endif

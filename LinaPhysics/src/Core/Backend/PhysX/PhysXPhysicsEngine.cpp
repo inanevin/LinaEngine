@@ -38,9 +38,9 @@ SOFTWARE.
 #include "EventSystem/EntityEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Physics/Raycast.hpp"
-
 #include <PxPhysicsAPI.h>
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
@@ -129,8 +129,6 @@ namespace Lina::Physics
         m_eventSystem = Event::EventSystem::Get();
         m_eventSystem->Connect<Event::EPostSceneDraw, &PhysXPhysicsEngine::OnPostSceneDraw>(this);
         m_eventSystem->Connect<Event::ELevelInitialized, &PhysXPhysicsEngine::OnLevelInitialized>(this);
-        m_eventSystem->Connect<Event::ELoadResourceFromFile, &PhysXPhysicsEngine::OnResourceLoadedFromFile>(this);
-        m_eventSystem->Connect<Event::ELoadResourceFromMemory, &PhysXPhysicsEngine::OnResourceLoadedFromMemory>(this);
         m_eventSystem->Connect<Event::EEntityEnabledChanged, &PhysXPhysicsEngine::OnEntityEnabledChanged>(this);
 
         m_cooker.Initialize(m_appMode, m_pxFoundation);
@@ -203,12 +201,12 @@ namespace Lina::Physics
 
         PxMaterial* mat = nullptr;
 
-        if (m_materials.find(phy.GetMaterialID()) != m_materials.end())
-            mat = m_materials[phy.GetMaterialID()];
+        if (m_materials.find(phy.m_material.m_sid) != m_materials.end())
+            mat = m_materials[phy.m_material.m_sid];
         else
         {
-            auto& phyMat                     = PhysicsMaterial::GetMaterial(phy.GetMaterialID());
-            m_materials[phy.GetMaterialID()] = m_pxPhysics->createMaterial(phyMat.m_staticFriction, phyMat.m_dynamicFriction, phyMat.m_restitution);
+            auto* mat                         = phy.m_material.m_value;
+            m_materials[phy.m_material.m_sid] = m_pxPhysics->createMaterial(mat->m_staticFriction, mat->m_dynamicFriction, mat->m_restitution);
         }
 
         LINA_ASSERT(mat != nullptr, "Physics material is null!");
@@ -259,7 +257,7 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)
     {
-        StringIDType sid = mat.GetID();
+        StringIDType sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -268,7 +266,7 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction)
     {
-        StringIDType sid = mat.GetID();
+        StringIDType sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -277,7 +275,7 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::SetMaterialRestitution(PhysicsMaterial& mat, float restitution)
     {
-        StringIDType sid = mat.GetID();
+        StringIDType sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -342,20 +340,22 @@ namespace Lina::Physics
             PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)m_actors[body], phy.m_mass);
     }
 
-    void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& material)
+    void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, PhysicsMaterial* material)
     {
+        if (!IsEntityAPhysicsActor(body)) return;
+
         auto& phy                 = m_ecs->get<ECS::PhysicsComponent>(body);
-        phy.m_physicsMaterialID   = material.m_materialID;
-        phy.m_physicsMaterialPath = material.m_path;
+        phy.m_material.m_sid   = material->GetSID();
+        phy.m_material.m_value = material;
 
         PxMaterial* pxMaterial = nullptr;
         m_shapes[body]->getMaterials(&pxMaterial, 1);
 
         if (pxMaterial == nullptr)
             return;
-        pxMaterial->setStaticFriction(material.m_staticFriction);
-        pxMaterial->setDynamicFriction(material.m_dynamicFriction);
-        pxMaterial->setRestitution(material.m_restitution);
+        pxMaterial->setStaticFriction(material->m_staticFriction);
+        pxMaterial->setDynamicFriction(material->m_dynamicFriction);
+        pxMaterial->setRestitution(material->m_restitution);
     }
 
     void PhysXPhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
@@ -385,11 +385,10 @@ namespace Lina::Physics
         if (phy == nullptr)
             return;
 
-        if (phy->m_physicsMaterialPath.compare("") == 0)
+        if (phy->m_material.m_value == nullptr)
         {
-            Physics::PhysicsMaterial& mat = Physics::PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
-            phy->m_physicsMaterialID      = mat.GetID();
-            phy->m_physicsMaterialPath    = mat.GetPath();
+            phy->m_material.m_value    = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+            phy->m_material.m_sid      = phy->m_material.m_value->GetSID();
         }
 
         auto* data = m_ecs->try_get<ECS::EntityDataComponent>(ent);
@@ -485,32 +484,13 @@ namespace Lina::Physics
         }
     }
 
-    void PhysXPhysicsEngine::OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev)
-    {
-        if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
-        {
-            LINA_TRACE("[Physics Loader] -> Loading (file): {0}", ev.m_path);
-            auto& mat                = PhysicsMaterial::LoadMaterialFromFile(ev.m_path);
-            m_materials[mat.GetID()] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
-        }
-    }
-
-    void PhysXPhysicsEngine::OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev)
-    {
-        if (ev.m_resourceType == Resources::ResourceType::PhysicsMaterial)
-        {
-            LINA_TRACE("[Physics Loader] -> Loading (memory): {0}", ev.m_path);
-            auto& mat                = PhysicsMaterial::LoadMaterialFromMemory(ev.m_path, ev.m_data, ev.m_dataSize);
-            m_materials[mat.GetID()] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
-        }
-    }
-
     void PhysXPhysicsEngine::OnLevelInitialized(const Event::ELevelInitialized& ev)
     {
-        auto& physicsMat = PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
-        m_pxDefaultMaterial->setStaticFriction(physicsMat.m_staticFriction);
-        m_pxDefaultMaterial->setDynamicFriction(physicsMat.m_dynamicFriction);
-        m_pxDefaultMaterial->setRestitution(physicsMat.m_restitution);
+
+        auto* physicsMat = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+        m_pxDefaultMaterial->setStaticFriction(physicsMat->m_staticFriction);
+        m_pxDefaultMaterial->setDynamicFriction(physicsMat->m_dynamicFriction);
+        m_pxDefaultMaterial->setRestitution(physicsMat->m_restitution);
 
         auto view = m_ecs->view<ECS::PhysicsComponent>();
 

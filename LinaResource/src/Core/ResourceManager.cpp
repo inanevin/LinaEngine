@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/ResourceManager.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
@@ -57,6 +57,9 @@ namespace Lina::Resources
         s_currentProgressData.m_state                 = ResourceProgressState::InProgress;
         s_currentProgressData.m_currentProcessedFiles = 0;
         std::unordered_map<std::string, ResourceType> filledResources;
+
+        m_bundle.LoadResourcesInFolder(m_rootFolder, true);
+        m_bundle.LoadResourcesInFolder(m_rootFolder, false);
 
         // Load all editor resources, first only load the shader includes & shaders
         std::vector<ResourceType> excludes;

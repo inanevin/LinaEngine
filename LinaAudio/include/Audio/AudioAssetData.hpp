@@ -39,7 +39,6 @@ Timestamp: 12/30/2021 10:04:49 PM
 #ifndef AudioAssetData_HPP
 #define AudioAssetData_HPP
 
-// Headers here.
 #include "Resources/IResource.hpp"
 
 namespace Lina::Audio
@@ -48,8 +47,11 @@ namespace Lina::Audio
     {
 
     public:
-        AudioAssetData()  = default;
+        AudioAssetData()          = default;
         virtual ~AudioAssetData() = default;
+
+        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const std::string& path) override;
 
         int m_dummy = 0;
 

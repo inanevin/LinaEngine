@@ -1,6 +1,6 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/Lina
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,34 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: StringId
-
-
-Timestamp: 12/19/2020 3:11:17 AM
-*/
-
-#pragma once
-
-#ifndef StringId_HPP
-#define StringId_HPP
-
-// Headers here.
-#include <entt/entt.hpp>
-
-namespace Lina
+#include "Audio/AudioAssetData.hpp"
+#include "Core/CommonResources.hpp"
+namespace Lina::Audio
 {
-    typedef entt::hashed_string::hash_type StringIDType;
-    typedef entt::hashed_string            StringID;
-    typedef entt::id_type                  TypeID;
-
-#define SID_EMPTY StringID("")
-
-    template <typename T>
-    TypeID GetTypeID()
+    void* AudioAssetData::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        return entt::type_hash<T>::value();
+        *this = Resources::LoadArchiveFromMemory<AudioAssetData>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
     }
-} // namespace Lina
 
-#endif
+    void* AudioAssetData::LoadFromFile(const std::string& path)
+    {
+        *this = Resources::LoadArchiveFromFile<AudioAssetData>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+
+} // namespace Lina::Audio

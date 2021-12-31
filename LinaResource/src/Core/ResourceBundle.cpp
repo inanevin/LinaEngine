@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/ResourceBundle.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include "Core/ResourceManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
@@ -136,6 +136,31 @@ namespace Lina::Resources
             ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
             ResourceManager::TriggerResourceUpdatedEvent();
             LoadResourceFromFile(file, resType);
+        }
+    }
+
+    void ResourceBundle::LoadResourcesInFolder(Utility::Folder* folder, bool loadAssetDataTypes)
+    {
+        // Recursively load children.
+        for (auto* folder : folder->m_folders)
+            LoadResourcesInFolder(folder, loadAssetDataTypes);
+
+        auto* storage = ResourceStorage::Get();
+
+        for (auto* file : folder->m_files)
+        {
+            TypeID tid = storage->GetTypeIDFromExtension(file->m_extension);
+
+            if (tid != -1)
+            {
+                if (!loadAssetDataTypes || (loadAssetDataTypes && storage->IsPriorityResource(tid)))
+                {
+                    auto& typeData       = storage->GetTypeData(tid);
+                    IResource* res = typeData.m_createFunc();
+                    void* loadedResource = res->LoadFromFile(file->m_fullPath);
+                    storage->Add(loadedResource, tid, StringID(file->m_fullPath.c_str()).value());
+                }
+            }
         }
     }
 

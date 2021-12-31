@@ -41,8 +41,11 @@ Timestamp: 12/30/2021 9:37:39 PM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+#include "Core/CommonResources.hpp"
 #include "Log/Log.hpp"
+#include "Resources/IResource.hpp"
 #include <unordered_map>
+#include <vector>
 
 namespace Lina
 {
@@ -52,6 +55,12 @@ namespace Lina
 namespace Lina::Resources
 {
     typedef std::unordered_map<StringIDType, void*> Cache;
+
+    struct ResourceTypeData
+    {
+        ResourceCreateFunc       m_createFunc;
+        std::vector<std::string> m_associatedExtensions;
+    };
 
     class ResourceStorage
     {
@@ -68,30 +77,48 @@ namespace Lina::Resources
         template <typename T>
         bool Exists(StringIDType sid)
         {
-            auto& cache = m_resources[TypeID<T>()];
+            auto& cache = m_resources[GetTypeID<T>()];
             return cache.find(sid) != cache.end();
         }
 
         /// <summary>
-        /// Returns the resource with the given type and string ID. Will uninitialized ptr if doesn't exist.
+        /// Returns true if the given path's string ID exists in the cache for the type T.
+        /// </summary>
+        template <typename T>
+        bool Exists(const std::string& path)
+        {
+            return Exists<T>(StringID(path.c_str()).value());
+        }
+
+        /// <summary>
+        /// Returns the resource with the given type and string ID. Will return uninitialized ptr if doesn't exist.
         /// If you are not sure about the resource's existance, use Exists() method first.
         /// </summary>
         template <typename T>
-        T* Get(StringIDType sid)
+        T* GetResource(StringIDType sid)
         {
-            auto& cache = m_resources[TypeID<T>()];
+            auto& cache = m_resources[GetTypeID<T>()];
             return (T*)cache[sid];
+        }
+
+        /// <summary>
+        /// Returns the resource with the given type and path. Will return uninitialized ptr if doesn't exist.
+        /// If you are not sure about the resource's existance, use Exists() method first.
+        /// </summary>
+        template <typename T>
+        T* GetResource(const std::string& path)
+        {
+            return GetResource<T>(StringID(path.c_str()).value());
         }
 
         /// <summary>
         /// Adds the given resources to it's respective cache, once added you don't have to manage the resource's lifetime
         /// as it will be managed by the storage object.
         /// </summary>
-        template <typename T>
-        void Add(T* resource, StringIDType sid)
+        void Add(void* resource, TypeID tid, StringIDType sid)
         {
-            auto& cache = m_resources[TypeID<T>()];
-            cache[sid]  = (void*)resource;
+            auto& cache = m_resources[tid];
+            cache[sid]  = resource;
         }
 
         /// <summary>
@@ -102,7 +129,7 @@ namespace Lina::Resources
         template <typename T>
         void Unload(StringIDType sid)
         {
-            auto& cache = m_resources[TypeID<T>()];
+            auto& cache = m_resources[GetTypeID<T>()];
 
             if (!Exists<T>(sid))
             {
@@ -115,22 +142,75 @@ namespace Lina::Resources
             cache.erase(sid);
         }
 
+        /// <summary>
+        /// Unloads the resource from the type T cache, also deletes the underlying pointer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sid"></param>
+        template <typename T>
+        void Unload(const std::string& path)
+        {
+            Unload<T>(StringID(path.c_str()).value());
+        }
 
+        /// <summary>
+        /// Registering a resource will allow the ResourceManager to load & save the resource during editor, run-time and
+        /// packaging processes. Resource Manager will pick-up the resource type from type ID and associate it with the given
+        /// extensions.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="extensions"></param>
+        template <typename T>
+        void RegisterResource(const ResourceTypeData& data, bool isAssetData = false)
+        {
+            TypeID tid           = GetTypeID<T>();
+            m_resourceTypes[tid] = data;
 
-    private:
-        friend class Engine;
-        ResourceStorage()  = default;
-        ~ResourceStorage() = default;
+            if (isAssetData)
+                m_priorityResourceTypes.push_back(tid);
+        }
 
         template <typename T>
-        void TypeID()
+        const Cache& GetCache() const
         {
-            return entt::type_hash<T>::value();
+            return m_resources.at(GetTypeID<T>());
+        }
+
+        /// <summary>
+        /// Returns the type ID of the resource associated with the given extension.
+        /// </summary>
+        TypeID GetTypeIDFromExtension(const std::string& extension);
+
+        /// <summary>
+        /// Checks if the given type id is contained within the priority assets type list.
+        /// Priority assets are the ones that needs to be loaded before others, such as Image Asset Data,
+        /// Audio Asset Data, Shader Include etc.
+        /// </summary>
+        bool IsPriorityResource(TypeID tid);
+
+        /// <summary>
+        /// Returns the binded type data with the resource type.
+        /// </summary>
+        inline ResourceTypeData& GetTypeData(TypeID tid)
+        {
+            return m_resourceTypes[tid];
+        }
+
+        inline const std::unordered_map<TypeID, ResourceTypeData>& GetResourceTypes() const
+        {
+            return m_resourceTypes;
         }
 
     private:
-        static ResourceStorage*                 s_instance;
-        std::unordered_map<StringIDType, Cache> m_resources;
+        friend class Engine;
+        ResourceStorage() = default;
+        ~ResourceStorage();
+
+    private:
+        static ResourceStorage*                      s_instance;
+        std::unordered_map<StringIDType, Cache>      m_resources;
+        std::unordered_map<TypeID, ResourceTypeData> m_resourceTypes;
+        std::vector<TypeID>                          m_priorityResourceTypes;
     };
 } // namespace Lina::Resources
 

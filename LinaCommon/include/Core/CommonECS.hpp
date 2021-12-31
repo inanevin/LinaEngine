@@ -49,14 +49,9 @@ namespace Lina::ECS
 #define ECSNULL entt::null
 
     typedef entt::entity                                                                      Entity;
-    typedef entt::id_type                                                                     TypeID;
     typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)>       ComponentSerializeFunction;
     typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
 
-    template <typename T> TypeID GetTypeID()
-    {
-        return entt::type_hash<T>::value();
-    }
 } // namespace Lina::ECS
 
 #endif

@@ -77,15 +77,13 @@ namespace Lina::Audio
     class OpenALAudioEngine
     {
     public:
-        void                      PlayOneShot(Audio& audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
+        void                      PlayOneShot(Audio* audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
         static OpenALAudioEngine* Get()
         {
             return s_audioEngine;
         }
 
     private:
-        void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& ev);
-        void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& ev);
         void ListAudioDevices(const char* type, const char* list);
 
     private:

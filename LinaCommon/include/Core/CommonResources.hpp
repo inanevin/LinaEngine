@@ -45,6 +45,8 @@ Timestamp: 12/25/2021 11:44:29 AM
 
 #include <string>
 #include <unordered_map>
+#include <functional>
+#include <cereal/archives/portable_binary.hpp>
 
 namespace Lina::Resources
 {
@@ -101,6 +103,7 @@ namespace Lina::Resources
     extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;
     extern ResourceType                                   GetResourceType(const std::string& extension);
     extern Color                                          GetResourceTypeColor(ResourceType type);
+
 } // namespace Lina::Resources
 
 #endif

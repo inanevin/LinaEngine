@@ -43,6 +43,11 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/Material.hpp"
+#include "Physics/PhysicsMaterial.hpp"
+#include "Audio/Audio.hpp"
+#include "Rendering/Shader.hpp"
 
 namespace Lina
 {
@@ -90,7 +95,9 @@ namespace Lina
         Audio::AudioEngineBackend::s_audioEngine       = &m_audioEngine;
         Resources::ResourceStorage::s_instance         = &m_resourceStorage;
         m_appInfo                                      = appInfo;
-        
+
+        RegisterResourceTypes();
+
         m_eventSystem.Initialize();
         m_inputEngine.Initialize();
         m_resourceManager.Initialize(m_appInfo);
@@ -141,7 +148,9 @@ namespace Lina
         m_isInPlayMode = true;
 
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
-            m_audioEngine.PlayOneShot(Audio::Audio::GetAudio("Resources/Editor/Audio/LinaStartup.wav"));
+        {
+            m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
+        }
     }
 
     void Engine::Run()
@@ -294,49 +303,67 @@ namespace Lina
         if (outlierIndex != -1)
             m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
     }
-    double Engine::SmoothDeltaTime(double dt)
+    void Engine::RegisterResourceTypes()
     {
+        m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
+            Resources::ResourceTypeData{
+                std::bind(Resources::CreateResource<Audio::AudioAssetData>),
+                std::vector<std::string>{"linaaudiodata"}},
+            true);
 
-        if (m_deltaFirstFill < DELTA_TIME_HISTORY)
-        {
-            m_deltaFirstFill++;
-        }
-        else if (!m_deltaFilled)
-            m_deltaFilled = true;
+        m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
+            std::bind(Resources::CreateResource<Audio::Audio>),
+            std::vector<std::string>{"wav", "mp3"}});
 
-        m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
-        m_deltaTimeArrOffset++;
+        m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
+            std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
+            std::vector<std::string>{"linaphymat"},
+            });
+}
 
-        if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
-            m_deltaTimeArrOffset = 0;
+double Engine::SmoothDeltaTime(double dt)
+{
 
-        if (!m_deltaFilled)
-            return dt;
-
-        // Remove the biggest & smalles 2 deltas.
-        RemoveOutliers(true);
-        RemoveOutliers(true);
-        RemoveOutliers(false);
-        RemoveOutliers(false);
-
-        double avg   = 0.0;
-        int    index = 0;
-        for (double d : m_deltaTimeArray)
-        {
-            if (d < 0.0)
-            {
-                m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
-                index++;
-                continue;
-            }
-
-            avg += d;
-            index++;
-        }
-
-        avg /= DELTA_TIME_HISTORY - 4;
-
-        return avg;
+    if (m_deltaFirstFill < DELTA_TIME_HISTORY)
+    {
+        m_deltaFirstFill++;
     }
+    else if (!m_deltaFilled)
+        m_deltaFilled = true;
+
+    m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
+    m_deltaTimeArrOffset++;
+
+    if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
+        m_deltaTimeArrOffset = 0;
+
+    if (!m_deltaFilled)
+        return dt;
+
+    // Remove the biggest & smalles 2 deltas.
+    RemoveOutliers(true);
+    RemoveOutliers(true);
+    RemoveOutliers(false);
+    RemoveOutliers(false);
+
+    double avg   = 0.0;
+    int    index = 0;
+    for (double d : m_deltaTimeArray)
+    {
+        if (d < 0.0)
+        {
+            m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
+            index++;
+            continue;
+        }
+
+        avg += d;
+        index++;
+    }
+
+    avg /= DELTA_TIME_HISTORY - 4;
+
+    return avg;
+}
 
 } // namespace Lina

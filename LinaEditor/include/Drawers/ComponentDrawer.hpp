@@ -39,9 +39,8 @@ Timestamp: 10/13/2020 2:34:21 PM
 #define ComponentDrawer_HPP
 
 #include "Core/CommonECS.hpp"
+#include "Utility/StringId.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "imgui/imgui.h"
-
 #include <entt/core/hashed_string.hpp>
 #include <entt/meta/factory.hpp>
 #include <entt/meta/meta.hpp>
@@ -56,7 +55,7 @@ namespace Lina::Editor
     struct ETransformPivotChanged;
     struct EComponentOrderSwapped;
 
-    typedef std::map<std::string, std::vector<std::pair<std::string, ECS::TypeID>>> AddComponentMap;
+    typedef std::map<std::string, std::vector<std::pair<std::string, TypeID>>> AddComponentMap;
     using namespace entt::literals;
 
 #define PROPS(LABEL, TYPE, TOOLTIP)                        std::make_pair("Label"_hs, LABEL), std::make_pair("Type"_hs, TYPE), std::make_pair("Tooltip"_hs, TOOLTIP)
@@ -97,17 +96,17 @@ namespace Lina::Editor
         ~ComponentDrawer() = default;
 
         void Initialize();
-        void SwapComponentOrder(ECS::TypeID id1, ECS::TypeID id2);
-        void AddIDToDrawList(ECS::TypeID id);
+        void SwapComponentOrder(TypeID id1, TypeID id2);
+        void AddIDToDrawList(TypeID id);
         void ClearDrawList();
 
         AddComponentMap GetCurrentAddComponentMap(ECS::Entity entity);
 
-        void PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent);
+        void PushComponentToDraw(TypeID tid, ECS::Entity ent);
         void DrawAllComponents(ECS::Entity ent);
 
         void DrawEntityData(ECS::Entity ent, bool* transformDataOpen, bool* physicsDataOpen);
-        void DrawComponent(ECS::TypeID tid, ECS::Entity ent);
+        void DrawComponent(TypeID tid, ECS::Entity ent);
 
     public:
         // Selected colilsion shape in editor.
@@ -116,7 +115,8 @@ namespace Lina::Editor
     private:
         void OnTransformPivotChanged(const ETransformPivotChanged& ev);
 
-        template <typename Type> void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false, bool addDrawDebug = false)
+        template <typename Type>
+        void RegisterComponentForEditor(char* title, char* icon, uint8 drawFlags, std::string category = "Default", bool canAddComponent = true, bool addValueChanged = false, bool addDrawDebug = false)
         {
             entt::meta<Type>().type().props(std::make_pair("Foldout"_hs, true), std::make_pair("Title"_hs, title), std::make_pair("Icon"_hs, icon), std::make_pair("DrawFlags"_hs, drawFlags), std::make_pair("Category"_hs, category));
             entt::meta<Type>().func<&Drawer_SetEnabled<Type>, entt::as_void_t>("setEnabled"_hs);
@@ -130,7 +130,7 @@ namespace Lina::Editor
             if (canAddComponent)
             {
                 entt::meta<Type>().func<&Drawer_Add<Type>, entt::as_void_t>("add"_hs);
-                m_addComponentMap[category].push_back(std::make_pair<std::string, ECS::TypeID>(std::string(title), ECS::GetTypeID<Type>()));
+                m_addComponentMap[category].push_back(std::make_pair<std::string, TypeID>(std::string(title), GetTypeID<Type>()));
             }
 
             if (addValueChanged)
@@ -147,10 +147,10 @@ namespace Lina::Editor
         void OnComponentOrderSwapped(const EComponentOrderSwapped& ev);
 
     private:
-        AddComponentMap                                    m_addComponentMap; // Category - vector of pairs - pair.first = component title, pair.second component id.
-        std::map<ECS::Entity, std::map<ECS::TypeID, bool>> m_foldoutStateMap;
-        std::vector<ECS::TypeID>                           m_componentDrawList;
-        bool                                               m_isTransformPivotGlobal = true;
+        AddComponentMap                               m_addComponentMap; // Category - vector of pairs - pair.first = component title, pair.second component id.
+        std::map<ECS::Entity, std::map<TypeID, bool>> m_foldoutStateMap;
+        std::vector<TypeID>                           m_componentDrawList;
+        bool                                          m_isTransformPivotGlobal = true;
     };
 
 } // namespace Lina::Editor

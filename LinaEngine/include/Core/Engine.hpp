@@ -130,6 +130,7 @@ namespace Lina
         void   UpdateGame(float deltaTime);
         void   DisplayGame(float interpolation);
         void   RemoveOutliers(bool biggest);
+        void   RegisterResourceTypes();
         double SmoothDeltaTime(double dt);
 
     private:

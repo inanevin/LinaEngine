@@ -40,7 +40,7 @@ Timestamp: 12/20/2021 10:16:40 PM
 #define PhysicsMaterial_HPP
 
 #include "Utility/StringId.hpp"
-
+#include "Resources/IResource.hpp"
 #include <cereal/types/string.hpp>
 
 namespace Lina::Editor
@@ -57,37 +57,16 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Physics
 {
-    class PhysicsMaterial
+    class PhysicsMaterial : public Resources::IResource
     {
 
     public:
-        PhysicsMaterial() = default;
+        PhysicsMaterial()  = default;
         ~PhysicsMaterial() = default;
 
-        static PhysicsMaterial&                         CreateMaterial(const std::string& name, float staticFriction, float dynamicFriction, float restitution);
-        static PhysicsMaterial&                         LoadMaterialFromFile(const std::string& path = "");
-        static PhysicsMaterial&                         LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
-        static PhysicsMaterial&                         GetMaterial(StringIDType id);
-        static PhysicsMaterial&                         GetMaterial(const std::string& path);
-        static bool                                     MaterialExists(StringIDType id);
-        static bool                                     MaterialExists(const std::string& path);
-        static void                                     UnloadMaterialResource(StringIDType id);
-        static void                                     LoadMaterialData(PhysicsMaterial& mat, const std::string& path);
-        static void                                     SaveMaterialData(const PhysicsMaterial& mat, const std::string& path);
-        static void                                     UnloadAll();
-        static std::map<StringIDType, PhysicsMaterial>& GetLoadedMaterials()
-        {
-            return s_loadedMaterials;
-        }
+        virtual void*            LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void*            LoadFromFile(const std::string& path) override;
 
-        StringIDType GetID()
-        {
-            return m_materialID;
-        }
-        std::string GetPath()
-        {
-            return m_path;
-        }
         float GetStaticFriction()
         {
             return m_staticFriction;
@@ -102,7 +81,6 @@ namespace Lina::Physics
         }
 
     private:
-        static std::map<StringIDType, PhysicsMaterial> s_loadedMaterials;
         friend class cereal::access;
         friend class World::Level;
 
@@ -112,13 +90,12 @@ namespace Lina::Physics
         friend class PhysXPhysicsEngine;
 #endif
 
-        StringIDType m_materialID      = -1;
-        std::string  m_path            = "";
-        float        m_staticFriction  = 0.5f;
-        float        m_dynamicFriction = 0.5f;
-        float        m_restitution     = 0.5f;
+        float m_staticFriction  = 0.5f;
+        float m_dynamicFriction = 0.5f;
+        float m_restitution     = 0.5f;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_staticFriction, m_dynamicFriction, m_restitution);
         }

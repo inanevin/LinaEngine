@@ -37,7 +37,7 @@ SOFTWARE.
 #include "ECS/Registry.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 #include <stdio.h>
@@ -157,16 +157,16 @@ namespace Lina::World
         {
             ECS::PhysicsComponent& phy = viewPhysics.get<ECS::PhysicsComponent>(entity);
 
-            if (Physics::PhysicsMaterial::MaterialExists(phy.GetMaterialPath()))
+            auto* storage = Resources::ResourceStorage::Get();
+            if (storage->Exists<Physics::PhysicsMaterial>(phy.m_material.m_sid))
             {
-                Physics::PhysicsMaterial& mat = Physics::PhysicsMaterial::GetMaterial(phy.GetMaterialPath());
-                phy.m_physicsMaterialID       = mat.GetID();
+                phy.m_material.m_value = storage->GetResource<Physics::PhysicsMaterial>(phy.m_material.m_sid);
             }
             else
             {
-                Physics::PhysicsMaterial& mat = Physics::PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
-                phy.m_physicsMaterialID       = mat.GetID();
-                phy.m_physicsMaterialPath     = mat.GetPath();
+                Physics::PhysicsMaterial* mat = storage->GetResource<Physics::PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+                phy.m_material.m_value        = mat;
+                phy.m_material.m_sid          = mat->GetSID();
             }
         }
 

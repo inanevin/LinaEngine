@@ -30,5 +30,54 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-	ResourceStorage* ResourceStorage::s_instance = nullptr;
-}
+    ResourceStorage* ResourceStorage::s_instance = nullptr;
+
+    ResourceStorage::~ResourceStorage()
+    {
+        for (auto& p : m_resources)
+        {
+            for (auto& rp : p.second)
+                delete rp.second;
+
+            p.second.clear();
+        }
+
+        m_resources.clear();
+    }
+    TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)
+    {
+        bool   found = false;
+        TypeID tid   = -1;
+
+        for (auto& p : m_resourceTypes)
+        {
+            auto& extensions = p.second.m_associatedExtensions;
+
+            for (int i = 0; i < extensions.size(); i++)
+            {
+                if (extensions[i].compare(extension) == 0)
+                {
+                    tid   = p.first;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found)
+                break;
+        }
+
+        return tid;
+    }
+
+    bool ResourceStorage::IsPriorityResource(TypeID tid)
+    {
+        for (int i = 0; i < m_priorityResourceTypes.size(); i++)
+        {
+            if (m_priorityResourceTypes[i] == tid)
+                return true;
+        }
+
+        return false;
+    }
+} // namespace Lina::Resources

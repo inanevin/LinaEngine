@@ -108,6 +108,8 @@ namespace Lina::Resources
         // Calls LoadResourceFromFile on all resources within the folder.
         void LoadResourcesInFolder(Utility::Folder* root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
+        void LoadResourcesInFolder(Utility::Folder* folder, bool loadAssetDataTypes);
+
         // Loads given resource from a file path into memory.
         void LoadResourceFromFile(Utility::File* file, ResourceType type);
 

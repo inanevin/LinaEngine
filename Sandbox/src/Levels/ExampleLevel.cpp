@@ -70,6 +70,11 @@ void ExampleLevel::Initialize()
     // auto entity = ECS::Registry::Get()->GetEntity("Entity");
     // ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
     // mr.SetModel(entity, Graphics::Model::GetModel("Resources/SandboxTarget/RicochetTarget.fbx"));
+
+    Physics::PhysicsMaterial* mat = new Physics::PhysicsMaterial();
+    mat->SetSID("Resources/Engine/Physics/Materials/NewMat.phymat");
+    Resources::SaveArchiveToFile(mat->GetPath(), *mat);
+    Resources::ResourceStorage::Get()->Add((void*)mat, GetTypeID<Physics::PhysicsMaterial>(), mat->GetSID());
 }
 
 void ExampleLevel::Tick(const Event::ETick& ev)

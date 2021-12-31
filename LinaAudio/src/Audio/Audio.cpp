@@ -27,8 +27,9 @@ SOFTWARE.
 */
 
 #include "Audio/Audio.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include "Log/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -38,51 +39,14 @@ SOFTWARE.
 
 namespace Lina::Audio
 {
-    std::map<StringIDType, Audio> Audio::s_loadedAudios;
-
     Audio::~Audio()
     {
         alDeleteBuffers(1, &m_buffer);
     }
 
-    AudioAssetData Audio::LoadAssetData(const std::string& path)
+    void* Audio::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        AudioAssetData params;
-        std::ifstream  stream(path);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(params);
-        }
-        return params;
-    }
-
-    void Audio::SaveAssetData(const std::string& path, AudioAssetData assetData)
-    {
-        std::ofstream stream(path);
-        {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(assetData);
-        }
-    }
-
-    AudioAssetData Audio::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
-    {
-        AudioAssetData params;
-
-        {
-            std::string        data((char*)data, dataSize);
-            std::istringstream stream(data);
-            {
-                cereal::PortableBinaryInputArchive iarchive(stream);
-                iarchive(params);
-            }
-        }
-
-        return params;
-    }
-
-    Audio& Audio::CreateAudioFromMemory(const std::string& path, unsigned char* data, size_t dataSize, AudioAssetData& assetData)
-    {
+        LINA_TRACE("[Audio Loader - Memory] -> Loading: {0}", path);
         ALsizei size;
         ALfloat freq;
         ALenum  format;
@@ -92,27 +56,43 @@ namespace Lina::Audio
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
 
         StringIDType sid = StringID(path.c_str()).value();
-        Audio&       aud = s_loadedAudios[sid];
-        aud.m_data       = aldata;
-        aud.m_format     = format;
-        aud.m_size       = size;
-        aud.m_freq       = freq;
-        aud.m_sid        = sid;
-        aud.m_assetData  = assetData;
+        Audio*       aud = new Audio();
+        aud->m_data      = aldata;
+        aud->m_format    = format;
+        aud->m_size      = size;
+        aud->m_freq      = freq;
+        aud->m_sid       = sid;
 
-        alGenBuffers((ALuint)1, &aud.m_buffer);
-        alBufferData(aud.m_buffer, format, aldata, size, (ALsizei)freq);
+        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
+        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
+        auto*              storage       = Resources::ResourceStorage::Get();
+
+        if (storage->Exists<AudioAssetData>(assetDataSid))
+        {
+            aud->m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
+        }
+        else
+        {
+            aud->m_assetData = new AudioAssetData();
+            storage->Add(static_cast<void*>(aud->m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
+        }
+
+        alGenBuffers((ALuint)1, &aud->m_buffer);
+        alBufferData(aud->m_buffer, format, aldata, size, (ALsizei)freq);
         free(aldata);
 
 #ifndef LINA_PRODUCTION_BUILD
         CheckForError();
 #endif
 
-        return s_loadedAudios[sid];
+        return static_cast<void*>(aud);
     }
 
-    Audio& Audio::CreateAudio(const std::string& path, AudioAssetData& assetData)
+    void* Audio::LoadFromFile(const std::string& path)
     {
+        LINA_TRACE("[Audio Loader - File] -> Loading: {0}", path);
+        IResource::SetSID(path);
         ALsizei size;
         ALfloat freq;
         ALenum  format;
@@ -122,64 +102,36 @@ namespace Lina::Audio
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
 
         StringIDType sid = StringID(path.c_str()).value();
-        Audio&       aud = s_loadedAudios[sid];
-        aud.m_data       = data;
-        aud.m_format     = format;
-        aud.m_size       = size;
-        aud.m_freq       = freq;
-        aud.m_sid        = sid;
-        aud.m_assetData  = assetData;
+        Audio*       aud = new Audio();
+        aud->m_data      = data;
+        aud->m_format    = format;
+        aud->m_size      = size;
+        aud->m_freq      = freq;
 
-        alGenBuffers((ALuint)1, &aud.m_buffer);
-        alBufferData(aud.m_buffer, format, data, size, (ALsizei)freq);
+        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
+        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
+        auto*              storage       = Resources::ResourceStorage::Get();
+        if (storage->Exists<AudioAssetData>(assetDataSid))
+        {
+            aud->m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
+        }
+        else
+        {
+            aud->m_assetData = new AudioAssetData();
+            Resources::SaveArchiveToFile<AudioAssetData>(assetData, *aud->m_assetData);
+            storage->Add(static_cast<void*>(aud->m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
+        }
+
+        alGenBuffers((ALuint)1, &aud->m_buffer);
+        alBufferData(aud->m_buffer, format, data, size, (ALsizei)freq);
         free(data);
 
 #ifndef LINA_PRODUCTION_BUILD
         CheckForError();
 #endif
 
-        return s_loadedAudios[sid];
-    }
-
-    void Audio::UnloadAudio(StringIDType sid)
-    {
-        bool exists = AudioExists(sid);
-        LINA_ASSERT(exists, "Audio does not exist!");
-        s_loadedAudios.erase(sid);
-    }
-
-    void Audio::UnloadAudio(const std::string& path)
-    {
-        UnloadAudio(StringID(path.c_str()).value());
-    }
-
-    void Audio::UnloadAll()
-    {
-        s_loadedAudios.clear();
-    }
-
-    bool Audio::AudioExists(const std::string& path)
-    {
-        return AudioExists(StringID(path.c_str()).value());
-    }
-
-    bool Audio::AudioExists(StringIDType sid)
-    {
-        if (sid < 0)
-            return false;
-        return !(s_loadedAudios.find(sid) == s_loadedAudios.end());
-    }
-
-    Audio& Audio::GetAudio(StringIDType sid)
-    {
-        bool exists = AudioExists(sid);
-        LINA_ASSERT(exists, "Audio does not exist!");
-        return s_loadedAudios[sid];
-    }
-
-    Audio& Audio::GetAudio(const std::string& path)
-    {
-        return GetAudio(StringID(path.c_str()).value());
+        return static_cast<void*>(aud);
     }
 
     void Audio::CheckForError()

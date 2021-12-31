@@ -39,6 +39,7 @@ SOFTWARE.
 #include "ECS/Components/ModelNodeComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "Memory/Memory.hpp"
@@ -46,6 +47,7 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imguizmo/ImGuizmo.h"
+#include "imgui/imgui.h"
 
 using namespace ECS;
 using namespace Editor;
@@ -53,8 +55,8 @@ using namespace Editor;
 namespace Lina::Editor
 {
 
-    std::map<ECS::TypeID, bool>         m_componentFoldoutState;
-    std::pair<ECS::Entity, ECS::TypeID> m_copyBuffer;
+    std::map<TypeID, bool>         m_componentFoldoutState;
+    std::pair<ECS::Entity, TypeID> m_copyBuffer;
 
     template <typename Type> void Drawer_SetEnabled(ECS::Entity ent, bool enabled)
     {
@@ -80,7 +82,7 @@ namespace Lina::Editor
 
     template <typename Type> void Drawer_Reset(ECS::Entity entity)
     {
-        ECS::TypeID tid = GetTypeID<Type>();
+        TypeID tid = GetTypeID<Type>();
 
         if (tid == GetTypeID<EntityDataComponent>())
         {
@@ -98,7 +100,7 @@ namespace Lina::Editor
         ECS::Registry::Get()->template remove<Type>(entity);
     }
 
-    void Drawer_Copy(ECS::Entity entity, ECS::TypeID tid)
+    void Drawer_Copy(ECS::Entity entity, TypeID tid)
     {
         m_copyBuffer.first  = entity;
         m_copyBuffer.second = tid;
@@ -106,7 +108,7 @@ namespace Lina::Editor
 
     template <typename Type> void Drawer_Paste(ECS::Entity entity)
     {
-        ECS::TypeID pastedTid = ECS::GetTypeID<Type>();
+        TypeID pastedTid = GetTypeID<Type>();
 
         if (pastedTid == m_copyBuffer.second)
         {
@@ -190,7 +192,7 @@ namespace Lina::Editor
 
     template <typename Type> void Drawer_ValueChanged(ECS::Entity ent, const char* label)
     {
-        ECS::TypeID tid = GetTypeID<Type>();
+        TypeID tid = GetTypeID<Type>();
 
         if (tid == GetTypeID<ModelRendererComponent>())
         {
@@ -328,14 +330,14 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<ETransformPivotChanged, &ComponentDrawer::OnTransformPivotChanged>(this);
     }
 
-    void ComponentDrawer::AddIDToDrawList(ECS::TypeID id)
+    void ComponentDrawer::AddIDToDrawList(TypeID id)
     {
         // Add only if it doesn't exists.
         if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
             m_componentDrawList.push_back(id);
     }
 
-    void ComponentDrawer::SwapComponentOrder(ECS::TypeID id1, ECS::TypeID id2)
+    void ComponentDrawer::SwapComponentOrder(TypeID id1, TypeID id2)
     {
         // Swap iterators.
         std::vector<TypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id1);
@@ -361,7 +363,7 @@ namespace Lina::Editor
         {
             for (auto& pair : category.second)
             {
-                ECS::TypeID tid          = pair.second;
+                TypeID tid          = pair.second;
                 auto        meta         = entt::resolve(tid);
                 bool        hasComponent = meta.func("has"_hs).invoke({}, entity).cast<bool>();
 
@@ -375,7 +377,7 @@ namespace Lina::Editor
         return map;
     }
 
-    void ComponentDrawer::PushComponentToDraw(ECS::TypeID tid, ECS::Entity ent)
+    void ComponentDrawer::PushComponentToDraw(TypeID tid, ECS::Entity ent)
     {
         if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), tid) == m_componentDrawList.end())
             m_componentDrawList.push_back(tid);
@@ -398,8 +400,8 @@ namespace Lina::Editor
         auto*                   ecs           = ECS::Registry::Get();
         auto*                   physicsEngine = Physics::PhysicsEngineBackend::Get();
         EntityDataComponent&    data          = ecs->get<EntityDataComponent>(entity);
-        ECS::TypeID             entityDataTid = GetTypeID<EntityDataComponent>();
-        ECS::TypeID             physicsTid    = GetTypeID<PhysicsComponent>();
+        TypeID             entityDataTid = GetTypeID<EntityDataComponent>();
+        TypeID             physicsTid    = GetTypeID<PhysicsComponent>();
         PhysicsComponent&       phy           = ecs->get<PhysicsComponent>(entity);
         Physics::SimulationType simType       = phy.m_simType;
 
@@ -510,20 +512,22 @@ namespace Lina::Editor
             }
 
             WidgetsUtility::PropertyLabel("Physics Material");
-            const std::string         currentMaterial = phy.m_physicsMaterialPath;
+            const std::string         currentMaterial = phy.m_material.m_value->GetPath();
             bool                      removed         = false;
-            Physics::PhysicsMaterial* selected        = WidgetsUtility::PhysicsMaterialComboBox("##phyMat", phy.m_physicsMaterialPath, &removed);
+            Physics::PhysicsMaterial* selected        = WidgetsUtility::PhysicsMaterialComboBox("##phyMat", currentMaterial, &removed);
 
             if (removed)
             {
-                auto& mat = Physics::PhysicsMaterial::GetMaterial("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.phymat");
-                selected  = &mat;
+                auto* mat = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+                selected  = mat;
                 physicsEngine->SetBodyMaterial(entity, mat);
             }
 
-            if (selected != nullptr && phy.m_physicsMaterialID != selected->GetID())
+            if (selected != nullptr && phy.m_material.m_value->GetSID() != selected->GetSID())
             {
-                physicsEngine->SetBodyMaterial(entity, Physics::PhysicsMaterial::GetMaterial(phy.m_physicsMaterialPath));
+                physicsEngine->SetBodyMaterial(entity, selected);
+                phy.m_material.m_sid = selected->GetSID();
+                phy.m_material.m_value = selected;
             }
 
             WidgetsUtility::PropertyLabel("Shape");
@@ -610,7 +614,7 @@ namespace Lina::Editor
             ImGui::EndDisabled();
     }
 
-    void ComponentDrawer::DrawComponent(ECS::TypeID tid, ECS::Entity ent)
+    void ComponentDrawer::DrawComponent(TypeID tid, ECS::Entity ent)
     {
         auto* ecs          = ECS::Registry::Get();
         auto  resolvedData = entt::resolve(tid);
@@ -644,7 +648,7 @@ namespace Lina::Editor
             {
                 resolvedData.func("remove"_hs).invoke({}, ent);
 
-                for (std::vector<ECS::TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
+                for (std::vector<TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
                 {
                     if (*it == tid)
                     {

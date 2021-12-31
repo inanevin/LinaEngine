@@ -27,105 +27,27 @@ SOFTWARE.
 */
 
 #include "Physics/PhysicsMaterial.hpp"
-
+#include "Core/CommonResources.hpp"
 #include "Log/Log.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Physics
 {
-
-    std::map<StringIDType, PhysicsMaterial> PhysicsMaterial::s_loadedMaterials;
-
-    PhysicsMaterial& PhysicsMaterial::CreateMaterial(const std::string& name, float staticFriction, float dynamicFriction, float restitution)
+    void* PhysicsMaterial::LoadFromFile(const std::string& path)
     {
-        StringIDType sid = StringID(name.c_str()).value();
-        if (MaterialExists(sid))
-        {
-            LINA_WARN("Physics Material already exists with the given name. {0}", name);
-            return s_loadedMaterials[sid];
-        }
-
-        PhysicsMaterial& mat = s_loadedMaterials[sid];
-        mat.m_materialID     = sid;
-        mat.m_path           = name;
-        return s_loadedMaterials[sid];
+        LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);
+        *this = Resources::LoadArchiveFromFile<PhysicsMaterial>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
     }
 
-    PhysicsMaterial& PhysicsMaterial::LoadMaterialFromFile(const std::string& path)
+    void* PhysicsMaterial::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        StringIDType     sid = StringID(path.c_str()).value();
-        PhysicsMaterial& mat = s_loadedMaterials[sid];
-        LoadMaterialData(mat, path);
-        mat.m_materialID = sid;
-        mat.m_path       = path;
-        return mat;
-    }
-
-    PhysicsMaterial& PhysicsMaterial::LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
-    {
-        StringIDType     sid = StringID(path.c_str()).value();
-        PhysicsMaterial& mat = s_loadedMaterials[sid];
-        mat.m_materialID     = sid;
-        mat.m_path           = path;
-        return mat;
-    }
-
-    PhysicsMaterial& PhysicsMaterial::GetMaterial(StringIDType id)
-    {
-        bool materialExists = MaterialExists(id);
-        LINA_ASSERT(materialExists, "Physics Material does not exist!");
-        return s_loadedMaterials[id];
-    }
-    PhysicsMaterial& PhysicsMaterial::GetMaterial(const std::string& path)
-    {
-        return GetMaterial(StringID(path.c_str()).value());
-    }
-
-    bool PhysicsMaterial::MaterialExists(StringIDType id)
-    {
-        if (id < 0)
-            return false;
-        return !(s_loadedMaterials.find(id) == s_loadedMaterials.end());
-    }
-
-    bool PhysicsMaterial::MaterialExists(const std::string& path)
-    {
-        return MaterialExists(StringID(path.c_str()).value());
-    }
-
-    void PhysicsMaterial::UnloadMaterialResource(StringIDType id)
-    {
-        if (!MaterialExists(id))
-        {
-            LINA_WARN("Physics Material not found! Aborting... ");
-            return;
-        }
-
-        s_loadedMaterials.erase(id);
-    }
-
-    void PhysicsMaterial::LoadMaterialData(PhysicsMaterial& mat, const std::string& path)
-    {
-        std::ifstream stream(path, std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(mat);
-        }
-    }
-
-    void PhysicsMaterial::SaveMaterialData(const PhysicsMaterial& mat, const std::string& path)
-    {
-        std::ofstream stream(path, std::ios::binary);
-        {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(mat);
-        }
-    }
-
-    void PhysicsMaterial::UnloadAll()
-    {
-        s_loadedMaterials.clear();
+        LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);
+        *this = Resources::LoadArchiveFromMemory<PhysicsMaterial>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
     }
 } // namespace Lina::Physics

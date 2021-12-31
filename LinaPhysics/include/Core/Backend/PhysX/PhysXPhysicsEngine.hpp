@@ -135,7 +135,7 @@ namespace Lina::Physics
         void SetBodySimulation(ECS::Entity body, SimulationType type);
         void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
         void SetBodyMass(ECS::Entity body, float mass);
-        void SetBodyMaterial(ECS::Entity body, const PhysicsMaterial& mat);
+        void SetBodyMaterial(ECS::Entity body, PhysicsMaterial* mat);
         void SetBodyRadius(ECS::Entity body, float radius);
         void SetBodyHeight(ECS::Entity body, float height);
         void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
@@ -164,8 +164,6 @@ namespace Lina::Physics
     private:
         void            OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
         void            RecreateBodyShape(ECS::Entity body);
-        void            OnResourceLoadedFromFile(const Event::ELoadResourceFromFile& ev);
-        void            OnResourceLoadedFromMemory(const Event::ELoadResourceFromMemory& ev);
         void            OnLevelInitialized(const Event::ELevelInitialized& ev);
         void            OnPostSceneDraw(const Event::EPostSceneDraw&);
         void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
