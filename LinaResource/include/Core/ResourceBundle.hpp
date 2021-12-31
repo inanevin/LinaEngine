@@ -61,19 +61,15 @@ namespace Lina::Resources
         MemoryEntry() = default;
         ~MemoryEntry();
 
-        MemoryEntry(int priority, ResourceType type, const std::string& path, std::vector<unsigned char>& data, std::string& paramsExtension)
+        MemoryEntry(int priority,  const std::string& path, std::vector<unsigned char>& data)
         {
             m_priority        = priority;
-            m_type            = type;
             m_path            = path;
             m_data            = data;
-            m_paramsExtension = paramsExtension;
         }
 
-        ResourceType               m_type            = ResourceType::Unknown;
         int                        m_priority        = 100;
         std::string                m_path            = "";
-        std::string                m_paramsExtension = "";
         std::vector<unsigned char> m_data;
     };
 
@@ -120,24 +116,27 @@ namespace Lina::Resources
         friend class ResourceManager;
         friend class Packager;
 
-        // Pushes the given memory buffer to a resource map.
-        void PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data);
+        /// <summary>
+        /// Stores the given memory resource into a priority queue.
+        /// </summary>
+        void PushResourceFromMemory(const std::string& path, std::vector<unsigned char>& data);
 
-        // Loads all memory buffers stored in maps.
-        void LoadAllMemoryMaps();
+        /// <summary>
+        /// Loads all memory buffers stored in memory resource queue.
+        /// </summary>
+        void LoadAllMemoryResources();
 
-        // Calls LoadResourceFromFile on all resources within the folder.
-        void LoadResourcesInFolder(Utility::Folder* root, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
-
+        /// <summary>
+        /// Scans the given file for resources and saves the contents into m_fileResources priority queue.
+        /// </summary>
         void ScanFileResources(Utility::Folder* folder);
+
+        /// <summary>
+        /// Loads all the resources in m_fileResources queue.
+        /// </summary>
         void LoadAllFileResources();
 
-        // Loads given resource from a file path into memory.
-        void LoadResourceFromFile(Utility::File* file, ResourceType type);
-
         std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
-        std::vector<MemoryEntry>                                                    m_memoryResourcesParams;
-
         std::priority_queue<FileEntry, std::vector<FileEntry>, CompareFileEntry> m_fileResources;
     };
 } // namespace Lina::Resources

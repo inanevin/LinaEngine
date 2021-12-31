@@ -143,12 +143,12 @@ namespace Lina::Graphics
         linaMesh->m_boundsHalfExtents = (linaMesh->m_boundsMax - linaMesh->m_boundsMin) / 2.0f;
     }
 
-    bool ModelLoader::LoadModel(const aiScene* scene, Model& model)
+    bool ModelLoader::LoadModel(const aiScene* scene, Model* model)
     {
         const std::string runningDirectory = Utility::GetRunningDirectory();
 
         // Load the ai hierarchy into the root node.
-        ModelNode& root = model.m_rootNode;
+        ModelNode& root = model->m_rootNode;
         root.FillNodeHierarchy(scene->mRootNode, scene, model);
 
         // Iterate through the materials in the scene.
@@ -181,74 +181,74 @@ namespace Lina::Graphics
             }
 
             // Push the material to list.
-            model.GetImportedMaterials().push_back(importedMaterial);
+            model->GetImportedMaterials().push_back(importedMaterial);
         }
 
-        if (model.GetImportedMaterials().size() == 0)
+        if (model->GetImportedMaterials().size() == 0)
         {
             ImportedModelMaterial defaultMaterial;
             defaultMaterial.m_name = "Material";
-            model.GetImportedMaterials().push_back(defaultMaterial);
+            model->GetImportedMaterials().push_back(defaultMaterial);
         }
 
-        model.SaveAssetData(model.GetAssetDataPath());
+        Resources::SaveArchiveToFile(model->GetAssetData()->GetPath(), *model->GetAssetData());
         return true;
     }
 
-    bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model& model)
+    bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model* model)
     {
         // Get the importer & set assimp scene.
         Assimp::Importer importer;
         uint32           importFlags = 0;
-        ModelAssetData&  assetData   = model.GetAssetData();
-        if (assetData.m_calculateTangentSpace)
+        ModelAssetData*  assetData   = model->GetAssetData();
+        if (assetData->m_calculateTangentSpace)
             importFlags |= aiProcess_CalcTangentSpace;
 
-        if (assetData.m_triangulate)
+        if (assetData->m_triangulate)
             importFlags |= aiProcess_Triangulate;
 
-        if (assetData.m_smoothNormals)
+        if (assetData->m_smoothNormals)
             importFlags |= aiProcess_GenSmoothNormals;
 
-        if (assetData.m_flipUVs)
+        if (assetData->m_flipUVs)
             importFlags |= aiProcess_FlipUVs;
 
-        if (assetData.m_flipWinding)
+        if (assetData->m_flipWinding)
             importFlags |= aiProcess_FlipWindingOrder;
 
         importFlags |= aiProcess_GlobalScale;
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData->m_globalScale * 100.0f);
 
-        const std::string ext   = "." + Utility::GetFileExtension(model.GetPath());
+        const std::string ext   = "." + Utility::GetFileExtension(model->GetPath());
         const aiScene*    scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
         const char*       err   = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
         return LoadModel(scene, model);
     }
 
-    bool ModelLoader::LoadModel(const std::string& fileName, Model& model)
+    bool ModelLoader::LoadModel(const std::string& fileName, Model* model)
     {
         // Get the importer & set assimp scene.
         Assimp::Importer importer;
         uint32           importFlags = 0;
-        ModelAssetData&  assetData   = model.GetAssetData();
-        if (assetData.m_calculateTangentSpace)
+        ModelAssetData*  assetData   = model->GetAssetData();
+        if (assetData->m_calculateTangentSpace)
             importFlags |= aiProcess_CalcTangentSpace;
 
-        if (assetData.m_triangulate)
+        if (assetData->m_triangulate)
             importFlags |= aiProcess_Triangulate;
 
-        if (assetData.m_smoothNormals)
+        if (assetData->m_smoothNormals)
             importFlags |= aiProcess_GenSmoothNormals;
 
-        if (assetData.m_flipUVs)
+        if (assetData->m_flipUVs)
             importFlags |= aiProcess_FlipUVs;
 
-        if (assetData.m_flipWinding)
+        if (assetData->m_flipWinding)
             importFlags |= aiProcess_FlipWindingOrder;
 
         importFlags |= aiProcess_GlobalScale;
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData.m_globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData->m_globalScale * 100.0f);
 
         const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 

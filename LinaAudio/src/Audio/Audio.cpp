@@ -55,13 +55,10 @@ namespace Lina::Audio
         ALenum err = alutGetError();
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
 
-        StringIDType sid = StringID(path.c_str()).value();
-        Audio*       aud = new Audio();
-        aud->m_data      = aldata;
-        aud->m_format    = format;
-        aud->m_size      = size;
-        aud->m_freq      = freq;
-        aud->m_sid       = sid;
+        m_data           = aldata;
+        m_format         = format;
+        m_size           = size;
+        m_freq           = freq;
 
         const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
         const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
@@ -70,23 +67,23 @@ namespace Lina::Audio
 
         if (storage->Exists<AudioAssetData>(assetDataSid))
         {
-            aud->m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
+            m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
         }
         else
         {
-            aud->m_assetData = new AudioAssetData();
-            storage->Add(static_cast<void*>(aud->m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
+            m_assetData = new AudioAssetData();
+            storage->Add(static_cast<void*>(m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
         }
 
-        alGenBuffers((ALuint)1, &aud->m_buffer);
-        alBufferData(aud->m_buffer, format, aldata, size, (ALsizei)freq);
+        alGenBuffers((ALuint)1, &m_buffer);
+        alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
         free(aldata);
 
 #ifndef LINA_PRODUCTION_BUILD
         CheckForError();
 #endif
 
-        return static_cast<void*>(aud);
+        return static_cast<void*>(this);
     }
 
     void* Audio::LoadFromFile(const std::string& path)
@@ -101,12 +98,10 @@ namespace Lina::Audio
         ALenum err = alutGetError();
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
 
-        StringIDType sid = StringID(path.c_str()).value();
-        Audio*       aud = new Audio();
-        aud->m_data      = data;
-        aud->m_format    = format;
-        aud->m_size      = size;
-        aud->m_freq      = freq;
+        m_data   = data;
+        m_format = format;
+        m_size   = size;
+        m_freq   = freq;
 
         const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
         const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
@@ -114,24 +109,24 @@ namespace Lina::Audio
         auto*              storage       = Resources::ResourceStorage::Get();
         if (storage->Exists<AudioAssetData>(assetDataSid))
         {
-            aud->m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
+            m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
         }
         else
         {
-            aud->m_assetData = new AudioAssetData();
-            Resources::SaveArchiveToFile<AudioAssetData>(assetData, *aud->m_assetData);
-            storage->Add(static_cast<void*>(aud->m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
+            m_assetData = new AudioAssetData();
+            Resources::SaveArchiveToFile<AudioAssetData>(assetData, *m_assetData);
+            storage->Add(static_cast<void*>(m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
         }
 
-        alGenBuffers((ALuint)1, &aud->m_buffer);
-        alBufferData(aud->m_buffer, format, data, size, (ALsizei)freq);
+        alGenBuffers((ALuint)1, &m_buffer);
+        alBufferData(m_buffer, format, data, size, (ALsizei)freq);
         free(data);
 
 #ifndef LINA_PRODUCTION_BUILD
         CheckForError();
 #endif
 
-        return static_cast<void*>(aud);
+        return static_cast<void*>(this);
     }
 
     void Audio::CheckForError()

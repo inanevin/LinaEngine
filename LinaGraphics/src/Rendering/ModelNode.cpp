@@ -55,10 +55,10 @@ namespace Lina::Graphics
         m_meshes.clear();
     }
 
-    void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel)
+    void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model* parentModel)
     {
         m_name                    = std::string(node->mName.C_Str());
-        const std::string sidName = parentModel.GetPath() + m_name;
+        const std::string sidName = parentModel->GetPath() + m_name;
         m_id                      = StringID(sidName.c_str()).value();
         m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
 
@@ -90,7 +90,7 @@ namespace Lina::Graphics
         // Check the user data to see if user has saved any material data for this node asset.
         // If so, assign it, if not, pass the default engine material.
         auto& defaultMaterial = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
-        auto& nodeMaterialMap = parentModel.GetAssetData().m_nodeMaterialMapping;
+        auto& nodeMaterialMap = parentModel->GetAssetData()->m_nodeMaterialMapping;
         if (nodeMaterialMap.find(m_id) != nodeMaterialMap.end())
         {
             auto& materialVector = nodeMaterialMap[m_id];

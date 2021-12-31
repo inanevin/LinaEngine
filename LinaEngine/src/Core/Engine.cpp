@@ -305,6 +305,7 @@ namespace Lina
         if (outlierIndex != -1)
             m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
     }
+
     void Engine::RegisterResourceTypes()
     {
         m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
@@ -319,16 +320,55 @@ namespace Lina
                 std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
                 std::vector<std::string>{"glh"}});
 
+        m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
+            Resources::ResourceTypeData{
+                0,
+                std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
+                std::vector<std::string>{"linaimagedata"}});
+
+        m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
+            Resources::ResourceTypeData{
+                0,
+                std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
+                std::vector<std::string>{"linamodeldata"}});
+
+        m_resourceStorage.RegisterResource<Graphics::Shader>(
+            Resources::ResourceTypeData{
+                0,
+                std::bind(Resources::CreateResource<Graphics::Shader>),
+                std::vector<std::string>{"glsl"}, Color(255, 71, 108, 255, true)});
+
+        m_resourceStorage.RegisterResource<Graphics::Texture>(
+            Resources::ResourceTypeData{
+                1,
+                std::bind(Resources::CreateResource<Graphics::Texture>),
+                std::vector<std::string>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
+
+        m_resourceStorage.RegisterResource<Graphics::Material>(
+            Resources::ResourceTypeData{
+                2,
+                std::bind(Resources::CreateResource<Graphics::Material>),
+                std::vector<std::string>{"linamat"}, Color(56, 79, 255, 255, true)});
+
+        m_resourceStorage.RegisterResource<Graphics::Model>(
+            Resources::ResourceTypeData{
+                3,
+                std::bind(Resources::CreateResource<Graphics::Model>),
+                std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
+
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
-            5,
+            4,
             std::bind(Resources::CreateResource<Audio::Audio>),
-            std::vector<std::string>{"wav", "mp3"}});
+            std::vector<std::string>{"wav", "mp3", "ogg"}, Color(255, 235, 170, 255, true)});
 
         m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
             5,
             std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
             std::vector<std::string>{"linaphymat"},
+            Color(17, 120, 255, 255, true),
         });
+
+        // TODO: Font class.
     }
 
     double Engine::SmoothDeltaTime(double dt)

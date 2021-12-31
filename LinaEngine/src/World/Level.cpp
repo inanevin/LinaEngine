@@ -101,13 +101,13 @@ namespace Lina::World
 
         auto& view = ecs->view<ECS::ModelRendererComponent>();
 
-        for (ECS::Entity entity : view)
-        {
-            ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
-            // Assign model pointed by the model renderer.
-            if (Graphics::Model::ModelExists(mr.m_modelPath))
-                mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
-        }
+       // for (ECS::Entity entity : view)
+       // {
+       //     ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
+       //     // Assign model pointed by the model renderer.
+       //     if (Graphics::Model::ModelExists(mr.m_modelPath))
+       //         mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
+       // }
 
         auto& meshView = ecs->view<ECS::MeshRendererComponent>();
 
@@ -118,7 +118,7 @@ namespace Lina::World
            //     meshRenderer.m_materialID = Graphics::Material::GetMaterial(meshRenderer.m_materialPath).GetID();
            // else
            // {
-           //     Graphics::Material& mat     = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+           //     Graphics::Material& mat     = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
            //     meshRenderer.m_materialID   = mat.GetID();
            //     meshRenderer.m_materialPath = mat.GetPath();
            // }

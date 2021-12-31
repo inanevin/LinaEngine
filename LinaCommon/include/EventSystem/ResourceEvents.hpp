@@ -44,27 +44,10 @@ Timestamp: 12/25/2021 12:18:35 PM
 
 namespace Lina::Event
 {
-    // Resources.
-    struct ELoadResourceFromFile
-    {
-        Resources::ResourceType m_resourceType;
-        std::string             m_path;
-        std::string             m_assetDataPath;
-    };
-    struct ELoadResourceFromMemory
-    {
-        Resources::ResourceType m_resourceType;
-        std::string             m_path;
-        unsigned char*          m_data;
-        size_t                  m_dataSize;
-        std::string             m_assetDataPath;
-        unsigned char*          m_assetDataBuffer;
-        size_t                  m_assetDataSize;
-    };
     struct EResourceLoadCompleted
     {
-        Resources::ResourceType m_type;
-        StringIDType            m_sid;
+        TypeID       m_tid;
+        StringIDType m_sid;
     };
     struct EResourceProgressStarted
     {

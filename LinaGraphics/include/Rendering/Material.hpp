@@ -56,16 +56,14 @@ namespace Lina::Graphics
     struct MaterialSampler2D
     {
         uint32          m_unit          = 0;
-        Texture*        m_boundTexture  = nullptr;
-        std::string     m_path          = "";
-        std::string     m_assetDataPath = "";
         TextureBindMode m_bindMode      = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         bool            m_isActive      = false;
+        Resources::ResourceHandle<Texture> m_texture;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_unit, m_path, m_assetDataPath, m_bindMode, m_isActive);
+            archive(m_unit, m_texture, m_bindMode, m_isActive);
         }
     };
 
@@ -81,7 +79,7 @@ namespace Lina::Graphics
         void             PostLoadMaterialData();
         void             SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
         void             RemoveTexture(const std::string& textureName);
-        Texture&         GetTexture(const std::string& name);
+        Texture*         GetTexture(const std::string& name);
 
         inline static std::set<Material*>& GetShadowMappedMaterials()
         {

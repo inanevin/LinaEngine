@@ -66,6 +66,11 @@ namespace Lina
 {
     class Engine;
 
+    namespace Resources
+    {
+        class ResourceStorage;
+    }
+
     namespace Event
     {
         class EventSystem;
@@ -232,9 +237,9 @@ namespace Lina::Graphics
         {
             return &m_frustumSystem;
         }
-        inline Texture& GetDefaultTexture()
+        inline Texture* GetDefaultTexture()
         {
-            return m_defaultTexture;
+            return &m_defaultTexture;
         }
         inline Material& GetDefaultUnlitMaterial()
         {
@@ -286,8 +291,6 @@ namespace Lina::Graphics
         void ProcessDebugQueue();
 
     private:
-        void OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event);
-        void OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& event);
         void OnDrawLine(const Event::EDrawLine& event);
         void OnDrawBox(const Event::EDrawBox& event);
         void OnDrawCircle(const Event::EDrawCircle& event);
@@ -402,6 +405,7 @@ namespace Lina::Graphics
         ECS::FrustumSystem        m_frustumSystem;
         ECS::SystemList           m_renderingPipeline;
         ECS::SystemList           m_animationPipeline;
+        Resources::ResourceStorage*       m_storage = nullptr;
 
     private:
         uint32 m_skyboxVAO     = 0;

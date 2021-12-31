@@ -50,22 +50,11 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    Menu*                                m_leftPaneMenu           = nullptr;
-    MenuBarElement*                      m_showEditorFoldersMB    = nullptr;
-    MenuBarElement*                      m_showEngineFoldersMB    = nullptr;
-    float                                m_fileNodeStartCursorPos = 16.0f;
-    std::vector<Resources::ResourceType> m_resourceTypesToDraw{
-        Resources::ResourceType::Audio,
-        Resources::ResourceType::Font,
-        Resources::ResourceType::GLSL,
-        Resources::ResourceType::HDR,
-        Resources::ResourceType::Image,
-        Resources::ResourceType::Material,
-        Resources::ResourceType::Model,
-        Resources::ResourceType::PhysicsMaterial,
-        Resources::ResourceType::Folder,
-        Resources::ResourceType::UserAsset,
-    };
+    Menu*               m_leftPaneMenu           = nullptr;
+    MenuBarElement*     m_showEditorFoldersMB    = nullptr;
+    MenuBarElement*     m_showEngineFoldersMB    = nullptr;
+    float               m_fileNodeStartCursorPos = 16.0f;
+    std::vector<TypeID> m_resourceTypesToDraw;
 
     struct InputTextCallback_UserData
     {
@@ -87,6 +76,7 @@ namespace Lina::Editor
         m_leftPaneMinWidth = 200.0f;
         m_leftPaneMaxWidth = 500.0f;
 
+        m_storage             = Resources::ResourceStorage::Get();
         m_leftPaneMenu        = new Menu("");
         m_showEditorFoldersMB = new MenuBarElement("", "Show Editor Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEditorFolders, true, true);
         m_showEngineFoldersMB = new MenuBarElement("", "Show Engine Folders", ICON_FA_CHECK, 0, MenuBarElementType::Resources_ShowEngineFolders, true, true);
@@ -228,7 +218,6 @@ namespace Lina::Editor
 
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
-
 
         // Settings Icon
         WidgetsUtility::IncrementCursorPosY(8);
@@ -453,7 +442,7 @@ namespace Lina::Editor
         // First draw the folders.
         for (auto* subfolder : folder->m_folders)
         {
-            WidgetsUtility::DrawResourceNode(Resources::ResourceType::Folder, subfolder == m_selectedSubfolder, subfolder->m_fullPath, m_fileNodeStartCursorPos);
+            WidgetsUtility::DrawResourceNode(-1, subfolder == m_selectedSubfolder, subfolder->m_fullPath, m_fileNodeStartCursorPos);
 
             if (ImGui::IsItemClicked())
             {
@@ -472,25 +461,15 @@ namespace Lina::Editor
         // Then draw the files.
         for (auto* file : folder->m_files)
         {
-            Resources::ResourceType type = Resources::GetResourceType(Utility::GetFileExtension(file->m_fullPath));
 
-            bool shouldDraw = false;
-            for (int i = 0; i < m_resourceTypesToDraw.size(); i++)
-            {
-                if (type == m_resourceTypesToDraw[i])
-                {
-                    shouldDraw = true;
-                    break;
-                }
-            }
+            TypeID tid = m_storage->GetTypeIDFromExtension(file->m_extension);
+            if (!m_storage->IsTypeRegistered(tid))
+                continue;
 
-            if (shouldDraw)
-            {
-                WidgetsUtility::DrawResourceNode(type, file == m_selectedFile, file->m_fullPath, m_fileNodeStartCursorPos);
+            WidgetsUtility::DrawResourceNode(tid, file == m_selectedFile, file->m_fullPath, m_fileNodeStartCursorPos);
 
-                if (ImGui::IsItemClicked())
-                    m_selectedFile = file;
-            }
+            if (ImGui::IsItemClicked())
+                m_selectedFile = file;
         }
     }
 
@@ -573,12 +552,10 @@ namespace Lina::Editor
             if (m_selectedFile != nullptr)
             {
                 LINA_TRACE("Right file rename");
-
             }
             else if (m_selectedSubfolder != nullptr)
             {
                 LINA_TRACE("Right sf rename");
-
             }
         }
     }

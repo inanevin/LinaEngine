@@ -155,10 +155,10 @@ namespace Lina::Editor
         return node;
     }
 
-    void WidgetsUtility::DrawResourceNode(Resources::ResourceType type, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier)
+    void WidgetsUtility::DrawResourceNode(TypeID tid, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier)
     {
 #pragma warning(disable : 4312)
-
+        auto* storage = Resources::ResourceStorage::Get();
         const ImVec2 cursorPosScreen    = ImGui::GetCursorScreenPos();
         const ImVec2 cursorPos          = ImGui::GetCursorPos();
         const float  fileTypeRectHeight = 5;
@@ -180,12 +180,12 @@ namespace Lina::Editor
 
         uint32 textureID = 0;
 
-        if (type == Resources::ResourceType::Folder)
-            textureID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Folder.png").GetID();
+        if (tid == -1)
+            textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Folder.png")->GetID();
         else
         {
-            if (type == Resources::ResourceType::Image)
-                textureID = Graphics::Texture::GetTexture(fullPath).GetID();
+            if (tid == GetTypeID<Graphics::Texture>())
+                textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
         }
 
         // Prepare border sizes from incremented cursor.
@@ -195,24 +195,24 @@ namespace Lina::Editor
         const ImVec2 borderMax = ImVec2(borderMin.x + imageSize.x, borderMin.y + imageSize.y);
 
         // Add checkered background to cover transparents.
-        if (type != Resources::ResourceType::Folder)
-            ImGui::GetWindowDrawList()->AddImage((void*)Graphics::Texture::GetTexture("Resources/Editor/Textures/Checkered.png").GetID(), borderMin, borderMax, ImVec2(0, 1), ImVec2(1, 0));
+        if (tid != -1)
+            ImGui::GetWindowDrawList()->AddImage((void*)storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID(), borderMin, borderMax, ImVec2(0, 1), ImVec2(1, 0));
 
         // Add the actual resource image.
         ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
         // Draw a small colored rect indicating resource type.
-        if (type != Resources::ResourceType::Folder)
+        if (tid != -1)
         {
             const ImVec2 extRectMin   = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
             const ImVec2 extRectMax   = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
-            const Color  extColorLina = Resources::GetResourceTypeColor(type);
+            const Color  extColorLina = storage->GetTypeColor(tid);
             const ImVec4 extColor     = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
             ImGui::GetWindowDrawList()->AddRectFilled(extRectMin, extRectMax, ImGui::ColorConvertFloat4ToU32(extColor), 2.0f, ImDrawFlags_RoundCornersTop);
         }
 
         // Add image border afterwards, should overlay the image.
-        if (type != Resources::ResourceType::Folder)
+        if (tid != -1)
             ImGui::GetWindowDrawList()->AddRect(borderMin, borderMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 0.0f, 0, 1.5f);
 
         const std::string name           = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(fullPath));
@@ -696,32 +696,32 @@ namespace Lina::Editor
     {
         Graphics::Material* materialToReturn = nullptr;
 
-       // std::string materialLabel = "";
-       // if (Graphics::Material::MaterialExists(currentPath))
-       // {
-       //     materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
-       // }
-       // 
-       // if (BeginComboBox(comboID, materialLabel.c_str(), true))
-       // {
-       //     auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
-       // 
-       //     for (auto& material : loadedMaterials)
-       //     {
-       //         const bool selected = currentPath == material.second.GetPath();
-       // 
-       //         std::string label = material.second.GetPath();
-       //         label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-       //         if (ImGui::Selectable(label.c_str(), selected))
-       //         {
-       //             materialToReturn = &material.second;
-       //         }
-       // 
-       //         if (selected)
-       //             ImGui::SetItemDefaultFocus();
-       //     }
-       //     ImGui::EndCombo();
-       // }
+        // std::string materialLabel = "";
+        // if (Graphics::Material::MaterialExists(currentPath))
+        // {
+        //     materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
+        // }
+        //
+        // if (BeginComboBox(comboID, materialLabel.c_str(), true))
+        // {
+        //     auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
+        //
+        //     for (auto& material : loadedMaterials)
+        //     {
+        //         const bool selected = currentPath == material.second.GetPath();
+        //
+        //         std::string label = material.second.GetPath();
+        //         label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+        //         if (ImGui::Selectable(label.c_str(), selected))
+        //         {
+        //             materialToReturn = &material.second;
+        //         }
+        //
+        //         if (selected)
+        //             ImGui::SetItemDefaultFocus();
+        //     }
+        //     ImGui::EndCombo();
+        // }
 
         const std::string comboEndID = std::string(comboID) + "_comboEnd";
         if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
@@ -735,33 +735,33 @@ namespace Lina::Editor
         Graphics::Model* modelToReturn = nullptr;
 
         std::string modelLabel = "";
-        if (Graphics::Model::ModelExists(currentModelID))
-        {
-            const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
-            modelLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
-        }
-
-        if (BeginComboBox(comboID, modelLabel.c_str(), true))
-        {
-            auto& loadedModels = Graphics::Model::GetLoadedModels();
-
-            for (auto& model : loadedModels)
-            {
-                const bool selected = currentModelID == model.second.GetID();
-
-                std::string label = model.second.GetPath();
-                label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-                if (ImGui::Selectable(label.c_str(), selected))
-                {
-                    modelToReturn = &model.second;
-                }
-
-                if (selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-        }
+       //if (Graphics::Model::ModelExists(currentModelID))
+       //{
+       //    const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
+       //    modelLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
+       //}
+       //
+       //if (BeginComboBox(comboID, modelLabel.c_str(), true))
+       //{
+       //    auto& loadedModels = Graphics::Model::GetLoadedModels();
+       //
+       //    for (auto& model : loadedModels)
+       //    {
+       //        const bool selected = currentModelID == model.second.GetID();
+       //
+       //        std::string label = model.second.GetPath();
+       //        label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+       //        if (ImGui::Selectable(label.c_str(), selected))
+       //        {
+       //            modelToReturn = &model.second;
+       //        }
+       //
+       //        if (selected)
+       //            ImGui::SetItemDefaultFocus();
+       //    }
+       //
+       //    ImGui::EndCombo();
+       //}
 
         const std::string comboEndID = std::string(comboID) + "_comboEnd";
         if (PostComboBox(comboEndID.c_str()) && removed != nullptr)

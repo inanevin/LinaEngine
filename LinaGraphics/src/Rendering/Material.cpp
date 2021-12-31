@@ -35,9 +35,6 @@ SOFTWARE.
 #include "Rendering/Texture.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Resources/ResourceStorage.hpp"
-#include <cereal/archives/portable_binary.hpp>
-#include <fstream>
-#include <stdio.h>
 
 namespace Lina::Graphics
 {
@@ -50,9 +47,9 @@ namespace Lina::Graphics
 
         for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
         {
-            if (Texture::TextureExists(it->second.m_path))
+            if (storage->Exists<Texture>(it->second.m_texture.m_sid))
             {
-                SetTexture(it->first, &Texture::GetTexture(it->second.m_path), it->second.m_bindMode);
+                SetTexture(it->first, storage->GetResource<Texture>(it->second.m_texture.m_sid), it->second.m_bindMode);
             }
         }
 
@@ -71,15 +68,10 @@ namespace Lina::Graphics
     {
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
-            m_sampler2Ds[textureName].m_boundTexture = texture;
+            m_sampler2Ds[textureName].m_texture.m_value = texture;
+            m_sampler2Ds[textureName].m_texture.m_sid = texture->GetSID();
             m_sampler2Ds[textureName].m_bindMode     = bindMode;
             m_sampler2Ds[textureName].m_isActive     = texture == nullptr ? false : true;
-
-            if (texture != nullptr)
-            {
-                m_sampler2Ds[textureName].m_path          = texture->GetPath();
-                m_sampler2Ds[textureName].m_assetDataPath = texture->GetAssetDataPath();
-            }
         }
         else
         {
@@ -91,7 +83,8 @@ namespace Lina::Graphics
     {
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
-            m_sampler2Ds[textureName].m_boundTexture = nullptr;
+            m_sampler2Ds[textureName].m_texture.m_sid = -1;
+            m_sampler2Ds[textureName].m_texture.m_value = nullptr;
             m_sampler2Ds[textureName].m_isActive     = false;
         }
         else
@@ -100,10 +93,10 @@ namespace Lina::Graphics
             return;
         }
     }
-    Texture& Material::GetTexture(const std::string& name)
+    Texture* Material::GetTexture(const std::string& name)
     {
         if (!(m_sampler2Ds.find(name) == m_sampler2Ds.end()))
-            return *m_sampler2Ds[name].m_boundTexture;
+            return m_sampler2Ds[name].m_texture.m_value;
         else
         {
             LINA_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
@@ -146,9 +139,10 @@ namespace Lina::Graphics
 
     void* Material::LoadFromFile(const std::string& path)
     {
+        LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
+
         *this = Resources::LoadArchiveFromFile<Material>(path);
         IResource::SetSID(path);
-
         auto* storage = Resources::ResourceStorage::Get();
 
         if (storage->Exists<Shader>(m_shaderHandle.m_sid))
@@ -161,8 +155,8 @@ namespace Lina::Graphics
 
         for (auto& sampler : m_sampler2Ds)
         {
-            if (Texture::TextureExists(sampler.second.m_path))
-                SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+            if (storage->Exists<Texture>(sampler.second.m_texture.m_sid))
+                SetTexture(sampler.first, storage->GetResource<Texture>(sampler.second.m_texture.m_sid), sampler.second.m_bindMode);
         }
 
         return static_cast<void*>(this);
@@ -170,7 +164,10 @@ namespace Lina::Graphics
 
     void* Material::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
+        LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
+
         *this         = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+        IResource::SetSID(path);
         auto* storage = Resources::ResourceStorage::Get();
 
         if (storage->Exists<Shader>(m_shaderHandle.m_sid))
@@ -183,8 +180,8 @@ namespace Lina::Graphics
 
         for (auto& sampler : m_sampler2Ds)
         {
-            if (Texture::TextureExists(sampler.second.m_path))
-                SetTexture(sampler.first, &Texture::GetTexture(sampler.second.m_path), sampler.second.m_bindMode);
+            if (storage->Exists<Texture>(sampler.second.m_texture.m_sid))
+                SetTexture(sampler.first, storage->GetResource<Texture>(sampler.second.m_texture.m_sid), sampler.second.m_bindMode);
         }
 
         return static_cast<void*>(this);
@@ -250,7 +247,12 @@ namespace Lina::Graphics
             for (const auto& e : data.m_sampler2Ds)
             {
                 if (m_sampler2Ds.find(e.first) == m_sampler2Ds.end())
-                    m_sampler2Ds[e.first] = {e.second.m_unit, nullptr, "", "", e.second.m_bindMode, false};
+                    m_sampler2Ds[e.first] = {
+                        e.second.m_unit,
+                        e.second.m_bindMode,
+                        false,
+                        Resources::ResourceHandle<Texture>(),
+                    };
             }
         }
     }
@@ -287,7 +289,12 @@ namespace Lina::Graphics
         m_matrices             = data.m_matrices;
 
         for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
-            m_sampler2Ds[it->first] = {it->second.m_unit, nullptr, "", "", it->second.m_bindMode, false};
+            m_sampler2Ds[it->first] = {
+                it->second.m_unit,
+                it->second.m_bindMode,
+                false,
+                Resources::ResourceHandle<Texture>(),
+            };
     }
 
     void Material::SetMaterialContainers()

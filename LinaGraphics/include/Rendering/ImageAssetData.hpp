@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,40 +27,41 @@ SOFTWARE.
 */
 
 /*
-Class: ModelLoader
+Class: ImageAssetData
 
-Assimp wrapper, responsible for loading modals and creating the necessary Mesh data.
 
-Timestamp: 4/26/2019 12:07:47 AM
+
+Timestamp: 12/31/2021 8:18:02 PM
 */
 
 #pragma once
 
-#ifndef ModelLoader_HPP
-#define ModelLoader_HPP
+#ifndef ImageAssetData_HPP
+#define ImageAssetData_HPP
 
-#include <string>
-#include <vector>
-
-struct aiNode;
-struct aiScene;
-struct aiMesh;
+// Headers here.
+#include "Resources/IResource.hpp"
+#include "Rendering/RenderingCommon.hpp"
 
 namespace Lina::Graphics
 {
-    class Mesh;
-    class Model;
-
-    class ModelLoader
+    class ImageAssetData : public Resources::IResource
     {
+
     public:
-        // Load models using ASSIMP
-        static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
-        static bool LoadModel(const aiScene* scene, Model* model);
-        static bool LoadModel(unsigned char* data, size_t dataSize, Model* model);
-        static bool LoadModel(const std::string& fileName, Model* model);
-        static bool LoadSpriteQuad(Mesh& model);
-        static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
+        ImageAssetData()  = default;
+        ~ImageAssetData() = default;
+
+        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const std::string& path) override;
+
+        SamplerParameters m_samplerParameters;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_samplerParameters);
+        }
     };
 } // namespace Lina::Graphics
 

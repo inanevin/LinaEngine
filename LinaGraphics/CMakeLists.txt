@@ -34,6 +34,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Material.cpp
 	src/Rendering/Model.cpp
 	src/Rendering/ModelNode.cpp
+	src/Rendering/ModelAssetData.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
 	src/Rendering/ShaderInclude.cpp
@@ -44,6 +45,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Sampler.cpp
 	src/Rendering/UniformBuffer.cpp
 	src/Rendering/VertexArray.cpp
+	src/Rendering/ImageAssetData.cpp
 	
 	#Utility 
 	src/Utility/AssimpUtility.cpp
@@ -89,6 +91,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/ArrayBitmap.hpp
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp
+	include/Rendering/ImageAssetData.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/SkinnedMesh.hpp
 	include/Rendering/StaticMesh.hpp
@@ -101,6 +104,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Model.hpp
 	include/Rendering/ModelNode.hpp
+	include/Rendering/ModelAssetData.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp

@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,42 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ModelLoader
-
-Assimp wrapper, responsible for loading modals and creating the necessary Mesh data.
-
-Timestamp: 4/26/2019 12:07:47 AM
-*/
-
-#pragma once
-
-#ifndef ModelLoader_HPP
-#define ModelLoader_HPP
-
-#include <string>
-#include <vector>
-
-struct aiNode;
-struct aiScene;
-struct aiMesh;
+#include "Rendering/ModelAssetData.hpp"
 
 namespace Lina::Graphics
 {
-    class Mesh;
-    class Model;
-
-    class ModelLoader
+    void* ModelAssetData::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-    public:
-        // Load models using ASSIMP
-        static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
-        static bool LoadModel(const aiScene* scene, Model* model);
-        static bool LoadModel(unsigned char* data, size_t dataSize, Model* model);
-        static bool LoadModel(const std::string& fileName, Model* model);
-        static bool LoadSpriteQuad(Mesh& model);
-        static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
-    };
+        *this = Resources::LoadArchiveFromMemory<ModelAssetData>(path, data, dataSize);
+        Resources::IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+    void* ModelAssetData::LoadFromFile(const std::string& path)
+    {
+        *this = Resources::LoadArchiveFromFile<ModelAssetData>(path);
+        Resources::IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
 } // namespace Lina::Graphics
-
-#endif

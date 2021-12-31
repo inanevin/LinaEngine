@@ -44,6 +44,7 @@ Timestamp: 12/30/2021 9:37:39 PM
 #include "Core/CommonResources.hpp"
 #include "Log/Log.hpp"
 #include "Resources/IResource.hpp"
+#include "Math/Color.hpp"
 #include <unordered_map>
 #include <vector>
 
@@ -58,9 +59,10 @@ namespace Lina::Resources
 
     struct ResourceTypeData
     {
-        int m_loadPriority = 0;
+        int                      m_loadPriority = 0;
         ResourceCreateFunc       m_createFunc;
         std::vector<std::string> m_associatedExtensions;
+        Color                    m_resourceIdentifierColor = Color::White;
     };
 
     class ResourceStorage
@@ -185,6 +187,40 @@ namespace Lina::Resources
         inline ResourceTypeData& GetTypeData(TypeID tid)
         {
             return m_resourceTypes[tid];
+        }
+
+        /// <summary>
+        /// Returns the color associated with the given type.
+        /// </summary>
+        template <typename T>
+        Color GetTypeColor()
+        {
+            return m_resourceTypes[GetTypeID<T>()].m_resourceIdentifierColor;
+        }
+
+        /// <summary>
+        /// Returns the color associated with the given type.
+        /// </summary>
+        Color GetTypeColor(TypeID tid)
+        {
+            return m_resourceTypes[tid].m_resourceIdentifierColor;
+        }
+
+        /// <summary>
+        /// Returns whether the templated type is registered or not.
+        /// </summary>
+        template <typename T>
+        bool IsTypeRegistered()
+        {
+            return m_resourceTypes.find(GetTypeID<T>()) != m_resourceTypes.end();
+        }
+
+        /// <summary>
+        /// Returns whether the templated type is registered or not.
+        /// </summary>
+        bool IsTypeRegistered(TypeID tid)
+        {
+            return m_resourceTypes.find(tid) != m_resourceTypes.end();
         }
 
         inline const std::unordered_map<TypeID, ResourceTypeData>& GetResourceTypes() const

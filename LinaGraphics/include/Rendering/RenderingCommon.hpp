@@ -106,7 +106,7 @@ namespace Lina::Graphics
         BINDTEXTURE_TEXTURE2D_MULTISAMPLE = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D_MULTISAMPLE
     };
 
-    enum PixelFormat
+    enum class PixelFormat
     {
         FORMAT_R                 = 0,
         FORMAT_RG                = 1,
@@ -369,34 +369,6 @@ namespace Lina::Graphics
         template <class Archive> void serialize(Archive& archive)
         {
             archive(m_anisotropy, m_textureParams);
-        }
-    };
-
-    struct ImageAssetData
-    {
-        SamplerParameters m_samplerParameters;
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_samplerParameters);
-        }
-    };
-
-    struct ModelAssetData
-    {
-        float                                             m_globalScale            = 1.0f; // 1 meter file = 1 unit Lina
-        bool                                              m_triangulate            = true;
-        bool                                              m_smoothNormals          = true;
-        bool                                              m_calculateTangentSpace  = true;
-        bool                                              m_flipWinding            = false;
-        bool                                              m_flipUVs                = false;
-        bool                                              m_regenerateConvexMeshes = false;
-        std::map<int, std::vector<uint8>>                 m_convexMeshData;
-        std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
         }
     };
 

@@ -152,7 +152,7 @@ namespace Lina::Editor
       //             if (Graphics::Material::MaterialExists(materials[i]))
       //                 mr.SetMaterial(entity, i, Graphics::Material::GetMaterial(materials[i]));
       //             else
-      //                 mr.SetMaterial(entity, i, Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat"));
+      //                 mr.SetMaterial(entity, i, Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat"));
       //         }
       //     }
       //     else
@@ -795,18 +795,18 @@ namespace Lina::Editor
                         if (removed || reset)
                             resolvedData.func("removeModel"_hs).invoke({}, ent);
 
-                        // Mesh drag & drop.
-                        if (ImGui::BeginDragDropTarget())
-                        {
-                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-                            {
-                                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-
-                                auto& model = Graphics::Model::GetModel(*(StringIDType*)payload->Data);
-                                resolvedData.func("setModel"_hs).invoke({}, ent, model);
-                            }
-                            ImGui::EndDragDropTarget();
-                        }
+                       // // Mesh drag & drop.
+                       // if (ImGui::BeginDragDropTarget())
+                       // {
+                       //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+                       //     {
+                       //         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                       //
+                       //         auto& model = Graphics::Model::GetModel(*(StringIDType*)payload->Data);
+                       //         resolvedData.func("setModel"_hs).invoke({}, ent, model);
+                       //     }
+                       //     ImGui::EndDragDropTarget();
+                       // }
 
                         if (valueChangedCallback && prev != modelPath)
                             valueChangedCallback.invoke({}, ent, label);

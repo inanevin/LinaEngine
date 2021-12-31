@@ -112,7 +112,7 @@ namespace Lina::ECS
         /// Creates a full entity hierarchy based on the given model, automatically fills the parent-child relationships and model node components.
         /// </summary>
         /// <param name="model"></param>
-        void CreateModelHierarchy(Graphics::Model& model);
+        void CreateModelHierarchy(Graphics::Model* model);
 
         /// <summary>
         /// Pushes an object into the opaque render stack.

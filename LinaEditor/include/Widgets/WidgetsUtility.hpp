@@ -103,7 +103,7 @@ namespace Lina::Editor
         /// </summary>
         /// <param name="isFolder"></param>
         /// <param name="fullPath"></param>
-        static void DrawResourceNode(Resources::ResourceType type, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier = 1.0f);
+        static void DrawResourceNode(TypeID tid, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier = 1.0f);
 
         /// <summary>
         /// Button with color-picker pop-up

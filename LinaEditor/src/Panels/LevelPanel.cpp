@@ -285,7 +285,7 @@ namespace Lina::Editor
            //         auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
            //         mr.SetModel(entity, model);
            //
-           //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+           //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
            //
            //         for (int i = 0; i < model.GetImportedMaterials().size(); i++)
            //             mr.SetMaterial(entity, i, mat);

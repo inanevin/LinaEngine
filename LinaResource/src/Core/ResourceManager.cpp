@@ -56,26 +56,9 @@ namespace Lina::Resources
         s_currentProgressData.m_progressTitle         = "Loading resources...";
         s_currentProgressData.m_state                 = ResourceProgressState::InProgress;
         s_currentProgressData.m_currentProcessedFiles = 0;
-        std::unordered_map<std::string, ResourceType> filledResources;
 
         m_bundle.ScanFileResources(m_rootFolder);
         m_bundle.LoadAllFileResources();
-
-        // Load all editor resources, first only load the shader includes & shaders
-        std::vector<ResourceType> excludes;
-        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::GLH);
-        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::GLSL);
-        excludes.push_back(ResourceType::GLH);
-        excludes.push_back(ResourceType::GLSL);
-
-        // Then load the textures.
-        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::HDR);
-        excludes.push_back(ResourceType::HDR);
-        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes, ResourceType::Image);
-        excludes.push_back(ResourceType::Image);
-
-        // Then load the rest.
-        m_bundle.LoadResourcesInFolder(m_rootFolder, excludes);
 
         Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
         ResourceManager::ResetProgress();
@@ -150,10 +133,8 @@ namespace Lina::Resources
         // m_eventSys->Trigger<Event::EResourceProgressStarted>();
 
         // Start unpacking.
-        std::unordered_map<std::string, ResourceType> unpackedResources;
-        m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle, unpackedResources);
-
-        m_bundle.LoadAllMemoryMaps();
+        m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle);
+        m_bundle.LoadAllMemoryResources();
 
         // Set progress end.
         ResetProgress();

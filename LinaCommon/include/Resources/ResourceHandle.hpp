@@ -48,7 +48,7 @@ namespace Lina::Resources
     class ResourceHandle
     {
     public:
-        StringIDType m_sid;
+        StringIDType m_sid = -1;
         T*           m_value = nullptr;
 
         template <class Archive>

@@ -72,13 +72,14 @@ namespace Lina::Editor
     void HeaderPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
+        auto* storage = Resources::ResourceStorage::Get();
 
         // Logo texture
-        windowIcon = &Graphics::Texture::GetTexture("Resources/Editor/Textures/linaEngineIcon.png");
+        windowIcon = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/linaEngineIcon.png");
 
         // Logo animation textures
         for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
-            linaLogoAnimation[i] = &Graphics::Texture::GetTexture("Resources/Editor/Textures/LinaLogoJitterAnimation/LogoAnimation (" + std::to_string(i + 1) + ").png");
+            linaLogoAnimation[i] = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/LinaLogoJitterAnimation/LogoAnimation (" + std::to_string(i + 1) + ").png");
 
         linaLogoID = linaLogoAnimation[0]->GetID();
 

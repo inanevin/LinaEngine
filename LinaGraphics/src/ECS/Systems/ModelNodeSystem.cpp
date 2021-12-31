@@ -73,10 +73,10 @@ namespace Lina::ECS
         }
     }
 
-    void ModelNodeSystem::CreateModelHierarchy(Graphics::Model& model)
+    void ModelNodeSystem::CreateModelHierarchy(Graphics::Model* model)
     {
-        Graphics::ModelNode& root             = model.GetRootNode();
-        const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model.GetPath()));
+        Graphics::ModelNode& root             = model->GetRootNode();
+        const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
         Entity               parentEntity     = m_ecs->CreateEntity(parentEntityName);
         ConstructEntityHierarchy(parentEntity, &root);
     }
@@ -92,8 +92,8 @@ namespace Lina::ECS
         if (t > 3.0f)
         {
             t                      = -1000;
-            Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
-            CreateModelHierarchy(model);
+           // Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
+           // CreateModelHierarchy(model);
         }
         for (auto entity : view)
         {

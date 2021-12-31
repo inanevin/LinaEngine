@@ -27,129 +27,68 @@ SOFTWARE.
 */
 
 #include "Rendering/Model.hpp"
-
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "Log/Log.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utility/ModelLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
-#include <cereal/archives/portable_binary.hpp>
-#include <fstream>
-#include <stdio.h>
+#include "Resources/ResourceStorage.hpp"
 
 namespace Lina::Graphics
 {
-
-    std::map<StringIDType, Model> Model::s_loadedModels;
-
-    ModelAssetData Model::LoadAssetData(const std::string& path)
+    void* Model::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
-        ModelAssetData params;
-        std::ifstream  stream(path, std::ios::binary);
+        LINA_TRACE("[Model Loader - Memory] -> Loading: {0}", path);
+
+        SetSID(path);
+
+        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string  assetData     = fileNameNoExt + ".linamodeldata";
+        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
+        auto*              storage       = Resources::ResourceStorage::Get();
+
+        if (storage->Exists<ModelAssetData>(assetDataSid))
         {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(params);
+            m_assetData = storage->GetResource<ModelAssetData>(assetDataSid);
         }
-        return params;
-    }
-
-    void Model::SaveAssetData(const std::string& path)
-    {
-        std::ofstream stream(path, std::ios::binary);
+        else
         {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(m_assetData);
+            m_assetData = new ModelAssetData();
+            Resources::SaveArchiveToFile(assetData, *m_assetData);
+            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
         }
-    }
 
-    ModelAssetData Model::LoadAssetDataFromMemory(unsigned char* data, size_t dataSize)
-    {
-        ModelAssetData params;
-        {
-            std::string        data((char*)data, dataSize);
-            std::istringstream stream(data, std::ios::binary);
-            {
-                cereal::PortableBinaryInputArchive iarchive(stream);
-                iarchive(params);
-            }
-        }
-        return params;
-    }
-
-    Model& Model::CreateModel(const std::string& path, const std::string& assetDataPath, unsigned char* data, size_t dataSize, ModelAssetData& modelAssetData)
-    {
-        StringIDType id = StringID(path.c_str()).value();
-
-        Model& model          = s_loadedModels[id];
-        model.m_assetData     = modelAssetData;
-        model.m_assetDataPath = assetDataPath;
-        model.m_path          = path;
-        ModelLoader::LoadModel(data, dataSize, model);
+        ModelLoader::LoadModel(data, dataSize, this);
 
         // Set id
-        model.m_id            = id;
-        model.m_path          = path;
-        model.m_assetDataPath = assetDataPath;
-        return s_loadedModels[id];
+        return static_cast<void*>(this);
     }
 
-    Model& Model::CreateModel(const std::string& filePath, ModelAssetData& modelAssetData, const std::string& assetDataPath)
+    void* Model::LoadFromFile(const std::string& path)
     {
-        StringIDType id = StringID(filePath.c_str()).value();
+        LINA_TRACE("[Model Loader - File] -> Loading: {0}", path);
 
-        Model& model          = s_loadedModels[id];
-        model.m_assetData     = modelAssetData;
-        model.m_assetDataPath = assetDataPath;
-        model.m_path          = filePath;
-        ModelLoader::LoadModel(filePath, model);
+        SetSID(path);
 
-        // Set id
-        model.m_id            = id;
-        model.m_path          = filePath;
-        model.m_assetDataPath = assetDataPath;
-        return s_loadedModels[id];
-    }
+        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string  assetData     = fileNameNoExt + ".linamodeldata";
+        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
+        auto*              storage       = Resources::ResourceStorage::Get();
 
-    Model& Model::GetModel(StringIDType id)
-    {
-        bool model = ModelExists(id);
-        LINA_ASSERT(model, "Model does not exist!");
-        return s_loadedModels[id];
-    }
-
-    Model& Model::GetModel(const std::string& path)
-    {
-        return GetModel(StringID(path.c_str()).value());
-    }
-
-    bool Model::ModelExists(StringIDType id)
-    {
-        if (id < 0)
-            return false;
-        return !(s_loadedModels.find(id) == s_loadedModels.end());
-    }
-
-    bool Model::ModelExists(const std::string& path)
-    {
-        return ModelExists(StringID(path.c_str()).value());
-    }
-
-    void Model::UnloadModel(StringIDType id)
-    {
-        if (!ModelExists(id))
+        if (storage->Exists<ModelAssetData>(assetDataSid))
         {
-            LINA_WARN("Mesh not found! Aborting... ");
-            return;
+            m_assetData = storage->GetResource<ModelAssetData>(assetDataSid);
+        }
+        else
+        {
+            m_assetData = new ModelAssetData();
+            Resources::SaveArchiveToFile(assetData, *m_assetData);
+            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
         }
 
-        s_loadedModels.erase(id);
-    }
-
-    void Model::UnloadAll()
-    {
-        s_loadedModels.clear();
+        ModelLoader::LoadModel(path, this);
+        return static_cast<void*>(this);
     }
 
 } // namespace Lina::Graphics

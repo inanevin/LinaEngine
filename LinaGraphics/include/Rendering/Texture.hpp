@@ -42,99 +42,78 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "Core/RenderBackendFwd.hpp"
 #include "Rendering/Sampler.hpp"
+#include "Rendering/ImageAssetData.hpp"
 
 namespace Lina::Graphics
 {
     class ArrayBitmap;
     class DDSTexture;
 
-    class Texture
+    class Texture : public Resources::IResource
     {
 
     public:
         Texture() = default;
         ~Texture();
 
-        Texture& Construct(const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
-        Texture& ConstructCubemap(SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-        Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path = "");
-        Texture& ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
-        Texture& ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
-        Texture& ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
-        Texture& ConstructEmpty(SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
-        void     SaveAssetData(const std::string& path);
+        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const std::string& path) override;
+        void*         LoadFromFileHDRI(const std::string& path);
+        void*         LoadFromMemoryHDRI(const std::string& path, unsigned char* data, size_t dataSize);
 
-        uint32 GetID() const
+        void Construct(const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
+        void ConstructCubemap(SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
+        void ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path = "");
+        void ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
+        void ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
+        void ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
+        void ConstructEmpty(SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
+
+        inline ImageAssetData* GetAssetData()
+        {
+            return m_assetData;
+        }
+        inline uint32 GetID() const
         {
             return m_id;
         };
-        StringIDType GetSID() const
-        {
-            return m_sid;
-        }
-        uint32 GetSamplerID() const
+        inline uint32 GetSamplerID() const
         {
             return m_sampler.GetID();
         }
-        Sampler& GetSampler()
+        inline Sampler& GetSampler()
         {
             return m_sampler;
         }
-        bool IsCompressed() const
+        inline bool IsCompressed() const
         {
             return m_isCompressed;
         }
-        bool HasMipmaps() const
+        inline bool HasMipmaps() const
         {
             return m_hasMipMaps;
         }
-        Vector2i GetSize()
+        inline Vector2i GetSize()
         {
             return m_size;
         }
-        bool GetIsEmpty()
+        inline bool GetIsEmpty()
         {
             return m_isEmpty;
         }
-        const std::string& GetPath() const
-        {
-            return m_path;
-        }
-        const std::string& GetAssetDataPath() const
-        {
-            return m_assetDataPath;
-        }
-
-        static ImageAssetData LoadAssetData(const std::string& path);
-        static ImageAssetData LoadAssetDataFromMemory(unsigned char* data, size_t dataSize);
-        static Texture&       CreateTexture2D(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
-        static Texture&       CreateTextureHDRI(const std::string& path, unsigned char* data, size_t dataSize);
-        static Texture&       CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
-        static Texture&       CreateTextureHDRI(const std::string filePath);
-        static Texture&       GetTexture(StringIDType id);
-        static Texture&       GetTexture(const std::string& path);
-        static bool           TextureExists(StringIDType id);
-        static bool           TextureExists(const std::string& path);
-        static void           UnloadTextureResource(StringIDType id);
-        static void           UnloadAll();
 
     private:
-        static std::map<StringIDType, Texture*> s_loadedTextures;
-
         friend RenderEngine;
 
         TextureBindMode m_bindMode;
         Sampler         m_sampler;
-        ImageAssetData  m_assetData;
-        RenderDevice*   m_renderDevice  = nullptr;
-        uint32          m_id            = 0;
-        StringIDType    m_sid           = 0;
-        Vector2i       m_size          = Vector2::One;
-        bool            m_isCompressed  = false;
-        bool            m_hasMipMaps    = true;
-        bool            m_isEmpty       = true;
-        std::string     m_path          = "";
-        std::string     m_assetDataPath = "";
+        ImageAssetData* m_assetData    = nullptr;
+        RenderDevice*   m_renderDevice = nullptr;
+        uint32          m_id           = 0;
+        Vector2i        m_size         = Vector2::One;
+        bool            m_isCompressed = false;
+        bool            m_hasMipMaps   = true;
+        bool            m_isEmpty      = true;
     };
 } // namespace Lina::Graphics
 

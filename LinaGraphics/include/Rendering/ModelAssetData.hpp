@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,63 +27,50 @@ SOFTWARE.
 */
 
 /*
-Class: Model
+Class: ModelAssetData
 
 
-Timestamp: 5/6/2019 4:23:45 PM
+
+Timestamp: 12/31/2021 8:18:10 PM
 */
 
 #pragma once
 
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#ifndef ModelAssetData_HPP
+#define ModelAssetData_HPP
 
-#include "Rendering/ModelNode.hpp"
-#include "Rendering/ModelAssetData.hpp"
-#include "Rendering/RenderingCommon.hpp"
+// Headers here.
+#include "Resources/IResource.hpp"
+#include <map>
+#include <vector>
 
 namespace Lina::Graphics
 {
-    class VertexArray;
-    class ModelLoader;
-
-    class Model : public Resources::IResource
+    class ModelAssetData : public Resources::IResource
     {
 
     public:
-        Model()          = default;
-        virtual ~Model() = default;
+        ModelAssetData()  = default;
+        ~ModelAssetData() = default;
 
         virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const std::string& path) override;
 
-        inline ModelAssetData* GetAssetData()
+        float                                             m_globalScale            = 1.0f; // 1 meter file = 1 unit Lina
+        bool                                              m_triangulate            = true;
+        bool                                              m_smoothNormals          = true;
+        bool                                              m_calculateTangentSpace  = true;
+        bool                                              m_flipWinding            = false;
+        bool                                              m_flipUVs                = false;
+        bool                                              m_regenerateConvexMeshes = false;
+        std::map<int, std::vector<uint8>>                 m_convexMeshData;
+        std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
+
+        template <class Archive>
+        void serialize(Archive& archive)
         {
-            return m_assetData;
+            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
         }
-        inline std::vector<ImportedModelMaterial>& GetImportedMaterials()
-        {
-            return m_importedMaterials;
-        }
-
-        ModelNode& GetRootNode()
-        {
-            return m_rootNode;
-        }
-
-        /// <summary>
-        /// Serializes the given asset data to the path.
-        /// </summary>
-        void SaveAssetData(const std::string& path);
-
-    private:
-        friend class OpenGLRenderEngine;
-        friend class ModelLoader;
-        friend class ModelNode;
-
-        ModelAssetData*                    m_assetData = nullptr;
-        ModelNode                          m_rootNode;
-        std::vector<ImportedModelMaterial> m_importedMaterials;
     };
 } // namespace Lina::Graphics
 

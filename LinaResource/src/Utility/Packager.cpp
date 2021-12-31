@@ -165,7 +165,7 @@ namespace Lina::Resources
         }
     }
 
-    void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle, std::unordered_map<std::string, ResourceType>& unpackedResources)
+    void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle)
     {
         try
         {
@@ -222,13 +222,8 @@ namespace Lina::Resources
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
                 std::string ext = Utility::GetFileExtension(filePath);
 
-                // Fill the reference table to be used after unpacking.
-                ResourceType resType           = GetResourceType(ext);
-                unpackedResources[filePathStr] = resType;
-
                 // Pass the resource to bundle.
-                // outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
-                outBundle->PushResourceFromMemory(filePathStr, resType, item.second);
+                outBundle->PushResourceFromMemory(filePathStr, item.second);
             }
 
             LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);

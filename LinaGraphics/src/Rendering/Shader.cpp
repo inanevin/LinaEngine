@@ -41,6 +41,7 @@ namespace Lina::Graphics
 
     void* Shader::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
+        LINA_TRACE("[Shader Loader - Memory] -> Loading: {0}", path);
         Resources::IResource::SetSID(path);
         std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
         Graphics::LoadTextWithIncludes(shaderText, "#include");
@@ -51,6 +52,7 @@ namespace Lina::Graphics
 
     void* Shader::LoadFromFile(const std::string& path)
     {
+        LINA_TRACE("[Shader Loader - File] -> Loading: {0}", path);
         Resources::IResource::SetSID(path);
         std::string shaderText;
         Graphics::LoadTextFileWithIncludes(shaderText, path, "#include");

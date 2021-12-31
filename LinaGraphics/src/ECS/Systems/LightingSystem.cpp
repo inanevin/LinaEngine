@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/LightingSystem.hpp"
-
+#include "Resources/ResourceStorage.hpp"
 #include "Core/RenderDeviceBackend.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
@@ -57,9 +57,10 @@ namespace Lina::ECS
         if (m_appMode == ApplicationMode::Editor || pLightIconID == -1)
         {
             // Create debug icon textures for lights
-            pLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/PLightIcon.png").GetSID();
-            sLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/SLightIcon.png").GetSID();
-            dLightIconID = Graphics::Texture::GetTexture("Resources/Editor/Textures/Icons/DLightIcon.png").GetSID();
+            auto* storage    = Resources::ResourceStorage::Get();
+            pLightIconID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Icons/PLightIcon.png")->GetSID();
+            sLightIconID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Icons/SLightIcon.png")->GetSID();
+            dLightIconID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Icons/DLightIcon.png")->GetSID();
         }
 
         // Flush lights every update.

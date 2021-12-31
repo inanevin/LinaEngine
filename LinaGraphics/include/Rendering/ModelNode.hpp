@@ -74,7 +74,7 @@ namespace Lina::Graphics
         };
         ~ModelNode();
 
-        void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model& parentModel);
+        void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model* parentModel);
         inline const std::vector<Mesh*>& GetMeshes() const
         {
             return m_meshes;

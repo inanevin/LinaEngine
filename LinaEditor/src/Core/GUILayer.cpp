@@ -48,6 +48,7 @@ SOFTWARE.
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
 #include "Log/Log.hpp"
+#include "Resources/ResourceStorage.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
@@ -78,6 +79,7 @@ namespace Lina::Editor
         m_linaLogoIcon         = ICON_FA_FIRE;
         m_defaultWindowPadding = Vector2(8, 8);
         m_defaultFramePadding  = Vector2(8, 2);
+        m_storage              = Resources::ResourceStorage::Get();
 
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
         Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
@@ -247,7 +249,7 @@ namespace Lina::Editor
         splashWindow->SetSize(splashSize);
 
         Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-        splashScreenTexture = &Graphics::Texture::CreateTexture2D("Resources/Editor/Textures/SplashScreen.png", Graphics::SamplerParameters(), false, false, "");
+        splashScreenTexture = m_storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/SplashScreen.png");
         DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();
@@ -417,17 +419,17 @@ namespace Lina::Editor
         else if (item == MenuBarElementType::Empty)
             ECS::Registry::Get()->CreateEntity("Empty");
         else if (item == MenuBarElementType::Cube)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cube.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Cube.fbx"));
         else if (item == MenuBarElementType::Cylinder)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
         else if (item == MenuBarElementType::Capsule)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Capsule.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Capsule.fbx"));
         else if (item == MenuBarElementType::Quad)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Quad.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Quad.fbx"));
         else if (item == MenuBarElementType::Sphere)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Sphere.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx"));
         else if (item == MenuBarElementType::Plane)
-            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Graphics::Model::GetModel("Resources/Engine/Meshes/Primitives/Plane.fbx"));
+            Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(m_storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Plane.fbx"));
         else if (item == MenuBarElementType::PLight)
         {
             auto ent = ECS::Registry::Get()->CreateEntity("Point Light");

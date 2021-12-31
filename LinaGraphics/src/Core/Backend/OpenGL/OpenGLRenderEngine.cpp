@@ -51,6 +51,7 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "Utility/ModelLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Resources/ResourceStorage.hpp"
 
 namespace Lina::Graphics
 {
@@ -81,8 +82,6 @@ namespace Lina::Graphics
         m_eventSystem->Connect<Event::EDrawSphere, &OpenGLRenderEngine::OnDrawSphere>(this);
         m_eventSystem->Connect<Event::EDrawHemiSphere, &OpenGLRenderEngine::OnDrawHemiSphere>(this);
         m_eventSystem->Connect<Event::EDrawCapsule, &OpenGLRenderEngine::OnDrawCapsule>(this);
-        m_eventSystem->Connect<Event::ELoadResourceFromFile, &OpenGLRenderEngine::OnLoadResourceFromFile>(this);
-        m_eventSystem->Connect<Event::ELoadResourceFromMemory, &OpenGLRenderEngine::OnLoadResourceFromMemory>(this);
     }
 
     void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
@@ -95,6 +94,7 @@ namespace Lina::Graphics
         // Set references.
         m_appWindow = OpenGLWindow::Get();
         m_appMode   = appMode;
+        m_storage   = Resources::ResourceStorage::Get();
 
         // Initialize the render device.
         m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
@@ -276,8 +276,8 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
         auto* storage = Resources::ResourceStorage::Get();
-        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.mat");
-        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.mat");
+        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
 
         m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
         m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
@@ -464,81 +464,6 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::OnLoadResourceFromFile(const Event::ELoadResourceFromFile& event)
-    {
-
-        if (event.m_resourceType == Resources::ResourceType::Model)
-        {
-            ModelAssetData params;
-
-            LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
-
-            bool assetDataExists = Utility::FileExists(event.m_assetDataPath);
-            if (assetDataExists)
-                params = Model::LoadAssetData(event.m_assetDataPath);
-
-            auto& model = Model::CreateModel(event.m_path, params, event.m_assetDataPath);
-
-            if (!assetDataExists)
-                model.SaveAssetData(event.m_assetDataPath);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Image)
-        {
-            if (Texture::TextureExists(event.m_path))
-                return;
-
-            LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
-            ImageAssetData assetData;
-            bool           paramsExists = Utility::FileExists(event.m_assetDataPath);
-
-            if (paramsExists)
-                assetData = Texture::LoadAssetData(event.m_assetDataPath);
-
-            auto& texture = Texture::CreateTexture2D(event.m_path, assetData.m_samplerParameters, false, false, event.m_assetDataPath);
-            if (!paramsExists)
-                texture.SaveAssetData(event.m_assetDataPath);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::HDR)
-        {
-            if (Texture::TextureExists(event.m_path))
-                return;
-
-            LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
-            Texture::CreateTextureHDRI(event.m_path);
-        }
-    }
-
-    void OpenGLRenderEngine::OnLoadResourceFromMemory(const Event::ELoadResourceFromMemory& event)
-    {
-        if (event.m_resourceType == Resources::ResourceType::Model)
-        {
-            LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
-
-            ModelAssetData assetData;
-
-            if (event.m_assetDataBuffer != nullptr)
-                assetData = Model::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
-
-            Model::CreateModel(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, assetData);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::Image)
-        {
-            LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
-
-            ImageAssetData assetData;
-
-            if (event.m_assetDataBuffer != nullptr)
-                assetData = Texture::LoadAssetDataFromMemory(event.m_assetDataBuffer, event.m_assetDataSize);
-
-            Texture::CreateTexture2D(event.m_path, event.m_assetDataPath, event.m_data, event.m_dataSize, assetData.m_samplerParameters, false, false);
-        }
-        else if (event.m_resourceType == Resources::ResourceType::HDR)
-        {
-            LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
-            Texture::CreateTextureHDRI(event.m_path, event.m_data, event.m_dataSize);
-        }
-    }
-
     void OpenGLRenderEngine::OnDrawLine(const Event::EDrawLine& event)
     {
         DrawLine(event.m_from, event.m_to, event.m_color, event.m_lineWidth);
@@ -636,10 +561,6 @@ namespace Lina::Graphics
         {
             m_debugIconQueue.pop();
         }
-
-        // Clear dumps.
-        Model::UnloadAll();
-        Texture::UnloadAll();
     }
 
     void OpenGLRenderEngine::Draw()
@@ -798,7 +719,7 @@ namespace Lina::Graphics
             tr.m_rotation = Quaternion::LookAt(icon.m_center, m_cameraSystem.GetCameraLocation(), Vector3::Up);
             Matrix model  = tr.ToMatrix();
             m_quadMesh.GetVertexArray().UpdateBuffer(2, &model, 1 * sizeof(Matrix));
-            m_debugIconMaterial.SetTexture(MAT_TEXTURE2D_DIFFUSE, &Texture::GetTexture(icon.m_textureID));
+            m_debugIconMaterial.SetTexture(MAT_TEXTURE2D_DIFFUSE, m_storage->GetResource<Texture>(icon.m_textureID));
             UpdateShaderData(&m_debugIconMaterial);
             m_renderDevice.Draw(m_quadMesh.GetVertexArray().GetID(), m_defaultDrawParams, 1, m_quadMesh.GetVertexArray().GetIndexCount(), false);
             m_debugIconQueue.pop();
@@ -961,7 +882,7 @@ namespace Lina::Graphics
         for (auto const& d : (*data).m_sampler2Ds)
         {
             // Set whether the texture is active or not.
-            bool isActive = (d.second.m_isActive && d.second.m_boundTexture != nullptr && !d.second.m_boundTexture->GetIsEmpty()) ? true : false;
+            bool isActive = (d.second.m_isActive && d.second.m_texture.m_value != nullptr && !d.second.m_texture.m_value->GetIsEmpty()) ? true : false;
             m_renderDevice.UpdateShaderUniformInt(shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
 
             // Set the texture to corresponding active unit.
@@ -969,7 +890,7 @@ namespace Lina::Graphics
 
             // Set texture
             if (isActive)
-                m_renderDevice.SetTexture(d.second.m_boundTexture->GetID(), d.second.m_boundTexture->GetSamplerID(), d.second.m_unit, d.second.m_bindMode, true);
+                m_renderDevice.SetTexture(d.second.m_texture.m_value->GetID(), d.second.m_texture.m_value->GetSamplerID(), d.second.m_unit, d.second.m_bindMode, true);
             else
             {
 

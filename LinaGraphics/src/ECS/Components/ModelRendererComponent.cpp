@@ -125,7 +125,7 @@ namespace Lina::ECS
     void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model)
     {
         // ECS::Registry* reg = ECS::Registry::Get();
-        // auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+        // auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
         // auto& mr = reg->emplace<ECS::MeshRendererComponent>(targetEntity);
         // auto& data = reg->get<ECS::EntityDataComponent>(targetEntity);
         // mr.m_subMeshes = meshIndexes;
@@ -190,7 +190,7 @@ namespace Lina::ECS
         // m_modelParamsPath = model.GetAssetDataPath();
         // m_materialPaths.clear();
         // m_materialPaths.resize(model.GetImportedMaterials().size());
-        // auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.mat");
+        // auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
         //
         // RefreshHierarchy(parent);
         //
