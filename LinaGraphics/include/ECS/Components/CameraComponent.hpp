@@ -44,7 +44,7 @@ Timestamp: 5/2/2019 12:20:42 AM
 
 namespace Lina::ECS
 {
-
+    LINA_CLASS("Camera Component", "ICON_FA_EYE", "Rendering", "true", "true")
     struct CameraComponent : public Component
     {
         Color m_clearColor  = Color(0.1f, 0.1f, 0.1f, 1.0f);

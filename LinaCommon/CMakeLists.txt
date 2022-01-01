@@ -77,6 +77,7 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonResources.hpp
 	include/Core/CommonECS.hpp
 	include/Core/CommonUtility.hpp
+	include/Core/CommonReflection.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Timer.hpp
 	include/Core/PlatformMacros.hpp

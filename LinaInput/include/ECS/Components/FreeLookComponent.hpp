@@ -44,6 +44,7 @@ Timestamp: 5/2/2019 1:40:16 AM
 
 namespace Lina::ECS
 {
+    LINA_CLASS("Free Look Component", "ICON_FA_EYE", "Input", "true", "true")
     struct FreeLookComponent : public Component
     {
         Vector2 m_angles         = Vector2::Zero;

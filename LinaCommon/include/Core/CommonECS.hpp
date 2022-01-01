@@ -48,9 +48,7 @@ namespace Lina::ECS
 {
 #define ECSNULL entt::null
 
-    typedef entt::entity                                                                      Entity;
-    typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)>       ComponentSerializeFunction;
-    typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
+    typedef entt::entity Entity;
 
 } // namespace Lina::ECS
 

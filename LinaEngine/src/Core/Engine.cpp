@@ -30,13 +30,6 @@ SOFTWARE.
 
 #include "Audio/Audio.hpp"
 #include "Core/Timer.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/ModelNodeComponent.hpp"
-#include "ECS/Components/PhysicsComponent.hpp"
-#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/PhysicsEvents.hpp"
@@ -49,6 +42,7 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Rendering/Shader.hpp"
+#include "Core/ReflectionRegistry.hpp"
 
 namespace Lina
 {
@@ -121,16 +115,7 @@ namespace Lina
         m_renderEngine.Initialize(m_appInfo.m_appMode);
         m_messageBus.Initialize(m_appInfo.m_appMode);
 
-        // Register ECS components for cloning & serialization functionality.
-        m_ecs.RegisterComponent<ECS::EntityDataComponent>();
-        m_ecs.RegisterComponent<ECS::FreeLookComponent>();
-        m_ecs.RegisterComponent<ECS::PhysicsComponent>();
-        m_ecs.RegisterComponent<ECS::CameraComponent>();
-        m_ecs.RegisterComponent<ECS::PointLightComponent>();
-        m_ecs.RegisterComponent<ECS::SpotLightComponent>();
-        m_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
-        m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
-        m_ecs.RegisterComponent<ECS::ModelNodeComponent>();
+        ReflectionRegistry::RegisterReflectedComponents();
     }
 
     void Engine::StartLoadingResources()

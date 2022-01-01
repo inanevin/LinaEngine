@@ -99,31 +99,12 @@ namespace Lina::ECS
         void Shutdown();
 
     private:
-        template <typename Type>
-        void CloneComponent(Entity from, Entity to)
-        {
-            Type component = get<Type>(from);
-            emplace<Type>(to, component);
-        }
 
-        template <typename Type>
-        void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
-        {
-            snapshot.component<Type>(archive);
-        }
-
-        template <typename Type>
-        void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
-        {
-            loader.component<Type>(archive);
-        }
 
         void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
 
     private:
         static Registry*                                                                                s_ecs;
-        std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
-        std::map<TypeID, std::function<void(Entity, Entity)>>                                           m_cloneComponentFunctions;
     };
 } // namespace Lina::ECS
 

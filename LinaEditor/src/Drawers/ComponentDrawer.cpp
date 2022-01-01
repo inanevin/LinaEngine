@@ -61,8 +61,6 @@ namespace Lina::Editor
     template <typename Type> void Drawer_SetEnabled(ECS::Entity ent, bool enabled)
     {
         ECS::Registry::Get()->template get<Type>(ent).SetIsEnabled(enabled);
-
-        
     }
 
     template <typename Type> Type& Drawer_Get(ECS::Entity entity)

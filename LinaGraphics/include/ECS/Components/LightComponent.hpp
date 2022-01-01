@@ -54,12 +54,14 @@ namespace Lina::ECS
         bool  m_drawDebug    = true;
         bool  m_castsShadows = false;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_color, m_isEnabled); // serialize things by passing them to the archive
         }
     };
 
+    LINA_CLASS("Point Light Component", "ICON_FA_EYE", "Lights", "true", "true")
     struct PointLightComponent : public LightComponent
     {
         float m_distance   = 25.0f;
@@ -67,31 +69,36 @@ namespace Lina::ECS
         float m_shadowNear = 0.1f;
         float m_shadowFar  = 25.0f;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_distance, m_intensity, m_shadowNear, m_shadowFar, m_bias, m_color, m_drawDebug, m_isEnabled, m_castsShadows); // serialize things by passing them to the archive
         }
     };
 
+    LINA_CLASS("Spot Light Component", "ICON_FA_EYE", "Lights", "true", "true")
     struct SpotLightComponent : public LightComponent
     {
         float m_distance    = 0;
         float m_cutoff      = Math::Cos(Math::ToRadians(12.5f));
         float m_outerCutoff = Math::Cos(Math::ToRadians(17.5f));
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_color, m_castsShadows, m_intensity, m_drawDebug, m_distance, m_cutoff, m_outerCutoff, m_isEnabled); // serialize things by passing them to the archive
         }
     };
 
+    LINA_CLASS("Directional Light Component", "ICON_FA_EYE", "Lights", "true", "true")
     struct DirectionalLightComponent : public LightComponent
     {
         Vector4 m_shadowOrthoProjection = Vector4(-20, 20, -20, 20);
         float   m_shadowZNear           = 10.0f;
         float   m_shadowZFar            = 15.0f;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_shadowOrthoProjection, m_castsShadows, m_intensity, m_drawDebug, m_shadowZNear, m_shadowZFar, m_color, m_isEnabled); // serialize things by passing them to the archive
         }

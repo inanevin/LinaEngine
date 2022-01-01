@@ -56,20 +56,20 @@ namespace Lina::ECS
         auto& snapshot = entt::snapshot{*this};
         snapshot.entities(archive);
 
-        for (auto& func : m_serializeFunctions)
-        {
-            func.second.first(snapshot, archive);
-        }
+        //for (auto& func : m_serializeFunctions)
+        //{
+        //    func.second.first(snapshot, archive);
+        //}
     }
 
     void Registry::DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive)
     {
         auto& loader = entt::snapshot_loader{*this};
         loader.entities(archive);
-        for (auto& func : m_serializeFunctions)
-        {
-            func.second.second(loader, archive);
-        }
+        // for (auto& func : m_serializeFunctions)
+        // {
+        //     func.second.second(loader, archive);
+        // }
     }
 
     void Registry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)
@@ -151,8 +151,8 @@ namespace Lina::ECS
     {
         for (auto& pool : storage())
         {
-            if (pool.second.contains(from))
-                m_cloneComponentFunctions[pool.first](from, to);
+            // if (pool.second.contains(from))
+            //     m_cloneComponentFunctions[pool.first](from, to);
         }
     }
 

@@ -26,6 +26,7 @@ set (LINAENGINE_SOURCES
     src/Core/Application.cpp
 	src/Core/Engine.cpp
 	src/Core/MessageBus.cpp
+	src/Core/ReflectionRegistry.cpp
 	src/World/Level.cpp
 	src/World/DefaultLevel.cpp
 )
@@ -39,6 +40,7 @@ set(LINAENGINE_HEADERS
 	include/Core/Application.hpp
 	include/Core/Engine.hpp
 	include/Core/MessageBus.hpp
+	include/Core/ReflectionRegistry.hpp
 	
 	#World
 	include/World/Level.hpp
@@ -96,6 +98,13 @@ target_link_libraries(${PROJECT_NAME}
 # Packages
 #--------------------------------------------------------------------
 find_package(OpenGL REQUIRED)
+
+# Launch Lina Header tool prior to building to prepare the reflection data for runtime.
+
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/LinaHeaderTool/bin/ LinaHeader.exe)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

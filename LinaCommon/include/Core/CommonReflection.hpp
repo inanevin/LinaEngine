@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,36 +27,24 @@ SOFTWARE.
 */
 
 /*
-Class: SpriteRendererComponent
-Timestamp: 10/1/2020 9:26:21 AM
+Class: CommonReflection
+
+
+
+Timestamp: 1/1/2022 4:31:37 PM
 */
 
 #pragma once
 
-#ifndef SpriteRendererComponent_HPP
-#define SpriteRendererComponent_HPP
+#ifndef CommonReflection_HPP
+#define CommonReflection_HPP
 
-#include "ECS/Component.hpp"
+// Headers here.
 
-#include <string>
-
-namespace Lina::ECS
+namespace Lina
 {
-    LINA_CLASS("Sprite Component", "ICON_FA_EYE", "Rendering", "true", "true")
-    struct SpriteRendererComponent : public Component
-    {
-        int         m_materialID    = -1;
-        std::string m_materialPaths = "";
-
-        // Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
-        int         m_selectedMatID   = -1;
-        std::string m_selectedMatPath = "";
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_materialPaths, m_isEnabled); // serialize things by passing them to the archive
-        }
-    };
-} // namespace Lina::ECS
+#define LINA_CLASS(ClassTitle, ClassIcon, Category, CanAddComponent, ListenToValueChanges)
+#define LINA_PROPERTY(Title, Type, Tooltip, Dependency)
+}
 
 #endif

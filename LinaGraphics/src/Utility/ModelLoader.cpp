@@ -191,7 +191,6 @@ namespace Lina::Graphics
             model->GetImportedMaterials().push_back(defaultMaterial);
         }
 
-        Resources::SaveArchiveToFile(model->GetAssetData()->GetPath(), *model->GetAssetData());
         return true;
     }
 
