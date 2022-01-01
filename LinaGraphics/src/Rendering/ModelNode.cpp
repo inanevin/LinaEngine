@@ -89,7 +89,7 @@ namespace Lina::Graphics
 
         // Check the user data to see if user has saved any material data for this node asset.
         // If so, assign it, if not, pass the default engine material.
-        auto& defaultMaterial = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
+        auto* defaultMaterial = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
         auto& nodeMaterialMap = parentModel->GetAssetData()->m_nodeMaterialMapping;
         if (nodeMaterialMap.find(m_id) != nodeMaterialMap.end())
         {
@@ -100,13 +100,13 @@ namespace Lina::Graphics
                 if (materialVector.size() > i)
                     m_defaultMaterials[i] = materialVector[i];
                 else
-                    m_defaultMaterials[i] = defaultMaterial.GetSID();
+                    m_defaultMaterials[i] = defaultMaterial->GetSID();
             }
         }
         else
         {
             for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
-                m_defaultMaterials[i] = defaultMaterial.GetSID();
+                m_defaultMaterials[i] = defaultMaterial->GetSID();
         }
 
         // Recursively fill the other nodes.

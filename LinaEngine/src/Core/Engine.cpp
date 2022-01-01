@@ -135,13 +135,11 @@ namespace Lina
 
     void Engine::StartLoadingResources()
     {
+    
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
             m_resourceManager.LoadEditorResources();
         else
             m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
-
-        m_renderEngine.SetupEngineShaders();
-        m_renderEngine.ConstructEngineMaterials();
 
         // Initialize any listeners.
         m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
@@ -219,12 +217,14 @@ namespace Lina
         m_audioEngine.Shutdown();
         m_inputEngine.Shutdown();
         m_resourceManager.Shutdown();
+        m_resourceStorage.Shutdown();
         m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
         m_eventSystem.Shutdown();
 
         PROFILER_DUMP("profile.prof");
         Timer::UnloadTimers();
     }
+
     void Engine::UpdateGame(float deltaTime)
     {
         PROFILER_FUNC("Engine Tick");
@@ -269,6 +269,7 @@ namespace Lina
             m_window.Tick();
         }
     }
+
     void Engine::RemoveOutliers(bool biggest)
     {
         double outlier      = biggest ? 0 : 10;
@@ -334,30 +335,30 @@ namespace Lina
 
         m_resourceStorage.RegisterResource<Graphics::Shader>(
             Resources::ResourceTypeData{
-                0,
+                1,
                 std::bind(Resources::CreateResource<Graphics::Shader>),
                 std::vector<std::string>{"glsl"}, Color(255, 71, 108, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Texture>(
             Resources::ResourceTypeData{
-                1,
+                2,
                 std::bind(Resources::CreateResource<Graphics::Texture>),
                 std::vector<std::string>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Material>(
             Resources::ResourceTypeData{
-                2,
+                3,
                 std::bind(Resources::CreateResource<Graphics::Material>),
                 std::vector<std::string>{"linamat"}, Color(56, 79, 255, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Model>(
             Resources::ResourceTypeData{
-                3,
+                4,
                 std::bind(Resources::CreateResource<Graphics::Model>),
                 std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
-            4,
+            5,
             std::bind(Resources::CreateResource<Audio::Audio>),
             std::vector<std::string>{"wav", "mp3", "ogg"}, Color(255, 235, 170, 255, true)});
 

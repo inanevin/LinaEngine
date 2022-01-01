@@ -249,7 +249,9 @@ namespace Lina::Editor
         splashWindow->SetSize(splashSize);
 
         Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-        splashScreenTexture = m_storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/SplashScreen.png");
+        splashScreenTexture     = new Graphics::Texture();
+        splashScreenTexture->LoadFromFile("Resources/Editor/Textures/SplashScreen.png");
+        m_storage->Add(static_cast<void*>(splashScreenTexture), GetTypeID<Graphics::Texture>(), StringID("Resources/Editor/Textures/SplashScreen.png").value());
         DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();

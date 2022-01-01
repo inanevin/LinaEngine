@@ -74,9 +74,7 @@ namespace Lina
     namespace Event
     {
         class EventSystem;
-
-        struct ELoadResourceFromFile;
-        struct ELoadResourceFromMemory;
+        struct EAllResourcesOfTypeLoaded;
         struct EDrawLine;
         struct EDrawBox;
         struct EDrawCircle;
@@ -241,13 +239,13 @@ namespace Lina::Graphics
         {
             return &m_defaultTexture;
         }
-        inline Material& GetDefaultUnlitMaterial()
+        inline Material* GetDefaultUnlitMaterial()
         {
-            return *m_defaultUnlit;
+            return m_defaultUnlit;
         }
-        inline Material& GetDefaultLitMaterial()
+        inline Material* GetDefaultLitMaterial()
         {
-            return *m_defaultLit;
+            return m_defaultLit;
         }
         inline Shader* GetDefaultUnlitShader()
         {
@@ -298,6 +296,7 @@ namespace Lina::Graphics
         void OnDrawHemiSphere(const Event::EDrawHemiSphere& event);
         void OnDrawCapsule(const Event::EDrawCapsule& event);
         void OnWindowResized(const Event::EWindowResized& event);
+        void OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev);
         bool ValidateEngineShaders();
         void SetupEngineShaders();
         void ConstructEngineMaterials();

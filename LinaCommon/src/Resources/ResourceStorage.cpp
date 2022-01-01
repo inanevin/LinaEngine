@@ -32,32 +32,31 @@ namespace Lina::Resources
 {
     ResourceStorage* ResourceStorage::s_instance = nullptr;
 
-    ResourceStorage::~ResourceStorage()
+    void ResourceStorage::Shutdown()
     {
-        for (auto& p : m_resources)
+        for (auto& [resType, cache] : m_resources)
         {
-            for (auto& rp : p.second)
-                delete rp.second;
-
-            p.second.clear();
+            for (auto& [sid, ptr] : cache)
+                delete ptr;
+            cache.clear();
         }
-
         m_resources.clear();
     }
+
     TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)
     {
         bool   found = false;
         TypeID tid   = -1;
 
-        for (auto& p : m_resourceTypes)
+        for (auto& typeCachePair : m_resourceTypes)
         {
-            auto& extensions = p.second.m_associatedExtensions;
+            auto& extensions = typeCachePair.second.m_associatedExtensions;
 
             for (int i = 0; i < extensions.size(); i++)
             {
                 if (extensions[i].compare(extension) == 0)
                 {
-                    tid   = p.first;
+                    tid   = typeCachePair.first;
                     found = true;
                     break;
                 }

@@ -49,6 +49,12 @@ namespace Lina::Event
         TypeID       m_tid;
         StringIDType m_sid;
     };
+
+    struct EAllResourcesOfTypeLoaded
+    {
+        TypeID m_tid;
+    };
+
     struct EResourceProgressStarted
     {
     };

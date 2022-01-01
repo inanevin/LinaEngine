@@ -93,6 +93,15 @@ namespace Lina::Resources
             return Exists<T>(StringID(path.c_str()).value());
         }
 
+          /// <summary>
+        /// Returns true if the given path's string ID exists in the cache for the type T.
+        /// </summary>
+        bool Exists(TypeID tid, StringIDType sid)
+        {
+            auto& cache = m_resources[tid];
+            return cache.find(sid) != cache.end();
+        }
+
         /// <summary>
         /// Returns the resource with the given type and string ID. Will return uninitialized ptr if doesn't exist.
         /// If you are not sure about the resource's existance, use Exists() method first.
@@ -231,7 +240,8 @@ namespace Lina::Resources
     private:
         friend class Engine;
         ResourceStorage() = default;
-        ~ResourceStorage();
+        ~ResourceStorage() = default;
+        void Shutdown();
 
     private:
         static ResourceStorage*                      s_instance;

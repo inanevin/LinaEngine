@@ -61,15 +61,15 @@ namespace Lina::Resources
         MemoryEntry() = default;
         ~MemoryEntry();
 
-        MemoryEntry(int priority,  const std::string& path, std::vector<unsigned char>& data)
+        MemoryEntry(int priority, const std::string& path, std::vector<unsigned char>& data)
         {
-            m_priority        = priority;
-            m_path            = path;
-            m_data            = data;
+            m_priority = priority;
+            m_path     = path;
+            m_data     = data;
         }
 
-        int                        m_priority        = 100;
-        std::string                m_path            = "";
+        int                        m_priority = 100;
+        std::string                m_path     = "";
         std::vector<unsigned char> m_data;
     };
 
@@ -79,7 +79,7 @@ namespace Lina::Resources
         {
             // return "true" if "p1" is ordered
             // before "p2", for example:
-            return p1.m_priority < p2.m_priority;
+            return p1.m_priority > p2.m_priority;
         }
     };
 
@@ -105,7 +105,7 @@ namespace Lina::Resources
         {
             // return "true" if "p1" is ordered
             // before "p2", for example:
-            return p1.m_priority < p2.m_priority;
+            return p1.m_priority > p2.m_priority;
         }
     };
 
@@ -137,7 +137,9 @@ namespace Lina::Resources
         void LoadAllFileResources();
 
         std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
-        std::priority_queue<FileEntry, std::vector<FileEntry>, CompareFileEntry> m_fileResources;
+        std::priority_queue<FileEntry, std::vector<FileEntry>, CompareFileEntry>    m_fileResources;
+        TypeID                                                                      m_lastResourceTypeID   = -1;
+        int                                                                         m_lastResourcePriority = 0;
     };
 } // namespace Lina::Resources
 

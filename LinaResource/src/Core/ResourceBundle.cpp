@@ -56,14 +56,34 @@ namespace Lina::Resources
         auto* storage = Resources::ResourceStorage::Get();
         while (!m_memoryResources.empty())
         {
-            MemoryEntry entry = m_memoryResources.top();
 
-            auto     memoryEntry      = m_fileResources.top();
-            TypeID     tid            = storage->GetTypeIDFromExtension(memoryEntry.m_file->m_extension);
-            auto&      typeData       = storage->GetTypeData(tid);
-            IResource* res            = typeData.m_createFunc();
-            void*      loadedResource = res->LoadFromMemory(memoryEntry.m_file->m_fullPath, &entry.m_data[0], entry.m_data.size());
-            storage->Add(loadedResource, tid, StringID(memoryEntry.m_file->m_fullPath.c_str()).value());
+            MemoryEntry       entry     = m_memoryResources.top();
+            const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(entry.m_path));
+            TypeID            tid       = storage->GetTypeIDFromExtension(extension);
+            StringIDType      sid       = StringID(entry.m_path.c_str()).value();
+
+            if (m_lastResourcePriority != entry.m_priority)
+            {
+                m_lastResourcePriority = entry.m_priority;
+                Event::EventSystem::Get()->Trigger<Event::EAllResourcesOfTypeLoaded>(Event::EAllResourcesOfTypeLoaded{m_lastResourceTypeID});
+            }
+            m_lastResourceTypeID = tid;
+
+            if (!storage->Exists(tid, sid))
+            {
+                auto&      typeData       = storage->GetTypeData(tid);
+                IResource* res            = typeData.m_createFunc();
+                void*      loadedResource = res->LoadFromMemory(entry.m_path, &entry.m_data[0], entry.m_data.size());
+                storage->Add(loadedResource, tid, sid);
+                Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
+
+                ResourceManager::s_currentProgressData.m_currentResourceName = entry.m_path;
+                ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
+                ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
+                ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+                ResourceManager::TriggerResourceUpdatedEvent();
+            }
+
             m_memoryResources.pop();
         }
     }
@@ -95,12 +115,32 @@ namespace Lina::Resources
         auto* storage = ResourceStorage::Get();
         while (!m_fileResources.empty())
         {
-            auto       fileEntry      = m_fileResources.top();
-            TypeID     tid            = storage->GetTypeIDFromExtension(fileEntry.m_file->m_extension);
-            auto&      typeData       = storage->GetTypeData(tid);
-            IResource* res            = typeData.m_createFunc();
-            void*      loadedResource = res->LoadFromFile(fileEntry.m_file->m_fullPath);
-            storage->Add(loadedResource, tid, StringID(fileEntry.m_file->m_fullPath.c_str()).value());
+            auto         fileEntry = m_fileResources.top();
+            TypeID       tid       = storage->GetTypeIDFromExtension(fileEntry.m_file->m_extension);
+            StringIDType sid       = StringID(fileEntry.m_file->m_fullPath.c_str()).value();
+
+            if (m_lastResourcePriority != fileEntry.m_priority)
+            {
+                m_lastResourcePriority = fileEntry.m_priority;
+                Event::EventSystem::Get()->Trigger<Event::EAllResourcesOfTypeLoaded>(Event::EAllResourcesOfTypeLoaded{m_lastResourceTypeID});
+            }
+            m_lastResourceTypeID = tid;
+
+            if (!storage->Exists(tid, sid))
+            {
+                auto&      typeData       = storage->GetTypeData(tid);
+                IResource* res            = typeData.m_createFunc();
+                void*      loadedResource = res->LoadFromFile(fileEntry.m_file->m_fullPath);
+                storage->Add(loadedResource, tid, sid);
+                Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
+
+                ResourceManager::s_currentProgressData.m_currentResourceName = fileEntry.m_file->m_fullPath;
+                ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
+                ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
+                ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+                ResourceManager::TriggerResourceUpdatedEvent();
+            }
+
             m_fileResources.pop();
         }
     }

@@ -82,6 +82,7 @@ namespace Lina::Graphics
         m_eventSystem->Connect<Event::EDrawSphere, &OpenGLRenderEngine::OnDrawSphere>(this);
         m_eventSystem->Connect<Event::EDrawHemiSphere, &OpenGLRenderEngine::OnDrawHemiSphere>(this);
         m_eventSystem->Connect<Event::EDrawCapsule, &OpenGLRenderEngine::OnDrawCapsule>(this);
+        m_eventSystem->Connect<Event::EAllResourcesOfTypeLoaded, &OpenGLRenderEngine::OnAllResourcesOfTypeLoaded>(this);
     }
 
     void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
@@ -275,9 +276,8 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
-        auto* storage = Resources::ResourceStorage::Get();
-        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
-        m_defaultLit  = storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
+        m_defaultLit   = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultUnlit = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
 
         m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
         m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
@@ -548,6 +548,18 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::OnWindowResized(const Event::EWindowResized& event)
     {
         SetScreenDisplay(Vector2i(0, 0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
+    }
+
+    void OpenGLRenderEngine::OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev)
+    {
+        if (ev.m_tid == GetTypeID<Shader>())
+        {
+            SetupEngineShaders();
+        }
+        else if (ev.m_tid == GetTypeID<Material>())
+        {
+            ConstructEngineMaterials();
+        }
     }
 
     void OpenGLRenderEngine::DumpMemory()
