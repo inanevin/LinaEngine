@@ -59,6 +59,12 @@ namespace Lina
         // Removes file from OS.
         extern bool DeleteFileInPath(const std::string& path);
 
+        // Iterates through the sub-folders and files of the parent and returns a name that is unique within the given folder.
+        extern std::string GetUniqueDirectoryName(Folder* parent, const std::string& prefix, const std::string& extension);
+
+        // Checks the sub-folders and finds a folder name unique within the given parent's hierarchy.
+        extern void CreateNewSubfolder(Folder* parent);
+
         // Creates a new folder in path.
         extern bool CreateFolderInPath(const std::string& path);
 
@@ -70,7 +76,7 @@ namespace Lina
 
         // Updates the file's path according to a change on it's parent.
         extern void ParentPathUpdated(File* file);
-
+        
         // Replaces the folder name, updates it's path and makes sure the children's path are updated as well.
         extern void ChangeFolderName(Folder* folder, const std::string& newName);
 

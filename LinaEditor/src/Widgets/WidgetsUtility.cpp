@@ -222,9 +222,6 @@ namespace Lina::Editor
         const std::string fullPath           = item->m_fullPath;
         const bool        isFolder           = item->m_typeID == 0;
 
-        if (selected)
-            LINA_TRACE("Selected {0}", fullPath);
-
         ImGui::BeginChild(fullPath.c_str(), totalSize, false, ImGuiWindowFlags_NoScrollbar);
 
         // Background.
@@ -301,7 +298,20 @@ namespace Lina::Editor
                 item->m_isRenaming = false;
 
                 if (!isFolder)
+                {
+                    // If we have an asset data associated with the file, change it's name as well.
+                    auto* parent = item->m_parent;
+                    if (parent != nullptr)
+                    {
+                        for (auto* subfile : parent->m_files)
+                        {
+                            if (subfile != item && subfile->m_name.compare(item->m_name) == 0)
+                                Utility::ChangeFileName(subfile, str0);
+                        }
+                    }
+
                     Utility::ChangeFileName(static_cast<Utility::File*>(item), str0);
+                }
                 else
                     Utility::ChangeFolderName(static_cast<Utility::Folder*>(item), str0);
 

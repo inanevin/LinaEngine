@@ -158,6 +158,68 @@ namespace Lina
             return remove(path.c_str());
         }
 
+        std::string GetUniqueDirectoryName(Folder* parent, const std::string& prefix, const std::string& extension)
+        {
+            static int  uniqueNameCounter = 0;
+            std::string newName           = prefix + "_" + std::to_string(uniqueNameCounter);
+            bool        newNameExists     = true;
+            int         timeOutCounter    = 0;
+
+            // Loop through the sub-folders and make sure no folder with the same name exists.
+            while (newNameExists && timeOutCounter < 1000)
+            {
+                bool found = false;
+
+                // Check sub-folders
+                for (auto* folder : parent->m_folders)
+                {
+                    if (folder->m_name.compare(newName) == 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // Check files.
+                if (!found)
+                {
+                    for (auto* file : parent->m_files)
+                    {
+                        if (file->m_fullName.compare(newName + extension) == 0)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                    newNameExists = false;
+                else
+                {
+                    uniqueNameCounter++;
+                    newName = prefix + "_" + std::to_string(uniqueNameCounter);
+                }
+
+                timeOutCounter++;
+            }
+
+            LINA_ASSERT(!newNameExists, "Could not get a unique name for the file/folder!");
+
+            return newName;
+        }
+
+        void CreateNewSubfolder(Folder* parent)
+        {
+            const std::string newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
+
+            Folder* folder = new Folder();
+            folder->m_parent = parent;
+            folder->m_name = newFolderName;
+            folder->m_fullPath = parent->m_fullPath + "/" + folder->m_name;
+            parent->m_folders.push_back(folder);
+        }
+
         bool CreateFolderInPath(const std::string& path)
         {
             bool success = std::filesystem::create_directory(path);
@@ -201,9 +263,11 @@ namespace Lina
 
         void ChangeFileName(File* file, const std::string& newName)
         {
-            file->m_name     = newName;
-            file->m_fullName = newName + "." + file->m_extension;
+            const std::string oldPath = file->m_fullPath;
+            file->m_name              = newName;
+            file->m_fullName          = newName + "." + file->m_extension;
             ParentPathUpdated(file);
+            ChangeDirectoryName(oldPath, file->m_fullPath);
         }
 
         void ChangeFolderName(Folder* folder, const std::string& newName)

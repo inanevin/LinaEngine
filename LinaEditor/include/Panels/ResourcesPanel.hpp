@@ -67,7 +67,7 @@ namespace Lina::Editor
 {
 
     struct EMenuBarElementClicked;
-
+    class Menu;
     class PropertiesPanel;
 
     class ResourcesPanel : public EditorPanel
@@ -86,14 +86,15 @@ namespace Lina::Editor
         void DrawLeftPane();
         void DrawRightPane();
 
-        void DrawContextMenu();
-        void DrawFolderMenu(Utility::Folder* folder, bool performFilterCheck);
+        void DrawFolderHierarchy(Utility::Folder* folder, bool performFilterCheck);
         void DrawContents(Utility::Folder* folder);
         void DrawFile(Utility::File& file);
 
     private:
         void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
         void DeselectNodes(bool deselectAll);
+        void DrawContextMenu();
+        bool ContextMenuCanAddAsset();
 
     private:
         std::string                 m_folderSearchFilter        = "";
@@ -111,6 +112,7 @@ namespace Lina::Editor
         Utility::File*              m_selectedFile              = nullptr;
         Utility::Folder*            m_selectedSubfolder         = nullptr;
         Resources::ResourceStorage* m_storage                   = nullptr;
+        Menu*                       m_contextMenu               = nullptr;
     };
 } // namespace Lina::Editor
 

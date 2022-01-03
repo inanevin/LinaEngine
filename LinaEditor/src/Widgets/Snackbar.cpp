@@ -67,8 +67,10 @@ namespace Lina::Editor
         const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20)), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
         const ImVec2  max       = ImVec2(min.x + size.x, min.y + size.y);
 
+
         ImGui::SetNextWindowBgAlpha(0.0f);
-        ImGui::Begin("##snackbar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::Begin("##snackbar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration);
 
         const ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
         ImVec4       borderCol = ImGui::GetStyleColorVec4(ImGuiCol_Button);
@@ -101,6 +103,7 @@ namespace Lina::Editor
         ImGui::GetForegroundDrawList()->AddText(ImVec2(min.x + 50, min.y + size.y / 2.0f - textHeight / 2.0f), ImGui::ColorConvertFloat4ToU32(textColor), m_currentText.c_str());
         ImGui::PopFont();
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 
     void Snackbar::PushSnackbar(LogLevel level, const std::string& text)
