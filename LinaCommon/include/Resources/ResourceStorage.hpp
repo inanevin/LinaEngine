@@ -51,7 +51,12 @@ Timestamp: 12/30/2021 9:37:39 PM
 namespace Lina
 {
     class Engine;
-}
+
+    namespace Event
+    {
+        struct EResourcePathUpdated;
+    }
+} // namespace Lina
 
 namespace Lina::Resources
 {
@@ -93,7 +98,7 @@ namespace Lina::Resources
             return Exists<T>(StringID(path.c_str()).value());
         }
 
-          /// <summary>
+        /// <summary>
         /// Returns true if the given path's string ID exists in the cache for the type T.
         /// </summary>
         bool Exists(TypeID tid, StringIDType sid)
@@ -239,13 +244,15 @@ namespace Lina::Resources
 
     private:
         friend class Engine;
-        ResourceStorage() = default;
+        ResourceStorage()  = default;
         ~ResourceStorage() = default;
+        void Initialize();
         void Shutdown();
+        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
 
     private:
         static ResourceStorage*                      s_instance;
-        std::unordered_map<StringIDType, Cache>      m_resources;
+        std::unordered_map<TypeID, Cache>            m_resources;
         std::unordered_map<TypeID, ResourceTypeData> m_resourceTypes;
     };
 } // namespace Lina::Resources

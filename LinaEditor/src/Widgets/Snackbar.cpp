@@ -40,12 +40,12 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    float        m_swayDuration    = 0.2f;
-    float        m_timer           = 0.0f;
-    float        m_stayAliveTime   = 4.0f;
-    std::string  m_currentText     = "";
-    LogLevel     m_currentLogLevel = LogLevel::None;
-    const ImVec2 size              = ImVec2(350, 50);
+    float       m_swayDuration    = 0.2f;
+    float       m_timer           = 0.0f;
+    float       m_stayAliveTime   = 4.0f;
+    std::string m_currentText     = "";
+    LogLevel    m_currentLogLevel = LogLevel::None;
+    ImVec2      size              = ImVec2(350, 50);
 
     void Tick(const EGUILayerRender& ev)
     {
@@ -66,7 +66,6 @@ namespace Lina::Editor
         const Vector2 windowPos = appWindow->GetPos();
         const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20)), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
         const ImVec2  max       = ImVec2(min.x + size.x, min.y + size.y);
-        const ImVec2  size      = ImVec2(max.x - min.x, max.y - min.y);
 
         ImGui::Begin("##snackbar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
@@ -109,5 +108,8 @@ namespace Lina::Editor
         m_currentText     = text;
         m_currentLogLevel = level;
         Event::EventSystem::Get()->Connect<EGUILayerRender, &Tick>();
+        ImGui::PushFont(GUILayer::Get()->GetMediumFont());
+        size.x = ImGui::CalcTextSize(text.c_str()).x + 80;
+        ImGui::PopFont();
     }
 } // namespace Lina::Editor

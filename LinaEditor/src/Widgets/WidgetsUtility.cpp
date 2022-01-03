@@ -46,6 +46,9 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
+#include "Memory/Memory.hpp"
+#include "Core/ImGuiCommon.hpp"
+#include "Widgets/Snackbar.hpp"
 
 namespace Lina::Editor
 {
@@ -55,7 +58,7 @@ namespace Lina::Editor
     static std::string s_draggedInput          = "";
     static float       s_valueOnDragStart      = 0.0f;
     static int         s_valueOnDragStartInt   = 0;
-    void*       s_latestResourceHandle  = nullptr;
+    void*              s_latestResourceHandle  = nullptr;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -124,17 +127,54 @@ namespace Lina::Editor
         FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x);
         const ImVec2             iconArrowMin  = ImVec2(ImGui::GetCursorScreenPos().x + 10, ImGui::GetCursorScreenPos().y);
         const ImVec2             iconFolderMin = ImVec2(ImGui::GetCursorScreenPos().x + 22, ImGui::GetCursorScreenPos().y);
-        const ImGuiTreeNodeFlags parent        = ImGuiTreeNodeFlags_SpanFullWidth;
+        const ImGuiTreeNodeFlags parent        = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
         const ImGuiTreeNodeFlags leaf          = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
         const bool               hasChildren   = folder->m_folders.size() > 0;
         ImGuiTreeNodeFlags       flags         = hasChildren ? parent : leaf;
 
+        static char str0[128] = "Hello, world!";
+
         if (folder == selectedFolder)
+        {
             flags |= ImGuiTreeNodeFlags_Selected;
+
+            if (Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
+            {
+                if (folder->m_fullPath.compare("Resources/") == 0 || folder->m_fullPath.find("Resources/Engine") != std::string::npos ||
+                folder->m_fullPath.compare("Resources/Sandbox") == 0 || folder->m_fullPath.find("Resources/Editor") != std::string::npos)
+                {
+                    Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
+                }
+                else
+                {
+                    Memory::memset(str0, 0, 128);
+                    Memory::memcpy(str0, folder->m_name.c_str(), folder->m_name.capacity() + 1);
+                    folder->m_isRenaming = true;
+                }
+            
+            }
+        }
 
         // Tree node.
         IncrementCursorPosX(4);
-        const bool node = ImGui::TreeNodeEx((void*)&folder->m_fullPath, flags, folder->m_name.c_str());
+
+        bool node = false;
+
+        if (folder->m_isRenaming)
+        {
+            IncrementCursorPosX(28);
+
+            const std::string inputLabel = "##_A_" + folder->m_name;
+            if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
+            {
+                folder->m_isRenaming = false;
+                Utility::ChangeFolderName(folder, str0);
+            }
+        }
+        else
+        {
+            node = ImGui::TreeNodeEx((void*)&folder->m_fullPath, flags, folder->m_name.c_str());
+        }
 
         if (hasChildren)
         {
@@ -906,7 +946,7 @@ namespace Lina::Editor
         return shapeToReturn;
     }
 
-    StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed,  TypeID resourceType)
+    StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
         std::string     resourceName     = "None";
         constexpr float spaceFromEnd     = 10.0f;
@@ -949,29 +989,28 @@ namespace Lina::Editor
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
 
-        bool pressed = false;
+        bool         pressed  = false;
         bool         removed  = false;
         StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
 
         if (selected != 0)
         {
-            handle->m_sid = selected;
+            handle->m_sid   = selected;
             handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(selected);
         }
 
         if (removed)
         {
-            handle->m_sid = 0;
+            handle->m_sid   = 0;
             handle->m_value = nullptr;
         }
-
 
         return selected;
     }
 
     StringIDType WidgetsUtility::ResourceSelectionTexture(void* handleAddr)
     {
-       
+
         return 0;
     }
 

@@ -94,6 +94,7 @@ namespace Lina
         RegisterResourceTypes();
 
         m_eventSystem.Initialize();
+        m_resourceStorage.Initialize();
         m_inputEngine.Initialize();
         m_resourceManager.Initialize(m_appInfo);
 

@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Core/PlatformMacros.hpp"
 #include "Log/Log.hpp"
 #include "Resources/ResourceStorage.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -120,6 +122,7 @@ namespace Lina
                     file->m_fullPath  = replacedPath;
                     file->m_extension = file->m_fullName.substr(file->m_fullName.find(".") + 1);
                     file->m_pureName  = GetFileWithoutExtension(file->m_fullName);
+                    file->m_parent    = root;
 
                     if (totalFiles != nullptr)
                         (*totalFiles) = (*totalFiles) + 1;
@@ -175,15 +178,48 @@ namespace Lina
             return success;
         }
 
-        bool ChangeFileName(const std::string& folderPath, const std::string& oldName, const std::string& newName)
+        void ParentPathUpdated(Folder* folder)
         {
-            std::string oldPathStr = std::string(folderPath) + std::string(oldName);
-            std::string newPathStr = std::string(folderPath) + std::string(newName);
+            const std::string oldPath = folder->m_fullPath;
+            folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + folder->m_name;
+
+            for (auto* subfolder : folder->m_folders)
+                ParentPathUpdated(subfolder);
+
+            for (auto* file : folder->m_files)
+                ParentPathUpdated(file);
+        }
+
+        void ParentPathUpdated(File* file)
+        {
+            const StringIDType sidBefore = StringID(file->m_fullPath.c_str()).value();
+            file->m_fullPath             = file->m_parent->m_fullPath + "/" + file->m_fullName;
+            const StringIDType sidNow    = StringID(file->m_fullPath.c_str()).value();
+            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow});
+        }
+
+        void ChangeFolderName(Folder* folder, const std::string& newName)
+        {
+            const std::string oldPath = folder->m_fullPath;
+            folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + newName;
+            folder->m_name            = newName;
+
+            for (auto* subfolder : folder->m_folders)
+                ParentPathUpdated(subfolder);
+
+            for (auto* file : folder->m_files)
+                ParentPathUpdated(file);
+
+            ChangeDirectoryName(oldPath, folder->m_fullPath);
+        }
+
+        bool ChangeDirectoryName(const std::string& oldPath, const std::string& newPath)
+        {
 
             /*	Deletes the file if exists */
-            if (std::rename(oldPathStr.c_str(), newPathStr.c_str()) != 0)
+            if (std::rename(oldPath.c_str(), newPath.c_str()) != 0)
             {
-                LINA_ERR("Can not rename file! Folder Path: {0}, Old Name: {1}, New Name: {2}", folderPath, oldName, newName);
+                LINA_ERR("Failed to rename directory! Old Name: {1}, New Name: {2}", oldPath, newPath);
                 return false;
             }
 
@@ -310,7 +346,6 @@ namespace Lina
 
             return subFoldersContain;
         }
-
 
         std::string GetFileContents(const std::string& filePath)
         {

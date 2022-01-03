@@ -78,7 +78,7 @@ namespace Lina::Editor
     {
         ECS::EntityDataComponent& data        = m_ecs->get<ECS::EntityDataComponent>(entity);
         const bool                hasChildren = data.m_children.size() > 0;
-        const ImGuiTreeNodeFlags  parent      = ImGuiTreeNodeFlags_SpanFullWidth;
+        const ImGuiTreeNodeFlags  parent      = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
         const ImGuiTreeNodeFlags  leaf        = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
         ImGuiTreeNodeFlags        flags       = hasChildren ? parent : leaf;
 

@@ -41,6 +41,8 @@ Timestamp: 12/30/2021 9:37:53 PM
 
 // Headers here.
 #include "Resources/ResourceStorage.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
 #include <cereal/access.hpp>
 
 namespace Lina::Resources
@@ -49,8 +51,17 @@ namespace Lina::Resources
     class ResourceHandle
     {
     public:
+
         StringIDType m_sid   = 0;
         T*           m_value = nullptr;
+
+    private:
+
+        void OnResourcePathUpdated(Event::EResourcePathUpdated& ev)
+        {
+            if (m_sid == ev.m_previousStringID)
+                m_sid = ev.m_newStringID;
+        }
 
     private:
         friend class cereal::access;
@@ -67,6 +78,8 @@ namespace Lina::Resources
         void load(Archive& archive)
         {
             archive(m_sid, m_typeID);
+
+            Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceHandle<T>::OnResourcePathUpdated>(this);
 
             if (m_typeID == 0)
             {

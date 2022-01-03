@@ -65,8 +65,17 @@ namespace Lina
         // Removes all files & folders in directory.
         extern bool DeleteDirectory(const std::string& path);
 
+        // Updates a folder's path according to a change on it's parent.
+        extern void ParentPathUpdated(Folder* folder);
+
+        // Updates the file's path according to a change on it's parent.
+        extern void ParentPathUpdated(File* file);
+
+        // Replaces the folder name, updates it's path and makes sure the children's path are updated as well.
+        extern void ChangeFolderName(Folder* folder, const std::string& newName);
+
         // Replaces given filename.
-        extern bool ChangeFileName(const std::string& folderPath, const std::string& oldName, const std::string& newName);
+        extern bool ChangeDirectoryName(const std::string& oldPath, const std::string& newPath);
 
         // Creates a GUID.
         extern int GetUniqueID();

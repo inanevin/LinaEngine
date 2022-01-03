@@ -360,7 +360,12 @@ namespace Lina::Editor
             folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder);
 
             if (ImGui::IsItemClicked())
+            {
+                if (m_selectedFolder != nullptr && m_selectedFolder != folder)
+                    m_selectedFolder->m_isRenaming = false;
+
                 m_selectedFolder = folder;
+            }
         }
 
         if (folder->m_isOpen && folder->m_folders.size() > 0)
@@ -539,6 +544,9 @@ namespace Lina::Editor
     {
         m_selectedFile      = nullptr;
         m_selectedSubfolder = nullptr;
+
+        if (m_selectedFolder != nullptr)
+            m_selectedFolder->m_isRenaming = false;
 
         if (deselectAll)
             m_selectedFolder = nullptr;

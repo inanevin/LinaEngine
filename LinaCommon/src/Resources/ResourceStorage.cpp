@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Resources/ResourceStorage.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 
 namespace Lina::Resources
 {
@@ -41,6 +43,27 @@ namespace Lina::Resources
             cache.clear();
         }
         m_resources.clear();
+    }
+
+    void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
+    {
+        for (auto& [typeID, cache] : m_resources)
+        {
+            for (auto& [stringID, ptr] : cache)
+            {
+                if (stringID == ev.m_previousStringID)
+                {
+                    cache[ev.m_newStringID] = ptr;
+                    cache.erase(stringID);
+                    break;
+                }
+            }
+        }
+    }
+
+    void ResourceStorage::Initialize()
+    {
+        Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceStorage::OnResourcePathUpdated>(this);
     }
 
     TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)
@@ -69,5 +92,4 @@ namespace Lina::Resources
         return tid;
     }
 
-   
 } // namespace Lina::Resources

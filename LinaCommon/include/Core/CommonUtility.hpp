@@ -45,9 +45,11 @@ Timestamp: 12/25/2021 1:24:11 PM
 
 namespace Lina::Utility
 {
+    struct Folder;
+
     struct File
     {
-        File() = default;
+        File()  = default;
         ~File() = default;
 
         std::string m_fullPath   = ""; // folder + purename + extension
@@ -55,19 +57,21 @@ namespace Lina::Utility
         std::string m_pureName   = ""; // name without extension
         std::string m_extension  = "";
         std::string m_fullName   = ""; // name with extension
+        Folder*     m_parent     = nullptr;
     };
 
     struct Folder
     {
-        Folder() = default;
+        Folder()  = default;
         ~Folder() = default;
 
         std::string          m_fullPath = "";
         std::string          m_name     = "";
         std::vector<File*>   m_files;
         std::vector<Folder*> m_folders;
-        Folder*              m_parent = nullptr;
-        bool                 m_isOpen = false;
+        Folder*              m_parent     = nullptr;
+        bool                 m_isOpen     = false;
+        bool                 m_isRenaming = false;
     };
 } // namespace Lina::Utility
 

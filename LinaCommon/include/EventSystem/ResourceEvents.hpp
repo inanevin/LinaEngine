@@ -64,6 +64,11 @@ namespace Lina::Event
     struct EAllResourcesLoaded
     {
     };
+    struct EResourcePathUpdated
+    {
+        StringIDType m_previousStringID;
+        StringIDType m_newStringID;
+    };
     struct EResourceLoadUpdated
     {
         std::string m_currentResource;
