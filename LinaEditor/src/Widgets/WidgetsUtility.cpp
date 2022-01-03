@@ -948,7 +948,6 @@ namespace Lina::Editor
     StringIDType WidgetsUtility::ResourceSelectionMaterial(void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
-        s_latestResourceHandle = handle;
 
         bool pressed = false;
         bool         removed  = false;
@@ -962,7 +961,8 @@ namespace Lina::Editor
 
         if (removed)
         {
-
+            handle->m_sid = 0;
+            handle->m_value = nullptr;
         }
 
 

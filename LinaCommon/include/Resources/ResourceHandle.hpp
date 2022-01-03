@@ -68,14 +68,15 @@ namespace Lina::Resources
         {
             archive(m_sid, m_typeID);
 
-           // if (m_typeID == 0 && m_sid == 0)
-           // {
-           //     m_typeID = GetTypeID<T>();
-           // }
-           // else
-           // {
-           //     m_value = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
-           // }
+            if (m_typeID == 0)
+            {
+                m_typeID = GetTypeID<T>();
+            }
+
+            if (m_typeID != 0 && m_sid != 0)
+            {
+                m_value = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
+            }
         }
     };
 

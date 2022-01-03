@@ -555,6 +555,11 @@ namespace Lina::Graphics
         if (ev.m_tid == GetTypeID<Shader>())
         {
             SetupEngineShaders();
+
+            m_defaultLit   = Material::CreateMaterial(m_standardLitShader, "Resources/Engine/Materials/DefaultLit.linamat");
+            m_defaultUnlit = Material::CreateMaterial(m_standardUnlitShader, "Resources/Engine/Materials/DefaultUnlit.linamat");
+            Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
+
         }
         else if (ev.m_tid == GetTypeID<Material>())
         {

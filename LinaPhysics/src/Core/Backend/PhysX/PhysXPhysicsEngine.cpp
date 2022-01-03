@@ -486,7 +486,6 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::OnLevelInitialized(const Event::ELevelInitialized& ev)
     {
-
         auto* physicsMat = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
         m_pxDefaultMaterial->setStaticFriction(physicsMat->m_staticFriction);
         m_pxDefaultMaterial->setDynamicFriction(physicsMat->m_dynamicFriction);
