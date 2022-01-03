@@ -616,7 +616,7 @@ namespace Lina::Editor
     {
         auto* ecs          = ECS::Registry::Get();
         auto  resolvedData = entt::resolve(tid);
-
+     return;
         if (resolvedData)
         {
             auto            title     = resolvedData.prop("Title"_hs).value().cast<char*>();

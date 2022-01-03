@@ -59,8 +59,14 @@ namespace Lina
     {
         class Material;
         class Model;
+        class ModelNode;
         class Shader;
     } // namespace Graphics
+
+    namespace Audio
+    {
+        class Audio;
+    }
 
     namespace Physics
     {
@@ -202,6 +208,41 @@ namespace Lina::Editor
         /// Drop-down combo-box for selecting collision shapes.
         /// </summary>
         static int CollisionShapeComboBox(const char* comboID, int currentShapeID);
+
+        /// <summary>
+        /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
+        /// </summary>
+        static StringIDType ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionMaterial(void* handleAddr);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionTexture(void* handleAddr);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionAudio(void* handleAddr);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionModelNode(void* handleAddr);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionPhysicsMaterial(void* handleAddr);
+
+        /// <summary>
+        /// Material selection helper, calls ResourceSelection().
+        /// </summary>
+        static StringIDType ResourceSelectionShader(void* handleAddr);
 
         /// <summary>
         /// Default IMGUI button with fixed styling options.

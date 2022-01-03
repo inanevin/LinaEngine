@@ -46,7 +46,7 @@ namespace Lina::Editor
         GUILayer::Get()->m_windowIconMap[m_id] = m_icon;
     }
 
-    void EditorPanel::Begin()
+    bool EditorPanel::Begin()
     {
         ImGuiWindowFlags flags = m_windowFlags;
 
@@ -57,19 +57,30 @@ namespace Lina::Editor
 
         WidgetsUtility::WindowTitlebar(m_id);
         if (!CanDrawContent())
-            return;
+        {
+            ImGui::End();
+            return false;
+        }
+
         const std::string childID    = "##child_" + std::string(m_id);
         const float       previousFP = ImGui::GetStyle().FramePadding.x;
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(previousFP, 0.0f));
         ImGui::BeginChild(childID.c_str());
 
         if (!ImGui::IsWindowDocked())
             WidgetsUtility::IncrementCursorPosY(2.0f);
+
+        return true;
     }
 
     void EditorPanel::End()
     {
-        ImGui::EndChild();
-        ImGui::End();
+        if (CanDrawContent())
+        {
+            ImGui::EndChild();
+            ImGui::PopStyleVar();
+            ImGui::End();
+        }
     }
 
     void EditorPanel::ToggleCollapse()
@@ -131,7 +142,6 @@ namespace Lina::Editor
     {
         if (!ImGui::IsWindowDocked() && m_collapsed)
         {
-            ImGui::End();
             return false;
         }
 

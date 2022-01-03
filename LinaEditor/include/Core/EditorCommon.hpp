@@ -179,6 +179,9 @@ namespace Lina::Editor
 
 // Toolbar
 #define ID_TOOLBAR "Toolbar"
+
+// Resource Selector
+#define ID_RESOURCESELECTOR "ResourceSelector"
 } // namespace Lina::Editor
 
 #endif

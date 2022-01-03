@@ -63,20 +63,6 @@ namespace Lina::ECS
             return s_ecs;
         }
 
-        // Registering a component enables serialization as well as duplication functionality in & out editor.
-        template <typename T>
-        void RegisterComponent(bool onlyClone = false)
-        {
-            TypeID id = GetTypeID<T>();
-            if (!onlyClone)
-            {
-                m_serializeFunctions[id].first.connect<&Registry::SerializeComponent<T>>(this);
-                m_serializeFunctions[id].second.connect<&Registry::DeserializeComponent<T>>(this);
-            }
-
-            m_cloneComponentFunctions[id] = std::bind(&Registry::CloneComponent<T>, this, std::placeholders::_1, std::placeholders::_2);
-        }
-
         void                    SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
         void                    DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
         void                    AddChildToEntity(Entity parent, Entity child);

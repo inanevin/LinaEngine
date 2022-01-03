@@ -40,7 +40,8 @@ Timestamp: 12/30/2021 9:37:53 PM
 #define ResourceHandle_HPP
 
 // Headers here.
-#include <Utility/StringId.hpp>
+#include "Resources/ResourceStorage.hpp"
+#include <cereal/access.hpp>
 
 namespace Lina::Resources
 {
@@ -48,13 +49,33 @@ namespace Lina::Resources
     class ResourceHandle
     {
     public:
-        StringIDType m_sid = -1;
+        StringIDType m_sid   = 0;
         T*           m_value = nullptr;
 
+    private:
+        friend class cereal::access;
+
+        TypeID m_typeID = 0;
+
         template <class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive) const
         {
-            archive(m_sid);
+            archive(m_sid, m_typeID);
+        }
+
+        template <class Archive>
+        void load(Archive& archive)
+        {
+            archive(m_sid, m_typeID);
+
+           // if (m_typeID == 0 && m_sid == 0)
+           // {
+           //     m_typeID = GetTypeID<T>();
+           // }
+           // else
+           // {
+           //     m_value = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
+           // }
         }
     };
 

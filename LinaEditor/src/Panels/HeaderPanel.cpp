@@ -250,6 +250,8 @@ namespace Lina::Editor
 
     void HeaderPanel::Draw()
     {
+#pragma warning(disable : 4312)
+
         if (m_show)
         {
             AnimateLinaLogo();
@@ -338,7 +340,6 @@ namespace Lina::Editor
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
 
-#pragma warning(disable : 4312)
         }
     }
 

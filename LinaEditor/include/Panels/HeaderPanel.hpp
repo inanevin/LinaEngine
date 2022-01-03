@@ -46,6 +46,7 @@ Timestamp: 10/8/2020 1:39:03 PM
 namespace Lina::Editor
 {
     class Menu;
+    class MenuBarElement;
     enum class MenuBarElementType;
 
     class HeaderPanel : public EditorPanel

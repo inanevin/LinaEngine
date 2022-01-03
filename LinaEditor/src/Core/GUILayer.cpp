@@ -270,6 +270,7 @@ namespace Lina::Editor
         m_levelPanel.Initialize(ID_SCENE, ICON_FA_GAMEPAD);
         m_resourcesPanel.Initialize(ID_RESOURCES, ICON_FA_FILE);
         m_globalSettingsPanel.Initialize(ID_GLOBAL, ICON_FA_GLOBE);
+        m_resourceSelectorPanel.Initialize(ID_RESOURCESELECTOR, ICON_FA_FILE_ARCHIVE);
     }
 
     void GUILayer::OnShutdown(const Event::EShutdown& ev)
@@ -313,6 +314,7 @@ namespace Lina::Editor
         m_propertiesPanel.Draw();
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
+        m_resourceSelectorPanel.Draw();
 
         Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
 

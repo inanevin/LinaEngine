@@ -73,6 +73,10 @@ namespace Lina::Graphics
         {
             return Vector2i(m_windowProperties.m_xPos, m_windowProperties.m_yPos);
         }
+        Vector2i GetWorkSize()
+        {
+            return Vector2i(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight);
+        }
         int GetWidth()
         {
             return m_windowProperties.m_width;

@@ -67,48 +67,50 @@ namespace Lina::Editor
     {
         if (m_show)
         {
-            Begin();
-
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-            ImGui::BeginChild("systems_child", ImVec2(0, -30), true);
-
-            static ImGuiTableFlags flags           = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
-            const float            TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
-
-            if (ImGui::BeginTable("systensTable", 3, flags))
+            if (Begin())
             {
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-                ImGui::TableSetupColumn("Pipeline", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
-                ImGui::TableSetupColumn("Pool Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 6.0f);
-                ImGui::TableHeadersRow();
 
-                const auto& mainPipeline      = Engine::Get()->GetPipeline();
-                const auto& animationPipeline = Graphics::RenderEngineBackend::Get()->GetAnimationPipeline();
-                const auto& renderingPipeline = Graphics::RenderEngineBackend::Get()->GetRenderingPipeline();
-                const auto& physicsPipeline   = Physics::PhysicsEngineBackend::Get()->GetPipeline();
-                const auto& inputPipeline   = Input::InputEngineBackend::Get()->GetPipeline();
+                ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+                ImGui::BeginChild("systems_child", ImVec2(0, -30), true);
 
-                for (const auto* system : mainPipeline.GetSystems())
-                    DrawSystem(system, "Main");
-                for (const auto* system : animationPipeline.GetSystems())
-                    DrawSystem(system, "Animation");
-                for (const auto* system : renderingPipeline.GetSystems())
-                    DrawSystem(system, "Rendering");
-                for (const auto* system : physicsPipeline.GetSystems())
-                    DrawSystem(system, "Physics");
-                for (const auto* system : inputPipeline.GetSystems())
-                    DrawSystem(system, "Input");
+                static ImGuiTableFlags flags           = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
+                const float            TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
 
-                ImGui::EndTable();
+                if (ImGui::BeginTable("systensTable", 3, flags))
+                {
+                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+                    ImGui::TableSetupColumn("Pipeline", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
+                    ImGui::TableSetupColumn("Pool Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 6.0f);
+                    ImGui::TableHeadersRow();
+
+                    const auto& mainPipeline      = Engine::Get()->GetPipeline();
+                    const auto& animationPipeline = Graphics::RenderEngineBackend::Get()->GetAnimationPipeline();
+                    const auto& renderingPipeline = Graphics::RenderEngineBackend::Get()->GetRenderingPipeline();
+                    const auto& physicsPipeline   = Physics::PhysicsEngineBackend::Get()->GetPipeline();
+                    const auto& inputPipeline     = Input::InputEngineBackend::Get()->GetPipeline();
+
+                    for (const auto* system : mainPipeline.GetSystems())
+                        DrawSystem(system, "Main");
+                    for (const auto* system : animationPipeline.GetSystems())
+                        DrawSystem(system, "Animation");
+                    for (const auto* system : renderingPipeline.GetSystems())
+                        DrawSystem(system, "Rendering");
+                    for (const auto* system : physicsPipeline.GetSystems())
+                        DrawSystem(system, "Physics");
+                    for (const auto* system : inputPipeline.GetSystems())
+                        DrawSystem(system, "Input");
+
+                    ImGui::EndTable();
+                }
+
+                ImGui::EndChild();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+
+                End();
             }
-
-            ImGui::EndChild();
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-            WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
-            ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
-
-            End();
         }
     }
 

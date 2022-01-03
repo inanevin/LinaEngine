@@ -49,7 +49,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ResourcesPanel.hpp"
 #include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
-
+#include "Panels/ResourceSelectorPanel.hpp"
 #include <vector>
 
 struct ImFont;
@@ -142,6 +142,11 @@ namespace Lina::Editor
             return m_levelPanel;
         }
 
+        ResourceSelectorPanel& GetResourceSelector()
+        {
+            return m_resourceSelectorPanel;
+        }
+
         float                              m_headerSize = 0.0f;
         float                              m_footerSize = 20.0f;
         std::map<const char*, const char*> m_windowIconMap;
@@ -175,10 +180,11 @@ namespace Lina::Editor
         ProfilerPanel               m_profilerPanel;
         GlobalSettingsPanel         m_globalSettingsPanel;
         MainToolbarPanel            m_toolbar;
+        ResourceSelectorPanel       m_resourceSelectorPanel;
         Resources::ResourceStorage* m_storage = nullptr;
         World::DefaultLevel         m_defaultLevel;
         std::string                 m_currentlyLoadingResource = "";
-        float                       m_percentage = 0.0f;
+        float                       m_percentage               = 0.0f;
     };
 } // namespace Lina::Editor
 

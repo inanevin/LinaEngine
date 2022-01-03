@@ -1,6 +1,6 @@
-/*
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -27,39 +27,32 @@ SOFTWARE.
 */
 
 /*
-Class: FreeLookComponent
+Class: ImGuiCommon
 
-Used for free look functionality, much like a fly-camera.
 
-Timestamp: 5/2/2019 1:40:16 AM
+
+Timestamp: 1/2/2022 5:03:25 PM
 */
 
 #pragma once
 
-#ifndef FreeLookComponent_HPP
-#define FreeLookComponent_HPP
+#ifndef ImGuiCommon_HPP
+#define ImGuiCommon_HPP
 
-#include "ECS/Component.hpp"
-#include "Math/Vector.hpp"
+// Headers here.
+#include "imgui/imgui.h"
+#include <string>
 
-namespace Lina::ECS
+namespace Lina::Editor
 {
-    LINA_CLASS("Free Look Component", "ICON_FA_EYE", "Input", "true", "true")
-    struct FreeLookComponent : public Component
+    struct InputTextCallback_UserData
     {
-        Vector2 m_angles = Vector2::Zero;
-        LINA_PROPERTY("Movement Speed", "vector2", "", "")
-        Vector2 m_movementSpeeds = Vector2(12, 12);
-
-        LINA_PROPERTY("Rotation Speed", "vector2", "", "")
-        Vector2 m_rotationSpeeds = Vector2(3, 3);
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
-        }
+        std::string*           Str;
+        ImGuiInputTextCallback ChainCallback;
+        void*                  ChainCallbackUserData;
     };
-} // namespace Lina::ECS
+
+    extern int InputTextCallback(ImGuiInputTextCallbackData* data);
+}
 
 #endif

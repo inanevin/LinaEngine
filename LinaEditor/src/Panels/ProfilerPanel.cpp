@@ -81,114 +81,116 @@ namespace Lina::Editor
             float                                cursorPosLabels = CURSORPOS_X_LABELS;
             const std::map<std::string, Timer*>& map             = Timer::GetTimerMap();
 
-            Begin();
-
-            // Shadow.
-            WidgetsUtility::IncrementCursorPosY(11);
-
-            float currentTime = (float)Engine::Get()->GetElapsedTime();
-
-            bool displayMS = false;
-            if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
+            if (Begin())
             {
-                m_lastMSDisplayTime = currentTime;
-                displayMS           = true;
-            }
 
-            WidgetsUtility::IncrementCursorPosX(12);
+                // Shadow.
+                WidgetsUtility::IncrementCursorPosY(11);
 
-            double            updateTime    = Engine::Get()->GetUpdateTime();
-            const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
-            WidgetsUtility::PropertyLabel(updateTimeStr.c_str());
+                float currentTime = (float)Engine::Get()->GetElapsedTime();
 
-            double            renderTime    = Engine::Get()->GetRenderTime();
-            const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
-            WidgetsUtility::PropertyLabel(renderTimeStr.c_str());
-
-            double            frameTime    = Engine::Get()->GetFrameTime();
-            const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
-            WidgetsUtility::PropertyLabel(frameTimeStr.c_str());
-
-            for (std::map<std::string, Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
-            {
-                std::string txt = "";
-                txt             = it->first + " " + m_timerMSStorage[it->first] + " ms";
-
-                if (displayMS)
-                    m_timerMSStorage[it->first] = std::to_string(it->second->GetDuration());
+                bool displayMS = false;
+                if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
+                {
+                    m_lastMSDisplayTime = currentTime;
+                    displayMS           = true;
+                }
 
                 WidgetsUtility::IncrementCursorPosX(12);
-                ImGui::Text(txt.c_str());
+
+                double            updateTime    = Engine::Get()->GetUpdateTime();
+                const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
+                WidgetsUtility::PropertyLabel(updateTimeStr.c_str());
+
+                double            renderTime    = Engine::Get()->GetRenderTime();
+                const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
+                WidgetsUtility::PropertyLabel(renderTimeStr.c_str());
+
+                double            frameTime    = Engine::Get()->GetFrameTime();
+                const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
+                WidgetsUtility::PropertyLabel(frameTimeStr.c_str());
+
+                for (std::map<std::string, Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+                {
+                    std::string txt = "";
+                    txt             = it->first + " " + m_timerMSStorage[it->first] + " ms";
+
+                    if (displayMS)
+                        m_timerMSStorage[it->first] = std::to_string(it->second->GetDuration());
+
+                    WidgetsUtility::IncrementCursorPosX(12);
+                    ImGui::Text(txt.c_str());
+                }
+
+                displayMS = false;
+
+                WidgetsUtility::IncrementCursorPosX(12);
+                WidgetsUtility::IncrementCursorPosY(12);
+
+                int   fps         = Engine::Get()->GetCurrentFPS();
+                int   ups         = Engine::Get()->GetCurrentUPS();
+                float rawDelta    = (float)Engine::Get()->GetRawDelta();
+                float smoothDelta = (float)Engine::Get()->GetSmoothDelta();
+
+                static RollingBuffer fpsData;
+                static RollingBuffer upsData;
+                static RollingBuffer rawDeltaData;
+                static RollingBuffer smoothDeltaData;
+
+                static float t = 0;
+                t += ImGui::GetIO().DeltaTime;
+                fpsData.AddPoint(t, (float)fps);
+                upsData.AddPoint(t, (float)ups);
+                rawDeltaData.AddPoint(t, rawDelta);
+                smoothDeltaData.AddPoint(t, smoothDelta);
+
+                static float           history = 10.0f;
+                static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
+
+                ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
+                // ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
+
+                if (ImPlot::BeginPlot("##fpsUPS", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
+                {
+
+                    std::string fpsLabel = "FPS " + std::to_string(fps);
+                    std::string upsLabel = "UPS " + std::to_string(ups);
+                    ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+                    ImPlot::PlotLine(fpsLabel.c_str(), &fpsData.m_data[0].x, &fpsData.m_data[0].y, fpsData.m_data.size(), 0, 2 * sizeof(float));
+                    ImPlot::PopStyleColor();
+
+                    ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
+                    ImPlot::PlotLine(upsLabel.c_str(), &upsData.m_data[0].x, &upsData.m_data[0].y, upsData.m_data.size(), 0, 2 * sizeof(float));
+                    ImPlot::PopStyleColor();
+
+                    ImPlot::EndPlot();
+                }
+
+                WidgetsUtility::IncrementCursorPosX(12);
+                WidgetsUtility::IncrementCursorPosY(12);
+                static float deltaHistory   = 10.0f;
+                static float deltaYLimitMin = 0.0f;
+                static float deltaYLimitMax = 0.025f;
+
+                ImPlot::SetNextPlotLimitsX(0, deltaHistory, ImGuiCond_Always);
+                // ImPlot::SetNextPlotLimitsY(deltaYLimitMin, deltaYLimitMax, ImGuiCond_Always);
+
+                if (ImPlot::BeginPlot("##deltas", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
+                {
+
+                    std::string rawDeltaLabel    = "Raw DT " + std::to_string(rawDelta);
+                    std::string smoothDeltaLabel = "Smooth DT " + std::to_string(smoothDelta);
+                    ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+                    ImPlot::PlotLine(rawDeltaLabel.c_str(), &rawDeltaData.m_data[0].x, &rawDeltaData.m_data[0].y, rawDeltaData.m_data.size(), 0, 2 * sizeof(float));
+                    ImPlot::PopStyleColor();
+                    ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
+                    ImPlot::PlotLine(smoothDeltaLabel.c_str(), &smoothDeltaData.m_data[0].x, &smoothDeltaData.m_data[0].y, smoothDeltaData.m_data.size(), 0, 2 * sizeof(float));
+                    ImPlot::PopStyleColor();
+
+                    ImPlot::EndPlot();
+                }
+                End();
             }
-
-            displayMS = false;
-
-            WidgetsUtility::IncrementCursorPosX(12);
-            WidgetsUtility::IncrementCursorPosY(12);
-
-            int   fps         = Engine::Get()->GetCurrentFPS();
-            int   ups         = Engine::Get()->GetCurrentUPS();
-            float rawDelta    = (float)Engine::Get()->GetRawDelta();
-            float smoothDelta = (float)Engine::Get()->GetSmoothDelta();
-
-            static RollingBuffer fpsData;
-            static RollingBuffer upsData;
-            static RollingBuffer rawDeltaData;
-            static RollingBuffer smoothDeltaData;
-
-            static float t = 0;
-            t += ImGui::GetIO().DeltaTime;
-            fpsData.AddPoint(t, (float)fps);
-            upsData.AddPoint(t, (float)ups);
-            rawDeltaData.AddPoint(t, rawDelta);
-            smoothDeltaData.AddPoint(t, smoothDelta);
-
-            static float           history = 10.0f;
-            static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
-
-            ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
-            // ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
-
-            if (ImPlot::BeginPlot("##fpsUPS", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
-            {
-
-                std::string fpsLabel = "FPS " + std::to_string(fps);
-                std::string upsLabel = "UPS " + std::to_string(ups);
-                ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-                ImPlot::PlotLine(fpsLabel.c_str(), &fpsData.m_data[0].x, &fpsData.m_data[0].y, fpsData.m_data.size(), 0, 2 * sizeof(float));
-                ImPlot::PopStyleColor();
-
-                ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
-                ImPlot::PlotLine(upsLabel.c_str(), &upsData.m_data[0].x, &upsData.m_data[0].y, upsData.m_data.size(), 0, 2 * sizeof(float));
-                ImPlot::PopStyleColor();
-
-                ImPlot::EndPlot();
-            }
-
-            WidgetsUtility::IncrementCursorPosX(12);
-            WidgetsUtility::IncrementCursorPosY(12);
-            static float deltaHistory   = 10.0f;
-            static float deltaYLimitMin = 0.0f;
-            static float deltaYLimitMax = 0.025f;
-
-            ImPlot::SetNextPlotLimitsX(0, deltaHistory, ImGuiCond_Always);
-            // ImPlot::SetNextPlotLimitsY(deltaYLimitMin, deltaYLimitMax, ImGuiCond_Always);
-
-            if (ImPlot::BeginPlot("##deltas", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
-            {
-
-                std::string rawDeltaLabel    = "Raw DT " + std::to_string(rawDelta);
-                std::string smoothDeltaLabel = "Smooth DT " + std::to_string(smoothDelta);
-                ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-                ImPlot::PlotLine(rawDeltaLabel.c_str(), &rawDeltaData.m_data[0].x, &rawDeltaData.m_data[0].y, rawDeltaData.m_data.size(), 0, 2 * sizeof(float));
-                ImPlot::PopStyleColor();
-                ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
-                ImPlot::PlotLine(smoothDeltaLabel.c_str(), &smoothDeltaData.m_data[0].x, &smoothDeltaData.m_data[0].y, smoothDeltaData.m_data.size(), 0, 2 * sizeof(float));
-                ImPlot::PopStyleColor();
-
-                ImPlot::EndPlot();
-            }
-            End();
         }
     }
 } // namespace Lina::Editor

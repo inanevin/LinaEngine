@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Widgets/Snackbar.hpp"
+#include "Core/ImGuiCommon.hpp"
 #include "imgui/imgui.h"
 
 #include <filesystem>
@@ -55,13 +56,6 @@ namespace Lina::Editor
     MenuBarElement*     m_showEngineFoldersMB    = nullptr;
     float               m_fileNodeStartCursorPos = 16.0f;
     std::vector<TypeID> m_resourceTypesToDraw;
-
-    struct InputTextCallback_UserData
-    {
-        std::string*           Str;
-        ImGuiInputTextCallback ChainCallback;
-        void*                  ChainCallbackUserData;
-    };
 
     ResourcesPanel::~ResourcesPanel()
     {
@@ -88,67 +82,48 @@ namespace Lina::Editor
         m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
     }
 
-    static int InputTextCallback(ImGuiInputTextCallbackData* data)
-    {
-        InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
-        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-        {
-            // Resize string callback
-            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
-            std::string* str = user_data->Str;
-            IM_ASSERT(data->Buf == str->c_str());
-            str->resize(data->BufTextLen);
-            data->Buf = (char*)str->c_str();
-        }
-        else if (user_data->ChainCallback)
-        {
-            // Forward to user callback, if any
-            data->UserData = user_data->ChainCallbackUserData;
-            return user_data->ChainCallback(data);
-        }
-        return 0;
-    }
-
     void ResourcesPanel::Draw()
     {
         if (m_show)
         {
-            Begin();
+            if (Begin())
+            {
 
-            const ImVec2 windowPos       = ImGui::GetWindowPos();
-            const ImVec2 windowSize      = ImGui::GetWindowSize();
-            const ImVec2 cursorPos       = ImGui::GetCursorScreenPos();
-            const ImVec2 leftPaneSize    = ImVec2(m_leftPaneWidth, 0);
-            const ImVec2 rightPanePos    = ImVec2(cursorPos.x + leftPaneSize.x, cursorPos.y);
-            const ImVec2 rightPaneSize   = ImVec2(windowSize.x - leftPaneSize.x, 0);
-            bool         anyChildHovered = false;
-            bool         isWindowHovered = ImGui::IsWindowHovered();
+                const ImVec2 windowPos       = ImGui::GetWindowPos();
+                const ImVec2 windowSize      = ImGui::GetWindowSize();
+                const ImVec2 cursorPos       = ImGui::GetCursorScreenPos();
+                const ImVec2 leftPaneSize    = ImVec2(m_leftPaneWidth, 0);
+                const ImVec2 rightPanePos    = ImVec2(cursorPos.x + leftPaneSize.x, cursorPos.y);
+                const ImVec2 rightPaneSize   = ImVec2(windowSize.x - leftPaneSize.x, 0);
+                bool         anyChildHovered = false;
+                bool         isWindowHovered = ImGui::IsWindowHovered();
 
-            ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
-            ImGui::BeginChild("resources_leftPane", leftPaneSize);
-            DrawLeftPane();
-            m_leftPaneFocused = ImGui::IsWindowFocused();
+                ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
+                ImGui::BeginChild("resources_leftPane", leftPaneSize);
+                DrawLeftPane();
+                m_leftPaneFocused = ImGui::IsWindowFocused();
 
-            if (ImGui::IsWindowHovered())
-                anyChildHovered = true;
+                if (ImGui::IsWindowHovered())
+                    anyChildHovered = true;
 
-            ImGui::EndChild();
+                ImGui::EndChild();
 
-            ImGui::SameLine();
-            WidgetsUtility::IncrementCursorPosX(-ImGui::GetStyle().ItemSpacing.x + 2);
+                ImGui::SameLine();
+                WidgetsUtility::IncrementCursorPosX(-ImGui::GetStyle().ItemSpacing.x + 2);
 
-            ImGui::BeginChild("resources_rightPane");
-            DrawRightPane();
-            m_rightPaneFocused = ImGui::IsWindowFocused();
+                ImGui::BeginChild("resources_rightPane");
+                DrawRightPane();
+                m_rightPaneFocused = ImGui::IsWindowFocused();
 
-            if (ImGui::IsWindowHovered())
-                anyChildHovered = true;
+                if (ImGui::IsWindowHovered())
+                    anyChildHovered = true;
 
-            ImGui::EndChild();
+                ImGui::EndChild();
 
-            HandleLeftPaneResize(anyChildHovered || isWindowHovered);
+                HandleLeftPaneResize(anyChildHovered || isWindowHovered);
 
-            End();
+                End();
+            }
         }
     }
 

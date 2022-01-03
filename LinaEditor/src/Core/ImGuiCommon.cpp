@@ -1,6 +1,6 @@
-/*
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,40 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: FreeLookComponent
+#include "Core/ImGuiCommon.hpp"
 
-Used for free look functionality, much like a fly-camera.
-
-Timestamp: 5/2/2019 1:40:16 AM
-*/
-
-#pragma once
-
-#ifndef FreeLookComponent_HPP
-#define FreeLookComponent_HPP
-
-#include "ECS/Component.hpp"
-#include "Math/Vector.hpp"
-
-namespace Lina::ECS
+namespace Lina::Editor
 {
-    LINA_CLASS("Free Look Component", "ICON_FA_EYE", "Input", "true", "true")
-    struct FreeLookComponent : public Component
+    int InputTextCallback(ImGuiInputTextCallbackData* data)
     {
-        Vector2 m_angles = Vector2::Zero;
-        LINA_PROPERTY("Movement Speed", "vector2", "", "")
-        Vector2 m_movementSpeeds = Vector2(12, 12);
-
-        LINA_PROPERTY("Rotation Speed", "vector2", "", "")
-        Vector2 m_rotationSpeeds = Vector2(3, 3);
-
-        template <class Archive>
-        void serialize(Archive& archive)
+        InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
         {
-            archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
+            // Resize string callback
+            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+            std::string* str = user_data->Str;
+            IM_ASSERT(data->Buf == str->c_str());
+            str->resize(data->BufTextLen);
+            data->Buf = (char*)str->c_str();
         }
-    };
-} // namespace Lina::ECS
-
-#endif
+        else if (user_data->ChainCallback)
+        {
+            // Forward to user callback, if any
+            data->UserData = user_data->ChainCallbackUserData;
+            return user_data->ChainCallback(data);
+        }
+        return 0;
+    }
+} // namespace Lina::Editor

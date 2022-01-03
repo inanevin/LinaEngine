@@ -70,7 +70,7 @@ void ExampleLevel::Initialize()
     // auto entity = ECS::Registry::Get()->GetEntity("Entity");
     // ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(entity);
     // mr.SetModel(entity, Graphics::Model::GetModel("Resources/SandboxTarget/RicochetTarget.fbx"));
-
+        
    
 }
 

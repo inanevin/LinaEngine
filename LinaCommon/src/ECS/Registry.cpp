@@ -33,9 +33,22 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/EntityEvents.hpp"
 #include "Log/Log.hpp"
-
+#include <entt/meta/resolve.hpp>
+#include <entt/meta/meta.hpp>
+#include <entt/entity/snapshot.hpp>
 namespace Lina::ECS
 {
+    template <typename Type>
+    void SerComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
+    {
+        snapshot.component<Type>(archive);
+    }
+
+    void Sa(entt::snapshot& snapshot)
+    {
+    }
+    using namespace entt::literals;
+
     Registry* Registry::s_ecs = nullptr;
 
     void Registry::Initialize()
@@ -52,24 +65,42 @@ namespace Lina::ECS
 
     void Registry::SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive)
     {
-
+        return;
         auto& snapshot = entt::snapshot{*this};
         snapshot.entities(archive);
 
-        //for (auto& func : m_serializeFunctions)
-        //{
-        //    func.second.first(snapshot, archive);
-        //}
+        auto& it = storage();
+        for (auto& store : it)
+        {
+            auto resolved = entt::resolve(store.first);
+            if (resolved)
+            {
+                auto& serializeFunc = resolved.func("serialize"_hs);
+                if (serializeFunc)
+                    serializeFunc.invoke({}, entt::forward_as_meta(snapshot), entt::forward_as_meta(archive));
+            }
+        }
     }
 
     void Registry::DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive)
     {
+    return;
         auto& loader = entt::snapshot_loader{*this};
         loader.entities(archive);
-        // for (auto& func : m_serializeFunctions)
-        // {
-        //     func.second.second(loader, archive);
-        // }
+
+        auto& it = storage();
+        for (auto& store : it)
+        {
+            auto resolved = entt::resolve(store.first);
+
+            if (resolved)
+            {
+                auto& deserializeFunc = resolved.func("deserialize"_hs);
+
+                if (deserializeFunc)
+                    deserializeFunc.invoke({}, entt::forward_as_meta(loader), entt::forward_as_meta(archive));
+            }
+        }
     }
 
     void Registry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)

@@ -88,213 +88,213 @@ namespace Lina::Editor
 
             Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
 
-            ImGui::Begin(m_id, &m_show, m_windowFlags);
-            WidgetsUtility::WindowTitlebar(m_id);
-            if (!CanDrawContent())
-                return;
-            WidgetsUtility::FramePaddingY(0.0f);
-
-            ImVec2 sceneWindowPos  = WidgetsUtility::GetWindowPosWithContentRegion();
-            ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
-
-            // Set Focus
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+            if (Begin())
             {
-                ImVec2 min = ImVec2(sceneWindowPos.x, sceneWindowPos.y);
-                ImVec2 max = ImVec2(min.x + sceneWindowSize.x, min.y + sceneWindowSize.y);
+                WidgetsUtility::FramePaddingY(0.0f);
 
-                if (ImGui::IsMouseHoveringRect(min, max))
-                    m_isFocused = true;
-                else
-                    m_isFocused = false;
-            }
+                ImVec2 sceneWindowPos  = WidgetsUtility::GetWindowPosWithContentRegion();
+                ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
 
-            ImGui::BeginChild("finalImage");
+                // Set Focus
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                {
+                    ImVec2 min = ImVec2(sceneWindowPos.x, sceneWindowPos.y);
+                    ImVec2 max = ImVec2(min.x + sceneWindowSize.x, min.y + sceneWindowSize.y);
 
-            // Get game viewport aspect.
-            Vector2 vpSize = renderEngine->GetScreenSize();
-            float   aspect = (float)vpSize.x / (float)vpSize.y;
+                    if (ImGui::IsMouseHoveringRect(min, max))
+                        m_isFocused = true;
+                    else
+                        m_isFocused = false;
+                }
 
-            // Resize engine display.
-            if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
-            {
-                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
-                previousWindowSize = sceneWindowSize;
-            }
+                ImGui::BeginChild("finalImage");
+
+                // Get game viewport aspect.
+                Vector2 vpSize = renderEngine->GetScreenSize();
+                float   aspect = (float)vpSize.x / (float)vpSize.y;
+
+                // Resize engine display.
+                if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
+                {
+                    Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+                    previousWindowSize = sceneWindowSize;
+                }
 
 #pragma warning(disable : 4312) // ImTextureID requires a void* conversion.
 
-            // Draw final image.
-            ImVec2 imageRectMin = sceneWindowPos;
-            ImVec2 imageRectMax = ImVec2(sceneWindowPos.x + sceneWindowSize.x, sceneWindowPos.y + sceneWindowSize.y);
+                // Draw final image.
+                ImVec2 imageRectMin = sceneWindowPos;
+                ImVec2 imageRectMax = ImVec2(sceneWindowPos.x + sceneWindowSize.x, sceneWindowPos.y + sceneWindowSize.y);
 
-            if (m_drawMode == DrawMode::FinalImage)
-                ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetFinalImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
-            else if (m_drawMode == DrawMode::ShadowMap)
-                ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetShadowMapImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+                if (m_drawMode == DrawMode::FinalImage)
+                    ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetFinalImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+                else if (m_drawMode == DrawMode::ShadowMap)
+                    ImGui::GetWindowDrawList()->AddImage((void*)(renderEngine->GetShadowMapImage()), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
-            if (Engine::Get()->GetPlayMode())
-            {
-                if (m_borderAlpha < 1.0f)
-                    m_borderAlpha = Math::Lerp(m_borderAlpha, 1.1f, Engine::Get()->GetRawDelta() * 1.2f);
-
-                ImGui::GetWindowDrawList()->AddRect(imageRectMin, ImVec2(imageRectMax.x, imageRectMax.y - 4), ImGui::ColorConvertFloat4ToU32(ImVec4(0.33f, 0.54f, 0.78f, m_borderAlpha)), 0, 0, 5);
-            }
-            else
-            {
-                if (m_borderAlpha != 0.0f)
-                    m_borderAlpha = 0.0f;
-            }
-
-            /// <summary>
-            /// Scene Settings - window for buttons.
-            /// </summary>
-            ImVec2 settingsPos  = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
-            ImVec2 settingsSize = ImVec2(65, 40);
-            ImGui::SetNextWindowPos(settingsPos);
-            ImGui::SetNextWindowBgAlpha(0.4f);
-            ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
-            ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-            const float cursorPos = ImGui::GetCursorPosY();
-
-            const ImVec2 buttonSize = ImVec2(25, 25);
-            float        cursorPosY = settingsSize.y / 2.0f - buttonSize.y / 2.0f;
-            ImGui::SetCursorPosX(5.0f);
-            ImGui::SetCursorPosY(cursorPosY);
-
-            if (WidgetsUtility::CustomToggle("##scenepanel_camsettings", buttonSize, m_shouldShowCameraSettings, nullptr, ICON_FA_CAMERA, 3.0f, "Camera Settings"))
-                m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
-
-            ImGui::SameLine();
-            ImGui::SetCursorPosY(cursorPosY);
-
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.6f, 0.1f, 1.0f));
-            if (WidgetsUtility::CustomToggle("##scenepanel_gizmos", buttonSize, m_shouldShowGizmos, nullptr, ICON_FA_BACON, 3.0f, "Gizmos"))
-                m_shouldShowGizmos = !m_shouldShowGizmos;
-            ImGui::PopStyleColor();
-            ImGui::EndChild();
-            ImGui::PopStyleVar();
-
-            /// <summary>
-            /// Camera settings pop-up window.
-            /// </summary>
-            if (m_shouldShowCameraSettings)
-            {
-                // Smoothly animate window size
-                if (m_cameraSettingsWindowYMultiplier < 1.0f)
+                if (Engine::Get()->GetPlayMode())
                 {
-                    m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Engine::Get()->GetRawDelta() * 6.0f);
-                    m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
+                    if (m_borderAlpha < 1.0f)
+                        m_borderAlpha = Math::Lerp(m_borderAlpha, 1.1f, Engine::Get()->GetRawDelta() * 1.2f);
+
+                    ImGui::GetWindowDrawList()->AddRect(imageRectMin, ImVec2(imageRectMax.x, imageRectMax.y - 4), ImGui::ColorConvertFloat4ToU32(ImVec4(0.33f, 0.54f, 0.78f, m_borderAlpha)), 0, 0, 5);
+                }
+                else
+                {
+                    if (m_borderAlpha != 0.0f)
+                        m_borderAlpha = 0.0f;
                 }
 
-                ImVec2 cameraSettingsPos  = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
-                ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
-                ImGui::SetNextWindowPos(cameraSettingsPos);
-                ImGui::SetNextWindowBgAlpha(0.5f);
-                ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
-                float cursorPosLabels = 12;
-                WidgetsUtility::IncrementCursorPosY(6);
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
-                ImGui::SetCursorPosX(cursorPosLabels);
-                WidgetsUtility::PropertyLabel("Camera Speed");
-                ImGui::SameLine();
+                /// <summary>
+                /// Scene Settings - window for buttons.
+                /// </summary>
+                ImVec2 settingsPos  = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
+                ImVec2 settingsSize = ImVec2(65, 40);
+                ImGui::SetNextWindowPos(settingsPos);
+                ImGui::SetNextWindowBgAlpha(0.4f);
+                ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
+                ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+                const float cursorPos = ImGui::GetCursorPosY();
 
-                float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
-                ImGui::SetCursorPosX(cursorPosValues);
-                ImGui::SetNextItemWidth(100);
-                ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
-                ImGui::SetCursorPosX(cursorPosLabels);
-                WidgetsUtility::PropertyLabel("Multiplier");
+                const ImVec2 buttonSize = ImVec2(25, 25);
+                float        cursorPosY = settingsSize.y / 2.0f - buttonSize.y / 2.0f;
+                ImGui::SetCursorPosX(5.0f);
+                ImGui::SetCursorPosY(cursorPosY);
+
+                if (WidgetsUtility::CustomToggle("##scenepanel_camsettings", buttonSize, m_shouldShowCameraSettings, nullptr, ICON_FA_CAMERA, 3.0f, "Camera Settings"))
+                    m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
+
                 ImGui::SameLine();
-                ImGui::SetCursorPosX(cursorPosValues);
-                ImGui::SetNextItemWidth(100);
-                ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
-                ImGui::PopStyleVar();
-                EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+                ImGui::SetCursorPosY(cursorPosY);
+
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.6f, 0.1f, 1.0f));
+                if (WidgetsUtility::CustomToggle("##scenepanel_gizmos", buttonSize, m_shouldShowGizmos, nullptr, ICON_FA_BACON, 3.0f, "Gizmos"))
+                    m_shouldShowGizmos = !m_shouldShowGizmos;
+                ImGui::PopStyleColor();
                 ImGui::EndChild();
+                ImGui::PopStyleVar();
 
-                if (ImGui::IsWindowHovered())
+                /// <summary>
+                /// Camera settings pop-up window.
+                /// </summary>
+                if (m_shouldShowCameraSettings)
                 {
-                    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                    // Smoothly animate window size
+                    if (m_cameraSettingsWindowYMultiplier < 1.0f)
                     {
-                        if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
-                            m_shouldShowCameraSettings = false;
+                        m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Engine::Get()->GetRawDelta() * 6.0f);
+                        m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
+                    }
+
+                    ImVec2 cameraSettingsPos  = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
+                    ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
+                    ImGui::SetNextWindowPos(cameraSettingsPos);
+                    ImGui::SetNextWindowBgAlpha(0.5f);
+                    ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
+                    float cursorPosLabels = 12;
+                    WidgetsUtility::IncrementCursorPosY(6);
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
+                    ImGui::SetCursorPosX(cursorPosLabels);
+                    WidgetsUtility::PropertyLabel("Camera Speed");
+                    ImGui::SameLine();
+
+                    float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+                    ImGui::SetCursorPosX(cursorPosValues);
+                    ImGui::SetNextItemWidth(100);
+                    ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
+                    ImGui::SetCursorPosX(cursorPosLabels);
+                    WidgetsUtility::PropertyLabel("Multiplier");
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosX(cursorPosValues);
+                    ImGui::SetNextItemWidth(100);
+                    ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
+                    ImGui::PopStyleVar();
+                    EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+                    ImGui::EndChild();
+
+                    if (ImGui::IsWindowHovered())
+                    {
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                        {
+                            if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
+                                m_shouldShowCameraSettings = false;
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (m_cameraSettingsWindowYMultiplier != 0.0f)
-                    m_cameraSettingsWindowYMultiplier = 0.0f;
-            }
+                else
+                {
+                    if (m_cameraSettingsWindowYMultiplier != 0.0f)
+                        m_cameraSettingsWindowYMultiplier = 0.0f;
+                }
 
-            // Draw gizmos.
-            ImGuiIO& io = ImGui::GetIO();
-            ImGuizmo::Enable(true);
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-            ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
-            ImGui::PushClipRect(imageRectMin, imageRectMax, false);
-            ProcessInput();
-            DrawGizmos();
+                // Draw gizmos.
+                ImGuiIO& io = ImGui::GetIO();
+                ImGuizmo::Enable(true);
+                ImGuizmo::SetOrthographic(false);
+                ImGuizmo::SetDrawlist();
+                ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
+                ImGui::PushClipRect(imageRectMin, imageRectMax, false);
+                ProcessInput();
+                DrawGizmos();
 
-            // Show a warning box if no camera is available.
-            if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
-            {
-                ImVec2 size = ImVec2(240, 100);
-                ImVec2 pos  = ImVec2(sceneWindowPos.x + sceneWindowSize.x / 2.0f - (size.x / 2.0f), sceneWindowPos.y + sceneWindowSize.y / 2.0f - (size.y / 2.0f));
-                ImGui::SetNextWindowPos(pos);
-                ImGui::SetNextWindowBgAlpha(0.8f);
-                ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
-                ImGui::PushFont(GUILayer::Get()->GetBigFont());
-                ImGui::BeginChild("##scenepanel_nocam", size, false, emptyChildFlags);
-                const char* noCamAvab        = "No camera available!";
-                const char* latestViewMatrix = "(Using latest view matrix)";
-                ImVec2      windowSize       = ImGui::GetWindowSize();
-                ImVec2      textSize1        = ImGui::CalcTextSize(noCamAvab);
-                ImVec2      textSize2        = ImGui::CalcTextSize(latestViewMatrix);
-                ImGui::SetCursorPosX((windowSize.x - textSize1.x) * 0.5f);
-                ImGui::SetCursorPosY((windowSize.y - textSize1.y) * 0.5f - 10);
-                ImGui::Text("No camera available!");
-                ImGui::SetCursorPosX((windowSize.x - textSize2.x) * 0.5f);
-                ImGui::SetCursorPosY((windowSize.y - textSize2.y) * 0.5f + 10);
-                ImGui::Text(latestViewMatrix);
-                ImGui::PopFont();
-                ImGui::PopStyleVar();
+                // Show a warning box if no camera is available.
+                if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
+                {
+                    ImVec2 size = ImVec2(240, 100);
+                    ImVec2 pos  = ImVec2(sceneWindowPos.x + sceneWindowSize.x / 2.0f - (size.x / 2.0f), sceneWindowPos.y + sceneWindowSize.y / 2.0f - (size.y / 2.0f));
+                    ImGui::SetNextWindowPos(pos);
+                    ImGui::SetNextWindowBgAlpha(0.8f);
+                    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4);
+                    ImGui::PushFont(GUILayer::Get()->GetBigFont());
+                    ImGui::BeginChild("##scenepanel_nocam", size, false, emptyChildFlags);
+                    const char* noCamAvab        = "No camera available!";
+                    const char* latestViewMatrix = "(Using latest view matrix)";
+                    ImVec2      windowSize       = ImGui::GetWindowSize();
+                    ImVec2      textSize1        = ImGui::CalcTextSize(noCamAvab);
+                    ImVec2      textSize2        = ImGui::CalcTextSize(latestViewMatrix);
+                    ImGui::SetCursorPosX((windowSize.x - textSize1.x) * 0.5f);
+                    ImGui::SetCursorPosY((windowSize.y - textSize1.y) * 0.5f - 10);
+                    ImGui::Text("No camera available!");
+                    ImGui::SetCursorPosX((windowSize.x - textSize2.x) * 0.5f);
+                    ImGui::SetCursorPosY((windowSize.y - textSize2.y) * 0.5f + 10);
+                    ImGui::Text(latestViewMatrix);
+                    ImGui::PopFont();
+                    ImGui::PopStyleVar();
+                    ImGui::EndChild();
+                }
+
                 ImGui::EndChild();
+
+                if (!levelPanelFirstRun)
+                {
+                    levelPanelFirstRun = true;
+                    Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
+                }
+
+                // Model drag & drop.
+                // if (ImGui::BeginDragDropTarget())
+                // {
+                //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+                //     {
+                //         IM_ASSERT(payload->DataSize == sizeof(uint32));
+                //
+                //         auto* ecs    = ECS::Registry::Get();
+                //         auto& model  = Graphics::Model::GetModel(*(uint32*)payload->Data);
+                //         auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+                //         auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
+                //         mr.SetModel(entity, model);
+                //
+                //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
+                //
+                //         for (int i = 0; i < model.GetImportedMaterials().size(); i++)
+                //             mr.SetMaterial(entity, i, mat);
+                //     }
+                //     ImGui::EndDragDropTarget();
+                // }
+
+                WidgetsUtility::PopStyleVar();
+                End();
             }
-
-            ImGui::EndChild();
-
-            if (!levelPanelFirstRun)
-            {
-                levelPanelFirstRun = true;
-                Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
-            }
-
-            // Model drag & drop.
-           // if (ImGui::BeginDragDropTarget())
-           // {
-           //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-           //     {
-           //         IM_ASSERT(payload->DataSize == sizeof(uint32));
-           //
-           //         auto* ecs    = ECS::Registry::Get();
-           //         auto& model  = Graphics::Model::GetModel(*(uint32*)payload->Data);
-           //         auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-           //         auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
-           //         mr.SetModel(entity, model);
-           //
-           //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
-           //
-           //         for (int i = 0; i < model.GetImportedMaterials().size(); i++)
-           //             mr.SetMaterial(entity, i, mat);
-           //     }
-           //     ImGui::EndDragDropTarget();
-           // }
-
-            WidgetsUtility::PopStyleVar();
-            ImGui::End();
+         
         }
     }
 

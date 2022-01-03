@@ -65,7 +65,7 @@ namespace Lina::Editor
 
         m_ecs = ECS::Registry::Get();
 
-        m_rightClickMenu = new Menu("RC");
+        m_rightClickMenu  = new Menu("RC");
         MenuBarElement* m = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
         m_rightClickMenu->AddElement(m);
 
@@ -192,65 +192,67 @@ namespace Lina::Editor
     {
         if (m_show)
         {
-            Begin();
-
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-            ImGui::BeginChild("ecs_child", ImVec2(0, -30), true);
-
-            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
-
-            if (ImGui::BeginTable("entitiesTable", 2, flags))
+            if (Begin())
             {
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40);
-                ImGui::TableHeadersRow();
 
-                auto singleView = m_ecs->view<ECS::EntityDataComponent>();
+                ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+                ImGui::BeginChild("ecs_child", ImVec2(0, -30), true);
 
-                for (auto entity : singleView)
+                static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg;
+
+                if (ImGui::BeginTable("entitiesTable", 2, flags))
                 {
-                    ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
+                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
+                    ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40);
+                    ImGui::TableHeadersRow();
 
-                    if (data.m_parent == entt::null && data.m_name.compare(EDITOR_CAMERA_NAME) != 0)
-                        DrawEntityNode(0, entity);
+                    auto singleView = m_ecs->view<ECS::EntityDataComponent>();
+
+                    for (auto entity : singleView)
+                    {
+                        ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
+
+                        if (data.m_parent == entt::null && data.m_name.compare(EDITOR_CAMERA_NAME) != 0)
+                            DrawEntityNode(0, entity);
+                    }
+
+                    ImGui::EndTable();
                 }
 
-                ImGui::EndTable();
+                // Switch visibility using mouse drag.
+                if (Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_3))
+                    m_isMouseDragging = true;
+                if (m_isMouseDragging && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_3))
+                {
+                    m_isMouseDragging = false;
+                    m_visibilityMouseMap.clear();
+                }
+
+                if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                {
+                    m_selectedEntity = entt::null;
+                    Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected());
+                }
+
+                WidgetsUtility::PushPopupStyle();
+
+                // Handle Right Click.
+                if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+                {
+                    m_rightClickMenu->Draw();
+                    ImGui::EndPopup();
+                }
+
+                WidgetsUtility::PopPopupStyle();
+
+                ImGui::EndChild();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+
+                End();
             }
-
-            // Switch visibility using mouse drag.
-            if (Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_3))
-                m_isMouseDragging = true;
-            if (m_isMouseDragging && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_3))
-            {
-                m_isMouseDragging = false;
-                m_visibilityMouseMap.clear();
-            }
-
-            if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-            {
-                m_selectedEntity = entt::null;
-                Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected());
-            }
-
-            WidgetsUtility::PushPopupStyle();
-
-            // Handle Right Click.
-            if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
-            {
-                m_rightClickMenu->Draw();
-                ImGui::EndPopup();
-            }
-
-            WidgetsUtility::PopPopupStyle();
-
-            ImGui::EndChild();
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-            WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
-            ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
-
-            End();
         }
     }
 

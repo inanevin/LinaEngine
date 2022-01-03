@@ -53,7 +53,7 @@ namespace Lina::Editor
         virtual ~EditorPanel() = default;
         virtual void Initialize(const char* id, const char* icon);
         virtual void Draw() = 0;
-        virtual void Begin();
+        virtual bool Begin();
         virtual void End();
         virtual void Open()
         {

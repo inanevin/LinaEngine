@@ -70,6 +70,7 @@ namespace Lina::ECS
     class RigidbodySystem;
     class Registry;
 
+    LINA_CLASS("Physics Component", "", "", "false", "false")
     struct PhysicsComponent : public Component
     {
         virtual void SetIsEnabled(bool isEnabled) override;

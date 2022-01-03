@@ -27,6 +27,7 @@ src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/CentralDockingSpace.cpp
 src/Core/ShortcutManager.cpp
+src/Core/ImGuiCommon.cpp
 
 
 # ECS
@@ -51,6 +52,7 @@ src/Panels/HeaderPanel.cpp
 src/Panels/ProfilerPanel.cpp
 src/Panels/GlobalSettingsPanel.cpp
 src/Panels/MainToolbarPanel.cpp
+src/Panels/ResourceSelectorPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -103,6 +105,7 @@ include/Core/EditorApplication.hpp
 include/Core/CustomFontIcons.hpp
 include/Core/CentralDockingSpace.hpp
 include/Core/ShortcutManager.hpp
+include/Core/ImGuiCommon.hpp
 
 # ECS
 include/ECS/Systems/EditorCameraSystem.hpp
@@ -125,6 +128,7 @@ include/Panels/LogPanel.hpp
 include/Panels/HeaderPanel.hpp
 include/Panels/ProfilerPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
+include/Panels/ResourceSelectorPanel.hpp
 
 
 # Utility

@@ -55,6 +55,7 @@ namespace Lina::Editor
     static std::string s_draggedInput          = "";
     static float       s_valueOnDragStart      = 0.0f;
     static int         s_valueOnDragStartInt   = 0;
+    void*       s_latestResourceHandle  = nullptr;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -158,7 +159,7 @@ namespace Lina::Editor
     void WidgetsUtility::DrawResourceNode(TypeID tid, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier)
     {
 #pragma warning(disable : 4312)
-        auto* storage = Resources::ResourceStorage::Get();
+        auto*        storage            = Resources::ResourceStorage::Get();
         const ImVec2 cursorPosScreen    = ImGui::GetCursorScreenPos();
         const ImVec2 cursorPos          = ImGui::GetCursorPos();
         const float  fileTypeRectHeight = 5;
@@ -735,33 +736,33 @@ namespace Lina::Editor
         Graphics::Model* modelToReturn = nullptr;
 
         std::string modelLabel = "";
-       //if (Graphics::Model::ModelExists(currentModelID))
-       //{
-       //    const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
-       //    modelLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
-       //}
-       //
-       //if (BeginComboBox(comboID, modelLabel.c_str(), true))
-       //{
-       //    auto& loadedModels = Graphics::Model::GetLoadedModels();
-       //
-       //    for (auto& model : loadedModels)
-       //    {
-       //        const bool selected = currentModelID == model.second.GetID();
-       //
-       //        std::string label = model.second.GetPath();
-       //        label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-       //        if (ImGui::Selectable(label.c_str(), selected))
-       //        {
-       //            modelToReturn = &model.second;
-       //        }
-       //
-       //        if (selected)
-       //            ImGui::SetItemDefaultFocus();
-       //    }
-       //
-       //    ImGui::EndCombo();
-       //}
+        //if (Graphics::Model::ModelExists(currentModelID))
+        //{
+        //    const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
+        //    modelLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
+        //}
+        //
+        //if (BeginComboBox(comboID, modelLabel.c_str(), true))
+        //{
+        //    auto& loadedModels = Graphics::Model::GetLoadedModels();
+        //
+        //    for (auto& model : loadedModels)
+        //    {
+        //        const bool selected = currentModelID == model.second.GetID();
+        //
+        //        std::string label = model.second.GetPath();
+        //        label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+        //        if (ImGui::Selectable(label.c_str(), selected))
+        //        {
+        //            modelToReturn = &model.second;
+        //        }
+        //
+        //        if (selected)
+        //            ImGui::SetItemDefaultFocus();
+        //    }
+        //
+        //    ImGui::EndCombo();
+        //}
 
         const std::string comboEndID = std::string(comboID) + "_comboEnd";
         if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
@@ -903,6 +904,95 @@ namespace Lina::Editor
         }
 
         return shapeToReturn;
+    }
+
+    StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed,  TypeID resourceType)
+    {
+        std::string     resourceName     = "None";
+        constexpr float spaceFromEnd     = 10.0f;
+        const float     removeButtonSize = ImGui::GetFrameHeight();
+
+        if (currentResource != nullptr)
+            resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
+
+        // Selection button.
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+        ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        bool pressed = ImGui::Button(resourceName.c_str(), ImVec2(-spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x, removeButtonSize));
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+
+        // Remove button.
+        ImGui::SameLine();
+        PushIconFontSmall();
+        *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 3);
+        ImGui::PopFont();
+
+        if (pressed)
+        {
+            s_latestResourceHandle = currentHandle;
+            GUILayer::Get()->GetResourceSelector().SetCurrentTypeID(resourceType, resourceStr);
+            GUILayer::Get()->GetResourceSelector().Open();
+        }
+
+        const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().GetSelectedResource();
+        if (s_latestResourceHandle == currentHandle && selectedResource != 0)
+        {
+            s_latestResourceHandle = nullptr;
+            return selectedResource;
+        }
+
+        return 0;
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionMaterial(void* handleAddr)
+    {
+        Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
+        s_latestResourceHandle = handle;
+
+        bool pressed = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
+
+        if (selected != 0)
+        {
+            handle->m_sid = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(selected);
+        }
+
+        if (removed)
+        {
+
+        }
+
+
+        return selected;
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionTexture(void* handleAddr)
+    {
+       
+        return 0;
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionAudio(void* handleAddr)
+    {
+        return StringIDType();
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionModelNode(void* handleAddr)
+    {
+        return StringIDType();
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(void* handleAddr)
+    {
+        return StringIDType();
+    }
+
+    StringIDType WidgetsUtility::ResourceSelectionShader(void* handleAddr)
+    {
+        return StringIDType();
     }
 
     bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset)
