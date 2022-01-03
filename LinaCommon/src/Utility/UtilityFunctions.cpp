@@ -121,8 +121,9 @@ namespace Lina
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
                     file->m_fullPath  = replacedPath;
                     file->m_extension = file->m_fullName.substr(file->m_fullName.find(".") + 1);
-                    file->m_pureName  = GetFileWithoutExtension(file->m_fullName);
+                    file->m_name      = GetFileWithoutExtension(file->m_fullName);
                     file->m_parent    = root;
+                    file->m_typeID    = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
 
                     if (totalFiles != nullptr)
                         (*totalFiles) = (*totalFiles) + 1;
@@ -136,7 +137,7 @@ namespace Lina
                     std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
                     folder->m_fullPath = replacedPath;
                     folder->m_parent   = root;
-
+                    folder->m_typeID   = 0;
                     if (recursive)
                         ScanFolder(folder, recursive, totalFiles);
                 }
@@ -196,6 +197,13 @@ namespace Lina
             file->m_fullPath             = file->m_parent->m_fullPath + "/" + file->m_fullName;
             const StringIDType sidNow    = StringID(file->m_fullPath.c_str()).value();
             Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow});
+        }
+
+        void ChangeFileName(File* file, const std::string& newName)
+        {
+            file->m_name     = newName;
+            file->m_fullName = newName + "." + file->m_extension;
+            ParentPathUpdated(file);
         }
 
         void ChangeFolderName(Folder* folder, const std::string& newName)

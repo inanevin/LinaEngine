@@ -139,14 +139,14 @@ namespace Lina::Editor
             if (m_storage->GetTypeIDFromExtension(file->m_extension) != m_currentFileType)
                 continue;
 
-            const std::string fileNameLower  = Utility::ToLower(file->m_pureName);
+            const std::string fileNameLower  = Utility::ToLower(file->m_name);
             const std::string searchStrLower = Utility::ToLower(m_searchFilter);
 
             if (m_searchFilter.compare("") != 0 && fileNameLower.find(searchStrLower) != 0)
                 continue;
 
             ImGui::SetCursorPosX(5);
-            ImGui::Selectable(file->m_pureName.c_str(), m_selectedFile == file);
+            ImGui::Selectable(file->m_name.c_str(), m_selectedFile == file);
 
             if (ImGui::IsItemClicked())
             {

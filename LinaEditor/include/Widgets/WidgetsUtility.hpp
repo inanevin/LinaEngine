@@ -102,14 +102,14 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a folder in the style of Resources Panel.
         /// </summary>
-        static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder);
+        static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename);
 
         /// <summary>
         /// Draws the rectangular nodes in the Resources right pane.
         /// </summary>
         /// <param name="isFolder"></param>
         /// <param name="fullPath"></param>
-        static void DrawResourceNode(TypeID tid, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier = 1.0f);
+        static void DrawResourceNode(Utility::DirectoryItem* item, bool selected, bool* renamedItem, float sizeMultiplier = 1.0f, bool canRename = false);
 
         /// <summary>
         /// Button with color-picker pop-up

@@ -51,10 +51,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    Menu*               m_leftPaneMenu           = nullptr;
-    MenuBarElement*     m_showEditorFoldersMB    = nullptr;
-    MenuBarElement*     m_showEngineFoldersMB    = nullptr;
-    float               m_fileNodeStartCursorPos = 16.0f;
+    Menu*               m_leftPaneMenu        = nullptr;
+    MenuBarElement*     m_showEditorFoldersMB = nullptr;
+    MenuBarElement*     m_showEngineFoldersMB = nullptr;
     std::vector<TypeID> m_resourceTypesToDraw;
 
     ResourcesPanel::~ResourcesPanel()
@@ -77,7 +76,6 @@ namespace Lina::Editor
         m_leftPaneMenu->AddElement(m_showEditorFoldersMB);
         m_leftPaneMenu->AddElement(m_showEngineFoldersMB);
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &ResourcesPanel::OnMenuBarElementClicked>(this);
-        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &ResourcesPanel::OnKeyCallback>(this);
 
         m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
     }
@@ -101,7 +99,7 @@ namespace Lina::Editor
                 ImGui::SetNextWindowPos(ImVec2(cursorPos.x, cursorPos.y));
                 ImGui::BeginChild("resources_leftPane", leftPaneSize);
                 DrawLeftPane();
-                m_leftPaneFocused = ImGui::IsWindowFocused();
+                m_leftPaneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
                 if (ImGui::IsWindowHovered())
                     anyChildHovered = true;
@@ -113,7 +111,7 @@ namespace Lina::Editor
 
                 ImGui::BeginChild("resources_rightPane");
                 DrawRightPane();
-                m_rightPaneFocused = ImGui::IsWindowFocused();
+                m_rightPaneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
                 if (ImGui::IsWindowHovered())
                     anyChildHovered = true;
@@ -123,6 +121,8 @@ namespace Lina::Editor
                 HandleLeftPaneResize(anyChildHovered || isWindowHovered);
 
                 End();
+
+                LINA_TRACE("Left {0}, Right {1}", m_leftPaneFocused, m_rightPaneFocused);
             }
         }
     }
@@ -308,7 +308,7 @@ namespace Lina::Editor
         // Draw the selected folders contents.
         if (m_selectedFolder != nullptr)
         {
-            ImGui::SetCursorPosX(m_fileNodeStartCursorPos);
+            ImGui::SetCursorPosX(16);
             WidgetsUtility::IncrementCursorPosY(8);
             DrawContents(m_selectedFolder);
         }
@@ -357,12 +357,10 @@ namespace Lina::Editor
 
         if (!dontDraw)
         {
-            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder);
+            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder, m_leftPaneFocused);
 
             if (ImGui::IsItemClicked())
             {
-                if (m_selectedFolder != nullptr && m_selectedFolder != folder)
-                    m_selectedFolder->m_isRenaming = false;
 
                 m_selectedFolder = folder;
             }
@@ -422,19 +420,24 @@ namespace Lina::Editor
         // First draw the folders.
         for (auto* subfolder : folder->m_folders)
         {
-            WidgetsUtility::DrawResourceNode(-1, subfolder == m_selectedSubfolder, subfolder->m_fullPath, m_fileNodeStartCursorPos);
+            bool renamedItem = false;
+            WidgetsUtility::DrawResourceNode(subfolder, subfolder == m_selectedSubfolder, &renamedItem, 1.0f, m_rightPaneFocused);
 
             if (ImGui::IsItemClicked())
             {
                 m_selectedSubfolder = subfolder;
             }
 
+            // Double clicking or pressing enter on a subfolder will select that sub folder from the left-pane, unless the subfolder is being renamed.
             if (ImGui::IsItemHovered())
             {
                 if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
                 {
-                    DeselectNodes(false);
-                    m_selectedFolder = subfolder;
+                    if (!renamedItem)
+                    {
+                        DeselectNodes(false);
+                        m_selectedFolder = subfolder;
+                    }
                 }
             }
         }
@@ -445,11 +448,17 @@ namespace Lina::Editor
             TypeID tid = m_storage->GetTypeIDFromExtension(file->m_extension);
             if (!m_storage->IsTypeRegistered(tid))
                 continue;
+            bool renamedItem = false;
 
-            WidgetsUtility::DrawResourceNode(tid, file == m_selectedFile, file->m_fullPath, m_fileNodeStartCursorPos);
+            WidgetsUtility::DrawResourceNode(file, file == m_selectedFile, &renamedItem, 1.0f, m_rightPaneFocused);
 
             if (ImGui::IsItemClicked())
+            {
+                if (m_selectedFile != nullptr && m_selectedFile != file)
+                    m_selectedFile->m_isRenaming = false;
+
                 m_selectedFile = file;
+            }
         }
     }
 
@@ -521,27 +530,14 @@ namespace Lina::Editor
         }
     }
 
-    void ResourcesPanel::OnKeyCallback(const Event::EKeyCallback& ev)
-    {
-        if (m_leftPaneFocused && m_selectedFolder != nullptr && ev.m_key == LINA_KEY_F2)
-        {
-            LINA_TRACE("Left rename");
-        }
-        if (m_rightPaneFocused && ev.m_key == LINA_KEY_F2)
-        {
-            if (m_selectedFile != nullptr)
-            {
-                LINA_TRACE("Right file rename");
-            }
-            else if (m_selectedSubfolder != nullptr)
-            {
-                LINA_TRACE("Right sf rename");
-            }
-        }
-    }
-
     void ResourcesPanel::DeselectNodes(bool deselectAll)
     {
+        if (m_selectedFile != nullptr)
+            m_selectedFile->m_isRenaming = false;
+
+        if (m_selectedSubfolder != nullptr)
+            m_selectedSubfolder->m_isRenaming = false;
+
         m_selectedFile      = nullptr;
         m_selectedSubfolder = nullptr;
 

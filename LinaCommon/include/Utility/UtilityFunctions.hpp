@@ -74,6 +74,9 @@ namespace Lina
         // Replaces the folder name, updates it's path and makes sure the children's path are updated as well.
         extern void ChangeFolderName(Folder* folder, const std::string& newName);
 
+        // Replaces the file name, updates the path & notifies event listeners.
+        extern void ChangeFileName(File* file, const std::string& newName);
+
         // Replaces given filename.
         extern bool ChangeDirectoryName(const std::string& oldPath, const std::string& newPath);
 

@@ -122,7 +122,7 @@ namespace Lina::Editor
         return (col1.x == col2.x && col1.y == col2.y && col1.z == col2.z && col1.w == col2.w);
     }
 
-    bool WidgetsUtility::DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder)
+    bool WidgetsUtility::DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename)
     {
         FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x);
         const ImVec2             iconArrowMin  = ImVec2(ImGui::GetCursorScreenPos().x + 10, ImGui::GetCursorScreenPos().y);
@@ -138,10 +138,10 @@ namespace Lina::Editor
         {
             flags |= ImGuiTreeNodeFlags_Selected;
 
-            if (Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
+            if (canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
             {
                 if (folder->m_fullPath.compare("Resources/") == 0 || folder->m_fullPath.find("Resources/Engine") != std::string::npos ||
-                folder->m_fullPath.compare("Resources/Sandbox") == 0 || folder->m_fullPath.find("Resources/Editor") != std::string::npos)
+                    folder->m_fullPath.compare("Resources/Sandbox") == 0 || folder->m_fullPath.find("Resources/Editor") != std::string::npos)
                 {
                     Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
                 }
@@ -151,7 +151,6 @@ namespace Lina::Editor
                     Memory::memcpy(str0, folder->m_name.c_str(), folder->m_name.capacity() + 1);
                     folder->m_isRenaming = true;
                 }
-            
             }
         }
 
@@ -160,16 +159,25 @@ namespace Lina::Editor
 
         bool node = false;
 
-        if (folder->m_isRenaming)
+        if (canRename && folder->m_isRenaming)
         {
-            IncrementCursorPosX(28);
+            IncrementCursorPosX(34);
 
+            ImVec4 lighterFrameBG = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
+            lighterFrameBG.x += 0.1f;
+            lighterFrameBG.y += 0.1f;
+            lighterFrameBG.z += 0.1f;
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, lighterFrameBG);
             const std::string inputLabel = "##_A_" + folder->m_name;
             if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
             {
                 folder->m_isRenaming = false;
                 Utility::ChangeFolderName(folder, str0);
             }
+            ImGui::PopStyleColor();
+            
+             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
+                folder->m_isRenaming = false;
         }
         else
         {
@@ -196,21 +204,24 @@ namespace Lina::Editor
         return node;
     }
 
-    void WidgetsUtility::DrawResourceNode(TypeID tid, bool selected, const std::string& fullPath, float startCursorX, float sizeMultiplier)
+    void WidgetsUtility::DrawResourceNode(Utility::DirectoryItem* item, bool selected, bool* renamedItem, float sizeMultiplier, bool canRename)
     {
 #pragma warning(disable : 4312)
-        auto*        storage            = Resources::ResourceStorage::Get();
-        const ImVec2 cursorPosScreen    = ImGui::GetCursorScreenPos();
-        const ImVec2 cursorPos          = ImGui::GetCursorPos();
-        const float  fileTypeRectHeight = 5;
-        const ImVec2 imageSize          = ImVec2(70, 70);
-        const ImVec2 totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
-        const float  windowWidth        = ImGui::GetWindowWidth();
-        const ImVec2 itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
-        const ImVec2 itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
-        const bool   hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
-        ImVec4       childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
-                                                                                                               : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+        auto*             storage            = Resources::ResourceStorage::Get();
+        const ImVec2      cursorPosScreen    = ImGui::GetCursorScreenPos();
+        const ImVec2      cursorPos          = ImGui::GetCursorPos();
+        const float       fileTypeRectHeight = 5;
+        const ImVec2      imageSize          = ImVec2(70, 70);
+        const ImVec2      totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
+        const float       windowWidth        = ImGui::GetWindowWidth();
+        const ImVec2      itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
+        const ImVec2      itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
+        const bool        hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
+        ImVec4            childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
+                                                                                                                    : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+        const std::string fullPath           = item->m_fullPath;
+        const bool        isFolder           = item->m_typeID == 0;
+
         if (selected)
             LINA_TRACE("Selected {0}", fullPath);
 
@@ -221,11 +232,11 @@ namespace Lina::Editor
 
         uint32 textureID = 0;
 
-        if (tid == -1)
+        if (isFolder)
             textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Folder.png")->GetID();
         else
         {
-            if (tid == GetTypeID<Graphics::Texture>())
+            if (item->m_typeID == GetTypeID<Graphics::Texture>())
                 textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
         }
 
@@ -236,45 +247,90 @@ namespace Lina::Editor
         const ImVec2 borderMax = ImVec2(borderMin.x + imageSize.x, borderMin.y + imageSize.y);
 
         // Add checkered background to cover transparents.
-        if (tid != -1)
+        if (!isFolder)
             ImGui::GetWindowDrawList()->AddImage((void*)storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID(), borderMin, borderMax, ImVec2(0, 1), ImVec2(1, 0));
 
         // Add the actual resource image.
         ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
         // Draw a small colored rect indicating resource type.
-        if (tid != -1)
+        if (!isFolder)
         {
             const ImVec2 extRectMin   = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
             const ImVec2 extRectMax   = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
-            const Color  extColorLina = storage->GetTypeColor(tid);
+            const Color  extColorLina = storage->GetTypeColor(item->m_typeID);
             const ImVec4 extColor     = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
             ImGui::GetWindowDrawList()->AddRectFilled(extRectMin, extRectMax, ImGui::ColorConvertFloat4ToU32(extColor), 2.0f, ImDrawFlags_RoundCornersTop);
         }
 
         // Add image border afterwards, should overlay the image.
-        if (tid != -1)
+        if (!isFolder)
             ImGui::GetWindowDrawList()->AddRect(borderMin, borderMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 0.0f, 0, 1.5f);
 
         const std::string name           = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(fullPath));
         const float       textSize       = ImGui::CalcTextSize(name.c_str()).x;
         const bool        shouldWrapText = textSize >= imageSize.x + 3;
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - textSize / 2.0f);
 
-        if (shouldWrapText)
-            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + totalSize.x);
+        static char str0[128] = "Hello, world!";
 
-        ImGui::Text(name.c_str());
+        if (selected && canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
+        {
 
-        if (shouldWrapText)
-            ImGui::PopTextWrapPos();
+            if (item->m_fullPath.compare("Resources/") == 0 || item->m_fullPath.find("Resources/Engine") != std::string::npos ||
+                item->m_fullPath.compare("Resources/Sandbox") == 0 || item->m_fullPath.find("Resources/Editor") != std::string::npos)
+            {
+                Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
+            }
+            else
+            {
+                item->m_isRenaming = true;
+                Memory::memset(str0, 0, 128);
+                Memory::memcpy(str0, item->m_name.c_str(), item->m_name.capacity() + 1);
+            }
+        }
+
+        if (item->m_isRenaming)
+        {
+            const float inputTextWidth = ImGui::GetWindowWidth() * 0.7f;
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - inputTextWidth / 2.0f);
+
+            ImGui::PushItemWidth(inputTextWidth);
+            const std::string inputLabel = "##_A_" + item->m_fullPath;
+            if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
+            {
+                item->m_isRenaming = false;
+
+                if (!isFolder)
+                    Utility::ChangeFileName(static_cast<Utility::File*>(item), str0);
+                else
+                    Utility::ChangeFolderName(static_cast<Utility::Folder*>(item), str0);
+
+                *renamedItem = true;
+            }
+
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
+                item->m_isRenaming = false;
+        }
+        else
+        {
+
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - textSize / 2.0f);
+
+            if (shouldWrapText)
+                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + totalSize.x);
+
+            ImGui::Text(name.c_str());
+
+            if (shouldWrapText)
+                ImGui::PopTextWrapPos();
+        }
 
         ImGui::EndChild();
 
         if (cursorPos.x + (totalSize.x + ImGui::GetStyle().ItemSpacing.x) * 2.0f < windowWidth)
             ImGui::SameLine();
         else
-            ImGui::SetCursorPosX(startCursorX);
+            ImGui::SetCursorPosX(16);
     }
 
     void WidgetsUtility::ColorButton(const char* id, float* colorX)

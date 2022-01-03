@@ -67,6 +67,7 @@ namespace Lina::Editor
         const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20)), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
         const ImVec2  max       = ImVec2(min.x + size.x, min.y + size.y);
 
+        ImGui::SetNextWindowBgAlpha(0.0f);
         ImGui::Begin("##snackbar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
         const ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);

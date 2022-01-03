@@ -93,7 +93,6 @@ namespace Lina::Editor
 
     private:
         void OnMenuBarElementClicked(const EMenuBarElementClicked& ev);
-        void OnKeyCallback(const Event::EKeyCallback& ev);
         void DeselectNodes(bool deselectAll);
 
     private:
