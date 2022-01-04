@@ -216,7 +216,7 @@ namespace Lina::Editor
         const ImVec2      cursorPosScreen    = ImGui::GetCursorScreenPos();
         const ImVec2      cursorPos          = ImGui::GetCursorPos();
         const float       fileTypeRectHeight = 5;
-        const ImVec2      imageSize          = ImVec2(70, 70);
+        const ImVec2      imageSize          = ImVec2(70 * sizeMultiplier, 70 * sizeMultiplier);
         const ImVec2      totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
         const float       windowWidth        = ImGui::GetWindowWidth();
         const ImVec2      itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);

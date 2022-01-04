@@ -107,6 +107,7 @@ namespace Lina::Editor
         float                       m_leftPaneWidth             = 280.0f;
         float                       m_leftPaneMinWidth          = 200.0f;
         float                       m_leftPaneMaxWidth          = 500.0f;
+        float                       m_nodeSizes                 = 1.0f;
         Utility::Folder*            m_rootFolder                = nullptr;
         Utility::Folder*            m_selectedFolder            = nullptr;
         Utility::File*              m_selectedFile              = nullptr;

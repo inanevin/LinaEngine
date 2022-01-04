@@ -311,6 +311,26 @@ namespace Lina::Editor
             ImGui::SameLine();
         }
 
+        // Settings cog.
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - filterWidth - spaceFromLeft - ImGui::GetStyle().ItemSpacing.x * 3);
+        if(WidgetsUtility::IconButton(ICON_FA_COG))
+        {
+            ImGui::OpenPopup("ResourcesRightTopSettings");
+        }
+
+        WidgetsUtility::PushPopupStyle();
+        if (ImGui::BeginPopup("ResourcesRightTopSettings"))
+        {
+            WidgetsUtility::PropertyLabel("Item Size");
+            WidgetsUtility::IncrementCursorPosX(16);
+            ImGui::SetNextItemWidth(100);
+            ImGui::SliderFloat("##itemSizes", &m_nodeSizes, 0.5f, 1.5f);
+
+            ImGui::EndPopup();
+        }
+        WidgetsUtility::PopPopupStyle();
+        ImGui::SameLine();
+        
         // Search bar.
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - filterWidth - spaceFromLeft);
         ImGui::PushItemWidth(-spaceFromLeft);
@@ -324,7 +344,7 @@ namespace Lina::Editor
 
         ImGui::BeginChild("resources_rightPane_bottom");
         DrawContextMenu();
-
+        
         // Draw the selected folders contents.
         if (m_selectedFolder != nullptr)
         {
@@ -332,6 +352,8 @@ namespace Lina::Editor
             WidgetsUtility::IncrementCursorPosY(8);
             DrawContents(m_selectedFolder);
         }
+
+      
 
         ImGui::EndChild();
     }
@@ -410,7 +432,7 @@ namespace Lina::Editor
         for (auto* subfolder : folder->m_folders)
         {
             bool renamedItem = false;
-            WidgetsUtility::DrawResourceNode(subfolder, subfolder == m_selectedSubfolder, &renamedItem, 1.0f, m_rightPaneFocused);
+            WidgetsUtility::DrawResourceNode(subfolder, subfolder == m_selectedSubfolder, &renamedItem, m_nodeSizes, m_rightPaneFocused);
 
             if (ImGui::IsItemClicked())
             {
@@ -443,7 +465,7 @@ namespace Lina::Editor
                 continue;
             bool renamedItem = false;
 
-            WidgetsUtility::DrawResourceNode(file, file == m_selectedFile, &renamedItem, 1.0f, m_rightPaneFocused);
+            WidgetsUtility::DrawResourceNode(file, file == m_selectedFile, &renamedItem, m_nodeSizes, m_rightPaneFocused);
 
             if (ImGui::IsItemClicked())
             {
