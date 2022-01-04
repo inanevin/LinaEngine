@@ -126,22 +126,31 @@ namespace Lina::Resources
             }
             m_lastResourceTypeID = tid;
 
-            if (!storage->Exists(tid, sid))
-            {
-                auto&      typeData       = storage->GetTypeData(tid);
-                IResource* res            = typeData.m_createFunc();
-                void*      loadedResource = res->LoadFromFile(fileEntry.m_file->m_fullPath);
-                storage->Add(loadedResource, tid, sid);
-                Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
-
-                ResourceManager::s_currentProgressData.m_currentResourceName = fileEntry.m_file->m_fullPath;
-                ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
-                ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
-                ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
-                ResourceManager::TriggerResourceUpdatedEvent();
-            }
+            LoadSingleFile(tid, fileEntry.m_file->m_fullPath);
 
             m_fileResources.pop();
+        }
+    }
+
+    void ResourceBundle::LoadSingleFile(TypeID tid, const std::string& path)
+    {
+        auto*        storage = ResourceStorage::Get();
+        StringIDType sid     = StringID(path.c_str()).value();
+
+        if (!storage->Exists(tid, sid))
+        {
+            auto&      typeData       = storage->GetTypeData(tid);
+            IResource* res            = typeData.m_createFunc();
+            void*      loadedResource = res->LoadFromFile(path);
+
+            storage->Add(loadedResource, tid, sid);
+            Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
+
+            ResourceManager::s_currentProgressData.m_currentResourceName = path;
+            ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
+            ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
+            ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+            ResourceManager::TriggerResourceUpdatedEvent();
         }
     }
 

@@ -30,7 +30,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED YES 
         CXX_EXTENSIONS NO
 )
-
+   
    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MAJOR=1)
    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINOR=0)
    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PATCH=0)

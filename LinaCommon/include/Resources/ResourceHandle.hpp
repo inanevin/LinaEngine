@@ -67,8 +67,19 @@ namespace Lina::Resources
         {
             if (ev.m_sid == m_sid)
             {
+                m_unloadedSid = m_sid;
                 m_sid = 0;
                 m_value = nullptr;
+            }
+        }
+
+        void OnResourceReloaded(const Event::EResourceReloaded& ev)
+        {
+            if (ev.m_sid == m_unloadedSid)
+            {
+                m_sid = ev.m_sid;
+                m_typeID = ev.m_tid;
+                m_value  = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
             }
         }
 
@@ -76,6 +87,7 @@ namespace Lina::Resources
         friend class cereal::access;
 
         TypeID m_typeID = 0;
+        StringIDType m_unloadedSid = 0;
 
         template <class Archive>
         void save(Archive& archive) const
@@ -90,6 +102,7 @@ namespace Lina::Resources
 
             Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceHandle<T>::OnResourcePathUpdated>(this);
             Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceHandle<T>::OnResourceUnloaded>(this);
+            Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceHandle<T>::OnResourceReloaded>(this);
 
             if (m_typeID == 0)
             {

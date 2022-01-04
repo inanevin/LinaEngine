@@ -115,6 +115,7 @@ namespace Lina::Editor
 
                 ImGui::EndMenu();
             }
+
             ImGui::PopStyleVar();
         }
         else
@@ -122,16 +123,15 @@ namespace Lina::Editor
             if (m_type == MenuBarElementType::None && m_children.size() == 0)
                 ImGui::BeginDisabled();
 
-            ImGui::Selectable(itemStr.c_str(), false);
-            if (ImGui::IsItemClicked())
+            if(ImGui::MenuItem(itemStr.c_str()))
                 Event::EventSystem::Get()->Trigger<EMenuBarElementClicked>(EMenuBarElementClicked{static_cast<uint8>(m_type)});
 
             if (m_type == MenuBarElementType::None && m_children.size() == 0)
                 ImGui::EndDisabled();
         }
 
-        const float textSize = ImGui::CalcTextSize(itemStr.c_str()).x;
-        float textAddition = 0.0f;
+        const float textSize     = ImGui::CalcTextSize(itemStr.c_str()).x;
+        float       textAddition = 0.0f;
         if (textSize > 100)
             textAddition = 30.0f;
 
@@ -150,7 +150,6 @@ namespace Lina::Editor
                 ImGui::Text(m_tooltip);
                 ImGui::PopStyleColor();
             }
-      
         }
 
         if (arrowExists)

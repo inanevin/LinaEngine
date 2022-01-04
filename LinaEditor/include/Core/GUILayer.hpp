@@ -47,6 +47,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ProfilerPanel.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
+#include "Panels/ProgressPanel.hpp"
 #include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Panels/ResourceSelectorPanel.hpp"
@@ -181,10 +182,12 @@ namespace Lina::Editor
         GlobalSettingsPanel         m_globalSettingsPanel;
         MainToolbarPanel            m_toolbar;
         ResourceSelectorPanel       m_resourceSelectorPanel;
+        ProgressPanel               m_progressPanel;
         Resources::ResourceStorage* m_storage = nullptr;
         World::DefaultLevel         m_defaultLevel;
         std::string                 m_currentlyLoadingResource = "";
         float                       m_percentage               = 0.0f;
+        bool                        m_shouldDrawSplash         = false;
     };
 } // namespace Lina::Editor
 

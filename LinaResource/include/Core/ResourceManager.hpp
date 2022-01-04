@@ -57,6 +57,7 @@ namespace Lina
     namespace Event
     {
         class EventSystem;
+        struct ERequestResourceReload;
     }
 
 } // namespace Lina
@@ -102,6 +103,7 @@ namespace Lina::Resources
         void Initialize(ApplicationInfo& appInfo);
         void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder);
         void LoadEditorResources();
+        void OnRequestResourceReload(const Event::ERequestResourceReload& ev);
         void Shutdown();
 
     private:

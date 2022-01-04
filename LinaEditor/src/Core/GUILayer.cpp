@@ -239,7 +239,8 @@ namespace Lina::Editor
         LINA_ERR("Undefined platform for IMGUI!");
 #endif
 
-        m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
+        m_drawParameters   = Graphics::DrawParameterHelper::GetGUILayer();
+        m_shouldDrawSplash = true;
 
         // Splash screen
         Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
@@ -249,12 +250,13 @@ namespace Lina::Editor
         splashWindow->SetSize(splashSize);
 
         Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
-        splashScreenTexture     = new Graphics::Texture();
+        splashScreenTexture = new Graphics::Texture();
         splashScreenTexture->LoadFromFile("Resources/Editor/Textures/SplashScreen.png");
         m_storage->Add(static_cast<void*>(splashScreenTexture), GetTypeID<Graphics::Texture>(), StringID("Resources/Editor/Textures/SplashScreen.png").value());
         DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();
+        m_shouldDrawSplash = false;
 
         // Initialize first.
         m_shortcutManager.Initialize();
@@ -471,7 +473,11 @@ namespace Lina::Editor
     {
         m_currentlyLoadingResource = ev.m_currentResource;
         m_percentage               = ev.m_percentage;
-        DrawSplashScreen();
+
+        if (m_shouldDrawSplash)
+            DrawSplashScreen();
+        else
+            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
     }
 
     void GUILayer::DrawSplashScreen()

@@ -110,20 +110,49 @@ namespace Lina
         {
             for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath))
             {
+                std::string replacedFullPath = entry.path().string();
+                std::replace(replacedFullPath.begin(), replacedFullPath.end(), '\\', '/');
+
+                DirectoryItem* outItem = nullptr;
+                // If the scanned folder already contains the target path and if the path is a subfolder
+                // continue, if not, check the file's write timestamp & perform a reload if necessary.
+                if (FolderContainsDirectory(root, replacedFullPath, outItem))
+                {
+                    if (entry.path().has_extension())
+                    {
+                        // Check for reload.
+                        auto lastTime = std::filesystem::last_write_time(replacedFullPath);
+
+                        if (outItem != nullptr && lastTime != outItem->m_lastWriteTime)
+                        {
+                            const StringIDType sid = StringID(replacedFullPath.c_str()).value();
+                            const TypeID       tid = outItem->m_typeID;
+                            Resources::ResourceStorage::Get()->Unload(tid, sid);
+                            Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
+                        }
+                        continue;
+                    }
+                    else
+                    {
+                        if (recursive)
+                            ScanFolder(static_cast<Folder*>(outItem), recursive, totalFiles);
+                        continue;
+                    }
+                }
+
                 if (entry.path().has_extension())
                 {
                     File* file = new File();
                     root->m_files.push_back(file);
 
-                    file->m_fullName         = entry.path().filename().string();
-                    file->m_folderPath       = entry.path().parent_path().string() + "/";
-                    std::string replacedPath = entry.path().string();
-                    std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                    file->m_fullPath  = replacedPath;
-                    file->m_extension = file->m_fullName.substr(file->m_fullName.find(".") + 1);
-                    file->m_name      = GetFileWithoutExtension(file->m_fullName);
-                    file->m_parent    = root;
-                    file->m_typeID    = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
+                    file->m_fullName      = entry.path().filename().string();
+                    file->m_folderPath    = entry.path().parent_path().string() + "/";
+                    file->m_fullPath      = replacedFullPath;
+                    file->m_extension     = file->m_fullName.substr(file->m_fullName.find(".") + 1);
+                    file->m_name          = GetFileWithoutExtension(file->m_fullName);
+                    file->m_parent        = root;
+                    file->m_typeID        = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
+                    file->m_lastWriteTime = std::filesystem::last_write_time(file->m_fullPath);
 
                     if (totalFiles != nullptr)
                         (*totalFiles) = (*totalFiles) + 1;
@@ -132,16 +161,45 @@ namespace Lina
                 {
                     Folder* folder = new Folder();
                     root->m_folders.push_back(folder);
-                    folder->m_name           = entry.path().filename().string();
-                    std::string replacedPath = entry.path().string();
-                    std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-                    folder->m_fullPath = replacedPath;
-                    folder->m_parent   = root;
-                    folder->m_typeID   = 0;
+                    folder->m_name          = entry.path().filename().string();
+                    folder->m_fullPath      = replacedFullPath;
+                    folder->m_parent        = root;
+                    folder->m_typeID        = 0;
+                    folder->m_lastWriteTime = std::filesystem::last_write_time(folder->m_fullPath);
                     if (recursive)
                         ScanFolder(folder, recursive, totalFiles);
                 }
             }
+        }
+
+        bool FolderContainsDirectory(Folder* root, const std::string& path, DirectoryItem*& outItem)
+        {
+            bool contains = false;
+
+            for (auto* folder : root->m_folders)
+            {
+                if (folder->m_fullPath.compare(path) == 0)
+                {
+                    contains = true;
+                    outItem  = folder;
+                    break;
+                }
+            }
+
+            if (!contains)
+            {
+                for (auto* file : root->m_files)
+                {
+                    if (file->m_fullPath.compare(path) == 0)
+                    {
+                        contains = true;
+                        outItem  = file;
+                        break;
+                    }
+                }
+            }
+
+            return contains;
         }
 
         void GetFolderHierarchToRoot(Folder* folder, std::vector<Folder*>& hierarchy)
@@ -246,7 +304,7 @@ namespace Lina
 
         void DeleteResourceFile(File* file)
         {
-            if (file->m_typeID != 0)
+            if (file->m_typeID != -1)
                 Resources::ResourceStorage::Get()->Unload(file->m_typeID, file->m_fullPath);
 
             for (std::vector<File*>::iterator it = file->m_parent->m_files.begin(); it < file->m_parent->m_files.end(); it++)

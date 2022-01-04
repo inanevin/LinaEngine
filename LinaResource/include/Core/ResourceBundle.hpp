@@ -136,6 +136,11 @@ namespace Lina::Resources
         /// </summary>
         void LoadAllFileResources();
 
+        /// <summary>
+        /// Loads a single file resource.
+        /// </summary>
+        void LoadSingleFile(TypeID tid, const std::string& path);
+
         std::priority_queue<MemoryEntry, std::vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
         std::priority_queue<FileEntry, std::vector<FileEntry>, CompareFileEntry>    m_fileResources;
         TypeID                                                                      m_lastResourceTypeID   = -1;

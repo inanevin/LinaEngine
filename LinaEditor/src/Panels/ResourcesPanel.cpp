@@ -79,14 +79,13 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<EMenuBarElementClicked, &ResourcesPanel::OnMenuBarElementClicked>(this);
         m_rootFolder = Resources::ResourceManager::Get()->GetRootFolder();
 
-        MenuBarElement* createElement      = new MenuBarElement("", "Create", "", 0);
-        MenuBarElement* newFolder          = new MenuBarElement("", "Folder", "", 0, MenuBarElementType::Resources_CreateNewFolder);
-        MenuBarElement* newMaterial        = new MenuBarElement("", "Material", "", 1, MenuBarElementType::Resources_CreateNewMaterial);
-        MenuBarElement* newPhysicsMaterial = new MenuBarElement("", "PhysicsMaterial", "", 2, MenuBarElementType::Resources_CreateNewPhysicsMaterial);
-        createElement->AddChild(newFolder);
-        createElement->AddChild(newMaterial);
-        createElement->AddChild(newPhysicsMaterial);
+        MenuBarElement* rescan        = new MenuBarElement("", "Rescan", "", 0, MenuBarElementType::Resources_Rescan);
+        MenuBarElement* createElement = new MenuBarElement("", "Create", "", 1);
+        createElement->AddChild(new MenuBarElement("", "Folder", "", 0, MenuBarElementType::Resources_CreateNewFolder));
+        createElement->AddChild(new MenuBarElement("", "Material", "", 1, MenuBarElementType::Resources_CreateNewMaterial));
+        createElement->AddChild(new MenuBarElement("", "PhysicsMaterial", "", 2, MenuBarElementType::Resources_CreateNewPhysicsMaterial));
         m_contextMenu = new Menu("res_leftPane_context");
+        m_contextMenu->AddElement(rescan);
         m_contextMenu->AddElement(createElement);
     }
 
@@ -334,7 +333,6 @@ namespace Lina::Editor
             DrawContents(m_selectedFolder);
         }
 
-
         ImGui::EndChild();
     }
 
@@ -456,7 +454,6 @@ namespace Lina::Editor
             }
         }
 
-        
         if (m_rightPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
         {
             if (m_selectedSubfolder != nullptr)
@@ -473,7 +470,6 @@ namespace Lina::Editor
                 else
                     Utility::DeleteResourceFile(m_selectedFile);
             }
-           
         }
     }
 
@@ -483,7 +479,9 @@ namespace Lina::Editor
 
     void ResourcesPanel::OnMenuBarElementClicked(const EMenuBarElementClicked& ev)
     {
-        if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEngineFolders))
+        const MenuBarElementType type = static_cast<MenuBarElementType>(ev.m_item);
+
+        if (type == MenuBarElementType::Resources_ShowEngineFolders)
         {
             m_showEngineFolders              = !m_showEngineFolders;
             m_showEngineFoldersMB->m_tooltip = m_showEngineFolders ? ICON_FA_CHECK : "";
@@ -513,7 +511,7 @@ namespace Lina::Editor
                     DeselectNodes(true);
             }
         }
-        else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_ShowEditorFolders))
+        else if (type == MenuBarElementType::Resources_ShowEditorFolders)
         {
             m_showEditorFolders              = !m_showEditorFolders;
             m_showEditorFoldersMB->m_tooltip = m_showEditorFolders ? ICON_FA_CHECK : "";
@@ -543,7 +541,7 @@ namespace Lina::Editor
                     DeselectNodes(true);
             }
         }
-        else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_CreateNewFolder))
+        else if (type == MenuBarElementType::Resources_CreateNewFolder)
         {
             if (ContextMenuCanAddAsset())
             {
@@ -552,11 +550,16 @@ namespace Lina::Editor
                 Utility::CreateNewSubfolder(parent);
             }
         }
-        else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_CreateNewMaterial))
+        else if (type == MenuBarElementType::Resources_CreateNewMaterial)
         {
         }
-        else if (ev.m_item == static_cast<uint8>(MenuBarElementType::Resources_CreateNewPhysicsMaterial))
+        else if (type == MenuBarElementType::Resources_CreateNewPhysicsMaterial)
         {
+        }
+        else if (type == MenuBarElementType::Resources_Rescan)
+        {
+            if (m_selectedFolder != nullptr)
+                Utility::ScanFolder(m_selectedFolder);
         }
     }
 

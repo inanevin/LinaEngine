@@ -94,6 +94,7 @@ namespace Lina::Editor
         Resources_CreateNewFolder = 122,
         Resources_CreateNewMaterial = 123,
         Resources_CreateNewPhysicsMaterial = 124,
+        Resources_Rescan = 125,
     };
 
     class MenuBarElement

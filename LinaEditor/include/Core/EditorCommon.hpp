@@ -182,6 +182,10 @@ namespace Lina::Editor
 
 // Resource Selector
 #define ID_RESOURCESELECTOR "ResourceSelector"
+
+// Progress panel
+#define ID_PROGRESSPANEL "ProgressPanel"
+
 } // namespace Lina::Editor
 
 #endif

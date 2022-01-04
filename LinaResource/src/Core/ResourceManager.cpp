@@ -60,8 +60,13 @@ namespace Lina::Resources
         m_bundle.ScanFileResources(m_rootFolder);
         m_bundle.LoadAllFileResources();
 
-        Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
+        Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded {});
         ResourceManager::ResetProgress();
+    }
+
+    void ResourceManager::OnRequestResourceReload(const Event::ERequestResourceReload& ev)
+    {
+        m_bundle.LoadSingleFile(ev.m_tid, ev.m_fullPath);
     }
 
     void ResourceManager::Shutdown()
@@ -105,6 +110,7 @@ namespace Lina::Resources
     {
         m_appInfo    = appInfo;
         m_eventSys   = Event::EventSystem::Get();
+        m_eventSys->Connect<Event::ERequestResourceReload, &ResourceManager::OnRequestResourceReload>(this);
     }
 
     void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder)

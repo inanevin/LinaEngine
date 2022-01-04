@@ -53,6 +53,7 @@ src/Panels/ProfilerPanel.cpp
 src/Panels/GlobalSettingsPanel.cpp
 src/Panels/MainToolbarPanel.cpp
 src/Panels/ResourceSelectorPanel.cpp
+src/Panels/ProgressPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -129,6 +130,7 @@ include/Panels/HeaderPanel.hpp
 include/Panels/ProfilerPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
 include/Panels/ResourceSelectorPanel.hpp
+include/Panels/ProgressPanel.hpp
 
 
 # Utility

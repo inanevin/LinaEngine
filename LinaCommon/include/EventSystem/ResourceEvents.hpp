@@ -78,6 +78,18 @@ namespace Lina::Event
     {
         StringIDType m_sid;
     };
+    struct ERequestResourceReload
+    {
+        std::string  m_fullPath;
+        TypeID       m_tid;
+        StringIDType m_sid;
+    };
+    struct EResourceReloaded
+    {
+        TypeID       m_tid;
+        StringIDType m_sid;
+    };
+
 } // namespace Lina::Event
 
 #endif

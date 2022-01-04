@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,60 +27,36 @@ SOFTWARE.
 */
 
 /*
-Class: CommonUtility
+Class: ProgressPanel
 
 
 
-Timestamp: 12/25/2021 1:24:11 PM
+Timestamp: 1/4/2022 5:33:09 PM
 */
 
 #pragma once
 
-#ifndef CommonUtility_HPP
-#define CommonUtility_HPP
+#ifndef ProgressPanel_HPP
+#define ProgressPanel_HPP
 
 // Headers here.
-#include "Utility/StringId.hpp"
 #include <string>
-#include <vector>
-#include <filesystem>
 
-namespace Lina::Utility
+namespace Lina::Editor
 {
-    struct Folder;
+	class ProgressPanel
+	{
+		
+	public:
+		
+		ProgressPanel() = default;
+		~ProgressPanel() = default;
 
-    struct DirectoryItem
-    {
-        DirectoryItem()  = default;
-        ~DirectoryItem() = default;
-
-        std::string                     m_fullPath   = "";
-        std::string                     m_name       = ""; // name without extension
-        Folder*                         m_parent     = nullptr;
-        TypeID                          m_typeID     = 0;
-        bool                            m_isRenaming = false;
-        std::filesystem::file_time_type m_lastWriteTime;
-    };
-
-    struct File : public DirectoryItem
-    {
-        File()  = default;
-        ~File() = default;
-
-        std::string m_folderPath = "";
-        std::string m_extension  = "";
-        std::string m_fullName   = ""; // name with extension
-    };
-
-    struct Folder : public DirectoryItem
-    {
-        Folder() = default;
-        ~Folder();
-
-        std::vector<File*>   m_files;
-        std::vector<Folder*> m_folders;
-        bool                 m_isOpen = false;
-    };
-} // namespace Lina::Utility
+		void Draw(const std::string& currentResource, float percentage);
+	
+	private:
+	
+	};
+}
 
 #endif
