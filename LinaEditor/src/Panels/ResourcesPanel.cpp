@@ -313,7 +313,7 @@ namespace Lina::Editor
 
         // Settings cog.
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - filterWidth - spaceFromLeft - ImGui::GetStyle().ItemSpacing.x * 3);
-        if(WidgetsUtility::IconButton(ICON_FA_COG))
+        if (WidgetsUtility::IconButton(ICON_FA_COG))
         {
             ImGui::OpenPopup("ResourcesRightTopSettings");
         }
@@ -330,7 +330,7 @@ namespace Lina::Editor
         }
         WidgetsUtility::PopPopupStyle();
         ImGui::SameLine();
-        
+
         // Search bar.
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - filterWidth - spaceFromLeft);
         ImGui::PushItemWidth(-spaceFromLeft);
@@ -344,7 +344,7 @@ namespace Lina::Editor
 
         ImGui::BeginChild("resources_rightPane_bottom");
         DrawContextMenu();
-        
+
         // Draw the selected folders contents.
         if (m_selectedFolder != nullptr)
         {
@@ -352,8 +352,6 @@ namespace Lina::Editor
             WidgetsUtility::IncrementCursorPosY(8);
             DrawContents(m_selectedFolder);
         }
-
-      
 
         ImGui::EndChild();
     }
@@ -473,6 +471,22 @@ namespace Lina::Editor
                     m_selectedFile->m_isRenaming = false;
 
                 m_selectedFile = file;
+            }
+
+            if (ImGui::IsItemHovered())
+            {
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
+                {
+                    if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                    {
+                        auto& texturePanel = GUILayer::Get()->GetTexturePanel();
+                        texturePanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
+
+                        texturePanel.Open();
+                        if (!texturePanel.IsMaximized())
+                            texturePanel.ToggleMaximize();
+                    }
+                }
             }
         }
 

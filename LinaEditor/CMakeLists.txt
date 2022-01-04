@@ -54,6 +54,10 @@ src/Panels/GlobalSettingsPanel.cpp
 src/Panels/MainToolbarPanel.cpp
 src/Panels/ResourceSelectorPanel.cpp
 src/Panels/ProgressPanel.cpp
+src/Panels/TexturePanel.cpp
+src/Panels/ModelPanel.cpp
+src/Panels/MaterialPanel.cpp
+src/Panels/ShaderPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -131,6 +135,10 @@ include/Panels/ProfilerPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
 include/Panels/ResourceSelectorPanel.hpp
 include/Panels/ProgressPanel.hpp
+include/Panels/ModelPanel.hpp
+include/Panels/MaterialPanel.hpp
+include/Panels/ShaderPanel.hpp
+include/Panels/TexturePanel.hpp
 
 
 # Utility

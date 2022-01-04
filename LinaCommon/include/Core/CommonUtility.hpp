@@ -58,6 +58,7 @@ namespace Lina::Utility
         std::string                     m_name       = ""; // name without extension
         Folder*                         m_parent     = nullptr;
         TypeID                          m_typeID     = 0;
+        StringIDType                    m_sid        = 0;
         bool                            m_isRenaming = false;
         std::filesystem::file_time_type m_lastWriteTime;
     };

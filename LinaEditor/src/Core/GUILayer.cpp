@@ -273,6 +273,15 @@ namespace Lina::Editor
         m_resourcesPanel.Initialize(ID_RESOURCES, ICON_FA_FILE);
         m_globalSettingsPanel.Initialize(ID_GLOBAL, ICON_FA_GLOBE);
         m_resourceSelectorPanel.Initialize(ID_RESOURCESELECTOR, ICON_FA_FILE_ARCHIVE);
+        m_modelPanel.Initialize(ID_MODELPANEL, ICON_FA_CUBES);
+        m_materialPanel.Initialize(ID_MATERIALPANEL, ICON_FA_GLOBE);
+        m_shaderPanel.Initialize(ID_SHADERPANEL, ICON_FA_DICE_D20);
+        m_texturePanel.Initialize(ID_TEXTUREPANEL, ICON_FA_IMAGE);
+
+        m_modelPanel.Close();
+        m_materialPanel.Close();
+        m_shaderPanel.Close();
+        m_texturePanel.Close();
     }
 
     void GUILayer::OnShutdown(const Event::EShutdown& ev)
@@ -317,6 +326,10 @@ namespace Lina::Editor
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
         m_resourceSelectorPanel.Draw();
+        m_modelPanel.Draw();
+        m_materialPanel.Draw();
+        m_texturePanel.Draw();
+        m_shaderPanel.Draw();
 
         Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
 

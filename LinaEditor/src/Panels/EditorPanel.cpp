@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Panels/EditorPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/WindowBackend.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor
@@ -52,6 +53,18 @@ namespace Lina::Editor
 
         if (m_lockWindowPos)
             flags |= ImGuiWindowFlags_NoMove;
+
+        if (m_setWindowPosNextFrame)
+        {
+            m_setWindowPosNextFrame = false;
+            ImGui::SetNextWindowPos(ImVec2(m_windowPosNextFrame.x, m_windowPosNextFrame.y));
+        }
+
+        if (m_setWindowSizeNextFrame)
+        {
+            m_setWindowSizeNextFrame = false;
+            ImGui::SetNextWindowSize(ImVec2(m_windowSizeNextFrame.x, m_windowSizeNextFrame.y));
+        }
 
         ImGui::Begin(m_id, &m_show, flags);
 
@@ -95,17 +108,18 @@ namespace Lina::Editor
         if (m_collapsed)
         {
             m_windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
-            ImVec2 size          = ImGui::GetWindowSize();
-            m_sizeBeforeCollapse = Vector2(size.x, size.y);
-            ImGui::SetWindowSize(ImVec2(size.x, 30.0f)); // title size.
+            ImVec2 size           = ImGui::GetWindowSize();
+            m_sizeBeforeCollapse  = Vector2(size.x, size.y);
+            m_windowSizeNextFrame = Vector2(size.x, 30.0f);
         }
         else
         {
             m_windowFlags &= ~ImGuiWindowFlags_NoResize;
             m_windowFlags &= ~ImGuiWindowFlags_NoScrollbar;
             m_windowFlags &= ~ImGuiWindowFlags_NoDocking;
-            ImGui::SetWindowSize(ImVec2(m_sizeBeforeCollapse.x, m_sizeBeforeCollapse.y));
+            m_windowSizeNextFrame = m_sizeBeforeCollapse;
         }
+        m_setWindowSizeNextFrame = true;
     }
 
     void EditorPanel::ToggleMaximize()
@@ -123,19 +137,22 @@ namespace Lina::Editor
             if (m_collapsed)
                 ToggleCollapse();
 
-            ImVec2 size             = ImGui::GetWindowSize();
-            ImVec2 pos              = ImGui::GetWindowPos();
-            m_sizeBeforeMaximize    = Vector2(size.x, size.y);
-            m_posBeforeMaximize     = Vector2(pos.x, pos.y);
-            ImGuiViewport* viewport = ImGui::GetMainViewport();
-            ImGui::SetWindowPos(ImVec2(0, 0));
-            ImGui::SetWindowSize(ImVec2(viewport->WorkSize.x, viewport->WorkSize.y));
+            ImVec2 size           = ImGui::GetWindowSize();
+            ImVec2 pos            = ImGui::GetWindowPos();
+            m_sizeBeforeMaximize  = Vector2(size.x, size.y);
+            m_posBeforeMaximize   = Vector2(pos.x, pos.y);
+            auto* appWindow       = Graphics::WindowBackend::Get();
+            m_windowPosNextFrame  = Vector2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
+            m_windowSizeNextFrame = Vector2((float)appWindow->GetWorkSize().x, (float)appWindow->GetWorkSize().y);
         }
         else
         {
-            ImGui::SetWindowPos(ImVec2(m_posBeforeMaximize.x, m_posBeforeMaximize.y));
-            ImGui::SetWindowSize(ImVec2(m_sizeBeforeMaximize.x, m_sizeBeforeMaximize.y));
+            m_windowPosNextFrame  = m_posBeforeMaximize;
+            m_windowSizeNextFrame = m_sizeBeforeMaximize;
         }
+
+        m_setWindowPosNextFrame  = true;
+        m_setWindowSizeNextFrame = true;
     }
 
     bool EditorPanel::CanDrawContent()

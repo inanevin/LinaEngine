@@ -150,12 +150,11 @@ namespace Lina::Editor
 #define ID_LOG "Log"
 
 // Entities
-#define ID_ENTITIES         "Entities"
+#define ID_ENTITIES    "Entities"
 #define ECS_MOVEENTITY "ECS_MOVE_ENTITY"
 
 // Systems
 #define ID_SYSTEMS "Systems"
-
 
 // Resources
 #define ID_RESOURCES              "Resources"
@@ -185,6 +184,18 @@ namespace Lina::Editor
 
 // Progress panel
 #define ID_PROGRESSPANEL "ProgressPanel"
+
+// Model panel
+#define ID_MODELPANEL "ProgressPanel"
+
+// Material panel
+#define ID_MATERIALPANEL "MaterialPanel"
+
+// Shader panel
+#define ID_SHADERPANEL "ShaderPanel"
+
+// Texture panel
+#define ID_TEXTUREPANEL "TexturePanel"
 
 } // namespace Lina::Editor
 

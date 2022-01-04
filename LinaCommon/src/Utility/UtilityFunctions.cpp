@@ -145,14 +145,16 @@ namespace Lina
                     File* file = new File();
                     root->m_files.push_back(file);
 
-                    file->m_fullName      = entry.path().filename().string();
-                    file->m_folderPath    = entry.path().parent_path().string() + "/";
-                    file->m_fullPath      = replacedFullPath;
-                    file->m_extension     = file->m_fullName.substr(file->m_fullName.find(".") + 1);
-                    file->m_name          = GetFileWithoutExtension(file->m_fullName);
-                    file->m_parent        = root;
-                    file->m_typeID        = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
-                    file->m_lastWriteTime = std::filesystem::last_write_time(file->m_fullPath);
+                    file->m_fullName       = entry.path().filename().string();
+                    file->m_folderPath     = entry.path().parent_path().string() + "/";
+                    file->m_fullPath       = replacedFullPath;
+                    file->m_extension      = file->m_fullName.substr(file->m_fullName.find(".") + 1);
+                    file->m_name           = GetFileWithoutExtension(file->m_fullName);
+                    file->m_parent         = root;
+                    file->m_typeID         = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
+                    file->m_lastWriteTime  = std::filesystem::last_write_time(file->m_fullPath);
+                    const StringIDType sid = StringID(file->m_fullPath.c_str()).value();
+                    file->m_sid            = sid;
 
                     if (totalFiles != nullptr)
                         (*totalFiles) = (*totalFiles) + 1;
@@ -166,6 +168,9 @@ namespace Lina
                     folder->m_parent        = root;
                     folder->m_typeID        = 0;
                     folder->m_lastWriteTime = std::filesystem::last_write_time(folder->m_fullPath);
+                    const StringIDType sid  = StringID(folder->m_fullPath.c_str()).value();
+                    folder->m_sid           = sid;
+
                     if (recursive)
                         ScanFolder(folder, recursive, totalFiles);
                 }

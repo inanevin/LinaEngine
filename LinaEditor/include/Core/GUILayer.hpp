@@ -48,6 +48,10 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/PropertiesPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
 #include "Panels/ProgressPanel.hpp"
+#include "Panels/ModelPanel.hpp"
+#include "Panels/MaterialPanel.hpp"
+#include "Panels/ShaderPanel.hpp"
+#include "Panels/TexturePanel.hpp"
 #include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Panels/ResourceSelectorPanel.hpp"
@@ -138,12 +142,27 @@ namespace Lina::Editor
         // Menu bar item callback from header panel.
         void OnMenuBarElementClicked(const EMenuBarElementClicked& event);
 
-        LevelPanel& GetLevelPanel()
+        inline LevelPanel& GetLevelPanel()
         {
             return m_levelPanel;
         }
-
-        ResourceSelectorPanel& GetResourceSelector()
+        inline ModelPanel& GetModelPanel()
+        {
+            return m_modelPanel;
+        }
+        inline MaterialPanel& GetMaterialPanel()
+        {
+            return m_materialPanel;
+        }
+        inline ShaderPanel& GetShaderPanel()
+        {
+            return m_shaderPanel;
+        }
+        inline TexturePanel& GetTexturePanel()
+        {
+            return m_texturePanel;
+        }
+        inline ResourceSelectorPanel& GetResourceSelector()
         {
             return m_resourceSelectorPanel;
         }
@@ -183,6 +202,10 @@ namespace Lina::Editor
         MainToolbarPanel            m_toolbar;
         ResourceSelectorPanel       m_resourceSelectorPanel;
         ProgressPanel               m_progressPanel;
+        ModelPanel                  m_modelPanel;
+        MaterialPanel               m_materialPanel;
+        ShaderPanel                 m_shaderPanel;
+        TexturePanel                m_texturePanel;
         Resources::ResourceStorage* m_storage = nullptr;
         World::DefaultLevel         m_defaultLevel;
         std::string                 m_currentlyLoadingResource = "";
