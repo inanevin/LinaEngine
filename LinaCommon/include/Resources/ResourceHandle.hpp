@@ -57,10 +57,19 @@ namespace Lina::Resources
 
     private:
 
-        void OnResourcePathUpdated(Event::EResourcePathUpdated& ev)
+        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
         {
             if (m_sid == ev.m_previousStringID)
                 m_sid = ev.m_newStringID;
+        }
+
+        void OnResourceUnloaded(const Event::EResourceUnloaded& ev)
+        {
+            if (ev.m_sid == m_sid)
+            {
+                m_sid = 0;
+                m_value = nullptr;
+            }
         }
 
     private:
@@ -80,6 +89,7 @@ namespace Lina::Resources
             archive(m_sid, m_typeID);
 
             Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceHandle<T>::OnResourcePathUpdated>(this);
+            Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceHandle<T>::OnResourceUnloaded>(this);
 
             if (m_typeID == 0)
             {

@@ -44,6 +44,8 @@ Timestamp: 12/30/2021 9:37:39 PM
 #include "Core/CommonResources.hpp"
 #include "Log/Log.hpp"
 #include "Resources/IResource.hpp"
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
 #include <unordered_map>
 #include <vector>
@@ -150,9 +152,11 @@ namespace Lina::Resources
 
             if (!Exists<T>(sid))
             {
-                LINA_WARN("Resource you are trying to unload does not exists! {0}");
+                LINA_WARN("Resource you are trying to unload does not exists! {0}", sid);
                 return;
             }
+
+            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
 
             auto* ptr = cache[sid];
             delete cache[sid];
@@ -168,6 +172,38 @@ namespace Lina::Resources
         void Unload(const std::string& path)
         {
             Unload<T>(StringID(path.c_str()).value());
+        }
+
+         /// <summary>
+        /// Unloads the resource from the type T cache, also deletes the underlying pointer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sid"></param>
+        void Unload(TypeID tid, StringIDType sid)
+        {
+            auto& cache = m_resources[tid];
+
+            if (!Exists(tid, sid))
+            {
+                LINA_WARN("Resource you are trying to unload does not exists! {0}", sid);
+                return;
+            }
+
+            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
+
+            auto* ptr = cache[sid];
+            delete cache[sid];
+            cache.erase(sid);
+        }
+
+        /// <summary>
+        /// Unloads the resource from the type T cache, also deletes the underlying pointer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sid"></param>
+        void Unload(TypeID tid, const std::string& path)
+        {
+            Unload(tid, StringID(path.c_str()).value());
         }
 
         /// <summary>

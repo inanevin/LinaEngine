@@ -100,6 +100,13 @@ namespace Lina::Editor
         static bool ColorsEqual(ImVec4 col1, ImVec4 col2);
 
         /// <summary>
+        /// Returns whether this item's path is either Root, Engine or Editor folders. 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        static bool IsProtectedDirectory(Utility::DirectoryItem* item);
+
+        /// <summary>
         /// Draws a folder in the style of Resources Panel.
         /// </summary>
         static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename);

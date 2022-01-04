@@ -122,6 +122,12 @@ namespace Lina::Editor
         return (col1.x == col2.x && col1.y == col2.y && col1.z == col2.z && col1.w == col2.w);
     }
 
+    bool WidgetsUtility::IsProtectedDirectory(Utility::DirectoryItem* item)
+    {
+        return item->m_fullPath.compare("Resources/") == 0 || item->m_fullPath.find("Resources/Engine") != std::string::npos ||
+               item->m_fullPath.compare("Resources/Sandbox") == 0 || item->m_fullPath.find("Resources/Editor") != std::string::npos;
+    }
+
     bool WidgetsUtility::DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename)
     {
         FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x);
@@ -140,8 +146,7 @@ namespace Lina::Editor
 
             if (canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
             {
-                if (folder->m_fullPath.compare("Resources/") == 0 || folder->m_fullPath.find("Resources/Engine") != std::string::npos ||
-                    folder->m_fullPath.compare("Resources/Sandbox") == 0 || folder->m_fullPath.find("Resources/Editor") != std::string::npos)
+                if (IsProtectedDirectory(folder)) 
                 {
                     Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
                 }
@@ -175,8 +180,8 @@ namespace Lina::Editor
                 Utility::ChangeFolderName(folder, str0);
             }
             ImGui::PopStyleColor();
-            
-             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
+
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
                 folder->m_isRenaming = false;
         }
         else
@@ -273,8 +278,7 @@ namespace Lina::Editor
         if (selected && canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
         {
 
-            if (item->m_fullPath.compare("Resources/") == 0 || item->m_fullPath.find("Resources/Engine") != std::string::npos ||
-                item->m_fullPath.compare("Resources/Sandbox") == 0 || item->m_fullPath.find("Resources/Editor") != std::string::npos)
+            if (IsProtectedDirectory(item))
             {
                 Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
             }

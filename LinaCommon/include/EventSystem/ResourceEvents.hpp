@@ -74,6 +74,10 @@ namespace Lina::Event
         std::string m_currentResource;
         float       m_percentage;
     };
+    struct EResourceUnloaded
+    {
+        StringIDType m_sid;
+    };
 } // namespace Lina::Event
 
 #endif

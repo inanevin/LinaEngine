@@ -65,6 +65,12 @@ namespace Lina
         // Checks the sub-folders and finds a folder name unique within the given parent's hierarchy.
         extern void CreateNewSubfolder(Folder* parent);
 
+        // Deletes the folder and it's whole hierarchy of sub-folders & files.
+        extern void DeleteFolder(Folder* folder);
+
+        // Deletes the file and removes any resource tied with it.
+        extern void DeleteResourceFile(File* file);
+
         // Creates a new folder in path.
         extern bool CreateFolderInPath(const std::string& path);
 

@@ -73,7 +73,7 @@ namespace Lina::Utility
     struct Folder : public DirectoryItem
     {
         Folder()  = default;
-        ~Folder() = default;
+        ~Folder();
 
         std::vector<File*>   m_files;
         std::vector<Folder*> m_folders;

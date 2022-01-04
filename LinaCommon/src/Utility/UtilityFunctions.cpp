@@ -213,17 +213,59 @@ namespace Lina
         {
             const std::string newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
-            Folder* folder = new Folder();
-            folder->m_parent = parent;
-            folder->m_name = newFolderName;
+            Folder* folder     = new Folder();
+            folder->m_parent   = parent;
+            folder->m_name     = newFolderName;
             folder->m_fullPath = parent->m_fullPath + "/" + folder->m_name;
             parent->m_folders.push_back(folder);
+
+            CreateFolderInPath(folder->m_fullPath);
+        }
+
+        void DeleteFolder(Folder* folder)
+        {
+            for (auto* file : folder->m_files)
+                DeleteResourceFile(file);
+
+            for (auto* subfolder : folder->m_folders)
+                DeleteFolder(subfolder);
+
+            for (std::vector<Folder*>::iterator it = folder->m_parent->m_folders.begin(); it < folder->m_parent->m_folders.end(); it++)
+            {
+                if (*it == folder)
+                {
+                    folder->m_parent->m_folders.erase(it);
+                    break;
+                }
+            }
+
+            DeleteDirectory(folder->m_fullPath);
+            delete folder;
+            folder = nullptr;
+        }
+
+        void DeleteResourceFile(File* file)
+        {
+            if (file->m_typeID != 0)
+                Resources::ResourceStorage::Get()->Unload(file->m_typeID, file->m_fullPath);
+
+            for (std::vector<File*>::iterator it = file->m_parent->m_files.begin(); it < file->m_parent->m_files.end(); it++)
+            {
+                if (*it == file)
+                {
+                    file->m_parent->m_files.erase(it);
+                    break;
+                }
+            }
+
+            DeleteFileInPath(file->m_fullPath);
+            delete file;
+            file = nullptr;
         }
 
         bool CreateFolderInPath(const std::string& path)
         {
             bool success = std::filesystem::create_directory(path);
-            ;
 
             if (!success)
                 LINA_ERR("Could not create directory. {0}", path);

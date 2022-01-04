@@ -243,6 +243,17 @@ namespace Lina::Editor
         WidgetsUtility::IncrementCursorPosY(4);
         DrawFolderHierarchy(m_rootFolder, true);
 
+        if (m_selectedFolder != nullptr && m_leftPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
+        {
+            if (WidgetsUtility::IsProtectedDirectory(m_selectedFolder))
+                Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be deleted!");
+            else
+            {
+                Utility::DeleteFolder(m_selectedFolder);
+                DeselectNodes(true);
+            }
+        }
+
         // Deselect folder
         if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
             DeselectNodes(true);
@@ -323,6 +334,7 @@ namespace Lina::Editor
             DrawContents(m_selectedFolder);
         }
 
+
         ImGui::EndChild();
     }
 
@@ -367,6 +379,8 @@ namespace Lina::Editor
 
         if (!dontDraw)
         {
+            ImGui::SetNextItemOpen(folder->m_isOpen);
+
             folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder, m_leftPaneFocused);
 
             if (ImGui::IsItemClicked())
@@ -414,6 +428,10 @@ namespace Lina::Editor
                     {
                         DeselectNodes(false);
                         m_selectedFolder = subfolder;
+
+                        // Open the fold-out of the parent folder if closed.
+                        if (!m_selectedFolder->m_parent->m_isOpen)
+                            m_selectedFolder->m_parent->m_isOpen = true;
                     }
                 }
             }
@@ -436,6 +454,26 @@ namespace Lina::Editor
 
                 m_selectedFile = file;
             }
+        }
+
+        
+        if (m_rightPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
+        {
+            if (m_selectedSubfolder != nullptr)
+            {
+                if (WidgetsUtility::IsProtectedDirectory(m_selectedSubfolder))
+                    Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be deleted!");
+                else
+                    Utility::DeleteFolder(m_selectedSubfolder);
+            }
+            else if (m_selectedFile != nullptr)
+            {
+                if (WidgetsUtility::IsProtectedDirectory(m_selectedFile))
+                    Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be deleted!");
+                else
+                    Utility::DeleteResourceFile(m_selectedFile);
+            }
+           
         }
     }
 

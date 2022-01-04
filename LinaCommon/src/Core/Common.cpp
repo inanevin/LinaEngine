@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/CommonApplication.hpp"
 #include "Core/CommonPhysics.hpp"
 #include "Core/CommonResources.hpp"
+#include "Core/CommonUtility.hpp"
 
 namespace Lina
 {
@@ -71,3 +72,21 @@ namespace Lina::Resources
 {
 
 } // namespace Lina::Resources
+
+namespace Lina::Utility
+{
+    Folder::~Folder()
+    {
+        for (int i = 0; i < m_files.size(); i++)
+        {
+            delete m_files[i];
+        }
+
+        m_files.clear();
+
+        for (int i = 0; i < m_folders.size(); i++)
+            delete m_folders[i];
+
+        m_folders.clear();
+    }
+} // namespace Lina::Utility
