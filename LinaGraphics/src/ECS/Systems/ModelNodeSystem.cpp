@@ -54,15 +54,21 @@ namespace Lina::ECS
 
     void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node)
     {
-        const auto& meshes = node->GetMeshes();
+        const auto&         meshes     = node->GetMeshes();
+        Graphics::Material* defaultMat = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
 
         if (meshes.size() > 0)
         {
             ModelNodeComponent& nodeComponent = m_ecs->emplace<ModelNodeComponent>(entity);
-            nodeComponent.m_modelNode         = node;
+            nodeComponent.m_modelNode.m_sid   = node->m_sid;
+            nodeComponent.m_modelNode.m_value = node;
 
-            for (uint32 i = 0; i < node->m_defaultMaterials.size(); i++)
-                nodeComponent.m_materialIDs.push_back(node->m_defaultMaterials[i]);
+            for (uint32 i = 0; i < meshes.size(); i++)
+            {
+                nodeComponent.m_materials.push_back(Resources::ResourceHandle<Graphics::Material>());
+                nodeComponent.m_materials.back().m_sid   = defaultMat->GetSID();
+                nodeComponent.m_materials.back().m_value = defaultMat;
+            }
         }
 
         for (uint32 i = 0; i < node->m_children.size(); i++)
@@ -75,25 +81,25 @@ namespace Lina::ECS
 
     void ModelNodeSystem::CreateModelHierarchy(Graphics::Model* model)
     {
-        Graphics::ModelNode& root             = model->GetRootNode();
+        Graphics::ModelNode* root             = model->GetRootNode();
         const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
         Entity               parentEntity     = m_ecs->CreateEntity(parentEntityName);
-        ConstructEntityHierarchy(parentEntity, &root);
+        ConstructEntityHierarchy(parentEntity, root);
     }
 
     static float t = 0.0f;
 
     void ModelNodeSystem::UpdateComponents(float delta)
     {
-        auto view = m_ecs->view<EntityDataComponent, ModelNodeComponent>();
+        auto view  = m_ecs->view<EntityDataComponent, ModelNodeComponent>();
         m_poolSize = (int)view.size_hint();
         t += 0.016f;
 
         if (t > 3.0f)
         {
-            t                      = -1000;
-           // Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
-           // CreateModelHierarchy(model);
+            t = -1000;
+            // Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
+            // CreateModelHierarchy(model);
         }
         for (auto entity : view)
         {
@@ -103,42 +109,42 @@ namespace Lina::ECS
             if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
                 continue;
 
-            auto* node   = nodeComponent.m_modelNode;
-            auto& meshes = node->GetMeshes();
-
-            const Matrix finalMatrix = data.ToMatrix();
-
-            for (uint32 i = 0; i < meshes.size(); i++)
-            {
-                auto*  mesh         = meshes[i];
-                uint32 materialSlot = mesh->GetMaterialSlotIndex();
-
-               // // Check if material exists.
-               // const StringIDType materialSID = nodeComponent.m_materialIDs[i];
-               // if (!Graphics::Material::MaterialExists(materialSID))
-               //     continue;
-               // 
-               // // Render the material & vertex array.
-               // Graphics::Material& mat = Graphics::Material::GetMaterial(materialSID);
-               // 
-               // if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-               //     RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
-               // else
-               // {
-               //     float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
-               //     RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
-               // }
-            }
+             auto* node   = nodeComponent.m_modelNode.m_value;
+             auto& meshes = node->GetMeshes();
+            
+             const Matrix finalMatrix = data.ToMatrix();
+            
+             for (uint32 i = 0; i < meshes.size(); i++)
+             {
+                 auto*  mesh         = meshes[i];
+                 uint32 materialSlot = mesh->GetMaterialSlotIndex();
+            
+                 // Check if material exists.
+                 const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
+                 if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
+                     continue;
+            
+                 // Render the material & vertex array.
+                 Graphics::Material* mat = nodeComponent.m_materials[i].m_value;
+            
+                 if (mat->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+                     RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
+                 else
+                 {
+                     float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
+                     RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
+                 }
+             }
         }
     }
 
-    void ModelNodeSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
+    void ModelNodeSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material* material, const Matrix& transformIn)
     {
         // Render commands basically add the necessary
         // draw data into the maps/lists etc.
         Graphics::BatchDrawData drawData;
         drawData.m_vertexArray = &vertexArray;
-        drawData.m_material    = &material;
+        drawData.m_material    = material;
         m_opaqueRenderBatch[drawData].m_models.push_back(transformIn);
 
         if (skeleton.IsLoaded())
@@ -146,13 +152,13 @@ namespace Lina::ECS
         }
     }
 
-    void ModelNodeSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
+    void ModelNodeSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material* material, const Matrix& transformIn, float priority)
     {
         // Render commands basically add the necessary
         // draw data into the maps/lists etc.
         Graphics::BatchDrawData drawData;
         drawData.m_vertexArray = &vertexArray;
-        drawData.m_material    = &material;
+        drawData.m_material    = material;
         drawData.m_distance    = priority;
 
         Graphics::BatchModelData modelData;

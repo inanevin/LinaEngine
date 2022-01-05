@@ -64,12 +64,11 @@ namespace Lina::Graphics
         bool                                              m_flipUVs                = false;
         bool                                              m_regenerateConvexMeshes = false;
         std::map<int, std::vector<uint8>>                 m_convexMeshData;
-        std::map<StringIDType, std::vector<StringIDType>> m_nodeMaterialMapping;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData, m_nodeMaterialMapping);
+            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData);
         }
     };
 } // namespace Lina::Graphics

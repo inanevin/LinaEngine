@@ -66,15 +66,10 @@ namespace Lina::Graphics
             return m_importedMaterials;
         }
 
-        ModelNode& GetRootNode()
+        inline ModelNode* GetRootNode()
         {
             return m_rootNode;
         }
-
-        /// <summary>
-        /// Serializes the given asset data to the path.
-        /// </summary>
-        void SaveAssetData(const std::string& path);
 
     private:
         friend class OpenGLRenderEngine;
@@ -82,7 +77,7 @@ namespace Lina::Graphics
         friend class ModelNode;
 
         ModelAssetData*                    m_assetData = nullptr;
-        ModelNode                          m_rootNode;
+        ModelNode*                          m_rootNode;
         std::vector<ImportedModelMaterial> m_importedMaterials;
     };
 } // namespace Lina::Graphics

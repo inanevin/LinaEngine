@@ -121,7 +121,7 @@ namespace Lina
 
     void Engine::StartLoadingResources()
     {
-    
+
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
             m_resourceManager.LoadEditorResources();
         else
@@ -299,58 +299,75 @@ namespace Lina
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Audio::AudioAssetData>),
+                std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
                 std::vector<std::string>{"linaaudiodata"}});
 
         m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
+                std::bind(Resources::DeleteResource<Graphics::ShaderInclude>, std::placeholders::_1),
                 std::vector<std::string>{"glh"}});
 
         m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
+                std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
                 std::vector<std::string>{"linaimagedata"}});
 
         m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
+                std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
                 std::vector<std::string>{"linamodeldata"}});
 
         m_resourceStorage.RegisterResource<Graphics::Shader>(
             Resources::ResourceTypeData{
                 1,
                 std::bind(Resources::CreateResource<Graphics::Shader>),
+                std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
                 std::vector<std::string>{"glsl"}, Color(255, 71, 108, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Texture>(
             Resources::ResourceTypeData{
                 2,
                 std::bind(Resources::CreateResource<Graphics::Texture>),
+                std::bind(Resources::DeleteResource<Graphics::Texture>, std::placeholders::_1),
                 std::vector<std::string>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Material>(
             Resources::ResourceTypeData{
                 3,
                 std::bind(Resources::CreateResource<Graphics::Material>),
+                std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
                 std::vector<std::string>{"linamat"}, Color(56, 79, 255, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Model>(
             Resources::ResourceTypeData{
                 4,
                 std::bind(Resources::CreateResource<Graphics::Model>),
+                std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
                 std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
+
+        m_resourceStorage.RegisterResource<Graphics::ModelNode>(
+            Resources::ResourceTypeData{
+                4,
+                std::bind(Resources::CreateResource<Graphics::ModelNode>),
+                std::bind(Resources::DeleteResource<Graphics::ModelNode>, std::placeholders::_1),
+                std::vector<std::string>(), Color(255, 146, 22, 255, true)});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             5,
             std::bind(Resources::CreateResource<Audio::Audio>),
+            std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
             std::vector<std::string>{"wav", "mp3", "ogg"}, Color(255, 235, 170, 255, true)});
 
         m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
             5,
             std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
+            std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
             std::vector<std::string>{"linaphymat"},
             Color(17, 120, 255, 255, true),
         });

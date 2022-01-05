@@ -41,6 +41,14 @@ Timestamp: 12/25/2021 12:38:18 PM
 
 #include <string>
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct ERegistrySwitched;
+    }
+}
+
 namespace Lina::ECS
 {
     class Registry;
@@ -68,6 +76,8 @@ namespace Lina::ECS
         {
             return m_name;
         }
+
+        void OnRegistrySwitched(const Event::ERegistrySwitched& ev);
 
     protected:
         int         m_poolSize = 0;

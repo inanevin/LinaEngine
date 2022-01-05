@@ -124,8 +124,8 @@ namespace Lina::Resources
                 m_lastResourcePriority = fileEntry.m_priority;
                 Event::EventSystem::Get()->Trigger<Event::EAllResourcesOfTypeLoaded>(Event::EAllResourcesOfTypeLoaded{m_lastResourceTypeID});
             }
-            m_lastResourceTypeID = tid;
 
+            m_lastResourceTypeID = tid;
             LoadSingleFile(tid, fileEntry.m_file->m_fullPath);
 
             m_fileResources.pop();

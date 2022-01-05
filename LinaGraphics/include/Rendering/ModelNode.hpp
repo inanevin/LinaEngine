@@ -42,7 +42,8 @@ Timestamp: 12/24/2021 9:00:02 PM
 // Headers here.
 #include "Math/Matrix.hpp"
 #include "Utility/StringId.hpp"
-
+#include "Resources/ResourceHandle.hpp"
+#include "Rendering/Material.hpp"
 #include <cereal/access.hpp>
 #include <cereal/types/memory.hpp>
 #include <memory>
@@ -69,9 +70,7 @@ namespace Lina::Graphics
     {
 
     public:
-        ModelNode()
-        {
-        };
+        ModelNode(){};
         ~ModelNode();
 
         void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model* parentModel);
@@ -91,10 +90,9 @@ namespace Lina::Graphics
     private:
         void Clear()
         {
-            m_id             = 0;
+            m_sid            = 0;
             m_name           = "";
             m_localTransform = Matrix();
-            m_defaultMaterials.clear();
             m_children.clear();
         }
 
@@ -103,12 +101,11 @@ namespace Lina::Graphics
         friend class Graphics::ModelLoader;
         friend class cereal::access;
 
-        StringIDType              m_id = 0;
-        std::vector<StringIDType> m_defaultMaterials;
-        std::vector<Mesh*>        m_meshes;
-        std::string               m_name = "";
-        Matrix                    m_localTransform;
-        std::vector<ModelNode*>   m_children;
+        StringIDType            m_sid = 0;
+        std::vector<Mesh*>      m_meshes;
+        std::string             m_name = "";
+        Matrix                  m_localTransform;
+        std::vector<ModelNode*> m_children;
     };
 } // namespace Lina::Graphics
 

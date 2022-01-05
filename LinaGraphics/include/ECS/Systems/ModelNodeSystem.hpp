@@ -117,12 +117,12 @@ namespace Lina::ECS
         /// <summary>
         /// Pushes an object into the opaque render stack.
         /// </summary>
-        void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
+        void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material* material, const Matrix& transformIn);
 
         /// <summary>
         /// Pushes the given vertex array into the transparent render stack.
         /// </summary>
-        void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
+        void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Skeleton& skeleton, Graphics::Material* material, const Matrix& transformIn, float priority);
 
         /// <summary>
         /// Draws all objects in the opaque stack.

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "EventSystem/EntityEvents.hpp"
+#include "EventSystem/ECSEvents.hpp"
 #include "Log/Log.hpp"
 #include <entt/meta/resolve.hpp>
 #include <entt/meta/meta.hpp>

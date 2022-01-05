@@ -148,8 +148,8 @@ namespace Lina::Graphics
         const std::string runningDirectory = Utility::GetRunningDirectory();
 
         // Load the ai hierarchy into the root node.
-        ModelNode& root = model->m_rootNode;
-        root.FillNodeHierarchy(scene->mRootNode, scene, model);
+        model->m_rootNode = new ModelNode();
+        model->m_rootNode->FillNodeHierarchy(scene->mRootNode, scene, model);
 
         // Iterate through the materials in the scene.
         for (uint32 i = 0; i < scene->mNumMaterials; i++)

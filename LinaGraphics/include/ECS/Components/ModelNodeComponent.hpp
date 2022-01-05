@@ -41,7 +41,7 @@ Timestamp: 12/24/2021 10:20:14 PM
 
 // Headers here.
 #include "ECS/Component.hpp"
-#include "Utility/StringId.hpp"
+#include "Rendering/Model.hpp"
 
 #include <cereal/access.hpp>
 #include <cereal/types/vector.hpp>
@@ -58,18 +58,16 @@ namespace Lina::ECS
 {
     struct ModelNodeComponent : public Component
     {
-        Graphics::ModelNode*      m_modelNode = nullptr;
-        std::vector<StringIDType> m_materialIDs;
+        std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
+        Resources::ResourceHandle<Graphics::ModelNode>             m_modelNode;
 
     private:
         friend class cereal::access;
 
-        StringIDType m_modelNodeID = 0;
-        StringIDType m_modelID     = 0;
-
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
-            archive(m_modelNodeID, m_materialIDs, m_isEnabled);
+            archive(m_materials, m_modelNode, m_isEnabled);
         }
     };
 

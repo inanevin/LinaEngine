@@ -87,8 +87,7 @@ namespace Lina::Resources
         std::string  m_path = "";
     };
 
-    
-        template <typename T>
+    template <typename T>
     T LoadArchiveFromFile(const std::string& path)
     {
         T             obj;
@@ -131,7 +130,15 @@ namespace Lina::Resources
         return (IResource*)new T();
     }
 
-    typedef std::function<IResource*()> ResourceCreateFunc;
+    template <typename T>
+    void DeleteResource(void* ptr)
+    {
+        T* typePtr = static_cast<T*>(ptr);
+        delete typePtr;
+    }
+
+    typedef std::function<IResource*()>    ResourceCreateFunc;
+    typedef std::function<void(void* ptr)> ResourceDeleteFunc;
 
 } // namespace Lina::Resources
 

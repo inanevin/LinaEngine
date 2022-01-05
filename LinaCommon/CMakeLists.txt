@@ -109,7 +109,7 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/MainLoopEvents.hpp
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp
-	include/EventSystem/EntityEvents.hpp
+	include/EventSystem/ECSEvents.hpp
 	include/EventSystem/EventSystem.hpp
 
 	# Log

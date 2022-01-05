@@ -48,9 +48,6 @@ namespace Lina::Graphics
         for (uint32 i = 0; i < m_meshes.size(); i++)
             delete m_meshes[i];
 
-        for (uint32 i = 0; i < m_children.size(); i++)
-            delete m_children[i];
-
         m_children.clear();
         m_meshes.clear();
     }
@@ -59,8 +56,10 @@ namespace Lina::Graphics
     {
         m_name                    = std::string(node->mName.C_Str());
         const std::string sidName = parentModel->GetPath() + m_name;
-        m_id                      = StringID(sidName.c_str()).value();
+        m_sid                      = StringID(sidName.c_str()).value();
         m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
+        const TypeID tid          = GetTypeID<ModelNode>();
+        Resources::ResourceStorage::Get()->Add(static_cast<void*>(this), tid, m_sid);
 
         for (uint32 i = 0; i < node->mNumMeshes; i++)
         {
@@ -84,29 +83,6 @@ namespace Lina::Graphics
 
             // Finally, construct the vertex array object for the mesh.
             addedMesh->CreateVertexArray(BufferUsage::USAGE_DYNAMIC_DRAW);
-            m_defaultMaterials.push_back(StringIDType());
-        }
-
-        // Check the user data to see if user has saved any material data for this node asset.
-        // If so, assign it, if not, pass the default engine material.
-        auto* defaultMaterial = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
-        auto& nodeMaterialMap = parentModel->GetAssetData()->m_nodeMaterialMapping;
-        if (nodeMaterialMap.find(m_id) != nodeMaterialMap.end())
-        {
-            auto& materialVector = nodeMaterialMap[m_id];
-
-            for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
-            {
-                if (materialVector.size() > i)
-                    m_defaultMaterials[i] = materialVector[i];
-                else
-                    m_defaultMaterials[i] = defaultMaterial->GetSID();
-            }
-        }
-        else
-        {
-            for (uint32 i = 0; i < m_defaultMaterials.size(); i++)
-                m_defaultMaterials[i] = defaultMaterial->GetSID();
         }
 
         // Recursively fill the other nodes.

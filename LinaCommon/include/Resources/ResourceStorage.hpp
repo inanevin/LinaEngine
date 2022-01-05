@@ -68,6 +68,7 @@ namespace Lina::Resources
     {
         int                      m_loadPriority = 0;
         ResourceCreateFunc       m_createFunc;
+        ResourceDeleteFunc       m_deleteFunc;
         std::vector<std::string> m_associatedExtensions;
         Color                    m_resourceIdentifierColor = Color::White;
     };

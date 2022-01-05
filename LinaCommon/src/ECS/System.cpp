@@ -27,14 +27,21 @@ SOFTWARE.
 */
 
 #include "ECS/System.hpp"
-
 #include "ECS/Registry.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/ECSEvents.hpp"
 
 namespace Lina::ECS
 {
     void System::Initialize(const std::string& name)
     {
-        m_ecs = ECS::Registry::Get();
+        m_ecs  = ECS::Registry::Get();
         m_name = name;
+        Event::EventSystem::Get()->Connect<Event::ERegistrySwitched, &System::OnRegistrySwitched>(this);
+    }
+
+    void System::OnRegistrySwitched(const Event::ERegistrySwitched& ev)
+    {
+        m_ecs = ev.m_newReg;
     }
 } // namespace Lina::ECS

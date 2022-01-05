@@ -312,14 +312,14 @@ namespace Lina::Editor
         // RegisterComponentForEditor<ModelRendererComponent>("Model Renderer", ICON_FA_CUBE, defaultDrawFlags, "Rendering", true, true);
 
         // Model Node
-        std::string modelNodeTooltip = "Model node refers to a node in an imported model hierarchy. This is the main component used to draw a model's meshes.";
-        entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_isEnabled>("enabled"_hs);
-        entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_materialIDs>("mats"_hs).props(PROPS("Materials", ComponentVariableType::MaterialArray, ""));
+        // std::string modelNodeTooltip = "Model node refers to a node in an imported model hierarchy. This is the main component used to draw a model's meshes.";
+        // entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_isEnabled>("enabled"_hs);
+        // entt::meta<ModelNodeComponent>().data<&ModelNodeComponent::m_materialIDs>("mats"_hs).props(PROPS("Materials", ComponentVariableType::MaterialArray, ""));
 
         // Sprite renderer
-        entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
-        entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath, ""));
-        RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags, "Rendering");
+      // entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_isEnabled>("enabled"_hs);
+      // entt::meta<SpriteRendererComponent>().data<&SpriteRendererComponent::m_materialPaths>("matpath"_hs).props(PROPS("Material", ComponentVariableType::MaterialPath, ""));
+      // RegisterComponentForEditor<SpriteRendererComponent>("Sprite", ICON_MD_TOYS, defaultDrawFlags, "Rendering");
     }
 
     void ComponentDrawer::Initialize()

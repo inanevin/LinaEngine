@@ -35,7 +35,7 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "EventSystem/EntityEvents.hpp"
+#include "EventSystem/ECSEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
 #include "Resources/ResourceStorage.hpp"
