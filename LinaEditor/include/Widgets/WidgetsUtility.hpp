@@ -147,7 +147,7 @@ namespace Lina::Editor
         /// Draws a custom title bar for the window.
         /// </summary>
         /// <param name="label"></param>
-        static void WindowTitlebar(const char* label);
+        static void WindowTitlebar(const char* id, const char* label);
 
         /// <summary>
         /// Draws multiple horizontal dividers to create a drop shadow effect.
@@ -174,7 +174,7 @@ namespace Lina::Editor
         /// Draws a property label, automatically sets the cursor position, asks for the same line.
         /// </summary>
         /// <param name="label"></param>
-        static void PropertyLabel(const char* label, bool sameLine = true);
+        static void PropertyLabel(const char* label, bool sameLine = true, const std::string& tooltip = "");
 
         /// <summary>
         /// Base implementation of a combobox begin, uses ImGui Combo with custom remove buttons.
@@ -185,6 +185,11 @@ namespace Lina::Editor
         /// Base implementation of a combobox end, uses ImGui Combo with custom remove buttons.
         /// </summary>
         static bool PostComboBox(const char* id);
+
+        /// <summary>
+        /// Draws a vertical divider with functionality to move on horizontal axis.
+        /// </summary>
+        static void VerticalResizeDivider(bool canResize, float* pressedPos, float* leftPaneWidth, float leftPaneMinWidth, float leftPaneMaxWidth, bool* lockWindowPos, bool* dragging);
 
         /// <summary>
         /// Drop-down combo-box for selecting any loaded material in the project.

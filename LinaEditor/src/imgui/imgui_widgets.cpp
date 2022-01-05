@@ -1654,8 +1654,10 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
         if (value_x2 + arrow_size - style.FramePadding.x <= bb.Max.x)
             RenderArrow(window->DrawList, ImVec2(value_x2 + style.FramePadding.y, bb.Min.y + style.FramePadding.y), text_col, ImGuiDir_Down, 1.0f);
     }
-    RenderFrameBorder(bb.Min, bb.Max, style.FrameRounding);
 
+    PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+    RenderFrameBorder(bb.Min, bb.Max, style.FrameRounding);
+    PopStyleColor();
     // Custom preview
     if (flags & ImGuiComboFlags_CustomPreview)
     {
@@ -6392,7 +6394,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
         RenderNavHighlight(frame_bb, id, nav_highlight_flags);
         if (flags & ImGuiTreeNodeFlags_Bullet)
         {
-           // RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
+            // RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
         }
         else if (!is_leaf)
         {

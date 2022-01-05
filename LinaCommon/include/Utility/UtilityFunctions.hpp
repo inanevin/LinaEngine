@@ -51,7 +51,7 @@ namespace Lina
         extern char* WCharToChar(const wchar_t* input);
 
         // Scans the given folder & fills it's child folder data
-        extern void ScanFolder(Folder* root, bool recursive = true, int* totalFiles = nullptr);
+        extern void ScanFolder(Folder* root, bool recursive = true, int* totalFiles = nullptr, bool isRescan = false);
 
         // Returns true if a subfolder or a file with the given path exists within the root.
         extern bool FolderContainsDirectory(Folder* root, const std::string& path, DirectoryItem*& outItem);

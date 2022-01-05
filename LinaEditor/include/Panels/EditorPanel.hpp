@@ -85,6 +85,7 @@ namespace Lina::Editor
         bool        m_lockWindowPos          = false;
         const char* m_id                     = nullptr;
         const char* m_icon                   = nullptr;
+        std::string m_title                  = "";
         int         m_windowFlags            = 0;
         bool        m_setWindowSizeNextFrame = false;
         bool        m_setWindowPosNextFrame  = false;

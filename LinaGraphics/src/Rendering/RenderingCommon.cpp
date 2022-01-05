@@ -130,4 +130,73 @@ namespace Lina::Graphics
         output = ss.str();
         return true;
     }
+
+    int SamplerFilterToInt(SamplerFilter filter)
+    {
+        if (filter == SamplerFilter::FILTER_NEAREST)
+            return 0;
+        else if (filter == SamplerFilter::FILTER_LINEAR)
+            return 1;
+        else if (filter == SamplerFilter::FILTER_NEAREST_MIPMAP_NEAREST)
+            return 2;
+        else if (filter == SamplerFilter::FILTER_LINEAR_MIPMAP_NEAREST)
+            return 3;
+        else if (filter == SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR)
+            return 4;
+        else if (filter == SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR)
+            return 5;
+
+        return 0;
+    }
+
+    int WrapModeToInt(SamplerWrapMode wrapMode)
+    {
+        if (wrapMode == SamplerWrapMode::WRAP_CLAMP_EDGE)
+            return 0;
+        else if (wrapMode == SamplerWrapMode::WRAP_CLAMP_MIRROR)
+            return 1;
+        else if (wrapMode == SamplerWrapMode::WRAP_CLAMP_BORDER)
+            return 2;
+        else if (wrapMode == SamplerWrapMode::WRAP_REPEAT)
+            return 3;
+        else if (wrapMode == SamplerWrapMode::WRAP_REPEAT_MIRROR)
+            return 4;
+
+        return 0;
+    }
+
+    SamplerFilter SamplerFilterFromInt(int id)
+    {
+        if (id == 0)
+            return SamplerFilter::FILTER_NEAREST;
+        else if (id == 1)
+            return SamplerFilter::FILTER_LINEAR;
+        else if (id == 2)
+            return SamplerFilter::FILTER_NEAREST_MIPMAP_NEAREST;
+        else if (id == 3)
+            return SamplerFilter::FILTER_LINEAR_MIPMAP_NEAREST;
+        else if (id == 4)
+            return SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
+        else if (id == 5)
+            return SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+
+        return SamplerFilter::FILTER_LINEAR;
+    }
+
+    SamplerWrapMode WrapModeFromInt(int id)
+    {
+        if (id == 0)
+            return SamplerWrapMode::WRAP_CLAMP_EDGE;
+        else if (id == 1)
+            return SamplerWrapMode::WRAP_CLAMP_MIRROR;
+        else if (id == 2)
+            return SamplerWrapMode::WRAP_CLAMP_BORDER;
+        else if (id == 3)
+            return SamplerWrapMode::WRAP_REPEAT;
+        else if (id == 4)
+            return SamplerWrapMode::WRAP_REPEAT_MIRROR;
+
+        return SamplerWrapMode::WRAP_CLAMP_BORDER;
+    }
+
 } // namespace Lina::Graphics

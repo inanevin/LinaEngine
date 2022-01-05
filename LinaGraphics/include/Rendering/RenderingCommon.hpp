@@ -415,6 +415,28 @@ namespace Lina::Graphics
     /// </summary>
     extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
 
+    /// <summary>
+    /// Converts the given sampler filter to int, for enumeration purposes.
+    /// </summary>
+    extern int SamplerFilterToInt(SamplerFilter filter);
+
+    /// <summary>
+    /// Converts the given wrap mode to int for enumeration purposes.
+    /// </summary>
+    extern int WrapModeToInt(SamplerWrapMode mode);
+
+    /// <summary>
+    /// Gets a sampler filter given an int (enum order).
+    /// </summary>
+    extern SamplerFilter SamplerFilterFromInt(int i);
+
+    /// <summary>
+    /// Gets a wrap mode given an int (enum order).
+    /// </summary>
+    /// <param name="i"></param>
+    /// <returns></returns>
+    extern SamplerWrapMode WrapModeFromInt(int i);
+
 } // namespace Lina::Graphics
 
 #endif

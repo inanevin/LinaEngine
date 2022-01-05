@@ -106,37 +106,46 @@ namespace Lina
             return (stat(path.c_str(), &buffer) == 0);
         }
 
-        void ScanFolder(Folder* root, bool recursive, int* totalFiles)
+        void ScanFolder(Folder* root, bool recursive, int* totalFiles, bool isRescan)
         {
             for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath))
             {
                 std::string replacedFullPath = entry.path().string();
                 std::replace(replacedFullPath.begin(), replacedFullPath.end(), '\\', '/');
 
-                DirectoryItem* outItem = nullptr;
-                // If the scanned folder already contains the target path and if the path is a subfolder
-                // continue, if not, check the file's write timestamp & perform a reload if necessary.
-                if (FolderContainsDirectory(root, replacedFullPath, outItem))
+                if (isRescan)
                 {
-                    if (entry.path().has_extension())
+                    DirectoryItem* outItem = nullptr;
+                    // If the scanned folder already contains the target path and if the path is a subfolder
+                    // continue, if not, check the file's write timestamp & perform a reload if necessary.
+                    if (FolderContainsDirectory(root, replacedFullPath, outItem))
                     {
-                        // Check for reload.
-                        auto lastTime = std::filesystem::last_write_time(replacedFullPath);
-
-                        if (outItem != nullptr && lastTime != outItem->m_lastWriteTime)
+                        if (entry.path().has_extension())
                         {
-                            const StringIDType sid = StringID(replacedFullPath.c_str()).value();
-                            const TypeID       tid = outItem->m_typeID;
-                            Resources::ResourceStorage::Get()->Unload(tid, sid);
-                            Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
+                            // Check for reload.
+                            auto lastTime = std::filesystem::last_write_time(replacedFullPath);
+
+                            if (outItem != nullptr && lastTime != outItem->m_lastWriteTime)
+                            {
+                                const StringIDType sid = StringID(replacedFullPath.c_str()).value();
+                                const TypeID       tid = outItem->m_typeID;
+                                Resources::ResourceStorage::Get()->Unload(tid, sid);
+                                Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
+                            }
+                            continue;
                         }
-                        continue;
+                        else
+                        {
+                            if (recursive)
+                                ScanFolder(static_cast<Folder*>(outItem), recursive, totalFiles);
+                            continue;
+                        }
                     }
                     else
                     {
-                        if (recursive)
-                            ScanFolder(static_cast<Folder*>(outItem), recursive, totalFiles);
-                        continue;
+                        const StringIDType sid = StringID(replacedFullPath.c_str()).value();
+                        const TypeID       tid = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(GetFileExtension(replacedFullPath));
+                        Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                     }
                 }
 

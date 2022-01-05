@@ -126,8 +126,8 @@ namespace Lina::Editor
                     anyChildHovered = true;
 
                 ImGui::EndChild();
-
-                HandleLeftPaneResize(anyChildHovered || isWindowHovered);
+                WidgetsUtility::VerticalResizeDivider(anyChildHovered || isWindowHovered, &m_resizeDividerPressedPos, &m_leftPaneWidth, m_leftPaneMinWidth, m_leftPaneMaxWidth, &m_lockWindowPos, &m_draggingChildWindowBorder);
+                //HandleLeftPaneResize(anyChildHovered || isWindowHovered);
 
                 End();
             }
@@ -595,7 +595,7 @@ namespace Lina::Editor
         else if (type == MenuBarElementType::Resources_Rescan)
         {
             if (m_selectedFolder != nullptr)
-                Utility::ScanFolder(m_selectedFolder);
+                Utility::ScanFolder(m_selectedFolder, true, nullptr, true);
         }
     }
 

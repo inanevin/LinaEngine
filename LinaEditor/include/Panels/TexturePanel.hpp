@@ -59,15 +59,22 @@ namespace Lina::Editor
         TexturePanel()  = default;
         ~TexturePanel() = default;
 
-        void Draw() override;
-
-        inline void SetTargetTexture(Graphics::Texture* texture)
-        {
-            m_target = texture;
-        }
+        virtual void Initialize(const char* id, const char* icon) override;
+        virtual void Draw() override;
+        void         SetTargetTexture(Graphics::Texture* texture);
 
     private:
-        Graphics::Texture* m_target = nullptr;
+        void DrawTextureSettings();
+        void DrawTexture();
+
+    private:
+        float              m_leftPaneWidth           = 0.0f;
+        float              m_leftPaneMaxWidth        = 0.0f;
+        float              m_leftPaneMinWidth        = 0.0f;
+        float              m_resizeDividerPressedPos  = 0.0f;
+        bool               m_draggingVerticalDivider = false;
+        Graphics::Texture* m_targetTexture           = nullptr;
+        Vector2            m_rightPaneSize           = Vector2::Zero;
     };
 } // namespace Lina::Editor
 

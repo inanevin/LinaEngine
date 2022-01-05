@@ -114,6 +114,7 @@ namespace Lina::Editor
         Utility::Folder*            m_selectedSubfolder         = nullptr;
         Resources::ResourceStorage* m_storage                   = nullptr;
         Menu*                       m_contextMenu               = nullptr;
+        float                       m_resizeDividerPressedPos   = 0.0f;
     };
 } // namespace Lina::Editor
 

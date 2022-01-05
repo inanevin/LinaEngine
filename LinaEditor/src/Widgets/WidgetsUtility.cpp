@@ -66,9 +66,11 @@ namespace Lina::Editor
             return;
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+        PushPopupStyle();
         ImGui::BeginTooltip();
         ImGui::Text(tooltip);
         ImGui::EndTooltip();
+        PopPopupStyle();
         ImGui::PopStyleColor();
     }
 
@@ -146,7 +148,7 @@ namespace Lina::Editor
 
             if (canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
             {
-                if (IsProtectedDirectory(folder)) 
+                if (IsProtectedDirectory(folder))
                 {
                     Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be renamed!");
                 }
@@ -517,7 +519,7 @@ namespace Lina::Editor
         ImGui::PopFont();
     }
 
-    void WidgetsUtility::WindowTitlebar(const char* label)
+    void WidgetsUtility::WindowTitlebar(const char* id, const char* label)
     {
         if (ImGui::IsWindowDocked())
             return;
@@ -534,12 +536,12 @@ namespace Lina::Editor
         // Draw title
         ImGui::SetCursorPosX(12.5f);
         IncrementCursorPosY(4);
-        IconSmall(GUILayer::Get()->m_windowIconMap[label]);
+        IconSmall(GUILayer::Get()->m_windowIconMap[id]);
         ImGui::SameLine();
         ImGui::Text(label);
 
         // Draw Buttons
-        WindowButtons(label, 5.0f);
+        WindowButtons(id, 5.0f);
     }
 
     bool WidgetsUtility::ComponentHeader(TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
@@ -764,16 +766,26 @@ namespace Lina::Editor
         return *caretOpen;
     }
 
-    void WidgetsUtility::PropertyLabel(const char* label, bool sameLine)
+    void WidgetsUtility::PropertyLabel(const char* label, bool sameLine, const std::string& tooltip)
     {
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
         ImGui::AlignTextToFramePadding();
         ImGui::Text(label);
 
+        if (tooltip.compare("") != 0)
+        {
+            if (ImGui::IsItemHovered())
+                Tooltip(tooltip.c_str());
+        }
+
         if (sameLine)
         {
             ImGui::SameLine();
             ImGui::SetCursorPosX(CURSOR_X_VALUES);
+
+            const ImVec2 p1 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y - ImGui::GetFrameHeight());
+            const ImVec2 p2 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y + ImGui::GetFrameHeight());
+            ImGui::GetWindowDrawList()->AddLine(p1, p2, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)), 2.0f);
         }
     }
 
@@ -784,7 +796,7 @@ namespace Lina::Editor
         const float windowWidth   = ImGui::GetWindowWidth();
         const float remaining     = windowWidth - currentCursor;
         const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
-        const bool  combo         = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
+        const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
         return combo;
     }
@@ -801,6 +813,62 @@ namespace Lina::Editor
             Tooltip("Remove");
 
         return button;
+    }
+
+    void WidgetsUtility::VerticalResizeDivider(bool canResize, float* pressedPos, float* leftPaneWidth, float leftPaneMinWidth, float leftPaneMaxWidth, bool* lockWindowPos, bool* dragging)
+    {
+        const ImVec2 windowPos     = ImGui::GetWindowPos();
+        const ImVec2 windowSize    = ImGui::GetWindowSize();
+        const ImVec2 borderLineMin = ImVec2(windowPos.x + *leftPaneWidth, windowPos.y - 1);
+        const ImVec2 borderLineMax = ImVec2(borderLineMin.x, borderLineMin.y + windowSize.y);
+        ImGui::GetWindowDrawList()->AddLine(borderLineMin, borderLineMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 1.5f);
+
+        const ImVec2 hoverRectMin = ImVec2(borderLineMin.x - 10, borderLineMin.y);
+        const ImVec2 hoverRectMax = ImVec2(borderLineMin.x + 10, borderLineMax.y);
+
+        if (canResize)
+        {
+            bool canDrag = false;
+
+            if (ImGui::IsMouseHoveringRect(hoverRectMin, hoverRectMax))
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+                canDrag        = true;
+                *lockWindowPos = true;
+            }
+            else
+                *lockWindowPos = false;
+
+            if (canDrag)
+            {
+
+                if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+                {
+                    *pressedPos = *leftPaneWidth;
+                    *dragging   = true;
+                }
+            }
+        }
+        else
+            *lockWindowPos = false;
+
+        if (*dragging && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+        {
+
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            const float delta  = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).x;
+            float       newPos = *pressedPos + delta;
+
+            if (newPos < leftPaneMinWidth)
+                newPos = leftPaneMinWidth;
+            else if (newPos > leftPaneMaxWidth)
+                newPos = leftPaneMaxWidth;
+
+            *leftPaneWidth = newPos;
+        }
+
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+            *dragging = false;
     }
 
     Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
