@@ -81,14 +81,12 @@ namespace Lina::World
         void         ImportLevel(const std::string& path, const std::string& name);
         void         ExportLevel(const std::string& path, const std::string& name);
 
-        void       SetSkyboxMaterial();
         LevelData& GetLevelData()
         {
             return m_levelData;
         }
 
     private:
-        void LoadLevelResources();
 
     private:
         LevelData m_levelData;

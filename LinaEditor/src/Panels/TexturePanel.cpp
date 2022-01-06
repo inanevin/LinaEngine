@@ -99,7 +99,7 @@ namespace Lina::Editor
     void TexturePanel::SetTargetTexture(Graphics::Texture* texture)
     {
         m_targetTexture = texture;
-        m_title         = texture->GetPath();
+        m_title         = "Texture Panel: " + texture->GetPath();
     }
 
     void TexturePanel::DrawTextureSettings()

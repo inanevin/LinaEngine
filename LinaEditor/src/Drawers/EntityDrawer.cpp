@@ -31,8 +31,9 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "IconsFontAwesome5.h"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Drawers/ClassDrawer.hpp"
+#include "IconsFontAwesome5.h"
 
 namespace Lina::Editor
 {
@@ -102,7 +103,7 @@ namespace Lina::Editor
         {
             AddComponentMap map            = m_componentDrawer.GetCurrentAddComponentMap(m_selectedEntity);
             static char     filterChr[128] = "";
-            const char* addCompText = "Add Component";
+            const char*     addCompText    = "Add Component";
             WidgetsUtility::CenteredText(addCompText);
             ImGui::SetNextItemWidth(250);
             ImGui::InputText("##filter", filterChr, IM_ARRAYSIZE(filterChr));
@@ -139,16 +140,17 @@ namespace Lina::Editor
             ImGui::EndDisabled();
 
         WidgetsUtility::IncrementCursorPosY(6.0f);
-        m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
+        ClassDrawer::DrawEntityData(m_selectedEntity);
+        // m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
 
-        // Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-        for (auto& pool : ECS::Registry::Get()->storage())
-        {
-            if (pool.second.contains(m_selectedEntity))
-                m_componentDrawer.PushComponentToDraw(pool.first, m_selectedEntity);
-        }
-
-        m_componentDrawer.DrawAllComponents(m_selectedEntity);
+        //// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
+        //for (auto& pool : ECS::Registry::Get()->storage())
+        //{
+        //    if (pool.second.contains(m_selectedEntity))
+        //        m_componentDrawer.PushComponentToDraw(pool.first, m_selectedEntity);
+        //}
+        //
+        //m_componentDrawer.DrawAllComponents(m_selectedEntity);
     }
 
     void EntityDrawer::AddComponentPopup()

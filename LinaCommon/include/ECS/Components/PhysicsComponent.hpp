@@ -44,7 +44,7 @@ namespace Lina
 {
     namespace Editor
     {
-        class ComponentDrawer;
+        class ClassDrawer;
     }
 
     namespace Physics
@@ -70,7 +70,7 @@ namespace Lina::ECS
     class RigidbodySystem;
     class Registry;
 
-    LINA_CLASS("Physics Component", "", "", "false", "false")
+    LINA_CLASS("Physics Component", "ICON_FA_APPLE_ALT", "", "false", "false")
     struct PhysicsComponent : public Component
     {
         virtual void SetIsEnabled(bool isEnabled) override;
@@ -114,7 +114,7 @@ namespace Lina::ECS
         friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
-        friend class Editor::ComponentDrawer;
+        friend class Editor::ClassDrawer;
         friend class ECS::RigidbodySystem;
 
 #ifdef LINA_PHYSICS_BULLET

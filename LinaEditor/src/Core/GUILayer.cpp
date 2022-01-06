@@ -326,6 +326,8 @@ namespace Lina::Editor
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
         m_resourceSelectorPanel.Draw();
+       
+        // Should be drawn last.
         m_modelPanel.Draw();
         m_materialPanel.Draw();
         m_texturePanel.Draw();

@@ -486,6 +486,16 @@ namespace Lina::Editor
                         if (!texturePanel.IsMaximized())
                             texturePanel.ToggleMaximize();
                     }
+                    else if (file->m_typeID == GetTypeID<Graphics::Model>())
+                    {
+                        auto& modelPanel = GUILayer::Get()->GetModelPanel();
+                        modelPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
+
+                        modelPanel.Open();
+                        if (!modelPanel.IsMaximized())
+                            modelPanel.ToggleMaximize();
+                    }
+
                 }
             }
         }

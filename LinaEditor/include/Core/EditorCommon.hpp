@@ -186,7 +186,7 @@ namespace Lina::Editor
 #define ID_PROGRESSPANEL "ProgressPanel"
 
 // Model panel
-#define ID_MODELPANEL "ProgressPanel"
+#define ID_MODELPANEL "ModelPanel"
 
 // Material panel
 #define ID_MATERIALPANEL "MaterialPanel"

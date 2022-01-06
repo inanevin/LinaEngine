@@ -47,18 +47,20 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Memory/Memory.hpp"
+#include "Core/PhysicsBackend.hpp"
 #include "Core/ImGuiCommon.hpp"
 #include "Widgets/Snackbar.hpp"
 
 namespace Lina::Editor
 {
 
-    static bool        s_isDraggingWidgetInput = false;
-    static bool        s_mouseReleased         = true;
-    static std::string s_draggedInput          = "";
-    static float       s_valueOnDragStart      = 0.0f;
-    static int         s_valueOnDragStartInt   = 0;
-    void*              s_latestResourceHandle  = nullptr;
+    static bool                   s_isDraggingWidgetInput = false;
+    static bool                   s_mouseReleased         = true;
+    static std::string            s_draggedInput          = "";
+    static float                  s_valueOnDragStart      = 0.0f;
+    static int                    s_valueOnDragStartInt   = 0;
+    void*                         s_latestResourceHandle  = nullptr;
+    static std::map<TypeID, bool> m_classFoldoutMap;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -544,7 +546,7 @@ namespace Lina::Editor
         WindowButtons(id, 5.0f);
     }
 
-    bool WidgetsUtility::ComponentHeader(TypeID tid, bool* foldoutOpen, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
+    bool WidgetsUtility::ComponentHeader(TypeID tid, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
     {
         const ImVec2 cursorPos  = ImGui::GetCursorPos();
         const ImVec2 windowPos  = ImGui::GetWindowPos();
@@ -566,17 +568,28 @@ namespace Lina::Editor
                                                                                : normalColor;
         ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
 
+        static float w = 0.0f;
+
+        w += Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
+
         const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);
         ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(borderColor));
 
-        static float w = 2.0f;
-
-        w += Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
-
-        IncrementCursorPosY(2.0f);
+        WidgetsUtility::IncrementCursorPosY(3.4f);
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
-        Icon(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT, false, 1.0f);
+
+        IconSmall(m_classFoldoutMap[tid] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
         ImGui::SameLine();
+
+        // Draw component icon.
+        if (componentIcon != nullptr)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+            IconSmall(componentIcon);
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+        }
+
         ImGui::Text(componentLabel);
 
         // Title is the drag and drop target.
@@ -605,79 +618,67 @@ namespace Lina::Editor
 
         ImGui::SameLine();
 
-        // Draw component icon.
-        if (componentIcon != nullptr)
+        const float cursorPosX = ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - 15;
+        ImGui::SetCursorPosX(cursorPosX);
+        bool              anyButtonHovered = false;
+        const std::string popupName        = "##popup_" + std::string(componentLabel);
+
+        if (IconButton(ICON_FA_COG))
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-            IncrementCursorPosY(10.2f);
-            IncrementCursorPosX(ImGui::GetStyle().ItemSpacing.x);
-            Icon(componentIcon, true, 0.7f);
-            ImGui::PopStyleColor();
-            ImGui::SameLine();
+            ImGui::OpenPopup(popupName.c_str());
         }
 
-        ImGui::SetCursorPosX(cursorPos.x);
-        ImGui::SetCursorPosY(cursorPos.y + 2.6f);
-        const float cursorPosX = ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW;
+        if (ImGui::IsItemHovered())
+            anyButtonHovered = true;
+
+        WidgetsUtility::PushPopupStyle();
 
         std::vector<std::pair<const char*, bool*>> buttons;
-        std::vector<std::string>                   buttonNames{"Remove", "Paste", "Copy", "Reset"};
-        buttons.push_back(std::make_pair(ICON_FA_TIMES, removed));
-        buttons.push_back(std::make_pair(ICON_FA_PASTE, pasted));
-        buttons.push_back(std::make_pair(ICON_FA_COPY, copied));
-        buttons.push_back(std::make_pair(ICON_FA_SYNC_ALT, resetted));
+        buttons.push_back(std::make_pair("Copy", copied));
+        buttons.push_back(std::make_pair("Paste", pasted));
+        buttons.push_back(std::make_pair("Reset", resetted));
+        buttons.push_back(std::make_pair("Remove", removed));
 
-        float       lastCursorX      = 0.0f;
-        const float buttonWidth      = 26.0f;
-        const float buttonHeight     = 20.0f;
-        bool        anyButtonHovered = false;
-
-        for (int i = 0; i < buttons.size(); i++)
+        if (ImGui::BeginPopup(popupName.c_str()))
         {
-            lastCursorX = cursorPosX - buttonWidth * (i + 1) - (ImGui::GetStyle().ItemSpacing.x * i);
-            ImGui::SetCursorPosX(lastCursorX);
-
-            if (buttons[i].second == nullptr)
-                ImGui::BeginDisabled();
-
-            const std::string btnLbl = std::string(buttons[i].first) + "##_" + componentLabel;
-            if (Button(btnLbl.c_str(), ImVec2(buttonWidth, buttonHeight), 0.6f, 2.0f))
-                *buttons[i].second = !*buttons[i].second;
-
-            if (ImGui::IsItemHovered())
+            for (auto& [name, ptr] : buttons)
             {
-                Tooltip(buttonNames[i].c_str());
-                anyButtonHovered = true;
+                if (ptr == nullptr)
+                    ImGui::BeginDisabled();
+
+                if (ImGui::MenuItem(name))
+                {
+                    if (ptr != nullptr)
+                        *ptr = true;
+                }
+
+                if (ptr == nullptr)
+                    ImGui::EndDisabled();
             }
-
-            if (buttons[i].second == nullptr)
-                ImGui::EndDisabled();
-
-            ImGui::SameLine();
+            ImGui::EndPopup();
         }
+        PopPopupStyle();
 
         const ImVec2 toggleSize = DEFAULT_TOGGLE_SIZE;
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(cursorPosX - ImGui::GetStyle().ItemSpacing.x - toggleSize.x);
 
         if (toggled != nullptr)
         {
             // Toggle
             const std::string toggleID = "##_toggle_" + std::string(componentLabel);
-            ImGui::SetCursorPosX(lastCursorX - toggleSize.x - ImGui::GetStyle().ItemSpacing.x);
-            ImGui::SetCursorPosY(cursorPos.y + 4.4f);
             ToggleButton(toggleID.c_str(), toggled);
+
             if (ImGui::IsItemHovered())
                 anyButtonHovered = true;
-
-            ImGui::SameLine();
-            lastCursorX = ImGui::GetCursorPosX();
         }
 
         if (bgReleased && !anyButtonHovered)
-            *foldoutOpen = !*foldoutOpen;
+            m_classFoldoutMap[tid] = !m_classFoldoutMap[tid];
 
         ImGui::SetCursorPos(cursorPos);
         IncrementCursorPosY(rectSize.y + ImGui::GetStyle().ItemSpacing.y);
-        return *foldoutOpen;
+        return m_classFoldoutMap[tid];
     }
 
     bool WidgetsUtility::Header(const char* label, bool* foldoutOpen, ImVec2* outCursorPos)
@@ -783,9 +784,9 @@ namespace Lina::Editor
             ImGui::SameLine();
             ImGui::SetCursorPosX(CURSOR_X_VALUES);
 
-            const ImVec2 p1 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y - ImGui::GetFrameHeight());
-            const ImVec2 p2 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y + ImGui::GetFrameHeight());
-            ImGui::GetWindowDrawList()->AddLine(p1, p2, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)), 2.0f);
+            // const ImVec2 p1 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y - ImGui::GetFrameHeight());
+            // const ImVec2 p2 = ImVec2(ImGui::GetCursorScreenPos().x - 8, ImGui::GetCursorScreenPos().y + ImGui::GetFrameHeight());
+            // ImGui::GetWindowDrawList()->AddLine(p1, p2, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_PopupBg)), 2.0f);
         }
     }
 
@@ -796,6 +797,7 @@ namespace Lina::Editor
         const float windowWidth   = ImGui::GetWindowWidth();
         const float remaining     = windowWidth - currentCursor;
         const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+        ImGui::SetNextItemWidth(comboWidth);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
         return combo;
@@ -871,167 +873,6 @@ namespace Lina::Editor
             *dragging = false;
     }
 
-    Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
-    {
-        Graphics::Material* materialToReturn = nullptr;
-
-        // std::string materialLabel = "";
-        // if (Graphics::Material::MaterialExists(currentPath))
-        // {
-        //     materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
-        // }
-        //
-        // if (BeginComboBox(comboID, materialLabel.c_str(), true))
-        // {
-        //     auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
-        //
-        //     for (auto& material : loadedMaterials)
-        //     {
-        //         const bool selected = currentPath == material.second.GetPath();
-        //
-        //         std::string label = material.second.GetPath();
-        //         label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-        //         if (ImGui::Selectable(label.c_str(), selected))
-        //         {
-        //             materialToReturn = &material.second;
-        //         }
-        //
-        //         if (selected)
-        //             ImGui::SetItemDefaultFocus();
-        //     }
-        //     ImGui::EndCombo();
-        // }
-
-        const std::string comboEndID = std::string(comboID) + "_comboEnd";
-        if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
-            *removed = true;
-
-        return materialToReturn;
-    }
-
-    Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID, bool* removed)
-    {
-        Graphics::Model* modelToReturn = nullptr;
-
-        std::string modelLabel = "";
-        //if (Graphics::Model::ModelExists(currentModelID))
-        //{
-        //    const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
-        //    modelLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
-        //}
-        //
-        //if (BeginComboBox(comboID, modelLabel.c_str(), true))
-        //{
-        //    auto& loadedModels = Graphics::Model::GetLoadedModels();
-        //
-        //    for (auto& model : loadedModels)
-        //    {
-        //        const bool selected = currentModelID == model.second.GetID();
-        //
-        //        std::string label = model.second.GetPath();
-        //        label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-        //        if (ImGui::Selectable(label.c_str(), selected))
-        //        {
-        //            modelToReturn = &model.second;
-        //        }
-        //
-        //        if (selected)
-        //            ImGui::SetItemDefaultFocus();
-        //    }
-        //
-        //    ImGui::EndCombo();
-        //}
-
-        const std::string comboEndID = std::string(comboID) + "_comboEnd";
-        if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
-            *removed = true;
-
-        return modelToReturn;
-    }
-
-    Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID, bool* removed)
-    {
-        Graphics::Shader* shaderToReturn = nullptr;
-        auto*             storage        = Resources::ResourceStorage::Get();
-        auto&             shaderCache    = storage->GetCache<Graphics::Shader>();
-
-        std::string shaderLabel = "";
-        if (storage->Exists<Graphics::Shader>(currentShaderID))
-        {
-            const std::string shaderLabelFull = storage->GetResource<Graphics::Shader>(currentShaderID)->GetPath();
-            shaderLabel                       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(shaderLabelFull));
-        }
-
-        if (BeginComboBox(comboID, shaderLabel.c_str(), true))
-        {
-
-            for (auto& shaderResource : shaderCache)
-            {
-                Graphics::Shader* shader = storage->GetResource<Graphics::Shader>(shaderResource.first);
-
-                const bool selected = currentShaderID == shader->GetSID();
-
-                std::string label = shader->GetPath();
-                label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-
-                if (ImGui::Selectable(label.c_str(), selected))
-                    shaderToReturn = shader;
-
-                if (selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-        }
-
-        const std::string comboEndID = std::string(comboID) + "_comboEnd";
-        if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
-            *removed = true;
-
-        return shaderToReturn;
-    }
-
-    Physics::PhysicsMaterial* Editor::WidgetsUtility::PhysicsMaterialComboBox(const char* comboID, const std::string& currentPath, bool* removed)
-    {
-        auto*                     storage          = Resources::ResourceStorage::Get();
-        Physics::PhysicsMaterial* materialToReturn = nullptr;
-        std::string               materialLabel    = "";
-        if (storage->Exists<Physics::PhysicsMaterial>(currentPath))
-        {
-            materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
-        }
-
-        if (BeginComboBox(comboID, materialLabel.c_str(), true))
-        {
-            auto* storage = Resources::ResourceStorage::Get();
-            auto& cache   = storage->GetCache<Physics::PhysicsMaterial>();
-
-            for (const auto& p : cache)
-            {
-                auto*      material = storage->GetResource<Physics::PhysicsMaterial>(p.first);
-                const bool selected = currentPath == material->GetPath();
-
-                std::string label = material->GetPath();
-                label             = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
-                if (ImGui::Selectable(label.c_str(), selected))
-                {
-                    materialToReturn = material;
-                }
-
-                if (selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-        }
-
-        const std::string comboEndID = std::string(comboID) + "_comboEnd";
-        if (PostComboBox(comboEndID.c_str()) && removed != nullptr)
-            *removed = true;
-
-        return materialToReturn;
-    }
-
     int Editor::WidgetsUtility::SimulationTypeComboBox(const char* comboID, int currentShapeID)
     {
         int simTypeToReturn = currentShapeID;
@@ -1103,7 +944,7 @@ namespace Lina::Editor
         // Remove button.
         ImGui::SameLine();
         PushIconFontSmall();
-        *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 3);
+        *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 1.5f, ImVec2(0.6f, -2.4f));
         ImGui::PopFont();
 
         if (pressed)
@@ -1164,7 +1005,26 @@ namespace Lina::Editor
 
     StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(void* handleAddr)
     {
-        return StringIDType();
+        Resources::ResourceHandle<Physics::PhysicsMaterial>* handle = static_cast<Resources::ResourceHandle<Physics::PhysicsMaterial>*>(handleAddr);
+
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>(selected);
+        }
+
+        if (removed)
+        {
+            auto* defaultMat                     = Physics::PhysicsEngineBackend::Get()->GetDefaultPhysicsMaterial();
+            handle->m_sid    = defaultMat->GetSID();
+            handle->m_value  = defaultMat;
+        }
+
+        return selected;
     }
 
     StringIDType WidgetsUtility::ResourceSelectionShader(void* handleAddr)
@@ -1372,31 +1232,35 @@ namespace Lina::Editor
         const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
         ImVec2            windowPos  = ImGui::GetWindowPos();
         ImVec2            cursorPos  = ImGui::GetCursorPos();
-        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y + 2);
-        ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 4);
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + cursorPos.y + 1);
+        ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
-        ImVec4            rectCol    = ImVec4(0.13f, 0.13f, 0.13f, 1.0f);
+        ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
         ImVec4            textCol    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         const std::string rectID     = std::string(id) + "_rect";
 
         if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
             ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
 
-        FramePaddingX(itemHeight + 1);
+        FramePaddingX(itemHeight + 6);
         bool result = ImGui::InputFloat(id, var);
         PopStyleVar();
 
         ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol), 1);
         DragBehaviour(rectID.c_str(), var, ImRect(rectMin, rectMax));
 
+        float yOffset = 0.0f;
         if (isIcon)
-            PushScaledFont(0.6f);
+        {
+            PushIconFontSmall();
+            yOffset = 2.4f;
+        }
 
         const ImVec2 textSize = ImGui::CalcTextSize(label);
-        ImGui::GetWindowDrawList()->AddText(ImVec2(rectMin.x + rectSize.x / 2.0f - textSize.x / 2.0f, rectMin.y + rectSize.y / 2.0f - textSize.y / 2.0f), ImGui::ColorConvertFloat4ToU32(textCol), label);
+        ImGui::GetWindowDrawList()->AddText(ImVec2(rectMin.x + rectSize.x / 2.0f - textSize.x / 2.0f, rectMin.y + rectSize.y / 2.0f - textSize.y / 2.0f - yOffset), ImGui::ColorConvertFloat4ToU32(textCol), label);
 
         if (isIcon)
-            PopScaledFont();
+            ImGui::PopFont();
 
         return result;
     }
@@ -1430,7 +1294,7 @@ namespace Lina::Editor
         float windowWidth   = ImGui::GetWindowWidth();
         float currentCursor = ImGui::GetCursorPosX();
         float remaining     = (windowWidth - currentCursor) / (float)count - 10;
-        float comboWidth    = remaining - 10;
+        float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW;
         ImGui::SetNextItemWidth(comboWidth);
         return ImGui::InputInt(id, var);
     }

@@ -395,221 +395,221 @@ namespace Lina::Editor
     void ComponentDrawer::DrawEntityData(ECS::Entity entity, bool* transformFoldoutOpen, bool* physicsFoldoutOpen)
     {
 
-        auto*                   ecs           = ECS::Registry::Get();
-        auto*                   physicsEngine = Physics::PhysicsEngineBackend::Get();
-        EntityDataComponent&    data          = ecs->get<EntityDataComponent>(entity);
-        TypeID             entityDataTid = GetTypeID<EntityDataComponent>();
-        TypeID             physicsTid    = GetTypeID<PhysicsComponent>();
-        PhysicsComponent&       phy           = ecs->get<PhysicsComponent>(entity);
-        Physics::SimulationType simType       = phy.m_simType;
-
-        bool        disabled         = entity == ecs->GetEntity("Editor Camera");
-        bool        disableTransform = (simType == Physics::SimulationType::Dynamic && !phy.m_isKinematic) || (simType == Physics::SimulationType::Static);
-        std::string caretLabel       = "Transformation (Local)";
-
-        if (simType == Physics::SimulationType::Dynamic)
-            caretLabel += " (Physics: Dynamic)";
-        else if (simType == Physics::SimulationType::Static)
-            caretLabel += " (Physics: Static)";
-
-        bool copied   = false;
-        bool pasted   = false;
-        bool resetted = false;
-
-        if (disabled)
-            ImGui::BeginDisabled();
-
-        if (WidgetsUtility::ComponentHeader(entityDataTid, transformFoldoutOpen, caretLabel.c_str(), nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
-        {
-            WidgetsUtility::PropertyLabel("Location");
-
-            if (ImGui::IsItemHovered())
-            {
-                const std::string tooltipData = "Global: " + data.GetLocation().ToString();
-                WidgetsUtility::Tooltip(tooltipData.c_str());
-            }
-
-            if (disableTransform)
-                ImGui::BeginDisabled();
-
-            Vector3 location = data.GetLocalLocation();
-            WidgetsUtility::DragVector3("##loc", &location.x);
-            data.SetLocalLocation(location);
-
-            WidgetsUtility::PropertyLabel("Rotation");
-            if (ImGui::IsItemHovered())
-            {
-                const std::string tooltipData = "Global: " + data.GetRotation().ToString();
-                WidgetsUtility::Tooltip(tooltipData.c_str());
-            }
-
-            Vector3 rot = data.GetLocalRotationAngles();
-            WidgetsUtility::DragVector3("##rot", &rot.x);
-            data.SetLocalRotationAngles(rot);
-
-            WidgetsUtility::PropertyLabel("Scale");
-            if (ImGui::IsItemHovered())
-            {
-                const std::string tooltipData = "Global: " + data.GetScale().ToString();
-                WidgetsUtility::Tooltip(tooltipData.c_str());
-            }
-
-            Vector3 scale = data.GetLocalScale();
-            WidgetsUtility::DragVector3("##scale", &scale.x);
-            data.SetLocalScale(scale);
-
-            if (disableTransform)
-                ImGui::EndDisabled();
-        }
-
-        if (copied)
-            Drawer_Copy(entity, entityDataTid);
-
-        if (pasted)
-            Drawer_Paste<EntityDataComponent>(entity);
-
-        if (resetted)
-            Drawer_Reset<EntityDataComponent>(entity);
-
-        copied = pasted = resetted = false;
-        if (WidgetsUtility::ComponentHeader(entityDataTid, physicsFoldoutOpen, "Physics", nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
-        {
-
-            WidgetsUtility::PropertyLabel("Simulation");
-            if (ImGui::IsItemHovered())
-                WidgetsUtility::Tooltip("Simulation type determines how the object will behave in physics world. \nNone = Object is not physically simulated. \nDynamic = Object will be an active rigidbody. You can switch between kinematic & non-kinematic to determine \nwhether the transformation "
-                                        "will be user-controlled or fully-simulated. \nStatic = Object will be simulated, but can not move during the gameplay. ");
-
-            Physics::SimulationType currentSimType  = phy.m_simType;
-            Physics::SimulationType selectedSimType = (Physics::SimulationType)WidgetsUtility::SimulationTypeComboBox("##simType", (int)phy.m_simType);
-            if (selectedSimType != currentSimType)
-            {
-                physicsEngine->SetBodySimulation(entity, selectedSimType);
-            }
-
-            if (selectedSimType == Physics::SimulationType::Dynamic)
-            {
-                WidgetsUtility::PropertyLabel("Kinematic");
-                if (ImGui::IsItemHovered())
-                    WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
-
-                const bool currentKinematic = phy.m_isKinematic;
-                ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
-                if (currentKinematic != phy.m_isKinematic)
-                {
-                    physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
-                }
-            }
-
-            WidgetsUtility::PropertyLabel("Mass");
-            const float currentMass = phy.m_mass;
-            WidgetsUtility::DragFloat("##mass", nullptr, &phy.m_mass);
-            if (phy.m_mass != currentMass)
-            {
-                physicsEngine->SetBodyMass(entity, phy.m_mass);
-            }
-
-            WidgetsUtility::PropertyLabel("Physics Material");
-            const std::string         currentMaterial = phy.m_material.m_value->GetPath();
-            bool                      removed         = false;
-            Physics::PhysicsMaterial* selected        = WidgetsUtility::PhysicsMaterialComboBox("##phyMat", currentMaterial, &removed);
-
-            if (removed)
-            {
-                auto* mat = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
-                selected  = mat;
-                physicsEngine->SetBodyMaterial(entity, mat);
-            }
-
-            if (selected != nullptr && phy.m_material.m_value->GetSID() != selected->GetSID())
-            {
-                physicsEngine->SetBodyMaterial(entity, selected);
-                phy.m_material.m_sid = selected->GetSID();
-                phy.m_material.m_value = selected;
-            }
-
-            WidgetsUtility::PropertyLabel("Shape");
-            const Physics::CollisionShape currentShape = phy.m_collisionShape;
-            phy.m_collisionShape                       = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("##collision", (int)phy.m_collisionShape);
-            if (phy.m_collisionShape != currentShape)
-            {
-                physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
-                // f (phy.m_collisionShape == Physics::CollisionShape::ConvexMesh)
-                //
-                //	ECS::ModelRendererComponent* mr = ecs->try_get<ECS::ModelRendererComponent>(entity);
-                //
-                //	if (mr != nullptr)
-                //	{
-                //		phy.m_attachedModelID = mr->m_modelID;
-                //		physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
-                //
-                //	}
-                //	else
-                //	{
-                //		phy.m_collisionShape = currentShape;
-                //		LINA_ERR("This entity does not contain a mesh renderer.");
-                //	}
-                //
-            }
-            if (phy.m_collisionShape == Physics::CollisionShape::Box)
-            {
-                WidgetsUtility::PropertyLabel("Half Extents");
-                const Vector3 currentExtents = phy.m_halfExtents;
-                WidgetsUtility::DragVector3("##halfextents", &phy.m_halfExtents.x);
-                if (currentExtents != phy.m_halfExtents)
-                {
-                    physicsEngine->SetBodyHalfExtents(entity, phy.m_halfExtents);
-                }
-            }
-            else if (phy.m_collisionShape == Physics::CollisionShape::Sphere)
-            {
-                WidgetsUtility::PropertyLabel("Radius");
-                const float currentRadius = phy.m_radius;
-                WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
-                if (currentRadius != phy.m_radius)
-                {
-                    physicsEngine->SetBodyRadius(entity, phy.m_radius);
-                }
-            }
-            else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
-            {
-                WidgetsUtility::PropertyLabel("Radius");
-                const float currentRadius = phy.m_radius;
-                WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
-                if (currentRadius != phy.m_radius)
-                {
-                    physicsEngine->SetBodyRadius(entity, phy.m_radius);
-                }
-
-                WidgetsUtility::PropertyLabel("Half Height");
-                const float currentHeight = phy.m_capsuleHalfHeight;
-                WidgetsUtility::DragFloat("##height", nullptr, &phy.m_capsuleHalfHeight);
-                if (currentHeight != phy.m_capsuleHalfHeight)
-                {
-                    physicsEngine->SetBodyHeight(entity, phy.m_capsuleHalfHeight);
-                }
-            }
-
-#ifdef LINA_PHYSICS_BULLET
-            // Draw other shape types.
-#endif
-            ImGui::SetCursorPosX(CURSOR_X_LABELS);
-        }
-
-        if (copied)
-            Drawer_Copy(entity, entityDataTid);
-
-        if (pasted)
-            Drawer_Paste<PhysicsComponent>(entity);
-
-        if (resetted)
-        {
-            phy.Reset();
-            physicsEngine->SetBodySimulation(entity, phy.m_simType);
-        }
-
-        if (disabled)
-            ImGui::EndDisabled();
+   //  auto*                   ecs           = ECS::Registry::Get();
+   //  auto*                   physicsEngine = Physics::PhysicsEngineBackend::Get();
+   //  EntityDataComponent&    data          = ecs->get<EntityDataComponent>(entity);
+   //  TypeID             entityDataTid = GetTypeID<EntityDataComponent>();
+   //  TypeID             physicsTid    = GetTypeID<PhysicsComponent>();
+   //  PhysicsComponent&       phy           = ecs->get<PhysicsComponent>(entity);
+   //  Physics::SimulationType simType       = phy.m_simType;
+   //
+   //  bool        disabled         = entity == ecs->GetEntity("Editor Camera");
+   //  bool        disableTransform = (simType == Physics::SimulationType::Dynamic && !phy.m_isKinematic) || (simType == Physics::SimulationType::Static);
+   //  std::string caretLabel       = "Transformation (Local)";
+   //
+   //  if (simType == Physics::SimulationType::Dynamic)
+   //      caretLabel += " (Physics: Dynamic)";
+   //  else if (simType == Physics::SimulationType::Static)
+   //      caretLabel += " (Physics: Static)";
+   //
+   //  bool copied   = false;
+   //  bool pasted   = false;
+   //  bool resetted = false;
+   //
+   //  if (disabled)
+   //      ImGui::BeginDisabled();
+   //
+   //  if (WidgetsUtility::ComponentHeader(entityDataTid, caretLabel.c_str(), nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
+   //  {
+   //      WidgetsUtility::PropertyLabel("Location");
+   //
+   //      if (ImGui::IsItemHovered())
+   //      {
+   //          const std::string tooltipData = "Global: " + data.GetLocation().ToString();
+   //          WidgetsUtility::Tooltip(tooltipData.c_str());
+   //      }
+   //
+   //      if (disableTransform)
+   //          ImGui::BeginDisabled();
+   //
+   //      Vector3 location = data.GetLocalLocation();
+   //      WidgetsUtility::DragVector3("##loc", &location.x);
+   //      data.SetLocalLocation(location);
+   //
+   //      WidgetsUtility::PropertyLabel("Rotation");
+   //      if (ImGui::IsItemHovered())
+   //      {
+   //          const std::string tooltipData = "Global: " + data.GetRotation().ToString();
+   //          WidgetsUtility::Tooltip(tooltipData.c_str());
+   //      }
+   //
+   //      Vector3 rot = data.GetLocalRotationAngles();
+   //      WidgetsUtility::DragVector3("##rot", &rot.x);
+   //      data.SetLocalRotationAngles(rot);
+   //
+   //      WidgetsUtility::PropertyLabel("Scale");
+   //      if (ImGui::IsItemHovered())
+   //      {
+   //          const std::string tooltipData = "Global: " + data.GetScale().ToString();
+   //          WidgetsUtility::Tooltip(tooltipData.c_str());
+   //      }
+   //
+   //      Vector3 scale = data.GetLocalScale();
+   //      WidgetsUtility::DragVector3("##scale", &scale.x);
+   //      data.SetLocalScale(scale);
+   //
+   //      if (disableTransform)
+   //          ImGui::EndDisabled();
+   //  }
+   //
+   //  if (copied)
+   //      Drawer_Copy(entity, entityDataTid);
+   //
+   //  if (pasted)
+   //      Drawer_Paste<EntityDataComponent>(entity);
+   //
+   //  if (resetted)
+   //      Drawer_Reset<EntityDataComponent>(entity);
+   //
+   //  copied = pasted = resetted = false;
+   //  if (WidgetsUtility::ComponentHeader(entityDataTid,  "Physics", nullptr, nullptr, nullptr, disabled ? nullptr : &copied, disabled ? nullptr : &pasted, disabled ? nullptr : &resetted, false))
+   //  {
+   //
+   //      WidgetsUtility::PropertyLabel("Simulation");
+   //      if (ImGui::IsItemHovered())
+   //          WidgetsUtility::Tooltip("Simulation type determines how the object will behave in physics world. \nNone = Object is not physically simulated. \nDynamic = Object will be an active rigidbody. You can switch between kinematic & non-kinematic to determine \nwhether the transformation "
+   //                                  "will be user-controlled or fully-simulated. \nStatic = Object will be simulated, but can not move during the gameplay. ");
+   //
+   //      Physics::SimulationType currentSimType  = phy.m_simType;
+   //      Physics::SimulationType selectedSimType = (Physics::SimulationType)WidgetsUtility::SimulationTypeComboBox("##simType", (int)phy.m_simType);
+   //      if (selectedSimType != currentSimType)
+   //      {
+   //          physicsEngine->SetBodySimulation(entity, selectedSimType);
+   //      }
+   //
+   //      if (selectedSimType == Physics::SimulationType::Dynamic)
+   //      {
+   //          WidgetsUtility::PropertyLabel("Kinematic");
+   //          if (ImGui::IsItemHovered())
+   //              WidgetsUtility::Tooltip("Kinematic bodies are physically simulated and affect other bodies around them, but are not affected by other forces or collision.");
+   //
+   //          const bool currentKinematic = phy.m_isKinematic;
+   //          ImGui::Checkbox("##kinematic", &phy.m_isKinematic);
+   //          if (currentKinematic != phy.m_isKinematic)
+   //          {
+   //              physicsEngine->SetBodyKinematic(entity, phy.m_isKinematic);
+   //          }
+   //      }
+   //
+   //      WidgetsUtility::PropertyLabel("Mass");
+   //      const float currentMass = phy.m_mass;
+   //      WidgetsUtility::DragFloat("##mass", nullptr, &phy.m_mass);
+   //      if (phy.m_mass != currentMass)
+   //      {
+   //          physicsEngine->SetBodyMass(entity, phy.m_mass);
+   //      }
+   //
+   //      WidgetsUtility::PropertyLabel("Physics Material");
+   //      const std::string         currentMaterial = phy.m_material.m_value->GetPath();
+   //      bool                      removed         = false;
+   //      Physics::PhysicsMaterial* selected        = WidgetsUtility::PhysicsMaterialComboBox("##phyMat", currentMaterial, &removed);
+   //
+   //      if (removed)
+   //      {
+   //          auto* mat = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+   //          selected  = mat;
+   //          physicsEngine->SetBodyMaterial(entity, mat);
+   //      }
+   //
+   //      if (selected != nullptr && phy.m_material.m_value->GetSID() != selected->GetSID())
+   //      {
+   //          physicsEngine->SetBodyMaterial(entity, selected);
+   //          phy.m_material.m_sid = selected->GetSID();
+   //          phy.m_material.m_value = selected;
+   //      }
+   //
+   //      WidgetsUtility::PropertyLabel("Shape");
+   //      const Physics::CollisionShape currentShape = phy.m_collisionShape;
+   //      phy.m_collisionShape                       = (Physics::CollisionShape)WidgetsUtility::CollisionShapeComboBox("##collision", (int)phy.m_collisionShape);
+   //      if (phy.m_collisionShape != currentShape)
+   //      {
+   //          physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
+   //          // f (phy.m_collisionShape == Physics::CollisionShape::ConvexMesh)
+   //          //
+   //          //	ECS::ModelRendererComponent* mr = ecs->try_get<ECS::ModelRendererComponent>(entity);
+   //          //
+   //          //	if (mr != nullptr)
+   //          //	{
+   //          //		phy.m_attachedModelID = mr->m_modelID;
+   //          //		physicsEngine->SetBodyCollisionShape(entity, phy.m_collisionShape);
+   //          //
+   //          //	}
+   //          //	else
+   //          //	{
+   //          //		phy.m_collisionShape = currentShape;
+   //          //		LINA_ERR("This entity does not contain a mesh renderer.");
+   //          //	}
+   //          //
+   //      }
+   //      if (phy.m_collisionShape == Physics::CollisionShape::Box)
+   //      {
+   //          WidgetsUtility::PropertyLabel("Half Extents");
+   //          const Vector3 currentExtents = phy.m_halfExtents;
+   //          WidgetsUtility::DragVector3("##halfextents", &phy.m_halfExtents.x);
+   //          if (currentExtents != phy.m_halfExtents)
+   //          {
+   //              physicsEngine->SetBodyHalfExtents(entity, phy.m_halfExtents);
+   //          }
+   //      }
+   //      else if (phy.m_collisionShape == Physics::CollisionShape::Sphere)
+   //      {
+   //          WidgetsUtility::PropertyLabel("Radius");
+   //          const float currentRadius = phy.m_radius;
+   //          WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
+   //          if (currentRadius != phy.m_radius)
+   //          {
+   //              physicsEngine->SetBodyRadius(entity, phy.m_radius);
+   //          }
+   //      }
+   //      else if (phy.m_collisionShape == Physics::CollisionShape::Capsule)
+   //      {
+   //          WidgetsUtility::PropertyLabel("Radius");
+   //          const float currentRadius = phy.m_radius;
+   //          WidgetsUtility::DragFloat("##radius", nullptr, &phy.m_radius);
+   //          if (currentRadius != phy.m_radius)
+   //          {
+   //              physicsEngine->SetBodyRadius(entity, phy.m_radius);
+   //          }
+   //
+   //          WidgetsUtility::PropertyLabel("Half Height");
+   //          const float currentHeight = phy.m_capsuleHalfHeight;
+   //          WidgetsUtility::DragFloat("##height", nullptr, &phy.m_capsuleHalfHeight);
+   //          if (currentHeight != phy.m_capsuleHalfHeight)
+   //          {
+   //              physicsEngine->SetBodyHeight(entity, phy.m_capsuleHalfHeight);
+   //          }
+   //      }
+   //
+// LINA_PHYSICS_BULLET
+   //      // Draw other shape types.
+//
+   //      ImGui::SetCursorPosX(CURSOR_X_LABELS);
+   //  }
+   //
+   //  if (copied)
+   //      Drawer_Copy(entity, entityDataTid);
+   //
+   //  if (pasted)
+   //      Drawer_Paste<PhysicsComponent>(entity);
+   //
+   //  if (resetted)
+   //  {
+   //      phy.Reset();
+   //      physicsEngine->SetBodySimulation(entity, phy.m_simType);
+   //  }
+   //
+   //  if (disabled)
+   //      ImGui::EndDisabled();
     }
 
     void ComponentDrawer::DrawComponent(TypeID tid, ECS::Entity ent)
@@ -637,7 +637,7 @@ namespace Lina::Editor
             bool reset           = false;
             bool enabled         = resolvedData.data("enabled"_hs).get(instance).cast<bool>();
             bool enabledPrevious = enabled;
-            WidgetsUtility::ComponentHeader(tid, &m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr, true, disableHeader);
+            // WidgetsUtility::ComponentHeader(tid, &m_componentFoldoutState[tid], title, icon, drawToggle ? &enabled : nullptr, drawRemove ? &remove : nullptr, drawCopy ? &copy : nullptr, drawPaste ? &paste : nullptr, drawReset ? &reset : nullptr, true, disableHeader);
 
             if (enabled != enabledPrevious)
                 resolvedData.func("setEnabled"_hs).invoke({}, ent, enabled);
@@ -783,15 +783,15 @@ namespace Lina::Editor
                         std::string       modelPath     = data.get(instance).cast<std::string>();
                         const std::string prev          = modelPath;
                         bool              removed       = false;
-                        Graphics::Model*  selectedModel = WidgetsUtility::ModelComboBox(varLabelID.c_str(), StringID(modelPath.c_str()).value(), &removed);
-
-                        // Select model.
-                        if (selectedModel)
-                            resolvedData.func("setModel"_hs).invoke({}, ent, selectedModel);
-
-                        // Remove Model
-                        if (removed || reset)
-                            resolvedData.func("removeModel"_hs).invoke({}, ent);
+                      // Graphics::Model*  selectedModel = WidgetsUtility::ModelComboBox(varLabelID.c_str(), StringID(modelPath.c_str()).value(), &removed);
+                      //
+                      // // Select model.
+                      // if (selectedModel)
+                      //     resolvedData.func("setModel"_hs).invoke({}, ent, selectedModel);
+                      //
+                      // // Remove Model
+                      // if (removed || reset)
+                      //     resolvedData.func("removeModel"_hs).invoke({}, ent);
 
                        // // Mesh drag & drop.
                        // if (ImGui::BeginDragDropTarget())
@@ -825,16 +825,16 @@ namespace Lina::Editor
                             std::string materialName = resolvedData.func("getMaterialName"_hs).invoke({}, ent, i).cast<std::string>();
                             WidgetsUtility::PropertyLabel(materialName.c_str());
 
-                            const std::string   cboxID           = "##modRendMat " + std::to_string(i);
-                            bool                removed          = false;
-                            Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
-
-                            if (selectedMaterial != nullptr)
-                                resolvedData.func("setMaterial"_hs).invoke({}, ent, i, *selectedMaterial);
-
-                            if (removed)
-                                resolvedData.func("removeMaterial"_hs).invoke({}, ent, i);
-
+                        //   const std::string   cboxID           = "##modRendMat " + std::to_string(i);
+                        //   bool                removed          = false;
+                        //   Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
+                        //
+                        //   if (selectedMaterial != nullptr)
+                        //       resolvedData.func("setMaterial"_hs).invoke({}, ent, i, *selectedMaterial);
+                        //
+                        //   if (removed)
+                        //       resolvedData.func("removeMaterial"_hs).invoke({}, ent, i);
+                        //
                            // // Material drag & drop.
                            // if (ImGui::BeginDragDropTarget())
                            // {

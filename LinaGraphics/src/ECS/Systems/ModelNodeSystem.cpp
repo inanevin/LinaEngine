@@ -109,32 +109,32 @@ namespace Lina::ECS
             if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
                 continue;
 
-             auto* node   = nodeComponent.m_modelNode.m_value;
-             auto& meshes = node->GetMeshes();
-            
-             const Matrix finalMatrix = data.ToMatrix();
-            
-             for (uint32 i = 0; i < meshes.size(); i++)
-             {
-                 auto*  mesh         = meshes[i];
-                 uint32 materialSlot = mesh->GetMaterialSlotIndex();
-            
-                 // Check if material exists.
-                 const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
-                 if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
-                     continue;
-            
-                 // Render the material & vertex array.
-                 Graphics::Material* mat = nodeComponent.m_materials[i].m_value;
-            
-                 if (mat->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-                     RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
-                 else
-                 {
-                     float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
-                     RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
-                 }
-             }
+            auto* node   = nodeComponent.m_modelNode.m_value;
+            auto& meshes = node->GetMeshes();
+
+            const Matrix finalMatrix = data.ToMatrix();
+
+            for (uint32 i = 0; i < meshes.size(); i++)
+            {
+                auto*  mesh         = meshes[i];
+                uint32 materialSlot = mesh->GetMaterialSlotIndex();
+
+                // Check if material exists.
+                const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
+                if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
+                    continue;
+
+                // Render the material & vertex array.
+                Graphics::Material* mat = nodeComponent.m_materials[i].m_value;
+
+                if (mat->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+                    RenderOpaque(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix);
+                else
+                {
+                    float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
+                    RenderTransparent(mesh->GetVertexArray(), Graphics::Skeleton(), mat, finalMatrix, priority);
+                }
+            }
         }
     }
 
@@ -167,6 +167,29 @@ namespace Lina::ECS
         if (skeleton.IsLoaded())
         {
         }
+    }
+
+    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params)
+    {
+        auto& meshes = node->m_meshes;
+
+        for (auto* mesh : meshes)
+        {
+            Graphics::VertexArray& vertexArray = mesh->GetVertexArray();
+            Matrix&                models      = node->m_localTransform;
+
+            // Update the buffer w/ each transform.
+            vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));
+            auto* mat = m_renderEngine->GetDefaultLitMaterial();
+
+            mat->SetBool(UF_BOOL_SKINNED, false);
+
+            m_renderEngine->UpdateShaderData(mat);
+            m_renderDevice->Draw(vertexArray.GetID(), params, (uint32)1, vertexArray.GetIndexCount(), false);
+        }
+
+        for (auto* child : node->m_children)
+            FlushModelNode(child, params);
     }
 
     void ModelNodeSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)

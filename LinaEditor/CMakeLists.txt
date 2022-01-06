@@ -36,6 +36,7 @@ src/ECS/Systems/EditorCameraSystem.cpp
 #Drawers
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
+src/Drawers/ClassDrawer.cpp
 
 #Modals
 
@@ -118,6 +119,7 @@ include/ECS/Systems/EditorCameraSystem.hpp
 #Drawers
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
+include/Drawers/ClassDrawer.hpp
 
 # Modals
 

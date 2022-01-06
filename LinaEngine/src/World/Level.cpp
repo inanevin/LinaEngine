@@ -44,7 +44,6 @@ SOFTWARE.
 
 namespace Lina::World
 {
-
     void Level::ExportLevel(const std::string& path, const std::string& name)
     {
         const std::string finalPath = path + "/" + name + ".linalevel";
@@ -82,117 +81,12 @@ namespace Lina::World
 
     bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
     {
-        if (loadFromFile)
-        {
-            if (Utility::FileExists(path + "/" + levelName + ".linalevel"))
-                LoadLevelResources();
-        }
-
         return true;
     }
 
     void Level::Uninstall()
     {
-    }
 
-    void Level::LoadLevelResources()
-    {
-        ECS::Registry* ecs = ECS::Registry::Get();
-
-        auto& view = ecs->view<ECS::ModelRendererComponent>();
-
-       // for (ECS::Entity entity : view)
-       // {
-       //     ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
-       //     // Assign model pointed by the model renderer.
-       //     if (Graphics::Model::ModelExists(mr.m_modelPath))
-       //         mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
-       // }
-
-        auto& meshView = ecs->view<ECS::MeshRendererComponent>();
-
-        for (ECS::Entity entity : meshView)
-        {
-           // ECS::MeshRendererComponent& meshRenderer = ecs->get<ECS::MeshRendererComponent>(entity);
-           // if (Graphics::Material::MaterialExists(meshRenderer.m_materialPath))
-           //     meshRenderer.m_materialID = Graphics::Material::GetMaterial(meshRenderer.m_materialPath).GetID();
-           // else
-           // {
-           //     Graphics::Material& mat     = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
-           //     meshRenderer.m_materialID   = mat.GetID();
-           //     meshRenderer.m_materialPath = mat.GetPath();
-           // }
-           //
-           // if (Graphics::Model::ModelExists(meshRenderer.m_modelPath))
-           //     meshRenderer.m_modelID = Graphics::Model::GetModel(meshRenderer.m_modelPath).GetID();
-           // else
-           // {
-           //     meshRenderer.m_modelID   = -1;
-           //     meshRenderer.m_modelPath = "";
-           // }
-        }
-
-        auto& viewSprites = ecs->view<ECS::SpriteRendererComponent>();
-
-        for (ECS::Entity entity : viewSprites)
-        {
-           // ECS::SpriteRendererComponent& sprite = viewSprites.get<ECS::SpriteRendererComponent>(entity);
-           // 
-           // if (Graphics::Material::MaterialExists(sprite.m_materialPaths))
-           // {
-           //     Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPaths);
-           //     sprite.m_materialID     = mat.GetID();
-           // }
-           // else
-           // {
-           //     Graphics::Material& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultSprite.mat");
-           //     sprite.m_materialID     = mat.GetID();
-           //     sprite.m_materialPaths  = mat.GetPath();
-           // }
-        }
-
-        auto& viewPhysics = ecs->view<ECS::PhysicsComponent>();
-
-        for (ECS::Entity entity : viewPhysics)
-        {
-            ECS::PhysicsComponent& phy = viewPhysics.get<ECS::PhysicsComponent>(entity);
-
-            auto* storage = Resources::ResourceStorage::Get();
-            if (storage->Exists<Physics::PhysicsMaterial>(phy.m_material.m_sid))
-            {
-                phy.m_material.m_value = storage->GetResource<Physics::PhysicsMaterial>(phy.m_material.m_sid);
-            }
-            else
-            {
-                Physics::PhysicsMaterial* mat = storage->GetResource<Physics::PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
-                phy.m_material.m_value        = mat;
-                phy.m_material.m_sid          = mat->GetSID();
-            }
-        }
-
-        Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
-
-      //  if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
-      //  {
-      //      Graphics::Material& mat = Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath);
-      //      renderEngine->SetSkyboxMaterial(&mat);
-      //  }
-      //  else
-      //      renderEngine->SetSkyboxMaterial(nullptr);
-
-        renderEngine->GetLightingSystem()->SetAmbientColor(m_levelData.m_ambientColor);
-    }
-
-    void Level::SetSkyboxMaterial()
-    {
-        Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
-
-       // if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
-       // {
-       //     renderEngine->SetSkyboxMaterial(&Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
-       // }
-       // else
-       //     renderEngine->SetSkyboxMaterial(nullptr);
     }
 
 } // namespace Lina::World

@@ -364,6 +364,9 @@ namespace Lina::Graphics
             m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
             m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
             m_secondaryRenderTarget.Construct(m_secondaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+            m_previewRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+            m_previewRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+            m_previewRenderTarget.Construct(m_previewRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_previewRenderBuffer.GetID());
         }
     }
 
@@ -434,7 +437,10 @@ namespace Lina::Graphics
         }
 
         if (m_appMode == ApplicationMode::Editor)
+        {
             m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+            m_renderDevice.ResizeRTTexture(m_previewRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+        }
     }
 
     void OpenGLRenderEngine::MaterialUpdated(Material& mat)
@@ -559,7 +565,6 @@ namespace Lina::Graphics
             m_defaultLit   = Material::CreateMaterial(m_standardLitShader, "Resources/Engine/Materials/DefaultLit.linamat");
             m_defaultUnlit = Material::CreateMaterial(m_standardUnlitShader, "Resources/Engine/Materials/DefaultUnlit.linamat");
             Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
-
         }
         else if (ev.m_tid == GetTypeID<Material>())
         {
@@ -586,7 +591,7 @@ namespace Lina::Graphics
 
         // Set render targets for point light shadows & calculate all the depth textures.
         auto& tuple = m_lightingSystem.GetPointLights();
-        for (int i = 0; i < m_lightingSystem.GetPointLights().size(); i++)
+        for (int i = 0; i < tuple.size(); i++)
         {
             if (std::get<1>(tuple[i])->m_castsShadows)
             {
@@ -634,7 +639,7 @@ namespace Lina::Graphics
         DrawFinalize();
     }
 
-    void OpenGLRenderEngine::DrawFinalize()
+    void OpenGLRenderEngine::DrawFinalize(bool finalizeForPreview)
     {
         // Frag color
         m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
@@ -685,7 +690,12 @@ namespace Lina::Graphics
 
         // After we've applied custom post processing, draw the final image either to the screen, or to a secondary frame buffer to display it in editor.
         if (m_appMode == ApplicationMode::Editor)
-            m_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
+        {
+            if (finalizeForPreview)
+                m_renderDevice.SetFBO(m_previewRenderTarget.GetID());
+            else
+                m_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
+        }
         else
             // Back to default buffer
             m_renderDevice.SetFBO(0);
@@ -704,6 +714,21 @@ namespace Lina::Graphics
 
         UpdateShaderData(&m_screenQuadFinalMaterial);
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
+    }
+
+    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model)
+    {
+        UpdateSystems(0.0f);
+        m_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
+        m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
+        m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        DrawSkybox();
+        m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams);
+        DrawFinalize(true);
+        m_renderDevice.SetFBO(0);
+        m_renderDevice.SetViewport(m_screenPos, m_screenSize);
+        m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        return m_previewRTTexture.GetID();
     }
 
     void OpenGLRenderEngine::DrawIcon(Vector3 position, StringIDType textureID, float size)

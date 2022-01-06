@@ -129,6 +129,11 @@ namespace Lina::Physics
         /// </summary>
         void AddToPhysicsPipeline(ECS::System& system);
 
+        inline PhysicsMaterial* GetDefaultPhysicsMaterial()
+        {
+            return m_defaultMaterial;
+        }
+
         void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
@@ -180,6 +185,7 @@ namespace Lina::Physics
         Event::EventSystem*        m_eventSystem;
         ApplicationMode            m_appMode = ApplicationMode::Editor;
         PhysXCooker                m_cooker;
+        PhysicsMaterial*           m_defaultMaterial  = nullptr;
         bool                       m_debugDrawEnabled = false;
         float                      m_stepTime         = 0.016f;
     };

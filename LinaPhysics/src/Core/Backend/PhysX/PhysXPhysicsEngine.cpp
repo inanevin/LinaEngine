@@ -205,8 +205,9 @@ namespace Lina::Physics
             mat = m_materials[phy.m_material.m_sid];
         else
         {
-            auto* mat                         = phy.m_material.m_value;
-            m_materials[phy.m_material.m_sid] = m_pxPhysics->createMaterial(mat->m_staticFriction, mat->m_dynamicFriction, mat->m_restitution);
+            auto* phyMat                      = phy.m_material.m_value;
+            m_materials[phy.m_material.m_sid] = m_pxPhysics->createMaterial(phyMat->m_staticFriction, phyMat->m_dynamicFriction, phyMat->m_restitution);
+            mat                               = m_materials[phy.m_material.m_sid];
         }
 
         LINA_ASSERT(mat != nullptr, "Physics material is null!");
@@ -342,9 +343,10 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::SetBodyMaterial(ECS::Entity body, PhysicsMaterial* material)
     {
-        if (!IsEntityAPhysicsActor(body)) return;
+        if (!IsEntityAPhysicsActor(body))
+            return;
 
-        auto& phy                 = m_ecs->get<ECS::PhysicsComponent>(body);
+        auto& phy              = m_ecs->get<ECS::PhysicsComponent>(body);
         phy.m_material.m_sid   = material->GetSID();
         phy.m_material.m_value = material;
 
@@ -387,8 +389,8 @@ namespace Lina::Physics
 
         if (phy->m_material.m_value == nullptr)
         {
-            phy->m_material.m_value    = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
-            phy->m_material.m_sid      = phy->m_material.m_value->GetSID();
+            phy->m_material.m_value = m_defaultMaterial;
+            phy->m_material.m_sid   = phy->m_material.m_value->GetSID();
         }
 
         auto* data = m_ecs->try_get<ECS::EntityDataComponent>(ent);
@@ -486,10 +488,11 @@ namespace Lina::Physics
 
     void PhysXPhysicsEngine::OnLevelInitialized(const Event::ELevelInitialized& ev)
     {
-        auto* physicsMat = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
-        m_pxDefaultMaterial->setStaticFriction(physicsMat->m_staticFriction);
-        m_pxDefaultMaterial->setDynamicFriction(physicsMat->m_dynamicFriction);
-        m_pxDefaultMaterial->setRestitution(physicsMat->m_restitution);
+        m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+
+        m_pxDefaultMaterial->setStaticFriction(m_defaultMaterial->m_staticFriction);
+        m_pxDefaultMaterial->setDynamicFriction(m_defaultMaterial->m_dynamicFriction);
+        m_pxDefaultMaterial->setRestitution(m_defaultMaterial->m_restitution);
 
         auto view = m_ecs->view<ECS::PhysicsComponent>();
 

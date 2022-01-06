@@ -134,6 +134,11 @@ namespace Lina::ECS
         /// </summary>
         void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
+        /// <summary>
+        /// Draws a single model given the root node.
+        /// </summary>
+        void FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params);
+
     private:
         void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);
         void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);

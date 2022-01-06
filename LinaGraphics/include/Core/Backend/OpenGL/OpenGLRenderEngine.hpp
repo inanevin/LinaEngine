@@ -184,6 +184,11 @@ namespace Lina::Graphics
         /// </summary>
         PostProcessEffect& AddPostProcessEffect(Shader* shader);
 
+        /// <summary>
+        /// Renders the given model in a preview scene and returns the resulting image.
+        /// </summary>
+        uint32 RenderModelPreview(Model* model);
+
         void MaterialUpdated(Material& mat);
         void UpdateShaderData(Material* mat);
 
@@ -303,7 +308,7 @@ namespace Lina::Graphics
         void ConstructRenderTargets();
         void DumpMemory();
         void Draw();
-        void DrawFinalize();
+        void DrawFinalize(bool finalizeForPreview = false);
         void UpdateUniformBuffers();
         void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
         void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
@@ -319,6 +324,7 @@ namespace Lina::Graphics
 
         RenderTarget m_primaryRenderTarget;
         RenderTarget m_secondaryRenderTarget;
+        RenderTarget m_previewRenderTarget;
         RenderTarget m_primaryMSAATarget;
         RenderTarget m_pingPongRenderTarget1;
         RenderTarget m_pingPongRenderTarget2;
@@ -329,6 +335,7 @@ namespace Lina::Graphics
         RenderBuffer m_primaryBuffer;
         RenderBuffer m_primaryMSAABuffer;
         RenderBuffer m_secondaryRenderBuffer;
+        RenderBuffer m_previewRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
 
         Texture m_primaryMSAARTTexture0;
@@ -336,6 +343,7 @@ namespace Lina::Graphics
         Texture m_primaryRTTexture0;
         Texture m_primaryRTTexture1;
         Texture m_secondaryRTTexture;
+        Texture m_previewRTTexture;
         Texture m_pingPongRTTexture1;
         Texture m_pingPongRTTexture2;
         Texture m_hdriCubemap;

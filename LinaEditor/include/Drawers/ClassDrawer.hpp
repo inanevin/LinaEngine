@@ -27,56 +27,38 @@ SOFTWARE.
 */
 
 /*
-Class: ModelPanel
+Class: ClassDrawer
 
 
 
-Timestamp: 1/4/2022 6:18:09 PM
+Timestamp: 1/5/2022 3:43:30 PM
 */
 
 #pragma once
 
-#ifndef ModelPanel_HPP
-#define ModelPanel_HPP
+#ifndef ClassDrawer_HPP
+#define ClassDrawer_HPP
 
 // Headers here.
-#include "Panels/EditorPanel.hpp"
-
-namespace Lina
-{
-    namespace Graphics
-    {
-        class Model;
-    }
-} // namespace Lina
+#include "Core/CommonECS.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina::Editor
 {
-    class ModelPanel : public EditorPanel
-    {
+	class ClassDrawer
+	{
+		
+	public:
+		
+		ClassDrawer() = default;
+		~ClassDrawer() = default;
 
-    public:
-        ModelPanel()  = default;
-        ~ModelPanel() = default;
-
-        virtual void Initialize(const char* id, const char* icon) override;
-        virtual void Draw() override;
-
-        void SetTargetModel(Graphics::Model* model);
-
-    private:
-        void DrawModelSettings();
-        void DrawModel();
-
-    private:
-        Graphics::Model* m_targetModel             = nullptr;
-        float            m_leftPaneWidth           = 0.0f;
-        float            m_leftPaneMaxWidth        = 0.0f;
-        float            m_leftPaneMinWidth        = 0.0f;
-        float            m_resizeDividerPressedPos = 0.0f;
-        bool             m_draggingVerticalDivider = false;
-        Vector2          m_rightPaneSize           = Vector2::Zero;
-    };
-} // namespace Lina::Editor
+		static void DrawClass(TypeID tid, bool drawHeader);
+        static void DrawEntityData(ECS::Entity entity);
+	
+	private:
+	
+	};
+}
 
 #endif
