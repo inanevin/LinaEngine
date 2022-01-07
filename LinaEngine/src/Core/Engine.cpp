@@ -81,7 +81,6 @@ namespace Lina
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
         Event::EventSystem::s_eventSystem              = &m_eventSystem;
-        ECS::Registry::s_ecs                           = &m_ecs;
         Graphics::WindowBackend::s_openglWindow        = &m_window;
         Graphics::RenderEngineBackend::s_renderEngine  = &m_renderEngine;
         Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
@@ -90,6 +89,13 @@ namespace Lina
         Audio::AudioEngineBackend::s_audioEngine       = &m_audioEngine;
         Resources::ResourceStorage::s_instance         = &m_resourceStorage;
         m_appInfo                                      = appInfo;
+
+        bool engineSettingsExists = Utility::FileExists("engine.linasettings");
+
+        if (engineSettingsExists)
+            m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
+        else
+            Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
         RegisterResourceTypes();
 
@@ -111,36 +117,38 @@ namespace Lina
 
         m_renderEngine.ConnectEvents();
         m_audioEngine.Initialize();
-        m_ecs.Initialize();
-        m_physicsEngine.Initialize(m_appInfo.m_appMode);
-        m_renderEngine.Initialize(m_appInfo.m_appMode);
         m_messageBus.Initialize(m_appInfo.m_appMode);
+        m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings);
+        m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();
     }
 
     void Engine::StartLoadingResources()
     {
-
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
             m_resourceManager.LoadEditorResources();
         else
             m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
+    }
 
-        // Initialize any listeners.
-        m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
+    void Engine::Run()
+    {
+
+        if (m_resourceStorage.Exists<World::Level>(m_engineSettings.m_startupLevel.m_sid))
+        {
+            // Load the startup level.
+        }
+        else
+            m_defaultLevel.Install();
 
         m_deltaTimeArray.fill(-1.0);
-        m_isInPlayMode = true;
 
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
         {
             m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
         }
-    }
 
-    void Engine::Run()
-    {
         m_running            = true;
         m_startTime          = Utility::GetCPUTime();
         m_physicsAccumulator = 0.0f;
@@ -197,7 +205,6 @@ namespace Lina
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
 
         // Shutting down.
-        m_ecs.Shutdown();
         m_physicsEngine.Shutdown();
         m_renderEngine.Shutdown();
         m_audioEngine.Shutdown();

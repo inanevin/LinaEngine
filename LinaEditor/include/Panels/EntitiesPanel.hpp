@@ -55,10 +55,6 @@ namespace Lina
         struct EKeyCallback;
     } // namespace Event
 
-    namespace ECS
-    {
-        class Registry;
-    }
 } // namespace Lina
 
 namespace Lina::Editor
@@ -85,7 +81,6 @@ namespace Lina::Editor
         void OnKeyCallback(const Event::EKeyCallback& event);
 
     private:
-        ECS::Registry*  m_ecs = nullptr;
         ECS::Entity     m_selectedEntity;
         Menu* m_rightClickMenu = nullptr;
     };

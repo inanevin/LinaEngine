@@ -45,6 +45,8 @@ Timestamp: 5/23/2020 5:17:02 PM
 
 namespace Lina
 {
+    class ReflectionRegistry;
+
     namespace Editor
     {
         class ComponentDrawer;
@@ -73,6 +75,7 @@ namespace Lina::ECS
     protected:
 
         friend class Editor::ComponentDrawer;
+        friend class ReflectionRegistry;
         bool m_isEnabled = true;
     };
 } // namespace Lina::ECS

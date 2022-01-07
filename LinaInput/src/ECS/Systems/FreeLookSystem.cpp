@@ -44,17 +44,18 @@ namespace Lina::ECS
     {
         if (!m_isActive)
             return;
+        auto* ecs = ECS::Registry::Get();
 
-        auto& view = m_ecs->view<FreeLookComponent>();
+        auto& view = ecs->view<FreeLookComponent>();
         m_poolSize = (int)view.size();
 
         for (auto entity : view)
         {
-            FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(entity);
+            FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
             if (!freeLook.GetIsEnabled())
                 return;
 
-            EntityDataComponent& data = m_ecs->get<EntityDataComponent>(entity);
+            EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
 
             Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 

@@ -59,23 +59,6 @@ namespace Lina
         Application();
         virtual ~Application() = default;
 
-        bool InstallLevel(World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
-        void InitializeLevel(World::Level& level);
-        void PackageProject(const std::string& folderPath, const std::string& fileName);
-        void SaveLevelData(const std::string& folderPath, const std::string& fileName);
-        void LoadLevelData(const std::string& folderPath, const std::string& fileName);
-        void RestartLevel();
-        void UninstallLevel();
-        bool GetActiveLevelExists()
-        {
-            return m_activeLevelExists;
-        }
-
-        World::Level* GetCurrentLevel()
-        {
-            return m_currentLevel;
-        }
-
         static Application* Get()
         {
             return s_application;
@@ -99,7 +82,6 @@ namespace Lina
     private:
         // Active engines running in the application.
         static Application* s_application;
-        World::Level*       m_currentLevel = nullptr;
         Engine              m_engine;
         ApplicationInfo     m_appInfo;
 

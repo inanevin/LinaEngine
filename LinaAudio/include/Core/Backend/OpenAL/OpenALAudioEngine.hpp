@@ -58,11 +58,6 @@ namespace Lina
         class Level;
     }
 
-    namespace ECS
-    {
-        class Registry;
-    }
-
     namespace Event
     {
         struct ELoadResourceFromFile;
@@ -95,7 +90,6 @@ namespace Lina::Audio
 
     private:
         static OpenALAudioEngine*            s_audioEngine;
-        ECS::Registry*                       m_ecs = nullptr;
         mutable std::mutex                   m_mutex;
         ALCcontext*                          m_context             = nullptr;
         ALCdevice*                           m_device              = nullptr;

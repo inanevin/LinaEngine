@@ -63,7 +63,7 @@ namespace Lina::ECS
 {
     struct ModelRendererComponent;
 
-    LINA_CLASS("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false")
+    LINA_COMPONENT("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false", "")
     struct EntityDataComponent : public Component
     {
         EntityDataComponent(bool enabled, bool serialized, std::string name)
@@ -164,7 +164,6 @@ namespace Lina::ECS
         bool m_isTransformLocked = false;
         bool m_wasPreviouslyEnabled = false;
         Transformation m_transform;
-        Registry*      m_ecs = nullptr;
 
         template <class Archive>
         void serialize(Archive& archive)

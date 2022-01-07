@@ -52,9 +52,6 @@ namespace Lina::Graphics
 {
 #define INTERNAL_MAT_PATH         "__internal"
 #define MAX_POINT_LIGHTS          12
-#define RENDERSETTINGS_FULLPATH   "Resources/Engine/DefaultSettings.rendersettings"
-#define RENDERSETTINGS_FOLDERPATH "Resources/Engine"
-#define RENDERSETTINGS_FILE       "defaultSettings"
 #define MAX_BONE_INFLUENCE        4
 
     enum BufferUsage

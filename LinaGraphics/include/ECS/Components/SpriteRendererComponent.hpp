@@ -42,7 +42,7 @@ Timestamp: 10/1/2020 9:26:21 AM
 
 namespace Lina::ECS
 {
-    LINA_CLASS("Sprite Component", "ICON_FA_EYE", "Rendering", "true", "true")
+    LINA_COMPONENT("Sprite Component", "ICON_FA_EYE", "Rendering", "true", "true", "")
     struct SpriteRendererComponent : public Component
     {
         int         m_materialID    = -1;

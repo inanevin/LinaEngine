@@ -85,17 +85,16 @@ namespace Lina::Graphics
         m_eventSystem->Connect<Event::EAllResourcesOfTypeLoaded, &OpenGLRenderEngine::OnAllResourcesOfTypeLoaded>(this);
     }
 
-    void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
+    void OpenGLRenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings)
     {
         LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
 
-        if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
-            m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
         // Set references.
         m_appWindow = OpenGLWindow::Get();
         m_appMode   = appMode;
         m_storage   = Resources::ResourceStorage::Get();
+        m_renderSettings = renderSettings;
 
         // Initialize the render device.
         m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
@@ -278,6 +277,8 @@ namespace Lina::Graphics
     {
         m_defaultLit   = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
         m_defaultUnlit = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
+        m_defaultSkybox = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
+        m_defaultSprite = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
 
         m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
         m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
@@ -561,10 +562,6 @@ namespace Lina::Graphics
         if (ev.m_tid == GetTypeID<Shader>())
         {
             SetupEngineShaders();
-
-            m_defaultLit   = Material::CreateMaterial(m_standardLitShader, "Resources/Engine/Materials/DefaultLit.linamat");
-            m_defaultUnlit = Material::CreateMaterial(m_standardUnlitShader, "Resources/Engine/Materials/DefaultUnlit.linamat");
-            Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
         }
         else if (ev.m_tid == GetTypeID<Material>())
         {
@@ -649,7 +646,7 @@ namespace Lina::Graphics
 
         // Below we process bloom post fx based on brightColor output in the shaders.
         bool horizontal = true;
-        if (m_renderSettings.m_bloomEnabled)
+        if (m_renderSettings->m_bloomEnabled)
         {
             // Write to the pingpong buffers to apply 2 pass gaussian blur.
             bool         firstIteration = true;
@@ -775,16 +772,16 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::UpdateRenderSettings()
     {
-        m_screenQuadFinalMaterial.SetBool(MAT_FXAAENABLED, m_renderSettings.m_fxaaEnabled);
-        m_screenQuadFinalMaterial.SetBool(MAT_BLOOMENABLED, m_renderSettings.m_bloomEnabled);
-        m_screenQuadFinalMaterial.SetBool(MAT_VIGNETTEENABLED, m_renderSettings.m_vignetteEnabled);
-        m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMIN, m_renderSettings.m_fxaaReduceMin);
-        m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMUL, m_renderSettings.m_fxaaReduceMul);
-        m_screenQuadFinalMaterial.SetFloat(MAT_FXAASPANMAX, m_renderSettings.m_fxaaSpanMax);
-        m_screenQuadFinalMaterial.SetFloat(MAT_GAMMA, m_renderSettings.m_gamma);
-        m_screenQuadFinalMaterial.SetFloat(MAT_EXPOSURE, m_renderSettings.m_exposure);
-        m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEAMOUNT, m_renderSettings.m_vignetteAmount);
-        m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEPOW, m_renderSettings.m_vignettePow);
+        m_screenQuadFinalMaterial.SetBool(MAT_FXAAENABLED, m_renderSettings->m_fxaaEnabled);
+        m_screenQuadFinalMaterial.SetBool(MAT_BLOOMENABLED, m_renderSettings->m_bloomEnabled);
+        m_screenQuadFinalMaterial.SetBool(MAT_VIGNETTEENABLED, m_renderSettings->m_vignetteEnabled);
+        m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMIN, m_renderSettings->m_fxaaReduceMin);
+        m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMUL, m_renderSettings->m_fxaaReduceMul);
+        m_screenQuadFinalMaterial.SetFloat(MAT_FXAASPANMAX, m_renderSettings->m_fxaaSpanMax);
+        m_screenQuadFinalMaterial.SetFloat(MAT_GAMMA, m_renderSettings->m_gamma);
+        m_screenQuadFinalMaterial.SetFloat(MAT_EXPOSURE, m_renderSettings->m_exposure);
+        m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEAMOUNT, m_renderSettings->m_vignetteAmount);
+        m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEPOW, m_renderSettings->m_vignettePow);
     }
 
     void OpenGLRenderEngine::DrawSkybox()

@@ -57,7 +57,9 @@ namespace Lina::ECS
 
     void SpriteRendererSystem::UpdateComponents(float delta)
     {
-        auto view = m_ecs->view<EntityDataComponent, SpriteRendererComponent>();
+        auto* ecs = ECS::Registry::Get();
+
+        auto view = ecs->view<EntityDataComponent, SpriteRendererComponent>();
         m_poolSize = (int)view.size_hint();
 
         // Find the sprites and add them to the render queue.

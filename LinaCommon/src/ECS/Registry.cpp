@@ -51,21 +51,8 @@ namespace Lina::ECS
 
     Registry* Registry::s_ecs = nullptr;
 
-    void Registry::Initialize()
-    {
-        LINA_TRACE("[Initialization] -> ECS Registry ({0})", typeid(*this).name());
-        on_construct<EntityDataComponent>().connect<&Registry::OnEntityDataComponentAdded>(this);
-    }
-
-    void Registry::Shutdown()
-    {
-        LINA_TRACE("[Shutdown] -> ECS Registry ({0})", typeid(*this).name());
-        on_construct<EntityDataComponent>().disconnect(this);
-    }
-
     void Registry::SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive)
     {
-        return;
         auto& snapshot = entt::snapshot{*this};
         snapshot.entities(archive);
 
@@ -84,7 +71,6 @@ namespace Lina::ECS
 
     void Registry::DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive)
     {
-    return;
         auto& loader = entt::snapshot_loader{*this};
         loader.entities(archive);
 
@@ -101,12 +87,6 @@ namespace Lina::ECS
                     deserializeFunc.invoke({}, entt::forward_as_meta(loader), entt::forward_as_meta(archive));
             }
         }
-    }
-
-    void Registry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)
-    {
-        auto& data = reg.get<EntityDataComponent>(ent);
-        data.m_ecs = this;
     }
 
     void Registry::AddChildToEntity(Entity parent, Entity child)

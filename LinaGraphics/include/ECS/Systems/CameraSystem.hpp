@@ -47,6 +47,11 @@ Timestamp: 5/2/2019 12:40:46 AM
 namespace Lina
 {
     class Color;
+
+    namespace Event
+    {
+        struct ELevelInstalled;
+    }
 }
 
 namespace Lina::ECS
@@ -140,6 +145,8 @@ namespace Lina::ECS
             if (entity == m_activeCameraEntity)
                 m_activeCameraEntity = entt::null;
         }
+
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
 
     private:
         Matrix m_view               = Matrix::Identity();

@@ -48,8 +48,6 @@ namespace Lina::Audio
     {
         LINA_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
 
-        m_ecs = ECS::Registry::Get();
-
         // List available devices.
         ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
 

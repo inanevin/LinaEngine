@@ -41,7 +41,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #define Registry_HPP
 
 #include "Core/CommonECS.hpp"
-
+#include <cereal/access.hpp>
 #include <entt/config/config.h>
 #include <entt/entity/snapshot.hpp>
 #include <map>
@@ -49,7 +49,10 @@ Timestamp: 4/8/2019 5:28:34 PM
 
 namespace Lina
 {
-    class Engine;
+    namespace World
+    {
+        class Level;
+    }
 }
 
 namespace Lina::ECS
@@ -58,6 +61,11 @@ namespace Lina::ECS
     class Registry : public entt::registry
     {
     public:
+
+    
+        Registry()          = default;
+        virtual ~Registry() = default;
+
         inline static Registry* Get()
         {
             return s_ecs;
@@ -78,19 +86,8 @@ namespace Lina::ECS
         const std::set<Entity>& GetChildren(Entity parent);
 
     private:
-        friend class Engine;
-        Registry() = default;
-        virtual ~Registry() = default;
-        void Initialize();
-        void Shutdown();
-
-    private:
-
-
-        void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
-
-    private:
-        static Registry*                                                                                s_ecs;
+        friend class World::Level;
+        static Registry* s_ecs;
     };
 } // namespace Lina::ECS
 

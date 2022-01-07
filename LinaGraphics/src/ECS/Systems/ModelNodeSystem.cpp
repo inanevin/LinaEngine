@@ -49,17 +49,18 @@ namespace Lina::ECS
         m_appMode      = appMode;
         m_renderEngine = Graphics::RenderEngineBackend::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
-        m_ecs->on_destroy<ModelRendererComponent>().connect<&ModelNodeSystem::OnModelRendererRemoved>(this);
     }
 
     void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node)
     {
+        auto* ecs = ECS::Registry::Get();
+
         const auto&         meshes     = node->GetMeshes();
         Graphics::Material* defaultMat = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
 
         if (meshes.size() > 0)
         {
-            ModelNodeComponent& nodeComponent = m_ecs->emplace<ModelNodeComponent>(entity);
+            ModelNodeComponent& nodeComponent = ecs->emplace<ModelNodeComponent>(entity);
             nodeComponent.m_modelNode.m_sid   = node->m_sid;
             nodeComponent.m_modelNode.m_value = node;
 
@@ -73,8 +74,8 @@ namespace Lina::ECS
 
         for (uint32 i = 0; i < node->m_children.size(); i++)
         {
-            Entity childEntity = m_ecs->CreateEntity(node->m_children[i]->m_name);
-            m_ecs->AddChildToEntity(entity, childEntity);
+            Entity childEntity = ecs->CreateEntity(node->m_children[i]->m_name);
+            ecs->AddChildToEntity(entity, childEntity);
             ConstructEntityHierarchy(childEntity, node->m_children[i]);
         }
     }
@@ -83,7 +84,7 @@ namespace Lina::ECS
     {
         Graphics::ModelNode* root             = model->GetRootNode();
         const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
-        Entity               parentEntity     = m_ecs->CreateEntity(parentEntityName);
+        Entity               parentEntity     = ECS::Registry::Get()->CreateEntity(parentEntityName);
         ConstructEntityHierarchy(parentEntity, root);
     }
 
@@ -91,7 +92,9 @@ namespace Lina::ECS
 
     void ModelNodeSystem::UpdateComponents(float delta)
     {
-        auto view  = m_ecs->view<EntityDataComponent, ModelNodeComponent>();
+        auto* ecs = ECS::Registry::Get();
+
+        auto view  = ecs->view<EntityDataComponent, ModelNodeComponent>();
         m_poolSize = (int)view.size_hint();
         t += 0.016f;
 
@@ -281,11 +284,6 @@ namespace Lina::ECS
 
             m_transparentRenderBatch.pop();
         }
-    }
-
-    void ModelNodeSystem::OnModelRendererRemoved(entt::registry& reg, entt::entity ent)
-    {
-        // m_ecs->DestroyAllChildren(ent);
     }
 
 } // namespace Lina::ECS

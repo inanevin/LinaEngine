@@ -36,11 +36,8 @@ class ExampleLevel : public World::Level
 {
 public:
     ExampleLevel() = default;
-    ~ExampleLevel() = default;
 
-    virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
-    virtual void Initialize() override;
-    void         Tick(const Event::ETick& ev);
+    virtual void Install() override;
 };
 
 #endif

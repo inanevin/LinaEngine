@@ -38,55 +38,66 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Resources/ResourceStorage.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 #include <stdio.h>
 
 namespace Lina::World
 {
-    void Level::ExportLevel(const std::string& path, const std::string& name)
+    Level* Level::s_currentLevel = nullptr;
+
+    void Level::Install()
     {
-        const std::string finalPath = path + "/" + name + ".linalevel";
+        if (s_currentLevel != nullptr)
+            s_currentLevel->Uninstall();
 
-        // Delete if exists.
-        if (Utility::FileExists(finalPath))
-            Utility::DeleteFileInPath(finalPath);
-
-        ECS::Registry* registry = ECS::Registry::Get();
-        {
-
-            std::ofstream levelDataStream(finalPath, std::ios::binary);
-            {
-                cereal::PortableBinaryOutputArchive oarchive(levelDataStream);
-                oarchive(m_levelData);
-                registry->SerializeComponentsInRegistry(oarchive);
-            }
-        }
-    }
-
-    void Level::ImportLevel(const std::string& path, const std::string& name)
-    {
-        ECS::Registry* registry = ECS::Registry::Get();
-
-        {
-            std::ifstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
-            {
-                cereal::PortableBinaryInputArchive iarchive(levelDataStream);
-                iarchive(m_levelData);
-                registry->clear();
-                registry->DeserializeComponentsInRegistry(iarchive);
-            }
-        }
-    }
-
-    bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
-    {
-        return true;
+        ECS::Registry::s_ecs = &m_registry;
+        s_currentLevel       = this;
+        SetupData();
     }
 
     void Level::Uninstall()
     {
-
+        Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
+        m_registry.clear();
     }
+
+    void Level::SaveToFile(const std::string& path)
+    {
+        Event::EventSystem::Get()->Trigger<Event::EPreSerializingLevel>(Event::EPreSerializingLevel{});
+
+        std::ofstream stream(path, std::ios::binary);
+        {
+            cereal::PortableBinaryOutputArchive oarchive(stream);
+            oarchive(*this);
+            m_registry.SerializeComponentsInRegistry(oarchive);
+        }
+        Event::EventSystem::Get()->Trigger<Event::ESerializedLevel>(Event::ESerializedLevel{});
+    }
+
+    void Level::InstallFromFile(const std::string& path)
+    {
+        if (s_currentLevel != nullptr)
+            s_currentLevel->Uninstall();
+
+        std::ifstream stream(path, std::ios::binary);
+        {
+            cereal::PortableBinaryInputArchive iarchive(stream);
+            iarchive(*this);
+            m_registry.DeserializeComponentsInRegistry(iarchive);
+        }
+
+        ECS::Registry::s_ecs = &m_registry;
+        s_currentLevel       = this;
+        SetupData();
+    }
+
+    void Level::SetupData()
+    {
+        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
+        Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(m_skyboxMaterial.m_value);
+        Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(m_ambientColor);
+    };
 
 } // namespace Lina::World

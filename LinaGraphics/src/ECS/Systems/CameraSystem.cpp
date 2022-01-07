@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "ECS/Registry.hpp"
 #include "Log/Log.hpp"
 #include "Math/Color.hpp"
@@ -43,7 +44,7 @@ namespace Lina::ECS
     {
         System::Initialize(name);
         SetAspectRatio(aspect);
-        m_ecs->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &CameraSystem::OnLevelInstalled>(this);
     }
 
     void CameraSystem::SetActiveCamera(Entity cameraOwner)
@@ -54,7 +55,7 @@ namespace Lina::ECS
             return;
         }
 
-        if (m_ecs->all_of<CameraComponent>(cameraOwner))
+        if (ECS::Registry::Get()->all_of<CameraComponent>(cameraOwner))
             m_activeCameraEntity = cameraOwner;
         else
             LINA_WARN("This entity does not have a camera component, can not set it as main camera.");
@@ -106,8 +107,8 @@ namespace Lina::ECS
 
         if (m_activeCameraEntity != entt::null)
         {
-            CameraComponent&     camera = m_ecs->get<CameraComponent>(m_activeCameraEntity);
-            EntityDataComponent& data   = m_ecs->get<EntityDataComponent>(m_activeCameraEntity);
+            CameraComponent&     camera = ECS::Registry::Get()->get<CameraComponent>(m_activeCameraEntity);
+            EntityDataComponent& data   = ECS::Registry::Get()->get<EntityDataComponent>(m_activeCameraEntity);
 
             if (!m_viewMatrixInjected)
             {
@@ -133,17 +134,22 @@ namespace Lina::ECS
 
     Vector3 CameraSystem::GetCameraLocation()
     {
-        return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<EntityDataComponent>(m_activeCameraEntity).GetLocation();
+        return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : ECS::Registry::Get()->get<EntityDataComponent>(m_activeCameraEntity).GetLocation();
     }
 
     Color& CameraSystem::GetCurrentClearColor()
     {
-        return m_activeCameraEntity == entt::null ? Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
+        return m_activeCameraEntity == entt::null ? Color::Gray : ECS::Registry::Get()->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
     }
 
     CameraComponent* CameraSystem::GetActiveCameraComponent()
     {
-        return m_activeCameraEntity == entt::null ? nullptr : m_ecs->try_get<CameraComponent>(m_activeCameraEntity);
+        return m_activeCameraEntity == entt::null ? nullptr : ECS::Registry::Get()->try_get<CameraComponent>(m_activeCameraEntity);
+    }
+
+    void CameraSystem::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        ECS::Registry::Get()->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
     }
 
 } // namespace Lina::ECS

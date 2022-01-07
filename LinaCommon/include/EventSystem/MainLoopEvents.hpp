@@ -44,11 +44,6 @@ Timestamp: 12/25/2021 12:17:16 PM
 
 namespace Lina::Event
 {
-    // Engine.
-    struct EInitialize
-    {
-        ApplicationInfo m_appInfo;
-    };
     struct EShutdown
     {
     };

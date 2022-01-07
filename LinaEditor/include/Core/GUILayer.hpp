@@ -207,7 +207,6 @@ namespace Lina::Editor
         ShaderPanel                 m_shaderPanel;
         TexturePanel                m_texturePanel;
         Resources::ResourceStorage* m_storage = nullptr;
-        World::DefaultLevel         m_defaultLevel;
         std::string                 m_currentlyLoadingResource = "";
         float                       m_percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;

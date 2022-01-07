@@ -56,9 +56,9 @@ namespace Lina::Editor
         Edit = 10,
         View = 20,
 
-        SaveLevelData = 30,
-        LoadLevelData = 31,
-        NewLevelData  = 32,
+        SaveLevel = 30,
+        LoadLevel = 31,
+        NewLevel  = 32,
 
         EntitiesPanel       = 40,
         HeaderPanel         = 11,

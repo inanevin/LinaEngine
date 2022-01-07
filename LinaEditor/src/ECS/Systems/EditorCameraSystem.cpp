@@ -55,11 +55,11 @@ namespace Lina::ECS
 
         if (m_editorCamera != entt::null)
         {
-            FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(m_editorCamera);
+            FreeLookComponent& freeLook = ECS::Registry::Get()->get<FreeLookComponent>(m_editorCamera);
             if (!freeLook.GetIsEnabled())
                 return;
 
-            EntityDataComponent& data = m_ecs->get<EntityDataComponent>(m_editorCamera);
+            EntityDataComponent& data = ECS::Registry::Get()->get<EntityDataComponent>(m_editorCamera);
 
             Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 

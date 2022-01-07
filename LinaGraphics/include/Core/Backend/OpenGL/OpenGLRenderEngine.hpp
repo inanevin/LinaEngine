@@ -204,10 +204,6 @@ namespace Lina::Graphics
         {
             return &m_renderDevice;
         }
-        inline RenderSettings& GetRenderSettings()
-        {
-            return m_renderSettings;
-        }
         inline Texture& GetHDRICubemap()
         {
             return m_hdriCubemap;
@@ -252,6 +248,14 @@ namespace Lina::Graphics
         {
             return m_defaultLit;
         }
+        inline Material* GetDefaultSkyboxMaterial()
+        {
+            return m_defaultSkybox;
+        }
+        inline Material* GetDefaultSpriteMaterial()
+        {
+            return m_defaultSprite;
+        }
         inline Shader* GetDefaultUnlitShader()
         {
             return m_standardUnlitShader;
@@ -282,7 +286,7 @@ namespace Lina::Graphics
         OpenGLRenderEngine()  = default;
         ~OpenGLRenderEngine() = default;
         void ConnectEvents();
-        void Initialize(ApplicationMode appMode);
+        void Initialize(ApplicationMode appMode, RenderSettings* renderSettings);
         void Shutdown();
         void Tick(float delta);
         void Render(float interpolation);
@@ -372,8 +376,10 @@ namespace Lina::Graphics
         Material  m_shadowMapMaterial;
         Material  m_defaultSkyboxMaterial;
         Material  m_pLightShadowDepthMaterial;
-        Material* m_defaultUnlit = nullptr;
-        Material* m_defaultLit   = nullptr;
+        Material* m_defaultUnlit  = nullptr;
+        Material* m_defaultLit    = nullptr;
+        Material* m_defaultSkybox = nullptr;
+        Material* m_defaultSprite = nullptr;
 
         Shader* m_hdriBRDFShader            = nullptr;
         Shader* m_hdriPrefilterShader       = nullptr;
@@ -399,20 +405,20 @@ namespace Lina::Graphics
         UniformBuffer m_globalDebugBuffer;
 
         RenderingDebugData m_debugData;
-        RenderSettings     m_renderSettings;
+        RenderSettings*    m_renderSettings;
 
         // Structure that keeps track of current buffer values
         BufferValueRecord m_bufferValueRecord;
 
-        ECS::AnimationSystem      m_animationSystem;
-        ECS::CameraSystem         m_cameraSystem;
-        ECS::ModelNodeSystem      m_modelNodeSystem;
-        ECS::SpriteRendererSystem m_spriteRendererSystem;
-        ECS::LightingSystem       m_lightingSystem;
-        ECS::FrustumSystem        m_frustumSystem;
-        ECS::SystemList           m_renderingPipeline;
-        ECS::SystemList           m_animationPipeline;
-        Resources::ResourceStorage*       m_storage = nullptr;
+        ECS::AnimationSystem        m_animationSystem;
+        ECS::CameraSystem           m_cameraSystem;
+        ECS::ModelNodeSystem        m_modelNodeSystem;
+        ECS::SpriteRendererSystem   m_spriteRendererSystem;
+        ECS::LightingSystem         m_lightingSystem;
+        ECS::FrustumSystem          m_frustumSystem;
+        ECS::SystemList             m_renderingPipeline;
+        ECS::SystemList             m_animationPipeline;
+        Resources::ResourceStorage* m_storage = nullptr;
 
     private:
         uint32 m_skyboxVAO     = 0;

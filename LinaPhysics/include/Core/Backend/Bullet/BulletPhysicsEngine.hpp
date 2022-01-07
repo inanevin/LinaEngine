@@ -95,7 +95,6 @@ namespace Lina::Physics
 
 	private:
 
-		ECS::Registry* m_ecs = nullptr;
 		static BulletPhysicsEngine* s_physicsEngine;
 		btDefaultCollisionConfiguration* m_collisionConfig = nullptr;
 		btCollisionDispatcher* m_collisionDispatcher = nullptr;

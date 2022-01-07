@@ -46,19 +46,19 @@ Timestamp: 5/13/2019 9:00:55 PM
 
 namespace Lina::ECS
 {
-    LINA_CLASS("Light Component", "ICON_FA_EYE", "Lights", "true", "true")
+    LINA_COMPONENT("Light Component", "ICON_FA_EYE", "Lights", "true", "true", "")
     struct LightComponent : public Component
     {
-        LINA_PROPERTY("Color", "color", "", "")
+        LINA_PROPERTY("Color", "Color", "", "")
         Color m_color = Color::White;
 
-        LINA_PROPERTY("Intensity", "float", "", "")
+        LINA_PROPERTY("Intensity", "Float", "", "")
         float m_intensity = 1.0f;
 
-        LINA_PROPERTY("Draw Debug", "bool", "Enables debug drawing for this component.", "")
+        LINA_PROPERTY("Draw Debug", "Bool", "Enables debug drawing for this component.", "")
         bool m_drawDebug = true;
 
-        LINA_PROPERTY("Cast Shadows", "bool", "Enables dynamic shadow casting for this light.", "")
+        LINA_PROPERTY("Cast Shadows", "Bool", "Enables dynamic shadow casting for this light.", "")
         bool m_castsShadows = false;
 
         template <class Archive>
@@ -68,19 +68,19 @@ namespace Lina::ECS
         }
     };
 
-    LINA_CLASS("Point Light Component", "ICON_FA_EYE", "Lights", "true", "true")
+    LINA_COMPONENT("Point Light Component", "ICON_FA_EYE", "Lights", "true", "true", "LightComponent")
     struct PointLightComponent : public LightComponent
     {
-        LINA_PROPERTY("Distance", "float", "Light Distance", "")
+        LINA_PROPERTY("Distance", "Float", "Light Distance", "")
         float m_distance = 25.0f;
 
-        LINA_PROPERTY("Bias", "float", "Defines the shadow crispiness.", "")
+        LINA_PROPERTY("Bias", "Float", "Defines the shadow crispiness.", "")
         float m_bias = 0.3f;
 
-        LINA_PROPERTY("Shadow Near", "float", "", "")
+        LINA_PROPERTY("Shadow Near", "Float", "", "")
         float m_shadowNear = 0.1f;
 
-        LINA_PROPERTY("Shadow Far", "float", "", "")
+        LINA_PROPERTY("Shadow Far", "Float", "", "")
         float m_shadowFar = 25.0f;
 
         template <class Archive>
@@ -90,16 +90,16 @@ namespace Lina::ECS
         }
     };
 
-    LINA_CLASS("Spot Light Component", "ICON_FA_EYE", "Lights", "true", "true")
+    LINA_COMPONENT("Spot Light Component", "ICON_FA_EYE", "Lights", "true", "true", "LightComponent")
     struct SpotLightComponent : public LightComponent
     {
-        LINA_PROPERTY("Distance", "float", "Light Distance", "")
+        LINA_PROPERTY("Distance", "Float", "Light Distance", "")
         float m_distance = 0;
 
-        LINA_PROPERTY("Cutoff", "float", "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.", "")
+        LINA_PROPERTY("Cutoff", "Float", "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.", "")
         float m_cutoff = Math::Cos(Math::ToRadians(12.5f));
 
-        LINA_PROPERTY("Outer Cutoff", "float", "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.", "")
+        LINA_PROPERTY("Outer Cutoff", "Float", "The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.", "")
         float m_outerCutoff = Math::Cos(Math::ToRadians(17.5f));
 
         template <class Archive>
@@ -109,16 +109,16 @@ namespace Lina::ECS
         }
     };
 
-    LINA_CLASS("Directional Light Component", "ICON_FA_EYE", "Lights", "true", "true")
+    LINA_COMPONENT("Directional Light Component", "ICON_FA_EYE", "Lights", "true", "true", "LightComponent")
     struct DirectionalLightComponent : public LightComponent
     {
-        LINA_PROPERTY("Projection", "vector4", "Defines shadow projection boundaries.", "")
+        LINA_PROPERTY("Projection", "Vector4", "Defines shadow projection boundaries.", "")
         Vector4 m_shadowOrthoProjection = Vector4(-20, 20, -20, 20);
 
-        LINA_PROPERTY("Shadow Near", "float", "", "")
+        LINA_PROPERTY("Shadow Near", "Float", "", "")
         float m_shadowZNear = 10.0f;
 
-        LINA_PROPERTY("Shadow Far", "float", "", "")
+        LINA_PROPERTY("Shadow Far", "Float", "", "")
         float m_shadowZFar = 15.0f;
 
         template <class Archive>

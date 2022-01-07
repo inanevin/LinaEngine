@@ -45,20 +45,18 @@ Timestamp: 1/5/2022 3:43:30 PM
 
 namespace Lina::Editor
 {
-	class ClassDrawer
-	{
-		
-	public:
-		
-		ClassDrawer() = default;
-		~ClassDrawer() = default;
+    class ClassDrawer
+    {
 
-		static void DrawClass(TypeID tid, bool drawHeader);
-        static void DrawEntityData(ECS::Entity entity);
-	
-	private:
-	
-	};
-}
+    public:
+        ClassDrawer()  = default;
+        ~ClassDrawer() = default;
+
+        void DrawClass(TypeID tid, bool drawHeader);
+
+    private:
+        std::vector<TypeID> m_componentDrawList;
+    };
+} // namespace Lina::Editor
 
 #endif

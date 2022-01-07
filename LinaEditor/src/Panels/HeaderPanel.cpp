@@ -107,9 +107,9 @@ namespace Lina::Editor
         fileMenu->AddElement(new MenuBarElement(ICON_FA_BOXES, "Package Project", "CTRL + P", 1, MenuBarElementType::PackageProject));
 
         // ****** LEVEL MENU
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_DOWNLOAD, "New Level", "", 0, MenuBarElementType::NewLevelData));
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save Level", "", 0, MenuBarElementType::SaveLevelData));
-        levelMenu->AddElement(new MenuBarElement(ICON_FA_UPLOAD, "Load Level", "", 0, MenuBarElementType::LoadLevelData));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_DOWNLOAD, "New Level", "", 0, MenuBarElementType::NewLevel));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_SAVE, "Save Level", "", 0, MenuBarElementType::SaveLevel));
+        levelMenu->AddElement(new MenuBarElement(ICON_FA_UPLOAD, "Load Level", "", 0, MenuBarElementType::LoadLevel));
 
         // ****** ENTITY MENU
         MenuBarElement* primitives = new MenuBarElement("", "Primitives", "", 1);

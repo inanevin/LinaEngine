@@ -80,7 +80,6 @@ namespace Lina::Physics
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 		m_appMode = appMode;
-		m_ecs = ECS::Registry::Get();
 
 		if (m_appMode == ApplicationMode::Editor)
 			SetDebugDraw(true);
@@ -104,7 +103,7 @@ namespace Lina::Physics
 		// Initialize the debug drawer.
 		m_world->setDebugDrawer(&m_gizmoDrawer);
 		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-		m_ecs->on_destroy<ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnPhysicsComponentRemoved>(this);
+		ECS::Registry::Get()->on_destroy<ECS::PhysicsComponent>().connect<&BulletPhysicsEngine::OnPhysicsComponentRemoved>(this);
 
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
 		m_rigidbodySystem.Initialize();
@@ -136,7 +135,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodySimulation(ECS::Entity body, bool simulate)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 
 		// If started simulating.
 		if (simulate && !phy.m_wasSimulated)
@@ -155,7 +154,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 		phy.m_collisionShape = shape;
 
 		if (phy.m_isSimulated)
@@ -169,7 +168,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodyMass(ECS::Entity body, float mass)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 		phy.m_mass = mass;
 		
 		if (phy.m_isSimulated)
@@ -184,7 +183,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 		phy.m_radius = radius;
 
 		if (phy.m_isSimulated)
@@ -195,7 +194,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodyHeight(ECS::Entity body, float height)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 		phy.m_capsuleHeight = height;
 
 		if (phy.m_isSimulated)
@@ -206,7 +205,7 @@ namespace Lina::Physics
 
 	void BulletPhysicsEngine::SetBodyHalfExtents(ECS::Entity body, const Vector3& extents)
 	{
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
 		phy.m_halfExtents = extents;
 
 		if (phy.m_isSimulated)
@@ -235,8 +234,8 @@ namespace Lina::Physics
 	void BulletPhysicsEngine::AddBodyToWorld(ECS::Entity body)
 	{
 		LINA_TRACE("Rigidbody");
-		auto& phy = m_ecs->get<ECS::PhysicsComponent>(body);
-		auto& data = m_ecs->get<ECS::EntityDataComponent>(body);
+		auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(body);
 		Vector3 location = data.GetLocation();
 		Quaternion rotation = data.GetRotation();
 

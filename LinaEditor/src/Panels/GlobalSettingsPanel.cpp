@@ -61,19 +61,19 @@ namespace Lina::Editor
 
                 if (m_currentLevel != nullptr)
                 {
-                    World::LevelData& levelData = m_currentLevel->GetLevelData();
-                    auto*             storage   = Resources::ResourceStorage::Get();
+                   //World::LevelData& levelData = m_currentLevel->GetLevelData();
+                   //auto*             storage   = Resources::ResourceStorage::Get();
 
                     static bool levelSettingsOpen = false;
                     if (WidgetsUtility::Header("Level Settings", &levelSettingsOpen))
                     {
-                        WidgetsUtility::PropertyLabel("Ambient Color");
-                        WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-                        Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
-
-                        WidgetsUtility::PropertyLabel("Skybox Material");
-
-                        WidgetsUtility::ResourceSelectionMaterial(&levelData.m_skyboxMaterial);
+                       // WidgetsUtility::PropertyLabel("Ambient Color");
+                       // WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
+                       // Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
+                       // 
+                       // WidgetsUtility::PropertyLabel("Skybox Material");
+                       // 
+                       // WidgetsUtility::ResourceSelectionMaterial(&levelData.m_skyboxMaterial);
 
                         // Material selection
                         //  if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
@@ -125,7 +125,7 @@ namespace Lina::Editor
                     }
                 }
 
-                Graphics::RenderSettings& renderSettings = Graphics::RenderEngineBackend::Get()->GetRenderSettings();
+              //  Graphics::RenderSettings& renderSettings = Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 
                 static bool ppSettingsOpen = false;
                 if (WidgetsUtility::Header("Post Process", &ppSettingsOpen))
@@ -135,55 +135,55 @@ namespace Lina::Editor
                     static bool bloomSettingsOpen    = false;
                     static bool vignetteSettingsOpen = false;
 
-                    if (WidgetsUtility::CaretTitle("Tonemapping", &toneSettingsOpen))
-                    {
-                        WidgetsUtility::PropertyLabel("Gamma");
-                        ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
-
-                        WidgetsUtility::PropertyLabel("Exposure");
-                        ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
-                    }
-
-                    if (WidgetsUtility::CaretTitle("FXAA", &fxaaSettingsOpen))
-                    {
-                        WidgetsUtility::PropertyLabel("Enabled");
-                        ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
-
-                        WidgetsUtility::PropertyLabel("Reduce Min");
-                        ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
-
-                        WidgetsUtility::PropertyLabel("Reduce Mul");
-                        ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
-
-                        WidgetsUtility::PropertyLabel("Span Max");
-                        ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
-                    }
-
-                    if (WidgetsUtility::CaretTitle("Bloom", &bloomSettingsOpen))
-                    {
-                        WidgetsUtility::PropertyLabel("Enabled");
-                        ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
-                    }
-
-                    if (WidgetsUtility::CaretTitle("Vignette", &vignetteSettingsOpen))
-                    {
-                        WidgetsUtility::PropertyLabel("Enabled");
-                        ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
-
-                        WidgetsUtility::PropertyLabel("Amount");
-                        ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
-
-                        WidgetsUtility::PropertyLabel("Pow");
-                        ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
-                    }
+                 //  if (WidgetsUtility::CaretTitle("Tonemapping", &toneSettingsOpen))
+                 //  {
+                 //      WidgetsUtility::PropertyLabel("Gamma");
+                 //      ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Exposure");
+                 //      ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
+                 //  }
+                 //
+                 //  if (WidgetsUtility::CaretTitle("FXAA", &fxaaSettingsOpen))
+                 //  {
+                 //      WidgetsUtility::PropertyLabel("Enabled");
+                 //      ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Reduce Min");
+                 //      ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Reduce Mul");
+                 //      ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Span Max");
+                 //      ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
+                 //  }
+                 //
+                 //  if (WidgetsUtility::CaretTitle("Bloom", &bloomSettingsOpen))
+                 //  {
+                 //      WidgetsUtility::PropertyLabel("Enabled");
+                 //      ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
+                 //  }
+                 //
+                 //  if (WidgetsUtility::CaretTitle("Vignette", &vignetteSettingsOpen))
+                 //  {
+                 //      WidgetsUtility::PropertyLabel("Enabled");
+                 //      ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Amount");
+                 //      ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
+                 //
+                 //      WidgetsUtility::PropertyLabel("Pow");
+                 //      ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
+                 //  }
                 }
 
                 Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
                 const ImVec2 buttonSize = ImVec2(90, 30);
                 ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
 
-                if (WidgetsUtility::Button("Save Settings", buttonSize))
-                    Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+                //if (WidgetsUtility::Button("Save Settings", buttonSize))
+                  //  Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
                 End();
             }
@@ -192,8 +192,8 @@ namespace Lina::Editor
 
     void GlobalSettingsPanel::LevelInstalled(const Event::ELevelInstalled& ev)
     {
-        m_currentLevel = Application::Get()->GetCurrentLevel();
-        m_currentLevel->SetSkyboxMaterial();
+        // m_currentLevel = Application::Get()->GetCurrentLevel();
+       
     }
 
     void GlobalSettingsPanel::LevelIUninstalled(const Event::ELevelUninstalled& ev)

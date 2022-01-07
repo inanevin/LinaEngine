@@ -49,10 +49,6 @@ namespace Lina::Event
         bool        m_enabled;
     };
 
-    struct ERegistrySwitched
-    {
-        ECS::Registry* m_newReg;
-    };
 } // namespace Lina::Event
 
 #endif

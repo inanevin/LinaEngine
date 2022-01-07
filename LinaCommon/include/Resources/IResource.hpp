@@ -51,7 +51,7 @@ namespace Lina::Resources
     {
     public:
         IResource()          = default;
-        virtual ~IResource() = default;
+        virtual ~IResource(){};
 
         virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) = 0;
         virtual void* LoadFromFile(const std::string& path)                                         = 0;
@@ -117,7 +117,7 @@ namespace Lina::Resources
     template <typename T>
     void SaveArchiveToFile(const std::string& path, T& obj)
     {
-        std::ofstream stream(path);
+        std::ofstream stream(path, std::ios::binary);
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(obj);

@@ -46,6 +46,7 @@ namespace Lina::ECS
 
     bool FrustumSystem::GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent)
     {
+        auto* ecs = ECS::Registry::Get();
         // MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
         //
         // if (mr != nullptr)
@@ -59,10 +60,10 @@ namespace Lina::ECS
         // 	return true;
         // }
 
-        SpriteRendererComponent* sr = m_ecs->try_get<SpriteRendererComponent>(ent);
+        SpriteRendererComponent* sr = ecs->try_get<SpriteRendererComponent>(ent);
         if (sr != nullptr)
         {
-            EntityDataComponent& data           = m_ecs->get<EntityDataComponent>(ent);
+            EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
             const Vector3        entityLocation = data.GetLocation();
             boundsPosition                      = entityLocation;
             boundsHalfExtent                    = Vector3(0.5f, 0.5f, 0.5f) * data.GetScale() * data.GetRotation();

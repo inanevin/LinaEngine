@@ -51,11 +51,12 @@ namespace Lina::ECS
     void RigidbodySystem::UpdateComponents(float delta)
     {
         auto* physicsEngine = Physics::PhysicsEngineBackend::Get();
-        ;
+        auto* ecs               = ECS::Registry::Get();
+
 
 #ifdef LINA_PHYSICS_BULLET
 
-        auto view = m_ecs->view<EntityDataComponent, PhysicsComponent>();
+        auto view = ecs->view<EntityDataComponent, PhysicsComponent>();
 
         // Find all entities with rigidbody component and transform component attached to them.
         for (auto entity : view)
@@ -82,8 +83,8 @@ namespace Lina::ECS
 
         for (auto& p : actors)
         {
-            EntityDataComponent& data    = m_ecs->get<EntityDataComponent>(p.first);
-            PhysicsComponent&    phyComp = m_ecs->get<PhysicsComponent>(p.first);
+            EntityDataComponent& data    = ecs->get<EntityDataComponent>(p.first);
+            PhysicsComponent&    phyComp = ecs->get<PhysicsComponent>(p.first);
             if (phyComp.m_simType == Physics::SimulationType::Static)
                 continue;
 

@@ -57,7 +57,7 @@ namespace Lina
     namespace Event
     {
         class EventSystem;
-        struct ELevelInitialized;
+        struct ELevelInstalled;
         struct EPostSceneDraw;
         struct ELoadResourceFromFile;
         struct ELoadResourceFromMemory;
@@ -169,7 +169,7 @@ namespace Lina::Physics
     private:
         void            OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
         void            RecreateBodyShape(ECS::Entity body);
-        void            OnLevelInitialized(const Event::ELevelInitialized& ev);
+        void            OnLevelInstalled(const Event::ELevelInstalled& ev);
         void            OnPostSceneDraw(const Event::EPostSceneDraw&);
         void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
         void            OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev);
@@ -179,7 +179,6 @@ namespace Lina::Physics
 
     private:
         static PhysXPhysicsEngine* s_physicsEngine;
-        ECS::Registry*             m_ecs = nullptr;
         ECS::RigidbodySystem       m_rigidbodySystem;
         ECS::SystemList            m_physicsPipeline;
         Event::EventSystem*        m_eventSystem;

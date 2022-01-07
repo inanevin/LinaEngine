@@ -47,13 +47,8 @@ namespace Lina::World
     {
 
     public:
-        DefaultLevel() = default;
-        virtual ~DefaultLevel() = default;
-
-    private:
-        // Inherited via Level
-        virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
-        virtual void Initialize() override;
+        DefaultLevel()          = default;
+        virtual void Install() override;
     };
 } // namespace Lina::World
 

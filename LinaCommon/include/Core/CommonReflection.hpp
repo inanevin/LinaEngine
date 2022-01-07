@@ -43,7 +43,8 @@ Timestamp: 1/1/2022 4:31:37 PM
 
 namespace Lina
 {
-#define LINA_CLASS(ClassTitle, ClassIcon, Category, CanAddComponent, ListenToValueChanges)
+#define LINA_CLASS(ClassTitle)
+#define LINA_COMPONENT(ClassTitle, ClassIcon, Category, CanAddComponent, ListenToValueChanges, BaseClass)
 #define LINA_PROPERTY(Title, Type, Tooltip, Dependency)
 }
 

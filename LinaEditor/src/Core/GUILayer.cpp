@@ -377,40 +377,34 @@ namespace Lina::Editor
                 size_t      lastIndex  = fullPath.find_last_of("/");
                 std::string folderPath = fullPath.substr(0, lastIndex);
                 std::string fileName   = fullPath.substr(lastIndex + 1);
-                Application::Get()->PackageProject(folderPath, fileName);
+                Resources::ResourceManager::Get()->PackageProject(folderPath, fileName);
             }
         }
 
         // Level
-        else if (item == MenuBarElementType::NewLevelData)
+        else if (item == MenuBarElementType::NewLevel)
         {
-            // Build a new level.
-            Application::Get()->InstallLevel(m_defaultLevel);
+            // Re-install the defualt level.
+            Engine::Get()->GetDefaultLevel().Install();
         }
-        else if (item == MenuBarElementType::SaveLevelData)
+        else if (item == MenuBarElementType::SaveLevel)
         {
             std::string fullPath = "";
-            fullPath             = EditorUtility::SaveFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
-
+            fullPath             = EditorUtility::SaveFile(".linalevel", Graphics::WindowBackend::Get()->GetNativeWindow());
+            
             if (fullPath.compare("") != 0)
             {
-                size_t      lastIndex  = fullPath.find_last_of("/");
-                std::string folderPath = fullPath.substr(0, lastIndex);
-                std::string fileName   = fullPath.substr(lastIndex + 1);
-                Application::Get()->SaveLevelData(folderPath, fileName);
+                World::Level::GetCurrent()->SaveToFile(fullPath + ".linalevel");
             }
         }
-        else if (item == MenuBarElementType::LoadLevelData)
+        else if (item == MenuBarElementType::LoadLevel)
         {
             std::string fullPath = "";
-            fullPath             = EditorUtility::OpenFile(".linaleveldata", Graphics::WindowBackend::Get()->GetNativeWindow());
-
+            fullPath             = EditorUtility::OpenFile(".linalevel", Graphics::WindowBackend::Get()->GetNativeWindow());
+            
             if (fullPath.compare("") != 0)
             {
-                size_t      lastIndex  = fullPath.find_last_of("/");
-                std::string folderPath = fullPath.substr(0, lastIndex);
-                std::string fileName   = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
-                Application::Get()->LoadLevelData(folderPath, fileName);
+                Engine::Get()->GetDefaultLevel().InstallFromFile(fullPath);
             }
         }
 

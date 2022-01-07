@@ -109,7 +109,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalLocation();
         }
     }
@@ -123,7 +123,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalLocation();
         }
     }
@@ -138,7 +138,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalRotation();
 
             if (isThisPivot)
@@ -156,7 +156,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalRotation();
 
             if (isThisPivot)
@@ -175,7 +175,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalRotation();
 
             if (isThisPivot)
@@ -194,7 +194,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalRotation();
 
             if (isThisPivot)
@@ -211,7 +211,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalScale();
 
             if (isThisPivot)
@@ -229,7 +229,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalScale();
 
             if (isThisPivot)
@@ -249,7 +249,7 @@ namespace Lina::ECS
         }
         else
         {
-            auto&   d                      = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&   d                      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix  global                 = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
             Vector3 translation            = global.GetTranslation();
             m_transform.m_previousLocation = m_transform.m_location;
@@ -258,7 +258,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalLocation();
         }
     }
@@ -272,7 +272,7 @@ namespace Lina::ECS
             m_transform.m_localLocation = m_transform.m_location;
         else
         {
-            auto&  d                    = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&  d                    = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix global               = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
             m_transform.m_localLocation = global.GetTranslation();
         }
@@ -290,7 +290,7 @@ namespace Lina::ECS
         }
         else
         {
-            auto&   d      = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&   d      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix  global = Matrix::Scale(d.m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
             Vector3 scale  = global.GetScale();
             ;
@@ -300,7 +300,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalScale();
         }
     }
@@ -318,7 +318,7 @@ namespace Lina::ECS
         }
         else
         {
-            auto&      d      = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&      d      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix     global = Matrix::InitRotation(d.m_transform.m_rotation) * m_transform.ToLocalMatrix();
             Quaternion targetRot;
             global.Decompose(Vector3(), targetRot);
@@ -329,7 +329,7 @@ namespace Lina::ECS
 
         for (auto child : m_children)
         {
-            auto& d = m_ecs->get<EntityDataComponent>(child);
+            auto& d = ECS::Registry::Get()->get<EntityDataComponent>(child);
             d.UpdateGlobalRotation();
         }
     }
@@ -343,7 +343,7 @@ namespace Lina::ECS
             m_transform.m_localScale = m_transform.m_scale;
         else
         {
-            auto&  d                 = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&  d                 = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix global            = Matrix::Scale(d.m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
             m_transform.m_localScale = global.GetScale();
         }
@@ -361,7 +361,7 @@ namespace Lina::ECS
         }
         else
         {
-            auto&  d      = m_ecs->get<EntityDataComponent>(m_parent);
+            auto&  d      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix global = Matrix::InitRotation(d.m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
             global.Decompose(Vector3(), m_transform.m_localRotation);
             m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();

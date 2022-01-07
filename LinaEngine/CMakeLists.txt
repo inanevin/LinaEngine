@@ -41,6 +41,7 @@ set(LINAENGINE_HEADERS
 	include/Core/Engine.hpp
 	include/Core/MessageBus.hpp
 	include/Core/ReflectionRegistry.hpp
+	include/Core/EngineSettings.hpp
 	
 	#World
 	include/World/Level.hpp

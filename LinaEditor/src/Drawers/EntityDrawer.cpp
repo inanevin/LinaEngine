@@ -37,6 +37,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+    using namespace entt::literals;
+
     void EntityDrawer::Initialize()
     {
         m_componentDrawer.Initialize();
@@ -140,17 +142,19 @@ namespace Lina::Editor
             ImGui::EndDisabled();
 
         WidgetsUtility::IncrementCursorPosY(6.0f);
-        ClassDrawer::DrawEntityData(m_selectedEntity);
-        // m_componentDrawer.DrawEntityData(m_selectedEntity, &m_transformationFoldoutOpen, &m_physicsFoldoutOpen);
+        m_componentDrawer.DrawEntityData(m_selectedEntity);
 
-        //// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-        //for (auto& pool : ECS::Registry::Get()->storage())
-        //{
-        //    if (pool.second.contains(m_selectedEntity))
-        //        m_componentDrawer.PushComponentToDraw(pool.first, m_selectedEntity);
-        //}
-        //
-        //m_componentDrawer.DrawAllComponents(m_selectedEntity);
+        // Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
+        for (auto& pool : ECS::Registry::Get()->storage())
+        {
+            if (pool.second.contains(m_selectedEntity))
+            {
+                if (pool.first != GetTypeID<ECS::EntityDataComponent>() && pool.first != GetTypeID<ECS::PhysicsComponent>())
+                    m_componentDrawer.PushComponentToDraw(pool.first, m_selectedEntity);
+            }
+        }
+
+        m_componentDrawer.DrawAllComponents(m_selectedEntity);
     }
 
     void EntityDrawer::AddComponentPopup()

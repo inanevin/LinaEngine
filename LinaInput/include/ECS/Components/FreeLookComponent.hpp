@@ -44,14 +44,14 @@ Timestamp: 5/2/2019 1:40:16 AM
 
 namespace Lina::ECS
 {
-    LINA_CLASS("Free Look Component", "ICON_FA_EYE", "Input", "true", "true")
+    LINA_COMPONENT("Free Look Component", "ICON_FA_EYE", "Input", "true", "true", "")
     struct FreeLookComponent : public Component
     {
         Vector2 m_angles = Vector2::Zero;
-        LINA_PROPERTY("Movement Speed", "vector2", "", "")
+        LINA_PROPERTY("Movement Speed", "Vector2", "", "")
         Vector2 m_movementSpeeds = Vector2(12, 12);
 
-        LINA_PROPERTY("Rotation Speed", "vector2", "", "")
+        LINA_PROPERTY("Rotation Speed", "Vector2", "", "")
         Vector2 m_rotationSpeeds = Vector2(3, 3);
 
         template <class Archive>

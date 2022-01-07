@@ -45,49 +45,71 @@ using namespace ECS;
 
 namespace Lina::Editor
 {
-    EditorApplication* EditorApplication::s_editorApplication = nullptr;
+    EditorApplication*     EditorApplication::s_editorApplication = nullptr;
+    ECS::FreeLookComponent freeLookCopy;
+    Vector3                editorCameraLocationCopy;
+    Quaternion             editorCameraRotationCopy;
+    ECS::CameraComponent   cameraCopy;
 
     void EditorApplication::Initialize()
     {
         LINA_TRACE("[Initialize] -> Editor Application ({0})", typeid(*this).name());
 
-        s_editorApplication = this;
+        s_editorApplication   = this;
         m_guiLayer.s_guiLayer = &m_guiLayer;
         m_guiLayer.Initialize();
-
-        Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorApplication::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreSerializingLevel, &EditorApplication::OnPreSerializingLevel>(this);
+        Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
+
         m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
         m_editorCameraSystem.SystemActivation(true);
 
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);
     }
 
-
-    void EditorApplication::LevelInitialized(const Event::ELevelInitialized& ev)
+    void EditorApplication::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         Registry* ecs = ECS::Registry::Get();
 
         auto singleView = ecs->view<ECS::EntityDataComponent>();
 
-        if (ecs->GetEntity(EDITOR_CAMERA_NAME) == entt::null)
-        {
-            Entity              editorCamera = ecs->CreateEntity(EDITOR_CAMERA_NAME);
-            EntityDataComponent cameraTransform;
-            CameraComponent     cameraComponent;
-            FreeLookComponent   freeLookComponent;
-            ecs->emplace<CameraComponent>(editorCamera, cameraComponent);
-            ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
-            Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
-            m_editorCameraSystem.SetEditorCamera(editorCamera);
-        }
-        else
-        {
-            Entity editorCamera = ecs->GetEntity(EDITOR_CAMERA_NAME);
-            Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
-            ecs->get<FreeLookComponent>(editorCamera).SetIsEnabled(true);
-            m_editorCameraSystem.SetEditorCamera(editorCamera);
-        }
+        Entity              editorCamera = ecs->CreateEntity(EDITOR_CAMERA_NAME);
+        EntityDataComponent cameraTransform;
+        CameraComponent     cameraComponent;
+        FreeLookComponent   freeLookComponent;
+        ecs->emplace<CameraComponent>(editorCamera, cameraComponent);
+        ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
+        Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+        m_editorCameraSystem.SetEditorCamera(editorCamera);
+    }
+
+    void EditorApplication::OnPreSerializingLevel(const Event::EPreSerializingLevel& ev)
+    {
+        // Copy the components of editor camera and delete it so that it's not serialized along with the level
+        auto*  ecs               = ECS::Registry::Get();
+        Entity editorCamera      = ecs->GetEntity(EDITOR_CAMERA_NAME);
+        cameraCopy               = ecs->get<ECS::CameraComponent>(editorCamera);
+        auto& data               = ecs->get<ECS::EntityDataComponent>(editorCamera);
+        editorCameraLocationCopy = data.GetLocation();
+        editorCameraRotationCopy = data.GetRotation();
+        freeLookCopy             = ecs->get<ECS::FreeLookComponent>(editorCamera);
+        ecs->DestroyEntity(editorCamera);
+    }
+
+    void EditorApplication::OnSerializedLevel(const Event::ESerializedLevel& ev)
+    {
+        // Re-crate the editor camera from copied contents.
+        auto*  ecs          = ECS::Registry::Get();
+        Entity editorCamera = ecs->CreateEntity(EDITOR_CAMERA_NAME);
+        auto&  data         = ecs->get<ECS::EntityDataComponent>(editorCamera);
+        data.SetLocation(editorCameraLocationCopy);
+        data.SetRotation(editorCameraRotationCopy);
+        ecs->emplace<ECS::FreeLookComponent>(editorCamera, freeLookCopy);
+        ecs->emplace<ECS::CameraComponent>(editorCamera, cameraCopy);
+        Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+        m_editorCameraSystem.SetEditorCamera(editorCamera);
     }
 
     void EditorApplication::PlayModeChanged(const Event::EPlayModeChanged& playMode)

@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,44 +27,47 @@ SOFTWARE.
 */
 
 /*
-Class: CameraComponent
+Class: EngineSettings
 
-Represents a virtual game camera.
 
-Timestamp: 5/2/2019 12:20:42 AM
+
+Timestamp: 1/6/2022 6:58:17 PM
 */
 
 #pragma once
 
-#ifndef CameraComponent_HPP
-#define CameraComponent_HPP
+#ifndef EngineSettings_HPP
+#define EngineSettings_HPP
 
-#include "ECS/Component.hpp"
-#include "Math/Color.hpp"
+// Headers here.
+#include "Rendering/RenderSettings.hpp"
+#include "Resources/ResourceHandle.hpp"
+#include "World/Level.hpp"
 
-namespace Lina::ECS
+namespace Lina
 {
-    LINA_COMPONENT("Camera Component", "ICON_FA_EYE", "Rendering", "true", "true", "")
-    struct CameraComponent : public Component
+    class Engine;
+
+    class EngineSettings
     {
-        LINA_PROPERTY("Clear Color", "Color", "", "")
-        Color m_clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
 
-        LINA_PROPERTY("Field of View", "Float", "", "")
-        float m_fieldOfView = 90.0f;
+    public:
+        EngineSettings()  = default;
+        ~EngineSettings() = default;
 
-        LINA_PROPERTY("Near", "Float", "Minimum distance the camera renders at.", "")
-        float m_zNear = 0.01f;
-
-        LINA_PROPERTY("Far", "Float", "Maximum distance the camera renders at.", "")
-        float m_zFar = 1000.0f;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isEnabled); // serialize things by passing them to the archive
+            archive(m_renderSettings, m_startupLevel);
         }
+
+    private:
+        friend class Engine;
+
+        Resources::ResourceHandle<World::Level> m_startupLevel;
+        Graphics::RenderSettings m_renderSettings;
     };
-} // namespace Lina::ECS
+} // namespace Lina
 
 #endif

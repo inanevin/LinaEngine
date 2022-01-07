@@ -45,7 +45,6 @@ namespace Lina
 {
     namespace ECS
     {
-        class Registry;
 		class System;
     }
 } // namespace Lina
@@ -69,9 +68,6 @@ namespace Lina::Editor
 
     private:
 		void DrawSystem(const ECS::System* system, const std::string& pipeline);
-		
-    private:
-        ECS::Registry*  m_ecs = nullptr;
     };
 } // namespace Lina::Editor
 

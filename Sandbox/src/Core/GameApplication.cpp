@@ -48,8 +48,6 @@ namespace Lina
             // Set the app window size back to original after loading editor resources.
             Graphics::WindowBackend::Get()->SetPos(Vector2i(0, 0));
             Graphics::WindowBackend::Get()->SetSize(Vector2i(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
-
-            Engine::Get()->SetPlayMode(false);
         }
         else
         {
@@ -59,9 +57,6 @@ namespace Lina
 
         // Initialize game manager.
         m_gameManager.Initialize();
-
-        // Set vsync
-        // Graphics::WindowBackend::Get()->SetVsync(2);
 
         Run();
 

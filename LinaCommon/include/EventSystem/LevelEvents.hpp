@@ -48,8 +48,13 @@ namespace Lina::Event
     struct ELevelUninstalled
     {
     };
-    struct ELevelInitialized
+    struct EPreSerializingLevel
     {
+    
+    };
+    struct ESerializedLevel
+    {
+    
     };
 } // namespace Lina::Event
 

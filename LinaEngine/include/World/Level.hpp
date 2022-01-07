@@ -43,53 +43,62 @@ Timestamp: 5/6/2019 5:10:23 PM
 
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Math/Color.hpp"
+#include "ECS/Registry.hpp"
 #include "Resources/ResourceHandle.hpp"
-
-#include <cereal/archives/portable_binary.hpp>
+#include "Rendering/Material.hpp"
+#include "Core/CommonReflection.hpp"
+#include <cereal/access.hpp>
 #include <string>
 
 namespace Lina
 {
-    namespace ECS
-    {
-        class Registry;
-    }
+    class Application;
 } // namespace Lina
 
 namespace Lina::World
 {
-    struct LevelData
-    {
-        Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;
-        Color       m_ambientColor          = Color(0);
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_skyboxMaterial, m_ambientColor);
-        }
-    };
-
+    LINA_CLASS("Level Settings")
     class Level
     {
     public:
         Level() = default;
-        virtual ~Level() = default;
-
-        virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
-        virtual void Uninstall();
-        virtual void Initialize(){};
-        void         ImportLevel(const std::string& path, const std::string& name);
-        void         ExportLevel(const std::string& path, const std::string& name);
-
-        LevelData& GetLevelData()
+        virtual ~Level()
         {
-            return m_levelData;
         }
 
-    private:
+        inline static Level* GetCurrent()
+        {
+            return s_currentLevel;
+        }
+
+        virtual void Install();
+
+        void SaveToFile(const std::string& path);
+        void InstallFromFile(const std::string& path);
+
+        LINA_PROPERTY("Skybox", "Material", "", "")
+        Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;
+
+        LINA_PROPERTY("Ambient", "Color", "", "")
+        Color m_ambientColor = Color(0);
+
+    protected:
+        ECS::Registry m_registry;
 
     private:
-        LevelData m_levelData;
+        void Uninstall();
+        void SetupData();
+
+    private:
+        friend class Application;
+        friend class cereal::access;
+        static Level* s_currentLevel;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_skyboxMaterial, m_ambientColor);
+        }
     };
 } // namespace Lina::World
 

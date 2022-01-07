@@ -47,11 +47,12 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/RenderEngineBackend.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Core/WindowBackend.hpp"
+#include "World/DefaultLevel.hpp"
 #include "Resources/ResourceStorage.hpp"
-#include "ECS/Registry.hpp"
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Core/EngineSettings.hpp"
 
 #define DELTA_TIME_HISTORY 11
 
@@ -68,12 +69,16 @@ namespace Lina
             return s_engine;
         }
 
-        void   StartLoadingResources();
         double GetElapsedTime();
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
+        void   StartLoadingResources();
 
+        inline EngineSettings& GetEngineSettings()
+        {
+            return m_engineSettings;
+        }
         inline void AddToMainPipeline(ECS::System& system)
         {
             m_mainECSPipeline.AddSystem(system);
@@ -118,6 +123,10 @@ namespace Lina
         {
             return m_mainECSPipeline;
         }
+        inline World::Level& GetDefaultLevel()
+        {
+            return m_defaultLevel;
+        }
 
     private:
         friend class Application;
@@ -141,7 +150,6 @@ namespace Lina
         Input::InputEngineBackend     m_inputEngine;
         Graphics::WindowBackend       m_window;
         Event::EventSystem            m_eventSystem;
-        ECS::Registry                 m_ecs;
         ECS::SystemList               m_mainECSPipeline;
         Resources::ResourceManager    m_resourceManager;
         Resources::ResourceStorage    m_resourceStorage;
@@ -170,6 +178,8 @@ namespace Lina
         bool                                   m_deltaFilled        = false;
         double                                 m_startTime          = 0.0;
         float                                  m_physicsAccumulator = 0.0f;
+        EngineSettings                         m_engineSettings;
+        World::DefaultLevel                    m_defaultLevel;
     };
 } // namespace Lina
 

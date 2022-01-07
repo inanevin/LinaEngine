@@ -63,8 +63,6 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EKeyCallback, &EntitiesPanel::OnKeyCallback>(this);
         Event::EventSystem::Get()->Connect<EShortcut, &EntitiesPanel::OnShortcut>(this);
 
-        m_ecs = ECS::Registry::Get();
-
         m_rightClickMenu  = new Menu("RC");
         MenuBarElement* m = new MenuBarElement("", "Create", nullptr, 0, MenuBarElementType::None, false);
         m_rightClickMenu->AddElement(m);
@@ -76,7 +74,7 @@ namespace Lina::Editor
 
     void EntitiesPanel::DrawEntityNode(int id, ECS::Entity entity)
     {
-        ECS::EntityDataComponent& data        = m_ecs->get<ECS::EntityDataComponent>(entity);
+        ECS::EntityDataComponent& data        = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
         const bool                hasChildren = data.m_children.size() > 0;
         const ImGuiTreeNodeFlags  parent      = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
         const ImGuiTreeNodeFlags  leaf        = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
@@ -114,7 +112,7 @@ namespace Lina::Editor
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
             {
                 IM_ASSERT(payload->DataSize == sizeof(Entity));
-                m_ecs->AddChildToEntity(entity, *(Entity*)payload->Data);
+                ECS::Registry::Get()->AddChildToEntity(entity, *(Entity*)payload->Data);
             }
             ImGui::EndDragDropTarget();
         }
@@ -158,13 +156,13 @@ namespace Lina::Editor
         {
             if (m_selectedEntity != entt::null)
             {
-                m_selectedEntity = m_ecs->CreateEntity(m_selectedEntity);
+                m_selectedEntity = ECS::Registry::Get()->CreateEntity(m_selectedEntity);
                 Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
             }
         }
         else if (event.m_name.compare("create_empty") == 0)
         {
-            auto ent         = m_ecs->CreateEntity("Empty");
+            auto ent         = ECS::Registry::Get()->CreateEntity("Empty");
             m_selectedEntity = ent;
             Event::EventSystem::Get()->Trigger<EEntitySelected>(EEntitySelected{m_selectedEntity});
         }
@@ -177,7 +175,7 @@ namespace Lina::Editor
             if (m_selectedEntity != entt::null)
             {
                 Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
-                m_ecs->DestroyEntity(m_selectedEntity);
+                ECS::Registry::Get()->DestroyEntity(m_selectedEntity);
                 m_selectedEntity = entt::null;
             }
         }
@@ -206,11 +204,11 @@ namespace Lina::Editor
                     ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40);
                     ImGui::TableHeadersRow();
 
-                    auto singleView = m_ecs->view<ECS::EntityDataComponent>();
+                    auto singleView = ECS::Registry::Get()->view<ECS::EntityDataComponent>();
 
                     for (auto entity : singleView)
                     {
-                        ECS::EntityDataComponent& data = m_ecs->get<ECS::EntityDataComponent>(entity);
+                        ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
 
                         if (data.m_parent == entt::null && data.m_name.compare(EDITOR_CAMERA_NAME) != 0)
                             DrawEntityNode(0, entity);
@@ -237,11 +235,11 @@ namespace Lina::Editor
                 WidgetsUtility::PushPopupStyle();
 
                 // Handle Right Click.
-                if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
-                {
-                    m_rightClickMenu->Draw();
-                    ImGui::EndPopup();
-                }
+                // if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+                // {
+                //     m_rightClickMenu->Draw();
+                //     ImGui::EndPopup();
+                // }
 
                 WidgetsUtility::PopPopupStyle();
 

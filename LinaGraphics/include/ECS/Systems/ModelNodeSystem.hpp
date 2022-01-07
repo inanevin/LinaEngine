@@ -51,6 +51,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 
 namespace Lina
 {
+
     namespace Graphics
     {
         class Material;

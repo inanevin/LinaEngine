@@ -45,7 +45,7 @@ namespace Lina
 {
     namespace Event
     {
-        struct ERegistrySwitched;
+        struct ELevelInstalled;
     }
 }
 
@@ -77,12 +77,10 @@ namespace Lina::ECS
             return m_name;
         }
 
-        void OnRegistrySwitched(const Event::ERegistrySwitched& ev);
-
     protected:
+
         int         m_poolSize = 0;
         std::string m_name     = "";
-        Registry*   m_ecs      = nullptr;
         bool        m_isActive = false;
     };
 } // namespace Lina::ECS

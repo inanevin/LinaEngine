@@ -61,8 +61,6 @@ namespace Lina::Editor
         ComponentDrawer m_componentDrawer;
         ECS::Entity     m_selectedEntity;
         bool            m_shouldCopyEntityName      = true;
-        bool            m_transformationFoldoutOpen = false;
-        bool            m_physicsFoldoutOpen        = false;
     };
 } // namespace Lina::Editor
 

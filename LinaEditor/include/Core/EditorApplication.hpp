@@ -53,7 +53,10 @@ namespace Lina
     namespace Event
     {
         struct EPlayModeChanged;
-        struct ELevelInitialized;
+        struct ELevelInstalled;
+        struct EPreSerializingLevel;
+        struct ESerializedLevel;
+
     } // namespace Event
 } // namespace Lina
 
@@ -62,8 +65,7 @@ namespace Lina::Editor
     class EditorApplication
     {
     public:
-
-        EditorApplication() = default;
+        EditorApplication()  = default;
         ~EditorApplication() = default;
 
         static EditorApplication* Get()
@@ -78,9 +80,10 @@ namespace Lina::Editor
         }
 
     private:
-
         void PlayModeChanged(const Event::EPlayModeChanged& playmode);
-        void LevelInitialized(const Event::ELevelInitialized& ev);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnPreSerializingLevel(const Event::EPreSerializingLevel& ev);
+        void OnSerializedLevel(const Event::ESerializedLevel& ev);
 
     private:
         static EditorApplication* s_editorApplication;

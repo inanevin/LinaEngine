@@ -54,6 +54,8 @@ namespace Lina::ECS
 
     void LightingSystem::UpdateComponents(float delta)
     {
+        auto* ecs = ECS::Registry::Get();
+
         if (m_appMode == ApplicationMode::Editor || pLightIconID == -1)
         {
             // Create debug icon textures for lights
@@ -73,7 +75,7 @@ namespace Lina::ECS
         // only can be, actually should be one.
 
         // Set directional light.
-        auto& dirLightView = m_ecs->view<EntityDataComponent, DirectionalLightComponent>();
+        auto& dirLightView = ecs->view<EntityDataComponent, DirectionalLightComponent>();
         for (auto& entity : dirLightView)
         {
             DirectionalLightComponent* dirLight = &dirLightView.get<DirectionalLightComponent>(entity);
@@ -93,7 +95,7 @@ namespace Lina::ECS
         // update lighting data in the shader.
 
         // Set point lights.
-        auto& pointLightView = m_ecs->view<EntityDataComponent, PointLightComponent>();
+        auto& pointLightView = ecs->view<EntityDataComponent, PointLightComponent>();
         for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
         {
             PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
@@ -108,7 +110,7 @@ namespace Lina::ECS
         }
 
         // Set Spot lights.
-        auto& spotLightView = m_ecs->view<EntityDataComponent, SpotLightComponent>();
+        auto& spotLightView = ecs->view<EntityDataComponent, SpotLightComponent>();
         for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
         {
             SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);

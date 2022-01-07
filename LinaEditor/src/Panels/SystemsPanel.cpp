@@ -43,7 +43,6 @@ namespace Lina::Editor
     void SystemsPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
-        m_ecs = ECS::Registry::Get();
     }
 
     void SystemsPanel::DrawSystem(const ECS::System* system, const std::string& pipeline)
