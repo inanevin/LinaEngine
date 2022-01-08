@@ -286,7 +286,7 @@ namespace Lina::Graphics
         m_defaultSprite     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
         m_defaultSkyboxHDRI = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
-        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Bright_Sky.hdr");
+        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Studio.hdr");
         CaptureCalculateHDRI(*text);
         m_defaultSkyboxHDRI->SetTexture(MAT_MAP_ENVIRONMENT, &m_hdriCubemap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
@@ -701,7 +701,8 @@ namespace Lina::Graphics
         m_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
         m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
         m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-        DrawSkybox();
+        UpdateShaderData(m_defaultSkyboxHDRI);
+        m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
         m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams);
         DrawFinalize(true);
         m_renderDevice.SetFBO(0);
