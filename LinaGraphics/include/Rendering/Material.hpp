@@ -55,9 +55,9 @@ namespace Lina::Graphics
 
     struct MaterialSampler2D
     {
-        uint32          m_unit          = 0;
-        TextureBindMode m_bindMode      = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-        bool            m_isActive      = false;
+        uint32                             m_unit     = 0;
+        TextureBindMode                    m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+        bool                               m_isActive = false;
         Resources::ResourceHandle<Texture> m_texture;
 
         template <class Archive>
@@ -73,22 +73,13 @@ namespace Lina::Graphics
         static Material* CreateMaterial(Shader* shader, const std::string& savePath);
         virtual void*    LoadFromFile(const std::string& path) override;
         virtual void*    LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        void             SetMaterialContainers();
+        void             Save();
         void             SetShader(Shader* shader, bool onlySetID = false);
         void             UpdateMaterialData();
         void             PostLoadMaterialData();
         void             SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
         void             RemoveTexture(const std::string& textureName);
         Texture*         GetTexture(const std::string& name);
-
-        inline static std::set<Material*>& GetShadowMappedMaterials()
-        {
-            return s_shadowMappedMaterials;
-        }
-        inline static std::set<Material*>& GetHDRIMaterials()
-        {
-            return s_hdriMaterials;
-        }
 
         inline void SetFloat(const std::string& name, float value)
         {
@@ -183,7 +174,7 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+            archive(m_receiveShadows, m_receiveLighting, m_receiveHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
         }
 
         std::map<std::string, float>             m_floats;
@@ -196,19 +187,17 @@ namespace Lina::Graphics
         std::map<std::string, Matrix>            m_matrices;
         std::map<std::string, bool>              m_bools;
 
-        bool                              m_isPBR          = false;
-        bool                              m_usesHDRI       = false;
-        bool                              m_isShadowMapped = false;
+        bool                              m_receiveShadows          = false;
+        bool                              m_receiveLighting         = false;
+        bool                              m_receiveHDRIReflections  = false;
+        bool                              m_triggersHDRIReflections = false;
         Resources::ResourceHandle<Shader> m_shaderHandle;
-
-    private:
-        static std::map<StringIDType, Material> s_loadedMaterials;
-        static std::set<Material*>              s_shadowMappedMaterials;
-        static std::set<Material*>              s_hdriMaterials;
 
     private:
         friend class OpenGLRenderEngine;
         friend class RenderContext;
+        bool m_hdriDataSet = false;
+
         MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
     };
 

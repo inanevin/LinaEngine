@@ -55,6 +55,8 @@ namespace Lina::Resources
         StringIDType m_sid   = 0;
         T*           m_value = nullptr;
 
+        // TODO: Handle event connection on constructor or load.
+
     private:
 
         void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)

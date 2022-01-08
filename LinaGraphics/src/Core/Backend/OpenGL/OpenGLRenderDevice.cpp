@@ -1000,10 +1000,11 @@ namespace Lina::Graphics
         LINA_TRACE("Data {0}", v.ToString());
     }
 
-    void OpenGLRenderDevice::GetTextureImage(uint32 texture, TextureBindMode bindMode, void*& pixels)
+    void OpenGLRenderDevice::GetTextureImage(uint32 texture, PixelFormat format, TextureBindMode bindMode, void*& pixels)
     {
+        GLint oglFormat = GetOpenGLFormat(format);
         glBindTexture(bindMode, texture);
-        glGetTexImage(bindMode, (GLint)0, GL_RGBA, GL_FLOAT, pixels);
+        glGetTexImage(bindMode, (GLint)0, oglFormat, GL_FLOAT, pixels);
         glBindTexture(bindMode, 0);
     }
 

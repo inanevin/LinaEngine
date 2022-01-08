@@ -274,15 +274,17 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
-        m_defaultLit    = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
-        m_defaultUnlit  = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
-        m_defaultSkybox = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
-        m_defaultSprite = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
+        //   m_defaultLit        = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultLit        = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl"), "Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultUnlit      = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Unlit/Unlit.glsl"), "Resources/Engine/Materials/DefaultUnlit.linamat");
+        m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
+        m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
+        m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
+        m_defaultSkyboxHDRI->m_triggersHDRIReflections = true;
 
-        auto* mat = Material::CreateMaterial(Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultHDRI.linamat");
-        
-        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Editor/Textures/SplashScreen.png");
-        text->WriteToFile("Resources/oyeah.jpg");
+        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Bright_Sky.hdr");
+        CaptureCalculateHDRI(*text);
+        m_defaultSkyboxHDRI->SetTexture(MAT_MAP_ENVIRONMENT, &m_hdriCubemap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
         m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
         m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
@@ -290,7 +292,6 @@ namespace Lina::Graphics
         m_debugLineMaterial.SetShader(m_debugLineShader);
         m_debugIconMaterial.SetShader(m_debugIconShader);
         m_shadowMapMaterial.SetShader(m_sqShadowMapShader);
-        m_defaultSkyboxMaterial.SetShader(m_skyboxSingleColorShader);
         m_pLightShadowDepthMaterial.SetShader(m_pointShadowsDepthShader);
         UpdateRenderSettings();
     }
@@ -448,33 +449,6 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::MaterialUpdated(Material& mat)
-    {
-        std::set<Material*>& hdriMaterials = Material::GetHDRIMaterials();
-        if (!mat.m_usesHDRI && hdriMaterials.find(&mat) != hdriMaterials.end())
-        {
-            hdriMaterials.erase(&mat);
-            RemoveHDRIData(&mat);
-        }
-        else if (mat.m_usesHDRI && hdriMaterials.find(&mat) == hdriMaterials.end())
-        {
-            hdriMaterials.emplace(&mat);
-            SetHDRIData(&mat);
-        }
-
-        std::set<Material*>& shadowMappedMaterials = Material::GetShadowMappedMaterials();
-        if (!mat.m_isShadowMapped && shadowMappedMaterials.find(&mat) != shadowMappedMaterials.end())
-        {
-            shadowMappedMaterials.erase(&mat);
-            mat.RemoveTexture(MAT_TEXTURE2D_SHADOWMAP);
-        }
-        else if (mat.m_isShadowMapped && shadowMappedMaterials.find(&mat) == shadowMappedMaterials.end())
-        {
-            shadowMappedMaterials.emplace(&mat);
-            mat.SetTexture(MAT_TEXTURE2D_SHADOWMAP, nullptr);
-        }
-    }
-
     void OpenGLRenderEngine::OnDrawLine(const Event::EDrawLine& event)
     {
         DrawLine(event.m_from, event.m_to, event.m_color, event.m_lineWidth);
@@ -567,7 +541,7 @@ namespace Lina::Graphics
         {
             SetupEngineShaders();
         }
-        else if (ev.m_tid == GetTypeID<Material>())
+        else if (ev.m_tid == GetTypeID<Texture>())
         {
             ConstructEngineMaterials();
         }
@@ -907,8 +881,19 @@ namespace Lina::Graphics
         for (auto const& d : (*data).m_matrices)
             m_renderDevice.UpdateShaderUniformMatrix(shaderID, d.first, d.second);
 
+        if (data->m_hdriDataSet)
+        {
+            if (!data->m_receiveHDRIReflections || !m_skyboxMaterial->m_triggersHDRIReflections || !m_hdriDataCaptured)
+                RemoveHDRIData(data);
+        }
+        else
+        {
+            if (data->m_receiveHDRIReflections && m_skyboxMaterial->m_triggersHDRIReflections && m_hdriDataCaptured)
+                SetHDRIData(data);
+        }
+
         // Set material's shadow textures to the FBO textures.
-        if (data->m_isPBR)
+        if (data->m_receiveShadows)
         {
             auto& tuple = m_lightingSystem.GetPointLights();
 
@@ -944,7 +929,7 @@ namespace Lina::Graphics
             }
         }
 
-        if (data->m_isPBR)
+        if (data->m_receiveLighting)
             m_lightingSystem.SetLightingShaderData(shaderID);
 
         if (!m_firstFrameDrawn)
@@ -971,13 +956,6 @@ namespace Lina::Graphics
 
         // Set flag
         m_hdriDataCaptured = true;
-
-        std::set<Material*>& hdriMaterials = Material::GetHDRIMaterials();
-        for (Material* mat : hdriMaterials)
-        {
-            if (mat != nullptr)
-                SetHDRIData(mat);
-        }
     }
 
     void OpenGLRenderEngine::CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6])
@@ -1032,12 +1010,12 @@ namespace Lina::Graphics
         irradianceParams.m_textureParams.m_pixelFormat                                                                                 = PixelFormat::FORMAT_RGB;
 
         // Set resolution
-        Vector2 irradianceMapResolsution = Vector2(32, 32);
+        Vector2 irradianceMapResolution = Vector2(32, 32);
 
         // Build irradiance texture & scale render buffer according to the resolution.
-        m_hdriIrradianceMap.ConstructRTCubemapTexture(irradianceMapResolsution, irradianceParams);
+        m_hdriIrradianceMap.ConstructRTCubemapTexture(irradianceMapResolution, irradianceParams);
         m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
-        m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+        m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), irradianceMapResolution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
         // Build & setup shader info.
         uint32 irradianceShader = m_hdriIrradianceShader->GetID();
@@ -1046,7 +1024,7 @@ namespace Lina::Graphics
         m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
         m_renderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_PROJECTION, captureProjection);
         m_renderDevice.SetTexture(m_hdriCubemap.GetID(), m_hdriCubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
-        m_renderDevice.SetViewport(Vector2::Zero, irradianceMapResolsution);
+        m_renderDevice.SetViewport(Vector2::Zero, irradianceMapResolution);
 
         // Draw cubemap.
         for (uint32 i = 0; i < 6; ++i)
@@ -1154,6 +1132,7 @@ namespace Lina::Graphics
             return;
         }
 
+        mat->m_hdriDataSet = true;
         mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_hdriIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
         mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_hdriLutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
         mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -1170,6 +1149,7 @@ namespace Lina::Graphics
         mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
+        mat->m_hdriDataSet = false;
     }
 
     uint32 OpenGLRenderEngine::GetFinalImage()

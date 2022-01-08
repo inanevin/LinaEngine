@@ -38,9 +38,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    std::set<Material*> Material::s_shadowMappedMaterials;
-    std::set<Material*> Material::s_hdriMaterials;
-
     void Material::PostLoadMaterialData()
     {
         auto* storage = Resources::ResourceStorage::Get();
@@ -131,7 +128,6 @@ namespace Lina::Graphics
         Material* mat = new Material();
         mat->SetSID(savePath);
         mat->SetShader(shader);
-        mat->SetMaterialContainers();
         Resources::SaveArchiveToFile<Material>(savePath, *mat);
         storage->Add(static_cast<void*>(mat), GetTypeID<Material>(), mat->GetSID());
         return mat;
@@ -150,13 +146,16 @@ namespace Lina::Graphics
         else
             SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
-        SetMaterialContainers();
         UpdateMaterialData();
 
         for (auto& sampler : m_sampler2Ds)
         {
             if (storage->Exists<Texture>(sampler.second.m_texture.m_sid))
+            {
+                StringIDType sid = StringID("Resources/Engine/Textures/HDR/Bright_Sky.hdr").value();
+                
                 SetTexture(sampler.first, storage->GetResource<Texture>(sampler.second.m_texture.m_sid), sampler.second.m_bindMode);
+            }
         }
 
         return static_cast<void*>(this);
@@ -175,7 +174,6 @@ namespace Lina::Graphics
         else
             SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
-        SetMaterialContainers();
         UpdateMaterialData();
 
         for (auto& sampler : m_sampler2Ds)
@@ -185,6 +183,11 @@ namespace Lina::Graphics
         }
 
         return static_cast<void*>(this);
+    }
+
+    void Material::Save()
+    {
+        Resources::SaveArchiveToFile(m_path, *this);
     }
 
     void Material::UpdateMaterialData()
@@ -274,9 +277,18 @@ namespace Lina::Graphics
         m_vector2s.clear();
         m_matrices.clear();
         m_vector4s.clear();
-        m_isShadowMapped = false;
-        m_isPBR          = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
-        m_usesHDRI       = false;
+        bool isPBR         = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
+
+        if (isPBR)
+        {
+            m_receiveHDRIReflections = true;
+            m_receiveLighting = true;
+            m_receiveShadows = true;
+        }
+        else
+        {
+        
+        }
 
         ShaderUniformData data = shader->GetUniformData();
         m_colors               = data.m_colors;
@@ -295,15 +307,6 @@ namespace Lina::Graphics
                 false,
                 Resources::ResourceHandle<Texture>(),
             };
-    }
-
-    void Material::SetMaterialContainers()
-    {
-        if (m_usesHDRI)
-            s_hdriMaterials.emplace(this);
-
-        if (m_isShadowMapped)
-            s_shadowMappedMaterials.emplace(this);
     }
 
 } // namespace Lina::Graphics

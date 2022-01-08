@@ -236,6 +236,7 @@ namespace Lina::Graphics
         const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
         const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
         GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
+        m_assetData->m_samplerParameters = samplerParams;
 
         ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
 
@@ -271,16 +272,12 @@ namespace Lina::Graphics
     {
         if (m_bitmap == nullptr)
         {
-            LINA_ERR("Texture bitmap is null, can't write data to file.");
-            return;
-        }
-
-        if (m_bindMode == TextureBindMode::BINDTEXTURE_CUBEMAP)
-        {
+            m_bitmap = new ArrayBitmap();
             void* data = nullptr;
-            m_renderDevice->GetTextureImage(m_id, m_bindMode, data);
+            m_renderDevice->GetTextureImage(m_id, m_sampler.GetSamplerParameters().m_textureParams.m_pixelFormat, m_bindMode, data);
             m_bitmap->SetPixelData(static_cast<unsigned char*>(data));
         }
+
         m_bitmap->Save(path);
     }
 

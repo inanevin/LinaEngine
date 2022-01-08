@@ -257,7 +257,7 @@ namespace Lina::Graphics
         /// Binds the given texture and reads it's data into the given pixel array.
         /// </summary>
         /// <param name="pixels"></param>
-        void GetTextureImage(uint32 texture, TextureBindMode bind, void*& pixels);
+        void GetTextureImage(uint32 texture, PixelFormat format, TextureBindMode bind, void*& pixels);
 
         void BindUniformBuffer(uint32 buffer, uint32 bindingPoint);
         void BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName);

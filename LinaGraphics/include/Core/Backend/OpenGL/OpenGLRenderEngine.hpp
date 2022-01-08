@@ -189,7 +189,6 @@ namespace Lina::Graphics
         /// </summary>
         uint32 RenderModelPreview(Model* model);
 
-        void MaterialUpdated(Material& mat);
         void UpdateShaderData(Material* mat);
 
         inline UniformBuffer& GetViewBuffer()
@@ -376,11 +375,11 @@ namespace Lina::Graphics
         Material  m_shadowMapMaterial;
         Material  m_defaultSkyboxMaterial;
         Material  m_pLightShadowDepthMaterial;
-        Material  m_defaultHDRISkyboxMaterial;
-        Material* m_defaultUnlit  = nullptr;
-        Material* m_defaultLit    = nullptr;
-        Material* m_defaultSkybox = nullptr;
-        Material* m_defaultSprite = nullptr;
+        Material* m_defaultSkyboxHDRI = nullptr;
+        Material* m_defaultUnlit      = nullptr;
+        Material* m_defaultLit        = nullptr;
+        Material* m_defaultSkybox     = nullptr;
+        Material* m_defaultSprite     = nullptr;
 
         Shader* m_hdriBRDFShader            = nullptr;
         Shader* m_hdriPrefilterShader       = nullptr;
