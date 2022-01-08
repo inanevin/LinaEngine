@@ -60,20 +60,9 @@ namespace Lina::Audio
         m_size           = size;
         m_freq           = freq;
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<AudioAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new AudioAssetData();
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaaudiodata";
+        GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
 
         alGenBuffers((ALuint)1, &m_buffer);
         alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
@@ -103,20 +92,9 @@ namespace Lina::Audio
         m_size   = size;
         m_freq   = freq;
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linaaudiodata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-        if (storage->Exists<AudioAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<AudioAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new AudioAssetData();
-            Resources::SaveArchiveToFile<AudioAssetData>(assetData, *m_assetData);
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<AudioAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaaudiodata";
+        GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
 
         alGenBuffers((ALuint)1, &m_buffer);
         alBufferData(m_buffer, format, data, size, (ALsizei)freq);

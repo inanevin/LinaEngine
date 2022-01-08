@@ -102,6 +102,11 @@ namespace Lina::Graphics
         {
             return m_isEmpty;
         }
+        inline int GetNumComponents()
+        {
+            return m_numComponents;
+        }
+
 
     private:
         friend RenderEngine;

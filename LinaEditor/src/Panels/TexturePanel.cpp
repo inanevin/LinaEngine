@@ -104,16 +104,35 @@ namespace Lina::Editor
 
     void TexturePanel::DrawTextureSettings()
     {
-        auto*     assetData                  = m_targetTexture->GetAssetData();
-        const int currentInternalPixelFormat = static_cast<int>(assetData->m_samplerParameters.m_textureParams.m_internalPixelFormat);
-        const int currentPixelFormat         = static_cast<int>(assetData->m_samplerParameters.m_textureParams.m_pixelFormat);
-        const int currentMin                 = Graphics::SamplerFilterToInt(assetData->m_samplerParameters.m_textureParams.m_minFilter);
-        const int currentMag                 = Graphics::SamplerFilterToInt(assetData->m_samplerParameters.m_textureParams.m_magFilter);
-        const int wrapS                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapS);
-        const int wrapR                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapR);
-        const int wrapT                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapT);
+        auto*             assetData                  = m_targetTexture->GetAssetData();
+        const int         currentInternalPixelFormat = static_cast<int>(assetData->m_samplerParameters.m_textureParams.m_internalPixelFormat);
+        const int         currentPixelFormat         = static_cast<int>(assetData->m_samplerParameters.m_textureParams.m_pixelFormat);
+        const int         currentMin                 = Graphics::SamplerFilterToInt(assetData->m_samplerParameters.m_textureParams.m_minFilter);
+        const int         currentMag                 = Graphics::SamplerFilterToInt(assetData->m_samplerParameters.m_textureParams.m_magFilter);
+        const int         wrapS                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapS);
+        const int         wrapR                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapR);
+        const int         wrapT                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapT);
+        const std::string textureSize                = m_targetTexture->GetSize().ToString();
+        const std::string channelCount               = std::to_string(m_targetTexture->GetNumComponents());
 
         WidgetsUtility::IncrementCursorPosY(ImGui::GetStyle().ItemSpacing.y + 9.5f);
+
+        ImGui::SetCursorPosX(CURSOR_X_LABELS);
+        ImGui::Text("Texture Size");
+
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(CURSOR_X_VALUES);
+        ImGui::Text(textureSize.c_str());
+
+        ImGui::SetCursorPosX(CURSOR_X_LABELS);
+        ImGui::Text("Channels");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(CURSOR_X_VALUES);
+        ImGui::Text(channelCount.c_str());
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
+        WidgetsUtility::HorizontalDivider(0.0f, 0.5f);
+        ImGui::PopStyleColor();
 
         WidgetsUtility::PropertyLabel("Anisotropy");
         ImGui::DragInt("##anisotropy", &assetData->m_samplerParameters.m_anisotropy, 0.05f, 0, 8);

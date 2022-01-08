@@ -179,20 +179,9 @@ namespace Lina::Graphics
             return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
         }
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linaimagedata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<ImageAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<ImageAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new ImageAssetData();
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
 
         Construct(m_assetData->m_samplerParameters, false, path);
 
@@ -220,21 +209,9 @@ namespace Lina::Graphics
             return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
         }
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linaimagedata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<ImageAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<ImageAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new ImageAssetData();
-            Resources::SaveArchiveToFile(assetData, *m_assetData);
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
 
         Construct(m_assetData->m_samplerParameters, false, path);
 
@@ -255,6 +232,11 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
+
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
+
         ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
 
         // Return
@@ -274,6 +256,11 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
+
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
+
         ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
 
         // Return

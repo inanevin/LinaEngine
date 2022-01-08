@@ -82,6 +82,26 @@ namespace Lina::Resources
             m_sid  = StringID(path.c_str()).value();
         }
 
+        template<typename T>
+        void GetCreateAssetdata(const std::string& path, T*& assetData)
+        {
+            StringIDType sid = StringID(path.c_str()).value();
+            auto* storage = Resources::ResourceStorage::Get();
+            if (storage->Exists<T>(sid))
+            {
+                assetData = storage->GetResource<T>(sid);
+            }
+            else
+            {
+                assetData = new T();
+                assetData->m_sid = sid;
+                assetData->m_path = path;
+                Resources::SaveArchiveToFile<T>(path, *assetData);
+                storage->Add(static_cast<void*>(assetData), GetTypeID<T>(), sid);
+            }
+
+        }
+
     protected:
         StringIDType m_sid  = 0;
         std::string  m_path = "";

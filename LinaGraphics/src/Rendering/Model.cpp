@@ -44,21 +44,9 @@ namespace Lina::Graphics
 
         SetSID(path);
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linamodeldata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<ModelAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<ModelAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new ModelAssetData();
-            Resources::SaveArchiveToFile(assetData, *m_assetData);
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linamodeldata";
+        GetCreateAssetdata<ModelAssetData>(assetDataPath, m_assetData);
 
         ModelLoader::LoadModel(data, dataSize, this);
 
@@ -72,21 +60,9 @@ namespace Lina::Graphics
 
         SetSID(path);
 
-        const std::string  fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string  assetData     = fileNameNoExt + ".linamodeldata";
-        const StringIDType assetDataSid  = StringID(assetData.c_str()).value();
-        auto*              storage       = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<ModelAssetData>(assetDataSid))
-        {
-            m_assetData = storage->GetResource<ModelAssetData>(assetDataSid);
-        }
-        else
-        {
-            m_assetData = new ModelAssetData();
-            Resources::SaveArchiveToFile(assetData, *m_assetData);
-            storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
-        }
+        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const std::string assetDataPath = fileNameNoExt + ".linamodeldata";
+        GetCreateAssetdata<ModelAssetData>(assetDataPath, m_assetData);
 
         ModelLoader::LoadModel(path, this);
         return static_cast<void*>(this);

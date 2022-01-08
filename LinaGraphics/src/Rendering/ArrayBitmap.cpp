@@ -69,7 +69,6 @@ namespace Lina::Graphics
 
     void ArrayBitmap::Save(const std::string& path, int quality)
     {
-
         if (m_isHDRI)
             stbi_write_hdr(path.c_str(), m_width, m_height, m_numComps, m_hdriPixels);
         else
