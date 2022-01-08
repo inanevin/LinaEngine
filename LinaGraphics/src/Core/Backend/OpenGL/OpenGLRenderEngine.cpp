@@ -89,11 +89,10 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
 
-
         // Set references.
-        m_appWindow = OpenGLWindow::Get();
-        m_appMode   = appMode;
-        m_storage   = Resources::ResourceStorage::Get();
+        m_appWindow      = OpenGLWindow::Get();
+        m_appMode        = appMode;
+        m_storage        = Resources::ResourceStorage::Get();
         m_renderSettings = renderSettings;
 
         // Initialize the render device.
@@ -275,8 +274,8 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
-        m_defaultLit   = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
-        m_defaultUnlit = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
+        m_defaultLit    = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultUnlit  = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
         m_defaultSkybox = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
         m_defaultSprite = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
 
@@ -365,8 +364,8 @@ namespace Lina::Graphics
             m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
             m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
             m_secondaryRenderTarget.Construct(m_secondaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
-            m_previewRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
-            m_previewRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
+            m_previewRTTexture.ConstructRTTexture(m_previewTextureSize, m_primaryRTParams, false);
+            m_previewRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_previewTextureSize);
             m_previewRenderTarget.Construct(m_previewRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_previewRenderBuffer.GetID());
         }
     }
@@ -440,7 +439,6 @@ namespace Lina::Graphics
         if (m_appMode == ApplicationMode::Editor)
         {
             m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
-            m_renderDevice.ResizeRTTexture(m_previewRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
         }
     }
 
@@ -1166,6 +1164,12 @@ namespace Lina::Graphics
         mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
+    }
+
+    void OpenGLRenderEngine::ResizePreviewTexture(const Vector2i newSize)
+    {
+        m_previewTextureSize = newSize;
+        m_renderDevice.ResizeRTTexture(m_previewRTTexture.GetID(), m_previewTextureSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
     }
 
     uint32 OpenGLRenderEngine::GetFinalImage()

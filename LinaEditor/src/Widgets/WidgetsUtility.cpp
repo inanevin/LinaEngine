@@ -54,13 +54,14 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    static bool                   s_isDraggingWidgetInput = false;
-    static bool                   s_mouseReleased         = true;
-    static std::string            s_draggedInput          = "";
-    static float                  s_valueOnDragStart      = 0.0f;
-    static int                    s_valueOnDragStartInt   = 0;
-    void*                         s_latestResourceHandle  = nullptr;
-    static std::map<TypeID, bool> m_classFoldoutMap;
+    static bool                        s_isDraggingWidgetInput = false;
+    static bool                        s_mouseReleased         = true;
+    static std::string                 s_draggedInput          = "";
+    static float                       s_valueOnDragStart      = 0.0f;
+    static int                         s_valueOnDragStartInt   = 0;
+    void*                              s_latestResourceHandle  = nullptr;
+    static std::map<TypeID, bool>      m_classFoldoutMap;
+    static std::map<std::string, bool> m_idFoldoutMap;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -216,20 +217,21 @@ namespace Lina::Editor
     void WidgetsUtility::DrawResourceNode(Utility::DirectoryItem* item, bool selected, bool* renamedItem, float sizeMultiplier, bool canRename)
     {
 #pragma warning(disable : 4312)
-        auto*             storage            = Resources::ResourceStorage::Get();
-        const ImVec2      cursorPosScreen    = ImGui::GetCursorScreenPos();
-        const ImVec2      cursorPos          = ImGui::GetCursorPos();
-        const float       fileTypeRectHeight = 5;
-        const ImVec2      imageSize          = ImVec2(70 * sizeMultiplier, 70 * sizeMultiplier);
-        const ImVec2      totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
-        const float       windowWidth        = ImGui::GetWindowWidth();
-        const ImVec2      itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
-        const ImVec2      itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
-        const bool        hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
-        ImVec4            childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
-                                                                                                                    : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
-        const std::string fullPath           = item->m_fullPath;
-        const bool        isFolder           = item->m_typeID == 0;
+        auto*              storage            = Resources::ResourceStorage::Get();
+        const ImVec2       cursorPosScreen    = ImGui::GetCursorScreenPos();
+        const ImVec2       cursorPos          = ImGui::GetCursorPos();
+        const float        fileTypeRectHeight = 5;
+        const ImVec2       imageSize          = ImVec2(70 * sizeMultiplier, 70 * sizeMultiplier);
+        const ImVec2       totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
+        const float        windowWidth        = ImGui::GetWindowWidth();
+        const ImVec2       itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
+        const ImVec2       itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
+        const bool         hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
+        ImVec4             childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
+                                                                                                                     : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+        const std::string  fullPath           = item->m_fullPath;
+        const bool         isFolder           = item->m_typeID == 0;
+        const StringIDType sid                = item->m_sid;
 
         ImGui::BeginChild(fullPath.c_str(), totalSize, false, ImGuiWindowFlags_NoScrollbar);
 
@@ -258,6 +260,18 @@ namespace Lina::Editor
 
         // Add the actual resource image.
         ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        if (item->m_typeID == GetTypeID<Graphics::Model>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEMODEL_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
 
         // Draw a small colored rect indicating resource type.
         if (!isFolder)
@@ -568,10 +582,6 @@ namespace Lina::Editor
                                                                                : normalColor;
         ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(bgColor));
 
-        static float w = 0.0f;
-
-        w += Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
-
         const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);
         ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(borderColor));
 
@@ -662,6 +672,7 @@ namespace Lina::Editor
         const ImVec2 toggleSize = DEFAULT_TOGGLE_SIZE;
         ImGui::SameLine();
         ImGui::SetCursorPosX(cursorPosX - ImGui::GetStyle().ItemSpacing.x - toggleSize.x);
+        WidgetsUtility::IncrementCursorPosY(2.1f);
 
         if (toggled != nullptr)
         {
@@ -681,7 +692,7 @@ namespace Lina::Editor
         return m_classFoldoutMap[tid];
     }
 
-    bool WidgetsUtility::Header(const char* label, bool* foldoutOpen, ImVec2* outCursorPos)
+    bool WidgetsUtility::Header(TypeID tid, const char* label, ImVec2* outCursorPos)
     {
         const ImVec2 windowSize            = ImGui::GetWindowSize();
         const ImVec2 rectSize              = ImVec2(windowSize.x, HEADER_WIDGET_HEIGHT);
@@ -697,7 +708,7 @@ namespace Lina::Editor
 
         const std::string id = "##_" + std::string(label);
         if (Button(id.c_str(), rectSize))
-            *foldoutOpen = !*foldoutOpen;
+            m_classFoldoutMap[tid] = !m_classFoldoutMap[tid];
 
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
@@ -707,13 +718,13 @@ namespace Lina::Editor
         const ImVec2 textSize             = ImGui::CalcTextSize(label);
         const ImVec2 cursorPosInside      = ImVec2(cursorPosBeforeButton.x + VALUE_OFFSET_FROM_WINDOW, cursorPosBeforeButton.y + rectSize.y / 2.0f - textSize.y / 2.0f);
         ImGui::SetCursorPos(cursorPosInside);
-        Icon(*foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT, false, 1.0f);
+        IconSmall(m_classFoldoutMap[tid] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
         ImGui::SameLine();
         ImGui::Text(label);
         ImGui::SameLine();
         ImGui::SetCursorPos(cursorPosAfterButton);
 
-        return *foldoutOpen;
+        return m_classFoldoutMap[tid];
     }
 
     void WidgetsUtility::DropShadow()
@@ -737,7 +748,7 @@ namespace Lina::Editor
         }
     }
 
-    bool WidgetsUtility::CaretTitle(const char* title, bool* caretOpen)
+    bool WidgetsUtility::CaretTitle(const char* title, const std::string& id)
     {
         bool   clicked          = false;
         bool   hovered          = false;
@@ -748,7 +759,7 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
         ImGui::PushStyleColor(ImGuiCol_Text, caretColor);
-        ImGui::Text(*caretOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+        IconSmall(m_idFoldoutMap[id] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
         ImGui::PopStyleColor();
 
         if (ImGui::IsItemClicked())
@@ -762,9 +773,9 @@ namespace Lina::Editor
             clicked = true;
 
         if (clicked)
-            *caretOpen = !*caretOpen;
+            m_idFoldoutMap[id] = !m_idFoldoutMap[id];
 
-        return *caretOpen;
+        return m_idFoldoutMap[id];
     }
 
     void WidgetsUtility::PropertyLabel(const char* label, bool sameLine, const std::string& tooltip)
@@ -954,10 +965,11 @@ namespace Lina::Editor
             GUILayer::Get()->GetResourceSelector().Open();
         }
 
-        const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().GetSelectedResource();
+        const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
         if (s_latestResourceHandle == currentHandle && selectedResource != 0)
         {
-            s_latestResourceHandle = nullptr;
+            GUILayer::Get()->GetResourceSelector().m_selectedResource = 0;
+            s_latestResourceHandle                                    = nullptr;
             return selectedResource;
         }
 
@@ -976,6 +988,7 @@ namespace Lina::Editor
         {
             handle->m_sid   = selected;
             handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(selected);
+            LINA_TRACE("Selected : {0}", handle->m_value->GetPath());
         }
 
         if (removed)
@@ -1019,7 +1032,7 @@ namespace Lina::Editor
 
         if (removed)
         {
-            auto* defaultMat                     = Physics::PhysicsEngineBackend::Get()->GetDefaultPhysicsMaterial();
+            auto* defaultMat = Physics::PhysicsEngineBackend::Get()->GetDefaultPhysicsMaterial();
             handle->m_sid    = defaultMat->GetSID();
             handle->m_value  = defaultMat;
         }

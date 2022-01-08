@@ -74,10 +74,7 @@ namespace Lina::Editor
             m_resourceStr     = typeStr;
         }
 
-        inline StringIDType GetSelectedResource()
-        {
-            return m_selectedResource;
-        }
+        StringIDType m_selectedResource = 0;
 
     private:
         void DrawTop();
@@ -86,7 +83,6 @@ namespace Lina::Editor
 
     private:
         bool                        m_firstLaunch      = true;
-        StringIDType                m_selectedResource = 0;
         TypeID                      m_currentFileType  = 0;
         Resources::ResourceStorage* m_storage          = nullptr;
         Utility::File*              m_selectedFile     = nullptr;

@@ -46,8 +46,17 @@ Timestamp: 1/6/2022 6:58:17 PM
 
 namespace Lina
 {
+    namespace Editor
+    {
+        class ClassDrawer;
+    }
+}
+
+namespace Lina
+{
     class Engine;
 
+    LINA_CLASS("Engine Settings")
     class EngineSettings
     {
 
@@ -55,6 +64,10 @@ namespace Lina
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
+        inline Graphics::RenderSettings& GetRenderSettings()
+        {
+            return m_renderSettings;
+        }
 
         template <class Archive>
         void serialize(Archive& archive)
@@ -64,9 +77,10 @@ namespace Lina
 
     private:
         friend class Engine;
+        friend class Editor::ClassDrawer;
 
+        Graphics::RenderSettings                m_renderSettings;
         Resources::ResourceHandle<World::Level> m_startupLevel;
-        Graphics::RenderSettings m_renderSettings;
     };
 } // namespace Lina
 

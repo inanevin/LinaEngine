@@ -52,7 +52,7 @@ namespace Lina
     {
         struct ELevelInstalled;
     }
-}
+} // namespace Lina
 
 namespace Lina::ECS
 {
@@ -119,20 +119,25 @@ namespace Lina::ECS
         /// <returns></returns>
         static Vector3 WorldToViewportCoordinates(const Vector3& world);
 
-        void SetAspectRatio(float aspect)
+        void SetActiveCamera(Entity cameraOwner);
+
+        inline void SetAspectRatio(float aspect)
         {
             m_aspectRatio = aspect;
         }
-        void   SetActiveCamera(Entity cameraOwner);
-        Entity GetActiveCamera()
+        inline float GetAspectRatio()
+        {
+            return m_aspectRatio;
+        }
+        inline Entity GetActiveCamera()
         {
             return m_activeCameraEntity;
         }
-        Matrix& GetViewMatrix()
+        inline Matrix& GetViewMatrix()
         {
             return m_view;
         }
-        Matrix& GetProjectionMatrix()
+        inline Matrix& GetProjectionMatrix()
         {
             return m_projection;
         }

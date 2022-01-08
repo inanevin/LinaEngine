@@ -235,15 +235,26 @@ namespace Lina::Editor
                 WidgetsUtility::PushPopupStyle();
 
                 // Handle Right Click.
-                // if (Application::Get()->GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
-                // {
-                //     m_rightClickMenu->Draw();
-                //     ImGui::EndPopup();
-                // }
+                if (ImGui::BeginPopupContextWindow())
+                {
+                    m_rightClickMenu->Draw();
+                    ImGui::EndPopup();
+                }
 
                 WidgetsUtility::PopPopupStyle();
 
                 ImGui::EndChild();
+
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                        Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
                 WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
                 ImGui::PopStyleColor();

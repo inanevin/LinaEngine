@@ -49,11 +49,6 @@ namespace Lina
         class Level;
     }
 
-    namespace Event
-    {
-        struct ELevelInstalled;
-        struct ELevelUninstalled;
-    } // namespace Event
 } // namespace Lina
 
 namespace Lina::Editor
@@ -68,11 +63,6 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
-        void LevelInstalled(const Event::ELevelInstalled& ev);
-        void LevelIUninstalled(const Event::ELevelUninstalled& ev);
-
-    private:
-        World::Level* m_currentLevel = nullptr;
     };
 } // namespace Lina::Editor
 

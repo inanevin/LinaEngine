@@ -63,7 +63,7 @@ namespace Lina::ECS
 {
     struct ModelRendererComponent;
 
-    LINA_COMPONENT("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false", "")
+    LINA_COMPONENT("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false")
     struct EntityDataComponent : public Component
     {
         EntityDataComponent(bool enabled, bool serialized, std::string name)

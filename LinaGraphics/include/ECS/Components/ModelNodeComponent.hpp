@@ -56,10 +56,10 @@ namespace Lina
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Model Node", "ICON_FA_CUBES", "Rendering", "false", "false", "")
+    LINA_COMPONENT("Model Node", "ICON_FA_CUBES", "Rendering", "false", "false")
     struct ModelNodeComponent : public Component
     {
-        LINA_PROPERTY("Materials", "MaterialArray", "", "")
+        LINA_PROPERTY("Materials", "MaterialArray")
         std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
 
         Resources::ResourceHandle<Graphics::ModelNode> m_modelNode;

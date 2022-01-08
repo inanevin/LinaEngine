@@ -121,27 +121,31 @@ namespace Lina::Editor
         ImGui::GetWindowDrawList()->AddRectFilled(bgMin, bgMax, ImGui::ColorConvertFloat4ToU32(bgCol), 3.0f);
 
         const float drawPadding = 5;
-        ImVec2         drawSize    = ImVec2(bgSize.x - drawPadding, bgSize.y - drawPadding);
-      
-        auto& camSystem = EditorApplication::Get()->GetCameraSystem();
-        auto& data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
-        const Vector3 location = data.GetLocation();
-        const Quaternion rotation = data.GetRotation();
+        ImVec2      drawSize    = ImVec2(bgSize.x - drawPadding, bgSize.y - drawPadding);
 
-        data.SetLocation(Vector3(0,30, -200));
-        data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3(0,0,0), Vector3::Up));
-        
+        auto&            camSystem = EditorApplication::Get()->GetCameraSystem();
+        auto&            data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
+        const Vector3    location  = data.GetLocation();
+        const Quaternion rotation  = data.GetRotation();
+
+        data.SetLocation(Vector3(0, 5, -10));
+        data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3(0, 0, 0), Vector3::Up));
+
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
+
+        const ImVec2 imageMin    = ImVec2(bgMin.x + bgSize.x / 2.0f - drawSize.x / 2.0f, bgMin.y + bgSize.y / 2.0f - drawSize.y / 2.0f);
+        const ImVec2 imageMax    = ImVec2(imageMin.x + drawSize.x, imageMin.y + drawSize.y);
+        const ImVec2 imageSize   = ImVec2(imageMax.x - imageMin.x, imageMax.y - imageMin.y);
+        const float  aspectRatio = imageSize.x / imageSize.y;
+
+        auto* cameraSystem = renderEngine->GetCameraSystem();
+        if (cameraSystem->GetAspectRatio() != aspectRatio)
+            cameraSystem->SetAspectRatio(aspectRatio);
+
         uint32 previewTexture = renderEngine->RenderModelPreview(m_targetModel);
-
-        const ImVec2 imageMin = ImVec2(bgMin.x + bgSize.x / 2.0f - drawSize.x / 2.0f, bgMin.y + bgSize.y / 2.0f - drawSize.y / 2.0f);
-        const ImVec2 imageMax = ImVec2(imageMin.x + drawSize.x, imageMin.y + drawSize.y);
         ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
-
         // Reset
         data.SetLocation(location);
         data.SetRotation(rotation);
-
-  
     }
 } // namespace Lina::Editor

@@ -44,6 +44,7 @@ SOFTWARE.
 #include "IconsMaterialDesign.h"
 #include "Memory/Memory.hpp"
 #include "Rendering/Material.hpp"
+#include "Drawers/ClassDrawer.hpp"
 #include "Rendering/Model.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imguizmo/ImGuizmo.h"
@@ -72,11 +73,8 @@ namespace Lina::Editor
         }
     }
 
-    template <typename Type>
-    void Drawer_Debug(ECS::Entity ent)
+    void Drawer_Debug(TypeID tid, ECS::Entity ent)
     {
-        auto tid = GetTypeID<Type>();
-
         if (tid == GetTypeID<PointLightComponent>())
         {
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
@@ -410,8 +408,6 @@ namespace Lina::Editor
             if (foldoutOpen)
             {
                 // Draw each reflected property in the component according to it's type.
-                int         varCounter = 0;
-                std::string varLabelID = "";
                 for (auto data : resolvedData.data())
                 {
 
@@ -421,164 +417,22 @@ namespace Lina::Editor
                     if (!labelProperty || !typeProperty)
                         continue;
 
-                    const char* label                     = labelProperty.value().cast<const char*>();
-                    std::string type                      = std::string(typeProperty.value().cast<const char*>());
-                    auto        displayDependencyProperty = data.prop("Depends"_hs);
+                    auto        label    = labelProperty.value().cast<const char*>();
+                    std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
 
-                    if (displayDependencyProperty)
-                    {
-                        entt::hashed_string displayDependencyHash = displayDependencyProperty.value().cast<entt::hashed_string>();
-                        auto                dependantMember       = resolvedData.data(displayDependencyHash);
-
-                        if (dependantMember)
-                        {
-                            bool dependantMemberValue = dependantMember.get(instance).cast<bool>();
-                            if (!dependantMemberValue)
-                                continue;
-                        }
-                    }
-
-                    varLabelID = "##_" + std::string(title) + std::to_string(varCounter);
-                    WidgetsUtility::PropertyLabel(label);
-
-                    auto tooltipProperty = data.prop("Tooltip"_hs);
-                    if (tooltipProperty)
-                    {
-                        std::string tooltip = std::string(tooltipProperty.value().cast<const char*>());
-                        if (ImGui::IsItemHovered() && tooltip.compare("") != 0)
-                            WidgetsUtility::Tooltip(tooltip.c_str());
-                    }
-
-                    if (type.compare("Float") == 0)
-                    {
-                        float       variable = data.get(instance).cast<float>();
-                        const float prev     = variable;
-                        WidgetsUtility::DragFloat(varLabelID.c_str(), nullptr, &variable);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Int") == 0)
-                    {
-                        int       variable = data.get(instance).cast<int>();
-                        const int prev     = variable;
-                        WidgetsUtility::DragInt(varLabelID.c_str(), nullptr, &variable);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Vector2") == 0)
-                    {
-                        Vector2       variable = data.get(instance).cast<Vector2>();
-                        const Vector2 prev     = variable;
-                        WidgetsUtility::DragVector2(varLabelID.c_str(), &variable.x);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Vector3") == 0)
-                    {
-                        Vector3       variable = data.get(instance).cast<Vector3>();
-                        const Vector3 prev     = variable;
-                        WidgetsUtility::DragVector3(varLabelID.c_str(), &variable.x);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Vector4") == 0)
-                    {
-                        Vector4       variable = data.get(instance).cast<Vector4>();
-                        const Vector4 prev     = variable;
-                        WidgetsUtility::DragVector4(varLabelID.c_str(), &variable.x);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Color") == 0)
-                    {
-                        Color       variable = data.get(instance).cast<Color>();
-                        const Color prev     = variable;
-                        WidgetsUtility::ColorButton(varLabelID.c_str(), &variable.r);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("Bool") == 0)
-                    {
-                        bool       variable = data.get(instance).cast<bool>();
-                        const bool prev     = variable;
-                        ImGui::Checkbox(varLabelID.c_str(), &variable);
-                        data.set(instance, variable);
-
-                        if (valueChangedCallback && prev != variable)
-                            valueChangedCallback.invoke({}, ent, label);
-                    }
-                    else if (type.compare("MaterialArray") == 0)
-                    {
-                        ImGui::NewLine();
-
-                        std::vector<std::string> materials = data.get(instance).cast<std::vector<std::string>>();
-
-                        for (int i = 0; i < materials.size(); i++)
-                        {
-                            // Material selection.
-                            char matPathC[128] = "";
-                            strcpy_s(matPathC, materials[i].c_str());
-
-                            // Draw material name
-                            std::string materialName = resolvedData.func("getMaterialName"_hs).invoke({}, ent, i).cast<std::string>();
-                            WidgetsUtility::PropertyLabel(materialName.c_str());
-
-                            //   const std::string   cboxID           = "##modRendMat " + std::to_string(i);
-                            //   bool                removed          = false;
-                            //   Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), materials[i], &removed);
-                            //
-                            //   if (selectedMaterial != nullptr)
-                            //       resolvedData.func("setMaterial"_hs).invoke({}, ent, i, *selectedMaterial);
-                            //
-                            //   if (removed)
-                            //       resolvedData.func("removeMaterial"_hs).invoke({}, ent, i);
-                            //
-                            // // Material drag & drop.
-                            // if (ImGui::BeginDragDropTarget())
-                            // {
-                            //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-                            //     {
-                            //         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                            //
-                            //         auto& mat = Graphics::Material::GetMaterial(*(StringIDType*)payload->Data);
-                            //         resolvedData.func("setMaterial"_hs).invoke({}, ent, i, mat);
-                            //     }
-                            //     ImGui::EndDragDropTarget();
-                            // }
-                        }
-                    }
-
-                    varCounter++;
-                    varLabelID.clear();
+                    ClassDrawer::AddPropertyToDrawList(category, data);
                 }
+
+                ClassDrawer::FlushDrawList(title, resolvedData, instance);
 
                 // Check if the target data contains a debug property,
                 // If so, and if the property is set to true,
                 // Call the debug function if exists.
-                auto debugProperty = resolvedData.data("debug"_hs);
+                auto debugProperty = resolvedData.data("m_drawDebug"_hs);
                 if (debugProperty)
                 {
-                    bool isDebugEnabled = debugProperty.get(instance).cast<bool>();
-
-                    if (isDebugEnabled)
-                    {
-                        auto debugFunc = resolvedData.func("drawDebug"_hs);
-
-                        if (debugFunc)
-                            debugFunc.invoke({}, ent);
-                    }
+                    if (debugProperty.get(instance).cast<bool>())
+                        Drawer_Debug(tid, ent);
                 }
             }
         }

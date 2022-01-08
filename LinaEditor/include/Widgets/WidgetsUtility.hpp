@@ -163,12 +163,12 @@ namespace Lina::Editor
         /// Draws a header same style as component headers, no icons or component buttons. Returns true if pressed.
         /// Send in a cursor pos value to get the cursor position inside the header.
         /// </summary>
-        static bool Header(const char* title, bool* foldoutOpen, ImVec2* cursorPos = nullptr);
+        static bool Header(TypeID tid, const char* title, ImVec2* cursorPos = nullptr);
 
         /// <summary>
         /// Draws a simple caret and a title, return true upon press.
         /// </summary>
-        static bool CaretTitle(const char* title, bool* caretOpen);
+        static bool CaretTitle(const char* title, const std::string& id);
 
         /// <summary>
         /// Draws a property label, automatically sets the cursor position, asks for the same line.

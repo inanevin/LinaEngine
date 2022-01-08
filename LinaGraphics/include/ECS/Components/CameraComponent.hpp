@@ -44,19 +44,19 @@ Timestamp: 5/2/2019 12:20:42 AM
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Camera Component", "ICON_FA_EYE", "Rendering", "true", "true", "")
+    LINA_COMPONENT("Camera Component", "ICON_FA_EYE", "Rendering", "true", "true")
     struct CameraComponent : public Component
     {
-        LINA_PROPERTY("Clear Color", "Color", "", "")
+        LINA_PROPERTY("Clear Color", "Color")
         Color m_clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
 
-        LINA_PROPERTY("Field of View", "Float", "", "")
+        LINA_PROPERTY("Field of View", "Float")
         float m_fieldOfView = 90.0f;
 
-        LINA_PROPERTY("Near", "Float", "Minimum distance the camera renders at.", "")
+        LINA_PROPERTY("Near", "Float", "Minimum distance the camera renders at.")
         float m_zNear = 0.01f;
 
-        LINA_PROPERTY("Far", "Float", "Maximum distance the camera renders at.", "")
+        LINA_PROPERTY("Far", "Float", "Maximum distance the camera renders at.")
         float m_zFar = 1000.0f;
 
         template <class Archive>

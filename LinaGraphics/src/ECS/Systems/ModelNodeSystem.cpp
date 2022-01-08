@@ -179,7 +179,7 @@ namespace Lina::ECS
         for (auto* mesh : meshes)
         {
             Graphics::VertexArray& vertexArray = mesh->GetVertexArray();
-            Matrix&                models      = node->m_localTransform;
+            Matrix                models      = Matrix::Identity();
 
             // Update the buffer w/ each transform.
             vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));

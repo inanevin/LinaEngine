@@ -56,12 +56,10 @@ static ImGuizmo::OPERATION currentTransformGizmoOP   = ImGuizmo::OPERATION::TRAN
 static ImGuizmo::MODE      currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix              gridLineMatrix            = Matrix::Identity();
 static Matrix              modelMatrix               = Matrix::Identity();
-static ImVec2              previousWindowSize;
 #define GRID_SIZE 1000
 
 namespace Lina::Editor
 {
-    bool levelPanelFirstRun = false;
 
     void LevelPanel::Initialize(const char* id, const char* icon)
     {
@@ -92,8 +90,10 @@ namespace Lina::Editor
             {
                 WidgetsUtility::FramePaddingY(0.0f);
 
-                ImVec2 sceneWindowPos  = WidgetsUtility::GetWindowPosWithContentRegion();
-                ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
+                const ImVec2 sceneWindowPos    = WidgetsUtility::GetWindowPosWithContentRegion();
+                const ImVec2 sceneWindowSize   = WidgetsUtility::GetWindowSizeWithContentRegion();
+                float windowAspect = sceneWindowSize.x / sceneWindowSize.y;
+                
 
                 // Set Focus
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -109,16 +109,13 @@ namespace Lina::Editor
 
                 ImGui::BeginChild("finalImage");
 
-                // Get game viewport aspect.
-                Vector2 vpSize = renderEngine->GetScreenSize();
-                float   aspect = (float)vpSize.x / (float)vpSize.y;
-
                 // Resize engine display.
-                if ((sceneWindowSize.x != previousWindowSize.x || sceneWindowSize.y != previousWindowSize.y))
-                {
-                    Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
-                    previousWindowSize = sceneWindowSize;
-                }
+            
+                 if (renderEngine->GetCameraSystem()->GetAspectRatio() != windowAspect)
+                 {
+                     renderEngine->GetCameraSystem()->SetAspectRatio(windowAspect);
+                 }
+
 
 #pragma warning(disable : 4312) // ImTextureID requires a void* conversion.
 
@@ -264,37 +261,20 @@ namespace Lina::Editor
 
                 ImGui::EndChild();
 
-                if (!levelPanelFirstRun)
-                {
-                    levelPanelFirstRun = true;
-                    Graphics::RenderEngineBackend::Get()->SetScreenDisplay(Vector2i(0, 0), Vector2i((unsigned int)(sceneWindowSize.x), (unsigned int)(sceneWindowSize.y)));
-                }
-
-                // Model drag & drop.
-                // if (ImGui::BeginDragDropTarget())
-                // {
-                //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-                //     {
-                //         IM_ASSERT(payload->DataSize == sizeof(uint32));
-                //
-                //         auto* ecs    = ECS::Registry::Get();
-                //         auto& model  = Graphics::Model::GetModel(*(uint32*)payload->Data);
-                //         auto  entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-                //         auto& mr     = ecs->emplace<ECS::ModelRendererComponent>(entity);
-                //         mr.SetModel(entity, model);
-                //
-                //         auto& mat = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");
-                //
-                //         for (int i = 0; i < model.GetImportedMaterials().size(); i++)
-                //             mr.SetMaterial(entity, i, mat);
-                //     }
-                //     ImGui::EndDragDropTarget();
-                // }
+                 // Model drag & drop.
+                 if (ImGui::BeginDragDropTarget())
+                 {
+                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
+                     {
+                         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                         renderEngine->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
+                     }
+                     ImGui::EndDragDropTarget();
+                 }
 
                 WidgetsUtility::PopStyleVar();
                 End();
             }
-         
         }
     }
 
