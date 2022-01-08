@@ -326,7 +326,7 @@ namespace Lina::Editor
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
         m_resourceSelectorPanel.Draw();
-       
+
         // Should be drawn last.
         m_modelPanel.Draw();
         m_materialPanel.Draw();
@@ -391,7 +391,7 @@ namespace Lina::Editor
         {
             std::string fullPath = "";
             fullPath             = EditorUtility::SaveFile(".linalevel", Graphics::WindowBackend::Get()->GetNativeWindow());
-            
+
             if (fullPath.compare("") != 0)
             {
                 World::Level::GetCurrent()->SaveToFile(fullPath + ".linalevel");
@@ -401,7 +401,7 @@ namespace Lina::Editor
         {
             std::string fullPath = "";
             fullPath             = EditorUtility::OpenFile(".linalevel", Graphics::WindowBackend::Get()->GetNativeWindow());
-            
+
             if (fullPath.compare("") != 0)
             {
                 Engine::Get()->GetDefaultLevel().InstallFromFile(fullPath);

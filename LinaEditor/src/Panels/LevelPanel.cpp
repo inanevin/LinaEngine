@@ -90,10 +90,14 @@ namespace Lina::Editor
             {
                 WidgetsUtility::FramePaddingY(0.0f);
 
-                const ImVec2 sceneWindowPos    = WidgetsUtility::GetWindowPosWithContentRegion();
-                const ImVec2 sceneWindowSize   = WidgetsUtility::GetWindowSizeWithContentRegion();
+                const ImVec2 sceneWindowPos  = WidgetsUtility::GetWindowPosWithContentRegion();
+                const ImVec2 sceneWindowSize = WidgetsUtility::GetWindowSizeWithContentRegion();
+
+                // Resize engine display.
                 float windowAspect = sceneWindowSize.x / sceneWindowSize.y;
-                
+
+                if (renderEngine->GetCameraSystem()->GetAspectRatio() != windowAspect)
+                    renderEngine->GetCameraSystem()->SetAspectRatio(windowAspect);
 
                 // Set Focus
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -108,14 +112,6 @@ namespace Lina::Editor
                 }
 
                 ImGui::BeginChild("finalImage");
-
-                // Resize engine display.
-            
-                 if (renderEngine->GetCameraSystem()->GetAspectRatio() != windowAspect)
-                 {
-                     renderEngine->GetCameraSystem()->SetAspectRatio(windowAspect);
-                 }
-
 
 #pragma warning(disable : 4312) // ImTextureID requires a void* conversion.
 
@@ -261,16 +257,16 @@ namespace Lina::Editor
 
                 ImGui::EndChild();
 
-                 // Model drag & drop.
-                 if (ImGui::BeginDragDropTarget())
-                 {
-                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
-                     {
-                         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                         renderEngine->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
-                     }
-                     ImGui::EndDragDropTarget();
-                 }
+                // Model drag & drop.
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                        renderEngine->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
+                    }
+                    ImGui::EndDragDropTarget();
+                }
 
                 WidgetsUtility::PopStyleVar();
                 End();

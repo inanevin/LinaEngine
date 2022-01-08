@@ -167,8 +167,8 @@ namespace Lina::Editor
             return m_resourceSelectorPanel;
         }
 
-        float                              m_headerSize = 0.0f;
-        float                              m_footerSize = 20.0f;
+        float                              m_headerSize     = 0.0f;
+        float                              m_footerSize     = 20.0f;
         std::map<const char*, const char*> m_windowIconMap;
 
     private:
@@ -206,7 +206,7 @@ namespace Lina::Editor
         MaterialPanel               m_materialPanel;
         ShaderPanel                 m_shaderPanel;
         TexturePanel                m_texturePanel;
-        Resources::ResourceStorage* m_storage = nullptr;
+        Resources::ResourceStorage* m_storage                  = nullptr;
         std::string                 m_currentlyLoadingResource = "";
         float                       m_percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;

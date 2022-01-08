@@ -138,12 +138,17 @@ namespace Lina::Editor
         const ImVec2 imageSize   = ImVec2(imageMax.x - imageMin.x, imageMax.y - imageMin.y);
         const float  aspectRatio = imageSize.x / imageSize.y;
 
-        auto* cameraSystem = renderEngine->GetCameraSystem();
+        auto*       cameraSystem  = renderEngine->GetCameraSystem();
+        const float currentAspect = cameraSystem->GetAspectRatio();
         if (cameraSystem->GetAspectRatio() != aspectRatio)
             cameraSystem->SetAspectRatio(aspectRatio);
 
         uint32 previewTexture = renderEngine->RenderModelPreview(m_targetModel);
         ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
+
+        if (cameraSystem->GetAspectRatio() != currentAspect)
+            cameraSystem->SetAspectRatio(currentAspect);
+
         // Reset
         data.SetLocation(location);
         data.SetRotation(rotation);

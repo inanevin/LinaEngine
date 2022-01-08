@@ -153,12 +153,6 @@ namespace Lina::Graphics
         }
 
         /// <summary>
-        /// Changes the preview texture resolution, used mostly within whichever window is rendering the preview texture.
-        /// </summary>
-        /// <param name="newSize"></param>
-        void ResizePreviewTexture(const Vector2i newSize);
-
-        /// <summary>
         /// Returns a texture pointer to the final drawed image, which is usually drawn to the screen as a full-screen quad.
         /// </summary>
         uint32 GetFinalImage();
@@ -285,10 +279,6 @@ namespace Lina::Graphics
         inline const ECS::SystemList& GetAnimationPipeline()
         {
             return m_animationPipeline;
-        }
-        inline Vector2i GetPreviewTextureSize()
-        {
-            return m_previewTextureSize;
         }
 
     private:
@@ -445,7 +435,6 @@ namespace Lina::Graphics
         Vector2i m_screenPos              = Vector2i(0, 0);
         Vector2i m_screenSize             = Vector2i(0, 0);
         Vector2i m_pLightShadowResolution = Vector2i(1024, 1024);
-        Vector2i m_previewTextureSize     = Vector2i(1024, 1024);
         bool     m_firstFrameDrawn        = false;
 
         std::queue<DebugLine>                m_debugLineQueue;

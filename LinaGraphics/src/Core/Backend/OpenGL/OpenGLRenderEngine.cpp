@@ -364,8 +364,8 @@ namespace Lina::Graphics
             m_secondaryRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
             m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
             m_secondaryRenderTarget.Construct(m_secondaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
-            m_previewRTTexture.ConstructRTTexture(m_previewTextureSize, m_primaryRTParams, false);
-            m_previewRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_previewTextureSize);
+            m_previewRTTexture.ConstructRTTexture(m_screenSize, m_primaryRTParams, false);
+            m_previewRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
             m_previewRenderTarget.Construct(m_previewRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_previewRenderBuffer.GetID());
         }
     }
@@ -439,6 +439,7 @@ namespace Lina::Graphics
         if (m_appMode == ApplicationMode::Editor)
         {
             m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+            m_renderDevice.ResizeRTTexture(m_previewRTTexture.GetID(), m_screenSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
         }
     }
 
@@ -1164,12 +1165,6 @@ namespace Lina::Graphics
         mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
         mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
-    }
-
-    void OpenGLRenderEngine::ResizePreviewTexture(const Vector2i newSize)
-    {
-        m_previewTextureSize = newSize;
-        m_renderDevice.ResizeRTTexture(m_previewRTTexture.GetID(), m_previewTextureSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
     }
 
     uint32 OpenGLRenderEngine::GetFinalImage()
