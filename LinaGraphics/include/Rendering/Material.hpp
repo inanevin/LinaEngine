@@ -174,7 +174,7 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_receiveShadows, m_receiveLighting, m_receiveHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+            archive(m_receiveShadows, m_triggersHDRIReflections, m_receiveLighting, m_receiveHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
         }
 
         std::map<std::string, float>             m_floats;

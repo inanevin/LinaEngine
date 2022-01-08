@@ -274,13 +274,17 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
-        //   m_defaultLit        = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
-        m_defaultLit        = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl"), "Resources/Engine/Materials/DefaultLit.linamat");
-        m_defaultUnlit      = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Unlit/Unlit.glsl"), "Resources/Engine/Materials/DefaultUnlit.linamat");
-        m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
-        m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
-        m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
-        m_defaultSkyboxHDRI->m_triggersHDRIReflections = true;
+        // Keep here in-case we need to programatically re-create engine materials.
+        // m_defaultLit        = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl"), "Resources/Engine/Materials/DefaultLit.linamat");
+        // m_defaultUnlit      = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Unlit/Unlit.glsl"), "Resources/Engine/Materials/DefaultUnlit.linamat");
+        // m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
+        // m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
+        // m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
+        m_defaultLit        = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
+        m_defaultUnlit      = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
+        m_defaultSkybox     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
+        m_defaultSprite     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
+        m_defaultSkyboxHDRI = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
         auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Bright_Sky.hdr");
         CaptureCalculateHDRI(*text);
@@ -541,7 +545,7 @@ namespace Lina::Graphics
         {
             SetupEngineShaders();
         }
-        else if (ev.m_tid == GetTypeID<Texture>())
+        else if (ev.m_tid == GetTypeID<Material>())
         {
             ConstructEngineMaterials();
         }

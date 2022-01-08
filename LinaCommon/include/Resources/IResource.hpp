@@ -42,6 +42,7 @@ Timestamp: 12/30/2021 9:37:24 PM
 // Headers here.
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/StringId.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include <string>
 #include <cereal/archives/portable_binary.hpp>
 #include <functional>
@@ -137,6 +138,9 @@ namespace Lina::Resources
     template <typename T>
     void SaveArchiveToFile(const std::string& path, T& obj)
     {
+        if (Utility::FileExists(path))
+            Utility::DeleteFileInPath(path);
+
         std::ofstream stream(path, std::ios::binary);
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
