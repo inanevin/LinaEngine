@@ -60,10 +60,11 @@ namespace Lina::Graphics
         virtual void* LoadFromFile(const std::string& path) override;
         void*         LoadFromFileHDRI(const std::string& path);
         void*         LoadFromMemoryHDRI(const std::string& path, unsigned char* data, size_t dataSize);
+        void          WriteToFile(const std::string& path);
 
-        void Construct(const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
+        void Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
         void ConstructCubemap(SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-        void ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path = "");
+        void ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path = "");
         void ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
         void ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
         void ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
@@ -107,13 +108,15 @@ namespace Lina::Graphics
 
         TextureBindMode m_bindMode;
         Sampler         m_sampler;
-        ImageAssetData* m_assetData    = nullptr;
-        RenderDevice*   m_renderDevice = nullptr;
-        uint32          m_id           = 0;
-        Vector2i        m_size         = Vector2::One;
-        bool            m_isCompressed = false;
-        bool            m_hasMipMaps   = true;
-        bool            m_isEmpty      = true;
+        ImageAssetData* m_assetData     = nullptr;
+        RenderDevice*   m_renderDevice  = nullptr;
+        uint32          m_id            = 0;
+        Vector2i        m_size          = Vector2::One;
+        bool            m_isCompressed  = false;
+        bool            m_hasMipMaps    = true;
+        bool            m_isEmpty       = true;
+        int             m_numComponents = 0;
+        ArrayBitmap*    m_bitmap        = nullptr;
     };
 } // namespace Lina::Graphics
 

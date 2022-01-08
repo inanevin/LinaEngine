@@ -50,23 +50,38 @@ namespace Lina::Graphics
     class ArrayBitmap
     {
     public:
-        // Param constructors including width, height, pixel array and offsets
+        ArrayBitmap() = default;
         ~ArrayBitmap();
 
-        // Load the bitmap from a file in resources.
+        /// <summary>
+        /// Sets STBI image flip option.
+        /// </summary>
+        static void SetImageFlip(bool flip);
+
+        /// <summary>
+        /// Load a non-HDRI texture from a file.
+        /// </summary>
         int Load(const std::string& fileName);
 
-        // Load the bätmap from memory-
+        /// <summary>
+        /// Load a non-HDRI texture from memory.
+        /// </summary>
         int Load(unsigned char* data, size_t dataSize);
 
-        static void           SetImageFlip(bool flip);
-        static unsigned char* LoadImmediate(const char* filename, int& w, int& h, int& nrchannels);
-        static float*         LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
-        static float*         LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels);
-        static bool           Free(unsigned char* data);
+        /// <summary>
+        /// Load an HDRI texture from a file.
+        /// </summary>
+        int LoadHDRIFromFile(const char* fileName);
 
-        // Clr colors.
-        void Clear(int32 color);
+        /// <summary>
+        /// Load an HDRI texture from memory.
+        /// </summary>
+        int LoadHDRIFromMemory(unsigned char* data, size_t dataSize);
+
+        /// <summary>
+        /// Writes the current texture data to file.
+        /// </summary>
+        void Save(const std::string& path, int quality = 100);
 
         // Accessors & Mutators.
         int32 GetWidth() const
@@ -78,19 +93,33 @@ namespace Lina::Graphics
             return m_height;
         };
 
+        void SetPixelData(unsigned char* data)
+        {
+            m_pixels = data;
+        }
+
         unsigned char* GetPixelArray()
         {
             return m_pixels;
         }
+
         const unsigned char* GetPixelArray() const
         {
             return m_pixels;
         }
 
+        float* GetHDRIPixelArray()
+        {
+            return m_hdriPixels;
+        }
+
     private:
-        int32          m_width  = 0;
-        int32          m_height = 0;
-        unsigned char* m_pixels = nullptr;
+        bool           m_isHDRI     = false;
+        int            m_width      = 0;
+        int            m_height     = 0;
+        int            m_numComps   = 0;
+        unsigned char* m_pixels     = nullptr;
+        float*         m_hdriPixels = nullptr;
     };
 } // namespace Lina::Graphics
 

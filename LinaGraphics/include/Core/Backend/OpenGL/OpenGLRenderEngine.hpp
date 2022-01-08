@@ -353,7 +353,7 @@ namespace Lina::Graphics
         Texture m_hdriCubemap;
         Texture m_hdriIrradianceMap;
         Texture m_hdriPrefilterMap;
-        Texture m_HDRILutMap;
+        Texture m_hdriLutMap;
         Texture m_shadowMapRTTexture;
         Texture m_defaultCubemapTexture;
         Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
@@ -376,6 +376,7 @@ namespace Lina::Graphics
         Material  m_shadowMapMaterial;
         Material  m_defaultSkyboxMaterial;
         Material  m_pLightShadowDepthMaterial;
+        Material  m_defaultHDRISkyboxMaterial;
         Material* m_defaultUnlit  = nullptr;
         Material* m_defaultLit    = nullptr;
         Material* m_defaultSkybox = nullptr;

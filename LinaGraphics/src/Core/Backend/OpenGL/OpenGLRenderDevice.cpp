@@ -1000,6 +1000,13 @@ namespace Lina::Graphics
         LINA_TRACE("Data {0}", v.ToString());
     }
 
+    void OpenGLRenderDevice::GetTextureImage(uint32 texture, TextureBindMode bindMode, void*& pixels)
+    {
+        glBindTexture(bindMode, texture);
+        glGetTexImage(bindMode, (GLint)0, GL_RGBA, GL_FLOAT, pixels);
+        glBindTexture(bindMode, 0);
+    }
+
     void OpenGLRenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)
     {
         // Bind the buffer object to the point.

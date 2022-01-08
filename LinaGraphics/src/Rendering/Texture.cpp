@@ -37,16 +37,23 @@ namespace Lina::Graphics
 {
     Texture::~Texture()
     {
+        if (m_bitmap != nullptr)
+            delete m_bitmap;
+
         m_id = m_renderDevice->ReleaseTexture2D(m_id);
     }
 
-    void Texture::Construct(const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
+    void Texture::Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
-        m_size         = Vector2i((unsigned int)data.GetWidth(), (unsigned int)data.GetHeight());
+        m_size         = Vector2i((int)m_bitmap->GetWidth(), (int)m_bitmap->GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+
+        // Set pixel format based on number of texture channels, only if this the num components are not 0 (meaning if the texture is constructed via bitmap loading)
+        if (m_numComponents > 0 && m_numComponents < 5)
+            samplerParams.m_textureParams.m_pixelFormat = GetPixelFormatFromNumChannels(m_numComponents);
         m_sampler.Construct(samplerParams, m_bindMode);
-        m_id = m_renderDevice->CreateTexture2D(m_size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
+        m_id = m_renderDevice->CreateTexture2D(m_size, m_bitmap->GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
         m_sampler.SetTargetTextureID(m_id);
         m_isCompressed = shouldCompress;
         m_hasMipMaps   = samplerParams.m_textureParams.m_generateMipMaps;
@@ -81,13 +88,13 @@ namespace Lina::Graphics
         cubeMapData.clear();
     }
 
-    void Texture::ConstructHDRI(SamplerParameters samplerParams, Vector2i size, float* data, const std::string& path)
+    void Texture::ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path)
     {
         m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
         m_size         = size;
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         m_sampler.Construct(samplerParams, m_bindMode);
-        m_id = m_renderDevice->CreateTextureHDRI(size, data, samplerParams);
+        m_id = m_renderDevice->CreateTextureHDRI(m_size, data, samplerParams);
         m_sampler.SetTargetTextureID(m_id);
         m_isCompressed = false;
         m_hasMipMaps   = samplerParams.m_textureParams.m_generateMipMaps;
@@ -151,7 +158,7 @@ namespace Lina::Graphics
         m_isEmpty      = true;
         SetSID(path);
     }
-    
+
     void* Texture::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Texture Loader - Memory] -> Loading: {0}", path);
@@ -161,13 +168,14 @@ namespace Lina::Graphics
             return LoadFromMemoryHDRI(path, data, dataSize);
 
         IResource::SetSID(path);
-        ArrayBitmap* textureBitmap = new ArrayBitmap();
+        m_bitmap = new ArrayBitmap();
 
-        int nrComponents = textureBitmap->Load(data, dataSize);
-        if (nrComponents == -1)
+        m_numComponents = m_bitmap->Load(data, dataSize);
+        if (m_numComponents == -1)
         {
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", path);
-            delete textureBitmap;
+            delete m_bitmap;
+            m_bitmap = nullptr;
             return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
         }
 
@@ -186,10 +194,7 @@ namespace Lina::Graphics
             storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
         }
 
-        Construct(*textureBitmap, m_assetData->m_samplerParameters, false, path);
-
-        // Delete pixel data.
-        delete textureBitmap;
+        Construct(m_assetData->m_samplerParameters, false, path);
 
         // Return
         return static_cast<void*>(this);
@@ -204,13 +209,14 @@ namespace Lina::Graphics
             return LoadFromFileHDRI(path);
 
         IResource::SetSID(path);
-        ArrayBitmap* textureBitmap = new ArrayBitmap();
-        
-        int nrComponents = textureBitmap->Load(path);
-        if (nrComponents == -1)
+        m_bitmap = new ArrayBitmap();
+
+        m_numComponents = m_bitmap->Load(path);
+        if (m_numComponents == -1)
         {
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", path);
-            delete textureBitmap;
+            delete m_bitmap;
+            m_bitmap = nullptr;
             return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
         }
 
@@ -230,10 +236,7 @@ namespace Lina::Graphics
             storage->Add(static_cast<void*>(m_assetData), GetTypeID<ImageAssetData>(), assetDataSid);
         }
 
-        Construct(*textureBitmap, m_assetData->m_samplerParameters, false, path);
-
-        // Delete pixel data.
-        delete textureBitmap;
+        Construct(m_assetData->m_samplerParameters, false, path);
 
         // Return
         return static_cast<void*>(this);
@@ -243,14 +246,8 @@ namespace Lina::Graphics
     {
         // Build pixel data.
         SetSID(path);
-        int    w, h, nrComponents;
-        float* data = ArrayBitmap::LoadImmediateHDRI(path.c_str(), w, h, nrComponents);
-
-        if (!data)
-        {
-            LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", path);
-            return RenderEngineBackend::Get()->GetDefaultTexture();
-        }
+        m_bitmap        = new ArrayBitmap();
+        m_numComponents = m_bitmap->LoadHDRIFromFile(path.c_str());
 
         // Build texture & construct.
         SamplerParameters samplerParams;
@@ -258,7 +255,7 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
-        ConstructHDRI(samplerParams, Vector2i(w, h), data, path);
+        ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
 
         // Return
         return static_cast<void*>(this);
@@ -268,9 +265,8 @@ namespace Lina::Graphics
     {
         // Build pixel data.
         SetSID(path);
-        int    w, h, nrComponents;
-        float* bitmapData = ArrayBitmap::LoadImmediateHDRI(data, dataSize, w, h, nrComponents);
-        LINA_ASSERT(bitmapData != nullptr, "HDR texture could not be loaded!");
+        m_bitmap        = new ArrayBitmap();
+        m_numComponents = m_bitmap->LoadHDRIFromMemory(data, dataSize);
 
         // Build texture & construct.
         SamplerParameters samplerParams;
@@ -278,10 +274,27 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
-        ConstructHDRI(samplerParams, Vector2i(w, h), bitmapData, path);
+        ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
 
         // Return
         return static_cast<void*>(this);
+    }
+
+    void Texture::WriteToFile(const std::string& path)
+    {
+        if (m_bitmap == nullptr)
+        {
+            LINA_ERR("Texture bitmap is null, can't write data to file.");
+            return;
+        }
+
+        if (m_bindMode == TextureBindMode::BINDTEXTURE_CUBEMAP)
+        {
+            void* data = nullptr;
+            m_renderDevice->GetTextureImage(m_id, m_bindMode, data);
+            m_bitmap->SetPixelData(static_cast<unsigned char*>(data));
+        }
+        m_bitmap->Save(path);
     }
 
 } // namespace Lina::Graphics

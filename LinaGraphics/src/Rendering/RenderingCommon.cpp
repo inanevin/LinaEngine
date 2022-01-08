@@ -199,4 +199,21 @@ namespace Lina::Graphics
         return SamplerWrapMode::WRAP_CLAMP_BORDER;
     }
 
+    PixelFormat GetPixelFormatFromNumChannels(int num)
+    {
+        switch (num)
+        {
+        case 1:
+            return PixelFormat::FORMAT_R;
+        case 2:
+            return PixelFormat::FORMAT_RG;
+        case 3:
+            return PixelFormat::FORMAT_RGB;
+        case 4:
+            return PixelFormat::FORMAT_RGBA;
+        default:
+            return PixelFormat::FORMAT_RGBA;
+        }
+    }
+
 } // namespace Lina::Graphics

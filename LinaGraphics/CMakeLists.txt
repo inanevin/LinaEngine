@@ -131,6 +131,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/ModelLoader.hpp
 
 	include/Utility/stb/stb_image.h
+	include/Utility/stb/stb_image_write.h
 
 
 )

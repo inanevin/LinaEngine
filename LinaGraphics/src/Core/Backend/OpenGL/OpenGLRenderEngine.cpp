@@ -279,6 +279,11 @@ namespace Lina::Graphics
         m_defaultSkybox = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
         m_defaultSprite = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
 
+        auto* mat = Material::CreateMaterial(Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultHDRI.linamat");
+        
+        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Editor/Textures/SplashScreen.png");
+        text->WriteToFile("Resources/oyeah.jpg");
+
         m_screenQuadFinalMaterial.SetShader(m_sqFinalShader);
         m_screenQuadBlurMaterial.SetShader(m_sqBlurShader);
         m_hdriMaterial.SetShader(m_hdriEquirectangularShader);
@@ -1118,11 +1123,11 @@ namespace Lina::Graphics
         Vector2 brdfLutSize = Vector2(512, 512);
 
         // Build BRDF texture.
-        m_HDRILutMap.ConstructHDRI(samplerParams, brdfLutSize, NULL);
+        m_hdriLutMap.ConstructHDRI(samplerParams, brdfLutSize, NULL);
 
         // Scale render buffer according to the resolution & bind lut map to frame buffer.
         m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
-        m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
+        m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_hdriLutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
 
         // Setup shader.
         uint32 brdfShader = m_hdriBRDFShader->GetID();
@@ -1150,7 +1155,7 @@ namespace Lina::Graphics
         }
 
         mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_hdriIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
-        mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+        mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_hdriLutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
         mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
     }
 

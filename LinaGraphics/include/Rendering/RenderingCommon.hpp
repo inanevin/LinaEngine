@@ -434,6 +434,11 @@ namespace Lina::Graphics
     /// <returns></returns>
     extern SamplerWrapMode WrapModeFromInt(int i);
 
+    /// <summary>
+    /// Given a number of image channels, returns the corresponding pixel format.
+    /// </summary>
+    extern PixelFormat GetPixelFormatFromNumChannels(int num);
+
 } // namespace Lina::Graphics
 
 #endif
