@@ -155,11 +155,32 @@ namespace Lina::Editor
 
     void HandleAppWindowResize()
     {
-        Graphics::WindowBackend* appWindow = Graphics::WindowBackend::Get();
-        ImGuiViewport*           viewport  = ImGui::GetMainViewport();
+        Graphics::WindowBackend* appWindow     = Graphics::WindowBackend::Get();
+        const Vector2            appWindowPos  = appWindow->GetPos();
+        const Vector2            appWindowSize = appWindow->GetSize();
+        ImGuiViewport*           viewport      = ImGui::GetMainViewport();
+        const ImVec2             mousePos      = ImGui::GetMousePos();
 
-        bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < HEADER_RESIZE_THRESHOLD;
-        bool verticalResize   = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < HEADER_RESIZE_THRESHOLD;
+        bool horizontalResize = Math::Abs(mousePos.x - (appWindowPos.x + appWindowSize.x)) < HEADER_RESIZE_THRESHOLD;
+        bool verticalResize   = Math::Abs(mousePos.y - (appWindowPos.y + appWindowSize.y)) < HEADER_RESIZE_THRESHOLD;
+
+        auto& panels = GUILayer::Get()->m_editorPanels;
+        for (auto& [id, panel] : panels)
+        {
+            if (panel->IsDocked())
+                continue;
+
+            const Vector2 panelPos  = panel->GetCurrentWindowPos();
+            const Vector2 panelSize = panel->GetcurrentWindowSize();
+            bool          mouseWithinWindow =
+                mousePos.x > panelPos.x && mousePos.x < panelPos.x + panelSize.x && mousePos.y > panelPos.y && mousePos.y < panelPos.y + panelSize.y;
+
+            if (mouseWithinWindow)
+            {
+                horizontalResize = false;
+                verticalResize   = false;
+            }
+        }
 
         if (horizontalResize && !verticalResize)
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
@@ -201,7 +222,6 @@ namespace Lina::Editor
             if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
             {
                 pressWindowPos = appWindow->GetPos();
-                LINA_TRACE("Press Pos {0}", pressWindowPos.ToString());
             }
 
             mouseDragging = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
@@ -339,7 +359,6 @@ namespace Lina::Editor
             ImGui::PopStyleVar();
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
-
         }
     }
 

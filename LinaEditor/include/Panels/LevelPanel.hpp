@@ -89,6 +89,11 @@ namespace Lina::Editor
         {
             return m_isFocused;
         }
+        inline bool IsHovered()
+        {
+            return m_isHovered;
+        }
+
         inline int GetTransformOperation()
         {
             return m_transformOperation;
@@ -108,12 +113,13 @@ namespace Lina::Editor
         void OnMouseButtonCallback(const Event::EMouseButtonCallback& ev);
 
     private:
-        int         m_transformOperation              = 0;
-        bool        m_isTransformModeGlobal           = true;
-        float       m_borderAlpha                     = 0.0f;
-        bool        m_isFocused                       = true;
-        ECS::Entity m_selectedEntity                  = entt::null;
-        DrawMode    m_drawMode                        = DrawMode::FinalImage;
+        int         m_transformOperation    = 0;
+        bool        m_isTransformModeGlobal = true;
+        float       m_borderAlpha           = 0.0f;
+        bool        m_isFocused             = true;
+        bool        m_isHovered             = false;
+        ECS::Entity m_selectedEntity        = entt::null;
+        DrawMode    m_drawMode              = DrawMode::FinalImage;
     };
 } // namespace Lina::Editor
 

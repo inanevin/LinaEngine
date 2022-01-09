@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Rendering/Model.hpp"
+#include "Core/Engine.hpp"
 
 namespace Lina::Editor
 {
@@ -134,9 +135,13 @@ namespace Lina::Editor
         auto&            data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
         const Vector3    location  = data.GetLocation();
         const Quaternion rotation  = data.GetRotation();
+        const float      delta     = (float)Engine::Get()->GetRawDelta();
 
-        // data.SetLocation(m_previewCameraPosition);
-        // data.SetRotation(m_previewCameraRotation);
+        camSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
+        data.SetLocation(m_previewCameraPosition);
+
+        camSystem.RotateBehaviour(delta, m_previewCameraRotation, m_mouseAngles);
+        data.SetRotation(m_previewCameraRotation);
 
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
 

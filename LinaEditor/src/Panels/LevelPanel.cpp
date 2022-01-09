@@ -115,20 +115,17 @@ namespace Lina::Editor
                 if (renderEngine->GetCameraSystem()->GetAspectRatio() != windowAspect)
                     renderEngine->GetCameraSystem()->SetAspectRatio(windowAspect);
 
-                // Set Focus
-                if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-                {
-                    ImVec2 min = ImVec2(sceneWindowPos.x, sceneWindowPos.y);
-                    ImVec2 max = ImVec2(min.x + sceneWindowSize.x, min.y + sceneWindowSize.y);
-
-                    if (ImGui::IsMouseHoveringRect(min, max))
-                        m_isFocused = true;
-                    else
-                        m_isFocused = false;
-                }
+      
 
                 ImGui::BeginChild("finalImage");
 
+                m_isFocused = ImGui::IsWindowFocused();
+                m_isHovered = ImGui::IsWindowHovered();
+
+                if (m_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+                {
+                    ImGui::SetWindowFocus();
+                }
 #pragma warning(disable : 4312) // ImTextureID requires a void* conversion.
 
                 // Draw final image.

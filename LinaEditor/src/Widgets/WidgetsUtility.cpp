@@ -442,15 +442,17 @@ namespace Lina::Editor
 
     void WidgetsUtility::BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition, const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset)
     {
-        const float iconOffset = 12.0f;
+        const ImVec2 confineSize = ImVec2(confineRect.Max.x - confineRect.Min.x, confineRect.Max.y - confineRect.Min.y);
+        const float  iconOffset  = 12.0f;
         if (isHorizontal)
             size.x += iconOffset;
         else
             size.y += iconOffset;
 
         // Set the position only if first launch.
-        const std::string childIDStr = std::string(childID);
-        ImGui::SetNextWindowPos(m_movableChildData[childIDStr].m_position);
+        const std::string childIDStr     = std::string(childID);
+        const ImVec2      targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
+        ImGui::SetNextWindowPos(targetPosition);
 
         ImGui::BeginChild(childID, size, true);
         ImGui::SetCursorPos(iconCursorOffset);
@@ -479,14 +481,14 @@ namespace Lina::Editor
 
             // Confine window position to confine rect.
             const float positionLimitPadding = 2.0f;
-            if (desiredPosition.x < confineRect.Min.x + positionLimitPadding)
-                desiredPosition.x = confineRect.Min.x + positionLimitPadding;
-            else if (desiredPosition.x > confineRect.Max.x - positionLimitPadding - size.x)
-                desiredPosition.x = confineRect.Max.x - positionLimitPadding - size.x;
-            if (desiredPosition.y < confineRect.Min.y + positionLimitPadding)
-                desiredPosition.y = confineRect.Min.y + positionLimitPadding;
-            else if (desiredPosition.y > confineRect.Max.y - positionLimitPadding - size.y)
-                desiredPosition.y = confineRect.Max.y - positionLimitPadding - size.y;
+            if (desiredPosition.x < positionLimitPadding)
+                desiredPosition.x = positionLimitPadding;
+            else if (desiredPosition.x > confineSize.x - positionLimitPadding - size.x)
+                desiredPosition.x = confineSize.x - positionLimitPadding - size.x;
+            if (desiredPosition.y < positionLimitPadding)
+                desiredPosition.y = positionLimitPadding;
+            else if (desiredPosition.y > confineSize.y - positionLimitPadding - size.y)
+                desiredPosition.y = confineSize.y - positionLimitPadding - size.y;
 
             m_movableChildData[childIDStr].m_position = desiredPosition;
         }
@@ -543,9 +545,8 @@ namespace Lina::Editor
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
-        const ImVec2 defaultPos = ImVec2(confineRect.Min.x + CURSOR_X_LABELS, confineRect.Min.y + CURSOR_X_LABELS);
 
-        WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, false, ImVec2(buttonsHorizontalOffset + 7, 0));
+        WidgetsUtility::BeginMovableChild(childID, childSize, ImVec2(CURSOR_X_LABELS, CURSOR_X_LABELS), confineRect, false, ImVec2(buttonsHorizontalOffset + 7, 0));
 
         PushIconFontSmall();
         ImGui::SetCursorPosX(buttonsHorizontalOffset);
@@ -614,7 +615,7 @@ namespace Lina::Editor
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
-        const ImVec2 defaultPos = ImVec2(confineRect.Max.x - childSize.x - CURSOR_X_LABELS - 10, confineRect.Min.y + CURSOR_X_LABELS);
+        const ImVec2 defaultPos = ImVec2((confineRect.Max.x - confineRect.Min.x) - childSize.x - CURSOR_X_LABELS - 10, CURSOR_X_LABELS);
 
         static float x = 0.0f;
         static float y = 0.0f;

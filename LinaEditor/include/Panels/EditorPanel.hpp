@@ -74,8 +74,21 @@ namespace Lina::Editor
         {
             return m_collapsed;
         }
+        inline Vector2 GetCurrentWindowPos()
+        {
+            return m_currentWindowPos;
+        }
+        inline Vector2 GetcurrentWindowSize()
+        {
+            return m_currentWindowSize;
+        }
+        inline bool IsDocked()
+        {
+            return m_isDocked;
+        }
 
     protected:
+        bool        m_isDocked               = false;
         bool        m_show                   = true;
         bool        m_collapsed              = false;
         bool        m_maximized              = false;
@@ -91,6 +104,8 @@ namespace Lina::Editor
         bool        m_setWindowPosNextFrame  = false;
         Vector2     m_windowPosNextFrame     = Vector2::Zero;
         Vector2     m_windowSizeNextFrame    = Vector2::Zero;
+        Vector2     m_currentWindowPos       = Vector2::Zero;
+        Vector2     m_currentWindowSize      = Vector2::Zero;
     };
 } // namespace Lina::Editor
 

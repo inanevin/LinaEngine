@@ -80,6 +80,8 @@ namespace Lina::Editor
         Vector2          m_rightPaneSize           = Vector2::Zero;
         Vector3          m_previewCameraPosition   = Vector3::Zero;
         Quaternion       m_previewCameraRotation   = Quaternion();
+        Vector2          m_mouseDragStart          = Vector2::Zero;
+        Vector2          m_mouseAngles             = Vector2::Zero;
     };
 } // namespace Lina::Editor
 

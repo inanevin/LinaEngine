@@ -44,6 +44,11 @@ Timestamp: 10/27/2020 4:58:35 PM
 #include "Core/InputBackendFwd.hpp"
 #include "ECS/System.hpp"
 
+namespace Lina
+{
+    class Quaternion;
+}
+
 namespace Lina::Editor
 {
     class LevelPanel;
@@ -69,8 +74,23 @@ namespace Lina::ECS
             m_cameraSpeedMultiplier = multiplier;
         }
 
+        inline Vector2 GetMovementSpeeds()
+        {
+            return m_movementSpeeds;
+        }
+
+        inline Vector2 GetRotationSpeeds()
+        {
+            return m_rotationSpeeds;
+        }
+
+        void MoveBehaviour(float delta, Vector2& mouseDragStart, Vector3& location, Quaternion& rotation);
+        void RotateBehaviour(float delta, Quaternion& q, Vector2& angles);
+
     private:
-        Entity              m_editorCamera = entt::null;
+        Vector2             m_movementSpeeds = Vector2::Zero;
+        Vector2             m_rotationSpeeds = Vector2::Zero;
+        Entity              m_editorCamera   = entt::null;
         Editor::LevelPanel* m_levelPanel;
         Input::InputEngine* m_inputEngine;
         float               m_horizontalKeyAmt      = 0.0f;

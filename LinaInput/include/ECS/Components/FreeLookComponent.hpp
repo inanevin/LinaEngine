@@ -48,6 +48,8 @@ namespace Lina::ECS
     struct FreeLookComponent : public Component
     {
         Vector2 m_angles = Vector2::Zero;
+        Vector2 m_mouseDrag = Vector2::Zero;
+
         LINA_PROPERTY("Movement Speed", "Vector2")
         Vector2 m_movementSpeeds = Vector2(12, 12);
 
