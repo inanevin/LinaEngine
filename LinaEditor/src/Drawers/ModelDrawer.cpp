@@ -76,27 +76,8 @@ namespace Lina::Editor
     void ModelDrawer::DrawModel(Graphics::Model* model, const Vector2& bgMin, const Vector2& bgMax)
     {
 #pragma warning(disable : 4312)
-
-        const float   drawPadding  = 5;
         auto*         renderEngine = Graphics::RenderEngineBackend::Get();
-        const Vector2 bgSize       = bgMax - bgMin;
-        const ImVec2  drawSize     = ImVec2(bgSize.x - drawPadding, bgSize.y - drawPadding);
-
-        const ImVec2 imageMin  = ImVec2(bgMin.x + bgSize.x / 2.0f - drawSize.x / 2.0f, bgMin.y + bgSize.y / 2.0f - drawSize.y / 2.0f);
-        const ImVec2 imageMax  = ImVec2(imageMin.x + drawSize.x, imageMin.y + drawSize.y);
-        const ImVec2 imageSize = ImVec2(imageMax.x - imageMin.x, imageMax.y - imageMin.y);
-
-        const float aspectRatio   = imageSize.x / imageSize.y;
-        auto*       cameraSystem  = renderEngine->GetCameraSystem();
-        const float currentAspect = cameraSystem->GetAspectRatio();
-
-        if (cameraSystem->GetAspectRatio() != aspectRatio)
-            cameraSystem->SetAspectRatio(aspectRatio);
-
         uint32 previewTexture = renderEngine->RenderModelPreview(model);
-        ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
-
-        if (cameraSystem->GetAspectRatio() != currentAspect)
-            cameraSystem->SetAspectRatio(currentAspect);
+        ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, ImVec2(bgMin.x, bgMin.y), ImVec2(bgMax.x, bgMax.y), ImVec2(0, 1), ImVec2(1, 0));
     }
 } // namespace Lina::Editor

@@ -130,16 +130,19 @@ namespace Lina::Editor
         const Vector2 bgMinLina = Vector2(bgMin.x, bgMin.y);
         const Vector2 bgMaxLina = Vector2(bgMax.x, bgMax.y);
 
-        bool       previewCameraEnabled = m_previewType != PreviewType::Texture;
         Vector3    previousLocation     = Vector3::Zero;
         Quaternion previousRotation     = Quaternion();
+        auto*      renderEngine         = Graphics::RenderEngineBackend::Get();
+        float      currentAspect        = 0.0f;
+        bool       previewCameraEnabled = m_previewType != PreviewType::Texture;
 
         if (previewCameraEnabled)
         {
-            auto& camSystem  = EditorApplication::Get()->GetCameraSystem();
-            auto& data       = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
-            previousLocation = data.GetLocation();
-            previousRotation = data.GetRotation();
+            // Handle camera movement & rotation.
+            auto& editorCamSystem = EditorApplication::Get()->GetCameraSystem();
+            auto& data            = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
+            previousLocation      = data.GetLocation();
+            previousRotation      = data.GetRotation();
 
             if (ImGui::IsWindowHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle)))
                 ImGui::SetWindowFocus();
@@ -147,16 +150,25 @@ namespace Lina::Editor
             const float delta = (float)Engine::Get()->GetRawDelta();
 
             if (ImGui::IsWindowFocused())
-                camSystem.RotateBehaviour(delta, m_previewCameraRotation, m_mouseAngles);
+                editorCamSystem.RotateBehaviour(delta, m_previewCameraRotation, m_mouseAngles);
 
             data.SetRotation(m_previewCameraRotation);
 
             if (ImGui::IsWindowFocused())
-                camSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
+                editorCamSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
 
             data.SetLocation(m_previewCameraPosition);
+
+            // Handle aspect resizing.
+            const float aspectRatio  = bgSize.x / bgSize.y;
+            auto*       cameraSystem = renderEngine->GetCameraSystem();
+            currentAspect            = cameraSystem->GetAspectRatio();
+
+            if (cameraSystem->GetAspectRatio() != aspectRatio)
+                cameraSystem->SetAspectRatio(aspectRatio);
         }
 
+        // Draw the actual target.
         if (m_previewType == PreviewType::Texture)
             TextureDrawer::DrawTexture(m_targetTexture, bgMinLina, bgMaxLina);
         else if (m_previewType == PreviewType::Model)
@@ -164,10 +176,16 @@ namespace Lina::Editor
 
         if (previewCameraEnabled)
         {
+            // Reset aspect resizing.
+            auto* cameraSystem = renderEngine->GetCameraSystem();
+            if (cameraSystem->GetAspectRatio() != currentAspect)
+                cameraSystem->SetAspectRatio(currentAspect);
+
+            // Draw tools.
             const ImRect confineSpace = ImRect(bgMin, bgMax);
             WidgetsUtility::TransformOperationTools("##modelpanel_transformops", confineSpace);
 
-            // Reset
+            // Reset camera transformation.
             auto& camSystem = EditorApplication::Get()->GetCameraSystem();
             auto& data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
             data.SetLocation(previousLocation);
