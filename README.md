@@ -28,8 +28,10 @@ Lina Engine is a lightweight and ECS based open-source game engine. Initially it
 ## External Dependencies
 
 -  [assimp](https://github.com/assimp/assimp)
--  [bullet3](https://github.com/bulletphysics/bullet3)
+-  [alut](http://distro.ibiblio.org/rootlinux/rootlinux-ports/more/freealut/freealut-1.1.0/doc/alut.html)
+-  [bit7z](https://github.com/rikyoz/bit7z)
 -  [cereal](https://github.com/USCiLab/cereal)
+-  [easyprofiler](https://github.com/yse/easy_profiler)
 -  [entt](https://github.com/skypjack/entt)
 -  [fmt](https://github.com/fmtlib/fmt)
 -  [fontawesome](https://github.com/FortAwesome/Font-Awesome)
@@ -38,8 +40,11 @@ Lina Engine is a lightweight and ECS based open-source game engine. Initially it
 -  [glfw](https://github.com/glfw/glfw)
 -  [glad](https://github.com/Dav1dde/glad)
 -  [iconfontcppheaders](https://github.com/juliettef/IconFontCppHeaders)
+-  [Nvidia PhysX](https://developer.nvidia.com/physx-sdk)
+-  [openal](https://www.openal.org)
 -  [imgui](https://github.com/ocornut/imgui)
 -  [stb](https://github.com/nothings/stb)
+-  [taskflow](https://github.com/taskflow/taskflow)
 
 ## Installation
 
@@ -78,16 +83,16 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 
 ```shell
 # You can define any options before generating project files.
-cmake -DLINA_CORE_ENABLE_LOGGING=OFF
+cmake -DLINA_ENABLE_LOGGING=OFF
 
 # You can define multiple options sequentially.
-cmake -DLINA_CORE_ENABLE_LOGGING=OFF -DLINA_CLIENT_ENABLE_LOGGING=OFF
+cmake -DLINA_ENABLE_LOGGING=OFF -DLINA_ENABLE_PROFILING=OFF
 
 # It is recommended to declare the type of the option if multiple options are defined
-cmake -DLINA_CORE_ENABLE_LOGGING:BOOL=OFF -DLINA_CLIENT_ENABLE_LOGGING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
+cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_ENABLE_PROFILING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
 
 # Above commands will generate project files with default generator, you can specify a generator if you want.
-cmake -DLINA_CORE_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
+cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
 
 ```
 -  After generating project files you can either open your IDE and build the ALL_BUILD project which will build all the targets or you can build the binaries from shell.
@@ -120,12 +125,11 @@ cmake --build . --target ALL_BUILD
 
 | Option  | Description | Default |
 | ------------- | ------------- | ------------- |
-| LINA_CLIENT_ENABLE_LOGGING  | Enables log features for client modules, like Sandbox.  | ON  |
-| LINA_CORE_ENABLE_LOGGING | Enables log features for core modules.  | ON |
-| LINA_ENABLE_EDITOR  | Enables the editor gui.  | ON |
-| LINA_ENABLE_TIMEPROFILING | If enabled, core Lina systems will record their execution durations which can be polled from anywhere to display profiling data. | ON  |
+| LINA_ENABLE_EDITOR | Launches the sandbox in editor mode.  | ON  |
+| LINA_ENABLE_LOGGING | Enables log features for core modules.  | ON |
+| LINA_ENABLE_PROFILING  | Enables profiler integration & profile data serialization. | ON |
+| LINA_PRODUCTION_BUILD | Disable debug error checking & reporting. | OFF |
 | CMAKE_CONFIGURATION_TYPES | Config types that will be available on the IDE. | Debug, Release, MinSizeRel, RelWithDebInfo  
-  |
 
 ## License
 
