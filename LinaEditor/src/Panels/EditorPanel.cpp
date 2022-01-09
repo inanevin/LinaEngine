@@ -36,11 +36,12 @@ namespace Lina::Editor
 {
     void EditorPanel::Initialize(const char* id, const char* icon)
     {
-        m_id                                = id;
-        m_icon                              = icon;
-        m_title                             = m_id;
-        m_windowFlags                       = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
-        GUILayer::Get()->m_editorPanels[id] = this;
+        m_id                                 = id;
+        m_icon                               = icon;
+        m_title                              = m_id;
+        m_windowFlags                        = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        GUILayer::Get()->m_editorPanels[id]  = this;
+        GUILayer::Get()->m_windowIconMap[id] = icon;
 
         if (m_icon != nullptr)
             ImGui::AddWindowIcon(m_id, m_icon);
@@ -69,7 +70,7 @@ namespace Lina::Editor
 
         ImGui::Begin(m_id, &m_show, flags);
 
-        WidgetsUtility::WindowTitlebar(m_id, m_title.c_str());
+        // WidgetsUtility::WindowTitlebar(m_id, m_title.c_str());
 
         if (!CanDrawContent())
         {

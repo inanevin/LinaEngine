@@ -41,6 +41,7 @@ Timestamp: 1/4/2022 6:18:09 PM
 
 // Headers here.
 #include "Panels/EditorPanel.hpp"
+#include "Math/Quaternion.hpp"
 
 namespace Lina
 {
@@ -61,6 +62,7 @@ namespace Lina::Editor
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
+        virtual void Open() override;
 
         void SetTargetModel(Graphics::Model* model);
 
@@ -76,6 +78,8 @@ namespace Lina::Editor
         float            m_resizeDividerPressedPos = 0.0f;
         bool             m_draggingVerticalDivider = false;
         Vector2          m_rightPaneSize           = Vector2::Zero;
+        Vector3          m_previewCameraPosition   = Vector3::Zero;
+        Quaternion       m_previewCameraRotation   = Quaternion();
     };
 } // namespace Lina::Editor
 

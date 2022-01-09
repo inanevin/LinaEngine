@@ -412,6 +412,7 @@ namespace Lina::Graphics
         m_renderDevice.SetFBO(0);
         m_renderDevice.SetViewport(m_screenPos, m_screenSize);
         m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+
         m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
     }
 
@@ -697,17 +698,26 @@ namespace Lina::Graphics
 
     uint32 OpenGLRenderEngine::RenderModelPreview(Model* model)
     {
+        // Store the current skybox & switch to HDRI one
+        Material* currentSkybox = m_skyboxMaterial;
+        SetSkyboxMaterial(m_defaultSkyboxHDRI);
+
+        // Update systems & prepare
         UpdateSystems(0.0f);
         m_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
         m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
         m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-        UpdateShaderData(m_defaultSkyboxHDRI);
-        m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
+
+        // Draw skybox and given model.
+        DrawSkybox();
         m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams);
         DrawFinalize(true);
+
+        // Reset buffers back as well as the skybox.
         m_renderDevice.SetFBO(0);
         m_renderDevice.SetViewport(m_screenPos, m_screenSize);
         m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        SetSkyboxMaterial(currentSkybox);
         return m_previewRTTexture.GetID();
     }
 

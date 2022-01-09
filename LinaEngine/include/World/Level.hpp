@@ -71,9 +71,19 @@ namespace Lina::World
             return s_currentLevel;
         }
 
+        /// <summary>
+        /// Uninstalls the previous level if exists, then installs this one.
+        /// </summary>
         virtual void Install();
 
+        /// <summary>
+        /// Save the level data to given file.
+        /// </summary>
         void SaveToFile(const std::string& path);
+
+        /// <summary>
+        /// Install the level from given file.
+        /// </summary>
         void InstallFromFile(const std::string& path);
 
         LINA_PROPERTY("Skybox", "Material")

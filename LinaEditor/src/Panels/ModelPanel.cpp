@@ -66,6 +66,13 @@ namespace Lina::Editor
             }
         }
     }
+    void ModelPanel::Open()
+    {
+        m_previewCameraPosition = Vector3(0, 5, -10);
+        m_previewCameraRotation = Quaternion::LookAt(m_previewCameraPosition, Vector3(0, 0, 0), Vector3::Up);
+        EditorPanel::Open();
+    }
+
     void ModelPanel::SetTargetModel(Graphics::Model* model)
     {
         m_targetModel = model;
@@ -128,16 +135,16 @@ namespace Lina::Editor
         const Vector3    location  = data.GetLocation();
         const Quaternion rotation  = data.GetRotation();
 
-        data.SetLocation(Vector3(0, 5, -10));
-        data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3(0, 0, 0), Vector3::Up));
+        // data.SetLocation(m_previewCameraPosition);
+        // data.SetRotation(m_previewCameraRotation);
 
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
 
-        const ImVec2 imageMin    = ImVec2(bgMin.x + bgSize.x / 2.0f - drawSize.x / 2.0f, bgMin.y + bgSize.y / 2.0f - drawSize.y / 2.0f);
-        const ImVec2 imageMax    = ImVec2(imageMin.x + drawSize.x, imageMin.y + drawSize.y);
-        const ImVec2 imageSize   = ImVec2(imageMax.x - imageMin.x, imageMax.y - imageMin.y);
-        const float  aspectRatio = imageSize.x / imageSize.y;
+        const ImVec2 imageMin  = ImVec2(bgMin.x + bgSize.x / 2.0f - drawSize.x / 2.0f, bgMin.y + bgSize.y / 2.0f - drawSize.y / 2.0f);
+        const ImVec2 imageMax  = ImVec2(imageMin.x + drawSize.x, imageMin.y + drawSize.y);
+        const ImVec2 imageSize = ImVec2(imageMax.x - imageMin.x, imageMax.y - imageMin.y);
 
+        const float aspectRatio   = imageSize.x / imageSize.y;
         auto*       cameraSystem  = renderEngine->GetCameraSystem();
         const float currentAspect = cameraSystem->GetAspectRatio();
         if (cameraSystem->GetAspectRatio() != aspectRatio)
@@ -148,6 +155,9 @@ namespace Lina::Editor
 
         if (cameraSystem->GetAspectRatio() != currentAspect)
             cameraSystem->SetAspectRatio(currentAspect);
+
+        const ImRect confineSpace = ImRect(imageMin, imageMax);
+        WidgetsUtility::TransformOperationsWindow("##modelpanel_transformops", confineSpace);
 
         // Reset
         data.SetLocation(location);

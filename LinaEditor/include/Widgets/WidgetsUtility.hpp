@@ -89,18 +89,12 @@ namespace Lina::Editor
         static void Tooltip(const char* tooltip);
 
         /// <summary>
-        /// Draws a button with the given size, with an option to draw an icon/text in the middle. Use the toggled parameter to
-        /// keep the button pressed/unpressed. Use ImGuiCol_ButtonLocked to style the toggled state, ImGuiCol_Icon to style the icon color.</summary>
-        /// </summary>
-        static bool CustomToggle(const char* id, ImVec2 size, bool toggled, bool* hoveredPtr = nullptr, const char* icon = nullptr, float rounding = 0.0f, const char* tooltip = nullptr);
-
-        /// <summary>
         /// Returns whether two ImGui colors are equal or not.
         /// </summary>
         static bool ColorsEqual(ImVec4 col1, ImVec4 col2);
 
         /// <summary>
-        /// Returns whether this item's path is either Root, Engine or Editor folders. 
+        /// Returns whether this item's path is either Root, Engine or Editor folders.
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -131,6 +125,17 @@ namespace Lina::Editor
         static bool ToggleButton(const char* label, bool* toggled, ImVec2 size = ImVec2(0.0f, 0.0f)); // toggle button
 
         /// <summary>
+        /// Begins a child window with a custom handle to move it around.
+        /// </summary>
+        static void BeginMovableChild(const char* childID, ImVec2 size, const ImRect& confineRect, bool isHorizontal, bool moveIconOffset);
+
+        /// <summary>
+        /// Draws a movable child window for controlling gizmos of translation, rotation & scale operations.
+        /// </summary>
+        /// <param name="childID"></param>
+        static void TransformOperationsWindow(const char* childID, ImRect confineRect);
+
+        /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
         /// Use ImGuiCol_Text to style.
         /// </summary>
@@ -141,7 +146,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws minimize, maximize and close buttons on the window. Pass in the window ID used for BeginWindow().
         /// </summary>
-        static void WindowButtons(const char* windowID, float yOffset = 0.0f, bool isAppWindow = false);
+        static void WindowButtons(const char* windowID, float yOffset = 0.0f, bool isAppWindow = false, float sizeMultiplier = 1.0f);
 
         /// <summary>
         /// Draws a custom title bar for the window.
@@ -239,7 +244,7 @@ namespace Lina::Editor
         /// <summary>
         /// Default IMGUI button with fixed styling options.
         /// </summary>
-        static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentOffset = ImVec2(0.0f, 0.0f));
+        static bool Button(const char* label, const ImVec2& size = ImVec2(0, 0), float textSize = 1.0f, float rounding = 0.0f, ImVec2 contentOffset = ImVec2(0.0f, 0.0f), bool locked = false);
 
         /// <summary>
         /// Draws a simple icon button with no background, hovering sets icon color.
@@ -250,11 +255,6 @@ namespace Lina::Editor
         /// Tree node with a custom arrow.
         /// </summary>
         static bool TreeNode(const void* id, ImGuiTreeNodeFlags flags, const char* name, bool drawArrow);
-
-        /// <summary>
-        /// Draws icon buttons used in the main toolbar.
-        /// </summary>
-        static bool ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color = ImVec4(1, 1, 1, 1), float fontScale = 0.75f);
 
         /// <summary>
         /// Dragging functionality for custom drag widgets.

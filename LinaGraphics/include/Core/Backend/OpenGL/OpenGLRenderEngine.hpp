@@ -251,6 +251,10 @@ namespace Lina::Graphics
         {
             return m_defaultSkybox;
         }
+        inline Material* GetDefaultSkyboxHDRIMaterial()
+        {
+            return m_defaultSkyboxHDRI;
+        }
         inline Material* GetDefaultSpriteMaterial()
         {
             return m_defaultSprite;
@@ -280,6 +284,7 @@ namespace Lina::Graphics
             return m_animationPipeline;
         }
 
+
     private:
         friend class Engine;
         OpenGLRenderEngine()  = default;
@@ -287,8 +292,8 @@ namespace Lina::Graphics
         void ConnectEvents();
         void Initialize(ApplicationMode appMode, RenderSettings* renderSettings);
         void Shutdown();
-        void Tick(float delta);
         void Render(float interpolation);
+        void Tick(float delta);
         void UpdateSystems(float interpolation);
         void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool completeFlush = true);
         void DrawSkybox();

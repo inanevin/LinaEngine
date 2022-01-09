@@ -54,6 +54,13 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
+    struct MovableChildData
+    {
+        ImVec2 m_pressPosition = ImVec2(0, 0);
+        ImVec2 m_position      = ImVec2(0, 0);
+        bool   m_isDragging    = false;
+    };
+
     static bool                        s_isDraggingWidgetInput = false;
     static bool                        s_mouseReleased         = true;
     static std::string                 s_draggedInput          = "";
@@ -62,6 +69,9 @@ namespace Lina::Editor
     void*                              s_latestResourceHandle  = nullptr;
     static std::map<TypeID, bool>      m_classFoldoutMap;
     static std::map<std::string, bool> m_idFoldoutMap;
+    static std::map<std::string, bool> m_transformOperationsWindowFirstLaunch;
+
+    static std::map<std::string, MovableChildData> m_movableChildData;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -75,51 +85,6 @@ namespace Lina::Editor
         ImGui::EndTooltip();
         PopPopupStyle();
         ImGui::PopStyleColor();
-    }
-
-    bool WidgetsUtility::CustomToggle(const char* id, ImVec2 size, bool toggled, bool* hoveredPtr, const char* icon, float rounding, const char* tooltip)
-    {
-        const ImVec2 currentCursor = ImGui::GetCursorPos();
-        const ImVec2 currentPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPosX(), ImGui::GetWindowPos().y + ImGui::GetCursorPos().y);
-        const ImRect absoluteRect  = ImRect(ImVec2(currentPos.x, currentPos.y), ImVec2(size.x + currentPos.x, size.y + currentPos.y));
-
-        ImGui::ItemAdd(absoluteRect, ImHashStr(id));
-        ImGui::ItemSize(size);
-
-        bool       hovered  = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(absoluteRect.Min, absoluteRect.Max) && !ImGui::IsAnyItemHovered();
-        const bool pressing = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-
-        if (hoveredPtr != nullptr)
-            *hoveredPtr = hovered;
-        const ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-        const ImVec4 lockedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
-        const ImVec4 hoverColor  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-        const ImVec4 rectCol     = pressing ? normalColor : (hovered ? hoverColor : toggled ? lockedColor
-                                                                                            : normalColor);
-        const ImU32  borderColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.3f, 0.3f, 0.3f, 0.55f));
-        ImGui::GetWindowDrawList()->AddRectFilled(absoluteRect.Min, absoluteRect.Max, ImGui::ColorConvertFloat4ToU32(rectCol), rounding);
-        IncrementCursorPosY(size.y / 2.0f);
-
-        if (icon != nullptr)
-        {
-            const float iconScale = size.y * 0.035f;
-            PushScaledFont(iconScale);
-            ImVec2 textSize = ImGui::CalcTextSize(icon);
-
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(currentCursor.x + size.x / 2.0f - textSize.x / 2.0f);
-            ImGui::SetCursorPosY(currentCursor.y + size.y / 2.0f - textSize.y / 2.0f);
-            ImGui::Text(icon);
-            PopScaledFont();
-        }
-
-        if (tooltip != nullptr && hovered)
-            Tooltip(tooltip);
-
-        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && hovered)
-            return true;
-
-        return false;
     }
 
     bool WidgetsUtility::ColorsEqual(ImVec4 col1, ImVec4 col2)
@@ -471,6 +436,110 @@ namespace Lina::Editor
         return v != nullptr ? *v : false;
     }
 
+    void WidgetsUtility::BeginMovableChild(const char* childID, ImVec2 size, const ImRect& confineRect, bool isHorizontal, bool moveIconOffset)
+    {
+        const float iconOffset = 12.0f;
+        if (isHorizontal)
+            size.x += iconOffset;
+        else
+            size.y += iconOffset;
+
+        // Set the position only if first launch.
+        const std::string childIDStr = std::string(childID);
+        const ImVec2      pos        = m_movableChildData[childIDStr].m_position;
+        ImGui::SetNextWindowPos(ImVec2(pos.x + CURSOR_X_LABELS, pos.y + CURSOR_X_LABELS + 20));
+
+        ImGui::BeginChild(childID, size, true);
+        static float x = 0;
+        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue();
+
+        ImGui::SetCursorPosX(moveIconOffset + 14.0f);
+        IconSmall(ICON_FA_ELLIPSIS_H);
+
+        if (ImGui::IsItemClicked())
+        {
+            if (!m_movableChildData[childIDStr].m_isDragging)
+            {
+                m_movableChildData[childIDStr].m_isDragging    = true;
+                m_movableChildData[childIDStr].m_pressPosition = m_movableChildData[childIDStr].m_position;
+            }
+        }
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        {
+            m_movableChildData[childIDStr].m_isDragging = false;
+        }
+
+        if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && m_movableChildData[childIDStr].m_isDragging)
+        {
+            const ImVec2 pressPos = m_movableChildData[childIDStr].m_pressPosition;
+            const ImVec2 drag     = ImGui::GetMouseDragDelta();
+
+            ImVec2 desiredPosition = ImVec2(pressPos.x + drag.x, pressPos.y + drag.y);
+
+            const float positionLimitPadding = 2.0f;
+            if (desiredPosition.x < confineRect.Min.x)
+                desiredPosition.x = confineRect.Min.x;
+            //  else if (desiredPosition.x > confineRect.Max.x - positionLimitPadding - size.x)
+            //     desiredPosition.x = confineRect.Max.x - positionLimitPadding - size.x;
+
+            if (desiredPosition.y < confineRect.Min.y)
+                desiredPosition.y = confineRect.Min.y;
+            //  else if (desiredPosition.y > confineRect.Max.y - positionLimitPadding - size.y)
+            //   desiredPosition.y = confineRect.Max.y - positionLimitPadding - size.y;
+
+            m_movableChildData[childIDStr].m_position = desiredPosition;
+        }
+        else
+            m_movableChildData[childIDStr].m_position = confineRect.Min;
+    }
+
+    void WidgetsUtility::TransformOperationsWindow(const char* childID, ImRect confineRect)
+    {
+        const float   buttonsHorizontalOffset = 8.0f;
+        const float   childYSpaceOffset       = 4.0f;
+        const float   rounding                = 4.0f;
+        const float   itemSpacingY            = ImGui::GetStyle().ItemSpacing.y;
+        const float   childRounding           = 6.0f;
+        const ImVec2  buttonSize              = ImVec2(28, 28);
+        const ImVec2  currentWindowPos        = ImGui::GetWindowPos();
+        const ImVec2  contentOffset           = ImVec2(0.5f, -2.0f);
+        static ImVec2 childSize               = ImVec2(buttonSize.x + buttonsHorizontalOffset * 2, buttonSize.y * 4 + itemSpacingY * 5 + childYSpaceOffset * 2);
+
+        static float x = 0;
+        static float y = 0;
+        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
+        y += Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
+
+        ImGui::SetNextWindowBgAlpha(0.5f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
+        WidgetsUtility::BeginMovableChild(childID, childSize, confineRect, false, buttonsHorizontalOffset);
+
+        PushIconFontSmall();
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_ARROWS_ALT, buttonSize, 1, rounding, contentOffset))
+        {
+        }
+
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_SYNC_ALT, buttonSize, 1, rounding, contentOffset))
+        {
+        }
+
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_COMPRESS_ALT, buttonSize, 1, rounding, contentOffset))
+        {
+        }
+
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_GLOBE, buttonSize, 1, rounding, contentOffset))
+        {
+        }
+
+        ImGui::PopFont();
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+    }
+
     void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
     {
         const float maxWidth = maxOverride == 0.0f ? ImGui::GetWindowPos().x + ImGui::GetWindowWidth() : ImGui::GetWindowPos().x + maxOverride;
@@ -479,7 +548,7 @@ namespace Lina::Editor
         ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), thickness);
     }
 
-    void WidgetsUtility::WindowButtons(const char* windowID, float yOffset, bool isAppWindow)
+    void WidgetsUtility::WindowButtons(const char* windowID, float yOffset, bool isAppWindow, float sizeMultiplier)
     {
 
         ImVec2 windowPos   = ImGui::GetWindowPos();
@@ -487,7 +556,7 @@ namespace Lina::Editor
 
         const float  offset1                   = 35.0f;
         const float  gap                       = 25.0f;
-        const ImVec2 buttonSize                = ImVec2(25, 20);
+        const ImVec2 buttonSize                = ImVec2(25 * sizeMultiplier, 20 * sizeMultiplier);
         const float  closeButtonAdditionalSize = 8;
         const float  frameRounding             = 0.4f;
 
@@ -540,24 +609,17 @@ namespace Lina::Editor
         if (ImGui::IsWindowDocked())
             return;
 
-        const ImVec2 windowPos  = ImGui::GetWindowPos();
-        const ImVec2 windowSize = ImGui::GetWindowSize();
-        const float  height     = 30.0f;
-        const float  lineOffset = 2.0f;
-
-        ImRect titleRect      = ImRect(ImVec2(windowPos.x, windowPos.y), ImVec2(windowPos.x + windowSize.x, windowPos.y + height));
-        ImVec4 titleRectColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleBg);
-        ImGui::GetWindowDrawList()->AddRectFilled(titleRect.Min, titleRect.Max, ImGui::ColorConvertFloat4ToU32(titleRectColor));
-
-        // Draw title
-        ImGui::SetCursorPosX(12.5f);
-        IncrementCursorPosY(4);
-        IconSmall(GUILayer::Get()->m_windowIconMap[id]);
-        ImGui::SameLine();
-        ImGui::Text(label);
+        const ImVec2 windowPos = ImGui::GetWindowPos();
+        const ImU32  textCol   = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text));
+        const ImVec2 iconPos   = ImVec2(windowPos.x + 12.5f, windowPos.y + 3);
+        const ImVec2 textPos   = ImVec2(iconPos.x + ImGui::GetStyle().ItemSpacing.x + 12, windowPos.y + 3);
+        PushIconFontSmall();
+        ImGui::GetWindowDrawList()->AddText(iconPos, textCol, GUILayer::Get()->m_windowIconMap[id]);
+        ImGui::PopFont();
+        ImGui::GetWindowDrawList()->AddText(textPos, textCol, label);
 
         // Draw Buttons
-        WindowButtons(id, 5.0f);
+        WindowButtons(id, 4.0f, false, 0.9f);
     }
 
     bool WidgetsUtility::ComponentHeader(TypeID tid, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
@@ -1045,12 +1107,15 @@ namespace Lina::Editor
         return StringIDType();
     }
 
-    bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset)
+    bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset, bool locked)
     {
         FrameRounding(rounding);
 
         if (textSize != 1.0f)
             WidgetsUtility::PushScaledFont(textSize);
+
+        if (locked)
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked));
 
         bool button = false;
         if (contentOffset.x == 0.0f && contentOffset.y == 0.0f)
@@ -1068,6 +1133,9 @@ namespace Lina::Editor
             const ImVec2 textPos            = ImVec2(currentCursor.x + size.x / 2.0f - calcSize.x / 2.0f + contentOffset.x, currentCursor.y + size.y / 2.0f - calcSize.y / 2.0f + contentOffset.y);
             ImGui::GetWindowDrawList()->AddText(textPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), text.c_str());
         }
+
+        if (locked)
+            ImGui::PopStyleColor();
 
         ImGui::SetItemAllowOverlap();
         ImGui::PopStyleVar();
@@ -1110,44 +1178,6 @@ namespace Lina::Editor
         }
         ImGui::PopStyleVar();
         return node;
-    }
-
-    bool WidgetsUtility::ToolbarToggleIcon(const char* label, const ImVec2 size, int imagePadding, bool toggled, float cursorPosY, const std::string& tooltip, ImVec4 color, float scale)
-    {
-        ImGui::SetCursorPosY(cursorPosY);
-        ImVec2 windowPos = ImGui::GetWindowPos();
-        ImVec2 min       = ImVec2(windowPos.x + ImGui::GetCursorPosX(), windowPos.y + ImGui::GetCursorPosY());
-        ImVec2 max       = ImVec2(windowPos.x + ImGui::GetCursorPosX() + size.x, windowPos.y + ImGui::GetCursorPosY() + size.y);
-
-        bool hovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(min, max);
-        bool pressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-
-        ImVec4 toggledColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonLocked);
-        ImVec4 hoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-        ImVec4 pressedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-        ImVec4 defaultColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-        ImVec4 col          = toggled ? toggledColor : (pressed ? pressedColor : (hovered ? hoveredColor : defaultColor));
-        ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(col), 4.0f);
-
-        if (tooltip.compare("") != 0 && hovered)
-        {
-            Tooltip(tooltip.c_str());
-        }
-
-        const float  yIncrement    = size.y / 4.0f + 1;
-        const ImVec2 currentCursor = ImGui::GetCursorPos();
-        PushScaledFont(scale);
-        ImVec2 textSize = ImGui::CalcTextSize(label);
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(currentCursor.x + size.x / 2.0f - textSize.x / 2.0f);
-        ImGui::SetCursorPosY(currentCursor.y + size.y / 2.0f - textSize.y / 2.0f);
-        ImGui::Text(label);
-        PopScaledFont();
-
-        if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-            return true;
-
-        return false;
     }
 
     void Editor::WidgetsUtility::DragBehaviour(const char* id, float* var, ImRect rect)

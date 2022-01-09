@@ -85,6 +85,7 @@ namespace Lina::Editor
             ImGuiWindowFlags emptyChildFlags = 0 | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
 
             Graphics::RenderEngineBackend* renderEngine = Graphics::RenderEngineBackend::Get();
+            m_windowFlags |= ImGuiWindowFlags_NoScrollbar;
 
             if (Begin())
             {
@@ -137,87 +138,92 @@ namespace Lina::Editor
                         m_borderAlpha = 0.0f;
                 }
 
+                const ImVec2 windowPos    = ImGui::GetWindowPos();
+                const ImVec2 windowSize   = ImGui::GetWindowSize();
+                const ImRect confineSpace = ImRect(windowPos, ImVec2(windowPos.x + windowSize.x, windowPos.y + windowSize.y));
+                WidgetsUtility::TransformOperationsWindow("##levelpanel_transformops", confineSpace);
+
                 /// <summary>
                 /// Scene Settings - window for buttons.
                 /// </summary>
-                ImVec2 settingsPos  = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
-                ImVec2 settingsSize = ImVec2(65, 40);
-                ImGui::SetNextWindowPos(settingsPos);
-                ImGui::SetNextWindowBgAlpha(0.4f);
-                ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
-                ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-                const float cursorPos = ImGui::GetCursorPosY();
-
-                const ImVec2 buttonSize = ImVec2(25, 25);
-                float        cursorPosY = settingsSize.y / 2.0f - buttonSize.y / 2.0f;
-                ImGui::SetCursorPosX(5.0f);
-                ImGui::SetCursorPosY(cursorPosY);
-
-                if (WidgetsUtility::CustomToggle("##scenepanel_camsettings", buttonSize, m_shouldShowCameraSettings, nullptr, ICON_FA_CAMERA, 3.0f, "Camera Settings"))
-                    m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
-
-                ImGui::SameLine();
-                ImGui::SetCursorPosY(cursorPosY);
-
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.6f, 0.1f, 1.0f));
-                if (WidgetsUtility::CustomToggle("##scenepanel_gizmos", buttonSize, m_shouldShowGizmos, nullptr, ICON_FA_BACON, 3.0f, "Gizmos"))
-                    m_shouldShowGizmos = !m_shouldShowGizmos;
-                ImGui::PopStyleColor();
-                ImGui::EndChild();
-                ImGui::PopStyleVar();
+                // ImVec2 settingsPos  = ImVec2(sceneWindowPos.x + 5, sceneWindowPos.y + 5);
+                // ImVec2 settingsSize = ImVec2(65, 40);
+                // ImGui::SetNextWindowPos(settingsPos);
+                // ImGui::SetNextWindowBgAlpha(0.4f);
+                // ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
+                // ImGui::BeginChild("##scenePanel_settings", settingsSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+                // const float cursorPos = ImGui::GetCursorPosY();
+                //
+                // const ImVec2 buttonSize = ImVec2(25, 25);
+                // float        cursorPosY = settingsSize.y / 2.0f - buttonSize.y / 2.0f;
+                // ImGui::SetCursorPosX(5.0f);
+                // ImGui::SetCursorPosY(cursorPosY);
+                //
+                // //if (WidgetsUtility::CustomToggle("##scenepanel_camsettings", buttonSize, m_shouldShowCameraSettings, nullptr, ICON_FA_CAMERA, 3.0f, "Camera Settings"))
+                // //    m_shouldShowCameraSettings = !m_shouldShowCameraSettings;
+                //
+                // ImGui::SameLine();
+                // ImGui::SetCursorPosY(cursorPosY);
+                //
+                // ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.6f, 0.1f, 1.0f));
+                /// / if (WidgetsUtility::CustomToggle("##scenepanel_gizmos", buttonSize, m_shouldShowGizmos, nullptr, ICON_FA_BACON, 3.0f, "Gizmos"))
+                /// /     m_shouldShowGizmos = !m_shouldShowGizmos;
+                // ImGui::PopStyleColor();
+                // ImGui::EndChild();
+                // ImGui::PopStyleVar();
 
                 /// <summary>
                 /// Camera settings pop-up window.
                 /// </summary>
-                if (m_shouldShowCameraSettings)
-                {
-                    // Smoothly animate window size
-                    if (m_cameraSettingsWindowYMultiplier < 1.0f)
-                    {
-                        m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Engine::Get()->GetRawDelta() * 6.0f);
-                        m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
-                    }
-
-                    ImVec2 cameraSettingsPos  = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
-                    ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
-                    ImGui::SetNextWindowPos(cameraSettingsPos);
-                    ImGui::SetNextWindowBgAlpha(0.5f);
-                    ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
-                    float cursorPosLabels = 12;
-                    WidgetsUtility::IncrementCursorPosY(6);
-                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
-                    ImGui::SetCursorPosX(cursorPosLabels);
-                    WidgetsUtility::PropertyLabel("Camera Speed");
-                    ImGui::SameLine();
-
-                    float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
-                    ImGui::SetCursorPosX(cursorPosValues);
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
-                    ImGui::SetCursorPosX(cursorPosLabels);
-                    WidgetsUtility::PropertyLabel("Multiplier");
-                    ImGui::SameLine();
-                    ImGui::SetCursorPosX(cursorPosValues);
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
-                    ImGui::PopStyleVar();
-                    EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
-                    ImGui::EndChild();
-
-                    if (ImGui::IsWindowHovered())
-                    {
-                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                        {
-                            if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
-                                m_shouldShowCameraSettings = false;
-                        }
-                    }
-                }
-                else
-                {
-                    if (m_cameraSettingsWindowYMultiplier != 0.0f)
-                        m_cameraSettingsWindowYMultiplier = 0.0f;
-                }
+                // if (m_shouldShowCameraSettings)
+                // {
+                //     // Smoothly animate window size
+                //     if (m_cameraSettingsWindowYMultiplier < 1.0f)
+                //     {
+                //         m_cameraSettingsWindowYMultiplier = Math::Lerp(m_cameraSettingsWindowYMultiplier, 1.1f, Engine::Get()->GetRawDelta() * 6.0f);
+                //         m_cameraSettingsWindowYMultiplier = Math::Clamp(m_cameraSettingsWindowYMultiplier, 0.0f, 1.0f);
+                //     }
+                //
+                //     ImVec2 cameraSettingsPos  = ImVec2(settingsPos.x, settingsPos.y + settingsSize.y);
+                //     ImVec2 cameraSettingsSize = ImVec2(210, 60 * m_cameraSettingsWindowYMultiplier);
+                //     ImGui::SetNextWindowPos(cameraSettingsPos);
+                //     ImGui::SetNextWindowBgAlpha(0.5f);
+                //     ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
+                //     float cursorPosLabels = 12;
+                //     WidgetsUtility::IncrementCursorPosY(6);
+                //     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
+                //     ImGui::SetCursorPosX(cursorPosLabels);
+                //     WidgetsUtility::PropertyLabel("Camera Speed");
+                //     ImGui::SameLine();
+                //
+                //     float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+                //     ImGui::SetCursorPosX(cursorPosValues);
+                //     ImGui::SetNextItemWidth(100);
+                //     ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
+                //     ImGui::SetCursorPosX(cursorPosLabels);
+                //     WidgetsUtility::PropertyLabel("Multiplier");
+                //     ImGui::SameLine();
+                //     ImGui::SetCursorPosX(cursorPosValues);
+                //     ImGui::SetNextItemWidth(100);
+                //     ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
+                //     ImGui::PopStyleVar();
+                //     EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+                //     ImGui::EndChild();
+                //
+                //     if (ImGui::IsWindowHovered())
+                //     {
+                //         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                //         {
+                //             if (!ImGui::IsMouseHoveringRect(cameraSettingsPos, ImVec2(cameraSettingsPos.x + cameraSettingsSize.x, cameraSettingsPos.y + cameraSettingsSize.y)))
+                //                 m_shouldShowCameraSettings = false;
+                //         }
+                //     }
+                // }
+                // else
+                // {
+                //     if (m_cameraSettingsWindowYMultiplier != 0.0f)
+                //         m_cameraSettingsWindowYMultiplier = 0.0f;
+                // }
 
                 // Draw gizmos.
                 ImGuiIO& io = ImGui::GetIO();

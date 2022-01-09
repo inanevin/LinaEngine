@@ -38,8 +38,6 @@ src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
 src/Drawers/ClassDrawer.cpp
 
-#Modals
-
 
 # Panels
 src/Panels/EditorPanel.cpp
@@ -120,8 +118,6 @@ include/ECS/Systems/EditorCameraSystem.hpp
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
 include/Drawers/ClassDrawer.hpp
-
-# Modals
 
 # Panels
 include/Panels/MainToolbarPanel.hpp

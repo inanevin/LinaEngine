@@ -125,6 +125,7 @@ namespace Lina::Editor
         // Setup configuration flags.
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigWindowsMoveFromTitleBarOnly = true;
         io.ConfigDockingTransparentPayload = true;
 
         ImGuiStyle& style     = ImGui::GetStyle();
