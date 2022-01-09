@@ -192,7 +192,7 @@ namespace Lina::Editor
 
     void Editor::MainToolbarPanel::OnTransformGizmoChanged(const ETransformGizmoChanged& ev)
     {
-        m_toggledTransformSelection = ev.m_currentGizmo;
+        m_toggledTransformSelection = ev.m_currentOperation;
     }
 
     void Editor::MainToolbarPanel::OnTransformPivotChanged(const ETransformPivotChanged& ev)

@@ -127,13 +127,24 @@ namespace Lina::Editor
         /// <summary>
         /// Begins a child window with a custom handle to move it around.
         /// </summary>
-        static void BeginMovableChild(const char* childID, ImVec2 size, const ImRect& confineRect, bool isHorizontal, bool moveIconOffset);
+        static void BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition,  const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset);
+
+        /// <summary>
+        /// Displays a small child for manipulating editor camera settings
+        /// </summary>
+        /// <param name="position"></param>
+        static void DisplayEditorCameraSettings(const ImVec2 position);
 
         /// <summary>
         /// Draws a movable child window for controlling gizmos of translation, rotation & scale operations.
         /// </summary>
         /// <param name="childID"></param>
-        static void TransformOperationsWindow(const char* childID, ImRect confineRect);
+        static void TransformOperationTools(const char* childID, ImRect confineRect);
+
+        /// <summary>
+        /// Draws a movable child window for controller play buttons.
+        /// </summary>
+        static void PlayOperationTools(const char* childID, ImRect confineRect);
 
         /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.

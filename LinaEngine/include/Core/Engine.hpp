@@ -115,6 +115,10 @@ namespace Lina
         {
             return m_isInPlayMode;
         }
+        inline bool GetIsPaused()
+        {
+            return m_paused;
+        }
         inline bool GetPauseMode()
         {
             return m_paused;

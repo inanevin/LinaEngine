@@ -132,6 +132,8 @@ namespace Lina::Editor
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         WidgetsUtility::HorizontalDivider(0.0f, 0.5f);
+        WidgetsUtility::IncrementCursorPosY(12);
+
         ImGui::PopStyleColor();
 
         WidgetsUtility::PropertyLabel("Anisotropy");
@@ -266,7 +268,7 @@ namespace Lina::Editor
         const ImVec2 padding   = ImVec2(ImGui::GetStyle().ItemSpacing.x + 4, ImGui::GetStyle().ItemSpacing.y + 4);
         const ImVec2 cursorPos = ImGui::GetCursorScreenPos();
         const ImVec2 bgMin     = ImVec2(cursorPos.x + padding.x - 4, cursorPos.y + padding.x);
-        const ImVec2 bgMax     = ImVec2(cursorPos.x + m_rightPaneSize.x - padding.x * 2, cursorPos.y + m_rightPaneSize.y - padding.x * 2.0f);
+        const ImVec2 bgMax     = ImVec2(cursorPos.x + m_rightPaneSize.x - padding.x * 2, cursorPos.y + m_rightPaneSize.y - padding.x * 4.0f);
         const ImVec2 bgSize    = ImVec2(bgMax.x - bgMin.x, bgMax.y - bgMin.y);
         const ImVec4 bgCol     = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
         ImGui::GetWindowDrawList()->AddRectFilled(bgMin, bgMax, ImGui::ColorConvertFloat4ToU32(bgCol), 3.0f);

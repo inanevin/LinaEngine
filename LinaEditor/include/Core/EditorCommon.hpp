@@ -99,7 +99,7 @@ namespace Lina::Editor
     };
     struct ETransformGizmoChanged
     {
-        int m_currentGizmo;
+        int m_currentOperation;
     };
     struct ETransformPivotChanged
     {

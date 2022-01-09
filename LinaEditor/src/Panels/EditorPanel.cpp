@@ -70,21 +70,11 @@ namespace Lina::Editor
 
         ImGui::Begin(m_id, &m_show, flags);
 
-        // WidgetsUtility::WindowTitlebar(m_id, m_title.c_str());
-
         if (!CanDrawContent())
         {
             ImGui::End();
             return false;
         }
-
-        const std::string childID    = "##child_" + std::string(m_id);
-        const float       previousFP = ImGui::GetStyle().FramePadding.x;
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(previousFP, 0.0f));
-        ImGui::BeginChild(childID.c_str());
-
-        if (!ImGui::IsWindowDocked())
-            WidgetsUtility::IncrementCursorPosY(2.0f);
 
         return true;
     }
@@ -93,8 +83,6 @@ namespace Lina::Editor
     {
         if (CanDrawContent())
         {
-            ImGui::EndChild();
-            ImGui::PopStyleVar();
             ImGui::End();
         }
     }

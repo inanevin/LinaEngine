@@ -76,19 +76,29 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
-        void EntitySelected(const EEntitySelected& ev);
-        void Unselected(const EEntityUnselected& ev);
-        void LevelUninstalled(const Event::ELevelUninstalled& ev);
-        void ProcessInput();
-        void DrawGizmos();
-        void SetDrawMode(DrawMode mode)
+        void        EntitySelected(const EEntitySelected& ev);
+        void        Unselected(const EEntityUnselected& ev);
+        void        LevelUninstalled(const Event::ELevelUninstalled& ev);
+        void        ProcessInput();
+        void        DrawGizmos();
+        inline void SetDrawMode(DrawMode mode)
         {
             m_drawMode = mode;
         }
-        bool IsFocused()
+        inline bool IsFocused()
         {
             return m_isFocused;
         }
+        inline int GetTransformOperation()
+        {
+            return m_transformOperation;
+        }
+        inline int GetIsGizmoGlobal()
+        {
+            return m_isTransformModeGlobal;
+        }
+
+        bool m_shouldShowGizmos = false;
 
     private:
         void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);
@@ -98,13 +108,10 @@ namespace Lina::Editor
         void OnMouseButtonCallback(const Event::EMouseButtonCallback& ev);
 
     private:
+        int         m_transformOperation              = 0;
+        bool        m_isTransformModeGlobal           = true;
         float       m_borderAlpha                     = 0.0f;
         bool        m_isFocused                       = true;
-        bool        m_shouldShowCameraSettings        = false;
-        bool        m_shouldShowGizmos                = false;
-        float       m_cameraSettingsWindowYMultiplier = 0.0f;
-        float       m_editorCameraSpeed               = 1.0f;
-        float       m_editorCameraSpeedMultiplier     = 1.0f;
         ECS::Entity m_selectedEntity                  = entt::null;
         DrawMode    m_drawMode                        = DrawMode::FinalImage;
     };

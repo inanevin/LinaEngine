@@ -49,28 +49,32 @@ SOFTWARE.
 #include "Memory/Memory.hpp"
 #include "Core/PhysicsBackend.hpp"
 #include "Core/ImGuiCommon.hpp"
+#include "Core/Engine.hpp"
 #include "Widgets/Snackbar.hpp"
+#include "Core/EditorApplication.hpp"
 
 namespace Lina::Editor
 {
 
     struct MovableChildData
     {
-        ImVec2 m_pressPosition = ImVec2(0, 0);
-        ImVec2 m_position      = ImVec2(0, 0);
-        bool   m_isDragging    = false;
+        ImVec2 m_pressPosition      = ImVec2(0, 0);
+        ImVec2 m_position           = ImVec2(0, 0);
+        bool   m_isDragging         = false;
+        bool   m_initialPositionSet = false;
     };
 
-    static bool                        s_isDraggingWidgetInput = false;
-    static bool                        s_mouseReleased         = true;
-    static std::string                 s_draggedInput          = "";
-    static float                       s_valueOnDragStart      = 0.0f;
-    static int                         s_valueOnDragStartInt   = 0;
-    void*                              s_latestResourceHandle  = nullptr;
-    static std::map<TypeID, bool>      m_classFoldoutMap;
-    static std::map<std::string, bool> m_idFoldoutMap;
-    static std::map<std::string, bool> m_transformOperationsWindowFirstLaunch;
-
+    static bool                                    s_isDraggingWidgetInput = false;
+    static bool                                    s_mouseReleased         = true;
+    static std::string                             s_draggedInput          = "";
+    static float                                   s_valueOnDragStart      = 0.0f;
+    static int                                     s_valueOnDragStartInt   = 0;
+    void*                                          s_latestResourceHandle  = nullptr;
+    static std::map<TypeID, bool>                  m_classFoldoutMap;
+    static std::map<std::string, bool>             m_idFoldoutMap;
+    static bool                                    m_shouldShowCameraOptions;
+    static float                                   m_editorCameraSpeed           = 1.0f;
+    static float                                   m_editorCameraSpeedMultiplier = 1.0f;
     static std::map<std::string, MovableChildData> m_movableChildData;
 
     void WidgetsUtility::Tooltip(const char* tooltip)
@@ -436,7 +440,7 @@ namespace Lina::Editor
         return v != nullptr ? *v : false;
     }
 
-    void WidgetsUtility::BeginMovableChild(const char* childID, ImVec2 size, const ImRect& confineRect, bool isHorizontal, bool moveIconOffset)
+    void WidgetsUtility::BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition, const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset)
     {
         const float iconOffset = 12.0f;
         if (isHorizontal)
@@ -446,15 +450,12 @@ namespace Lina::Editor
 
         // Set the position only if first launch.
         const std::string childIDStr = std::string(childID);
-        const ImVec2      pos        = m_movableChildData[childIDStr].m_position;
-        ImGui::SetNextWindowPos(ImVec2(pos.x + CURSOR_X_LABELS, pos.y + CURSOR_X_LABELS + 20));
+        ImGui::SetNextWindowPos(m_movableChildData[childIDStr].m_position);
 
         ImGui::BeginChild(childID, size, true);
-        static float x = 0;
-        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue();
+        ImGui::SetCursorPos(iconCursorOffset);
 
-        ImGui::SetCursorPosX(moveIconOffset + 14.0f);
-        IconSmall(ICON_FA_ELLIPSIS_H);
+        IconSmall(isHorizontal ? ICON_FA_ELLIPSIS_V : ICON_FA_ELLIPSIS_H);
 
         if (ImGui::IsItemClicked())
         {
@@ -471,29 +472,64 @@ namespace Lina::Editor
 
         if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && m_movableChildData[childIDStr].m_isDragging)
         {
-            const ImVec2 pressPos = m_movableChildData[childIDStr].m_pressPosition;
-            const ImVec2 drag     = ImGui::GetMouseDragDelta();
+            // Calc new window position.
+            const ImVec2 pressPos        = m_movableChildData[childIDStr].m_pressPosition;
+            const ImVec2 drag            = ImGui::GetMouseDragDelta();
+            ImVec2       desiredPosition = ImVec2(pressPos.x + drag.x, pressPos.y + drag.y);
 
-            ImVec2 desiredPosition = ImVec2(pressPos.x + drag.x, pressPos.y + drag.y);
-
+            // Confine window position to confine rect.
             const float positionLimitPadding = 2.0f;
-            if (desiredPosition.x < confineRect.Min.x)
-                desiredPosition.x = confineRect.Min.x;
-            //  else if (desiredPosition.x > confineRect.Max.x - positionLimitPadding - size.x)
-            //     desiredPosition.x = confineRect.Max.x - positionLimitPadding - size.x;
-
-            if (desiredPosition.y < confineRect.Min.y)
-                desiredPosition.y = confineRect.Min.y;
-            //  else if (desiredPosition.y > confineRect.Max.y - positionLimitPadding - size.y)
-            //   desiredPosition.y = confineRect.Max.y - positionLimitPadding - size.y;
+            if (desiredPosition.x < confineRect.Min.x + positionLimitPadding)
+                desiredPosition.x = confineRect.Min.x + positionLimitPadding;
+            else if (desiredPosition.x > confineRect.Max.x - positionLimitPadding - size.x)
+                desiredPosition.x = confineRect.Max.x - positionLimitPadding - size.x;
+            if (desiredPosition.y < confineRect.Min.y + positionLimitPadding)
+                desiredPosition.y = confineRect.Min.y + positionLimitPadding;
+            else if (desiredPosition.y > confineRect.Max.y - positionLimitPadding - size.y)
+                desiredPosition.y = confineRect.Max.y - positionLimitPadding - size.y;
 
             m_movableChildData[childIDStr].m_position = desiredPosition;
         }
         else
-            m_movableChildData[childIDStr].m_position = confineRect.Min;
+        {
+            if (!m_movableChildData[childIDStr].m_initialPositionSet)
+            {
+                m_movableChildData[childIDStr].m_initialPositionSet = true;
+                m_movableChildData[childIDStr].m_position           = defaultPosition;
+            }
+        }
     }
 
-    void WidgetsUtility::TransformOperationsWindow(const char* childID, ImRect confineRect)
+    void WidgetsUtility::DisplayEditorCameraSettings(const ImVec2 position)
+    {
+        ImVec2 cameraSettingsSize = ImVec2(210, 60);
+        ImGui::SetNextWindowPos(position);
+        ImGui::SetNextWindowBgAlpha(0.5f);
+        ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking);
+        float cursorPosLabels = 12;
+        WidgetsUtility::IncrementCursorPosY(6);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
+        ImGui::SetCursorPosX(cursorPosLabels);
+        WidgetsUtility::PropertyLabel("Camera Speed");
+        ImGui::SameLine();
+
+        float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+        ImGui::SetCursorPosX(cursorPosValues);
+        ImGui::SetNextItemWidth(100);
+
+        ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
+        ImGui::SetCursorPosX(cursorPosLabels);
+        WidgetsUtility::PropertyLabel("Multiplier");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(cursorPosValues);
+        ImGui::SetNextItemWidth(100);
+        ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
+        ImGui::PopStyleVar();
+        EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
+        ImGui::EndChild();
+    }
+
+    void WidgetsUtility::TransformOperationTools(const char* childID, ImRect confineRect)
     {
         const float   buttonsHorizontalOffset = 8.0f;
         const float   childYSpaceOffset       = 4.0f;
@@ -505,39 +541,162 @@ namespace Lina::Editor
         const ImVec2  contentOffset           = ImVec2(0.5f, -2.0f);
         static ImVec2 childSize               = ImVec2(buttonSize.x + buttonsHorizontalOffset * 2, buttonSize.y * 4 + itemSpacingY * 5 + childYSpaceOffset * 2);
 
-        static float x = 0;
-        static float y = 0;
-        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue() * 0.1f;
-        y += Input::InputEngineBackend::Get()->GetVerticalAxisValue() * 0.1f;
-
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
-        WidgetsUtility::BeginMovableChild(childID, childSize, confineRect, false, buttonsHorizontalOffset);
+        const ImVec2 defaultPos = ImVec2(confineRect.Min.x + CURSOR_X_LABELS, confineRect.Min.y + CURSOR_X_LABELS);
+
+        WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, false, ImVec2(buttonsHorizontalOffset + 7, 0));
 
         PushIconFontSmall();
         ImGui::SetCursorPosX(buttonsHorizontalOffset);
-        if (Button(ICON_FA_ARROWS_ALT, buttonSize, 1, rounding, contentOffset))
+
+        const int  currentOperation = GUILayer::Get()->GetLevelPanel().GetTransformOperation();
+        const bool isGlobal         = GUILayer::Get()->GetLevelPanel().GetIsGizmoGlobal();
+        bool       isLocked         = currentOperation == 0;
+
+        if (Button(ICON_FA_ARROWS_ALT, buttonSize, 1, rounding, contentOffset, isLocked))
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{0});
+        if (ImGui::IsItemHovered())
         {
+            ImGui::PopFont();
+            Tooltip("Move");
+            PushIconFontSmall();
+        }
+
+        isLocked = currentOperation == 1;
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_SYNC_ALT, buttonSize, 1, rounding, contentOffset, isLocked))
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{1});
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Rotate");
+            PushIconFontSmall();
+        }
+        isLocked = currentOperation == 2;
+        ImGui::SetCursorPosX(buttonsHorizontalOffset);
+        if (Button(ICON_FA_COMPRESS_ALT, buttonSize, 1, rounding, contentOffset, isLocked))
+            Event::EventSystem::Get()->Trigger<ETransformGizmoChanged>(ETransformGizmoChanged{2});
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Scale");
+            PushIconFontSmall();
         }
 
         ImGui::SetCursorPosX(buttonsHorizontalOffset);
-        if (Button(ICON_FA_SYNC_ALT, buttonSize, 1, rounding, contentOffset))
-        {
-        }
+        const char* icon = isGlobal ? ICON_FA_GLOBE_AMERICAS : ICON_FA_CUBE;
+        if (Button(icon, buttonSize, 1, rounding, contentOffset))
+            Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{!isGlobal});
 
-        ImGui::SetCursorPosX(buttonsHorizontalOffset);
-        if (Button(ICON_FA_COMPRESS_ALT, buttonSize, 1, rounding, contentOffset))
+        if (ImGui::IsItemHovered())
         {
-        }
-
-        ImGui::SetCursorPosX(buttonsHorizontalOffset);
-        if (Button(ICON_FA_GLOBE, buttonSize, 1, rounding, contentOffset))
-        {
+            ImGui::PopFont();
+            Tooltip(isGlobal ? "Current: World" : "Current: Local");
+            PushIconFontSmall();
         }
 
         ImGui::PopFont();
         ImGui::EndChild();
         ImGui::PopStyleVar();
+    }
+
+    void WidgetsUtility::PlayOperationTools(const char* childID, ImRect confineRect)
+    {
+        const float   rounding         = 4.0f;
+        const float   itemSpacingX     = ImGui::GetStyle().ItemSpacing.x;
+        const float   itemSpacingY     = ImGui::GetStyle().ItemSpacing.y;
+        const float   childRounding    = 6.0f;
+        const ImVec2  buttonSize       = ImVec2(28, 28);
+        const ImVec2  currentWindowPos = ImGui::GetWindowPos();
+        const ImVec2  contentOffset    = ImVec2(0.5f, -2.0f);
+        static ImVec2 childSize        = ImVec2(buttonSize.x * 5 + itemSpacingX * 6, buttonSize.y + itemSpacingY * 3);
+
+        ImGui::SetNextWindowBgAlpha(0.5f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
+        const ImVec2 defaultPos = ImVec2(confineRect.Max.x - childSize.x - CURSOR_X_LABELS - 10, confineRect.Min.y + CURSOR_X_LABELS);
+
+        static float x = 0.0f;
+        static float y = 0.0f;
+        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue();
+        y += Input::InputEngineBackend::Get()->GetVerticalAxisValue();
+
+        WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, true, ImVec2(5, 10));
+        ImGui::SameLine();
+        PushIconFontSmall();
+        ImGui::SetCursorPos(ImVec2(17, 6));
+
+        const bool isInPlayMode = Engine::Get()->GetPlayMode();
+        const bool isPaused     = Engine::Get()->GetIsPaused();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
+        if (Button(ICON_FA_PLAY, buttonSize, 1, rounding, contentOffset, isInPlayMode))
+            Engine::Get()->SetPlayMode(!isInPlayMode);
+        ImGui::PopStyleColor();
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Enter Playmode");
+            PushIconFontSmall();
+        }
+
+        ImGui::SameLine();
+        if (Button(ICON_FA_PAUSE, buttonSize, 1, rounding, contentOffset, isPaused))
+            Engine::Get()->SetIsPaused(!isPaused);
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Pause");
+            PushIconFontSmall();
+        }
+
+        ImGui::SameLine();
+        if (Button(ICON_FA_FAST_FORWARD, buttonSize, 1, rounding, contentOffset))
+            Engine::Get()->SkipNextFrame();
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Skip Frame");
+            PushIconFontSmall();
+        }
+
+        ImGui::SameLine();
+        if (Button(ICON_FA_CAMERA, buttonSize, 1, rounding, contentOffset, m_shouldShowCameraOptions))
+        {
+            m_shouldShowCameraOptions = !m_shouldShowCameraOptions;
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Show Camera Options");
+            PushIconFontSmall();
+        }
+
+        ImGui::SameLine();
+        auto& levelPanel = GUILayer::Get()->GetLevelPanel();
+        if (Button(ICON_FA_EYE, buttonSize, 1, rounding, contentOffset, levelPanel.m_shouldShowGizmos))
+            levelPanel.m_shouldShowGizmos = !levelPanel.m_shouldShowGizmos;
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Show Gizmos");
+            PushIconFontSmall();
+        }
+
+        ImGui::PopFont();
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+
+        if (m_shouldShowCameraOptions)
+        {
+            const ImVec2 pos = m_movableChildData[childID].m_position;
+            DisplayEditorCameraSettings(ImVec2(pos.x, pos.y + childSize.y + 2));
+        }
     }
 
     void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
