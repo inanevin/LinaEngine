@@ -26,11 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Panels/MaterialPanel.hpp"
+/*
+Class: MaterialDrawer
+
+
+
+Timestamp: 1/9/2022 11:54:11 PM
+*/
+
+#pragma once
+
+#ifndef MaterialDrawer_HPP
+#define MaterialDrawer_HPP
+
+// Headers here.
+
 
 namespace Lina::Editor
 {
-    void MaterialPanel::Draw()
-    {
-    }
-} // namespace Lina::Editor
+	class MaterialDrawer
+	{
+		
+	public:
+		
+		MaterialDrawer();
+		~MaterialDrawer();
+	
+	private:
+	
+	};
+}
+
+#endif

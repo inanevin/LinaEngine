@@ -26,11 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Panels/ShaderPanel.hpp"
+#include "Drawers/ShaderDrawer.hpp"
 
 namespace Lina::Editor
 {
-    void ShaderPanel::Draw()
-    {
-    }
-} // namespace Lina::Editor
+	
+}

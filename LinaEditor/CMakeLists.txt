@@ -37,6 +37,10 @@ src/ECS/Systems/EditorCameraSystem.cpp
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
 src/Drawers/ClassDrawer.cpp
+src/Drawers/MaterialDrawer.cpp
+src/Drawers/ShaderDrawer.cpp
+src/Drawers/ModelDrawer.cpp
+src/Drawers/TextureDrawer.cpp
 
 
 # Panels
@@ -53,10 +57,7 @@ src/Panels/GlobalSettingsPanel.cpp
 src/Panels/MainToolbarPanel.cpp
 src/Panels/ResourceSelectorPanel.cpp
 src/Panels/ProgressPanel.cpp
-src/Panels/TexturePanel.cpp
-src/Panels/ModelPanel.cpp
-src/Panels/MaterialPanel.cpp
-src/Panels/ShaderPanel.cpp
+src/Panels/PreviewPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -118,6 +119,10 @@ include/ECS/Systems/EditorCameraSystem.hpp
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
 include/Drawers/ClassDrawer.hpp
+include/Drawers/MaterialDrawer.hpp
+include/Drawers/ModelDrawer.hpp
+include/Drawers/TextureDrawer.hpp
+include/Drawers/ShaderDrawer.hpp
 
 # Panels
 include/Panels/MainToolbarPanel.hpp
@@ -133,10 +138,7 @@ include/Panels/ProfilerPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
 include/Panels/ResourceSelectorPanel.hpp
 include/Panels/ProgressPanel.hpp
-include/Panels/ModelPanel.hpp
-include/Panels/MaterialPanel.hpp
-include/Panels/ShaderPanel.hpp
-include/Panels/TexturePanel.hpp
+include/Panels/PreviewPanel.hpp
 
 
 # Utility

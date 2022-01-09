@@ -764,7 +764,7 @@ namespace Lina::Editor
         ImGui::PopFont();
     }
 
-    void WidgetsUtility::WindowTitlebar(const char* id, const char* label)
+    void WidgetsUtility::WindowTitlebar(const char* id)
     {
         if (ImGui::IsWindowDocked())
             return;
@@ -776,7 +776,7 @@ namespace Lina::Editor
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, textCol, GUILayer::Get()->m_windowIconMap[id]);
         ImGui::PopFont();
-        ImGui::GetWindowDrawList()->AddText(textPos, textCol, label);
+        ImGui::GetWindowDrawList()->AddText(textPos, textCol, GUILayer::Get()->m_editorPanels[id]->GetTitle().c_str());
 
         // Draw Buttons
         WindowButtons(id, 4.0f, false, 0.9f);

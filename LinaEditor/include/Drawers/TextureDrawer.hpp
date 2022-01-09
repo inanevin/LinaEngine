@@ -27,62 +27,43 @@ SOFTWARE.
 */
 
 /*
-Class: ModelPanel
+Class: TextureDrawer
 
 
 
-Timestamp: 1/4/2022 6:18:09 PM
+Timestamp: 1/9/2022 11:54:02 PM
 */
 
 #pragma once
 
-#ifndef ModelPanel_HPP
-#define ModelPanel_HPP
+#ifndef TextureDrawer_HPP
+#define TextureDrawer_HPP
 
 // Headers here.
-#include "Panels/EditorPanel.hpp"
-#include "Math/Quaternion.hpp"
 
 namespace Lina
 {
+    class Vector2;
+
     namespace Graphics
     {
-        class Model;
+     class Texture;   
     }
-} // namespace Lina
-
+}
 namespace Lina::Editor
 {
-    class ModelPanel : public EditorPanel
+    class TextureDrawer
     {
 
     public:
-        ModelPanel()  = default;
-        ~ModelPanel() = default;
+        TextureDrawer()  = default;
+        ~TextureDrawer() = default;
 
-        virtual void Initialize(const char* id, const char* icon) override;
-        virtual void Draw() override;
-        virtual void Open() override;
-
-        void SetTargetModel(Graphics::Model* model);
+        static void DrawTextureSettings(Graphics::Texture* texture, float paneWidth);
+        static void DrawTexture(Graphics::Texture* texture, const Vector2& bgMin, const Vector2& bgMax);
 
     private:
-        void DrawModelSettings();
-        void DrawModel();
-
-    private:
-        Graphics::Model* m_targetModel             = nullptr;
-        float            m_leftPaneWidth           = 0.0f;
-        float            m_leftPaneMaxWidth        = 0.0f;
-        float            m_leftPaneMinWidth        = 0.0f;
-        float            m_resizeDividerPressedPos = 0.0f;
-        bool             m_draggingVerticalDivider = false;
-        Vector2          m_rightPaneSize           = Vector2::Zero;
-        Vector3          m_previewCameraPosition   = Vector3::Zero;
-        Quaternion       m_previewCameraRotation   = Quaternion();
-        Vector2          m_mouseDragStart          = Vector2::Zero;
-        Vector2          m_mouseAngles             = Vector2::Zero;
     };
-} // namespace Lina::Editor
+} // namespace Lina
 
 #endif

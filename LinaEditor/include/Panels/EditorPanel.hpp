@@ -86,6 +86,10 @@ namespace Lina::Editor
         {
             return m_isDocked;
         }
+        inline std::string GetTitle()
+        {
+            return m_title;
+        }
 
     protected:
         bool        m_isDocked               = false;

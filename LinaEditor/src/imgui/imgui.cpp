@@ -6596,7 +6596,7 @@ void ImGui::RenderWindowTitleBarContents(ImGuiWindow* window, const ImRect& titl
 
         if (editorPanels.find(name) != editorPanels.end())
         {
-            Lina::Editor::WidgetsUtility::WindowTitlebar(name, name);
+            Lina::Editor::WidgetsUtility::WindowTitlebar(name);
         }
     }
 

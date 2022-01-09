@@ -163,7 +163,7 @@ namespace Lina::Editor
         /// Draws a custom title bar for the window.
         /// </summary>
         /// <param name="label"></param>
-        static void WindowTitlebar(const char* id, const char* label);
+        static void WindowTitlebar(const char* id);
 
         /// <summary>
         /// Draws multiple horizontal dividers to create a drop shadow effect.

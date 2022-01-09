@@ -188,15 +188,6 @@ namespace Lina::Editor
 // Model panel
 #define ID_MODELPANEL "ModelPanel"
 
-// Material panel
-#define ID_MATERIALPANEL "MaterialPanel"
-
-// Shader panel
-#define ID_SHADERPANEL "ShaderPanel"
-
-// Texture panel
-#define ID_TEXTUREPANEL "TexturePanel"
-
 } // namespace Lina::Editor
 
 #endif

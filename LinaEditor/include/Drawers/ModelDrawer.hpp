@@ -27,36 +27,44 @@ SOFTWARE.
 */
 
 /*
-Class: ShaderPanel
+Class: ModelDrawer
 
 
 
-Timestamp: 1/4/2022 6:18:01 PM
+Timestamp: 1/9/2022 11:54:18 PM
 */
 
 #pragma once
 
-#ifndef ShaderPanel_HPP
-#define ShaderPanel_HPP
+#ifndef ModelDrawer_HPP
+#define ModelDrawer_HPP
 
 // Headers here.
-#include "Panels/EditorPanel.hpp"
 
+namespace Lina
+{
+    class Vector2;
+
+    namespace Graphics
+    {
+        class Model;
+    }
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class ShaderPanel : public EditorPanel
-	{
-		
-	public:
-		
-		ShaderPanel() = default;
-		~ShaderPanel() = default;
-		void Draw() override;
+    class ModelDrawer
+    {
 
-	private:
-	
-	};
-}
+    public:
+        ModelDrawer() = default;
+        ~ModelDrawer() = default;
+
+        static void DrawModelSettings(Graphics::Model* model, float leftPaneSize);
+        static void DrawModel(Graphics::Model* model, const Vector2& bgMin, const Vector2& bgMax);
+
+    private:
+    };
+} // namespace Lina::Editor
 
 #endif

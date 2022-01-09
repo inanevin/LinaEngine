@@ -27,33 +27,34 @@ SOFTWARE.
 */
 
 /*
-Class: MaterialPanel
+Class: ShaderDrawer
 
 
 
-Timestamp: 1/4/2022 6:18:23 PM
+Timestamp: 1/9/2022 11:54:26 PM
 */
 
 #pragma once
 
-#ifndef MaterialPanel_HPP
-#define MaterialPanel_HPP
+#ifndef ShaderDrawer_HPP
+#define ShaderDrawer_HPP
 
 // Headers here.
-#include "Panels/EditorPanel.hpp"
 
-namespace Lina::Editor
+
+namespace Lina
 {
-    class MaterialPanel : public EditorPanel
-    {
-
-    public:
-        MaterialPanel()  = default;
-        ~MaterialPanel() = default;
-        void Draw() override;
-
-    private:
-    };
-} // namespace Lina::Editor
+	class ShaderDrawer
+	{
+		
+	public:
+		
+		ShaderDrawer();
+		~ShaderDrawer();
+	
+	private:
+	
+	};
+}
 
 #endif
