@@ -117,16 +117,13 @@ namespace Lina::Input
 
     Vector2 GLFWInputEngine::GetRawMouseAxis()
     {
-        // Storage for previous mouse position.
-        static Vector2 oldMousePosition;
-
         // Get the cursor position.
         double posX, posY;
         glfwGetCursorPos(glfwWindow, &posX, &posY);
 
         // Get the delta mouse position.
         Vector2 currentMousePosition = Vector2((float)posX, (float)posY);
-        Vector2 diff                 = currentMousePosition - oldMousePosition;
+        Vector2 diff                 = currentMousePosition - m_axisMousePos;
         Vector2 raw                  = Vector2::Zero;
 
         // Set raw axis values depending on the direction of the axis.
@@ -140,7 +137,7 @@ namespace Lina::Input
             raw.y = -1.0f;
 
         // Set previous position.
-        oldMousePosition = currentMousePosition;
+        m_axisMousePos = currentMousePosition;
 
         // Return raw.
         return raw;
@@ -148,13 +145,11 @@ namespace Lina::Input
 
     Vector2 GLFWInputEngine::GetMouseAxis()
     {
-        static Vector2 oldMousePos;
-
         double posX, posY;
         glfwGetCursorPos(glfwWindow, &posX, &posY);
 
         // Delta
-        Vector2 diff = Vector2((float)(posX - oldMousePos.x), (float)(posY - oldMousePos.y));
+        Vector2 diff = Vector2((float)(posX - m_axisMousePos.x), (float)(posY - m_axisMousePos.y));
 
         // Clamp and remap delta mouse position.
         diff.x = Math::Clamp(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
@@ -163,7 +158,7 @@ namespace Lina::Input
         diff.y = Math::Remap(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
 
         // Set the previous position.
-        oldMousePos = Vector2((float)posX, (float)posY);
+        m_axisMousePos = Vector2((float)posX, (float)posY);
 
         return diff;
     }

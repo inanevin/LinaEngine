@@ -36,6 +36,7 @@ SOFTWARE.
 #include "ECS/Registry.hpp"
 #include "Math/Math.hpp"
 #include "Panels/LevelPanel.hpp"
+#include "imgui/imgui.h"
 
 namespace Lina::ECS
 {
@@ -93,6 +94,8 @@ namespace Lina::ECS
 
         if (m_inputEngine->GetMouseButton(LINA_MOUSE_3))
         {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
             const Vector2 mousePosition = m_inputEngine->GetMousePosition();
             const Vector2 deltaMouse    = mousePosition - mouseDragStart;
             location += delta * rg * -deltaMouse.x;
@@ -103,9 +106,18 @@ namespace Lina::ECS
 
     void EditorCameraSystem::RotateBehaviour(float delta, Quaternion& q, Vector2& angles)
     {
-        // Holding right click enables rotating.
-        if (m_inputEngine->GetMouseButton(Input::InputCode::Mouse::Mouse2))
+        static Quaternion qStart;
+        if (m_inputEngine->GetMouseButtonDown(LINA_MOUSE_2))
         {
+            m_inputEngine->SetAxisMousePos(m_inputEngine->GetMousePosition());
+            m_targetXAngle = angles.x;
+            m_targetYAngle = angles.y;
+        }
+
+        // Holding right click enables rotating.
+        if (m_inputEngine->GetMouseButton(LINA_MOUSE_2))
+        {
+
             Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
             m_targetYAngle += mouseAxis.y * m_rotationSpeeds.x;
@@ -116,7 +128,7 @@ namespace Lina::ECS
 
             Quaternion qX = Quaternion::AxisAngle(Vector3::Up, angles.x);
             Quaternion qY = Quaternion::AxisAngle(Vector3::Right, angles.y);
-            q             = qX * qY;
+            q             = qX * qY ;
         }
     }
 } // namespace Lina::ECS

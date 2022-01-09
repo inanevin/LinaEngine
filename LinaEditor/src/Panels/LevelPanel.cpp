@@ -115,14 +115,12 @@ namespace Lina::Editor
                 if (renderEngine->GetCameraSystem()->GetAspectRatio() != windowAspect)
                     renderEngine->GetCameraSystem()->SetAspectRatio(windowAspect);
 
-      
-
                 ImGui::BeginChild("finalImage");
 
                 m_isFocused = ImGui::IsWindowFocused();
                 m_isHovered = ImGui::IsWindowHovered();
 
-                if (m_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+                if (m_isHovered && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle)))
                 {
                     ImGui::SetWindowFocus();
                 }

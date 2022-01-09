@@ -696,7 +696,7 @@ namespace Lina::Editor
         if (m_shouldShowCameraOptions)
         {
             const ImVec2 pos = m_movableChildData[childID].m_position;
-            DisplayEditorCameraSettings(ImVec2(pos.x, pos.y + childSize.y + 2));
+            DisplayEditorCameraSettings(ImVec2(confineRect.Min.x + pos.x, confineRect.Min.y + pos.y + childSize.y + 2));
         }
     }
 

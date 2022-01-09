@@ -71,6 +71,8 @@ namespace Lina::Editor
     {
         m_previewCameraPosition = Vector3(0, 5, -10);
         m_previewCameraRotation = Quaternion::LookAt(m_previewCameraPosition, Vector3(0, 0, 0), Vector3::Up);
+        m_mouseAngles.x           = m_previewCameraRotation.GetEuler().y;
+        m_mouseAngles.y           = m_previewCameraRotation.GetEuler().x;
         EditorPanel::Open();
     }
 
@@ -131,17 +133,25 @@ namespace Lina::Editor
         const float drawPadding = 5;
         ImVec2      drawSize    = ImVec2(bgSize.x - drawPadding, bgSize.y - drawPadding);
 
-        auto&            camSystem = EditorApplication::Get()->GetCameraSystem();
-        auto&            data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
-        const Vector3    location  = data.GetLocation();
-        const Quaternion rotation  = data.GetRotation();
-        const float      delta     = (float)Engine::Get()->GetRawDelta();
+        auto&            camSystem        = EditorApplication::Get()->GetCameraSystem();
+        auto&            data             = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
+        const Vector3    previousLocation = data.GetLocation();
+        const Quaternion previousRotation = data.GetRotation();
+       
+        if (ImGui::IsWindowHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle)))
+            ImGui::SetWindowFocus();
 
-        camSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
-        data.SetLocation(m_previewCameraPosition);
+        const float delta = (float)Engine::Get()->GetRawDelta();
 
-        camSystem.RotateBehaviour(delta, m_previewCameraRotation, m_mouseAngles);
+        if (ImGui::IsWindowFocused())
+            camSystem.RotateBehaviour(delta, m_previewCameraRotation, m_mouseAngles);
+
         data.SetRotation(m_previewCameraRotation);
+
+        if (ImGui::IsWindowFocused())
+            camSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
+
+        data.SetLocation(m_previewCameraPosition);
 
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
 
@@ -165,7 +175,7 @@ namespace Lina::Editor
         WidgetsUtility::TransformOperationTools("##modelpanel_transformops", confineSpace);
 
         // Reset
-        data.SetLocation(location);
-        data.SetRotation(rotation);
+        data.SetLocation(previousLocation);
+        data.SetRotation(previousRotation);
     }
 } // namespace Lina::Editor

@@ -107,6 +107,10 @@ namespace Lina::Input
         {
             return m_inputPipeline;
         }
+        inline void SetAxisMousePos(const Vector2& v)
+        {
+            m_axisMousePos = v;
+        }
 
     private:
         friend class Engine;
@@ -122,9 +126,9 @@ namespace Lina::Input
         friend class Engine;
         static GLFWInputEngine* s_inputEngine;
         int                     m_keyStatesDown[NUM_KEY_STATES];
-        int                     m_keyStatesUp[NUM_KEY_STATES];
-        int                     m_mouseStatesDown[NUM_MOUSE_STATES];
-        int                     m_mouseStatesUp[NUM_MOUSE_STATES];
+        int                     m_keyStatesUp[NUM_KEY_STATES]       = {0};
+        int                     m_mouseStatesDown[NUM_MOUSE_STATES] = {0};
+        int                     m_mouseStatesUp[NUM_MOUSE_STATES]   = {0};
         std::map<int, int>      m_keyDownNewStateMap;
         std::map<int, int>      m_keyUpNewStateMap;
         std::map<int, int>      m_mouseDownNewStateMap;
@@ -135,6 +139,7 @@ namespace Lina::Input
         ECS::FreeLookSystem     m_freeLookSystem;
         ECS::SystemList         m_inputPipeline;
         Vector2                 m_currentMouseScroll = Vector2::Zero;
+        Vector2                 m_axisMousePos       = Vector2::Zero;
     };
 } // namespace Lina::Input
 
