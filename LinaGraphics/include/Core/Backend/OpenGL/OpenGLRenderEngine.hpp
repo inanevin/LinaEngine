@@ -187,7 +187,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Renders the given model in a preview scene and returns the resulting image.
         /// </summary>
-        uint32 RenderModelPreview(Model* model);
+        uint32 RenderModelPreview(Model* model, RenderTarget* overrideTarget = nullptr);
 
         void UpdateShaderData(Material* mat);
 
@@ -283,6 +283,10 @@ namespace Lina::Graphics
         {
             return m_animationPipeline;
         }
+        inline SamplerParameters GetPrimaryRTParams()
+        {
+            return m_primaryRTParams;
+        }
 
 
     private:
@@ -316,7 +320,7 @@ namespace Lina::Graphics
         void ConstructRenderTargets();
         void DumpMemory();
         void Draw();
-        void DrawFinalize(bool finalizeForPreview = false);
+        void DrawFinalize(RenderTarget* overrideTarget = nullptr);
         void UpdateUniformBuffers();
         void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
         void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);

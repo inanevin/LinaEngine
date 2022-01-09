@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Widgets/Snackbar.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/EditorApplication.hpp"
+#include "ECS/Components/LightComponent.hpp"
 
 namespace Lina::Editor
 {
@@ -81,6 +82,7 @@ namespace Lina::Editor
     static float                                   m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                 m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                              m_editorCameraRotationBeforeSnapshot = Quaternion();
+    const std::string                              editorSnapshotLightName              = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -202,18 +204,26 @@ namespace Lina::Editor
 
         if (cameraSystem->GetAspectRatio() != aspectRatio)
             cameraSystem->SetAspectRatio(aspectRatio);
+
+        auto*       reg  = ECS::Registry::Get();
+        ECS::Entity ent  = reg->CreateEntity(editorSnapshotLightName);
+        auto&       lightData = reg->get<ECS::EntityDataComponent>(ent);
+        lightData.SetLocation(Vector3(5, 8, 0));
+        reg->emplace<ECS::DirectionalLightComponent>(ent);
     }
 
     void WidgetsUtility::SetEditorCameraForSnapshot()
     {
         auto& editorCamSystem = EditorApplication::Get()->GetCameraSystem();
         auto& data            = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
-        data.SetLocation(Vector3(0, 4, 4));
+        data.SetLocation(Vector3(0, 1, -4));
         data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3::Zero, Vector3::Up));
     }
 
     void WidgetsUtility::ResetEditorCamera()
     {
+        auto* reg = ECS::Registry::Get();
+        reg->DestroyEntity(reg->GetEntity(editorSnapshotLightName));
         // Reset aspect resizing.
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
         auto* cameraSystem = renderEngine->GetCameraSystem();
@@ -263,11 +273,8 @@ namespace Lina::Editor
             {
                 if (m_modelPreviewTextures.find(item->m_sid) == m_modelPreviewTextures.end())
                 {
-                    SaveEditorCameraBeforeSnapshot(imageSize.x / imageSize.y);
-                    SetEditorCameraForSnapshot();
-                    auto* renderEngine                  = Graphics::RenderEngineBackend::Get();
-                    m_modelPreviewTextures[item->m_sid] = renderEngine->RenderModelPreview(storage->GetResource<Graphics::Model>(item->m_sid));
-                    ResetEditorCamera();
+
+                    m_modelPreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
                 }
                 textureID = m_modelPreviewTextures[item->m_sid];
             }

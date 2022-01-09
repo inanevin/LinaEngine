@@ -95,9 +95,9 @@ namespace Lina::World
 
     void Level::SetupData()
     {
-        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
         Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(m_skyboxMaterial.m_value);
         Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(m_ambientColor);
+        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
     };
 
 } // namespace Lina::World

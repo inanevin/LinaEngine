@@ -38,8 +38,10 @@ SOFTWARE.
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "Log/Log.hpp"
 #include "Panels/EntitiesPanel.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 
 using namespace ECS;
 
@@ -50,6 +52,16 @@ namespace Lina::Editor
     Vector3                editorCameraLocationCopy;
     Quaternion             editorCameraRotationCopy;
     ECS::CameraComponent   cameraCopy;
+
+    EditorApplication::~EditorApplication()
+    {
+        for (auto& [sid, buffer] : m_previewBuffers)
+        {
+            delete buffer.m_renderBuffer;
+            delete buffer.m_rtTexture;
+            delete buffer.m_rt;
+        }
+    }
 
     void EditorApplication::Initialize()
     {
@@ -62,6 +74,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
         Event::EventSystem::Get()->Connect<Event::EPreSerializingLevel, &EditorApplication::OnPreSerializingLevel>(this);
         Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorApplication::OnWindowResized>(this);
 
         m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
         m_editorCameraSystem.SystemActivation(true);
@@ -83,6 +96,16 @@ namespace Lina::Editor
         ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
         Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
         m_editorCameraSystem.SetEditorCamera(editorCamera);
+
+        // When the first level is loaded, iterate all model resources & take snapshots for each.
+        if (!m_modelSnapshotsTaken)
+        {
+            m_modelSnapshotsTaken = true;
+            auto& cache           = Resources::ResourceStorage::Get()->GetCache<Graphics::Model>();
+
+            for (auto& [sid, ptr] : cache)
+                TakeModelSnapshot(sid);
+        }
     }
 
     void EditorApplication::OnPreSerializingLevel(const Event::EPreSerializingLevel& ev)
@@ -110,6 +133,62 @@ namespace Lina::Editor
         ecs->emplace<ECS::CameraComponent>(editorCamera, cameraCopy);
         Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
         m_editorCameraSystem.SetEditorCamera(editorCamera);
+    }
+
+    void EditorApplication::OnWindowResized(const Event::EWindowResized& ev)
+    {
+        // resize all snapshot buffers.
+
+        auto*          renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*          renderDevice = renderEngine->GetRenderDevice();
+        auto           params       = renderEngine->GetPrimaryRTParams();
+        const Vector2i screenSize   = renderEngine->GetScreenSize();
+
+        for (auto& [sid, buffer] : m_previewBuffers)
+        {
+            renderDevice->ResizeRTTexture(buffer.m_rtTexture->GetID(), screenSize, params.m_textureParams.m_internalPixelFormat, params.m_textureParams.m_pixelFormat);
+        }
+    }
+
+    void EditorApplication::OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev)
+    {
+        // Only for resources loaded after the initial bulk-load.
+        // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
+        if (m_modelSnapshotsTaken || ev.m_tid == GetTypeID<Graphics::Model>())
+        {
+            TakeModelSnapshot(ev.m_sid);
+        }
+    }
+
+    void EditorApplication::TakeModelSnapshot(StringIDType sid)
+    {
+        WidgetsUtility::SaveEditorCameraBeforeSnapshot(1.0f);
+        WidgetsUtility::SetEditorCameraForSnapshot();
+        auto* target       = AddSnapshotBuffer(sid);
+        auto* renderEngine = Graphics::RenderEngineBackend::Get();
+        renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(sid), target);
+        WidgetsUtility::ResetEditorCamera();
+    }
+
+    Graphics::RenderTarget* EditorApplication::AddSnapshotBuffer(StringIDType sid)
+    {
+        // We create a new buffer for each model resource, each buffer holds a render target, render buffer and a corresponding texture.
+        auto& buffer                                      = m_previewBuffers[sid];
+        buffer.m_renderBuffer                             = new Graphics::RenderBuffer();
+        buffer.m_rtTexture                                = new Graphics::Texture();
+        buffer.m_rt                                       = new Graphics::RenderTarget();
+        auto*                             renderEngine    = Graphics::RenderEngineBackend::Get();
+        const Vector2i                    screenSize      = renderEngine->GetScreenSize();
+        const Graphics::SamplerParameters primaryRTParams = renderEngine->GetPrimaryRTParams();
+        buffer.m_rtTexture->ConstructRTTexture(screenSize, primaryRTParams, false);
+        buffer.m_renderBuffer->Construct(Graphics::RenderBufferStorage::STORAGE_DEPTH, screenSize);
+        buffer.m_rt->Construct(*buffer.m_rtTexture, Graphics::TextureBindMode::BINDTEXTURE_TEXTURE2D, Graphics::FrameBufferAttachment::ATTACHMENT_COLOR, Graphics::FrameBufferAttachment::ATTACHMENT_DEPTH, buffer.m_renderBuffer->GetID());
+        return buffer.m_rt;
+    }
+
+    uint32 EditorApplication::GetSnapshotTexture(StringIDType sid)
+    {
+        return m_previewBuffers[sid].m_rtTexture->GetID();
     }
 
     void EditorApplication::PlayModeChanged(const Event::EPlayModeChanged& playMode)

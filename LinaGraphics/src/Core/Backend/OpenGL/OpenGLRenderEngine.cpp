@@ -619,7 +619,7 @@ namespace Lina::Graphics
         DrawFinalize();
     }
 
-    void OpenGLRenderEngine::DrawFinalize(bool finalizeForPreview)
+    void OpenGLRenderEngine::DrawFinalize(RenderTarget* overrideTarget)
     {
         // Frag color
         m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
@@ -671,8 +671,8 @@ namespace Lina::Graphics
         // After we've applied custom post processing, draw the final image either to the screen, or to a secondary frame buffer to display it in editor.
         if (m_appMode == ApplicationMode::Editor)
         {
-            if (finalizeForPreview)
-                m_renderDevice.SetFBO(m_previewRenderTarget.GetID());
+            if (overrideTarget != nullptr)
+                m_renderDevice.SetFBO(overrideTarget->GetID());
             else
                 m_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
         }
@@ -696,7 +696,7 @@ namespace Lina::Graphics
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
 
-    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model)
+    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, RenderTarget* overrideTarget)
     {
         // Store the current skybox & switch to HDRI one
         Material* currentSkybox = m_skyboxMaterial;
@@ -711,7 +711,7 @@ namespace Lina::Graphics
         // Draw skybox and given model.
         DrawSkybox();
         m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams);
-        DrawFinalize(true);
+        DrawFinalize(overrideTarget == nullptr ? &m_previewRenderTarget : overrideTarget);
 
         // Reset buffers back as well as the skybox.
         m_renderDevice.SetFBO(0);

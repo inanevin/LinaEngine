@@ -50,45 +50,70 @@ namespace Lina
         class Level;
     }
 
+    namespace Graphics
+    {
+        class RenderTarget;
+        class Texture;
+        class RenderBuffer;
+    } // namespace Graphics
+
     namespace Event
     {
         struct EPlayModeChanged;
         struct ELevelInstalled;
         struct EPreSerializingLevel;
         struct ESerializedLevel;
+        struct EWindowResized;
+        struct EResourceLoadCompleted;
 
     } // namespace Event
 } // namespace Lina
 
 namespace Lina::Editor
 {
+    // Used for taking fixed-size snapshots of resources such as materials/models/ shaders
+    struct SnapshotBuffer
+    {
+        Graphics::RenderTarget* m_rt           = nullptr;
+        Graphics::Texture*      m_rtTexture    = nullptr;
+        Graphics::RenderBuffer* m_renderBuffer = nullptr;
+    };
+
     class EditorApplication
     {
     public:
-        EditorApplication()  = default;
-        ~EditorApplication() = default;
+        EditorApplication() = default;
+        ~EditorApplication();
+        void Initialize();
 
-        static EditorApplication* Get()
+        inline static EditorApplication* Get()
         {
             return s_editorApplication;
         }
 
-        void                     Initialize();
-        ECS::EditorCameraSystem& GetCameraSystem()
+        inline ECS::EditorCameraSystem& GetCameraSystem()
         {
             return m_editorCameraSystem;
         }
 
+        Graphics::RenderTarget* AddSnapshotBuffer(StringIDType sid);
+        uint32                  GetSnapshotTexture(StringIDType sid);
+
     private:
         void PlayModeChanged(const Event::EPlayModeChanged& playmode);
+        void TakeModelSnapshot(StringIDType sid);
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void OnPreSerializingLevel(const Event::EPreSerializingLevel& ev);
         void OnSerializedLevel(const Event::ESerializedLevel& ev);
+        void OnWindowResized(const Event::EWindowResized& ev);
+        void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
 
     private:
-        static EditorApplication* s_editorApplication;
-        ECS::EditorCameraSystem   m_editorCameraSystem;
-        GUILayer                  m_guiLayer;
+        static EditorApplication*                        s_editorApplication;
+        ECS::EditorCameraSystem                          m_editorCameraSystem;
+        GUILayer                                         m_guiLayer;
+        std::unordered_map<StringIDType, SnapshotBuffer> m_previewBuffers;
+        bool                                             m_modelSnapshotsTaken = false;
     };
 } // namespace Lina::Editor
 
