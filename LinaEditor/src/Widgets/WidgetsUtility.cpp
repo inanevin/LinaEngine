@@ -51,6 +51,7 @@ SOFTWARE.
 #include "Core/ImGuiCommon.hpp"
 #include "Core/Engine.hpp"
 #include "Widgets/Snackbar.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/EditorApplication.hpp"
 
 namespace Lina::Editor
@@ -76,6 +77,10 @@ namespace Lina::Editor
     static float                                   m_editorCameraSpeed           = 1.0f;
     static float                                   m_editorCameraSpeedMultiplier = 1.0f;
     static std::map<std::string, MovableChildData> m_movableChildData;
+    static std::map<StringIDType, uint32>          m_modelPreviewTextures;
+    static float                                   m_editorCameraAspectBeforeSnapshot   = 0.0f;
+    static Vector3                                 m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
+    static Quaternion                              m_editorCameraRotationBeforeSnapshot = Quaternion();
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -183,6 +188,45 @@ namespace Lina::Editor
         return node;
     }
 
+    void WidgetsUtility::SaveEditorCameraBeforeSnapshot(float aspectRatio)
+    {
+        auto& editorCamSystem                = EditorApplication::Get()->GetCameraSystem();
+        auto& data                           = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
+        m_editorCameraLocationBeforeSnapshot = data.GetLocation();
+        m_editorCameraRotationBeforeSnapshot = data.GetRotation();
+
+        // Handle aspect resizing.
+        auto* renderEngine                 = Graphics::RenderEngineBackend::Get();
+        auto* cameraSystem                 = renderEngine->GetCameraSystem();
+        m_editorCameraAspectBeforeSnapshot = cameraSystem->GetAspectRatio();
+
+        if (cameraSystem->GetAspectRatio() != aspectRatio)
+            cameraSystem->SetAspectRatio(aspectRatio);
+    }
+
+    void WidgetsUtility::SetEditorCameraForSnapshot()
+    {
+        auto& editorCamSystem = EditorApplication::Get()->GetCameraSystem();
+        auto& data            = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
+        data.SetLocation(Vector3(0, 4, 4));
+        data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3::Zero, Vector3::Up));
+    }
+
+    void WidgetsUtility::ResetEditorCamera()
+    {
+        // Reset aspect resizing.
+        auto* renderEngine = Graphics::RenderEngineBackend::Get();
+        auto* cameraSystem = renderEngine->GetCameraSystem();
+        if (cameraSystem->GetAspectRatio() != m_editorCameraAspectBeforeSnapshot)
+            cameraSystem->SetAspectRatio(m_editorCameraAspectBeforeSnapshot);
+
+        // Reset camera transformation.
+        auto& camSystem = EditorApplication::Get()->GetCameraSystem();
+        auto& data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
+        data.SetLocation(m_editorCameraLocationBeforeSnapshot);
+        data.SetRotation(m_editorCameraRotationBeforeSnapshot);
+    }
+
     void WidgetsUtility::DrawResourceNode(Utility::DirectoryItem* item, bool selected, bool* renamedItem, float sizeMultiplier, bool canRename)
     {
 #pragma warning(disable : 4312)
@@ -215,6 +259,18 @@ namespace Lina::Editor
         {
             if (item->m_typeID == GetTypeID<Graphics::Texture>())
                 textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
+            else if (item->m_typeID == GetTypeID<Graphics::Model>())
+            {
+                if (m_modelPreviewTextures.find(item->m_sid) == m_modelPreviewTextures.end())
+                {
+                    SaveEditorCameraBeforeSnapshot(imageSize.x / imageSize.y);
+                    SetEditorCameraForSnapshot();
+                    auto* renderEngine                  = Graphics::RenderEngineBackend::Get();
+                    m_modelPreviewTextures[item->m_sid] = renderEngine->RenderModelPreview(storage->GetResource<Graphics::Model>(item->m_sid));
+                    ResetEditorCamera();
+                }
+                textureID = m_modelPreviewTextures[item->m_sid];
+            }
         }
 
         // Prepare border sizes from incremented cursor.

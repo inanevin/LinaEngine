@@ -149,7 +149,8 @@ namespace Lina::Resources
         template <typename T>
         void Unload(StringIDType sid)
         {
-            auto& cache = m_resources[GetTypeID<T>()];
+            TypeID tid = GetTypeID<T>();
+            auto& cache = m_resources[tid];
 
             if (!Exists<T>(sid))
             {
@@ -160,7 +161,7 @@ namespace Lina::Resources
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
 
             auto* ptr = cache[sid];
-            delete cache[sid];
+            GetTypeData(tid).m_deleteFunc(cache[sid]);
             cache.erase(sid);
         }
 
@@ -193,7 +194,7 @@ namespace Lina::Resources
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
 
             auto* ptr = cache[sid];
-            delete cache[sid];
+            GetTypeData(tid).m_deleteFunc(cache[sid]);
             cache.erase(sid);
         }
 

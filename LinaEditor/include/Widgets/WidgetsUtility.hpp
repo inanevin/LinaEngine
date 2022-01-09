@@ -106,6 +106,22 @@ namespace Lina::Editor
         static bool DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename);
 
         /// <summary>
+        /// Saves the editor camera's aspect ratio as well as orientation prior to taking a model/shader/material preview.
+        /// </summary>
+        /// <param name="model"></param>
+        static void SaveEditorCameraBeforeSnapshot(float aspectRatio);
+
+        /// <summary>
+        /// Sets the orientation of the editor camera for taking a model/shader/material preview.
+        /// </summary>
+        static void SetEditorCameraForSnapshot();
+
+        /// <summary>
+        /// Resets the editor camera's orientation to the saved orientation before snapshot.
+        /// </summary>
+        static void ResetEditorCamera();
+
+        /// <summary>
         /// Draws the rectangular nodes in the Resources right pane.
         /// </summary>
         /// <param name="isFolder"></param>

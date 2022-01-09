@@ -37,13 +37,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void ModelDrawer::DrawModelSettings(Graphics::Model* model, float leftPaneWidth)
+    void ModelDrawer::DrawModelSettings(Graphics::Model*& model, float leftPaneWidth)
     {
         auto* assetData = model->GetAssetData();
         WidgetsUtility::IncrementCursorPosY(ImGui::GetStyle().ItemSpacing.y + 9.5f);
-
-        WidgetsUtility::PropertyLabel("Triangulate");
-        ImGui::Checkbox("##_triangulate", &assetData->m_triangulate);
 
         WidgetsUtility::PropertyLabel("Calculate Tangents");
         ImGui::Checkbox("##_calctangent", &assetData->m_calculateTangentSpace);

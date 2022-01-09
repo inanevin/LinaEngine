@@ -66,7 +66,7 @@ namespace Lina::Editor
         "Repeat",
         "Repeat_Mirror"};
 
-    void TextureDrawer::DrawTextureSettings(Graphics::Texture* texture, float paneWidth)
+    void TextureDrawer::DrawTextureSettings(Graphics::Texture*& texture, float paneWidth)
     {
         auto*             assetData                  = texture->GetAssetData();
         const int         currentInternalPixelFormat = static_cast<int>(assetData->m_samplerParameters.m_textureParams.m_internalPixelFormat);

@@ -130,8 +130,6 @@ namespace Lina::Editor
         const Vector2 bgMinLina = Vector2(bgMin.x, bgMin.y);
         const Vector2 bgMaxLina = Vector2(bgMax.x, bgMax.y);
 
-        Vector3    previousLocation     = Vector3::Zero;
-        Quaternion previousRotation     = Quaternion();
         auto*      renderEngine         = Graphics::RenderEngineBackend::Get();
         float      currentAspect        = 0.0f;
         bool       previewCameraEnabled = m_previewType != PreviewType::Texture;
@@ -141,8 +139,7 @@ namespace Lina::Editor
             // Handle camera movement & rotation.
             auto& editorCamSystem = EditorApplication::Get()->GetCameraSystem();
             auto& data            = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
-            previousLocation      = data.GetLocation();
-            previousRotation      = data.GetRotation();
+            WidgetsUtility::SaveEditorCameraBeforeSnapshot(bgSize.x / bgSize.y);
 
             if (ImGui::IsWindowHovered() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle)))
                 ImGui::SetWindowFocus();
@@ -159,13 +156,6 @@ namespace Lina::Editor
 
             data.SetLocation(m_previewCameraPosition);
 
-            // Handle aspect resizing.
-            const float aspectRatio  = bgSize.x / bgSize.y;
-            auto*       cameraSystem = renderEngine->GetCameraSystem();
-            currentAspect            = cameraSystem->GetAspectRatio();
-
-            if (cameraSystem->GetAspectRatio() != aspectRatio)
-                cameraSystem->SetAspectRatio(aspectRatio);
         }
 
         // Draw the actual target.
@@ -176,20 +166,12 @@ namespace Lina::Editor
 
         if (previewCameraEnabled)
         {
-            // Reset aspect resizing.
-            auto* cameraSystem = renderEngine->GetCameraSystem();
-            if (cameraSystem->GetAspectRatio() != currentAspect)
-                cameraSystem->SetAspectRatio(currentAspect);
+            WidgetsUtility::ResetEditorCamera();
 
             // Draw tools.
             const ImRect confineSpace = ImRect(bgMin, bgMax);
             WidgetsUtility::TransformOperationTools("##modelpanel_transformops", confineSpace);
 
-            // Reset camera transformation.
-            auto& camSystem = EditorApplication::Get()->GetCameraSystem();
-            auto& data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
-            data.SetLocation(previousLocation);
-            data.SetRotation(previousRotation);
         }
     }
 } // namespace Lina::Editor

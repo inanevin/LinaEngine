@@ -59,7 +59,7 @@ namespace Lina::Editor
         TextureDrawer()  = default;
         ~TextureDrawer() = default;
 
-        static void DrawTextureSettings(Graphics::Texture* texture, float paneWidth);
+        static void DrawTextureSettings(Graphics::Texture*& texture, float paneWidth);
         static void DrawTexture(Graphics::Texture* texture, const Vector2& bgMin, const Vector2& bgMax);
 
     private:

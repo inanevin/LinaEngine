@@ -60,7 +60,7 @@ namespace Lina::Editor
         ModelDrawer() = default;
         ~ModelDrawer() = default;
 
-        static void DrawModelSettings(Graphics::Model* model, float leftPaneSize);
+        static void DrawModelSettings(Graphics::Model*& model, float leftPaneSize);
         static void DrawModel(Graphics::Model* model, const Vector2& bgMin, const Vector2& bgMax);
 
     private:
