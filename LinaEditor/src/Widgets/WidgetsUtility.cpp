@@ -66,23 +66,24 @@ namespace Lina::Editor
         bool   m_initialPositionSet = false;
     };
 
-    static bool                                    s_isDraggingWidgetInput = false;
-    static bool                                    s_mouseReleased         = true;
-    static std::string                             s_draggedInput          = "";
-    static float                                   s_valueOnDragStart      = 0.0f;
-    static int                                     s_valueOnDragStartInt   = 0;
-    void*                                          s_latestResourceHandle  = nullptr;
-    static std::map<TypeID, bool>                  m_classFoldoutMap;
-    static std::map<std::string, bool>             m_idFoldoutMap;
-    static bool                                    m_shouldShowCameraOptions;
-    static float                                   m_editorCameraSpeed           = 1.0f;
-    static float                                   m_editorCameraSpeedMultiplier = 1.0f;
-    static std::map<std::string, MovableChildData> m_movableChildData;
-    static std::map<StringIDType, uint32>          m_modelPreviewTextures;
-    static float                                   m_editorCameraAspectBeforeSnapshot   = 0.0f;
-    static Vector3                                 m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
-    static Quaternion                              m_editorCameraRotationBeforeSnapshot = Quaternion();
-    const std::string                              editorSnapshotLightName              = "##snapshot_light##_lina##";
+    static bool                                          s_isDraggingWidgetInput = false;
+    static bool                                          s_mouseReleased         = true;
+    static std::string                                   s_draggedInput          = "";
+    static float                                         s_valueOnDragStart      = 0.0f;
+    static int                                           s_valueOnDragStartInt   = 0;
+    void*                                                s_latestResourceHandle  = nullptr;
+    static std::map<TypeID, bool>                        m_classFoldoutMap;
+    static std::map<TypeID, std::map<const char*, bool>> m_headerFoldoutMap;
+    static std::map<std::string, bool>                   m_idFoldoutMap;
+    static bool                                          m_shouldShowCameraOptions;
+    static float                                         m_editorCameraSpeed           = 1.0f;
+    static float                                         m_editorCameraSpeedMultiplier = 1.0f;
+    static std::map<std::string, MovableChildData>       m_movableChildData;
+    static std::map<StringIDType, uint32>                m_modelPreviewTextures;
+    static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
+    static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
+    static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
+    const std::string                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -205,8 +206,8 @@ namespace Lina::Editor
         if (cameraSystem->GetAspectRatio() != aspectRatio)
             cameraSystem->SetAspectRatio(aspectRatio);
 
-        auto*       reg  = ECS::Registry::Get();
-        ECS::Entity ent  = reg->CreateEntity(editorSnapshotLightName);
+        auto*       reg       = ECS::Registry::Get();
+        ECS::Entity ent       = reg->CreateEntity(editorSnapshotLightName);
         auto&       lightData = reg->get<ECS::EntityDataComponent>(ent);
         lightData.SetLocation(Vector3(5, 8, 0));
         reg->emplace<ECS::DirectionalLightComponent>(ent);
@@ -993,7 +994,7 @@ namespace Lina::Editor
 
         const std::string id = "##_" + std::string(label);
         if (Button(id.c_str(), rectSize))
-            m_classFoldoutMap[tid] = !m_classFoldoutMap[tid];
+            m_headerFoldoutMap[tid][label] = !m_headerFoldoutMap[tid][label];
 
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
@@ -1003,13 +1004,13 @@ namespace Lina::Editor
         const ImVec2 textSize             = ImGui::CalcTextSize(label);
         const ImVec2 cursorPosInside      = ImVec2(cursorPosBeforeButton.x + VALUE_OFFSET_FROM_WINDOW, cursorPosBeforeButton.y + rectSize.y / 2.0f - textSize.y / 2.0f);
         ImGui::SetCursorPos(cursorPosInside);
-        IconSmall(m_classFoldoutMap[tid] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+        IconSmall(m_headerFoldoutMap[tid][label] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
         ImGui::SameLine();
         ImGui::Text(label);
         ImGui::SameLine();
         ImGui::SetCursorPos(cursorPosAfterButton);
 
-        return m_classFoldoutMap[tid];
+        return m_headerFoldoutMap[tid][label];
     }
 
     void WidgetsUtility::DropShadow()
@@ -1089,13 +1090,21 @@ namespace Lina::Editor
     bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
     {
         PushPopupStyle();
-        const float currentCursor = ImGui::GetCursorPosX();
+        const float currentCursorX = ImGui::GetCursorPosX();
+        const float currentCursorY = ImGui::GetCursorPosY();
         const float windowWidth   = ImGui::GetWindowWidth();
-        const float remaining     = windowWidth - currentCursor;
+        const float remaining     = windowWidth - currentCursorX;
         const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
         ImGui::SetNextItemWidth(comboWidth);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
+
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22, ImGui::GetWindowPos().y + currentCursorY + x);
+        PushIconFontSmall();
+        ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_CHEVRON_CIRCLE_DOWN);
+        ImGui::PopFont();
+
+
         return combo;
     }
 
@@ -1226,6 +1235,7 @@ namespace Lina::Editor
         std::string     resourceName     = "None";
         constexpr float spaceFromEnd     = 10.0f;
         const float     removeButtonSize = ImGui::GetFrameHeight();
+        const float     buttonWidth      = -spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x;
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1233,9 +1243,15 @@ namespace Lina::Editor
         // Selection button.
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-        bool pressed = ImGui::Button(resourceName.c_str(), ImVec2(-spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x, removeButtonSize));
+        const ImVec2 currentCursor = ImGui::GetCursorScreenPos();
+        bool pressed = ImGui::Button(resourceName.c_str(), ImVec2(buttonWidth, removeButtonSize));
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
+
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() - spaceFromEnd - removeButtonSize - 28.0f, currentCursor.y + 3.0f);
+        PushIconFontSmall();
+        ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
+        ImGui::PopFont();
 
         // Remove button.
         ImGui::SameLine();
@@ -1531,38 +1547,58 @@ namespace Lina::Editor
         return result;
     }
 
-    bool Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, int count)
+    bool Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, float width)
     {
-        if (label != nullptr)
+        bool isIcon = label == nullptr;
+
+        if (isIcon)
+            label = ICON_FA_ARROWS_ALT_H;
+
+        if (width == -1.0f)
         {
-            float labelSize = ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x;
-            IncrementCursorPosX(-labelSize);
-            ImGui::Text(label);
-            ImGui::SameLine();
+            float windowWidth   = ImGui::GetWindowWidth();
+            float currentCursor = ImGui::GetCursorPosX();
+            float remaining     = (windowWidth - currentCursor);
+            float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW;
+            ImGui::SetNextItemWidth(comboWidth);
         }
         else
-        {
+            ImGui::SetNextItemWidth(width);
 
-            IncrementCursorPosX(-21.2f);
-            IncrementCursorPosY(6.2f);
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
-            PushScaledFont(0.7f);
-            ImGui::Text(ICON_FA_ARROWS_ALT_H);
-            PopScaledFont();
-            ImGui::PopStyleColor();
-            ImGui::SameLine();
-            IncrementCursorPosX(-0.6f);
-            IncrementCursorPosY(-5.8f);
+        const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
+        ImVec2            windowPos  = ImGui::GetWindowPos();
+        ImVec2            cursorPos  = ImGui::GetCursorPos();
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + cursorPos.y + 1);
+        ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
+        ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
+        ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        ImVec4            textCol    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        const std::string rectID     = std::string(id) + "_rect";
+
+        if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
+            ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
+
+        FramePaddingX(itemHeight + 6);
+        bool result = ImGui::InputInt(id, var);
+        PopStyleVar();
+
+        ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol), 1);
+        DragBehaviour(rectID.c_str(), var);
+
+        float yOffset = 0.0f;
+        if (isIcon)
+        {
+            PushIconFontSmall();
+            yOffset = 2.4f;
         }
 
-        DragBehaviour(id, var);
+        const ImVec2 textSize = ImGui::CalcTextSize(label);
+        ImGui::GetWindowDrawList()->AddText(ImVec2(rectMin.x + rectSize.x / 2.0f - textSize.x / 2.0f, rectMin.y + rectSize.y / 2.0f - textSize.y / 2.0f - yOffset), ImGui::ColorConvertFloat4ToU32(textCol), label);
 
-        float windowWidth   = ImGui::GetWindowWidth();
-        float currentCursor = ImGui::GetCursorPosX();
-        float remaining     = (windowWidth - currentCursor) / (float)count - 10;
-        float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW;
-        ImGui::SetNextItemWidth(comboWidth);
-        return ImGui::InputInt(id, var);
+        if (isIcon)
+            ImGui::PopFont();
+
+        return result;
     }
 
     bool Editor::WidgetsUtility::DragVector2(const char* id, float* var)

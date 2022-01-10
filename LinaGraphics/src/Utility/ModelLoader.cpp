@@ -147,6 +147,10 @@ namespace Lina::Graphics
     {
         const std::string runningDirectory = Utility::GetRunningDirectory();
 
+        model->m_numMaterials = scene->mNumMaterials;
+        model->m_numMeshes = scene->mNumMeshes;
+        model->m_numAnimations = scene->mNumAnimations;
+
         // Load the ai hierarchy into the root node.
         model->m_rootNode = new ModelNode();
         model->m_rootNode->FillNodeHierarchy(scene->mRootNode, scene, model);

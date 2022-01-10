@@ -172,7 +172,7 @@ namespace Lina::ECS
         }
     }
 
-    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params)
+    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params, Graphics::Material* overrideMaterial)
     {
         auto& meshes = node->m_meshes;
 
@@ -183,7 +183,7 @@ namespace Lina::ECS
 
             // Update the buffer w/ each transform.
             vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));
-            auto* mat = m_renderEngine->GetDefaultLitMaterial();
+            auto* mat = overrideMaterial == nullptr ? m_renderEngine->GetDefaultLitMaterial() : overrideMaterial;
 
             mat->SetBool(UF_BOOL_SKINNED, false);
 

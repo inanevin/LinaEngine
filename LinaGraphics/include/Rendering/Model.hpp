@@ -70,14 +70,44 @@ namespace Lina::Graphics
         {
             return m_rootNode;
         }
+        inline int GetNumMeshes()
+        {
+            return m_numMeshes;
+        }
+        inline int GetNumMaterials()
+        {
+            return m_numMaterials;
+        }
+        inline int GetNumAnims()
+        {
+            return m_numAnimations;
+        }
+        inline int GetNumVertices()
+        {
+            return m_numVertices;
+        }
+        inline int GetNumBones()
+        {
+            return m_numBones;
+        }
+        inline int GetNumNodes()
+        {
+            return m_numNodes;
+        }
 
     private:
         friend class OpenGLRenderEngine;
         friend class ModelLoader;
         friend class ModelNode;
 
-        ModelAssetData*                    m_assetData = nullptr;
-        ModelNode*                          m_rootNode;
+        int                                m_numMeshes     = 0;
+        int                                m_numMaterials  = 0;
+        int                                m_numAnimations = 0;
+        int                                m_numVertices   = 0;
+        int                                m_numBones      = 0;
+        int                                m_numNodes      = 0;
+        ModelAssetData*                    m_assetData     = nullptr;
+        ModelNode*                         m_rootNode;
         std::vector<ImportedModelMaterial> m_importedMaterials;
     };
 } // namespace Lina::Graphics

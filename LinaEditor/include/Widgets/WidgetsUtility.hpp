@@ -143,7 +143,7 @@ namespace Lina::Editor
         /// <summary>
         /// Begins a child window with a custom handle to move it around.
         /// </summary>
-        static void BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition,  const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset);
+        static void BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition, const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset);
 
         /// <summary>
         /// Displays a small child for manipulating editor camera settings
@@ -301,7 +301,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws ImGui::DragInt with custom dragger.
         /// </summary>
-        static bool DragInt(const char* id, const char* label, int* var, int count = 1);
+        static bool DragInt(const char* id, const char* label, int* var, float width = -1.0f);
 
         /// <summary>
         /// Draws 2 drag floats side by side.

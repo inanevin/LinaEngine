@@ -138,7 +138,7 @@ namespace Lina::ECS
         /// <summary>
         /// Draws a single model given the root node.
         /// </summary>
-        void FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params);
+        void FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params, Graphics::Material* overrideMaterial = nullptr);
 
     private:
         void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);

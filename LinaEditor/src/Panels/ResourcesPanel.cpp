@@ -479,21 +479,28 @@ namespace Lina::Editor
                 {
                     if (file->m_typeID == GetTypeID<Graphics::Texture>())
                     {
-                        auto& texturePanel = GUILayer::Get()->GetPreviewPanel();
-                        texturePanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
+                        auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                        previewPanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
 
-                        if (!texturePanel.IsMaximized())
-                            texturePanel.ToggleMaximize();
+                        if (!previewPanel.IsMaximized())
+                            previewPanel.ToggleMaximize();
                     }
                     else if (file->m_typeID == GetTypeID<Graphics::Model>())
                     {
-                        auto& modelPanel = GUILayer::Get()->GetPreviewPanel();
-                        modelPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
+                        auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                        previewPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
 
-                        if (!modelPanel.IsMaximized())
-                            modelPanel.ToggleMaximize();
+                        if (!previewPanel.IsMaximized())
+                            previewPanel.ToggleMaximize();
                     }
+                    else if (file->m_typeID == GetTypeID<Graphics::Material>())
+                    {
+                        auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                        previewPanel.SetTargetMaterial(m_storage->GetResource<Graphics::Material>(file->m_sid));
 
+                        if (!previewPanel.IsMaximized())
+                            previewPanel.ToggleMaximize();
+                    }
                 }
             }
         }

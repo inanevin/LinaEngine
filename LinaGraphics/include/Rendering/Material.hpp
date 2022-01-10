@@ -43,6 +43,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Rendering/RenderingCommon.hpp"
 #include "Resources/IResource.hpp"
 #include "Resources/ResourceHandle.hpp"
+#include "Core/CommonReflection.hpp"
 #include <cereal/types/map.hpp>
 #include <cereal/types/string.hpp>
 #include <set>
@@ -67,6 +68,7 @@ namespace Lina::Graphics
         }
     };
 
+    LINA_CLASS("Material")
     class Material : public Resources::IResource
     {
     public:
@@ -187,9 +189,16 @@ namespace Lina::Graphics
         std::map<std::string, Matrix>            m_matrices;
         std::map<std::string, bool>              m_bools;
 
-        bool                              m_receiveShadows          = false;
-        bool                              m_receiveLighting         = false;
-        bool                              m_receiveHDRIReflections  = false;
+        LINA_PROPERTY("Receive Shadows", "Bool")
+        bool m_receiveShadows = false;
+
+        LINA_PROPERTY("Receive Lighting", "Bool")
+        bool m_receiveLighting = false;
+
+        LINA_PROPERTY("Receive Reflections", "Bool")
+        bool m_receiveHDRIReflections = false;
+
+        LINA_PROPERTY("Trigger Reflections", "Bool")
         bool                              m_triggersHDRIReflections = false;
         Resources::ResourceHandle<Shader> m_shaderHandle;
 

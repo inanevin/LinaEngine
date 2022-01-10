@@ -53,7 +53,6 @@ namespace Lina::World
         data.SetLocation(Vector3(50, 15, 0));
         light.m_color = Color(255, 255, 240, 255, true);
         light.m_intensity = 1.0f;
-
     }
 
 } // namespace Lina::World

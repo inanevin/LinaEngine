@@ -49,33 +49,30 @@ namespace Lina::Editor
 
         if (resolvedData)
         {
-            if (drawHeader)
+            auto titleProperty = resolvedData.prop("Title"_hs);
+
+            if (titleProperty)
             {
-                auto titleProperty = resolvedData.prop("Title"_hs);
+                auto title       = titleProperty.value().cast<const char*>();
+                bool foldoutOpen = drawHeader ? WidgetsUtility::Header(tid, title) : true;
 
-                if (titleProperty)
+                if (foldoutOpen)
                 {
-                    auto title       = titleProperty.value().cast<const char*>();
-                    bool foldoutOpen = WidgetsUtility::Header(tid, title);
-
-                    if (foldoutOpen)
+                    for (auto data : resolvedData.data())
                     {
-                        for (auto data : resolvedData.data())
-                        {
 
-                            auto labelProperty = data.prop("Title"_hs);
-                            auto typeProperty  = data.prop("Type"_hs);
+                        auto labelProperty = data.prop("Title"_hs);
+                        auto typeProperty  = data.prop("Type"_hs);
 
-                            if (!labelProperty || !typeProperty)
-                                continue;
+                        if (!labelProperty || !typeProperty)
+                            continue;
 
-                            std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
+                        std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
 
-                            AddPropertyToDrawList(category, data);
-                        }
-
-                        anyPropertyChanged = FlushDrawList(title, resolvedData, instance);
+                        AddPropertyToDrawList(category, data);
                     }
+
+                    anyPropertyChanged = FlushDrawList(title, resolvedData, instance);
                 }
             }
         }
@@ -110,7 +107,7 @@ namespace Lina::Editor
                         anyPropertyChanged = true;
                 }
             }
-
+            WidgetsUtility::IncrementCursorPosY(4);
             ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
             WidgetsUtility::HorizontalDivider(-2.0f, 0.5f);
             ImGui::PopStyleColor();

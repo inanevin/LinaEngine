@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "Drawers/TextureDrawer.hpp"
 #include "Drawers/ModelDrawer.hpp"
+#include "Drawers/MaterialDrawer.hpp"
 
 namespace Lina::Editor
 {
@@ -59,6 +60,8 @@ namespace Lina::Editor
                     TextureDrawer::DrawTextureSettings(m_targetTexture, m_leftPaneWidth);
                 else if (m_previewType == PreviewType::Model)
                     ModelDrawer::DrawModelSettings(m_targetModel, m_leftPaneWidth);
+                else if (m_previewType == PreviewType::Material)
+                    MaterialDrawer::DrawMaterialSettings(m_targetMaterial, m_leftPaneWidth);
 
                 ImGui::EndChild();
 
@@ -130,9 +133,9 @@ namespace Lina::Editor
         const Vector2 bgMinLina = Vector2(bgMin.x, bgMin.y);
         const Vector2 bgMaxLina = Vector2(bgMax.x, bgMax.y);
 
-        auto*      renderEngine         = Graphics::RenderEngineBackend::Get();
-        float      currentAspect        = 0.0f;
-        bool       previewCameraEnabled = m_previewType != PreviewType::Texture;
+        auto* renderEngine         = Graphics::RenderEngineBackend::Get();
+        float currentAspect        = 0.0f;
+        bool  previewCameraEnabled = m_previewType != PreviewType::Texture;
 
         if (previewCameraEnabled)
         {
@@ -155,7 +158,6 @@ namespace Lina::Editor
                 editorCamSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
 
             data.SetLocation(m_previewCameraPosition);
-
         }
 
         // Draw the actual target.
@@ -163,6 +165,8 @@ namespace Lina::Editor
             TextureDrawer::DrawTexture(m_targetTexture, bgMinLina, bgMaxLina);
         else if (m_previewType == PreviewType::Model)
             ModelDrawer::DrawModel(m_targetModel, bgMinLina, bgMaxLina);
+        else if (m_previewType == PreviewType::Material)
+            MaterialDrawer::DrawMaterial(m_targetMaterial, bgMinLina, bgMaxLina);
 
         if (previewCameraEnabled)
         {
@@ -171,7 +175,6 @@ namespace Lina::Editor
             // Draw tools.
             const ImRect confineSpace = ImRect(bgMin, bgMax);
             WidgetsUtility::TransformOperationTools("##modelpanel_transformops", confineSpace);
-
         }
     }
 } // namespace Lina::Editor

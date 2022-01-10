@@ -56,10 +56,11 @@ namespace Lina::Graphics
     {
         m_name                    = std::string(node->mName.C_Str());
         const std::string sidName = parentModel->GetPath() + m_name;
-        m_sid                      = StringID(sidName.c_str()).value();
+        m_sid                     = StringID(sidName.c_str()).value();
         m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
         const TypeID tid          = GetTypeID<ModelNode>();
         Resources::ResourceStorage::Get()->Add(static_cast<void*>(this), tid, m_sid);
+        parentModel->m_numNodes++;
 
         for (uint32 i = 0; i < node->mNumMeshes; i++)
         {
@@ -79,6 +80,8 @@ namespace Lina::Graphics
                 addedMesh = staticMesh;
             }
 
+            parentModel->m_numVertices += aimesh->mNumVertices;
+            parentModel->m_numBones += aimesh->mNumBones;
             ModelLoader::FillMeshData(aimesh, addedMesh);
 
             // Finally, construct the vertex array object for the mesh.

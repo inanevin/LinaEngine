@@ -696,7 +696,7 @@ namespace Lina::Graphics
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
 
-    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, RenderTarget* overrideTarget)
+    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, RenderTarget* overrideTarget, Material* overrideMaterial)
     {
         // Store the current skybox & switch to HDRI one
         Material* currentSkybox = m_skyboxMaterial;
@@ -710,7 +710,7 @@ namespace Lina::Graphics
 
         // Draw skybox and given model.
         DrawSkybox();
-        m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams);
+        m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams, overrideMaterial);
         DrawFinalize(overrideTarget == nullptr ? &m_previewRenderTarget : overrideTarget);
 
         // Reset buffers back as well as the skybox.

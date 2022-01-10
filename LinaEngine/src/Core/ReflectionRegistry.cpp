@@ -64,9 +64,11 @@ SOFTWARE.
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "Rendering/ModelAssetData.hpp"
 #include "Core/EngineSettings.hpp"
 #include "World/Level.hpp"
 #include "Rendering/RenderSettings.hpp"
+#include "Rendering/Material.hpp"
 //INC_END - !! DO NOT MODIFY THIS LINE !!
 
 namespace Lina
@@ -353,6 +355,12 @@ entt::meta<ECS::FreeLookComponent>().func<&REF_Copy<ECS::FreeLookComponent>, ent
 entt::meta<ECS::FreeLookComponent>().func<&REF_Paste<ECS::FreeLookComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Add<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_ValueChanged<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
+entt::meta<Graphics::ModelAssetData>().type().props(std::make_pair("Title"_hs, "Model Data"));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipUVs>("m_flipUVs"_hs).props(std::make_pair("Title"_hs,"Flip UVs"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipWinding>("m_flipWinding"_hs).props(std::make_pair("Title"_hs,"Flip Winding"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_calculateTangentSpace>("m_calculateTangentSpace"_hs).props(std::make_pair("Title"_hs,"Calc Tangents"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_smoothNormals>("m_smoothNormals"_hs).props(std::make_pair("Title"_hs,"Smooth Normals"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_globalScale>("m_globalScale"_hs).props(std::make_pair("Title"_hs,"Global Scale"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
 entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
 entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -368,9 +376,19 @@ entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_fxaaEna
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_bloomEnabled>("m_bloomEnabled"_hs).props(std::make_pair("Title"_hs,"Bloom"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Bloom"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_exposure>("m_exposure"_hs).props(std::make_pair("Title"_hs,"Exposure"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_gamma>("m_gamma"_hs).props(std::make_pair("Title"_hs,"Gamma"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
+entt::meta<Graphics::Material>().type().props(std::make_pair("Title"_hs, "Material"));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_triggersHDRIReflections>("m_triggersHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Trigger Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveHDRIReflections>("m_receiveHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Receive Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveLighting>("m_receiveLighting"_hs).props(std::make_pair("Title"_hs,"Receive Lighting"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveShadows>("m_receiveShadows"_hs).props(std::make_pair("Title"_hs,"Receive Shadows"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
 
 
 

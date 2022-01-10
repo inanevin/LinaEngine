@@ -48,6 +48,7 @@ namespace Lina
     namespace Graphics
     {
         class Model;
+        class ModelNode;
     }
 } // namespace Lina
 
@@ -61,6 +62,7 @@ namespace Lina::Editor
         ~ModelDrawer() = default;
 
         static void DrawModelSettings(Graphics::Model*& model, float leftPaneSize);
+        static void DisplayNode(Graphics::ModelNode* node);
         static void DrawModel(Graphics::Model* model, const Vector2& bgMin, const Vector2& bgMax);
 
     private:
