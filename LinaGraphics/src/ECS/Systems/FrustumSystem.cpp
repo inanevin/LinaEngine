@@ -30,7 +30,9 @@ SOFTWARE.
 
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
 #include "ECS/Registry.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Math/Vector.hpp"
 
 namespace Lina::ECS
@@ -47,6 +49,35 @@ namespace Lina::ECS
     bool FrustumSystem::GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent)
     {
         auto* ecs = ECS::Registry::Get();
+
+        ModelNodeComponent* mn = ecs->try_get<ModelNodeComponent>(ent);
+
+        if (mn != nullptr)
+        {
+            Graphics::ModelNode* node = mn->m_modelNode.m_value;
+
+            if (node != nullptr)
+            {
+                auto&   meshes       = node->GetMeshes();
+                Vector3 totalCenter = Vector3::Zero;
+                Vector3 totalHalf   = Vector3::Zero;
+                for (auto& mesh : meshes)
+                {
+                    totalHalf += mesh->GetBoundsHalfExtents();
+                    totalCenter += mesh->GetVertexCenter();
+                }
+
+                EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
+                const Vector3        entityLocation = data.GetLocation();
+                const Vector3        vertexOffset   = totalCenter * data.GetScale();
+                const Vector3        offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
+
+                boundsPosition   = entityLocation + offsetAddition;
+                boundsHalfExtent = totalHalf * data.GetScale() * data.GetRotation();
+                return true;
+            }
+        }
+
         // MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
         //
         // if (mr != nullptr)

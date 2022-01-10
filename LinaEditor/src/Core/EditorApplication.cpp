@@ -75,6 +75,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EPreSerializingLevel, &EditorApplication::OnPreSerializingLevel>(this);
         Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorApplication::OnWindowResized>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceLoadCompleted, &EditorApplication::OnResourceLoadCompleted>(this);
 
         m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
         m_editorCameraSystem.SystemActivation(true);
@@ -160,14 +161,14 @@ namespace Lina::Editor
     {
         // Only for resources loaded after the initial bulk-load.
         // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
-        if (m_snapshotsTaken || ev.m_tid == GetTypeID<Graphics::Model>())
+        if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Model>())
         {
             TakeModelSnapshot(ev.m_sid, ev.m_sid, 0);
         }
-        if (m_snapshotsTaken || ev.m_tid == GetTypeID<Graphics::Material>())
+        if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Material>())
         {
             auto* storage = Resources::ResourceStorage::Get();
-            auto* sphere = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+            auto* sphere  = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
             TakeModelSnapshot(ev.m_sid, sphere->GetSID(), ev.m_sid);
         }
     }
@@ -185,6 +186,9 @@ namespace Lina::Editor
 
     Graphics::RenderTarget* EditorApplication::AddSnapshotBuffer(StringIDType sid)
     {
+        if (m_previewBuffers.find(sid) != m_previewBuffers.end())
+            return m_previewBuffers[sid].m_rt;
+
         // We create a new buffer for each model resource, each buffer holds a render target, render buffer and a corresponding texture.
         auto& buffer                                      = m_previewBuffers[sid];
         buffer.m_renderBuffer                             = new Graphics::RenderBuffer();

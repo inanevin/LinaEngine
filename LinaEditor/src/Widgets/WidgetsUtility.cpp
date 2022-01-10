@@ -673,7 +673,7 @@ namespace Lina::Editor
         const ImVec2  buttonSize       = ImVec2(28, 28);
         const ImVec2  currentWindowPos = ImGui::GetWindowPos();
         const ImVec2  contentOffset    = ImVec2(0.5f, -2.0f);
-        static ImVec2 childSize        = ImVec2(buttonSize.x * 5 + itemSpacingX * 6, buttonSize.y + itemSpacingY * 3);
+        static ImVec2 childSize        = ImVec2(buttonSize.x * 6 + itemSpacingX * 7, buttonSize.y + itemSpacingY * 3);
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
@@ -748,6 +748,17 @@ namespace Lina::Editor
         {
             ImGui::PopFont();
             Tooltip("Show Gizmos");
+            PushIconFontSmall();
+        }
+
+        ImGui::SameLine();
+        if (Button(ICON_FA_VECTOR_SQUARE, buttonSize, 1, rounding, contentOffset, levelPanel.m_shouldShowBounds))
+            levelPanel.m_shouldShowBounds = !levelPanel.m_shouldShowBounds;
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Show Bounds");
             PushIconFontSmall();
         }
 
