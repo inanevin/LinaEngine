@@ -86,6 +86,10 @@ namespace Lina::Graphics
         {
             return m_children;
         }
+        inline StringIDType GetSID()
+        {
+            return m_sid;
+        }
 
     private:
         void Clear()

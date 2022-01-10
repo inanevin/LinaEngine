@@ -77,6 +77,7 @@ namespace Lina::Event
     struct EResourceUnloaded
     {
         StringIDType m_sid;
+        TypeID m_tid;
     };
     struct ERequestResourceReload
     {

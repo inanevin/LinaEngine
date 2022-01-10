@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Drawers/ClassDrawer.hpp"
 #include "Core/EditorCommon.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
 
 namespace Lina::Editor
 {

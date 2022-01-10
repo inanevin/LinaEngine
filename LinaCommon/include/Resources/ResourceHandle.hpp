@@ -44,42 +44,75 @@ Timestamp: 12/30/2021 9:37:53 PM
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include <cereal/access.hpp>
+#include <set>
 
 namespace Lina::Resources
 {
-    template <typename T>
-    class ResourceHandle
+
+    class ResourceHandleBase
     {
     public:
+        ResourceHandleBase(){};
+        virtual ~ResourceHandleBase(){};
 
+        virtual void ResourcePathUpdated(const Event::EResourcePathUpdated& ev) = 0;
+        virtual void ResourceUnloaded(const Event::EResourceUnloaded& ev)       = 0;
+        virtual void ResourceReloaded(const Event::EResourceReloaded& ev)       = 0;
+
+    protected:
+        friend class ResourceStorage;
+        static std::set<ResourceHandleBase*> s_resourceHandles;
+    };
+
+    template <typename T>
+    class ResourceHandle : public ResourceHandleBase
+    {
+    public:
         StringIDType m_sid   = 0;
         T*           m_value = nullptr;
 
-        // TODO: Handle event connection on constructor or load.
+        ResourceHandle()
+        {
+            s_resourceHandles.insert(this);
+        };
+
+        ResourceHandle(const ResourceHandle& other)
+        {
+            m_sid         = other.m_sid;
+            m_value       = other.m_value;
+            m_unloadedSid = other.m_unloadedSid;
+            m_typeID      = other.m_typeID;
+            s_resourceHandles.insert(this);
+        }
+
+        virtual ~ResourceHandle()
+        {
+            s_resourceHandles.erase(this);
+        }
 
     private:
-
-        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
+        virtual void ResourcePathUpdated(const Event::EResourcePathUpdated& ev) override
         {
             if (m_sid == ev.m_previousStringID)
                 m_sid = ev.m_newStringID;
         }
 
-        void OnResourceUnloaded(const Event::EResourceUnloaded& ev)
+        void ResourceUnloaded(const Event::EResourceUnloaded& ev) override
         {
-            if (ev.m_sid == m_sid)
+            if (m_sid == ev.m_sid)
             {
                 m_unloadedSid = m_sid;
-                m_sid = 0;
-                m_value = nullptr;
+                m_sid         = 0;
+                m_value       = nullptr;
+                LINA_TRACE("is conn {0}", m_eventsConnected);
             }
         }
 
-        void OnResourceReloaded(const Event::EResourceReloaded& ev)
+        void ResourceReloaded(const Event::EResourceReloaded& ev) override
         {
             if (ev.m_sid == m_unloadedSid)
             {
-                m_sid = ev.m_sid;
+                m_sid    = ev.m_sid;
                 m_typeID = ev.m_tid;
                 m_value  = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
             }
@@ -88,8 +121,9 @@ namespace Lina::Resources
     private:
         friend class cereal::access;
 
-        TypeID m_typeID = 0;
-        StringIDType m_unloadedSid = 0;
+        TypeID       m_typeID          = 0;
+        StringIDType m_unloadedSid     = 0;
+        bool         m_eventsConnected = false;
 
         template <class Archive>
         void save(Archive& archive) const
@@ -101,10 +135,6 @@ namespace Lina::Resources
         void load(Archive& archive)
         {
             archive(m_sid, m_typeID);
-
-            Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceHandle<T>::OnResourcePathUpdated>(this);
-            Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceHandle<T>::OnResourceUnloaded>(this);
-            Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceHandle<T>::OnResourceReloaded>(this);
 
             if (m_typeID == 0)
             {

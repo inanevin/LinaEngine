@@ -122,7 +122,6 @@ namespace Lina::Editor
 
     void PreviewPanel::DrawPreviewArea()
     {
-
         const ImVec2 padding   = ImVec2(ImGui::GetStyle().ItemSpacing.x + 4, ImGui::GetStyle().ItemSpacing.y + 4);
         const ImVec2 cursorPos = ImGui::GetCursorScreenPos();
         const ImVec2 bgMin     = ImVec2(cursorPos.x + padding.x - 4, cursorPos.y + padding.x);

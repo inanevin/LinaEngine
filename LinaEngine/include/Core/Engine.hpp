@@ -148,6 +148,7 @@ namespace Lina
 
     private:
         static Engine*                s_engine;
+        Resources::ResourceStorage    m_resourceStorage;
         Graphics::RenderEngineBackend m_renderEngine;
         Physics::PhysicsEngineBackend m_physicsEngine;
         Audio::AudioEngineBackend     m_audioEngine;
@@ -156,7 +157,6 @@ namespace Lina
         Event::EventSystem            m_eventSystem;
         ECS::SystemList               m_mainECSPipeline;
         Resources::ResourceManager    m_resourceManager;
-        Resources::ResourceStorage    m_resourceStorage;
         MessageBus                    m_messageBus;
 
         ApplicationInfo m_appInfo;

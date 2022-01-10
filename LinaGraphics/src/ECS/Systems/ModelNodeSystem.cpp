@@ -66,7 +66,7 @@ namespace Lina::ECS
 
             for (uint32 i = 0; i < meshes.size(); i++)
             {
-                nodeComponent.m_materials.push_back(Resources::ResourceHandle<Graphics::Material>());
+                nodeComponent.m_materials.emplace_back();
                 nodeComponent.m_materials.back().m_sid   = defaultMat->GetSID();
                 nodeComponent.m_materials.back().m_value = defaultMat;
             }
@@ -112,7 +112,10 @@ namespace Lina::ECS
             if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
                 continue;
 
-            auto* node   = nodeComponent.m_modelNode.m_value;
+            auto* node = nodeComponent.m_modelNode.m_value;
+            if (node == nullptr)
+                continue;
+
             auto& meshes = node->GetMeshes();
 
             const Matrix finalMatrix = data.ToMatrix();
@@ -179,7 +182,7 @@ namespace Lina::ECS
         for (auto* mesh : meshes)
         {
             Graphics::VertexArray& vertexArray = mesh->GetVertexArray();
-            Matrix                models      = Matrix::Identity();
+            Matrix                 models      = Matrix::Identity();
 
             // Update the buffer w/ each transform.
             vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));

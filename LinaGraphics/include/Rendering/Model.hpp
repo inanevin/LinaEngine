@@ -51,8 +51,8 @@ namespace Lina::Graphics
     {
 
     public:
-        Model()          = default;
-        virtual ~Model() = default;
+        Model() = default;
+        virtual ~Model();
 
         virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const std::string& path) override;
@@ -94,6 +94,9 @@ namespace Lina::Graphics
         {
             return m_numNodes;
         }
+
+    private:
+        void UnloadNode(ModelNode* node);
 
     private:
         friend class OpenGLRenderEngine;
