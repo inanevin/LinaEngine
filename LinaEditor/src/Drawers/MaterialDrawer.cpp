@@ -67,7 +67,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_floats)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
                     WidgetsUtility::DragFloat(id.c_str(), nullptr, &value);
                 }
@@ -81,9 +81,15 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_ints)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
-                    WidgetsUtility::DragInt(id.c_str(), nullptr, &value);
+
+                    if (name.compare("material.surfaceType") == 0)
+                        value = WidgetsUtility::SurfaceTypeComboBox("##material_surfaceType", value);
+                    else if (name.compare("material.workflow") == 0)
+                        value = WidgetsUtility::WorkflowComboBox("##material_workflow", value);
+                    else
+                        WidgetsUtility::DragInt(id.c_str(), nullptr, &value);
                 }
             }
         }
@@ -95,7 +101,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_colors)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
                     WidgetsUtility::ColorButton(id.c_str(), &value.r);
                 }
@@ -109,7 +115,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_vector2s)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
                     WidgetsUtility::DragVector2(id.c_str(), &value.x);
                 }
@@ -123,7 +129,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_vector3s)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
                     WidgetsUtility::DragVector3(id.c_str(), &value.x);
                 }
@@ -137,7 +143,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_vector4s)
                 {
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
                     WidgetsUtility::DragVector4(id.c_str(), &value.x);
                 }
@@ -150,10 +156,20 @@ namespace Lina::Editor
             {
                 for (auto& [name, value] : mat->m_sampler2Ds)
                 {
+                    if (name.compare("material.brdfLUTMap") == 0 || name.compare("material.irradianceMap") == 0 ||
+                        name.compare("material.prefilterMap") == 0 || name.find("material.pointShadowDepth") != std::string::npos)
+                        continue;
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id = "##_" + name;
+                    const std::string id       = "##_" + name;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
-                    WidgetsUtility::ResourceSelectionMaterial(&value.m_texture);
+
+                    const StringIDType sidBefore = value.m_texture.m_sid;
+                    WidgetsUtility::ResourceSelectionTexture(&value.m_texture);
+
+                    if (value.m_texture.m_sid != sidBefore)
+                    {
+                        mat->SetTexture(name, value.m_texture.m_value, value.m_bindMode);
+                    }
                 }
             }
         }
@@ -162,7 +178,7 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
         if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
         {
-            Resources::SaveArchiveToFile(mat->GetPath(), *mat);
+            mat->Save();
             const std::string  path = mat->GetPath();
             const StringIDType sid  = mat->GetSID();
             Resources::ResourceStorage::Get()->Unload<Graphics::Material>(sid);

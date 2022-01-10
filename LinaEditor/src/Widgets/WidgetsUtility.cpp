@@ -79,7 +79,7 @@ namespace Lina::Editor
     static float                                         m_editorCameraSpeed           = 1.0f;
     static float                                         m_editorCameraSpeedMultiplier = 1.0f;
     static std::map<std::string, MovableChildData>       m_movableChildData;
-    static std::map<StringIDType, uint32>                m_modelPreviewTextures;
+    static std::map<StringIDType, uint32>                m_resourcePreviewTextures;
     static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
@@ -270,14 +270,12 @@ namespace Lina::Editor
         {
             if (item->m_typeID == GetTypeID<Graphics::Texture>())
                 textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
-            else if (item->m_typeID == GetTypeID<Graphics::Model>())
+            else if (item->m_typeID == GetTypeID<Graphics::Model>() || item->m_typeID == GetTypeID<Graphics::Material>())
             {
-                if (m_modelPreviewTextures.find(item->m_sid) == m_modelPreviewTextures.end())
-                {
+                if (m_resourcePreviewTextures.find(item->m_sid) == m_resourcePreviewTextures.end())
+                    m_resourcePreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
 
-                    m_modelPreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
-                }
-                textureID = m_modelPreviewTextures[item->m_sid];
+                textureID = m_resourcePreviewTextures[item->m_sid];
             }
         }
 
@@ -1092,18 +1090,17 @@ namespace Lina::Editor
         PushPopupStyle();
         const float currentCursorX = ImGui::GetCursorPosX();
         const float currentCursorY = ImGui::GetCursorPosY();
-        const float windowWidth   = ImGui::GetWindowWidth();
-        const float remaining     = windowWidth - currentCursorX;
-        const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+        const float windowWidth    = ImGui::GetWindowWidth();
+        const float remaining      = windowWidth - currentCursorX;
+        const float comboWidth     = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
         ImGui::SetNextItemWidth(comboWidth);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
 
-        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22, ImGui::GetWindowPos().y + currentCursorY + x);
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_CHEVRON_CIRCLE_DOWN);
         ImGui::PopFont();
-
 
         return combo;
     }
@@ -1230,12 +1227,64 @@ namespace Lina::Editor
         return shapeToReturn;
     }
 
+    int WidgetsUtility::SurfaceTypeComboBox(const char* comboID, int currentType)
+    {
+        int typeToReturn = currentType;
+
+        if (BeginComboBox(comboID, Graphics::g_materialSurfaceTypeStr[currentType], false))
+        {
+            int counter = 0;
+            for (auto& type : Graphics::g_materialSurfaceTypeStr)
+            {
+                const bool selected = currentType == counter;
+
+                if (ImGui::Selectable(Graphics::g_materialSurfaceTypeStr[counter], selected))
+                    typeToReturn = counter;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+
+                counter++;
+            }
+
+            ImGui::EndCombo();
+        }
+
+        return typeToReturn;
+    }
+
+    int WidgetsUtility::WorkflowComboBox(const char* comboID, int currentType)
+    {
+        int typeToReturn = currentType;
+
+        if (BeginComboBox(comboID, Graphics::g_materialWorkflowTypeStr[currentType], false))
+        {
+            int counter = 0;
+            for (auto& type : Graphics::g_materialWorkflowTypeStr)
+            {
+                const bool selected = currentType == counter;
+
+                if (ImGui::Selectable(Graphics::g_materialWorkflowTypeStr[counter], selected))
+                    typeToReturn = counter;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+
+                counter++;
+            }
+
+            ImGui::EndCombo();
+        }
+
+        return typeToReturn;
+    }
+
     StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
-        std::string     resourceName     = "None";
-        constexpr float spaceFromEnd     = 10.0f;
-        const float     removeButtonSize = ImGui::GetFrameHeight();
-        const float     buttonWidth      = -spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x;
+        std::string     resourceName        = "None";
+        constexpr float spaceFromEnd        = 10.0f;
+        const float     removeButtonSize    = ImGui::GetFrameHeight();
+        const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x;
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1244,11 +1293,12 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
         const ImVec2 currentCursor = ImGui::GetCursorScreenPos();
-        bool pressed = ImGui::Button(resourceName.c_str(), ImVec2(buttonWidth, removeButtonSize));
+        bool         pressed       = ImGui::Button(resourceName.c_str(), ImVec2(buttonOffsetFromEnd, removeButtonSize));
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() - spaceFromEnd - removeButtonSize - 28.0f, currentCursor.y + 3.0f);
+        const float  iconOffset = -spaceFromEnd - removeButtonSize - 28.0f;
+        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, currentCursor.y + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
@@ -1261,9 +1311,10 @@ namespace Lina::Editor
 
         if (pressed)
         {
+            auto& resSelector      = GUILayer::Get()->GetResourceSelector();
             s_latestResourceHandle = currentHandle;
-            GUILayer::Get()->GetResourceSelector().SetCurrentTypeID(resourceType, resourceStr);
-            GUILayer::Get()->GetResourceSelector().Open();
+            resSelector.SetCurrentTypeID(resourceType, resourceStr);
+            resSelector.Open();
         }
 
         const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
@@ -1303,8 +1354,26 @@ namespace Lina::Editor
 
     StringIDType WidgetsUtility::ResourceSelectionTexture(void* handleAddr)
     {
+        Resources::ResourceHandle<Graphics::Texture>* handle = static_cast<Resources::ResourceHandle<Graphics::Texture>*>(handleAddr);
 
-        return 0;
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(selected);
+            LINA_TRACE("Selected : {0}", handle->m_value->GetPath());
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
     StringIDType WidgetsUtility::ResourceSelectionAudio(void* handleAddr)
@@ -1514,7 +1583,7 @@ namespace Lina::Editor
         const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
         ImVec2            windowPos  = ImGui::GetWindowPos();
         ImVec2            cursorPos  = ImGui::GetCursorPos();
-        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + cursorPos.y + 1);
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + -ImGui::GetScrollY() + cursorPos.y + 1);
         ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
         ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -1568,7 +1637,7 @@ namespace Lina::Editor
         const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
         ImVec2            windowPos  = ImGui::GetWindowPos();
         ImVec2            cursorPos  = ImGui::GetCursorPos();
-        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + cursorPos.y + 1);
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + -ImGui::GetScrollY() + cursorPos.y + 1);
         ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
         ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);

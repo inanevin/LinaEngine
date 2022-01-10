@@ -192,7 +192,7 @@ namespace Lina::ECS
         }
 
         for (auto* child : node->m_children)
-            FlushModelNode(child, params);
+            FlushModelNode(child, params, overrideMaterial);
     }
 
     void ModelNodeSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)

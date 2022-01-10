@@ -69,6 +69,7 @@ namespace Lina::Editor
 
             if (Begin())
             {
+                ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
                 WidgetsUtility::IncrementCursorPosY(2);
                 ImGui::SetCursorPosX(paddingX);
                 DrawTop();

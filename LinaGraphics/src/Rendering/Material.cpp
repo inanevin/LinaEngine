@@ -38,6 +38,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     void Material::PostLoadMaterialData()
     {
         auto* storage = Resources::ResourceStorage::Get();
@@ -148,16 +149,6 @@ namespace Lina::Graphics
 
         UpdateMaterialData();
 
-        for (auto& sampler : m_sampler2Ds)
-        {
-            if (storage->Exists<Texture>(sampler.second.m_texture.m_sid))
-            {
-                StringIDType sid = StringID("Resources/Engine/Textures/HDR/Bright_Sky.hdr").value();
-                
-                SetTexture(sampler.first, storage->GetResource<Texture>(sampler.second.m_texture.m_sid), sampler.second.m_bindMode);
-            }
-        }
-
         return static_cast<void*>(this);
     }
 
@@ -175,12 +166,6 @@ namespace Lina::Graphics
             SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
 
         UpdateMaterialData();
-
-        for (auto& sampler : m_sampler2Ds)
-        {
-            if (storage->Exists<Texture>(sampler.second.m_texture.m_sid))
-                SetTexture(sampler.first, storage->GetResource<Texture>(sampler.second.m_texture.m_sid), sampler.second.m_bindMode);
-        }
 
         return static_cast<void*>(this);
     }

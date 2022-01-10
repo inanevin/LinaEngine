@@ -234,6 +234,16 @@ namespace Lina::Editor
         static int CollisionShapeComboBox(const char* comboID, int currentShapeID);
 
         /// <summary>
+        /// Drop-down combo-box for selecting material surface type.
+        /// </summary>
+        static int SurfaceTypeComboBox(const char* comboID, int currentType);
+
+        /// <summary>
+        /// Drop-down combo-box for selecting material workflow type.
+        /// </summary>
+        static int WorkflowComboBox(const char* comboID, int currentType);
+
+        /// <summary>
         /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
         /// </summary>
         static StringIDType ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);

@@ -69,6 +69,7 @@ namespace Lina::Editor
         }
 
         ImGui::Begin(m_id, &m_show, flags);
+
         m_currentWindowPos  = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
         m_currentWindowSize = Vector2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
         m_isDocked          = ImGui::IsWindowDocked();

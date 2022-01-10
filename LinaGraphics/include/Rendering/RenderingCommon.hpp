@@ -269,7 +269,14 @@ namespace Lina::Graphics
         Transparent = 1
     };
 
+    enum class MaterialWorkflow
+    {
+        Plastic = 0,
+        Metallic = 1,
+    };
+
     extern char* g_materialSurfaceTypeStr[2];
+    extern char* g_materialWorkflowTypeStr[2];
 
     enum Primitives
     {

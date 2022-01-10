@@ -72,6 +72,10 @@ namespace Lina::Graphics
     class Material : public Resources::IResource
     {
     public:
+
+        Material() = default;
+        virtual ~Material() = default;
+
         static Material* CreateMaterial(Shader* shader, const std::string& savePath);
         virtual void*    LoadFromFile(const std::string& path) override;
         virtual void*    LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
