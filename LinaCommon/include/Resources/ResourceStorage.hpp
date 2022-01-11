@@ -161,9 +161,8 @@ namespace Lina::Resources
                 LINA_WARN("Resource you are trying to unload does not exists! {0}", sid);
                 return;
             }
-            LINA_TRACE("Before casting unload event {0}, mem {1}", sid, (void*)(&sid));
+
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
-            LINA_TRACE("After casting unload event {0} mem {1}", sid, (void*)(&sid));
 
             auto* ptr = cache[sid];
             GetTypeData(tid).m_deleteFunc(cache[sid]);

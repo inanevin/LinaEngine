@@ -40,7 +40,6 @@ namespace Lina::Graphics
 {
     Model::~Model()
     {
-        LINA_TRACE("DELETING MODEL WTF");
         UnloadNode(m_rootNode);
     }
 
