@@ -303,13 +303,15 @@ namespace Lina::Editor
             // Draw the selected entities bounding box.
             if (m_shouldShowBounds)
             {
-                Vector3 boundingBoxPosition = Vector3::Zero;
-                Vector3 boundingBoxHalfSize = Vector3::Zero;
-                if (renderEngine->GetFrustumSystem()->GetEntityBounds(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
-                    Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{boundingBoxPosition, boundingBoxHalfSize, Color::Red, 2.5f});
-            }
+                std::vector<Vector3> boundingBoxPosition;
+                std::vector<Vector3> boundingBoxHalfSize;
+                if (renderEngine->GetFrustumSystem()->GetAllBoundsInEntity(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
+                {
+                    for (int i = 0; i < boundingBoxPosition.size(); i++)
+                        Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{boundingBoxPosition[i], boundingBoxHalfSize[i], Color::Red, 2.5f});
+                }
 
-         
+            }
         }
 
         // Draw scene orientation gizmo

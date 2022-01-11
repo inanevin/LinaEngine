@@ -34,6 +34,8 @@ SOFTWARE.
 #include "ECS/Registry.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Math/Vector.hpp"
+#include "Math/Math.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 
 namespace Lina::ECS
 {
@@ -62,40 +64,45 @@ namespace Lina::ECS
 
                 if (node != nullptr)
                 {
-                    auto&   meshes      = node->GetMeshes();
-                    Vector3 totalCenter = Vector3::Zero;
-                    Vector3 totalHalf   = Vector3::Zero;
-                    for (auto& mesh : meshes)
-                    {
-                        totalHalf += mesh->GetBoundsHalfExtents();
-                        totalCenter += mesh->GetVertexCenter();
-                    }
 
                     EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
                     const Vector3        entityLocation = data.GetLocation();
-                    const Vector3        vertexOffset   = totalCenter * data.GetScale();
-                    const Vector3        offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
+                    const Vector3        vertexOffset   = node->GetTotalVertexCenter() * data.GetScale();
+                    Quaternion           objectRot      = data.GetRotation();
+                    const Vector3        offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
+                    boundsPosition                      = entityLocation + offsetAddition;
+ 
+                    std::vector<Vector3> boundsPositions = node->GetAABB().m_positions;
 
-                    boundsPosition   = entityLocation + offsetAddition;
-                    boundsHalfExtent = totalHalf * data.GetScale() * data.GetRotation();
+                    Vector3 totalMax = Vector3(-1000, -1000, -1000);
+                    Vector3 totalMin = Vector3(1000, 1000, 1000);
+
+                    for (auto& p : boundsPositions)
+                    {
+                        p = objectRot.GetRotated(p);
+                        p = p * data.GetScale();
+
+                        if (p.x > totalMax.x)
+                            totalMax.x = p.x;
+                        if (p.x < totalMin.x)
+                            totalMin.x = p.x;
+
+                        if (p.y > totalMax.y)
+                            totalMax.y = p.y;
+                        if (p.y < totalMin.y)
+                            totalMin.y = p.y;
+
+                        if (p.z > totalMax.z)
+                            totalMax.z = p.z;
+                        if (p.z < totalMin.z)
+                            totalMin.z = p.z;
+                    }
+
+                    boundsHalfExtent = (totalMax - totalMin) / 2.0f * data.GetScale();
                     return true;
                 }
             }
-            
         }
-
-        // MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);
-        //
-        // if (mr != nullptr)
-        // {
-        // 	EntityDataComponent& data = m_ecs->get<EntityDataComponent>(ent);
-        // 	const Vector3 entityLocation = data.GetLocation();
-        // 	const Vector3 vertexOffset = mr->m_totalVertexCenter * data.GetScale();
-        // 	const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
-        // 	boundsPosition = entityLocation + offsetAddition;
-        // 	boundsHalfExtent = mr->m_totalHalfBounds * data.GetScale() * data.GetRotation();
-        // 	return true;
-        // }
 
         SpriteRendererComponent* sr = ecs->try_get<SpriteRendererComponent>(ent);
         if (sr != nullptr)
@@ -108,5 +115,72 @@ namespace Lina::ECS
         }
 
         return false;
+    }
+
+    bool FrustumSystem::GetAllBoundsInEntity(Entity ent, std::vector<Vector3>& boundsPositions, std::vector<Vector3>& boundsHalfExtents)
+    {
+        auto*               ecs = ECS::Registry::Get();
+        ModelNodeComponent* mn  = ecs->try_get<ModelNodeComponent>(ent);
+
+        if (mn != nullptr)
+        {
+            boundsPositions.emplace_back();
+            boundsHalfExtents.emplace_back();
+            GetEntityBounds(ent, boundsPositions.back(), boundsHalfExtents.back());
+        }
+
+        SpriteRendererComponent* sr = ecs->try_get<SpriteRendererComponent>(ent);
+
+        if (sr != nullptr)
+        {
+            boundsPositions.emplace_back();
+            boundsHalfExtents.emplace_back();
+            GetEntityBounds(ent, boundsPositions.back(), boundsHalfExtents.back());
+        }
+
+        auto& data = ecs->get<ECS::EntityDataComponent>(ent);
+
+        for (auto& child : data.m_children)
+        {
+            GetAllBoundsInEntity(child, boundsPositions, boundsHalfExtents);
+        }
+
+        return boundsPositions.size() != 0;
+    }
+
+    void FrustumSystem::TransformAABB(Vector3& aabbLoc, Vector3& aabbHalfExtents, const Vector3& vertexCenter, const std::vector<Vector3>& aabbPositions, const Vector3& objectLoc, const Quaternion& objectRot, const Vector3& objectScale)
+    {
+        // TODO: better incorporation of object rotation.
+        const Vector3 entityLocation = objectLoc;
+        const Vector3 vertexOffset   = vertexCenter * objectScale;
+        const Vector3 offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
+
+        aabbLoc = entityLocation + offsetAddition;
+
+        std::vector<Vector3> boundsPositions = aabbPositions;
+
+        Vector3 totalMax = Vector3(-1000, -1000, -1000);
+        Vector3 totalMin = Vector3(1000, 1000, 1000);
+        for (auto& p : boundsPositions)
+        {
+            p = p * objectScale * objectRot;
+
+            if (p.x > totalMax.x)
+                totalMax.x = p.x;
+            else if (p.x < totalMin.x)
+                totalMin.x = p.x;
+
+            if (p.y > totalMax.y)
+                totalMax.y = p.y;
+            else if (p.y < totalMin.y)
+                totalMin.y = p.y;
+
+            if (p.z > totalMax.z)
+                totalMax.z = p.z;
+            else if (p.z < totalMin.z)
+                totalMin.z = p.z;
+        }
+
+        aabbHalfExtents = (totalMax - totalMin) / 2.0f;
     }
 } // namespace Lina::ECS

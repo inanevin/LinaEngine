@@ -74,7 +74,7 @@ namespace Lina::Graphics
         bool m_flipUVs = false;
 
         LINA_PROPERTY("Generate Entity Pivots", "Bool", "If true, any entity generated via adding this model to the scene will have offset pivots as parents.")
-        bool m_enitiesHasPivots = false;
+        bool m_generatePivots = false;
 
         bool                              m_regenerateConvexMeshes = false;
         bool                              m_triangulate            = true;
@@ -83,7 +83,7 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData);
+            archive(m_triangulate, m_smoothNormals, m_generatePivots, m_calculateTangentSpace, m_flipUVs, m_flipWinding, m_globalScale, m_convexMeshData);
         }
     };
 } // namespace Lina::Graphics

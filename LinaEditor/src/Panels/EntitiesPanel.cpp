@@ -255,6 +255,16 @@ namespace Lina::Editor
                     ImGui::EndDragDropTarget();
                 }
 
+                 if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(Entity));
+                        ECS::Registry::Get()->RemoveFromParent(*(Entity*)payload->Data);
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
                 WidgetsUtility::HorizontalDivider(-ImGui::GetStyle().ItemSpacing.y, 4);
                 ImGui::PopStyleColor();

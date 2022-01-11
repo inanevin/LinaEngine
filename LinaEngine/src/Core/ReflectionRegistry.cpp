@@ -356,7 +356,7 @@ entt::meta<ECS::FreeLookComponent>().func<&REF_Paste<ECS::FreeLookComponent>, en
 entt::meta<ECS::FreeLookComponent>().func<&REF_Add<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_ValueChanged<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
 entt::meta<Graphics::ModelAssetData>().type().props(std::make_pair("Title"_hs, "Model Data"));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_enitiesHasPivots>("m_enitiesHasPivots"_hs).props(std::make_pair("Title"_hs,"Generate Entity Pivots"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"If true, any entity generated via adding this model to the scene will have offset pivots as parents."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_generatePivots>("m_generatePivots"_hs).props(std::make_pair("Title"_hs,"Generate Entity Pivots"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"If true, any entity generated via adding this model to the scene will have offset pivots as parents."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipUVs>("m_flipUVs"_hs).props(std::make_pair("Title"_hs,"Flip UVs"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipWinding>("m_flipWinding"_hs).props(std::make_pair("Title"_hs,"Flip Winding"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_calculateTangentSpace>("m_calculateTangentSpace"_hs).props(std::make_pair("Title"_hs,"Calc Tangents"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -385,6 +385,20 @@ entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveShadows>("m_
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

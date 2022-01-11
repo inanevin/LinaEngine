@@ -502,6 +502,7 @@ namespace Lina
         return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z);
     }
 
+
     class Vector4 : public glm::vec4
     {
 

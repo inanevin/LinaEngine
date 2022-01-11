@@ -81,19 +81,13 @@ namespace Lina::ECS
             Matrix            mat         = parentTransform * node->m_localTransform;
             data.SetTransformation(mat, false);
 
-            if (model->GetAssetData()->m_enitiesHasPivots)
+            if (model->GetAssetData()->m_generatePivots)
             {
-
-                Vector3 totalLocalOffset = Vector3::Zero;
-                auto&   childMeshes      = node->m_children[i]->GetMeshes();
-
-                for (auto& mesh : childMeshes)
-                    totalLocalOffset += mesh->GetVertexCenter();
 
                 Entity pivotEntity = ecs->CreateEntity(childName + "_pvt");
                 ecs->AddChildToEntity(entity, pivotEntity);
 
-                const Vector3 vertexOffset   = totalLocalOffset * data.GetScale();
+                const Vector3 vertexOffset   = node->m_children[i]->m_totalVertexCenter * data.GetScale();
                 const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z +
                                                data.GetRotation().GetRight() * vertexOffset.x +
                                                data.GetRotation().GetUp() * vertexOffset.y;

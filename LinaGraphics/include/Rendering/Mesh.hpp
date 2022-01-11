@@ -40,6 +40,7 @@ Timestamp: 4/26/2019 12:11:36 AM
 #define Mesh_HPP
 
 #include "Rendering/RenderingCommon.hpp"
+#include "Math/AABB.hpp"
 #include "Rendering/VertexArray.hpp"
 
 namespace Lina::Graphics
@@ -96,18 +97,11 @@ namespace Lina::Graphics
         {
             return m_vertexArray;
         }
-        inline Vector3 GetBoundsHalfExtents()
+        inline AABB& GetAABB()
         {
-            return m_boundsHalfExtents;
+            return m_aabb;
         }
-        inline Vector3 GetBoundsMin()
-        {
-            return m_boundsMin;
-        }
-        inline Vector3 GetBoundsMax()
-        {
-            return m_boundsMax;
-        }
+      
         inline Vector3 GetVertexCenter()
         {
             return m_vertexCenter;
@@ -126,9 +120,7 @@ namespace Lina::Graphics
         VertexArray             m_vertexArray;
         uint32                  m_materialSlot      = 0;
         Vector3                 m_vertexCenter      = Vector3(0.0f, 0.0f, 0.0f);
-        Vector3                 m_boundsHalfExtents = Vector3(0.5f, 0.5f, 0.5f);
-        Vector3                 m_boundsMin         = Vector3(-0.5f, -0.5f, -0.5f);
-        Vector3                 m_boundsMax         = Vector3(0.5f, 0.5f, 0.5f);
+        AABB                    m_aabb;
     };
 } // namespace Lina::Graphics
 

@@ -44,6 +44,7 @@ Timestamp: 12/24/2021 9:00:02 PM
 #include "Utility/StringId.hpp"
 #include "Resources/ResourceHandle.hpp"
 #include "Rendering/Material.hpp"
+#include "Math/AABB.hpp"
 #include <cereal/access.hpp>
 #include <cereal/types/memory.hpp>
 #include <memory>
@@ -90,6 +91,14 @@ namespace Lina::Graphics
         {
             return m_nodeIndexInParentHierarchy;
         }
+        inline Vector3 GetTotalVertexCenter()
+        {
+            return m_totalVertexCenter;
+        }
+        inline AABB& GetAABB()
+        {
+            return m_aabb;
+        }
 
     private:
         void Clear()
@@ -106,7 +115,9 @@ namespace Lina::Graphics
 
         int                     m_nodeIndexInParentHierarchy = 0;
         std::vector<Mesh*>      m_meshes;
-        std::string             m_name = "";
+        std::string             m_name              = "";
+        Vector3                 m_totalVertexCenter = Vector3::Zero;
+        AABB                    m_aabb;
         Matrix                  m_localTransform;
         std::vector<ModelNode*> m_children;
     };

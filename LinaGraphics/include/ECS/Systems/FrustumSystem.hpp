@@ -46,6 +46,7 @@ Timestamp: 12/24/2021 12:59:35 AM
 namespace Lina
 {
     class Vector3;
+    class Quaternion;
 }
 
 namespace Lina::ECS
@@ -61,10 +62,19 @@ namespace Lina::ECS
         virtual void UpdateComponents(float delta);
 
         /// <summary>
-        /// Sets the bounds position (global) and half-extents if the entity contains a renderable component.
-        /// Returns whether entity contains any bounds (renderable or not).
+        /// Sets the bounds position & half extent based on given entity's transformation
         /// </summary>
         bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
+
+        /// <summary>
+        /// Sets the positions & extents based on all bounds on entity hierarchy.
+        /// </summary>
+        bool GetAllBoundsInEntity(Entity ent, std::vector<Vector3>& boundsPositions, std::vector<Vector3>& boundsHalfExtents);
+
+        /// <summary>
+        /// Given an AABB definition and a transformation, sets the object-aligned-bounding box position & extents.
+        /// </summary>
+        void TransformAABB(Vector3& aabbLoc, Vector3& aabbHalfExtents, const Vector3& vertexCenter, const std::vector<Vector3>& aabbPositions, const Vector3& objectLoc, const Quaternion& objectRot, const Vector3& objectScale);
 
     private:
     };

@@ -125,6 +125,7 @@ set(LINACOMMON_HEADERS
 	include/Math/Quaternion.hpp
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
+	include/Math/AABB.hpp
 	
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
