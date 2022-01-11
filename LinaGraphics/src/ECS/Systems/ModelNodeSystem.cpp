@@ -51,7 +51,7 @@ namespace Lina::ECS
         m_renderDevice = m_renderEngine->GetRenderDevice();
     }
 
-    void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node)
+    void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Matrix& parentTransform, Graphics::Model* model, Graphics::ModelNode* node)
     {
         auto* ecs = ECS::Registry::Get();
 
@@ -61,8 +61,9 @@ namespace Lina::ECS
         if (meshes.size() > 0)
         {
             ModelNodeComponent& nodeComponent = ecs->emplace<ModelNodeComponent>(entity);
-            nodeComponent.m_modelNode.m_sid   = node->m_sid;
-            nodeComponent.m_modelNode.m_value = node;
+            nodeComponent.m_nodeIndex         = node->m_nodeIndexInParentHierarchy;
+            nodeComponent.m_model.m_sid       = model->GetSID();
+            nodeComponent.m_model.m_value     = model;
 
             for (uint32 i = 0; i < meshes.size(); i++)
             {
@@ -74,9 +75,40 @@ namespace Lina::ECS
 
         for (uint32 i = 0; i < node->m_children.size(); i++)
         {
-            Entity childEntity = ecs->CreateEntity(node->m_children[i]->m_name);
-            ecs->AddChildToEntity(entity, childEntity);
-            ConstructEntityHierarchy(childEntity, node->m_children[i]);
+            const std::string childName   = node->m_children[i]->m_name;
+            Entity            childEntity = ecs->CreateEntity(childName);
+            auto&             data        = ecs->get<ECS::EntityDataComponent>(childEntity);
+            Matrix            mat         = parentTransform * node->m_localTransform;
+            data.SetTransformation(mat, false);
+
+            if (model->GetAssetData()->m_enitiesHasPivots)
+            {
+
+                Vector3 totalLocalOffset = Vector3::Zero;
+                auto&   childMeshes      = node->m_children[i]->GetMeshes();
+
+                for (auto& mesh : childMeshes)
+                    totalLocalOffset += mesh->GetVertexCenter();
+
+                Entity pivotEntity = ecs->CreateEntity(childName + "_pvt");
+                ecs->AddChildToEntity(entity, pivotEntity);
+
+                const Vector3 vertexOffset   = totalLocalOffset * data.GetScale();
+                const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z +
+                                               data.GetRotation().GetRight() * vertexOffset.x +
+                                               data.GetRotation().GetUp() * vertexOffset.y;
+
+                auto& pivotParentData = ecs->get<ECS::EntityDataComponent>(pivotEntity);
+                pivotParentData.SetLocation(data.GetLocation() + offsetAddition);
+                pivotParentData.SetRotation(data.GetRotation());
+                ecs->AddChildToEntity(pivotEntity, childEntity);
+            }
+            else
+            {
+                ecs->AddChildToEntity(entity, childEntity);
+            }
+
+            ConstructEntityHierarchy(childEntity, data.ToMatrix(), model, node->m_children[i]);
         }
     }
 
@@ -85,7 +117,8 @@ namespace Lina::ECS
         Graphics::ModelNode* root             = model->GetRootNode();
         const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
         Entity               parentEntity     = ECS::Registry::Get()->CreateEntity(parentEntityName);
-        ConstructEntityHierarchy(parentEntity, root);
+        auto&                data             = ECS::Registry::Get()->get<ECS::EntityDataComponent>(parentEntity);
+        ConstructEntityHierarchy(parentEntity, data.ToMatrix(), model, root);
     }
 
     static float t = 0.0f;
@@ -112,7 +145,11 @@ namespace Lina::ECS
             if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
                 continue;
 
-            auto* node = nodeComponent.m_modelNode.m_value;
+            auto* model = nodeComponent.m_model.m_value;
+            if (model == nullptr)
+                continue;
+
+            auto* node = model->GetAllNodes()[nodeComponent.m_nodeIndex];
             if (node == nullptr)
                 continue;
 

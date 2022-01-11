@@ -56,11 +56,10 @@ namespace Lina::Graphics
     {
         m_name                    = std::string(node->mName.C_Str());
         const std::string sidName = parentModel->GetPath() + m_name;
-        m_sid                     = StringID(sidName.c_str()).value();
         m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
-        const TypeID tid          = GetTypeID<ModelNode>();
-        Resources::ResourceStorage::Get()->Add(static_cast<void*>(this), tid, m_sid);
+        parentModel->m_allNodes.push_back(this);
         parentModel->m_numNodes++;
+        m_nodeIndexInParentHierarchy = parentModel->m_numNodes - 1;
 
         for (uint32 i = 0; i < node->mNumMeshes; i++)
         {

@@ -54,28 +54,34 @@ namespace Lina::ECS
 
         if (mn != nullptr)
         {
-            Graphics::ModelNode* node = mn->m_modelNode.m_value;
+            Graphics::Model* model = mn->m_model.m_value;
 
-            if (node != nullptr)
+            if (model != nullptr)
             {
-                auto&   meshes       = node->GetMeshes();
-                Vector3 totalCenter = Vector3::Zero;
-                Vector3 totalHalf   = Vector3::Zero;
-                for (auto& mesh : meshes)
+                Graphics::ModelNode* node = model->GetAllNodes()[mn->m_nodeIndex];
+
+                if (node != nullptr)
                 {
-                    totalHalf += mesh->GetBoundsHalfExtents();
-                    totalCenter += mesh->GetVertexCenter();
+                    auto&   meshes      = node->GetMeshes();
+                    Vector3 totalCenter = Vector3::Zero;
+                    Vector3 totalHalf   = Vector3::Zero;
+                    for (auto& mesh : meshes)
+                    {
+                        totalHalf += mesh->GetBoundsHalfExtents();
+                        totalCenter += mesh->GetVertexCenter();
+                    }
+
+                    EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
+                    const Vector3        entityLocation = data.GetLocation();
+                    const Vector3        vertexOffset   = totalCenter * data.GetScale();
+                    const Vector3        offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
+
+                    boundsPosition   = entityLocation + offsetAddition;
+                    boundsHalfExtent = totalHalf * data.GetScale() * data.GetRotation();
+                    return true;
                 }
-
-                EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
-                const Vector3        entityLocation = data.GetLocation();
-                const Vector3        vertexOffset   = totalCenter * data.GetScale();
-                const Vector3        offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
-
-                boundsPosition   = entityLocation + offsetAddition;
-                boundsHalfExtent = totalHalf * data.GetScale() * data.GetRotation();
-                return true;
             }
+            
         }
 
         // MeshRendererComponent* mr = m_ecs->try_get<MeshRendererComponent>(ent);

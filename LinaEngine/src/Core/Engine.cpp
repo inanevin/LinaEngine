@@ -358,13 +358,6 @@ namespace Lina
                 std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
                 std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
 
-        m_resourceStorage.RegisterResource<Graphics::ModelNode>(
-            Resources::ResourceTypeData{
-                4,
-                std::bind(Resources::CreateResource<Graphics::ModelNode>),
-                std::bind(Resources::DeleteResource<Graphics::ModelNode>, std::placeholders::_1),
-                std::vector<std::string>(), Color(255, 146, 22, 255, true)});
-
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             5,
             std::bind(Resources::CreateResource<Audio::Audio>),

@@ -40,15 +40,7 @@ namespace Lina::Graphics
 {
     Model::~Model()
     {
-        UnloadNode(m_rootNode);
-    }
-
-    void Model::UnloadNode(ModelNode* node)
-    {
-        for (auto* child : node->GetChildren())
-            UnloadNode(child);
-
-        Resources::ResourceStorage::Get()->Unload<ModelNode>(node->GetSID());
+        delete m_rootNode;
     }
 
     void* Model::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)

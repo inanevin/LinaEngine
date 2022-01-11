@@ -73,6 +73,9 @@ namespace Lina::Graphics
         LINA_PROPERTY("Flip UVs", "Bool")
         bool m_flipUVs = false;
 
+        LINA_PROPERTY("Generate Entity Pivots", "Bool", "If true, any entity generated via adding this model to the scene will have offset pivots as parents.")
+        bool m_enitiesHasPivots = false;
+
         bool                              m_regenerateConvexMeshes = false;
         bool                              m_triangulate            = true;
         std::map<int, std::vector<uint8>> m_convexMeshData;

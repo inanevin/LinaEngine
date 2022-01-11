@@ -86,15 +86,14 @@ namespace Lina::Graphics
         {
             return m_children;
         }
-        inline StringIDType GetSID()
+        inline int GetIndexInParentHierarchy()
         {
-            return m_sid;
+            return m_nodeIndexInParentHierarchy;
         }
 
     private:
         void Clear()
         {
-            m_sid            = 0;
             m_name           = "";
             m_localTransform = Matrix();
             m_children.clear();
@@ -105,7 +104,7 @@ namespace Lina::Graphics
         friend class Graphics::ModelLoader;
         friend class cereal::access;
 
-        StringIDType            m_sid = 0;
+        int                     m_nodeIndexInParentHierarchy = 0;
         std::vector<Mesh*>      m_meshes;
         std::string             m_name = "";
         Matrix                  m_localTransform;

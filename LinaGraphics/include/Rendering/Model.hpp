@@ -100,8 +100,6 @@ namespace Lina::Graphics
             return m_allNodes;
         }
 
-    private:
-        void UnloadNode(ModelNode* node);
 
     private:
         friend class OpenGLRenderEngine;

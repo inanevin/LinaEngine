@@ -141,7 +141,7 @@ namespace Lina::ECS
         void FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params, Graphics::Material* overrideMaterial = nullptr);
 
     private:
-        void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);
+        void ConstructEntityHierarchy(Entity entity, Matrix& parentTransform, Graphics::Model* model, Graphics::ModelNode* node);
         void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
     private:
