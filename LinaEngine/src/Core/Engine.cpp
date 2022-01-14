@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Rendering/Shader.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 #include "Core/ReflectionRegistry.hpp"
 
 namespace Lina
@@ -122,6 +123,7 @@ namespace Lina
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();
+
     }
 
     void Engine::StartLoadingResources()
@@ -356,7 +358,7 @@ namespace Lina
                 4,
                 std::bind(Resources::CreateResource<Graphics::Model>),
                 std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
-                std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
+                std::vector<std::string>{"fbx", "obj", "gltf", "glb"}, Color(255, 146, 22, 255, true)});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             5,

@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,56 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ModelNodeComponent
-
-
-
-Timestamp: 12/24/2021 10:20:14 PM
-*/
-
-#pragma once
-
-#ifndef ModelNodeComponent_HPP
-#define ModelNodeComponent_HPP
-
-// Headers here.
-#include "ECS/Component.hpp"
-#include "Rendering/Model.hpp"
-
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
+#include "Math/Plane.hpp"
+#include "Math/Math.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina
 {
-    namespace Graphics
+    void Plane::Normalize()
     {
-        class ModelNode;
+        m_normal = m_normal.Normalized();
+        LINA_TRACE("Normalized {0}", m_normal.ToString());
+    }
+
+    float Plane::GetSignedDistance(const Vector3& point) const
+    {
+        return m_normal.Dot(point) - m_distance;
     }
 } // namespace Lina
-
-namespace Lina::ECS
-{
-    LINA_COMPONENT("Model Node", "ICON_FA_CUBES", "Rendering", "false", "false")
-    struct ModelNodeComponent : public Component
-    {
-        LINA_PROPERTY("Materials", "MaterialArray")
-        std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
-        
-        int                                        m_nodeIndex = -1;
-        Resources::ResourceHandle<Graphics::Model> m_model;
-        bool                                       m_culled = false;
-
-    private:
-        friend class cereal::access;
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_materials, m_nodeIndex, m_model, m_isEnabled);
-        }
-    };
-
-} // namespace Lina::ECS
-
-#endif

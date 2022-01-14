@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Drawers/ClassDrawer.hpp"
 #include "Rendering/Model.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "imgui/imguizmo/ImGuizmo.h"
 #include "imgui/imgui.h"
 
@@ -79,14 +80,7 @@ namespace Lina::Editor
         {
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-            Vector3                   end1   = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-            Vector3                   end2   = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-            Vector3                   end3   = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-            Vector3                   end4   = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Color::Red, 1.4f);
+            Event::EventSystem::Get()->Trigger<Event::EDrawSphere>(Event::EDrawSphere{data.GetLocation(), pLight.m_distance, Color::Red, 1.4f});
         }
         else if (tid == GetTypeID<SpotLightComponent>())
         {
@@ -101,6 +95,11 @@ namespace Lina::Editor
             Vector3                   dir  = Vector3::Zero - data.GetLocation();
             Vector3                   end1 = data.GetLocation() + dir;
             Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+        }
+        else if (tid == GetTypeID<CameraComponent>())
+        {
+            CameraComponent& camComp = ECS::Registry::Get()->get<CameraComponent>(ent);
+            
         }
     }
 

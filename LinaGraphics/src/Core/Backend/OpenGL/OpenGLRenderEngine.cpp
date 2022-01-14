@@ -140,11 +140,12 @@ namespace Lina::Graphics
         m_spriteRendererSystem.Initialize("Sprite System");
         m_frustumSystem.Initialize("Frustum System");
 
+        // Order is important.
         AddToRenderingPipeline(m_cameraSystem);
+        AddToRenderingPipeline(m_frustumSystem);
         AddToRenderingPipeline(m_modelNodeSystem);
         AddToRenderingPipeline(m_spriteRendererSystem);
         AddToRenderingPipeline(m_lightingSystem);
-        AddToRenderingPipeline(m_frustumSystem);
 
         // Animation pipeline
         m_animationSystem.Initialize("Animation System");
@@ -696,7 +697,7 @@ namespace Lina::Graphics
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
 
-    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, RenderTarget* overrideTarget, Material* overrideMaterial)
+    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget, Material* overrideMaterial)
     {
         // Store the current skybox & switch to HDRI one
         Material* currentSkybox = m_skyboxMaterial;
@@ -710,7 +711,7 @@ namespace Lina::Graphics
 
         // Draw skybox and given model.
         DrawSkybox();
-        m_modelNodeSystem.FlushModelNode(model->m_rootNode, m_defaultDrawParams, overrideMaterial);
+        m_modelNodeSystem.FlushModelNode(model->m_rootNode, modelMatrix, m_defaultDrawParams, overrideMaterial);
         DrawFinalize(overrideTarget == nullptr ? &m_previewRenderTarget : overrideTarget);
 
         // Reset buffers back as well as the skybox.

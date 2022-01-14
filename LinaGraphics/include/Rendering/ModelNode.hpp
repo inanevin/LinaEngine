@@ -58,6 +58,7 @@ namespace Lina
     namespace ECS
     {
         class ModelNodeSystem;
+        class FrustumSystem;
     }
 } // namespace Lina
 
@@ -110,6 +111,7 @@ namespace Lina::Graphics
 
     private:
         friend class ECS::ModelNodeSystem;
+        friend class ECS::FrustumSystem;
         friend class Graphics::ModelLoader;
         friend class cereal::access;
 

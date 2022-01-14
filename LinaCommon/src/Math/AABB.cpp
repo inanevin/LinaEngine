@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,56 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ModelNodeComponent
-
-
-
-Timestamp: 12/24/2021 10:20:14 PM
-*/
-
-#pragma once
-
-#ifndef ModelNodeComponent_HPP
-#define ModelNodeComponent_HPP
-
-// Headers here.
-#include "ECS/Component.hpp"
-#include "Rendering/Model.hpp"
-
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
+#include "Math/AABB.hpp"
+#include "Math/Math.hpp"
+#include "Math/Plane.hpp"
 
 namespace Lina
 {
-    namespace Graphics
+
+    bool AABB::IsInsidePlane(const Vector3& center, const Plane& plane)
     {
-        class ModelNode;
+        const float r = m_boundsHalfExtents.x * Math::Abs(plane.m_normal.x) + m_boundsHalfExtents.y * Math::Abs(plane.m_normal.y) + m_boundsHalfExtents.z * Math::Abs(plane.m_normal.z);
+        return -r <= plane.GetSignedDistance(center);
+    }
+    Vector3 AABB::GetPositive(const Vector3& normal) const
+    {
+        Vector3 positive = m_boundsMin;
+        if (normal.x >= 0.0f)
+            positive.x = m_boundsMax.x;
+        if (normal.y >= 0.0f)
+            positive.y = m_boundsMax.y;
+        if (normal.z >= 0.0f)
+            positive.z = m_boundsMax.z;
+
+        return positive;
+    }
+    Vector3 AABB::GetNegative(const Vector3& normal) const
+    {
+        Vector3 negative = m_boundsMax;
+        if (normal.x >= 0.0f)
+            negative.x = m_boundsMin.x;
+        if (normal.y >= 0.0f)
+            negative.y = m_boundsMin.y;
+        if (normal.z >= 0.0f)
+            negative.z = m_boundsMin.z;
+
+        return negative;
     }
 } // namespace Lina
-
-namespace Lina::ECS
-{
-    LINA_COMPONENT("Model Node", "ICON_FA_CUBES", "Rendering", "false", "false")
-    struct ModelNodeComponent : public Component
-    {
-        LINA_PROPERTY("Materials", "MaterialArray")
-        std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
-        
-        int                                        m_nodeIndex = -1;
-        Resources::ResourceHandle<Graphics::Model> m_model;
-        bool                                       m_culled = false;
-
-    private:
-        friend class cereal::access;
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_materials, m_nodeIndex, m_model, m_isEnabled);
-        }
-    };
-
-} // namespace Lina::ECS
-
-#endif

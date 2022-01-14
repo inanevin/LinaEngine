@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,50 +27,63 @@ SOFTWARE.
 */
 
 /*
-Class: CameraComponent
+Class: Frustum
 
-Represents a virtual game camera.
 
-Timestamp: 5/2/2019 12:20:42 AM
+
+Timestamp: 1/12/2022 1:52:58 AM
 */
 
 #pragma once
 
-#ifndef CameraComponent_HPP
-#define CameraComponent_HPP
+#ifndef Frustum_HPP
+#define Frustum_HPP
 
-#include "ECS/Component.hpp"
-#include "Math/Color.hpp"
-#include "Math/Frustum.hpp"
+// Headers here.
+#include "Math/Plane.hpp"
+#include <vector>
 
-namespace Lina::ECS
+namespace Lina
 {
-    LINA_COMPONENT("Camera Component", "ICON_FA_EYE", "Rendering", "true", "true")
-    struct CameraComponent : public Component
+    class Matrix;
+    class AABB;
+
+    enum class FrustumTest
     {
-        LINA_PROPERTY("Clear Color", "Color")
-        Color m_clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
-
-        LINA_PROPERTY("Field of View", "Float")
-        float m_fieldOfView = 90.0f;
-
-        LINA_PROPERTY("Near", "Float", "Minimum distance the camera renders at.")
-        float m_zNear = 0.01f;
-
-        LINA_PROPERTY("Far", "Float", "Maximum distance the camera renders at.")
-        float m_zFar = 1000.0f;
-        
-        LINA_PROPERTY("Is Active", "Bool")
-        bool m_isActive = false;
-
-        Frustum m_viewFrustum;
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isActive, m_isEnabled); // serialize things by passing them to the archive
-        }
+        Inside,
+        Outside,
+        Intersects
     };
-} // namespace Lina::ECS
+
+    class Frustum
+    {
+
+    public:
+        Frustum() = default;
+        ~Frustum() = default;
+
+        /// <summary>
+        /// Extract planes from the given matrix.
+        /// Projection Matrix = results in eye-space
+        /// View*Projection Matrix = results in world-space
+        /// Model*View*Projection Matrix = results in model-space
+        /// </summary>
+        void Calculate(const Matrix& matrix, bool normalizeAll);
+
+        /// <summary>
+        /// Expects the AABB's bounds to be already transformed according to a world position.
+        /// </summary>
+        /// <param name="aabb"></param>
+        /// <returns></returns>
+        FrustumTest TestIntersection(const AABB& aabb);
+
+        Plane             m_left;
+        Plane             m_right;
+        Plane             m_bottom;
+        Plane             m_top;
+        Plane             m_near;
+        Plane             m_far;
+    };
+} // namespace Lina
 
 #endif

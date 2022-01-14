@@ -36,16 +36,103 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Math/Math.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
 
 namespace Lina::ECS
 {
     void FrustumSystem::Initialize(const std::string& name)
     {
         System::Initialize(name);
+        m_renderEngine = Graphics::RenderEngineBackend::Get();
     }
 
     void FrustumSystem::UpdateComponents(float delta)
     {
+        auto* ecs       = ECS::Registry::Get();
+        auto& view      = ecs->view<EntityDataComponent, ModelNodeComponent>();
+        auto* camSystem = m_renderEngine->GetCameraSystem();
+        m_poolSize      = 0;
+
+        for (auto entity : view)
+        {
+            ModelNodeComponent&  nodeComp = view.get<ModelNodeComponent>(entity);
+            EntityDataComponent& data     = view.get<EntityDataComponent>(entity);
+            Graphics::Model*     model    = nodeComp.m_model.m_value;
+
+            if (model == nullptr)
+                continue;
+
+            Graphics::ModelNode* node = model->GetAllNodes()[nodeComp.m_nodeIndex];
+
+            auto* camComponent = camSystem->GetActiveCameraComponent();
+
+            bool nodeWithinFrustum = false;
+
+            Vector3 position   = Vector3::Zero;
+            Vector3 halfExtent = Vector3::Zero;
+            GetAABBInModelNode(node, position, halfExtent, data.GetLocation(), data.GetRotation(), data.GetScale());
+            AABB nodeAABB;
+            nodeAABB.m_boundsHalfExtents = halfExtent;
+            nodeAABB.m_boundsMin         = position - halfExtent;
+            nodeAABB.m_boundsMax         = position + halfExtent;
+
+            FrustumTest test = camComponent->m_viewFrustum.TestIntersection(nodeAABB);
+
+            nodeComp.m_culled = test == FrustumTest::Outside;
+
+            if (nodeComp.m_culled)
+                m_poolSize++;
+        }
+    }
+
+    void FrustumSystem::GetAABBInModelNode(Graphics::ModelNode* node, Vector3& outPosition, Vector3& outHalfExtent, const Vector3& location, const Quaternion& rot, const Vector3& scale)
+    {
+        const Vector3 vertexOffset   = node->GetTotalVertexCenter() * scale;
+        const Vector3 offsetAddition = rot.GetForward() * vertexOffset.z + rot.GetRight() * vertexOffset.x + rot.GetUp() * vertexOffset.y;
+        outPosition                  = location + offsetAddition;
+
+        std::vector<Vector3> boundsPositions = node->GetAABB().m_positions;
+
+        Vector3 totalMax = Vector3(-1000, -1000, -1000);
+        Vector3 totalMin = Vector3(1000, 1000, 1000);
+
+        for (auto& p : boundsPositions)
+        {
+            p = rot.GetRotated(p);
+
+            if (p.x > totalMax.x)
+                totalMax.x = p.x;
+            if (p.x < totalMin.x)
+                totalMin.x = p.x;
+
+            if (p.y > totalMax.y)
+                totalMax.y = p.y;
+            if (p.y < totalMin.y)
+                totalMin.y = p.y;
+
+            if (p.z > totalMax.z)
+                totalMax.z = p.z;
+            if (p.z < totalMin.z)
+                totalMin.z = p.z;
+        }
+
+        outHalfExtent = (totalMax - totalMin) / 2.0f * scale;
+    }
+
+    void FrustumSystem::GetAABBsInModel(Graphics::Model* model, std::vector<Vector3>& outPositions, std::vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale)
+    {
+        for (auto* node : model->GetAllNodes())
+        {
+            if (node->GetAABB().m_positions.size() != 0)
+            {
+                outPositions.emplace_back();
+                outHalfExtents.emplace_back();
+                GetAABBInModelNode(node, outPositions.back(), outHalfExtents.back(), location, rot, scale);
+            }
+        }
     }
 
     bool FrustumSystem::GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent)
@@ -64,14 +151,17 @@ namespace Lina::ECS
 
                 if (node != nullptr)
                 {
+                    EntityDataComponent& data = ecs->get<EntityDataComponent>(ent);
 
-                    EntityDataComponent& data           = ecs->get<EntityDataComponent>(ent);
-                    const Vector3        entityLocation = data.GetLocation();
-                    const Vector3        vertexOffset   = node->GetTotalVertexCenter() * data.GetScale();
-                    Quaternion           objectRot      = data.GetRotation();
-                    const Vector3        offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
-                    boundsPosition                      = entityLocation + offsetAddition;
- 
+                    GetAABBInModelNode(node, boundsPosition, boundsHalfExtent, data.GetLocation(), data.GetRotation(), data.GetScale());
+
+                    return true;
+                    const Vector3 entityLocation = data.GetLocation();
+                    const Vector3 vertexOffset   = node->GetTotalVertexCenter() * data.GetScale();
+                    Quaternion    objectRot      = data.GetRotation();
+                    const Vector3 offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
+                    boundsPosition               = entityLocation + offsetAddition;
+
                     std::vector<Vector3> boundsPositions = node->GetAABB().m_positions;
 
                     Vector3 totalMax = Vector3(-1000, -1000, -1000);
@@ -148,39 +238,4 @@ namespace Lina::ECS
         return boundsPositions.size() != 0;
     }
 
-    void FrustumSystem::TransformAABB(Vector3& aabbLoc, Vector3& aabbHalfExtents, const Vector3& vertexCenter, const std::vector<Vector3>& aabbPositions, const Vector3& objectLoc, const Quaternion& objectRot, const Vector3& objectScale)
-    {
-        // TODO: better incorporation of object rotation.
-        const Vector3 entityLocation = objectLoc;
-        const Vector3 vertexOffset   = vertexCenter * objectScale;
-        const Vector3 offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
-
-        aabbLoc = entityLocation + offsetAddition;
-
-        std::vector<Vector3> boundsPositions = aabbPositions;
-
-        Vector3 totalMax = Vector3(-1000, -1000, -1000);
-        Vector3 totalMin = Vector3(1000, 1000, 1000);
-        for (auto& p : boundsPositions)
-        {
-            p = p * objectScale * objectRot;
-
-            if (p.x > totalMax.x)
-                totalMax.x = p.x;
-            else if (p.x < totalMin.x)
-                totalMin.x = p.x;
-
-            if (p.y > totalMax.y)
-                totalMax.y = p.y;
-            else if (p.y < totalMin.y)
-                totalMin.y = p.y;
-
-            if (p.z > totalMax.z)
-                totalMax.z = p.z;
-            else if (p.z < totalMin.z)
-                totalMin.z = p.z;
-        }
-
-        aabbHalfExtents = (totalMax - totalMin) / 2.0f;
-    }
 } // namespace Lina::ECS

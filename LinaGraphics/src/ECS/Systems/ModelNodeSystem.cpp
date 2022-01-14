@@ -119,24 +119,16 @@ namespace Lina::ECS
 
     void ModelNodeSystem::UpdateComponents(float delta)
     {
-        auto* ecs = ECS::Registry::Get();
+        auto* ecs  = ECS::Registry::Get();
+        auto  view = ecs->view<EntityDataComponent, ModelNodeComponent>();
+        m_poolSize = 0;
 
-        auto view  = ecs->view<EntityDataComponent, ModelNodeComponent>();
-        m_poolSize = (int)view.size_hint();
-        t += 0.016f;
-
-        if (t > 3.0f)
-        {
-            t = -1000;
-            // Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
-            // CreateModelHierarchy(model);
-        }
         for (auto entity : view)
         {
             ModelNodeComponent& nodeComponent = view.get<ModelNodeComponent>(entity);
             auto&               data          = view.get<EntityDataComponent>(entity);
 
-            if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
+            if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled() || nodeComponent.m_culled)
                 continue;
 
             auto* model = nodeComponent.m_model.m_value;
@@ -160,6 +152,8 @@ namespace Lina::ECS
                 const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
                 if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
                     continue;
+
+                m_poolSize++;
 
                 // Render the material & vertex array.
                 Graphics::Material* mat = nodeComponent.m_materials[i].m_value;
@@ -206,17 +200,17 @@ namespace Lina::ECS
         }
     }
 
-    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params, Graphics::Material* overrideMaterial)
+    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Matrix& parentMatrix, Graphics::DrawParams& params, Graphics::Material* overrideMaterial)
     {
-        auto& meshes = node->m_meshes;
+        auto&  meshes      = node->m_meshes;
+        Matrix modelMatrix = parentMatrix;
 
         for (auto* mesh : meshes)
         {
             Graphics::VertexArray& vertexArray = mesh->GetVertexArray();
-            Matrix                 models      = Matrix::Identity();
 
             // Update the buffer w/ each transform.
-            vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));
+            vertexArray.UpdateBuffer(7, &modelMatrix[0][0], 1 * sizeof(Matrix));
             auto* mat = overrideMaterial == nullptr ? m_renderEngine->GetDefaultLitMaterial() : overrideMaterial;
 
             mat->SetBool(UF_BOOL_SKINNED, false);
@@ -226,7 +220,7 @@ namespace Lina::ECS
         }
 
         for (auto* child : node->m_children)
-            FlushModelNode(child, params, overrideMaterial);
+            FlushModelNode(child, modelMatrix, params, overrideMaterial);
     }
 
     void ModelNodeSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)

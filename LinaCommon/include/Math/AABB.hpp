@@ -45,18 +45,29 @@ Timestamp: 1/11/2022 5:52:02 PM
 
 namespace Lina
 {
+    class Plane;
     class AABB
     {
 
     public:
-        AABB()  = default;
-        AABB(Vector3 min, Vector3 max) 
+        AABB() = default;
+        AABB(Vector3 min, Vector3 max)
         {
-            m_boundsMin = min;
-            m_boundsMax = max;
+            m_boundsMin         = min;
+            m_boundsMax         = max;
             m_boundsHalfExtents = (max - min) / 2.0f;
         }
         ~AABB() = default;
+
+        /// <summary>
+        /// Returns true if this box is inside the given plane, given an arbitrary position.
+        /// </summary>
+        /// <param name="aabb"></param>
+        /// <param name="plane"></param>
+        bool IsInsidePlane(const Vector3& center, const Plane& plane);
+
+        Vector3 GetPositive(const Vector3& normal) const;
+        Vector3 GetNegative(const Vector3& normal) const;
 
         Vector3              m_boundsHalfExtents = Vector3::Zero;
         Vector3              m_boundsMin         = Vector3::Zero;

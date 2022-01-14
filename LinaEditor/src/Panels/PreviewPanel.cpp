@@ -90,9 +90,9 @@ namespace Lina::Editor
 
     void PreviewPanel::SetTargetModel(Graphics::Model* model)
     {
-        m_targetModel = model;
-        m_title       = "Model Preview: " + model->GetPath();
-        m_previewType = PreviewType::Model;
+        m_targetModel               = model;
+        m_title                     = "Model Preview: " + model->GetPath();
+        m_previewType               = PreviewType::Model;
         Open();
     }
 
@@ -163,7 +163,7 @@ namespace Lina::Editor
         if (m_previewType == PreviewType::Texture)
             TextureDrawer::DrawTexture(m_targetTexture, bgMinLina, bgMaxLina);
         else if (m_previewType == PreviewType::Model)
-            ModelDrawer::DrawModel(m_targetModel, bgMinLina, bgMaxLina);
+            ModelDrawer::DrawModel(m_targetModel, Matrix::Identity(), bgMinLina, bgMaxLina);
         else if (m_previewType == PreviewType::Material)
             MaterialDrawer::DrawMaterial(m_targetMaterial, bgMinLina, bgMaxLina);
 

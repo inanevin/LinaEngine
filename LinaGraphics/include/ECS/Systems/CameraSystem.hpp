@@ -51,7 +51,8 @@ namespace Lina
     namespace Event
     {
         struct ELevelInstalled;
-    }
+        struct EPlayModeChanged;
+    } // namespace Event
 } // namespace Lina
 
 namespace Lina::ECS
@@ -152,6 +153,7 @@ namespace Lina::ECS
         }
 
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnPlayModeChanged(const Event::EPlayModeChanged& ev);
 
     private:
         Matrix m_view               = Matrix::Identity();

@@ -187,7 +187,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Renders the given model in a preview scene and returns the resulting image.
         /// </summary>
-        uint32 RenderModelPreview(Model* model, RenderTarget* overrideTarget = nullptr, Material* materialOverride = nullptr);
+        uint32 RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget = nullptr, Material* materialOverride = nullptr);
 
         void UpdateShaderData(Material* mat);
 

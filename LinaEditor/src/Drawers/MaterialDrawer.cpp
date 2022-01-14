@@ -193,7 +193,7 @@ namespace Lina::Editor
 #pragma warning(disable : 4312)
         auto*  renderEngine   = Graphics::RenderEngineBackend::Get();
         auto*  model          = Resources::ResourceStorage::Get()->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        uint32 previewTexture = renderEngine->RenderModelPreview(model, nullptr, mat);
+        uint32 previewTexture = renderEngine->RenderModelPreview(model, Matrix::Identity(), nullptr, mat);
         ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, ImVec2(bgMin.x, bgMin.y), ImVec2(bgMax.x, bgMax.y), ImVec2(0, 1), ImVec2(1, 0));
     }
 

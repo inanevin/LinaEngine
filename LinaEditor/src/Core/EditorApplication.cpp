@@ -180,7 +180,7 @@ namespace Lina::Editor
         auto* target       = AddSnapshotBuffer(bufferSid);
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
         auto* overrideMat  = materialSid == 0 ? nullptr : Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(materialSid);
-        renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(modelSid), target, overrideMat);
+        renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(modelSid), Matrix::Identity(), target, overrideMat);
         WidgetsUtility::ResetEditorCamera();
     }
 

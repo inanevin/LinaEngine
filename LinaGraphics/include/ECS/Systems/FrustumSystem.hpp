@@ -40,14 +40,22 @@ Timestamp: 12/24/2021 12:59:35 AM
 #define FrustumSystem_HPP
 
 // Headers here.
+#include "Core/RenderBackendFwd.hpp"
 #include "Core/CommonECS.hpp"
 #include "ECS/System.hpp"
+#include "Math/AABB.hpp"
 
 namespace Lina
 {
     class Vector3;
     class Quaternion;
-}
+
+    namespace Graphics
+    {
+        class Model;
+        class ModelNode;
+    } // namespace Graphics
+} // namespace Lina
 
 namespace Lina::ECS
 {
@@ -62,6 +70,16 @@ namespace Lina::ECS
         virtual void UpdateComponents(float delta);
 
         /// <summary>
+        /// Sets the bounds position & half extent based on given model node.
+        /// </summary>
+        void GetAABBInModelNode(Graphics::ModelNode* node, Vector3& outPosition, Vector3& outHalfExtent, const Vector3& location, const Quaternion& rot, const Vector3& scale);
+
+        /// <summary>
+        /// Sets the positions & half extents from all nodes in the given model.
+        /// </summary>
+        void GetAABBsInModel(Graphics::Model* model, std::vector<Vector3>& outPositions, std::vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale);
+
+        /// <summary>
         /// Sets the bounds position & half extent based on given entity's transformation
         /// </summary>
         bool GetEntityBounds(Entity ent, Vector3& boundsPosition, Vector3& boundsHalfExtent);
@@ -71,12 +89,8 @@ namespace Lina::ECS
         /// </summary>
         bool GetAllBoundsInEntity(Entity ent, std::vector<Vector3>& boundsPositions, std::vector<Vector3>& boundsHalfExtents);
 
-        /// <summary>
-        /// Given an AABB definition and a transformation, sets the object-aligned-bounding box position & extents.
-        /// </summary>
-        void TransformAABB(Vector3& aabbLoc, Vector3& aabbHalfExtents, const Vector3& vertexCenter, const std::vector<Vector3>& aabbPositions, const Vector3& objectLoc, const Quaternion& objectRot, const Vector3& objectScale);
-
     private:
+        Graphics::RenderEngine* m_renderEngine = nullptr;
     };
 } // namespace Lina::ECS
 

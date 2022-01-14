@@ -227,6 +227,7 @@ entt::meta<ECS::ModelNodeComponent>().func<&REF_Copy<ECS::ModelNodeComponent>, e
 entt::meta<ECS::ModelNodeComponent>().func<&REF_Paste<ECS::ModelNodeComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::CameraComponent>().type().props(std::make_pair("Title"_hs, "Camera Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_isEnabled>("m_isEnabled"_hs);
+entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_isActive>("m_isActive"_hs).props(std::make_pair("Title"_hs,"Is Active"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_zFar>("m_zFar"_hs).props(std::make_pair("Title"_hs,"Far"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Maximum distance the camera renders at."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_zNear>("m_zNear"_hs).props(std::make_pair("Title"_hs,"Near"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Minimum distance the camera renders at."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_fieldOfView>("m_fieldOfView"_hs).props(std::make_pair("Title"_hs,"Field of View"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -385,6 +386,29 @@ entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveShadows>("m_
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

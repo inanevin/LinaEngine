@@ -121,7 +121,6 @@ namespace Lina::Graphics
             m_aabb.m_boundsMax         = currentMaxBounds;
             m_aabb.m_boundsHalfExtents = (currentMaxBounds - currentMinBounds) / 2.0f;
 
-            LINA_TRACE("Min {0} {1}", m_aabb.m_boundsMin.ToString(), m_aabb.m_boundsMax.ToString());
             m_aabb.m_positions.resize(8);
             m_aabb.m_positions[0] = m_aabb.m_boundsMin;                                                        // bottom-left-back
             m_aabb.m_positions[1] = Vector3(m_aabb.m_boundsMin.x, m_aabb.m_boundsMin.y, m_aabb.m_boundsMax.z); // bottom-left-front

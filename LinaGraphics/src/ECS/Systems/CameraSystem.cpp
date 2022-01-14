@@ -32,6 +32,7 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "ECS/Registry.hpp"
 #include "Log/Log.hpp"
 #include "Math/Color.hpp"
@@ -45,6 +46,7 @@ namespace Lina::ECS
         System::Initialize(name);
         SetAspectRatio(aspect);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &CameraSystem::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &CameraSystem::OnPlayModeChanged>(this);
     }
 
     void CameraSystem::SetActiveCamera(Entity cameraOwner)
@@ -55,8 +57,11 @@ namespace Lina::ECS
             return;
         }
 
-        if (ECS::Registry::Get()->all_of<CameraComponent>(cameraOwner))
+        CameraComponent* comp = ECS::Registry::Get()->try_get<CameraComponent>(cameraOwner);
+        if (comp != nullptr)
+        {
             m_activeCameraEntity = cameraOwner;
+        }
         else
             LINA_WARN("This entity does not have a camera component, can not set it as main camera.");
     }
@@ -126,6 +131,8 @@ namespace Lina::ECS
             else
                 m_projMatrixInjected = false;
 
+            camera.m_viewFrustum.Calculate(m_projection * m_view, false);
+
             m_poolSize = 1;
         }
         else
@@ -150,6 +157,27 @@ namespace Lina::ECS
     void CameraSystem::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         ECS::Registry::Get()->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
+    }
+
+    void CameraSystem::OnPlayModeChanged(const Event::EPlayModeChanged& ev)
+    {
+        if (ev.m_playMode)
+        {
+
+            // Iterate through the cameras in the scene and select the active one.
+            auto& view = ECS::Registry::Get()->view<ECS::CameraComponent>();
+
+            for (auto entity : view)
+            {
+                auto& cam = view.get<ECS::CameraComponent>(entity);
+
+                if (cam.m_isActive)
+                {
+                    SetActiveCamera(entity);
+                    break;
+                }
+            }
+        }
     }
 
 } // namespace Lina::ECS
