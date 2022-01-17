@@ -84,7 +84,7 @@ namespace Lina::ECS
             nodeComp.m_culled = test == FrustumTest::Outside;
 
             if (nodeComp.m_culled)
-                m_poolSize++;
+                m_poolSize += (int)node->GetMeshes().size();
         }
     }
 

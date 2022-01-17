@@ -48,6 +48,8 @@ Timestamp: 12/30/2021 9:37:24 PM
 #include <functional>
 namespace Lina::Resources
 {
+    class ResourceStorage;
+
     class IResource
     {
     public:
@@ -103,6 +105,7 @@ namespace Lina::Resources
         }
 
     protected:
+        friend class ResourceStorage;
         StringIDType m_sid  = 0;
         std::string  m_path = "";
     };
@@ -160,8 +163,8 @@ namespace Lina::Resources
         delete typePtr;
     }
 
-    typedef std::function<IResource*()>            ResourceCreateFunc;
-    typedef std::function<void(void* ptr)>         ResourceDeleteFunc;
+    typedef std::function<IResource*()>    ResourceCreateFunc;
+    typedef std::function<void(void* ptr)> ResourceDeleteFunc;
 
 } // namespace Lina::Resources
 

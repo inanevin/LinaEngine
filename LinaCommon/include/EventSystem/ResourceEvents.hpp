@@ -68,6 +68,8 @@ namespace Lina::Event
     {
         StringIDType m_previousStringID;
         StringIDType m_newStringID;
+        std::string m_oldPath;
+        std::string m_newPath;
     };
     struct EResourceLoadUpdated
     {

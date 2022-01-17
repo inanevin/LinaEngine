@@ -66,6 +66,7 @@ namespace Lina
         struct ESerializedLevel;
         struct EWindowResized;
         struct EResourceLoadCompleted;
+        struct EResourcePathUpdated;
 
     } // namespace Event
 } // namespace Lina
@@ -108,6 +109,7 @@ namespace Lina::Editor
         void OnSerializedLevel(const Event::ESerializedLevel& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
         void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
+        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
 
     private:
         static EditorApplication*                        s_editorApplication;

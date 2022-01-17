@@ -58,8 +58,13 @@ namespace Lina::Resources
             {
                 if (stringID == ev.m_previousStringID)
                 {
+                    IResource* res = static_cast<IResource*>(ptr);
+                    res->m_sid     = ev.m_newStringID;
+                    res->m_path    = ev.m_newPath;
+
                     cache[ev.m_newStringID] = ptr;
                     cache.erase(stringID);
+
                     break;
                 }
             }
