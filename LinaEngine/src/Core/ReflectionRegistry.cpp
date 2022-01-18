@@ -188,7 +188,7 @@ namespace Lina
     void ReflectionRegistry::RegisterReflectedComponents()
     {
         //REGFUNC_BEGIN - !! DO NOT CHANGE THIS LINE !!
-entt::meta<ECS::PhysicsComponent>().type().props(std::make_pair("Title"_hs, "Physics Component"), std::make_pair("Icon"_hs,ICON_FA_APPLE_ALT), std::make_pair("Category"_hs,""), std::make_pair("CanAddComponent"_hs, "0"), std::make_pair("ListenToValueChanged"_hs, "0"));
+entt::meta<ECS::PhysicsComponent>().type().props(std::make_pair("Title"_hs, "Physics Component"), std::make_pair("Icon"_hs,ICON_FA_APPLE_ALT), std::make_pair("Category"_hs,""), std::make_pair("CanAddComponent"_hs, "0"));
 entt::meta<ECS::PhysicsComponent>().data<&ECS::PhysicsComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::PhysicsComponent>().func<&REF_CloneComponent<ECS::PhysicsComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::PhysicsComponent>().func<&REF_SerializeComponent<ECS::PhysicsComponent>, entt::as_void_t>("serialize"_hs);
@@ -200,7 +200,7 @@ entt::meta<ECS::PhysicsComponent>().func<&REF_Has<ECS::PhysicsComponent>, entt::
 entt::meta<ECS::PhysicsComponent>().func<&REF_Remove<ECS::PhysicsComponent>, entt::as_void_t>("remove"_hs);
 entt::meta<ECS::PhysicsComponent>().func<&REF_Copy<ECS::PhysicsComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::PhysicsComponent>().func<&REF_Paste<ECS::PhysicsComponent>, entt::as_void_t>("paste"_hs);
-entt::meta<ECS::EntityDataComponent>().type().props(std::make_pair("Title"_hs, "Entity Data Component"), std::make_pair("Icon"_hs,ICON_FA_DATABASE), std::make_pair("Category"_hs,""), std::make_pair("CanAddComponent"_hs, "0"), std::make_pair("ListenToValueChanged"_hs, "0"));
+entt::meta<ECS::EntityDataComponent>().type().props(std::make_pair("Title"_hs, "Entity Data Component"), std::make_pair("Icon"_hs,ICON_FA_DATABASE), std::make_pair("Category"_hs,""), std::make_pair("CanAddComponent"_hs, "0"));
 entt::meta<ECS::EntityDataComponent>().data<&ECS::EntityDataComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::EntityDataComponent>().func<&REF_CloneComponent<ECS::EntityDataComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::EntityDataComponent>().func<&REF_SerializeComponent<ECS::EntityDataComponent>, entt::as_void_t>("serialize"_hs);
@@ -212,7 +212,7 @@ entt::meta<ECS::EntityDataComponent>().func<&REF_Has<ECS::EntityDataComponent>, 
 entt::meta<ECS::EntityDataComponent>().func<&REF_Remove<ECS::EntityDataComponent>, entt::as_void_t>("remove"_hs);
 entt::meta<ECS::EntityDataComponent>().func<&REF_Copy<ECS::EntityDataComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::EntityDataComponent>().func<&REF_Paste<ECS::EntityDataComponent>, entt::as_void_t>("paste"_hs);
-entt::meta<ECS::ModelNodeComponent>().type().props(std::make_pair("Title"_hs, "Model Node"), std::make_pair("Icon"_hs,ICON_FA_CUBES), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "0"), std::make_pair("ListenToValueChanged"_hs, "0"));
+entt::meta<ECS::ModelNodeComponent>().type().props(std::make_pair("Title"_hs, "Model Node"), std::make_pair("Icon"_hs,ICON_FA_CUBES), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "0"));
 entt::meta<ECS::ModelNodeComponent>().data<&ECS::ModelNodeComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::ModelNodeComponent>().data<&ECS::ModelNodeComponent::m_materials>("m_materials"_hs).props(std::make_pair("Title"_hs,"Materials"),std::make_pair("Type"_hs,"MaterialArray"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::ModelNodeComponent>().func<&REF_CloneComponent<ECS::ModelNodeComponent>, entt::as_void_t>("clone"_hs);
@@ -225,7 +225,7 @@ entt::meta<ECS::ModelNodeComponent>().func<&REF_Has<ECS::ModelNodeComponent>, en
 entt::meta<ECS::ModelNodeComponent>().func<&REF_Remove<ECS::ModelNodeComponent>, entt::as_void_t>("remove"_hs);
 entt::meta<ECS::ModelNodeComponent>().func<&REF_Copy<ECS::ModelNodeComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::ModelNodeComponent>().func<&REF_Paste<ECS::ModelNodeComponent>, entt::as_void_t>("paste"_hs);
-entt::meta<ECS::CameraComponent>().type().props(std::make_pair("Title"_hs, "Camera Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::CameraComponent>().type().props(std::make_pair("Title"_hs, "Camera Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_isActive>("m_isActive"_hs).props(std::make_pair("Title"_hs,"Is Active"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::CameraComponent>().data<&ECS::CameraComponent::m_zFar>("m_zFar"_hs).props(std::make_pair("Title"_hs,"Far"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Maximum distance the camera renders at."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -243,16 +243,11 @@ entt::meta<ECS::CameraComponent>().func<&REF_Remove<ECS::CameraComponent>, entt:
 entt::meta<ECS::CameraComponent>().func<&REF_Copy<ECS::CameraComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::CameraComponent>().func<&REF_Paste<ECS::CameraComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::CameraComponent>().func<&REF_Add<ECS::CameraComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::CameraComponent>().func<&REF_ValueChanged<ECS::CameraComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::SpotLightComponent>().type().props(std::make_pair("Title"_hs, "Spot Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::SpotLightComponent>().type().props(std::make_pair("Title"_hs, "Spot Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_outerCutoff>("m_outerCutoff"_hs).props(std::make_pair("Title"_hs,"Outer Cutoff"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_cutoff>("m_cutoff"_hs).props(std::make_pair("Title"_hs,"Cutoff"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_distance>("m_distance"_hs).props(std::make_pair("Title"_hs,"Distance"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Light Distance"),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_castsShadows>("m_castsShadows"_hs).props(std::make_pair("Title"_hs,"Cast Shadows"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables dynamic shadow casting for this light."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_drawDebug>("m_drawDebug"_hs).props(std::make_pair("Title"_hs,"Draw Debug"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables debug drawing for this component."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_intensity>("m_intensity"_hs).props(std::make_pair("Title"_hs,"Intensity"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::SpotLightComponent>().data<&ECS::SpotLightComponent::m_color>("m_color"_hs).props(std::make_pair("Title"_hs,"Color"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::SpotLightComponent>().func<&REF_CloneComponent<ECS::SpotLightComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::SpotLightComponent>().func<&REF_SerializeComponent<ECS::SpotLightComponent>, entt::as_void_t>("serialize"_hs);
 entt::meta<ECS::SpotLightComponent>().func<&REF_DeserializeComponent<ECS::SpotLightComponent>, entt::as_void_t>("deserialize"_hs);
@@ -264,8 +259,7 @@ entt::meta<ECS::SpotLightComponent>().func<&REF_Remove<ECS::SpotLightComponent>,
 entt::meta<ECS::SpotLightComponent>().func<&REF_Copy<ECS::SpotLightComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::SpotLightComponent>().func<&REF_Paste<ECS::SpotLightComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::SpotLightComponent>().func<&REF_Add<ECS::SpotLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::SpotLightComponent>().func<&REF_ValueChanged<ECS::SpotLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::LightComponent>().type().props(std::make_pair("Title"_hs, "Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::LightComponent>().type().props(std::make_pair("Title"_hs, "Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::LightComponent>().data<&ECS::LightComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::LightComponent>().data<&ECS::LightComponent::m_castsShadows>("m_castsShadows"_hs).props(std::make_pair("Title"_hs,"Cast Shadows"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables dynamic shadow casting for this light."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::LightComponent>().data<&ECS::LightComponent::m_drawDebug>("m_drawDebug"_hs).props(std::make_pair("Title"_hs,"Draw Debug"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables debug drawing for this component."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -282,17 +276,12 @@ entt::meta<ECS::LightComponent>().func<&REF_Remove<ECS::LightComponent>, entt::a
 entt::meta<ECS::LightComponent>().func<&REF_Copy<ECS::LightComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::LightComponent>().func<&REF_Paste<ECS::LightComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::LightComponent>().func<&REF_Add<ECS::LightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::LightComponent>().func<&REF_ValueChanged<ECS::LightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::PointLightComponent>().type().props(std::make_pair("Title"_hs, "Point Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::PointLightComponent>().type().props(std::make_pair("Title"_hs, "Point Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_shadowFar>("m_shadowFar"_hs).props(std::make_pair("Title"_hs,"Shadow Far"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_shadowNear>("m_shadowNear"_hs).props(std::make_pair("Title"_hs,"Shadow Near"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_bias>("m_bias"_hs).props(std::make_pair("Title"_hs,"Bias"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Defines the shadow crispiness."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_distance>("m_distance"_hs).props(std::make_pair("Title"_hs,"Distance"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Light Distance"),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_castsShadows>("m_castsShadows"_hs).props(std::make_pair("Title"_hs,"Cast Shadows"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables dynamic shadow casting for this light."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_drawDebug>("m_drawDebug"_hs).props(std::make_pair("Title"_hs,"Draw Debug"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables debug drawing for this component."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_intensity>("m_intensity"_hs).props(std::make_pair("Title"_hs,"Intensity"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::PointLightComponent>().data<&ECS::PointLightComponent::m_color>("m_color"_hs).props(std::make_pair("Title"_hs,"Color"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::PointLightComponent>().func<&REF_CloneComponent<ECS::PointLightComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::PointLightComponent>().func<&REF_SerializeComponent<ECS::PointLightComponent>, entt::as_void_t>("serialize"_hs);
 entt::meta<ECS::PointLightComponent>().func<&REF_DeserializeComponent<ECS::PointLightComponent>, entt::as_void_t>("deserialize"_hs);
@@ -304,16 +293,11 @@ entt::meta<ECS::PointLightComponent>().func<&REF_Remove<ECS::PointLightComponent
 entt::meta<ECS::PointLightComponent>().func<&REF_Copy<ECS::PointLightComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::PointLightComponent>().func<&REF_Paste<ECS::PointLightComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::PointLightComponent>().func<&REF_Add<ECS::PointLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::PointLightComponent>().func<&REF_ValueChanged<ECS::PointLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::DirectionalLightComponent>().type().props(std::make_pair("Title"_hs, "Directional Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::DirectionalLightComponent>().type().props(std::make_pair("Title"_hs, "Directional Light Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Lights"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_shadowZFar>("m_shadowZFar"_hs).props(std::make_pair("Title"_hs,"Shadow Far"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_shadowZNear>("m_shadowZNear"_hs).props(std::make_pair("Title"_hs,"Shadow Near"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_shadowOrthoProjection>("m_shadowOrthoProjection"_hs).props(std::make_pair("Title"_hs,"Projection"),std::make_pair("Type"_hs,"Vector4"),std::make_pair("Tooltip"_hs,"Defines shadow projection boundaries."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_castsShadows>("m_castsShadows"_hs).props(std::make_pair("Title"_hs,"Cast Shadows"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables dynamic shadow casting for this light."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_drawDebug>("m_drawDebug"_hs).props(std::make_pair("Title"_hs,"Draw Debug"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"Enables debug drawing for this component."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_intensity>("m_intensity"_hs).props(std::make_pair("Title"_hs,"Intensity"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<ECS::DirectionalLightComponent>().data<&ECS::DirectionalLightComponent::m_color>("m_color"_hs).props(std::make_pair("Title"_hs,"Color"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_CloneComponent<ECS::DirectionalLightComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_SerializeComponent<ECS::DirectionalLightComponent>, entt::as_void_t>("serialize"_hs);
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_DeserializeComponent<ECS::DirectionalLightComponent>, entt::as_void_t>("deserialize"_hs);
@@ -325,8 +309,7 @@ entt::meta<ECS::DirectionalLightComponent>().func<&REF_Remove<ECS::DirectionalLi
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_Copy<ECS::DirectionalLightComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_Paste<ECS::DirectionalLightComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::DirectionalLightComponent>().func<&REF_Add<ECS::DirectionalLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::DirectionalLightComponent>().func<&REF_ValueChanged<ECS::DirectionalLightComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::SpriteRendererComponent>().type().props(std::make_pair("Title"_hs, "Sprite Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::SpriteRendererComponent>().type().props(std::make_pair("Title"_hs, "Sprite Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::SpriteRendererComponent>().data<&ECS::SpriteRendererComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::SpriteRendererComponent>().func<&REF_CloneComponent<ECS::SpriteRendererComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::SpriteRendererComponent>().func<&REF_SerializeComponent<ECS::SpriteRendererComponent>, entt::as_void_t>("serialize"_hs);
@@ -339,8 +322,7 @@ entt::meta<ECS::SpriteRendererComponent>().func<&REF_Remove<ECS::SpriteRendererC
 entt::meta<ECS::SpriteRendererComponent>().func<&REF_Copy<ECS::SpriteRendererComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::SpriteRendererComponent>().func<&REF_Paste<ECS::SpriteRendererComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::SpriteRendererComponent>().func<&REF_Add<ECS::SpriteRendererComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::SpriteRendererComponent>().func<&REF_ValueChanged<ECS::SpriteRendererComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::FreeLookComponent>().type().props(std::make_pair("Title"_hs, "Free Look Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Input"), std::make_pair("CanAddComponent"_hs, "1"), std::make_pair("ListenToValueChanged"_hs, "1"));
+entt::meta<ECS::FreeLookComponent>().type().props(std::make_pair("Title"_hs, "Free Look Component"), std::make_pair("Icon"_hs,ICON_FA_EYE), std::make_pair("Category"_hs,"Input"), std::make_pair("CanAddComponent"_hs, "1"));
 entt::meta<ECS::FreeLookComponent>().data<&ECS::FreeLookComponent::m_isEnabled>("m_isEnabled"_hs);
 entt::meta<ECS::FreeLookComponent>().data<&ECS::FreeLookComponent::m_rotationSpeeds>("m_rotationSpeeds"_hs).props(std::make_pair("Title"_hs,"Rotation Speed"),std::make_pair("Type"_hs,"Vector2"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::FreeLookComponent>().data<&ECS::FreeLookComponent::m_movementSpeeds>("m_movementSpeeds"_hs).props(std::make_pair("Title"_hs,"Movement Speed"),std::make_pair("Type"_hs,"Vector2"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -355,7 +337,6 @@ entt::meta<ECS::FreeLookComponent>().func<&REF_Remove<ECS::FreeLookComponent>, e
 entt::meta<ECS::FreeLookComponent>().func<&REF_Copy<ECS::FreeLookComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Paste<ECS::FreeLookComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Add<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
-entt::meta<ECS::FreeLookComponent>().func<&REF_ValueChanged<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
 entt::meta<Graphics::ModelAssetData>().type().props(std::make_pair("Title"_hs, "Model Data"));
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_generatePivots>("m_generatePivots"_hs).props(std::make_pair("Title"_hs,"Generate Entity Pivots"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"If true, any entity generated via adding this model to the scene will have offset pivots as parents."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipUVs>("m_flipUVs"_hs).props(std::make_pair("Title"_hs,"Flip UVs"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -379,6 +360,7 @@ entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_bloomEn
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_exposure>("m_exposure"_hs).props(std::make_pair("Title"_hs,"Exposure"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_gamma>("m_gamma"_hs).props(std::make_pair("Title"_hs,"Gamma"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::Material>().type().props(std::make_pair("Title"_hs, "Material"));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_shaderHandle>("m_shaderHandle"_hs).props(std::make_pair("Title"_hs,"Shader"),std::make_pair("Type"_hs,"Shader"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_triggersHDRIReflections>("m_triggersHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Trigger Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveHDRIReflections>("m_receiveHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Receive Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveLighting>("m_receiveLighting"_hs).props(std::make_pair("Title"_hs,"Receive Lighting"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
@@ -386,6 +368,10 @@ entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveShadows>("m_
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
 
 
 

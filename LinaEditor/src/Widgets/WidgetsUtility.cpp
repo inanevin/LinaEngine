@@ -71,7 +71,6 @@ namespace Lina::Editor
     static std::string                                   s_draggedInput          = "";
     static float                                         s_valueOnDragStart      = 0.0f;
     static int                                           s_valueOnDragStartInt   = 0;
-    void*                                                s_latestResourceHandle  = nullptr;
     static std::map<TypeID, bool>                        m_classFoldoutMap;
     static std::map<TypeID, std::map<const char*, bool>> m_headerFoldoutMap;
     static std::map<std::string, bool>                   m_idFoldoutMap;
@@ -83,7 +82,7 @@ namespace Lina::Editor
     static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
-    const std::string                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
+    const std::string                                    editorSnapshotLightName   = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -1290,7 +1289,7 @@ namespace Lina::Editor
         return typeToReturn;
     }
 
-    StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
+    StringIDType WidgetsUtility::ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
         std::string     resourceName        = "None";
         constexpr float spaceFromEnd        = 10.0f;
@@ -1320,38 +1319,38 @@ namespace Lina::Editor
         *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 1.5f, ImVec2(0.6f, -2.4f));
         ImGui::PopFont();
 
+        auto& resSelector = GUILayer::Get()->GetResourceSelector();
+
         if (pressed)
         {
-            auto& resSelector      = GUILayer::Get()->GetResourceSelector();
-            s_latestResourceHandle = currentHandle;
-            resSelector.SetCurrentTypeID(resourceType, resourceStr);
+            resSelector.SetCurrentTypeID(resourceType, resourceStr, id);
             resSelector.Open();
         }
 
         const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
-        if (s_latestResourceHandle == currentHandle && selectedResource != 0)
+
+        if (resSelector.m_currentSelectorID.compare(id) == 0 && selectedResource != 0)
         {
-            GUILayer::Get()->GetResourceSelector().m_selectedResource = 0;
-            s_latestResourceHandle                                    = nullptr;
+            resSelector.m_selectedResource  = 0;
+            resSelector.m_currentSelectorID = "";
             return selectedResource;
         }
 
         return 0;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionMaterial(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
-
+        LINA_TRACE("Selection mat {0}", handleAddr);
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
 
         if (selected != 0)
         {
             handle->m_sid   = selected;
             handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(selected);
-            LINA_TRACE("Selected : {0}", handle->m_value->GetPath());
         }
 
         if (removed)
@@ -1363,13 +1362,13 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionTexture(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionTexture(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Texture>* handle = static_cast<Resources::ResourceHandle<Graphics::Texture>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
 
         if (selected != 0)
         {
@@ -1387,23 +1386,36 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionAudio(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionAudio(const std::string& id, void* handleAddr)
     {
-        return StringIDType();
+        Resources::ResourceHandle<Audio::Audio>* handle = static_cast<Resources::ResourceHandle<Audio::Audio>*>(handleAddr);
+
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Audio", &removed, GetTypeID<Audio::Audio>());
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Audio::Audio>(selected);
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionModelNode(void* handleAddr)
-    {
-        return StringIDType();
-    }
-
-    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Physics::PhysicsMaterial>* handle = static_cast<Resources::ResourceHandle<Physics::PhysicsMaterial>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
 
         if (selected != 0)
         {
@@ -1421,9 +1433,27 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionShader(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionShader(const std::string& id, void* handleAddr)
     {
-        return StringIDType();
+        Resources::ResourceHandle<Graphics::Shader>* handle = static_cast<Resources::ResourceHandle<Graphics::Shader>*>(handleAddr);
+
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Shader", &removed, GetTypeID<Graphics::Shader>());
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(selected);
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
     bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset, bool locked)

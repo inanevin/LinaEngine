@@ -68,28 +68,32 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
-        inline void SetCurrentTypeID(TypeID tid, const std::string& typeStr)
+
+        inline void SetCurrentTypeID(TypeID tid, const std::string& typeStr, const std::string& resourceSelectorID)
         {
-            m_currentFileType = tid;
-            m_resourceStr     = typeStr;
+            m_currentFileType   = tid;
+            m_currentSelectorID = resourceSelectorID;
+            m_resourceStr       = typeStr;
+            m_selectedFile = nullptr;
         }
 
-        StringIDType m_selectedResource = 0;
-
+        StringIDType m_selectedResource  = 0;
+        std::string  m_currentSelectorID = "";
     private:
         void DrawTop();
         void DrawBottom();
         void DrawFilesInFolder(Utility::Folder* folder);
 
     private:
-        bool                        m_firstLaunch      = true;
-        TypeID                      m_currentFileType  = 0;
-        Resources::ResourceStorage* m_storage          = nullptr;
-        Utility::File*              m_selectedFile     = nullptr;
-        Utility::Folder*            m_root             = nullptr;
-        Graphics::Window*           m_window           = nullptr;
-        std::string                 m_searchFilter     = "";
-        std::string                 m_resourceStr      = "";
+   
+        bool                        m_firstLaunch       = true;
+        TypeID                      m_currentFileType   = 0;
+        Resources::ResourceStorage* m_storage           = nullptr;
+        Utility::File*              m_selectedFile      = nullptr;
+        Utility::Folder*            m_root              = nullptr;
+        Graphics::Window*           m_window            = nullptr;
+        std::string                 m_searchFilter      = "";
+        std::string                 m_resourceStr       = "";
     };
 } // namespace Lina::Editor
 

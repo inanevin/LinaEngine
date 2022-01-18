@@ -163,6 +163,7 @@ namespace Lina::Resources
         delete typePtr;
     }
 
+
     typedef std::function<IResource*()>    ResourceCreateFunc;
     typedef std::function<void(void* ptr)> ResourceDeleteFunc;
 

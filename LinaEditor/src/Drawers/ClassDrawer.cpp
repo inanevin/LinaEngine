@@ -131,6 +131,7 @@ namespace Lina::Editor
         const char* label                     = labelProperty.value().cast<const char*>();
         std::string type                      = std::string(typeProperty.value().cast<const char*>());
         auto        displayDependencyProperty = data.prop("Depends"_hs);
+        const char* owningTypeTitle           = owningType.prop("Title"_hs).value().cast<const char*>();
 
         if (displayDependencyProperty)
         {
@@ -147,6 +148,7 @@ namespace Lina::Editor
 
         std::string varLabelID = "##_" + std::string(label);
         WidgetsUtility::PropertyLabel(label);
+        const std::string variableID = "##_" + std::string(owningTypeTitle) + varLabelID;
 
         auto tooltipProperty = data.prop("Tooltip"_hs);
         if (tooltipProperty)
@@ -230,7 +232,7 @@ namespace Lina::Editor
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Material>>();
             const StringIDType prev   = handle.m_sid;
-            WidgetsUtility::ResourceSelectionMaterial(&handle);
+            WidgetsUtility::ResourceSelectionMaterial(variableID, static_cast<void*>(&handle));
             data.set(instance, handle);
 
             if (prev != handle.m_sid)
@@ -238,6 +240,28 @@ namespace Lina::Editor
         }
         else if (type.compare("MaterialArray") == 0)
         {
+            auto arr = data.get(instance).cast<std::vector<Resources::ResourceHandle<Graphics::Material>>>();
+
+            for (int i = 0; i < arr.size(); i++)
+            {
+                const StringIDType prev = arr[i].m_sid;
+                const std::string  elementID = variableID + std::to_string(i);
+                WidgetsUtility::ResourceSelectionMaterial(elementID, &arr[i]);
+                data.set(instance, arr);
+
+                if (prev != arr[i].m_sid)
+                    propertyChanged = true;
+            }
+        }
+        else if (type.compare("Shader") == 0)
+        {
+            auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Shader>>();
+            const StringIDType prev   = handle.m_sid;
+            WidgetsUtility::ResourceSelectionShader(variableID, &handle);
+            data.set(instance, handle);
+
+            if (prev != handle.m_sid)
+                propertyChanged = true;
         }
 
         return propertyChanged;

@@ -58,28 +58,35 @@ namespace Lina::Editor
             if (Begin())
             {
 
-                //World::LevelData& levelData = m_currentLevel->GetLevelData();
-                //auto*             storage   = Resources::ResourceStorage::Get();
+                auto*              currentLevel       = World::Level::GetCurrent();
+                const StringIDType sidBefore          = currentLevel->m_skyboxMaterial.m_sid;
+                bool               anySettingsChanged = false;
 
-                auto*              currentLevel = World::Level::GetCurrent();
-                const StringIDType sidBefore    = currentLevel->m_skyboxMaterial.m_sid;
-                if (ClassDrawer::DrawClass(GetTypeID<World::Level>(), entt::forward_as_meta(*World::Level::GetCurrent()), true))
+                LINA_TRACE("Current level skybox material handle addr {0}", static_cast<void*>(&currentLevel->m_skyboxMaterial));
+                if (ClassDrawer::DrawClass(GetTypeID<World::Level>(), entt::forward_as_meta(*currentLevel), true))
                 {
+                    if (currentLevel->m_skyboxMaterial.m_value == nullptr)
+                    {
+                        Graphics::Material* defaultSkybox      = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxMaterial();
+                        currentLevel->m_skyboxMaterial.m_value = defaultSkybox;
+                        currentLevel->m_skyboxMaterial.m_sid   = defaultSkybox->GetSID();
+                    }
+
                     Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(currentLevel->m_skyboxMaterial.m_value);
                     Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(currentLevel->m_ambientColor);
+                    anySettingsChanged = true;
                 }
 
                 if (ClassDrawer::DrawClass(GetTypeID<Graphics::RenderSettings>(), entt::forward_as_meta(Engine::Get()->GetEngineSettings().GetRenderSettings()), true))
                 {
-
+                    anySettingsChanged = true;
+                    Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
                 }
 
-                Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
-                const ImVec2 buttonSize = ImVec2(90, 30);
-                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - buttonSize.x);
-
-               // if (WidgetsUtility::Button("Save Settings", buttonSize))
-                //  Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+                if (anySettingsChanged)
+                {
+                    Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", Engine::Get()->GetEngineSettings());
+                }
 
                 End();
             }

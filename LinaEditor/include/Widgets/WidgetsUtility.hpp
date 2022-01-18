@@ -246,37 +246,32 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
         /// </summary>
-        static StringIDType ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
+        static StringIDType ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionMaterial(void* handleAddr);
+        static StringIDType ResourceSelectionMaterial(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionTexture(void* handleAddr);
+        static StringIDType ResourceSelectionTexture(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionAudio(void* handleAddr);
+        static StringIDType ResourceSelectionAudio(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionModelNode(void* handleAddr);
+        static StringIDType ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionPhysicsMaterial(void* handleAddr);
-
-        /// <summary>
-        /// Material selection helper, calls ResourceSelection().
-        /// </summary>
-        static StringIDType ResourceSelectionShader(void* handleAddr);
+        static StringIDType ResourceSelectionShader(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Default IMGUI button with fixed styling options.

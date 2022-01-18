@@ -165,7 +165,7 @@ namespace Lina::Editor
                     WidgetsUtility::PropertyLabel(usedName.c_str());
 
                     const StringIDType sidBefore = value.m_texture.m_sid;
-                    WidgetsUtility::ResourceSelectionTexture(&value.m_texture);
+                    WidgetsUtility::ResourceSelectionTexture(id, &value.m_texture);
 
                     if (value.m_texture.m_sid != sidBefore)
                     {

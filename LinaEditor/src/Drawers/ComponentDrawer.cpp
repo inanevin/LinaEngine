@@ -58,22 +58,6 @@ namespace Lina::Editor
 {
     using namespace entt::literals;
 
-    template <typename Type>
-    void Drawer_ValueChanged(ECS::Entity ent, const char* label)
-    {
-        TypeID tid = GetTypeID<Type>();
-
-        if (tid == GetTypeID<ModelRendererComponent>())
-        {
-            // Generate pivots changed.
-            if (std::string(label).compare("Generate Pivots") == 0)
-            {
-                ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(ent);
-                mr.RefreshHierarchy(ent);
-            }
-        }
-    }
-
     void Drawer_Debug(TypeID tid, ECS::Entity ent)
     {
         if (tid == GetTypeID<PointLightComponent>())
@@ -280,7 +264,7 @@ namespace Lina::Editor
 
             WidgetsUtility::PropertyLabel("Physics Material");
             const std::string currentMaterial = phy.m_material.m_value->GetPath();
-            StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial(&phy.m_material);
+            StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial("entity_phy_mat", & phy.m_material);
 
             if (selected != 0 && phy.m_material.m_value->GetSID() != selected)
             {
@@ -406,19 +390,21 @@ namespace Lina::Editor
 
             if (foldoutOpen)
             {
+                std::map<entt::meta_data, StringIDType> materials;
+
                 // Draw each reflected property in the component according to it's type.
                 for (auto data : resolvedData.data())
                 {
-
                     auto labelProperty = data.prop("Title"_hs);
                     auto typeProperty  = data.prop("Type"_hs);
 
                     if (!labelProperty || !typeProperty)
                         continue;
 
+                    
                     auto        label    = labelProperty.value().cast<const char*>();
                     std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
-
+                   
                     ClassDrawer::AddPropertyToDrawList(category, data);
                 }
 

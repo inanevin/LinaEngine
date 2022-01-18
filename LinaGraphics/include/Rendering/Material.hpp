@@ -72,8 +72,7 @@ namespace Lina::Graphics
     class Material : public Resources::IResource
     {
     public:
-
-        Material() = default;
+        Material()          = default;
         virtual ~Material() = default;
 
         static Material* CreateMaterial(Shader* shader, const std::string& savePath);
@@ -203,7 +202,9 @@ namespace Lina::Graphics
         bool m_receiveHDRIReflections = false;
 
         LINA_PROPERTY("Trigger Reflections", "Bool")
-        bool                              m_triggersHDRIReflections = false;
+        bool m_triggersHDRIReflections = false;
+
+        LINA_PROPERTY("Shader", "Shader")
         Resources::ResourceHandle<Shader> m_shaderHandle;
 
     private:
