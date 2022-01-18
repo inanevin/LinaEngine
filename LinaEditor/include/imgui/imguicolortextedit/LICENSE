@@ -1,11 +1,6 @@
-/*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+MIT License
 
-Author: Inan Evin
-http://www.inanevin.com
-
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) 2017 BalazsJako
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,26 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-#include "Drawers/ShaderDrawer.hpp"
-#include "Widgets/WidgetsUtility.hpp"
-#include "Core/EditorCommon.hpp"
-#include "Core/ImGuiCommon.hpp"
-#include "Rendering/Shader.hpp"
-
-namespace Lina::Editor
-{
-    static std::string m_shaderText = "";
-
-    void ShaderDrawer::SetCurrentShader(Graphics::Shader*& shader)
-    {
-        m_shaderText = Utility::GetFileContents(shader->GetPath());
-    }
-
-    void ShaderDrawer::DrawShaderEditor(Graphics::Shader*& shader, float leftPaneSize)
-    {
-        
-    }
-
-} // namespace Lina::Editor

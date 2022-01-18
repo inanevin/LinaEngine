@@ -130,21 +130,6 @@ namespace Lina::Graphics
         void UpdateRenderSettings();
 
         /// <summary>
-        /// Allows the shader to receive data from the View Uniform Buffer, such as projection & view matrices.
-        /// </summary>
-        void BindShaderToViewBuffer(Shader& shader);
-
-        /// <summary>
-        /// Allows the shader to receive data from the Debug Uniform Buffer, such as depth information.
-        /// </summary>
-        void BindShaderToDebugBuffer(Shader& shader);
-
-        /// <summary>
-        /// Allows the shader to receive data from the Light Uniform Buffer, such as light positions & parameters.
-        /// </summary>
-        void BindShaderToLightBuffer(Shader& shader);
-
-        /// <summary>
         /// Sets the current skybox material used to draw the scene.
         /// </summary>
         inline void SetSkyboxMaterial(Material* skyboxMaterial)
@@ -193,7 +178,7 @@ namespace Lina::Graphics
 
         inline UniformBuffer& GetViewBuffer()
         {
-            return m_globalDataBuffer;
+            return m_globalViewBuffer;
         }
         inline DrawParams GetMainDrawParams()
         {
@@ -287,7 +272,12 @@ namespace Lina::Graphics
         {
             return m_primaryRTParams;
         }
-
+        inline void SetAppData(float delta, float elapsed, const Vector2& mousePos)
+        {
+            m_elapsedTime   = delta;
+            m_elapsedTime   = elapsed;
+            m_mousePosition = mousePos;
+        }
 
     private:
         friend class Engine;
@@ -409,9 +399,10 @@ namespace Lina::Graphics
         DrawParams m_fullscreenQuadDP;
         DrawParams m_shadowMapDrawParams;
 
-        UniformBuffer m_globalDataBuffer;
+        UniformBuffer m_globalViewBuffer;
         UniformBuffer m_globalLightBuffer;
         UniformBuffer m_globalDebugBuffer;
+        UniformBuffer m_globalAppDataBuffer;
 
         RenderingDebugData m_debugData;
         RenderSettings*    m_renderSettings;
@@ -445,6 +436,9 @@ namespace Lina::Graphics
         Vector2i m_screenSize             = Vector2i(0, 0);
         Vector2i m_pLightShadowResolution = Vector2i(1024, 1024);
         bool     m_firstFrameDrawn        = false;
+        float    m_deltaTime              = 0.0f;
+        float    m_elapsedTime            = 0.0f;
+        Vector2  m_mousePosition          = Vector2::Zero;
 
         std::queue<DebugLine>                m_debugLineQueue;
         std::queue<DebugIcon>                m_debugIconQueue;

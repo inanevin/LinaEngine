@@ -38,20 +38,34 @@ Timestamp: 1/9/2022 11:54:26 PM
 
 #ifndef ShaderDrawer_HPP
 #define ShaderDrawer_HPP
+#include <string>
 
 // Headers here.
-
-
 namespace Lina
+{
+    class Vector2;
+
+    namespace Graphics
+    {
+        class Material;
+        class Model;
+		class Shader;
+    } // namespace Graphics
+} // namespace Lina
+
+namespace Lina::Editor
 {
 	class ShaderDrawer
 	{
 		
 	public:
 		
-		ShaderDrawer();
-		~ShaderDrawer();
+		ShaderDrawer() = default;
+		~ShaderDrawer() = default;
 	
+		static void SetCurrentShader(Graphics::Shader*& shader);
+		static void DrawShaderEditor(Graphics::Shader*& shader, float leftPaneSize);
+
 	private:
 	
 	};

@@ -95,6 +95,9 @@ namespace Lina
         // Replaces given filename.
         extern bool ChangeDirectoryName(const std::string& oldPath, const std::string& newPath);
 
+        // Erases the old content & rewrites it with the given content.
+        extern void RewriteFileContents(File* file, const std::string& newContent);
+
         // Creates a GUID.
         extern int GetUniqueID();
 

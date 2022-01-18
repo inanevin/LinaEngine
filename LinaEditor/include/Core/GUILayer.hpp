@@ -49,6 +49,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ResourcesPanel.hpp"
 #include "Panels/ProgressPanel.hpp"
 #include "Panels/PreviewPanel.hpp"
+#include "Panels/TextEditorPanel.hpp"
 #include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Panels/ResourceSelectorPanel.hpp"
@@ -116,6 +117,10 @@ namespace Lina::Editor
         {
             return m_iconFontDefault;
         }
+        inline ImFont* GetTextEditorFont()
+        {
+            return m_textEditorFont;
+        }
         inline const char* GetLinaLogoIcon()
         {
             return m_linaLogoIcon;
@@ -145,7 +150,10 @@ namespace Lina::Editor
         {
             return m_previewPanel;
         }
-
+        inline TextEditorPanel& GetTextEditorPanel()
+        {
+            return m_textEditorPanel;
+        }
         inline ResourceSelectorPanel& GetResourceSelector()
         {
             return m_resourceSelectorPanel;
@@ -174,6 +182,7 @@ namespace Lina::Editor
         ImFont*                     m_mediumFont           = nullptr;
         ImFont*                     m_iconFontSmall        = nullptr;
         ImFont*                     m_iconFontDefault      = nullptr;
+        ImFont*                     m_textEditorFont       = nullptr;
         ShortcutManager             m_shortcutManager;
         EntitiesPanel               m_entitiesPanel;
         SystemsPanel                m_systemsPanel;
@@ -188,10 +197,12 @@ namespace Lina::Editor
         ResourceSelectorPanel       m_resourceSelectorPanel;
         ProgressPanel               m_progressPanel;
         PreviewPanel                m_previewPanel;
+        TextEditorPanel             m_textEditorPanel;
         Resources::ResourceStorage* m_storage                  = nullptr;
         std::string                 m_currentlyLoadingResource = "";
         float                       m_percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;
+        bool                        m_shouldDrawProgressPanel  = false;
     };
 } // namespace Lina::Editor
 

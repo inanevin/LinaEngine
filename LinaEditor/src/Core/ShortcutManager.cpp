@@ -43,6 +43,8 @@ namespace Lina::Editor
         RegisterShortcut(EShortcut{"duplicate", LINA_KEY_LCTRL, LINA_KEY_D});
         RegisterShortcut(EShortcut{"playmode", LINA_KEY_LCTRL, LINA_KEY_SPACE});
         RegisterShortcut(EShortcut{"create_empty", LINA_KEY_LCTRL, LINA_KEY_E});
+        RegisterShortcut(EShortcut{"save", LINA_KEY_LCTRL, LINA_KEY_S});
+        RegisterShortcut(EShortcut{"reload", LINA_KEY_LCTRL, LINA_KEY_R});
     }
 
     void ShortcutManager::RegisterShortcut(EShortcut& shortcut)

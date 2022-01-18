@@ -109,10 +109,11 @@ namespace Lina::Editor
             auto* sphere        = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
 
             for (auto& [sid, ptr] : modelCache)
-                TakeModelSnapshot(sid, sid, 0);
+                TakeModelSnapshot(sid, sid, (StringIDType)0);
 
             for (auto& [sid, ptr] : materialCache)
                 TakeModelSnapshot(sid, sphere->GetSID(), sid);
+
         }
     }
 
@@ -164,7 +165,7 @@ namespace Lina::Editor
         // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
         if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Model>())
         {
-            TakeModelSnapshot(ev.m_sid, ev.m_sid, 0);
+            TakeModelSnapshot(ev.m_sid, ev.m_sid, (StringIDType)0);
         }
         if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Material>())
         {

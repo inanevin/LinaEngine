@@ -58,6 +58,7 @@ src/Panels/MainToolbarPanel.cpp
 src/Panels/ResourceSelectorPanel.cpp
 src/Panels/ProgressPanel.cpp
 src/Panels/PreviewPanel.cpp
+src/Panels/TextEditorPanel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -83,6 +84,7 @@ src/imgui/imguizmo/ImSequencer.cpp
 src/imgui/implot/implot_demo.cpp
 src/imgui/implot/implot.cpp
 src/imgui/implot/implot_items.cpp
+src/imgui/imguicolortextedit/TextEditor.cpp
 
 )
 
@@ -138,7 +140,8 @@ include/Panels/ProfilerPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
 include/Panels/ResourceSelectorPanel.hpp
 include/Panels/ProgressPanel.hpp
-include/Panels/PreviewPanel.hpp
+include/Panels/ProgressPanel.hpp
+include/Panels/TextEditorPanel.hpp
 
 
 # Utility
@@ -167,6 +170,7 @@ include/imgui/imguizmo/ImGuizmo.h
 include/imgui/imguizmo/ImSequencer.h
 include/imgui/implot/implot.h
 include/imgui/implot/implot_internal.h
+include/imgui/imguicolortextedit/TextEditor.h
 
 CMakeLists.txt
 

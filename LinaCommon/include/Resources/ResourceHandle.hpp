@@ -104,7 +104,6 @@ namespace Lina::Resources
                 m_unloadedSid = m_sid;
                 m_sid         = 0;
                 m_value       = nullptr;
-                LINA_TRACE("is conn {0}", m_eventsConnected);
             }
         }
 

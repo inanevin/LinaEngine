@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,24 +26,60 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Drawers/ShaderDrawer.hpp"
-#include "Widgets/WidgetsUtility.hpp"
-#include "Core/EditorCommon.hpp"
-#include "Core/ImGuiCommon.hpp"
-#include "Rendering/Shader.hpp"
+/*
+Class: TextEditorPanel
+
+
+
+Timestamp: 1/18/2022 9:27:55 PM
+*/
+
+#pragma once
+
+#ifndef TextEditorPanel_HPP
+#define TextEditorPanel_HPP
+
+// Headers here.
+#include "Panels/EditorPanel.hpp"
+#include <map>
+#include <string>
+
+namespace Lina
+{
+    namespace Utility
+    {
+        struct File;
+    }
+} // namespace Lina
 
 namespace Lina::Editor
 {
-    static std::string m_shaderText = "";
 
-    void ShaderDrawer::SetCurrentShader(Graphics::Shader*& shader)
+    struct EShortcut;
+
+    class TextEditorPanel : public EditorPanel
     {
-        m_shaderText = Utility::GetFileContents(shader->GetPath());
-    }
 
-    void ShaderDrawer::DrawShaderEditor(Graphics::Shader*& shader, float leftPaneSize)
-    {
-        
-    }
+    public:
+        TextEditorPanel()  = default;
+        ~TextEditorPanel() = default;
 
+        virtual void Initialize(const char* id, const char* icon) override;
+        virtual void Draw() override;
+        virtual void Close() override;
+
+        void AddFile(Utility::File* file);
+
+    private:
+        void OnShortcut(const EShortcut& ev);
+        void SaveCurrentFile(const std::string& text);
+        void ReloadCurrentFile();
+
+
+    private:
+        std::map<Utility::File*, std::string> m_openFiles;
+        Utility::File*                        m_lastFileOnTextEditor = nullptr;
+    };
 } // namespace Lina::Editor
+
+#endif

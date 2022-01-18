@@ -196,9 +196,11 @@ namespace Lina::Editor
 // Progress panel
 #define ID_PROGRESSPANEL "ProgressPanel"
 
-// Model panel
-#define ID_MODELPANEL "ModelPanel"
+// Preview panel
+#define ID_PREVIEWPANEL "PreviewPanel"
 
+// Text Editor Panel
+#define ID_TEXTEDITOR "Text Editor"
 } // namespace Lina::Editor
 
 #endif

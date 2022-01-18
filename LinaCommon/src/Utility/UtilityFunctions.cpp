@@ -414,6 +414,14 @@ namespace Lina
             return true;
         }
 
+        void RewriteFileContents(File* file, const std::string& newContent)
+        {
+            std::ofstream newFile;
+            newFile.open(file->m_fullPath, std::ofstream::out | std::ofstream::trunc);
+            newFile << newContent << std::endl;
+            newFile.close();
+        }
+
         int GetUniqueID()
         {
             return ++s_uniqueID;

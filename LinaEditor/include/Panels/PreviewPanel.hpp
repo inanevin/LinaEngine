@@ -70,7 +70,7 @@ namespace Lina::Editor
 
     public:
         PreviewPanel()  = default;
-        ~PreviewPanel() = default;
+        ~PreviewPanel();
 
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
@@ -83,6 +83,9 @@ namespace Lina::Editor
 
     private:
         void DrawPreviewArea();
+        void BeginPreviewCamera(const Vector2& bgSize);
+        void EndPreviewCamera(const Vector2& bgMin, const Vector2& bgMax);
+        void PreviewModelSelector(const Vector2& cursorPos, float confineRectHeight);
 
     private:
         int                      m_currentSelectedPrimitive = 0;
@@ -90,6 +93,7 @@ namespace Lina::Editor
         Graphics::Model*         m_targetModel             = nullptr;
         Graphics::Texture*       m_targetTexture           = nullptr;
         Graphics::Material*      m_targetMaterial          = nullptr;
+        Graphics::Material*      m_shaderPreviewMaterial   = nullptr;
         Graphics::Shader*        m_targetShader            = nullptr;
         float                    m_leftPaneWidth           = 0.0f;
         float                    m_leftPaneMaxWidth        = 0.0f;

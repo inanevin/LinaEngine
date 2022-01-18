@@ -262,6 +262,7 @@ namespace Lina::Graphics
         m_vector2s.clear();
         m_matrices.clear();
         m_vector4s.clear();
+        m_hdriDataSet = false;
         bool isPBR         = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
 
         if (isPBR)
@@ -272,8 +273,11 @@ namespace Lina::Graphics
         }
         else
         {
-        
+            m_receiveHDRIReflections = false;
+            m_receiveLighting        = false;
+            m_receiveShadows         = false;
         }
+
 
         ShaderUniformData data = shader->GetUniformData();
         m_colors               = data.m_colors;

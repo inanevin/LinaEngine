@@ -69,6 +69,10 @@ namespace Lina::Graphics
     constexpr int    UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
     constexpr auto   UNIFORMBUFFER_DEBUGDATA_NAME      = "DebugData";
 
+    constexpr size_t UNIFORMBUFFER_APPDATA_SIZE      = (sizeof(float) * 2) + (sizeof(Vector2) * 2);
+    constexpr int    UNIFORMBUFFER_APPDATA_BINDPOINT = 3;
+    constexpr auto   UNIFORMBUFFER_APPDATA_NAME      = "AppData";
+
     void OpenGLRenderEngine::ConnectEvents()
     {
         // Flip loaded images.
@@ -105,8 +109,8 @@ namespace Lina::Graphics
         m_shadowMapDrawParams = DrawParameterHelper::GetShadowMap();
 
         // Construct the uniform buffer for global matrices.
-        m_globalDataBuffer.Construct(UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-        m_globalDataBuffer.Bind(UNIFORMBUFFER_VIEWDATA_BINDPOINT);
+        m_globalViewBuffer.Construct(UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+        m_globalViewBuffer.Bind(UNIFORMBUFFER_VIEWDATA_BINDPOINT);
 
         // Construct the uniform buffer for lights.
         m_globalLightBuffer.Construct(UNIFORMBUFFER_LIGHTDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
@@ -115,6 +119,10 @@ namespace Lina::Graphics
         // Construct the uniform buffer for debugging.
         m_globalDebugBuffer.Construct(UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
         m_globalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
+
+        // Construct the uniform buffer for app data.
+        m_globalAppDataBuffer.Construct(UNIFORMBUFFER_APPDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+        m_globalAppDataBuffer.Bind(UNIFORMBUFFER_APPDATA_BINDPOINT);
 
         // Initialize built-in vertex array objects.
         m_skyboxVAO     = m_renderDevice.CreateSkyboxVertexArray();
@@ -246,6 +254,7 @@ namespace Lina::Graphics
                 shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
                 shader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
                 shader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+                shader->BindBlockToBuffer(UNIFORMBUFFER_APPDATA_BINDPOINT, UNIFORMBUFFER_APPDATA_NAME);
             }
         }
     }
@@ -819,20 +828,20 @@ namespace Lina::Graphics
         // Update global matrix buffer
         uintptr currentGlobalDataOffset = 0;
 
-        m_globalDataBuffer.Update(&m_cameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+        m_globalViewBuffer.Update(&m_cameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
         currentGlobalDataOffset += sizeof(Matrix);
 
-        m_globalDataBuffer.Update(&m_cameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+        m_globalViewBuffer.Update(&m_cameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
         currentGlobalDataOffset += sizeof(Matrix);
 
-        m_globalDataBuffer.Update(&m_lightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+        m_globalViewBuffer.Update(&m_lightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
         currentGlobalDataOffset += sizeof(Matrix);
 
         Matrix VP = m_cameraSystem.GetProjectionMatrix() * m_cameraSystem.GetViewMatrix();
-        m_globalDataBuffer.Update(&VP[0][0], currentGlobalDataOffset, sizeof(Matrix));
+        m_globalViewBuffer.Update(&VP[0][0], currentGlobalDataOffset, sizeof(Matrix));
         currentGlobalDataOffset += sizeof(Matrix);
 
-        m_globalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
+        m_globalViewBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
         currentGlobalDataOffset += sizeof(Vector4);
 
         ECS::CameraComponent* cameraComponent = m_cameraSystem.GetActiveCameraComponent();
@@ -843,7 +852,7 @@ namespace Lina::Graphics
             if (m_bufferValueRecord.zNear != cameraComponent->m_zNear)
             {
                 m_bufferValueRecord.zNear = cameraComponent->m_zNear;
-                m_globalDataBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
+                m_globalViewBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
             }
             currentGlobalDataOffset += sizeof(float);
 
@@ -851,7 +860,7 @@ namespace Lina::Graphics
             if (m_bufferValueRecord.zFar != cameraComponent->m_zFar)
             {
                 m_bufferValueRecord.zFar = cameraComponent->m_zFar;
-                m_globalDataBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
+                m_globalViewBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
             }
             currentGlobalDataOffset += sizeof(float);
         }
@@ -865,6 +874,14 @@ namespace Lina::Graphics
 
         // Update debug fufer.
         m_globalDebugBuffer.Update(&m_debugData.visualizeDepth, 0, sizeof(bool));
+
+        // Update app data buffer
+        Vector2 screenSize = Vector2((float)m_screenSize.x, (float)m_screenSize.y);
+
+        m_globalAppDataBuffer.Update(&screenSize, 0, sizeof(Vector2));
+        m_globalAppDataBuffer.Update(&m_mousePosition, sizeof(Vector2), sizeof(Vector2));
+        m_globalAppDataBuffer.Update(&m_deltaTime, sizeof(Vector2) * 2, sizeof(float));
+        m_globalAppDataBuffer.Update(&m_elapsedTime, sizeof(Vector2) * 2 + sizeof(float), sizeof(float));
     }
 
     void OpenGLRenderEngine::UpdateShaderData(Material* data)
@@ -1188,21 +1205,6 @@ namespace Lina::Graphics
 
         // Update uniform buffers on GPU
         UpdateUniformBuffers();
-    }
-
-    void OpenGLRenderEngine::BindShaderToViewBuffer(Shader& shader)
-    {
-        shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-    }
-
-    void OpenGLRenderEngine::BindShaderToDebugBuffer(Shader& shader)
-    {
-        shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-    }
-
-    void OpenGLRenderEngine::BindShaderToLightBuffer(Shader& shader)
-    {
-        shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
     }
 
 } // namespace Lina::Graphics

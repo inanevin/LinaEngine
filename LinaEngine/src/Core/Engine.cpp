@@ -249,6 +249,8 @@ namespace Lina
 
         // Animation, particle systems.
         m_renderEngine.Tick(deltaTime);
+        m_renderEngine.SetAppData(deltaTime, (float)GetElapsedTime(), m_inputEngine.GetMousePosition());
+        
 
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});

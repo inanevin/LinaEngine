@@ -16,6 +16,14 @@ vec4 ambientColor;
 int pointLightCount; 
 int spotLightCount;
 };
+
+layout (std140, column_major) uniform AppData
+{
+vec2 screenSize;
+vec2 mousePosition;
+float deltaTime;
+float elapsedTime;
+};
  
 layout (std140, column_major) uniform DebugData 
 { 
