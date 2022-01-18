@@ -42,7 +42,7 @@ Timestamp: 1/4/2022 6:18:09 PM
 // Headers here.
 #include "Panels/EditorPanel.hpp"
 #include "Math/Quaternion.hpp"
-
+#include <vector>
 namespace Lina
 {
     namespace Graphics
@@ -85,21 +85,23 @@ namespace Lina::Editor
         void DrawPreviewArea();
 
     private:
-        Graphics::Model*    m_targetModel             = nullptr;
-        Graphics::Texture*  m_targetTexture           = nullptr;
-        Graphics::Material* m_targetMaterial          = nullptr;
-        Graphics::Shader*   m_targetShader            = nullptr;
-        float               m_leftPaneWidth           = 0.0f;
-        float               m_leftPaneMaxWidth        = 0.0f;
-        float               m_leftPaneMinWidth        = 0.0f;
-        float               m_resizeDividerPressedPos = 0.0f;
-        bool                m_draggingVerticalDivider = false;
-        Vector2             m_rightPaneSize           = Vector2::Zero;
-        Vector3             m_previewCameraPosition   = Vector3::Zero;
-        Quaternion          m_previewCameraRotation   = Quaternion();
-        Vector2             m_mouseDragStart          = Vector2::Zero;
-        Vector2             m_mouseAngles             = Vector2::Zero;
-        PreviewType         m_previewType             = PreviewType::None;
+        int                      m_currentSelectedPrimitive = 0;
+        std::vector<std::string> m_primitives;
+        Graphics::Model*         m_targetModel             = nullptr;
+        Graphics::Texture*       m_targetTexture           = nullptr;
+        Graphics::Material*      m_targetMaterial          = nullptr;
+        Graphics::Shader*        m_targetShader            = nullptr;
+        float                    m_leftPaneWidth           = 0.0f;
+        float                    m_leftPaneMaxWidth        = 0.0f;
+        float                    m_leftPaneMinWidth        = 0.0f;
+        float                    m_resizeDividerPressedPos = 0.0f;
+        bool                     m_draggingVerticalDivider = false;
+        Vector2                  m_rightPaneSize           = Vector2::Zero;
+        Vector3                  m_previewCameraPosition   = Vector3::Zero;
+        Quaternion               m_previewCameraRotation   = Quaternion();
+        Vector2                  m_mouseDragStart          = Vector2::Zero;
+        Vector2                  m_mouseAngles             = Vector2::Zero;
+        PreviewType              m_previewType             = PreviewType::None;
     };
 } // namespace Lina::Editor
 

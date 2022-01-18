@@ -62,7 +62,6 @@ namespace Lina::Editor
                 const StringIDType sidBefore          = currentLevel->m_skyboxMaterial.m_sid;
                 bool               anySettingsChanged = false;
 
-                LINA_TRACE("Current level skybox material handle addr {0}", static_cast<void*>(&currentLevel->m_skyboxMaterial));
                 if (ClassDrawer::DrawClass(GetTypeID<World::Level>(), entt::forward_as_meta(*currentLevel), true))
                 {
                     if (currentLevel->m_skyboxMaterial.m_value == nullptr)

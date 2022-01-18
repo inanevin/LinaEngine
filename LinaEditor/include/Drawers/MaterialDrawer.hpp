@@ -47,6 +47,7 @@ namespace Lina
 	namespace Graphics
     {
 		class Material;
+		class Model;
 	}
 }
 
@@ -61,7 +62,7 @@ namespace Lina::Editor
 		~MaterialDrawer() = default;
 
 		static void DrawMaterialSettings(Graphics::Material*& mat, float leftPaneSize);
-        static void DrawMaterial(Graphics::Material* mat, const Vector2& bgMin, const Vector2& bgMax);
+        static void DrawMaterial(Graphics::Material* mat, Graphics::Model* previewModel, const Vector2& bgMin, const Vector2& bgMax);
 	
 	private:
 	

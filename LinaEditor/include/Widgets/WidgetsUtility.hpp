@@ -163,6 +163,11 @@ namespace Lina::Editor
         static void PlayOperationTools(const char* childID, ImRect confineRect);
 
         /// <summary>
+        /// Draws a combo-box for primitive selection.
+        /// </summary>
+        static int SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease = 0.0f);
+
+        /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
         /// Use ImGuiCol_Text to style.
         /// </summary>
@@ -211,7 +216,7 @@ namespace Lina::Editor
         /// <summary>
         /// Base implementation of a combobox begin, uses ImGui Combo with custom remove buttons.
         /// </summary>
-        static bool BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton = false);
+        static bool BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton = false, float widthDecrease = 0.0f);
 
         /// <summary>
         /// Base implementation of a combobox end, uses ImGui Combo with custom remove buttons.

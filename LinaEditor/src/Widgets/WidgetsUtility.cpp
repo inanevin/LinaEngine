@@ -82,7 +82,7 @@ namespace Lina::Editor
     static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
-    const std::string                                    editorSnapshotLightName   = "##snapshot_light##_lina##";
+    const std::string                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -512,7 +512,13 @@ namespace Lina::Editor
 
         // Set the position only if first launch.
         const std::string childIDStr     = std::string(childID);
-        const ImVec2      targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
+        ImVec2            targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
+
+        if (targetPosition.x > confineRect.Max.x - size.x)
+            targetPosition.x = confineRect.Max.x - size.x;
+        if (targetPosition.y > confineRect.Max.y - size.y)
+            targetPosition.y = confineRect.Max.y - size.y;
+
         ImGui::SetNextWindowPos(targetPosition);
 
         ImGui::BeginChild(childID, size, true);
@@ -678,11 +684,6 @@ namespace Lina::Editor
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
         const ImVec2 defaultPos = ImVec2((confineRect.Max.x - confineRect.Min.x) - childSize.x - CURSOR_X_LABELS - 10, CURSOR_X_LABELS);
 
-        static float x = 0.0f;
-        static float y = 0.0f;
-        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue();
-        y += Input::InputEngineBackend::Get()->GetVerticalAxisValue();
-
         WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, true, ImVec2(5, 10));
         ImGui::SameLine();
         PushIconFontSmall();
@@ -770,6 +771,29 @@ namespace Lina::Editor
             const ImVec2 pos = m_movableChildData[childID].m_position;
             DisplayEditorCameraSettings(ImVec2(confineRect.Min.x + pos.x, confineRect.Min.y + pos.y + childSize.y + 2));
         }
+    }
+
+    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease)
+    {
+        int primitiveToReturn = currentSelected;
+
+        const std::string label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[currentSelected]));
+        if (BeginComboBox(comboID, label.c_str(), false, widthDecrease))
+        {
+            for (int i = 0; i < primitives.size(); i++)
+            {
+                const bool        selected     = i == currentSelected;
+                const std::string primitiveStr = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[i]));
+                if (ImGui::Selectable(primitiveStr.c_str(), selected))
+                    primitiveToReturn = i;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        return primitiveToReturn;
     }
 
     void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
@@ -1095,14 +1119,14 @@ namespace Lina::Editor
         }
     }
 
-    bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
+    bool WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton, float widthDecrease)
     {
         PushPopupStyle();
         const float currentCursorX = ImGui::GetCursorPosX();
         const float currentCursorY = ImGui::GetCursorPosY();
         const float windowWidth    = ImGui::GetWindowWidth();
         const float remaining      = windowWidth - currentCursorX;
-        const float comboWidth     = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+        const float comboWidth     = remaining - VALUE_OFFSET_FROM_WINDOW - widthDecrease - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
         ImGui::SetNextItemWidth(comboWidth);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
