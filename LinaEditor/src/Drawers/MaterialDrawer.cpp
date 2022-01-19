@@ -34,7 +34,8 @@ SOFTWARE.
 #include "Drawers/ClassDrawer.hpp"
 #include "Core/EditorCommon.hpp"
 #include "ECS/Components/ModelNodeComponent.hpp"
-
+#include "Core/GUILayer.hpp"
+#include "Core/ResourceManager.hpp"
 namespace Lina::Editor
 {
     void MaterialDrawer::DrawMaterialSettings(Graphics::Material*& mat, float leftPaneSize)
@@ -42,7 +43,16 @@ namespace Lina::Editor
         const TypeID tid = GetTypeID<Graphics::Material>();
         WidgetsUtility::IncrementCursorPosY(12);
         ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
+        ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
+        if (WidgetsUtility::Button("Open Shader", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
+        {
+            auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
+
+            Utility::File* file = Utility::FindFile(Resources::ResourceManager::Get()->GetRootFolder(), mat->m_shaderHandle.m_value->GetPath());
+            textEditor.AddFile(file);
+            textEditor.Open();
+        }
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         WidgetsUtility::HorizontalDivider(0.0f, 1.0f);
         ImGui::PopStyleColor();

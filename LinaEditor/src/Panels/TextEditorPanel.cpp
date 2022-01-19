@@ -286,7 +286,6 @@ namespace Lina::Editor
     void TextEditorPanel::AddFile(Utility::File* file)
     {
         m_openFiles[file] = Utility::GetFileContents(file->m_fullPath);
-
     }
 
     void TextEditorPanel::OnShortcut(const EShortcut& ev)

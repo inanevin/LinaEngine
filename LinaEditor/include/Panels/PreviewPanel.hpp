@@ -61,8 +61,7 @@ namespace Lina::Editor
         None,
         Model,
         Material,
-        Texture,
-        Shader
+        Texture
     };
 
     class PreviewPanel : public EditorPanel
@@ -79,7 +78,6 @@ namespace Lina::Editor
         void SetTargetModel(Graphics::Model* model);
         void SetTargetTexture(Graphics::Texture* texture);
         void SetTargetMaterial(Graphics::Material* mat);
-        void SetTargetShader(Graphics::Shader* shader);
 
     private:
         void DrawPreviewArea();

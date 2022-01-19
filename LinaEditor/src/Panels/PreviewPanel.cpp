@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Drawers/TextureDrawer.hpp"
 #include "Drawers/ModelDrawer.hpp"
 #include "Drawers/MaterialDrawer.hpp"
-#include "Drawers/ShaderDrawer.hpp"
 
 namespace Lina::Editor
 {
@@ -69,40 +68,27 @@ namespace Lina::Editor
         {
             if (Begin())
             {
-                if (m_previewType == PreviewType::Shader)
-                {
-                    m_rightPaneSize = Vector2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-                    ImGui::SetCursorPosX(CURSOR_X_LABELS / 2.0f);
-                    ImGui::BeginChild("previewPanel_rightPane");
+                m_rightPaneSize = Vector2(ImGui::GetWindowWidth() - m_leftPaneWidth, ImGui::GetWindowHeight());
+                ImGui::BeginChild("previewPanel_leftPane", ImVec2(m_leftPaneWidth, 0));
 
-                    DrawPreviewArea();
+                if (m_previewType == PreviewType::Texture)
+                    TextureDrawer::DrawTextureSettings(m_targetTexture, m_leftPaneWidth);
+                else if (m_previewType == PreviewType::Model)
+                    ModelDrawer::DrawModelSettings(m_targetModel, m_leftPaneWidth);
+                else if (m_previewType == PreviewType::Material)
+                    MaterialDrawer::DrawMaterialSettings(m_targetMaterial, m_leftPaneWidth);
 
-                    ImGui::EndChild();
-                }
-                else
-                {
-                    m_rightPaneSize = Vector2(ImGui::GetWindowWidth() - m_leftPaneWidth, ImGui::GetWindowHeight());
-                    ImGui::BeginChild("previewPanel_leftPane", ImVec2(m_leftPaneWidth, 0));
+                ImGui::EndChild();
 
-                    if (m_previewType == PreviewType::Texture)
-                        TextureDrawer::DrawTextureSettings(m_targetTexture, m_leftPaneWidth);
-                    else if (m_previewType == PreviewType::Model)
-                        ModelDrawer::DrawModelSettings(m_targetModel, m_leftPaneWidth);
-                    else if (m_previewType == PreviewType::Material)
-                        MaterialDrawer::DrawMaterialSettings(m_targetMaterial, m_leftPaneWidth);
+                ImGui::SameLine();
 
-                    ImGui::EndChild();
+                ImGui::BeginChild("previewPanel_rightPane");
 
-                    ImGui::SameLine();
+                DrawPreviewArea();
 
-                    ImGui::BeginChild("previewPanel_rightPane");
+                ImGui::EndChild();
 
-                    DrawPreviewArea();
-
-                    ImGui::EndChild();
-
-                    WidgetsUtility::VerticalResizeDivider(true, &m_resizeDividerPressedPos, &m_leftPaneWidth, m_leftPaneMinWidth, m_leftPaneMaxWidth, &m_lockWindowPos, &m_draggingVerticalDivider);
-                }
+                WidgetsUtility::VerticalResizeDivider(true, &m_resizeDividerPressedPos, &m_leftPaneWidth, m_leftPaneMinWidth, m_leftPaneMaxWidth, &m_lockWindowPos, &m_draggingVerticalDivider);
 
                 End();
             }
@@ -152,18 +138,6 @@ namespace Lina::Editor
         Open();
     }
 
-    void PreviewPanel::SetTargetShader(Graphics::Shader* shader)
-    {
-        m_targetShader = shader;
-        m_title        = "Shader Preview: " + shader->GetPath();
-        m_previewType  = PreviewType::Shader;
-        m_targetModel  = Resources::ResourceStorage::Get()->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        m_shaderPreviewMaterial->SetShader(m_targetShader);
-        ShaderDrawer::SetCurrentShader(shader);
-        m_currentSelectedPrimitive = 0;
-        Open();
-    }
-
     void PreviewPanel::DrawPreviewArea()
     {
         const ImVec2 padding         = ImVec2(ImGui::GetStyle().ItemSpacing.x + 4, ImGui::GetStyle().ItemSpacing.y + 4);
@@ -191,8 +165,6 @@ namespace Lina::Editor
             ModelDrawer::DrawModel(m_targetModel, Matrix::Identity(), bgMinLina, bgMaxLina);
         else if (m_previewType == PreviewType::Material)
             MaterialDrawer::DrawMaterial(m_targetMaterial, m_targetModel, bgMinLina, bgMaxLina);
-        else if (m_previewType == PreviewType::Shader)
-            MaterialDrawer::DrawMaterial(m_shaderPreviewMaterial, m_targetModel, bgMinLina, bgMaxLina);
 
         // Preview model selector.
         PreviewModelSelector(Vector2(cursorPos.x, cursorPos.y), m_rightPaneSize.y);

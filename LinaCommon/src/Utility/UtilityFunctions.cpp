@@ -543,6 +543,25 @@ namespace Lina
             return subFoldersContain;
         }
 
+        File* FindFile(Folder* root, const std::string& path)
+        {
+            for (auto* subfolder : root->m_folders)
+            {
+                File* f = FindFile(subfolder, path);
+
+                if (f != nullptr)
+                    return f;
+            }
+
+            for (auto* file : root->m_files)
+            {
+                if (file->m_fullPath.compare(path) == 0)
+                    return file;
+            }
+
+            return nullptr;
+        }
+
         std::string GetFileContents(const std::string& filePath)
         {
             std::ifstream ifs(filePath);

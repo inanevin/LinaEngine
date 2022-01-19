@@ -137,6 +137,9 @@ namespace Lina
         // Checks if the given file contains the given filter within the file name, including extension.
         extern bool FileContainsFilter(const File& file, const std::string& filter);
 
+        // Finds the file with the given path if exists & returns, else returns nullptr
+        extern File* FindFile(Folder* root, const std::string& path);
+
         // Returns the whole file content as string
         extern std::string GetFileContents(const std::string& filePath);
 

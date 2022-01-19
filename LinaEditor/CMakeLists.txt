@@ -38,7 +38,6 @@ src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
 src/Drawers/ClassDrawer.cpp
 src/Drawers/MaterialDrawer.cpp
-src/Drawers/ShaderDrawer.cpp
 src/Drawers/ModelDrawer.cpp
 src/Drawers/TextureDrawer.cpp
 
@@ -124,7 +123,6 @@ include/Drawers/ClassDrawer.hpp
 include/Drawers/MaterialDrawer.hpp
 include/Drawers/ModelDrawer.hpp
 include/Drawers/TextureDrawer.hpp
-include/Drawers/ShaderDrawer.hpp
 
 # Panels
 include/Panels/MainToolbarPanel.hpp
