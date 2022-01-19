@@ -22,8 +22,8 @@ out vec3 RawPosition;
 
 void main()
 {
-    mat4 inverseProjection = inverse(projection);
-    mat3 inverseModelview = transpose(mat3(view));
+    mat4 inverseProjection = inverse(LINA_PROJ);
+    mat3 inverseModelview = transpose(mat3(LINA_VIEW));
     vec3 unprojected = (inverseProjection * vec4(data[gl_VertexID], 0.0, 1.0)).xyz;
     vec3 eyeDirection = inverseModelview * unprojected;
     gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);

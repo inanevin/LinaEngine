@@ -89,12 +89,12 @@ void main()
       blurDirection = min(vec2(material.fxaaSpanMax), max(vec2(-material.fxaaSpanMax), blurDirection * inverseDirAdj)) * tcOffset;
 
       vec3 result1 = (1.0 / 2.0) * (
-        texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(1.0/3.0 - 0.5))).xyz +
-        texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(2.0/3.0 - 0.5))).xyz);
+      texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(1.0/3.0 - 0.5))).xyz +
+      texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(2.0/3.0 - 0.5))).xyz);
 
       vec3 result2 = result1  * (1.0/2.0) + (1.0 / 4.0) * (
-        texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(0.0/3.0 - 0.5))).xyz +
-        texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(3.0/3.0 - 0.5))).xyz);
+      texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(0.0/3.0 - 0.5))).xyz +
+      texture(material.screenMap.texture, TexCoords.xy + (blurDirection * vec2(3.0/3.0 - 0.5))).xyz);
 
       // Test if we've sampled too far.
       float lumaMin = min(lumaM, min(min(lumaTL, lumaTR), min(lumaBL, lumaBR)));

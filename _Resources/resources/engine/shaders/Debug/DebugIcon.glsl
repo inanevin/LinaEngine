@@ -25,7 +25,7 @@ out vec2 TexCoords;
 
 void main()
 {
-	gl_Position = VP * model * vec4(position, 1.0);
+	gl_Position = LINA_VP * model * vec4(position, 1.0);
 	TexCoords = texCoords;
 }
 

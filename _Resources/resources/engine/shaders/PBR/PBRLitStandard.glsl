@@ -69,13 +69,13 @@ void main()
 		
 		WorldPos = vec3(model * vec4(position,1.0f));
 		Normal = mat3(model) * normal;
-		gl_Position = VP *  vec4(WorldPos, 1.0f);
+		gl_Position = LINA_VP *  vec4(WorldPos, 1.0f);
 	}
 	else
 	{
 		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
-		gl_Position = VP * vec4(WorldPos, 1.0);
+		gl_Position = LINA_VP * vec4(WorldPos, 1.0);
 	}
 
 }
@@ -128,7 +128,7 @@ void main()
   float ao = material.aoMap.isActive? texture(material.aoMap.texture, tiled).r : 1.0;
 
   vec3 N = material.normalMap.isActive ? getNormalFromMap(texture(material.normalMap.texture, tiled).rgb, tiled, WorldPos, Normal) : Normal;
-  vec3 V = normalize(vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z) - WorldPos);
+  vec3 V = normalize(vec3(LINA_CAMPOS.x, LINA_CAMPOS.y, LINA_CAMPOS.z) - WorldPos);
 
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
@@ -149,7 +149,7 @@ void main()
 	int affectingLightCount = 0;
 	
     // Point lights.
-    for(int i = 0; i < pointLightCount; ++i)
+    for(int i = 0; i < LINA_PLIGHT_COUNT; ++i)
     {
 
         // calculate per-light radiance
@@ -168,7 +168,7 @@ void main()
     }
 
     // Spot lights
-    for(int i = 0; i < spotLightCount; ++i)
+    for(int i = 0; i < LINA_SLIGHT_COUNT; ++i)
     {
 		if(affectingLightCount >= MAX_LIGHT_PER_VERTEX)
 			continue;
@@ -217,11 +217,11 @@ void main()
       vec2 brdf  = texture(material.brdfLUTMap.texture, vec2(max(dot(N, V), 0.0), roughness)).rg;
       vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-      ambient = (kD * (diffuse + specular)) * ao * ambientColor.xyz;
+      ambient = (kD * (diffuse + specular)) * ao * LINA_AMBIENT.xyz;
     }
     else    
 	{
-		ambient = ambientColor.xyz * albedo * ao;
+		ambient = LINA_AMBIENT.xyz * albedo * ao;
 	}
 
     vec3 color = ambient + Lo;

@@ -29,7 +29,7 @@ out vec3 FragPos;
 
 void main()
 {
-  gl_Position = VP * model * vec4(position, 1.0);
+  gl_Position = LINA_VP * model * vec4(position, 1.0);
   FragPos = vec3(model * vec4(position,1.0));
   TexCoords = texCoords;
 }
@@ -38,7 +38,6 @@ void main()
 #include <../UniformBuffers.glh>
 #include <../Utility.glh>
 #include <../MaterialSamplers.glh>
-#include <../LightingCalculations.glh>
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 brightColor;

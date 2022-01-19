@@ -21,7 +21,7 @@ layout (location = 0) in vec3 position;
 
 void main()
 {
-  gl_Position = VP * vec4(position, 1.0);
+  gl_Position = LINA_VP * vec4(position, 1.0);
 }
 
 #elif defined(FS_BUILD)

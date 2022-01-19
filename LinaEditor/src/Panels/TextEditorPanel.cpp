@@ -49,9 +49,13 @@ namespace Lina::Editor
 
         auto lang = TextEditor::LanguageDefinition::GLSL();
 
-        static const char* ppnames[]  = {"NULL"};
+        static const char* ppnames[]  = {"LINA_PROJ", "LINA_VIEW", "LINA_LIGHTSPACE", "LINA_VP", "LINA_CAMPOS", "LINA_CAMNEAR", "LINA_CAMFAR", "LINA_AMBIENT",
+                                        "LINA_PLIGHT_COUNT", "LINA_SLIGHT_COUNT", "LINA_VISUALIZEDEPTH", "LINA_SCREENSIZE", "LINA_MOUSEPOS", "LINA_DT", "LINA_ET"};
         static const char* ppvalues[] = {
-            "#define NULL ((void*)0)"};
+            "Active camera projection matrix", "Active camera view matrix.", "Point light matrix.", "Active camera projection * view matrix.", 
+            "Active camera position.", "Active camera near plane.", "Active camera far plane.", "Level ambient color",
+            "Total point light count.", "Total spotlight count.", "Whether depth visualization is enabled or not.", "Current screen resolution (whole editor if enabled).",
+            "Mouse position (0,0 top-left, screenSize.x, screenSize.y bottom-right)", "Delta time.", "Elapsed time."};
 
         for (int i = 0; i < sizeof(ppnames) / sizeof(ppnames[0]); ++i)
         {
@@ -109,7 +113,7 @@ namespace Lina::Editor
             "imageCube", "iimageCube", "uimageCube",
             "imageCubeArray", "iimageCubeArray", "uimageCubeArray",
             "imageBuffer", "iimageBuffer", "uimageBuffer",
-            "struct", "MaterialSampler2D", "MaterialSamplerCube"};
+            "struct", "MaterialSampler2D", "MaterialSamplerCube",};
 
         for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); ++i)
         {
