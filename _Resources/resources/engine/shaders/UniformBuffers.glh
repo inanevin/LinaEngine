@@ -17,6 +17,11 @@ int pointLightCount;
 int spotLightCount;
 };
 
+layout (std140, column_major) uniform DebugData 
+{ 
+bool visualizeDepth; 
+};
+
 layout (std140, column_major) uniform AppData
 {
 vec2 screenSize;
@@ -25,7 +30,3 @@ float deltaTime;
 float elapsedTime;
 };
  
-layout (std140, column_major) uniform DebugData 
-{ 
-bool visualizeDepth; 
-};

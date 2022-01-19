@@ -505,48 +505,6 @@ namespace Lina::Editor
                         }
                         else if (file->m_typeID == GetTypeID<Graphics::Shader>())
                         {
-
-                            ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-                            ImGuiID dockspace_id = ImGui::GetID("PreviewPanelDockspace");
-
-                            static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-
-                            ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
-                            ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
-                            ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
-
-                            // split the dockspace into 2 nodes --
-                            // DockBuilderSplitNode takes in the following args in the following order
-                            //   window ID to split, direction, fraction (between 0 and 1),
-                            // the final two setting let's us choose which id we want (which ever one we DON'T set as NULL,
-                            // will be returned by the function)
-                            // out_id_at_dir is the id of the node in the direction we specified earlier,
-                            // out_id_at_opposite_dir is in the opposite direction
-                            // auto dock_id_top   = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.2f, nullptr, &dockspace_id);
-                            // auto dock_id_down  = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.25f, nullptr, &dockspace_id);
-                            auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, nullptr, &dockspace_id);
-                            // auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.15f, nullptr, &dockspace_id);
-                            //auto dock_id_left2 = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.2f, nullptr, &dock_id_left);
-                            //auto dock_id_down2 = ImGui::DockBuilderSplitNode(dock_id_down, ImGuiDir_Right, 0.15f, nullptr, &dock_id_down);
-
-                            // we now dock our windows into the docking node we made above
-
-                            //ImGui::DockBuilderDockWindow("Window 1", dock_id_top);
-                            // ImGui::DockBuilderDockWindow("Window 2", dock_id_right);
-                            ImGui::DockBuilderDockWindow(ID_PREVIEWPANEL, dockspace_id);
-                            ImGui::DockBuilderDockWindow(ID_TEXTEDITOR, dock_id_left);
-                            // ImGui::DockBuilderDockWindow("Window 4", dock_id_down);
-                            // ImGui::DockBuilderDockWindow("Window 0", dock_id_top);
-
-                            ImGui::DockBuilderFinish(dockspace_id);
-
-                            auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
-                            previewPanel.SetTargetShader(m_storage->GetResource<Graphics::Shader>(file->m_sid));
-
-                            if (!previewPanel.IsMaximized())
-                                previewPanel.ToggleMaximize();
-
                             auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
                             textEditor.AddFile(file);
                             textEditor.Open();

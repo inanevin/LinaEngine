@@ -52,6 +52,7 @@ SOFTWARE.
 #include "Utility/ModelLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Resources/ResourceStorage.hpp"
+#include "..\..\..\..\include\Core\Backend\OpenGL\OpenGLRenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -87,6 +88,7 @@ namespace Lina::Graphics
         m_eventSystem->Connect<Event::EDrawHemiSphere, &OpenGLRenderEngine::OnDrawHemiSphere>(this);
         m_eventSystem->Connect<Event::EDrawCapsule, &OpenGLRenderEngine::OnDrawCapsule>(this);
         m_eventSystem->Connect<Event::EAllResourcesOfTypeLoaded, &OpenGLRenderEngine::OnAllResourcesOfTypeLoaded>(this);
+        m_eventSystem->Connect<Event::EResourceReloaded, &OpenGLRenderEngine::OnResourceReloaded>(this);
     }
 
     void OpenGLRenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings)
@@ -559,6 +561,18 @@ namespace Lina::Graphics
         else if (ev.m_tid == GetTypeID<Material>())
         {
             ConstructEngineMaterials();
+        }
+    }
+
+    void OpenGLRenderEngine::OnResourceReloaded(const Event::EResourceReloaded& ev)
+    {
+        if (ev.m_tid == GetTypeID<Shader>())
+        {
+            Shader* shader = m_storage->GetResource<Shader>(ev.m_sid);
+            shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+            shader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+            shader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+            shader->BindBlockToBuffer(UNIFORMBUFFER_APPDATA_BINDPOINT, UNIFORMBUFFER_APPDATA_NAME);
         }
     }
 

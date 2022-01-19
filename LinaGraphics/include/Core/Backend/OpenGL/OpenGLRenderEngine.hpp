@@ -274,7 +274,7 @@ namespace Lina::Graphics
         }
         inline void SetAppData(float delta, float elapsed, const Vector2& mousePos)
         {
-            m_elapsedTime   = delta;
+            m_deltaTime     = delta;
             m_elapsedTime   = elapsed;
             m_mousePosition = mousePos;
         }
@@ -304,6 +304,7 @@ namespace Lina::Graphics
         void OnDrawCapsule(const Event::EDrawCapsule& event);
         void OnWindowResized(const Event::EWindowResized& event);
         void OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev);
+        void OnResourceReloaded(const Event::EResourceReloaded& ev);
         bool ValidateEngineShaders();
         void SetupEngineShaders();
         void ConstructEngineMaterials();

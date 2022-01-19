@@ -1366,7 +1366,7 @@ namespace Lina::Editor
     StringIDType WidgetsUtility::ResourceSelectionMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
-        LINA_TRACE("Selection mat {0}", handleAddr);
+        
         bool         pressed  = false;
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());

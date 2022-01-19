@@ -41,8 +41,10 @@ namespace Lina::Editor
     {
         dockspaceBuilt     = true;
         Vector2 screenSize = Graphics::WindowBackend::Get()->GetSize();
-        ImGui::DockBuilderRemoveNode(dockspaceID);                            // Clear out existing layout
-        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace); // Add empty node
+        ImGui::DockBuilderRemoveNode(dockspaceID); // Clear out existing layout
+
+        const ImGuiDockNodeFlags dockNodeFlags = ImGuiDockNodeFlags_DockSpace;
+        ImGui::DockBuilderAddNode(dockspaceID, dockNodeFlags); // Add empty node
         ImGui::DockBuilderSetNodeSize(dockspaceID, ImVec2(screenSize.x, screenSize.y - FOOTER_HEIGHT));
 
         ImGuiID dock_main_id        = dockspaceID; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
@@ -83,6 +85,5 @@ namespace Lina::Editor
         {
             BuildDockspace();
         }
-
     }
 } // namespace Lina::Editor
