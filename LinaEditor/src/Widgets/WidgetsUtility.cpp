@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/ShaderInclude.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Memory/Memory.hpp"
@@ -276,6 +277,12 @@ namespace Lina::Editor
 
                 textureID = m_resourcePreviewTextures[item->m_sid];
             }
+            else if (item->m_typeID == GetTypeID<Graphics::Shader>() || item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Shader.png")->GetID();
+            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Audio.png")->GetID();
+            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_PhyMat.png")->GetID();
         }
 
         // Prepare border sizes from incremented cursor.
@@ -290,6 +297,24 @@ namespace Lina::Editor
 
         // Add the actual resource image.
         ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        if (ImGui::IsItemHovered())
+        {
+            if (item->m_typeID == GetTypeID<Graphics::Model>())
+                Tooltip("Model");
+            else if (item->m_typeID == GetTypeID<Graphics::Material>())
+                Tooltip("Material");
+            else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+                Tooltip("Texture");
+            else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+                Tooltip("Shader");
+            else if (item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                Tooltip("Shader Include");
+            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+                Tooltip("Audio");
+            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+                Tooltip("Physics Material");
+        }
 
         if (item->m_typeID == GetTypeID<Graphics::Model>())
         {
@@ -1366,7 +1391,7 @@ namespace Lina::Editor
     StringIDType WidgetsUtility::ResourceSelectionMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
-        
+
         bool         pressed  = false;
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());

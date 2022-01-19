@@ -311,7 +311,7 @@ namespace Lina
                 0,
                 std::bind(Resources::CreateResource<Audio::AudioAssetData>),
                 std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linaaudiodata"}});
+                std::vector<std::string>{"linaaudiodata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
             Resources::ResourceTypeData{
@@ -325,14 +325,14 @@ namespace Lina
                 0,
                 std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
                 std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linaimagedata"}});
+                std::vector<std::string>{"linaimagedata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
                 std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linamodeldata"}});
+                std::vector<std::string>{"linamodeldata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::Shader>(
             Resources::ResourceTypeData{

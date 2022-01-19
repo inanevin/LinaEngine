@@ -75,8 +75,8 @@ namespace Lina::Editor
         void SaveCurrentFile(const std::string& text);
         void ReloadCurrentFile();
 
-
     private:
+        float                                 m_currentFontSize = 1.0f;
         std::map<Utility::File*, std::string> m_openFiles;
         Utility::File*                        m_lastFileOnTextEditor = nullptr;
     };

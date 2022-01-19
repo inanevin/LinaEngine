@@ -60,7 +60,7 @@ namespace Lina
         struct EResourcePathUpdated;
         struct EResourceReloaded;
         struct EResourceUnloaded;
-    }
+    } // namespace Event
 } // namespace Lina
 
 namespace Lina::Resources
@@ -74,6 +74,7 @@ namespace Lina::Resources
         ResourceDeleteFunc       m_deleteFunc;
         std::vector<std::string> m_associatedExtensions;
         Color                    m_resourceIdentifierColor = Color::White;
+        bool                     m_isAssetData             = false;
     };
 
     class ResourceStorage
@@ -133,7 +134,6 @@ namespace Lina::Resources
         {
             return GetResource<T>(StringID(path.c_str()).value());
         }
-
 
         /// <summary>
         /// Adds the given resources to it's respective cache, once added you don't have to manage the resource's lifetime
@@ -243,6 +243,14 @@ namespace Lina::Resources
         inline ResourceTypeData& GetTypeData(TypeID tid)
         {
             return m_resourceTypes[tid];
+        }
+
+        /// <summary>
+        /// Returns whether the given type is an asset data, or level file etc.
+        /// </summary>
+        inline bool IsTypeAssetData(TypeID tid)
+        {
+            return m_resourceTypes[tid].m_isAssetData;
         }
 
         /// <summary>

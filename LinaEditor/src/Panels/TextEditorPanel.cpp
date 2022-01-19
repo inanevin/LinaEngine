@@ -36,6 +36,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "Core/GUILayer.hpp"
 #include "Rendering/ShaderInclude.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
@@ -226,6 +227,14 @@ namespace Lina::Editor
 
                 WidgetsUtility::IncrementCursorPosY(24.0f);
 
+                // Control font scale.
+                if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_LCTRL))
+                {
+                    const Vector2 mouseScroll = Input::InputEngineBackend::Get()->GetMouseScroll() * 0.1f;
+                    m_currentFontSize += mouseScroll.y;
+                    m_currentFontSize = Math::Clamp(m_currentFontSize, 0.6f, 1.2f);
+                }
+
                 if (ImGui::BeginTabBar("texteditortabbar", flags))
                 {
                     std::vector<Utility::File*> markedForErase;
@@ -243,7 +252,9 @@ namespace Lina::Editor
                                 editor.SetText(m_openFiles[file]);
                             }
                             ImGui::PushFont(GUILayer::Get()->GetTextEditorFont());
+                            WidgetsUtility::PushScaledFont(m_currentFontSize);
                             editor.Render("TextEditor");
+                            WidgetsUtility::PopScaledFont();
                             ImGui::PopFont();
                             ImGui::EndTabItem();
                         }
@@ -276,7 +287,6 @@ namespace Lina::Editor
     {
         m_openFiles[file] = Utility::GetFileContents(file->m_fullPath);
 
-            editor.SetText(m_openFiles[file]);
     }
 
     void TextEditorPanel::OnShortcut(const EShortcut& ev)

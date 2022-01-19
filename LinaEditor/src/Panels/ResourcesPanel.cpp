@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/ShaderInclude.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Widgets/MenuButton.hpp"
@@ -461,6 +462,11 @@ namespace Lina::Editor
             TypeID tid = file->m_typeID;
             if (!m_storage->IsTypeRegistered(tid))
                 continue;
+
+            if (m_storage->IsTypeAssetData(tid))
+                continue;
+
+
             bool renamedItem = false;
 
             WidgetsUtility::DrawResourceNode(file, file == m_selectedFile, &renamedItem, m_nodeSizes, m_rightPaneFocused);
@@ -503,7 +509,7 @@ namespace Lina::Editor
                             if (!previewPanel.IsMaximized())
                                 previewPanel.ToggleMaximize();
                         }
-                        else if (file->m_typeID == GetTypeID<Graphics::Shader>())
+                        else if (file->m_typeID == GetTypeID<Graphics::Shader>() || file->m_typeID == GetTypeID<Graphics::ShaderInclude>())
                         {
                             auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
                             textEditor.AddFile(file);

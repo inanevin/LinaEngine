@@ -118,7 +118,7 @@ namespace Lina::Editor
 
         m_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
         m_mediumFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 22, NULL);
-        m_textEditorFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 24, NULL);
+        m_textEditorFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 28, NULL);
         m_defaultFont = io.FontDefault;
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
