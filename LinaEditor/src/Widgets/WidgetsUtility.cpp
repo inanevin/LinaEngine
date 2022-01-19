@@ -1395,10 +1395,11 @@ namespace Lina::Editor
 
     StringIDType WidgetsUtility::ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
-        std::string     resourceName        = "None";
+        std::string     resourceName        = "None" + std::string("##") + id;
         constexpr float spaceFromEnd        = 10.0f;
         const float     removeButtonSize    = ImGui::GetFrameHeight();
         const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
+        const float     currentCursorY      = ImGui::GetCursorPosY();
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1411,8 +1412,8 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        const float  iconOffset = -spaceFromEnd - 28.0f;
-        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, currentCursor.y + -ImGui::GetScrollY() + 3.0f);
+        const float  iconOffset = -spaceFromEnd - 20.0f;
+        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();

@@ -49,7 +49,6 @@ namespace Lina::Editor
         if (sidNow != sidBefore)
             mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
 
-
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
         if (WidgetsUtility::Button("Open Shader", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
@@ -186,7 +185,10 @@ namespace Lina::Editor
 
                     if (value.m_texture.m_sid != sidBefore)
                     {
-                        mat->SetTexture(name, value.m_texture.m_value, value.m_bindMode);
+                        if (value.m_texture.m_value == nullptr)
+                            mat->RemoveTexture(name);
+                        else
+                            mat->SetTexture(name, value.m_texture.m_value, value.m_bindMode);
                     }
                 }
             }
