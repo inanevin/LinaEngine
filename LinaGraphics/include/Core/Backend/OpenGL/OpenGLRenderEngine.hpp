@@ -278,6 +278,10 @@ namespace Lina::Graphics
             m_elapsedTime   = elapsed;
             m_mousePosition = mousePos;
         }
+        inline Material* GetSkyboxMaterial()
+        {
+            return m_skyboxMaterial;
+        }
 
     private:
         friend class Engine;

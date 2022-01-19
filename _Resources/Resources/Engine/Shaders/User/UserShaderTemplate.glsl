@@ -49,7 +49,7 @@ struct Material
   MaterialSampler2D diffuse;
   vec3 objectColor;
   int surfaceType;
-  vec2 tiling;
+  
 };
 
 uniform Material material;
@@ -57,10 +57,9 @@ uniform Material material;
 
 void main()
 {
-    vec2 tiled = vec2(TexCoords.x * material.tiling.x, TexCoords.y * material.tiling.y);
-	float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, tiled).a : 1.0);
+	float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, TexCoords).a : 1.0);
 
-	vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,tiled) : vec4(1.0)) * vec4(material.objectColor, 1.0);
+	vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
 	fragColor = vec4(color.rgb, alpha);
 		
 	float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));

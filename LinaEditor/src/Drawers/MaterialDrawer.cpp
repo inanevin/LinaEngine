@@ -42,7 +42,14 @@ namespace Lina::Editor
     {
         const TypeID tid = GetTypeID<Graphics::Material>();
         WidgetsUtility::IncrementCursorPosY(12);
+        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
         ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
+        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
+
+        if (sidNow != sidBefore)
+            mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
+
+
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
         if (WidgetsUtility::Button("Open Shader", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
@@ -189,12 +196,16 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
         if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
         {
+            bool isSkyboxMaterial = Graphics::RenderEngineBackend::Get()->GetSkyboxMaterial() == mat;
             mat->Save();
             const std::string  path = mat->GetPath();
             const StringIDType sid  = mat->GetSID();
             Resources::ResourceStorage::Get()->Unload<Graphics::Material>(sid);
             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{path, tid, sid});
             mat = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);
+
+            if (isSkyboxMaterial)
+                Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(mat);
         }
     }
 

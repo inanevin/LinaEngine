@@ -91,13 +91,14 @@ namespace Lina::Editor
         ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
-
+        
         // Add default font.
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Mukta-Medium.ttf", 20.0f, NULL);
 
         // merge in icons from Font Awesome
         static const ImWchar icons_rangesFA[]   = {ICON_MIN_FA, ICON_MAX_FA, 0};
         static const ImWchar icons_rangesCUST[] = {ICON_MIN_CS, ICON_MAX_CS, 0};
+
 
         ImFontConfig icons_config;
         icons_config.MergeMode     = false;

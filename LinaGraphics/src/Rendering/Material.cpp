@@ -67,9 +67,9 @@ namespace Lina::Graphics
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
             m_sampler2Ds[textureName].m_texture.m_value = texture;
-            m_sampler2Ds[textureName].m_texture.m_sid = texture->GetSID();
-            m_sampler2Ds[textureName].m_bindMode     = bindMode;
-            m_sampler2Ds[textureName].m_isActive     = texture == nullptr ? false : true;
+            m_sampler2Ds[textureName].m_texture.m_sid   = texture->GetSID();
+            m_sampler2Ds[textureName].m_bindMode        = bindMode;
+            m_sampler2Ds[textureName].m_isActive        = texture == nullptr ? false : true;
         }
         else
         {
@@ -81,9 +81,9 @@ namespace Lina::Graphics
     {
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
-            m_sampler2Ds[textureName].m_texture.m_sid = -1;
+            m_sampler2Ds[textureName].m_texture.m_sid   = -1;
             m_sampler2Ds[textureName].m_texture.m_value = nullptr;
-            m_sampler2Ds[textureName].m_isActive     = false;
+            m_sampler2Ds[textureName].m_isActive        = false;
         }
         else
         {
@@ -156,7 +156,7 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
 
-        *this         = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+        *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
         IResource::SetSID(path);
         auto* storage = Resources::ResourceStorage::Get();
 
@@ -263,13 +263,13 @@ namespace Lina::Graphics
         m_matrices.clear();
         m_vector4s.clear();
         m_hdriDataSet = false;
-        bool isPBR         = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
+        bool isPBR    = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
 
         if (isPBR)
         {
             m_receiveHDRIReflections = true;
-            m_receiveLighting = true;
-            m_receiveShadows = true;
+            m_receiveLighting        = true;
+            m_receiveShadows         = true;
         }
         else
         {
@@ -278,24 +278,25 @@ namespace Lina::Graphics
             m_receiveShadows         = false;
         }
 
+        UpdateMaterialData();
 
-        ShaderUniformData data = shader->GetUniformData();
-        m_colors               = data.m_colors;
-        m_floats               = data.m_floats;
-        m_bools                = data.m_bools;
-        m_ints                 = data.m_ints;
-        m_vector2s             = data.m_vector2s;
-        m_vector3s             = data.m_vector3s;
-        m_vector4s             = data.m_vector4s;
-        m_matrices             = data.m_matrices;
-
-        for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
-            m_sampler2Ds[it->first] = {
-                it->second.m_unit,
-                it->second.m_bindMode,
-                false,
-                Resources::ResourceHandle<Texture>(),
-            };
+        // ShaderUniformData data = shader->GetUniformData();
+        // m_colors               = data.m_colors;
+        // m_floats               = data.m_floats;
+        // m_bools                = data.m_bools;
+        // m_ints                 = data.m_ints;
+        // m_vector2s             = data.m_vector2s;
+        // m_vector3s             = data.m_vector3s;
+        // m_vector4s             = data.m_vector4s;
+        // m_matrices             = data.m_matrices;
+        //
+        // for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
+        //     m_sampler2Ds[it->first] = {
+        //         it->second.m_unit,
+        //         it->second.m_bindMode,
+        //         false,
+        //         Resources::ResourceHandle<Texture>(),
+        //     };
     }
 
 } // namespace Lina::Graphics

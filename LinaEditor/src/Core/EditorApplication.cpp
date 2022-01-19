@@ -76,6 +76,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorApplication::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceLoadCompleted, &EditorApplication::OnResourceLoadCompleted>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &EditorApplication::OnResourceReloaded>(this);
         Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &EditorApplication::OnResourcePathUpdated>(this);
 
         m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
@@ -113,7 +114,6 @@ namespace Lina::Editor
 
             for (auto& [sid, ptr] : materialCache)
                 TakeModelSnapshot(sid, sphere->GetSID(), sid);
-
         }
     }
 
@@ -173,6 +173,14 @@ namespace Lina::Editor
             auto* sphere  = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
             TakeModelSnapshot(ev.m_sid, sphere->GetSID(), ev.m_sid);
         }
+    }
+
+    void EditorApplication::OnResourceReloaded(const Event::EResourceReloaded& ev)
+    {
+        Event::EResourceLoadCompleted load;
+        load.m_sid = ev.m_sid;
+        load.m_tid = ev.m_tid;
+        OnResourceLoadCompleted(load);
     }
 
     void EditorApplication::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)

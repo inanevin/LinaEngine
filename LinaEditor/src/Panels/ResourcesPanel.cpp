@@ -618,9 +618,23 @@ namespace Lina::Editor
         }
         else if (type == MenuBarElementType::Resources_CreateNewMaterial)
         {
+            if (ContextMenuCanAddAsset())
+            {
+                Utility::Folder* parent = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
+                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
+                Graphics::Material::CreateMaterial(Graphics::RenderEngineBackend::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
+                Utility::ScanFolder(parent, true, nullptr, true);
+            }
         }
         else if (type == MenuBarElementType::Resources_CreateNewPhysicsMaterial)
         {
+            if (ContextMenuCanAddAsset())
+            {
+                Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
+                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewPhyMaterial", ".linaphymat");
+                Physics::PhysicsMaterial::CreatePhysicsMaterial(parent->m_fullPath + "/" + uniqueName + ".linaphymat", 0.5f, 0.5f, 0.5f);
+                Utility::ScanFolder(parent, true, nullptr, true);
+            }
         }
         else if (type == MenuBarElementType::Resources_Rescan)
         {
