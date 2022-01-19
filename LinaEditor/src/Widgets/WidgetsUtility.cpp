@@ -327,6 +327,61 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
+        else if (item->m_typeID == GetTypeID<Graphics::Material>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Audio::Audio>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEAUDIO_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEPHYMAT_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
 
         // Draw a small colored rect indicating resource type.
         if (!isFolder)
@@ -1343,7 +1398,7 @@ namespace Lina::Editor
         std::string     resourceName        = "None";
         constexpr float spaceFromEnd        = 10.0f;
         const float     removeButtonSize    = ImGui::GetFrameHeight();
-        const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x;
+        const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1356,17 +1411,27 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        const float  iconOffset = -spaceFromEnd - removeButtonSize - 28.0f;
+        const float  iconOffset = -spaceFromEnd - 28.0f;
         const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, currentCursor.y + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
 
-        // Remove button.
-        ImGui::SameLine();
-        PushIconFontSmall();
-        *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 1.5f, ImVec2(0.6f, -2.4f));
-        ImGui::PopFont();
+        const std::string popupID = id + "_popup";
+        if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+        {
+            ImGui::OpenPopup(popupID.c_str());
+        }
+
+        PushPopupStyle();
+        if (ImGui::BeginPopup(popupID.c_str()))
+        {
+            if (ImGui::MenuItem("Clear"))
+                *removed = true;
+
+            ImGui::EndPopup();
+        }
+        PopPopupStyle();
 
         auto& resSelector = GUILayer::Get()->GetResourceSelector();
 
@@ -1396,6 +1461,18 @@ namespace Lina::Editor
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
 
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         if (selected != 0)
         {
             handle->m_sid   = selected;
@@ -1419,11 +1496,22 @@ namespace Lina::Editor
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
 
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         if (selected != 0)
         {
             handle->m_sid   = selected;
             handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(selected);
-            LINA_TRACE("Selected : {0}", handle->m_value->GetPath());
         }
 
         if (removed)
@@ -1442,6 +1530,18 @@ namespace Lina::Editor
         bool         pressed  = false;
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Audio", &removed, GetTypeID<Audio::Audio>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEAUDIO_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Audio::Audio>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (selected != 0)
         {
@@ -1466,6 +1566,18 @@ namespace Lina::Editor
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
 
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEPHYMAT_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         if (selected != 0)
         {
             handle->m_sid   = selected;
@@ -1489,6 +1601,18 @@ namespace Lina::Editor
         bool         pressed  = false;
         bool         removed  = false;
         StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Shader", &removed, GetTypeID<Graphics::Shader>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (selected != 0)
         {

@@ -70,6 +70,8 @@ namespace Lina::ECS
                 nodeComponent.m_materials.emplace_back();
                 nodeComponent.m_materials.back().m_sid   = defaultMat->GetSID();
                 nodeComponent.m_materials.back().m_value = defaultMat;
+                nodeComponent.m_materialsNames.emplace_back();
+                nodeComponent.m_materialsNames.back() = model->GetImportedMaterials()[meshes[i]->GetMaterialSlotIndex()].m_name;
             }
         }
 

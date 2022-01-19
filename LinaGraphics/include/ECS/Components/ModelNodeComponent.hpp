@@ -62,6 +62,9 @@ namespace Lina::ECS
         LINA_PROPERTY("Materials", "MaterialArray")
         std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
         
+        LINA_PROPERTY("Materials_Names")
+        std::vector<std::string> m_materialsNames;
+
         int                                        m_nodeIndex = -1;
         Resources::ResourceHandle<Graphics::Model> m_model;
         bool                                       m_culled = false;

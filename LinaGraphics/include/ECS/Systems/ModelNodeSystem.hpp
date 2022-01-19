@@ -142,7 +142,6 @@ namespace Lina::ECS
 
     private:
         void ConstructEntityHierarchy(Entity entity, Matrix& parentTransform, Graphics::Model* model, Graphics::ModelNode* node);
-        void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
     private:
         Graphics::RenderDevice* m_renderDevice = nullptr;

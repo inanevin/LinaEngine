@@ -178,7 +178,7 @@ namespace Lina::Editor
                         name.compare("material.prefilterMap") == 0 || name.find("material.pointShadowDepth") != std::string::npos)
                         continue;
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
-                    const std::string id       = "##_" + name;
+                    const std::string id       = "##_" + usedName;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
 
                     const StringIDType sidBefore = value.m_texture.m_sid;

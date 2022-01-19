@@ -127,6 +127,10 @@ namespace Lina::Editor
 
         if (!labelProperty || !typeProperty)
             return false;
+        
+        const char* typeVal                         = typeProperty.value().cast<const char*>();
+
+        if (std::string(typeVal).compare("") == 0) return false;
 
         const char* label                     = labelProperty.value().cast<const char*>();
         std::string type                      = std::string(typeProperty.value().cast<const char*>());
@@ -240,12 +244,43 @@ namespace Lina::Editor
         }
         else if (type.compare("MaterialArray") == 0)
         {
+            ImGui::NewLine();
+
             auto arr = data.get(instance).cast<std::vector<Resources::ResourceHandle<Graphics::Material>>>();
+
+            std::vector<std::string> materialNameVector;
+            
+            // We are looking for a property with title MaterialArray's title + _Names
+            const std::string labelNames = std::string(label) + "_Names";
+
+            // Search through the reflected data of the owning type.
+            for (auto& d : owningType.data())
+            {
+                auto dTitle = d.prop("Title"_hs);
+
+                if (dTitle)
+                {
+                    // If any property's title matches the label we are looking for
+                    // it means we found the array containing the names for the current material array.
+                    const char* dTitleChr = dTitle.value().cast<const char*>();
+                    if (std::string(dTitleChr).compare(labelNames) == 0)
+                    {
+                        materialNameVector = d.get(instance).cast<std::vector<std::string>>();   
+                        break;
+                    }
+                }
+            }
 
             for (int i = 0; i < arr.size(); i++)
             {
                 const StringIDType prev = arr[i].m_sid;
                 const std::string  elementID = variableID + std::to_string(i);
+
+                std::string materialName = "Material " + std::to_string(i);
+                if (materialNameVector.size() > 0)
+                    materialName = materialNameVector[i];
+                
+                WidgetsUtility::PropertyLabel(materialName.c_str());
                 WidgetsUtility::ResourceSelectionMaterial(elementID, &arr[i]);
                 data.set(instance, arr);
 

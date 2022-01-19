@@ -214,6 +214,7 @@ entt::meta<ECS::EntityDataComponent>().func<&REF_Copy<ECS::EntityDataComponent>,
 entt::meta<ECS::EntityDataComponent>().func<&REF_Paste<ECS::EntityDataComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::ModelNodeComponent>().type().props(std::make_pair("Title"_hs, "Model Node"), std::make_pair("Icon"_hs,ICON_FA_CUBES), std::make_pair("Category"_hs,"Rendering"), std::make_pair("CanAddComponent"_hs, "0"));
 entt::meta<ECS::ModelNodeComponent>().data<&ECS::ModelNodeComponent::m_isEnabled>("m_isEnabled"_hs);
+entt::meta<ECS::ModelNodeComponent>().data<&ECS::ModelNodeComponent::m_materialsNames>("m_materialsNames"_hs).props(std::make_pair("Title"_hs,"Materials_Names"),std::make_pair("Type"_hs,""),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::ModelNodeComponent>().data<&ECS::ModelNodeComponent::m_materials>("m_materials"_hs).props(std::make_pair("Title"_hs,"Materials"),std::make_pair("Type"_hs,"MaterialArray"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<ECS::ModelNodeComponent>().func<&REF_CloneComponent<ECS::ModelNodeComponent>, entt::as_void_t>("clone"_hs);
 entt::meta<ECS::ModelNodeComponent>().func<&REF_SerializeComponent<ECS::ModelNodeComponent>, entt::as_void_t>("serialize"_hs);
@@ -368,6 +369,11 @@ entt::meta<Graphics::Material>().data<&Graphics::Material::m_receiveShadows>("m_
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
 
 
 
