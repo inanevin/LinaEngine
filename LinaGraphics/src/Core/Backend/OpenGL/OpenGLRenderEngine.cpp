@@ -579,14 +579,10 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::DumpMemory()
     {
         while (!m_debugLineQueue.empty())
-        {
             m_debugLineQueue.pop();
-        }
 
         while (!m_debugIconQueue.empty())
-        {
             m_debugIconQueue.pop();
-        }
     }
 
     void OpenGLRenderEngine::Draw()
