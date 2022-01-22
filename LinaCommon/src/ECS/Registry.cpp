@@ -160,10 +160,25 @@ namespace Lina::ECS
 
     void Registry::CloneEntity(Entity from, Entity to)
     {
-        for (auto& pool : storage())
+        auto& it = storage();
+        for (auto& store : it)
         {
-            // if (pool.second.contains(from))
-            //     m_cloneComponentFunctions[pool.first](from, to);
+            for (auto ent : store.second)
+            {
+                if (from == ent)
+                {
+                    auto resolved = entt::resolve(store.first);
+
+                    if (resolved)
+                    {
+                        auto& cloneFunc = resolved.func("clone"_hs);
+
+                        if (cloneFunc)
+                            cloneFunc.invoke({}, from, to);
+                    }
+                    break;
+                }
+            }
         }
     }
 
@@ -190,9 +205,9 @@ namespace Lina::ECS
         // Copy entity components to newly created one
         CloneEntity(source, copy);
 
-        // EntityDataComponent& copyData = get<EntityDataComponent>(copy);
-        get<EntityDataComponent>(copy).m_parent = entt::null;
-        get<EntityDataComponent>(copy).m_children.clear();
+        EntityDataComponent& copyData = get<EntityDataComponent>(copy);
+        copyData.m_parent             = entt::null;
+        copyData.m_children.clear();
 
         for (Entity child : sourceData.m_children)
         {

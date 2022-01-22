@@ -176,10 +176,11 @@ namespace Lina::Graphics
 
         friend class cereal::access;
 
+
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_receiveShadows, m_triggersHDRIReflections, m_receiveLighting, m_receiveHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+            archive(m_triggersHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
         }
 
         std::map<std::string, float>             m_floats;
@@ -191,15 +192,7 @@ namespace Lina::Graphics
         std::map<std::string, Vector4>           m_vector4s;
         std::map<std::string, Matrix>            m_matrices;
         std::map<std::string, bool>              m_bools;
-
-        LINA_PROPERTY("Receive Shadows", "Bool")
-        bool m_receiveShadows = false;
-
-        LINA_PROPERTY("Receive Lighting", "Bool")
-        bool m_receiveLighting = false;
-
-        LINA_PROPERTY("Receive Reflections", "Bool")
-        bool m_receiveHDRIReflections = false;
+        bool                                     m_hdriDataSet = false;
 
         LINA_PROPERTY("Trigger Reflections", "Bool")
         bool m_triggersHDRIReflections = false;
@@ -209,8 +202,6 @@ namespace Lina::Graphics
 
     private:
         friend class OpenGLRenderEngine;
-        friend class RenderContext;
-        bool m_hdriDataSet = false;
 
         MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
     };

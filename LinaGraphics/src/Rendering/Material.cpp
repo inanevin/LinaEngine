@@ -262,21 +262,9 @@ namespace Lina::Graphics
         m_vector2s.clear();
         m_matrices.clear();
         m_vector4s.clear();
+        m_bools.clear();
         m_hdriDataSet = false;
-        bool isPBR    = shader->GetPath().compare("Resources/Engine/Shaders/PBR/PBRLitStandard.glsl") == 0;
-
-        if (isPBR)
-        {
-            m_receiveHDRIReflections = true;
-            m_receiveLighting        = true;
-            m_receiveShadows         = true;
-        }
-        else
-        {
-            m_receiveHDRIReflections = false;
-            m_receiveLighting        = false;
-            m_receiveShadows         = false;
-        }
+   
 
         UpdateMaterialData();
 

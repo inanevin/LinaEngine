@@ -47,7 +47,7 @@ namespace Lina
 // Class Title
 #define LINA_CLASS(...)
 
-// ClassTitle, ClassIcon, Category, CanAddComponent, ListenToValueChange, BaseClass
+// ClassTitle, ClassIcon, Category, CanAddComponent, BaseClass
 #define LINA_COMPONENT(...)
 
 // Title, Type, Tooltip, Dependency, Category

@@ -31,11 +31,13 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Core/PhysicsBackend.hpp"
+#include "Rendering/Texture.hpp"
 #include <entt/meta/factory.hpp>
 #include <entt/meta/node.hpp>
 #include <entt/meta/resolve.hpp>
 #include "IconsFontAwesome5.h"
 #include <unordered_map>
+
 using namespace entt::literals;
 
 std::unordered_map<std::string, std::vector<entt::meta_data>> m_propertyList; // Category- property pair
@@ -293,6 +295,16 @@ namespace Lina::Editor
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Shader>>();
             const StringIDType prev   = handle.m_sid;
             WidgetsUtility::ResourceSelectionShader(variableID, &handle);
+            data.set(instance, handle);
+
+            if (prev != handle.m_sid)
+                propertyChanged = true;
+        }
+        else if (type.compare("Texture") == 0)
+        {
+            auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Texture>>();
+            const StringIDType prev   = handle.m_sid;
+            WidgetsUtility::ResourceSelectionTexture(variableID, &handle);
             data.set(instance, handle);
 
             if (prev != handle.m_sid)

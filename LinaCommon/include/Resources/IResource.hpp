@@ -114,7 +114,7 @@ namespace Lina::Resources
     T LoadArchiveFromFile(const std::string& path)
     {
         T             obj;
-        std::ifstream stream(path);
+        std::ifstream stream(path, std::ios::binary);
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(obj);
@@ -128,7 +128,7 @@ namespace Lina::Resources
         T obj;
         {
             std::string        data((char*)data, dataSize);
-            std::istringstream stream(data);
+            std::istringstream stream(data, std::ios::binary);
             {
                 cereal::PortableBinaryInputArchive iarchive(stream);
                 iarchive(obj);

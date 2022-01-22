@@ -174,7 +174,7 @@ namespace Lina::Editor
                 for (auto& [name, value] : mat->m_sampler2Ds)
                 {
                     if (name.compare("material.brdfLUTMap") == 0 || name.compare("material.irradianceMap") == 0 ||
-                        name.compare("material.prefilterMap") == 0 || name.find("material.pointShadowDepth") != std::string::npos)
+                        name.compare("material.prefilterMap") == 0 || name.find("material.pointShadowDepth") != std::string::npos || name.compare("material.environmentMap") == 0)
                         continue;
                     const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
                     const std::string id       = "##_" + usedName;

@@ -24,8 +24,12 @@ void main()
 }
 
 #elif defined(FS_BUILD)
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 brightColor;
+
+layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
+layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
+layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
+layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
+
 struct Material
 {
   vec3 color;
@@ -33,13 +37,10 @@ struct Material
 uniform Material material;
 
 void main()
-{
-   fragColor = vec4(material.color.x, material.color.y, material.color.z, 1);
-   
-   float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness > 1.0)
-		brightColor = vec4(fragColor.rgb, 1.0);
-	else
-		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+{   
+  gPositionMetallic = vec4(vec3(0), 0.0f);
+  gNormalRoughness = vec4(0.0f);
+  gAlbedoAO = vec4(vec3(material.color.x, material.color.y, material.color.z), 0.0f);
+  gEmissionWorkflow = vec4(vec3(0.0f), 2.0f);	// Unlit
 }
 #endif

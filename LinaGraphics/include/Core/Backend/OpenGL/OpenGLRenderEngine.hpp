@@ -174,7 +174,7 @@ namespace Lina::Graphics
         /// </summary>
         uint32 RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget = nullptr, Material* materialOverride = nullptr);
 
-        void UpdateShaderData(Material* mat);
+        void UpdateShaderData(Material* mat, bool lightPass = false);
 
         inline UniformBuffer& GetViewBuffer()
         {
@@ -338,29 +338,37 @@ namespace Lina::Graphics
         RenderTarget m_hdriCaptureRenderTarget;
         RenderTarget m_shadowMapTarget;
         RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
+        RenderTarget m_gBuffer;
 
         RenderBuffer m_primaryBuffer;
         RenderBuffer m_primaryMSAABuffer;
         RenderBuffer m_secondaryRenderBuffer;
         RenderBuffer m_previewRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
+        RenderBuffer m_gBufferRenderBuffer;
 
-        Texture m_primaryMSAARTTexture0;
-        Texture m_primaryMSAARTTexture1;
-        Texture m_primaryRTTexture0;
-        Texture m_primaryRTTexture1;
-        Texture m_secondaryRTTexture;
-        Texture m_previewRTTexture;
-        Texture m_pingPongRTTexture1;
-        Texture m_pingPongRTTexture2;
-        Texture m_hdriCubemap;
-        Texture m_hdriIrradianceMap;
-        Texture m_hdriPrefilterMap;
-        Texture m_hdriLutMap;
-        Texture m_shadowMapRTTexture;
-        Texture m_defaultCubemapTexture;
-        Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
-        Texture m_defaultTexture;
+        Texture m_gBufferPositionMetallic;
+        Texture m_gBufferNormalRoughness;
+        Texture m_gBufferAlbedoAO;
+        Texture m_gBufferEmissionWorkflow;
+
+        Texture  m_primaryMSAARTTexture0;
+        Texture  m_primaryMSAARTTexture1;
+        Texture  m_primaryRTTexture0;
+        Texture  m_primaryRTTexture1;
+        Texture  m_secondaryRTTexture;
+        Texture  m_previewRTTexture;
+        Texture  m_pingPongRTTexture1;
+        Texture  m_pingPongRTTexture2;
+        Texture  m_hdriCubemap;
+        Texture  m_hdriIrradianceMap;
+        Texture  m_hdriPrefilterMap;
+        Texture  m_hdriLutMap;
+        Texture  m_shadowMapRTTexture;
+        Texture  m_defaultCubemapTexture;
+        Texture  m_pLightShadowTextures[MAX_POINT_LIGHTS];
+        Texture  m_defaultTexture;
+        Texture* m_lastCapturedHDR = nullptr;
 
         // Frame buffer texture parameters
         SamplerParameters m_primaryRTParams;
@@ -369,6 +377,7 @@ namespace Lina::Graphics
 
         Mesh m_quadMesh;
 
+        Material  m_gBufferLightPassMaterial;
         Material  m_screenQuadFinalMaterial;
         Material  m_screenQuadBlurMaterial;
         Material  m_screenQuadOutlineMaterial;
@@ -389,15 +398,8 @@ namespace Lina::Graphics
         Shader* m_hdriPrefilterShader       = nullptr;
         Shader* m_hdriEquirectangularShader = nullptr;
         Shader* m_hdriIrradianceShader      = nullptr;
-        Shader* m_sqFinalShader             = nullptr;
-        Shader* m_sqBlurShader              = nullptr;
-        Shader* m_sqShadowMapShader         = nullptr;
-        Shader* m_debugLineShader           = nullptr;
-        Shader* m_debugIconShader           = nullptr;
-        Shader* m_skyboxSingleColorShader   = nullptr;
-        Shader* m_pointShadowsDepthShader   = nullptr;
-        Shader* m_standardUnlitShader;
-        Shader* m_standardLitShader;
+        Shader* m_standardUnlitShader       = nullptr;
+        Shader* m_standardLitShader         = nullptr;
 
         DrawParams m_defaultDrawParams;
         DrawParams m_skyboxDrawParams;
@@ -431,9 +433,8 @@ namespace Lina::Graphics
         uint32 m_hdriCubeVAO   = 0;
         uint32 m_lineVAO       = 0;
 
-        int  m_currentSpotLightCount  = 0;
-        int  m_currentPointLightCount = 0;
-        bool m_hdriDataCaptured       = false;
+        int m_currentSpotLightCount  = 0;
+        int m_currentPointLightCount = 0;
 
         Vector2i m_hdriResolution         = Vector2i(512, 512);
         Vector2i m_shadowMapResolution    = Vector2i(2048, 2048);

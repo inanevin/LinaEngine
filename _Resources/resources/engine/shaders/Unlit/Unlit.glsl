@@ -39,8 +39,10 @@ void main()
 #include <../Utility.glh>
 #include <../MaterialSamplers.glh>
 
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 brightColor;
+layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
+layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
+layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
+layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
 in vec3 FragPos;
 in vec2 TexCoords;
 
@@ -61,12 +63,11 @@ void main()
 	float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, tiled).a : 1.0);
 
 	vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,tiled) : vec4(1.0)) * vec4(material.objectColor, 1.0);
-	fragColor = vec4(color.rgb, alpha);
-		
-	float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness > 1.0)
-		brightColor = vec4(fragColor.rgb, 1.0);
-	else
-		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+	color.a = alpha;
+	
+	gPositionMetallic = vec4(FragPos, 0.0f);
+	gNormalRoughness = vec4(0.0f);
+	gAlbedoAO = vec4(color.rgb, 0.0f);
+	gEmissionWorkflow = vec4(vec3(0.0f), 2.0f);	// Unlit
 }
 #endif

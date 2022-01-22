@@ -199,6 +199,7 @@ namespace Lina::ECS
 
         if (skeleton.IsLoaded())
         {
+
         }
     }
 

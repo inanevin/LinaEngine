@@ -18,9 +18,9 @@
 #if defined(VS_BUILD)
 #include <../UniformBuffers.glh>
 #include <SkyboxCommon.glh>
+
 out vec3 WorldPos;
 
-	
 void main()
 {
 	mat4 inverseProjection = inverse(LINA_PROJ);
@@ -28,14 +28,19 @@ void main()
     vec3 unprojected = (inverseProjection * vec4(data[gl_VertexID], 0.0, 1.0)).xyz;
     vec3 eyeDirection = inverseModelview * unprojected;
     gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);
-    WorldPos = eyeDirection;
+	WorldPos = eyeDirection;
 }
 
 #elif defined(FS_BUILD)
 #include <../MaterialSamplers.glh>
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 brightColor;
+
+layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
+layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
+layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
+layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
+
 in vec3 WorldPos;
+
 struct Material
 {
   MaterialSamplerCube environmentMap;
@@ -50,13 +55,10 @@ void main()
   //envColor = envColor / (envColor + vec3(1.0));
   //envColor = pow(envColor, vec3(1.0/2.2));
 
-  fragColor = vec4(envColor, 1.0);
-  
-  float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness > 1.0)
-		brightColor = vec4(fragColor.rgb, 1.0);
-	else
-		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+  gPositionMetallic = vec4(WorldPos, 0.0f);
+  gNormalRoughness = vec4(0.0f);
+  gAlbedoAO = vec4(envColor, 0.0f);
+  gEmissionWorkflow = vec4(vec3(0.0f), 2.0f);	// Unlit
 }
 
 #endif
