@@ -46,6 +46,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/FrustumSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/ModelNodeSystem.hpp"
+#include "ECS/Systems/ReflectionSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "OpenGLRenderDevice.hpp"
 #include "OpenGLWindow.hpp"
@@ -148,6 +149,11 @@ namespace Lina::Graphics
         uint32 GetShadowMapImage();
 
         /// <summary>
+        /// Given a texture & a location, captures 6-faced cubemap & writes into the given texture.
+        /// </summary>
+        void CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution);
+
+        /// <summary>
         /// Given an HDRI loaded texture, captures & calculates HDRI cube probes & writes it into global HRDI buffer.
         /// This buffer will be sent to the materials whose HDRI support is enabled.
         /// </summary>
@@ -215,6 +221,10 @@ namespace Lina::Graphics
         inline ECS::ModelNodeSystem* GetModelNodeSystem()
         {
             return &m_modelNodeSystem;
+        }
+        inline ECS::ReflectionSystem* GetReflectionSystem()
+        {
+            return &m_reflectionSystem;
         }
         inline ECS::FrustumSystem* GetFrustumSystem()
         {
@@ -336,6 +346,7 @@ namespace Lina::Graphics
         RenderTarget m_pingPongRenderTarget1;
         RenderTarget m_pingPongRenderTarget2;
         RenderTarget m_hdriCaptureRenderTarget;
+        RenderTarget m_reflectionCaptureRenderTarget;
         RenderTarget m_shadowMapTarget;
         RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
         RenderTarget m_gBuffer;
@@ -345,12 +356,15 @@ namespace Lina::Graphics
         RenderBuffer m_secondaryRenderBuffer;
         RenderBuffer m_previewRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
+        RenderBuffer m_reflectionCaptureRenderBuffer;
         RenderBuffer m_gBufferRenderBuffer;
 
-        Texture m_gBufferPositionMetallic;
-        Texture m_gBufferNormalRoughness;
-        Texture m_gBufferAlbedoAO;
-        Texture m_gBufferEmissionWorkflow;
+        Texture m_gBufferPosition;
+        Texture m_gBufferNormal;
+        Texture m_gBufferAlbedo;
+        Texture m_gBufferEmission;
+        Texture m_gBufferMetallicRoughnessAOWorkflow;
+        Texture m_gBufferReflection;
 
         Texture  m_primaryMSAARTTexture0;
         Texture  m_primaryMSAARTTexture1;
@@ -420,6 +434,7 @@ namespace Lina::Graphics
         ECS::AnimationSystem        m_animationSystem;
         ECS::CameraSystem           m_cameraSystem;
         ECS::ModelNodeSystem        m_modelNodeSystem;
+        ECS::ReflectionSystem       m_reflectionSystem;
         ECS::SpriteRendererSystem   m_spriteRendererSystem;
         ECS::LightingSystem         m_lightingSystem;
         ECS::FrustumSystem          m_frustumSystem;

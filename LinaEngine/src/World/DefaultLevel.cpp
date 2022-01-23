@@ -36,7 +36,7 @@ namespace Lina::World
 {
     void DefaultLevel::Install()
     {
-        auto* mat                = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxMaterial();
+        auto* mat                = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxHDRIMaterial();
         m_skyboxMaterial.m_value = mat;
         m_skyboxMaterial.m_sid   = mat->GetSID();
         m_ambientColor           = Color(0.8f, 0.8f, 0.8f, 1.0f);

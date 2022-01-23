@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,40 +27,59 @@ SOFTWARE.
 */
 
 /*
-Class: EntityDrawer
+Class: ReflectionSystem
 
-Responsible for drawing the selected entity properties, name, layers etc. as well as initiating
-component draw for that entity.
 
-Timestamp: 10/12/2020 1:02:29 AM
+
+Timestamp: 1/23/2022 2:11:17 AM
 */
 
 #pragma once
 
-#ifndef EntityDrawer_HPP
-#define EntityDrawer_HPP
+#ifndef ReflectionSystem_HPP
+#define ReflectionSystem_HPP
 
-#include "ComponentDrawer.hpp"
-#include "Core/CommonECS.hpp"
+// Headers here.
+#include "ECS/System.hpp"
+#include "Math/Vector.hpp"
+#include "Core/RenderBackendFwd.hpp"
+#include "Core/CommonApplication.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-    class EntityDrawer
+    namespace Graphics
     {
-    public:
-        EntityDrawer()  = default;
-        ~EntityDrawer() = default;
+        class Material;
+        class Texture;
+    } // namespace Graphics
 
-        void Initialize();
-        void SetSelectedEntity(ECS::Entity entity);
-        void DrawSelectedEntity();
-        void AddComponentPopup();
+    namespace Event
+    {
+        struct EPlayModeChanged;
+    }
+} // namespace Lina
+
+namespace Lina::ECS
+{
+    class ReflectionSystem : public System
+    {
+
+    public:
+        ReflectionSystem()  = default;
+        ~ReflectionSystem() = default;
+        virtual void Initialize(const std::string& name, ApplicationMode& appMode);
+        virtual void UpdateComponents(float deltaTime) override;
+
+        void SetReflectionsOnMaterial(Graphics::Material* mat, const Vector3& transformLocation);
 
     private:
-        ComponentDrawer m_componentDrawer;
-        ECS::Entity     m_selectedEntity;
-        bool            m_shouldCopyEntityName      = true;
+        void ConstructRefAreaTexture(Graphics::Texture* texture, const Vector2i& res);
+        void OnPlayModeChanged(const Event::EPlayModeChanged& ev);
+
+    private:
+        Graphics::RenderEngine* m_renderEngine = nullptr;
+        ApplicationMode m_appMode;
     };
-} // namespace Lina::Editor
+} // namespace Lina::ECS
 
 #endif

@@ -319,6 +319,11 @@ namespace Lina::Editor
         static bool DragVector2(const char* id, float* var);
 
         /// <summary>
+        /// Draws 2 drag floats side by side.
+        /// </summary>
+        static bool DragVector2i(const char* id, int* var);
+
+        /// <summary>
         /// Draws 3 drag floats side by side.
         /// </summary>
         static bool DragVector3(const char* id, float* var);

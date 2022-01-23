@@ -264,7 +264,7 @@ namespace Lina::Graphics
         m_vector4s.clear();
         m_bools.clear();
         m_hdriDataSet = false;
-   
+        m_reflectionDataSet = false;
 
         UpdateMaterialData();
 

@@ -246,6 +246,8 @@ namespace Lina::ECS
             // Get the material for drawing, object's own material or overriden material.
             Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
 
+             m_renderEngine->GetReflectionSystem()->SetReflectionsOnMaterial(mat, models->GetTranslation());
+
             // Update the buffer w/ each transform.
             vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
 

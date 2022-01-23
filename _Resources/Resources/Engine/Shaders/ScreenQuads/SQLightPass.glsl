@@ -39,10 +39,12 @@ in vec2 TexCoords;
 
 struct Material
 {
-	MaterialSampler2D gPositionMetallicMap;	
-	MaterialSampler2D gNormalRoughnessMap;	
-	MaterialSampler2D gAlbedoAOMap;		
-	MaterialSampler2D gEmissionWorkflowMap;
+	MaterialSampler2D gPositionMap;	
+	MaterialSampler2D gNormalMap;	
+	MaterialSampler2D gAlbedoMap;		
+	MaterialSampler2D gEmissionMap;
+	MaterialSampler2D gMetallicRoughnessAOWorkflowMap;
+	MaterialSampler2D gReflectionMap;
 	MaterialSampler2D brdfLUTMap;
     MaterialSamplerCube irradianceMap;
     MaterialSamplerCube prefilterMap;
@@ -53,19 +55,21 @@ uniform Material material;
 
 void main()
 {
-	vec4 gPosMet = material.gPositionMetallicMap.isActive ? texture(material.gPositionMetallicMap.texture, TexCoords) : vec4(0.0);
-	vec4 gNormRough= material.gNormalRoughnessMap.isActive ? texture(material.gNormalRoughnessMap.texture, TexCoords) : vec4(0.0);
-	vec4 gAlbAO = material.gAlbedoAOMap.isActive ? texture(material.gAlbedoAOMap.texture, TexCoords) : vec4(0.0);
-	vec4 gEmWf = material.gEmissionWorkflowMap.isActive ? texture(material.gEmissionWorkflowMap.texture, TexCoords) : vec4(0.0);
+	vec4 gPos = material.gPositionMap.isActive ? texture(material.gPositionMap.texture, TexCoords) : vec4(0.0);
+	vec4 gNorm = material.gNormalMap.isActive ? texture(material.gNormalMap.texture, TexCoords) : vec4(0.0);
+	vec4 gAlb = material.gAlbedoMap.isActive ? texture(material.gAlbedoMap.texture, TexCoords) : vec4(0.0);
+	vec4 gEmission = material.gEmissionMap.isActive ? texture(material.gEmissionMap.texture, TexCoords) : vec4(0.0);
+	vec4 gMetRoughAOWf = material.gMetallicRoughnessAOWorkflowMap.isActive ? texture(material.gMetallicRoughnessAOWorkflowMap.texture, TexCoords) : vec4(0.0);
+	vec4 reflection = material.gReflectionMap.isActive ? texture(material.gReflectionMap.texture, TexCoords) : vec4(0.0f);
 	
-	vec3 WorldPos = gPosMet.rgb;
- 	vec3 albedo = gAlbAO.rgb;
-	vec3 emission = gEmWf.rgb;
-	float workflow = gEmWf.a;
-  	float metallic = gPosMet.a;
-  	float roughness = gNormRough.a;
-  	float ao = gAlbAO.a;
-  	vec3 N = gNormRough.rgb;
+	vec3 WorldPos = gPos.rgb;
+ 	vec3 albedo = gAlb.rgb;
+	vec3 emission = gEmission.rgb;
+  	float metallic = gMetRoughAOWf.r;
+  	float roughness = gMetRoughAOWf.g;
+  	float ao = gMetRoughAOWf.b;
+	float workflow = gMetRoughAOWf.a;
+  	vec3 N = gNorm.rgb;
   	vec3 V = normalize(vec3(LINA_CAMPOS.x, LINA_CAMPOS.y, LINA_CAMPOS.z) - WorldPos);
     vec3 Lo = vec3(0.0);
 	vec3 finalColor = vec3(0.0);
@@ -145,7 +149,7 @@ void main()
 	else
 		finalColor = albedo;
      
-    finalColor += Lo * ambientMultiplier;
+    finalColor += Lo * ambientMultiplier + emission + reflection.rgb;
 	
     // HDR tonemapping
 	//color = color / (color + vec3(1.0));

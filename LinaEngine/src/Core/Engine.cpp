@@ -93,13 +93,12 @@ namespace Lina
 
         bool engineSettingsExists = Utility::FileExists("engine.linasettings");
 
-        if (engineSettingsExists)
-            m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
-        else
-            Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
+         if (engineSettingsExists)
+             m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
+         else
+             Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
         RegisterResourceTypes();
-
         m_eventSystem.Initialize();
         m_resourceStorage.Initialize();
         m_inputEngine.Initialize();
@@ -306,6 +305,8 @@ namespace Lina
 
     void Engine::RegisterResourceTypes()
     {
+        m_resourceStorage.m_resources.clear();
+
         m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
             Resources::ResourceTypeData{
                 0,

@@ -25,6 +25,11 @@ void main()
 }
 
 #elif defined(FS_BUILD)
+
+layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
+layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
+layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
+layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
 out vec4 fragColor;
 struct Material
 {

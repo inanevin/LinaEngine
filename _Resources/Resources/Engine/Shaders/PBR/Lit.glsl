@@ -86,10 +86,12 @@ void main()
 #include <../MaterialSamplers.glh>
 #include <../LightingCalculations.glh>
 
-layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
-layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
-layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
-layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
+layout (location = 0) out vec4 gPosition;		// rgb = position
+layout (location = 1) out vec4 gNormal;			// rgb = normal
+layout (location = 2) out vec4 gAlbedo;					
+layout (location = 3) out vec4 gEmission;		    				// rgb = emission, a = workflow
+layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g = roughness, b = ao, a = workflow
+layout (location = 5) out vec4 gReflection;		
 
 
 in vec2 TexCoords;
@@ -102,11 +104,13 @@ struct Material
   MaterialSampler2D normalMap;
   MaterialSampler2D metallicRoughnessAOMap;
   MaterialSampler2D emissiveMap;
-  vec3 objectColor;
+  MaterialSamplerCube reflectionAreaMap;
+  vec4 objectColor;
   float metallic;
   float roughness;
   float emissionIntensity;
   int workflow;
+  int surfaceType;
   vec2 tiling;
 };
 
@@ -117,20 +121,34 @@ uniform Material material;
 void main()
 {
 	vec2 tiled = vec2(TexCoords.x * material.tiling.x, TexCoords.y * material.tiling.y);
- 	vec3 albedo = material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).rgb* material.objectColor : 
+ 	vec4 albedo = material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).rgba * material.objectColor : 
  	material.objectColor;
 	vec3 emission = material.emissiveMap.isActive ? texture(material.emissiveMap.texture, tiled).rgb : vec3(0.0);
-	
+	float alpha = material.surfaceType == 0 ? 1.0 : albedo.a;
+
 	bool metRoughAOActive = material.metallicRoughnessAOMap.isActive;
   	float metallic = metRoughAOActive ? (texture(material.metallicRoughnessAOMap.texture,tiled).r * material.metallic) : material.metallic;
   	float roughness = metRoughAOActive  ? (texture(material.metallicRoughnessAOMap.texture, tiled).g * material.roughness) : material.roughness;
   	float ao = metRoughAOActive ? texture(material.metallicRoughnessAOMap.texture, tiled).b : 1.0;
   	vec3 N = material.normalMap.isActive ? getNormalFromMap(texture(material.normalMap.texture, tiled).rgb, tiled, WorldPos, Normal) : Normal;
-
-	gPositionMetallic = vec4(WorldPos, metallic);
-	gNormalRoughness = vec4(normalize(N), roughness);
-	gAlbedoAO = vec4(albedo, ao);
-	gEmissionWorkflow = vec4(emission * material.emissionIntensity, float(material.workflow));
+	N = normalize(N);
+	
+	gPosition = vec4(WorldPos, 1.0f);
+	gNormal = vec4(N, 1.0f);
+	gAlbedo = vec4(albedo.rgb, alpha);
+	gEmission = vec4(emission * material.emissionIntensity, 1.0f);
+	gMetallicRoughnessAOWorkflow = vec4(metallic, roughness, ao, float(material.workflow));
+	
+	bool reflectionActive = material.reflectionAreaMap.isActive;
+	
+	if(reflectionActive)
+	{
+		vec3 I = normalize(WorldPos - LINA_CAMPOS.xyz);
+		vec3 R = reflect(I, N);
+		gReflection = vec4(texture(material.reflectionAreaMap.texture, R).rgb, 1.0f);
+	}
+	else
+		gReflection = vec4(0.0f);
 }
 #endif
 

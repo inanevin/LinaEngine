@@ -1901,6 +1901,22 @@ namespace Lina::Editor
         return x || y;
     }
 
+        bool Editor::WidgetsUtility::DragVector2i(const char* id, int* var)
+    {
+        float       windowWidth    = ImGui::GetWindowWidth();
+        float       currentCursor  = ImGui::GetCursorPosX();
+        const float labelIncrement = 12;
+        float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 1.0f) / 2.0f;
+        std::string xid            = std::string(id) + "_x";
+        std::string yid            = std::string(id) + "_y";
+
+        bool x = DragInt(xid.c_str(), "X", &var[0], widthPerItem);
+        ImGui::SameLine();
+        bool y = DragInt(yid.c_str(), "Y", &var[1], widthPerItem);
+
+        return x || y;
+    }
+
     bool Editor::WidgetsUtility::DragVector3(const char* id, float* var)
     {
         float       windowWidth    = ImGui::GetWindowWidth();

@@ -149,10 +149,12 @@ namespace Lina::Graphics
         m_modelNodeSystem.Initialize("Model Node System", m_appMode);
         m_spriteRendererSystem.Initialize("Sprite System");
         m_frustumSystem.Initialize("Frustum System");
+        m_reflectionSystem.Initialize("Reflection System", m_appMode);
 
         // Order is important.
         AddToRenderingPipeline(m_cameraSystem);
         AddToRenderingPipeline(m_frustumSystem);
+        AddToRenderingPipeline(m_reflectionSystem);
         AddToRenderingPipeline(m_modelNodeSystem);
         AddToRenderingPipeline(m_spriteRendererSystem);
         AddToRenderingPipeline(m_lightingSystem);
@@ -233,8 +235,8 @@ namespace Lina::Graphics
         m_defaultSprite     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
         m_defaultSkyboxHDRI = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
-        auto* text = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Venice.hdr");
-        m_renderSettings->m_environmentHDR.m_sid = text->GetSID();
+        auto* text                                 = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Venice.hdr");
+        m_renderSettings->m_environmentHDR.m_sid   = text->GetSID();
         m_renderSettings->m_environmentHDR.m_value = text;
         CaptureCalculateHDRI(*text);
         m_defaultSkyboxHDRI->SetTexture(MAT_MAP_ENVIRONMENT, &m_hdriCubemap, TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -300,23 +302,29 @@ namespace Lina::Graphics
 
         // Initialize hdri render buffer
         m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
+        m_reflectionCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
 
         // Initialize primary render target.
         m_primaryRenderTarget.Construct(m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
         m_primaryMSAATarget.Construct(m_primaryMSAARTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryMSAABuffer.GetID(), 0);
 
-        m_gBufferPositionMetallic.ConstructRTTexture(m_screenSize, gBufferParams4, false);
-        m_gBufferNormalRoughness.ConstructRTTexture(m_screenSize, gBufferParams4, false);
-        m_gBufferAlbedoAO.ConstructRTTexture(m_screenSize, gBufferParams4, false);
-        m_gBufferEmissionWorkflow.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferPosition.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferNormal.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferAlbedo.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferEmission.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferMetallicRoughnessAOWorkflow.ConstructRTTexture(m_screenSize, gBufferParams4, false);
+        m_gBufferReflection.ConstructRTTexture(m_screenSize, gBufferParams4, false);
 
         m_gBufferRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
-        m_gBuffer.Construct(m_gBufferPositionMetallic, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_gBufferRenderBuffer.GetID(), 0);
-        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferNormalRoughness.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferAlbedoAO.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
-        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferEmissionWorkflow.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 3);
-        uint32 gBufferAttachments[4] = {FrameBufferAttachment::ATTACHMENT_COLOR, (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)3)};
-        m_renderDevice.MultipleDrawBuffersCommand(m_gBuffer.GetID(), 4, gBufferAttachments);
+        m_gBuffer.Construct(m_gBufferPosition, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_gBufferRenderBuffer.GetID(), 0);
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferNormal.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferAlbedo.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferEmission.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 3);
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferMetallicRoughnessAOWorkflow.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 4);
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferReflection.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 5);
+        uint32 gBufferAttachments[6] = {FrameBufferAttachment::ATTACHMENT_COLOR, (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2),
+                                        (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)3), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)4), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)5)};
+        m_renderDevice.MultipleDrawBuffersCommand(m_gBuffer.GetID(), 6, gBufferAttachments);
 
         // Bind the extre texture to primary render target, also tell open gl that we are running mrts.
         m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
@@ -331,6 +339,7 @@ namespace Lina::Graphics
 
         // Initialize HDRI render target
         m_hdriCaptureRenderTarget.Construct(FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
+        m_reflectionCaptureRenderTarget.Construct(FrameBufferAttachment::ATTACHMENT_DEPTH, m_reflectionCaptureRenderBuffer.GetID());
 
         // Initialize depth map for shadows
         m_shadowMapTarget.Construct(m_shadowMapRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
@@ -588,6 +597,7 @@ namespace Lina::Graphics
         {
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
             DrawSkybox();
+
             DrawSceneObjects(m_defaultDrawParams);
         }
 
@@ -675,16 +685,18 @@ namespace Lina::Graphics
 
         if (m_skyboxMaterial->m_triggersHDRIReflections && !m_gBufferLightPassMaterial.m_hdriDataSet)
         {
-            
             SetHDRIData(&m_gBufferLightPassMaterial);
         }
         else if (!m_skyboxMaterial->m_triggersHDRIReflections && m_gBufferLightPassMaterial.m_hdriDataSet)
             RemoveHDRIData(&m_gBufferLightPassMaterial);
 
-        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GPOSMETALLIC, &m_gBufferPositionMetallic);
-        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GNORMALROUGHNESS, &m_gBufferNormalRoughness);
-        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GALBEDOAO, &m_gBufferAlbedoAO);
-        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GEMISSIONWORKFLOW, &m_gBufferEmissionWorkflow);
+
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GPOS, &m_gBufferPosition);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GNORMAL, &m_gBufferNormal);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GALBEDO, &m_gBufferAlbedo);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GEMISSION, &m_gBufferEmission);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GMETALLICROUGHNESSAOWORKFLOW, &m_gBufferMetallicRoughnessAOWorkflow);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GREFLECTION, &m_gBufferReflection);
         UpdateShaderData(&m_gBufferLightPassMaterial, true);
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
@@ -940,6 +952,33 @@ namespace Lina::Graphics
         {
             m_renderDevice.ValidateShaderProgram(shaderID);
         }
+    }
+
+    void OpenGLRenderEngine::CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution)
+    {
+        // Build projection & view matrices for capturing HDRI data.
+        Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
+        Matrix captureViews[]    = {Matrix::InitLookAtRH(areaLocation, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+                                 Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+                                 Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
+
+        m_renderDevice.ResizeRenderBuffer(m_reflectionCaptureRenderTarget.GetID(), m_reflectionCaptureRenderBuffer.GetID(), resolution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+        m_renderDevice.SetViewport(Vector2::Zero, resolution);
+        m_renderDevice.SetShader(m_skyboxMaterial->m_shaderHandle.m_value->GetID());
+
+        // // Draw the cubemap.
+        // for (uint32 i = 0; i < 6; ++i)
+        // {
+        //     m_renderDevice.BindTextureToRenderTarget(m_reflectionCaptureRenderTarget.GetID(), writeTexture.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
+        //     m_renderDevice.SetFBO(m_reflectionCaptureRenderTarget.GetID());
+        //     m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        //     // m_renderDevice.Draw(m_hdriCubeVAO, m_defaultDrawParams, 0, 36, true);
+        //     m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
+        // }
+        //
+        m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        m_renderDevice.SetFBO(m_gBuffer.GetID());
+        m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
     }
 
     void OpenGLRenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)

@@ -194,6 +194,16 @@ namespace Lina::Editor
             if (prev != variable)
                 propertyChanged = true;
         }
+        else if (type.compare("Vector2i") == 0)
+        {
+            Vector2i       variable = data.get(instance).cast<Vector2i>();
+            const Vector2i prev     = variable;
+            WidgetsUtility::DragVector2i(varLabelID.c_str(), &variable.x);
+            data.set(instance, variable);
+
+            if (prev != variable)
+                propertyChanged = true;
+        }
         else if (type.compare("Vector3") == 0)
         {
             Vector3       variable = data.get(instance).cast<Vector3>();
