@@ -38,6 +38,11 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    Model::~Model()
+    {
+        delete m_rootNode;
+    }
+
     void* Model::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Model Loader - Memory] -> Loading: {0}", path);

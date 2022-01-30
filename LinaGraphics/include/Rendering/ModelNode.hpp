@@ -44,6 +44,7 @@ Timestamp: 12/24/2021 9:00:02 PM
 #include "Utility/StringId.hpp"
 #include "Resources/ResourceHandle.hpp"
 #include "Rendering/Material.hpp"
+#include "Math/AABB.hpp"
 #include <cereal/access.hpp>
 #include <cereal/types/memory.hpp>
 #include <memory>
@@ -57,6 +58,7 @@ namespace Lina
     namespace ECS
     {
         class ModelNodeSystem;
+        class FrustumSystem;
     }
 } // namespace Lina
 
@@ -86,11 +88,22 @@ namespace Lina::Graphics
         {
             return m_children;
         }
+        inline int GetIndexInParentHierarchy()
+        {
+            return m_nodeIndexInParentHierarchy;
+        }
+        inline Vector3 GetTotalVertexCenter()
+        {
+            return m_totalVertexCenter;
+        }
+        inline AABB& GetAABB()
+        {
+            return m_aabb;
+        }
 
     private:
         void Clear()
         {
-            m_sid            = 0;
             m_name           = "";
             m_localTransform = Matrix();
             m_children.clear();
@@ -98,12 +111,15 @@ namespace Lina::Graphics
 
     private:
         friend class ECS::ModelNodeSystem;
+        friend class ECS::FrustumSystem;
         friend class Graphics::ModelLoader;
         friend class cereal::access;
 
-        StringIDType            m_sid = 0;
+        int                     m_nodeIndexInParentHierarchy = 0;
         std::vector<Mesh*>      m_meshes;
-        std::string             m_name = "";
+        std::string             m_name              = "";
+        Vector3                 m_totalVertexCenter = Vector3::Zero;
+        AABB                    m_aabb;
         Matrix                  m_localTransform;
         std::vector<ModelNode*> m_children;
     };

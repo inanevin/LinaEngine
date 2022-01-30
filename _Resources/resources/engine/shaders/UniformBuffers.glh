@@ -1,23 +1,32 @@
 
 layout (std140, column_major) uniform ViewData
 {
-mat4 projection; 
-mat4 view; 
-mat4 lightSpace;
-mat4 VP;
-vec4 cameraPosition;
-float cameraNear;
-float cameraFar;
+mat4 LINA_PROJ; 
+mat4 LINA_VIEW; 
+mat4 LINA_LIGHTSPACE;
+mat4 LINA_VP;
+vec4 LINA_CAMPOS;
+float LINA_CAMNEAR;
+float LINA_CAMFAR;
 };
 
 layout (std140, column_major) uniform LightData
 {
-vec4 ambientColor;
-int pointLightCount; 
-int spotLightCount;
+vec4 LINA_AMBIENT;
+int LINA_PLIGHT_COUNT; 
+int LINA_SLIGHT_COUNT;
 };
- 
+
 layout (std140, column_major) uniform DebugData 
 { 
-bool visualizeDepth; 
+bool LINA_VISUALIZEDEPTH; 
 };
+
+layout (std140, column_major) uniform AppData
+{
+vec2 LINA_SCREENSIZE;
+vec2 LINA_MOUSEPOS;
+float LINA_DT;
+float LINA_ET;
+};
+ 

@@ -43,6 +43,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Rendering/RenderingCommon.hpp"
 #include "Resources/IResource.hpp"
 #include "Resources/ResourceHandle.hpp"
+#include "Core/CommonReflection.hpp"
 #include <cereal/types/map.hpp>
 #include <cereal/types/string.hpp>
 #include <set>
@@ -67,9 +68,13 @@ namespace Lina::Graphics
         }
     };
 
+    LINA_CLASS("Material")
     class Material : public Resources::IResource
     {
     public:
+        Material()          = default;
+        virtual ~Material() = default;
+
         static Material* CreateMaterial(Shader* shader, const std::string& savePath);
         virtual void*    LoadFromFile(const std::string& path) override;
         virtual void*    LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
@@ -174,7 +179,7 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_receiveShadows, m_triggersHDRIReflections, m_receiveLighting, m_receiveHDRIReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+            archive(m_triggersHDRIReflections, m_receivesEnvironmentReflections, m_shaderHandle, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
         }
 
         std::map<std::string, float>             m_floats;
@@ -186,17 +191,20 @@ namespace Lina::Graphics
         std::map<std::string, Vector4>           m_vector4s;
         std::map<std::string, Matrix>            m_matrices;
         std::map<std::string, bool>              m_bools;
+        bool                                     m_hdriDataSet       = false;
+        bool                                     m_reflectionDataSet = false;
 
-        bool                              m_receiveShadows          = false;
-        bool                              m_receiveLighting         = false;
-        bool                              m_receiveHDRIReflections  = false;
-        bool                              m_triggersHDRIReflections = false;
+        LINA_PROPERTY("Trigger HDRI", "Bool", "For Skybox materials, check if the material reflects the currently set environment map in render settings.")
+        bool m_triggersHDRIReflections = false;
+
+        LINA_PROPERTY("Receive Reflections", "Bool", "The material's shader will receive area-based reflection data if true.")
+        bool m_receivesEnvironmentReflections = false;
+
+        LINA_PROPERTY("Shader", "Shader")
         Resources::ResourceHandle<Shader> m_shaderHandle;
 
     private:
         friend class OpenGLRenderEngine;
-        friend class RenderContext;
-        bool m_hdriDataSet = false;
 
         MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
     };

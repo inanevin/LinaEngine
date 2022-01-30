@@ -38,6 +38,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/ModelNodeComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/ReflectionAreaComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "IconsFontAwesome5.h"
@@ -47,6 +48,7 @@ SOFTWARE.
 #include "Drawers/ClassDrawer.hpp"
 #include "Rendering/Model.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "imgui/imguizmo/ImGuizmo.h"
 #include "imgui/imgui.h"
 
@@ -57,36 +59,13 @@ namespace Lina::Editor
 {
     using namespace entt::literals;
 
-    template <typename Type>
-    void Drawer_ValueChanged(ECS::Entity ent, const char* label)
-    {
-        TypeID tid = GetTypeID<Type>();
-
-        if (tid == GetTypeID<ModelRendererComponent>())
-        {
-            // Generate pivots changed.
-            if (std::string(label).compare("Generate Pivots") == 0)
-            {
-                ModelRendererComponent& mr = ECS::Registry::Get()->get<ModelRendererComponent>(ent);
-                mr.RefreshHierarchy(ent);
-            }
-        }
-    }
-
     void Drawer_Debug(TypeID tid, ECS::Entity ent)
     {
         if (tid == GetTypeID<PointLightComponent>())
         {
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-            Vector3                   end1   = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
-            Vector3                   end2   = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
-            Vector3                   end3   = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
-            Vector3                   end4   = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Color::Red, 1.4f);
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Color::Red, 1.4f);
+            Event::EventSystem::Get()->Trigger<Event::EDrawSphere>(Event::EDrawSphere{data.GetLocation(), pLight.m_distance, Color::Red, 1.4f});
         }
         else if (tid == GetTypeID<SpotLightComponent>())
         {
@@ -101,6 +80,22 @@ namespace Lina::Editor
             Vector3                   dir  = Vector3::Zero - data.GetLocation();
             Vector3                   end1 = data.GetLocation() + dir;
             Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+        }
+        else if (tid == GetTypeID<ReflectionAreaComponent>())
+        {
+            ECS::EntityDataComponent&     data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
+            ECS::ReflectionAreaComponent& area = ECS::Registry::Get()->get<ECS::ReflectionAreaComponent>(ent);
+
+            if (area.m_isLocal)
+            {
+                Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{data.GetLocation(), area.m_halfExtents, Color::Red, 3.4f});
+            }
+
+            Graphics::RenderEngineBackend::Get()->DrawIcon(data.GetLocation(), StringID("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
+        }
+        else if (tid == GetTypeID<CameraComponent>())
+        {
+            CameraComponent& camComp = ECS::Registry::Get()->get<CameraComponent>(ent);
         }
     }
 
@@ -125,19 +120,41 @@ namespace Lina::Editor
     AddComponentMap ComponentDrawer::GetCurrentAddComponentMap(ECS::Entity entity)
     {
         AddComponentMap map;
+        auto*           reg = ECS::Registry::Get();
 
-        for (auto& category : m_addComponentMap)
+        for (auto& store : reg->storage())
         {
-            for (auto& pair : category.second)
-            {
-                TypeID tid          = pair.second;
-                auto   meta         = entt::resolve(tid);
-                bool   hasComponent = meta.func("has"_hs).invoke({}, entity).cast<bool>();
+            TypeID tid  = store.first;
+            auto   meta = entt::resolve(tid);
 
-                if (!hasComponent)
-                {
-                    map[category.first].push_back(std::make_pair(pair.first, tid));
-                }
+            auto hasFunc = meta.func("has"_hs);
+            if (!hasFunc)
+                continue;
+
+            bool hasComponent = hasFunc.invoke({}, entity).cast<bool>();
+            if (hasComponent)
+                continue;
+
+            auto categoryProp = meta.prop("Category"_hs);
+
+            std::string categoryStr = "";
+            if (categoryProp)
+                categoryStr = std::string(categoryProp.value().cast<const char*>());
+            else
+                categoryStr = "Default";
+
+            auto titleProp = meta.prop("Title"_hs);
+            if (!titleProp) continue;
+            const char* title = titleProp.value().cast<const char*>();
+
+            auto canAddProp = meta.prop("CanAddComponent"_hs);
+
+            if (canAddProp)
+            {
+                const char* canAdd = canAddProp.value().cast<const char*>();
+
+                if (std::string(canAdd).compare("1") == 0)
+                    map[categoryStr].push_back(std::make_pair(std::string(title), tid));
             }
         }
 
@@ -281,7 +298,7 @@ namespace Lina::Editor
 
             WidgetsUtility::PropertyLabel("Physics Material");
             const std::string currentMaterial = phy.m_material.m_value->GetPath();
-            StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial(&phy.m_material);
+            StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial("entity_phy_mat", &phy.m_material);
 
             if (selected != 0 && phy.m_material.m_value->GetSID() != selected)
             {
@@ -407,10 +424,11 @@ namespace Lina::Editor
 
             if (foldoutOpen)
             {
+                std::map<entt::meta_data, StringIDType> materials;
+
                 // Draw each reflected property in the component according to it's type.
                 for (auto data : resolvedData.data())
                 {
-
                     auto labelProperty = data.prop("Title"_hs);
                     auto typeProperty  = data.prop("Type"_hs);
 

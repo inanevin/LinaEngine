@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "Core/GUILayer.hpp"
+#include "Core/EditorApplication.hpp"
+#include "Rendering/Texture.hpp"
 
 namespace Lina::Editor
 {
@@ -69,6 +71,7 @@ namespace Lina::Editor
 
             if (Begin())
             {
+                ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
                 WidgetsUtility::IncrementCursorPosY(2);
                 ImGui::SetCursorPosX(paddingX);
                 DrawTop();
@@ -147,6 +150,32 @@ namespace Lina::Editor
 
             ImGui::SetCursorPosX(5);
             ImGui::Selectable(file->m_name.c_str(), m_selectedFile == file);
+
+            if (ImGui::IsItemHovered())
+            {
+#pragma warning(disable : 4312)
+
+                if (file->m_typeID == GetTypeID<Graphics::Model>() || file->m_typeID == GetTypeID<Graphics::Material>())
+                {
+                    uint32       textureID = EditorApplication::Get()->GetSnapshotTexture(file->m_sid);
+                    uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
+                    const ImVec2 imageMin    = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+                    const ImVec2 imageMax  = ImVec2(imageMin.x + 128, imageMin.y + 128);
+                    ImGui::GetForegroundDrawList()->AddImage((void*)bgTextureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::GetForegroundDrawList()->AddImage((void*)textureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::GetForegroundDrawList()->AddRect(imageMin, imageMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)), 0.0f, ImDrawFlags_None, 1.5f);
+                }
+                else if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                {
+                    uint32       textureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(file->m_sid)->GetID();
+                    uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
+                    const ImVec2 imageMin  = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+                    const ImVec2 imageMax  = ImVec2(imageMin.x + 128, imageMin.y + 128);
+                    ImGui::GetForegroundDrawList()->AddImage((void*)bgTextureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::GetForegroundDrawList()->AddImage((void*)textureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::GetForegroundDrawList()->AddRect(imageMin, imageMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)), 0.0f, ImDrawFlags_None, 1.5f);
+                }
+            }
 
             if (ImGui::IsItemClicked())
             {

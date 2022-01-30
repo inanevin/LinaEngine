@@ -143,6 +143,7 @@ namespace Lina::Editor
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_CLIPBOARD, "Log", "", 0, MenuBarElementType::LogPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_GLOBE, "Global Settings", "", 1, MenuBarElementType::GlobalSettingsPanel));
         panelsMenu->AddElement(new MenuBarElement(ICON_FA_CHART_LINE, "Profiler", "", 1, MenuBarElementType::ProfilerPanel));
+        panelsMenu->AddElement(new MenuBarElement(ICON_FA_FILE_ALT, "Text Editor", "", 1, MenuBarElementType::TextEditorPanel));
 
         // ****** DEBUG MENU
         debugMenu->AddElement(new MenuBarElement("", "ImGui Panel", "", 0, MenuBarElementType::ImGuiPanel));

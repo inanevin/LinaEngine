@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/ShaderInclude.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Memory/Memory.hpp"
@@ -66,23 +67,23 @@ namespace Lina::Editor
         bool   m_initialPositionSet = false;
     };
 
-    static bool                                    s_isDraggingWidgetInput = false;
-    static bool                                    s_mouseReleased         = true;
-    static std::string                             s_draggedInput          = "";
-    static float                                   s_valueOnDragStart      = 0.0f;
-    static int                                     s_valueOnDragStartInt   = 0;
-    void*                                          s_latestResourceHandle  = nullptr;
-    static std::map<TypeID, bool>                  m_classFoldoutMap;
-    static std::map<std::string, bool>             m_idFoldoutMap;
-    static bool                                    m_shouldShowCameraOptions;
-    static float                                   m_editorCameraSpeed           = 1.0f;
-    static float                                   m_editorCameraSpeedMultiplier = 1.0f;
-    static std::map<std::string, MovableChildData> m_movableChildData;
-    static std::map<StringIDType, uint32>          m_modelPreviewTextures;
-    static float                                   m_editorCameraAspectBeforeSnapshot   = 0.0f;
-    static Vector3                                 m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
-    static Quaternion                              m_editorCameraRotationBeforeSnapshot = Quaternion();
-    const std::string                              editorSnapshotLightName              = "##snapshot_light##_lina##";
+    static bool                                          s_isDraggingWidgetInput = false;
+    static bool                                          s_mouseReleased         = true;
+    static std::string                                   s_draggedInput          = "";
+    static float                                         s_valueOnDragStart      = 0.0f;
+    static int                                           s_valueOnDragStartInt   = 0;
+    static std::map<TypeID, bool>                        m_classFoldoutMap;
+    static std::map<TypeID, std::map<const char*, bool>> m_headerFoldoutMap;
+    static std::map<std::string, bool>                   m_idFoldoutMap;
+    static bool                                          m_shouldShowCameraOptions;
+    static float                                         m_editorCameraSpeed           = 1.0f;
+    static float                                         m_editorCameraSpeedMultiplier = 1.0f;
+    static std::map<std::string, MovableChildData>       m_movableChildData;
+    static std::map<StringIDType, uint32>                m_resourcePreviewTextures;
+    static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
+    static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
+    static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
+    const std::string                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -205,8 +206,8 @@ namespace Lina::Editor
         if (cameraSystem->GetAspectRatio() != aspectRatio)
             cameraSystem->SetAspectRatio(aspectRatio);
 
-        auto*       reg  = ECS::Registry::Get();
-        ECS::Entity ent  = reg->CreateEntity(editorSnapshotLightName);
+        auto*       reg       = ECS::Registry::Get();
+        ECS::Entity ent       = reg->CreateEntity(editorSnapshotLightName);
         auto&       lightData = reg->get<ECS::EntityDataComponent>(ent);
         lightData.SetLocation(Vector3(5, 8, 0));
         reg->emplace<ECS::DirectionalLightComponent>(ent);
@@ -269,15 +270,19 @@ namespace Lina::Editor
         {
             if (item->m_typeID == GetTypeID<Graphics::Texture>())
                 textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
-            else if (item->m_typeID == GetTypeID<Graphics::Model>())
+            else if (item->m_typeID == GetTypeID<Graphics::Model>() || item->m_typeID == GetTypeID<Graphics::Material>())
             {
-                if (m_modelPreviewTextures.find(item->m_sid) == m_modelPreviewTextures.end())
-                {
+                if (m_resourcePreviewTextures.find(item->m_sid) == m_resourcePreviewTextures.end())
+                    m_resourcePreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
 
-                    m_modelPreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
-                }
-                textureID = m_modelPreviewTextures[item->m_sid];
+                textureID = m_resourcePreviewTextures[item->m_sid];
             }
+            else if (item->m_typeID == GetTypeID<Graphics::Shader>() || item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Shader.png")->GetID();
+            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Audio.png")->GetID();
+            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+                textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_PhyMat.png")->GetID();
         }
 
         // Prepare border sizes from incremented cursor.
@@ -293,11 +298,84 @@ namespace Lina::Editor
         // Add the actual resource image.
         ImGui::Image((void*)textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
+        if (ImGui::IsItemHovered())
+        {
+            if (item->m_typeID == GetTypeID<Graphics::Model>())
+                Tooltip("Model");
+            else if (item->m_typeID == GetTypeID<Graphics::Material>())
+                Tooltip("Material");
+            else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+                Tooltip("Texture");
+            else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+                Tooltip("Shader");
+            else if (item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                Tooltip("Shader Include");
+            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+                Tooltip("Audio");
+            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+                Tooltip("Physics Material");
+        }
+
         if (item->m_typeID == GetTypeID<Graphics::Model>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
                 ImGui::SetDragDropPayload(RESOURCES_MOVEMODEL_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Graphics::Material>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Audio::Audio>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEAUDIO_ID, &sid, sizeof(StringIDType));
+
+                // Display preview
+                ImGui::Text(fullPath.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+        else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+        {
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(RESOURCES_MOVEPHYMAT_ID, &sid, sizeof(StringIDType));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -514,7 +592,13 @@ namespace Lina::Editor
 
         // Set the position only if first launch.
         const std::string childIDStr     = std::string(childID);
-        const ImVec2      targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
+        ImVec2            targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
+
+        if (targetPosition.x > confineRect.Max.x - size.x)
+            targetPosition.x = confineRect.Max.x - size.x;
+        if (targetPosition.y > confineRect.Max.y - size.y)
+            targetPosition.y = confineRect.Max.y - size.y;
+
         ImGui::SetNextWindowPos(targetPosition);
 
         ImGui::BeginChild(childID, size, true);
@@ -674,16 +758,11 @@ namespace Lina::Editor
         const ImVec2  buttonSize       = ImVec2(28, 28);
         const ImVec2  currentWindowPos = ImGui::GetWindowPos();
         const ImVec2  contentOffset    = ImVec2(0.5f, -2.0f);
-        static ImVec2 childSize        = ImVec2(buttonSize.x * 5 + itemSpacingX * 6, buttonSize.y + itemSpacingY * 3);
+        static ImVec2 childSize        = ImVec2(buttonSize.x * 6 + itemSpacingX * 7, buttonSize.y + itemSpacingY * 3);
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
         const ImVec2 defaultPos = ImVec2((confineRect.Max.x - confineRect.Min.x) - childSize.x - CURSOR_X_LABELS - 10, CURSOR_X_LABELS);
-
-        static float x = 0.0f;
-        static float y = 0.0f;
-        x += Input::InputEngineBackend::Get()->GetHorizontalAxisValue();
-        y += Input::InputEngineBackend::Get()->GetVerticalAxisValue();
 
         WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, true, ImVec2(5, 10));
         ImGui::SameLine();
@@ -752,6 +831,17 @@ namespace Lina::Editor
             PushIconFontSmall();
         }
 
+        ImGui::SameLine();
+        if (Button(ICON_FA_VECTOR_SQUARE, buttonSize, 1, rounding, contentOffset, levelPanel.m_shouldShowBounds))
+            levelPanel.m_shouldShowBounds = !levelPanel.m_shouldShowBounds;
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PopFont();
+            Tooltip("Show Bounds");
+            PushIconFontSmall();
+        }
+
         ImGui::PopFont();
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -761,6 +851,29 @@ namespace Lina::Editor
             const ImVec2 pos = m_movableChildData[childID].m_position;
             DisplayEditorCameraSettings(ImVec2(confineRect.Min.x + pos.x, confineRect.Min.y + pos.y + childSize.y + 2));
         }
+    }
+
+    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease)
+    {
+        int primitiveToReturn = currentSelected;
+
+        const std::string label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[currentSelected]));
+        if (BeginComboBox(comboID, label.c_str(), false, widthDecrease))
+        {
+            for (int i = 0; i < primitives.size(); i++)
+            {
+                const bool        selected     = i == currentSelected;
+                const std::string primitiveStr = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[i]));
+                if (ImGui::Selectable(primitiveStr.c_str(), selected))
+                    primitiveToReturn = i;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        return primitiveToReturn;
     }
 
     void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
@@ -993,7 +1106,7 @@ namespace Lina::Editor
 
         const std::string id = "##_" + std::string(label);
         if (Button(id.c_str(), rectSize))
-            m_classFoldoutMap[tid] = !m_classFoldoutMap[tid];
+            m_headerFoldoutMap[tid][label] = !m_headerFoldoutMap[tid][label];
 
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
@@ -1003,13 +1116,13 @@ namespace Lina::Editor
         const ImVec2 textSize             = ImGui::CalcTextSize(label);
         const ImVec2 cursorPosInside      = ImVec2(cursorPosBeforeButton.x + VALUE_OFFSET_FROM_WINDOW, cursorPosBeforeButton.y + rectSize.y / 2.0f - textSize.y / 2.0f);
         ImGui::SetCursorPos(cursorPosInside);
-        IconSmall(m_classFoldoutMap[tid] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+        IconSmall(m_headerFoldoutMap[tid][label] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
         ImGui::SameLine();
         ImGui::Text(label);
         ImGui::SameLine();
         ImGui::SetCursorPos(cursorPosAfterButton);
 
-        return m_classFoldoutMap[tid];
+        return m_headerFoldoutMap[tid][label];
     }
 
     void WidgetsUtility::DropShadow()
@@ -1086,16 +1199,23 @@ namespace Lina::Editor
         }
     }
 
-    bool Editor::WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton)
+    bool WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton, float widthDecrease)
     {
         PushPopupStyle();
-        const float currentCursor = ImGui::GetCursorPosX();
-        const float windowWidth   = ImGui::GetWindowWidth();
-        const float remaining     = windowWidth - currentCursor;
-        const float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
+        const float currentCursorX = ImGui::GetCursorPosX();
+        const float currentCursorY = ImGui::GetCursorPosY();
+        const float windowWidth    = ImGui::GetWindowWidth();
+        const float remaining      = windowWidth - currentCursorX;
+        const float comboWidth     = remaining - VALUE_OFFSET_FROM_WINDOW - widthDecrease - (hasRemoveButton ? ImGui::GetFrameHeight() : 0.0f);
         ImGui::SetNextItemWidth(comboWidth);
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
+
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
+        PushIconFontSmall();
+        ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_CHEVRON_CIRCLE_DOWN);
+        ImGui::PopFont();
+
         return combo;
     }
 
@@ -1221,11 +1341,65 @@ namespace Lina::Editor
         return shapeToReturn;
     }
 
-    StringIDType WidgetsUtility::ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
+    int WidgetsUtility::SurfaceTypeComboBox(const char* comboID, int currentType)
     {
-        std::string     resourceName     = "None";
-        constexpr float spaceFromEnd     = 10.0f;
-        const float     removeButtonSize = ImGui::GetFrameHeight();
+        int typeToReturn = currentType;
+
+        if (BeginComboBox(comboID, Graphics::g_materialSurfaceTypeStr[currentType], false))
+        {
+            int counter = 0;
+            for (auto& type : Graphics::g_materialSurfaceTypeStr)
+            {
+                const bool selected = currentType == counter;
+
+                if (ImGui::Selectable(Graphics::g_materialSurfaceTypeStr[counter], selected))
+                    typeToReturn = counter;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+
+                counter++;
+            }
+
+            ImGui::EndCombo();
+        }
+
+        return typeToReturn;
+    }
+
+    int WidgetsUtility::WorkflowComboBox(const char* comboID, int currentType)
+    {
+        int typeToReturn = currentType;
+
+        if (BeginComboBox(comboID, Graphics::g_materialWorkflowTypeStr[currentType], false))
+        {
+            int counter = 0;
+            for (auto& type : Graphics::g_materialWorkflowTypeStr)
+            {
+                const bool selected = currentType == counter;
+
+                if (ImGui::Selectable(Graphics::g_materialWorkflowTypeStr[counter], selected))
+                    typeToReturn = counter;
+
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+
+                counter++;
+            }
+
+            ImGui::EndCombo();
+        }
+
+        return typeToReturn;
+    }
+
+    StringIDType WidgetsUtility::ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
+    {
+        std::string     resourceName        = "None" + std::string("##") + id;
+        constexpr float spaceFromEnd        = 10.0f;
+        const float     removeButtonSize    = ImGui::GetFrameHeight();
+        const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
+        const float     currentCursorY      = ImGui::GetCursorPosY();
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1233,47 +1407,77 @@ namespace Lina::Editor
         // Selection button.
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-        bool pressed = ImGui::Button(resourceName.c_str(), ImVec2(-spaceFromEnd - removeButtonSize - ImGui::GetStyle().ItemSpacing.x, removeButtonSize));
+        const ImVec2 currentCursor = ImGui::GetCursorScreenPos();
+        bool         pressed       = ImGui::Button(resourceName.c_str(), ImVec2(buttonOffsetFromEnd, removeButtonSize));
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        // Remove button.
-        ImGui::SameLine();
+        const float  iconOffset = -spaceFromEnd - 20.0f;
+        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
-        *removed = Button(ICON_FA_MINUS, ImVec2(removeButtonSize, removeButtonSize), 1, 1.5f, ImVec2(0.6f, -2.4f));
+        ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
+
+        const std::string popupID = id + "_popup";
+        if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+        {
+            ImGui::OpenPopup(popupID.c_str());
+        }
+
+        PushPopupStyle();
+        if (ImGui::BeginPopup(popupID.c_str()))
+        {
+            if (ImGui::MenuItem("Clear"))
+                *removed = true;
+
+            ImGui::EndPopup();
+        }
+        PopPopupStyle();
+
+        auto& resSelector = GUILayer::Get()->GetResourceSelector();
 
         if (pressed)
         {
-            s_latestResourceHandle = currentHandle;
-            GUILayer::Get()->GetResourceSelector().SetCurrentTypeID(resourceType, resourceStr);
-            GUILayer::Get()->GetResourceSelector().Open();
+            resSelector.SetCurrentTypeID(resourceType, resourceStr, id);
+            resSelector.Open();
         }
 
         const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
-        if (s_latestResourceHandle == currentHandle && selectedResource != 0)
+
+        if (resSelector.m_currentSelectorID.compare(id) == 0 && selectedResource != 0)
         {
-            GUILayer::Get()->GetResourceSelector().m_selectedResource = 0;
-            s_latestResourceHandle                                    = nullptr;
+            resSelector.m_selectedResource  = 0;
+            resSelector.m_currentSelectorID = "";
             return selectedResource;
         }
 
         return 0;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionMaterial(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (selected != 0)
         {
             handle->m_sid   = selected;
             handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(selected);
-            LINA_TRACE("Selected : {0}", handle->m_value->GetPath());
         }
 
         if (removed)
@@ -1285,29 +1489,95 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionTexture(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionTexture(const std::string& id, void* handleAddr)
     {
+        Resources::ResourceHandle<Graphics::Texture>* handle = static_cast<Resources::ResourceHandle<Graphics::Texture>*>(handleAddr);
 
-        return 0;
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(selected);
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionAudio(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionAudio(const std::string& id, void* handleAddr)
     {
-        return StringIDType();
+        Resources::ResourceHandle<Audio::Audio>* handle = static_cast<Resources::ResourceHandle<Audio::Audio>*>(handleAddr);
+
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Audio", &removed, GetTypeID<Audio::Audio>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEAUDIO_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Audio::Audio>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Audio::Audio>(selected);
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionModelNode(void* handleAddr)
-    {
-        return StringIDType();
-    }
-
-    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr)
     {
         Resources::ResourceHandle<Physics::PhysicsMaterial>* handle = static_cast<Resources::ResourceHandle<Physics::PhysicsMaterial>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEPHYMAT_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (selected != 0)
         {
@@ -1325,9 +1595,39 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionShader(void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionShader(const std::string& id, void* handleAddr)
     {
-        return StringIDType();
+        Resources::ResourceHandle<Graphics::Shader>* handle = static_cast<Resources::ResourceHandle<Graphics::Shader>*>(handleAddr);
+
+        bool         pressed  = false;
+        bool         removed  = false;
+        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Shader", &removed, GetTypeID<Graphics::Shader>());
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
+                StringIDType sid = *(StringIDType*)payload->Data;
+                handle->m_sid    = sid;
+                handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sid);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        if (selected != 0)
+        {
+            handle->m_sid   = selected;
+            handle->m_value = Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(selected);
+        }
+
+        if (removed)
+        {
+            handle->m_sid   = 0;
+            handle->m_value = nullptr;
+        }
+
+        return selected;
     }
 
     bool WidgetsUtility::Button(const char* label, const ImVec2& size, float textSize, float rounding, ImVec2 contentOffset, bool locked)
@@ -1498,7 +1798,7 @@ namespace Lina::Editor
         const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
         ImVec2            windowPos  = ImGui::GetWindowPos();
         ImVec2            cursorPos  = ImGui::GetCursorPos();
-        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + cursorPos.y + 1);
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + -ImGui::GetScrollY() + cursorPos.y + 1);
         ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
         ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -1531,38 +1831,58 @@ namespace Lina::Editor
         return result;
     }
 
-    bool Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, int count)
+    bool Editor::WidgetsUtility::DragInt(const char* id, const char* label, int* var, float width)
     {
-        if (label != nullptr)
+        bool isIcon = label == nullptr;
+
+        if (isIcon)
+            label = ICON_FA_ARROWS_ALT_H;
+
+        if (width == -1.0f)
         {
-            float labelSize = ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x;
-            IncrementCursorPosX(-labelSize);
-            ImGui::Text(label);
-            ImGui::SameLine();
+            float windowWidth   = ImGui::GetWindowWidth();
+            float currentCursor = ImGui::GetCursorPosX();
+            float remaining     = (windowWidth - currentCursor);
+            float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW;
+            ImGui::SetNextItemWidth(comboWidth);
         }
         else
-        {
+            ImGui::SetNextItemWidth(width);
 
-            IncrementCursorPosX(-21.2f);
-            IncrementCursorPosY(6.2f);
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
-            PushScaledFont(0.7f);
-            ImGui::Text(ICON_FA_ARROWS_ALT_H);
-            PopScaledFont();
-            ImGui::PopStyleColor();
-            ImGui::SameLine();
-            IncrementCursorPosX(-0.6f);
-            IncrementCursorPosY(-5.8f);
+        const float       itemHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
+        ImVec2            windowPos  = ImGui::GetWindowPos();
+        ImVec2            cursorPos  = ImGui::GetCursorPos();
+        ImVec2            rectMin    = ImVec2(windowPos.x + cursorPos.x + 1, windowPos.y + -ImGui::GetScrollY() + cursorPos.y + 1);
+        ImVec2            rectMax    = ImVec2(rectMin.x + itemHeight - 2, rectMin.y + itemHeight - 2);
+        ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
+        ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        ImVec4            textCol    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        const std::string rectID     = std::string(id) + "_rect";
+
+        if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
+            ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
+
+        FramePaddingX(itemHeight + 6);
+        bool result = ImGui::InputInt(id, var);
+        PopStyleVar();
+
+        ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectCol), 1);
+        DragBehaviour(rectID.c_str(), var);
+
+        float yOffset = 0.0f;
+        if (isIcon)
+        {
+            PushIconFontSmall();
+            yOffset = 2.4f;
         }
 
-        DragBehaviour(id, var);
+        const ImVec2 textSize = ImGui::CalcTextSize(label);
+        ImGui::GetWindowDrawList()->AddText(ImVec2(rectMin.x + rectSize.x / 2.0f - textSize.x / 2.0f, rectMin.y + rectSize.y / 2.0f - textSize.y / 2.0f - yOffset), ImGui::ColorConvertFloat4ToU32(textCol), label);
 
-        float windowWidth   = ImGui::GetWindowWidth();
-        float currentCursor = ImGui::GetCursorPosX();
-        float remaining     = (windowWidth - currentCursor) / (float)count - 10;
-        float comboWidth    = remaining - VALUE_OFFSET_FROM_WINDOW;
-        ImGui::SetNextItemWidth(comboWidth);
-        return ImGui::InputInt(id, var);
+        if (isIcon)
+            ImGui::PopFont();
+
+        return result;
     }
 
     bool Editor::WidgetsUtility::DragVector2(const char* id, float* var)
@@ -1577,6 +1897,22 @@ namespace Lina::Editor
         bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
         ImGui::SameLine();
         bool y = DragFloat(yid.c_str(), "Y", &var[1], widthPerItem);
+
+        return x || y;
+    }
+
+        bool Editor::WidgetsUtility::DragVector2i(const char* id, int* var)
+    {
+        float       windowWidth    = ImGui::GetWindowWidth();
+        float       currentCursor  = ImGui::GetCursorPosX();
+        const float labelIncrement = 12;
+        float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 1.0f) / 2.0f;
+        std::string xid            = std::string(id) + "_x";
+        std::string yid            = std::string(id) + "_y";
+
+        bool x = DragInt(xid.c_str(), "X", &var[0], widthPerItem);
+        ImGui::SameLine();
+        bool y = DragInt(yid.c_str(), "Y", &var[1], widthPerItem);
 
         return x || y;
     }

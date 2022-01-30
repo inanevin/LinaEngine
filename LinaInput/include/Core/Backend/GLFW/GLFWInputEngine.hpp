@@ -78,6 +78,11 @@ namespace Lina::Input
         bool           GetMouseButtonUp(int index);
         void           SetCursorMode(CursorMode mode);
         void           SetMousePosition(const Vector2& v) const;
+
+        /// <summary>
+        /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
+        /// </summary>
+        /// <returns></returns>
         Vector2        GetMousePosition();
         Vector2        GetRawMouseAxis();
         Vector2        GetMouseAxis();

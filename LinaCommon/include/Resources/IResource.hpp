@@ -48,10 +48,12 @@ Timestamp: 12/30/2021 9:37:24 PM
 #include <functional>
 namespace Lina::Resources
 {
+    class ResourceStorage;
+
     class IResource
     {
     public:
-        IResource()          = default;
+        IResource() = default;
         virtual ~IResource(){};
 
         virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) = 0;
@@ -83,27 +85,27 @@ namespace Lina::Resources
             m_sid  = StringID(path.c_str()).value();
         }
 
-        template<typename T>
+        template <typename T>
         void GetCreateAssetdata(const std::string& path, T*& assetData)
         {
-            StringIDType sid = StringID(path.c_str()).value();
-            auto* storage = Resources::ResourceStorage::Get();
+            StringIDType sid     = StringID(path.c_str()).value();
+            auto*        storage = Resources::ResourceStorage::Get();
             if (storage->Exists<T>(sid))
             {
                 assetData = storage->GetResource<T>(sid);
             }
             else
             {
-                assetData = new T();
-                assetData->m_sid = sid;
+                assetData         = new T();
+                assetData->m_sid  = sid;
                 assetData->m_path = path;
                 Resources::SaveArchiveToFile<T>(path, *assetData);
                 storage->Add(static_cast<void*>(assetData), GetTypeID<T>(), sid);
             }
-
         }
 
     protected:
+        friend class ResourceStorage;
         StringIDType m_sid  = 0;
         std::string  m_path = "";
     };
@@ -112,7 +114,7 @@ namespace Lina::Resources
     T LoadArchiveFromFile(const std::string& path)
     {
         T             obj;
-        std::ifstream stream(path);
+        std::ifstream stream(path, std::ios::binary);
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(obj);
@@ -126,7 +128,7 @@ namespace Lina::Resources
         T obj;
         {
             std::string        data((char*)data, dataSize);
-            std::istringstream stream(data);
+            std::istringstream stream(data, std::ios::binary);
             {
                 cereal::PortableBinaryInputArchive iarchive(stream);
                 iarchive(obj);
@@ -160,6 +162,7 @@ namespace Lina::Resources
         T* typePtr = static_cast<T*>(ptr);
         delete typePtr;
     }
+
 
     typedef std::function<IResource*()>    ResourceCreateFunc;
     typedef std::function<void(void* ptr)> ResourceDeleteFunc;

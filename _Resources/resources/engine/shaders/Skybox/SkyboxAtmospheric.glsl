@@ -29,11 +29,11 @@ const vec2 data[4] = vec2[](
 	
 void main()
 {
-	mat4 rotView = mat4(mat3(view));
-    vec4 clipPos = projection * rotView * vec4(position, 1.0);
+	mat4 rotView = mat4(mat3(LINA_VIEW));
+    vec4 clipPos = LINA_PROJ * rotView * vec4(position, 1.0);
     // gl_Position = clipPos.xyww;
 	gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);
-	pos = transpose(mat3(view)) * (inverse(projection) * gl_Position).xyz;
+	pos = transpose(mat3(LINA_VIEW)) * (inverse(LINA_PROJ) * gl_Position).xyz;
     fsun = vec3(0.0, sin(uf_time * 0.01), cos(uf_time * 0.01));
 }
 

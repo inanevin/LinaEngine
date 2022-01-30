@@ -41,13 +41,16 @@ Timestamp: 1/9/2022 11:54:18 PM
 
 // Headers here.
 
+
 namespace Lina
 {
     class Vector2;
+    class Matrix;
 
     namespace Graphics
     {
         class Model;
+        class ModelNode;
     }
 } // namespace Lina
 
@@ -61,7 +64,8 @@ namespace Lina::Editor
         ~ModelDrawer() = default;
 
         static void DrawModelSettings(Graphics::Model*& model, float leftPaneSize);
-        static void DrawModel(Graphics::Model* model, const Vector2& bgMin, const Vector2& bgMax);
+        static void DisplayNode(Graphics::ModelNode* node);
+        static void DrawModel(Graphics::Model* model, Matrix& matrix, const Vector2& bgMin, const Vector2& bgMax);
 
     private:
     };

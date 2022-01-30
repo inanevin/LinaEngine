@@ -301,12 +301,16 @@ namespace Lina::Editor
             data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
             // Draw the selected entities bounding box.
-            if (m_selectedEntity != editorCam)
+            if (m_shouldShowBounds)
             {
-                Vector3 boundingBoxPosition = Vector3::Zero;
-                Vector3 boundingBoxHalfSize = Vector3::Zero;
-                if (renderEngine->GetFrustumSystem()->GetEntityBounds(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
-                    Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{boundingBoxPosition, boundingBoxHalfSize, Color::Red, 2.0f});
+                std::vector<Vector3> boundingBoxPosition;
+                std::vector<Vector3> boundingBoxHalfSize;
+                if (renderEngine->GetFrustumSystem()->GetAllBoundsInEntity(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
+                {
+                    for (int i = 0; i < boundingBoxPosition.size(); i++)
+                        Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{boundingBoxPosition[i], boundingBoxHalfSize[i], Color::Red, 2.5f});
+                }
+
             }
         }
 

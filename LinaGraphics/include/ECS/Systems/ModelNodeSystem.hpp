@@ -138,11 +138,10 @@ namespace Lina::ECS
         /// <summary>
         /// Draws a single model given the root node.
         /// </summary>
-        void FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params);
+        void FlushModelNode(Graphics::ModelNode* node, Matrix& parentMatrix, Graphics::DrawParams& params, Graphics::Material* overrideMaterial = nullptr);
 
     private:
-        void ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node);
-        void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
+        void ConstructEntityHierarchy(Entity entity, Matrix& parentTransform, Graphics::Model* model, Graphics::ModelNode* node);
 
     private:
         Graphics::RenderDevice* m_renderDevice = nullptr;

@@ -30,12 +30,13 @@ SOFTWARE.
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 
 namespace Lina::World
 {
     void DefaultLevel::Install()
     {
-        auto* mat                = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxMaterial();
+        auto* mat                = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxHDRIMaterial();
         m_skyboxMaterial.m_value = mat;
         m_skyboxMaterial.m_sid   = mat->GetSID();
         m_ambientColor           = Color(0.8f, 0.8f, 0.8f, 1.0f);
@@ -53,6 +54,13 @@ namespace Lina::World
         data.SetLocation(Vector3(50, 15, 0));
         light.m_color = Color(255, 255, 240, 255, true);
         light.m_intensity = 1.0f;
+
+        // Camera
+        ECS::Entity camera = m_registry.CreateEntity("Default Camera");
+        auto&       camData   = m_registry.get<ECS::EntityDataComponent>(camera);
+        auto&       cameraComponent = m_registry.emplace<ECS::CameraComponent>(camera);
+        cameraComponent.m_isActive = true;
+        camData.SetLocation(Vector3(0, 0.5f, -5));
 
     }
 

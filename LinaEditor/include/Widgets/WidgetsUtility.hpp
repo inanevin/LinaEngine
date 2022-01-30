@@ -143,7 +143,7 @@ namespace Lina::Editor
         /// <summary>
         /// Begins a child window with a custom handle to move it around.
         /// </summary>
-        static void BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition,  const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset);
+        static void BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition, const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset);
 
         /// <summary>
         /// Displays a small child for manipulating editor camera settings
@@ -161,6 +161,11 @@ namespace Lina::Editor
         /// Draws a movable child window for controller play buttons.
         /// </summary>
         static void PlayOperationTools(const char* childID, ImRect confineRect);
+
+        /// <summary>
+        /// Draws a combo-box for primitive selection.
+        /// </summary>
+        static int SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease = 0.0f);
 
         /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
@@ -211,7 +216,7 @@ namespace Lina::Editor
         /// <summary>
         /// Base implementation of a combobox begin, uses ImGui Combo with custom remove buttons.
         /// </summary>
-        static bool BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton = false);
+        static bool BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton = false, float widthDecrease = 0.0f);
 
         /// <summary>
         /// Base implementation of a combobox end, uses ImGui Combo with custom remove buttons.
@@ -234,39 +239,44 @@ namespace Lina::Editor
         static int CollisionShapeComboBox(const char* comboID, int currentShapeID);
 
         /// <summary>
+        /// Drop-down combo-box for selecting material surface type.
+        /// </summary>
+        static int SurfaceTypeComboBox(const char* comboID, int currentType);
+
+        /// <summary>
+        /// Drop-down combo-box for selecting material workflow type.
+        /// </summary>
+        static int WorkflowComboBox(const char* comboID, int currentType);
+
+        /// <summary>
         /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
         /// </summary>
-        static StringIDType ResourceSelection(void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
+        static StringIDType ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionMaterial(void* handleAddr);
+        static StringIDType ResourceSelectionMaterial(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionTexture(void* handleAddr);
+        static StringIDType ResourceSelectionTexture(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionAudio(void* handleAddr);
+        static StringIDType ResourceSelectionAudio(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionModelNode(void* handleAddr);
+        static StringIDType ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionPhysicsMaterial(void* handleAddr);
-
-        /// <summary>
-        /// Material selection helper, calls ResourceSelection().
-        /// </summary>
-        static StringIDType ResourceSelectionShader(void* handleAddr);
+        static StringIDType ResourceSelectionShader(const std::string& id, void* handleAddr);
 
         /// <summary>
         /// Default IMGUI button with fixed styling options.
@@ -301,12 +311,17 @@ namespace Lina::Editor
         /// <summary>
         /// Draws ImGui::DragInt with custom dragger.
         /// </summary>
-        static bool DragInt(const char* id, const char* label, int* var, int count = 1);
+        static bool DragInt(const char* id, const char* label, int* var, float width = -1.0f);
 
         /// <summary>
         /// Draws 2 drag floats side by side.
         /// </summary>
         static bool DragVector2(const char* id, float* var);
+
+        /// <summary>
+        /// Draws 2 drag floats side by side.
+        /// </summary>
+        static bool DragVector2i(const char* id, int* var);
 
         /// <summary>
         /// Draws 3 drag floats side by side.

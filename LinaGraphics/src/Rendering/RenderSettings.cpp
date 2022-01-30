@@ -34,25 +34,5 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void RenderSettings::SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName)
-    {
-        std::ofstream stream(path + "/" + fileName + ".rendersettings");
-        {
-            cereal::BinaryOutputArchive oarchive(stream);
-            oarchive(settings);
-        }
-    }
-
-    RenderSettings RenderSettings::DeserializeRenderSettings(const std::string& path, const std::string& fileName)
-    {
-        RenderSettings settings;
-
-        std::ifstream stream(path + "/" + fileName + ".rendersettings");
-        {
-            cereal::BinaryInputArchive iarchive(stream);
-            iarchive(settings);
-        }
-
-        return settings;
-    }
+   
 } // namespace Lina::Graphics

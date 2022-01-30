@@ -23,7 +23,7 @@ layout (location = 7) in mat4 model;
 
 void main()
 {
-    gl_Position = lightSpace * model * vec4(position, 1.0);
+    gl_Position = LINA_LIGHTSPACE * model * vec4(position, 1.0);
 }
 
 #elif defined(FS_BUILD)

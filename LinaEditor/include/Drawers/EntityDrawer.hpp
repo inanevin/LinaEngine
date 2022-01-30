@@ -54,7 +54,6 @@ namespace Lina::Editor
         void Initialize();
         void SetSelectedEntity(ECS::Entity entity);
         void DrawSelectedEntity();
-        void DrawEntityData();
         void AddComponentPopup();
 
     private:

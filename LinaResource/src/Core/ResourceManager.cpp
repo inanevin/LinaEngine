@@ -67,6 +67,7 @@ namespace Lina::Resources
     void ResourceManager::OnRequestResourceReload(const Event::ERequestResourceReload& ev)
     {
         m_bundle.LoadSingleFile(ev.m_tid, ev.m_fullPath);
+        m_eventSys->Trigger<Event::EResourceReloaded>(Event::EResourceReloaded{ev.m_tid, ev.m_sid});
     }
 
     void ResourceManager::Shutdown()

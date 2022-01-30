@@ -25,7 +25,7 @@ uniform mat4 projection;
 void main()
 {
     LocalPos = position;
-    gl_Position =  projection * view * vec4(LocalPos, 1.0);
+    gl_Position = projection * view * vec4(LocalPos, 1.0);
 }
 
 #elif defined(FS_BUILD)

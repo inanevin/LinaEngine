@@ -370,9 +370,11 @@ namespace Lina
         void ParentPathUpdated(File* file)
         {
             const StringIDType sidBefore = StringID(file->m_fullPath.c_str()).value();
+            const std::string oldPath = file->m_fullPath;
             file->m_fullPath             = file->m_parent->m_fullPath + "/" + file->m_fullName;
             const StringIDType sidNow    = StringID(file->m_fullPath.c_str()).value();
-            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow});
+            file->m_sid                  = sidNow;
+            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow, oldPath, file->m_fullPath});
         }
 
         void ChangeFileName(File* file, const std::string& newName)
@@ -410,6 +412,14 @@ namespace Lina
             }
 
             return true;
+        }
+
+        void RewriteFileContents(File* file, const std::string& newContent)
+        {
+            std::ofstream newFile;
+            newFile.open(file->m_fullPath, std::ofstream::out | std::ofstream::trunc);
+            newFile << newContent << std::endl;
+            newFile.close();
         }
 
         int GetUniqueID()
@@ -531,6 +541,25 @@ namespace Lina
             }
 
             return subFoldersContain;
+        }
+
+        File* FindFile(Folder* root, const std::string& path)
+        {
+            for (auto* subfolder : root->m_folders)
+            {
+                File* f = FindFile(subfolder, path);
+
+                if (f != nullptr)
+                    return f;
+            }
+
+            for (auto* file : root->m_files)
+            {
+                if (file->m_fullPath.compare(path) == 0)
+                    return file;
+            }
+
+            return nullptr;
         }
 
         std::string GetFileContents(const std::string& filePath)

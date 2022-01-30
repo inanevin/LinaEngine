@@ -49,6 +49,7 @@ Timestamp: 12/30/2021 9:37:39 PM
 #include "Math/Color.hpp"
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 namespace Lina
 {
@@ -57,7 +58,9 @@ namespace Lina
     namespace Event
     {
         struct EResourcePathUpdated;
-    }
+        struct EResourceReloaded;
+        struct EResourceUnloaded;
+    } // namespace Event
 } // namespace Lina
 
 namespace Lina::Resources
@@ -71,6 +74,7 @@ namespace Lina::Resources
         ResourceDeleteFunc       m_deleteFunc;
         std::vector<std::string> m_associatedExtensions;
         Color                    m_resourceIdentifierColor = Color::White;
+        bool                     m_isAssetData             = false;
     };
 
     class ResourceStorage
@@ -147,10 +151,10 @@ namespace Lina::Resources
         /// <typeparam name="T"></typeparam>
         /// <param name="sid"></param>
         template <typename T>
-        void Unload(StringIDType sid)
+        void Unload(const StringIDType sid)
         {
-            TypeID tid = GetTypeID<T>();
-            auto& cache = m_resources[tid];
+            TypeID tid   = GetTypeID<T>();
+            auto&  cache = m_resources[tid];
 
             if (!Exists<T>(sid))
             {
@@ -158,7 +162,7 @@ namespace Lina::Resources
                 return;
             }
 
-            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
+            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
             GetTypeData(tid).m_deleteFunc(cache[sid]);
@@ -176,7 +180,7 @@ namespace Lina::Resources
             Unload<T>(StringID(path.c_str()).value());
         }
 
-         /// <summary>
+        /// <summary>
         /// Unloads the resource from the type T cache, also deletes the underlying pointer.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -191,7 +195,7 @@ namespace Lina::Resources
                 return;
             }
 
-            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid});
+            Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
             GetTypeData(tid).m_deleteFunc(cache[sid]);
@@ -242,6 +246,14 @@ namespace Lina::Resources
         }
 
         /// <summary>
+        /// Returns whether the given type is an asset data, or level file etc.
+        /// </summary>
+        inline bool IsTypeAssetData(TypeID tid)
+        {
+            return m_resourceTypes[tid].m_isAssetData;
+        }
+
+        /// <summary>
         /// Returns the color associated with the given type.
         /// </summary>
         template <typename T>
@@ -287,6 +299,8 @@ namespace Lina::Resources
         void Initialize();
         void Shutdown();
         void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
+        void OnResourceReloaded(const Event::EResourceReloaded& ev);
+        void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
         static ResourceStorage*                      s_instance;

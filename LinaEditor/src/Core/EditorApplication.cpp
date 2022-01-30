@@ -75,6 +75,9 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EPreSerializingLevel, &EditorApplication::OnPreSerializingLevel>(this);
         Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorApplication::OnWindowResized>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceLoadCompleted, &EditorApplication::OnResourceLoadCompleted>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &EditorApplication::OnResourceReloaded>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &EditorApplication::OnResourcePathUpdated>(this);
 
         m_editorCameraSystem.Initialize("Editor Camera System", m_guiLayer.GetLevelPanel());
         m_editorCameraSystem.SystemActivation(true);
@@ -97,14 +100,20 @@ namespace Lina::Editor
         Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
         m_editorCameraSystem.SetEditorCamera(editorCamera);
 
-        // When the first level is loaded, iterate all model resources & take snapshots for each.
-        if (!m_modelSnapshotsTaken)
+        // When the first level is loaded, iterate all model/material/shader resources & take snapshots for each.
+        if (!m_snapshotsTaken)
         {
-            m_modelSnapshotsTaken = true;
-            auto& cache           = Resources::ResourceStorage::Get()->GetCache<Graphics::Model>();
+            m_snapshotsTaken    = true;
+            auto* storage       = Resources::ResourceStorage::Get();
+            auto& modelCache    = storage->GetCache<Graphics::Model>();
+            auto& materialCache = storage->GetCache<Graphics::Material>();
+            auto* sphere        = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
 
-            for (auto& [sid, ptr] : cache)
-                TakeModelSnapshot(sid);
+            for (auto& [sid, ptr] : modelCache)
+                TakeModelSnapshot(sid, sid, (StringIDType)0);
+
+            for (auto& [sid, ptr] : materialCache)
+                TakeModelSnapshot(sid, sphere->GetSID(), sid);
         }
     }
 
@@ -154,24 +163,51 @@ namespace Lina::Editor
     {
         // Only for resources loaded after the initial bulk-load.
         // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
-        if (m_modelSnapshotsTaken || ev.m_tid == GetTypeID<Graphics::Model>())
+        if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Model>())
         {
-            TakeModelSnapshot(ev.m_sid);
+            TakeModelSnapshot(ev.m_sid, ev.m_sid, (StringIDType)0);
+        }
+        if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Material>())
+        {
+            auto* storage = Resources::ResourceStorage::Get();
+            auto* sphere  = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+            TakeModelSnapshot(ev.m_sid, sphere->GetSID(), ev.m_sid);
         }
     }
 
-    void EditorApplication::TakeModelSnapshot(StringIDType sid)
+    void EditorApplication::OnResourceReloaded(const Event::EResourceReloaded& ev)
+    {
+        Event::EResourceLoadCompleted load;
+        load.m_sid = ev.m_sid;
+        load.m_tid = ev.m_tid;
+        OnResourceLoadCompleted(load);
+    }
+
+    void EditorApplication::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
+    {
+        if (m_previewBuffers.find(ev.m_previousStringID) != m_previewBuffers.end())
+        {
+            m_previewBuffers[ev.m_newStringID] = m_previewBuffers[ev.m_previousStringID];
+            m_previewBuffers.erase(ev.m_previousStringID);
+        }
+    }
+
+    void EditorApplication::TakeModelSnapshot(StringIDType bufferSid, StringIDType modelSid, StringIDType materialSid)
     {
         WidgetsUtility::SaveEditorCameraBeforeSnapshot(1.0f);
         WidgetsUtility::SetEditorCameraForSnapshot();
-        auto* target       = AddSnapshotBuffer(sid);
+        auto* target       = AddSnapshotBuffer(bufferSid);
         auto* renderEngine = Graphics::RenderEngineBackend::Get();
-        renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(sid), target);
+        auto* overrideMat  = materialSid == 0 ? nullptr : Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(materialSid);
+        renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(modelSid), Matrix::Identity(), target, overrideMat);
         WidgetsUtility::ResetEditorCamera();
     }
 
     Graphics::RenderTarget* EditorApplication::AddSnapshotBuffer(StringIDType sid)
     {
+        if (m_previewBuffers.find(sid) != m_previewBuffers.end())
+            return m_previewBuffers[sid].m_rt;
+
         // We create a new buffer for each model resource, each buffer holds a render target, render buffer and a corresponding texture.
         auto& buffer                                      = m_previewBuffers[sid];
         buffer.m_renderBuffer                             = new Graphics::RenderBuffer();

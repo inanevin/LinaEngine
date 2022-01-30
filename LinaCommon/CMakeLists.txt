@@ -40,6 +40,9 @@ set (LINACOMMON_SOURCES
 	src/Math/Transformation.cpp
 	src/Math/Vector.cpp
 	src/Math/Color.cpp
+	src/Math/Frustum.cpp
+	src/Math/AABB.cpp
+	src/Math/Plane.cpp
 	
 	# Memory
 	src/Memory/StackAllocator.cpp
@@ -125,6 +128,9 @@ set(LINACOMMON_HEADERS
 	include/Math/Quaternion.hpp
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
+	include/Math/AABB.hpp
+	include/Math/Frustum.hpp
+	include/Math/Plane.hpp
 	
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp

@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/ShaderInclude.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Widgets/MenuButton.hpp"
@@ -461,6 +462,11 @@ namespace Lina::Editor
             TypeID tid = file->m_typeID;
             if (!m_storage->IsTypeRegistered(tid))
                 continue;
+
+            if (m_storage->IsTypeAssetData(tid))
+                continue;
+
+
             bool renamedItem = false;
 
             WidgetsUtility::DrawResourceNode(file, file == m_selectedFile, &renamedItem, m_nodeSizes, m_rightPaneFocused);
@@ -477,23 +483,39 @@ namespace Lina::Editor
             {
                 if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
                 {
-                    if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                    if (m_selectedFile == nullptr || !renamedItem)
                     {
-                        auto& texturePanel = GUILayer::Get()->GetPreviewPanel();
-                        texturePanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
+                        if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                        {
+                            auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                            previewPanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
 
-                        if (!texturePanel.IsMaximized())
-                            texturePanel.ToggleMaximize();
+                            if (!previewPanel.IsMaximized())
+                                previewPanel.ToggleMaximize();
+                        }
+                        else if (file->m_typeID == GetTypeID<Graphics::Model>())
+                        {
+                            auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                            previewPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
+
+                            if (!previewPanel.IsMaximized())
+                                previewPanel.ToggleMaximize();
+                        }
+                        else if (file->m_typeID == GetTypeID<Graphics::Material>())
+                        {
+                            auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
+                            previewPanel.SetTargetMaterial(m_storage->GetResource<Graphics::Material>(file->m_sid));
+
+                            if (!previewPanel.IsMaximized())
+                                previewPanel.ToggleMaximize();
+                        }
+                        else if (file->m_typeID == GetTypeID<Graphics::Shader>() || file->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                        {
+                            auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
+                            textEditor.AddFile(file);
+                            textEditor.Open();
+                        }
                     }
-                    else if (file->m_typeID == GetTypeID<Graphics::Model>())
-                    {
-                        auto& modelPanel = GUILayer::Get()->GetPreviewPanel();
-                        modelPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
-
-                        if (!modelPanel.IsMaximized())
-                            modelPanel.ToggleMaximize();
-                    }
-
                 }
             }
         }
@@ -596,9 +618,23 @@ namespace Lina::Editor
         }
         else if (type == MenuBarElementType::Resources_CreateNewMaterial)
         {
+            if (ContextMenuCanAddAsset())
+            {
+                Utility::Folder* parent = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
+                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
+                Graphics::Material::CreateMaterial(Graphics::RenderEngineBackend::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
+                Utility::ScanFolder(parent, true, nullptr, true);
+            }
         }
         else if (type == MenuBarElementType::Resources_CreateNewPhysicsMaterial)
         {
+            if (ContextMenuCanAddAsset())
+            {
+                Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
+                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewPhyMaterial", ".linaphymat");
+                Physics::PhysicsMaterial::CreatePhysicsMaterial(parent->m_fullPath + "/" + uniqueName + ".linaphymat", 0.5f, 0.5f, 0.5f);
+                Utility::ScanFolder(parent, true, nullptr, true);
+            }
         }
         else if (type == MenuBarElementType::Resources_Rescan)
         {

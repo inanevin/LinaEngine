@@ -51,7 +51,7 @@ namespace Lina::ECS
         m_renderDevice = m_renderEngine->GetRenderDevice();
     }
 
-    void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Graphics::ModelNode* node)
+    void ModelNodeSystem::ConstructEntityHierarchy(Entity entity, Matrix& parentTransform, Graphics::Model* model, Graphics::ModelNode* node)
     {
         auto* ecs = ECS::Registry::Get();
 
@@ -61,22 +61,50 @@ namespace Lina::ECS
         if (meshes.size() > 0)
         {
             ModelNodeComponent& nodeComponent = ecs->emplace<ModelNodeComponent>(entity);
-            nodeComponent.m_modelNode.m_sid   = node->m_sid;
-            nodeComponent.m_modelNode.m_value = node;
+            nodeComponent.m_nodeIndex         = node->m_nodeIndexInParentHierarchy;
+            nodeComponent.m_model.m_sid       = model->GetSID();
+            nodeComponent.m_model.m_value     = model;
 
             for (uint32 i = 0; i < meshes.size(); i++)
             {
-                nodeComponent.m_materials.push_back(Resources::ResourceHandle<Graphics::Material>());
+                nodeComponent.m_materials.emplace_back();
                 nodeComponent.m_materials.back().m_sid   = defaultMat->GetSID();
                 nodeComponent.m_materials.back().m_value = defaultMat;
+                nodeComponent.m_materialsNames.emplace_back();
+                nodeComponent.m_materialsNames.back() = model->GetImportedMaterials()[meshes[i]->GetMaterialSlotIndex()].m_name;
             }
         }
 
         for (uint32 i = 0; i < node->m_children.size(); i++)
         {
-            Entity childEntity = ecs->CreateEntity(node->m_children[i]->m_name);
-            ecs->AddChildToEntity(entity, childEntity);
-            ConstructEntityHierarchy(childEntity, node->m_children[i]);
+            const std::string childName   = node->m_children[i]->m_name;
+            Entity            childEntity = ecs->CreateEntity(childName);
+            auto&             data        = ecs->get<ECS::EntityDataComponent>(childEntity);
+            Matrix            mat         = parentTransform * node->m_localTransform;
+            data.SetTransformation(mat, false);
+
+            if (model->GetAssetData()->m_generatePivots)
+            {
+
+                Entity pivotEntity = ecs->CreateEntity(childName + "_pvt");
+                ecs->AddChildToEntity(entity, pivotEntity);
+
+                const Vector3 vertexOffset   = node->m_children[i]->m_totalVertexCenter * data.GetScale();
+                const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z +
+                                               data.GetRotation().GetRight() * vertexOffset.x +
+                                               data.GetRotation().GetUp() * vertexOffset.y;
+
+                auto& pivotParentData = ecs->get<ECS::EntityDataComponent>(pivotEntity);
+                pivotParentData.SetLocation(data.GetLocation() + offsetAddition);
+                pivotParentData.SetRotation(data.GetRotation());
+                ecs->AddChildToEntity(pivotEntity, childEntity);
+            }
+            else
+            {
+                ecs->AddChildToEntity(entity, childEntity);
+            }
+
+            ConstructEntityHierarchy(childEntity, data.ToMatrix(), model, node->m_children[i]);
         }
     }
 
@@ -85,34 +113,34 @@ namespace Lina::ECS
         Graphics::ModelNode* root             = model->GetRootNode();
         const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
         Entity               parentEntity     = ECS::Registry::Get()->CreateEntity(parentEntityName);
-        ConstructEntityHierarchy(parentEntity, root);
+        auto&                data             = ECS::Registry::Get()->get<ECS::EntityDataComponent>(parentEntity);
+        ConstructEntityHierarchy(parentEntity, data.ToMatrix(), model, root);
     }
 
     static float t = 0.0f;
 
     void ModelNodeSystem::UpdateComponents(float delta)
     {
-        auto* ecs = ECS::Registry::Get();
+        auto* ecs  = ECS::Registry::Get();
+        auto  view = ecs->view<EntityDataComponent, ModelNodeComponent>();
+        m_poolSize = 0;
 
-        auto view  = ecs->view<EntityDataComponent, ModelNodeComponent>();
-        m_poolSize = (int)view.size_hint();
-        t += 0.016f;
-
-        if (t > 3.0f)
-        {
-            t = -1000;
-            // Graphics::Model& model = Graphics::Model::GetModel(StringID("Resources/Sandbox/Target/RicochetTarget.fbx").value());
-            // CreateModelHierarchy(model);
-        }
         for (auto entity : view)
         {
             ModelNodeComponent& nodeComponent = view.get<ModelNodeComponent>(entity);
             auto&               data          = view.get<EntityDataComponent>(entity);
 
-            if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled())
+            if (!nodeComponent.GetIsEnabled() || !data.GetIsEnabled() || nodeComponent.m_culled)
                 continue;
 
-            auto* node   = nodeComponent.m_modelNode.m_value;
+            auto* model = nodeComponent.m_model.m_value;
+            if (model == nullptr)
+                continue;
+
+            auto* node = model->GetAllNodes()[nodeComponent.m_nodeIndex];
+            if (node == nullptr)
+                continue;
+
             auto& meshes = node->GetMeshes();
 
             const Matrix finalMatrix = data.ToMatrix();
@@ -126,6 +154,8 @@ namespace Lina::ECS
                 const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
                 if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
                     continue;
+
+                m_poolSize++;
 
                 // Render the material & vertex array.
                 Graphics::Material* mat = nodeComponent.m_materials[i].m_value;
@@ -169,21 +199,22 @@ namespace Lina::ECS
 
         if (skeleton.IsLoaded())
         {
+
         }
     }
 
-    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Graphics::DrawParams& params)
+    void ModelNodeSystem::FlushModelNode(Graphics::ModelNode* node, Matrix& parentMatrix, Graphics::DrawParams& params, Graphics::Material* overrideMaterial)
     {
-        auto& meshes = node->m_meshes;
+        auto&  meshes      = node->m_meshes;
+        Matrix modelMatrix = parentMatrix;
 
         for (auto* mesh : meshes)
         {
             Graphics::VertexArray& vertexArray = mesh->GetVertexArray();
-            Matrix                models      = Matrix::Identity();
 
             // Update the buffer w/ each transform.
-            vertexArray.UpdateBuffer(7, &models[0][0], 1 * sizeof(Matrix));
-            auto* mat = m_renderEngine->GetDefaultLitMaterial();
+            vertexArray.UpdateBuffer(7, &modelMatrix[0][0], 1 * sizeof(Matrix));
+            auto* mat = overrideMaterial == nullptr ? m_renderEngine->GetDefaultLitMaterial() : overrideMaterial;
 
             mat->SetBool(UF_BOOL_SKINNED, false);
 
@@ -192,7 +223,7 @@ namespace Lina::ECS
         }
 
         for (auto* child : node->m_children)
-            FlushModelNode(child, params);
+            FlushModelNode(child, modelMatrix, params, overrideMaterial);
     }
 
     void ModelNodeSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
@@ -214,6 +245,8 @@ namespace Lina::ECS
 
             // Get the material for drawing, object's own material or overriden material.
             Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
+
+             m_renderEngine->GetReflectionSystem()->SetReflectionsOnMaterial(mat, models->GetTranslation());
 
             // Update the buffer w/ each transform.
             vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));

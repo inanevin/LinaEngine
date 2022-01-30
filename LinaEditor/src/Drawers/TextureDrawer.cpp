@@ -95,7 +95,7 @@ namespace Lina::Editor
         ImGui::Text(channelCount.c_str());
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-        WidgetsUtility::HorizontalDivider(0.0f, 0.5f);
+        WidgetsUtility::HorizontalDivider(0.0f, 1.0f);
         WidgetsUtility::IncrementCursorPosY(12);
 
         ImGui::PopStyleColor();

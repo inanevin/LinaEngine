@@ -32,6 +32,7 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Levels/ExampleLevel.hpp"
 #include "Log/Log.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 
 GameManager* GameManager::s_instance = nullptr;
 
@@ -47,6 +48,7 @@ void GameManager::Initialize()
 
 void GameManager::OnTick(const Event::ETick& ev)
 {
+   
 }
 
 void GameManager::OnShutdown(const Event::EShutdown& ev)

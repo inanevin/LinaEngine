@@ -120,6 +120,17 @@ namespace Lina::Editor
     {
     };
 
+    enum class ResourceSelectorType
+    {
+        None,
+        Texture,
+        Shader,
+        Material,
+        Model,
+        Audio,
+        PhysicsMaterial,
+    };
+
 #define EDITOR_CAMERA_NAME        "Editor Camera"
 #define CURSOR_X_LABELS           12
 #define CURSOR_X_VALUES           ImGui::GetWindowSize().x * 0.3f
@@ -161,8 +172,10 @@ namespace Lina::Editor
 #define RESOURCES_MOVETEXTURE_ID  "RSR_MOVE_TEXTURE"
 #define RESOURCES_MOVEHDRI_ID     "RSR_MOVE_HDRI"
 #define RESOURCES_MOVEMATERIAL_ID "RSR_MOVE_MATERIAL"
-#define RESOURCES_MOVEMODEL_ID     "RSR_MOVE_MESH"
+#define RESOURCES_MOVEMODEL_ID    "RSR_MOVE_MESH"
 #define RESOURCES_MOVESHADER_ID   "RSR_MOVE_SHADER"
+#define RESOURCES_MOVEAUDIO_ID    "RSR_MOVE_AUDIO"
+#define RESOURCES_MOVEPHYMAT_ID   "RSR_MOVE_PHYMAT"
 
 // Profiler
 #define ID_PROFILER "Profiler"
@@ -185,9 +198,11 @@ namespace Lina::Editor
 // Progress panel
 #define ID_PROGRESSPANEL "ProgressPanel"
 
-// Model panel
-#define ID_MODELPANEL "ModelPanel"
+// Preview panel
+#define ID_PREVIEWPANEL "PreviewPanel"
 
+// Text Editor Panel
+#define ID_TEXTEDITOR "Text Editor"
 } // namespace Lina::Editor
 
 #endif

@@ -47,21 +47,23 @@ namespace Lina::Graphics
     {
 
     public:
-        DrawParameterHelper() = default;
+        DrawParameterHelper()  = default;
         ~DrawParameterHelper() = default;
 
         static DrawParams GetDefault()
         {
             // Set default drawing parameters.
             DrawParams params;
-            params.skipParameters          = false;
-            params.useScissorTest          = false;
-            params.useDepthTest            = true;
-            params.useStencilTest          = true;
-            params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLES;
-            params.faceCulling             = FaceCulling::FACE_CULL_BACK;
-            params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-            params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.skipParameters = false;
+            params.useScissorTest = false;
+            params.useDepthTest   = true;
+            params.useStencilTest = true;
+            params.primitiveType  = PrimitiveType::PRIMITIVE_TRIANGLES;
+            params.faceCulling    = FaceCulling::FACE_CULL_BACK;
+            // params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+            // params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_NONE;
+            params.destBlend               = BlendFunc::BLEND_FUNC_NONE;
             params.shouldWriteDepth        = true;
             params.depthFunc               = DrawFunc::DRAW_FUNC_LESS;
             params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -88,8 +90,10 @@ namespace Lina::Graphics
             params.useStencilTest          = true;
             params.primitiveType           = PrimitiveType::PRIMITIVE_TRIANGLE_STRIP;
             params.faceCulling             = FaceCulling::FACE_CULL_NONE;
-            params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-            params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            // params.sourceBlend             = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+            // params.destBlend               = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+            params.sourceBlend             = BlendFunc::BLEND_FUNC_NONE;
+            params.destBlend               = BlendFunc::BLEND_FUNC_NONE;
             params.shouldWriteDepth        = false;
             params.depthFunc               = DrawFunc::DRAW_FUNC_LEQUAL;
             params.stencilFunc             = DrawFunc::DRAW_FUNC_ALWAYS;

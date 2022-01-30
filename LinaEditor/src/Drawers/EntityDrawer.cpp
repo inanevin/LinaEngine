@@ -162,8 +162,4 @@ namespace Lina::Editor
         ImGui::OpenPopup("addComponentPopup");
     }
 
-    void EntityDrawer::DrawEntityData()
-    {
-    }
-
 } // namespace Lina::Editor

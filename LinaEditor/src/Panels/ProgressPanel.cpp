@@ -49,6 +49,7 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_Header));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0f);
+        
         if (ImGui::Begin(ID_PROGRESSPANEL, NULL, flags))
         {
             WidgetsUtility::IncrementCursorPosY(4);

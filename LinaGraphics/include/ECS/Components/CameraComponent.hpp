@@ -41,6 +41,7 @@ Timestamp: 5/2/2019 12:20:42 AM
 
 #include "ECS/Component.hpp"
 #include "Math/Color.hpp"
+#include "Math/Frustum.hpp"
 
 namespace Lina::ECS
 {
@@ -58,11 +59,16 @@ namespace Lina::ECS
 
         LINA_PROPERTY("Far", "Float", "Maximum distance the camera renders at.")
         float m_zFar = 1000.0f;
+        
+        LINA_PROPERTY("Is Active", "Bool")
+        bool m_isActive = false;
+
+        Frustum m_viewFrustum;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isEnabled); // serialize things by passing them to the archive
+            archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isActive, m_isEnabled); // serialize things by passing them to the archive
         }
     };
 } // namespace Lina::ECS

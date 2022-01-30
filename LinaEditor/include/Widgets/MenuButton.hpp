@@ -70,6 +70,7 @@ namespace Lina::Editor
         GlobalSettingsPanel = 48,
         SystemsPanel        = 49,
         ImGuiPanel          = 50,
+        TextEditorPanel     = 51,
 
         DebugViewShadows = 62,
         DebugViewNormal  = 63,
@@ -89,12 +90,12 @@ namespace Lina::Editor
         Github  = 110,
         Website = 111,
 
-        Resources_ShowEditorFolders = 120,
-        Resources_ShowEngineFolders = 121,
-        Resources_CreateNewFolder = 122,
-        Resources_CreateNewMaterial = 123,
+        Resources_ShowEditorFolders        = 120,
+        Resources_ShowEngineFolders        = 121,
+        Resources_CreateNewFolder          = 122,
+        Resources_CreateNewMaterial        = 123,
         Resources_CreateNewPhysicsMaterial = 124,
-        Resources_Rescan = 125,
+        Resources_Rescan                   = 125,
     };
 
     class MenuBarElement
@@ -102,16 +103,16 @@ namespace Lina::Editor
 
     public:
         MenuBarElement(const char* icon, const char* title, const char* tooltip, int groupID, MenuBarElementType elem = MenuBarElementType::None, bool ownsChildren = true, bool tooltipIsIcon = false)
-            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren), m_tooltipIsIcon(tooltipIsIcon) {};
+            : m_icon(icon), m_title(title), m_tooltip(tooltip), m_groupID(groupID), m_type(elem), m_ownsChildren(ownsChildren), m_tooltipIsIcon(tooltipIsIcon){};
         ~MenuBarElement();
 
         void AddChild(MenuBarElement* child);
         void Draw();
 
-        int         m_groupID = -1;
-        const char* m_title   = "";
-        const char* m_tooltip = "";
-        bool m_tooltipIsIcon = false;
+        int         m_groupID       = -1;
+        const char* m_title         = "";
+        const char* m_tooltip       = "";
+        bool        m_tooltipIsIcon = false;
 
     private:
         bool                         m_ownsChildren = true;

@@ -91,13 +91,14 @@ namespace Lina::Editor
         ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
-
+        
         // Add default font.
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Mukta-Medium.ttf", 20.0f, NULL);
 
         // merge in icons from Font Awesome
         static const ImWchar icons_rangesFA[]   = {ICON_MIN_FA, ICON_MAX_FA, 0};
         static const ImWchar icons_rangesCUST[] = {ICON_MIN_CS, ICON_MAX_CS, 0};
+
 
         ImFontConfig icons_config;
         icons_config.MergeMode     = false;
@@ -117,7 +118,8 @@ namespace Lina::Editor
         io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 13.0f, &icons_config, icons_rangesCUST);
 
         m_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
-        m_mediumFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 24, NULL);
+        m_mediumFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 22, NULL);
+        m_textEditorFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 28, NULL);
         m_defaultFont = io.FontDefault;
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
@@ -274,8 +276,10 @@ namespace Lina::Editor
         m_resourcesPanel.Initialize(ID_RESOURCES, ICON_FA_FILE);
         m_globalSettingsPanel.Initialize(ID_GLOBAL, ICON_FA_GLOBE);
         m_resourceSelectorPanel.Initialize(ID_RESOURCESELECTOR, ICON_FA_FILE_ARCHIVE);
-        m_previewPanel.Initialize(ID_MODELPANEL, ICON_FA_CUBES);
+        m_previewPanel.Initialize(ID_PREVIEWPANEL, ICON_FA_CUBES);
+        m_textEditorPanel.Initialize(ID_TEXTEDITOR, ICON_FA_FILE_ALT);
 
+        m_textEditorPanel.Close();
         m_previewPanel.Close();
     }
 
@@ -321,7 +325,13 @@ namespace Lina::Editor
         m_globalSettingsPanel.Draw();
         m_toolbar.DrawFooter();
         m_resourceSelectorPanel.Draw();
+        m_textEditorPanel.Draw();
 
+        if (m_shouldDrawProgressPanel)
+        {
+            m_shouldDrawProgressPanel = false;
+            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
+        }
         // Should be drawn last.
         m_previewPanel.Draw();
 
@@ -417,6 +427,8 @@ namespace Lina::Editor
             m_globalSettingsPanel.Open();
         else if (item == MenuBarElementType::ProfilerPanel)
             m_profilerPanel.Open();
+        else if (item == MenuBarElementType::TextEditorPanel)
+            m_textEditorPanel.Open();
 
         // Debug
         else if (item == MenuBarElementType::ImGuiPanel)
@@ -478,7 +490,9 @@ namespace Lina::Editor
         if (m_shouldDrawSplash)
             DrawSplashScreen();
         else
-            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
+        {
+            m_shouldDrawProgressPanel = true;
+        }
     }
 
     void GUILayer::DrawSplashScreen()

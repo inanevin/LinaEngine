@@ -29,10 +29,12 @@ SOFTWARE.
 #include "Resources/ResourceStorage.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
+#include "Resources/ResourceHandle.hpp"
 
 namespace Lina::Resources
 {
-    ResourceStorage* ResourceStorage::s_instance = nullptr;
+    ResourceStorage*              ResourceStorage::s_instance = nullptr;
+    std::set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
 
     void ResourceStorage::Shutdown()
     {
@@ -49,23 +51,46 @@ namespace Lina::Resources
 
     void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
     {
+        // Find the resources with the updated sid, add the new string ID & delete the previous one.
         for (auto& [typeID, cache] : m_resources)
         {
             for (auto& [stringID, ptr] : cache)
             {
                 if (stringID == ev.m_previousStringID)
                 {
+                    IResource* res = static_cast<IResource*>(ptr);
+                    res->m_sid     = ev.m_newStringID;
+                    res->m_path    = ev.m_newPath;
+
                     cache[ev.m_newStringID] = ptr;
                     cache.erase(stringID);
+
                     break;
                 }
             }
         }
+
+        for (auto* handle : ResourceHandleBase::s_resourceHandles)
+            handle->ResourcePathUpdated(ev);
+    }
+
+    void ResourceStorage::OnResourceReloaded(const Event::EResourceReloaded& ev)
+    {
+        for (auto* handle : ResourceHandleBase::s_resourceHandles)
+            handle->ResourceReloaded(ev);
+    }
+
+    void ResourceStorage::OnResourceUnloaded(const Event::EResourceUnloaded& ev)
+    {
+        for (auto* handle : ResourceHandleBase::s_resourceHandles)
+            handle->ResourceUnloaded(ev);
     }
 
     void ResourceStorage::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceStorage::OnResourcePathUpdated>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceStorage::OnResourceReloaded>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
     }
 
     TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)

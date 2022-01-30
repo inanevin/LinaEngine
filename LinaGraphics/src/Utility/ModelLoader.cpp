@@ -71,9 +71,8 @@ namespace Lina::Graphics
             vertexBoneWeights.resize(aiMesh->mNumVertices, std::vector<float>(4, 0.0f));
         }
 
-        Vector3 totalVertexPos = Vector3::Zero;
-        Vector3 maxVertexPos   = Vector3(-1000.0f, -1000.0f, -1000.0f);
-        Vector3 minVertexPos   = Vector3(1000.0f, 1000.0f, 1000.0f);
+        Vector3 maxVertexPos = Vector3(-1000.0f, -1000.0f, -1000.0f);
+        Vector3 minVertexPos = Vector3(1000.0f, 1000.0f, 1000.0f);
 
         // Iterate through vertices.
         for (uint32 i = 0; i < aiMesh->mNumVertices; i++)
@@ -92,9 +91,6 @@ namespace Lina::Graphics
             linaMesh->AddElement(2, normal.x, normal.y, normal.z);
             linaMesh->AddElement(3, tangent.x, tangent.y, tangent.z);
             linaMesh->AddElement(4, biTangent.x, biTangent.y, biTangent.z);
-
-            // Add to the total vertex pos, used to calculate vertex offset.
-            totalVertexPos += AssimpToLinaVector3(pos);
 
             // Set the min & vertex poses. Used to calculate the bounding box.
             if (pos.x > maxVertexPos.x)
@@ -137,15 +133,19 @@ namespace Lina::Graphics
         }
 
         // Add aiMesh to array.
-        linaMesh->m_vertexCenter      = totalVertexPos / (float)aiMesh->mNumVertices;
-        linaMesh->m_boundsMin         = minVertexPos;
-        linaMesh->m_boundsMax         = maxVertexPos;
-        linaMesh->m_boundsHalfExtents = (linaMesh->m_boundsMax - linaMesh->m_boundsMin) / 2.0f;
+        linaMesh->GetAABB().m_boundsMin         = minVertexPos;
+        linaMesh->GetAABB().m_boundsMax         = maxVertexPos;
+        linaMesh->m_vertexCenter                = (minVertexPos + maxVertexPos) / 2.0f;
+        linaMesh->GetAABB().m_boundsHalfExtents = (maxVertexPos - minVertexPos) / 2.0f;
     }
 
     bool ModelLoader::LoadModel(const aiScene* scene, Model* model)
     {
         const std::string runningDirectory = Utility::GetRunningDirectory();
+
+        model->m_numMaterials  = scene->mNumMaterials;
+        model->m_numMeshes     = scene->mNumMeshes;
+        model->m_numAnimations = scene->mNumAnimations;
 
         // Load the ai hierarchy into the root node.
         model->m_rootNode = new ModelNode();

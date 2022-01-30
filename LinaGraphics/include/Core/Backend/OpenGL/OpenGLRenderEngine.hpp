@@ -46,6 +46,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/FrustumSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/ModelNodeSystem.hpp"
+#include "ECS/Systems/ReflectionSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "OpenGLRenderDevice.hpp"
 #include "OpenGLWindow.hpp"
@@ -130,21 +131,6 @@ namespace Lina::Graphics
         void UpdateRenderSettings();
 
         /// <summary>
-        /// Allows the shader to receive data from the View Uniform Buffer, such as projection & view matrices.
-        /// </summary>
-        void BindShaderToViewBuffer(Shader& shader);
-
-        /// <summary>
-        /// Allows the shader to receive data from the Debug Uniform Buffer, such as depth information.
-        /// </summary>
-        void BindShaderToDebugBuffer(Shader& shader);
-
-        /// <summary>
-        /// Allows the shader to receive data from the Light Uniform Buffer, such as light positions & parameters.
-        /// </summary>
-        void BindShaderToLightBuffer(Shader& shader);
-
-        /// <summary>
         /// Sets the current skybox material used to draw the scene.
         /// </summary>
         inline void SetSkyboxMaterial(Material* skyboxMaterial)
@@ -161,6 +147,11 @@ namespace Lina::Graphics
         /// Returns a texture pointer to the current shadow map.
         /// </summary>
         uint32 GetShadowMapImage();
+
+        /// <summary>
+        /// Given a texture & a location, captures 6-faced cubemap & writes into the given texture.
+        /// </summary>
+        void CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution);
 
         /// <summary>
         /// Given an HDRI loaded texture, captures & calculates HDRI cube probes & writes it into global HRDI buffer.
@@ -187,13 +178,13 @@ namespace Lina::Graphics
         /// <summary>
         /// Renders the given model in a preview scene and returns the resulting image.
         /// </summary>
-        uint32 RenderModelPreview(Model* model, RenderTarget* overrideTarget = nullptr);
+        uint32 RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget = nullptr, Material* materialOverride = nullptr);
 
-        void UpdateShaderData(Material* mat);
+        void UpdateShaderData(Material* mat, bool lightPass = false);
 
         inline UniformBuffer& GetViewBuffer()
         {
-            return m_globalDataBuffer;
+            return m_globalViewBuffer;
         }
         inline DrawParams GetMainDrawParams()
         {
@@ -230,6 +221,10 @@ namespace Lina::Graphics
         inline ECS::ModelNodeSystem* GetModelNodeSystem()
         {
             return &m_modelNodeSystem;
+        }
+        inline ECS::ReflectionSystem* GetReflectionSystem()
+        {
+            return &m_reflectionSystem;
         }
         inline ECS::FrustumSystem* GetFrustumSystem()
         {
@@ -287,7 +282,16 @@ namespace Lina::Graphics
         {
             return m_primaryRTParams;
         }
-
+        inline void SetAppData(float delta, float elapsed, const Vector2& mousePos)
+        {
+            m_deltaTime     = delta;
+            m_elapsedTime   = elapsed;
+            m_mousePosition = mousePos;
+        }
+        inline Material* GetSkyboxMaterial()
+        {
+            return m_skyboxMaterial;
+        }
 
     private:
         friend class Engine;
@@ -314,6 +318,7 @@ namespace Lina::Graphics
         void OnDrawCapsule(const Event::EDrawCapsule& event);
         void OnWindowResized(const Event::EWindowResized& event);
         void OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev);
+        void OnResourceReloaded(const Event::EResourceReloaded& ev);
         bool ValidateEngineShaders();
         void SetupEngineShaders();
         void ConstructEngineMaterials();
@@ -341,31 +346,43 @@ namespace Lina::Graphics
         RenderTarget m_pingPongRenderTarget1;
         RenderTarget m_pingPongRenderTarget2;
         RenderTarget m_hdriCaptureRenderTarget;
+        RenderTarget m_reflectionCaptureRenderTarget;
         RenderTarget m_shadowMapTarget;
         RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
+        RenderTarget m_gBuffer;
 
         RenderBuffer m_primaryBuffer;
         RenderBuffer m_primaryMSAABuffer;
         RenderBuffer m_secondaryRenderBuffer;
         RenderBuffer m_previewRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
+        RenderBuffer m_reflectionCaptureRenderBuffer;
+        RenderBuffer m_gBufferRenderBuffer;
 
-        Texture m_primaryMSAARTTexture0;
-        Texture m_primaryMSAARTTexture1;
-        Texture m_primaryRTTexture0;
-        Texture m_primaryRTTexture1;
-        Texture m_secondaryRTTexture;
-        Texture m_previewRTTexture;
-        Texture m_pingPongRTTexture1;
-        Texture m_pingPongRTTexture2;
-        Texture m_hdriCubemap;
-        Texture m_hdriIrradianceMap;
-        Texture m_hdriPrefilterMap;
-        Texture m_hdriLutMap;
-        Texture m_shadowMapRTTexture;
-        Texture m_defaultCubemapTexture;
-        Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
-        Texture m_defaultTexture;
+        Texture m_gBufferPosition;
+        Texture m_gBufferNormal;
+        Texture m_gBufferAlbedo;
+        Texture m_gBufferEmission;
+        Texture m_gBufferMetallicRoughnessAOWorkflow;
+        Texture m_gBufferReflection;
+
+        Texture  m_primaryMSAARTTexture0;
+        Texture  m_primaryMSAARTTexture1;
+        Texture  m_primaryRTTexture0;
+        Texture  m_primaryRTTexture1;
+        Texture  m_secondaryRTTexture;
+        Texture  m_previewRTTexture;
+        Texture  m_pingPongRTTexture1;
+        Texture  m_pingPongRTTexture2;
+        Texture  m_hdriCubemap;
+        Texture  m_hdriIrradianceMap;
+        Texture  m_hdriPrefilterMap;
+        Texture  m_hdriLutMap;
+        Texture  m_shadowMapRTTexture;
+        Texture  m_defaultCubemapTexture;
+        Texture  m_pLightShadowTextures[MAX_POINT_LIGHTS];
+        Texture  m_defaultTexture;
+        Texture* m_lastCapturedHDR = nullptr;
 
         // Frame buffer texture parameters
         SamplerParameters m_primaryRTParams;
@@ -374,6 +391,7 @@ namespace Lina::Graphics
 
         Mesh m_quadMesh;
 
+        Material  m_gBufferLightPassMaterial;
         Material  m_screenQuadFinalMaterial;
         Material  m_screenQuadBlurMaterial;
         Material  m_screenQuadOutlineMaterial;
@@ -394,24 +412,18 @@ namespace Lina::Graphics
         Shader* m_hdriPrefilterShader       = nullptr;
         Shader* m_hdriEquirectangularShader = nullptr;
         Shader* m_hdriIrradianceShader      = nullptr;
-        Shader* m_sqFinalShader             = nullptr;
-        Shader* m_sqBlurShader              = nullptr;
-        Shader* m_sqShadowMapShader         = nullptr;
-        Shader* m_debugLineShader           = nullptr;
-        Shader* m_debugIconShader           = nullptr;
-        Shader* m_skyboxSingleColorShader   = nullptr;
-        Shader* m_pointShadowsDepthShader   = nullptr;
-        Shader* m_standardUnlitShader;
-        Shader* m_standardLitShader;
+        Shader* m_standardUnlitShader       = nullptr;
+        Shader* m_standardLitShader         = nullptr;
 
         DrawParams m_defaultDrawParams;
         DrawParams m_skyboxDrawParams;
         DrawParams m_fullscreenQuadDP;
         DrawParams m_shadowMapDrawParams;
 
-        UniformBuffer m_globalDataBuffer;
+        UniformBuffer m_globalViewBuffer;
         UniformBuffer m_globalLightBuffer;
         UniformBuffer m_globalDebugBuffer;
+        UniformBuffer m_globalAppDataBuffer;
 
         RenderingDebugData m_debugData;
         RenderSettings*    m_renderSettings;
@@ -422,6 +434,7 @@ namespace Lina::Graphics
         ECS::AnimationSystem        m_animationSystem;
         ECS::CameraSystem           m_cameraSystem;
         ECS::ModelNodeSystem        m_modelNodeSystem;
+        ECS::ReflectionSystem       m_reflectionSystem;
         ECS::SpriteRendererSystem   m_spriteRendererSystem;
         ECS::LightingSystem         m_lightingSystem;
         ECS::FrustumSystem          m_frustumSystem;
@@ -435,9 +448,8 @@ namespace Lina::Graphics
         uint32 m_hdriCubeVAO   = 0;
         uint32 m_lineVAO       = 0;
 
-        int  m_currentSpotLightCount  = 0;
-        int  m_currentPointLightCount = 0;
-        bool m_hdriDataCaptured       = false;
+        int m_currentSpotLightCount  = 0;
+        int m_currentPointLightCount = 0;
 
         Vector2i m_hdriResolution         = Vector2i(512, 512);
         Vector2i m_shadowMapResolution    = Vector2i(2048, 2048);
@@ -445,6 +457,9 @@ namespace Lina::Graphics
         Vector2i m_screenSize             = Vector2i(0, 0);
         Vector2i m_pLightShadowResolution = Vector2i(1024, 1024);
         bool     m_firstFrameDrawn        = false;
+        float    m_deltaTime              = 0.0f;
+        float    m_elapsedTime            = 0.0f;
+        Vector2  m_mousePosition          = Vector2::Zero;
 
         std::queue<DebugLine>                m_debugLineQueue;
         std::queue<DebugIcon>                m_debugIconQueue;

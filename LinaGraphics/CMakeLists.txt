@@ -61,6 +61,7 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/LightingSystem.cpp
 	src/ECS/Systems/AnimationSystem.cpp
 	src/ECS/Systems/FrustumSystem.cpp
+	src/ECS/Systems/ReflectionSystem.cpp
 		
 	src/ECS/Components/ModelRendererComponent.cpp
 )
@@ -118,6 +119,7 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp
 	include/ECS/Systems/FrustumSystem.hpp
+	include/ECS/Systems/ReflectionSystem.hpp
 	
 	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/ModelRendererComponent.hpp
@@ -126,9 +128,11 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Components/SpriteRendererComponent.hpp
 	include/ECS/Components/AnimationComponent.hpp
 	include/ECS/Components/ModelNodeComponent.hpp
+	include/ECS/Components/ReflectionAreaComponent.hpp
 
 	include/Utility/AssimpUtility.hpp
 	include/Utility/ModelLoader.hpp
+
 
 	include/Utility/stb/stb_image.h
 	include/Utility/stb/stb_image_write.h

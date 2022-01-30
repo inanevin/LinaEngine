@@ -61,8 +61,13 @@ namespace Lina::ECS
     {
         LINA_PROPERTY("Materials", "MaterialArray")
         std::vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
+        
+        LINA_PROPERTY("Materials_Names")
+        std::vector<std::string> m_materialsNames;
 
-        Resources::ResourceHandle<Graphics::ModelNode> m_modelNode;
+        int                                        m_nodeIndex = -1;
+        Resources::ResourceHandle<Graphics::Model> m_model;
+        bool                                       m_culled = false;
 
     private:
         friend class cereal::access;
@@ -70,7 +75,7 @@ namespace Lina::ECS
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_materials, m_modelNode, m_isEnabled);
+            archive(m_materials, m_nodeIndex, m_model, m_isEnabled);
         }
     };
 

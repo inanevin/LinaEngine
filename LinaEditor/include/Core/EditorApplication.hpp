@@ -52,6 +52,7 @@ namespace Lina
 
     namespace Graphics
     {
+        class Material;
         class RenderTarget;
         class Texture;
         class RenderBuffer;
@@ -65,6 +66,8 @@ namespace Lina
         struct ESerializedLevel;
         struct EWindowResized;
         struct EResourceLoadCompleted;
+        struct EResourceReloaded;
+        struct EResourcePathUpdated;
 
     } // namespace Event
 } // namespace Lina
@@ -101,19 +104,21 @@ namespace Lina::Editor
 
     private:
         void PlayModeChanged(const Event::EPlayModeChanged& playmode);
-        void TakeModelSnapshot(StringIDType sid);
+        void TakeModelSnapshot(StringIDType bufferSid, StringIDType modelSid, StringIDType materialSid);
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void OnPreSerializingLevel(const Event::EPreSerializingLevel& ev);
         void OnSerializedLevel(const Event::ESerializedLevel& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
         void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
+        void OnResourceReloaded(const Event::EResourceReloaded& ev);
+        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
 
     private:
         static EditorApplication*                        s_editorApplication;
         ECS::EditorCameraSystem                          m_editorCameraSystem;
         GUILayer                                         m_guiLayer;
         std::unordered_map<StringIDType, SnapshotBuffer> m_previewBuffers;
-        bool                                             m_modelSnapshotsTaken = false;
+        bool                                             m_snapshotsTaken = false;
     };
 } // namespace Lina::Editor
 

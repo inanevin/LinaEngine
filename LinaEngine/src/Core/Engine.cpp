@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Rendering/Shader.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 #include "Core/ReflectionRegistry.hpp"
 
 namespace Lina
@@ -92,13 +93,12 @@ namespace Lina
 
         bool engineSettingsExists = Utility::FileExists("engine.linasettings");
 
-        if (engineSettingsExists)
-            m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
-        else
-            Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
+         if (engineSettingsExists)
+             m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
+         else
+             Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
         RegisterResourceTypes();
-
         m_eventSystem.Initialize();
         m_resourceStorage.Initialize();
         m_inputEngine.Initialize();
@@ -122,6 +122,7 @@ namespace Lina
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();
+
     }
 
     void Engine::StartLoadingResources()
@@ -247,6 +248,8 @@ namespace Lina
 
         // Animation, particle systems.
         m_renderEngine.Tick(deltaTime);
+        m_renderEngine.SetAppData(deltaTime, (float)GetElapsedTime(), m_inputEngine.GetMousePosition());
+        
 
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
@@ -302,12 +305,14 @@ namespace Lina
 
     void Engine::RegisterResourceTypes()
     {
+        m_resourceStorage.m_resources.clear();
+
         m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Audio::AudioAssetData>),
                 std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linaaudiodata"}});
+                std::vector<std::string>{"linaaudiodata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
             Resources::ResourceTypeData{
@@ -321,14 +326,14 @@ namespace Lina
                 0,
                 std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
                 std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linaimagedata"}});
+                std::vector<std::string>{"linaimagedata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
             Resources::ResourceTypeData{
                 0,
                 std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
                 std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
-                std::vector<std::string>{"linamodeldata"}});
+                std::vector<std::string>{"linamodeldata"}, Color::White, true});
 
         m_resourceStorage.RegisterResource<Graphics::Shader>(
             Resources::ResourceTypeData{
@@ -356,14 +361,7 @@ namespace Lina
                 4,
                 std::bind(Resources::CreateResource<Graphics::Model>),
                 std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
-                std::vector<std::string>{"fbx", "obj"}, Color(255, 146, 22, 255, true)});
-
-        m_resourceStorage.RegisterResource<Graphics::ModelNode>(
-            Resources::ResourceTypeData{
-                4,
-                std::bind(Resources::CreateResource<Graphics::ModelNode>),
-                std::bind(Resources::DeleteResource<Graphics::ModelNode>, std::placeholders::_1),
-                std::vector<std::string>(), Color(255, 146, 22, 255, true)});
+                std::vector<std::string>{"fbx", "obj", "gltf", "glb"}, Color(255, 146, 22, 255, true)});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             5,

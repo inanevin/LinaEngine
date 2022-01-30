@@ -68,6 +68,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 // ----------------------------------------------------------------------------
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
+	cosTheta = min(cosTheta, 1.0);
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
@@ -123,7 +124,7 @@ float CalculateShadow(float farPlane, float bias, vec3 FragPos, vec3 LightPos, s
     float currentDepth = length(fragToLight);
 	 
 	float shadow = 0.0;
-    float viewDistance = length(cameraPosition.xyz - FragPos);
+    float viewDistance = length(LINA_CAMPOS.xyz - FragPos);
     float diskRadius = (1.0 + (viewDistance / farPlane)) / 25.0;
 	int samples = 25;
     for(int i = 0; i < samples; ++i)
@@ -137,3 +138,5 @@ float CalculateShadow(float farPlane, float bias, vec3 FragPos, vec3 LightPos, s
         
     return shadow;
 }  
+
+

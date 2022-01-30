@@ -104,6 +104,7 @@ namespace Lina::Editor
         }
 
         bool m_shouldShowGizmos = false;
+        bool m_shouldShowBounds = false;
 
     private:
         void OnTransformGizmoChanged(const ETransformGizmoChanged& ev);

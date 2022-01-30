@@ -39,6 +39,7 @@ namespace Lina::Graphics
 {
 
     char* g_materialSurfaceTypeStr[2]{"Opaque", "Transparent"};
+    char* g_materialWorkflowTypeStr[2]{"Plastic", "Metallic"};
 
     bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword)
     {

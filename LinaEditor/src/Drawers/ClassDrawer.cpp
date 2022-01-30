@@ -31,11 +31,13 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Core/PhysicsBackend.hpp"
+#include "Rendering/Texture.hpp"
 #include <entt/meta/factory.hpp>
 #include <entt/meta/node.hpp>
 #include <entt/meta/resolve.hpp>
 #include "IconsFontAwesome5.h"
 #include <unordered_map>
+
 using namespace entt::literals;
 
 std::unordered_map<std::string, std::vector<entt::meta_data>> m_propertyList; // Category- property pair
@@ -49,33 +51,30 @@ namespace Lina::Editor
 
         if (resolvedData)
         {
-            if (drawHeader)
+            auto titleProperty = resolvedData.prop("Title"_hs);
+
+            if (titleProperty)
             {
-                auto titleProperty = resolvedData.prop("Title"_hs);
+                auto title       = titleProperty.value().cast<const char*>();
+                bool foldoutOpen = drawHeader ? WidgetsUtility::Header(tid, title) : true;
 
-                if (titleProperty)
+                if (foldoutOpen)
                 {
-                    auto title       = titleProperty.value().cast<const char*>();
-                    bool foldoutOpen = WidgetsUtility::Header(tid, title);
-
-                    if (foldoutOpen)
+                    for (auto data : resolvedData.data())
                     {
-                        for (auto data : resolvedData.data())
-                        {
 
-                            auto labelProperty = data.prop("Title"_hs);
-                            auto typeProperty  = data.prop("Type"_hs);
+                        auto labelProperty = data.prop("Title"_hs);
+                        auto typeProperty  = data.prop("Type"_hs);
 
-                            if (!labelProperty || !typeProperty)
-                                continue;
+                        if (!labelProperty || !typeProperty)
+                            continue;
 
-                            std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
+                        std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
 
-                            AddPropertyToDrawList(category, data);
-                        }
-
-                        anyPropertyChanged = FlushDrawList(title, resolvedData, instance);
+                        AddPropertyToDrawList(category, data);
                     }
+
+                    anyPropertyChanged = FlushDrawList(title, resolvedData, instance);
                 }
             }
         }
@@ -110,7 +109,7 @@ namespace Lina::Editor
                         anyPropertyChanged = true;
                 }
             }
-
+            WidgetsUtility::IncrementCursorPosY(4);
             ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
             WidgetsUtility::HorizontalDivider(-2.0f, 0.5f);
             ImGui::PopStyleColor();
@@ -130,10 +129,15 @@ namespace Lina::Editor
 
         if (!labelProperty || !typeProperty)
             return false;
+        
+        const char* typeVal                         = typeProperty.value().cast<const char*>();
+
+        if (std::string(typeVal).compare("") == 0) return false;
 
         const char* label                     = labelProperty.value().cast<const char*>();
         std::string type                      = std::string(typeProperty.value().cast<const char*>());
         auto        displayDependencyProperty = data.prop("Depends"_hs);
+        const char* owningTypeTitle           = owningType.prop("Title"_hs).value().cast<const char*>();
 
         if (displayDependencyProperty)
         {
@@ -150,6 +154,7 @@ namespace Lina::Editor
 
         std::string varLabelID = "##_" + std::string(label);
         WidgetsUtility::PropertyLabel(label);
+        const std::string variableID = "##_" + std::string(owningTypeTitle) + varLabelID;
 
         auto tooltipProperty = data.prop("Tooltip"_hs);
         if (tooltipProperty)
@@ -184,6 +189,16 @@ namespace Lina::Editor
             Vector2       variable = data.get(instance).cast<Vector2>();
             const Vector2 prev     = variable;
             WidgetsUtility::DragVector2(varLabelID.c_str(), &variable.x);
+            data.set(instance, variable);
+
+            if (prev != variable)
+                propertyChanged = true;
+        }
+        else if (type.compare("Vector2i") == 0)
+        {
+            Vector2i       variable = data.get(instance).cast<Vector2i>();
+            const Vector2i prev     = variable;
+            WidgetsUtility::DragVector2i(varLabelID.c_str(), &variable.x);
             data.set(instance, variable);
 
             if (prev != variable)
@@ -233,7 +248,7 @@ namespace Lina::Editor
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Material>>();
             const StringIDType prev   = handle.m_sid;
-            WidgetsUtility::ResourceSelectionMaterial(&handle);
+            WidgetsUtility::ResourceSelectionMaterial(variableID, static_cast<void*>(&handle));
             data.set(instance, handle);
 
             if (prev != handle.m_sid)
@@ -241,6 +256,69 @@ namespace Lina::Editor
         }
         else if (type.compare("MaterialArray") == 0)
         {
+            ImGui::NewLine();
+
+            auto arr = data.get(instance).cast<std::vector<Resources::ResourceHandle<Graphics::Material>>>();
+
+            std::vector<std::string> materialNameVector;
+            
+            // We are looking for a property with title MaterialArray's title + _Names
+            const std::string labelNames = std::string(label) + "_Names";
+
+            // Search through the reflected data of the owning type.
+            for (auto& d : owningType.data())
+            {
+                auto dTitle = d.prop("Title"_hs);
+
+                if (dTitle)
+                {
+                    // If any property's title matches the label we are looking for
+                    // it means we found the array containing the names for the current material array.
+                    const char* dTitleChr = dTitle.value().cast<const char*>();
+                    if (std::string(dTitleChr).compare(labelNames) == 0)
+                    {
+                        materialNameVector = d.get(instance).cast<std::vector<std::string>>();   
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < arr.size(); i++)
+            {
+                const StringIDType prev = arr[i].m_sid;
+                const std::string  elementID = variableID + std::to_string(i);
+
+                std::string materialName = "Material " + std::to_string(i);
+                if (materialNameVector.size() > 0)
+                    materialName = materialNameVector[i];
+                
+                WidgetsUtility::PropertyLabel(materialName.c_str());
+                WidgetsUtility::ResourceSelectionMaterial(elementID, &arr[i]);
+                data.set(instance, arr);
+
+                if (prev != arr[i].m_sid)
+                    propertyChanged = true;
+            }
+        }
+        else if (type.compare("Shader") == 0)
+        {
+            auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Shader>>();
+            const StringIDType prev   = handle.m_sid;
+            WidgetsUtility::ResourceSelectionShader(variableID, &handle);
+            data.set(instance, handle);
+
+            if (prev != handle.m_sid)
+                propertyChanged = true;
+        }
+        else if (type.compare("Texture") == 0)
+        {
+            auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Texture>>();
+            const StringIDType prev   = handle.m_sid;
+            WidgetsUtility::ResourceSelectionTexture(variableID, &handle);
+            data.set(instance, handle);
+
+            if (prev != handle.m_sid)
+                propertyChanged = true;
         }
 
         return propertyChanged;

@@ -29,7 +29,7 @@ out vec3 FragPos;
 
 void main()
 {
-  gl_Position = VP * model * vec4(position, 1.0);
+  gl_Position = LINA_VP * model * vec4(position, 1.0);
   FragPos = vec3(model * vec4(position,1.0));
   TexCoords = texCoords;
 }
@@ -38,19 +38,24 @@ void main()
 #include <../UniformBuffers.glh>
 #include <../Utility.glh>
 #include <../MaterialSamplers.glh>
-#include <../LightingCalculations.glh>
 
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 brightColor;
+
+layout (location = 0) out vec4 gPosition;		// rgb = position
+layout (location = 1) out vec4 gNormal;			// rgb = normal
+layout (location = 2) out vec4 gAlbedo;					
+layout (location = 3) out vec4 gEmission;		    				// rgb = emission, a = workflow
+layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g = roughness, b = ao, a = workflow
+layout (location = 5) out vec4 gReflection;		
+
 in vec3 FragPos;
 in vec2 TexCoords;
 
 struct Material
 {
   MaterialSampler2D diffuse;
-  vec3 objectColor;
+  vec4 objectColor;
   int surfaceType;
-  
+  vec2 tiling;
 };
 
 uniform Material material;
@@ -58,15 +63,14 @@ uniform Material material;
 
 void main()
 {
-	float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, TexCoords).a : 1.0);
+    vec2 tiled = vec2(TexCoords.x * material.tiling.x, TexCoords.y * material.tiling.y);
+	vec4 color = material.diffuse.isActive ? texture(material.diffuse.texture ,tiled) * material.objectColor : material.objectColor;
+	float alpha = material.surfaceType == 0 ? 1.0 : color.a;
 
-	vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
-	fragColor = vec4(color.rgb, alpha);
-		
-	float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness > 1.0)
-		brightColor = vec4(fragColor.rgb, 1.0);
-	else
-		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+	gPosition = vec4(FragPos, 1.0f);
+	gNormal = vec4(0.0f);
+	gAlbedo = vec4(color.rgb, alpha);
+	gEmission = vec4(0.0f);
+	gMetallicRoughnessAOWorkflow = vec4(0.0f, 0.0f, 0.0f, 2.0f); // unlit
 }
 #endif
