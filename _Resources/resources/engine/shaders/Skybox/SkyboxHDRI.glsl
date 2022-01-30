@@ -62,7 +62,7 @@ void main()
   gAlbedo = vec4(envColor, 1.0f);
   gEmission = vec4(0.0f);
   gMetallicRoughnessAOWorkflow = vec4(0.0f, 0.0f, 0.0f, 2.0f); // unlit
-
+	
 }
 
 #endif

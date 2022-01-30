@@ -25,10 +25,12 @@ void main()
 
 #elif defined(FS_BUILD)
 
-layout (location = 0) out vec4 gPositionMetallic;		// rgb = position, a = metallic
-layout (location = 1) out vec4 gNormalRoughness;		// rgb = normal, a = roughness
-layout (location = 2) out vec4 gAlbedoAO;				// rgb = albedo, a = AO
-layout (location = 3) out vec4 gEmissionWorkflow;		// rgb = emission, a = workflow
+layout (location = 0) out vec4 gPosition;		// rgb = position
+layout (location = 1) out vec4 gNormal;			// rgb = normal
+layout (location = 2) out vec4 gAlbedo;					
+layout (location = 3) out vec4 gEmission;		    				// rgb = emission, a = workflow
+layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g = roughness, b = ao, a = workflow
+layout (location = 5) out vec4 gReflection;		
 
 struct Material
 {
@@ -38,9 +40,11 @@ uniform Material material;
 
 void main()
 {   
-  gPositionMetallic = vec4(vec3(0), 0.0f);
-  gNormalRoughness = vec4(0.0f);
-  gAlbedoAO = vec4(vec3(material.color.x, material.color.y, material.color.z), 0.0f);
-  gEmissionWorkflow = vec4(vec3(0.0f), 2.0f);	// Unlit
+  gPosition = vec4(vec3(0), 0.0f);
+  gNormal = vec4(0.0f);
+  gAlbedo = vec4(vec3(material.color.x, material.color.y, material.color.z), 0.0f);
+  gEmission = vec4(0.0f);
+  gMetallicRoughnessAOWorkflow = vec4(0.0f, 0.0f, 0.0f, 2.0f); // unlit
+  gReflection = vec4(0.0f);
 }
 #endif

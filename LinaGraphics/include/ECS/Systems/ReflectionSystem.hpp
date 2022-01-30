@@ -68,8 +68,16 @@ namespace Lina::ECS
         ReflectionSystem()  = default;
         ~ReflectionSystem() = default;
         virtual void Initialize(const std::string& name, ApplicationMode& appMode);
-        virtual void UpdateComponents(float deltaTime) override;
+        virtual void UpdateComponents(float delta){UpdateReflectionData();};
 
+        /// <summary>
+        /// Goes through the reflection areas & captures their cubemaps if they are dynamic.
+        /// </summary>
+        void UpdateReflectionData();
+
+        /// <summary>
+        /// Sets the reflection area map on a material.
+        /// </summary>
         void SetReflectionsOnMaterial(Graphics::Material* mat, const Vector3& transformLocation);
 
     private:
@@ -78,7 +86,7 @@ namespace Lina::ECS
 
     private:
         Graphics::RenderEngine* m_renderEngine = nullptr;
-        ApplicationMode m_appMode;
+        ApplicationMode         m_appMode;
     };
 } // namespace Lina::ECS
 

@@ -44,10 +44,10 @@ namespace Lina::ECS
         System::Initialize(name);
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &ReflectionSystem::OnPlayModeChanged>(this);
         m_renderEngine = Graphics::RenderEngineBackend::Get();
-        m_appMode = appMode;
+        m_appMode      = appMode;
     }
 
-    void ReflectionSystem::UpdateComponents(float deltaTime)
+    void ReflectionSystem::UpdateReflectionData()
     {
         auto* reg  = Registry::Get();
         auto& view = reg->view<EntityDataComponent, ReflectionAreaComponent>();
@@ -57,6 +57,10 @@ namespace Lina::ECS
         {
             auto& refArea = view.get<ReflectionAreaComponent>(entity);
             auto& data    = view.get<EntityDataComponent>(entity);
+
+            // Make sure the area's texture is constructed.
+            if (refArea.m_cubemap.GetIsEmpty())
+                ConstructRefAreaTexture(&refArea.m_cubemap, refArea.m_resolution);
 
             if (refArea.m_isDynamic)
             {
@@ -128,10 +132,6 @@ namespace Lina::ECS
 
                 if (!refArea.m_isDynamic)
                 {
-                    // Make sure the area's texture is constructed.
-                    if (refArea.m_cubemap.GetIsEmpty())
-                        ConstructRefAreaTexture(&refArea.m_cubemap, refArea.m_resolution);
-
                     // Tell render engine to render the scene by writing to the reflection area's cubemap texture.
                     m_renderEngine->CaptureReflections(refArea.m_cubemap, data.GetLocation(), refArea.m_resolution);
                 }
