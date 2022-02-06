@@ -36,16 +36,30 @@ SOFTWARE.
 #include "ECS/Components/ModelNodeComponent.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/ResourceManager.hpp"
+#include "Rendering/RenderConstants.hpp"
 namespace Lina::Editor
 {
     void MaterialDrawer::DrawMaterialSettings(Graphics::Material*& mat, float leftPaneSize)
     {
         const TypeID tid = GetTypeID<Graphics::Material>();
         WidgetsUtility::IncrementCursorPosY(12);
-        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
-        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
-        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
 
+        // Store the current shader.
+        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
+
+        // Store the current HDRI environment map if this is an HDRI skybox.
+        Graphics::Texture* previousEnvironmentTexture = mat->m_triggersHDRIReflections ? mat->m_environmentHDR.m_value : nullptr;
+     
+        // Draw the free data.
+        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
+
+        // If this is an HDRI skybox && if the environment map is changed, make sure it's captured & calculated.
+        Graphics::Texture* newHDR = mat->m_environmentHDR.m_value;
+        if (newHDR != nullptr && previousEnvironmentTexture != newHDR)
+            Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(*newHDR);
+
+        // Set shader if changed.
+        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
         if (sidNow != sidBefore)
             mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
 
@@ -207,7 +221,13 @@ namespace Lina::Editor
             mat = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);
 
             if (isSkyboxMaterial)
+            {
                 Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(mat);
+                if (mat->m_triggersHDRIReflections && mat->m_environmentHDR.m_value != nullptr)
+                {
+                    mat->SetTexture(MAT_MAP_ENVIRONMENT, &Graphics::RenderEngineBackend::Get()->GetHDRICubemap(), Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
+                }
+            }
         }
     }
 

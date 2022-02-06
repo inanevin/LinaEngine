@@ -91,7 +91,7 @@ layout (location = 1) out vec4 gNormal;			// rgb = normal
 layout (location = 2) out vec4 gAlbedo;					
 layout (location = 3) out vec4 gEmission;		    				// rgb = emission, a = workflow
 layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g = roughness, b = ao, a = workflow
-layout (location = 5) out vec4 gReflection;		
+
 
 
 in vec2 TexCoords;
@@ -104,7 +104,6 @@ struct Material
   MaterialSampler2D normalMap;
   MaterialSampler2D metallicRoughnessAOMap;
   MaterialSampler2D emissiveMap;
-  MaterialSamplerCube reflectionAreaMap;
   vec4 objectColor;
   float metallic;
   float roughness;
@@ -138,17 +137,6 @@ void main()
 	gAlbedo = vec4(albedo.rgb, alpha);
 	gEmission = vec4(emission * material.emissionIntensity, 1.0f);
 	gMetallicRoughnessAOWorkflow = vec4(metallic, roughness, ao, float(material.workflow));
-	
-	bool reflectionActive = material.reflectionAreaMap.isActive;
-	
-	if(reflectionActive)
-	{
-		vec3 I = normalize(WorldPos - LINA_CAMPOS.xyz);
-		vec3 R = reflect(I, N);
-		gReflection = vec4(texture(material.reflectionAreaMap.texture, R).rgb, 1.0f);
-	}
-	else
-		gReflection = vec4(0.0f);
 }
 #endif
 

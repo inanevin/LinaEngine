@@ -45,7 +45,6 @@ layout (location = 1) out vec4 gNormal;			// rgb = normal
 layout (location = 2) out vec4 gAlbedo;					
 layout (location = 3) out vec4 gEmission;		    				// rgb = emission, a = workflow
 layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g = roughness, b = ao, a = workflow
-layout (location = 5) out vec4 gReflection;		
 
 in vec3 FragPos;
 in vec2 TexCoords;

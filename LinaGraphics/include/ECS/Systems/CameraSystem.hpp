@@ -68,7 +68,7 @@ namespace Lina::ECS
         virtual void UpdateComponents(float delta) override;
 
         /// <summary>
-        /// Changes the camera's view matrix for a single frame with the given matrix.
+        /// Changes the camera's view matrix to take effect next frame.
         /// </summary>
         /// <param name="view"></param>
         void InjectViewMatrix(const Matrix& view)
@@ -78,13 +78,31 @@ namespace Lina::ECS
         }
 
         /// <summary>
-        /// Changes the camera's projection matrix for a single frame with the given matrix.
+        /// Changes the camera's projection matrix to take effect next frame.
         /// </summary>
         /// <param name="proj"></param>
         void InjectProjMatrix(const Matrix& proj)
         {
             m_projMatrixInjected = true;
             m_projection         = proj;
+        }
+
+        /// <summary>
+        /// Changes the camera's view matrix for the current frame.
+        /// </summary>
+        /// <param name="view"></param>
+        void SetViewMatrix(const Matrix& view)
+        {
+            m_view = view;
+        }
+
+        /// <summary>
+        /// Changes the camera's projection matrix for the current frame.
+        /// </summary>
+        /// <param name="proj"></param>
+        void SetProjectionMatrix(const Matrix& proj)
+        {
+            m_projection = proj;
         }
 
         /// <summary>

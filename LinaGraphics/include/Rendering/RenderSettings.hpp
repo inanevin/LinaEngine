@@ -55,11 +55,8 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_environmentHDR, m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure, m_vignetteEnabled, m_vignetteAmount, m_vignettePow);
+            archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure, m_vignetteEnabled, m_vignetteAmount, m_vignettePow);
         }
-        
-        LINA_PROPERTY("Environment HDR", "Texture", "The HDR texture to use if current skybox wants to trigger HDRI reflections.")
-        Resources::ResourceHandle<Texture> m_environmentHDR;
 
         LINA_PROPERTY("Gamma", "Float", "", "", "Tonemapping")
         float m_gamma = 2.2f;

@@ -62,8 +62,7 @@ namespace Lina::Editor
                 const StringIDType sidBefore                  = currentLevel->m_skyboxMaterial.m_sid;
                 bool               anySettingsChanged         = false;
                 auto&              engineSettings             = Engine::Get()->GetEngineSettings();
-                Graphics::Texture* previousEnvironmentTexture = engineSettings.GetRenderSettings().m_environmentHDR.m_value;
-
+               
                 if (ClassDrawer::DrawClass(GetTypeID<World::Level>(), entt::forward_as_meta(*currentLevel), true))
                 {
                     if (currentLevel->m_skyboxMaterial.m_value == nullptr)
@@ -88,11 +87,6 @@ namespace Lina::Editor
                 {
                     Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", Engine::Get()->GetEngineSettings());
 
-                    Graphics::Texture* newHDR = engineSettings.GetRenderSettings().m_environmentHDR.m_value;
-                    if (previousEnvironmentTexture != newHDR)
-                    {
-                        Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(*newHDR);
-                    }
                 }
 
                 End();

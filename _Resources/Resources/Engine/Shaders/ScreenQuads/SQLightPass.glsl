@@ -44,11 +44,13 @@ struct Material
 	MaterialSampler2D gAlbedoMap;		
 	MaterialSampler2D gEmissionMap;
 	MaterialSampler2D gMetallicRoughnessAOWorkflowMap;
-	MaterialSampler2D gReflectionMap;
 	MaterialSampler2D brdfLUTMap;
+	MaterialSamplerCube reflectionMap;
+	MaterialSamplerCube skyboxIrradianceMap;
     MaterialSamplerCube irradianceMap;
     MaterialSamplerCube prefilterMap;
 	MaterialSamplerCube[MAX_POINT_LIGHT] pointShadowDepthMaps;
+	float skyboxIrradianceFactor;
 };
 
 uniform Material material;
@@ -59,9 +61,7 @@ void main()
 	vec4 gNorm = material.gNormalMap.isActive ? texture(material.gNormalMap.texture, TexCoords) : vec4(0.0);
 	vec4 gAlb = material.gAlbedoMap.isActive ? texture(material.gAlbedoMap.texture, TexCoords) : vec4(0.0);
 	vec4 gEmission = material.gEmissionMap.isActive ? texture(material.gEmissionMap.texture, TexCoords) : vec4(0.0);
-	vec4 gMetRoughAOWf = material.gMetallicRoughnessAOWorkflowMap.isActive ? texture(material.gMetallicRoughnessAOWorkflowMap.texture, TexCoords) : vec4(0.0);
-	vec4 reflection = material.gReflectionMap.isActive ? texture(material.gReflectionMap.texture, TexCoords) : vec4(0.0f);
-	
+	vec4 gMetRoughAOWf = material.gMetallicRoughnessAOWorkflowMap.isActive ? texture(material.gMetallicRoughnessAOWorkflowMap.texture, TexCoords) : vec4(0.0);	
 	vec3 WorldPos = gPos.rgb;
  	vec3 albedo = gAlb.rgb;
 	vec3 emission = gEmission.rgb;
@@ -72,9 +72,13 @@ void main()
   	vec3 N = gNorm.rgb;
   	vec3 V = normalize(vec3(LINA_CAMPOS.x, LINA_CAMPOS.y, LINA_CAMPOS.z) - WorldPos);
     vec3 Lo = vec3(0.0);
+    vec3 R = reflect(-V, normalize(N));
 	vec3 finalColor = vec3(0.0);
 	vec3 ambientMultiplier = vec3(1.0);
+	vec4 reflection = material.reflectionMap.isActive ? texture(material.reflectionMap.texture, N) : vec4(0.0f);
+	vec3 skyboxIrr = material.skyboxIrradianceMap.isActive ? texture(material.skyboxIrradianceMap.texture, R).rgb * material.skyboxIrradianceFactor : vec3(0.0f);
 	
+	// IF LIT WORKFLOW
 	if(workflow != 2.0f)
 	{
 		vec3 F0 = workflow == 0.0f ? vec3(0.04) : albedo;
@@ -125,6 +129,7 @@ void main()
 		bool brdfActive = material.brdfLUTMap.isActive;
 		bool irradianceActive = material.irradianceMap.isActive;
 		
+		// IF WE HAVE AN HDRI ENVIRONMENT MAP & HDRI SKYBOX TO SUPPORT IT
 		if(prefilterActive && brdfActive && irradianceActive)
 		{
 			vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
@@ -144,10 +149,16 @@ void main()
 			finalColor = (kD * diffuse + specular) * ao * LINA_AMBIENT.xyz; 
 		}
 		else
+		{
 			ambientMultiplier = LINA_AMBIENT.xyz;
+			finalColor = skyboxIrr;
+		}
 	}
 	else
+	{
+		// IF UNLIT WORKFLOW
 		finalColor = albedo;
+	}
      
     finalColor += Lo * ambientMultiplier + emission + reflection.rgb;
 	

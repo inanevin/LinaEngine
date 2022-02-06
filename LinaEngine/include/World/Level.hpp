@@ -86,10 +86,10 @@ namespace Lina::World
         /// </summary>
         void InstallFromFile(const std::string& path);
 
-        LINA_PROPERTY("Skybox", "Material")
+        LINA_PROPERTY("Skybox", "Material", "", "", "Sky")
         Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;
 
-        LINA_PROPERTY("Ambient", "Color")
+        LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
         Color m_ambientColor = Color(0);
 
     protected:

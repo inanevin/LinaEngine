@@ -229,7 +229,7 @@ namespace Lina::Graphics
         // m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
         // m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
         // m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
-     
+
         m_defaultLit        = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
         m_defaultUnlit      = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
         m_defaultSkybox     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkybox.linamat");
@@ -237,8 +237,8 @@ namespace Lina::Graphics
         m_defaultSkyboxHDRI = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
         auto* text                                 = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Venice.hdr");
-        m_renderSettings->m_environmentHDR.m_sid   = text->GetSID();
-        m_renderSettings->m_environmentHDR.m_value = text;
+        m_defaultSkyboxHDRI->m_environmentHDR.m_sid   = text->GetSID();
+        m_defaultSkyboxHDRI->m_environmentHDR.m_value = text;
         CaptureCalculateHDRI(*text);
         m_defaultSkyboxHDRI->SetTexture(MAT_MAP_ENVIRONMENT, &m_hdriCubemap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
@@ -255,6 +255,13 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::ConstructRenderTargets()
     {
+        SamplerParameters cubemapParams;
+        cubemapParams.m_textureParams.m_wrapR = cubemapParams.m_textureParams.m_wrapS = cubemapParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+        cubemapParams.m_textureParams.m_magFilter                                                                             = SamplerFilter::FILTER_LINEAR;
+        cubemapParams.m_textureParams.m_minFilter                                                                             = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+        cubemapParams.m_textureParams.m_internalPixelFormat                                                                   = PixelFormat::FORMAT_RGB16F;
+        cubemapParams.m_textureParams.m_pixelFormat                                                                           = PixelFormat::FORMAT_RGB;
+
         // GBuffer
         SamplerParameters gBufferParams4;
         gBufferParams4.m_textureParams.m_pixelFormat         = PixelFormat::FORMAT_RGB;
@@ -290,6 +297,10 @@ namespace Lina::Graphics
         m_pingPongRTTexture1.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
         m_pingPongRTTexture2.ConstructRTTexture(m_screenSize, m_pingPongRTParams, false);
 
+        // Cubemaps
+        m_reflectionCubemap.ConstructRTCubemapTexture(m_hdriResolution, cubemapParams);
+        m_skyboxIrradianceCubemap.ConstructRTCubemapTexture(m_skyboxIrradianceResolution, cubemapParams);
+
         // Shadow map RT texture
         m_shadowMapRTTexture.ConstructRTTexture(m_shadowMapResolution, m_shadowsRTParams, true);
 
@@ -304,6 +315,7 @@ namespace Lina::Graphics
         // Initialize hdri render buffer
         m_hdriCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
         m_reflectionCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
+        m_skyboxIrradianceCaptureRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH_COMP24, m_skyboxIrradianceResolution);
 
         // Initialize primary render target.
         m_primaryRenderTarget.Construct(m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
@@ -314,7 +326,6 @@ namespace Lina::Graphics
         m_gBufferAlbedo.ConstructRTTexture(m_screenSize, gBufferParams4, false);
         m_gBufferEmission.ConstructRTTexture(m_screenSize, gBufferParams4, false);
         m_gBufferMetallicRoughnessAOWorkflow.ConstructRTTexture(m_screenSize, gBufferParams4, false);
-        m_gBufferReflection.ConstructRTTexture(m_screenSize, gBufferParams4, false);
 
         m_gBufferRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_screenSize);
         m_gBuffer.Construct(m_gBufferPosition, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_gBufferRenderBuffer.GetID(), 0);
@@ -322,10 +333,9 @@ namespace Lina::Graphics
         m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferAlbedo.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
         m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferEmission.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 3);
         m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferMetallicRoughnessAOWorkflow.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 4);
-        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferReflection.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 5);
-        uint32 gBufferAttachments[6] = {FrameBufferAttachment::ATTACHMENT_COLOR, (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2),
-                                        (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)3), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)4), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)5)};
-        m_renderDevice.MultipleDrawBuffersCommand(m_gBuffer.GetID(), 6, gBufferAttachments);
+        uint32 gBufferAttachments[5] = {FrameBufferAttachment::ATTACHMENT_COLOR, (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2),
+                                        (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)3), (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)4)};
+        m_renderDevice.MultipleDrawBuffersCommand(m_gBuffer.GetID(), 5, gBufferAttachments);
 
         // Bind the extre texture to primary render target, also tell open gl that we are running mrts.
         m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
@@ -341,6 +351,7 @@ namespace Lina::Graphics
         // Initialize HDRI render target
         m_hdriCaptureRenderTarget.Construct(FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
         m_reflectionCaptureRenderTarget.Construct(FrameBufferAttachment::ATTACHMENT_DEPTH, m_reflectionCaptureRenderBuffer.GetID());
+        m_skyboxIrradianceCaptureRenderTarget.Construct(FrameBufferAttachment::ATTACHMENT_DEPTH, m_skyboxIrradianceCaptureRenderBuffer.GetID());
 
         // Initialize depth map for shadows
         m_shadowMapTarget.Construct(m_shadowMapRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
@@ -557,7 +568,6 @@ namespace Lina::Graphics
     {
         UpdateSystems(0.0f);
 
-
         // Set render targets for point light shadows & calculate all the depth textures.
         auto& tuple = m_lightingSystem.GetPointLights();
         for (int i = 0; i < tuple.size(); i++)
@@ -598,6 +608,15 @@ namespace Lina::Graphics
         else
         {
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+
+            Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+            // If the skybox is not an HDRI skybox, and if it contributes to indirect lighting.
+            if (skyboxMat->m_skyboxIndirectLighting && !skyboxMat->m_triggersHDRIReflections)
+            {
+                // Render the skybox into a cubemap
+                CaptureSkybox();
+            }
+
             DrawSkybox();
             DrawSceneObjects(m_defaultDrawParams);
         }
@@ -696,7 +715,14 @@ namespace Lina::Graphics
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GALBEDO, &m_gBufferAlbedo);
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GEMISSION, &m_gBufferEmission);
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GMETALLICROUGHNESSAOWORKFLOW, &m_gBufferMetallicRoughnessAOWorkflow);
-        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GREFLECTION, &m_gBufferReflection);
+        m_gBufferLightPassMaterial.SetTexture(MAT_MAP_REFLECTION, &m_reflectionCubemap);
+
+        if (m_skyboxMaterial->m_skyboxIndirectLighting)
+        {
+            m_gBufferLightPassMaterial.SetTexture(MAT_MAP_SKYBOXIRR, &m_skyboxIrradianceCubemap);
+            m_gBufferLightPassMaterial.SetFloat(MAT_SKYBOXIRRFACTOR, m_skyboxMaterial->m_skyboxIndirectContributionFactor);
+        }
+        
         UpdateShaderData(&m_gBufferLightPassMaterial, true);
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
@@ -784,16 +810,9 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::DrawSkybox()
     {
-        if (m_skyboxMaterial != nullptr)
-        {
-            UpdateShaderData(m_skyboxMaterial);
-            m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
-        }
-        else
-        {
-            UpdateShaderData(&m_defaultSkyboxMaterial);
-            m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
-        }
+        Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+        UpdateShaderData(skyboxMat);
+        m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
     }
 
     PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader* shader)
@@ -976,10 +995,11 @@ namespace Lina::Graphics
             m_cameraSystem.InjectViewMatrix(captureViews[i]);
             m_renderDevice.BindTextureToRenderTarget(m_reflectionCaptureRenderTarget.GetID(), writeTexture.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+
             // Draw whole scene
             DrawSkybox();
             DrawSceneObjects(m_defaultDrawParams);
-            
+
             // m_renderDevice.Draw(m_hdriCubeVAO, m_defaultDrawParams, 0, 36, true);
             // m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
         }
@@ -987,6 +1007,48 @@ namespace Lina::Graphics
         // Get back to gBuffer
         m_renderDevice.SetFBO(m_gBuffer.GetID());
         m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
+    }
+
+    void OpenGLRenderEngine::CaptureSkybox()
+    {
+
+        const Vector3 areaLocation = Vector3::Zero;
+        // Build projection & view matrices for capturing HDRI data.
+        Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
+        Matrix captureViews[]    = {Matrix::InitLookAtRH(areaLocation, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+                                 Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+                                 Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
+
+        Material*    skybox               = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+        Shader*      skyboxMaterialShader = skybox->GetShaderHandle().m_value;
+        const Matrix currentProjection    = m_cameraSystem.GetProjectionMatrix();
+        const Matrix currentView          = m_cameraSystem.GetViewMatrix();
+
+        // Switch to new RT & set new projection matrix.
+        // m_renderDevice.SetFBO(m_gBuffer.GetID());
+        // m_renderDevice.SetViewport(Vector2::Zero, m_skyboxIrradianceResolution);
+        m_cameraSystem.SetProjectionMatrix(captureProjection);
+        
+        // Draw the cubemap.
+        for (uint32 i = 0; i < 6; ++i)
+        {
+            m_cameraSystem.SetViewMatrix(captureViews[i]);
+            UpdateUniformBuffers();
+
+            // Drawing from 3rd attachment, gAlbedo
+            m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_skyboxIrradianceCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 2, i, 0, false, false);
+            m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+            m_renderDevice.SetFBO(m_gBuffer.GetID());
+            DrawSkybox();
+        }
+
+        // Get back to gBuffer
+        m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_gBufferAlbedo.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2, 0, 0, false, false);
+        m_cameraSystem.SetProjectionMatrix(currentProjection);
+        m_cameraSystem.SetViewMatrix(currentView);
+        m_renderDevice.GenerateTextureMipmaps(m_skyboxIrradianceCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+        UpdateUniformBuffers();
+
     }
 
     void OpenGLRenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)

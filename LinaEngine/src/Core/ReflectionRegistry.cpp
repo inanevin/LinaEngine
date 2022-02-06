@@ -378,8 +378,8 @@ entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_smoothN
 entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_globalScale>("m_globalScale"_hs).props(std::make_pair("Title"_hs,"Global Scale"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
 entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
-entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<World::Level>().data<&World::Level::m_skyboxMaterial>("m_skyboxMaterial"_hs).props(std::make_pair("Title"_hs,"Skybox"),std::make_pair("Type"_hs,"Material"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
+entt::meta<World::Level>().data<&World::Level::m_skyboxMaterial>("m_skyboxMaterial"_hs).props(std::make_pair("Title"_hs,"Skybox"),std::make_pair("Type"_hs,"Material"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
 entt::meta<Graphics::RenderSettings>().type().props(std::make_pair("Title"_hs, "Render Settings"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_vignettePow>("m_vignettePow"_hs).props(std::make_pair("Title"_hs,"Pow"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,"m_vignetteEnabled"_hs), std::make_pair("Category"_hs, "Vignette"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_vignetteAmount>("m_vignetteAmount"_hs).props(std::make_pair("Title"_hs,"Amount"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,"m_vignetteEnabled"_hs), std::make_pair("Category"_hs, "Vignette"));
@@ -391,14 +391,25 @@ entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_fxaaEna
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_bloomEnabled>("m_bloomEnabled"_hs).props(std::make_pair("Title"_hs,"Bloom"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Bloom"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_exposure>("m_exposure"_hs).props(std::make_pair("Title"_hs,"Exposure"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_gamma>("m_gamma"_hs).props(std::make_pair("Title"_hs,"Gamma"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
-entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_environmentHDR>("m_environmentHDR"_hs).props(std::make_pair("Title"_hs,"Environment HDR"),std::make_pair("Type"_hs,"Texture"),std::make_pair("Tooltip"_hs,"The HDR texture to use if current skybox wants to trigger HDRI reflections."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::Material>().type().props(std::make_pair("Title"_hs, "Material"));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_shaderHandle>("m_shaderHandle"_hs).props(std::make_pair("Title"_hs,"Shader"),std::make_pair("Type"_hs,"Shader"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_receivesEnvironmentReflections>("m_receivesEnvironmentReflections"_hs).props(std::make_pair("Title"_hs,"Receive Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"The material's shader will receive area-based reflection data if true."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_skyboxIndirectContributionFactor>("m_skyboxIndirectContributionFactor"_hs).props(std::make_pair("Title"_hs,"Factor"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Contribution factor, default 1.0f"),std::make_pair("Depends"_hs,"m_skyboxIndirectLighting"_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_skyboxIndirectLighting>("m_skyboxIndirectLighting"_hs).props(std::make_pair("Title"_hs,"Indirect Illumination"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"For Skybox materials, skybox contributes to indirect illumination of the scene if true."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_environmentHDR>("m_environmentHDR"_hs).props(std::make_pair("Title"_hs,"Environment HDR"),std::make_pair("Type"_hs,"Texture"),std::make_pair("Tooltip"_hs,"The HDR texture to use if current skybox wants to trigger HDRI reflections."),std::make_pair("Depends"_hs,"m_triggersHDRIReflections"_hs), std::make_pair("Category"_hs, ""));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_triggersHDRIReflections>("m_triggersHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Trigger HDRI"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"For Skybox materials, check if the material reflects the currently set environment map in render settings."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::Material>().data<&Graphics::Material::m_receivesEnvironmentReflections>("m_receivesEnvironmentReflections"_hs).props(std::make_pair("Title"_hs,"Receive Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"The material's shader will receive area-based reflection data if true."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
+
+
+
+
 
 
 

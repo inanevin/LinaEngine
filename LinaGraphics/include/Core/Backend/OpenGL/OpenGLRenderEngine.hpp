@@ -154,6 +154,11 @@ namespace Lina::Graphics
         void CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution);
 
         /// <summary>
+        /// Draws the current skybox into an irradiance cubemap.
+        /// </summary>
+        void CaptureSkybox();
+
+        /// <summary>
         /// Given an HDRI loaded texture, captures & calculates HDRI cube probes & writes it into global HRDI buffer.
         /// This buffer will be sent to the materials whose HDRI support is enabled.
         /// </summary>
@@ -347,6 +352,7 @@ namespace Lina::Graphics
         RenderTarget m_pingPongRenderTarget2;
         RenderTarget m_hdriCaptureRenderTarget;
         RenderTarget m_reflectionCaptureRenderTarget;
+        RenderTarget m_skyboxIrradianceCaptureRenderTarget;
         RenderTarget m_shadowMapTarget;
         RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
         RenderTarget m_gBuffer;
@@ -357,6 +363,7 @@ namespace Lina::Graphics
         RenderBuffer m_previewRenderBuffer;
         RenderBuffer m_hdriCaptureRenderBuffer;
         RenderBuffer m_reflectionCaptureRenderBuffer;
+        RenderBuffer m_skyboxIrradianceCaptureRenderBuffer;
         RenderBuffer m_gBufferRenderBuffer;
 
         Texture m_gBufferPosition;
@@ -364,7 +371,6 @@ namespace Lina::Graphics
         Texture m_gBufferAlbedo;
         Texture m_gBufferEmission;
         Texture m_gBufferMetallicRoughnessAOWorkflow;
-        Texture m_gBufferReflection;
 
         Texture  m_primaryMSAARTTexture0;
         Texture  m_primaryMSAARTTexture1;
@@ -382,6 +388,8 @@ namespace Lina::Graphics
         Texture  m_defaultCubemapTexture;
         Texture  m_pLightShadowTextures[MAX_POINT_LIGHTS];
         Texture  m_defaultTexture;
+        Texture  m_skyboxIrradianceCubemap;
+        Texture  m_reflectionCubemap;
         Texture* m_lastCapturedHDR = nullptr;
 
         // Frame buffer texture parameters
@@ -451,15 +459,16 @@ namespace Lina::Graphics
         int m_currentSpotLightCount  = 0;
         int m_currentPointLightCount = 0;
 
-        Vector2i m_hdriResolution         = Vector2i(512, 512);
-        Vector2i m_shadowMapResolution    = Vector2i(2048, 2048);
-        Vector2i m_screenPos              = Vector2i(0, 0);
-        Vector2i m_screenSize             = Vector2i(0, 0);
-        Vector2i m_pLightShadowResolution = Vector2i(1024, 1024);
-        bool     m_firstFrameDrawn        = false;
-        float    m_deltaTime              = 0.0f;
-        float    m_elapsedTime            = 0.0f;
-        Vector2  m_mousePosition          = Vector2::Zero;
+        Vector2i m_hdriResolution             = Vector2i(512, 512);
+        Vector2i m_shadowMapResolution        = Vector2i(2048, 2048);
+        Vector2i m_screenPos                  = Vector2i(0, 0);
+        Vector2i m_screenSize                 = Vector2i(0, 0);
+        Vector2i m_pLightShadowResolution     = Vector2i(1024, 1024);
+        Vector2i m_skyboxIrradianceResolution = Vector2i(1024, 1024);
+        bool     m_firstFrameDrawn            = false;
+        float    m_deltaTime                  = 0.0f;
+        float    m_elapsedTime                = 0.0f;
+        Vector2  m_mousePosition              = Vector2::Zero;
 
         std::queue<DebugLine>                m_debugLineQueue;
         std::queue<DebugIcon>                m_debugIconQueue;

@@ -138,5 +138,3 @@ float CalculateShadow(float farPlane, float bias, vec3 FragPos, vec3 LightPos, s
         
     return shadow;
 }  
-
-
