@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 

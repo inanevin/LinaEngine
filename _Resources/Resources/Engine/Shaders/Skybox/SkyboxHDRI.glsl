@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+#define LINA_SKY_HDRICUBE
 #if defined(VS_BUILD)
 #include <../UniformBuffers.glh>
 #include <SkyboxCommon.glh>

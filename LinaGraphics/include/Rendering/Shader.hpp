@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,13 @@ Timestamp: 2/16/2019 1:47:28 AM
 
 namespace Lina::Graphics
 {
+    enum class ShaderSpecification
+    {
+        None = 0,
+        Sky_Dome = 1,
+        Sky_Cube = 2,
+        Sky_HDRICube = 3,
+    };
 
     class Shader : public Resources::IResource
     {
@@ -71,10 +78,19 @@ namespace Lina::Graphics
             return m_engineBoundID;
         }
 
+        ShaderSpecification GetSpecification()
+        {
+            return m_specification;
+        }
+
     private:
-        ShaderUniformData m_uniformData;
-        RenderDevice*     m_renderDevice  = nullptr;
-        uint32            m_engineBoundID = 0;
+        ShaderSpecification CheckForSpecification(const std::string& text);
+
+    private:
+        ShaderUniformData   m_uniformData;
+        RenderDevice*       m_renderDevice  = nullptr;
+        uint32              m_engineBoundID = 0;
+        ShaderSpecification m_specification = ShaderSpecification::None;
     };
 } // namespace Lina::Graphics
 

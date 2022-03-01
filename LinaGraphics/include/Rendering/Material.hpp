@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -179,8 +179,7 @@ namespace Lina::Graphics
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_triggersHDRIReflections, m_receivesEnvironmentReflections,
-            m_environmentHDR, m_skyboxIndirectLighting, m_skyboxIndirectContributionFactor,
+            archive(m_environmentHDR, m_skyboxIndirectContributionFactor,
             m_shaderHandle,  m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools
             );
         }
@@ -196,23 +195,11 @@ namespace Lina::Graphics
         std::map<std::string, bool>              m_bools;
         bool                                     m_hdriDataSet       = false;
         bool                                     m_reflectionDataSet = false;
+        bool                                     m_skyIrradianceDataSet = false;
 
 
-        LINA_PROPERTY("Receive Reflections", "Bool", "The material's shader will receive area-based reflection data if true.")
-        bool m_receivesEnvironmentReflections = false;
-
-        // SKYBOX PROPERTIES
-        
-        LINA_PROPERTY("Trigger HDRI", "Bool", "For Skybox materials, check if the material reflects the currently set environment map in render settings.")
-        bool m_triggersHDRIReflections = false;
-
-        LINA_PROPERTY("Environment HDR", "Texture", "The HDR texture to use if current skybox wants to trigger HDRI reflections.", "m_triggersHDRIReflections")
+        // SKYBOX MATERIAL PROPERTIES
         Resources::ResourceHandle<Graphics::Texture> m_environmentHDR;
-
-        LINA_PROPERTY("Indirect Illumination", "Bool", "For Skybox materials, skybox contributes to indirect illumination of the scene if true.")
-        bool m_skyboxIndirectLighting = false;
-
-        LINA_PROPERTY("Factor", "Float", "Contribution factor, default 1.0f", "m_skyboxIndirectLighting")
         float m_skyboxIndirectContributionFactor = 1.0f;
 
         LINA_PROPERTY("Shader", "Shader")

@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -236,7 +236,7 @@ namespace Lina::Graphics
         m_defaultSprite     = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSprite.linamat");
         m_defaultSkyboxHDRI = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
-        auto* text                                 = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Venice.hdr");
+        auto* text                                    = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/HDR/Venice.hdr");
         m_defaultSkyboxHDRI->m_environmentHDR.m_sid   = text->GetSID();
         m_defaultSkyboxHDRI->m_environmentHDR.m_value = text;
         CaptureCalculateHDRI(*text);
@@ -541,6 +541,12 @@ namespace Lina::Graphics
         {
             ConstructEngineMaterials();
         }
+        else if (ev.m_tid == GetTypeID<Model>())
+        {
+            // Set model nodes
+            m_cubeNode   = m_storage->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx")->m_rootNode->GetChildren()[0];
+            m_sphereNode = m_storage->GetResource<Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx")->m_rootNode->GetChildren()[0];
+        }
     }
 
     void OpenGLRenderEngine::OnResourceReloaded(const Event::EResourceReloaded& ev)
@@ -611,7 +617,7 @@ namespace Lina::Graphics
 
             Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
             // If the skybox is not an HDRI skybox, and if it contributes to indirect lighting.
-            if (skyboxMat->m_skyboxIndirectLighting && !skyboxMat->m_triggersHDRIReflections)
+            if (skyboxMat->m_skyboxIndirectContributionFactor != 0.0f && skyboxMat->m_shaderHandle.m_value->GetSpecification() != ShaderSpecification::Sky_HDRICube)
             {
                 // Render the skybox into a cubemap
                 CaptureSkybox();
@@ -703,11 +709,11 @@ namespace Lina::Graphics
         //
         // UpdateShaderData(&m_screenQuadFinalMaterial);
 
-        if (m_skyboxMaterial->m_triggersHDRIReflections && !m_gBufferLightPassMaterial.m_hdriDataSet)
+        if (m_skyboxMaterial->m_shaderHandle.m_value->GetSpecification() == ShaderSpecification::Sky_HDRICube && !m_gBufferLightPassMaterial.m_hdriDataSet)
         {
             SetHDRIData(&m_gBufferLightPassMaterial);
         }
-        else if (!m_skyboxMaterial->m_triggersHDRIReflections && m_gBufferLightPassMaterial.m_hdriDataSet)
+        else if (m_skyboxMaterial->m_shaderHandle.m_value->GetSpecification() != ShaderSpecification::Sky_HDRICube && m_gBufferLightPassMaterial.m_hdriDataSet)
             RemoveHDRIData(&m_gBufferLightPassMaterial);
 
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GPOS, &m_gBufferPosition);
@@ -717,12 +723,19 @@ namespace Lina::Graphics
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_GMETALLICROUGHNESSAOWORKFLOW, &m_gBufferMetallicRoughnessAOWorkflow);
         m_gBufferLightPassMaterial.SetTexture(MAT_MAP_REFLECTION, &m_reflectionCubemap);
 
-        if (m_skyboxMaterial->m_skyboxIndirectLighting)
+        // Skybox irradiance.
+        if (m_skyboxMaterial->m_skyboxIndirectContributionFactor != 0.0f && !m_gBufferLightPassMaterial.m_skyIrradianceDataSet)
         {
             m_gBufferLightPassMaterial.SetTexture(MAT_MAP_SKYBOXIRR, &m_skyboxIrradianceCubemap);
             m_gBufferLightPassMaterial.SetFloat(MAT_SKYBOXIRRFACTOR, m_skyboxMaterial->m_skyboxIndirectContributionFactor);
+            m_gBufferLightPassMaterial.m_skyIrradianceDataSet = true;
         }
-        
+        else if (m_skyboxMaterial->m_skyboxIndirectContributionFactor == 0.0f && m_gBufferLightPassMaterial.m_skyIrradianceDataSet)
+        {
+            m_gBufferLightPassMaterial.m_skyIrradianceDataSet = false;
+            m_gBufferLightPassMaterial.RemoveTexture(MAT_MAP_SKYBOXIRR);
+        }
+
         UpdateShaderData(&m_gBufferLightPassMaterial, true);
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
@@ -810,9 +823,13 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::DrawSkybox()
     {
-        Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+      //Matrix m = Matrix::Identity();
+      //auto       specification = m_skyboxMaterial->m_shaderHandle.m_value->GetSpecification();
+      //ModelNode* targetNode    = (specification == ShaderSpecification::Sky_Cube || specification == ShaderSpecification::Sky_HDRICube) ? m_cubeNode : m_sphereNode;
+      //m_modelNodeSystem.FlushModelNode(targetNode, m, m_skyboxDrawParams, m_skyboxMaterial);
+         Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
         UpdateShaderData(skyboxMat);
-        m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
+          m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
     }
 
     PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader* shader)
@@ -900,7 +917,6 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::UpdateShaderData(Material* data, bool lightPass)
     {
-
         uint32 shaderID = data->m_shaderHandle.m_value->GetID();
         m_renderDevice.SetShader(shaderID);
 
@@ -941,8 +957,8 @@ namespace Lina::Graphics
                 else
                     data->RemoveTexture(textureName);
             }
-
             m_lightingSystem.SetLightingShaderData(shaderID);
+
         }
 
         for (auto const& d : (*data).m_sampler2Ds)
@@ -1028,7 +1044,7 @@ namespace Lina::Graphics
         // m_renderDevice.SetFBO(m_gBuffer.GetID());
         // m_renderDevice.SetViewport(Vector2::Zero, m_skyboxIrradianceResolution);
         m_cameraSystem.SetProjectionMatrix(captureProjection);
-        
+
         // Draw the cubemap.
         for (uint32 i = 0; i < 6; ++i)
         {
@@ -1048,7 +1064,6 @@ namespace Lina::Graphics
         m_cameraSystem.SetViewMatrix(currentView);
         m_renderDevice.GenerateTextureMipmaps(m_skyboxIrradianceCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP);
         UpdateUniformBuffers();
-
     }
 
     void OpenGLRenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)

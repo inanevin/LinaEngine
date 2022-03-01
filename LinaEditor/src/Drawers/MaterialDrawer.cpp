@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,20 +43,32 @@ namespace Lina::Editor
     {
         const TypeID tid = GetTypeID<Graphics::Material>();
         WidgetsUtility::IncrementCursorPosY(12);
+        
+        // Check if the material's shader is a skybox shader, if so draw skybox related parameters.
+        uint8 shaderSpecification = static_cast<uint8>(mat->m_shaderHandle.m_value->GetSpecification());
+        if (shaderSpecification > 0 && shaderSpecification < 4)
+        {
+            if (shaderSpecification == static_cast<uint8>(Graphics::ShaderSpecification::Sky_HDRICube))
+            {
+                Graphics::Texture* previousEnvironmentTexture = mat->m_environmentHDR.m_value;
+                WidgetsUtility::PropertyLabel("Environment");
+                WidgetsUtility::ResourceSelectionTexture("##mat_enviro_hdr", static_cast<void*>(&mat->m_environmentHDR));
+                Graphics::Texture* newHDR = mat->m_environmentHDR.m_value;
+                if (newHDR != nullptr && previousEnvironmentTexture != newHDR)
+                    Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(*newHDR);
+            }
+            else
+            {
+                WidgetsUtility::PropertyLabel("Indirect Contribution", true, "How much does the skybox contribute to indirect illumination of the scene. Set 0.0f for disabling.");
+                WidgetsUtility::DragFloat("##mat_enviro_indirect", nullptr, &mat->m_skyboxIndirectContributionFactor);
+            }
+        }
 
         // Store the current shader.
         const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
-
-        // Store the current HDRI environment map if this is an HDRI skybox.
-        Graphics::Texture* previousEnvironmentTexture = mat->m_triggersHDRIReflections ? mat->m_environmentHDR.m_value : nullptr;
      
         // Draw the free data.
-        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
-
-        // If this is an HDRI skybox && if the environment map is changed, make sure it's captured & calculated.
-        Graphics::Texture* newHDR = mat->m_environmentHDR.m_value;
-        if (newHDR != nullptr && previousEnvironmentTexture != newHDR)
-            Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(*newHDR);
+        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);     
 
         // Set shader if changed.
         const StringIDType sidNow = mat->GetShaderHandle().m_sid;
@@ -84,7 +96,9 @@ namespace Lina::Editor
             {
                 for (auto& [name, value] : mat->m_bools)
                 {
-                    WidgetsUtility::PropertyLabel(name.c_str());
+                    const std::string usedName = name.find("material.") != std::string::npos ? name.substr(name.find(".") + 1) : name;
+                    const std::string id       = "##_" + name;
+                    WidgetsUtility::PropertyLabel(usedName.c_str());
                     const std::string label = "##_" + name;
                     ImGui::Checkbox(label.c_str(), &value);
                 }
@@ -214,6 +228,11 @@ namespace Lina::Editor
         {
             bool isSkyboxMaterial = Graphics::RenderEngineBackend::Get()->GetSkyboxMaterial() == mat;
             mat->Save();
+            
+            // Make sure the skybox material is nulled out on render engine until we are done with reloading.
+            if (isSkyboxMaterial)
+                Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(nullptr);
+
             const std::string  path = mat->GetPath();
             const StringIDType sid  = mat->GetSID();
             Resources::ResourceStorage::Get()->Unload<Graphics::Material>(sid);
@@ -223,7 +242,7 @@ namespace Lina::Editor
             if (isSkyboxMaterial)
             {
                 Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(mat);
-                if (mat->m_triggersHDRIReflections && mat->m_environmentHDR.m_value != nullptr)
+                if (mat->m_shaderHandle.m_value->GetSpecification() == Graphics::ShaderSpecification::Sky_HDRICube && mat->m_environmentHDR.m_value != nullptr)
                 {
                     mat->SetTexture(MAT_MAP_ENVIRONMENT, &Graphics::RenderEngineBackend::Get()->GetHDRICubemap(), Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
                 }

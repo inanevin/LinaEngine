@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -393,14 +393,14 @@ entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_exposur
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_gamma>("m_gamma"_hs).props(std::make_pair("Title"_hs,"Gamma"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::Material>().type().props(std::make_pair("Title"_hs, "Material"));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_shaderHandle>("m_shaderHandle"_hs).props(std::make_pair("Title"_hs,"Shader"),std::make_pair("Type"_hs,"Shader"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_skyboxIndirectContributionFactor>("m_skyboxIndirectContributionFactor"_hs).props(std::make_pair("Title"_hs,"Factor"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,"Contribution factor, default 1.0f"),std::make_pair("Depends"_hs,"m_skyboxIndirectLighting"_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_skyboxIndirectLighting>("m_skyboxIndirectLighting"_hs).props(std::make_pair("Title"_hs,"Indirect Illumination"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"For Skybox materials, skybox contributes to indirect illumination of the scene if true."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_environmentHDR>("m_environmentHDR"_hs).props(std::make_pair("Title"_hs,"Environment HDR"),std::make_pair("Type"_hs,"Texture"),std::make_pair("Tooltip"_hs,"The HDR texture to use if current skybox wants to trigger HDRI reflections."),std::make_pair("Depends"_hs,"m_triggersHDRIReflections"_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_triggersHDRIReflections>("m_triggersHDRIReflections"_hs).props(std::make_pair("Title"_hs,"Trigger HDRI"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"For Skybox materials, check if the material reflects the currently set environment map in render settings."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::Material>().data<&Graphics::Material::m_receivesEnvironmentReflections>("m_receivesEnvironmentReflections"_hs).props(std::make_pair("Title"_hs,"Receive Reflections"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"The material's shader will receive area-based reflection data if true."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
 
 
 

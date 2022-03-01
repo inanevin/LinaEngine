@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     Shader::~Shader()
     {
         m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
@@ -63,6 +64,7 @@ namespace Lina::Graphics
 
     Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)
     {
+        m_specification = CheckForSpecification(text);
         m_renderDevice  = RenderEngineBackend::Get()->GetRenderDevice();
         m_engineBoundID = m_renderDevice->CreateShaderProgram(text, &m_uniformData, usesGeometryShader);
         return *this;
@@ -76,6 +78,18 @@ namespace Lina::Graphics
     void Shader::BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
     {
         m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
+    }
+
+    ShaderSpecification Shader::CheckForSpecification(const std::string& text)
+    {
+        if (text.find("#define LINA_SKY_CUBE") != std::string::npos)
+            return ShaderSpecification::Sky_Cube;
+        else if (text.find("#define LINA_SKY_HDRICUBE") != std::string::npos)
+            return ShaderSpecification::Sky_HDRICube;
+        else if (text.find("#define LINA_SKY_DOME") != std::string::npos)
+            return ShaderSpecification::Sky_Dome;
+
+        return ShaderSpecification::None;
     }
 
 } // namespace Lina::Graphics

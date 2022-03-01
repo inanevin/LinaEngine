@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -343,6 +343,9 @@ namespace Lina::Graphics
         OpenGLWindow*              m_appWindow = nullptr;
         OpenGLRenderDevice         m_renderDevice;
         Event::EventSystem*        m_eventSystem = nullptr;
+
+        ModelNode* m_cubeNode   = nullptr;
+        ModelNode* m_sphereNode = nullptr;
 
         RenderTarget m_primaryRenderTarget;
         RenderTarget m_secondaryRenderTarget;

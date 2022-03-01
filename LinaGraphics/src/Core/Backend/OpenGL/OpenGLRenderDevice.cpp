@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -140,6 +140,7 @@ namespace Lina::Graphics
         -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
         -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f   // bottom-left
     };
+
 
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
@@ -1136,7 +1137,12 @@ namespace Lina::Graphics
                         data.m_vector3s[&uniformName[0]] = Vector3::One;
                 }
                 else if (type == GL_FLOAT_VEC4)
-                    data.m_vector4s[&uniformName[0]] = Vector4::One;
+                {
+                    if (nameStr.find("color") != std::string::npos || nameStr.find("Color") != std::string::npos)
+                        data.m_colors[&uniformName[0]] = Color::White;
+                    else
+                        data.m_vector4s[&uniformName[0]] = Vector4::One;
+                }
                 else if (type == GL_BOOL)
                     data.m_bools[&uniformName[0]] = false;
                 else if (type == GL_FLOAT_MAT4)
@@ -1279,7 +1285,7 @@ namespace Lina::Graphics
 
     void OpenGLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
     {
-        glUniform3f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b);
+        glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
     }
 
     void OpenGLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)

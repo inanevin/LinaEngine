@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -71,35 +71,32 @@ namespace Lina::ECS
 
     void ReflectionSystem::SetReflectionsOnMaterial(Graphics::Material* mat, const Vector3& transformLocation)
     {
-        if (mat->m_receivesEnvironmentReflections)
+        auto* reg = Registry::Get();
+
+        // Check if the given location is inside any of the reflection area's extents.
+
+        auto& view = reg->view<EntityDataComponent, ReflectionAreaComponent>();
+
+        for (auto entity : view)
         {
-            auto* reg = Registry::Get();
-
-            // Check if the given location is inside any of the reflection area's extents.
-
-            auto& view = reg->view<EntityDataComponent, ReflectionAreaComponent>();
-
-            for (auto entity : view)
+            auto&         refArea = view.get<ReflectionAreaComponent>(entity);
+            auto&         data    = view.get<EntityDataComponent>(entity);
+            const Vector3 max     = data.GetLocation() + refArea.m_halfExtents;
+            const Vector3 min     = data.GetLocation() - refArea.m_halfExtents;
+            if (!refArea.m_isLocal || (transformLocation.x > min.x && transformLocation.x < max.x && transformLocation.y > min.y && transformLocation.y < max.y && transformLocation.z > min.z && transformLocation.z < max.z))
             {
-                auto&         refArea = view.get<ReflectionAreaComponent>(entity);
-                auto&         data    = view.get<EntityDataComponent>(entity);
-                const Vector3 max     = data.GetLocation() + refArea.m_halfExtents;
-                const Vector3 min     = data.GetLocation() - refArea.m_halfExtents;
-                if (!refArea.m_isLocal || (transformLocation.x > min.x && transformLocation.x < max.x && transformLocation.y > min.y && transformLocation.y < max.y && transformLocation.z > min.z && transformLocation.z < max.z))
+                if (mat->m_sampler2Ds.find(MAT_MAP_REFLECTIONAREAMAP) != mat->m_sampler2Ds.end())
                 {
-                    if (mat->m_sampler2Ds.find(MAT_MAP_REFLECTIONAREAMAP) != mat->m_sampler2Ds.end())
-                    {
-                        mat->SetTexture(MAT_MAP_REFLECTIONAREAMAP, &refArea.m_cubemap, Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
-                        mat->m_reflectionDataSet = true;
-                    }
+                    mat->SetTexture(MAT_MAP_REFLECTIONAREAMAP, &refArea.m_cubemap, Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
+                    mat->m_reflectionDataSet = true;
                 }
-                else
+            }
+            else
+            {
+                if (mat->m_reflectionDataSet)
                 {
-                    if (mat->m_reflectionDataSet)
-                    {
-                        // remove data.
-                        mat->RemoveTexture(MAT_MAP_REFLECTIONAREAMAP);
-                    }
+                    // remove data.
+                    mat->RemoveTexture(MAT_MAP_REFLECTIONAREAMAP);
                 }
             }
         }

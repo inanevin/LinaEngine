@@ -5,7 +5,7 @@ https://github.com/inanevin/LinaEngine
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -138,15 +138,13 @@ namespace Lina::ECS
         DirectionalLightComponent* dirLight     = std::get<1>(m_directionalLight);
         if (dirLightData != nullptr && dirLight != nullptr)
         {
-            Vector3 direction = Vector3::Zero - dirLightData->GetLocation();
+            Vector3 direction = (Vector3::Zero - dirLightData->GetLocation()).Normalized();
             m_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 1);
             m_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color * dirLight->m_intensity);
-            m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
+            m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction);
         }
         else
-        {
             m_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 0);
-        }
 
         // Iterate point lights.
         int currentPointLightCount = 0;
