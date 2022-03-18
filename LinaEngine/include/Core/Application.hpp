@@ -64,11 +64,6 @@ namespace Lina
             return s_application;
         }
 
-        const ApplicationInfo& GetAppInfo()
-        {
-            return m_appInfo;
-        }
-
     protected:
         virtual void Initialize(ApplicationInfo& appInfo);
         void         Run();
@@ -83,7 +78,6 @@ namespace Lina
         // Active engines running in the application.
         static Application* s_application;
         Engine              m_engine;
-        ApplicationInfo     m_appInfo;
 
         bool m_activeLevelExists = false;
     };

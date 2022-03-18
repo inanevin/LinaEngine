@@ -131,6 +131,10 @@ namespace Lina
         {
             return m_defaultLevel;
         }
+        inline ApplicationInfo GetAppInfo()
+        {
+            return m_appInfo;
+        }
 
     private:
         friend class Application;

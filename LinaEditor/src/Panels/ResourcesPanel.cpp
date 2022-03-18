@@ -67,9 +67,9 @@ namespace Lina::Editor
     {
         EditorPanel::Initialize(id, icon);
 
-        m_leftPaneWidth    = 280.0f;
-        m_leftPaneMinWidth = 200.0f;
-        m_leftPaneMaxWidth = 500.0f;
+        m_leftPaneWidth    = 280.0f * GUILayer::Get()->m_globalScale;
+        m_leftPaneMinWidth = 200.0f * GUILayer::Get()->m_globalScale;
+        m_leftPaneMaxWidth = 500.0f * GUILayer::Get()->m_globalScale;
 
         m_storage             = Resources::ResourceStorage::Get();
         m_leftPaneMenu        = new Menu("");
@@ -128,7 +128,7 @@ namespace Lina::Editor
 
                 ImGui::EndChild();
                 WidgetsUtility::VerticalResizeDivider(anyChildHovered || isWindowHovered, &m_resizeDividerPressedPos, &m_leftPaneWidth, m_leftPaneMinWidth, m_leftPaneMaxWidth, &m_lockWindowPos, &m_draggingChildWindowBorder);
-                //HandleLeftPaneResize(anyChildHovered || isWindowHovered);
+                // HandleLeftPaneResize(anyChildHovered || isWindowHovered);
 
                 End();
             }
@@ -195,15 +195,15 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawLeftPane()
     {
-        const float topBarSize    = 30;
-        const float spaceFromLeft = 10;
+        const float topBarSize    = 30 * GUILayer::Get()->m_globalScale;
+        const float spaceFromLeft = 10 * GUILayer::Get()->m_globalScale;
         const float childRounding = 3.0f;
 
         // Search bar & other utilities.
         ImGui::BeginChild("resources_leftPane_topBar", ImVec2(0, topBarSize));
 
         // Settings Icon
-        WidgetsUtility::IncrementCursorPosY(8);
+        WidgetsUtility::IncrementCursorPosY(8 * GUILayer::Get()->m_globalScale);
         WidgetsUtility::IncrementCursorPosX(spaceFromLeft);
         if (WidgetsUtility::IconButton(ICON_FA_COG))
         {
@@ -223,8 +223,8 @@ namespace Lina::Editor
         // Search bar.
         InputTextCallback_UserData cb_user_data;
         cb_user_data.Str        = &m_folderSearchFilter;
-        const float filterWidth = 200.0f;
-        WidgetsUtility::IncrementCursorPosY(-3);
+        const float filterWidth = 200.0f * GUILayer::Get()->m_globalScale;
+        WidgetsUtility::IncrementCursorPosY(-3 * GUILayer::Get()->m_globalScale);
         ImGui::PushItemWidth(-spaceFromLeft);
         ImGui::InputTextWithHint("##resources_folderFilter", "search...", (char*)m_folderSearchFilter.c_str(), m_folderSearchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
         ImGui::EndChild();
@@ -234,13 +234,13 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20), true);
+        ImGui::BeginChild("resources_leftPane_bottom", ImVec2(-spaceFromLeft, -20 * GUILayer::Get()->m_globalScale), true);
         DrawContextMenu();
 
         const ImVec2 childPos  = ImGui::GetWindowPos();
         const ImVec2 childSize = ImGui::GetWindowSize();
 
-        WidgetsUtility::IncrementCursorPosY(4);
+        WidgetsUtility::IncrementCursorPosY(4 * GUILayer::Get()->m_globalScale);
         DrawFolderHierarchy(m_rootFolder, true);
 
         if (m_selectedFolder != nullptr && m_leftPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
@@ -266,20 +266,20 @@ namespace Lina::Editor
 
     void ResourcesPanel::DrawRightPane()
     {
-        const float                topBarSize    = 40;
-        const float                spaceFromLeft = 10;
-        const float                filterWidth   = 180.0f;
+        const float                topBarSize    = 40 * GUILayer::Get()->m_globalScale;
+        const float                spaceFromLeft = 10 * GUILayer::Get()->m_globalScale;
+        const float                filterWidth   = 180.0f * GUILayer::Get()->m_globalScale;
         InputTextCallback_UserData cb_user_data;
         cb_user_data.Str = &m_fileSearchFilter;
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));
         ImGui::BeginChild("resources_rightPane_topBar", ImVec2(0, topBarSize), true);
         ImGui::SetCursorPosY(topBarSize / 2.0f - ImGui::GetFrameHeight() / 2.0f);
-        ImGui::SetCursorPosX(8);
+        ImGui::SetCursorPosX(8 * GUILayer::Get()->m_globalScale);
 
         // Selected folder hierarchy.
         const float cursorYBeforeIcon = ImGui::GetCursorPosY();
-        WidgetsUtility::IncrementCursorPosY(2.9f);
+        WidgetsUtility::IncrementCursorPosY(2.9f * GUILayer::Get()->m_globalScale);
         WidgetsUtility::IconSmall(ICON_FA_FOLDER_OPEN);
         ImGui::SameLine();
         ImGui::SetCursorPosY(cursorYBeforeIcon);
@@ -323,8 +323,8 @@ namespace Lina::Editor
         if (ImGui::BeginPopup("ResourcesRightTopSettings"))
         {
             WidgetsUtility::PropertyLabel("Item Size");
-            WidgetsUtility::IncrementCursorPosX(16);
-            ImGui::SetNextItemWidth(100);
+            WidgetsUtility::IncrementCursorPosX(16 * GUILayer::Get()->m_globalScale);
+            ImGui::SetNextItemWidth(100 * GUILayer::Get()->m_globalScale);
             ImGui::SliderFloat("##itemSizes", &m_nodeSizes, 0.5f, 1.5f);
 
             ImGui::EndPopup();
@@ -349,8 +349,8 @@ namespace Lina::Editor
         // Draw the selected folders contents.
         if (m_selectedFolder != nullptr)
         {
-            ImGui::SetCursorPosX(16);
-            WidgetsUtility::IncrementCursorPosY(8);
+            ImGui::SetCursorPosX(16 * GUILayer::Get()->m_globalScale);
+            WidgetsUtility::IncrementCursorPosY(8 * GUILayer::Get()->m_globalScale);
             DrawContents(m_selectedFolder);
         }
 
@@ -465,7 +465,6 @@ namespace Lina::Editor
 
             if (m_storage->IsTypeAssetData(tid))
                 continue;
-
 
             bool renamedItem = false;
 
@@ -620,7 +619,7 @@ namespace Lina::Editor
         {
             if (ContextMenuCanAddAsset())
             {
-                Utility::Folder* parent = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
+                Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
                 const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
                 Graphics::Material::CreateMaterial(Graphics::RenderEngineBackend::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
                 Utility::ScanFolder(parent, true, nullptr, true);

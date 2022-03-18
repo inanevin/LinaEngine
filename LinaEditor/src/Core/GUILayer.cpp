@@ -91,36 +91,46 @@ namespace Lina::Editor
         ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
-        
+
+        const ApplicationInfo appInfo              = Engine::Get()->GetAppInfo();
+        const float           contentScale         = appInfo.m_windowProperties.m_contentScaleWidth;
+        const int             iconFontDefaultSize  = static_cast<int>((18.0f * contentScale));
+        const int             iconFontDefaultSmall = static_cast<int>((13.0f * contentScale));
+        const int             textFontDefault      = static_cast<int>(20.0f * contentScale);
+        const int             textFontBig          = static_cast<int>(30.0f * contentScale);
+        const int             textFontMedium       = static_cast<int>(22.0f * contentScale);
+        const int             textFontTextEditor   = static_cast<int>(28.0f * contentScale);
+        m_globalScale                              = contentScale;
+        ImGui::GetCurrentContext()->globalScale    = contentScale;
+
         // Add default font.
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Mukta-Medium.ttf", 20.0f, NULL);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Mukta-Medium.ttf", static_cast<float>(textFontDefault), NULL);
 
         // merge in icons from Font Awesome
         static const ImWchar icons_rangesFA[]   = {ICON_MIN_FA, ICON_MAX_FA, 0};
         static const ImWchar icons_rangesCUST[] = {ICON_MIN_CS, ICON_MAX_CS, 0};
 
-
         ImFontConfig icons_config;
         icons_config.MergeMode     = false;
         icons_config.PixelSnapH    = false;
-        icons_config.GlyphOffset.y = 1.2f;
+        icons_config.GlyphOffset.y = 1.2f * contentScale;
 
-        m_iconFontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 18.0f, &icons_config, icons_rangesFA);
+        m_iconFontDefault = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", static_cast<float>(iconFontDefaultSize), &icons_config, icons_rangesFA);
 
         icons_config.MergeMode = true;
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 18.0f, &icons_config, icons_rangesCUST);
+        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", static_cast<float>(iconFontDefaultSize), &icons_config, icons_rangesCUST);
 
-        icons_config.GlyphOffset.y = 2.25f;
+        icons_config.GlyphOffset.y = 2.25f * contentScale;
         icons_config.MergeMode     = false;
-        m_iconFontSmall            = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", 13.0f, &icons_config, icons_rangesFA);
+        m_iconFontSmall            = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/FontAwesome/fa-solid-900.ttf", static_cast<float>(iconFontDefaultSmall), &icons_config, icons_rangesFA);
 
         icons_config.MergeMode = true;
-        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", 13.0f, &icons_config, icons_rangesCUST);
+        io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/CustomIcons/icomoon.ttf", static_cast<float>(iconFontDefaultSmall), &icons_config, icons_rangesCUST);
 
-        m_bigFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 30, NULL);
-        m_mediumFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 22, NULL);
-        m_textEditorFont  = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", 28, NULL);
-        m_defaultFont = io.FontDefault;
+        m_bigFont        = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", static_cast<float>(textFontBig), NULL);
+        m_mediumFont     = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", static_cast<float>(textFontMedium), NULL);
+        m_textEditorFont = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/MuktaMahee-Medium.ttf", static_cast<float>(textFontTextEditor), NULL);
+        m_defaultFont    = io.FontDefault;
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
 
@@ -128,18 +138,17 @@ namespace Lina::Editor
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigWindowsMoveFromTitleBarOnly = true;
-        io.ConfigDockingTransparentPayload = true;
-
-        ImGuiStyle& style     = ImGui::GetStyle();
-        ImVec4*     colors    = ImGui::GetStyle().Colors;
-        style.FrameBorderSize = 1.0f;
-        style.PopupBorderSize = 1.0f;
+        io.ConfigDockingTransparentPayload   = true;
+        ImGuiStyle& style                    = ImGui::GetStyle();
+        ImVec4*     colors                   = ImGui::GetStyle().Colors;
+        style.FrameBorderSize                = 1.0f * m_globalScale;
+        style.PopupBorderSize                = 1.0f * m_globalScale;
         // style.AntiAliasedFill = false;
         // style.WindowRounding = 0.0f;
         style.TabRounding = 3.0f;
         // style.ChildRounding = 0.0f;
         style.PopupRounding = 3.0f;
-        // style.FrameRounding = 0.0f;
+        style.FrameRounding = 2.0f;
         // style.ScrollbarRounding = 5.0f;
         style.FramePadding  = ImVec2(m_defaultFramePadding.x, m_defaultFramePadding.y);
         style.WindowPadding = ImVec2(m_defaultWindowPadding.x, m_defaultWindowPadding.y);
@@ -150,8 +159,10 @@ namespace Lina::Editor
         // style.GrabMinSize     = 6.0f;
         style.ChildBorderSize = 0.0f;
         // style.TabBorderSize = 0.0f;
-        style.WindowBorderSize                  = 1.0f;
-        style.WindowMenuButtonPosition          = ImGuiDir_None;
+        style.WindowBorderSize         = 1.0f * m_globalScale;
+        style.WindowMenuButtonPosition = ImGuiDir_None;
+        style.ScaleAllSizes(contentScale);
+
         colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
         colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
@@ -248,7 +259,7 @@ namespace Lina::Editor
         // Splash screen
         Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
         const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        Vector2                  splashSize   = Vector2(720, 450);
+        Vector2                  splashSize   = Vector2(720, 450) * m_globalScale;
         splashWindow->SetPosCentered(Vector2((-splashSize.x / 2.0f), (-splashSize.y / 2.0f)));
         splashWindow->SetSize(splashSize);
 
@@ -311,7 +322,7 @@ namespace Lina::Editor
             ImGui::ShowDemoWindow(&s_showIMGUIDemo);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->m_globalScale);
 
         m_headerPanel.Draw();
         CentralDockingSpace::Draw();
@@ -518,10 +529,10 @@ namespace Lina::Editor
         const ImVec2 splashMax  = ImVec2(splashMin.x + splashSize.x, splashMin.y + splashSize.y);
 
         ImGui::GetWindowDrawList()->AddImage((void*)(splashScreenTexture->GetID()), splashMin, splashMax, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SetNextWindowPos(ImVec2(splashMin.x + 40, splashMin.y + 310));
+        ImGui::SetNextWindowPos(ImVec2(splashMin.x + 40 * m_globalScale, splashMin.y + 310 * m_globalScale));
         ImGui::SetNextWindowBgAlpha(0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-        ImGui::BeginChild("text", ImVec2(640, 90), false, ImGuiWindowFlags_NoDecoration);
+        ImGui::BeginChild("text", ImVec2(640 * m_globalScale, 90 * m_globalScale), false, ImGuiWindowFlags_NoDecoration);
         ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
         ImGui::Text(m_currentlyLoadingResource.c_str());
         std::string loadData = std::to_string(m_percentage) + "%";

@@ -112,9 +112,9 @@ namespace Lina::Editor
 
     bool WidgetsUtility::DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename)
     {
-        FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x);
-        const ImVec2             iconArrowMin  = ImVec2(ImGui::GetCursorScreenPos().x + 10, ImGui::GetCursorScreenPos().y);
-        const ImVec2             iconFolderMin = ImVec2(ImGui::GetCursorScreenPos().x + 22, ImGui::GetCursorScreenPos().y);
+        FramePaddingX(GUILayer::Get()->GetDefaultFramePadding().x * GUILayer::Get()->m_globalScale);
+        const ImVec2             iconArrowMin  = ImVec2(ImGui::GetCursorScreenPos().x + 10 * GUILayer::Get()->m_globalScale, ImGui::GetCursorScreenPos().y);
+        const ImVec2             iconFolderMin = ImVec2(ImGui::GetCursorScreenPos().x + 22 * GUILayer::Get()->m_globalScale, ImGui::GetCursorScreenPos().y);
         const ImGuiTreeNodeFlags parent        = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
         const ImGuiTreeNodeFlags leaf          = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth;
         const bool               hasChildren   = folder->m_folders.size() > 0;
@@ -142,13 +142,13 @@ namespace Lina::Editor
         }
 
         // Tree node.
-        IncrementCursorPosX(4);
+        IncrementCursorPosX(4 * GUILayer::Get()->m_globalScale);
 
         bool node = false;
 
         if (canRename && folder->m_isRenaming)
         {
-            IncrementCursorPosX(34);
+            IncrementCursorPosX(34 * GUILayer::Get()->m_globalScale);
 
             ImVec4 lighterFrameBG = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
             lighterFrameBG.x += 0.1f;
@@ -244,9 +244,9 @@ namespace Lina::Editor
         auto*              storage            = Resources::ResourceStorage::Get();
         const ImVec2       cursorPosScreen    = ImGui::GetCursorScreenPos();
         const ImVec2       cursorPos          = ImGui::GetCursorPos();
-        const float        fileTypeRectHeight = 5;
-        const ImVec2       imageSize          = ImVec2(70 * sizeMultiplier, 70 * sizeMultiplier);
-        const ImVec2       totalSize          = ImVec2(imageSize.x + 30, 40 + imageSize.y);
+        const float        fileTypeRectHeight = 5 * GUILayer::Get()->m_globalScale;
+        const ImVec2       imageSize          = ImVec2(70 * sizeMultiplier * GUILayer::Get()->m_globalScale, 70 * sizeMultiplier * GUILayer::Get()->m_globalScale);
+        const ImVec2       totalSize          = ImVec2(imageSize.x + 30 * GUILayer::Get()->m_globalScale, 40 * GUILayer::Get()->m_globalScale + imageSize.y);
         const float        windowWidth        = ImGui::GetWindowWidth();
         const ImVec2       itemRectMin        = ImVec2(cursorPosScreen.x, cursorPosScreen.y);
         const ImVec2       itemRectMax        = ImVec2(cursorPosScreen.x + totalSize.x, cursorPosScreen.y + totalSize.y);
@@ -536,6 +536,8 @@ namespace Lina::Editor
 
     bool WidgetsUtility::ToggleButton(const char* label, bool* v, ImVec2 size)
     {
+        size = ImVec2(size.x * GUILayer::Get()->m_globalScale, size.y * GUILayer::Get()->m_globalScale);
+
         bool         isPressed            = false;
         const ImVec4 inactiveColor        = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
         const ImVec4 inactiveHoveredColor = ImVec4(0.78f, 0.78f, 0.78f, 1.0f);
@@ -546,7 +548,7 @@ namespace Lina::Editor
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         if (size.x == 0.0f && size.y == 0.0f)
-            size = DEFAULT_TOGGLE_SIZE;
+            size = ImVec2(DEFAULT_TOGGLE_SIZE.x, DEFAULT_TOGGLE_SIZE.y);
 
         float radius = size.y * 0.50f;
 
@@ -584,7 +586,7 @@ namespace Lina::Editor
     void WidgetsUtility::BeginMovableChild(const char* childID, ImVec2 size, const ImVec2& defaultPosition, const ImRect& confineRect, bool isHorizontal, ImVec2 iconCursorOffset)
     {
         const ImVec2 confineSize = ImVec2(confineRect.Max.x - confineRect.Min.x, confineRect.Max.y - confineRect.Min.y);
-        const float  iconOffset  = 12.0f;
+        const float  iconOffset  = 12.0f * GUILayer::Get()->m_globalScale;
         if (isHorizontal)
             size.x += iconOffset;
         else
@@ -680,20 +682,20 @@ namespace Lina::Editor
 
     void WidgetsUtility::TransformOperationTools(const char* childID, ImRect confineRect)
     {
-        const float   buttonsHorizontalOffset = 8.0f;
-        const float   childYSpaceOffset       = 4.0f;
-        const float   rounding                = 4.0f;
+        const float   buttonsHorizontalOffset = 8.0f * GUILayer::Get()->m_globalScale;
+        const float   childYSpaceOffset       = 4.0f * GUILayer::Get()->m_globalScale;
+        const float   rounding                = 4.0f * GUILayer::Get()->m_globalScale;
         const float   itemSpacingY            = ImGui::GetStyle().ItemSpacing.y;
-        const float   childRounding           = 6.0f;
-        const ImVec2  buttonSize              = ImVec2(28, 28);
+        const float   childRounding           = 6.0f * GUILayer::Get()->m_globalScale;
+        const ImVec2  buttonSize              = ImVec2(28 * GUILayer::Get()->m_globalScale, 28 * GUILayer::Get()->m_globalScale);
         const ImVec2  currentWindowPos        = ImGui::GetWindowPos();
-        const ImVec2  contentOffset           = ImVec2(0.5f, -2.0f);
+        const ImVec2  contentOffset           = ImVec2(0.5f * GUILayer::Get()->m_globalScale, -2.0f * GUILayer::Get()->m_globalScale);
         static ImVec2 childSize               = ImVec2(buttonSize.x + buttonsHorizontalOffset * 2, buttonSize.y * 4 + itemSpacingY * 5 + childYSpaceOffset * 2);
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
 
-        WidgetsUtility::BeginMovableChild(childID, childSize, ImVec2(CURSOR_X_LABELS, CURSOR_X_LABELS), confineRect, false, ImVec2(buttonsHorizontalOffset + 7, 0));
+        WidgetsUtility::BeginMovableChild(childID, childSize, ImVec2(CURSOR_X_LABELS, CURSOR_X_LABELS), confineRect, false, ImVec2(buttonsHorizontalOffset + 7 * GUILayer::Get()->m_globalScale, 0));
 
         PushIconFontSmall();
         ImGui::SetCursorPosX(buttonsHorizontalOffset);
@@ -751,23 +753,23 @@ namespace Lina::Editor
 
     void WidgetsUtility::PlayOperationTools(const char* childID, ImRect confineRect)
     {
-        const float   rounding         = 4.0f;
+        const float   rounding         = 4.0f * GUILayer::Get()->m_globalScale;
         const float   itemSpacingX     = ImGui::GetStyle().ItemSpacing.x;
         const float   itemSpacingY     = ImGui::GetStyle().ItemSpacing.y;
-        const float   childRounding    = 6.0f;
-        const ImVec2  buttonSize       = ImVec2(28, 28);
+        const float   childRounding    = 6.0f * GUILayer::Get()->m_globalScale;
+        const ImVec2  buttonSize       = ImVec2(28 * GUILayer::Get()->m_globalScale, 28 * GUILayer::Get()->m_globalScale);
         const ImVec2  currentWindowPos = ImGui::GetWindowPos();
-        const ImVec2  contentOffset    = ImVec2(0.5f, -2.0f);
+        const ImVec2  contentOffset    = ImVec2(0.5f * GUILayer::Get()->m_globalScale, -2.0f * GUILayer::Get()->m_globalScale);
         static ImVec2 childSize        = ImVec2(buttonSize.x * 6 + itemSpacingX * 7, buttonSize.y + itemSpacingY * 3);
 
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, childRounding);
         const ImVec2 defaultPos = ImVec2((confineRect.Max.x - confineRect.Min.x) - childSize.x - CURSOR_X_LABELS - 10, CURSOR_X_LABELS);
 
-        WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, true, ImVec2(5, 10));
+        WidgetsUtility::BeginMovableChild(childID, childSize, defaultPos, confineRect, true, ImVec2(5 * GUILayer::Get()->m_globalScale, 10 * GUILayer::Get()->m_globalScale));
         ImGui::SameLine();
         PushIconFontSmall();
-        ImGui::SetCursorPos(ImVec2(17, 6));
+        ImGui::SetCursorPos(ImVec2(17 * GUILayer::Get()->m_globalScale, 6 * GUILayer::Get()->m_globalScale));
 
         const bool isInPlayMode = Engine::Get()->GetPlayMode();
         const bool isPaused     = Engine::Get()->GetIsPaused();
@@ -879,9 +881,9 @@ namespace Lina::Editor
     void WidgetsUtility::HorizontalDivider(float yOffset, float thickness, float maxOverride)
     {
         const float maxWidth = maxOverride == 0.0f ? ImGui::GetWindowPos().x + ImGui::GetWindowWidth() : ImGui::GetWindowPos().x + maxOverride;
-        ImVec2      min      = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + yOffset);
+        ImVec2      min      = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + yOffset * GUILayer::Get()->m_globalScale);
         ImVec2      max      = ImVec2(maxWidth, min.y);
-        ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), thickness);
+        ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), thickness * GUILayer::Get()->m_globalScale);
     }
 
     void WidgetsUtility::WindowButtons(const char* windowID, float yOffset, bool isAppWindow, float sizeMultiplier)
@@ -890,11 +892,12 @@ namespace Lina::Editor
         ImVec2 windowPos   = ImGui::GetWindowPos();
         float  windowWidth = ImGui::GetWindowWidth();
 
-        const float  offset1                   = 35.0f;
-        const float  gap                       = 25.0f;
+        sizeMultiplier *= GUILayer::Get()->m_globalScale;
+        const float  offset1                   = 35.0f * GUILayer::Get()->m_globalScale;
+        const float  gap                       = 25.0f * GUILayer::Get()->m_globalScale;
         const ImVec2 buttonSize                = ImVec2(25 * sizeMultiplier, 20 * sizeMultiplier);
-        const float  closeButtonAdditionalSize = 8;
-        const float  frameRounding             = 0.4f;
+        const float  closeButtonAdditionalSize = 8 * GUILayer::Get()->m_globalScale;
+        const float  frameRounding             = 2.4f * GUILayer::Get()->m_globalScale;
 
         ImGui::SetCursorPosY(yOffset);
         const float cursorY = ImGui::GetCursorPosY();
@@ -947,15 +950,15 @@ namespace Lina::Editor
 
         const ImVec2 windowPos = ImGui::GetWindowPos();
         const ImU32  textCol   = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text));
-        const ImVec2 iconPos   = ImVec2(windowPos.x + 12.5f, windowPos.y + 3);
-        const ImVec2 textPos   = ImVec2(iconPos.x + ImGui::GetStyle().ItemSpacing.x + 12, windowPos.y + 3);
+        const ImVec2 iconPos   = ImVec2(windowPos.x + 12.5f * GUILayer::Get()->m_globalScale, windowPos.y + 3 * GUILayer::Get()->m_globalScale);
+        const ImVec2 textPos   = ImVec2(iconPos.x + ImGui::GetStyle().ItemSpacing.x + 12 * GUILayer::Get()->m_globalScale, windowPos.y + 3 * GUILayer::Get()->m_globalScale);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, textCol, GUILayer::Get()->m_windowIconMap[id]);
         ImGui::PopFont();
         ImGui::GetWindowDrawList()->AddText(textPos, textCol, GUILayer::Get()->m_editorPanels[id]->GetTitle().c_str());
 
         // Draw Buttons
-        WindowButtons(id, 4.0f, false, 0.9f);
+        WindowButtons(id, 4.0f, false);
     }
 
     bool WidgetsUtility::ComponentHeader(TypeID tid, const char* componentLabel, const char* componentIcon, bool* toggled, bool* removed, bool* copied, bool* pasted, bool* resetted, bool moveButton, bool disableHeader)
@@ -963,7 +966,7 @@ namespace Lina::Editor
         const ImVec2 cursorPos  = ImGui::GetCursorPos();
         const ImVec2 windowPos  = ImGui::GetWindowPos();
         const ImVec2 windowSize = ImGui::GetWindowSize();
-        const ImVec2 rectSize   = ImVec2(windowSize.x, HEADER_WIDGET_HEIGHT);
+        const ImVec2 rectSize   = ImVec2(windowSize.x * GUILayer::Get()->m_globalScale, HEADER_WIDGET_HEIGHT);
 
         // Draw background
         const ImVec4 normalColor   = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeader);
@@ -983,7 +986,7 @@ namespace Lina::Editor
         const ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_TitleHeaderBorder);
         ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(borderColor));
 
-        WidgetsUtility::IncrementCursorPosY(3.4f);
+        WidgetsUtility::IncrementCursorPosY(3.4f * GUILayer::Get()->m_globalScale);
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
         IconSmall(m_classFoldoutMap[tid] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
@@ -1026,7 +1029,7 @@ namespace Lina::Editor
 
         ImGui::SameLine();
 
-        const float cursorPosX = ImGui::GetWindowWidth() - VALUE_OFFSET_FROM_WINDOW - 15;
+        const float cursorPosX = ImGui::GetWindowWidth() - (VALUE_OFFSET_FROM_WINDOW + 15 * GUILayer::Get()->m_globalScale);
         ImGui::SetCursorPosX(cursorPosX);
         bool              anyButtonHovered = false;
         const std::string popupName        = "##popup_" + std::string(componentLabel);
@@ -1069,7 +1072,7 @@ namespace Lina::Editor
 
         const ImVec2 toggleSize = DEFAULT_TOGGLE_SIZE;
         ImGui::SameLine();
-        ImGui::SetCursorPosX(cursorPosX - ImGui::GetStyle().ItemSpacing.x - toggleSize.x);
+        ImGui::SetCursorPosX(cursorPosX - (ImGui::GetStyle().ItemSpacing.x + toggleSize.x));
         WidgetsUtility::IncrementCursorPosY(2.1f);
 
         if (toggled != nullptr)
@@ -1086,7 +1089,7 @@ namespace Lina::Editor
             m_classFoldoutMap[tid] = !m_classFoldoutMap[tid];
 
         ImGui::SetCursorPos(cursorPos);
-        IncrementCursorPosY(rectSize.y + ImGui::GetStyle().ItemSpacing.y);
+        IncrementCursorPosY(rectSize.y + ImGui::GetStyle().ItemSpacing.y * GUILayer::Get()->m_globalScale);
         return m_classFoldoutMap[tid];
     }
 
@@ -1202,6 +1205,7 @@ namespace Lina::Editor
     bool WidgetsUtility::BeginComboBox(const char* comboID, const char* label, bool hasRemoveButton, float widthDecrease)
     {
         PushPopupStyle();
+        widthDecrease *= GUILayer::Get()->m_globalScale;
         const float currentCursorX = ImGui::GetCursorPosX();
         const float currentCursorY = ImGui::GetCursorPosY();
         const float windowWidth    = ImGui::GetWindowWidth();
@@ -1211,7 +1215,7 @@ namespace Lina::Editor
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
 
-        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22 * GUILayer::Get()->m_globalScale, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_CHEVRON_CIRCLE_DOWN);
         ImGui::PopFont();
@@ -1395,11 +1399,11 @@ namespace Lina::Editor
 
     StringIDType WidgetsUtility::ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
-        std::string     resourceName        = "None" + std::string("##") + id;
-        constexpr float spaceFromEnd        = 10.0f;
-        const float     removeButtonSize    = ImGui::GetFrameHeight();
-        const float     buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
-        const float     currentCursorY      = ImGui::GetCursorPosY();
+        std::string resourceName        = "None" + std::string("##") + id;
+        const float spaceFromEnd        = 11.25f * GUILayer::Get()->m_globalScale;
+        const float removeButtonSize    = ImGui::GetFrameHeight();
+        const float buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
+        const float currentCursorY      = ImGui::GetCursorPosY();
 
         if (currentResource != nullptr)
             resourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(((Resources::IResource*)currentResource)->GetPath()));
@@ -1412,8 +1416,8 @@ namespace Lina::Editor
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        const float  iconOffset = -spaceFromEnd - 20.0f;
-        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
+        const float  iconOffset = -spaceFromEnd - 20.0f * GUILayer::Get()->m_globalScale;
+        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f * GUILayer::Get()->m_globalScale);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
@@ -1808,7 +1812,7 @@ namespace Lina::Editor
         if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
             ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
 
-        FramePaddingX(itemHeight + 6);
+        FramePaddingX(itemHeight + 9);
         bool result = ImGui::InputFloat(id, var);
         PopStyleVar();
 
@@ -1862,7 +1866,7 @@ namespace Lina::Editor
         if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
             ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
 
-        FramePaddingX(itemHeight + 6);
+        FramePaddingX(itemHeight + 9);
         bool result = ImGui::InputInt(id, var);
         PopStyleVar();
 
@@ -1901,7 +1905,7 @@ namespace Lina::Editor
         return x || y;
     }
 
-        bool Editor::WidgetsUtility::DragVector2i(const char* id, int* var)
+    bool Editor::WidgetsUtility::DragVector2i(const char* id, int* var)
     {
         float       windowWidth    = ImGui::GetWindowWidth();
         float       currentCursor  = ImGui::GetCursorPosX();
@@ -2070,8 +2074,8 @@ namespace Lina::Editor
     {
         ImGui::PushStyleColor(ImGuiCol_Separator, ImVec4(0.303f, 0.303f, 0.303f, 1.000f));
         const Vector2 padding = GUILayer::Get()->GetDefaultWindowPadding();
-        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->m_globalScale);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f * GUILayer::Get()->m_globalScale);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(padding.x, padding.y));
         ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_PopupBorder));
     }

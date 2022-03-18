@@ -1939,6 +1939,7 @@ struct ImGuiContext
     char                    TempBuffer[1024 * 3 + 1];           // Temporary text buffer
     ImVector<const char*> windowIcons;
     ImVector<const char*> windowsWithIcons;
+    float                 globalScale = 1.0f;
     ImFont* iconFont = nullptr;
 
     ImGuiContext(ImFontAtlas* shared_font_atlas)

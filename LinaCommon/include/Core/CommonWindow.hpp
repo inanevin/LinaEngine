@@ -71,6 +71,8 @@ namespace Lina
         bool         m_resizable            = true;
         bool         m_fullscreen           = false;
         int          m_msaaSamples          = 4;
+        float        m_contentScaleWidth    = 1.0f;
+        float        m_contentScaleHeight   = 1.0f;
         WindowState  m_windowState;
 
         WindowProperties()

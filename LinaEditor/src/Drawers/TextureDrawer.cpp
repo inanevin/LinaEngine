@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Core/GUILayer.hpp"
 
 namespace Lina::Editor
 {
@@ -213,7 +214,7 @@ namespace Lina::Editor
         }
 
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
-        if (WidgetsUtility::Button("Save Settings", ImVec2(paneWidth - CURSOR_X_LABELS * 2, 25)))
+        if (WidgetsUtility::Button("Save Settings", ImVec2(paneWidth - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->m_globalScale)))
         {
             Resources::SaveArchiveToFile(assetData->GetPath(), *assetData);
             const std::string  path = texture->GetPath();

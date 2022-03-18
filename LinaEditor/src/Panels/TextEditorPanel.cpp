@@ -281,7 +281,7 @@ namespace Lina::Editor
                 const ImGuiTabBarFlags flags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs;
                 ImGui::SetCursorPosX(CURSOR_X_LABELS);
                 const ImVec2 currentCursor = ImGui::GetCursorPos();
-                const ImVec2 textFieldSize = ImVec2(m_currentWindowSize.x - CURSOR_X_LABELS * 2.0f, m_currentWindowSize.y - currentCursor.y - 50.0f);
+                const ImVec2 textFieldSize = ImVec2(m_currentWindowSize.x - CURSOR_X_LABELS * 2.0f, m_currentWindowSize.y - currentCursor.y - 50.0f * GUILayer::Get()->m_globalScale);
 
                 WidgetsUtility::PushPopupStyle();
 
@@ -338,7 +338,7 @@ namespace Lina::Editor
 
                 WidgetsUtility::PopPopupStyle();
 
-                WidgetsUtility::IncrementCursorPosY(24.0f);
+                WidgetsUtility::IncrementCursorPosY(24.0f * GUILayer::Get()->m_globalScale);
 
                 // Control font scale.
                 if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_LCTRL))

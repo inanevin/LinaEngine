@@ -8755,10 +8755,13 @@ ImVec2 ImGui::TabItemCalcSize(const char* label, bool has_close_button)
     return ImVec2(ImMin(size.x, TabBarCalcMaxTabWidth()), size.y);
 }
 
-void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabItemFlags flags, ImU32 col)
+void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bbOrg, ImGuiTabItemFlags flags, ImU32 col)
 {
     // While rendering tabs, we trim 1 pixel off the top of our bounding box so they can fit within a regular frame height while looking "detached" from it.
     ImGuiContext& g     = *GImGui;
+    ImRect bb = bbOrg;
+    bb.Max.x += 6.0f * g.globalScale;
+
     const float   width = bb.GetWidth();
     IM_UNUSED(flags);
     IM_ASSERT(width > 0.0f);
@@ -8780,10 +8783,12 @@ void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabI
     }
 }
 
-void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bb, ImGuiTabItemFlags flags, ImU32 col)
+void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bbOrg, ImGuiTabItemFlags flags, ImU32 col)
 {
     // While rendering tabs, we trim 1 pixel off the top of our bounding box so they can fit within a regular frame height while looking "detached" from it.
     ImGuiContext& g     = *GImGui;
+    ImRect        bb = bbOrg;
+    bb.Max.x += 6.0f * g.globalScale;
     const float   width = bb.GetWidth();
     IM_UNUSED(flags);
     IM_ASSERT(width > 0.0f);
@@ -8852,7 +8857,7 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
         }
     }
     // Render text label (with clipping + alpha gradient) + unsaved marker
-    ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + (hasIcon ? 20 : 3), bb.Min.y + frame_padding.y, bb.Max.x - frame_padding.x, bb.Max.y);
+    ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + (hasIcon ? 20 * g.globalScale : 3 * g.globalScale), bb.Min.y + frame_padding.y, bb.Max.x - frame_padding.x, bb.Max.y);
     ImRect text_ellipsis_clip_bb = text_pixel_clip_bb;
 
     // Return clipped state ignoring the close button
@@ -8862,8 +8867,9 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
         //draw_list->AddCircle(text_ellipsis_clip_bb.Min, 3.0f, *out_text_clipped ? IM_COL32(255, 0, 0, 255) : IM_COL32(0, 255, 0, 255));
     }
 
-    const float  button_sz = g.FontSize;
-    const ImVec2 button_pos(ImMax(bb.Min.x, bb.Max.x - frame_padding.x * 2.0f - button_sz), bb.Min.y);
+    const float xAddition = 6.0f * g.globalScale;
+    const float  button_sz = g.FontSize - 2 * g.globalScale;
+    const ImVec2 button_pos(ImMax(bb.Min.x + xAddition, bb.Max.x - frame_padding.x * 2.0f - button_sz) + xAddition, bb.Min.y);
 
     // Close Button & Unsaved Marker
     // We are relying on a subtle and confusing distinction between 'hovered' and 'g.HoveredId' which happens because we are using ImGuiButtonFlags_AllowOverlapMode + SetItemAllowOverlap()

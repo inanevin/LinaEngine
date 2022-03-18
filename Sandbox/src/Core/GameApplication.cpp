@@ -36,7 +36,7 @@ namespace Lina
     void GameApplication::Initialize(ApplicationInfo appInfo)
     {
         Application::Initialize(appInfo);
-
+        
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
             m_editor = new Editor::EditorApplication();

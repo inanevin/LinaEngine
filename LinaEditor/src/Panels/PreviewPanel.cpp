@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -48,9 +48,9 @@ namespace Lina::Editor
     void PreviewPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
-        m_leftPaneWidth    = 380;
-        m_leftPaneMinWidth = 380;
-        m_leftPaneMaxWidth = 800;
+        m_leftPaneWidth    = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMinWidth = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMaxWidth = 600 * GUILayer::Get()->m_globalScale;
 
         m_primitives.push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
         m_primitives.push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
@@ -108,9 +108,9 @@ namespace Lina::Editor
         m_targetModel      = model;
         m_title            = "Model Preview: " + model->GetPath();
         m_previewType      = PreviewType::Model;
-        m_leftPaneWidth    = 380;
-        m_leftPaneMinWidth = 380;
-        m_leftPaneMaxWidth = 800;
+        m_leftPaneWidth    = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMinWidth = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMaxWidth = 800 * GUILayer::Get()->m_globalScale;
         Open();
     }
 
@@ -119,9 +119,9 @@ namespace Lina::Editor
         m_targetTexture    = texture;
         m_title            = "Texture Preview: " + texture->GetPath();
         m_previewType      = PreviewType::Texture;
-        m_leftPaneWidth    = 380;
-        m_leftPaneMinWidth = 380;
-        m_leftPaneMaxWidth = 800;
+        m_leftPaneWidth    = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMinWidth = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMaxWidth = 600 * GUILayer::Get()->m_globalScale;
         Open();
     }
 
@@ -132,9 +132,9 @@ namespace Lina::Editor
         m_previewType              = PreviewType::Material;
         m_targetModel              = Resources::ResourceStorage::Get()->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
         m_currentSelectedPrimitive = 0;
-        m_leftPaneWidth            = 380;
-        m_leftPaneMinWidth         = 380;
-        m_leftPaneMaxWidth         = 800;
+        m_leftPaneWidth            = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMinWidth         = 420 * GUILayer::Get()->m_globalScale;
+        m_leftPaneMaxWidth         = 600 * GUILayer::Get()->m_globalScale;
         Open();
     }
 
@@ -214,8 +214,8 @@ namespace Lina::Editor
         const ImVec2 cursorPos = ImVec2(cursorPosLina.x, cursorPosLina.y);
         if (m_previewType != PreviewType::Texture && m_previewType != PreviewType::Model)
         {
-            ImGui::SetCursorPosY(confineRectHeight - 80.0f);
-            ImGui::SetCursorPosX((m_rightPaneSize.x - cursorPos.x) - 220.0f);
+            ImGui::SetCursorPosY(confineRectHeight - 80.0f * GUILayer::Get()->m_globalScale);
+            ImGui::SetCursorPosX((m_rightPaneSize.x - cursorPos.x) - 220.0f * GUILayer::Get()->m_globalScale);
             const int selected = WidgetsUtility::SelectPrimitiveCombobox("##preview_panel_model", m_primitives, m_currentSelectedPrimitive, 12.0f);
             if (selected != m_currentSelectedPrimitive)
             {

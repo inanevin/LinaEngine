@@ -105,7 +105,7 @@ namespace Lina
         m_resourceManager.Initialize(m_appInfo);
 
         // Build main window.
-        bool windowCreationSuccess = m_window.CreateContext(appInfo);
+        bool windowCreationSuccess = m_window.CreateContext(m_appInfo);
         if (!windowCreationSuccess)
         {
             LINA_ERR("Window Creation Failed!");

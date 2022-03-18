@@ -77,7 +77,7 @@ namespace Lina::Editor
 
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
-        if (WidgetsUtility::Button("Open Shader", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
+        if (WidgetsUtility::Button("Open Shader", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->m_globalScale)))
         {
             auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
 
@@ -224,7 +224,7 @@ namespace Lina::Editor
 
         WidgetsUtility::IncrementCursorPosY(6);
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
-        if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25)))
+        if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->m_globalScale)))
         {
             bool isSkyboxMaterial = Graphics::RenderEngineBackend::Get()->GetSkyboxMaterial() == mat;
             mat->Save();

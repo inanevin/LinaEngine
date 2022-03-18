@@ -87,7 +87,8 @@ namespace Lina::Graphics
         }
 
         m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), m_windowProperties.m_fullscreen ? primaryMonitor : NULL, NULL));
-
+        glfwGetMonitorContentScale(primaryMonitor, &(m_windowProperties.m_contentScaleWidth), &(m_windowProperties.m_contentScaleHeight));
+        
         if (!m_glfwWindow)
         {
             // Assert window creation.
@@ -194,6 +195,7 @@ namespace Lina::Graphics
 
         m_window = static_cast<void*>(m_glfwWindow);
         Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{m_window});
+        appInfo.m_windowProperties = m_windowProperties;
         return true;
     }
 

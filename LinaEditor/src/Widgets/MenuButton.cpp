@@ -30,6 +30,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/GUILayer.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 #include <iostream>
@@ -132,14 +133,14 @@ namespace Lina::Editor
 
         const float textSize     = ImGui::CalcTextSize(itemStr.c_str()).x;
         float       textAddition = 0.0f;
-        if (textSize > 100)
-            textAddition = 30.0f;
+        if (textSize > 100 * GUILayer::Get()->m_globalScale)
+            textAddition = 30.0f * GUILayer::Get()->m_globalScale;
 
         bool arrowExists = m_children.size() > 0;
         if (m_tooltip != nullptr && std::string(m_tooltip).compare("") != 0)
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosX(textAddition + 110);
+            ImGui::SetCursorPosX(textAddition + 110 * GUILayer::Get()->m_globalScale);
             if (m_tooltipIsIcon)
             {
                 WidgetsUtility::IconSmall(m_tooltip);
@@ -155,11 +156,11 @@ namespace Lina::Editor
         if (arrowExists)
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosX(textAddition + 175);
+            ImGui::SetCursorPosX(textAddition + 175 * GUILayer::Get()->m_globalScale);
             WidgetsUtility::IconSmall(ICON_FA_CARET_RIGHT);
         }
 
         ImGui::SameLine();
-        ImGui::InvisibleButton(emptyLabel.c_str(), ImVec2(emptyLabelSize - ImGui::GetStyle().ItemSpacing.x, 5));
+        ImGui::InvisibleButton(emptyLabel.c_str(), ImVec2((emptyLabelSize - ImGui::GetStyle().ItemSpacing.x) * GUILayer::Get()->m_globalScale, 5 * GUILayer::Get()->m_globalScale));
     }
 } // namespace Lina::Editor

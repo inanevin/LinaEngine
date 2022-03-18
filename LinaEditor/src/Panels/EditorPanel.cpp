@@ -105,7 +105,7 @@ namespace Lina::Editor
             m_windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
             ImVec2 size           = ImGui::GetWindowSize();
             m_sizeBeforeCollapse  = Vector2(size.x, size.y);
-            m_windowSizeNextFrame = Vector2(size.x, 30.0f);
+            m_windowSizeNextFrame = Vector2(size.x, 30.0f * GUILayer::Get()->m_globalScale);
         }
         else
         {
