@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,6 +31,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Core/PhysicsBackend.hpp"
+#include "Core/ImGuiCommon.hpp"
 #include "Rendering/Texture.hpp"
 #include <entt/meta/factory.hpp>
 #include <entt/meta/node.hpp>
@@ -129,10 +130,11 @@ namespace Lina::Editor
 
         if (!labelProperty || !typeProperty)
             return false;
-        
-        const char* typeVal                         = typeProperty.value().cast<const char*>();
 
-        if (std::string(typeVal).compare("") == 0) return false;
+        const char* typeVal = typeProperty.value().cast<const char*>();
+
+        if (std::string(typeVal).compare("") == 0)
+            return false;
 
         const char* label                     = labelProperty.value().cast<const char*>();
         std::string type                      = std::string(typeProperty.value().cast<const char*>());
@@ -244,6 +246,29 @@ namespace Lina::Editor
             if (prev != variable)
                 propertyChanged = true;
         }
+        else if (type.compare("String") == 0)
+        {
+            std::string                var  = data.get(instance).cast<std::string>();
+            const std::string          prev = var;
+            InputTextCallback_UserData cb_user_data;
+            cb_user_data.Str = &var;
+            ImGui::InputText(varLabelID.c_str(), (char*)var.c_str(), var.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
+            data.set(instance, var);
+
+            if (var.compare(prev) != 0)
+                propertyChanged = true;
+        }
+        else if (type.compare("StringPath") == 0)
+        {
+            std::string       var  = data.get(instance).cast<std::string>();
+            const std::string prev = var;
+
+            var = WidgetsUtility::PathSelectPopup(var);
+            data.set(instance, var);
+
+            if (var.compare(prev) != 0)
+                propertyChanged = true;
+        }
         else if (type.compare("Material") == 0)
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Material>>();
@@ -261,7 +286,7 @@ namespace Lina::Editor
             auto arr = data.get(instance).cast<std::vector<Resources::ResourceHandle<Graphics::Material>>>();
 
             std::vector<std::string> materialNameVector;
-            
+
             // We are looking for a property with title MaterialArray's title + _Names
             const std::string labelNames = std::string(label) + "_Names";
 
@@ -277,7 +302,7 @@ namespace Lina::Editor
                     const char* dTitleChr = dTitle.value().cast<const char*>();
                     if (std::string(dTitleChr).compare(labelNames) == 0)
                     {
-                        materialNameVector = d.get(instance).cast<std::vector<std::string>>();   
+                        materialNameVector = d.get(instance).cast<std::vector<std::string>>();
                         break;
                     }
                 }
@@ -285,13 +310,13 @@ namespace Lina::Editor
 
             for (int i = 0; i < arr.size(); i++)
             {
-                const StringIDType prev = arr[i].m_sid;
+                const StringIDType prev      = arr[i].m_sid;
                 const std::string  elementID = variableID + std::to_string(i);
 
                 std::string materialName = "Material " + std::to_string(i);
                 if (materialNameVector.size() > 0)
                     materialName = materialNameVector[i];
-                
+
                 WidgetsUtility::PropertyLabel(materialName.c_str());
                 WidgetsUtility::ResourceSelectionMaterial(elementID, &arr[i]);
                 data.set(instance, arr);

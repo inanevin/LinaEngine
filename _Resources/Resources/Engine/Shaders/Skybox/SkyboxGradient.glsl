@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#define LINA_SKY_CUBE
+
 #if defined(VS_BUILD)
 #include <../UniformBuffers.glh>
 #include <SkyboxCommon.glh>
@@ -43,8 +45,8 @@ layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g
 in vec3 RawPosition;
 struct Material
 {
-	vec3 startColor;
-	vec3 endColor;
+	vec4 startColor;
+	vec4 endColor;
 };
 uniform Material material;
 
@@ -52,7 +54,7 @@ void main()
 {
 	float u = RawPosition.y;
 	u = remap(u, -1.0f, 1.0f, 0.0f, 1.0f);
-    vec4 finalColor = mix( vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), u );
+    vec4 finalColor = mix( material.startColor, material.endColor, u );
   
 	gPosition = vec4(vec3(0), 0.0f);
 	gNormal = vec4(0.0f);

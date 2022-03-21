@@ -58,7 +58,7 @@ namespace Lina
     {
         class EventSystem;
         struct ERequestResourceReload;
-    }
+    } // namespace Event
 
 } // namespace Lina
 
@@ -95,6 +95,24 @@ namespace Lina::Resources
             return m_rootFolder;
         }
 
+        /// <summary>
+        /// Working the working directory as its returned from filesystem.
+        /// </summary>
+        /// <returns></returns>
+        inline const std::string& GetWorkingDir()
+        {
+            return m_workingDirectory;
+        }
+
+        /// <summary>
+        /// Returns the modified working directory. (replaced the \\ with / from the filesystem path)
+        /// </summary>
+        /// <returns></returns>
+        inline const std::string& GetWorkingDirReplaced()
+        {
+            return m_workingDirectoryReplaced;
+        }
+
     private:
         friend class Engine;
         ResourceManager()  = default;
@@ -117,8 +135,10 @@ namespace Lina::Resources
         Future<void>            m_future;
         Future<void>            m_futureLoop;
         ResourceBundle          m_bundle;
-        Utility::Folder*        m_rootFolder = nullptr;
-        ApplicationMode         m_appMode    = ApplicationMode::Editor;
+        Utility::Folder*        m_rootFolder               = nullptr;
+        ApplicationMode         m_appMode                  = ApplicationMode::Editor;
+        std::string             m_workingDirectory         = "";
+        std::string             m_workingDirectoryReplaced = "";
     };
 } // namespace Lina::Resources
 

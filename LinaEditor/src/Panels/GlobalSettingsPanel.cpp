@@ -38,6 +38,8 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "World/Level.hpp"
 #include "Drawers/ClassDrawer.hpp"
+#include "Core/EditorSettings.hpp"
+#include "Core/EditorApplication.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor
@@ -81,6 +83,11 @@ namespace Lina::Editor
                 {
                     anySettingsChanged = true;
                     Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
+                }
+
+                if (ClassDrawer::DrawClass(GetTypeID<EditorSettings>(), entt::forward_as_meta(EditorApplication::Get()->GetEditorSettings()), true))
+                {
+                    Resources::SaveArchiveToFile<EditorSettings>("editor.linasettings", EditorApplication::Get()->GetEditorSettings());
                 }
 
                 if (anySettingsChanged)

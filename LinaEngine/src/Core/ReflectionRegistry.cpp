@@ -65,11 +65,12 @@ SOFTWARE.
 #include "ECS/Components/ReflectionAreaComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "Rendering/RenderSettings.hpp"
+#include "Rendering/Material.hpp"
+#include "Core/EditorSettings.hpp"
 #include "Rendering/ModelAssetData.hpp"
 #include "Core/EngineSettings.hpp"
 #include "World/Level.hpp"
-#include "Rendering/RenderSettings.hpp"
-#include "Rendering/Material.hpp"
 //INC_END - !! DO NOT MODIFY THIS LINE !!
 
 namespace Lina
@@ -369,17 +370,6 @@ entt::meta<ECS::FreeLookComponent>().func<&REF_Remove<ECS::FreeLookComponent>, e
 entt::meta<ECS::FreeLookComponent>().func<&REF_Copy<ECS::FreeLookComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Paste<ECS::FreeLookComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Add<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
-entt::meta<Graphics::ModelAssetData>().type().props(std::make_pair("Title"_hs, "Model Data"));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_generatePivots>("m_generatePivots"_hs).props(std::make_pair("Title"_hs,"Generate Entity Pivots"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"If true, any entity generated via adding this model to the scene will have offset pivots as parents."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipUVs>("m_flipUVs"_hs).props(std::make_pair("Title"_hs,"Flip UVs"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipWinding>("m_flipWinding"_hs).props(std::make_pair("Title"_hs,"Flip Winding"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_calculateTangentSpace>("m_calculateTangentSpace"_hs).props(std::make_pair("Title"_hs,"Calc Tangents"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_smoothNormals>("m_smoothNormals"_hs).props(std::make_pair("Title"_hs,"Smooth Normals"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_globalScale>("m_globalScale"_hs).props(std::make_pair("Title"_hs,"Global Scale"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
-entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
-entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
-entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
-entt::meta<World::Level>().data<&World::Level::m_skyboxMaterial>("m_skyboxMaterial"_hs).props(std::make_pair("Title"_hs,"Skybox"),std::make_pair("Type"_hs,"Material"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
 entt::meta<Graphics::RenderSettings>().type().props(std::make_pair("Title"_hs, "Render Settings"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_vignettePow>("m_vignettePow"_hs).props(std::make_pair("Title"_hs,"Pow"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,"m_vignetteEnabled"_hs), std::make_pair("Category"_hs, "Vignette"));
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_vignetteAmount>("m_vignetteAmount"_hs).props(std::make_pair("Title"_hs,"Amount"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,"m_vignetteEnabled"_hs), std::make_pair("Category"_hs, "Vignette"));
@@ -393,9 +383,31 @@ entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_exposur
 entt::meta<Graphics::RenderSettings>().data<&Graphics::RenderSettings::m_gamma>("m_gamma"_hs).props(std::make_pair("Title"_hs,"Gamma"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Tonemapping"));
 entt::meta<Graphics::Material>().type().props(std::make_pair("Title"_hs, "Material"));
 entt::meta<Graphics::Material>().data<&Graphics::Material::m_shaderHandle>("m_shaderHandle"_hs).props(std::make_pair("Title"_hs,"Shader"),std::make_pair("Type"_hs,"Shader"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Editor::	EditorSettings>().type().props(std::make_pair("Title"_hs, "Editor"));
+entt::meta<Editor::	EditorSettings>().data<&Editor::	EditorSettings::m_textEditorPath>("m_textEditorPath"_hs).props(std::make_pair("Title"_hs,"Text Editor"),std::make_pair("Type"_hs,"StringPath"),std::make_pair("Tooltip"_hs,"Default text editor to open shader & similar files."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().type().props(std::make_pair("Title"_hs, "Model Data"));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_generatePivots>("m_generatePivots"_hs).props(std::make_pair("Title"_hs,"Generate Entity Pivots"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,"If true, any entity generated via adding this model to the scene will have offset pivots as parents."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipUVs>("m_flipUVs"_hs).props(std::make_pair("Title"_hs,"Flip UVs"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_flipWinding>("m_flipWinding"_hs).props(std::make_pair("Title"_hs,"Flip Winding"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_calculateTangentSpace>("m_calculateTangentSpace"_hs).props(std::make_pair("Title"_hs,"Calc Tangents"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_smoothNormals>("m_smoothNormals"_hs).props(std::make_pair("Title"_hs,"Smooth Normals"),std::make_pair("Type"_hs,"Bool"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Graphics::ModelAssetData>().data<&Graphics::ModelAssetData::m_globalScale>("m_globalScale"_hs).props(std::make_pair("Title"_hs,"Global Scale"),std::make_pair("Type"_hs,"Float"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
+entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
+entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
+entt::meta<World::Level>().data<&World::Level::m_skyboxMaterial>("m_skyboxMaterial"_hs).props(std::make_pair("Title"_hs,"Skybox"),std::make_pair("Type"_hs,"Material"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina
+
+
+
+
+
+
+
+
+
 
 
 

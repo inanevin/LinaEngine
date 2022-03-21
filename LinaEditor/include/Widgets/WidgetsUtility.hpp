@@ -492,6 +492,11 @@ namespace Lina::Editor
         /// Pushes the small icon font.
         /// </summary>
         static void PushIconFontSmall();
+
+        /// <summary>
+        /// Draws a clickable button to select OS path.
+        /// </summary>
+        static std::string PathSelectPopup(const std::string& original);
     };
 } // namespace Lina::Editor
 

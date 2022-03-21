@@ -112,6 +112,32 @@ namespace Lina::Editor
         return std::string();
     }
 
+    std::string EditorUtility::SelectPath(void* window)
+    {
+
+#ifdef LINA_PLATFORM_WINDOWS
+        OPENFILENAMEA ofn;
+        CHAR          szFile[260] = {0};
+        ZeroMemory(&ofn, sizeof(OPENFILENAME));
+        ofn.lStructSize  = sizeof(OPENFILENAME);
+        ofn.hwndOwner    = glfwGetWin32Window((GLFWwindow*)window);
+        ofn.lpstrFile    = szFile;
+        ofn.nMaxFile     = sizeof(szFile);
+        ofn.lpstrFilter  = ".exe";
+        ofn.nFilterIndex = 1;
+        ofn.Flags        = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+
+        if (GetOpenFileNameA(&ofn) == TRUE)
+        {
+            std::string replacedPath = ofn.lpstrFile;
+            std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+            return replacedPath;
+        }
+
+#endif
+        return std::string();
+    }
+
     bool EditorUtility::ChangeFilename(const char* folderPath, const char* oldName, const char* newName)
     {
         std::string oldPathStr = std::string(folderPath) + std::string(oldName);

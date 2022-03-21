@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,7 +43,18 @@ namespace Lina::Editor
     {
         const TypeID tid = GetTypeID<Graphics::Material>();
         WidgetsUtility::IncrementCursorPosY(12);
-        
+
+        // Store the current shader.
+        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
+
+        // Draw the free data.
+        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
+
+        // Set shader if changed.
+        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
+        if (sidNow != sidBefore)
+            mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
+
         // Check if the material's shader is a skybox shader, if so draw skybox related parameters.
         uint8 shaderSpecification = static_cast<uint8>(mat->m_shaderHandle.m_value->GetSpecification());
         if (shaderSpecification > 0 && shaderSpecification < 4)
@@ -63,17 +74,6 @@ namespace Lina::Editor
                 WidgetsUtility::DragFloat("##mat_enviro_indirect", nullptr, &mat->m_skyboxIndirectContributionFactor);
             }
         }
-
-        // Store the current shader.
-        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
-     
-        // Draw the free data.
-        ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);     
-
-        // Set shader if changed.
-        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
-        if (sidNow != sidBefore)
-            mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
 
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
 
@@ -228,7 +228,7 @@ namespace Lina::Editor
         {
             bool isSkyboxMaterial = Graphics::RenderEngineBackend::Get()->GetSkyboxMaterial() == mat;
             mat->Save();
-            
+
             // Make sure the skybox material is nulled out on render engine until we are done with reloading.
             if (isSkyboxMaterial)
                 Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(nullptr);

@@ -78,7 +78,7 @@ namespace Lina::Editor
         m_footerSize           = 20.0f;
         m_linaLogoIcon         = ICON_FA_FIRE;
         m_defaultWindowPadding = Vector2(8, 8);
-        m_defaultFramePadding  = Vector2(8, 2);
+        m_defaultFramePadding  = Vector2(8, 0);
         m_storage              = Resources::ResourceStorage::Get();
 
         Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
@@ -152,7 +152,7 @@ namespace Lina::Editor
         // style.ScrollbarRounding = 5.0f;
         style.FramePadding  = ImVec2(m_defaultFramePadding.x, m_defaultFramePadding.y);
         style.WindowPadding = ImVec2(m_defaultWindowPadding.x, m_defaultWindowPadding.y);
-        style.CellPadding   = ImVec2(9, 2);
+        style.CellPadding   = ImVec2(9, 1);
         // style.ItemInnerSpacing = ImVec2(8, 4);
         // style.ItemInnerSpacing = ImVec2(5, 4);
         // style.GrabRounding = 6.0f;

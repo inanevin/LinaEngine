@@ -1,11 +1,11 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-] [Inan Evin]
+Copyright (c) [2018-2020] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,39 +27,43 @@ SOFTWARE.
 */
 
 /*
-Class: EditorUtility
+Class: EditorSettings
 
-Various utility functions for the editor.
 
-Timestamp: 5/9/2020 1:22:23
+
+Timestamp: 3/21/2022 7:02:03 PM
 */
 
 #pragma once
 
-#ifndef EditorUtility_HPP
-#define EditorUtility_HPP
+#ifndef EditorSettings_HPP
+#define EditorSettings_HPP
 
+// Headers here.
 #include <string>
+#include "Core/CommonReflection.hpp"
 
 namespace Lina::Editor
 {
-    class EditorUtility
-    {
+    LINA_CLASS("Editor")
+	class EditorSettings
+	{
+		
+	public:
+		
+		EditorSettings() {};
+		~EditorSettings() {};
 
-    public:
-        EditorUtility() = default;
-        ~EditorUtility() = default;
-
-        static bool        CreateFolderInPath(const std::string& path);
-        static bool        DeleteDirectory(const std::string& path);
-        static std::string RemoveExtensionFromFilename(const std::string& filename);
-        static std::string OpenFile(const char* filter, void* window);
-        static std::string SaveFile(const char* filter, void* window);
-        static std::string SelectPath(void* window);
-        static bool        ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
-
-    private:
-    };
-} // namespace Lina::Editor
+		template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_textEditorPath);
+        }
+	
+		LINA_PROPERTY("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
+		std::string m_textEditorPath = "";
+	
+	};
+}
 
 #endif

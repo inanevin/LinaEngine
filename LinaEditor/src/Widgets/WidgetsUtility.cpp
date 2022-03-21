@@ -55,6 +55,8 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/EditorApplication.hpp"
 #include "ECS/Components/LightComponent.hpp"
+#include "Utility/EditorUtility.hpp"
+#include "Core/WindowBackend.hpp"
 
 namespace Lina::Editor
 {
@@ -653,27 +655,27 @@ namespace Lina::Editor
 
     void WidgetsUtility::DisplayEditorCameraSettings(const ImVec2 position)
     {
-        ImVec2 cameraSettingsSize = ImVec2(210, 60);
+        ImVec2 cameraSettingsSize = ImVec2(210 * GUILayer::Get()->m_globalScale, 60 * GUILayer::Get()->m_globalScale);
         ImGui::SetNextWindowPos(position);
         ImGui::SetNextWindowBgAlpha(0.5f);
         ImGui::BeginChild("##scenePanel_cameraSettings", cameraSettingsSize, false, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking);
-        float cursorPosLabels = 12;
-        WidgetsUtility::IncrementCursorPosY(6);
+        float cursorPosLabels = 12 * GUILayer::Get()->m_globalScale;
+        WidgetsUtility::IncrementCursorPosY(6 * GUILayer::Get()->m_globalScale);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
         ImGui::SetCursorPosX(cursorPosLabels);
         WidgetsUtility::PropertyLabel("Camera Speed");
         ImGui::SameLine();
 
-        float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24;
+        float cursorPosValues = ImGui::CalcTextSize("Camera Speed").x + 24 * GUILayer::Get()->m_globalScale;
         ImGui::SetCursorPosX(cursorPosValues);
-        ImGui::SetNextItemWidth(100);
+        ImGui::SetNextItemWidth(100 * GUILayer::Get()->m_globalScale);
 
         ImGui::SliderFloat("##editcamspd", &m_editorCameraSpeed, 0.0f, 1.0f);
         ImGui::SetCursorPosX(cursorPosLabels);
         WidgetsUtility::PropertyLabel("Multiplier");
         ImGui::SameLine();
         ImGui::SetCursorPosX(cursorPosValues);
-        ImGui::SetNextItemWidth(100);
+        ImGui::SetNextItemWidth(100 * GUILayer::Get()->m_globalScale);
         ImGui::DragFloat("##editcammultip", &m_editorCameraSpeedMultiplier, 1.0f, 0.0f, 20.0f);
         ImGui::PopStyleVar();
         EditorApplication::Get()->GetCameraSystem().SetCameraSpeedMultiplier(m_editorCameraSpeed * m_editorCameraSpeedMultiplier);
@@ -1215,7 +1217,7 @@ namespace Lina::Editor
         const bool combo = ImGui::BeginCombo(comboID, label, ImGuiComboFlags_NoArrowButton);
         PopPopupStyle();
 
-        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22 * GUILayer::Get()->m_globalScale, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f);
+        const ImVec2 iconPos = ImVec2(ImGui::GetWindowPos().x + currentCursorX + comboWidth - 22 * GUILayer::Get()->m_globalScale, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 1.5f * GUILayer::Get()->m_globalScale);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_CHEVRON_CIRCLE_DOWN);
         ImGui::PopFont();
@@ -1417,7 +1419,7 @@ namespace Lina::Editor
         ImGui::PopStyleVar();
 
         const float  iconOffset = -spaceFromEnd - 20.0f * GUILayer::Get()->m_globalScale;
-        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 3.0f * GUILayer::Get()->m_globalScale);
+        const ImVec2 iconPos    = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() + iconOffset, ImGui::GetWindowPos().y + currentCursorY + -ImGui::GetScrollY() + 1.5f * GUILayer::Get()->m_globalScale);
         PushIconFontSmall();
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
@@ -2130,6 +2132,24 @@ namespace Lina::Editor
     void WidgetsUtility::PushIconFontSmall()
     {
         ImGui::PushFont(GUILayer::Get()->GetIconFontSmall());
+    }
+
+    std::string WidgetsUtility::PathSelectPopup(const std::string& original)
+    {
+        std::string toReturn = original;
+
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &toReturn;
+       
+        ImGui::SetNextItemWidth(-68 * GUILayer::Get()->m_globalScale);
+        ImGui::InputText("##pp_sl", (char*)toReturn.c_str(), toReturn.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
+
+        ImGui::SameLine();
+
+        if (Button("Select"))
+            toReturn = EditorUtility::SelectPath(Graphics::WindowBackend::Get()->GetNativeWindow());
+
+        return toReturn;
     }
 
     ImVec2 WidgetsUtility::GetWindowPosWithContentRegion()

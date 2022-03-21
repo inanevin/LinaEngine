@@ -33,7 +33,7 @@
 *	SOFTWARE.
 */
 
-#define LINA_SKY_DOME
+#define LINA_SKY_CUBE
 
 #if defined(VS_BUILD)
 #include <../UniformBuffers.glh>
@@ -72,10 +72,8 @@ struct Material
 	float radius;
 	float planetOriginY;
 	float groundOffset;
-	vec3 waveLengthColor;
-	vec3 groundColor;
-	float cirrus;
-	float cumulus;
+	vec4 waveLengthColor;
+	vec4 groundColor;
 };
 uniform Material material;
 
@@ -115,6 +113,7 @@ vec2 getIntersections( vec3 eyeDir, vec3 dir, float dist2, float rad2 ) {
     );
 }
 
+
 float getRayleighPhase( float fCos2 ) {
     return 0.75 * ( 2.0 + 0.5 * fCos2 );
 }
@@ -123,12 +122,10 @@ float getMiePhase( float fCos, float fCos2, float g, float g2 ) {
     return 1.5 * ( ( 1.0 - g2 ) / ( 2.0 + g2 ) ) * ( 1.0 + fCos2 )
         / pow( 1.0 + g2 - 2.0 * g * fCos, 1.5 );
 }
-
 vec3 getSkyColor()
 {
-	
 	// SKY
-	vec3 wavelength = INV_WAVE_LENGTH * material.waveLengthColor;
+	vec3 wavelength = INV_WAVE_LENGTH * material.waveLengthColor.rgb;
 	float camHeight = CAMERA_HEIGHT + material.planetOriginY * 0.01f;
     float fInnerRadius2 = INNER_RADIUS * INNER_RADIUS;
     float fOuterRadius2 = OUTER_RADIUS * OUTER_RADIUS;
@@ -194,14 +191,14 @@ vec3 getSkyColor()
     }
 
     v3FrontColor = clamp( v3FrontColor, 0.0, 3.0 );
-    vec3 c0 = v3FrontColor * ( wavelength * fKrESun );
+    vec3 c0 = v3FrontColor * (wavelength * fKrESun );
     vec3 c1 = v3FrontColor * fKmESun;
 
     if ( isGround )
     {
         vec3 v3RayleighColor = c0 + c1;
         vec3 v3MieColor = clamp( v3Attenuate, 0.0, 3.0 );
-        vec3 skyColor =  vec3(1.0 - exp( -( v3RayleighColor + material.groundColor * v3MieColor ) ));
+        vec3 skyColor =  vec3(1.0 - exp( -( v3RayleighColor + material.groundColor.rgb * v3MieColor ) ));
         return skyColor;
     }
 
@@ -211,56 +208,6 @@ vec3 getSkyColor()
 	return skyColor;
 }
 
- float hash(float n)
-  {
-    return fract(sin(n) * 43758.5453123);
-  }
-
-  float noise(vec3 x)
-  {
-    vec3 f = fract(x);
-    float n = dot(floor(x), vec3(1.0, 157.0, 113.0));
-    return mix(mix(mix(hash(n +   0.0), hash(n +   1.0), f.x),
-                   mix(hash(n + 157.0), hash(n + 158.0), f.x), f.y),
-               mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
-                   mix(hash(n + 270.0), hash(n + 271.0), f.x), f.y), f.z);
-  }
-
-  const mat3 m = mat3(0.0, 1.60,  1.20, -1.6, 0.72, -0.96, -1.2, -0.96, 1.28);
-  float fbm(vec3 p)
-  {
-    float f = 0.0;
-    f += noise(p) / 2; p = m * p * 1.1;
-    f += noise(p) / 4; p = m * p * 1.2;
-    f += noise(p) / 6; p = m * p * 1.3;
-    f += noise(p) / 12; p = m * p * 1.4;
-    f += noise(p) / 24;
-    return f;
-  }
-  
-vec3 getCloudsColor(vec3 skyColor)
-{
-	if(EyeDirection.y < 0.0f)
-		return skyColor;
-		
-	// Cirrus Clouds
-	float time = 0.0f;
-	vec3 color;
-	vec3 eyeDir = normalize(EyeDirection);
-	
-    float density = smoothstep(1.0 - material.cirrus, 1.0, fbm(eyeDir.xyz / eyeDir.y * 2.0 + time * 0.05)) * 0.3;
-    color.rgb = mix(color.rgb, skyColor, density * max(eyeDir.y, 0.0));
-
-    // Cumulus Clouds
-    for (int i = 0; i < 15; i++)
-    {
-      float density = smoothstep(1.0 - material.cumulus, 1.0, fbm((0.7 + float(i) * 0.005) * eyeDir.xyz / eyeDir.y + time * 0.3));
-      color.rgb = mix(color.rgb, skyColor * density * 5.0, min(density, 1.0) * max(eyeDir.y, 0.0));
-    }
-	
-	return color;
-
-}
 
 void main()
 {
@@ -270,12 +217,14 @@ void main()
 	gMetallicRoughnessAOWorkflow = vec4(0.0f, 0.0f, 0.0f, 2.0f); // unlit
 
 	vec3 skyColor = getSkyColor();
-	vec3 cloudColor = getCloudsColor(skyColor);
-	
-    gAlbedo = vec4(cloudColor,  1.0);
+    gAlbedo = vec4(skyColor,  1.0);
     gAlbedo.xyz = pow( gAlbedo.xyz, vec3( GAMMA ) );
 }
 #endif
+
+
+
+
 
 
 

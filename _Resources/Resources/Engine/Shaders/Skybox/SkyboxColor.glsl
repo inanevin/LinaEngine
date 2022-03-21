@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#define LINA_SKY_CUBE
 
 #if defined(VS_BUILD)
 #include <SkyboxCommon.glh>
@@ -33,7 +34,7 @@ layout (location = 4) out vec4 gMetallicRoughnessAOWorkflow;		// r = metallic, g
 
 struct Material
 {
-  vec3 color;
+  vec4 color;
 };
 uniform Material material;
 
@@ -41,7 +42,7 @@ void main()
 {   
   gPosition = vec4(vec3(0), 0.0f);
   gNormal = vec4(0.0f);
-  gAlbedo = vec4(vec3(material.color.x, material.color.y, material.color.z), 0.0f);
+  gAlbedo = material.color;
   gEmission = vec4(0.0f);
   gMetallicRoughnessAOWorkflow = vec4(0.0f, 0.0f, 0.0f, 2.0f); // unlit
 }

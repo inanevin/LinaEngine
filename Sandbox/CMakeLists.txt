@@ -92,6 +92,10 @@ TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/vendor/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
+  target_link_options(${PROJECT_NAME} PRIVATE "/SAFESEH:NO")
+endif()
 
 
 #--------------------------------------------------------------------

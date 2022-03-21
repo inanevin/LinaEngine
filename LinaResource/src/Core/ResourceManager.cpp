@@ -46,9 +46,9 @@ namespace Lina::Resources
         LINA_WARN("[Resource Manager] -> Loading Editor Resources");
 
         // Find resources.
-        m_rootFolder = new Utility::Folder();
+        m_rootFolder             = new Utility::Folder();
         m_rootFolder->m_fullPath = "Resources/";
-        m_rootFolder->m_name    = "Resources";
+        m_rootFolder->m_name     = "Resources";
         Utility::ScanFolder(m_rootFolder, true, &s_currentProgressData.m_currentTotalFiles);
 
         // Set progress & fill.
@@ -60,7 +60,7 @@ namespace Lina::Resources
         m_bundle.ScanFileResources(m_rootFolder);
         m_bundle.LoadAllFileResources();
 
-        Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded {});
+        Event::EventSystem::Get()->Trigger<Event::EAllResourcesLoaded>(Event::EAllResourcesLoaded{});
         ResourceManager::ResetProgress();
     }
 
@@ -109,9 +109,12 @@ namespace Lina::Resources
 
     void ResourceManager::Initialize(ApplicationInfo& appInfo)
     {
-        m_appInfo    = appInfo;
-        m_eventSys   = Event::EventSystem::Get();
+        m_appInfo  = appInfo;
+        m_eventSys = Event::EventSystem::Get();
         m_eventSys->Connect<Event::ERequestResourceReload, &ResourceManager::OnRequestResourceReload>(this);
+        m_workingDirectory         = std::filesystem::current_path().string();
+        m_workingDirectoryReplaced = m_workingDirectory;
+        std::replace(m_workingDirectoryReplaced.begin(), m_workingDirectoryReplaced.end(), '\\', '/');
     }
 
     void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder)

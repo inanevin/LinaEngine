@@ -53,6 +53,7 @@ set (LINACOMMON_SOURCES
 	
 	#src/Utility/FileUtility.cpp
 	src/Utility/StringID.cpp
+	src/Utility/FileWatcher.cpp
 	
 	# ECS 
 	src/ECS/SystemList.cpp
@@ -147,6 +148,7 @@ set(LINACOMMON_HEADERS
 	
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
+	include/Utility/FileWatcher.hpp
 )
 
 #--------------------------------------------------------------------

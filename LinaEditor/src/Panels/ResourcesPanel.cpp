@@ -510,9 +510,13 @@ namespace Lina::Editor
                         }
                         else if (file->m_typeID == GetTypeID<Graphics::Shader>() || file->m_typeID == GetTypeID<Graphics::ShaderInclude>())
                         {
-                            auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
-                            textEditor.AddFile(file);
-                            textEditor.Open();
+                            std::string command = "python \"Resources/Editor/Scripts/open_in_subprocess.py\" --app \"" + EditorApplication::Get()->GetEditorSettings().m_textEditorPath + 
+                            "\" --filename \"" + file->m_fullPath + "\"";
+                            system(command.c_str());
+
+                            // auto& textEditor = GUILayer::Get()->GetTextEditorPanel();
+                            // textEditor.AddFile(file);
+                            // textEditor.Open();
                         }
                     }
                 }

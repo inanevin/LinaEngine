@@ -643,8 +643,8 @@ namespace Lina::Graphics
         // m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)1);
 
         // Below we process bloom post fx based on brightColor output in the shaders.
-        //bool horizontal = true;
-        //if (m_renderSettings->m_bloomEnabled)
+        // bool horizontal = true;
+        // if (m_renderSettings->m_bloomEnabled)
         //{
         //    // Write to the pingpong buffers to apply 2 pass gaussian blur.
         //    bool         firstIteration = true;
@@ -823,13 +823,9 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::DrawSkybox()
     {
-      //Matrix m = Matrix::Identity();
-      //auto       specification = m_skyboxMaterial->m_shaderHandle.m_value->GetSpecification();
-      //ModelNode* targetNode    = (specification == ShaderSpecification::Sky_Cube || specification == ShaderSpecification::Sky_HDRICube) ? m_cubeNode : m_sphereNode;
-      //m_modelNodeSystem.FlushModelNode(targetNode, m, m_skyboxDrawParams, m_skyboxMaterial);
-         Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+        Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
         UpdateShaderData(skyboxMat);
-          m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
+        m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
     }
 
     PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader* shader)
@@ -957,9 +953,10 @@ namespace Lina::Graphics
                 else
                     data->RemoveTexture(textureName);
             }
-            m_lightingSystem.SetLightingShaderData(shaderID);
-
         }
+
+        // Can be set for skyboxes too.
+        m_lightingSystem.SetLightingShaderData(shaderID);
 
         for (auto const& d : (*data).m_sampler2Ds)
         {
@@ -991,6 +988,7 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution)
     {
+        return;
         // Build projection & view matrices for capturing HDRI data.
         Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
         Matrix captureViews[]    = {Matrix::InitLookAtRH(areaLocation, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), Matrix::InitLookAtRH(areaLocation, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
@@ -1044,6 +1042,7 @@ namespace Lina::Graphics
         // m_renderDevice.SetFBO(m_gBuffer.GetID());
         // m_renderDevice.SetViewport(Vector2::Zero, m_skyboxIrradianceResolution);
         m_cameraSystem.SetProjectionMatrix(captureProjection);
+        m_renderDevice.SetFBO(m_gBuffer.GetID());
 
         // Draw the cubemap.
         for (uint32 i = 0; i < 6; ++i)
@@ -1054,7 +1053,6 @@ namespace Lina::Graphics
             // Drawing from 3rd attachment, gAlbedo
             m_renderDevice.BindTextureToRenderTarget(m_gBuffer.GetID(), m_skyboxIrradianceCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 2, i, 0, false, false);
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-            m_renderDevice.SetFBO(m_gBuffer.GetID());
             DrawSkybox();
         }
 

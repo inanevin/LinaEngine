@@ -39,9 +39,12 @@ SOFTWARE.
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
+#include "Utility/StringId.hpp"
 #include "Log/Log.hpp"
 #include "Panels/EntitiesPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Rendering/Shader.hpp"
+#include "Rendering/ShaderInclude.hpp"
 
 using namespace ECS;
 
@@ -83,6 +86,48 @@ namespace Lina::Editor
         m_editorCameraSystem.SystemActivation(true);
 
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);
+
+        const std::string editorSettingsFile = "editor.linasettings";
+        if (Utility::FileExists(editorSettingsFile))
+        {
+            m_editorSettings = Resources::LoadArchiveFromFile<EditorSettings>(editorSettingsFile);
+        }
+        else
+        {
+            Resources::SaveArchiveToFile<EditorSettings>(editorSettingsFile, m_editorSettings);
+        }
+
+        m_shaderWatcher.m_changeCallback = [](FileWatchStatus status, const std::string& path) {
+            if (status == FileWatchStatus::Modified)
+            {
+                const std::string ext = Utility::GetFileExtension(path);
+
+                if (ext.compare("glh") == 0 || ext.compare("glsl") == 0)
+                {
+                    LINA_TRACE("AQ {0}", path);
+                    bool               reload = false;
+                    const StringIDType sid    = StringID(path.c_str()).value();
+                    TypeID             tid    = 0;
+
+                    if (ext.compare("glh") == 0)
+                    {
+                        reload = true;
+                        tid    = GetTypeID<Graphics::ShaderInclude>();
+                        Resources::ResourceStorage::Get()->Unload<Graphics::ShaderInclude>(sid);
+                    }
+                    else if (ext.compare("glsl") == 0)
+                    {
+                        reload = true;
+                        tid    = GetTypeID<Graphics::Shader>();
+                        Resources::ResourceStorage::Get()->Unload<Graphics::Shader>(sid);
+                    }
+
+                    if (reload)
+                        Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{path, tid, sid});
+                }
+            }
+        };
+        m_shaderWatcher.Initialize(Resources::ResourceManager::Get()->GetRootFolder()->m_fullPath, 2, FileWatchStatus::Modified);
     }
 
     void EditorApplication::OnLevelInstalled(const Event::ELevelInstalled& ev)
