@@ -93,26 +93,26 @@ namespace Lina::Editor
             return m_title;
         }
 
-
     protected:
-        bool         m_isDocked               = false;
-        bool         m_show                   = true;
-        bool         m_collapsed              = false;
-        bool         m_maximized              = false;
-        Vector2      m_sizeBeforeMaximize     = Vector2::Zero;
-        Vector2      m_sizeBeforeCollapse     = Vector2::Zero;
-        Vector2      m_posBeforeMaximize      = Vector2::Zero;
-        bool         m_lockWindowPos          = false;
-        const char*  m_id                     = nullptr;
-        const char*  m_icon                   = nullptr;
-        std::string  m_title                  = "";
-        int          m_windowFlags            = 0;
-        bool         m_setWindowSizeNextFrame = false;
-        bool         m_setWindowPosNextFrame  = false;
-        Vector2      m_windowPosNextFrame     = Vector2::Zero;
-        Vector2      m_windowSizeNextFrame    = Vector2::Zero;
-        Vector2      m_currentWindowPos       = Vector2::Zero;
-        Vector2      m_currentWindowSize      = Vector2::Zero;
+        float       m_dpiScale               = 0.0f;
+        bool        m_isDocked               = false;
+        bool        m_show                   = true;
+        bool        m_collapsed              = false;
+        bool        m_maximized              = false;
+        Vector2     m_sizeBeforeMaximize     = Vector2::Zero;
+        Vector2     m_sizeBeforeCollapse     = Vector2::Zero;
+        Vector2     m_posBeforeMaximize      = Vector2::Zero;
+        bool        m_lockWindowPos          = false;
+        const char* m_id                     = nullptr;
+        const char* m_icon                   = nullptr;
+        std::string m_title                  = "";
+        int         m_windowFlags            = 0;
+        bool        m_setWindowSizeNextFrame = false;
+        bool        m_setWindowPosNextFrame  = false;
+        Vector2     m_windowPosNextFrame     = Vector2::Zero;
+        Vector2     m_windowSizeNextFrame    = Vector2::Zero;
+        Vector2     m_currentWindowPos       = Vector2::Zero;
+        Vector2     m_currentWindowSize      = Vector2::Zero;
     };
 } // namespace Lina::Editor
 

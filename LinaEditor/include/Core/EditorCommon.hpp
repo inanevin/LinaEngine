@@ -132,13 +132,13 @@ namespace Lina::Editor
     };
 
 #define EDITOR_CAMERA_NAME        "Editor Camera"
-#define CURSOR_X_LABELS           12 * GUILayer::Get()->m_globalScale
+#define CURSOR_X_LABELS           12 * GUILayer::Get()->GetDPIScale()
 #define CURSOR_X_VALUES           ImGui::GetWindowSize().x * 0.3f
 #define DRAG_POWER                0.01f
-#define VALUE_OFFSET_FROM_WINDOW  10 * GUILayer::Get()->m_globalScale
+#define VALUE_OFFSET_FROM_WINDOW  10 * GUILayer::Get()->GetDPIScale()
 #define COMBO_REMOVE_BUTTON_WIDTH 30
-#define HEADER_WIDGET_HEIGHT      25 * GUILayer::Get()->m_globalScale
-#define DEFAULT_TOGGLE_SIZE       ImVec2(35.0f * GUILayer::Get()->m_globalScale, 15.0f * GUILayer::Get()->m_globalScale)
+#define HEADER_WIDGET_HEIGHT      25 * GUILayer::Get()->GetDPIScale()
+#define DEFAULT_TOGGLE_SIZE       ImVec2(35.0f * GUILayer::Get()->GetDPIScale(), 15.0f * GUILayer::Get()->GetDPIScale())
 
     // GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0, 6)

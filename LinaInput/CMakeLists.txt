@@ -54,7 +54,7 @@ set(LINAINPUT_HEADERS
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
 add_library(Lina::Input ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON UNITY_BUILD_UNIQUE_ID "LinaInput")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions

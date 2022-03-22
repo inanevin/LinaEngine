@@ -3060,7 +3060,7 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::GLSL()
         langDef.mCaseSensitive   = true;
         langDef.mAutoIndentation = true;
 
-        langDef.mName = "GLSL";
+        langDef.mName = "linaglsl";
 
         inited = true;
     }

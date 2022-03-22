@@ -58,7 +58,7 @@ set(LINAENGINE_HEADERS
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Engine ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON UNITY_BUILD_UNIQUE_ID "LinaEngine")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 20)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions

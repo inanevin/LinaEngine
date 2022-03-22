@@ -87,35 +87,32 @@ namespace Lina::Editor
 
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);
 
+        // Editor settings.
         const std::string editorSettingsFile = "editor.linasettings";
         if (Utility::FileExists(editorSettingsFile))
-        {
             m_editorSettings = Resources::LoadArchiveFromFile<EditorSettings>(editorSettingsFile);
-        }
         else
-        {
             Resources::SaveArchiveToFile<EditorSettings>(editorSettingsFile, m_editorSettings);
-        }
 
+        // Shader file watcher.
         m_shaderWatcher.m_changeCallback = [](FileWatchStatus status, const std::string& path) {
             if (status == FileWatchStatus::Modified)
             {
                 const std::string ext = Utility::GetFileExtension(path);
 
-                if (ext.compare("glh") == 0 || ext.compare("glsl") == 0)
+                if (ext.compare("linaglh") == 0 || ext.compare("linaglsl") == 0)
                 {
-                    LINA_TRACE("AQ {0}", path);
                     bool               reload = false;
                     const StringIDType sid    = StringID(path.c_str()).value();
                     TypeID             tid    = 0;
 
-                    if (ext.compare("glh") == 0)
+                    if (ext.compare("linaglh") == 0)
                     {
                         reload = true;
                         tid    = GetTypeID<Graphics::ShaderInclude>();
                         Resources::ResourceStorage::Get()->Unload<Graphics::ShaderInclude>(sid);
                     }
-                    else if (ext.compare("glsl") == 0)
+                    else if (ext.compare("linaglsl") == 0)
                     {
                         reload = true;
                         tid    = GetTypeID<Graphics::Shader>();
@@ -127,7 +124,9 @@ namespace Lina::Editor
                 }
             }
         };
-        m_shaderWatcher.Initialize(Resources::ResourceManager::Get()->GetRootFolder()->m_fullPath, 2, FileWatchStatus::Modified);
+
+        m_shaderWatcher.Initialize(Resources::ResourceManager::Get()->GetRootFolder()->m_fullPath, 0.75f, FileWatchStatus::Modified);
+
     }
 
     void EditorApplication::OnLevelInstalled(const Event::ELevelInstalled& ev)

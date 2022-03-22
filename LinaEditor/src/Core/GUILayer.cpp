@@ -100,7 +100,6 @@ namespace Lina::Editor
         const int             textFontBig          = static_cast<int>(30.0f * contentScale);
         const int             textFontMedium       = static_cast<int>(22.0f * contentScale);
         const int             textFontTextEditor   = static_cast<int>(28.0f * contentScale);
-        m_globalScale                              = contentScale;
         ImGui::GetCurrentContext()->globalScale    = contentScale;
 
         // Add default font.
@@ -138,14 +137,14 @@ namespace Lina::Editor
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigWindowsMoveFromTitleBarOnly = true;
-        io.ConfigDockingTransparentPayload   = true;
+        io.ConfigDockingTransparentPayload   = false;
         ImGuiStyle& style                    = ImGui::GetStyle();
         ImVec4*     colors                   = ImGui::GetStyle().Colors;
-        style.FrameBorderSize                = 1.0f * m_globalScale;
-        style.PopupBorderSize                = 1.0f * m_globalScale;
+        style.FrameBorderSize                = 1.0f * contentScale;
+        style.PopupBorderSize                = 1.0f * contentScale;
         // style.AntiAliasedFill = false;
-        // style.WindowRounding = 0.0f;
-        style.TabRounding = 3.0f;
+        style.WindowRounding = 10.0f;
+        style.TabRounding    = 3.0f;
         // style.ChildRounding = 0.0f;
         style.PopupRounding = 3.0f;
         style.FrameRounding = 2.0f;
@@ -159,7 +158,7 @@ namespace Lina::Editor
         // style.GrabMinSize     = 6.0f;
         style.ChildBorderSize = 0.0f;
         // style.TabBorderSize = 0.0f;
-        style.WindowBorderSize         = 1.0f * m_globalScale;
+        style.WindowBorderSize         = 1.0f * contentScale;
         style.WindowMenuButtonPosition = ImGuiDir_None;
         style.ScaleAllSizes(contentScale);
 
@@ -237,7 +236,7 @@ namespace Lina::Editor
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
-            style.WindowRounding              = 0.0f;
+            style.WindowRounding              = 10.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
@@ -259,7 +258,7 @@ namespace Lina::Editor
         // Splash screen
         Graphics::WindowBackend* splashWindow = Graphics::WindowBackend::Get();
         const GLFWvidmode*       mode         = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        Vector2                  splashSize   = Vector2(720, 450) * m_globalScale;
+        Vector2                  splashSize   = Vector2(720, 450) * contentScale;
         splashWindow->SetPosCentered(Vector2((-splashSize.x / 2.0f), (-splashSize.y / 2.0f)));
         splashWindow->SetSize(splashSize);
 
@@ -322,7 +321,7 @@ namespace Lina::Editor
             ImGui::ShowDemoWindow(&s_showIMGUIDemo);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->m_globalScale);
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->GetDPIScale());
 
         m_headerPanel.Draw();
         CentralDockingSpace::Draw();
@@ -364,6 +363,11 @@ namespace Lina::Editor
         }
 
 #endif
+    }
+
+    float GUILayer::GetDPIScale()
+    {
+        return ImGui::GetWindowDpiScale();
     }
 
     void GUILayer::OnMenuBarElementClicked(const EMenuBarElementClicked& event)
@@ -529,10 +533,10 @@ namespace Lina::Editor
         const ImVec2 splashMax  = ImVec2(splashMin.x + splashSize.x, splashMin.y + splashSize.y);
 
         ImGui::GetWindowDrawList()->AddImage((void*)(splashScreenTexture->GetID()), splashMin, splashMax, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SetNextWindowPos(ImVec2(splashMin.x + 40 * m_globalScale, splashMin.y + 310 * m_globalScale));
+        ImGui::SetNextWindowPos(ImVec2(splashMin.x + 40 * GetDPIScale(), splashMin.y + 310 * GetDPIScale()));
         ImGui::SetNextWindowBgAlpha(0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-        ImGui::BeginChild("text", ImVec2(640 * m_globalScale, 90 * m_globalScale), false, ImGuiWindowFlags_NoDecoration);
+        ImGui::BeginChild("text", ImVec2(640 * GetDPIScale(), 90 * GetDPIScale()), false, ImGuiWindowFlags_NoDecoration);
         ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
         ImGui::Text(m_currentlyLoadingResource.c_str());
         std::string loadData = std::to_string(m_percentage) + "%";

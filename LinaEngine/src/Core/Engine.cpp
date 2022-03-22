@@ -319,7 +319,7 @@ namespace Lina
                 0,
                 std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
                 std::bind(Resources::DeleteResource<Graphics::ShaderInclude>, std::placeholders::_1),
-                std::vector<std::string>{"glh"}});
+                std::vector<std::string>{"linaglh"}});
 
         m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
             Resources::ResourceTypeData{
@@ -340,7 +340,7 @@ namespace Lina
                 1,
                 std::bind(Resources::CreateResource<Graphics::Shader>),
                 std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
-                std::vector<std::string>{"glsl"}, Color(255, 71, 108, 255, true)});
+                std::vector<std::string>{"linaglsl"}, Color(255, 71, 108, 255, true)});
 
         m_resourceStorage.RegisterResource<Graphics::Texture>(
             Resources::ResourceTypeData{

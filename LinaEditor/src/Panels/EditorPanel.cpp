@@ -68,11 +68,28 @@ namespace Lina::Editor
             ImGui::SetNextWindowSize(ImVec2(m_windowSizeNextFrame.x, m_windowSizeNextFrame.y));
         }
 
+        if (m_dpiScale == 0.0f)
+            m_dpiScale = ImGui::GetWindowDpiScale();
+
         ImGui::Begin(m_id, &m_show, flags);
 
         m_currentWindowPos  = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
         m_currentWindowSize = Vector2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
         m_isDocked          = ImGui::IsWindowDocked();
+
+        const float dpiNow = ImGui::GetWindowDpiScale();
+        //   LINA_TRACE("Window {0}, my dpi {1}, dpi now {2}", m_id, m_dpiScale, dpiNow);
+        if (m_dpiScale != dpiNow)
+        {
+            LINA_TRACE("DPI CHANGED NOW, my dpi {0}, dpi now {1}", m_dpiScale, dpiNow);
+            // ImGui::GetStyle().ScaleAllSizes(dpiNow / m_dpiScale);
+            m_dpiScale = dpiNow;
+            ImGui::SetWindowFontScale(dpiNow / m_dpiScale);
+          //  m_setWindowSizeNextFrame = true;
+         //   m_windowSizeNextFrame = m_currentWindowSize;
+            //if (ImGui::GetPlatformIO().Platform_SetWindowSize)
+            //    ImGui::GetPlatformIO().Platform_SetWindowSize(ImGui::GetWindowViewport(), ImVec2(m_currentWindowSize.x, m_currentWindowSize.y));
+        }
 
         if (!CanDrawContent())
         {
@@ -105,7 +122,7 @@ namespace Lina::Editor
             m_windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
             ImVec2 size           = ImGui::GetWindowSize();
             m_sizeBeforeCollapse  = Vector2(size.x, size.y);
-            m_windowSizeNextFrame = Vector2(size.x, 30.0f * GUILayer::Get()->m_globalScale);
+            m_windowSizeNextFrame = Vector2(size.x, 30.0f * GUILayer::Get()->GetDPIScale());
         }
         else
         {

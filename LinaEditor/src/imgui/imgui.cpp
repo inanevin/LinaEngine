@@ -7255,7 +7255,10 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         // - Begin() clipping whole child
         const ImRect host_rect      = ((flags & ImGuiWindowFlags_ChildWindow) && !(flags & ImGuiWindowFlags_Popup) && !window_is_child_tooltip) ? parent_window->ClipRect : viewport_rect;
         const ImRect outer_rect     = window->Rect();
+        const int    fpyNow         = GetStyle().FramePadding.y;
+        GetStyle().FramePadding.y = 5;
         const ImRect title_bar_rect = window->TitleBarRect();
+        GetStyle().FramePadding.y   = fpyNow;
         window->OuterRectClipped    = outer_rect;
         if (window->DockIsActive)
             window->OuterRectClipped.Min.y += window->TitleBarHeight();

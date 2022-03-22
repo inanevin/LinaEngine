@@ -96,6 +96,7 @@ namespace Lina::Editor
         void Initialize();
         void OnShutdown(const Event::EShutdown& ev);
         void OnPostRender(const Event::EPostRender&);
+        float GetDPIScale();
 
         inline ImFont* GetDefaultFont()
         {
@@ -161,7 +162,6 @@ namespace Lina::Editor
 
         float                               m_headerSize = 0.0f;
         float                               m_footerSize = 20.0f;
-        float                               m_globalScale = 1.0f;
         std::map<const char*, const char*>  m_windowIconMap;
         std::map<const char*, EditorPanel*> m_editorPanels;
 

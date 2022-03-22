@@ -281,7 +281,7 @@ namespace Lina::Editor
                 const ImGuiTabBarFlags flags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs;
                 ImGui::SetCursorPosX(CURSOR_X_LABELS);
                 const ImVec2 currentCursor = ImGui::GetCursorPos();
-                const ImVec2 textFieldSize = ImVec2(m_currentWindowSize.x - CURSOR_X_LABELS * 2.0f, m_currentWindowSize.y - currentCursor.y - 50.0f * GUILayer::Get()->m_globalScale);
+                const ImVec2 textFieldSize = ImVec2(m_currentWindowSize.x - CURSOR_X_LABELS * 2.0f, m_currentWindowSize.y - currentCursor.y - 50.0f * GUILayer::Get()->GetDPIScale());
 
                 WidgetsUtility::PushPopupStyle();
 
@@ -338,7 +338,7 @@ namespace Lina::Editor
 
                 WidgetsUtility::PopPopupStyle();
 
-                WidgetsUtility::IncrementCursorPosY(24.0f * GUILayer::Get()->m_globalScale);
+                WidgetsUtility::IncrementCursorPosY(24.0f * GUILayer::Get()->GetDPIScale());
 
                 // Control font scale.
                 if (Input::InputEngineBackend::Get()->GetKey(LINA_KEY_LCTRL))
@@ -428,13 +428,13 @@ namespace Lina::Editor
         TypeID             tid    = 0;
         bool               reload = false;
 
-        if (m_currentFile->m_extension.compare("glh") == 0)
+        if (m_currentFile->m_extension.compare("linaglh") == 0)
         {
             reload = true;
             tid    = GetTypeID<Graphics::ShaderInclude>();
             Resources::ResourceStorage::Get()->Unload<Graphics::ShaderInclude>(sid);
         }
-        else if (m_currentFile->m_extension.compare("glsl") == 0)
+        else if (m_currentFile->m_extension.compare("linaglsl") == 0)
         {
             reload = true;
             tid    = GetTypeID<Graphics::Shader>();

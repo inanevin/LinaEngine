@@ -201,7 +201,7 @@ namespace Lina::Editor
                 if (ImGui::BeginTable("entitiesTable", 2, flags))
                 {
                     ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
-                    ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40 * GUILayer::Get()->m_globalScale);
+                    ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed, 40 * GUILayer::Get()->GetDPIScale());
                     ImGui::TableHeadersRow();
 
                     auto singleView = ECS::Registry::Get()->view<ECS::EntityDataComponent>();

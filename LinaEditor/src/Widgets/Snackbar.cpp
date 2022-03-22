@@ -63,7 +63,7 @@ namespace Lina::Editor
         ratio       = Math::Clamp(ratio, 0.0f, 1.0f);
         auto*         appWindow = Graphics::WindowBackend::Get();
         const Vector2 windowPos = appWindow->GetPos();
-        const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20 * GUILayer::Get()->m_globalScale)), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
+        const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20 * GUILayer::Get()->GetDPIScale())), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
         const ImVec2  max       = ImVec2(min.x + size.x, min.y + size.y);
 
 
@@ -93,13 +93,13 @@ namespace Lina::Editor
         // Icon text.
         float textHeight = ImGui::CalcTextSize(m_currentText.c_str()).y;
         WidgetsUtility::PushIconFontDefault();
-        ImGui::GetForegroundDrawList()->AddText(ImVec2(min.x + 20 * GUILayer::Get()->m_globalScale, min.y + size.y / 2.0f - textHeight / 2.0f), ImGui::ColorConvertFloat4ToU32(borderCol), icon);
+        ImGui::GetForegroundDrawList()->AddText(ImVec2(min.x + 20 * GUILayer::Get()->GetDPIScale(), min.y + size.y / 2.0f - textHeight / 2.0f), ImGui::ColorConvertFloat4ToU32(borderCol), icon);
         ImGui::PopFont();
 
         // Info text.
         ImGui::PushFont(GUILayer::Get()->GetMediumFont());
         textHeight = ImGui::CalcTextSize(m_currentText.c_str()).y;
-        ImGui::GetForegroundDrawList()->AddText(ImVec2(min.x + 50 * GUILayer::Get()->m_globalScale, min.y + size.y / 2.0f - textHeight / 2.0f), ImGui::ColorConvertFloat4ToU32(textColor), m_currentText.c_str());
+        ImGui::GetForegroundDrawList()->AddText(ImVec2(min.x + 50 * GUILayer::Get()->GetDPIScale(), min.y + size.y / 2.0f - textHeight / 2.0f), ImGui::ColorConvertFloat4ToU32(textColor), m_currentText.c_str());
         ImGui::PopFont();
         ImGui::End();
         ImGui::PopStyleVar();
@@ -112,8 +112,8 @@ namespace Lina::Editor
         m_currentLogLevel = level;
         Event::EventSystem::Get()->Connect<EGUILayerRender, &Tick>();
         ImGui::PushFont(GUILayer::Get()->GetMediumFont());
-        size.x = ImGui::CalcTextSize(text.c_str()).x + 80 * GUILayer::Get()->m_globalScale;
-        size.y = 50 * GUILayer::Get()->m_globalScale;
+        size.x = ImGui::CalcTextSize(text.c_str()).x + 80 * GUILayer::Get()->GetDPIScale();
+        size.y = 50 * GUILayer::Get()->GetDPIScale();
         ImGui::PopFont();
     }
 } // namespace Lina::Editor

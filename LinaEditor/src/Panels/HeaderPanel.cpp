@@ -281,7 +281,7 @@ namespace Lina::Editor
             ImGuiViewport* viewport = ImGui::GetMainViewport();
 
             ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
-            ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60 * GUILayer::Get()->m_globalScale));
+            ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, 60 * GUILayer::Get()->GetDPIScale()));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 8.0f));
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
@@ -315,7 +315,7 @@ namespace Lina::Editor
                 const ImVec2             windowSize = ImVec2((float)appWindow->GetSize().x, (float)appWindow->GetSize().y);
 
                 // Add a poly background for the logo.
-                const ImVec2 logoBounds = ImVec2(500 * GUILayer::Get()->m_globalScale, 36.0f* GUILayer::Get()->m_globalScale);
+                const ImVec2 logoBounds = ImVec2(500 * GUILayer::Get()->GetDPIScale(), 36.0f* GUILayer::Get()->GetDPIScale());
                 const ImVec2 logoPos    = ImVec2(windowPos.x + windowSize.x / 2.0f - logoBounds.x / 2.0f, windowPos.y);
 
                 ImVec2 points[5] = {
@@ -330,7 +330,7 @@ namespace Lina::Editor
                 ImGui::GetWindowDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
 
                 // Add animated logo.
-                const ImVec2     logoSize = ImVec2(184 * GUILayer::Get()->m_globalScale, 22 * GUILayer::Get()->m_globalScale);
+                const ImVec2     logoSize = ImVec2(184 * GUILayer::Get()->GetDPIScale(), 22 * GUILayer::Get()->GetDPIScale());
                 const ImVec2 logoMin = ImVec2(windowPos.x + viewport->WorkSize.x / 2.0f - logoSize.x / 2.0f, windowPos.y + logoBounds.y / 2.0f - logoSize.y / 2.0f);
                 const ImVec2 logoMax = ImVec2(logoMin.x + logoSize.x, logoMin.y + logoSize.y);
                 ImGui::GetWindowDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));

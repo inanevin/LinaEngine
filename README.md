@@ -12,8 +12,8 @@ Lina Engine is a lightweight and ECS based open-source game engine. Initially it
 
 [Visit the project page on my website for more information](https://www.inanevin.com/gameprojects/linaengine)
 
+![Lina](Docs/Images/lina_ss.png)
 ![Lina](Docs/Images/linass1.png)
-![Lina](Docs/Images/linass2.png)
 
 ## Announcements / Notes
 
@@ -23,9 +23,17 @@ Lina Engine is a lightweight and ECS based open-source game engine. Initially it
 
 ## Lina Engine Tools
 
+- [Lina Header Tool](https://github.com/inanevin/LinaHeaderTool) (Serialization Tool for Lina Editor)
+- [Lina Engine VSCode Extension](https://github.com/inanevin/Lina-Engine-Shader-Highlighting-VS-Code) (GLSL Highlighting & Lina Keywords) 
 - [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher) (deprecated)
 
+## Requirements
+
+- [Python](https://www.python.org/downloads/) (You need to have "python" on your path for editor scripts.)
+
 ## External Dependencies
+
+These dependencies are included as pre-built binaries in Lina Engine source code.
 
 -  [assimp](https://github.com/assimp/assimp)
 -  [alut](http://distro.ibiblio.org/rootlinux/rootlinux-ports/more/freealut/freealut-1.1.0/doc/alut.html)
@@ -136,12 +144,7 @@ cmake --build . --target ALL_BUILD
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
 Check out [Licence](LICENSE) file.
 
-## Design Diagrams
-
-### System Architecture
-![Diagram 1](Docs/Images/SCS.png?raw=true "Title")
-
-### Design Document
+### Design Document (2018 - Mostly Deprecated)
 
 [Link to the Software Design Document of Lina Engine (PDF)](https://www.inanevin.com/docs/lina_sdd.pdf)
 

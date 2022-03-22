@@ -52,7 +52,6 @@ SOFTWARE.
 #include "Utility/ModelLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Resources/ResourceStorage.hpp"
-#include "..\..\..\..\include\Core\Backend\OpenGL\OpenGLRenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -179,17 +178,17 @@ namespace Lina::Graphics
             Shader*           shader = storage->GetResource<Shader>(shaderResource.first);
             const std::string path   = shader->GetPath();
 
-            if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.glsl") == 0)
+            if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.linaglsl") == 0)
                 m_standardUnlitShader = shader;
-            else if (path.compare("Resources/Engine/Shaders/PBR/Lit.glsl") == 0)
+            else if (path.compare("Resources/Engine/Shaders/PBR/Lit.linaglsl") == 0)
                 m_standardLitShader = shader;
-            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.glsl") == 0)
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIEquirectangular.linaglsl") == 0)
                 m_hdriEquirectangularShader = shader;
-            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.glsl") == 0)
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIIrradiance.linaglsl") == 0)
                 m_hdriIrradianceShader = shader;
-            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.glsl") == 0)
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIPrefilter.linaglsl") == 0)
                 m_hdriPrefilterShader = shader;
-            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.glsl") == 0)
+            else if (path.compare("Resources/Engine/Shaders/HDRI/HDRIBRDF.linaglsl") == 0)
                 m_hdriBRDFShader = shader;
 
             shader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -224,11 +223,11 @@ namespace Lina::Graphics
     void OpenGLRenderEngine::ConstructEngineMaterials()
     {
         // Keep here in-case we need to programatically re-create engine materials.
-        // m_defaultLit = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/Lit.glsl"), "Resources/Engine/Materials/DefaultLit.linamat");
-        // m_defaultUnlit      = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Unlit/Unlit.glsl"), "Resources/Engine/Materials/DefaultUnlit.linamat");
-        // m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.glsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
-        // m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.glsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
-        // m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.glsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
+        // m_defaultLit = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/Lit.linaglsl"), "Resources/Engine/Materials/DefaultLit.linamat");
+        // m_defaultUnlit      = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Unlit/Unlit.linaglsl"), "Resources/Engine/Materials/DefaultUnlit.linamat");
+        // m_defaultSkybox     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxAtmospheric.linaglsl"), "Resources/Engine/Materials/DefaultSkybox.linamat");
+        // m_defaultSprite     = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/2D/Sprite.linaglsl"), "Resources/Engine/Materials/DefaultSprite.linamat");
+        // m_defaultSkyboxHDRI = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Skybox/SkyboxHDRI.linaglsl"), "Resources/Engine/Materials/DefaultSkyboxHDRI.linamat");
 
         m_defaultLit        = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultLit.linamat");
         m_defaultUnlit      = m_storage->GetResource<Material>("Resources/Engine/Materials/DefaultUnlit.linamat");
@@ -242,14 +241,14 @@ namespace Lina::Graphics
         CaptureCalculateHDRI(*text);
         m_defaultSkyboxHDRI->SetTexture(MAT_MAP_ENVIRONMENT, &m_hdriCubemap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
-        m_gBufferLightPassMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQLightPass.glsl"));
-        m_screenQuadFinalMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQFinal.glsl"));
-        m_screenQuadBlurMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQBlur.glsl"));
+        m_gBufferLightPassMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQLightPass.linaglsl"));
+        m_screenQuadFinalMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQFinal.linaglsl"));
+        m_screenQuadBlurMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQBlur.linaglsl"));
         m_hdriMaterial.SetShader(m_hdriEquirectangularShader);
-        m_debugLineMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Debug/DebugLine.glsl"));
-        m_debugIconMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Debug/DebugIcon.glsl"));
-        m_shadowMapMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.glsl"));
-        m_pLightShadowDepthMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/PointShadowsDepth.glsl"));
+        m_debugLineMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Debug/DebugLine.linaglsl"));
+        m_debugIconMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/Debug/DebugIcon.linaglsl"));
+        m_shadowMapMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/ScreenQuads/SQShadowMap.linaglsl"));
+        m_pLightShadowDepthMaterial.SetShader(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/PointShadowsDepth.linaglsl"));
         UpdateRenderSettings();
     }
 

@@ -76,7 +76,7 @@ namespace Lina::Editor
 
         WidgetsUtility::IncrementCursorPosY(6);
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
-        if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneWidth - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->m_globalScale)))
+        if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneWidth - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->GetDPIScale())))
         {
             Resources::SaveArchiveToFile(assetData->GetPath(), *assetData);
             const std::string  path = model->GetPath();

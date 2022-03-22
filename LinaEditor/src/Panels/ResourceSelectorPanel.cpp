@@ -61,7 +61,7 @@ namespace Lina::Editor
             if (m_firstLaunch)
             {
                 m_firstLaunch            = false;
-                const ImVec2  size       = ImVec2(400 * GUILayer::Get()->m_globalScale, 600 * GUILayer::Get()->m_globalScale);
+                const ImVec2  size       = ImVec2(400 * GUILayer::Get()->GetDPIScale(), 600 * GUILayer::Get()->GetDPIScale());
                 const Vector2 windowPos  = m_window->GetPos();
                 const Vector2 windowSize = m_window->GetWorkSize();
                 const ImVec2  pos        = ImVec2(windowPos.x - size.x / 2.0f + windowSize.x / 2.0f, windowPos.y - size.y / 2.0f + windowSize.y / 2.0f);
@@ -100,7 +100,7 @@ namespace Lina::Editor
         // Search bar.
         InputTextCallback_UserData cb_user_data;
         cb_user_data.Str        = &m_searchFilter;
-        const float filterWidth = 200.0f * GUILayer::Get()->m_globalScale;
+        const float filterWidth = 200.0f * GUILayer::Get()->GetDPIScale();
 
         ImGui::PushItemWidth(-paddingX);
         ImGui::InputTextWithHint("##resourceSelector_folderFilter", "search...", (char*)m_searchFilter.c_str(), m_searchFilter.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
@@ -112,7 +112,7 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        ImGui::BeginChild("resourceSelector_bottom", ImVec2(-paddingX, -60 * GUILayer::Get()->m_globalScale), true);
+        ImGui::BeginChild("resourceSelector_bottom", ImVec2(-paddingX, -60 * GUILayer::Get()->GetDPIScale()), true);
 
         DrawFilesInFolder(m_root);
 
@@ -160,7 +160,7 @@ namespace Lina::Editor
                     uint32       textureID   = EditorApplication::Get()->GetSnapshotTexture(file->m_sid);
                     uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
                     const ImVec2 imageMin    = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-                    const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->m_globalScale, imageMin.y + 128 * GUILayer::Get()->m_globalScale);
+                    const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->GetDPIScale(), imageMin.y + 128 * GUILayer::Get()->GetDPIScale());
                     ImGui::GetForegroundDrawList()->AddImage((void*)bgTextureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::GetForegroundDrawList()->AddImage((void*)textureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::GetForegroundDrawList()->AddRect(imageMin, imageMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)), 0.0f, ImDrawFlags_None, 1.5f);
@@ -170,7 +170,7 @@ namespace Lina::Editor
                     uint32       textureID   = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(file->m_sid)->GetID();
                     uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
                     const ImVec2 imageMin    = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-                    const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->m_globalScale, imageMin.y + 128 * GUILayer::Get()->m_globalScale);
+                    const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->GetDPIScale(), imageMin.y + 128 * GUILayer::Get()->GetDPIScale());
                     ImGui::GetForegroundDrawList()->AddImage((void*)bgTextureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::GetForegroundDrawList()->AddImage((void*)textureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::GetForegroundDrawList()->AddRect(imageMin, imageMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)), 0.0f, ImDrawFlags_None, 1.5f);
