@@ -6583,24 +6583,12 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
             RenderWindowOuterBorders(window);
     }
 }
-#include "Widgets/WidgetsUtility.hpp"
-#include "Core/GUILayer.hpp"
 
 // Render title text, collapse button, close button
 // When inside a dock node, this is handled in DockNodeCalcTabBarLayout() instead.
 void ImGui::RenderWindowTitleBarContents(ImGuiWindow* window, const ImRect& title_bar_rect, const char* name, bool* p_open)
 {
-    if (p_open == NULL || *p_open)
-    {
-        auto& editorPanels = Lina::Editor::GUILayer::Get()->m_editorPanels;
 
-        if (editorPanels.find(name) != editorPanels.end())
-        {
-            Lina::Editor::WidgetsUtility::WindowTitlebar(name);
-        }
-    }
-
-    return;
     ImGuiContext&    g     = *GImGui;
     ImGuiStyle&      style = g.Style;
     ImGuiWindowFlags flags = window->Flags;

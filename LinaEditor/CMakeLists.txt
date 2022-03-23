@@ -68,39 +68,9 @@ src/Widgets/WidgetsUtility.cpp
 src/Widgets/ToolbarItem.cpp
 src/Widgets/Snackbar.cpp
 
-# ImGui
-src/imgui/imgui_impl_opengl3.cpp
-src/imgui/imgui_impl_glfw.cpp
-src/imgui/imgui.cpp
-src/imgui/imgui_demo.cpp
-src/imgui/imgui_draw.cpp
-src/imgui/imgui_widgets.cpp
-src/imgui/imgui_tables.cpp
-src/imgui/imguizmo/ImCurveEdit.cpp
-src/imgui/imguizmo/ImGradient.cpp
-src/imgui/imguizmo/ImGuizmo.cpp
-src/imgui/imguizmo/ImSequencer.cpp
-src/imgui/implot/implot_demo.cpp
-src/imgui/implot/implot.cpp
-src/imgui/implot/implot_items.cpp
-src/imgui/imguicolortextedit/TextEditor.cpp
-
 )
 
-set_source_files_properties( src/imgui/imgui_impl_opengl3.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_impl_glfw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_draw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_widgets.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_tables.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImCurveEdit.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImGradient.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImGuizmo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImSequencer.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot_items.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
+
 
 set(LINAEDITOR_HEADERS
 
@@ -151,25 +121,6 @@ include/Widgets/MenuButton.hpp
 include/Widgets/WidgetsUtility.hpp
 include/Widgets/ToolbarItem.hpp
 include/Widgets/Snackbar.hpp
-
-# ImGui
-include/imgui/dirent.h
-include/imgui/imconfig.h
-include/imgui/imgui.h
-include/imgui/imgui_impl_glfw.h
-include/imgui/imgui_impl_opengl3.h
-include/imgui/imgui_impl_opengl3_loader.h
-include/imgui/imgui_internal.h
-include/imgui/imstb_rectpack.h
-include/imgui/imstb_textedit.h
-include/imgui/imstb_truetype.h
-include/imgui/imguizmo/ImCurveEdit.h
-include/imgui/imguizmo/ImGradient.h
-include/imgui/imguizmo/ImGuizmo.h
-include/imgui/imguizmo/ImSequencer.h
-include/imgui/implot/implot.h
-include/imgui/implot/implot_internal.h
-include/imgui/imguicolortextedit/TextEditor.h
 
 CMakeLists.txt
 

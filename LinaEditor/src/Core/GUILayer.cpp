@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/GUICommon.hpp"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -67,6 +68,12 @@ SOFTWARE.
 
 static bool        s_showIMGUIDemo;
 Graphics::Texture* splashScreenTexture;
+
+#include "Layout/Container.hpp"
+
+GUI::BaseGUIElement baseElement;
+GUI::Container      container1;
+GUI::Container      container2;
 
 namespace Lina::Editor
 {
@@ -291,6 +298,27 @@ namespace Lina::Editor
 
         m_textEditorPanel.Close();
         m_previewPanel.Close();
+
+        baseElement.AddChild(&container1);
+        container1.AddChild(&container2);
+
+        baseElement.m_size           = Vector2(appInfo.m_windowProperties.m_workingAreaWidth, appInfo.m_windowProperties.m_workingAreaHeight);
+        container2.m_position        = Vector2(0.5f, 0.5f);
+        container1.m_size            = Vector2(0.5f, 0.5f);
+        container2.m_size            = Vector2(0.5f, 0.5f);
+        container1.m_backgroundColor = Color::Green;
+        container2.m_backgroundColor = Color::Blue;
+        container2.m_borderStyle = GUI::BorderStyle::Simple;
+        container1.m_backgroundStyle = GUI::BackgroundStyle::GradientHorizontal;
+        container2.m_borderThickness = 3.0f;
+        container1.m_borderStyle = GUI::BorderStyle::Simple;
+        container1.m_borderThickness = 10;
+        container1.m_backgroundColor2 = Color::Purple;
+        container1.m_rounding = 2.0f;
+        container1.m_isDraggable = true;
+        container2.m_rounding = 4.0f;
+        container2.m_isDraggable = true;
+        container2.m_dragStyle = GUI::DragStyle::ConfinedInParent;
     }
 
     void GUILayer::OnShutdown(const Event::EShutdown& ev)
@@ -323,29 +351,47 @@ namespace Lina::Editor
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->GetDPIScale());
 
-        m_headerPanel.Draw();
-        CentralDockingSpace::Draw();
-        m_resourcesPanel.Draw();
-        m_entitiesPanel.Draw();
-        m_systemsPanel.Draw();
-        m_levelPanel.Draw();
-        m_logPanel.Draw();
-        m_profilerPanel.Draw();
-        m_propertiesPanel.Draw();
-        m_globalSettingsPanel.Draw();
-        m_toolbar.DrawFooter();
-        m_resourceSelectorPanel.Draw();
-        m_textEditorPanel.Draw();
+       // m_headerPanel.Draw();
+       // CentralDockingSpace::Draw();
+       // m_resourcesPanel.Draw();
+       // m_entitiesPanel.Draw();
+       // m_systemsPanel.Draw();
+       // m_levelPanel.Draw();
+       // m_logPanel.Draw();
+       // m_profilerPanel.Draw();
+       // m_propertiesPanel.Draw();
+       // m_globalSettingsPanel.Draw();
+       // m_toolbar.DrawFooter();
+       // m_resourceSelectorPanel.Draw();
+       // m_textEditorPanel.Draw();
 
-        if (m_shouldDrawProgressPanel)
-        {
-            m_shouldDrawProgressPanel = false;
-            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
-        }
-        // Should be drawn last.
-        m_previewPanel.Draw();
+        //if (m_shouldDrawProgressPanel)
+        //{
+        //    m_shouldDrawProgressPanel = false;
+        //    m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
+        //}
+        //// Should be drawn last.
+        //m_previewPanel.Draw();
 
         Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
+        Event::EventSystem::Get()->Trigger<Event::EGUIRender>(Event::EGUIRender());
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.5f, 0.2f, 0.2f, 1.0f);
+        ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
+        ImGui::SetNextWindowPos(ImVec2(0,0));
+        ImGui::Begin("Main", NULL, ImGuiWindowFlags_NoDecoration);
+
+       // baseElement.CalculateBounds();
+       // baseElement.Render();
+       // baseElement.CalculateFocus();
+
+        const ImVec2 min = ImVec2(-0,0);
+        const ImVec2 max = ImVec2(1920,12);
+        ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0,0,0,1)));
+        ImGui::End();
+
+        ImGui::Begin("Sa", NULL);
+
+        ImGui::End();
 
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();

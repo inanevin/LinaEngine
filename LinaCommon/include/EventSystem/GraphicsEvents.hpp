@@ -54,6 +54,9 @@ namespace Lina::Event
     struct EPostRender
     {
     };
+    struct EGUIRender
+    {
+    };
     struct ECustomRender
     {
     };
