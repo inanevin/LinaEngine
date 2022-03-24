@@ -39,10 +39,10 @@ namespace Lina
 
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
-           // Engine::Get()->StartLoadingResources();
+           Engine::Get()->StartLoadingResources();
 
-            m_editor = new Editor::EditorApplication();
-            m_editor->Initialize();
+            // m_editor = new Editor::EditorApplication();
+            // m_editor->Initialize();
            
             // Update props.
            auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();

@@ -53,7 +53,6 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Core/GUICommon.hpp"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -68,12 +67,6 @@ SOFTWARE.
 
 static bool        s_showIMGUIDemo;
 Graphics::Texture* splashScreenTexture;
-
-#include "Layout/Container.hpp"
-
-GUI::BaseGUIElement baseElement;
-GUI::Container      container1;
-GUI::Container      container2;
 
 namespace Lina::Editor
 {
@@ -301,26 +294,6 @@ namespace Lina::Editor
         m_textEditorPanel.Close();
         m_previewPanel.Close();
 
-        baseElement.AddChild(&container1);
-        // container1.AddChild(&container2);
-
-        baseElement.m_size            = Vector2(appInfo.m_windowProperties.m_workingAreaWidth, appInfo.m_windowProperties.m_workingAreaHeight);
-        container2.m_position         = Vector2(0.5f, 0.5f);
-        container1.m_size             = Vector2(0.5f, 0.5f);
-        container2.m_size             = Vector2(0.5f, 0.5f);
-        container1.m_backgroundColor  = Color::Green;
-        container2.m_backgroundColor  = Color::Blue;
-        container2.m_borderStyle      = GUI::BorderStyle::Simple;
-        container1.m_backgroundStyle  = GUI::BackgroundStyle::GradientHorizontal;
-        container2.m_borderThickness  = 3.0f;
-        container1.m_borderStyle      = GUI::BorderStyle::Simple;
-        container1.m_borderThickness  = 10;
-        container1.m_backgroundColor2 = Color::Purple;
-        container1.m_rounding         = 2.0f;
-        container1.m_isDraggable      = true;
-        container2.m_rounding         = 4.0f;
-        container2.m_isDraggable      = true;
-        container2.m_dragStyle        = GUI::DragStyle::ConfinedInParent;
 
         for (auto& monitor : ImGui::GetPlatformIO().Monitors)
         {
@@ -392,13 +365,6 @@ namespace Lina::Editor
 
          ImGui::SetNextWindowPos(ImVec2(0,0));
          ImGui::SetNextWindowSize(ImVec2(2000, 2000));
-         ImGui::Begin("SA", NULL, ImGuiWindowFlags_NoDecoration);
-
-         baseElement.CalculateBounds();
-         baseElement.Render();
-         baseElement.CalculateFocus();
-
-         ImGui::End();
 
         if (m_shouldDrawProgressPanel)
        {
