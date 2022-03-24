@@ -88,7 +88,7 @@ namespace Lina::Graphics
 
         m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), m_windowProperties.m_fullscreen ? primaryMonitor : NULL, NULL));
         glfwGetMonitorContentScale(primaryMonitor, &(m_windowProperties.m_contentScaleWidth), &(m_windowProperties.m_contentScaleHeight));
-        
+
         if (!m_glfwWindow)
         {
             // Assert window creation.

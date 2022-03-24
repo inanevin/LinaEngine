@@ -93,9 +93,9 @@ namespace Lina::Editor
             return s_guiLayer;
         }
 
-        void Initialize();
-        void OnShutdown(const Event::EShutdown& ev);
-        void OnPostRender(const Event::EPostRender&);
+        void  Initialize();
+        void  OnShutdown(const Event::EShutdown& ev);
+        void  OnPostRender(const Event::EPostRender&);
         float GetDPIScale();
 
         inline ImFont* GetDefaultFont()
@@ -204,6 +204,10 @@ namespace Lina::Editor
         float                       m_percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;
         bool                        m_shouldDrawProgressPanel  = false;
+        Vector2                     m_minMonitorPos            = Vector2::Zero;
+        Vector2                     m_maxMonitorPos            = Vector2::Zero;
+        Vector2                     m_minMonitorWorkArea       = Vector2::Zero;
+        Vector2                     m_maxMonitorWorkArea       = Vector2::Zero;
     };
 } // namespace Lina::Editor
 

@@ -62,6 +62,12 @@ namespace Lina::Resources
             TypeID            tid       = storage->GetTypeIDFromExtension(extension);
             StringIDType      sid       = StringID(entry.m_path.c_str()).value();
 
+            if (extension.compare("ttf") == 0 || extension.compare("py") == 0 || extension.compare("linagui") == 0 || extension.compare("linalevel") == 0 || extension.compare("txt") == 0) 
+            {
+                m_memoryResources.pop();
+                continue;
+            }
+
             if (m_lastResourcePriority != entry.m_priority)
             {
                 m_lastResourcePriority = entry.m_priority;

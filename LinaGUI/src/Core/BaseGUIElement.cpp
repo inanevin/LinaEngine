@@ -74,12 +74,8 @@ namespace Lina::GUI
     bool BaseGUIElement::IsMouseHovering()
     {
         const Vector2 mousePos = Input::InputEngine::Get()->GetMousePosition();
-        const Vector2 absPos   = GetAbsPosition();
-        const Vector2 absSize  = GetAbsSize();
-           
-        if (mousePos.x > absPos.x && mousePos.x < absPos.x + absSize.x && mousePos.y > absPos.y && mousePos.y < absPos.y + absSize.y)
+        if (mousePos.x > m_min.x && mousePos.x < m_min.x + m_sizeAbs.x && mousePos.y > m_min.y && mousePos.y < m_min.y + m_sizeAbs.y)
             return true;
-
         return false;
     }
 
@@ -151,7 +147,23 @@ namespace Lina::GUI
 
     void BaseGUIElement::CalculateMouseDrag()
     {
+        if (Input::InputEngine::Get()->GetMouseButtonDown(0))
+            LINA_TRACE("MBD {0} {1}", m_isDraggable, m_isFocused);
 
+            if (m_isDraggable)
+        {
+                LINA_TRACE("ya");
+        }
+
+        if (m_isFocused)
+        {
+            LINA_TRACE("jaaa");
+        }
+
+        if (Input::InputEngine::Get()->GetMouseButtonDown(0) || Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
+        {
+            LINA_TRACE("uuuuuuu");
+        }
         if (m_isDraggable && m_isFocused && Input::InputEngine::Get()->GetMouseButtonDown(0))
         {
             const Vector2 mousePos = Input::InputEngine::Get()->GetMousePosition();

@@ -163,9 +163,9 @@ namespace Lina::ECS
     {
         if (ev.m_playMode)
         {
-
+            auto* reg = ECS::Registry::Get();
             // Iterate through the cameras in the scene and select the active one.
-            auto& view = ECS::Registry::Get()->view<ECS::CameraComponent>();
+            auto& view = reg->view<ECS::CameraComponent>();
 
             for (auto entity : view)
             {

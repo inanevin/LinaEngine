@@ -139,16 +139,18 @@ namespace Lina::Editor
         m_defaultFont    = io.FontDefault;
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
-
         // Setup configuration flags.
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigWindowsMoveFromTitleBarOnly = true;
-        io.ConfigDockingTransparentPayload   = false;
-        ImGuiStyle& style                    = ImGui::GetStyle();
-        ImVec4*     colors                   = ImGui::GetStyle().Colors;
-        style.FrameBorderSize                = 1.0f * contentScale;
-        style.PopupBorderSize                = 1.0f * contentScale;
+       io.ConfigViewportsNoTaskBarIcon = true;
+       // io.ConfigViewportsNoDefaultParent = true;
+       // io.ConfigViewportsNoAutoMerge = true;
+       // io.ConfigWindowsMoveFromTitleBarOnly = true;
+       // io.ConfigDockingTransparentPayload = false;
+        ImGuiStyle& style                  = ImGui::GetStyle();
+        ImVec4*     colors                 = ImGui::GetStyle().Colors;
+        style.FrameBorderSize              = 1.0f * contentScale;
+        style.PopupBorderSize              = 1.0f * contentScale;
         // style.AntiAliasedFill = false;
         style.WindowRounding = 10.0f;
         style.TabRounding    = 3.0f;
@@ -300,25 +302,48 @@ namespace Lina::Editor
         m_previewPanel.Close();
 
         baseElement.AddChild(&container1);
-        container1.AddChild(&container2);
+        // container1.AddChild(&container2);
 
-        baseElement.m_size           = Vector2(appInfo.m_windowProperties.m_workingAreaWidth, appInfo.m_windowProperties.m_workingAreaHeight);
-        container2.m_position        = Vector2(0.5f, 0.5f);
-        container1.m_size            = Vector2(0.5f, 0.5f);
-        container2.m_size            = Vector2(0.5f, 0.5f);
-        container1.m_backgroundColor = Color::Green;
-        container2.m_backgroundColor = Color::Blue;
-        container2.m_borderStyle = GUI::BorderStyle::Simple;
-        container1.m_backgroundStyle = GUI::BackgroundStyle::GradientHorizontal;
-        container2.m_borderThickness = 3.0f;
-        container1.m_borderStyle = GUI::BorderStyle::Simple;
-        container1.m_borderThickness = 10;
+        baseElement.m_size            = Vector2(appInfo.m_windowProperties.m_workingAreaWidth, appInfo.m_windowProperties.m_workingAreaHeight);
+        container2.m_position         = Vector2(0.5f, 0.5f);
+        container1.m_size             = Vector2(0.5f, 0.5f);
+        container2.m_size             = Vector2(0.5f, 0.5f);
+        container1.m_backgroundColor  = Color::Green;
+        container2.m_backgroundColor  = Color::Blue;
+        container2.m_borderStyle      = GUI::BorderStyle::Simple;
+        container1.m_backgroundStyle  = GUI::BackgroundStyle::GradientHorizontal;
+        container2.m_borderThickness  = 3.0f;
+        container1.m_borderStyle      = GUI::BorderStyle::Simple;
+        container1.m_borderThickness  = 10;
         container1.m_backgroundColor2 = Color::Purple;
-        container1.m_rounding = 2.0f;
-        container1.m_isDraggable = true;
-        container2.m_rounding = 4.0f;
-        container2.m_isDraggable = true;
-        container2.m_dragStyle = GUI::DragStyle::ConfinedInParent;
+        container1.m_rounding         = 2.0f;
+        container1.m_isDraggable      = true;
+        container2.m_rounding         = 4.0f;
+        container2.m_isDraggable      = true;
+        container2.m_dragStyle        = GUI::DragStyle::ConfinedInParent;
+
+        for (auto& monitor : ImGui::GetPlatformIO().Monitors)
+        {
+            if (monitor.WorkPos.x < m_minMonitorPos.x)
+                m_minMonitorPos.x = monitor.WorkPos.x;
+            else if (monitor.WorkPos.x > m_maxMonitorPos.x)
+                m_maxMonitorPos.x = monitor.WorkPos.x;
+            if (monitor.WorkPos.y < m_minMonitorPos.y)
+                m_minMonitorPos.y = monitor.WorkPos.y;
+            else if (monitor.WorkPos.y > m_maxMonitorPos.y)
+                m_maxMonitorPos.y = monitor.WorkPos.y;
+
+            if (monitor.WorkSize.x < m_minMonitorWorkArea.x)
+                m_minMonitorWorkArea.x = monitor.WorkSize.x;
+            else if (monitor.WorkSize.x > m_maxMonitorWorkArea.x)
+                m_maxMonitorWorkArea.x = monitor.WorkSize.x;
+            if (monitor.WorkSize.y < m_minMonitorWorkArea.y)
+                m_minMonitorWorkArea.y = monitor.WorkSize.y;
+            else if (monitor.WorkSize.y > m_maxMonitorWorkArea.y)
+                m_maxMonitorWorkArea.y = monitor.WorkSize.y;
+        }
+
+        LINA_TRACE("Min WP: {0}, Max WP: {1}, Min WS: {2}, Max WS: {3}", m_minMonitorPos.ToString(), m_maxMonitorPos.ToString(), m_minMonitorWorkArea.ToString(), m_maxMonitorWorkArea.ToString());
     }
 
     void GUILayer::OnShutdown(const Event::EShutdown& ev)
@@ -346,53 +371,47 @@ namespace Lina::Editor
         ImGui::NewFrame();
 
         if (s_showIMGUIDemo)
-            ImGui::ShowDemoWindow(&s_showIMGUIDemo);
+            ImGui::ShowDemoWindow(NULL);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->GetDPIScale());
 
-       // m_headerPanel.Draw();
-       // CentralDockingSpace::Draw();
-       // m_resourcesPanel.Draw();
-       // m_entitiesPanel.Draw();
-       // m_systemsPanel.Draw();
-       // m_levelPanel.Draw();
-       // m_logPanel.Draw();
-       // m_profilerPanel.Draw();
-       // m_propertiesPanel.Draw();
-       // m_globalSettingsPanel.Draw();
-       // m_toolbar.DrawFooter();
-       // m_resourceSelectorPanel.Draw();
-       // m_textEditorPanel.Draw();
+        m_headerPanel.Draw();
+          CentralDockingSpace::Draw();
+         m_resourcesPanel.Draw();
+         m_entitiesPanel.Draw();
+         m_systemsPanel.Draw();
+         m_levelPanel.Draw();
+         m_logPanel.Draw();
+         m_profilerPanel.Draw();
+         m_propertiesPanel.Draw();
+         m_globalSettingsPanel.Draw();
+         m_toolbar.DrawFooter();
+         m_resourceSelectorPanel.Draw();
+         m_textEditorPanel.Draw();
 
-        //if (m_shouldDrawProgressPanel)
-        //{
-        //    m_shouldDrawProgressPanel = false;
-        //    m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
-        //}
-        //// Should be drawn last.
-        //m_previewPanel.Draw();
+         ImGui::SetNextWindowPos(ImVec2(0,0));
+         ImGui::SetNextWindowSize(ImVec2(2000, 2000));
+         ImGui::Begin("SA", NULL, ImGuiWindowFlags_NoDecoration);
+
+         baseElement.CalculateBounds();
+         baseElement.Render();
+         baseElement.CalculateFocus();
+
+         ImGui::End();
+
+        if (m_shouldDrawProgressPanel)
+       {
+            m_shouldDrawProgressPanel = false;
+            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
+        }
+       // Should be drawn last.
+        m_previewPanel.Draw();
 
         Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
         Event::EventSystem::Get()->Trigger<Event::EGUIRender>(Event::EGUIRender());
-        ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.5f, 0.2f, 0.2f, 1.0f);
-        ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
-        ImGui::SetNextWindowPos(ImVec2(0,0));
-        ImGui::Begin("Main", NULL, ImGuiWindowFlags_NoDecoration);
-
-       // baseElement.CalculateBounds();
-       // baseElement.Render();
-       // baseElement.CalculateFocus();
-
-        const ImVec2 min = ImVec2(-0,0);
-        const ImVec2 max = ImVec2(1920,12);
-        ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0,0,0,1)));
-        ImGui::End();
-
-        ImGui::Begin("Sa", NULL);
-
-        ImGui::End();
-
+       
+     
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();
 

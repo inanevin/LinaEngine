@@ -32,7 +32,6 @@ namespace Lina::GUI
 {
     void Container::Render()
     {
-
         if (m_backgroundStyle == BackgroundStyle::SingleColor)
             ImGui::GetWindowDrawList()->AddRectFilled(IMVEC2(m_min), IMVEC2(m_max), IMCOL32(m_backgroundColor), m_rounding);
         else if (m_backgroundStyle == BackgroundStyle::GradientHorizontal)

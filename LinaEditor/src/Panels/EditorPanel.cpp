@@ -81,10 +81,11 @@ namespace Lina::Editor
         //   LINA_TRACE("Window {0}, my dpi {1}, dpi now {2}", m_id, m_dpiScale, dpiNow);
         if (m_dpiScale != dpiNow)
         {
+           // m_show = false;
             LINA_TRACE("DPI CHANGED NOW, my dpi {0}, dpi now {1}", m_dpiScale, dpiNow);
             // ImGui::GetStyle().ScaleAllSizes(dpiNow / m_dpiScale);
-            m_dpiScale = dpiNow;
-            ImGui::SetWindowFontScale(dpiNow / m_dpiScale);
+            //m_dpiScale = dpiNow;
+          ImGui::SetWindowFontScale(dpiNow / m_dpiScale);
           //  m_setWindowSizeNextFrame = true;
          //   m_windowSizeNextFrame = m_currentWindowSize;
             //if (ImGui::GetPlatformIO().Platform_SetWindowSize)

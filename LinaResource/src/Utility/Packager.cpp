@@ -141,7 +141,7 @@ namespace Lina::Resources
             std::vector<std::wstring> wfiles;
             for (auto& file : files)
             {
-                const size_t size = strlen(file.c_str());
+                const size_t size = strlen(file.c_str()) + 1;
                 std::wstring wfile(size, L'#');
                 size_t       numConverted;
                 mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);

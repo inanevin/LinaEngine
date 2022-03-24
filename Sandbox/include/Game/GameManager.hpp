@@ -45,6 +45,7 @@ namespace Lina
     {
         struct EShutdown;
         struct ETick;
+        struct EPostRender;
     } // namespace Event
 } // namespace Lina
 
@@ -54,11 +55,12 @@ class GameManager
 {
 
 public:
-    GameManager() = default;
+    GameManager()  = default;
     ~GameManager() = default;
     void                Initialize();
     void                OnTick(const Event::ETick& ev);
     void                OnShutdown(const Event::EShutdown& ev);
+    void                OnGUIRender(const Event::EPostRender& ev);
     static GameManager* GetInstance()
     {
         return s_instance;

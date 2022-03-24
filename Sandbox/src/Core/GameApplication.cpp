@@ -36,14 +36,16 @@ namespace Lina
     void GameApplication::Initialize(ApplicationInfo appInfo)
     {
         Application::Initialize(appInfo);
-        
+
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
+           // Engine::Get()->StartLoadingResources();
+
             m_editor = new Editor::EditorApplication();
             m_editor->Initialize();
-
+           
             // Update props.
-            auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
+           auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
 
             // Set the app window size back to original after loading editor resources.
             Graphics::WindowBackend::Get()->SetPos(Vector2i(0, 0));
@@ -52,7 +54,9 @@ namespace Lina
         else
         {
             Engine::Get()->StartLoadingResources();
-            Engine::Get()->SetPlayMode(true);
+            auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
+            Graphics::WindowBackend::Get()->SetPos(Vector2i(0, 0));
+            Graphics::WindowBackend::Get()->SetSize(Vector2i(windowProps.m_width, windowProps.m_height));
         }
 
         // Initialize game manager.
@@ -78,8 +82,8 @@ int main(int argc, char** argv)
     appInfo.m_appMajor                       = 1;
     appInfo.m_appMinor                       = 0;
     appInfo.m_appPatch                       = 0;
-    appInfo.m_windowProperties.m_width       = 1440;
-    appInfo.m_windowProperties.m_height      = 900;
+    appInfo.m_windowProperties.m_width       = 1920;
+    appInfo.m_windowProperties.m_height      = 1080;
     appInfo.m_windowProperties.m_windowState = WindowState::Maximized;
     appInfo.m_windowProperties.m_decorated   = false;
     appInfo.m_windowProperties.m_resizable   = true;

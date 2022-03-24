@@ -149,6 +149,8 @@ namespace Lina
         {
             m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
         }
+        else
+            SetPlayMode(true);
 
         m_running            = true;
         m_startTime          = Utility::GetCPUTime();

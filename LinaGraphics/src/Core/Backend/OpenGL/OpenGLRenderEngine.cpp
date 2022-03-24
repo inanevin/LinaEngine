@@ -393,16 +393,19 @@ namespace Lina::Graphics
     {
         m_eventSystem->Trigger<Event::EPreRender>(Event::EPreRender{});
 
-        Draw();
+       // Draw();
 
         if (!m_firstFrameDrawn)
             m_firstFrameDrawn = true;
 
         // Reset the viewport & fbo to allow any post render drawing, like GUI.
-        m_renderDevice.SetFBO(0);
-        m_renderDevice.SetViewport(m_screenPos, m_screenSize);
-        m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-
+        // TODO -- Allow in-game GUI drawing later on.
+        if (m_appMode == ApplicationMode::Editor)
+        {
+            m_renderDevice.SetFBO(0);
+            m_renderDevice.SetViewport(m_screenPos, m_screenSize);
+            m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+        }
         m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
     }
 
