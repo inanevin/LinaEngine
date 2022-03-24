@@ -95,7 +95,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio
 	PUBLIC Lina::Resource
-	
+	PUBLIC Lina::GUI
 )
 
 #--------------------------------------------------------------------

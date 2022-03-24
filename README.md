@@ -62,10 +62,7 @@ These dependencies are included as pre-built binaries in Lina Engine source code
 # Initialize git in your desired directory.
 git init
 
-# Clone Lina Engine
-git clone https://github.com/inanevin/LinaEngine
-
-# Alternatively you can clone recursively, this will download all the submodules if there exists any along with Lina Engine source code.
+# Clone recursively, this will download all external Lina submodules along with Lina Engine source code.
 git clone --recursive https://github.com/inanevin/LinaEngine
 
 ```
