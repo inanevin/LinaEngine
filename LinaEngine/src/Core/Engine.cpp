@@ -118,7 +118,7 @@ namespace Lina
         m_renderEngine.ConnectEvents();
         m_audioEngine.Initialize();
         m_messageBus.Initialize(m_appInfo.m_appMode);
-        m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings);
+        m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings, m_window.GetProperties());
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();

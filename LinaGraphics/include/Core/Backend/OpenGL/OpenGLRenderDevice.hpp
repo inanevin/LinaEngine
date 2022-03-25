@@ -65,7 +65,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Inits open gl with current draw parameters.
         /// </summary>
-        void Initialize(int width, int height, DrawParams& defaultParams);
+        void Initialize(int width, int height, DrawParams& defaultParams, const WindowProperties& windowProps);
 
         /// <summary>
         /// Creates 2D texture in GL, use CreateTexture2DEmpty for framebuffer textures.

@@ -303,7 +303,7 @@ namespace Lina::Graphics
         OpenGLRenderEngine()  = default;
         ~OpenGLRenderEngine() = default;
         void ConnectEvents();
-        void Initialize(ApplicationMode appMode, RenderSettings* renderSettings);
+        void Initialize(ApplicationMode appMode, RenderSettings* renderSettings, const WindowProperties& windowProps);
         void Shutdown();
         void Render(float interpolation);
         void Tick(float delta);

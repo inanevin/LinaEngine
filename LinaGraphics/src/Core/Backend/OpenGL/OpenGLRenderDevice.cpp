@@ -78,23 +78,23 @@ namespace Lina::Graphics
 
     float skyboxVertices[] = {
         // positions
-        -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
+        -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
 
-        -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
 
-        1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 
-        -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
 
-        -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
+        -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f,
 
-        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
+        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
 
     float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
         -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
     float hdriCubemapVertices[] = {
         // back face
@@ -141,7 +141,6 @@ namespace Lina::Graphics
         -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f   // bottom-left
     };
 
-
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
     // GLOBALS DECLARATIONS
@@ -165,28 +164,28 @@ namespace Lina::Graphics
     {
     }
 
-    void OpenGLRenderDevice::Initialize(int width, int height, DrawParams& defaultParams)
+    void OpenGLRenderDevice::Initialize(int width, int height, DrawParams& defaultParams, const WindowProperties& windowProps)
     {
         const GLubyte* vendor   = glGetString(GL_VENDOR);   // Returns the vendor
         const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
         LINA_TRACE("Graphics Information: {0}, {1}", vendor, renderer);
 
-        m_isStencilTestEnabled        = defaultParams.useStencilTest;
-        m_isDepthTestEnabled          = defaultParams.useDepthTest;
-        m_isBlendingEnabled           = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
-        m_isScissorsTestEnabled       = defaultParams.useScissorTest;
-        m_usedDepthFunction           = defaultParams.depthFunc;
-        m_shouldWriteDepth            = defaultParams.shouldWriteDepth;
-        m_usedStencilFail             = defaultParams.stencilFail;
-        m_usedStencilPassButDepthFail = defaultParams.stencilPassButDepthFail;
-        m_usedStencilPass             = defaultParams.stencilPass;
-        m_usedStencilFunction         = defaultParams.stencilFunc;
-        m_usedStencilTestMask         = defaultParams.stencilTestMask;
-        m_usedStencilWriteMask        = defaultParams.stencilWriteMask;
-        m_usedStencilComparisonValue  = defaultParams.stencilComparisonVal;
-        m_usedFaceCulling             = defaultParams.faceCulling;
-        m_usedSourceBlending          = defaultParams.sourceBlend;
-        m_usedDestinationBlending     = defaultParams.destBlend;
+        m_isStencilTestEnabled        = defaultParams.m_useStencilTest;
+        m_isDepthTestEnabled          = defaultParams.m_useDepthTest;
+        m_isBlendingEnabled           = (defaultParams.m_sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.m_destBlend != BlendFunc::BLEND_FUNC_NONE);
+        m_isScissorsTestEnabled       = defaultParams.m_useScissorTest;
+        m_usedDepthFunction           = defaultParams.m_depthFunc;
+        m_shouldWriteDepth            = defaultParams.m_shouldWriteDepth;
+        m_usedStencilFail             = defaultParams.m_stencilFail;
+        m_usedStencilPassButDepthFail = defaultParams.m_stencilPassButDepthFail;
+        m_usedStencilPass             = defaultParams.m_stencilPass;
+        m_usedStencilFunction         = defaultParams.m_stencilFunc;
+        m_usedStencilTestMask         = defaultParams.m_stencilTestMask;
+        m_usedStencilWriteMask        = defaultParams.m_stencilWriteMask;
+        m_usedStencilComparisonValue  = defaultParams.m_stencilComparisonVal;
+        m_usedFaceCulling             = defaultParams.m_faceCulling;
+        m_usedSourceBlending          = defaultParams.m_sourceBlend;
+        m_usedDestinationBlending     = defaultParams.m_destBlend;
 
         // Default GL settings.
         glEnable(GL_DEPTH_TEST);
@@ -194,7 +193,9 @@ namespace Lina::Graphics
         glEnable(GL_BLEND);
         glEnable(GL_CULL_FACE);
         glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_MULTISAMPLE);
+
+        if (windowProps.m_msaaSamples != 0)
+            glEnable(GL_MULTISAMPLE);
 
         glDepthFunc(GL_LESS);
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -1162,19 +1163,19 @@ namespace Lina::Graphics
     void OpenGLRenderDevice::SetDrawParameters(const DrawParams& drawParams)
     {
         // Setup draw parameters.
-        SetFaceCulling(drawParams.faceCulling);
-        SetBlending(drawParams.sourceBlend, drawParams.destBlend);
-        SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+        SetFaceCulling(drawParams.m_faceCulling);
+        SetBlending(drawParams.m_sourceBlend, drawParams.m_destBlend);
+        SetScissorTest(drawParams.m_useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 
-        if (drawParams.useDepthTest)
+        if (drawParams.m_useDepthTest)
         {
             SetDepthTestEnable(true);
-            SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+            SetDepthTest(drawParams.m_shouldWriteDepth, drawParams.m_depthFunc);
         }
         else
             SetDepthTestEnable(false);
 
-        SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
+        SetStencilTest(drawParams.m_useStencilTest, drawParams.m_stencilFunc, drawParams.m_stencilTestMask, drawParams.m_stencilWriteMask, drawParams.m_stencilComparisonVal, drawParams.m_stencilFail, drawParams.m_stencilPassButDepthFail, drawParams.m_stencilPass);
     }
 
     void OpenGLRenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)

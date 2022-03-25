@@ -34,7 +34,8 @@ SOFTWARE.
 #include "Levels/ExampleLevel.hpp"
 #include "Log/Log.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "glad/glad.h"
+#include "Core/LinaGUI.hpp"
+#include "Core/LinaGUIDrawer.hpp"
 
 GameManager* GameManager::s_instance = nullptr;
 
@@ -47,11 +48,22 @@ void GameManager::Initialize()
     Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
     Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
     Event::EventSystem::Get()->Connect<Event::EPostRender, &GameManager::OnGUIRender>(this);
+
+    LGOptions opts;
+    const Vector2  screenSize = Graphics::RenderEngineBackend::Get()->GetScreenSize();
+    opts.m_displaySize        = LGVec2(screenSize.x, screenSize.y);
+    opts.m_framebufferScale   = LGVec2(Graphics::WindowBackend::Get()->GetProperties().m_contentScaleWidth, Graphics::WindowBackend::Get()->GetProperties().m_contentScaleHeight);
+    GUI::Initialize(opts);
 }
 
 void GameManager::OnGUIRender(const Event::EPostRender& ev)
 {
-   
+   GUI::Start();
+  // Drawer::DrawLine(LGVec2(-0.2f, 0.5f), LGVec2(0.2f, 0.5f), LGVec4(1,1,1,1), 5);
+   Drawer::DrawLine(LGVec2(0, 500), LGVec2(3800, 500), LGVec4(1, 1, 1, 1), 25);
+
+   GUI::Render();
+   GUI::End();
 }
 
 void GameManager::OnTick(const Event::ETick& ev)

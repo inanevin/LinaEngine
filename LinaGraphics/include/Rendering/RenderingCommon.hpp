@@ -50,9 +50,9 @@ Timestamp: 4/14/2019 11:59:32 AM
 
 namespace Lina::Graphics
 {
-#define INTERNAL_MAT_PATH         "__internal"
-#define MAX_POINT_LIGHTS          12
-#define MAX_BONE_INFLUENCE        4
+#define INTERNAL_MAT_PATH  "__internal"
+#define MAX_POINT_LIGHTS   12
+#define MAX_BONE_INFLUENCE 4
 
     enum BufferUsage
     {
@@ -237,25 +237,25 @@ namespace Lina::Graphics
     {
         bool          skipParameters          = false;
         PrimitiveType primitiveType           = PRIMITIVE_TRIANGLES;
-        FaceCulling   faceCulling             = FACE_CULL_NONE;
-        DrawFunc      depthFunc               = DRAW_FUNC_ALWAYS;
-        DrawFunc      stencilFunc             = DRAW_FUNC_ALWAYS;
-        StencilOp     stencilFail             = STENCIL_KEEP;
-        StencilOp     stencilPassButDepthFail = STENCIL_KEEP;
-        StencilOp     stencilPass             = STENCIL_REPLACE;
-        BlendFunc     sourceBlend             = BLEND_FUNC_NONE;
-        BlendFunc     destBlend               = BLEND_FUNC_NONE;
-        bool          shouldWriteDepth        = true;
-        bool          useDepthTest            = true;
-        bool          useStencilTest          = false;
-        bool          useScissorTest          = false;
+        FaceCulling   m_faceCulling             = FACE_CULL_NONE;
+        DrawFunc      m_depthFunc               = DRAW_FUNC_ALWAYS;
+        DrawFunc      m_stencilFunc             = DRAW_FUNC_ALWAYS;
+        StencilOp     m_stencilFail             = STENCIL_KEEP;
+        StencilOp     m_stencilPassButDepthFail = STENCIL_KEEP;
+        StencilOp     m_stencilPass             = STENCIL_REPLACE;
+        BlendFunc     m_sourceBlend             = BLEND_FUNC_NONE;
+        BlendFunc     m_destBlend               = BLEND_FUNC_NONE;
+        bool          m_shouldWriteDepth        = true;
+        bool          m_useDepthTest            = true;
+        bool          m_useStencilTest          = false;
+        bool          m_useScissorTest          = false;
         uint32        scissorStartX           = 0;
         uint32        scissorStartY           = 0;
         uint32        scissorWidth            = 0;
         uint32        scissorHeight           = 0;
-        uint32        stencilTestMask         = 0;
-        uint32        stencilWriteMask        = 0;
-        int32         stencilComparisonVal    = 0;
+        uint32        m_stencilTestMask         = 0;
+        uint32        m_stencilWriteMask        = 0;
+        int32         m_stencilComparisonVal    = 0;
     };
 
     struct RenderingDebugData
@@ -271,7 +271,7 @@ namespace Lina::Graphics
 
     enum class MaterialWorkflow
     {
-        Plastic = 0,
+        Plastic  = 0,
         Metallic = 1,
     };
 
@@ -359,7 +359,8 @@ namespace Lina::Graphics
         SamplerWrapMode m_wrapR               = SamplerWrapMode::WRAP_REPEAT;
         bool            m_generateMipMaps     = false;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_pixelFormat, m_internalPixelFormat, m_minFilter, m_magFilter, m_wrapS, m_wrapT, m_wrapR, m_generateMipMaps);
         }
@@ -370,7 +371,8 @@ namespace Lina::Graphics
         TextureParameters m_textureParams = TextureParameters();
         int               m_anisotropy    = 0;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_anisotropy, m_textureParams);
         }
@@ -399,7 +401,8 @@ namespace Lina::Graphics
     struct BufferData
     {
         BufferData() = default;
-        BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced){};
+        BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced)
+            : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced){};
 
         uint32             m_attrib;
         uint32             m_elementSize;

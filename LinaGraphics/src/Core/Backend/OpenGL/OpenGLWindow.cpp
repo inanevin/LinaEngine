@@ -65,7 +65,7 @@ namespace Lina::Graphics
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_SAMPLES, 4);
+        glfwWindowHint(GLFW_SAMPLES, m_windowProperties.m_msaaSamples);
         glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
         glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
 

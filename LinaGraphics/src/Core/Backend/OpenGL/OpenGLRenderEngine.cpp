@@ -90,7 +90,7 @@ namespace Lina::Graphics
         m_eventSystem->Connect<Event::EResourceReloaded, &OpenGLRenderEngine::OnResourceReloaded>(this);
     }
 
-    void OpenGLRenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings)
+    void OpenGLRenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings, const WindowProperties& windowProps)
     {
         LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
 
@@ -101,7 +101,7 @@ namespace Lina::Graphics
         m_renderSettings = renderSettings;
 
         // Initialize the render device.
-        m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
+        m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams, windowProps);
 
         // Setup draw parameters.
         m_defaultDrawParams   = DrawParameterHelper::GetDefault();
