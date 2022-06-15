@@ -1,13 +1,22 @@
-![Lina](Docs/Images/linalogofull_medium.png)
+<br/>
+<p align="center">
+  <img width="600" height="235" src="https://user-images.githubusercontent.com/3519379/173830836-d390e164-fe59-4b9d-950a-c28fa3ebc037.png">
+</p>
+<br/>
 
-## Lina Engine  
+<div align="center">
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0c10a437a214dbf963210ed3edf3c4f)](https://www.codacy.com/gh/inanevin/LinaEngine/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=inanevin/LinaEngine&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://app.travis-ci.com/inanevin/LinaEngine.svg?branch=master)](https://app.travis-ci.com/inanevin/LinaEngine)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/inanevin/LinaEngine/issues) 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/inanevin) 
+[![Lina Discord](https://badgen.net/discord/members/QYeTkEtRMB)](https://discord.gg/QYeTkEtRMB)
 ![GitHub issues](https://img.shields.io/github/issues/inanevin/LinaEngine.svg)
 ![GitHub repo size](https://img.shields.io/github/repo-size/inanevin/LinaEngine.svg)
 
+ </div>
+  
 Lina Engine is a lightweight and ECS based open-source game engine. Initially it's a research project and is aimed to be a basis of development for more open-source game engine projects. Lina's architecture is designed to be as modular as possible and it focuses on creating replacable modules to customize for project-specific needs, rather than stacking thousands of features into one framework.
 
 [Visit the project page on my website for more information](https://www.inanevin.com/gameprojects/linaengine)
