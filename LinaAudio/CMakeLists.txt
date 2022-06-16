@@ -67,22 +67,18 @@ include(../CMake/ProjectSettings.cmake)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-
-
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.lib
-	PRIVATE Lina::Common
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
 	
+include(../_Dependencies/alut/link.cmake)
+include(../_Dependencies/openal/link.cmake)
+link_alut()
+link_openal()
 
 #--------------------------------------------------------------------
 # Packages

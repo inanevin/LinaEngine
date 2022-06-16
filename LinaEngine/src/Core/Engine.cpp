@@ -93,10 +93,10 @@ namespace Lina
 
         bool engineSettingsExists = Utility::FileExists("engine.linasettings");
 
-         if (engineSettingsExists)
-             m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
-         else
-             Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
+        if (engineSettingsExists)
+            m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
+        else
+            Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
         RegisterResourceTypes();
         m_eventSystem.Initialize();
@@ -122,7 +122,6 @@ namespace Lina
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();
-
     }
 
     void Engine::StartLoadingResources()
@@ -175,17 +174,13 @@ namespace Lina
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
+            PROFILER_BLOCK("Input Tick");
             m_inputEngine.Tick();
-            updates++;
-            LINA_TIMER_START("Update MS");
-            UpdateGame((float)m_rawDeltaTime);
-            LINA_TIMER_STOP("Update MS");
-            m_updateTime = Timer::GetTimer("UPDATE MS").GetDuration();
+            PROFILER_END_BLOCK;
 
-            LINA_TIMER_START("RENDER MS");
+            updates++;
+            UpdateGame((float)m_rawDeltaTime);
             DisplayGame(1.0f);
-            LINA_TIMER_STOP("RENDER MS");
-            m_renderTime = Timer::GetTimer("RENDER MS").GetDuration();
             frames++;
 
             double now = GetElapsedTime();
@@ -223,14 +218,16 @@ namespace Lina
 
     void Engine::UpdateGame(float deltaTime)
     {
-        PROFILER_FUNC("Engine Tick");
+        PROFILER_FUNC("Update Game");
 
         // Pause & skip frame controls.
         if (m_paused && !m_shouldSkipFrame)
             return;
         m_shouldSkipFrame = false;
 
+        PROFILER_BLOCK("Event: Pre Tick");
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_END_BLOCK;
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -239,32 +236,56 @@ namespace Lina
         if (m_physicsAccumulator >= physicsStep)
         {
             m_physicsAccumulator -= physicsStep;
+            PROFILER_BLOCK("Pre Tick");
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+            PROFILER_END_BLOCK;
+
+            PROFILER_BLOCK("Physics Engine Tick");
             m_physicsEngine.Tick(physicsStep);
+            PROFILER_END_BLOCK;
+
+            PROFILER_BLOCK("Event: Physics Tick");
             m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{physicsStep, m_isInPlayMode});
+            PROFILER_END_BLOCK;
+
+            PROFILER_BLOCK("Event: Post Physics Tick");
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
+            PROFILER_END_BLOCK;
         }
 
         // Other main systems (engine or game)
+        PROFILER_BLOCK("ECS Pipeline Tick");
         m_mainECSPipeline.UpdateSystems(deltaTime);
+        PROFILER_END_BLOCK;
 
         // Animation, particle systems.
+        PROFILER_BLOCK("Render Engine Tick");
         m_renderEngine.Tick(deltaTime);
         m_renderEngine.SetAppData(deltaTime, (float)GetElapsedTime(), m_inputEngine.GetMousePosition());
-        
+        PROFILER_END_BLOCK;
 
+        PROFILER_BLOCK("Event: Tick");
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_END_BLOCK;
+
+        PROFILER_BLOCK("Event: Post Tick");
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_END_BLOCK;
     }
 
     void Engine::DisplayGame(float interpolation)
     {
-        PROFILER_FUNC("Engine Render");
+        PROFILER_FUNC("Display Game");
 
         if (m_canRender)
         {
+            PROFILER_BLOCK("Event: Render");
             m_renderEngine.Render(interpolation);
+            PROFILER_END_BLOCK;
+
+            PROFILER_BLOCK("Window Tick");
             m_window.Tick();
+            PROFILER_END_BLOCK;
         }
     }
 

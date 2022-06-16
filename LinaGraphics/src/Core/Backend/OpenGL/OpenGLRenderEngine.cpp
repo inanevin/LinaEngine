@@ -391,9 +391,13 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::Render(float interpolation)
     {
-        m_eventSystem->Trigger<Event::EPreRender>(Event::EPreRender{});
+        PROFILER_FUNC("Render Engine Render");
 
-       // Draw();
+        PROFILER_BLOCK("Event: Pre Render");
+        m_eventSystem->Trigger<Event::EPreRender>(Event::EPreRender{});
+        PROFILER_END_BLOCK;
+
+       //  Draw();
 
         if (!m_firstFrameDrawn)
             m_firstFrameDrawn = true;
@@ -406,7 +410,10 @@ namespace Lina::Graphics
             m_renderDevice.SetViewport(m_screenPos, m_screenSize);
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
         }
+
+        PROFILER_BLOCK("Event: Post Render");
         m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
+        PROFILER_END_BLOCK;
     }
 
     void OpenGLRenderEngine::AddToRenderingPipeline(ECS::System& system)
@@ -574,8 +581,11 @@ namespace Lina::Graphics
 
     void OpenGLRenderEngine::Draw()
     {
+        PROFILER_BLOCK("Render: Update Systems");
         UpdateSystems(0.0f);
+        PROFILER_END_BLOCK;
 
+        PROFILER_BLOCK("Render: Lightmapping");
         // Set render targets for point light shadows & calculate all the depth textures.
         auto& tuple = m_lightingSystem.GetPointLights();
         for (int i = 0; i < tuple.size(); i++)
@@ -606,27 +616,39 @@ namespace Lina::Graphics
                 DrawSceneObjects(m_shadowMapDrawParams, &m_pLightShadowDepthMaterial, false);
             }
         }
+        PROFILER_END_BLOCK;
 
         // m_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
         m_renderDevice.SetFBO(m_gBuffer.GetID());
         m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
 
         if (!Event::EventSystem::Get()->IsEmpty<Event::ECustomRender>())
+        {
+            PROFILER_BLOCK("Event: Custom Render");
             Event::EventSystem::Get()->Trigger<Event::ECustomRender>(Event::ECustomRender{});
+            PROFILER_END_BLOCK;
+        }
         else
         {
             m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-
             Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
+
             // If the skybox is not an HDRI skybox, and if it contributes to indirect lighting.
             if (skyboxMat->m_skyboxIndirectContributionFactor != 0.0f && skyboxMat->m_shaderHandle.m_value->GetSpecification() != ShaderSpecification::Sky_HDRICube)
             {
                 // Render the skybox into a cubemap
+                PROFILER_BLOCK("Render: Capture Skybox");
                 CaptureSkybox();
+                PROFILER_END_BLOCK;
             }
 
+            PROFILER_BLOCK("Render: Draw Skybox");
             DrawSkybox();
+            PROFILER_END_BLOCK;
+
+            PROFILER_BLOCK("Render: Draw Scene Objects");
             DrawSceneObjects(m_defaultDrawParams);
+            PROFILER_END_BLOCK;
         }
 
         // Draw debugs

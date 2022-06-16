@@ -133,17 +133,17 @@ namespace Lina::Editor
 
         ImGui::GetCurrentContext()->iconFont = m_iconFontSmall;
         // Setup configuration flags.
-         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-       io.ConfigViewportsNoTaskBarIcon = true;
-       // io.ConfigViewportsNoDefaultParent = true;
-       // io.ConfigViewportsNoAutoMerge = true;
-       // io.ConfigWindowsMoveFromTitleBarOnly = true;
-       // io.ConfigDockingTransparentPayload = false;
-        ImGuiStyle& style                  = ImGui::GetStyle();
-        ImVec4*     colors                 = ImGui::GetStyle().Colors;
-        style.FrameBorderSize              = 1.0f * contentScale;
-        style.PopupBorderSize              = 1.0f * contentScale;
+        io.ConfigViewportsNoTaskBarIcon = true;
+        // io.ConfigViewportsNoDefaultParent = true;
+        // io.ConfigViewportsNoAutoMerge = true;
+        // io.ConfigWindowsMoveFromTitleBarOnly = true;
+        // io.ConfigDockingTransparentPayload = false;
+        ImGuiStyle& style     = ImGui::GetStyle();
+        ImVec4*     colors    = ImGui::GetStyle().Colors;
+        style.FrameBorderSize = 1.0f * contentScale;
+        style.PopupBorderSize = 1.0f * contentScale;
         // style.AntiAliasedFill = false;
         style.WindowRounding = 10.0f;
         style.TabRounding    = 3.0f;
@@ -294,7 +294,6 @@ namespace Lina::Editor
         m_textEditorPanel.Close();
         m_previewPanel.Close();
 
-
         for (auto& monitor : ImGui::GetPlatformIO().Monitors)
         {
             if (monitor.WorkPos.x < m_minMonitorPos.x)
@@ -350,34 +349,30 @@ namespace Lina::Editor
         ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 1.0f * GUILayer::Get()->GetDPIScale());
 
         m_headerPanel.Draw();
-          CentralDockingSpace::Draw();
-         m_resourcesPanel.Draw();
-         m_entitiesPanel.Draw();
-         m_systemsPanel.Draw();
-         m_levelPanel.Draw();
-         m_logPanel.Draw();
-         m_profilerPanel.Draw();
-         m_propertiesPanel.Draw();
-         m_globalSettingsPanel.Draw();
-         m_toolbar.DrawFooter();
-         m_resourceSelectorPanel.Draw();
-         m_textEditorPanel.Draw();
-
-         ImGui::SetNextWindowPos(ImVec2(0,0));
-         ImGui::SetNextWindowSize(ImVec2(2000, 2000));
+        CentralDockingSpace::Draw();
+        m_resourcesPanel.Draw();
+        m_entitiesPanel.Draw();
+        m_systemsPanel.Draw();
+        m_levelPanel.Draw();
+        m_logPanel.Draw();
+        m_profilerPanel.Draw();
+        m_propertiesPanel.Draw();
+        m_globalSettingsPanel.Draw();
+        m_toolbar.DrawFooter();
+        m_resourceSelectorPanel.Draw();
+        m_textEditorPanel.Draw();
 
         if (m_shouldDrawProgressPanel)
-       {
+        {
             m_shouldDrawProgressPanel = false;
             m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
         }
-       // Should be drawn last.
+        // Should be drawn last.
         m_previewPanel.Draw();
 
         Event::EventSystem::Get()->Trigger<EGUILayerRender>(EGUILayerRender());
         Event::EventSystem::Get()->Trigger<Event::EGUIRender>(Event::EGUIRender());
-       
-     
+
         ImGui::PopStyleVar();
         ImGui::PopStyleVar();
 

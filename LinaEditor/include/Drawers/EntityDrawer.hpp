@@ -58,7 +58,7 @@ namespace Lina::Editor
 
     private:
         ComponentDrawer m_componentDrawer;
-        ECS::Entity     m_selectedEntity;
+        ECS::Entity     m_selectedEntity = entt::null;
         bool            m_shouldCopyEntityName      = true;
     };
 } // namespace Lina::Editor

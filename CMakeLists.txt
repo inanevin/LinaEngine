@@ -18,6 +18,25 @@
 cmake_minimum_required (VERSION 3.6)
 project (Lina)
 
+#--------------------------------------------------------------------
+# Download dependencies
+#--------------------------------------------------------------------
+
+include(CMake/GitUtils.cmake)
+git_clone(
+		PROJECT_NAME    _Dependencies
+		GIT_URL         https://github.com/inanevin/LinaDependencies.git
+		GIT_BRANCH      master
+		DIRECTORY 	    ${CMAKE_SOURCE_DIR})
+
+		
+if(WIN32)
+	set(PLATFORM "Win64")
+endif()
+		
+if(UNIX)
+	set(PLATFORM "Unix")
+endif()
 
 #--------------------------------------------------------------------
 # Options & Definitions
@@ -82,7 +101,6 @@ add_subdirectory(LinaPhysics)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaEditor)
 add_subdirectory(LinaResource)
-add_subdirectory(LinaGUI)
 add_subdirectory(Sandbox)
 
 

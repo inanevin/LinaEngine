@@ -78,7 +78,7 @@ namespace Lina::Resources
         static void                 TriggerResourceUpdatedEvent();
 
         /// <summary>
-        /// Start packing the project Resource contents into a Lina Bundle.
+        /// StartFrame packing the project Resource contents into a Lina Bundle.
         /// </summary>
         void PackageProject(const std::string& path, const std::string& name);
 

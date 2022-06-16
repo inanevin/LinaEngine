@@ -64,6 +64,10 @@ add_library(${PROJECT_NAME} ${LINAPHYSICS_SOURCES} ${LINAPHYSICS_HEADERS})
 add_library(Lina::Physics ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON UNITY_BUILD_UNIQUE_ID "LinaPhysics")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
+## Remove Nvidia PhysX linker pdb warning
+target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
+
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
@@ -77,53 +81,16 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/include)
+
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} 
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Common.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet2FileLoader.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Collision.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletCollision.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Dynamics.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletDynamics.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Geometry.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3OpenCL_clew.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletExampleBrowserLib.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletFileLoader.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamics.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletInverseDynamicsUtils.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletSoftBody.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletWorldImporter.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletXmlWorldImporter.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BussIK.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/clsocket.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ConvexDecomposition.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/GIMPACTUtils.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gtest.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/gwen.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/HACD.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/LinearMath.lib
-#PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenGLWindow.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysX_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXCommon_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXFoundation_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXCharacterKinematic_static_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXExtensions_static_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXPvdSDK_static_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXTask_static_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXVehicle_static_64.lib
-PUBLIC ${CMAKE_SOURCE_DIR}/vendor/PhysX/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/PhysXCooking_64.lib
-PRIVATE Lina::Common
+target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
 
-
-)
-
-
+include(../_Dependencies/physx/link.cmake)
+link_physx()
 	
 
 #--------------------------------------------------------------------

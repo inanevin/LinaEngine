@@ -128,7 +128,7 @@ namespace Lina::Graphics
         // Update OpenGL about the window data.
         glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
 
-        SetVsync(0);
+        SetVsync(m_windowProperties.m_vsync);
 
         // set user pointer for callbacks.
         glfwSetWindowUserPointer(m_glfwWindow, this);

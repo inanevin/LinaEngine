@@ -139,10 +139,10 @@ namespace Lina::Resources
         s_currentProgressData.m_progressTitle       = "Unpacking level resources...";
         s_currentProgressData.m_currentResourceName = fullBundlePath;
 
-        // Start unpacking process, preceeded & followed by an event dispatch.
+        // StartFrame unpacking process, preceeded & followed by an event dispatch.
         // m_eventSys->Trigger<Event::EResourceProgressStarted>();
 
-        // Start unpacking.
+        // StartFrame unpacking.
         m_packager.Unpack(fullBundlePath, m_appInfo.m_packagePass, &m_bundle);
         m_bundle.LoadAllMemoryResources();
 

@@ -69,7 +69,6 @@ include(../CMake/ProjectSettings.cmake)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
 # Language standard
@@ -81,11 +80,10 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 #--------------------------------------------------------------------
 
 
-target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-	PRIVATE Lina::Common
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
 
+include(../_Dependencies/glfw/link.cmake)
+link_glfw()
 
 #--------------------------------------------------------------------
 # Packages

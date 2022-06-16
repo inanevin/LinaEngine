@@ -43,7 +43,7 @@ Timestamp: 10/22/2020 11:04:40 PM
 #include <map>
 #include <string>
 
-#ifdef LINA_ENABLE_TIMEPROFILING
+#ifdef LINA_ENABLE_PROFILING
 
 #define LINA_TIMER_START(...) ::Timer::GetTimer(__VA_ARGS__).Initialize()
 #define LINA_TIMER_STOP(...)  ::Timer::GetTimer(__VA_ARGS__).Stop()

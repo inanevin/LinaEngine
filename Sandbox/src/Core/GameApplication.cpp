@@ -41,8 +41,8 @@ namespace Lina
         {
             Engine::Get()->StartLoadingResources();
 
-            // m_editor = new Editor::EditorApplication();
-            // m_editor->Initialize();
+           // m_editor = new Editor::EditorApplication();
+           // m_editor->Initialize();
 
             // Update props.
             auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
@@ -88,6 +88,7 @@ int main(int argc, char** argv)
     appInfo.m_windowProperties.m_decorated   = false;
     appInfo.m_windowProperties.m_resizable   = true;
     appInfo.m_windowProperties.m_fullscreen  = false;
+    appInfo.m_windowProperties.m_vsync       = 0;
     appInfo.m_windowProperties.m_msaaSamples = 0;
     appInfo.m_windowProperties.m_title       = "Lina Engine - Demo Sandbox Project";
     game->Initialize(appInfo);

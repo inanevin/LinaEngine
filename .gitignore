@@ -16,6 +16,7 @@
 LinaEngineBuildLauncher
 [Bb]uild_Win32
 [Bb]uild_x64
+_Dependencies
 
 #Lina Engine Tools
 *.jar

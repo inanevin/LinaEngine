@@ -54,20 +54,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bit7z/include)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
 
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME} PUBLIC user32.lib PRIVATE Lina::Common)
 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bit7z/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/bit7z64.lib
-	PUBLIC user32.lib
-	PRIVATE Lina::Common
-)
-
+include(../_Dependencies/bit7z/link.cmake)
+link_bit7z()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

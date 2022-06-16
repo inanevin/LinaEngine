@@ -185,10 +185,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
+
 
 include(../CMake/ProjectSettings.cmake)
-
+include(../_Dependencies/iconfontheaders/link.cmake)
+include(../_Dependencies/freetype/link.cmake)
+include(../_Dependencies/linavg/link.cmake)
+link_iconfontheaders()
+link_freetype()
+link_linavg()
 
 #--------------------------------------------------------------------
 # Links

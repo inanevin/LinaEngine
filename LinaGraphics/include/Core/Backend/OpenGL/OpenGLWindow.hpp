@@ -100,6 +100,7 @@ namespace Lina::Graphics
         void   Tick();
         double GetTime();
 
+
     private:
         friend class Engine;
         OpenGLWindow()  = default;
@@ -114,6 +115,7 @@ namespace Lina::Graphics
         void*                m_window           = nullptr;
         GLFWwindow*          m_glfwWindow       = nullptr;
     };
+
 } // namespace Lina::Graphics
 
 #endif

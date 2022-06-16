@@ -64,7 +64,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/GLGraphicsDefinitions.cmake)
- add_definitions(/bigobj)
+add_definitions(/bigobj)
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -78,7 +78,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
+
+include(../_Dependencies/iconfontheaders/link.cmake)
+link_iconfontheaders()
 
 
 #--------------------------------------------------------------------
@@ -95,7 +97,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio
 	PUBLIC Lina::Resource
-	PUBLIC Lina::GUI
 )
 
 #--------------------------------------------------------------------
@@ -105,10 +106,10 @@ find_package(OpenGL REQUIRED)
 
 # Launch Lina Header tool prior to building to prepare the reflection data for runtime.
 
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/LinaHeaderTool/bin/ LinaHeader.exe)
+## add_custom_command(
+## TARGET ${PROJECT_NAME}
+## PRE_BUILD
+## COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/LinaHeaderTool/bin/ LinaHeader.exe)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
