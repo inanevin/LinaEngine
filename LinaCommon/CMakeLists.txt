@@ -131,6 +131,7 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedSList.hpp
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
+	include/Data/String.hpp
 
 	# Log
 	include/Log/Log.hpp
@@ -210,6 +211,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/FixedSList.hpp
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
+	include/Data/String.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
