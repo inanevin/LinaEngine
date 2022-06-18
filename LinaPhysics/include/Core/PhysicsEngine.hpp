@@ -156,8 +156,9 @@ namespace Lina::Physics
         friend class Engine;
         friend struct ECS::PhysicsComponent;
 
-        PhysicsEngine();
-        ~PhysicsEngine();
+        PhysicsEngine()  = default;
+        ~PhysicsEngine() = default;
+
         void  Initialize(ApplicationMode appMode);
         void  Tick(float fixedDelta);
         void  Shutdown();
@@ -179,14 +180,14 @@ namespace Lina::Physics
 
     private:
         static PhysicsEngine* s_physicsEngine;
-        ECS::RigidbodySystem       m_rigidbodySystem;
-        ECS::SystemList            m_physicsPipeline;
-        Event::EventSystem*        m_eventSystem;
-        ApplicationMode            m_appMode = ApplicationMode::Editor;
-        PhysXCooker                m_cooker;
-        PhysicsMaterial*           m_defaultMaterial  = nullptr;
-        bool                       m_debugDrawEnabled = false;
-        float                      m_stepTime         = 0.016f;
+        ECS::RigidbodySystem  m_rigidbodySystem;
+        ECS::SystemList       m_physicsPipeline;
+        Event::EventSystem*   m_eventSystem;
+        ApplicationMode       m_appMode = ApplicationMode::Editor;
+        PhysXCooker           m_cooker;
+        PhysicsMaterial*      m_defaultMaterial  = nullptr;
+        bool                  m_debugDrawEnabled = false;
+        float                 m_stepTime         = 0.016f;
     };
 } // namespace Lina::Physics
 

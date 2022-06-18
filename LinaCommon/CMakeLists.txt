@@ -116,6 +116,22 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/ECSEvents.hpp
 	include/EventSystem/EventSystem.hpp
 
+	# Data
+	include/Data/Vector.hpp
+	include/Data/Map.hpp
+	include/Data/List.hpp
+	include/Data/SList.hpp
+	include/Data/HashMap.hpp
+	include/Data/Set.hpp
+	include/Data/Queue.hpp
+	include/Data/Deque.hpp
+	include/Data/FixedVector.hpp
+	include/Data/FixedMap.hpp
+	include/Data/FixedList.hpp
+	include/Data/FixedSList.hpp
+	include/Data/FixedHashMap.hpp
+	include/Data/FixedSet.hpp
+
 	# Log
 	include/Log/Log.hpp
 	
@@ -180,6 +196,20 @@ target_precompile_headers(${PROJECT_NAME}
 	include/ECS/System.hpp
 	include/ECS/SystemList.hpp
 	include/Utility/StringID.hpp
+	include/Data/Vector.hpp
+	include/Data/Map.hpp
+	include/Data/List.hpp
+	include/Data/SList.hpp
+	include/Data/HashMap.hpp
+	include/Data/Set.hpp
+	include/Data/Queue.hpp
+	include/Data/Deque.hpp
+	include/Data/FixedVector.hpp
+	include/Data/FixedMap.hpp
+	include/Data/FixedList.hpp
+	include/Data/FixedSList.hpp
+	include/Data/FixedHashMap.hpp
+	include/Data/FixedSet.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -202,16 +232,15 @@ include(../_Dependencies/fmt/link.cmake)
 include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/cereal/link.cmake)
 include(../_Dependencies/entt/link.cmake)
+include(../_Dependencies/eabase/link.cmake)
+include(../_Dependencies/eastl/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
 link_cereal()
 link_entt()
-
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
-
+link_eabase()
+link_eastl()
 
 #--------------------------------------------------------------------
 # Generate export header for this dll project 
@@ -222,7 +251,6 @@ link_entt()
 #	EXPORT_MACRO_NAME LINA_API
 #	EXPORT_FILE_NAME Common.hpp
 #)
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

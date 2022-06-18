@@ -72,6 +72,7 @@ namespace Lina::Physics
         PhysXCooker() = default;
         ~PhysXCooker() = default;
         void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
+        void Shutdown();
 
     private:
         /// <summary>
@@ -80,7 +81,6 @@ namespace Lina::Physics
         /// </summary>
         void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
 
-        void OnShutdown(const Event::EShutdown& ev);
         void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
         void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 

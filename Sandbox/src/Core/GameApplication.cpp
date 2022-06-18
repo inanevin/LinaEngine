@@ -37,36 +37,36 @@ namespace Lina
     {
         Application::Initialize(appInfo);
 
-        if (appInfo.m_appMode == ApplicationMode::Editor)
-        {
-            // Engine::Get()->StartLoadingResources();
-
-           // m_editor = new Editor::EditorApplication();
-           // m_editor->Initialize();
-
-            // Update props.
-            auto& windowProps = Graphics::Window::Get()->GetProperties();
-
-            // Set the app window size back to original after loading editor resources.
-            Graphics::Window::Get()->SetPos(Vector2i(0, 0));
-            Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
-        }
-        else
-        {
-            // Engine::Get()->StartLoadingResources();
-            auto& windowProps = Graphics::Window::Get()->GetProperties();
-            Graphics::Window::Get()->SetPos(Vector2i(0, 0));
-            Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_width, windowProps.m_height));
-        }
-
-        // Initialize game manager.
-        m_gameManager.Initialize();
-
-        Run();
-
-        // After engine has finished running.
-        if (m_editor != nullptr)
-            delete m_editor;
+    // if (appInfo.m_appMode == ApplicationMode::Editor)
+    // {
+    //     // Engine::Get()->StartLoadingResources();
+    //
+    //    // m_editor = new Editor::EditorApplication();
+    //    // m_editor->Initialize();
+    //
+    //     // Update props.
+    //     auto& windowProps = Graphics::Window::Get()->GetProperties();
+    //
+    //     // Set the app window size back to original after loading editor resources.
+    //     Graphics::Window::Get()->SetPos(Vector2i(0, 0));
+    //     Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
+    // }
+    // else
+    // {
+    //     // Engine::Get()->StartLoadingResources();
+    //     auto& windowProps = Graphics::Window::Get()->GetProperties();
+    //     Graphics::Window::Get()->SetPos(Vector2i(0, 0));
+    //     Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_width, windowProps.m_height));
+    // }
+    //
+    // // Initialize game manager.
+    // m_gameManager.Initialize();
+    //
+    // Run();
+    //
+    // // After engine has finished running.
+    // if (m_editor != nullptr)
+    //     delete m_editor;
     }
 } // namespace Lina
 

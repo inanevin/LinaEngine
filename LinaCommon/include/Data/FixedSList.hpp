@@ -26,20 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/RenderBuffer.hpp"
+/*
+Class: List
 
-#include "Core/RenderEngine.hpp"
+Timestamp: 05/12/2022 11:33:56 PM
+*/
 
-namespace Lina::Graphics
+#pragma once
+
+#ifndef DataStructuresSList_HPP
+#define DataStructuresSList_HPP
+
+#include <EASTL/fixed_slist.h>
+
+namespace Lina
 {
-    RenderBuffer::~RenderBuffer()
-    {
-        if (m_id != 0)
-            m_id = RenderEngine::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
-    }
+	template<typename T>
+	using FixedSList = eastl::fixed_slist<T>;
+} // namespace Lina
 
-    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount)
-    {
-        m_id = RenderEngine::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
-    }
-} // namespace Lina::Graphics
+#endif

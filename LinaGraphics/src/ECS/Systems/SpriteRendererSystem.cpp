@@ -40,7 +40,8 @@ namespace Lina::ECS
 {
     SpriteRendererSystem::~SpriteRendererSystem()
     {
-        delete m_quadMesh;
+        if (m_quadMesh != nullptr)
+            delete m_quadMesh;
     }
 
     void SpriteRendererSystem::Initialize(const std::string& name)
@@ -54,12 +55,11 @@ namespace Lina::ECS
         m_quadMesh->CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
     }
 
-
     void SpriteRendererSystem::UpdateComponents(float delta)
     {
         auto* ecs = ECS::Registry::Get();
 
-        auto view = ecs->view<EntityDataComponent, SpriteRendererComponent>();
+        auto view  = ecs->view<EntityDataComponent, SpriteRendererComponent>();
         m_poolSize = (int)view.size_hint();
 
         // Find the sprites and add them to the render queue.
@@ -71,13 +71,12 @@ namespace Lina::ECS
             if (!renderer.GetIsEnabled() || !data.GetIsEnabled())
                 return;
 
-
             // Dont draw if mesh or material does not exist.
             if (renderer.m_materialID < 0)
                 continue;
 
-          //  Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
-          //  Render(mat, data.ToMatrix());
+            //  Graphics::Material& mat = Graphics::Material::GetMaterial(renderer.m_materialID);
+            //  Render(mat, data.ToMatrix());
         }
     }
 

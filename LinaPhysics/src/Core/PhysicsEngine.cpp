@@ -67,11 +67,6 @@ namespace Lina::Physics
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
     std::map<StringIDType, std::vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
-    PhysicsEngine::PhysicsEngine()
-    {
-        LINA_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
-    }
-
     void PhysicsEngine::Initialize(ApplicationMode appMode)
     {
         LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
@@ -140,11 +135,8 @@ namespace Lina::Physics
     void PhysicsEngine::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Physics Engine ({0})", typeid(*this).name());
-    }
 
-    PhysicsEngine::~PhysicsEngine()
-    {
-        LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
+        m_cooker.Shutdown();
 
         for (auto ent : m_actors)
             ent.second->release();

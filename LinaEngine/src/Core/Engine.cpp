@@ -82,7 +82,7 @@ namespace Lina
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
         Event::EventSystem::s_eventSystem             = &m_eventSystem;
-        Graphics::Window::s_Window             = &m_window;
+        Graphics::Window::s_Window                    = &m_window;
         Graphics::RenderEngine::s_renderEngine        = &m_renderEngine;
         Physics::PhysicsEngine::s_physicsEngine       = &m_physicsEngine;
         Input::InputEngine::s_inputEngine             = &m_inputEngine;
@@ -90,6 +90,26 @@ namespace Lina
         Audio::AudioEngine::s_audioEngine             = &m_audioEngine;
         Resources::ResourceStorage::s_instance        = &m_resourceStorage;
         m_appInfo                                     = appInfo;
+
+        m_eventSystem.Initialize();
+        m_resourceStorage.Initialize();
+        m_inputEngine.Initialize();
+        m_resourceManager.Initialize(m_appInfo);
+        m_audioEngine.Initialize();
+        m_messageBus.Initialize(m_appInfo.m_appMode);
+        m_physicsEngine.Initialize(m_appInfo.m_appMode);
+
+        // m_renderEngine.SetScreenDisplay(Vector2::Zero, m_window.GetSize());
+        // m_renderEngine.ConnectEvents();
+        // m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings, m_window.GetProperties());
+
+        m_audioEngine.Shutdown();
+        m_physicsEngine.Shutdown();
+        m_inputEngine.Shutdown();
+        m_resourceManager.Shutdown();
+        m_resourceStorage.Shutdown();
+        m_eventSystem.Shutdown();
+        return;
 
         bool engineSettingsExists = Utility::FileExists("engine.linasettings");
 
@@ -99,10 +119,6 @@ namespace Lina
             Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
         RegisterResourceTypes();
-        m_eventSystem.Initialize();
-        m_resourceStorage.Initialize();
-        m_inputEngine.Initialize();
-        m_resourceManager.Initialize(m_appInfo);
 
         // Build main window.
         bool windowCreationSuccess = m_window.CreateContext(m_appInfo);
@@ -113,13 +129,6 @@ namespace Lina
         }
 
         // Set event callback for main window.
-        m_renderEngine.SetScreenDisplay(Vector2::Zero, m_window.GetSize());
-
-        m_renderEngine.ConnectEvents();
-        m_audioEngine.Initialize();
-        m_messageBus.Initialize(m_appInfo.m_appMode);
-        m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings, m_window.GetProperties());
-        m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
         ReflectionRegistry::RegisterReflectedComponents();
     }
@@ -139,14 +148,14 @@ namespace Lina
         {
             // Load the startup level.
         }
-       // else
-       //     m_defaultLevel.Install();
+        // else
+        //     m_defaultLevel.Install();
 
         m_deltaTimeArray.fill(-1.0);
 
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
         {
-           // m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
+            // m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
         }
         else
             SetPlayMode(true);

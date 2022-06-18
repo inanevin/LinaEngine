@@ -26,20 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/RenderBuffer.hpp"
+/*
+Class: Queue
 
-#include "Core/RenderEngine.hpp"
 
-namespace Lina::Graphics
+
+Timestamp: 05/12/2022 11:33:56 PM
+*/
+
+#pragma once
+
+#ifndef DataStructuresQueue_HPP
+#define DataStructuresQueue_HPP
+
+#include <EASTL/queue.h>
+
+namespace Lina
 {
-    RenderBuffer::~RenderBuffer()
-    {
-        if (m_id != 0)
-            m_id = RenderEngine::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
-    }
+	template<typename T>
+	using Queue = eastl::queue<T>;
+} // namespace Lina
 
-    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount)
-    {
-        m_id = RenderEngine::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
-    }
-} // namespace Lina::Graphics
+#endif

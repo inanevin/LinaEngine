@@ -26,20 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/RenderBuffer.hpp"
+/*
+Class: Vector
 
-#include "Core/RenderEngine.hpp"
 
-namespace Lina::Graphics
+Timestamp: 05/12/2022 11:33:56 PM
+*/
+
+#pragma once
+
+#ifndef DataStructuresFixedVector_HPP
+#define DataStructuresFixedVector_HPP
+
+#include <EASTL/fixed_vector.h>
+
+namespace Lina
 {
-    RenderBuffer::~RenderBuffer()
-    {
-        if (m_id != 0)
-            m_id = RenderEngine::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
-    }
+    template <typename T, size_t nodeCount>
+    using FixedVector = eastl::fixed_vector<T, nodeCount>;
+} // namespace Lina
 
-    void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount)
-    {
-        m_id = RenderEngine::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
-    }
-} // namespace Lina::Graphics
+#endif

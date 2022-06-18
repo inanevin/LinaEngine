@@ -45,7 +45,11 @@ namespace Lina::Physics
     {
         m_appMode   = appMode;
         m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(PxTolerancesScale()));
-        Event::EventSystem::Get()->Connect<Event::EShutdown, &PhysXCooker::OnShutdown>(this);
+    }
+
+    void PhysXCooker::Shutdown()
+    {
+        m_pxCooking->release();
     }
 
     void PhysXCooker::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData)
@@ -72,11 +76,6 @@ namespace Lina::Physics
         // LINA_TRACE("Cooked! Creating convex mesh with sid {0} and node id {1}", sid, nodeIndex);
 
         // PHYSICSENGINE CreateConvexMesh(bufferData, sid, nodeIndex);
-    }
-
-    void PhysXCooker::OnShutdown(const Event::EShutdown& ev)
-    {
-        m_pxCooking->release();
     }
 
     void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)

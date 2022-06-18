@@ -102,6 +102,8 @@ namespace Lina::Resources
 
     void ResourceManager::Initialize(ApplicationInfo& appInfo)
     {
+        LINA_TRACE("[Initialization] -> Resource Manager {0}", typeid(*this).name());
+
         m_appInfo  = appInfo;
         m_eventSys = Event::EventSystem::Get();
         m_eventSys->Connect<Event::ERequestResourceReload, &ResourceManager::OnRequestResourceReload>(this);
