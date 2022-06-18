@@ -107,20 +107,20 @@ namespace Lina::Event
         void Trigger(const Type& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger<Type>(args);
+            m_mainDispatcher.trigger(args);
         }
         template <typename Type>
         void Trigger(Type&& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger<Type>(args);
+            m_mainDispatcher.trigger(args);
         }
 
         template <typename Type>
         void Trigger(Type& args)
         {
             // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger<Type>(args);
+            m_mainDispatcher.trigger(args);
         }
 
         template <typename Type>

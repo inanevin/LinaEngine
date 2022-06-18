@@ -58,7 +58,7 @@ namespace Lina::Graphics
     public:
         static Window* Get()
         {
-            return s_window;
+            return s_Window;
         }
         virtual void* GetNativeWindow() const
         {
@@ -110,7 +110,7 @@ namespace Lina::Graphics
         void Sleep(int milliseconds);
 
     private:
-        static Window* s_window;
+        static Window* s_Window;
         WindowProperties     m_windowProperties = WindowProperties();
         void*                m_window           = nullptr;
         GLFWwindow*          m_glfwWindow       = nullptr;

@@ -40,7 +40,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Window* Window::s_window = nullptr;
+    Window* Window::s_Window = nullptr;
 
     void Window::Tick()
     {

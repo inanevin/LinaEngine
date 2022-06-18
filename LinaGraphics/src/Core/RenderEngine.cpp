@@ -254,6 +254,10 @@ namespace Lina::Graphics
 
     void RenderEngine::ConstructRenderTargets()
     {
+        SamplerParameters params;
+        params.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+        params.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+
         SamplerParameters cubemapParams;
         cubemapParams.m_textureParams.m_wrapR = cubemapParams.m_textureParams.m_wrapS = cubemapParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
         cubemapParams.m_textureParams.m_magFilter                                                                             = SamplerFilter::FILTER_LINEAR;

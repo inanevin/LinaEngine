@@ -350,7 +350,7 @@ namespace Lina::Graphics
         glBindTexture(textureTarget, textureHandle);
 
         // Build texture
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, 2048, 2048, GL_TRUE);
 
         // Setup texture params
         // SetupTextureParameters(textureTarget, samplerParams);

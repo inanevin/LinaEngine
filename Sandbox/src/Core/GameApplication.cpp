@@ -39,7 +39,7 @@ namespace Lina
 
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
-            Engine::Get()->StartLoadingResources();
+            // Engine::Get()->StartLoadingResources();
 
            // m_editor = new Editor::EditorApplication();
            // m_editor->Initialize();
@@ -53,7 +53,7 @@ namespace Lina
         }
         else
         {
-            Engine::Get()->StartLoadingResources();
+            // Engine::Get()->StartLoadingResources();
             auto& windowProps = Graphics::Window::Get()->GetProperties();
             Graphics::Window::Get()->SetPos(Vector2i(0, 0));
             Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_width, windowProps.m_height));
@@ -72,6 +72,7 @@ namespace Lina
 
 int main(int argc, char** argv)
 {
+
     GameApplication* game = new GameApplication();
     ApplicationInfo  appInfo;
     appInfo.m_appMode                        = ApplicationMode::Editor;
@@ -92,5 +93,6 @@ int main(int argc, char** argv)
     appInfo.m_windowProperties.m_msaaSamples = 0;
     appInfo.m_windowProperties.m_title       = "Lina Engine - Demo Sandbox Project";
     game->Initialize(appInfo);
+
     delete game;
 }

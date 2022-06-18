@@ -82,7 +82,7 @@ namespace Lina
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
         Event::EventSystem::s_eventSystem             = &m_eventSystem;
-        Graphics::Window::s_window                    = &m_window;
+        Graphics::Window::s_Window             = &m_window;
         Graphics::RenderEngine::s_renderEngine        = &m_renderEngine;
         Physics::PhysicsEngine::s_physicsEngine       = &m_physicsEngine;
         Input::InputEngine::s_inputEngine             = &m_inputEngine;
@@ -139,14 +139,14 @@ namespace Lina
         {
             // Load the startup level.
         }
-        else
-            m_defaultLevel.Install();
+       // else
+       //     m_defaultLevel.Install();
 
         m_deltaTimeArray.fill(-1.0);
 
         if (m_appInfo.m_appMode == ApplicationMode::Editor)
         {
-            m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
+           // m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
         }
         else
             SetPlayMode(true);
