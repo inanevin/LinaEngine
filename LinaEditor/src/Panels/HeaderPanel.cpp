@@ -33,8 +33,8 @@ SOFTWARE.
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/RenderBackendFwd.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/RenderEngineFwd.hpp"
+#include "Core/Window.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
 #include "Math/Math.hpp"
@@ -150,16 +150,16 @@ namespace Lina::Editor
         // ****** ABOUTMENU
         aboutMenu->AddElement(new MenuBarElement("", "Github", "", 0, MenuBarElementType::Github));
         aboutMenu->AddElement(new MenuBarElement("", "Website", "", 0, MenuBarElementType::Website));
-        m_title = Graphics::WindowBackend::Get()->GetProperties().m_title;
+        m_title = Graphics::Window::Get()->GetProperties().m_title;
     }
 
     void HandleAppWindowResize()
     {
-        Graphics::WindowBackend* appWindow     = Graphics::WindowBackend::Get();
-        const Vector2            appWindowPos  = appWindow->GetPos();
-        const Vector2            appWindowSize = appWindow->GetSize();
-        ImGuiViewport*           viewport      = ImGui::GetMainViewport();
-        const ImVec2             mousePos      = ImGui::GetMousePos();
+        Graphics::Window* appWindow     = Graphics::Window::Get();
+        const Vector2     appWindowPos  = appWindow->GetPos();
+        const Vector2     appWindowSize = appWindow->GetSize();
+        ImGuiViewport*    viewport      = ImGui::GetMainViewport();
+        const ImVec2      mousePos      = ImGui::GetMousePos();
 
         bool horizontalResize = Math::Abs(mousePos.x - (appWindowPos.x + appWindowSize.x)) < HEADER_RESIZE_THRESHOLD;
         bool verticalResize   = Math::Abs(mousePos.y - (appWindowPos.y + appWindowSize.y)) < HEADER_RESIZE_THRESHOLD;
@@ -219,7 +219,7 @@ namespace Lina::Editor
             static ImVec2   pressPos       = ImVec2(0, 0);
             static Vector2i pressWindowPos = Vector2i::Zero;
             static bool     mouseDragging  = false;
-            if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+            if (Input::InputEngine::Get()->GetMouseButtonDown(LINA_MOUSE_1))
             {
                 pressWindowPos = appWindow->GetPos();
             }
@@ -310,12 +310,12 @@ namespace Lina::Editor
                 ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
                 DrawMenuBarChild();
 
-                Graphics::WindowBackend* appWindow  = Graphics::WindowBackend::Get();
-                const ImVec2             windowPos  = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
-                const ImVec2             windowSize = ImVec2((float)appWindow->GetSize().x, (float)appWindow->GetSize().y);
+                Graphics::Window* appWindow  = Graphics::Window::Get();
+                const ImVec2      windowPos  = ImVec2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
+                const ImVec2      windowSize = ImVec2((float)appWindow->GetSize().x, (float)appWindow->GetSize().y);
 
                 // Add a poly background for the logo.
-                const ImVec2 logoBounds = ImVec2(500 * GUILayer::Get()->GetDPIScale(), 36.0f* GUILayer::Get()->GetDPIScale());
+                const ImVec2 logoBounds = ImVec2(500 * GUILayer::Get()->GetDPIScale(), 36.0f * GUILayer::Get()->GetDPIScale());
                 const ImVec2 logoPos    = ImVec2(windowPos.x + windowSize.x / 2.0f - logoBounds.x / 2.0f, windowPos.y);
 
                 ImVec2 points[5] = {
@@ -330,9 +330,9 @@ namespace Lina::Editor
                 ImGui::GetWindowDrawList()->AddPolyline(&points[0], 4, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 0.5f)), 0, 3);
 
                 // Add animated logo.
-                const ImVec2     logoSize = ImVec2(184 * GUILayer::Get()->GetDPIScale(), 22 * GUILayer::Get()->GetDPIScale());
-                const ImVec2 logoMin = ImVec2(windowPos.x + viewport->WorkSize.x / 2.0f - logoSize.x / 2.0f, windowPos.y + logoBounds.y / 2.0f - logoSize.y / 2.0f);
-                const ImVec2 logoMax = ImVec2(logoMin.x + logoSize.x, logoMin.y + logoSize.y);
+                const ImVec2 logoSize = ImVec2(184 * GUILayer::Get()->GetDPIScale(), 22 * GUILayer::Get()->GetDPIScale());
+                const ImVec2 logoMin  = ImVec2(windowPos.x + viewport->WorkSize.x / 2.0f - logoSize.x / 2.0f, windowPos.y + logoBounds.y / 2.0f - logoSize.y / 2.0f);
+                const ImVec2 logoMax  = ImVec2(logoMin.x + logoSize.x, logoMin.y + logoSize.y);
                 ImGui::GetWindowDrawList()->AddImage((void*)(linaLogoID), logoMin, logoMax, ImVec2(0, 1), ImVec2(1, 0));
 
                 // Versioning information when hovered on logo.

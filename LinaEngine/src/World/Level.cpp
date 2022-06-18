@@ -29,7 +29,7 @@ SOFTWARE.
 #include "World/Level.hpp"
 
 #include "Core/Application.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
@@ -95,8 +95,8 @@ namespace Lina::World
 
     void Level::SetupData()
     {
-        Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(m_skyboxMaterial.m_value);
-        Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(m_ambientColor);
+        Graphics::RenderEngine::Get()->SetSkyboxMaterial(m_skyboxMaterial.m_value);
+        Graphics::RenderEngine::Get()->GetLightingSystem()->SetAmbientColor(m_ambientColor);
         Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
     };
 

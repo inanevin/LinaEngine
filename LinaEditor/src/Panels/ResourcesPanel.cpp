@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/InputMappings.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "IconsFontAwesome5.h"
 #include "Math/Math.hpp"
 #include "Panels/PropertiesPanel.hpp"
@@ -164,7 +164,7 @@ namespace Lina::Editor
             if (canDrag)
             {
 
-                if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+                if (Input::InputEngine::Get()->GetMouseButtonDown(LINA_MOUSE_1))
                 {
                     pressedPos                  = m_leftPaneWidth;
                     m_draggingChildWindowBorder = true;
@@ -243,7 +243,7 @@ namespace Lina::Editor
         WidgetsUtility::IncrementCursorPosY(4 * GUILayer::Get()->GetDPIScale());
         DrawFolderHierarchy(m_rootFolder, true);
 
-        if (m_selectedFolder != nullptr && m_leftPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
+        if (m_selectedFolder != nullptr && m_leftPaneFocused && Input::InputEngine::Get()->GetKeyDown(LINA_KEY_DELETE))
         {
             if (WidgetsUtility::IsProtectedDirectory(m_selectedFolder))
                 Snackbar::PushSnackbar(LogLevel::Warn, "The Root, Engine, Editor and Sandbox folders can not be deleted!");
@@ -255,7 +255,7 @@ namespace Lina::Editor
         }
 
         // Deselect folder
-        if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+        if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && Input::InputEngine::Get()->GetMouseButtonDown(LINA_MOUSE_1))
             DeselectNodes(true);
 
         ImGui::EndChild();
@@ -441,7 +441,7 @@ namespace Lina::Editor
             // Double clicking or pressing enter on a subfolder will select that sub folder from the left-pane, unless the subfolder is being renamed.
             if (ImGui::IsItemHovered())
             {
-                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngine::Get()->GetKeyDown(LINA_KEY_RETURN))
                 {
                     if (!renamedItem)
                     {
@@ -480,7 +480,7 @@ namespace Lina::Editor
 
             if (ImGui::IsItemHovered())
             {
-                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_RETURN))
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) || Input::InputEngine::Get()->GetKeyDown(LINA_KEY_RETURN))
                 {
                     if (m_selectedFile == nullptr || !renamedItem)
                     {
@@ -523,7 +523,7 @@ namespace Lina::Editor
             }
         }
 
-        if (m_rightPaneFocused && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_DELETE))
+        if (m_rightPaneFocused && Input::InputEngine::Get()->GetKeyDown(LINA_KEY_DELETE))
         {
             if (m_selectedSubfolder != nullptr)
             {
@@ -625,7 +625,7 @@ namespace Lina::Editor
             {
                 Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
                 const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
-                Graphics::Material::CreateMaterial(Graphics::RenderEngineBackend::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
+                Graphics::Material::CreateMaterial(Graphics::RenderEngine::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
                 Utility::ScanFolder(parent, true, nullptr, true);
             }
         }

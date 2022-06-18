@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: PhysXPhysicsEngine
+Class: PhysicsEngine
 
 Responsible for initializing, running and cleaning up the physics world. Also a wrapper for bt3.
 
@@ -39,7 +39,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
-#include "Core/Backend/PhysX/PhysXCooker.hpp"
+#include "Core/PhysicsCooker.hpp"
 #include "Core/CommonECS.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/SystemList.hpp"
@@ -77,10 +77,10 @@ namespace physx
 namespace Lina::Physics
 {
 
-    class PhysXPhysicsEngine
+    class PhysicsEngine
     {
     public:
-        static PhysXPhysicsEngine* Get()
+        static PhysicsEngine* Get()
         {
             return s_physicsEngine;
         }
@@ -156,8 +156,8 @@ namespace Lina::Physics
         friend class Engine;
         friend struct ECS::PhysicsComponent;
 
-        PhysXPhysicsEngine();
-        ~PhysXPhysicsEngine();
+        PhysicsEngine();
+        ~PhysicsEngine();
         void  Initialize(ApplicationMode appMode);
         void  Tick(float fixedDelta);
         void  Shutdown();
@@ -178,7 +178,7 @@ namespace Lina::Physics
         physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
 
     private:
-        static PhysXPhysicsEngine* s_physicsEngine;
+        static PhysicsEngine* s_physicsEngine;
         ECS::RigidbodySystem       m_rigidbodySystem;
         ECS::SystemList            m_physicsPipeline;
         Event::EventSystem*        m_eventSystem;

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/InputMappings.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "IconsFontAwesome5.h"
 #include "Log/Log.hpp"
 #include "Utility/EditorUtility.hpp"
@@ -91,7 +91,7 @@ namespace Lina::Editor
                 if (ImGui::Button("Save", ImVec2(50, 28)))
                 {
                     std::string fullPath = "";
-                    fullPath             = EditorUtility::SaveFile(".txt", Graphics::WindowBackend::Get()->GetNativeWindow());
+                    fullPath             = EditorUtility::SaveFile(".txt", Graphics::Window::Get()->GetNativeWindow());
 
                     if (fullPath.compare("") != 0)
                     {

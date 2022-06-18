@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Panels/ProgressPanel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 
 namespace Lina::Editor
@@ -40,7 +40,7 @@ namespace Lina::Editor
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar;
 
-        auto*        appWindow = Graphics::WindowBackend::Get();
+        auto*        appWindow = Graphics::Window::Get();
         const ImVec2 size      = ImVec2(400, 50);
         const ImVec2 pos       = ImVec2(appWindow->GetWorkSize().x - size.x - 20, appWindow->GetWorkSize().y * 0.91f);
         const float  padding   = CURSOR_X_LABELS;

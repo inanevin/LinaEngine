@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Panels/EditorPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor
@@ -154,7 +154,7 @@ namespace Lina::Editor
             ImVec2 pos            = ImGui::GetWindowPos();
             m_sizeBeforeMaximize  = Vector2(size.x, size.y);
             m_posBeforeMaximize   = Vector2(pos.x, pos.y);
-            auto* appWindow       = Graphics::WindowBackend::Get();
+            auto* appWindow       = Graphics::Window::Get();
             m_windowPosNextFrame  = Vector2((float)appWindow->GetPos().x, (float)appWindow->GetPos().y);
             m_windowSizeNextFrame = Vector2((float)appWindow->GetWorkSize().x, (float)appWindow->GetWorkSize().y);
         }

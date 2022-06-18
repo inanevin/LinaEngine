@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/Application.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -45,7 +45,7 @@ namespace Lina::ECS
     {
         System::Initialize(name);
         m_levelPanel  = &scenePanel;
-        m_inputEngine = Input::InputEngineBackend::Get();
+        m_inputEngine = Input::InputEngine::Get();
         m_poolSize    = 1;
     }
 
@@ -79,14 +79,14 @@ namespace Lina::ECS
         // Handle movement.
         float   horizontalKey    = m_inputEngine->GetHorizontalAxisValue();
         float   verticalKey      = m_inputEngine->GetVerticalAxisValue();
-        float   sprintMultiplier = Input::InputEngineBackend::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
+        float   sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
         Vector3 fw               = rotation.GetForward();
         Vector3 up               = rotation.GetUp();
         Vector3 rg               = rotation.GetRight();
 
         location += verticalKey * delta * m_movementSpeeds.x * fw.Normalized() * sprintMultiplier * m_cameraSpeedMultiplier;
         location += horizontalKey * delta * m_movementSpeeds.y * rg.Normalized() * sprintMultiplier * m_cameraSpeedMultiplier;
-        const float scrollY = -Input::InputEngineBackend::Get()->GetMouseScroll().y;
+        const float scrollY = -Input::InputEngine::Get()->GetMouseScroll().y;
         location += scrollY * 1.8f * delta * -fw.Normalized() * m_movementSpeeds.x * sprintMultiplier;
 
         if (m_inputEngine->GetMouseButtonDown(LINA_MOUSE_3))

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "Math/Math.hpp"
 #include "Core/Engine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -61,7 +61,7 @@ namespace Lina::Editor
 
         float ratio = m_timer / m_swayDuration;
         ratio       = Math::Clamp(ratio, 0.0f, 1.0f);
-        auto*         appWindow = Graphics::WindowBackend::Get();
+        auto*         appWindow = Graphics::Window::Get();
         const Vector2 windowPos = appWindow->GetPos();
         const ImVec2  min       = ImVec2(windowPos.x - size.x + (ratio * (size.x + 20 * GUILayer::Get()->GetDPIScale())), windowPos.y + (float)appWindow->GetHeight() * 0.91f);
         const ImVec2  max       = ImVec2(min.x + size.x, min.y + size.y);

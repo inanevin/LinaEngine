@@ -26,9 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/PhysX/PhysXCooker.hpp"
-
-#include "Core/Backend/PhysX/PhysXPhysicsEngine.hpp"
+#include "Core/PhysicsCooker.hpp"
+#include "Core/PhysicsEngine.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"

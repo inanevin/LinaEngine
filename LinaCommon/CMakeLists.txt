@@ -202,13 +202,11 @@ include(../_Dependencies/fmt/link.cmake)
 include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/cereal/link.cmake)
 include(../_Dependencies/entt/link.cmake)
-include(../_Dependencies/taskflow/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
 link_cereal()
 link_entt()
-link_taskflow()
 
 #--------------------------------------------------------------------
 # Packages

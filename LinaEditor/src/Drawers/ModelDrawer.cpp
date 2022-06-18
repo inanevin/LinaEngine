@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorApplication.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Rendering/Model.hpp"
 #include "Core/Engine.hpp"
@@ -126,7 +126,7 @@ namespace Lina::Editor
     void ModelDrawer::DrawModel(Graphics::Model* model, Matrix& matrix, const Vector2& bgMin, const Vector2& bgMax)
     {
 #pragma warning(disable : 4312)
-        auto*  renderEngine   = Graphics::RenderEngineBackend::Get();
+        auto*  renderEngine   = Graphics::RenderEngine::Get();
         uint32 previewTexture = renderEngine->RenderModelPreview(model, matrix);
         ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, ImVec2(bgMin.x, bgMin.y), ImVec2(bgMax.x, bgMax.y), ImVec2(0, 1), ImVec2(1, 0));
     }

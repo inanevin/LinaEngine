@@ -72,15 +72,8 @@ namespace Lina::Resources
 
     void ResourceManager::Shutdown()
     {
-        // Make sure we don't have any packing/unpacking going on.
-        if (m_future.valid())
-        {
-            m_future.cancel();
-            m_future.get();
-        }
-
+        // TODO: Make sure we don't have any packing/unpacking going on.
         delete m_rootFolder;
-
         LINA_TRACE("[Shutdown] -> Resource Manager {0}", typeid(*this).name());
     }
 

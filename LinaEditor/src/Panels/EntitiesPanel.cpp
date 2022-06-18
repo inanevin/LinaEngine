@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "EventSystem/LevelEvents.hpp"
@@ -218,9 +218,9 @@ namespace Lina::Editor
                 }
 
                 // Switch visibility using mouse drag.
-                if (Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_3))
+                if (Input::InputEngine::Get()->GetMouseButton(LINA_MOUSE_3))
                     m_isMouseDragging = true;
-                if (m_isMouseDragging && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_3))
+                if (m_isMouseDragging && Input::InputEngine::Get()->GetMouseButtonUp(LINA_MOUSE_3))
                 {
                     m_isMouseDragging = false;
                     m_visibilityMouseMap.clear();
@@ -250,7 +250,7 @@ namespace Lina::Editor
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
                     {
                         IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                        Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
+                        Graphics::RenderEngine::Get()->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
                     }
                     ImGui::EndDragDropTarget();
                 }

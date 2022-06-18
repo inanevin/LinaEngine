@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Drawers/MaterialDrawer.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -66,7 +66,7 @@ namespace Lina::Editor
                 WidgetsUtility::ResourceSelectionTexture("##mat_enviro_hdr", static_cast<void*>(&mat->m_environmentHDR));
                 Graphics::Texture* newHDR = mat->m_environmentHDR.m_value;
                 if (newHDR != nullptr && previousEnvironmentTexture != newHDR)
-                    Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(*newHDR);
+                    Graphics::RenderEngine::Get()->CaptureCalculateHDRI(*newHDR);
             }
             else
             {
@@ -226,12 +226,12 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
         if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneSize - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->GetDPIScale())))
         {
-            bool isSkyboxMaterial = Graphics::RenderEngineBackend::Get()->GetSkyboxMaterial() == mat;
+            bool isSkyboxMaterial = Graphics::RenderEngine::Get()->GetSkyboxMaterial() == mat;
             mat->Save();
 
             // Make sure the skybox material is nulled out on render engine until we are done with reloading.
             if (isSkyboxMaterial)
-                Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(nullptr);
+                Graphics::RenderEngine::Get()->SetSkyboxMaterial(nullptr);
 
             const std::string  path = mat->GetPath();
             const StringIDType sid  = mat->GetSID();
@@ -241,10 +241,10 @@ namespace Lina::Editor
 
             if (isSkyboxMaterial)
             {
-                Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(mat);
+                Graphics::RenderEngine::Get()->SetSkyboxMaterial(mat);
                 if (mat->m_shaderHandle.m_value->GetSpecification() == Graphics::ShaderSpecification::Sky_HDRICube && mat->m_environmentHDR.m_value != nullptr)
                 {
-                    mat->SetTexture(MAT_MAP_ENVIRONMENT, &Graphics::RenderEngineBackend::Get()->GetHDRICubemap(), Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
+                    mat->SetTexture(MAT_MAP_ENVIRONMENT, &Graphics::RenderEngine::Get()->GetHDRICubemap(), Graphics::TextureBindMode::BINDTEXTURE_CUBEMAP);
                 }
             }
         }
@@ -253,7 +253,7 @@ namespace Lina::Editor
     void MaterialDrawer::DrawMaterial(Graphics::Material* mat, Graphics::Model* previewModel, const Vector2& bgMin, const Vector2& bgMax)
     {
 #pragma warning(disable : 4312)
-        auto*  renderEngine   = Graphics::RenderEngineBackend::Get();
+        auto*  renderEngine   = Graphics::RenderEngine::Get();
         uint32 previewTexture = renderEngine->RenderModelPreview(previewModel, Matrix::Identity(), nullptr, mat);
         ImGui::GetWindowDrawList()->AddImage((void*)previewTexture, ImVec2(bgMin.x, bgMin.y), ImVec2(bgMax.x, bgMax.y), ImVec2(0, 1), ImVec2(1, 0));
     }

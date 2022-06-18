@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/CentralDockingSpace.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
@@ -40,7 +40,7 @@ namespace Lina::Editor
     void CentralDockingSpace::BuildDockspace()
     {
         dockspaceBuilt     = true;
-        Vector2 screenSize = Graphics::WindowBackend::Get()->GetSize();
+        Vector2 screenSize = Graphics::Window::Get()->GetSize();
         ImGui::DockBuilderRemoveNode(dockspaceID); // Clear out existing layout
 
         const ImGuiDockNodeFlags dockNodeFlags = ImGuiDockNodeFlags_DockSpace;

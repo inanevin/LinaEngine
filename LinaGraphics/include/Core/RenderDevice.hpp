@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: OpenGLRenderDevice
+Class: RenderDevice
 
 Responsible for handling all Open GL related drawing functionalities. All GL commands are only stored and used
 within an instance of this class.
@@ -51,13 +51,13 @@ using namespace Lina;
 namespace Lina::Graphics
 {
 
-    class OpenGLRenderDevice
+    class RenderDevice
     {
     public:
-        OpenGLRenderDevice();
-        ~OpenGLRenderDevice();
+        RenderDevice();
+        ~RenderDevice();
 
-        static OpenGLRenderDevice* Get()
+        static RenderDevice* Get()
         {
             return s_renderDevice;
         }
@@ -304,7 +304,7 @@ namespace Lina::Graphics
         void SetDepthTestEnable(bool enable);
 
     private:
-        static OpenGLRenderDevice* s_renderDevice;
+        static RenderDevice* s_renderDevice;
 
         uint32                            m_boundShader   = 0;
         uint32                            m_boundVAO      = 0;

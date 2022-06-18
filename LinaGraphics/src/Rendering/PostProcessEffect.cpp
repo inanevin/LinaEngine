@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/PostProcessEffect.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 #include "Rendering/RenderConstants.hpp"
 
@@ -37,7 +37,7 @@ namespace Lina::Graphics
 
     void PostProcessEffect::Construct(Shader* shader)
     {
-        m_renderEngine                                        = RenderEngineBackend::Get();
+        m_renderEngine                                        = RenderEngine::Get();
         m_renderDevice                                        = m_renderEngine->GetRenderDevice();
         m_samplerParams.m_textureParams.m_pixelFormat         = PixelFormat::FORMAT_RGB;
         m_samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;

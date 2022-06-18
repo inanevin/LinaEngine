@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "World/DefaultLevel.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -36,7 +36,7 @@ namespace Lina::World
 {
     void DefaultLevel::Install()
     {
-        auto* mat                = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxHDRIMaterial();
+        auto* mat                = Graphics::RenderEngine::Get()->GetDefaultSkyboxHDRIMaterial();
         m_skyboxMaterial.m_value = mat;
         m_skyboxMaterial.m_sid   = mat->GetSID();
         m_ambientColor           = Color(0.8f, 0.8f, 0.8f, 1.0f);
@@ -45,7 +45,7 @@ namespace Lina::World
         
         // Default Plane
         auto* plane = Resources::ResourceStorage::Get()->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Plane.fbx");
-        Graphics::RenderEngineBackend::Get()->GetModelNodeSystem()->CreateModelHierarchy(plane);
+        Graphics::RenderEngine::Get()->GetModelNodeSystem()->CreateModelHierarchy(plane);
 
         // Directional Light
         ECS::Entity directionalLight = m_registry.CreateEntity("Directional Light");

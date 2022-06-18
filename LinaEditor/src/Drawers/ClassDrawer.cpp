@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
-#include "Core/PhysicsBackend.hpp"
+#include "Core/PhysicsEngine.hpp"
 #include "Core/ImGuiCommon.hpp"
 #include "Rendering/Texture.hpp"
 #include <entt/meta/factory.hpp>

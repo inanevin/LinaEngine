@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "ECS/Systems/CameraSystem.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "EventSystem/LevelEvents.hpp"
@@ -68,7 +68,7 @@ namespace Lina::ECS
 
     Vector3 CameraSystem::ScreenToWorldCoordinates(const Vector3& screenPos)
     {
-        auto*   renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*   renderEngine = Graphics::RenderEngine::Get();
         Vector2 windowSize   = renderEngine->GetScreenSize();
         Vector2 windowPos    = renderEngine->GetScreenPos();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
@@ -82,14 +82,14 @@ namespace Lina::ECS
 
     Vector3 CameraSystem::ViewportToWorldCoordinates(const Vector3& viewport)
     {
-        auto*   renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*   renderEngine = Graphics::RenderEngine::Get();
         Vector2 windowSize   = renderEngine->GetScreenSize();
         return ScreenToWorldCoordinates(Vector3(viewport.x * windowSize.x, viewport.y * windowSize.y, viewport.z));
     }
 
     Vector3 CameraSystem::WorldToScreenCoordinates(const Vector3& world)
     {
-        auto*   renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*   renderEngine = Graphics::RenderEngine::Get();
         Vector2 windowSize   = renderEngine->GetScreenSize();
         Vector2 windowPos    = renderEngine->GetScreenPos();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
@@ -101,7 +101,7 @@ namespace Lina::ECS
 
     Vector3 CameraSystem::WorldToViewportCoordinates(const Vector3& world)
     {
-        auto*   renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*   renderEngine = Graphics::RenderEngine::Get();
         Vector2 windowSize   = renderEngine->GetScreenSize();
         Vector3 screen       = WorldToScreenCoordinates(world);
         return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);

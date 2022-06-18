@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/OpenAL/OpenALAudioEngine.hpp"
+#include "Core/AudioEngine.hpp"
 
 #include "Audio/Audio.hpp"
 #include "ECS/Registry.hpp"
@@ -42,9 +42,9 @@ SOFTWARE.
 
 namespace Lina::Audio
 {
-    OpenALAudioEngine* OpenALAudioEngine::s_audioEngine = nullptr;
+    AudioEngine* AudioEngine::s_audioEngine = nullptr;
 
-    void OpenALAudioEngine::Initialize()
+    void AudioEngine::Initialize()
     {
         LINA_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
 
@@ -93,7 +93,7 @@ namespace Lina::Audio
         alutInit(NULL, NULL);
     }
 
-    void OpenALAudioEngine::Shutdown()
+    void AudioEngine::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Audio Engine ({0})", typeid(*this).name());
 
@@ -103,7 +103,7 @@ namespace Lina::Audio
         m_generatedSources.clear();
     }
 
-    void OpenALAudioEngine::PlayOneShot(Audio* audio, float gain, bool looping, float pitch, Vector3 position, Vector3 velocity)
+    void AudioEngine::PlayOneShot(Audio* audio, float gain, bool looping, float pitch, Vector3 position, Vector3 velocity)
     {
         unsigned int source = -1;
 
@@ -126,7 +126,7 @@ namespace Lina::Audio
         alSourcePlay(source);
     }
 
-    void OpenALAudioEngine::ListAudioDevices(const char* type, const char* list)
+    void AudioEngine::ListAudioDevices(const char* type, const char* list)
     {
         ALCchar *ptr, *nptr;
         ptr = (ALCchar*)list;

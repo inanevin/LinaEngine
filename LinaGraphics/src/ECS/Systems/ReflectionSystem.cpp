@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::ECS
 {
@@ -43,7 +43,7 @@ namespace Lina::ECS
     {
         System::Initialize(name);
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &ReflectionSystem::OnPlayModeChanged>(this);
-        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderEngine = Graphics::RenderEngine::Get();
         m_appMode      = appMode;
     }
 

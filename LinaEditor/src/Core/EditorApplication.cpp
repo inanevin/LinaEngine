@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Core/Engine.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -141,7 +141,7 @@ namespace Lina::Editor
         FreeLookComponent   freeLookComponent;
         ecs->emplace<CameraComponent>(editorCamera, cameraComponent);
         ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
-        Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+        Graphics::RenderEngine::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
         m_editorCameraSystem.SetEditorCamera(editorCamera);
 
         // When the first level is loaded, iterate all model/material/shader resources & take snapshots for each.
@@ -184,7 +184,7 @@ namespace Lina::Editor
         data.SetRotation(editorCameraRotationCopy);
         ecs->emplace<ECS::FreeLookComponent>(editorCamera, freeLookCopy);
         ecs->emplace<ECS::CameraComponent>(editorCamera, cameraCopy);
-        Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+        Graphics::RenderEngine::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
         m_editorCameraSystem.SetEditorCamera(editorCamera);
     }
 
@@ -192,7 +192,7 @@ namespace Lina::Editor
     {
         // resize all snapshot buffers.
 
-        auto*          renderEngine = Graphics::RenderEngineBackend::Get();
+        auto*          renderEngine = Graphics::RenderEngine::Get();
         auto*          renderDevice = renderEngine->GetRenderDevice();
         auto           params       = renderEngine->GetPrimaryRTParams();
         const Vector2i screenSize   = renderEngine->GetScreenSize();
@@ -241,7 +241,7 @@ namespace Lina::Editor
         WidgetsUtility::SaveEditorCameraBeforeSnapshot(1.0f);
         WidgetsUtility::SetEditorCameraForSnapshot();
         auto* target       = AddSnapshotBuffer(bufferSid);
-        auto* renderEngine = Graphics::RenderEngineBackend::Get();
+        auto* renderEngine = Graphics::RenderEngine::Get();
         auto* overrideMat  = materialSid == 0 ? nullptr : Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(materialSid);
         renderEngine->RenderModelPreview(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(modelSid), Matrix::Identity(), target, overrideMat);
         WidgetsUtility::ResetEditorCamera();
@@ -257,7 +257,7 @@ namespace Lina::Editor
         buffer.m_renderBuffer                             = new Graphics::RenderBuffer();
         buffer.m_rtTexture                                = new Graphics::Texture();
         buffer.m_rt                                       = new Graphics::RenderTarget();
-        auto*                             renderEngine    = Graphics::RenderEngineBackend::Get();
+        auto*                             renderEngine    = Graphics::RenderEngine::Get();
         const Vector2i                    screenSize      = renderEngine->GetScreenSize();
         const Graphics::SamplerParameters primaryRTParams = renderEngine->GetPrimaryRTParams();
         buffer.m_rtTexture->ConstructRTTexture(screenSize, primaryRTParams, false);
@@ -282,15 +282,15 @@ namespace Lina::Editor
         {
             if (enabled)
             {
-                if (Graphics::RenderEngineBackend::Get()->GetCameraSystem()->GetActiveCamera() == editorCamera)
-                    Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(entt::null);
+                if (Graphics::RenderEngine::Get()->GetCameraSystem()->GetActiveCamera() == editorCamera)
+                    Graphics::RenderEngine::Get()->GetCameraSystem()->SetActiveCamera(entt::null);
 
                 ecs->get<FreeLookComponent>(editorCamera).SetIsEnabled(false);
                 m_editorCameraSystem.SystemActivation(false);
             }
             else
             {
-                Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+                Graphics::RenderEngine::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
                 ecs->get<FreeLookComponent>(editorCamera).SetIsEnabled(true);
                 m_editorCameraSystem.SystemActivation(true);
             }

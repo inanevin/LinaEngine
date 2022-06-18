@@ -25,7 +25,7 @@ set (LINAINPUT_SOURCES
 	src/ECS/Systems/FreeLookSystem.cpp
 	
 	#Input
-	src/Core/Backend/GLFW/GLFWInputEngine.cpp
+	src/Core/InputEngine.cpp
 	src/Core/InputAxis.cpp
 )
 
@@ -37,11 +37,10 @@ set(LINAINPUT_HEADERS
 	include/linainput_export.h
 	
 	#Input
-	include/Core/Backend/GLFW/GLFWInputEngine.hpp
+	include/Core/InputEngine.hpp
+	include/Core/InputEngineFwd.hpp
 	include/Core/InputMappings.hpp
-	include/Core/InputBackend.hpp
 	include/Core/InputAxis.hpp
-	include/Core/InputBackendFwd.hpp
 	
 	#ECS
 	include/ECS/Components/FreeLookComponent.hpp

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Rendering/ModelNode.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"

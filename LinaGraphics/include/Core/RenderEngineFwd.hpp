@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,58 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+Class: RenderEngineFwd
+
+
+
+Timestamp: 12/22/2020 6:28:36 PM
+*/
+
 #pragma once
 
-#ifndef PhysicsGizmoDrawer_HPP
-#define PhysicsGizmoDrawer_HPP
+#ifndef RenderEngineFwd_HPP
+#define RenderEngineFwd_HPP
 
-#define BT_NO_SIMD_OPERATOR_OVERLOADS
-#include "btBulletDynamicsCommon.h"
-#include "EventSystem/Events.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Color.hpp"
-#include <functional>
-
-
-
-class BulletGizmoDrawer : public btIDebugDraw
+namespace Lina::Graphics
 {
-public:
-
-
-
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
-	{
-		
-	}
-
-	virtual void reportErrorWarning(const char* warningString)
-	{
-
-	}
-
-	virtual void draw3dText(const btVector3& location, const char* textString)
-	{
-
-	}
-
-	virtual void setDebugMode(int debugMode)
-	{
-		m_debugMode = (DebugDrawModes)debugMode;
-	}
-
-	virtual int getDebugMode() const {
-		return m_debugMode;
-	}
-
-	void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) ;
-
-private:
-
-
-private:
-	
-	DebugDrawModes m_debugMode;
-};
+    class RenderDevice;
+    class RenderEngine;
+    class Window;
+} // namespace Lina::Graphics
 
 #endif

@@ -46,6 +46,7 @@ Timestamp: 12/30/2021 9:37:24 PM
 #include <string>
 #include <cereal/archives/portable_binary.hpp>
 #include <functional>
+#include <fstream>
 namespace Lina::Resources
 {
     class ResourceStorage;

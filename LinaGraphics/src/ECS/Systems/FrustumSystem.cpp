@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Math/Math.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/ModelNodeComponent.hpp"
@@ -46,7 +46,7 @@ namespace Lina::ECS
     void FrustumSystem::Initialize(const std::string& name)
     {
         System::Initialize(name);
-        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderEngine = Graphics::RenderEngine::Get();
     }
 
     void FrustumSystem::UpdateComponents(float delta)

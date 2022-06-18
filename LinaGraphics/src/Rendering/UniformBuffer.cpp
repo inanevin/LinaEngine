@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/UniformBuffer.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -41,7 +41,7 @@ namespace Lina::Graphics
     // Updates the uniform buffer w/ new data, allows dynamic size change.
     void UniformBuffer::Construct(uintptr dataSize, BufferUsage usage, const void* data)
     {
-        m_renderDevice  = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice  = RenderEngine::Get()->GetRenderDevice();
         m_bufferSize    = dataSize;
         m_engineBoundID = m_renderDevice->CreateUniformBuffer(data, dataSize, usage);
         m_isConstructed = true;

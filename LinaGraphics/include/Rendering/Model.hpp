@@ -102,7 +102,7 @@ namespace Lina::Graphics
 
 
     private:
-        friend class OpenGLRenderEngine;
+        friend class RenderEngine;
         friend class ModelLoader;
         friend class ModelNode;
 

@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "ECS/Systems/LightingSystem.hpp"
 #include "Resources/ResourceStorage.hpp"
-#include "Core/RenderDeviceBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDevice.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -47,7 +47,7 @@ namespace Lina::ECS
     void LightingSystem::Initialize(const std::string& name, ApplicationMode& appMode)
     {
         System::Initialize(name);
-        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderEngine = Graphics::RenderEngine::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
         m_appMode      = appMode;
     }

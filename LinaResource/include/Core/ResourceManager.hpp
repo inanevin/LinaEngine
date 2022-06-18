@@ -129,11 +129,6 @@ namespace Lina::Resources
         Event::EventSystem*     m_eventSys = nullptr;
         ApplicationInfo         m_appInfo;
         Packager                m_packager;
-        Executor                m_executor;
-        TaskFlow                m_taskflow;
-        TaskFlow                m_taskflowLoop;
-        Future<void>            m_future;
-        Future<void>            m_futureLoop;
         ResourceBundle          m_bundle;
         Utility::Folder*        m_rootFolder               = nullptr;
         ApplicationMode         m_appMode                  = ApplicationMode::Editor;

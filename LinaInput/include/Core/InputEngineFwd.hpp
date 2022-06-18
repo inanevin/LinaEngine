@@ -27,35 +27,21 @@ SOFTWARE.
 */
 
 /*
-Class: PhysicsBackend
+Class: InputEngineFwd
 
 
 
-Timestamp: 12/22/2020 6:07:35 PM
+Timestamp: 12/12/2021 11:53:01 AM
 */
 
 #pragma once
 
-#ifndef PhysicsBackend_HPP
-#define PhysicsBackend_HPP
+#ifndef InputEngineFwd_HPP
+#define InputEngineFwd_HPP
 
-#ifdef LINA_PHYSICS_BULLET
-#include "Backend/Bullet/BulletPhysicsEngine.hpp"
-#endif
-
-#ifdef LINA_PHYSICS_PHYSX
-#include "Backend/PhysX/PhysXPhysicsEngine.hpp"
-#endif
-
-namespace Lina::Physics
+namespace Lina::Input
 {
-#ifdef LINA_PHYSICS_BULLET
-    typedef BulletPhysicsEngine PhysicsEngineBackend;
-#endif
-
-#ifdef LINA_PHYSICS_PHYSX
-    typedef PhysXPhysicsEngine PhysicsEngineBackend;
-#endif
-} // namespace Lina::Physics
+    class InputEngine;
+} // namespace Lina::Input
 
 #endif

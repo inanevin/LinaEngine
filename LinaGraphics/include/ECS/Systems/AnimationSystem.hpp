@@ -46,7 +46,7 @@ namespace Lina
 {
     namespace Graphics
     {
-        class OpenGLRenderEngine;
+        class RenderEngine;
     }
 } // namespace Lina
 namespace Lina::ECS

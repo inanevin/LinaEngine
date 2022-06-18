@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Texture.hpp"
 #include "Resources/ResourceStorage.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
 #include "Rendering/ArrayBitmap.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -45,7 +45,7 @@ namespace Lina::Graphics
 
     void Texture::Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
     {
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = Vector2i((int)m_bitmap->GetWidth(), (int)m_bitmap->GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 
@@ -69,7 +69,7 @@ namespace Lina::Graphics
             return;
         }
 
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = Vector2i((unsigned int)data[0]->GetWidth(), (unsigned int)data[0]->GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
@@ -90,7 +90,7 @@ namespace Lina::Graphics
 
     void Texture::ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path)
     {
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = size;
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         m_sampler.Construct(samplerParams, m_bindMode);
@@ -104,7 +104,7 @@ namespace Lina::Graphics
 
     void Texture::ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path)
     {
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = size;
         m_bindMode     = TextureBindMode::BINDTEXTURE_CUBEMAP;
         m_sampler.Construct(samplerParams, m_bindMode, true);
@@ -119,7 +119,7 @@ namespace Lina::Graphics
     void Texture::ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
     {
         // Frame buffer texture.
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         SamplerParameters params;
         m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         m_sampler.Construct(params, m_bindMode);
@@ -134,7 +134,7 @@ namespace Lina::Graphics
 
     void Texture::ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
     {
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
         m_id           = m_renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
         m_size         = size;
@@ -146,7 +146,7 @@ namespace Lina::Graphics
 
     void Texture::ConstructEmpty(SamplerParameters samplerParams, const std::string& path)
     {
-        m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         SamplerParameters params;
         m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
         m_sampler.Construct(params, m_bindMode);
@@ -176,7 +176,7 @@ namespace Lina::Graphics
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", path);
             delete m_bitmap;
             m_bitmap = nullptr;
-            return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
+            return static_cast<void*>(RenderEngine::Get()->GetDefaultTexture());
         }
 
         const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
@@ -206,7 +206,7 @@ namespace Lina::Graphics
             LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", path);
             delete m_bitmap;
             m_bitmap = nullptr;
-            return static_cast<void*>(RenderEngineBackend::Get()->GetDefaultTexture());
+            return static_cast<void*>(RenderEngine::Get()->GetDefaultTexture());
         }
 
         const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);

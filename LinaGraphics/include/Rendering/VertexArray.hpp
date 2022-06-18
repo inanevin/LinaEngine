@@ -39,7 +39,7 @@ Timestamp: 4/26/2019 12:30:15 AM
 #ifndef VertexArray_HPP
 #define VertexArray_HPP
 
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "Core/SizeDefinitions.hpp"
 
 namespace Lina::Graphics

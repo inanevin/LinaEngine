@@ -81,15 +81,15 @@ namespace Lina
 
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
-        Event::EventSystem::s_eventSystem              = &m_eventSystem;
-        Graphics::WindowBackend::s_openglWindow        = &m_window;
-        Graphics::RenderEngineBackend::s_renderEngine  = &m_renderEngine;
-        Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
-        Input::InputEngineBackend::s_inputEngine       = &m_inputEngine;
-        Resources::ResourceManager::s_resourceManager  = &m_resourceManager;
-        Audio::AudioEngineBackend::s_audioEngine       = &m_audioEngine;
-        Resources::ResourceStorage::s_instance         = &m_resourceStorage;
-        m_appInfo                                      = appInfo;
+        Event::EventSystem::s_eventSystem             = &m_eventSystem;
+        Graphics::Window::s_window                    = &m_window;
+        Graphics::RenderEngine::s_renderEngine        = &m_renderEngine;
+        Physics::PhysicsEngine::s_physicsEngine       = &m_physicsEngine;
+        Input::InputEngine::s_inputEngine             = &m_inputEngine;
+        Resources::ResourceManager::s_resourceManager = &m_resourceManager;
+        Audio::AudioEngine::s_audioEngine             = &m_audioEngine;
+        Resources::ResourceStorage::s_instance        = &m_resourceStorage;
+        m_appInfo                                     = appInfo;
 
         bool engineSettingsExists = Utility::FileExists("engine.linasettings");
 

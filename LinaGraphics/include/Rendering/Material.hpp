@@ -50,7 +50,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace Lina::Graphics
 {
-    class OpenGLRenderEngine;
+    class RenderEngine;
     class Texture;
     class Shader;
 
@@ -206,7 +206,7 @@ namespace Lina::Graphics
         Resources::ResourceHandle<Shader> m_shaderHandle;
 
     private:
-        friend class OpenGLRenderEngine;
+        friend class RenderEngine;
 
         MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
     };

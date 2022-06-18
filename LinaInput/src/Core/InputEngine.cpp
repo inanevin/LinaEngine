@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/GLFW/GLFWInputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
@@ -42,20 +42,20 @@ namespace Lina::Input
 #define AXIS_SENSITIVITY  0.1f
 #define MOUSE_SENSITIVITY 5.0f
     GLFWwindow*      glfwWindow                     = nullptr;
-    GLFWInputEngine* GLFWInputEngine::s_inputEngine = nullptr;
+    InputEngine* InputEngine::s_inputEngine = nullptr;
 
-    void GLFWInputEngine::Initialize()
+    void InputEngine::Initialize()
     {
         LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
-        Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
-        Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &GLFWInputEngine::OnMouseScrollCallback>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &InputEngine::OnWindowContextCreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
         m_freeLookSystem.Initialize("Free Look");
         m_inputPipeline.AddSystem(m_freeLookSystem);
     }
 
-    void GLFWInputEngine::Shutdown()
+    void InputEngine::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
         m_keyDownNewStateMap.clear();
@@ -64,50 +64,50 @@ namespace Lina::Input
         m_mouseUpNewStateMap.clear();
     }
 
-    void GLFWInputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
+    void InputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
     {
         glfwWindow = static_cast<GLFWwindow*>(e.m_window);
     }
 
-    void GLFWInputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
+    void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
     {
         m_currentMouseScroll.x = (float)e.m_xoff;
         m_currentMouseScroll.y = (float)e.m_yoff;
     }
 
-    bool GLFWInputEngine::GetKey(int keycode)
+    bool InputEngine::GetKey(int keycode)
     {
         int state = glfwGetKey(glfwWindow, keycode);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
-    bool GLFWInputEngine::GetKeyDown(int keyCode)
+    bool InputEngine::GetKeyDown(int keyCode)
     {
         int  newState                 = glfwGetKey(glfwWindow, keyCode);
         bool flag                     = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
         m_keyDownNewStateMap[keyCode] = newState;
         return flag;
     }
-    bool GLFWInputEngine::GetKeyUp(int keyCode)
+    bool InputEngine::GetKeyUp(int keyCode)
     {
         int  newState               = glfwGetKey(glfwWindow, keyCode);
         bool flag                   = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
         m_keyUpNewStateMap[keyCode] = newState;
         return flag;
     }
-    bool GLFWInputEngine::GetMouseButton(int button)
+    bool InputEngine::GetMouseButton(int button)
     {
         int state = glfwGetMouseButton(glfwWindow, button);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
-    bool GLFWInputEngine::GetMouseButtonDown(int button)
+    bool InputEngine::GetMouseButtonDown(int button)
     {
         int  newState                  = glfwGetMouseButton(glfwWindow, button);
         bool flag                      = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
         m_mouseDownNewStateMap[button] = newState;
         return flag;
     }
-    bool GLFWInputEngine::GetMouseButtonUp(int button)
+    bool InputEngine::GetMouseButtonUp(int button)
     {
         int  newState                = glfwGetMouseButton(glfwWindow, button);
         bool flag                    = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
@@ -115,7 +115,7 @@ namespace Lina::Input
         return flag;
     }
 
-    Vector2 GLFWInputEngine::GetRawMouseAxis()
+    Vector2 InputEngine::GetRawMouseAxis()
     {
         // Get the cursor position.
         double posX, posY;
@@ -143,7 +143,7 @@ namespace Lina::Input
         return raw;
     }
 
-    Vector2 GLFWInputEngine::GetMouseAxis()
+    Vector2 InputEngine::GetMouseAxis()
     {
         double posX, posY;
         glfwGetCursorPos(glfwWindow, &posX, &posY);
@@ -163,19 +163,19 @@ namespace Lina::Input
         return diff;
     }
 
-    void GLFWInputEngine::AddToInputPipeline(ECS::System& system)
+    void InputEngine::AddToInputPipeline(ECS::System& system)
     {
         m_inputPipeline.AddSystem(system);
     }
 
-    Vector2 GLFWInputEngine::GetMousePosition()
+    Vector2 InputEngine::GetMousePosition()
     {
         double xpos, ypos;
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
         return Vector2((float)xpos, (float)ypos);
     }
 
-    void GLFWInputEngine::SetCursorMode(CursorMode mode)
+    void InputEngine::SetCursorMode(CursorMode mode)
     {
         m_cursorMode = mode;
 
@@ -195,12 +195,12 @@ namespace Lina::Input
         }
     }
 
-    void GLFWInputEngine::SetMousePosition(const Vector2& v) const
+    void InputEngine::SetMousePosition(const Vector2& v) const
     {
         glfwSetCursorPos(glfwWindow, v.x, v.y);
     }
 
-    void GLFWInputEngine::Tick()
+    void InputEngine::Tick()
     {
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)

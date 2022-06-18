@@ -27,27 +27,21 @@ SOFTWARE.
 */
 
 /*
-Class: InputBackend
+Class: PhysicsEngineFwd
 
 
 
-Timestamp: 12/22/2020 6:06:47 PM
+Timestamp: 12/12/2021 11:55:32 AM
 */
 
 #pragma once
 
-#ifndef InputBackend_HPP
-#define InputBackend_HPP
+#ifndef PhysicsEngineFwd_HPP
+#define PhysicsEngineFwd_HPP
 
-#ifdef LINA_INPUT_GLFW
-#include "Backend/GLFW/GLFWInputEngine.hpp"
-#endif
-
-namespace Lina::Input
+namespace Lina::Physics
 {
-#ifdef LINA_INPUT_GLFW
-    typedef GLFWInputEngine InputEngineBackend;
-#endif
-} // namespace Lina::Input
+    class PhysicsEngine;
+} // namespace Lina::Physics
 
 #endif

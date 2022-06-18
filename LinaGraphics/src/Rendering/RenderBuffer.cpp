@@ -28,17 +28,17 @@ SOFTWARE.
 
 #include "Rendering/RenderBuffer.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
     RenderBuffer::~RenderBuffer()
     {
-        m_id = RenderEngineBackend::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
+        m_id = RenderEngine::Get()->GetRenderDevice()->ReleaseRenderBufferObject(m_id);
     }
 
     void RenderBuffer::Construct(RenderBufferStorage storage, const Vector2i& size, int sampleCount)
     {
-        m_id = RenderEngineBackend::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
+        m_id = RenderEngine::Get()->GetRenderDevice()->CreateRenderBufferObject(storage, (uint32)size.x, (uint32)size.y, sampleCount);
     }
 } // namespace Lina::Graphics

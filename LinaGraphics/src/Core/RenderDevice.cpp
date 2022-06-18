@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/OpenGL/OpenGLRenderDevice.hpp"
+#include "Core/RenderDevice.hpp"
 
 #include "Log/Log.hpp"
 #include "Math/Color.hpp"
@@ -51,7 +51,7 @@ namespace Lina::Graphics
 #define FOURCC_DXT4      MAKEFOURCCDXT('4')
 #define FOURCC_DXT5      MAKEFOURCCDXT('5')
 
-    OpenGLRenderDevice* OpenGLRenderDevice::s_renderDevice = nullptr;
+    RenderDevice* RenderDevice::s_renderDevice = nullptr;
 
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
@@ -154,17 +154,17 @@ namespace Lina::Graphics
     static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage);
     static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap);
 
-    OpenGLRenderDevice::OpenGLRenderDevice()
+    RenderDevice::RenderDevice()
     {
-        LINA_TRACE("[Constructor] -> OpenGLRenderDevice ({0})", typeid(*this).name());
+        LINA_TRACE("[Constructor] -> RenderDevice ({0})", typeid(*this).name());
         m_GLVersion = m_boundFBO = m_boundVAO = m_boundShader = m_viewportFBO = 0;
     }
 
-    OpenGLRenderDevice::~OpenGLRenderDevice()
+    RenderDevice::~RenderDevice()
     {
     }
 
-    void OpenGLRenderDevice::Initialize(int width, int height, DrawParams& defaultParams, const WindowProperties& windowProps)
+    void RenderDevice::Initialize(int width, int height, DrawParams& defaultParams, const WindowProperties& windowProps)
     {
         const GLubyte* vendor   = glGetString(GL_VENDOR);   // Returns the vendor
         const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
@@ -211,7 +211,7 @@ namespace Lina::Graphics
     // TEXTURE OPERATIONS
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateTexture2D(Vector2i size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
+    uint32 RenderDevice::CreateTexture2D(Vector2i size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -242,7 +242,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTextureHDRI(Vector2i size, float* data, SamplerParameters samplerParams)
+    uint32 RenderDevice::CreateTextureHDRI(Vector2i size, float* data, SamplerParameters samplerParams)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -273,7 +273,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
+    uint32 RenderDevice::CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
     {
         GLuint textureHandle;
         // Declare formats, target & handle for the texture.
@@ -305,7 +305,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateCubemapTextureEmpty(Vector2i size, SamplerParameters samplerParams)
+    uint32 RenderDevice::CreateCubemapTextureEmpty(Vector2i size, SamplerParameters samplerParams)
     {
         GLuint textureHandle;
         // Declare formats, target & handle for the texture.
@@ -337,7 +337,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTexture2DMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount)
+    uint32 RenderDevice::CreateTexture2DMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -368,7 +368,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 OpenGLRenderDevice::CreateTexture2DEmpty(Vector2i size, SamplerParameters samplerParams)
+    uint32 RenderDevice::CreateTexture2DEmpty(Vector2i size, SamplerParameters samplerParams)
     {
         // Declare formats, target & handle for the texture.
         GLint  format         = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
@@ -399,7 +399,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    void OpenGLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder, float* borderColor)
+    void RenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder, float* borderColor)
     {
         // OpenGL texture params.
         glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, (GLfloat)samplerParams.m_textureParams.m_minFilter);
@@ -415,7 +415,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
+    void RenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
     {
         glBindTexture(bindMode, id);
         glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, (GLfloat)samplerParams.m_textureParams.m_minFilter);
@@ -436,7 +436,7 @@ namespace Lina::Graphics
         glBindTexture(bindMode, 0);
     }
 
-    uint32 OpenGLRenderDevice::ReleaseTexture2D(uint32 texture2D)
+    uint32 RenderDevice::ReleaseTexture2D(uint32 texture2D)
     {
         // Delete the texture binding if exists.
         if (texture2D == 0)
@@ -451,7 +451,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateVertexArray(const std::vector<BufferData>& data, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+    uint32 RenderDevice::CreateVertexArray(const std::vector<BufferData>& data, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
     {
         // Define vertex array object, buffers, buffer count & their sizes.
         unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
@@ -560,7 +560,7 @@ namespace Lina::Graphics
         return VAO;
     }
 
-    uint32 OpenGLRenderDevice::ReleaseVertexArray(uint32 vao, bool checkMap)
+    uint32 RenderDevice::ReleaseVertexArray(uint32 vao, bool checkMap)
     {
         if (!checkMap)
         {
@@ -589,7 +589,7 @@ namespace Lina::Graphics
         return 0;
     }
 
-    uint32 OpenGLRenderDevice::CreateSkyboxVertexArray()
+    uint32 RenderDevice::CreateSkyboxVertexArray()
     {
         unsigned int skyboxVAO, skyboxVBO;
         glGenVertexArrays(1, &skyboxVAO);
@@ -601,7 +601,7 @@ namespace Lina::Graphics
         return skyboxVAO;
     }
 
-    uint32 OpenGLRenderDevice::CreateScreenQuadVertexArray()
+    uint32 RenderDevice::CreateScreenQuadVertexArray()
     {
         // screen quad VAO
         unsigned int quadVAO, quadVBO;
@@ -617,7 +617,7 @@ namespace Lina::Graphics
         return quadVAO;
     }
 
-    uint32 OpenGLRenderDevice::CreateLineVertexArray()
+    uint32 RenderDevice::CreateLineVertexArray()
     {
         unsigned int lineVAO, lineVBO;
         glGenVertexArrays(1, &lineVAO);
@@ -630,7 +630,7 @@ namespace Lina::Graphics
         return lineVAO;
     }
 
-    uint32 OpenGLRenderDevice::CreateHDRICubeVertexArray()
+    uint32 RenderDevice::CreateHDRICubeVertexArray()
     {
         uint32 cubeVAO, cubeVBO;
         glGenVertexArrays(1, &cubeVAO);
@@ -657,7 +657,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateSampler(SamplerParameters samplerParams, bool isCubemap)
+    uint32 RenderDevice::CreateSampler(SamplerParameters samplerParams, bool isCubemap)
     {
         // OpenGL Texture Sampler parameters.
         uint32 result = 0;
@@ -677,7 +677,7 @@ namespace Lina::Graphics
         return result;
     }
 
-    uint32 OpenGLRenderDevice::ReleaseSampler(uint32 sampler)
+    uint32 RenderDevice::ReleaseSampler(uint32 sampler)
     {
         // Delete the sampler binding if exists.
         if (sampler == 0)
@@ -692,7 +692,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateUniformBuffer(const void* data, uintptr dataSize, BufferUsage usage)
+    uint32 RenderDevice::CreateUniformBuffer(const void* data, uintptr dataSize, BufferUsage usage)
     {
         // Bind a new uniform buffer to GL.
         uint32 ubo;
@@ -703,7 +703,7 @@ namespace Lina::Graphics
         return ubo;
     }
 
-    uint32 OpenGLRenderDevice::ReleaseUniformBuffer(uint32 buffer)
+    uint32 RenderDevice::ReleaseUniformBuffer(uint32 buffer)
     {
         // Delete the buffer if exists.
         if (buffer == 0)
@@ -718,7 +718,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateShaderProgram(const std::string& shaderText, ShaderUniformData* data, bool usesGeometryShader)
+    uint32 RenderDevice::CreateShaderProgram(const std::string& shaderText, ShaderUniformData* data, bool usesGeometryShader)
     {
         // Shader program instance.
         GLuint shaderProgram = glCreateProgram();
@@ -765,14 +765,14 @@ namespace Lina::Graphics
         return shaderProgram;
     }
 
-    bool OpenGLRenderDevice::ValidateShaderProgram(uint32 shader)
+    bool RenderDevice::ValidateShaderProgram(uint32 shader)
     {
         // Validate program & check validation errors.
         glValidateProgram(shader);
         return CheckShaderError(shader, GL_VALIDATE_STATUS, true, "Invalid shader program");
     }
 
-    uint32 OpenGLRenderDevice::ReleaseShaderProgram(uint32 shader)
+    uint32 RenderDevice::ReleaseShaderProgram(uint32 shader)
     {
         // Terminate if shader is not valid or does not exist in our map.
         if (shader == 0)
@@ -803,7 +803,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 OpenGLRenderDevice::CreateRenderTarget(uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo, bool errorCheck)
+    uint32 RenderDevice::CreateRenderTarget(uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo, bool errorCheck)
     {
         // Generate frame buffers & set the current object.
         uint32 fbo;
@@ -840,7 +840,7 @@ namespace Lina::Graphics
         return fbo;
     }
 
-    void OpenGLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture, bool setDefaultFBO)
+    void RenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture, bool setDefaultFBO)
     {
         SetFBO(fbo);
         GLenum attachmentTypeGL  = attachment + attachmentNumber;
@@ -858,14 +858,14 @@ namespace Lina::Graphics
             SetFBO(0);
     }
 
-    void OpenGLRenderDevice::MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments)
+    void RenderDevice::MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments)
     {
         SetFBO(fbo);
         glDrawBuffers(bufferCount, attachments);
         SetFBO(0);
     }
 
-    void OpenGLRenderDevice::ResizeRTTexture(uint32 texture, Vector2i newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
+    void RenderDevice::ResizeRTTexture(uint32 texture, Vector2i newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
     {
         glBindTexture(bindMode, texture);
         GLint format         = GetOpenGLFormat(m_pixelFormat);
@@ -874,14 +874,14 @@ namespace Lina::Graphics
         glBindTexture(bindMode, 0);
     }
 
-    void OpenGLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2i newSize, RenderBufferStorage storage)
+    void RenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2i newSize, RenderBufferStorage storage)
     {
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, storage, (uint32)newSize.x, (uint32)newSize.y);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
-    uint32 OpenGLRenderDevice::ReleaseRenderTarget(uint32 fbo)
+    uint32 RenderDevice::ReleaseRenderTarget(uint32 fbo)
     {
         // Terminate if fbo is not valid or does not exist in our map.
         if (fbo == 0)
@@ -892,7 +892,7 @@ namespace Lina::Graphics
         return 0;
     }
 
-    uint32 OpenGLRenderDevice::CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height, int sampleCount)
+    uint32 RenderDevice::CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height, int sampleCount)
     {
         unsigned int rbo;
         glGenRenderbuffers(1, &rbo);
@@ -906,13 +906,13 @@ namespace Lina::Graphics
         return rbo;
     }
 
-    uint32 OpenGLRenderDevice::ReleaseRenderBufferObject(uint32 target)
+    uint32 RenderDevice::ReleaseRenderBufferObject(uint32 target)
     {
         glDeleteRenderbuffers(1, &target);
         return 0;
     }
 
-    void OpenGLRenderDevice::UpdateSamplerParameters(uint32 sampler, SamplerParameters samplerParams)
+    void RenderDevice::UpdateSamplerParameters(uint32 sampler, SamplerParameters samplerParams)
     {
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
@@ -924,13 +924,13 @@ namespace Lina::Graphics
             glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, (GLfloat)samplerParams.m_anisotropy);
     }
 
-    void OpenGLRenderDevice::GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode)
+    void RenderDevice::GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode)
     {
         glBindTexture(bindMode, texture);
         glGenerateMipmap(bindMode);
     }
 
-    void OpenGLRenderDevice::BlitRenderTargets(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount)
+    void RenderDevice::BlitRenderTargets(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount)
     {
         if (m_boundReadFBO != readFBO)
         {
@@ -947,7 +947,7 @@ namespace Lina::Graphics
         glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
     }
 
-    bool OpenGLRenderDevice::IsRenderTargetComplete(uint32 fbo)
+    bool RenderDevice::IsRenderTargetComplete(uint32 fbo)
     {
         SetFBO(fbo);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -966,7 +966,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    void OpenGLRenderDevice::SetShader(uint32 shader)
+    void RenderDevice::SetShader(uint32 shader)
     {
         // Use the target shader if exists.
         if (shader == m_boundShader)
@@ -975,7 +975,7 @@ namespace Lina::Graphics
         m_boundShader = shader;
     }
 
-    void OpenGLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
+    void RenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
     {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(bindTextureMode, texture);
@@ -984,7 +984,7 @@ namespace Lina::Graphics
             glBindSampler(unit, sampler);
     }
 
-    void OpenGLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer)
+    void RenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer)
     {
         // Use shader first.
         SetShader(shader);
@@ -993,7 +993,7 @@ namespace Lina::Graphics
         glBindBufferBase(GL_UNIFORM_BUFFER, m_shaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
     }
 
-    void OpenGLRenderDevice::ReadPixels(uint32 x, uint32 y, uint32 w, uint32 h, FrameBufferAttachment att, uint32 attachmentNumber, void* data)
+    void RenderDevice::ReadPixels(uint32 x, uint32 y, uint32 w, uint32 h, FrameBufferAttachment att, uint32 attachmentNumber, void* data)
     {
         GLenum  attachmentTypeGL = att + attachmentNumber;
         GLubyte pixelColor[3];
@@ -1002,7 +1002,7 @@ namespace Lina::Graphics
         LINA_TRACE("Data {0}", v.ToString());
     }
 
-    void OpenGLRenderDevice::GetTextureImage(uint32 texture, PixelFormat format, TextureBindMode bindMode, void*& pixels)
+    void RenderDevice::GetTextureImage(uint32 texture, PixelFormat format, TextureBindMode bindMode, void*& pixels)
     {
         GLint oglFormat = GetOpenGLFormat(format);
         glBindTexture(bindMode, texture);
@@ -1010,13 +1010,13 @@ namespace Lina::Graphics
         glBindTexture(bindMode, 0);
     }
 
-    void OpenGLRenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)
+    void RenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)
     {
         // Bind the buffer object to the point.
         glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
     }
 
-    void OpenGLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
+    void RenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
     {
         glUniformBlockBinding(shader, m_shaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
     }
@@ -1027,7 +1027,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    void OpenGLRenderDevice::UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
+    void RenderDevice::UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
     {
         // Terminate if VAO is not valid or does not exist in our map.
         if (vao == 0)
@@ -1062,7 +1062,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize)
+    void RenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize)
     {
         // Get buffer & set data.
         if (m_boundUBO != buffer)
@@ -1074,14 +1074,14 @@ namespace Lina::Graphics
         glBufferSubData(GL_UNIFORM_BUFFER, offset, dataSize, data);
     }
 
-    void OpenGLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
+    void RenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
     {
         void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
         Memory::memcpy(dest, data, dataSize);
         glUnmapBuffer(GL_UNIFORM_BUFFER);
     }
 
-    ShaderUniformData OpenGLRenderDevice::ScanShaderUniforms(uint32 shader)
+    ShaderUniformData RenderDevice::ScanShaderUniforms(uint32 shader)
     {
 
         GLint count;
@@ -1160,7 +1160,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    void OpenGLRenderDevice::SetDrawParameters(const DrawParams& drawParams)
+    void RenderDevice::SetDrawParameters(const DrawParams& drawParams)
     {
         // Setup draw parameters.
         SetFaceCulling(drawParams.m_faceCulling);
@@ -1178,7 +1178,7 @@ namespace Lina::Graphics
         SetStencilTest(drawParams.m_useStencilTest, drawParams.m_stencilFunc, drawParams.m_stencilTestMask, drawParams.m_stencilWriteMask, drawParams.m_stencilComparisonVal, drawParams.m_stencilFail, drawParams.m_stencilPassButDepthFail, drawParams.m_stencilPass);
     }
 
-    void OpenGLRenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+    void RenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
     {
         // No need to draw nothin dude.
         if (!drawArrays && numInstances == 0)
@@ -1205,14 +1205,14 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderDevice::DrawLine(float width)
+    void RenderDevice::DrawLine(float width)
     {
         // This function requires you to set model matrix in the debuglines shader.
         glLineWidth(width);
         glDrawArrays(GL_LINES, 0, 2);
     }
 
-    void OpenGLRenderDevice::DrawLine(uint32 shader, const Matrix& model, const Vector3& from, const Vector3& to, float width)
+    void RenderDevice::DrawLine(uint32 shader, const Matrix& model, const Vector3& from, const Vector3& to, float width)
     {
         // Set line width.
         glLineWidth(width);
@@ -1246,7 +1246,7 @@ namespace Lina::Graphics
         glDeleteBuffers(1, &vbo);
     }
 
-    void OpenGLRenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+    void RenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
     {
         // Make sure frame buffer objects are used.
         uint32 flags = 0;
@@ -1274,48 +1274,48 @@ namespace Lina::Graphics
         glClear(flags);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
+    void RenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
     {
         glUniform1f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
+    void RenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
     {
         glUniform1i(m_shaderProgramMap[shader].uniformMap[uniform], (GLint)f);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
+    void RenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
     {
         glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)
+    void RenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)
     {
         glUniform2f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m)
+    void RenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m)
     {
         glUniform3f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m)
+    void RenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m)
     {
         glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
+    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
     {
         float* matrixData = ((float*)data);
         glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
     }
 
-    void OpenGLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
+    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
     {
         glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
     }
 
-    void OpenGLRenderDevice::SetVAO(uint32 vao)
+    void RenderDevice::SetVAO(uint32 vao)
     {
         // Use VAO if exists.
         if (vao == m_boundVAO)
@@ -1324,7 +1324,7 @@ namespace Lina::Graphics
         m_boundVAO = vao;
     }
 
-    void OpenGLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2i captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
+    void RenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2i captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
     {
         uint32 captureFBO;
         glGenFramebuffers(1, &captureFBO);
@@ -1338,7 +1338,7 @@ namespace Lina::Graphics
         SetTexture(hdrTexture, 0, 0);
     }
 
-    void OpenGLRenderDevice::SetFBO(uint32 fbo)
+    void RenderDevice::SetFBO(uint32 fbo)
     {
         if (fbo == m_boundFBO)
             return;
@@ -1346,7 +1346,7 @@ namespace Lina::Graphics
         m_boundFBO = m_boundReadFBO = m_boundWriteFBO = fbo;
     }
 
-    void OpenGLRenderDevice::SetRBO(uint32 rbo)
+    void RenderDevice::SetRBO(uint32 rbo)
     {
         if (rbo == m_boundRBO)
             return;
@@ -1354,7 +1354,7 @@ namespace Lina::Graphics
         m_boundRBO = rbo;
     }
 
-    void OpenGLRenderDevice::SetViewport(Vector2i pos, Vector2i size)
+    void RenderDevice::SetViewport(Vector2i pos, Vector2i size)
     {
         // Update viewport according to the render targets if exist.
         // if (fbo == m_ViewportFBO) return;
@@ -1367,7 +1367,7 @@ namespace Lina::Graphics
         m_boundViewportPos  = pos;
     }
 
-    void OpenGLRenderDevice::SetFaceCulling(FaceCulling faceCulling)
+    void RenderDevice::SetFaceCulling(FaceCulling faceCulling)
     {
         // If target is enabled, then disable face culling.
         // If current is disabled, then enable faceculling.
@@ -1388,7 +1388,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderDevice::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)
+    void RenderDevice::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)
     {
 
         // Toggle dept writing.
@@ -1406,7 +1406,7 @@ namespace Lina::Graphics
         m_usedDepthFunction = depthFunc;
     }
 
-    void OpenGLRenderDevice::SetDepthTestEnable(bool enable)
+    void RenderDevice::SetDepthTestEnable(bool enable)
     {
         if (m_isDepthTestEnabled != enable)
         {
@@ -1418,7 +1418,7 @@ namespace Lina::Graphics
             m_isDepthTestEnabled = enable;
         }
     }
-    void OpenGLRenderDevice::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
+    void RenderDevice::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
     {
         // If no change is needed return.
         if (sourceBlend == m_usedSourceBlending && destBlend == m_usedDestinationBlending)
@@ -1437,7 +1437,7 @@ namespace Lina::Graphics
         m_usedDestinationBlending = destBlend;
     }
 
-    void OpenGLRenderDevice::SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass)
+    void RenderDevice::SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass)
     {
         // If change is needed toggle enabled state & enable/disable stencil test.
         if (enable != m_isStencilTestEnabled)
@@ -1470,7 +1470,7 @@ namespace Lina::Graphics
         SetStencilWriteMask(stencilWriteMask);
     }
 
-    void OpenGLRenderDevice::SetStencilWriteMask(uint32 mask)
+    void RenderDevice::SetStencilWriteMask(uint32 mask)
     {
         // Set write mask if a change is needed.
         if (m_usedStencilWriteMask == mask)
@@ -1479,7 +1479,7 @@ namespace Lina::Graphics
         m_usedStencilWriteMask = mask;
     }
 
-    void OpenGLRenderDevice::SetScissorTest(bool enable, uint32 startX, uint32 startY, uint32 width, uint32 height)
+    void RenderDevice::SetScissorTest(bool enable, uint32 startX, uint32 startY, uint32 width, uint32 height)
     {
         // Disable if enabled.
         if (!enable)
@@ -1501,7 +1501,7 @@ namespace Lina::Graphics
         m_isScissorsTestEnabled = true;
     }
 
-    std::string OpenGLRenderDevice::GetShaderVersion()
+    std::string RenderDevice::GetShaderVersion()
     {
         // Return if not valid.
         if (!m_shaderVersion.empty())
@@ -1533,7 +1533,7 @@ namespace Lina::Graphics
         return m_shaderVersion;
     }
 
-    uint32 OpenGLRenderDevice::GetVersion()
+    uint32 RenderDevice::GetVersion()
     {
         // Get version data from GL.
         if (m_GLVersion != 0)

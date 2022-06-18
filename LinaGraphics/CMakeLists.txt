@@ -51,9 +51,9 @@ set (LINAGRAPHICS_SOURCES
 	src/Utility/AssimpUtility.cpp
 	src/Utility/ModelLoader.cpp
 
-	src/Core/Backend/OpenGL/OpenGLWindow.cpp
-	src/Core/Backend/OpenGL/OpenGLRenderEngine.cpp
-	src/Core/Backend/OpenGL/OpenGLRenderDevice.cpp
+	src/Core/Window.cpp
+	src/Core/RenderEngine.cpp
+	src/Core/RenderDevice.cpp
 
 	src/ECS/Systems/ModelNodeSystem.cpp
 	src/ECS/Systems/SpriteRendererSystem.cpp
@@ -72,13 +72,10 @@ set (LINAGRAPHICS_SOURCES
 set(LINAGRAPHICS_HEADERS
 
 	# Backend
-	include/Core/WindowBackend.hpp
-	include/Core/RenderDeviceBackend.hpp
-	include/Core/RenderEngineBackend.hpp
-	include/Core/Backend/OpenGL/OpenGLRenderEngine.hpp
-	include/Core/Backend/OpenGL/OpenGLRenderDevice.hpp
-	include/Core/Backend/OpenGL/OpenGLWindow.hpp
-	include/Core/RenderBackendFwd.hpp
+	include/Core/RenderEngine.hpp
+	include/Core/RenderDevice.hpp
+	include/Core/Window.hpp
+	include/Core/RenderEngineFwd.hpp
 	
 	#Helpers
 	include/Helpers/DrawParameterHelper.hpp

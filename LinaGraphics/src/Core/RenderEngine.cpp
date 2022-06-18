@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/OpenGL/OpenGLRenderEngine.hpp"
+#include "Core/RenderEngine.hpp"
 
 #include "Core/Timer.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -55,7 +55,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    OpenGLRenderEngine* OpenGLRenderEngine::s_renderEngine = nullptr;
+    RenderEngine* RenderEngine::s_renderEngine = nullptr;
 
     constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE      = (sizeof(Matrix) * 4) + (sizeof(Vector4)) + (sizeof(float) * 2);
     constexpr int    UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
@@ -73,29 +73,29 @@ namespace Lina::Graphics
     constexpr int    UNIFORMBUFFER_APPDATA_BINDPOINT = 3;
     constexpr auto   UNIFORMBUFFER_APPDATA_NAME      = "AppData";
 
-    void OpenGLRenderEngine::ConnectEvents()
+    void RenderEngine::ConnectEvents()
     {
         // Flip loaded images.
         ArrayBitmap::SetImageFlip(true);
 
         m_eventSystem = Event::EventSystem::Get();
-        m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
-        m_eventSystem->Connect<Event::EDrawLine, &OpenGLRenderEngine::OnDrawLine>(this);
-        m_eventSystem->Connect<Event::EDrawBox, &OpenGLRenderEngine::OnDrawBox>(this);
-        m_eventSystem->Connect<Event::EDrawCircle, &OpenGLRenderEngine::OnDrawCircle>(this);
-        m_eventSystem->Connect<Event::EDrawSphere, &OpenGLRenderEngine::OnDrawSphere>(this);
-        m_eventSystem->Connect<Event::EDrawHemiSphere, &OpenGLRenderEngine::OnDrawHemiSphere>(this);
-        m_eventSystem->Connect<Event::EDrawCapsule, &OpenGLRenderEngine::OnDrawCapsule>(this);
-        m_eventSystem->Connect<Event::EAllResourcesOfTypeLoaded, &OpenGLRenderEngine::OnAllResourcesOfTypeLoaded>(this);
-        m_eventSystem->Connect<Event::EResourceReloaded, &OpenGLRenderEngine::OnResourceReloaded>(this);
+        m_eventSystem->Connect<Event::EWindowResized, &RenderEngine::OnWindowResized>(this);
+        m_eventSystem->Connect<Event::EDrawLine, &RenderEngine::OnDrawLine>(this);
+        m_eventSystem->Connect<Event::EDrawBox, &RenderEngine::OnDrawBox>(this);
+        m_eventSystem->Connect<Event::EDrawCircle, &RenderEngine::OnDrawCircle>(this);
+        m_eventSystem->Connect<Event::EDrawSphere, &RenderEngine::OnDrawSphere>(this);
+        m_eventSystem->Connect<Event::EDrawHemiSphere, &RenderEngine::OnDrawHemiSphere>(this);
+        m_eventSystem->Connect<Event::EDrawCapsule, &RenderEngine::OnDrawCapsule>(this);
+        m_eventSystem->Connect<Event::EAllResourcesOfTypeLoaded, &RenderEngine::OnAllResourcesOfTypeLoaded>(this);
+        m_eventSystem->Connect<Event::EResourceReloaded, &RenderEngine::OnResourceReloaded>(this);
     }
 
-    void OpenGLRenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings, const WindowProperties& windowProps)
+    void RenderEngine::Initialize(ApplicationMode appMode, RenderSettings* renderSettings, const WindowProperties& windowProps)
     {
-        LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
+        LINA_TRACE("[Initialization] -> RenderEngine ({0})", typeid(*this).name());
 
         // Set references.
-        m_appWindow      = OpenGLWindow::Get();
+        m_appWindow      = Window::Get();
         m_appMode        = appMode;
         m_storage        = Resources::ResourceStorage::Get();
         m_renderSettings = renderSettings;
@@ -168,7 +168,7 @@ namespace Lina::Graphics
         // Shader::ClearShaderIncludes();
     }
 
-    void OpenGLRenderEngine::SetupEngineShaders()
+    void RenderEngine::SetupEngineShaders()
     {
         auto* storage     = Resources::ResourceStorage::Get();
         auto& shaderCache = storage->GetCache<Shader>();
@@ -197,7 +197,7 @@ namespace Lina::Graphics
         }
     }
 
-    bool OpenGLRenderEngine::ValidateEngineShaders()
+    bool RenderEngine::ValidateEngineShaders()
     {
         bool validated = false;
 
@@ -220,7 +220,7 @@ namespace Lina::Graphics
         return !validated;
     }
 
-    void OpenGLRenderEngine::ConstructEngineMaterials()
+    void RenderEngine::ConstructEngineMaterials()
     {
         // Keep here in-case we need to programatically re-create engine materials.
         // m_defaultLit = Material::CreateMaterial(m_storage->GetResource<Shader>("Resources/Engine/Shaders/PBR/Lit.linaglsl"), "Resources/Engine/Materials/DefaultLit.linamat");
@@ -252,7 +252,7 @@ namespace Lina::Graphics
         UpdateRenderSettings();
     }
 
-    void OpenGLRenderEngine::ConstructRenderTargets()
+    void RenderEngine::ConstructRenderTargets()
     {
         SamplerParameters cubemapParams;
         cubemapParams.m_textureParams.m_wrapR = cubemapParams.m_textureParams.m_wrapS = cubemapParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
@@ -370,9 +370,9 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::Shutdown()
+    void RenderEngine::Shutdown()
     {
-        LINA_TRACE("[Shutdown] -> OpenGLRenderEngine ({0})", typeid(*this).name());
+        LINA_TRACE("[Shutdown] -> RenderEngine ({0})", typeid(*this).name());
 
         // Dump the remaining memory.
         DumpMemory();
@@ -384,12 +384,12 @@ namespace Lina::Graphics
         m_lineVAO       = m_renderDevice.ReleaseVertexArray(m_lineVAO);
     }
 
-    void OpenGLRenderEngine::Tick(float delta)
+    void RenderEngine::Tick(float delta)
     {
         m_animationPipeline.UpdateSystems(delta);
     }
 
-    void OpenGLRenderEngine::Render(float interpolation)
+    void RenderEngine::Render(float interpolation)
     {
         PROFILER_FUNC("Render Engine Render");
 
@@ -416,17 +416,17 @@ namespace Lina::Graphics
         PROFILER_END_BLOCK;
     }
 
-    void OpenGLRenderEngine::AddToRenderingPipeline(ECS::System& system)
+    void RenderEngine::AddToRenderingPipeline(ECS::System& system)
     {
         m_renderingPipeline.AddSystem(system);
     }
 
-    void OpenGLRenderEngine::AddToAnimationPipeline(ECS::System& system)
+    void RenderEngine::AddToAnimationPipeline(ECS::System& system)
     {
         m_animationPipeline.AddSystem(system);
     }
 
-    void OpenGLRenderEngine::SetScreenDisplay(Vector2i pos, Vector2i size)
+    void RenderEngine::SetScreenDisplay(Vector2i pos, Vector2i size)
     {
         m_renderDevice.SetViewport(pos, size);
         m_screenPos  = pos;
@@ -454,12 +454,12 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::OnDrawLine(const Event::EDrawLine& event)
+    void RenderEngine::OnDrawLine(const Event::EDrawLine& event)
     {
         DrawLine(event.m_from, event.m_to, event.m_color, event.m_lineWidth);
     }
 
-    void OpenGLRenderEngine::OnDrawBox(const Event::EDrawBox& event)
+    void RenderEngine::OnDrawBox(const Event::EDrawBox& event)
     {
         const Vector3 pos         = event.m_position;
         const Vector3 halfExtents = event.m_halfExtents;
@@ -482,7 +482,7 @@ namespace Lina::Graphics
         lines.clear();
     }
 
-    void OpenGLRenderEngine::OnDrawCircle(const Event::EDrawCircle& event)
+    void RenderEngine::OnDrawCircle(const Event::EDrawCircle& event)
     {
         Vector3          previousPos = (event.m_radius * Vector3(1, 0, 0));
         const Quaternion rot         = event.m_rotation;
@@ -506,14 +506,14 @@ namespace Lina::Graphics
             DrawLine(event.m_position + l.first, event.m_position + l.second, event.m_color, event.m_lineWidth);
     }
 
-    void OpenGLRenderEngine::OnDrawSphere(const Event::EDrawSphere& event)
+    void RenderEngine::OnDrawSphere(const Event::EDrawSphere& event)
     {
         OnDrawCircle(Event::EDrawCircle{event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion()});
         OnDrawCircle(Event::EDrawCircle{event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(0, 0, 1), 90)});
         OnDrawCircle(Event::EDrawCircle{event.m_position, event.m_radius, event.m_color, event.m_lineWidth, false, Quaternion(Vector3(1, 0, 0), 90)});
     }
 
-    void OpenGLRenderEngine::OnDrawHemiSphere(const Event::EDrawHemiSphere& event)
+    void RenderEngine::OnDrawHemiSphere(const Event::EDrawHemiSphere& event)
     {
         Quaternion q1 = Quaternion(Vector3(1, 0, 0), event.m_top ? -90.0f : 90.0f);
         Quaternion q2 = q1 * Quaternion(Vector3(0, 0, 1), 90);
@@ -522,7 +522,7 @@ namespace Lina::Graphics
         OnDrawCircle(Event::EDrawCircle{event.m_position, event.m_radius, event.m_color, event.m_lineWidth, true, q2});
     }
 
-    void OpenGLRenderEngine::OnDrawCapsule(const Event::EDrawCapsule& event)
+    void RenderEngine::OnDrawCapsule(const Event::EDrawCapsule& event)
     {
         const Vector3 pos    = event.m_position;
         const float   rad    = event.m_radius;
@@ -535,12 +535,12 @@ namespace Lina::Graphics
         DrawLine(pos + Vector3(0.0f, -height, rad), pos + Vector3(0.0f, height, rad), event.m_color, event.m_lineWidth);
     }
 
-    void OpenGLRenderEngine::OnWindowResized(const Event::EWindowResized& event)
+    void RenderEngine::OnWindowResized(const Event::EWindowResized& event)
     {
         SetScreenDisplay(Vector2i(0, 0), Vector2((float)event.m_windowProps.m_width, (float)event.m_windowProps.m_height));
     }
 
-    void OpenGLRenderEngine::OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev)
+    void RenderEngine::OnAllResourcesOfTypeLoaded(const Event::EAllResourcesOfTypeLoaded& ev)
     {
         if (ev.m_tid == GetTypeID<Shader>())
         {
@@ -558,7 +558,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::OnResourceReloaded(const Event::EResourceReloaded& ev)
+    void RenderEngine::OnResourceReloaded(const Event::EResourceReloaded& ev)
     {
         if (ev.m_tid == GetTypeID<Shader>())
         {
@@ -570,7 +570,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::DumpMemory()
+    void RenderEngine::DumpMemory()
     {
         while (!m_debugLineQueue.empty())
             m_debugLineQueue.pop();
@@ -579,7 +579,7 @@ namespace Lina::Graphics
             m_debugIconQueue.pop();
     }
 
-    void OpenGLRenderEngine::Draw()
+    void RenderEngine::Draw()
     {
         PROFILER_BLOCK("Render: Update Systems");
         UpdateSystems(0.0f);
@@ -658,7 +658,7 @@ namespace Lina::Graphics
         DrawFinalize();
     }
 
-    void OpenGLRenderEngine::DrawFinalize(RenderTarget* overrideTarget)
+    void RenderEngine::DrawFinalize(RenderTarget* overrideTarget)
     {
         // Frag color
         // m_renderDevice.BlitRenderTargets(m_primaryMSAATarget.GetID(), m_screenSize.x, m_screenSize.y, m_primaryRenderTarget.GetID(), m_screenSize.x, m_screenSize.y, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST, FrameBufferAttachment::ATTACHMENT_COLOR, (uint32)0);
@@ -764,7 +764,7 @@ namespace Lina::Graphics
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
 
-    uint32 OpenGLRenderEngine::RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget, Material* overrideMaterial)
+    uint32 RenderEngine::RenderModelPreview(Model* model, Matrix& modelMatrix, RenderTarget* overrideTarget, Material* overrideMaterial)
     {
         // Store the current skybox & switch to HDRI one
         Material* currentSkybox = m_skyboxMaterial;
@@ -789,17 +789,17 @@ namespace Lina::Graphics
         return m_previewRTTexture.GetID();
     }
 
-    void OpenGLRenderEngine::DrawIcon(Vector3 position, StringIDType textureID, float size)
+    void RenderEngine::DrawIcon(Vector3 position, StringIDType textureID, float size)
     {
         m_debugIconQueue.push(DebugIcon{position, textureID, size});
     }
 
-    void OpenGLRenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
+    void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
     {
         m_debugLineQueue.push(DebugLine{p1, p2, col, width});
     }
 
-    void OpenGLRenderEngine::ProcessDebugQueue()
+    void RenderEngine::ProcessDebugQueue()
     {
         while (!m_debugLineQueue.empty())
         {
@@ -826,12 +826,12 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::SetDrawParameters(const DrawParams& params)
+    void RenderEngine::SetDrawParameters(const DrawParams& params)
     {
         m_renderDevice.SetDrawParameters(params);
     }
 
-    void OpenGLRenderEngine::UpdateRenderSettings()
+    void RenderEngine::UpdateRenderSettings()
     {
         m_screenQuadFinalMaterial.SetBool(MAT_FXAAENABLED, m_renderSettings->m_fxaaEnabled);
         m_screenQuadFinalMaterial.SetBool(MAT_BLOOMENABLED, m_renderSettings->m_bloomEnabled);
@@ -845,14 +845,14 @@ namespace Lina::Graphics
         m_screenQuadFinalMaterial.SetFloat(MAT_VIGNETTEPOW, m_renderSettings->m_vignettePow);
     }
 
-    void OpenGLRenderEngine::DrawSkybox()
+    void RenderEngine::DrawSkybox()
     {
         Material* skyboxMat = m_skyboxMaterial == nullptr ? &m_defaultSkyboxMaterial : m_skyboxMaterial;
         UpdateShaderData(skyboxMat);
         m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
     }
 
-    PostProcessEffect& OpenGLRenderEngine::AddPostProcessEffect(Shader* shader)
+    PostProcessEffect& RenderEngine::AddPostProcessEffect(Shader* shader)
     {
         if (m_postProcessMap.find(shader) == m_postProcessMap.end())
         {
@@ -863,7 +863,7 @@ namespace Lina::Graphics
         return m_postProcessMap[shader];
     }
 
-    void OpenGLRenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool completeFlush)
+    void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool completeFlush)
     {
         m_modelNodeSystem.FlushOpaque(drawParams, overrideMaterial, completeFlush);
         m_modelNodeSystem.FlushTransparent(drawParams, overrideMaterial, completeFlush);
@@ -871,7 +871,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Trigger<Event::EPostSceneDraw>(Event::EPostSceneDraw{});
     }
 
-    void OpenGLRenderEngine::UpdateUniformBuffers()
+    void RenderEngine::UpdateUniformBuffers()
     {
         Vector3 cameraLocation = m_cameraSystem.GetCameraLocation();
         Vector4 viewPos        = Vector4(cameraLocation.x, cameraLocation.y, cameraLocation.z, 1.0f);
@@ -935,7 +935,7 @@ namespace Lina::Graphics
         m_globalAppDataBuffer.Update(&m_elapsedTime, sizeof(Vector2) * 2 + sizeof(float), sizeof(float));
     }
 
-    void OpenGLRenderEngine::UpdateShaderData(Material* data, bool lightPass)
+    void RenderEngine::UpdateShaderData(Material* data, bool lightPass)
     {
         uint32 shaderID = data->m_shaderHandle.m_value->GetID();
         m_renderDevice.SetShader(shaderID);
@@ -1010,7 +1010,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution)
+    void RenderEngine::CaptureReflections(Texture& writeTexture, const Vector3& areaLocation, const Vector2i& resolution)
     {
         return;
         // Build projection & view matrices for capturing HDRI data.
@@ -1047,7 +1047,7 @@ namespace Lina::Graphics
         m_renderDevice.SetViewport(Vector2::Zero, m_screenSize);
     }
 
-    void OpenGLRenderEngine::CaptureSkybox()
+    void RenderEngine::CaptureSkybox()
     {
 
         const Vector3 areaLocation = Vector3::Zero;
@@ -1088,7 +1088,7 @@ namespace Lina::Graphics
         UpdateUniformBuffers();
     }
 
-    void OpenGLRenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)
+    void RenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)
     {
         // Build projection & view matrices for capturing HDRI data.
         Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
@@ -1108,7 +1108,7 @@ namespace Lina::Graphics
         m_lastCapturedHDR = &hdriTexture;
     }
 
-    void OpenGLRenderEngine::CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6])
+    void RenderEngine::CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6])
     {
         // Generate sampler.
         SamplerParameters samplerParams;
@@ -1149,7 +1149,7 @@ namespace Lina::Graphics
         m_renderDevice.IsRenderTargetComplete(m_hdriCaptureRenderTarget.GetID());
     }
 
-    void OpenGLRenderEngine::CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6])
+    void RenderEngine::CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6])
     {
         // Generate sampler.
         SamplerParameters irradianceParams;
@@ -1186,7 +1186,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6])
+    void RenderEngine::CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6])
     {
         // Generate sampler.
         SamplerParameters prefilterParams;
@@ -1237,7 +1237,7 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLRenderEngine::CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6])
+    void RenderEngine::CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6])
     {
         // Generate sampler.
         SamplerParameters samplerParams;
@@ -1268,7 +1268,7 @@ namespace Lina::Graphics
         m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
     }
 
-    void OpenGLRenderEngine::SetHDRIData(Material* mat)
+    void RenderEngine::SetHDRIData(Material* mat)
     {
         if (mat == nullptr)
         {
@@ -1288,7 +1288,7 @@ namespace Lina::Graphics
         mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
     }
 
-    void OpenGLRenderEngine::RemoveHDRIData(Material* mat)
+    void RenderEngine::RemoveHDRIData(Material* mat)
     {
         if (mat == nullptr)
         {
@@ -1302,7 +1302,7 @@ namespace Lina::Graphics
         mat->m_hdriDataSet = false;
     }
 
-    uint32 OpenGLRenderEngine::GetFinalImage()
+    uint32 RenderEngine::GetFinalImage()
     {
         if (m_appMode == ApplicationMode::Editor)
             return m_secondaryRTTexture.GetID();
@@ -1310,12 +1310,12 @@ namespace Lina::Graphics
             return m_primaryRTTexture0.GetID();
     }
 
-    uint32 OpenGLRenderEngine::GetShadowMapImage()
+    uint32 RenderEngine::GetShadowMapImage()
     {
         return m_shadowMapRTTexture.GetID();
     }
 
-    void OpenGLRenderEngine::UpdateSystems(float delta)
+    void RenderEngine::UpdateSystems(float delta)
     {
         // Update pipeline.
         m_renderingPipeline.UpdateSystems(delta);

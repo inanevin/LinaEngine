@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Shader.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
@@ -65,7 +65,7 @@ namespace Lina::Graphics
     Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)
     {
         m_specification = CheckForSpecification(text);
-        m_renderDevice  = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice  = RenderEngine::Get()->GetRenderDevice();
         m_engineBoundID = m_renderDevice->CreateShaderProgram(text, &m_uniformData, usesGeometryShader);
         return *this;
     }

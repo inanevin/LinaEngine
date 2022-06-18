@@ -30,7 +30,7 @@ SOFTWARE.
 Class: ModelNodeSystem
 
 Responsible for adding all the mesh renderers into a pool which is then
-flushed to draw those renderers' data by the OpenGLRenderEngine.
+flushed to draw those renderers' data by the RenderEngine.
 
 Timestamp: 4/27/2019 5:38:44 PM
 */
@@ -42,7 +42,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 
 #include "Core/CommonApplication.hpp"
 #include "Core/CommonECS.hpp"
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
 

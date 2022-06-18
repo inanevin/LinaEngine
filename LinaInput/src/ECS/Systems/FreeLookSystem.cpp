@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "ECS/Systems/FreeLookSystem.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -37,7 +37,7 @@ namespace Lina::ECS
     void FreeLookSystem::Initialize(const std::string& name)
     {
         System::Initialize(name);
-        m_inputEngine = Input::InputEngineBackend::Get();
+        m_inputEngine = Input::InputEngine::Get();
     }
 
     void FreeLookSystem::UpdateComponents(float delta)
@@ -76,7 +76,7 @@ namespace Lina::ECS
             // Handle movement.
             float      horizontalKey    = m_inputEngine->GetHorizontalAxisValue();
             float      verticalKey      = m_inputEngine->GetVerticalAxisValue();
-            float      sprintMultiplier = Input::InputEngineBackend::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
+            float      sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
             Quaternion rotation         = data.GetRotation();
             Vector3    fw               = rotation.GetForward();
             Vector3    up               = rotation.GetUp();

@@ -32,9 +32,9 @@ SOFTWARE.
 #include "ECS/System.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/Engine.hpp"
-#include "Core/RenderEngineBackend.hpp"
-#include "Core/PhysicsBackend.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/RenderEngine.hpp"
+#include "Core/PhysicsEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor
@@ -83,10 +83,10 @@ namespace Lina::Editor
                     ImGui::TableHeadersRow();
 
                     const auto& mainPipeline      = Engine::Get()->GetPipeline();
-                    const auto& animationPipeline = Graphics::RenderEngineBackend::Get()->GetAnimationPipeline();
-                    const auto& renderingPipeline = Graphics::RenderEngineBackend::Get()->GetRenderingPipeline();
-                    const auto& physicsPipeline   = Physics::PhysicsEngineBackend::Get()->GetPipeline();
-                    const auto& inputPipeline     = Input::InputEngineBackend::Get()->GetPipeline();
+                    const auto& animationPipeline = Graphics::RenderEngine::Get()->GetAnimationPipeline();
+                    const auto& renderingPipeline = Graphics::RenderEngine::Get()->GetRenderingPipeline();
+                    const auto& physicsPipeline   = Physics::PhysicsEngine::Get()->GetPipeline();
+                    const auto& inputPipeline     = Input::InputEngine::Get()->GetPipeline();
 
                     for (const auto* system : mainPipeline.GetSystems())
                         DrawSystem(system, "Main");

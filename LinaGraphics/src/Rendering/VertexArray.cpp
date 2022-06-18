@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/VertexArray.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -45,7 +45,7 @@ namespace Lina::Graphics
 
     void VertexArray::Initialize(uint32 engineBoundID, uint32 indexCount)
     {
-        m_renderDevice  = Graphics::RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice  = Graphics::RenderEngine::Get()->GetRenderDevice();
         m_engineBoundID = engineBoundID;
         m_indexCount    = indexCount;
     }

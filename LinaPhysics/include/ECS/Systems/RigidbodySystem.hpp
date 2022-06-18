@@ -39,7 +39,7 @@ Timestamp: 9/30/2020 2:52:58 AM
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
-#include "Core/PhysicsBackendFwd.hpp"
+#include "Core/PhysicsEngineFwd.hpp"
 #include "ECS/System.hpp"
 
 namespace Lina::ECS

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Bullet/BulletGizmoDrawer.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/Events.hpp"
+/*
+Class: AudioEngineFwd
 
-#define LINE_WIDTH 2.0f
+Timestamp: 12/12/2021 11:55:32 AM
+*/
 
-void BulletGizmoDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+#pragma once
+
+#ifndef AudiEngineFwd_HPP
+#define AudiEngineFwd_HPP
+
+namespace Lina::Audio
 {
-	Event::EventSystem::Get()->Trigger<Event::EDrawPhysicsDebug>(Event::EDrawPhysicsDebug{
-		Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH
-		});
-}
+    class AudioEngine;
+} // namespace Lina::Audio
+
+#endif

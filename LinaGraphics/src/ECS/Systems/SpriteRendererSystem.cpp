@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 
-#include "Core/RenderDeviceBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDevice.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -46,7 +46,7 @@ namespace Lina::ECS
     void SpriteRendererSystem::Initialize(const std::string& name)
     {
         System::Initialize(name);
-        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderEngine = Graphics::RenderEngine::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
 
         m_quadMesh = new Graphics::Mesh();

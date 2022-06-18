@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Mesh.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -76,7 +76,7 @@ namespace Lina::Graphics
         int totalInstanceComponents = (uint32)m_bufferElements.size() - totalVertexComponents;
 
         // Init vertex array.
-        uint32 id = RenderEngineBackend::Get()->GetRenderDevice()->CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
+        uint32 id = RenderEngine::Get()->GetRenderDevice()->CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
         m_vertexArray.Initialize(id, GetIndexCount());
     }
 } // namespace Lina::Graphics

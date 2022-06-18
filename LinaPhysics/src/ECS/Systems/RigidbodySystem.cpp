@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "ECS/Systems/RigidbodySystem.hpp"
 
-#include "Core/PhysicsBackend.hpp"
+#include "Core/PhysicsEngine.hpp"
 #include "Core/PhysicsCommon.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
@@ -50,7 +50,7 @@ namespace Lina::ECS
 
     void RigidbodySystem::UpdateComponents(float delta)
     {
-        auto* physicsEngine = Physics::PhysicsEngineBackend::Get();
+        auto* physicsEngine = Physics::PhysicsEngine::Get();
         auto* ecs               = ECS::Registry::Get();
 
 
@@ -65,7 +65,7 @@ namespace Lina::ECS
             if (!phyComp.GetIsSimulated())
                 continue;
             EntityDataComponent& data = view.get<EntityDataComponent>(entity);
-            btRigidBody*         rb   = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(entity);
+            btRigidBody*         rb   = Physics::PhysicsEngine::Get()->GetActiveRigidbody(entity);
             btTransform          btTrans;
             rb->getMotionState()->getWorldTransform(btTrans);
             Vector3 location = Physics::ToLinaVector(rb->getWorldTransform().getOrigin());

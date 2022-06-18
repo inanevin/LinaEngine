@@ -50,12 +50,7 @@ namespace Lina
     namespace Physics
     {
         class PhysicsMaterial;
-
-#ifdef LINA_PHYSICS_BULLET
-        class BulletPhysicsEngine;
-#elif LINA_PHYSICS_PHYSX
-        class PhysXPhysicsEngine;
-#endif
+        class PhysicsEngine;
     } // namespace Physics
 
     namespace World
@@ -116,12 +111,8 @@ namespace Lina::ECS
         friend class ECS::Registry;
         friend class Editor::ComponentDrawer;
         friend class ECS::RigidbodySystem;
+        friend class Physics::PhysicsEngine;
 
-#ifdef LINA_PHYSICS_BULLET
-        friend class Physics::BulletPhysicsEngine;
-#elif LINA_PHYSICS_PHYSX
-        friend class Physics::PhysXPhysicsEngine;
-#endif
 
         Physics::SimulationType                             m_simType           = Physics::SimulationType::None;
         Physics::CollisionShape                             m_collisionShape    = Physics::CollisionShape::Box;

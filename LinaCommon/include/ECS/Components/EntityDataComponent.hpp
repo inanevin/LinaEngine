@@ -54,7 +54,7 @@ namespace Lina
 #ifdef LINA_PHYSICS_BULLET
         class BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-        class PhysXPhysicsEngine;
+        class PhysicsEngine;
 #endif
     } // namespace Physics
 };    // namespace Lina
@@ -158,7 +158,7 @@ namespace Lina::ECS
 #ifdef LINA_PHYSICS_BULLET
         friend class Physics::BulletPhysicsEngine;
 #elif LINA_PHYSICS_PHYSX
-        friend class Physics::PhysXPhysicsEngine;
+        friend class Physics::PhysicsEngine;
 #endif
 
         bool m_isTransformLocked = false;

@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Rendering/Sampler.hpp"
 
-#include "Core/RenderDeviceBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDevice.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -40,7 +40,7 @@ namespace Lina::Graphics
 
     void Sampler::Construct(SamplerParameters samplerParams, TextureBindMode bindMode, bool isCubemap)
     {
-        m_renderDevice   = RenderEngineBackend::Get()->GetRenderDevice();
+        m_renderDevice   = RenderEngine::Get()->GetRenderDevice();
         m_engineBoundID  = m_renderDevice->CreateSampler(samplerParams, isCubemap);
         m_targetBindMode = bindMode;
         m_params         = samplerParams;

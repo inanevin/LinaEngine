@@ -31,9 +31,9 @@ SOFTWARE.
 #include "Core/CustomFontIcons.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/PhysicsCommon.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "IconsFontAwesome5.h"
@@ -48,7 +48,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Widgets/MenuButton.hpp"
 #include "Memory/Memory.hpp"
-#include "Core/PhysicsBackend.hpp"
+#include "Core/PhysicsEngine.hpp"
 #include "Core/ImGuiCommon.hpp"
 #include "Core/Engine.hpp"
 #include "Widgets/Snackbar.hpp"
@@ -56,7 +56,7 @@ SOFTWARE.
 #include "Core/EditorApplication.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 
 namespace Lina::Editor
 {
@@ -128,7 +128,7 @@ namespace Lina::Editor
         {
             flags |= ImGuiTreeNodeFlags_Selected;
 
-            if (canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
+            if (canRename && Input::InputEngine::Get()->GetKeyDown(LINA_KEY_F2))
             {
                 if (IsProtectedDirectory(folder))
                 {
@@ -201,7 +201,7 @@ namespace Lina::Editor
         m_editorCameraRotationBeforeSnapshot = data.GetRotation();
 
         // Handle aspect resizing.
-        auto* renderEngine                 = Graphics::RenderEngineBackend::Get();
+        auto* renderEngine                 = Graphics::RenderEngine::Get();
         auto* cameraSystem                 = renderEngine->GetCameraSystem();
         m_editorCameraAspectBeforeSnapshot = cameraSystem->GetAspectRatio();
 
@@ -228,7 +228,7 @@ namespace Lina::Editor
         auto* reg = ECS::Registry::Get();
         reg->DestroyEntity(reg->GetEntity(editorSnapshotLightName));
         // Reset aspect resizing.
-        auto* renderEngine = Graphics::RenderEngineBackend::Get();
+        auto* renderEngine = Graphics::RenderEngine::Get();
         auto* cameraSystem = renderEngine->GetCameraSystem();
         if (cameraSystem->GetAspectRatio() != m_editorCameraAspectBeforeSnapshot)
             cameraSystem->SetAspectRatio(m_editorCameraAspectBeforeSnapshot);
@@ -405,7 +405,7 @@ namespace Lina::Editor
 
         static char str0[128] = "Hello, world!";
 
-        if (selected && canRename && Input::InputEngineBackend::Get()->GetKeyDown(LINA_KEY_F2))
+        if (selected && canRename && Input::InputEngine::Get()->GetKeyDown(LINA_KEY_F2))
         {
 
             if (IsProtectedDirectory(item))
@@ -909,7 +909,7 @@ namespace Lina::Editor
         if (Button(ICON_FA_MINUS, buttonSize, 1.0f, frameRounding, ImVec2(0.0f, -0.6f)))
         {
             if (isAppWindow)
-                Graphics::WindowBackend::Get()->Iconify();
+                Graphics::Window::Get()->Iconify();
             else
                 GUILayer::Get()->m_editorPanels[windowID]->ToggleCollapse();
         }
@@ -918,11 +918,11 @@ namespace Lina::Editor
         ImGui::SetCursorPosX(windowWidth - offset1 - closeButtonAdditionalSize - gap);
         ImGui::SetCursorPosY(cursorY);
 
-        bool isMaximized = isAppWindow ? Graphics::WindowBackend::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::Get()->m_editorPanels[windowID]->IsMaximized();
+        bool isMaximized = isAppWindow ? Graphics::Window::Get()->GetProperties().m_windowState == WindowState::Maximized : GUILayer::Get()->m_editorPanels[windowID]->IsMaximized();
         if (Button(isMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, buttonSize, 1.0f, frameRounding, ImVec2(0.0f, -2.0f)))
         {
             if (isAppWindow)
-                Graphics::WindowBackend::Get()->Maximize();
+                Graphics::Window::Get()->Maximize();
             else
                 GUILayer::Get()->m_editorPanels[windowID]->ToggleMaximize();
         }
@@ -935,7 +935,7 @@ namespace Lina::Editor
         if (Button(ICON_FA_TIMES, ImVec2(buttonSize.x + closeButtonAdditionalSize, buttonSize.y), 1.0f, frameRounding, ImVec2(0.0f, -2.2f)))
         {
             if (isAppWindow)
-                Graphics::WindowBackend::Get()->Close();
+                Graphics::Window::Get()->Close();
             else
                 GUILayer::Get()->m_editorPanels[windowID]->Close();
         }
@@ -979,7 +979,7 @@ namespace Lina::Editor
         const ImVec2 rectMax       = ImVec2(rectMin.x + rectSize.x, rectMin.y + rectSize.y);
         const bool   bgHovered     = !disableHeader && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rectMin, rectMax);
         const bool   bgPressed     = bgHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-        const bool   bgReleased    = bgHovered && Input::InputEngineBackend::Get()->GetMouseButtonDown(0);
+        const bool   bgReleased    = bgHovered && Input::InputEngine::Get()->GetMouseButtonDown(0);
         const ImVec4 bgColor       = disableHeader ? disabledColor : bgPressed ? pressColor
                                                                  : bgHovered   ? hoverColor
                                                                                : normalColor;
@@ -1266,7 +1266,7 @@ namespace Lina::Editor
             if (canDrag)
             {
 
-                if (Input::InputEngineBackend::Get()->GetMouseButtonDown(LINA_MOUSE_1))
+                if (Input::InputEngine::Get()->GetMouseButtonDown(LINA_MOUSE_1))
                 {
                     *pressedPos = *leftPaneWidth;
                     *dragging   = true;
@@ -1593,7 +1593,7 @@ namespace Lina::Editor
 
         if (removed)
         {
-            auto* defaultMat = Physics::PhysicsEngineBackend::Get()->GetDefaultPhysicsMaterial();
+            auto* defaultMat = Physics::PhysicsEngine::Get()->GetDefaultPhysicsMaterial();
             handle->m_sid    = defaultMat->GetSID();
             handle->m_value  = defaultMat;
         }
@@ -1681,7 +1681,7 @@ namespace Lina::Editor
         const ImVec2 rectMin     = ImGui::GetCursorScreenPos();
         const ImVec2 rectMax     = ImVec2(rectMin.x + size.x, rectMin.y + size.y);
         const bool   hovered     = ImGui::IsMouseHoveringRect(rectMin, rectMax);
-        const bool   pressed     = hovered && Input::InputEngineBackend::Get()->GetMouseButton(LINA_MOUSE_1);
+        const bool   pressed     = hovered && Input::InputEngine::Get()->GetMouseButton(LINA_MOUSE_1);
 
         const ImVec4 iconColor = pressed ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered)
                                                                                                      : ImGui::GetStyleColorVec4(ImGuiCol_Text);
@@ -1689,7 +1689,7 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
         IconSmall(icon);
         ImGui::PopStyleColor();
-        return hovered && Input::InputEngineBackend::Get()->GetMouseButtonUp(LINA_MOUSE_1);
+        return hovered && Input::InputEngine::Get()->GetMouseButtonUp(LINA_MOUSE_1);
     }
 
     bool WidgetsUtility::TreeNode(const void* id, ImGuiTreeNodeFlags flags, const char* name, bool drawArrow)
@@ -1719,7 +1719,7 @@ namespace Lina::Editor
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
             }
 
-            if (Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+            if (Input::InputEngine::Get()->GetMouseButtonDown(0))
             {
                 s_isDraggingWidgetInput = true;
                 s_draggedInput          = id;
@@ -1753,7 +1753,7 @@ namespace Lina::Editor
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
             }
 
-            if (Input::InputEngineBackend::Get()->GetMouseButtonDown(0))
+            if (Input::InputEngine::Get()->GetMouseButtonDown(0))
             {
                 s_isDraggingWidgetInput = true;
                 s_draggedInput          = id;
@@ -2147,7 +2147,7 @@ namespace Lina::Editor
         ImGui::SameLine();
 
         if (Button("Select"))
-            toReturn = EditorUtility::SelectPath(Graphics::WindowBackend::Get()->GetNativeWindow());
+            toReturn = EditorUtility::SelectPath(Graphics::Window::Get()->GetNativeWindow());
 
         return toReturn;
     }

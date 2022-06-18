@@ -39,7 +39,7 @@ Timestamp: 4/26/2019 6:41:58 PM
 #ifndef UniformBuffer_HPP
 #define UniformBuffer_HPP
 
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "RenderingCommon.hpp"
 
 namespace Lina::Graphics

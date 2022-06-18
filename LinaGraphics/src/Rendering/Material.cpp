@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Material.hpp"
 
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
@@ -57,7 +57,7 @@ namespace Lina::Graphics
         }
         else
         {
-            m_shaderHandle.m_value = OpenGLRenderEngine::Get()->GetDefaultLitShader();
+            m_shaderHandle.m_value = RenderEngine::Get()->GetDefaultLitShader();
             m_shaderHandle.m_sid   = m_shaderHandle.m_value->GetSID();
         }
     }
@@ -98,7 +98,7 @@ namespace Lina::Graphics
         else
         {
             LINA_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
-            return Graphics::RenderEngineBackend::Get()->GetDefaultTexture();
+            return Graphics::RenderEngine::Get()->GetDefaultTexture();
         }
     }
 
@@ -145,7 +145,7 @@ namespace Lina::Graphics
         if (storage->Exists<Shader>(m_shaderHandle.m_sid))
             SetShader(storage->GetResource<Shader>(m_shaderHandle.m_sid), true);
         else
-            SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
+            SetShader(RenderEngine::Get()->GetDefaultLitShader(), true);
 
         UpdateMaterialData();
 
@@ -163,7 +163,7 @@ namespace Lina::Graphics
         if (storage->Exists<Shader>(m_shaderHandle.m_sid))
             SetShader(storage->GetResource<Shader>(m_shaderHandle.m_sid), true);
         else
-            SetShader(OpenGLRenderEngine::Get()->GetDefaultLitShader(), true);
+            SetShader(RenderEngine::Get()->GetDefaultLitShader(), true);
 
         UpdateMaterialData();
 

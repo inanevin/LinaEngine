@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/OpenGL/OpenGLWindow.hpp"
+#include "Core/Window.hpp"
 
 #include "Core/CommonInput.hpp"
 #include "EventSystem/EventSystem.hpp"
@@ -40,9 +40,9 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    OpenGLWindow* OpenGLWindow::s_openglWindow = nullptr;
+    Window* Window::s_window = nullptr;
 
-    void OpenGLWindow::Tick()
+    void Window::Tick()
     {
         if (!glfwWindowShouldClose(m_glfwWindow))
             glfwSwapBuffers(m_glfwWindow);
@@ -53,9 +53,9 @@ namespace Lina::Graphics
         LINA_ERR("GLFW Error: {0} Description: {1} ", error, desc);
     }
 
-    bool OpenGLWindow::CreateContext(ApplicationInfo& appInfo)
+    bool Window::CreateContext(ApplicationInfo& appInfo)
     {
-        LINA_TRACE("[Initialization] -> OpenGLWindow ({0})", typeid(*this).name());
+        LINA_TRACE("[Initialization] -> Window ({0})", typeid(*this).name());
 
         // Set props.
         m_windowProperties = appInfo.m_windowProperties;
@@ -134,19 +134,19 @@ namespace Lina::Graphics
         glfwSetWindowUserPointer(m_glfwWindow, this);
 
         auto windowResizeFunc = [](GLFWwindow* w, int wi, int he) {
-            auto* window                        = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window                        = static_cast<Window*>(glfwGetWindowUserPointer(w));
             window->m_windowProperties.m_width  = wi;
             window->m_windowProperties.m_height = he;
             Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{window->m_window, window->m_windowProperties});
         };
 
         auto windowCloseFunc = [](GLFWwindow* w) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
             window->Close();
         };
 
         auto windowKeyFunc = [](GLFWwindow* w, int key, int scancode, int action, int modes) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
 
             Input::InputAction inputAction = Input::InputAction::Pressed;
             if (action == GLFW_RELEASE)
@@ -158,7 +158,7 @@ namespace Lina::Graphics
         };
 
         auto windowButtonFunc = [](GLFWwindow* w, int button, int action, int modes) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
 
             Input::InputAction inputAction = Input::InputAction::Pressed;
             if (action == GLFW_RELEASE)
@@ -170,17 +170,17 @@ namespace Lina::Graphics
         };
 
         auto windowMouseScrollFunc = [](GLFWwindow* w, double xOff, double yOff) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
             Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{window->m_window, xOff, yOff});
         };
 
         auto windowCursorPosFunc = [](GLFWwindow* w, double xPos, double yPos) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
             Event::EventSystem::Get()->Trigger<Event::EMouseCursorCallback>(Event::EMouseCursorCallback{window->m_window, xPos, yPos});
         };
 
         auto windowFocusFunc = [](GLFWwindow* w, int f) {
-            auto* window = static_cast<OpenGLWindow*>(glfwGetWindowUserPointer(w));
+            auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
             Event::EventSystem::Get()->Trigger<Event::EWindowFocused>(Event::EWindowFocused{window->m_window, f});
         };
 
@@ -199,51 +199,51 @@ namespace Lina::Graphics
         return true;
     }
 
-    void OpenGLWindow::Shutdown()
+    void Window::Shutdown()
     {
-        LINA_TRACE("[Shutdown] -> OpenGLWindow ({0})", typeid(*this).name());
+        LINA_TRACE("[Shutdown] -> Window ({0})", typeid(*this).name());
 
         glfwTerminate();
     };
 
-    void OpenGLWindow::SetVsync(int interval)
+    void Window::SetVsync(int interval)
     {
         m_windowProperties.m_vsync = interval;
         glfwSwapInterval(interval);
     }
 
-    double OpenGLWindow::GetTime()
+    double Window::GetTime()
     {
         return glfwGetTime();
     }
 
-    void OpenGLWindow::SetSize(const Vector2i& newSize)
+    void Window::SetSize(const Vector2i& newSize)
     {
         glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
         m_windowProperties.m_width  = newSize.x;
         m_windowProperties.m_height = newSize.y;
     }
 
-    void OpenGLWindow::SetPos(const Vector2i& newPos)
+    void Window::SetPos(const Vector2i& newPos)
     {
         m_windowProperties.m_xPos = newPos.x;
         m_windowProperties.m_yPos = newPos.y;
         glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
     }
 
-    void OpenGLWindow::SetPosCentered(const Vector2 newPos)
+    void Window::SetPosCentered(const Vector2 newPos)
     {
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         SetPos(Vector2i((int)((float)mode->width / 2.0f + (float)newPos.x), (int)((float)mode->height / 2.0f + (float)newPos.y)));
     }
 
-    void OpenGLWindow::Iconify()
+    void Window::Iconify()
     {
         m_windowProperties.m_windowState = WindowState::Iconified;
         glfwIconifyWindow(m_glfwWindow);
     }
 
-    void OpenGLWindow::Maximize()
+    void Window::Maximize()
     {
         if (m_windowProperties.m_windowState != WindowState::Maximized)
         {
@@ -265,12 +265,12 @@ namespace Lina::Graphics
         }
     }
 
-    void OpenGLWindow::Close()
+    void Window::Close()
     {
         Event::EventSystem::Get()->Trigger<Event::EWindowClosed>(Event::EWindowClosed{m_window});
     }
 
-    void OpenGLWindow::Sleep(int milliseconds)
+    void Window::Sleep(int milliseconds)
     {
         glfwWaitEventsTimeout((float)milliseconds / 1000.0f);
     }

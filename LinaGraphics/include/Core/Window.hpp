@@ -36,8 +36,8 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 #pragma once
 
-#ifndef OpenGLWindow_HPP
-#define OpenGLWindow_HPP
+#ifndef Window_HPP
+#define Window_HPP
 
 #include "Core/CommonApplication.hpp"
 #include "Core/CommonWindow.hpp"
@@ -53,12 +53,12 @@ namespace Lina
 namespace Lina::Graphics
 {
 
-    class OpenGLWindow
+    class Window
     {
     public:
-        static OpenGLWindow* Get()
+        static Window* Get()
         {
-            return s_openglWindow;
+            return s_window;
         }
         virtual void* GetNativeWindow() const
         {
@@ -103,14 +103,14 @@ namespace Lina::Graphics
 
     private:
         friend class Engine;
-        OpenGLWindow()  = default;
-        ~OpenGLWindow() = default;
+        Window()  = default;
+        ~Window() = default;
         bool CreateContext(ApplicationInfo& appInfo);
         void Shutdown();
         void Sleep(int milliseconds);
 
     private:
-        static OpenGLWindow* s_openglWindow;
+        static Window* s_window;
         WindowProperties     m_windowProperties = WindowProperties();
         void*                m_window           = nullptr;
         GLFWwindow*          m_glfwWindow       = nullptr;

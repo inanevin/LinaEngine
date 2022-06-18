@@ -69,11 +69,11 @@ namespace Lina::Audio
 {
     class Audio;
 
-    class OpenALAudioEngine
+    class AudioEngine
     {
     public:
-        void                      PlayOneShot(Audio* audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
-        static OpenALAudioEngine* Get()
+        void                PlayOneShot(Audio* audio, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
+        static AudioEngine* Get()
         {
             return s_audioEngine;
         }
@@ -83,13 +83,13 @@ namespace Lina::Audio
 
     private:
         friend class Engine;
-        OpenALAudioEngine() = default;
-        ~OpenALAudioEngine() = default;
+        AudioEngine()  = default;
+        ~AudioEngine() = default;
         void Initialize();
         void Shutdown();
 
     private:
-        static OpenALAudioEngine*            s_audioEngine;
+        static AudioEngine*                  s_audioEngine;
         mutable std::mutex                   m_mutex;
         ALCcontext*                          m_context             = nullptr;
         ALCdevice*                           m_device              = nullptr;

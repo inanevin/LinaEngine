@@ -40,7 +40,7 @@ Timestamp: 12/10/2020 6:02:07 PM
 #define PostProcessEffect_HPP
 
 // Headers here.
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/Shader.hpp"

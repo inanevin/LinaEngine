@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Panels/ResourceSelectorPanel.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "Core/ImGuiCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -45,7 +45,7 @@ namespace Lina::Editor
     void ResourceSelectorPanel::Initialize(const char* id, const char* icon)
     {
         EditorPanel::Initialize(id, icon);
-        m_window = Graphics::WindowBackend::Get();
+        m_window = Graphics::Window::Get();
         m_windowFlags |= ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize;
         m_root        = Resources::ResourceManager::Get()->GetRootFolder();
         m_storage     = Resources::ResourceStorage::Get();

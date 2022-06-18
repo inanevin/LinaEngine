@@ -36,8 +36,8 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 #pragma once
 
-#ifndef GLFWInputEngine_HPP
-#define GLFWInputEngine_HPP
+#ifndef InputEngine_HPP
+#define InputEngine_HPP
 
 #include "Core/CommonInput.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
@@ -62,11 +62,11 @@ namespace Lina
 
 namespace Lina::Input
 {
-    class GLFWInputEngine
+    class InputEngine
     {
 
     public:
-        static GLFWInputEngine* Get()
+        static InputEngine* Get()
         {
             return s_inputEngine;
         }
@@ -119,8 +119,8 @@ namespace Lina::Input
 
     private:
         friend class Engine;
-        GLFWInputEngine()  = default;
-        ~GLFWInputEngine() = default;
+        InputEngine()  = default;
+        ~InputEngine() = default;
         void Initialize();
         void Tick();
         void Shutdown();
@@ -129,7 +129,7 @@ namespace Lina::Input
 
     private:
         friend class Engine;
-        static GLFWInputEngine* s_inputEngine;
+        static InputEngine* s_inputEngine;
         int                     m_keyStatesDown[NUM_KEY_STATES];
         int                     m_keyStatesUp[NUM_KEY_STATES]       = {0};
         int                     m_mouseStatesDown[NUM_MOUSE_STATES] = {0};

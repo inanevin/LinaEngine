@@ -40,7 +40,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "Rendering/Sampler.hpp"
 #include "Rendering/ImageAssetData.hpp"
 

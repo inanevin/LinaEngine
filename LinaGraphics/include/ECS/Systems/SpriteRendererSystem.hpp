@@ -39,7 +39,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #ifndef SpriteRendererSystem_HPP
 #define SpriteRendererSystem_HPP
 
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
 

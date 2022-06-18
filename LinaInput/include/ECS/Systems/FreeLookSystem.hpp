@@ -39,7 +39,7 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "Core/InputBackendFwd.hpp"
+#include "Core/InputEngineFwd.hpp"
 #include "ECS/System.hpp"
 
 namespace Lina::ECS

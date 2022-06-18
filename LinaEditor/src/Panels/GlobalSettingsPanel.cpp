@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/Application.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "IconsFontAwesome5.h"
 #include "Rendering/Material.hpp"
@@ -69,20 +69,20 @@ namespace Lina::Editor
                 {
                     if (currentLevel->m_skyboxMaterial.m_value == nullptr)
                     {
-                        Graphics::Material* defaultSkybox      = Graphics::RenderEngineBackend::Get()->GetDefaultSkyboxMaterial();
+                        Graphics::Material* defaultSkybox      = Graphics::RenderEngine::Get()->GetDefaultSkyboxMaterial();
                         currentLevel->m_skyboxMaterial.m_value = defaultSkybox;
                         currentLevel->m_skyboxMaterial.m_sid   = defaultSkybox->GetSID();
                     }
 
-                    Graphics::RenderEngineBackend::Get()->SetSkyboxMaterial(currentLevel->m_skyboxMaterial.m_value);
-                    Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(currentLevel->m_ambientColor);
+                    Graphics::RenderEngine::Get()->SetSkyboxMaterial(currentLevel->m_skyboxMaterial.m_value);
+                    Graphics::RenderEngine::Get()->GetLightingSystem()->SetAmbientColor(currentLevel->m_ambientColor);
                     anySettingsChanged = true;
                 }
 
                 if (ClassDrawer::DrawClass(GetTypeID<Graphics::RenderSettings>(), entt::forward_as_meta(Engine::Get()->GetEngineSettings().GetRenderSettings()), true))
                 {
                     anySettingsChanged = true;
-                    Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
+                    Graphics::RenderEngine::Get()->UpdateRenderSettings();
                 }
 
                 if (ClassDrawer::DrawClass(GetTypeID<EditorSettings>(), entt::forward_as_meta(EditorApplication::Get()->GetEditorSettings()), true))

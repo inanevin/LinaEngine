@@ -28,7 +28,7 @@ SOFTWARE.
 */
 
 #include "Rendering/Model.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "Log/Log.hpp"
 #include "Rendering/VertexArray.hpp"

@@ -43,11 +43,6 @@ Timestamp: 12/20/2021 10:16:40 PM
 #include "Resources/IResource.hpp"
 #include <cereal/types/string.hpp>
 
-namespace Lina::Editor
-{
-
-}
-
 namespace Lina
 {
     namespace World
@@ -84,12 +79,7 @@ namespace Lina::Physics
     private:
         friend class cereal::access;
         friend class World::Level;
-
-#ifdef LINA_PHYSICS_BULLET
-        friend class BulletPhysicsEngine;
-#elif LINA_PHYSICS_PHYSX
-        friend class PhysXPhysicsEngine;
-#endif
+        friend class PhysicsEngine;
 
         float m_staticFriction  = 0.5f;
         float m_dynamicFriction = 0.5f;

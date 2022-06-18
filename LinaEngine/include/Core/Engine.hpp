@@ -40,13 +40,13 @@ Timestamp: 12/14/2021 10:09:33 PM
 #define Engine_HPP
 
 // Headers here.
-#include "Core/AudioBackend.hpp"
-#include "Core/InputBackend.hpp"
+#include "Core/AudioEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/MessageBus.hpp"
-#include "Core/PhysicsBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/PhysicsEngine.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
-#include "Core/WindowBackend.hpp"
+#include "Core/Window.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "ECS/System.hpp"
@@ -151,17 +151,17 @@ namespace Lina
         double SmoothDeltaTime(double dt);
 
     private:
-        static Engine*                s_engine;
-        Resources::ResourceStorage    m_resourceStorage;
-        Graphics::RenderEngineBackend m_renderEngine;
-        Physics::PhysicsEngineBackend m_physicsEngine;
-        Audio::AudioEngineBackend     m_audioEngine;
-        Input::InputEngineBackend     m_inputEngine;
-        Graphics::WindowBackend       m_window;
-        Event::EventSystem            m_eventSystem;
-        ECS::SystemList               m_mainECSPipeline;
-        Resources::ResourceManager    m_resourceManager;
-        MessageBus                    m_messageBus;
+        static Engine*             s_engine;
+        Resources::ResourceStorage m_resourceStorage;
+        Graphics::RenderEngine     m_renderEngine;
+        Physics::PhysicsEngine     m_physicsEngine;
+        Audio::AudioEngine         m_audioEngine;
+        Input::InputEngine         m_inputEngine;
+        Graphics::Window           m_window;
+        Event::EventSystem         m_eventSystem;
+        ECS::SystemList            m_mainECSPipeline;
+        Resources::ResourceManager m_resourceManager;
+        MessageBus                 m_messageBus;
 
         ApplicationInfo m_appInfo;
         bool            m_running         = false;

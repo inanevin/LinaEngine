@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorApplication.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Rendering/Model.hpp"
 #include "Core/Engine.hpp"
@@ -60,7 +60,7 @@ namespace Lina::Editor
         m_primitives.push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
 
         m_shaderPreviewMaterial = new Graphics::Material();
-        m_shaderPreviewMaterial->SetShader(Graphics::RenderEngineBackend::Get()->GetDefaultLitShader());
+        m_shaderPreviewMaterial->SetShader(Graphics::RenderEngine::Get()->GetDefaultLitShader());
     }
     void PreviewPanel::Draw()
     {
@@ -151,7 +151,7 @@ namespace Lina::Editor
         const Vector2 bgMinLina = Vector2(bgMin.x, bgMin.y);
         const Vector2 bgMaxLina = Vector2(bgMax.x, bgMax.y);
 
-        auto* renderEngine         = Graphics::RenderEngineBackend::Get();
+        auto* renderEngine         = Graphics::RenderEngine::Get();
         float currentAspect        = 0.0f;
         bool  previewCameraEnabled = m_previewType != PreviewType::Texture;
 
@@ -175,7 +175,7 @@ namespace Lina::Editor
 
     void PreviewPanel::BeginPreviewCamera(const Vector2& bgSize)
     {
-        auto* renderEngine         = Graphics::RenderEngineBackend::Get();
+        auto* renderEngine         = Graphics::RenderEngine::Get();
         float currentAspect        = 0.0f;
         bool  previewCameraEnabled = m_previewType != PreviewType::Texture;
 

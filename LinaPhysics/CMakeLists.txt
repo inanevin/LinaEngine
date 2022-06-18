@@ -23,10 +23,8 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAPHYSICS_SOURCES
 
 	#Physics
-	# src/Core/Backend/Bullet/BulletPhysicsEngine.cpp
-	# src/Core/Backend/Bullet/BulletGizmoDrawer.cpp
-	src/Core/Backend/PhysX/PhysXPhysicsEngine.cpp
-	src/Core/Backend/PhysX/PhysXCooker.cpp
+	src/Core/PhysicsEngine.cpp
+	src/Core/PhysicsCooker.cpp
 
 	src/Core/PhysicsCommon.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
@@ -41,13 +39,10 @@ set (LINAPHYSICS_SOURCES
 set(LINAPHYSICS_HEADERS
 	
 	#Physics
-	# include/Core/Backend/Bullet/BulletPhysicsEngine.hpp
-	# include/Core/Backend/Bullet/BulletGizmoDrawer.hpp
-	include/Core/Backend/PhysX/PhysXPhysicsEngine.hpp
-	include/Core/Backend/PhysX/PhysXCooker.hpp
+	include/Core/PhysicsEngine.hpp
+	include/Core/PhysicsCooker.hpp
 
-	include/Core/PhysicsBackend.hpp
-	include/Core/PhysicsBackendFwd.hpp
+	include/Core/PhysicsEngineFwd.hpp
 	include/Core/PhysicsCommon.hpp
 
 	include/ECS/Systems/RigidbodySystem.hpp

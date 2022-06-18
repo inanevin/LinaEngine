@@ -29,8 +29,8 @@ SOFTWARE.
 #include "ECS/Systems/ModelNodeSystem.hpp"
 
 #include "Animation/Skeleton.hpp"
-#include "Core/RenderDeviceBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDevice.hpp"
+#include "Core/RenderEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelNodeComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
@@ -47,7 +47,7 @@ namespace Lina::ECS
     {
         System::Initialize(name);
         m_appMode      = appMode;
-        m_renderEngine = Graphics::RenderEngineBackend::Get();
+        m_renderEngine = Graphics::RenderEngine::Get();
         m_renderDevice = m_renderEngine->GetRenderDevice();
     }
 
@@ -56,7 +56,7 @@ namespace Lina::ECS
         auto* ecs = ECS::Registry::Get();
 
         const auto&         meshes     = node->GetMeshes();
-        Graphics::Material* defaultMat = Graphics::RenderEngineBackend::Get()->GetDefaultLitMaterial();
+        Graphics::Material* defaultMat = Graphics::RenderEngine::Get()->GetDefaultLitMaterial();
 
         if (meshes.size() > 0)
         {

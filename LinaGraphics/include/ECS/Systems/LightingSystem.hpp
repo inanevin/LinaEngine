@@ -41,7 +41,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #define LightingSystem_HPP
 
 #include "Core/CommonApplication.hpp"
-#include "Core/RenderBackendFwd.hpp"
+#include "Core/RenderEngineFwd.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "ECS/System.hpp"
 #include "Math/Color.hpp"

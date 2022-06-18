@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: OpenGLRenderEngine
+Class: RenderEngine
 
 Responsible for managing the whole rendering pipeline, creating frame buffers, textures,
 materials, meshes etc. Also handles most of the memory management for the rendering pipeline.
@@ -48,8 +48,8 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/ModelNodeSystem.hpp"
 #include "ECS/Systems/ReflectionSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
-#include "OpenGLRenderDevice.hpp"
-#include "OpenGLWindow.hpp"
+#include "RenderDevice.hpp"
+#include "Window.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/PostProcessEffect.hpp"
@@ -96,10 +96,10 @@ namespace Lina::Graphics
         float zFar;
     };
 
-    class OpenGLRenderEngine
+    class RenderEngine
     {
     public:
-        static OpenGLRenderEngine* Get()
+        static RenderEngine* Get()
         {
             return s_renderEngine;
         }
@@ -195,7 +195,7 @@ namespace Lina::Graphics
         {
             return m_defaultDrawParams;
         }
-        inline OpenGLRenderDevice* GetRenderDevice()
+        inline RenderDevice* GetRenderDevice()
         {
             return &m_renderDevice;
         }
@@ -300,8 +300,8 @@ namespace Lina::Graphics
 
     private:
         friend class Engine;
-        OpenGLRenderEngine()  = default;
-        ~OpenGLRenderEngine() = default;
+        RenderEngine()  = default;
+        ~RenderEngine() = default;
         void ConnectEvents();
         void Initialize(ApplicationMode appMode, RenderSettings* renderSettings, const WindowProperties& windowProps);
         void Shutdown();
@@ -338,10 +338,10 @@ namespace Lina::Graphics
         void CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6]);
 
     private:
-        static OpenGLRenderEngine* s_renderEngine;
+        static RenderEngine* s_renderEngine;
         ApplicationMode            m_appMode   = ApplicationMode::Editor;
-        OpenGLWindow*              m_appWindow = nullptr;
-        OpenGLRenderDevice         m_renderDevice;
+        Window*              m_appWindow = nullptr;
+        RenderDevice         m_renderDevice;
         Event::EventSystem*        m_eventSystem = nullptr;
 
         ModelNode* m_cubeNode   = nullptr;

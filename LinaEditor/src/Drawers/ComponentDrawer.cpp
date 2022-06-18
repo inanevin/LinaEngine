@@ -72,14 +72,14 @@ namespace Lina::Editor
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             ECS::SpotLightComponent&  sLight = ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
             Vector3                   end1   = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+            Graphics::RenderEngine::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
         }
         else if (tid == GetTypeID<DirectionalLightComponent>())
         {
             ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             Vector3                   dir  = Vector3::Zero - data.GetLocation();
             Vector3                   end1 = data.GetLocation() + dir;
-            Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+            Graphics::RenderEngine::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
         }
         else if (tid == GetTypeID<ReflectionAreaComponent>())
         {
@@ -91,7 +91,7 @@ namespace Lina::Editor
                 Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{data.GetLocation(), area.m_halfExtents, Color::Red, 3.4f});
             }
 
-            Graphics::RenderEngineBackend::Get()->DrawIcon(data.GetLocation(), StringID("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
+            Graphics::RenderEngine::Get()->DrawIcon(data.GetLocation(), StringID("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
         }
         else if (tid == GetTypeID<CameraComponent>())
         {
@@ -185,7 +185,7 @@ namespace Lina::Editor
         TypeID dataTid          = GetTypeID<ECS::EntityDataComponent>();
         TypeID physicsTid       = GetTypeID<ECS::PhysicsComponent>();
         bool   disableTransform = (phy.GetSimType() == Physics::SimulationType::Dynamic && !phy.GetIsKinematic()) || (phy.GetSimType() == Physics::SimulationType::Static);
-        auto*  physicsEngine    = Physics::PhysicsEngineBackend::Get();
+        auto*  physicsEngine    = Physics::PhysicsEngine::Get();
 
         bool copied          = false;
         bool pasted          = false;
