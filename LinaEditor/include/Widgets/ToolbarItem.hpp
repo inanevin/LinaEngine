@@ -42,7 +42,7 @@ Timestamp: 12/27/2021 12:05:24 AM
 // Headers here.
 #include "Core/SizeDefinitions.hpp"
 #include "Math/Vector.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Editor
 {
@@ -80,7 +80,7 @@ namespace Lina::Editor
 
     private:
         Vector2                     m_buttonSize = Vector2::Zero;
-        std::vector<ToolbarItem*> m_items;
+        Vector<ToolbarItem*> m_items;
     };
 
     class ToolbarItem

@@ -77,7 +77,7 @@ namespace Lina::ECS
         /// <summary>
         /// Sets the positions & half extents from all nodes in the given model.
         /// </summary>
-        void GetAABBsInModel(Graphics::Model* model, std::vector<Vector3>& outPositions, std::vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale);
+        void GetAABBsInModel(Graphics::Model* model, Vector<Vector3>& outPositions, Vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale);
 
         /// <summary>
         /// Sets the bounds position & half extent based on given entity's transformation
@@ -87,7 +87,7 @@ namespace Lina::ECS
         /// <summary>
         /// Sets the positions & extents based on all bounds on entity hierarchy.
         /// </summary>
-        bool GetAllBoundsInEntity(Entity ent, std::vector<Vector3>& boundsPositions, std::vector<Vector3>& boundsHalfExtents);
+        bool GetAllBoundsInEntity(Entity ent, Vector<Vector3>& boundsPositions, Vector<Vector3>& boundsHalfExtents);
 
     private:
         Graphics::RenderEngine* m_renderEngine = nullptr;

@@ -80,7 +80,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Creates a cubemap texture, used for skyboxes & probes.
         /// </summary>
-        uint32 CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize = 6);
+        uint32 CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const Vector<unsigned char*>& data, uint32 dataSize = 6);
 
         /// <summary>
         /// Creates an empty cubemap texture
@@ -111,7 +111,7 @@ namespace Lina::Graphics
         /// Creates a VAO for the given data. Supports multiple vertex and instanced components.
         /// </summary>
         /// <returns></returns>
-        uint32 CreateVertexArray(const std::vector<BufferData>& bufferData, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+        uint32 CreateVertexArray(const Vector<BufferData>& bufferData, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 
         /// <summary>
         /// VAO helper for creating skybox cubes.

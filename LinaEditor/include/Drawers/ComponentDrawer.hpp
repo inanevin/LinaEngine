@@ -41,13 +41,13 @@ Timestamp: 10/13/2020 2:34:21 PM
 #include "Core/CommonECS.hpp"
 #include "Utility/StringId.hpp"
 #include "Core/SizeDefinitions.hpp"
+#include "Data/Map.hpp"
 #include <entt/core/hashed_string.hpp>
 #include <entt/meta/factory.hpp>
 #include <entt/meta/meta.hpp>
 #include <entt/meta/node.hpp>
 #include <entt/meta/resolve.hpp>
 #include <functional>
-#include <map>
 #include <tuple>
 
 namespace Lina::Editor
@@ -55,7 +55,7 @@ namespace Lina::Editor
     struct ETransformPivotChanged;
     struct EComponentOrderSwapped;
 
-    typedef std::map<std::string, std::vector<std::pair<std::string, TypeID>>> AddComponentMap;
+    typedef Map<std::string, Vector<std::pair<std::string, TypeID>>> AddComponentMap;
 
     class ComponentDrawer
     {
@@ -97,7 +97,7 @@ namespace Lina::Editor
 
     private:
         AddComponentMap     m_addComponentMap; // Category - vector of pairs - pair.first = component title, pair.second component id.
-        std::vector<TypeID> m_componentDrawList;
+        Vector<TypeID> m_componentDrawList;
         bool                m_isTransformPivotGlobal = true;
     };
 

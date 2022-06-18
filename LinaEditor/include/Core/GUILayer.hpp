@@ -53,7 +53,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Core/ShortcutManager.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Panels/ResourceSelectorPanel.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 
 struct ImFont;
 

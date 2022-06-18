@@ -1820,7 +1820,7 @@ void IM_DELETE(T* p)
 
 //-----------------------------------------------------------------------------
 // ImVector<>
-// Lightweight std::vector<>-like class to avoid dragging dependencies (also, some implementations of STL with debug enabled are absurdly slow, we bypass it so our code runs fast in debug).
+// Lightweight Vector<>-like class to avoid dragging dependencies (also, some implementations of STL with debug enabled are absurdly slow, we bypass it so our code runs fast in debug).
 //-----------------------------------------------------------------------------
 // - You generally do NOT need to care or use this ever. But we need to make it available in imgui.h because some of our public structures are relying on it.
 // - We use std-like naming convention here, which is a little unusual for this codebase.

@@ -119,7 +119,7 @@ namespace Lina::Resources
         ~ResourceManager() = default;
 
         void Initialize(ApplicationInfo& appInfo);
-        void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder);
+        void AddAllResourcesToPack(Vector<std::string>& resources, Utility::Folder* folder);
         void LoadEditorResources();
         void OnRequestResourceReload(const Event::ERequestResourceReload& ev);
         void Shutdown();

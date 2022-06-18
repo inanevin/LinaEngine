@@ -73,7 +73,7 @@ namespace Lina::Graphics
 
     private:
         bool                              m_loaded = false;
-        std::vector<VertexBoneData>       m_vertexBoneData;
+        Vector<VertexBoneData>       m_vertexBoneData;
         std::map<std::string, Animation*> m_animationMap;
         std::map<std::string, BoneInfo>   m_boneInfoMap;
 

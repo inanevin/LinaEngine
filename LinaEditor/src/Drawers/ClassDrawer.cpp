@@ -41,7 +41,7 @@ SOFTWARE.
 
 using namespace entt::literals;
 
-std::unordered_map<std::string, std::vector<entt::meta_data>> m_propertyList; // Category- property pair
+std::unordered_map<std::string, Vector<entt::meta_data>> m_propertyList; // Category- property pair
 
 namespace Lina::Editor
 {
@@ -283,9 +283,9 @@ namespace Lina::Editor
         {
             ImGui::NewLine();
 
-            auto arr = data.get(instance).cast<std::vector<Resources::ResourceHandle<Graphics::Material>>>();
+            auto arr = data.get(instance).cast<Vector<Resources::ResourceHandle<Graphics::Material>>>();
 
-            std::vector<std::string> materialNameVector;
+            Vector<std::string> materialNameVector;
 
             // We are looking for a property with title MaterialArray's title + _Names
             const std::string labelNames = std::string(label) + "_Names";
@@ -302,7 +302,7 @@ namespace Lina::Editor
                     const char* dTitleChr = dTitle.value().cast<const char*>();
                     if (std::string(dTitleChr).compare(labelNames) == 0)
                     {
-                        materialNameVector = d.get(instance).cast<std::vector<std::string>>();
+                        materialNameVector = d.get(instance).cast<Vector<std::string>>();
                         break;
                     }
                 }

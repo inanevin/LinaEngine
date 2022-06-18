@@ -149,7 +149,7 @@ namespace Lina::Graphics
 
     GLint       GetOpenGLFormat(PixelFormat dataFormat);
     GLint       GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, std::vector<GLuint>* shaders);
+    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, Vector<GLuint>* shaders);
     static void AddAllAttributes(GLuint program, const std::string& vertexShaderText, uint32 version);
     static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage);
     static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap);
@@ -273,7 +273,7 @@ namespace Lina::Graphics
         return textureHandle;
     }
 
-    uint32 RenderDevice::CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
+    uint32 RenderDevice::CreateCubemapTexture(Vector2i size, SamplerParameters samplerParams, const Vector<unsigned char*>& data, uint32 dataSize)
     {
         GLuint textureHandle;
         // Declare formats, target & handle for the texture.
@@ -451,7 +451,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 RenderDevice::CreateVertexArray(const std::vector<BufferData>& data, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+    uint32 RenderDevice::CreateVertexArray(const Vector<BufferData>& data, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
     {
         // Define vertex array object, buffers, buffer count & their sizes.
         unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
@@ -479,7 +479,7 @@ namespace Lina::Graphics
                 inInstancedMode = true;
             }
 
-            // Get each Allocated Element as buffer (each one is a std::vector<float>, size of elementSize
+            // Get each Allocated Element as buffer (each one is a Vector<float>, size of elementSize
             uint32  elementCount = data[i].m_elementSize;
             auto    typeSize     = isFloatBuffer ? sizeof(float) : sizeof(int);
             uintptr dataSize     = inInstancedMode ? elementCount * typeSize : elementCount * typeSize * numVertices;
@@ -785,7 +785,7 @@ namespace Lina::Graphics
         const ShaderProgram* shaderProgram = &programIt->second;
 
         // Detach & delete each shader assigned to our program.
-        for (std::vector<uint32>::const_iterator it = shaderProgram->shaders.begin(); it != shaderProgram->shaders.end(); ++it)
+        for (Vector<uint32>::const_iterator it = shaderProgram->shaders.begin(); it != shaderProgram->shaders.end(); ++it)
         {
             glDetachShader(shader, *it);
             glDeleteShader(*it);
@@ -1089,7 +1089,7 @@ namespace Lina::Graphics
         ShaderUniformData data;
         uint32            samplerUnit = 0;
 
-        std::vector<GLchar> uniformName(256);
+        Vector<GLchar> uniformName(256);
         for (int32 uniform = 0; uniform < count; ++uniform)
         {
 
@@ -1629,7 +1629,7 @@ namespace Lina::Graphics
         };
     }
 
-    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, std::vector<GLuint>* shaders)
+    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, Vector<GLuint>* shaders)
     {
         // Build shader object.
         GLuint shader = glCreateShader(type);
@@ -1710,7 +1710,7 @@ namespace Lina::Graphics
         glGetProgramiv(program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttribNameLength);
 
         // Iterate through the attributes.
-        std::vector<GLchar> nameData(maxAttribNameLength);
+        Vector<GLchar> nameData(maxAttribNameLength);
         for (GLint attrib = 0; attrib < numActiveAttribs; ++attrib)
         {
             GLint   arraySize    = 0;
@@ -1735,7 +1735,7 @@ namespace Lina::Graphics
             // Get uniform set data to store it in our map.
             GLint nameLen;
             glGetActiveUniformBlockiv(shaderProgram, block, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
-            std::vector<GLchar> name(nameLen);
+            Vector<GLchar> name(nameLen);
             glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
             std::string uniformBlockName((char*)&name[0], nameLen - 1);
             uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
@@ -1746,7 +1746,7 @@ namespace Lina::Graphics
         glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
         // Iterate through uniforms.
-        std::vector<GLchar> uniformName(256);
+        Vector<GLchar> uniformName(256);
         for (int32 uniform = 0; uniform < numUniforms; ++uniform)
         {
             GLint   arraySize    = 0;

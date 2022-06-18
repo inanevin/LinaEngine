@@ -63,7 +63,7 @@ namespace Lina::Graphics
         void          WriteToFile(const std::string& path);
 
         void Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
-        void ConstructCubemap(SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
+        void ConstructCubemap(SamplerParameters samplerParams, const Vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
         void ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path = "");
         void ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
         void ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");

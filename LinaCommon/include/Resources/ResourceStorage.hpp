@@ -47,8 +47,8 @@ Timestamp: 12/30/2021 9:37:39 PM
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
+#include "Data/Vector.hpp"
 #include <unordered_map>
-#include <vector>
 #include <set>
 
 namespace Lina
@@ -72,7 +72,7 @@ namespace Lina::Resources
         int                      m_loadPriority = 0;
         ResourceCreateFunc       m_createFunc;
         ResourceDeleteFunc       m_deleteFunc;
-        std::vector<std::string> m_associatedExtensions;
+        Vector<std::string> m_associatedExtensions;
         Color                    m_resourceIdentifierColor = Color::White;
         bool                     m_isAssetData             = false;
     };

@@ -43,7 +43,7 @@ Timestamp: 12/31/2021 8:18:10 PM
 #include "Resources/IResource.hpp"
 #include "Core/CommonReflection.hpp"
 #include <map>
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {
@@ -78,7 +78,7 @@ namespace Lina::Graphics
 
         bool                              m_regenerateConvexMeshes = false;
         bool                              m_triangulate            = true;
-        std::map<int, std::vector<uint8>> m_convexMeshData;
+        std::map<int, Vector<uint8>> m_convexMeshData;
 
         template <class Archive>
         void serialize(Archive& archive)

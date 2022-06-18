@@ -34,7 +34,7 @@ namespace Lina::ECS
 {
     // We keep track of all the children added to the entity hierarchy upon setting model renderer's model.
     // So we can extract any children that is not added by the model meshes upon deletion and get to keep them.
-    std::vector<ECS::Entity> m_processedChildren;
+    Vector<ECS::Entity> m_processedChildren;
 
     bool EntityIsProcessed(ECS::Entity entity)
     {
@@ -50,7 +50,7 @@ namespace Lina::ECS
 
     // Traverse the child hierarchy of a root entity
     // Find those entities that were not added by the auto-hierarchy generated from the model.
-    void FindEntitiesToKeep(ECS::Entity entity, std::vector<ECS::Entity>& keepVector)
+    void FindEntitiesToKeep(ECS::Entity entity, Vector<ECS::Entity>& keepVector)
     {
         // auto* reg = ECS::Registry::Get();
         // auto& data = reg->get<ECS::EntityDataComponent>(entity);
@@ -68,7 +68,7 @@ namespace Lina::ECS
     {
         // ECS::Registry* reg = ECS::Registry::Get();
         //
-        // std::vector<ECS::Entity> markedForNullParent;
+        // Vector<ECS::Entity> markedForNullParent;
         // FindEntitiesToKeep(entity, markedForNullParent);
         //
         // for (uint32 i = 0; i < markedForNullParent.size(); i++)
@@ -122,7 +122,7 @@ namespace Lina::ECS
         //	ProcessNode(nodeEntity, mat, node.m_children[i], model);
     }
 
-    void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model)
+    void ModelRendererComponent::AddMeshRenderer(ECS::Entity targetEntity, const Vector<int>& meshIndexes, Graphics::Model& model)
     {
         // ECS::Registry* reg = ECS::Registry::Get();
         // auto& defaultMaterial = Graphics::Material::GetMaterial("Resources/Engine/Materials/DefaultLit.linamat");

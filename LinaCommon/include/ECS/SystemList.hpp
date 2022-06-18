@@ -40,7 +40,7 @@ Timestamp: 12/25/2021 12:35:15 PM
 #define SystemList_HPP
 
 // Headers here.
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::ECS
 {
@@ -56,13 +56,13 @@ namespace Lina::ECS
         void UpdateSystems(float delta);
         bool RemoveSystem(System& system);
 
-        inline const std::vector<System*>& GetSystems() const
+        inline const Vector<System*>& GetSystems() const
         {
             return m_systems;
         }
 
     private:
-        std::vector<System*> m_systems;
+        Vector<System*> m_systems;
     };
 } // namespace Lina::ECS
 

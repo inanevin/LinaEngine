@@ -41,7 +41,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Rendering/ModelNode.hpp"
 #include "Rendering/ModelAssetData.hpp"
 #include "Rendering/RenderingCommon.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {
@@ -62,7 +62,7 @@ namespace Lina::Graphics
         {
             return m_assetData;
         }
-        inline std::vector<ImportedModelMaterial>& GetImportedMaterials()
+        inline Vector<ImportedModelMaterial>& GetImportedMaterials()
         {
             return m_importedMaterials;
         }
@@ -95,7 +95,7 @@ namespace Lina::Graphics
         {
             return m_numNodes;
         }
-        inline std::vector<ModelNode*>& GetAllNodes()
+        inline Vector<ModelNode*>& GetAllNodes()
         {
             return m_allNodes;
         }
@@ -114,8 +114,8 @@ namespace Lina::Graphics
         int                                m_numNodes      = 0;
         ModelAssetData*                    m_assetData     = nullptr;
         ModelNode*                         m_rootNode;
-        std::vector<ModelNode*>            m_allNodes;
-        std::vector<ImportedModelMaterial> m_importedMaterials;
+        Vector<ModelNode*>            m_allNodes;
+        Vector<ImportedModelMaterial> m_importedMaterials;
     };
 } // namespace Lina::Graphics
 

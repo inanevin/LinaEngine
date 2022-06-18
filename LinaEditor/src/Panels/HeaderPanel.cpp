@@ -59,7 +59,7 @@ namespace Lina::Editor
     float                        logoAnimSpeed       = 1.2f;
     float                        logoAnimWait        = 5.0f;
     float                        logoAnimWaitCounter = 0.0f;
-    std::vector<MenuBarElement*> HeaderPanel::s_createEntityElements;
+    Vector<MenuBarElement*> HeaderPanel::s_createEntityElements;
 
     HeaderPanel::~HeaderPanel()
     {

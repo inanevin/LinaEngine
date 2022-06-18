@@ -132,6 +132,7 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
+	include/Data/Serialization/VectorSerialization.hpp
 
 	# Log
 	include/Log/Log.hpp
@@ -212,6 +213,8 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
+	include/Data/Serialization/VectorSerialization.hpp
+	include/Data/Serialization/StringSerialization.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -234,14 +237,12 @@ include(../_Dependencies/fmt/link.cmake)
 include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/cereal/link.cmake)
 include(../_Dependencies/entt/link.cmake)
-include(../_Dependencies/eabase/link.cmake)
 include(../_Dependencies/eastl/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
 link_cereal()
 link_entt()
-link_eabase()
 link_eastl()
 
 #--------------------------------------------------------------------

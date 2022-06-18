@@ -68,8 +68,8 @@ namespace Lina
 
         struct BatchModelData
         {
-            std::vector<Matrix> m_models;
-            std::vector<Matrix> m_boneTransformations;
+            Vector<Matrix> m_models;
+            Vector<Matrix> m_boneTransformations;
         };
 
         class ModelNode;
@@ -149,7 +149,7 @@ namespace Lina::ECS
         ApplicationMode         m_appMode      = ApplicationMode::Editor;
         // Map & queue to see the list of same vertex array & textures to compress them into single draw call.
         std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
-        std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison>        m_transparentRenderBatch;
+        std::priority_queue<BatchPair, Vector<BatchPair>, BatchComparison>        m_transparentRenderBatch;
     };
 } // namespace Lina::ECS
 

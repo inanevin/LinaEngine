@@ -62,13 +62,13 @@ namespace Lina::Graphics
 
         const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
-        std::vector<std::vector<int>>   vertexBoneIDs;
-        std::vector<std::vector<float>> vertexBoneWeights;
+        Vector<Vector<int>>   vertexBoneIDs;
+        Vector<Vector<float>> vertexBoneWeights;
 
         if (aiMesh->mNumBones > 0)
         {
-            vertexBoneIDs.resize(aiMesh->mNumVertices, std::vector<int>(4, -1));
-            vertexBoneWeights.resize(aiMesh->mNumVertices, std::vector<float>(4, 0.0f));
+            vertexBoneIDs.resize(aiMesh->mNumVertices, Vector<int>(4, -1));
+            vertexBoneWeights.resize(aiMesh->mNumVertices, Vector<float>(4, 0.0f));
         }
 
         Vector3 maxVertexPos = Vector3(-1000.0f, -1000.0f, -1000.0f);
@@ -110,8 +110,8 @@ namespace Lina::Graphics
 
             if (vertexBoneIDs.size() > 0)
             {
-                const std::vector<int>&   vboneIDs     = vertexBoneIDs[i];
-                const std::vector<float>& vboneWeights = vertexBoneWeights[i];
+                const Vector<int>&   vboneIDs     = vertexBoneIDs[i];
+                const Vector<float>& vboneWeights = vertexBoneWeights[i];
                 linaMesh->AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
                 linaMesh->AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
                 // linaMesh->AddElement(5, 1, 3, 7, 0);
@@ -163,8 +163,8 @@ namespace Lina::Graphics
             // Currently only handles diffuse textures.
             aiString texturePath;
 
-            std::vector<ImportTextureType> textureTypes{ImportTextureType::BaseColor, ImportTextureType::NormalCamera, ImportTextureType::EmissiveColor, ImportTextureType::Metalness, ImportTextureType::DiffuseRoughness, ImportTextureType::AmbientOcclusion};
-            std::vector<uint32>            textureCounts;
+            Vector<ImportTextureType> textureTypes{ImportTextureType::BaseColor, ImportTextureType::NormalCamera, ImportTextureType::EmissiveColor, ImportTextureType::Metalness, ImportTextureType::DiffuseRoughness, ImportTextureType::AmbientOcclusion};
+            Vector<uint32>            textureCounts;
 
             textureCounts.push_back(material->GetTextureCount(aiTextureType_BASE_COLOR));
             textureCounts.push_back(material->GetTextureCount(aiTextureType_NORMAL_CAMERA));
@@ -301,7 +301,7 @@ namespace Lina::Graphics
         return true;
     }
 
-    void ModelLoader::SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight)
+    void ModelLoader::SetVertexBoneData(Vector<int>& vertexBoneIDs, Vector<float>& vertexBoneWeights, int boneID, float weight)
     {
         for (int i = 0; i < 4; ++i)
         {

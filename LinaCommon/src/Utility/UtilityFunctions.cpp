@@ -216,7 +216,7 @@ namespace Lina
             return contains;
         }
 
-        void GetFolderHierarchToRoot(Folder* folder, std::vector<Folder*>& hierarchy)
+        void GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy)
         {
             if (folder->m_parent != nullptr)
             {
@@ -302,7 +302,7 @@ namespace Lina
             for (auto* subfolder : folder->m_folders)
                 DeleteFolder(subfolder);
 
-            for (std::vector<Folder*>::iterator it = folder->m_parent->m_folders.begin(); it < folder->m_parent->m_folders.end(); it++)
+            for (Vector<Folder*>::iterator it = folder->m_parent->m_folders.begin(); it < folder->m_parent->m_folders.end(); it++)
             {
                 if (*it == folder)
                 {
@@ -321,7 +321,7 @@ namespace Lina
             if (file->m_typeID != -1)
                 Resources::ResourceStorage::Get()->Unload(file->m_typeID, file->m_fullPath);
 
-            for (std::vector<File*>::iterator it = file->m_parent->m_files.begin(); it < file->m_parent->m_files.end(); it++)
+            for (Vector<File*>::iterator it = file->m_parent->m_files.begin(); it < file->m_parent->m_files.end(); it++)
             {
                 if (*it == file)
                 {
@@ -438,9 +438,9 @@ namespace Lina
             return hasher(str);
         }
 
-        std::vector<std::string> Split(const std::string& s, char delim)
+        Vector<std::string> Split(const std::string& s, char delim)
         {
-            std::vector<std::string> elems;
+            Vector<std::string> elems;
 
             const char*  cstr      = s.c_str();
             unsigned int strLength = (unsigned int)s.length();

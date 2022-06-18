@@ -303,8 +303,8 @@ namespace Lina::Editor
             // Draw the selected entities bounding box.
             if (m_shouldShowBounds)
             {
-                std::vector<Vector3> boundingBoxPosition;
-                std::vector<Vector3> boundingBoxHalfSize;
+                Vector<Vector3> boundingBoxPosition;
+                Vector<Vector3> boundingBoxHalfSize;
                 if (renderEngine->GetFrustumSystem()->GetAllBoundsInEntity(m_selectedEntity, boundingBoxPosition, boundingBoxHalfSize))
                 {
                     for (int i = 0; i < boundingBoxPosition.size(); i++)

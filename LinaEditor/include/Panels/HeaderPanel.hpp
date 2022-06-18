@@ -40,8 +40,7 @@ Timestamp: 10/8/2020 1:39:03 PM
 #define HeaderPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Editor
 {
@@ -59,7 +58,7 @@ namespace Lina::Editor
         virtual void Initialize(const char* id, const char* icon) override;
         virtual void Draw() override;
 
-        static std::vector<MenuBarElement*>& GetCreateEntityElements()
+        static Vector<MenuBarElement*>& GetCreateEntityElements()
         {
             return s_createEntityElements;
         }
@@ -68,9 +67,9 @@ namespace Lina::Editor
         void DrawMenuBarChild();
 
     private:
-        static std::vector<MenuBarElement*> s_createEntityElements;
+        static Vector<MenuBarElement*> s_createEntityElements;
         std::string                         m_title = "";
-        std::vector<Menu*>            m_menuButtons;
+        Vector<Menu*>            m_menuButtons;
     };
 } // namespace Lina::Editor
 

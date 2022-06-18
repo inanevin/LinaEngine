@@ -93,7 +93,7 @@ namespace Lina::Resources
     void ResourceManager::PackageProject(const std::string& path, const std::string& name)
     {
         // Find out which resources to export.
-        std::vector<std::string> filesToPack;
+        Vector<std::string> filesToPack;
         AddAllResourcesToPack(filesToPack, m_rootFolder);
 
         // Export resources.
@@ -112,7 +112,7 @@ namespace Lina::Resources
         std::replace(m_workingDirectoryReplaced.begin(), m_workingDirectoryReplaced.end(), '\\', '/');
     }
 
-    void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder* folder)
+    void ResourceManager::AddAllResourcesToPack(Vector<std::string>& resources, Utility::Folder* folder)
     {
         for (auto& childFolder : folder->m_folders)
             AddAllResourcesToPack(resources, childFolder);

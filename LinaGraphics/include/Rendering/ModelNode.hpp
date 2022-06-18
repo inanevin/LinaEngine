@@ -48,7 +48,7 @@ Timestamp: 12/24/2021 9:00:02 PM
 #include <cereal/access.hpp>
 #include <cereal/types/memory.hpp>
 #include <memory>
-#include <vector>
+#include "Data/Vector.hpp"
 
 struct aiNode;
 struct aiScene;
@@ -76,7 +76,7 @@ namespace Lina::Graphics
         ~ModelNode();
 
         void                             FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model* parentModel);
-        inline const std::vector<Mesh*>& GetMeshes() const
+        inline const Vector<Mesh*>& GetMeshes() const
         {
             return m_meshes;
         }
@@ -84,7 +84,7 @@ namespace Lina::Graphics
         {
             return m_name;
         }
-        inline const std::vector<ModelNode*>& GetChildren() const
+        inline const Vector<ModelNode*>& GetChildren() const
         {
             return m_children;
         }
@@ -116,12 +116,12 @@ namespace Lina::Graphics
         friend class cereal::access;
 
         int                     m_nodeIndexInParentHierarchy = 0;
-        std::vector<Mesh*>      m_meshes;
+        Vector<Mesh*>      m_meshes;
         std::string             m_name              = "";
         Vector3                 m_totalVertexCenter = Vector3::Zero;
         AABB                    m_aabb;
         Matrix                  m_localTransform;
-        std::vector<ModelNode*> m_children;
+        Vector<ModelNode*> m_children;
     };
 } // namespace Lina::Graphics
 

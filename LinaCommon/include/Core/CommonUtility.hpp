@@ -41,8 +41,8 @@ Timestamp: 12/25/2021 1:24:11 PM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+#include "Data/Vector.hpp"
 #include <string>
-#include <vector>
 #include <filesystem>
 
 namespace Lina::Utility
@@ -78,8 +78,8 @@ namespace Lina::Utility
         Folder() = default;
         ~Folder();
 
-        std::vector<File*>   m_files;
-        std::vector<Folder*> m_folders;
+        Vector<File*>   m_files;
+        Vector<Folder*> m_folders;
         bool                 m_isOpen = false;
     };
 } // namespace Lina::Utility

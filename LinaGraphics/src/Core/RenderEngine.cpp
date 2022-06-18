@@ -478,7 +478,7 @@ namespace Lina::Graphics
         const Vector3 topRB = pos + Vector3(halfExtents.x, halfExtents.y, -halfExtents.z);
         const Vector3 topRF = pos + Vector3(halfExtents.x, halfExtents.y, halfExtents.z);
 
-        std::vector<Vector3> lines{bottomLB, bottomLF, bottomLF, bottomRF, bottomRF, bottomRB, bottomRB, bottomLB, topLB, topLF, topLF, topRF, topRF, topRB, topRB, topLB, bottomLB, topLB, bottomLF, topLF, bottomRF, topRF, bottomRB, topRB};
+        Vector<Vector3> lines{bottomLB, bottomLF, bottomLF, bottomRF, bottomRF, bottomRB, bottomRB, bottomLB, topLB, topLF, topLF, topRF, topRF, topRB, topRB, topLB, bottomLB, topLB, bottomLF, topLF, bottomRF, topRF, bottomRB, topRB};
 
         for (int i = 0; i < lines.size(); i += 2)
             DrawLine(lines[i], lines[i + 1], event.m_color, event.m_lineWidth);
@@ -491,7 +491,7 @@ namespace Lina::Graphics
         Vector3          previousPos = (event.m_radius * Vector3(1, 0, 0));
         const Quaternion rot         = event.m_rotation;
 
-        std::vector<std::pair<Vector3, Vector3>> lines;
+        Vector<std::pair<Vector3, Vector3>> lines;
 
         const float end = event.m_half ? 200.0f : 380.0f;
         for (float angle = 20.0f; angle < end; angle += 20.0f)
@@ -600,7 +600,7 @@ namespace Lina::Graphics
                 float   farPlane  = std::get<1>(tuple[i])->m_shadowFar;
                 float   nearPlane = std::get<1>(tuple[i])->m_shadowNear;
 
-                std::vector<Matrix> shadowTransforms = m_lightingSystem.GetPointLightMatrices(lightPos, m_pLightShadowResolution, nearPlane, farPlane);
+                Vector<Matrix> shadowTransforms = m_lightingSystem.GetPointLightMatrices(lightPos, m_pLightShadowResolution, nearPlane, farPlane);
 
                 // Set render target
                 m_renderDevice.SetFBO(m_pLightShadowTargets[i].GetID());

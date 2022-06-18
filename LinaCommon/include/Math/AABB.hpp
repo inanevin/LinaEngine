@@ -41,7 +41,7 @@ Timestamp: 1/11/2022 5:52:02 PM
 
 // Headers here.
 #include "Math/Vector.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
@@ -72,7 +72,7 @@ namespace Lina
         Vector3              m_boundsHalfExtents = Vector3::Zero;
         Vector3              m_boundsMin         = Vector3::Zero;
         Vector3              m_boundsMax         = Vector3::Zero;
-        std::vector<Vector3> m_positions;
+        Vector<Vector3> m_positions;
 
     private:
     };

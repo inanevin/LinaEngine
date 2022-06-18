@@ -44,8 +44,8 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Utility/StringId.hpp"
 
 #include <cereal/types/map.hpp>
-#include <cereal/types/vector.hpp>
-#include <map>
+#include <Data/Serialization/VectorSerialization.hpp>
+#include <Data/Map.hpp>
 #include <string>
 
 namespace Lina::Graphics
@@ -235,8 +235,8 @@ namespace Lina::Graphics
 
     struct DrawParams
     {
-        bool          skipParameters          = false;
-        PrimitiveType primitiveType           = PRIMITIVE_TRIANGLES;
+        bool          skipParameters            = false;
+        PrimitiveType primitiveType             = PRIMITIVE_TRIANGLES;
         FaceCulling   m_faceCulling             = FACE_CULL_NONE;
         DrawFunc      m_depthFunc               = DRAW_FUNC_ALWAYS;
         DrawFunc      m_stencilFunc             = DRAW_FUNC_ALWAYS;
@@ -249,10 +249,10 @@ namespace Lina::Graphics
         bool          m_useDepthTest            = true;
         bool          m_useStencilTest          = false;
         bool          m_useScissorTest          = false;
-        uint32        scissorStartX           = 0;
-        uint32        scissorStartY           = 0;
-        uint32        scissorWidth            = 0;
-        uint32        scissorHeight           = 0;
+        uint32        scissorStartX             = 0;
+        uint32        scissorStartY             = 0;
+        uint32        scissorWidth              = 0;
+        uint32        scissorHeight             = 0;
         uint32        m_stencilTestMask         = 0;
         uint32        m_stencilWriteMask        = 0;
         int32         m_stencilComparisonVal    = 0;
@@ -344,8 +344,8 @@ namespace Lina::Graphics
 
     struct ImportedModelMaterial
     {
-        std::string                                           m_name = "Material";
-        std::map<ImportTextureType, std::vector<std::string>> m_textures;
+        std::string                                 m_name = "Material";
+        Map<ImportTextureType, Vector<std::string>> m_textures;
     };
 
     struct TextureParameters
@@ -392,7 +392,7 @@ namespace Lina::Graphics
     // Shader program struct for storage.
     struct ShaderProgram
     {
-        std::vector<uint32>          shaders;
+        Vector<uint32>               shaders;
         std::map<std::string, int32> uniformBlockMap;
         std::map<std::string, int32> samplerMap;
         std::map<std::string, int32> uniformMap;
@@ -404,12 +404,12 @@ namespace Lina::Graphics
         BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced)
             : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced){};
 
-        uint32             m_attrib;
-        uint32             m_elementSize;
-        bool               m_isFloat;
-        bool               m_isInstanced;
-        std::vector<float> m_floatElements;
-        std::vector<int>   m_intElements;
+        uint32        m_attrib;
+        uint32        m_elementSize;
+        bool          m_isFloat;
+        bool          m_isInstanced;
+        Vector<float> m_floatElements;
+        Vector<int>   m_intElements;
     };
 
     /// <summary>

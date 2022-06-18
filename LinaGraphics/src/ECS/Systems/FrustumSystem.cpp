@@ -94,7 +94,7 @@ namespace Lina::ECS
         const Vector3 offsetAddition = rot.GetForward() * vertexOffset.z + rot.GetRight() * vertexOffset.x + rot.GetUp() * vertexOffset.y;
         outPosition                  = location + offsetAddition;
 
-        std::vector<Vector3> boundsPositions = node->GetAABB().m_positions;
+        Vector<Vector3> boundsPositions = node->GetAABB().m_positions;
 
         Vector3 totalMax = Vector3(-1000, -1000, -1000);
         Vector3 totalMin = Vector3(1000, 1000, 1000);
@@ -122,7 +122,7 @@ namespace Lina::ECS
         outHalfExtent = (totalMax - totalMin) / 2.0f * scale;
     }
 
-    void FrustumSystem::GetAABBsInModel(Graphics::Model* model, std::vector<Vector3>& outPositions, std::vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale)
+    void FrustumSystem::GetAABBsInModel(Graphics::Model* model, Vector<Vector3>& outPositions, Vector<Vector3>& outHalfExtents, const Vector3& location, const Quaternion& rot, const Vector3& scale)
     {
         for (auto* node : model->GetAllNodes())
         {
@@ -162,7 +162,7 @@ namespace Lina::ECS
                     const Vector3 offsetAddition = objectRot.GetForward() * vertexOffset.z + objectRot.GetRight() * vertexOffset.x + objectRot.GetUp() * vertexOffset.y;
                     boundsPosition               = entityLocation + offsetAddition;
 
-                    std::vector<Vector3> boundsPositions = node->GetAABB().m_positions;
+                    Vector<Vector3> boundsPositions = node->GetAABB().m_positions;
 
                     Vector3 totalMax = Vector3(-1000, -1000, -1000);
                     Vector3 totalMin = Vector3(1000, 1000, 1000);
@@ -207,7 +207,7 @@ namespace Lina::ECS
         return false;
     }
 
-    bool FrustumSystem::GetAllBoundsInEntity(Entity ent, std::vector<Vector3>& boundsPositions, std::vector<Vector3>& boundsHalfExtents)
+    bool FrustumSystem::GetAllBoundsInEntity(Entity ent, Vector<Vector3>& boundsPositions, Vector<Vector3>& boundsHalfExtents)
     {
         auto*               ecs = ECS::Registry::Get();
         ModelNodeComponent* mn  = ecs->try_get<ModelNodeComponent>(ent);

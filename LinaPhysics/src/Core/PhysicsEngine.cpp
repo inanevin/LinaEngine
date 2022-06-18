@@ -65,7 +65,7 @@ namespace Lina::Physics
     std::map<ECS::Entity, PxShape*>             m_shapes;
 
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
-    std::map<StringIDType, std::vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
+    std::map<StringIDType, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
     void PhysicsEngine::Initialize(ApplicationMode appMode)
     {
@@ -225,7 +225,7 @@ namespace Lina::Physics
         return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
     }
 
-    void PhysicsEngine::CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID)
+    void PhysicsEngine::CreateConvexMesh(Vector<uint8>& data, StringIDType sid, int nodeID)
     {
         PxDefaultMemoryInputData input(&data[0], (PxU32)data.size());
         m_convexMeshMap[sid].push_back(std::make_pair(nodeID, m_pxPhysics->createConvexMesh(input)));

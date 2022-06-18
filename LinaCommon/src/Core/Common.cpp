@@ -31,6 +31,20 @@ SOFTWARE.
 #include "Core/CommonResources.hpp"
 #include "Core/CommonUtility.hpp"
 
+// EASTL OPERATOR NEW[] REQUIREMENTS
+
+void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
+{
+    return new uint8_t[size];
+}
+
+void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
+{
+    return new uint8_t[size];
+}
+
+// EASTL OPERATOR NEW[] REQUIREMENTS
+
 namespace Lina
 {
     std::string LogLevelAsString(LogLevel level)

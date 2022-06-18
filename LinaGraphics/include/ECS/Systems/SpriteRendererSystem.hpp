@@ -44,7 +44,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #include "Math/Matrix.hpp"
 
 #include <map>
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
@@ -63,7 +63,7 @@ namespace Lina::ECS
 
         struct BatchModelData
         {
-            std::vector<Matrix> m_models;
+            Vector<Matrix> m_models;
         };
 
     public:

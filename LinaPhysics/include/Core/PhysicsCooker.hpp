@@ -43,8 +43,7 @@ Timestamp: 12/24/2021 7:47:26 PM
 #include "Core/CommonApplication.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Math/Vector.hpp"
-
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {
@@ -79,7 +78,7 @@ namespace Lina::Physics
         /// Uses the cooking library to create a convex mesh stream using the given vertices.
         /// Stream is placed into the given buffer data for custom serialization.
         /// </summary>
-        void CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData);
+        void CookConvexMesh(Vector<Vector3>& vertices, Vector<uint8>& bufferData);
 
         void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
         void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);

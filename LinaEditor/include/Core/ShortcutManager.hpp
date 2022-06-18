@@ -40,7 +40,7 @@ Timestamp: 12/28/2021 7:57:22 PM
 #define ShortcutManager_HPP
 
 // Headers here.
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
@@ -70,7 +70,7 @@ namespace Lina::Editor
         void OnMouseCallback(const Event::EMouseButtonCallback& ev);
 
     private:
-        std::vector<std::pair<EShortcut, bool>> m_shortcuts;
+        Vector<std::pair<EShortcut, bool>> m_shortcuts;
         Event::EventSystem*                     m_eventSystem = nullptr;
     };
 } // namespace Lina::Editor

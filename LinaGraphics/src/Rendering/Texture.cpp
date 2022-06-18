@@ -61,7 +61,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructCubemap(SamplerParameters samplerParams, const std::vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
+    void Texture::ConstructCubemap(SamplerParameters samplerParams, const Vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
     {
         if (data.size() != 6)
         {
@@ -73,7 +73,7 @@ namespace Lina::Graphics
         m_size         = Vector2i((unsigned int)data[0]->GetWidth(), (unsigned int)data[0]->GetHeight());
         m_bindMode     = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
-        std::vector<unsigned char*> cubeMapData;
+        Vector<unsigned char*> cubeMapData;
 
         for (uint32 i = 0; i < 6; i++)
             cubeMapData.push_back(data[i]->GetPixelArray());

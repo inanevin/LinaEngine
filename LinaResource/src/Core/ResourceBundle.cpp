@@ -42,7 +42,7 @@ namespace Lina::Resources
         m_data.clear();
     }
 
-    void ResourceBundle::PushResourceFromMemory(const std::string& path, std::vector<unsigned char>& data)
+    void ResourceBundle::PushResourceFromMemory(const std::string& path, Vector<unsigned char>& data)
     {
         auto*             storage   = Resources::ResourceStorage::Get();
         const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));

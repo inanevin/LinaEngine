@@ -44,7 +44,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    std::vector<ToolbarGroup*> m_toolbarGroups;
+    Vector<ToolbarGroup*> m_toolbarGroups;
 
     MainToolbarPanel::~MainToolbarPanel()
     {

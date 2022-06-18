@@ -46,7 +46,7 @@ Timestamp: 12/8/2021 12:27:21 PM
 #include "Utility/StringId.hpp"
 
 #include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
+#include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina
 {
@@ -92,14 +92,14 @@ namespace Lina::ECS
         {
             return m_modelPath;
         }
-        std::vector<std::string> GetMaterialPaths()
+        Vector<std::string> GetMaterialPaths()
         {
             return m_materialPaths;
         }
 
     private:
         void ProcessNode(ECS::Entity parent, const Matrix& parentTransform, Graphics::ModelNode& node, Graphics::Model& model, bool isRoot = false);
-        void AddMeshRenderer(ECS::Entity targetEntity, const std::vector<int>& meshIndexes, Graphics::Model& model);
+        void AddMeshRenderer(ECS::Entity targetEntity, const Vector<int>& meshIndexes, Graphics::Model& model);
 
     private:
         friend class cereal::access;
@@ -110,7 +110,7 @@ namespace Lina::ECS
         StringIDType             m_modelID         = 0;
         std::string              m_modelPath       = "";
         std::string              m_modelParamsPath = "";
-        std::vector<std::string> m_materialPaths;
+        Vector<std::string> m_materialPaths;
         int                      m_materialCount      = -1;
         bool                     m_generateMeshPivots = false;
 

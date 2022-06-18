@@ -41,7 +41,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 #include "Utility/StringId.hpp"
 
 #include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
+#include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina::ECS
 {
@@ -55,7 +55,7 @@ namespace Lina::ECS
         Vector3          m_totalBoundsMin    = Vector3::Zero;
         Vector3          m_totalBoundsMax    = Vector3::Zero;
         Vector3          m_totalHalfBounds   = Vector3::Zero;
-        std::vector<int> m_subMeshes; // Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
+        Vector<int> m_subMeshes; // Index array for each mesh given under this renderer, each entry corresponds to a mesh within the model's mesh array
         int              m_nodeID              = -1;
         bool             m_excludeFromDrawList = false;
 

@@ -75,7 +75,7 @@ namespace Lina
     FrustumTest Frustum::TestIntersection(const AABB& aabb)
     {
         FrustumTest test = FrustumTest::Inside;
-        std::vector<Plane*> planes = {&m_left, &m_right, &m_top, &m_bottom, &m_near, &m_far};
+        Vector<Plane*> planes = {&m_left, &m_right, &m_top, &m_bottom, &m_near, &m_far};
 
         for (auto* p : planes)
         {

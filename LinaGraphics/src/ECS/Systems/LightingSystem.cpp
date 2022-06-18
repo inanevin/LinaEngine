@@ -149,7 +149,7 @@ namespace Lina::ECS
         // Iterate point lights.
         int currentPointLightCount = 0;
 
-        for (std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>::iterator it = m_pointLights.begin(); it != m_pointLights.end(); ++it)
+        for (Vector<std::tuple<EntityDataComponent*, PointLightComponent*>>::iterator it = m_pointLights.begin(); it != m_pointLights.end(); ++it)
         {
             EntityDataComponent* data                 = std::get<0>(*it);
             PointLightComponent* pointLight           = std::get<1>(*it);
@@ -166,7 +166,7 @@ namespace Lina::ECS
         // Iterate Spot lights.
         int currentSpotLightCount = 0;
 
-        for (std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>>::iterator it = m_spotLights.begin(); it != m_spotLights.end(); ++it)
+        for (Vector<std::tuple<EntityDataComponent*, SpotLightComponent*>>::iterator it = m_spotLights.begin(); it != m_spotLights.end(); ++it)
         {
             EntityDataComponent* data                = std::get<0>(*it);
             SpotLightComponent*  spotLight           = std::get<1>(*it);
@@ -237,7 +237,7 @@ namespace Lina::ECS
         return directionalLightData->GetLocation();
     }
 
-    std::vector<Matrix> LightingSystem::GetPointLightMatrices(Vector3 lp, Vector2i m_resolution, float near, float farPlane)
+    Vector<Matrix> LightingSystem::GetPointLightMatrices(Vector3 lp, Vector2i m_resolution, float near, float farPlane)
     {
         // Used for point light shadow mapping.
 
@@ -247,7 +247,7 @@ namespace Lina::ECS
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, znear, zfar);
         // glm::mat4 shadowProj = Matrix::Perspective(45, aspect, znear, zfar);
 
-        std::vector<Matrix> shadowTransforms;
+        Vector<Matrix> shadowTransforms;
         glm::vec3           lightPos = lp;
 
         // shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));

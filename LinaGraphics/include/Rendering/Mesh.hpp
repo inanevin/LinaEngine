@@ -115,8 +115,8 @@ namespace Lina::Graphics
         friend class ModelLoader;
 
         std::string             m_name = "";
-        std::vector<uint32>     m_indices;
-        std::vector<BufferData> m_bufferElements;
+        Vector<uint32>     m_indices;
+        Vector<BufferData> m_bufferElements;
         VertexArray             m_vertexArray;
         uint32                  m_materialSlot      = 0;
         Vector3                 m_vertexCenter      = Vector3(0.0f, 0.0f, 0.0f);

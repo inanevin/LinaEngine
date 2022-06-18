@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/Packager.hpp"
-
+#include <Data/Serialization/VectorSerialization.hpp>
 #include "Core/ResourceManager.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -97,7 +97,7 @@ namespace Lina::Resources
         }
     }
 
-    void Packager::PackageFileset(std::vector<std::string> files, const std::string& output, const wchar_t* pass)
+    void Packager::PackageFileset(Vector<std::string> files, const std::string& output, const wchar_t* pass)
     {
         try
         {
@@ -138,7 +138,7 @@ namespace Lina::Resources
             });
 
             // Create a vector of unicode file paths.
-            std::vector<std::wstring> wfiles;
+            Vector<std::wstring> wfiles;
             for (auto& file : files)
             {
                 const size_t size = strlen(file.c_str()) + 1;
@@ -156,7 +156,11 @@ namespace Lina::Resources
             mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
 
             // compress.
-            compressor.compress(wfiles, woutput);
+            std::vector<std::wstring> vfiles;
+            for (int i = 0; i < wfiles.size(); i++)
+                vfiles.push_back(wfiles[i]);
+
+            compressor.compress(vfiles, woutput);
             LINA_TRACE("[Packager] -> Successfully packed files.");
         }
         catch (const bit7z::BitException& ex)
@@ -223,7 +227,13 @@ namespace Lina::Resources
                 std::string ext = Utility::GetFileExtension(filePath);
 
                 // Pass the resource to bundle.
-                outBundle->PushResourceFromMemory(filePathStr, item.second);
+
+                Vector<bit7z::byte_t> v;
+
+                for (int i = 0; i < item.second.size(); i++)
+                    v.push_back(item.second[i]);
+
+                outBundle->PushResourceFromMemory(filePathStr, v);
             }
 
             LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);

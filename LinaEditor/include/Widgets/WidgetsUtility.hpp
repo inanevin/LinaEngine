@@ -165,7 +165,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a combo-box for primitive selection.
         /// </summary>
-        static int SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease = 0.0f);
+        static int SelectPrimitiveCombobox(const char* comboID, const Vector<std::string>& primitives, int currentSelected, float widthDecrease = 0.0f);
 
         /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.

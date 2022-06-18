@@ -52,7 +52,7 @@ namespace Lina::Physics
         m_pxCooking->release();
     }
 
-    void PhysXCooker::CookConvexMesh(std::vector<Vector3>& vertices, std::vector<uint8>& bufferData)
+    void PhysXCooker::CookConvexMesh(Vector<Vector3>& vertices, Vector<uint8>& bufferData)
     {
         PxConvexMeshDesc convexDesc;
         convexDesc.points.count  = (PxU32)vertices.size();
@@ -69,7 +69,7 @@ namespace Lina::Physics
         }
 
         bufferData.clear();
-        bufferData = std::vector<uint8>(buf.getData(), buf.getData() + buf.getSize());
+        bufferData = Vector<uint8>(buf.getData(), buf.getData() + buf.getSize());
 
         PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 
@@ -80,7 +80,7 @@ namespace Lina::Physics
 
     void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
     {
-        std::vector<Vector3> vertices;
+        Vector<Vector3> vertices;
 
         // if (node.m_meshIndexes.size() > 0)
         //{

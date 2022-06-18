@@ -857,7 +857,7 @@ namespace Lina::Editor
         }
     }
 
-    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const std::vector<std::string>& primitives, int currentSelected, float widthDecrease)
+    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const Vector<std::string>& primitives, int currentSelected, float widthDecrease)
     {
         int primitiveToReturn = currentSelected;
 
@@ -1046,7 +1046,7 @@ namespace Lina::Editor
 
         WidgetsUtility::PushPopupStyle();
 
-        std::vector<std::pair<const char*, bool*>> buttons;
+        Vector<std::pair<const char*, bool*>> buttons;
         buttons.push_back(std::make_pair("Copy", copied));
         buttons.push_back(std::make_pair("Paste", pasted));
         buttons.push_back(std::make_pair("Reset", resetted));

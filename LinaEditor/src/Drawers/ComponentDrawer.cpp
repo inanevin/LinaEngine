@@ -107,8 +107,8 @@ namespace Lina::Editor
 
     void ComponentDrawer::OnComponentOrderSwapped(const EComponentOrderSwapped& ev)
     {
-        std::vector<TypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), ev.m_id1);
-        std::vector<TypeID>::iterator it2 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), ev.m_id2);
+        Vector<TypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), ev.m_id1);
+        Vector<TypeID>::iterator it2 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), ev.m_id2);
         std::iter_swap(it1, it2);
     }
 
@@ -400,7 +400,7 @@ namespace Lina::Editor
             {
                 resolvedData.func("remove"_hs).invoke({}, ent);
 
-                for (std::vector<TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
+                for (Vector<TypeID>::iterator it = m_componentDrawList.begin(); it != m_componentDrawList.end(); it++)
                 {
                     if (*it == tid)
                     {

@@ -57,7 +57,7 @@ namespace Lina
         extern bool FolderContainsDirectory(Folder* root, const std::string& path, DirectoryItem*& outItem);
 
         // Fills the given array with the parent folders up to the top most.
-        extern void GetFolderHierarchToRoot(Folder* folder, std::vector<Folder*>& hierarchy);
+        extern void GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy);
 
         // Removes file from OS.
         extern bool DeleteFileInPath(const std::string& path);
@@ -114,7 +114,7 @@ namespace Lina
         extern size_t StringToHash(const std::string& str);
 
         // Splits string at deliminitor.
-        extern std::vector<std::string> Split(const std::string& s, char delim);
+        extern Vector<std::string> Split(const std::string& s, char delim);
 
         // Returns the path until the specified file, no file name nor extension.
         extern std::string GetFilePath(const std::string& fileName);

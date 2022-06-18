@@ -88,7 +88,7 @@ namespace Lina::Physics
         /// <summary>
         /// Given a convex mesh buffer data, creates a convex mesh object and stores it.
         /// </summary>
-        void CreateConvexMesh(std::vector<uint8>& data, StringIDType sid, int nodeID);
+        void CreateConvexMesh(Vector<uint8>& data, StringIDType sid, int nodeID);
 
         /// <summary>
         /// Returns all moving actor within the Nvidia PhysX scene.

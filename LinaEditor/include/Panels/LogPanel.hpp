@@ -118,7 +118,7 @@ namespace Lina::Editor
 
     private:
         unsigned int                    m_logLevelFlags = 0;
-        std::vector<LogLevelIconButton> m_logLevelIconButtons;
+        Vector<LogLevelIconButton> m_logLevelIconButtons;
         std::deque<LogDumpEntry>        m_logDeque;
     };
 } // namespace Lina::Editor

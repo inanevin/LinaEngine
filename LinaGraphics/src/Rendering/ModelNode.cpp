@@ -38,7 +38,7 @@ SOFTWARE.
 
 #include <assimp/matrix4x4.h>
 #include <assimp/scene.h>
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {

@@ -42,7 +42,7 @@ Timestamp: 1/4/2022 6:18:09 PM
 // Headers here.
 #include "Panels/EditorPanel.hpp"
 #include "Math/Quaternion.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 namespace Lina
 {
     namespace Graphics
@@ -87,7 +87,7 @@ namespace Lina::Editor
 
     private:
         int                      m_currentSelectedPrimitive = 0;
-        std::vector<std::string> m_primitives;
+        Vector<std::string> m_primitives;
         Graphics::Model*         m_targetModel             = nullptr;
         Graphics::Texture*       m_targetTexture           = nullptr;
         Graphics::Material*      m_targetMaterial          = nullptr;

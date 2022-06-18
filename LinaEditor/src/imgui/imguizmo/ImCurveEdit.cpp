@@ -3,7 +3,7 @@
 #include "imgui/imgui_internal.h"
 #include <stdint.h>
 #include <set>
-#include <vector>
+#include "Data/Vector.hpp"
 
 #if !defined(_MSC_VER)
 #define _malloca(x) alloca(x)
@@ -278,7 +278,7 @@ namespace ImCurveEdit
       // move selection
       static bool pointsMoved = false;
       static ImVec2 mousePosOrigin;
-      static std::vector<ImVec2> originalPoints;
+      static Lina::Vector<ImVec2> originalPoints;
       if (overSelectedPoint && io.MouseDown[0])
       {
           if ((fabsf(io.MouseDelta.x) > 0.f || fabsf(io.MouseDelta.y) > 0.f) && !selection.empty())

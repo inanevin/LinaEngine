@@ -55,7 +55,7 @@ namespace Lina::Editor
     Menu*               m_leftPaneMenu        = nullptr;
     MenuBarElement*     m_showEditorFoldersMB = nullptr;
     MenuBarElement*     m_showEngineFoldersMB = nullptr;
-    std::vector<TypeID> m_resourceTypesToDraw;
+    Vector<TypeID> m_resourceTypesToDraw;
 
     ResourcesPanel::~ResourcesPanel()
     {
@@ -286,7 +286,7 @@ namespace Lina::Editor
 
         if (m_selectedFolder != nullptr)
         {
-            std::vector<Utility::Folder*> hierarchy;
+            Vector<Utility::Folder*> hierarchy;
             Utility::GetFolderHierarchToRoot(m_selectedFolder, hierarchy);
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_TableHeaderBg));

@@ -48,7 +48,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "Math/Matrix.hpp"
 
 #include <tuple>
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::ECS
 {
@@ -73,7 +73,7 @@ namespace Lina::ECS
 
         Matrix              GetDirectionalLightMatrix();
         Matrix              GetDirLightBiasMatrix();
-        std::vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2i m_resolution, float near, float farPlane);
+        Vector<Matrix> GetPointLightMatrices(Vector3 lightPos, Vector2i m_resolution, float near, float farPlane);
         const Vector3&      GetDirectionalLightPos();
 
         DirectionalLightComponent* GetDirLight()
@@ -84,7 +84,7 @@ namespace Lina::ECS
         {
             return m_ambientColor;
         }
-        std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights()
+        Vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights()
         {
             return m_pointLights;
         }
@@ -94,8 +94,8 @@ namespace Lina::ECS
         Graphics::RenderDevice*                                             m_renderDevice = nullptr;
         Graphics::RenderEngine*                                             m_renderEngine = nullptr;
         std::tuple<EntityDataComponent*, DirectionalLightComponent*>        m_directionalLight;
-        std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
-        std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>>  m_spotLights;
+        Vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
+        Vector<std::tuple<EntityDataComponent*, SpotLightComponent*>>  m_spotLights;
         Color                                                               m_ambientColor = Color(0.0f, 0.0f, 0.0f);
     };
 } // namespace Lina::ECS

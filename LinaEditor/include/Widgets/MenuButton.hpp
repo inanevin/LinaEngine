@@ -40,7 +40,7 @@ Timestamp: 10/8/2020 9:02:33 PM
 #define MenuButton_HPP
 
 #include "Math/Color.hpp"
-#include <vector>
+#include "Data/Vector.hpp"
 
 namespace Lina::Editor
 {
@@ -118,7 +118,7 @@ namespace Lina::Editor
         bool                         m_ownsChildren = true;
         MenuBarElementType           m_type         = MenuBarElementType::None;
         const char*                  m_icon         = "";
-        std::vector<MenuBarElement*> m_children;
+        Vector<MenuBarElement*> m_children;
     };
 
     class Menu
@@ -134,7 +134,7 @@ namespace Lina::Editor
         const char* m_title = "";
 
     private:
-        std::vector<MenuBarElement*> m_elements;
+        Vector<MenuBarElement*> m_elements;
     };
 
 } // namespace Lina::Editor
