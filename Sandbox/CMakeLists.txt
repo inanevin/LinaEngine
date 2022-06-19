@@ -49,7 +49,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
 
 
 include(../CMake/ProjectSettings.cmake)
@@ -59,7 +58,6 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Engine
-PRIVATE Lina::Editor
 )
 
 include(../_Dependencies/glfw/link.cmake)

@@ -32,7 +32,7 @@ namespace Lina
     }
 } // namespace Lina
 
-class ExampleLevel : public World::Level
+class ExampleLevel : public Lina::World::Level
 {
 public:
     ExampleLevel() = default;

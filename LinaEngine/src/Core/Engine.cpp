@@ -36,13 +36,8 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/Material.hpp"
-#include "Rendering/ShaderInclude.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
-#include "Rendering/Shader.hpp"
-#include "ECS/Components/CameraComponent.hpp"
 #include "Core/ReflectionRegistry.hpp"
 #include <EASTL/hash_map.h>
 #include <unordered_map>
@@ -85,8 +80,6 @@ namespace Lina
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
         Event::EventSystem::s_eventSystem             = &m_eventSystem;
-        Graphics::Window::s_Window                    = &m_window;
-        Graphics::RenderEngine::s_renderEngine        = &m_renderEngine;
         Physics::PhysicsEngine::s_physicsEngine       = &m_physicsEngine;
         Input::InputEngine::s_inputEngine             = &m_inputEngine;
         Resources::ResourceManager::s_resourceManager = &m_resourceManager;
@@ -121,19 +114,6 @@ namespace Lina
         else
             Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
 
-        RegisterResourceTypes();
-
-        // Build main window.
-        bool windowCreationSuccess = m_window.CreateContext(m_appInfo);
-        if (!windowCreationSuccess)
-        {
-            LINA_ERR("Window Creation Failed!");
-            return;
-        }
-
-        // Set event callback for main window.
-
-        ReflectionRegistry::RegisterReflectedComponents();
     }
 
     void Engine::StartLoadingResources()
@@ -216,7 +196,6 @@ namespace Lina
 
         // Shutting down.
         m_physicsEngine.Shutdown();
-        m_renderEngine.Shutdown();
         m_audioEngine.Shutdown();
         m_inputEngine.Shutdown();
         m_resourceManager.Shutdown();
@@ -270,12 +249,6 @@ namespace Lina
         m_mainECSPipeline.UpdateSystems(deltaTime);
         PROFILER_END_BLOCK;
 
-        // Animation, particle systems.
-        PROFILER_BLOCK("Render Engine Tick");
-        m_renderEngine.Tick(deltaTime);
-        m_renderEngine.SetAppData(deltaTime, (float)GetElapsedTime(), m_inputEngine.GetMousePosition());
-        PROFILER_END_BLOCK;
-
         PROFILER_BLOCK("Event: Tick");
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
         PROFILER_END_BLOCK;
@@ -287,17 +260,9 @@ namespace Lina
 
     void Engine::DisplayGame(float interpolation)
     {
-        PROFILER_FUNC("Display Game");
-
         if (m_canRender)
         {
-            PROFILER_BLOCK("Event: Render");
-            m_renderEngine.Render(interpolation);
-            PROFILER_END_BLOCK;
-
-            PROFILER_BLOCK("Window Tick");
-            m_window.Tick();
-            PROFILER_END_BLOCK;
+           
         }
     }
 
@@ -349,54 +314,54 @@ namespace Lina
                 std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
                 Vector<String>{"linaaudiodata"}, Color::White, true});
 
-        m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
-            Resources::ResourceTypeData{
-                0,
-                std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
-                std::bind(Resources::DeleteResource<Graphics::ShaderInclude>, std::placeholders::_1),
-                Vector<String>{"linaglh"}});
+      // m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
+      //     Resources::ResourceTypeData{
+      //         0,
+      //         std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
+      //         std::bind(Resources::DeleteResource<Graphics::ShaderInclude>, std::placeholders::_1),
+      //         Vector<String>{"linaglh"}});
+      //
+      // m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
+      //     Resources::ResourceTypeData{
+      //         0,
+      //         std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
+      //         std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
+      //         Vector<String>{"linaimagedata"}, Color::White, true});
+      //
+      // m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
+      //     Resources::ResourceTypeData{
+      //         0,
+      //         std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
+      //         std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
+      //         Vector<String>{"linamodeldata"}, Color::White, true});
+      //
+      // m_resourceStorage.RegisterResource<Graphics::Shader>(
+      //     Resources::ResourceTypeData{
+      //         1,
+      //         std::bind(Resources::CreateResource<Graphics::Shader>),
+      //         std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
+      //         Vector<String>{"linaglsl"}, Color(255, 71, 108, 255, true)});
+      //
+      // m_resourceStorage.RegisterResource<Graphics::Texture>(
+      //     Resources::ResourceTypeData{
+      //         2,
+      //         std::bind(Resources::CreateResource<Graphics::Texture>),
+      //         std::bind(Resources::DeleteResource<Graphics::Texture>, std::placeholders::_1),
+      //         Vector<String>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
+      //
+      // m_resourceStorage.RegisterResource<Graphics::Material>(
+      //     Resources::ResourceTypeData{
+      //         3,
+      //         std::bind(Resources::CreateResource<Graphics::Material>),
+      //         std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
+      //         Vector<String>{"linamat"}, Color(56, 79, 255, 255, true)});
 
-        m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
-            Resources::ResourceTypeData{
-                0,
-                std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
-                std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
-                Vector<String>{"linaimagedata"}, Color::White, true});
-
-        m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
-            Resources::ResourceTypeData{
-                0,
-                std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
-                std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
-                Vector<String>{"linamodeldata"}, Color::White, true});
-
-        m_resourceStorage.RegisterResource<Graphics::Shader>(
-            Resources::ResourceTypeData{
-                1,
-                std::bind(Resources::CreateResource<Graphics::Shader>),
-                std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
-                Vector<String>{"linaglsl"}, Color(255, 71, 108, 255, true)});
-
-        m_resourceStorage.RegisterResource<Graphics::Texture>(
-            Resources::ResourceTypeData{
-                2,
-                std::bind(Resources::CreateResource<Graphics::Texture>),
-                std::bind(Resources::DeleteResource<Graphics::Texture>, std::placeholders::_1),
-                Vector<String>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
-
-        m_resourceStorage.RegisterResource<Graphics::Material>(
-            Resources::ResourceTypeData{
-                3,
-                std::bind(Resources::CreateResource<Graphics::Material>),
-                std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
-                Vector<String>{"linamat"}, Color(56, 79, 255, 255, true)});
-
-        m_resourceStorage.RegisterResource<Graphics::Model>(
-            Resources::ResourceTypeData{
-                4,
-                std::bind(Resources::CreateResource<Graphics::Model>),
-                std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
-                Vector<String>{"fbx", "obj", "gltf", "glb"}, Color(255, 146, 22, 255, true)});
+      // m_resourceStorage.RegisterResource<Graphics::Model>(
+      //     Resources::ResourceTypeData{
+      //         4,
+      //         std::bind(Resources::CreateResource<Graphics::Model>),
+      //         std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
+      //         Vector<String>{"fbx", "obj", "gltf", "glb"}, Color(255, 146, 22, 255, true)});
 
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             5,

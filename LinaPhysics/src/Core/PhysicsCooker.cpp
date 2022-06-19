@@ -78,48 +78,48 @@ namespace Lina::Physics
         // PHYSICSENGINE CreateConvexMesh(bufferData, sid, nodeIndex);
     }
 
-    void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
-    {
-        Vector<Vector3> vertices;
+  //  void PhysXCooker::CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model)
+  //  {
+  //      Vector<Vector3> vertices;
+  //
+  //      // if (node.m_meshIndexes.size() > 0)
+  //      //{
+  //      //	// Get model meshes.
+  //      //	auto& meshes = model.GetMeshes();
+  //      //
+  //      //	// For each mesh attach to this node.
+  //      //	for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
+  //      //	{
+  //      //		// Get the mesh & it's vertex position data.
+  //      //		auto& mesh = meshes[node.m_meshIndexes[i]];
+  //      //		auto& data = mesh.GetVertexPositions();
+  //      //
+  //      //		// Add each of the 3 positions to the vertices array.
+  //      //		for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
+  //      //			vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
+  //      //	}
+  //      //
+  //      //	// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
+  //      //	// This is the combined vertex data from sub-meshes.
+  //      //	// Now we cook this data & assign a model & node id to it.
+  //      //	CookConvexMesh(vertices, model.GetAssetData().m_convexMeshData[node.m_nodeID]);
+  //      //}
+  //      //
+  //      // for (auto& child : node.m_children)
+  //      //	CookModelNodeVertices(child, model);
+  //  }
 
-        // if (node.m_meshIndexes.size() > 0)
-        //{
-        //	// Get model meshes.
-        //	auto& meshes = model.GetMeshes();
-        //
-        //	// For each mesh attach to this node.
-        //	for (uint32 i = 0; i < node.m_meshIndexes.size(); i++)
-        //	{
-        //		// Get the mesh & it's vertex position data.
-        //		auto& mesh = meshes[node.m_meshIndexes[i]];
-        //		auto& data = mesh.GetVertexPositions();
-        //
-        //		// Add each of the 3 positions to the vertices array.
-        //		for (uint32 j = 0; j < data.m_floatElements.size(); j += 3)
-        //			vertices.push_back(Vector3(data.m_floatElements[j], data.m_floatElements[j + 1], data.m_floatElements[j + 2]));
-        //	}
-        //
-        //	// Now we have a vertex vector, that contains all the vertices from a model node's all meshes.
-        //	// This is the combined vertex data from sub-meshes.
-        //	// Now we cook this data & assign a model & node id to it.
-        //	CookConvexMesh(vertices, model.GetAssetData().m_convexMeshData[node.m_nodeID]);
-        //}
-        //
-        // for (auto& child : node.m_children)
-        //	CookModelNodeVertices(child, model);
-    }
-
-    void CreateConvexMeshesFromNodes(Graphics::ModelNode& node, Graphics::Model& model)
-    {
-        // if (node.m_meshIndexes.size() > 0)
-        //{
-        //	Graphics::ModelAssetData& data = model.GetAssetData();
-        //	Physics::PhysicsEngine::Get()->CreateConvexMesh(data.m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
-        //}
-        //
-        // for (auto& child : node.m_children)
-        //	CreateConvexMeshesFromNodes(child, model);
-    }
+   // void CreateConvexMeshesFromNodes(Graphics::ModelNode& node, Graphics::Model& model)
+   // {
+   //     // if (node.m_meshIndexes.size() > 0)
+   //     //{
+   //     //	Graphics::ModelAssetData& data = model.GetAssetData();
+   //     //	Physics::PhysicsEngine::Get()->CreateConvexMesh(data.m_convexMeshData[node.m_nodeID], model.GetID(), node.m_nodeID);
+   //     //}
+   //     //
+   //     // for (auto& child : node.m_children)
+   //     //	CreateConvexMeshesFromNodes(child, model);
+   // }
 
     void PhysXCooker::OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev)
     {

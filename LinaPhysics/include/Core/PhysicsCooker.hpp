@@ -45,12 +45,6 @@ Timestamp: 12/24/2021 7:47:26 PM
 #include "Math/Vector.hpp"
 #include "Data/Vector.hpp"
 
-namespace Lina::Graphics
-{
-    class ModelNode;
-    class Model;
-} // namespace Lina::Graphics
-
 namespace Lina::Event
 {
     struct EShutdown;
@@ -81,7 +75,7 @@ namespace Lina::Physics
         void CookConvexMesh(Vector<Vector3>& vertices, Vector<uint8>& bufferData);
 
         void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
-        void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
+        // void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
     private:
         ApplicationMode m_appMode;

@@ -38,6 +38,8 @@ SOFTWARE.
 
 GameManager* GameManager::s_instance = nullptr;
 
+using namespace Lina;
+
 void GameManager::Initialize()
 {
     LINA_TRACE("Game Manager Attached!");

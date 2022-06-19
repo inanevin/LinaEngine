@@ -44,9 +44,7 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/InputEngine.hpp"
 #include "Core/MessageBus.hpp"
 #include "Core/PhysicsEngine.hpp"
-#include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
-#include "Core/Window.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "ECS/System.hpp"
@@ -153,11 +151,9 @@ namespace Lina
     private:
         static Engine*             s_engine;
         Resources::ResourceStorage m_resourceStorage;
-        Graphics::RenderEngine     m_renderEngine;
         Physics::PhysicsEngine     m_physicsEngine;
         Audio::AudioEngine         m_audioEngine;
         Input::InputEngine         m_inputEngine;
-        Graphics::Window           m_window;
         Event::EventSystem         m_eventSystem;
         ECS::SystemList            m_mainECSPipeline;
         Resources::ResourceManager m_resourceManager;

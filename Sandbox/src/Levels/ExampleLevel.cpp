@@ -22,23 +22,15 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 #include "Audio/Audio.hpp"
 #include "Core/Application.hpp"
-#include "Core/RenderEngine.hpp"
-#include "ECS/Components/AnimationComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/ModelRendererComponent.hpp"
-#include "ECS/Systems/CameraSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
 #include "Physics/PhysicsMaterial.hpp"
-#include "Rendering/Model.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
-using namespace Graphics;
-using namespace ECS;
 
 void ExampleLevel::Install()
 {
-    World::Level::Install();
+    Lina::World::Level::Install();
 }
 

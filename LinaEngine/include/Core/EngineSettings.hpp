@@ -40,7 +40,6 @@ Timestamp: 1/6/2022 6:58:17 PM
 #define EngineSettings_HPP
 
 // Headers here.
-#include "Rendering/RenderSettings.hpp"
 #include "Resources/ResourceHandle.hpp"
 #include "World/Level.hpp"
 
@@ -64,22 +63,16 @@ namespace Lina
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
-        inline Graphics::RenderSettings& GetRenderSettings()
-        {
-            return m_renderSettings;
-        }
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_renderSettings, m_startupLevel);
+            archive(m_startupLevel);
         }
 
     private:
         friend class Engine;
         friend class Editor::ClassDrawer;
-
-        Graphics::RenderSettings                m_renderSettings;
         Resources::ResourceHandle<World::Level> m_startupLevel;
     };
 } // namespace Lina

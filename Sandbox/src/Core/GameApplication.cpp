@@ -27,8 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/GameApplication.hpp"
-
-#include "Core/EditorApplication.hpp"
 #include "Core/Engine.hpp"
 #include "Data/HashMap.hpp"
 #include <EASTL/hash_map.h>
@@ -39,47 +37,16 @@ namespace Lina
     {
         Application::Initialize(appInfo);
 
-    // if (appInfo.m_appMode == ApplicationMode::Editor)
-    // {
-    //     // Engine::Get()->StartLoadingResources();
-    //
-    //    // m_editor = new Editor::EditorApplication();
-    //    // m_editor->Initialize();
-    //
-    //     // Update props.
-    //     auto& windowProps = Graphics::Window::Get()->GetProperties();
-    //
-    //     // Set the app window size back to original after loading editor resources.
-    //     Graphics::Window::Get()->SetPos(Vector2i(0, 0));
-    //     Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
-    // }
-    // else
-    // {
-    //     // Engine::Get()->StartLoadingResources();
-    //     auto& windowProps = Graphics::Window::Get()->GetProperties();
-    //     Graphics::Window::Get()->SetPos(Vector2i(0, 0));
-    //     Graphics::Window::Get()->SetSize(Vector2i(windowProps.m_width, windowProps.m_height));
-    // }
-    //
-    // // Initialize game manager.
-    // m_gameManager.Initialize();
-    //
-    // Run();
-    //
-    // // After engine has finished running.
-    // if (m_editor != nullptr)
-    //     delete m_editor;
     }
 } // namespace Lina
-
 
 
 int main(int argc, char** argv)
 {
 
-    GameApplication* game = new GameApplication();
-    ApplicationInfo  appInfo;
-    appInfo.m_appMode                        = ApplicationMode::Editor;
+    Lina::GameApplication* game = new Lina::GameApplication();
+    Lina::ApplicationInfo  appInfo;
+    appInfo.m_appMode                        = Lina::ApplicationMode::Editor;
     appInfo.m_appName                        = "Lina Sandbox Game";
     appInfo.m_bundleName                     = "Example";
     appInfo.m_packagePass                    = L"1234";
@@ -89,7 +56,7 @@ int main(int argc, char** argv)
     appInfo.m_appPatch                       = 0;
     appInfo.m_windowProperties.m_width       = 1920;
     appInfo.m_windowProperties.m_height      = 1080;
-    appInfo.m_windowProperties.m_windowState = WindowState::Maximized;
+    appInfo.m_windowProperties.m_windowState = Lina::WindowState::Maximized;
     appInfo.m_windowProperties.m_decorated   = false;
     appInfo.m_windowProperties.m_resizable   = true;
     appInfo.m_windowProperties.m_fullscreen  = false;

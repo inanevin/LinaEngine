@@ -58,9 +58,9 @@ public:
     GameManager()  = default;
     ~GameManager() = default;
     void                Initialize();
-    void                OnTick(const Event::ETick& ev);
-    void                OnShutdown(const Event::EShutdown& ev);
-    void                OnGUIRender(const Event::EPostRender& ev);
+    void                OnTick(const Lina::Event::ETick& ev);
+    void                OnShutdown(const Lina::Event::EShutdown& ev);
+    void                OnGUIRender(const Lina::Event::EPostRender& ev);
     static GameManager* GetInstance()
     {
         return s_instance;

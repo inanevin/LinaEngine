@@ -45,7 +45,6 @@ Timestamp: 5/6/2019 5:10:23 PM
 #include "Math/Color.hpp"
 #include "ECS/Registry.hpp"
 #include "Resources/ResourceHandle.hpp"
-#include "Rendering/Material.hpp"
 #include "Core/CommonReflection.hpp"
 #include "Data/String.hpp"
 #include <cereal/access.hpp>
@@ -86,9 +85,6 @@ namespace Lina::World
         /// </summary>
         void InstallFromFile(const String& path);
 
-        LINA_PROPERTY("Skybox", "Material", "", "", "Sky")
-        Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;
-
         LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
         Color m_ambientColor = Color(0);
 
@@ -107,7 +103,7 @@ namespace Lina::World
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_skyboxMaterial, m_ambientColor);
+            archive(m_ambientColor);
         }
     };
 } // namespace Lina::World
