@@ -51,11 +51,7 @@ namespace Lina
 {
     namespace Physics
     {
-#ifdef LINA_PHYSICS_BULLET
-        class BulletPhysicsEngine;
-#elif LINA_PHYSICS_PHYSX
         class PhysicsEngine;
-#endif
     } // namespace Physics
 };    // namespace Lina
 
@@ -154,12 +150,7 @@ namespace Lina::ECS
     private:
         friend class cereal::access;
         friend class Registry;
-
-#ifdef LINA_PHYSICS_BULLET
-        friend class Physics::BulletPhysicsEngine;
-#elif LINA_PHYSICS_PHYSX
         friend class Physics::PhysicsEngine;
-#endif
 
         bool           m_isTransformLocked    = false;
         bool           m_wasPreviouslyEnabled = false;

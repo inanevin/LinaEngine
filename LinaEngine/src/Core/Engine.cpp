@@ -44,6 +44,9 @@ SOFTWARE.
 #include "Rendering/Shader.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "Core/ReflectionRegistry.hpp"
+#include <EASTL/hash_map.h>
+#include <unordered_map>
+#include "Math/Math.hpp"
 
 namespace Lina
 {

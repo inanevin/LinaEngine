@@ -87,7 +87,6 @@ namespace Lina
 
     private:
         const char* m_name = "";
-        ;
         std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
         bool                                               m_active   = false;
         double                                             m_duration = 0;

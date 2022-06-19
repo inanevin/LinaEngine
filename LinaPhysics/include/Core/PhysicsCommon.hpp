@@ -42,13 +42,8 @@ Timestamp: 12/20/2021 1:05:42 PM
 // Headers here.
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
-
-#ifdef LINA_PHYSICS_BULLET
-#include "btBulletDynamicsCommon.h"
-#elif LINA_PHYSICS_PHYSX
 #include "PxPhysicsAPI.h"
 
-#endif
 
 namespace Lina::Physics
 {

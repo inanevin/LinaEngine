@@ -44,6 +44,7 @@ Timestamp: 05/12/2022 11:33:56 PM
 #include <fmt/format.h>
 #endif
 
+#include <functional>
 namespace Lina
 {
     typedef eastl::string String;
@@ -51,6 +52,12 @@ namespace Lina
     #define TO_STRING(...) eastl::to_string(__VA_ARGS__)
 
 } // namespace Lina
+
+template<> struct std::hash<eastl::string> {
+    std::size_t operator()(eastl::string const& s) const noexcept {
+        return eastl::hash<eastl::string>()(s);
+    }
+};
 
 #ifdef LINA_ENABLE_LOGGING
 

@@ -55,18 +55,6 @@ namespace Lina::Physics
         Dynamic = 2,
     };
 
-#ifdef LINA_PHYSICS_BULLET
-    extern String COLLISION_SHAPES[4];
-
-    enum class CollisionShape : uint8
-    {
-        Box        = 0,
-        Sphere     = 1,
-        Cylinder   = 2,
-        Capsule    = 3,
-        ConvexMesh = 4,
-    };
-#elif LINA_PHYSICS_PHYSX
     extern String COLLISION_SHAPES[4];
 
     enum class CollisionShape : uint8
@@ -76,7 +64,6 @@ namespace Lina::Physics
         Capsule    = 2,
         ConvexMesh = 3,
     };
-#endif
 } // namespace Lina::Physics
 
 #endif

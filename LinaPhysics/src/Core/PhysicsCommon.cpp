@@ -30,31 +30,6 @@ SOFTWARE.
 
 namespace Lina::Physics
 {
-#ifdef LINA_PHYSICS_BULLET
-    btVector3 ToBtVector(const Vector3& v)
-    {
-        return btVector3(v.x, v.y, v.z);
-    }
-
-    btQuaternion ToBtQuat(const Quaternion& q)
-    {
-        return btQuaternion(q.x, q.y, q.z, q.w);
-    }
-
-    Vector3 ToLinaVector(const btVector3& v)
-    {
-        return Vector3(v.getX(), v.getY(), v.getZ());
-    }
-
-    Quaternion ToLinaQuat(const btQuaternion& q)
-    {
-        return Quaternion(q.getX(), q.getY(), q.getZ(), q.getW());
-    }
-
-#endif
-
-#ifdef LINA_PHYSICS_PHYSX
-
     physx::PxVec2 ToPxVector2(const Vector2& v)
     {
         return physx::PxVec2(v.x, v.y);
@@ -87,6 +62,4 @@ namespace Lina::Physics
     {
         return Quaternion(q.x, q.y, q.z, q.w);
     }
-
-#endif
 } // namespace Lina::Physics
