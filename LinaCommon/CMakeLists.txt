@@ -246,6 +246,7 @@ include(../_Dependencies/cereal/link.cmake)
 include(../_Dependencies/entt/link.cmake)
 include(../_Dependencies/eastl/link.cmake)
 include(../_Dependencies/phmap/link.cmake)
+include(../_Dependencies/taskflow/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
@@ -253,6 +254,8 @@ link_cereal()
 link_entt()
 link_eastl()
 link_phmap()
+link_taskflow()
+
 
 #--------------------------------------------------------------------
 # Generate export header for this dll project 

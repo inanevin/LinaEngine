@@ -51,32 +51,7 @@ namespace Lina::ECS
     void RigidbodySystem::UpdateComponents(float delta)
     {
         auto* physicsEngine = Physics::PhysicsEngine::Get();
-        auto* ecs               = ECS::Registry::Get();
-
-
-#ifdef LINA_PHYSICS_BULLET
-
-        auto view = ecs->view<EntityDataComponent, PhysicsComponent>();
-
-        // Find all entities with rigidbody component and transform component attached to them.
-        for (auto entity : view)
-        {
-            PhysicsComponent& phyComp = view.get<PhysicsComponent>(entity);
-            if (!phyComp.GetIsSimulated())
-                continue;
-            EntityDataComponent& data = view.get<EntityDataComponent>(entity);
-            btRigidBody*         rb   = Physics::PhysicsEngine::Get()->GetActiveRigidbody(entity);
-            btTransform          btTrans;
-            rb->getMotionState()->getWorldTransform(btTrans);
-            Vector3 location = Physics::ToLinaVector(rb->getWorldTransform().getOrigin());
-            data.SetLocation(location);
-            data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
-            phyComp.m_angularVelocity = Physics::ToLinaVector(rb->getAngularVelocity());
-            phyComp.m_velocity        = Physics::ToLinaVector(rb->getLinearVelocity());
-            phyComp.m_turnVelocity    = Physics::ToLinaVector(rb->getTurnVelocity());
-        }
-#endif
-#ifdef LINA_PHYSICS_PHYSX
+        auto* ecs           = ECS::Registry::Get();
 
         auto& actors = physicsEngine->GetAllActors();
         m_poolSize   = (int)actors.size();
@@ -114,7 +89,5 @@ namespace Lina::ECS
                 }
             }
         }
-
-#endif
     }
 } // namespace Lina::ECS
