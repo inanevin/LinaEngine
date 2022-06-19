@@ -41,8 +41,8 @@ Timestamp: 1/18/2022 9:27:55 PM
 
 // Headers here.
 #include "Panels/EditorPanel.hpp"
-#include <map>
-#include <string>
+#include "Data/Map.hpp"
+#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -72,12 +72,12 @@ namespace Lina::Editor
 
     private:
         void OnShortcut(const EShortcut& ev);
-        void SaveCurrentFile(const std::string& text);
+        void SaveCurrentFile(const String& text);
         void ReloadCurrentFile();
 
     private:
         float                                 m_currentFontSize = 1.0f;
-        std::map<Utility::File*, std::string> m_openFiles;
+        Map<Utility::File*, String> m_openFiles;
         Utility::File*                        m_currentFile = nullptr;
     };
 } // namespace Lina::Editor

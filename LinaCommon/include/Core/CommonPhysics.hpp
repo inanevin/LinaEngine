@@ -42,11 +42,11 @@ Timestamp: 12/25/2021 11:44:20 AM
 // Headers here.
 #include "SizeDefinitions.hpp"
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Physics
 {
-    extern std::string SIMULATION_TYPES[3];
+    extern String SIMULATION_TYPES[3];
 
     enum class SimulationType : uint8
     {
@@ -56,7 +56,7 @@ namespace Lina::Physics
     };
 
 #ifdef LINA_PHYSICS_BULLET
-    extern std::string COLLISION_SHAPES[4];
+    extern String COLLISION_SHAPES[4];
 
     enum class CollisionShape : uint8
     {
@@ -67,7 +67,7 @@ namespace Lina::Physics
         ConvexMesh = 4,
     };
 #elif LINA_PHYSICS_PHYSX
-    extern std::string COLLISION_SHAPES[4];
+    extern String COLLISION_SHAPES[4];
 
     enum class CollisionShape : uint8
     {

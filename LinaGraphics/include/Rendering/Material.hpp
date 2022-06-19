@@ -44,9 +44,10 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Resources/IResource.hpp"
 #include "Resources/ResourceHandle.hpp"
 #include "Core/CommonReflection.hpp"
-#include <cereal/types/map.hpp>
-#include <cereal/types/string.hpp>
-#include <set>
+#include "Shader.hpp"
+#include "Data/Map.hpp"
+#include "Data/Serialization/MapSerialization.hpp"
+
 
 namespace Lina::Graphics
 {
@@ -75,94 +76,94 @@ namespace Lina::Graphics
         Material()          = default;
         virtual ~Material() = default;
 
-        static Material* CreateMaterial(Shader* shader, const std::string& savePath);
-        virtual void*    LoadFromFile(const std::string& path) override;
-        virtual void*    LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
+        static Material* CreateMaterial(Shader* shader, const String& savePath);
+        virtual void*    LoadFromFile(const String& path) override;
+        virtual void*    LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         void             Save();
         void             SetShader(Shader* shader, bool onlySetID = false);
         void             UpdateMaterialData();
         void             PostLoadMaterialData();
-        void             SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
-        void             RemoveTexture(const std::string& textureName);
-        Texture*         GetTexture(const std::string& name);
+        void             SetTexture(const String& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
+        void             RemoveTexture(const String& textureName);
+        Texture*         GetTexture(const String& name);
 
-        inline void SetFloat(const std::string& name, float value)
+        inline void SetFloat(const String& name, float value)
         {
             m_floats[name] = value;
         }
 
-        inline void SetBool(const std::string& name, bool value)
+        inline void SetBool(const String& name, bool value)
         {
             m_bools[name] = value;
         }
 
-        inline void SetColor(const std::string& name, const Color& color)
+        inline void SetColor(const String& name, const Color& color)
         {
             m_colors[name] = color;
         }
 
-        inline void SetVector2(const std::string& name, const Vector2& vector)
+        inline void SetVector2(const String& name, const Vector2& vector)
         {
             m_vector2s[name] = vector;
         }
 
-        inline void SetVector3(const std::string& name, const Vector3& vector)
+        inline void SetVector3(const String& name, const Vector3& vector)
         {
             m_vector3s[name] = vector;
         }
 
-        inline void SetVector4(const std::string& name, const Vector4& vector)
+        inline void SetVector4(const String& name, const Vector4& vector)
         {
             m_vector4s[name] = vector;
         }
 
-        inline void SetMatrix4(const std::string& name, const Matrix& matrix)
+        inline void SetMatrix4(const String& name, const Matrix& matrix)
         {
             m_matrices[name] = matrix;
         }
 
-        inline float GetFloat(const std::string& name)
+        inline float GetFloat(const String& name)
         {
             return m_floats[name];
         }
 
-        inline float GetBool(const std::string& name)
+        inline float GetBool(const String& name)
         {
             return m_bools[name];
         }
 
-        inline int GetInt(const std::string& name)
+        inline int GetInt(const String& name)
         {
             return m_ints[name];
         }
 
-        inline Color GetColor(const std::string& name)
+        inline Color GetColor(const String& name)
         {
             return m_colors[name];
         }
 
-        inline Vector2 GetVector2(const std::string& name)
+        inline Vector2 GetVector2(const String& name)
         {
             return m_vector2s[name];
         }
 
-        inline Vector3 GetVector3(const std::string& name)
+        inline Vector3 GetVector3(const String& name)
         {
             return m_vector3s[name];
         }
 
-        inline Vector4 GetVector4(const std::string& name)
+        inline Vector4 GetVector4(const String& name)
         {
             return m_vector4s[name];
         }
 
-        inline Matrix GetMatrix(const std::string& name)
+        inline Matrix GetMatrix(const String& name)
         {
             return m_matrices[name];
         }
 
         void SetSurfaceType(MaterialSurfaceType type);
-        void SetInt(const std::string& name, int value);
+        void SetInt(const String& name, int value);
 
         inline Resources::ResourceHandle<Shader> GetShaderHandle()
         {
@@ -184,15 +185,15 @@ namespace Lina::Graphics
             );
         }
 
-        std::map<std::string, float>             m_floats;
-        std::map<std::string, int>               m_ints;
-        std::map<std::string, MaterialSampler2D> m_sampler2Ds;
-        std::map<std::string, Color>             m_colors;
-        std::map<std::string, Vector2>           m_vector2s;
-        std::map<std::string, Vector3>           m_vector3s;
-        std::map<std::string, Vector4>           m_vector4s;
-        std::map<std::string, Matrix>            m_matrices;
-        std::map<std::string, bool>              m_bools;
+        Map<String, float>             m_floats;
+        Map<String, int>               m_ints;
+        Map<String, MaterialSampler2D> m_sampler2Ds;
+        Map<String, Color>             m_colors;
+        Map<String, Vector2>           m_vector2s;
+        Map<String, Vector3>           m_vector3s;
+        Map<String, Vector4>           m_vector4s;
+        Map<String, Matrix>            m_matrices;
+        Map<String, bool>              m_bools;
         bool                                     m_hdriDataSet       = false;
         bool                                     m_reflectionDataSet = false;
         bool                                     m_skyIrradianceDataSet = false;

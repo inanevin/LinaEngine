@@ -47,7 +47,7 @@ namespace Lina::ECS
     class FreeLookSystem : public System
     {
     public:
-        virtual void Initialize(const std::string& name);
+        virtual void Initialize(const String& name);
         virtual void UpdateComponents(float delta) override;
 
     private:

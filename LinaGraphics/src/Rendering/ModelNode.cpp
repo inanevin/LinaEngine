@@ -54,8 +54,8 @@ namespace Lina::Graphics
 
     void ModelNode::FillNodeHierarchy(const aiNode* node, const aiScene* scene, Model* parentModel)
     {
-        m_name                    = std::string(node->mName.C_Str());
-        const std::string sidName = parentModel->GetPath() + m_name;
+        m_name                    = String(node->mName.C_Str());
+        const String sidName = parentModel->GetPath() + m_name;
         m_localTransform          = AssimpToLinaMatrix(node->mTransformation);
         parentModel->m_allNodes.push_back(this);
         parentModel->m_numNodes++;

@@ -44,7 +44,7 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "Math/Matrix.hpp"
 #include "Rendering/RenderingCommon.hpp"
 
-#include <map>
+#include "Data/Map.hpp"
 
 using namespace Lina;
 
@@ -161,7 +161,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Loads the given text as an OpenGL program.
         /// </summary>
-        uint32 CreateShaderProgram(const std::string& shaderText, ShaderUniformData* data, bool usesGeometryShader);
+        uint32 CreateShaderProgram(const String& shaderText, ShaderUniformData* data, bool usesGeometryShader);
 
         /// <summary>
         /// Checks the validity of the given loaded shader program.
@@ -260,25 +260,25 @@ namespace Lina::Graphics
         void GetTextureImage(uint32 texture, PixelFormat format, TextureBindMode bind, void*& pixels);
 
         void BindUniformBuffer(uint32 buffer, uint32 bindingPoint);
-        void BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName);
+        void BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, String& blockName);
         void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize);
         void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
         void UpdateSamplerParameters(uint32 sampler, SamplerParameters params);
         void SetShader(uint32 shader);
         void SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool setSampler = false);
-        void SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer);
+        void SetShaderUniformBuffer(uint32 shader, const String& uniformBufferName, uint32 buffer);
         void SetDrawParameters(const DrawParams& drawParams);
         void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
         void DrawLine(float width);
         void DrawLine(uint32 shader, const Matrix& model, const Vector3& from, const Vector3& to, float width = 1.0f);
-        void UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f);
-        void UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f);
-        void UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color);
-        void UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m);
-        void UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m);
-        void UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m);
-        void UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m);
-        void UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data);
+        void UpdateShaderUniformFloat(uint32 shader, const String& uniform, const float f);
+        void UpdateShaderUniformInt(uint32 shader, const String& uniform, const int f);
+        void UpdateShaderUniformColor(uint32 shader, const String& uniform, const Color& color);
+        void UpdateShaderUniformVector2(uint32 shader, const String& uniform, const Vector2& m);
+        void UpdateShaderUniformVector3(uint32 shader, const String& uniform, const Vector3& m);
+        void UpdateShaderUniformVector4F(uint32 shader, const String& uniform, const Vector4& m);
+        void UpdateShaderUniformMatrix(uint32 shader, const String& uniform, const Matrix& m);
+        void UpdateShaderUniformMatrix(uint32 shader, const String& uniform, void* data);
         void SetFBO(uint32 fbo);
         void SetVAO(uint32 vao);
         void SetViewport(Vector2i pos, Vector2i size);
@@ -290,7 +290,7 @@ namespace Lina::Graphics
         void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 
     private:
-        std::string GetShaderVersion();
+        String GetShaderVersion();
         uint32      GetVersion();
 
         void SetRBO(uint32 rbo);
@@ -317,9 +317,9 @@ namespace Lina::Graphics
         uint32                            m_boundTextureUnit;
         Vector2i                         m_boundViewportSize;
         Vector2i                         m_boundViewportPos;
-        std::map<uint32, VertexArrayData> m_vaoMap;
-        std::map<uint32, ShaderProgram>   m_shaderProgramMap;
-        std::string                       m_shaderVersion;
+        Map<uint32, VertexArrayData> m_vaoMap;
+        Map<uint32, ShaderProgram>   m_shaderProgramMap;
+        String                       m_shaderVersion;
         uint32                            m_GLVersion;
 
         // Current drawing parameters.

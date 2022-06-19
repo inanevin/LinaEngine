@@ -75,7 +75,7 @@ namespace Lina::Editor
         {
             m_shouldCopyEntityName = false;
             memset(entityName, 0, sizeof entityName);
-            std::string str = ecs->get<ECS::EntityDataComponent>(m_selectedEntity).m_name;
+            String str = ecs->get<ECS::EntityDataComponent>(m_selectedEntity).m_name;
             std::copy(str.begin(), str.end(), entityName);
         }
 
@@ -112,14 +112,14 @@ namespace Lina::Editor
 
             for (auto& category : map)
             {
-                std::string filterLowercase = Utility::ToLower(std::string(filterChr));
+                String filterLowercase = Utility::ToLower(String(filterChr));
 
                 if (ImGui::TreeNode(category.first.c_str()))
                 {
                     for (auto& pair : category.second)
                     {
-                        std::string pairLowercase = Utility::ToLower(pair.first);
-                        if (pairLowercase.find(std::string(filterLowercase)) != std::string::npos)
+                        String pairLowercase = Utility::ToLower(pair.first);
+                        if (pairLowercase.find(String(filterLowercase)) != String::npos)
                         {
                             bool selected = false;
                             ImGui::Selectable(pair.first.c_str(), &selected);

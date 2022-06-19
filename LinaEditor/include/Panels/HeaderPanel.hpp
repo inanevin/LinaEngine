@@ -68,7 +68,7 @@ namespace Lina::Editor
 
     private:
         static Vector<MenuBarElement*> s_createEntityElements;
-        std::string                         m_title = "";
+        String                         m_title = "";
         Vector<Menu*>            m_menuButtons;
     };
 } // namespace Lina::Editor

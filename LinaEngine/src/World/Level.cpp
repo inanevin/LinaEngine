@@ -63,11 +63,11 @@ namespace Lina::World
         m_registry.clear();
     }
 
-    void Level::SaveToFile(const std::string& path)
+    void Level::SaveToFile(const String& path)
     {
         Event::EventSystem::Get()->Trigger<Event::EPreSerializingLevel>(Event::EPreSerializingLevel{});
 
-        std::ofstream stream(path, std::ios::binary);
+        std::ofstream stream(path.c_str(), std::ios::binary);
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(*this);
@@ -76,12 +76,12 @@ namespace Lina::World
         Event::EventSystem::Get()->Trigger<Event::ESerializedLevel>(Event::ESerializedLevel{});
     }
 
-    void Level::InstallFromFile(const std::string& path)
+    void Level::InstallFromFile(const String& path)
     {
         if (s_currentLevel != nullptr)
             s_currentLevel->Uninstall();
 
-        std::ifstream stream(path, std::ios::binary);
+        std::ifstream stream(path.c_str(), std::ios::binary);
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);

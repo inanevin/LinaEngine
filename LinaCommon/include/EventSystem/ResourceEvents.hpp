@@ -68,12 +68,12 @@ namespace Lina::Event
     {
         StringIDType m_previousStringID;
         StringIDType m_newStringID;
-        std::string m_oldPath;
-        std::string m_newPath;
+        String m_oldPath;
+        String m_newPath;
     };
     struct EResourceLoadUpdated
     {
-        std::string m_currentResource;
+        String m_currentResource;
         float       m_percentage;
     };
     struct EResourceUnloaded
@@ -83,7 +83,7 @@ namespace Lina::Event
     };
     struct ERequestResourceReload
     {
-        std::string  m_fullPath;
+        String  m_fullPath;
         TypeID       m_tid;
         StringIDType m_sid;
     };

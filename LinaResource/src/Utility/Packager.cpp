@@ -41,7 +41,7 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void Packager::PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass)
+    void Packager::PackageDirectory(const String& dir, const String& output, const wchar_t* pass)
     {
         try
         {
@@ -61,7 +61,7 @@ namespace Lina::Resources
             loadingData->m_currentResourceName = "Packing directory";
             loadingData->m_currentProgress     = 0;
             loadingData->m_state               = ResourceProgressState::Pending;
-            loadingData->m_progressTitle       = "Packing directory" + std::string(dir);
+            loadingData->m_progressTitle       = "Packing directory" + String(dir);
 
             compressor.setTotalCallback([=](uint64_t size) {
                 loadingData->m_state = ResourceProgressState::Pending;
@@ -70,7 +70,7 @@ namespace Lina::Resources
 
             compressor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = std::string(chr);
+                loadingData->m_currentResourceName = String(chr);
                 delete chr;
             });
 
@@ -97,7 +97,7 @@ namespace Lina::Resources
         }
     }
 
-    void Packager::PackageFileset(Vector<std::string> files, const std::string& output, const wchar_t* pass)
+    void Packager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
     {
         try
         {
@@ -132,7 +132,7 @@ namespace Lina::Resources
 
             compressor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = std::string(chr);
+                loadingData->m_currentResourceName = String(chr);
                 LINA_TRACE("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
                 delete chr;
             });
@@ -157,6 +157,7 @@ namespace Lina::Resources
 
             // compress.
             std::vector<std::wstring> vfiles;
+            vfiles.reserve(wfiles.size());
             for (int i = 0; i < wfiles.size(); i++)
                 vfiles.push_back(wfiles[i]);
 
@@ -169,7 +170,7 @@ namespace Lina::Resources
         }
     }
 
-    void Packager::Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle)
+    void Packager::Unpack(const String& filePath, const wchar_t* pass, ResourceBundle* outBundle)
     {
         try
         {
@@ -208,7 +209,7 @@ namespace Lina::Resources
 
             extractor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = std::string(chr);
+                loadingData->m_currentResourceName = String(chr);
                 LINA_TRACE("[Packager] -> Unpacking {0}", loadingData->m_currentResourceName);
                 delete chr;
             });
@@ -222,14 +223,14 @@ namespace Lina::Resources
             {
                 // Setup paths
                 const char* filePath    = Utility::WCharToChar(item.first.c_str());
-                std::string filePathStr = filePath;
+                String filePathStr = filePath;
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
-                std::string ext = Utility::GetFileExtension(filePath);
+                String ext = Utility::GetFileExtension(filePath);
 
                 // Pass the resource to bundle.
 
                 Vector<bit7z::byte_t> v;
-
+                v.reserve(item.second.size());
                 for (int i = 0; i < item.second.size(); i++)
                     v.push_back(item.second[i]);
 

@@ -43,11 +43,43 @@ void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned 
     return new uint8_t[size];
 }
 
+namespace EA
+{
+    namespace StdC
+    {
+        // Provided by the EAStdC package or by the user.
+        int Vsnprintf(char* EA_RESTRICT pDestination, size_t n, const char* EA_RESTRICT pFormat, va_list arguments)
+        {
+        return vsnprintf(pDestination, n, pFormat, arguments);
+        }
+        int Vsnprintf(char16_t* EA_RESTRICT pDestination, size_t n, const char16_t* EA_RESTRICT pFormat, va_list arguments)
+        {
+            return 0;
+        }
+        int Vsnprintf(char32_t* EA_RESTRICT pDestination, size_t n, const char32_t* EA_RESTRICT pFormat, va_list arguments)
+        {
+            return 0;
+        }
+#if EA_CHAR8_UNIQUE
+        int Vsnprintf(char8_t* EA_RESTRICT pDestination, size_t n, const char8_t* EA_RESTRICT pFormat, va_list arguments)
+        {
+            return 0;
+        }
+#endif
+#if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
+        int Vsnprintf(wchar_t* EA_RESTRICT pDestination, size_t n, const wchar_t* EA_RESTRICT pFormat, va_list arguments)
+        {
+            return 0;
+        }
+#endif
+    } // namespace StdC
+} // namespace EA
+
 // EASTL OPERATOR NEW[] REQUIREMENTS
 
 namespace Lina
 {
-    std::string LogLevelAsString(LogLevel level)
+    String LogLevelAsString(LogLevel level)
     {
         switch (level)
         {
@@ -73,12 +105,12 @@ namespace Lina
 
 namespace Lina::Physics
 {
-    std::string SIMULATION_TYPES[3] = {"None", "Static", "Dynamic"};
+    String SIMULATION_TYPES[3] = {"None", "Static", "Dynamic"};
 
 #ifdef LINA_PHYSICS_BULLET
-    std::string COLLISION_SHAPES[4] = {"Box", "Sphere", "Cylinder", "Capsule"};
+    String COLLISION_SHAPES[4] = {"Box", "Sphere", "Cylinder", "Capsule"};
 #elif LINA_PHYSICS_PHYSX
-    std::string COLLISION_SHAPES[4] = {"Box", "Sphere", "Capsule", "ConvexMesh"};
+    String COLLISION_SHAPES[4] = {"Box", "Sphere", "Capsule", "ConvexMesh"};
 #endif
 } // namespace Lina::Physics
 

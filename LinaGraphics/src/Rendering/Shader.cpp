@@ -40,29 +40,29 @@ namespace Lina::Graphics
         m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
     }
 
-    void* Shader::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Shader Loader - Memory] -> Loading: {0}", path);
         Resources::IResource::SetSID(path);
-        std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
+        String shaderText = String(reinterpret_cast<char*>(data), dataSize);
         Graphics::LoadTextWithIncludes(shaderText, "#include");
-        const bool usesGeometryShader = shaderText.find("GS_BUILD") != std::string::npos;
+        const bool usesGeometryShader = shaderText.find("GS_BUILD") != String::npos;
         this->Construct(shaderText, usesGeometryShader);
         return static_cast<void*>(this);
     }
 
-    void* Shader::LoadFromFile(const std::string& path)
+    void* Shader::LoadFromFile(const String& path)
     {
         LINA_TRACE("[Shader Loader - File] -> Loading: {0}", path);
         Resources::IResource::SetSID(path);
-        std::string shaderText;
+        String shaderText;
         Graphics::LoadTextFileWithIncludes(shaderText, path, "#include");
-        const bool usesGeometryShader = shaderText.find("GS_BUILD") != std::string::npos;
+        const bool usesGeometryShader = shaderText.find("GS_BUILD") != String::npos;
         this->Construct(shaderText, usesGeometryShader);
         return static_cast<void*>(this);
     }
 
-    Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)
+    Shader& Shader::Construct(const String& text, bool usesGeometryShader)
     {
         m_specification = CheckForSpecification(text);
         m_renderDevice  = RenderEngine::Get()->GetRenderDevice();
@@ -70,23 +70,23 @@ namespace Lina::Graphics
         return *this;
     }
 
-    void Shader::SetUniformBuffer(const std::string& name, UniformBuffer& buffer)
+    void Shader::SetUniformBuffer(const String& name, UniformBuffer& buffer)
     {
         m_renderDevice->SetShaderUniformBuffer(m_engineBoundID, name, buffer.GetID());
     }
 
-    void Shader::BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
+    void Shader::BindBlockToBuffer(uint32 bindingPoint, String blockName)
     {
         m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
     }
 
-    ShaderSpecification Shader::CheckForSpecification(const std::string& text)
+    ShaderSpecification Shader::CheckForSpecification(const String& text)
     {
-        if (text.find("#define LINA_SKY_CUBE") != std::string::npos)
+        if (text.find("#define LINA_SKY_CUBE") != String::npos)
             return ShaderSpecification::Sky_Cube;
-        else if (text.find("#define LINA_SKY_HDRICUBE") != std::string::npos)
+        else if (text.find("#define LINA_SKY_HDRICUBE") != String::npos)
             return ShaderSpecification::Sky_HDRICube;
-        else if (text.find("#define LINA_SKY_DOME") != std::string::npos)
+        else if (text.find("#define LINA_SKY_DOME") != String::npos)
             return ShaderSpecification::Sky_Dome;
 
         return ShaderSpecification::None;

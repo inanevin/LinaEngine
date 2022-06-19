@@ -43,7 +43,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void ModelNodeSystem::Initialize(const std::string& name, ApplicationMode appMode)
+    void ModelNodeSystem::Initialize(const String& name, ApplicationMode appMode)
     {
         System::Initialize(name);
         m_appMode      = appMode;
@@ -77,7 +77,7 @@ namespace Lina::ECS
 
         for (uint32 i = 0; i < node->m_children.size(); i++)
         {
-            const std::string childName   = node->m_children[i]->m_name;
+            const String childName   = node->m_children[i]->m_name;
             Entity            childEntity = ecs->CreateEntity(childName);
             auto&             data        = ecs->get<ECS::EntityDataComponent>(childEntity);
             Matrix            mat         = parentTransform * node->m_localTransform;
@@ -111,7 +111,7 @@ namespace Lina::ECS
     void ModelNodeSystem::CreateModelHierarchy(Graphics::Model* model)
     {
         Graphics::ModelNode* root             = model->GetRootNode();
-        const std::string    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
+        const String    parentEntityName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(model->GetPath()));
         Entity               parentEntity     = ECS::Registry::Get()->CreateEntity(parentEntityName);
         auto&                data             = ECS::Registry::Get()->get<ECS::EntityDataComponent>(parentEntity);
         ConstructEntityHierarchy(parentEntity, data.ToMatrix(), model, root);
@@ -231,7 +231,7 @@ namespace Lina::ECS
         // When flushed, all the data is delegated to the render device to do the actual
         // drawing. Then the data is cleared if complete flush is requested.
 
-        for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_opaqueRenderBatch.begin(); it != m_opaqueRenderBatch.end(); ++it)
+        for (Map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_opaqueRenderBatch.begin(); it != m_opaqueRenderBatch.end(); ++it)
         {
             // Get references.
             Graphics::BatchDrawData   drawData      = it->first;
@@ -257,7 +257,7 @@ namespace Lina::ECS
                 mat->SetBool(UF_BOOL_SKINNED, true);
 
             for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
-                mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
+                mat->SetMatrix4(String(UF_BONE_MATRICES) + "[" + TO_STRING(i) + "]", modelData.m_boneTransformations[i]);
 
             m_renderEngine->UpdateShaderData(mat);
 
@@ -304,7 +304,7 @@ namespace Lina::ECS
                 mat->SetBool(UF_BOOL_SKINNED, true);
 
             for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
-                mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
+                mat->SetMatrix4(String(UF_BONE_MATRICES) + "[" + TO_STRING(i) + "]", modelData.m_boneTransformations[i]);
             m_renderEngine->UpdateShaderData(mat);
             m_renderDevice->Draw(vertexArray->GetID(), drawParams, (uint32)numTransforms, vertexArray->GetIndexCount(), false);
 

@@ -43,8 +43,8 @@ Timestamp: 12/15/2021 2:12:28 PM
 #include "Utility/StringId.hpp"
 #include "Audio/AudioAssetData.hpp"
 #include "Resources/IResource.hpp"
-#include <map>
-#include <string>
+#include "Data/Map.hpp"
+#include <Data/String.hpp>
 
 namespace Lina::Audio
 {
@@ -57,8 +57,8 @@ namespace Lina::Audio
         }
         ~Audio();
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
         unsigned int GetBuffer()
         {

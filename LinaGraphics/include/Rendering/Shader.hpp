@@ -43,7 +43,7 @@ Timestamp: 2/16/2019 1:47:28 AM
 #include "Resources/IResource.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/UniformBuffer.hpp"
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
@@ -61,12 +61,12 @@ namespace Lina::Graphics
         Shader() = default;
         ~Shader();
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
-        Shader& Construct(const std::string& text, bool usesGeometryShader);
-        void    SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
-        void    BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
+        Shader& Construct(const String& text, bool usesGeometryShader);
+        void    SetUniformBuffer(const String& name, UniformBuffer& buffer);
+        void    BindBlockToBuffer(uint32 bindingPoint, String blockName);
 
         const ShaderUniformData& GetUniformData() const
         {
@@ -84,7 +84,7 @@ namespace Lina::Graphics
         }
 
     private:
-        ShaderSpecification CheckForSpecification(const std::string& text);
+        ShaderSpecification CheckForSpecification(const String& text);
 
     private:
         ShaderUniformData   m_uniformData;

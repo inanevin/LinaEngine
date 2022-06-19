@@ -52,6 +52,7 @@ set(CMAKE_SUPPRESS_REGENERATION true)
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
 option(LINA_ENABLE_PROFILING "Enables profiling" ON)
 option(LINA_PRODUCTION_BUILD "Enable distribution ready build." OFF)
+option(LINA_UNITY_BUILDS "Faster build times with unity builds." ON)
 
 if(LINA_ENABLE_LOGGING)
 	add_compile_definitions(LINA_ENABLE_LOGGING)
@@ -65,17 +66,13 @@ if(LINA_PRODUCTION_BUILD)
 	add_compile_definitions(LINA_PRODUCTION_BUILD)
 endif()
 
-add_compile_definitions(LINA_AUDIO_OPENAL)
-add_compile_definitions(LINA_GRAPHICS_OPENGL)
-add_compile_definitions(LINA_INPUT_GLFW)
-# add_compile_definitions(LINA_PHYSICS_BULLET)
-add_compile_definitions(LINA_PHYSICS_PHYSX)
+if(LINA_UNITY_BUILDS)
+	set(UNITY_BUILD_VALUE ON)
+else()
+	set(UNITY_BUILD_VALUE OFF)
+endif()
 
 set(TARGET_ARCHITECTURE "x64")
-
-set(ASSIMP_LIB "assimp-vc142-mtd.lib")
-set(ASSIMP_DLL "assimp-vc142-mtd.dll")
-
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")

@@ -41,7 +41,7 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-    void EditorCameraSystem::Initialize(const std::string& name, Editor::LevelPanel& scenePanel)
+    void EditorCameraSystem::Initialize(const String& name, Editor::LevelPanel& scenePanel)
     {
         System::Initialize(name);
         m_levelPanel  = &scenePanel;

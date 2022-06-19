@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/PhysicsEngine.hpp"
-
 #include "Core/PhysicsCommon.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Registry.hpp"
@@ -60,12 +59,12 @@ namespace Lina::Physics
     PxMaterial*             m_pxDefaultMaterial = nullptr;
     PxPvd*                  m_pxPvd             = nullptr;
 
-    std::map<ECS::Entity, physx::PxRigidActor*> m_actors;
-    std::map<StringIDType, physx::PxMaterial*>  m_materials;
-    std::map<ECS::Entity, PxShape*>             m_shapes;
+    HashMap<ECS::Entity, physx::PxRigidActor*> m_actors;
+    HashMap<StringIDType, physx::PxMaterial*>  m_materials;
+    HashMap<ECS::Entity, PxShape*>             m_shapes;
 
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
-    std::map<StringIDType, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
+    HashMap<StringIDType, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
     void PhysicsEngine::Initialize(ApplicationMode appMode)
     {
@@ -580,12 +579,12 @@ namespace Lina::Physics
         return entt::null;
     }
 
-    std::map<ECS::Entity, physx::PxRigidActor*>& PhysicsEngine::GetAllActors()
+    HashMap<ECS::Entity, physx::PxRigidActor*>& PhysicsEngine::GetAllActors()
     {
         return m_actors;
     }
 
-    std::map<StringIDType, physx::PxMaterial*>& PhysicsEngine::GetMaterials()
+    HashMap<StringIDType, physx::PxMaterial*>& PhysicsEngine::GetMaterials()
     {
         return m_materials;
     }

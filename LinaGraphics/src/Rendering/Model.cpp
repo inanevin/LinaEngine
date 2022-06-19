@@ -43,14 +43,14 @@ namespace Lina::Graphics
         delete m_rootNode;
     }
 
-    void* Model::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Model::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Model Loader - Memory] -> Loading: {0}", path);
 
         SetSID(path);
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linamodeldata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linamodeldata";
         GetCreateAssetdata<ModelAssetData>(assetDataPath, m_assetData);
 
         ModelLoader::LoadModel(data, dataSize, this);
@@ -59,14 +59,14 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Model::LoadFromFile(const std::string& path)
+    void* Model::LoadFromFile(const String& path)
     {
         LINA_TRACE("[Model Loader - File] -> Loading: {0}", path);
 
         SetSID(path);
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linamodeldata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linamodeldata";
         GetCreateAssetdata<ModelAssetData>(assetDataPath, m_assetData);
 
         ModelLoader::LoadModel(path, this);

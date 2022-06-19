@@ -90,14 +90,14 @@ namespace Lina::Editor
                 // Save dump contents on a file.
                 if (ImGui::Button("Save", ImVec2(50, 28)))
                 {
-                    std::string fullPath = "";
+                    String fullPath = "";
                     fullPath             = EditorUtility::SaveFile(".txt", Graphics::Window::Get()->GetNativeWindow());
 
                     if (fullPath.compare("") != 0)
                     {
                         size_t      lastIndex  = fullPath.find_last_of("/");
-                        std::string folderPath = fullPath.substr(0, lastIndex);
-                        std::string fileName   = fullPath.substr(lastIndex + 1);
+                        String folderPath = fullPath.substr(0, lastIndex);
+                        String fileName   = fullPath.substr(lastIndex + 1);
                         // save later.
                     }
                 }
@@ -116,7 +116,7 @@ namespace Lina::Editor
                 if (ImGui::BeginChild("Log_", ImVec2(0, 0), false))
                 {
                     WidgetsUtility::IncrementCursorPosY(11);
-                    for (std::deque<LogDumpEntry>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
+                    for (Deque<LogDumpEntry>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
                     {
                         //if (!(m_logLevelFlags & it->m_dump.m_level))
                         //    continue;
@@ -172,7 +172,7 @@ namespace Lina::Editor
                         {
                             ImGui::SameLine();
                             ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 35);
-                            std::string text = "x " + std::to_string(it->m_count);
+                            String text = "x " + TO_STRING(it->m_count);
                             ImGui::Text(text.c_str());
                         }
 
@@ -192,7 +192,7 @@ namespace Lina::Editor
         LogDumpEntry entry(dump, 1);
 
         // Check if we have an entry with the same message and message type.
-        std::deque<LogDumpEntry>::iterator it = std::find_if(m_logDeque.begin(), m_logDeque.end(), [&ce = entry](const LogDumpEntry& m) -> bool { return (ce.m_dump.m_message.compare(m.m_dump.m_message) == 0 && ce.m_dump.m_level == m.m_dump.m_level); });
+        Deque<LogDumpEntry>::iterator it = std::find_if(m_logDeque.begin(), m_logDeque.end(), [&ce = entry](const LogDumpEntry& m) -> bool { return (ce.m_dump.m_message.compare(m.m_dump.m_message) == 0 && ce.m_dump.m_level == m.m_dump.m_level); });
 
         // If so, increase it's count so that we can display how many times the same entry is called.
         if (it != m_logDeque.end())

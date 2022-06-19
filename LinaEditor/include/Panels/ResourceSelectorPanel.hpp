@@ -69,7 +69,7 @@ namespace Lina::Editor
         virtual void Draw() override;
 
 
-        inline void SetCurrentTypeID(TypeID tid, const std::string& typeStr, const std::string& resourceSelectorID)
+        inline void SetCurrentTypeID(TypeID tid, const String& typeStr, const String& resourceSelectorID)
         {
             m_currentFileType   = tid;
             m_currentSelectorID = resourceSelectorID;
@@ -78,7 +78,7 @@ namespace Lina::Editor
         }
 
         StringIDType m_selectedResource  = 0;
-        std::string  m_currentSelectorID = "";
+        String  m_currentSelectorID = "";
     private:
         void DrawTop();
         void DrawBottom();
@@ -92,8 +92,8 @@ namespace Lina::Editor
         Utility::File*              m_selectedFile      = nullptr;
         Utility::Folder*            m_root              = nullptr;
         Graphics::Window*           m_window            = nullptr;
-        std::string                 m_searchFilter      = "";
-        std::string                 m_resourceStr       = "";
+        String                 m_searchFilter      = "";
+        String                 m_resourceStr       = "";
     };
 } // namespace Lina::Editor
 

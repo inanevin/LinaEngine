@@ -43,7 +43,7 @@ Timestamp: 6/7/2020 8:56:39 PM
 #include "Panels/EditorPanel.hpp"
 #include "imgui/imgui.h"
 
-#include <deque>
+#include "Data/Deque.hpp"
 
 namespace Lina::Editor
 {
@@ -119,7 +119,7 @@ namespace Lina::Editor
     private:
         unsigned int                    m_logLevelFlags = 0;
         Vector<LogLevelIconButton> m_logLevelIconButtons;
-        std::deque<LogDumpEntry>        m_logDeque;
+        Deque<LogDumpEntry>        m_logDeque;
     };
 } // namespace Lina::Editor
 

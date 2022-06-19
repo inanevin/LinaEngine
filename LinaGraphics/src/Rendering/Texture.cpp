@@ -43,7 +43,7 @@ namespace Lina::Graphics
         m_id = m_renderDevice->ReleaseTexture2D(m_id);
     }
 
-    void Texture::Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
+    void Texture::Construct(SamplerParameters samplerParams, bool shouldCompress, const String& path)
     {
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = Vector2i((int)m_bitmap->GetWidth(), (int)m_bitmap->GetHeight());
@@ -61,7 +61,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructCubemap(SamplerParameters samplerParams, const Vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
+    void Texture::ConstructCubemap(SamplerParameters samplerParams, const Vector<ArrayBitmap*>& data, bool shouldCompress, const String& path)
     {
         if (data.size() != 6)
         {
@@ -88,7 +88,7 @@ namespace Lina::Graphics
         cubeMapData.clear();
     }
 
-    void Texture::ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path)
+    void Texture::ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const String& path)
     {
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = size;
@@ -102,7 +102,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path)
+    void Texture::ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const String& path)
     {
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_size         = size;
@@ -116,7 +116,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
+    void Texture::ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder, const String& path)
     {
         // Frame buffer texture.
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
@@ -132,7 +132,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
+    void Texture::ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const String& path)
     {
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         m_bindMode     = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
@@ -144,7 +144,7 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void Texture::ConstructEmpty(SamplerParameters samplerParams, const std::string& path)
+    void Texture::ConstructEmpty(SamplerParameters samplerParams, const String& path)
     {
         m_renderDevice = RenderEngine::Get()->GetRenderDevice();
         SamplerParameters params;
@@ -159,11 +159,11 @@ namespace Lina::Graphics
         SetSID(path);
     }
 
-    void* Texture::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Texture::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Texture Loader - Memory] -> Loading: {0}", path);
 
-        const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
+        const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
         if (extension.compare("hdr") == 0)
             return LoadFromMemoryHDRI(path, data, dataSize);
 
@@ -179,8 +179,8 @@ namespace Lina::Graphics
             return static_cast<void*>(RenderEngine::Get()->GetDefaultTexture());
         }
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaimagedata";
         GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
 
         Construct(m_assetData->m_samplerParameters, false, path);
@@ -189,11 +189,11 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Texture::LoadFromFile(const std::string& path)
+    void* Texture::LoadFromFile(const String& path)
     {
         LINA_TRACE("[Texture Loader - File] -> Loading: {0}", path);
 
-        const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
+        const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
         if (extension.compare("hdr") == 0)
             return LoadFromFileHDRI(path);
 
@@ -209,8 +209,8 @@ namespace Lina::Graphics
             return static_cast<void*>(RenderEngine::Get()->GetDefaultTexture());
         }
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaimagedata";
         GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
 
         Construct(m_assetData->m_samplerParameters, false, path);
@@ -219,7 +219,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Texture::LoadFromFileHDRI(const std::string& path)
+    void* Texture::LoadFromFileHDRI(const String& path)
     {
         // Build pixel data.
         SetSID(path);
@@ -233,8 +233,8 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaimagedata";
         GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
         m_assetData->m_samplerParameters = samplerParams;
 
@@ -244,7 +244,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Texture::LoadFromMemoryHDRI(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Texture::LoadFromMemoryHDRI(const String& path, unsigned char* data, size_t dataSize)
     {
         // Build pixel data.
         SetSID(path);
@@ -258,8 +258,8 @@ namespace Lina::Graphics
         samplerParams.m_textureParams.m_internalPixelFormat                                   = PixelFormat::FORMAT_RGB16F;
         samplerParams.m_textureParams.m_pixelFormat                                           = PixelFormat::FORMAT_RGB;
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaimagedata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaimagedata";
         GetCreateAssetdata<ImageAssetData>(assetDataPath, m_assetData);
 
         ConstructHDRI(samplerParams, Vector2i(m_bitmap->GetWidth(), m_bitmap->GetHeight()), m_bitmap->GetHDRIPixelArray(), path);
@@ -268,7 +268,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void Texture::WriteToFile(const std::string& path)
+    void Texture::WriteToFile(const String& path)
     {
         if (m_bitmap == nullptr)
         {

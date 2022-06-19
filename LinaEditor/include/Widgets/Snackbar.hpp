@@ -40,7 +40,7 @@ Timestamp: 12/29/2021 11:56:59 PM
 #define Snackbar_HPP
 
 // Headers here.
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -56,7 +56,7 @@ namespace Lina::Editor
         /// <summary>
         /// Sends in a snackbar from the side of the window informing the user with the given text & log level.
         /// </summary>
-        static void PushSnackbar(LogLevel level, const std::string& text);
+        static void PushSnackbar(LogLevel level, const String& text);
 
     private:
     };

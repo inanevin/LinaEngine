@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    void FileWatcher::Initialize(const std::string& directory, float interval, FileWatchStatus targetStatus)
+    void FileWatcher::Initialize(const String& directory, float interval, FileWatchStatus targetStatus)
     {
         m_directory     = directory;
         m_interval      = interval;
@@ -40,8 +40,8 @@ namespace Lina
 
         Event::EventSystem::Get()->Connect<Event::ETick, &FileWatcher::OnTick>(this);
 
-        for (auto& file : std::filesystem::recursive_directory_iterator(m_directory))
-            m_paths[file.path().string()] = std::filesystem::last_write_time(file);
+        for (auto& file : std::filesystem::recursive_directory_iterator(m_directory.c_str()))
+            m_paths[String(file.path().string().c_str())] = std::filesystem::last_write_time(file);
     }
 
     void FileWatcher::OnTick(const Event::ETick& ev)
@@ -56,7 +56,7 @@ namespace Lina
 
             while (it != m_paths.end())
             {
-                if (!std::filesystem::exists(it->first))
+                if (!std::filesystem::exists(it->first.c_str()))
                 {
                     ReplaceAndCall(FileWatchStatus::Erased, it->first);
                     it = m_paths.erase(it);
@@ -65,35 +65,35 @@ namespace Lina
                     it++;
             }
 
-            for (auto& file : std::filesystem::recursive_directory_iterator(m_directory))
+            for (auto& file : std::filesystem::recursive_directory_iterator(m_directory.c_str()))
             {
                 auto currentLWT = std::filesystem::last_write_time(file);
 
-                if (!Contains(file.path().string()))
+                if (!Contains(file.path().string().c_str()))
                 {
-                    m_paths[file.path().string()] = currentLWT;
-                    ReplaceAndCall(FileWatchStatus::Created, file.path().string());
+                    m_paths[file.path().string().c_str()] = currentLWT;
+                    ReplaceAndCall(FileWatchStatus::Created, file.path().string().c_str());
                 }
                 else
                 {
-                    if (m_paths[file.path().string()] != currentLWT)
+                    if (m_paths[file.path().string().c_str()] != currentLWT)
                     {
-                        m_paths[file.path().string()] = currentLWT;
-                        ReplaceAndCall(FileWatchStatus::Modified, file.path().string());
+                        m_paths[file.path().string().c_str()] = currentLWT;
+                        ReplaceAndCall(FileWatchStatus::Modified, file.path().string().c_str());
                     }
                 }
             }
         }
     }
 
-    bool FileWatcher::Contains(const std::string& key)
+    bool FileWatcher::Contains(const String& key)
     {
         return m_paths.find(key) != m_paths.end();
     }
 
-    void FileWatcher::ReplaceAndCall(FileWatchStatus status, const std::string& path)
+    void FileWatcher::ReplaceAndCall(FileWatchStatus status, const String& path)
     {
-        std::string targetPath = path;
+        String targetPath = path;
         std::replace(targetPath.begin(), targetPath.end(), '\\', '/');
         m_changeCallback(status, targetPath);
     }

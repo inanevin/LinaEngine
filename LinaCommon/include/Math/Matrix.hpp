@@ -88,7 +88,7 @@ namespace Lina
 
         Transformation ToTransform();
 
-        std::string ToString();
+        String ToString();
 
         template <class Archive> void serialize(Archive& archive)
         {

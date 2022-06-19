@@ -39,7 +39,7 @@ Timestamp: 12/25/2021 12:38:18 PM
 #ifndef System_HPP
 #define System_HPP
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -59,7 +59,7 @@ namespace Lina::ECS
         System()          = default;
         virtual ~System() = default;
 
-        virtual void Initialize(const std::string& name);
+        virtual void Initialize(const String& name);
         virtual void UpdateComponents(float delta) = 0;
 
         virtual int GetPoolSize() const
@@ -72,7 +72,7 @@ namespace Lina::ECS
             m_isActive = active;
         }
 
-        inline const std::string& GetName() const
+        inline const String& GetName() const
         {
             return m_name;
         }
@@ -80,7 +80,7 @@ namespace Lina::ECS
     protected:
 
         int         m_poolSize = 0;
-        std::string m_name     = "";
+        String m_name     = "";
         bool        m_isActive = false;
     };
 } // namespace Lina::ECS

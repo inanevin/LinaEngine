@@ -42,8 +42,9 @@ Timestamp: 12/31/2021 8:18:10 PM
 // Headers here.
 #include "Resources/IResource.hpp"
 #include "Core/CommonReflection.hpp"
-#include <map>
+#include "Data/Map.hpp"
 #include "Data/Vector.hpp"
+#include "Data/Serialization/MapSerialization.hpp"
 
 namespace Lina::Graphics
 {
@@ -55,8 +56,8 @@ namespace Lina::Graphics
         ModelAssetData()  = default;
         ~ModelAssetData() = default;
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
         LINA_PROPERTY("Global Scale", "Float")
         float m_globalScale = 1.0f; // 1 meter file = 1 unit Lina
@@ -78,7 +79,7 @@ namespace Lina::Graphics
 
         bool                              m_regenerateConvexMeshes = false;
         bool                              m_triangulate            = true;
-        std::map<int, Vector<uint8>> m_convexMeshData;
+        Map<int, Vector<uint8>> m_convexMeshData;
 
         template <class Archive>
         void serialize(Archive& archive)

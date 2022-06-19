@@ -39,7 +39,7 @@ Timestamp: 10/30/2020 9:17:05 AM
 #ifndef RenderSettings_HPP
 #define RenderSettings_HPP
 
-#include <string>
+#include <Data/String.hpp>
 #include "Core/CommonReflection.hpp"
 
 namespace Lina::Graphics

@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void ReflectionSystem::Initialize(const std::string& name, ApplicationMode& appMode)
+    void ReflectionSystem::Initialize(const String& name, ApplicationMode& appMode)
     {
         System::Initialize(name);
         Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &ReflectionSystem::OnPlayModeChanged>(this);

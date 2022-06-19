@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void System::Initialize(const std::string& name)
+    void System::Initialize(const String& name)
     {
         m_name = name;
     }

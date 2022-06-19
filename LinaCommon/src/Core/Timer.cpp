@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    std::map<std::string, Timer*> Timer::s_activeTimers;
+    HashMap<String, Timer*> Timer::s_activeTimers;
 
     void Timer::Stop()
     {
@@ -42,7 +42,7 @@ namespace Lina
         m_active                                                        = false;
     }
 
-    Timer& Timer::GetTimer(const std::string& name)
+    Timer& Timer::GetTimer(const String& name)
     {
         if (s_activeTimers.find(name) == s_activeTimers.end())
             s_activeTimers[name] = new Timer();
@@ -52,7 +52,7 @@ namespace Lina
 
     void Timer::UnloadTimers()
     {
-        for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
+        for (HashMap<String, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
             delete it->second;
 
         s_activeTimers.clear();

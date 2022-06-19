@@ -41,28 +41,28 @@ namespace Lina::Graphics
     char* g_materialSurfaceTypeStr[2]{"Opaque", "Transparent"};
     char* g_materialWorkflowTypeStr[2]{"Plastic", "Metallic"};
 
-    bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword)
+    bool LoadTextWithIncludes(String& output, const String& includeKeyword)
     {
         auto*              storage       = Resources::ResourceStorage::Get();
         auto&              includesCache = storage->GetCache<ShaderInclude>();
-        std::istringstream iss(output);
+        std::istringstream iss(output.c_str());
         std::stringstream  ss;
 
         for (std::string line; std::getline(iss, line);)
         {
-            if (line.find(includeKeyword) == std::string::npos)
+            if (line.find(includeKeyword.c_str()) == String::npos)
                 ss << line << "\n";
             else
             {
-                std::string includeFileName = Utility::Split(line, ' ')[1];
+                String includeFileName = Utility::Split(line.c_str(), ' ')[1];
                 includeFileName             = includeFileName.substr(1, includeFileName.length() - 2);
-                const std::string includeID = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(includeFileName));
-                std::string       toAppend  = "";
+                const String includeID = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(includeFileName));
+                String       toAppend  = "";
 
                 for (auto& incRes : includesCache)
                 {
                     ShaderInclude*     include = storage->GetResource<ShaderInclude>(incRes.first);
-                    const std::string& name    = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(include->GetPath()));
+                    const String& name    = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(include->GetPath()));
 
                     if (name.compare(includeID) == 0)
                     {
@@ -71,21 +71,21 @@ namespace Lina::Graphics
                     }
                 }
 
-                ss << toAppend << "\n";
+                ss << toAppend.c_str() << "\n";
             }
         }
 
-        output = ss.str();
+        output = ss.str().c_str();
         return true;
     }
 
-    bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword)
+    bool LoadTextFileWithIncludes(String& output, const String& fileName, const String& includeKeyword)
     {
         auto*         storage       = Resources::ResourceStorage::Get();
         auto&         includesCache = storage->GetCache<ShaderInclude>();
         std::ifstream file;
         file.open(fileName.c_str());
-        std::string       filePath = Utility::GetFilePath(fileName);
+        String       filePath = Utility::GetFilePath(fileName);
         std::stringstream ss;
         std::string       line;
 
@@ -93,23 +93,23 @@ namespace Lina::Graphics
         {
             while (file.good())
             {
-                getline(file, line);
+                std::getline(file, line);
 
-                if (line.find(includeKeyword) == std::string::npos)
+                if (line.find(includeKeyword.c_str()) == String::npos)
                     ss << line << "\n";
 
                 else
                 {
-                    std::string includeFileName = Utility::Split(line, ' ')[1];
+                    String includeFileName = Utility::Split(line.c_str(), ' ')[1];
                     includeFileName             = includeFileName.substr(1, includeFileName.length() - 2);
-                    const std::string includeID = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(includeFileName));
+                    const String includeID = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(includeFileName));
 
-                    std::string toAppend = "";
+                    String toAppend = "";
 
                     for (auto& incRes : includesCache)
                     {
                         ShaderInclude*     include = storage->GetResource<ShaderInclude>(incRes.first);
-                        const std::string& name    = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(include->GetPath()));
+                        const String& name    = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(include->GetPath()));
 
                         if (name.compare(includeID) == 0)
                         {
@@ -118,7 +118,7 @@ namespace Lina::Graphics
                         }
                     }
 
-                    ss << toAppend << "\n";
+                    ss << toAppend.c_str() << "\n";
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        output = ss.str();
+        output = ss.str().c_str();
         return true;
     }
 

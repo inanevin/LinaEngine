@@ -37,7 +37,7 @@ namespace Lina::Editor
         {
             // Resize string callback
             // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
-            std::string* str = user_data->Str;
+            String* str = user_data->Str;
             IM_ASSERT(data->Buf == str->c_str());
             str->resize(data->BufTextLen);
             data->Buf = (char*)str->c_str();

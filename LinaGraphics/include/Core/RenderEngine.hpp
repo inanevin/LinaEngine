@@ -61,7 +61,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include <functional>
 #include <queue>
-#include <set>
+#include "Data/Set.hpp"
 
 namespace Lina
 {
@@ -475,7 +475,7 @@ namespace Lina::Graphics
 
         std::queue<DebugLine>                m_debugLineQueue;
         std::queue<DebugIcon>                m_debugIconQueue;
-        std::map<Shader*, PostProcessEffect> m_postProcessMap;
+        Map<Shader*, PostProcessEffect> m_postProcessMap;
     };
 
 } // namespace Lina::Graphics

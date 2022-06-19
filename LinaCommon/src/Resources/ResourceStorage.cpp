@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina::Resources
 {
     ResourceStorage*              ResourceStorage::s_instance = nullptr;
-    std::set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
+    Set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
 
     void ResourceStorage::Shutdown()
     {
@@ -93,7 +93,7 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
     }
 
-    TypeID ResourceStorage::GetTypeIDFromExtension(const std::string& extension)
+    TypeID ResourceStorage::GetTypeIDFromExtension(const String& extension)
     {
         bool   found = false;
         TypeID tid   = -1;

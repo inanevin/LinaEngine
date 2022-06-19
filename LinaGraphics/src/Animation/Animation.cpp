@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    bool Animation::LoadAnimation(const std::string& animPath)
+    bool Animation::LoadAnimation(const String& animPath)
     {
         LINA_TRACE("Loading animation archive: {0}", animPath);
         return true;

@@ -47,7 +47,7 @@ namespace Lina::Graphics
             stbi_image_free(m_hdriPixels);
     }
 
-    int ArrayBitmap::Load(const std::string& fileName)
+    int ArrayBitmap::Load(const String& fileName)
     {
         m_pixels = stbi_load(fileName.c_str(), &m_width, &m_height, &m_numComps, 0);
         LINA_ASSERT(m_pixels != nullptr, "Bitmap could not be loaded!");
@@ -67,13 +67,13 @@ namespace Lina::Graphics
         stbi_flip_vertically_on_write(flip);
     }
 
-    void ArrayBitmap::Save(const std::string& path, int quality)
+    void ArrayBitmap::Save(const String& path, int quality)
     {
         if (m_isHDRI)
             stbi_write_hdr(path.c_str(), m_width, m_height, m_numComps, m_hdriPixels);
         else
         {
-            const std::string extension = Utility::GetFileExtension(path);
+            const String extension = Utility::GetFileExtension(path);
 
             if (extension.compare("png") == 0)
                 stbi_write_png(path.c_str(), m_width, m_height, m_numComps, static_cast<const void*>(m_pixels), m_width * m_numComps);

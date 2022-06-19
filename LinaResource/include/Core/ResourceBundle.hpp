@@ -61,7 +61,7 @@ namespace Lina::Resources
         MemoryEntry() = default;
         ~MemoryEntry();
 
-        MemoryEntry(int priority, const std::string& path, Vector<unsigned char>& data)
+        MemoryEntry(int priority, const String& path, Vector<unsigned char>& data)
         {
             m_priority = priority;
             m_path     = path;
@@ -69,7 +69,7 @@ namespace Lina::Resources
         }
 
         int                        m_priority = 100;
-        std::string                m_path     = "";
+        String                m_path     = "";
         Vector<unsigned char> m_data;
     };
 
@@ -119,7 +119,7 @@ namespace Lina::Resources
         /// <summary>
         /// Stores the given memory resource into a priority queue.
         /// </summary>
-        void PushResourceFromMemory(const std::string& path, Vector<unsigned char>& data);
+        void PushResourceFromMemory(const String& path, Vector<unsigned char>& data);
 
         /// <summary>
         /// Loads all memory buffers stored in memory resource queue.
@@ -139,7 +139,7 @@ namespace Lina::Resources
         /// <summary>
         /// Loads a single file resource.
         /// </summary>
-        void LoadSingleFile(TypeID tid, const std::string& path);
+        void LoadSingleFile(TypeID tid, const String& path);
 
         std::priority_queue<MemoryEntry, Vector<MemoryEntry>, CompareMemEntry> m_memoryResources;
         std::priority_queue<FileEntry, Vector<FileEntry>, CompareFileEntry>    m_fileResources;

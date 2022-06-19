@@ -43,7 +43,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
 
-#include <map>
+#include "Data/Map.hpp"
 #include "Data/Vector.hpp"
 
 namespace Lina
@@ -70,7 +70,7 @@ namespace Lina::ECS
         SpriteRendererSystem() = default;
         ~SpriteRendererSystem();
 
-        virtual void Initialize(const std::string& name) override;
+        virtual void Initialize(const String& name) override;
         virtual void UpdateComponents(float delta) override;
 
         void Render(Graphics::Material& material, const Matrix& transformIn);
@@ -80,7 +80,7 @@ namespace Lina::ECS
         Graphics::RenderDevice*                       m_renderDevice = nullptr;
         Graphics::RenderEngine*                       m_renderEngine = nullptr;
         Graphics::Mesh*                               m_quadMesh     = nullptr;
-        std::map<Graphics::Material*, BatchModelData> m_renderBatch;
+        Map<Graphics::Material*, BatchModelData> m_renderBatch;
     };
 } // namespace Lina::ECS
 

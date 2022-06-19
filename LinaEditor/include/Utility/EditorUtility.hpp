@@ -39,7 +39,7 @@ Timestamp: 5/9/2020 1:22:23
 #ifndef EditorUtility_HPP
 #define EditorUtility_HPP
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Editor
 {
@@ -50,12 +50,12 @@ namespace Lina::Editor
         EditorUtility() = default;
         ~EditorUtility() = default;
 
-        static bool        CreateFolderInPath(const std::string& path);
-        static bool        DeleteDirectory(const std::string& path);
-        static std::string RemoveExtensionFromFilename(const std::string& filename);
-        static std::string OpenFile(const char* filter, void* window);
-        static std::string SaveFile(const char* filter, void* window);
-        static std::string SelectPath(void* window);
+        static bool        CreateFolderInPath(const String& path);
+        static bool        DeleteDirectory(const String& path);
+        static String RemoveExtensionFromFilename(const String& filename);
+        static String OpenFile(const char* filter, void* window);
+        static String SaveFile(const char* filter, void* window);
+        static String SelectPath(void* window);
         static bool        ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
 
     private:

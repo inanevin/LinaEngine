@@ -40,7 +40,7 @@ Timestamp: 1/4/2022 5:33:09 PM
 #define ProgressPanel_HPP
 
 // Headers here.
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Editor
 {
@@ -52,7 +52,7 @@ namespace Lina::Editor
 		ProgressPanel() = default;
 		~ProgressPanel() = default;
 
-		void Draw(const std::string& currentResource, float percentage);
+		void Draw(const String& currentResource, float percentage);
 	
 	private:
 	

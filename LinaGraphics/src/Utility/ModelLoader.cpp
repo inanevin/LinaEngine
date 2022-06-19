@@ -141,7 +141,7 @@ namespace Lina::Graphics
 
     bool ModelLoader::LoadModel(const aiScene* scene, Model* model)
     {
-        const std::string runningDirectory = Utility::GetRunningDirectory();
+        const String runningDirectory = Utility::GetRunningDirectory();
 
         model->m_numMaterials  = scene->mNumMaterials;
         model->m_numMeshes     = scene->mNumMeshes;
@@ -218,14 +218,14 @@ namespace Lina::Graphics
         importFlags |= aiProcess_GlobalScale;
         importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", assetData->m_globalScale * 100.0f);
 
-        const std::string ext   = "." + Utility::GetFileExtension(model->GetPath());
+        const String ext   = "." + Utility::GetFileExtension(model->GetPath());
         const aiScene*    scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
         const char*       err   = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
         return LoadModel(scene, model);
     }
 
-    bool ModelLoader::LoadModel(const std::string& fileName, Model* model)
+    bool ModelLoader::LoadModel(const String& fileName, Model* model)
     {
         // Get the importer & set assimp scene.
         Assimp::Importer importer;

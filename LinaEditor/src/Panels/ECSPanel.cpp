@@ -49,7 +49,7 @@ namespace Lina::Editor
     using namespace ECS;
     using namespace Lina;
 
-    std::map<Entity, bool> m_visibilityMouseMap;
+    Map<Entity, bool> m_visibilityMouseMap;
     bool                   m_isMouseDragging;
 
     EntitiesPanel::~EntitiesPanel()
@@ -86,7 +86,7 @@ namespace Lina::Editor
         if (entity == m_selectedEntity)
             flags |= ImGuiTreeNodeFlags_Selected;
 
-        const std::string treeLabel = data.m_name;
+        const String treeLabel = data.m_name;
         bool              open      = WidgetsUtility::TreeNode((void*)(intptr_t)entity, flags, treeLabel.c_str(), hasChildren);
 
         // Select entity.

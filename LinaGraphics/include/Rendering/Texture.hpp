@@ -56,19 +56,19 @@ namespace Lina::Graphics
         Texture() = default;
         ~Texture();
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
-        void*         LoadFromFileHDRI(const std::string& path);
-        void*         LoadFromMemoryHDRI(const std::string& path, unsigned char* data, size_t dataSize);
-        void          WriteToFile(const std::string& path);
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
+        void*         LoadFromFileHDRI(const String& path);
+        void*         LoadFromMemoryHDRI(const String& path, unsigned char* data, size_t dataSize);
+        void          WriteToFile(const String& path);
 
-        void Construct(SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
-        void ConstructCubemap(SamplerParameters samplerParams, const Vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-        void ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const std::string& path = "");
-        void ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const std::string& path = "");
-        void ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
-        void ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
-        void ConstructEmpty(SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
+        void Construct(SamplerParameters samplerParams, bool shouldCompress, const String& path = "");
+        void ConstructCubemap(SamplerParameters samplerParams, const Vector<class ArrayBitmap*>& data, bool compress, const String& path = "");
+        void ConstructHDRI(SamplerParameters samplerParams, const Vector2i& size, float* data, const String& path = "");
+        void ConstructRTCubemapTexture(Vector2i size, SamplerParameters samplerParams, const String& path = "");
+        void ConstructRTTexture(Vector2i size, SamplerParameters samplerParams, bool useBorder = false, const String& path = "");
+        void ConstructRTTextureMSAA(Vector2i size, SamplerParameters samplerParams, int sampleCount, const String& path = "");
+        void ConstructEmpty(SamplerParameters samplerParams = SamplerParameters(), const String& path = "");
 
         inline ImageAssetData* GetAssetData()
         {

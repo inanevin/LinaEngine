@@ -43,7 +43,7 @@ namespace Lina::Editor
     float       m_swayDuration    = 0.2f;
     float       m_timer           = 0.0f;
     float       m_stayAliveTime   = 4.0f;
-    std::string m_currentText     = "";
+    String m_currentText     = "";
     LogLevel    m_currentLogLevel = LogLevel::None;
     ImVec2      size              = ImVec2(350, 50);
 
@@ -105,7 +105,7 @@ namespace Lina::Editor
         ImGui::PopStyleVar();
     }
 
-    void Snackbar::PushSnackbar(LogLevel level, const std::string& text)
+    void Snackbar::PushSnackbar(LogLevel level, const String& text)
     {
         m_timer           = 0.0f;
         m_currentText     = text;

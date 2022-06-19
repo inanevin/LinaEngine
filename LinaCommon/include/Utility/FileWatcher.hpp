@@ -60,23 +60,23 @@ namespace Lina
         FileWatcher(){};
         ~FileWatcher(){};
 
-        void Initialize(const std::string& directory, float interval, FileWatchStatus targetStatus);
+        void Initialize(const String& directory, float interval, FileWatchStatus targetStatus);
 
     public:
-        std::function<void(FileWatchStatus status, const std::string& fullPath)> m_changeCallback;
+        std::function<void(FileWatchStatus status, const String& fullPath)> m_changeCallback;
 
     private:
         void OnTick(const Event::ETick&);
-        bool Contains(const std::string& key);
-        void ReplaceAndCall(FileWatchStatus status, const std::string& path);
+        bool Contains(const String& key);
+        void ReplaceAndCall(FileWatchStatus status, const String& path);
 
     private:
-        std::string                                                      m_directory        = "";
+        String                                                      m_directory        = "";
         float                                                            m_totalTime        = 0.0f;
         float                                                            m_interval         = 0.0f;
         float                                                            m_lastCheckTime    = 0.0f;
         FileWatchStatus                                                  m_targetStatus     = FileWatchStatus::None;
-        std::unordered_map<std::string, std::filesystem::file_time_type> m_paths;
+        HashMap<String, std::filesystem::file_time_type> m_paths;
     };
 } // namespace Lina
 

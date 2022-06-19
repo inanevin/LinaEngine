@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void FreeLookSystem::Initialize(const std::string& name)
+    void FreeLookSystem::Initialize(const String& name)
     {
         System::Initialize(name);
         m_inputEngine = Input::InputEngine::Get();

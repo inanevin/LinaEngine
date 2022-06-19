@@ -103,13 +103,13 @@ namespace Lina::Physics
         /// <summary>
         /// Returns all Dynamic bodies, regardless of whether they are static or not.
         /// </summary>
-        std::map<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
+        HashMap<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
 
         /// <summary>
         /// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
         /// value is the PhysX object.
         /// </summary>
-        std::map<StringIDType, physx::PxMaterial*>& GetMaterials();
+        HashMap<StringIDType, physx::PxMaterial*>& GetMaterials();
 
         /// <summary>
         /// Returns true if the given entity is alive in the physics world, static or dynamic.

@@ -40,7 +40,7 @@ Timestamp: 12/25/2021 12:21:41 PM
 #define CommonWindow_HPP
 
 // Headers here.
-#include <string>
+#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -53,7 +53,7 @@ namespace Lina
 
     struct WindowProperties
     {
-        std::string  m_title;
+        String  m_title;
         int          m_width                = 1440;
         int          m_height               = 900;
         int          m_monitorWidth         = 0;
@@ -82,7 +82,7 @@ namespace Lina
             m_height = 900;
         }
 
-        WindowProperties(const std::string& title, unsigned int width, unsigned int height)
+        WindowProperties(const String& title, unsigned int width, unsigned int height)
         {
             m_title  = title;
             m_width  = width;

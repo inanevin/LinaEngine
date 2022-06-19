@@ -42,7 +42,7 @@ Timestamp: 12/25/2021 1:24:11 PM
 // Headers here.
 #include "Utility/StringId.hpp"
 #include "Data/Vector.hpp"
-#include <string>
+#include <Data/String.hpp>
 #include <filesystem>
 
 namespace Lina::Utility
@@ -54,8 +54,8 @@ namespace Lina::Utility
         DirectoryItem()  = default;
         ~DirectoryItem() = default;
 
-        std::string                     m_fullPath   = "";
-        std::string                     m_name       = ""; // name without extension
+        String                     m_fullPath   = "";
+        String                     m_name       = ""; // name without extension
         Folder*                         m_parent     = nullptr;
         TypeID                          m_typeID     = 0;
         StringIDType                    m_sid        = 0;
@@ -68,9 +68,9 @@ namespace Lina::Utility
         File()  = default;
         ~File() = default;
 
-        std::string m_folderPath = "";
-        std::string m_extension  = "";
-        std::string m_fullName   = ""; // name with extension
+        String m_folderPath = "";
+        String m_extension  = "";
+        String m_fullName   = ""; // name with extension
     };
 
     struct Folder : public DirectoryItem

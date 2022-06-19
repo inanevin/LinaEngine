@@ -244,15 +244,10 @@ namespace Lina::Editor
 
         ImPlot::GetStyle().AntiAliasedLines = true;
 
-#ifdef LINA_GRAPHICS_OPENGL
         GLFWwindow* window = static_cast<GLFWwindow*>(Graphics::Window::Get()->GetNativeWindow());
         // Setup Platform/Renderer bindings
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
-
-#else
-        LINA_ERR("Undefined platform for IMGUI!");
-#endif
 
         m_drawParameters   = Graphics::DrawParameterHelper::GetGUILayer();
         m_shouldDrawSplash = true;
@@ -336,7 +331,6 @@ namespace Lina::Editor
         // Set draw params first.
         Graphics::RenderEngine::Get()->SetDrawParameters(m_drawParameters);
 
-#ifdef LINA_GRAPHICS_OPENGL
         // Setup
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -388,7 +382,6 @@ namespace Lina::Editor
             glfwMakeContextCurrent(backup_current_context);
         }
 
-#endif
     }
 
     float GUILayer::GetDPIScale()
@@ -412,14 +405,14 @@ namespace Lina::Editor
         }
         else if (item == MenuBarElementType::PackageProject)
         {
-            std::string fullPath = "";
+            String fullPath = "";
             fullPath             = EditorUtility::SaveFile(".linabundle", Graphics::Window::Get()->GetNativeWindow());
 
             if (fullPath.compare("") != 0)
             {
                 size_t      lastIndex  = fullPath.find_last_of("/");
-                std::string folderPath = fullPath.substr(0, lastIndex);
-                std::string fileName   = fullPath.substr(lastIndex + 1);
+                String folderPath = fullPath.substr(0, lastIndex);
+                String fileName   = fullPath.substr(lastIndex + 1);
                 Resources::ResourceManager::Get()->PackageProject(folderPath, fileName);
             }
         }
@@ -432,7 +425,7 @@ namespace Lina::Editor
         }
         else if (item == MenuBarElementType::SaveLevel)
         {
-            std::string fullPath = "";
+            String fullPath = "";
             fullPath             = EditorUtility::SaveFile(".linalevel", Graphics::Window::Get()->GetNativeWindow());
 
             if (fullPath.compare("") != 0)
@@ -442,7 +435,7 @@ namespace Lina::Editor
         }
         else if (item == MenuBarElementType::LoadLevel)
         {
-            std::string fullPath = "";
+            String fullPath = "";
             fullPath             = EditorUtility::OpenFile(".linalevel", Graphics::Window::Get()->GetNativeWindow());
 
             if (fullPath.compare("") != 0)
@@ -565,7 +558,7 @@ namespace Lina::Editor
         ImGui::BeginChild("text", ImVec2(640 * GetDPIScale(), 90 * GetDPIScale()), false, ImGuiWindowFlags_NoDecoration);
         ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
         ImGui::Text(m_currentlyLoadingResource.c_str());
-        std::string loadData = std::to_string(m_percentage) + "%";
+        String loadData = TO_STRING(m_percentage) + "%";
         ImGui::Text(loadData.c_str());
         WidgetsUtility::IncrementCursorPosY(10);
         WidgetsUtility::HorizontalDivider(2.0f);
@@ -615,7 +608,7 @@ namespace Lina::Editor
         {
             ImGui::Text("FPS Overlay");
             ImGui::Separator();
-            std::string fpsText = std::to_string(Engine::Get()->GetCurrentFPS()) + " Frames per second";
+            String fpsText = TO_STRING(Engine::Get()->GetCurrentFPS()) + " Frames per second";
             ImGui::Text(fpsText.c_str());
         }
         ImGui::End();

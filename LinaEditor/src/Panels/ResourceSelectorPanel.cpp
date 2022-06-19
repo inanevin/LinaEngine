@@ -92,7 +92,7 @@ namespace Lina::Editor
 
     void ResourceSelectorPanel::DrawTop()
     {
-        const std::string selectText = "Select Resource: " + m_resourceStr;
+        const String selectText = "Select Resource: " + m_resourceStr;
         WidgetsUtility::PropertyLabel(selectText.c_str(), false);
 
         WidgetsUtility::PropertyLabel("Filter");
@@ -142,8 +142,8 @@ namespace Lina::Editor
             if (m_storage->GetTypeIDFromExtension(file->m_extension) != m_currentFileType)
                 continue;
 
-            const std::string fileNameLower  = Utility::ToLower(file->m_name);
-            const std::string searchStrLower = Utility::ToLower(m_searchFilter);
+            const String fileNameLower  = Utility::ToLower(file->m_name);
+            const String searchStrLower = Utility::ToLower(m_searchFilter);
 
             if (m_searchFilter.compare("") != 0 && fileNameLower.find(searchStrLower) != 0)
                 continue;

@@ -38,7 +38,7 @@ Timestamp: 10/1/2020 9:26:21 AM
 
 #include "ECS/Component.hpp"
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::ECS
 {
@@ -46,11 +46,11 @@ namespace Lina::ECS
     struct SpriteRendererComponent : public Component
     {
         int         m_materialID    = -1;
-        std::string m_materialPaths = "";
+        String m_materialPaths = "";
 
         // Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
         int         m_selectedMatID   = -1;
-        std::string m_selectedMatPath = "";
+        String m_selectedMatPath = "";
 
         template <class Archive> void serialize(Archive& archive)
         {

@@ -78,7 +78,7 @@ namespace Lina::Editor
 
         // Logo animation textures
         for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
-            linaLogoAnimation[i] = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/LinaLogoJitterAnimation/LogoAnimation (" + std::to_string(i + 1) + ").png");
+            linaLogoAnimation[i] = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/LinaLogoJitterAnimation/LogoAnimation (" + TO_STRING(i + 1) + ").png");
 
         linaLogoID = linaLogoAnimation[0]->GetID();
 
@@ -340,10 +340,10 @@ namespace Lina::Editor
                 {
                     auto& appInfo = Engine::Get()->GetAppInfo();
 
-                    const std::string tooltipStr = std::string("Lina Engine - Build: ") + std::string(LINA_BUILD) + "\n" +
-                                                   std::string("Version: ") + std::to_string(LINA_MAJOR) + "." + std::to_string(LINA_MINOR) +
-                                                   "." + std::to_string(LINA_PATCH) +
-                                                   std::string("\nApp: ") + std::string(appInfo.m_appName);
+                    const String tooltipStr = String("Lina Engine - Build: ") + String(LINA_BUILD) + "\n" +
+                                                   String("Version: ") + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) +
+                                                   "." + TO_STRING(LINA_PATCH) +
+                                                   String("\nApp: ") + String(appInfo.m_appName);
 
                     const ImVec2 tooltipRectMin = ImGui::GetMousePos();
                     const ImVec2 tooltipRectMax = ImVec2(tooltipRectMin.x + 140, tooltipRectMin.y + 100);
@@ -366,7 +366,7 @@ namespace Lina::Editor
     void HeaderPanel::DrawMenuBarChild()
     {
         ImGuiWindowFlags  headerFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_MenuBar;
-        const std::string childID     = std::string(m_id) + "_menubar";
+        const String childID     = String(m_id) + "_menubar";
         ImGui::BeginChild(childID.c_str(), ImVec2(0, ImGui::GetFrameHeight() - 2), false, headerFlags);
 
         // Draw menu bar.

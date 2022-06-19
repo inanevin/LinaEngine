@@ -78,12 +78,12 @@ namespace Lina::Graphics
             return m_materialSlot;
         }
 
-        void SetName(const std::string& name)
+        void SetName(const String& name)
         {
             m_name = name;
         }
 
-        std::string& GetName()
+        String& GetName()
         {
             return m_name;
         }
@@ -114,7 +114,7 @@ namespace Lina::Graphics
     protected:
         friend class ModelLoader;
 
-        std::string             m_name = "";
+        String             m_name = "";
         Vector<uint32>     m_indices;
         Vector<BufferData> m_bufferElements;
         VertexArray             m_vertexArray;

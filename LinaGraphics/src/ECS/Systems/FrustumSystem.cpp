@@ -43,7 +43,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void FrustumSystem::Initialize(const std::string& name)
+    void FrustumSystem::Initialize(const String& name)
     {
         System::Initialize(name);
         m_renderEngine = Graphics::RenderEngine::Get();

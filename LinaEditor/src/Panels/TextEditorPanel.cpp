@@ -268,14 +268,14 @@ namespace Lina::Editor
        
     }
 
-    void TextEditorPanel::SaveCurrentFile(const std::string& text)
+    void TextEditorPanel::SaveCurrentFile(const String& text)
     {
         if (m_currentFile == nullptr)
             return;
 
         Utility::RewriteFileContents(m_currentFile, text);
 
-        const std::string  path   = m_currentFile->m_fullPath;
+        const String  path   = m_currentFile->m_fullPath;
         const StringIDType sid    = m_currentFile->m_sid;
         TypeID             tid    = 0;
         bool               reload = false;

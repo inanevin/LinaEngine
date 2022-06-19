@@ -176,7 +176,7 @@ namespace Lina::Graphics
         for (auto& shaderResource : shaderCache)
         {
             Shader*           shader = storage->GetResource<Shader>(shaderResource.first);
-            const std::string path   = shader->GetPath();
+            const String path   = shader->GetPath();
 
             if (path.compare("Resources/Engine/Shaders/Unlit/Unlit.linaglsl") == 0)
                 m_standardUnlitShader = shader;
@@ -614,7 +614,7 @@ namespace Lina::Graphics
                 m_pLightShadowDepthMaterial.SetFloat(UF_LIGHTFARPLANE, farPlane);
 
                 for (unsigned int j = 0; j < 6; j++)
-                    m_pLightShadowDepthMaterial.SetMatrix4(std::string(UF_SHADOWMATRICES) + "[" + std::to_string(j) + "]", shadowTransforms[j]);
+                    m_pLightShadowDepthMaterial.SetMatrix4(String(UF_SHADOWMATRICES) + "[" + TO_STRING(j).c_str() + "]", shadowTransforms[j]);
 
                 // Draw scene
                 DrawSceneObjects(m_shadowMapDrawParams, &m_pLightShadowDepthMaterial, false);
@@ -975,7 +975,7 @@ namespace Lina::Graphics
 
             for (int i = 0; i < m_lightingSystem.GetPointLights().size(); i++)
             {
-                std::string textureName = std::string(MAT_MAPS_SHADOWDEPTH) + "[" + std::to_string(i) + "]";
+                String textureName = String(MAT_MAPS_SHADOWDEPTH) + "[" + TO_STRING(i).c_str() + "]";
                 if (std::get<1>(tuple[i])->m_castsShadows)
                     data->SetTexture(textureName, &m_pLightShadowTextures[i], TextureBindMode::BINDTEXTURE_CUBEMAP);
                 else
@@ -1131,8 +1131,8 @@ namespace Lina::Graphics
         // Setup shader data.
         uint32 equirectangularShader = m_hdriEquirectangularShader->GetID();
         m_renderDevice.SetShader(equirectangularShader);
-        m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_TEXTURE2D), 0);
-        m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_ISACTIVE), 1);
+        m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + String(MAT_EXTENSION_TEXTURE2D), 0);
+        m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + String(MAT_EXTENSION_ISACTIVE), 1);
         m_renderDevice.UpdateShaderUniformMatrix(equirectangularShader, UF_MATRIX_PROJECTION, captureProjection);
         m_renderDevice.SetTexture(hdriTexture.GetID(), hdriTexture.GetSamplerID(), 0);
         m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
@@ -1174,8 +1174,8 @@ namespace Lina::Graphics
         // Build & setup shader info.
         uint32 irradianceShader = m_hdriIrradianceShader->GetID();
         m_renderDevice.SetShader(irradianceShader);
-        m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
-        m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
+        m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + String(MAT_EXTENSION_TEXTURE2D), 0);
+        m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + String(MAT_EXTENSION_ISACTIVE), 1);
         m_renderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_PROJECTION, captureProjection);
         m_renderDevice.SetTexture(m_hdriCubemap.GetID(), m_hdriCubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
         m_renderDevice.SetViewport(Vector2::Zero, irradianceMapResolution);
@@ -1210,8 +1210,8 @@ namespace Lina::Graphics
         // Setup shader data.
         uint32 prefilterShader = m_hdriPrefilterShader->GetID();
         m_renderDevice.SetShader(prefilterShader);
-        m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
-        m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
+        m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + String(MAT_EXTENSION_TEXTURE2D), 0);
+        m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + String(MAT_EXTENSION_ISACTIVE), 1);
         m_renderDevice.UpdateShaderUniformFloat(prefilterShader, MAT_ENVIRONMENTRESOLUTION, 512.0f);
         m_renderDevice.UpdateShaderUniformMatrix(prefilterShader, UF_MATRIX_PROJECTION, captureProjection);
         m_renderDevice.SetTexture(m_hdriCubemap.GetID(), m_hdriCubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);

@@ -80,12 +80,12 @@ namespace Lina::Resources
         /// <summary>
         /// StartFrame packing the project Resource contents into a Lina Bundle.
         /// </summary>
-        void PackageProject(const std::string& path, const std::string& name);
+        void PackageProject(const String& path, const String& name);
 
         /// <summary>
         /// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
         /// </summary>
-        void ImportResourceBundle(const std::string& path, const std::string& name);
+        void ImportResourceBundle(const String& path, const String& name);
 
         /// <summary>
         /// !! Root folder will be nullptr during Standalone builds, which are required to run through the package import system instead of a file system.
@@ -99,7 +99,7 @@ namespace Lina::Resources
         /// Working the working directory as its returned from filesystem.
         /// </summary>
         /// <returns></returns>
-        inline const std::string& GetWorkingDir()
+        inline const String& GetWorkingDir()
         {
             return m_workingDirectory;
         }
@@ -108,7 +108,7 @@ namespace Lina::Resources
         /// Returns the modified working directory. (replaced the \\ with / from the filesystem path)
         /// </summary>
         /// <returns></returns>
-        inline const std::string& GetWorkingDirReplaced()
+        inline const String& GetWorkingDirReplaced()
         {
             return m_workingDirectoryReplaced;
         }
@@ -119,7 +119,7 @@ namespace Lina::Resources
         ~ResourceManager() = default;
 
         void Initialize(ApplicationInfo& appInfo);
-        void AddAllResourcesToPack(Vector<std::string>& resources, Utility::Folder* folder);
+        void AddAllResourcesToPack(Vector<String>& resources, Utility::Folder* folder);
         void LoadEditorResources();
         void OnRequestResourceReload(const Event::ERequestResourceReload& ev);
         void Shutdown();
@@ -132,8 +132,8 @@ namespace Lina::Resources
         ResourceBundle          m_bundle;
         Utility::Folder*        m_rootFolder               = nullptr;
         ApplicationMode         m_appMode                  = ApplicationMode::Editor;
-        std::string             m_workingDirectory         = "";
-        std::string             m_workingDirectoryReplaced = "";
+        String             m_workingDirectory         = "";
+        String             m_workingDirectoryReplaced = "";
     };
 } // namespace Lina::Resources
 

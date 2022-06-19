@@ -88,17 +88,17 @@ namespace Lina::Editor
         Engine::Get()->AddToMainPipeline(m_editorCameraSystem);
 
         // Editor settings.
-        const std::string editorSettingsFile = "editor.linasettings";
+        const String editorSettingsFile = "editor.linasettings";
         if (Utility::FileExists(editorSettingsFile))
             m_editorSettings = Resources::LoadArchiveFromFile<EditorSettings>(editorSettingsFile);
         else
             Resources::SaveArchiveToFile<EditorSettings>(editorSettingsFile, m_editorSettings);
 
         // Shader file watcher.
-        m_shaderWatcher.m_changeCallback = [](FileWatchStatus status, const std::string& path) {
+        m_shaderWatcher.m_changeCallback = [](FileWatchStatus status, const String& path) {
             if (status == FileWatchStatus::Modified)
             {
-                const std::string ext = Utility::GetFileExtension(path);
+                const String ext = Utility::GetFileExtension(path);
 
                 if (ext.compare("linaglh") == 0 || ext.compare("linaglsl") == 0)
                 {

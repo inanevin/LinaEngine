@@ -44,7 +44,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 #include "Log/Log.hpp"
 #include "Utility/StringId.hpp"
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -60,7 +60,7 @@ namespace Lina::Editor
 {
     struct EditorPathConstants
     {
-        static std::string& contentsPath;
+        static String& contentsPath;
     };
 
     struct EMenuBarElementClicked
@@ -112,7 +112,7 @@ namespace Lina::Editor
     };
     struct EShortcut
     {
-        std::string m_name;
+        String m_name;
         int         m_heldKey;
         int         m_pressedKey;
     };

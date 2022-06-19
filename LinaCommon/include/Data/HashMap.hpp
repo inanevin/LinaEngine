@@ -39,12 +39,12 @@ Timestamp: 05/12/2022 11:33:56 PM
 #ifndef DataStructuresHashMap_HPP
 #define DataStructuresHashMap_HPP
 
-#include <EASTL/hash_map.h>
+#include <EASTL/unordered_map.h>
 
 namespace Lina
 {
     template <typename T, typename U>
-    using HashMap = eastl::hash_map<T, U>;
+    using HashMap = eastl::unordered_map<T, U>;
 } // namespace Lina
 
 #endif

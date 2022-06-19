@@ -41,7 +41,7 @@ SOFTWARE.
 #ifdef LINA_PLATFORM_WINDOWS
 #include <iostream>
 #include <stdlib.h>
-#include <string>
+#include <Data/String.hpp>
 #include <windows.h>
 double g_timerFrequency;
 bool   g_isTimerInitialized = false;
@@ -100,7 +100,7 @@ namespace Lina
             return buffer;
         }
 
-        bool FileExists(const std::string& path)
+        bool FileExists(const String& path)
         {
             struct stat buffer;
             return (stat(path.c_str(), &buffer) == 0);
@@ -108,9 +108,9 @@ namespace Lina
 
         void ScanFolder(Folder* root, bool recursive, int* totalFiles, bool isRescan)
         {
-            for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath))
+            for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath.c_str()))
             {
-                std::string replacedFullPath = entry.path().string();
+                String replacedFullPath = entry.path().string().c_str();
                 std::replace(replacedFullPath.begin(), replacedFullPath.end(), '\\', '/');
 
                 if (isRescan)
@@ -123,7 +123,7 @@ namespace Lina
                         if (entry.path().has_extension())
                         {
                             // Check for reload.
-                            auto lastTime = std::filesystem::last_write_time(replacedFullPath);
+                            auto lastTime = std::filesystem::last_write_time(replacedFullPath.c_str());
 
                             if (outItem != nullptr && lastTime != outItem->m_lastWriteTime)
                             {
@@ -154,14 +154,14 @@ namespace Lina
                     File* file = new File();
                     root->m_files.push_back(file);
 
-                    file->m_fullName       = entry.path().filename().string();
-                    file->m_folderPath     = entry.path().parent_path().string() + "/";
+                    file->m_fullName       = entry.path().filename().string().c_str();
+                    file->m_folderPath     = (entry.path().parent_path().string() + "/").c_str();
                     file->m_fullPath       = replacedFullPath;
                     file->m_extension      = file->m_fullName.substr(file->m_fullName.find(".") + 1);
                     file->m_name           = GetFileWithoutExtension(file->m_fullName);
                     file->m_parent         = root;
                     file->m_typeID         = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
-                    file->m_lastWriteTime  = std::filesystem::last_write_time(file->m_fullPath);
+                    file->m_lastWriteTime  = std::filesystem::last_write_time(file->m_fullPath.c_str());
                     const StringIDType sid = StringID(file->m_fullPath.c_str()).value();
                     file->m_sid            = sid;
 
@@ -172,11 +172,11 @@ namespace Lina
                 {
                     Folder* folder = new Folder();
                     root->m_folders.push_back(folder);
-                    folder->m_name          = entry.path().filename().string();
+                    folder->m_name          = entry.path().filename().string().c_str();
                     folder->m_fullPath      = replacedFullPath;
                     folder->m_parent        = root;
                     folder->m_typeID        = 0;
-                    folder->m_lastWriteTime = std::filesystem::last_write_time(folder->m_fullPath);
+                    folder->m_lastWriteTime = std::filesystem::last_write_time(folder->m_fullPath.c_str());
                     const StringIDType sid  = StringID(folder->m_fullPath.c_str()).value();
                     folder->m_sid           = sid;
 
@@ -186,7 +186,7 @@ namespace Lina
             }
         }
 
-        bool FolderContainsDirectory(Folder* root, const std::string& path, DirectoryItem*& outItem)
+        bool FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)
         {
             bool contains = false;
 
@@ -225,15 +225,15 @@ namespace Lina
             }
         }
 
-        bool DeleteFileInPath(const std::string& path)
+        bool DeleteFileInPath(const String& path)
         {
             return remove(path.c_str());
         }
 
-        std::string GetUniqueDirectoryName(Folder* parent, const std::string& prefix, const std::string& extension)
+        String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension)
         {
             static int  uniqueNameCounter = 0;
-            std::string newName           = prefix + "_" + std::to_string(uniqueNameCounter);
+            String newName           = prefix + "_" + TO_STRING(uniqueNameCounter).c_str();
             bool        newNameExists     = true;
             int         timeOutCounter    = 0;
 
@@ -270,7 +270,7 @@ namespace Lina
                 else
                 {
                     uniqueNameCounter++;
-                    newName = prefix + "_" + std::to_string(uniqueNameCounter);
+                    newName = prefix + "_" + TO_STRING(uniqueNameCounter).c_str();
                 }
 
                 timeOutCounter++;
@@ -283,7 +283,7 @@ namespace Lina
 
         void CreateNewSubfolder(Folder* parent)
         {
-            const std::string newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
+            const String newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
             Folder* folder     = new Folder();
             folder->m_parent   = parent;
@@ -335,9 +335,9 @@ namespace Lina
             file = nullptr;
         }
 
-        bool CreateFolderInPath(const std::string& path)
+        bool CreateFolderInPath(const String& path)
         {
-            bool success = std::filesystem::create_directory(path);
+            bool success = std::filesystem::create_directory(path.c_str());
 
             if (!success)
                 LINA_ERR("Could not create directory. {0}", path);
@@ -345,9 +345,9 @@ namespace Lina
             return success;
         }
 
-        bool DeleteDirectory(const std::string& path)
+        bool DeleteDirectory(const String& path)
         {
-            bool success = std::filesystem::remove_all(path);
+            bool success = std::filesystem::remove_all(path.c_str());
 
             if (!success)
                 LINA_ERR("Could not delete directory. {0}", path);
@@ -357,7 +357,7 @@ namespace Lina
 
         void ParentPathUpdated(Folder* folder)
         {
-            const std::string oldPath = folder->m_fullPath;
+            const String oldPath = folder->m_fullPath;
             folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + folder->m_name;
 
             for (auto* subfolder : folder->m_folders)
@@ -370,25 +370,25 @@ namespace Lina
         void ParentPathUpdated(File* file)
         {
             const StringIDType sidBefore = StringID(file->m_fullPath.c_str()).value();
-            const std::string oldPath = file->m_fullPath;
+            const String oldPath = file->m_fullPath;
             file->m_fullPath             = file->m_parent->m_fullPath + "/" + file->m_fullName;
             const StringIDType sidNow    = StringID(file->m_fullPath.c_str()).value();
             file->m_sid                  = sidNow;
             Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow, oldPath, file->m_fullPath});
         }
 
-        void ChangeFileName(File* file, const std::string& newName)
+        void ChangeFileName(File* file, const String& newName)
         {
-            const std::string oldPath = file->m_fullPath;
+            const String oldPath = file->m_fullPath;
             file->m_name              = newName;
             file->m_fullName          = newName + "." + file->m_extension;
             ParentPathUpdated(file);
             ChangeDirectoryName(oldPath, file->m_fullPath);
         }
 
-        void ChangeFolderName(Folder* folder, const std::string& newName)
+        void ChangeFolderName(Folder* folder, const String& newName)
         {
-            const std::string oldPath = folder->m_fullPath;
+            const String oldPath = folder->m_fullPath;
             folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + newName;
             folder->m_name            = newName;
 
@@ -401,7 +401,7 @@ namespace Lina
             ChangeDirectoryName(oldPath, folder->m_fullPath);
         }
 
-        bool ChangeDirectoryName(const std::string& oldPath, const std::string& newPath)
+        bool ChangeDirectoryName(const String& oldPath, const String& newPath)
         {
 
             /*	Deletes the file if exists */
@@ -414,11 +414,11 @@ namespace Lina
             return true;
         }
 
-        void RewriteFileContents(File* file, const std::string& newContent)
+        void RewriteFileContents(File* file, const String& newContent)
         {
             std::ofstream newFile;
-            newFile.open(file->m_fullPath, std::ofstream::out | std::ofstream::trunc);
-            newFile << newContent << std::endl;
+            newFile.open(file->m_fullPath.c_str(), std::ofstream::out | std::ofstream::trunc);
+            newFile << newContent.c_str() << std::endl;
             newFile.close();
         }
 
@@ -427,20 +427,9 @@ namespace Lina
             return ++s_uniqueID;
         }
 
-        std::string GetUniqueIDString()
+        Vector<String> Split(const String& s, char delim)
         {
-            return std::to_string(++s_uniqueID);
-        }
-
-        size_t StringToHash(const std::string& str)
-        {
-            std::hash<std::string> hasher;
-            return hasher(str);
-        }
-
-        Vector<std::string> Split(const std::string& s, char delim)
-        {
-            Vector<std::string> elems;
+            Vector<String> elems;
 
             const char*  cstr      = s.c_str();
             unsigned int strLength = (unsigned int)s.length();
@@ -465,7 +454,7 @@ namespace Lina
             return elems;
         }
 
-        std::string GetFilePath(const std::string& fileName)
+        String GetFilePath(const String& fileName)
         {
             const char*  cstr      = fileName.c_str();
             unsigned int strLength = (unsigned int)fileName.length();
@@ -490,38 +479,38 @@ namespace Lina
             }
         }
 
-        std::string GetFileExtension(const std::string& file)
+        String GetFileExtension(const String& file)
         {
             return file.substr(file.find_last_of(".") + 1);
         }
 
-        std::string GetFileNameOnly(const std::string& fileName)
+        String GetFileNameOnly(const String& fileName)
         {
             return fileName.substr(fileName.find_last_of("/\\") + 1);
         }
 
-        std::string GetFileWithoutExtension(const std::string& fileName)
+        String GetFileWithoutExtension(const String& fileName)
         {
             size_t lastindex = fileName.find_last_of(".");
             return fileName.substr(0, lastindex);
         }
 
-        bool FileContainsFilter(const File& file, const std::string& filter)
+        bool FileContainsFilter(const File& file, const String& filter)
         {
-            const std::string filterLowercase = Utility::ToLower(filter);
-            const std::string fileLower       = Utility::ToLower(file.m_fullName);
-            return fileLower.find(filterLowercase) != std::string::npos;
+            const String filterLowercase = Utility::ToLower(filter);
+            const String fileLower       = Utility::ToLower(file.m_fullName);
+            return fileLower.find(filterLowercase) != String::npos;
         }
 
-        bool FolderContainsFilter(const Folder* folder, const std::string& filter)
+        bool FolderContainsFilter(const Folder* folder, const String& filter)
         {
-            const std::string filterLowercase = Utility::ToLower(filter);
-            const std::string folderLower     = Utility::ToLower(folder->m_name);
-            const bool        folderContains  = folderLower.find(filterLowercase) != std::string::npos;
+            const String filterLowercase = Utility::ToLower(filter);
+            const String folderLower     = Utility::ToLower(folder->m_name);
+            const bool        folderContains  = folderLower.find(filterLowercase) != String::npos;
             return folderContains;
         }
 
-        bool SubfoldersContainFilter(const Folder* folder, const std::string& filter)
+        bool SubfoldersContainFilter(const Folder* folder, const String& filter)
         {
             bool subFoldersContain = false;
 
@@ -543,7 +532,7 @@ namespace Lina
             return subFoldersContain;
         }
 
-        File* FindFile(Folder* root, const std::string& path)
+        File* FindFile(Folder* root, const String& path)
         {
             for (auto* subfolder : root->m_folders)
             {
@@ -562,38 +551,40 @@ namespace Lina
             return nullptr;
         }
 
-        std::string GetFileContents(const std::string& filePath)
+        String GetFileContents(const String& filePath)
         {
-            std::ifstream ifs(filePath);
-            std::string   content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-            return content;
+            std::ifstream ifs(filePath.c_str());
+            auto a = std::istreambuf_iterator<char>(ifs);
+            auto b = (std::istreambuf_iterator<char>());
+            std::string   content(a,b);
+            return content.c_str();
         }
 
-        std::string GetRunningDirectory()
+        String GetRunningDirectory()
         {
 #ifdef LINA_PLATFORM_WINDOWS
             TCHAR buffer[MAX_PATH] = {0};
             GetModuleFileName(NULL, buffer, MAX_PATH);
-            std::string exeFilename      = std::string(buffer);
-            std::string runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
+            String exeFilename      = String(buffer);
+            String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
             return runningDirectory;
 #else
             LINA_ERR("GetRunningDirectory() implementation missing for other platforms!");
 #endif
             return "";
         }
-        std::string ToLower(const std::string& input)
+        String ToLower(const String& input)
         {
-            std::string data = input;
+            String data = input;
 
             std::for_each(data.begin(), data.end(), [](char& c) { c = ::tolower(c); });
 
             return data;
         }
 
-        std::string ToUpper(const std::string& input)
+        String ToUpper(const String& input)
         {
-            std::string data = input;
+            String data = input;
 
             std::for_each(data.begin(), data.end(), [](char& c) { c = ::toupper(c); });
 

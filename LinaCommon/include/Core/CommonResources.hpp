@@ -43,8 +43,8 @@ Timestamp: 12/25/2021 11:44:29 AM
 #include "Utility/StringId.hpp"
 #include "Math/Color.hpp"
 
-#include <string>
-#include <unordered_map>
+#include <Data/String.hpp>
+#include "Data/HashMap.hpp"
 #include <functional>
 #include <cereal/archives/portable_binary.hpp>
 
@@ -65,8 +65,8 @@ namespace Lina::Resources
         ~ResourceProgressData() = default;
 
         ResourceProgressState m_state                 = ResourceProgressState::None;
-        std::string           m_currentResourceName   = "";
-        std::string           m_progressTitle         = "";
+        String           m_currentResourceName   = "";
+        String           m_progressTitle         = "";
         float                 m_currentProgress       = 0.0f;
         int                   m_currentTotalFiles     = 0;
         int                   m_currentProcessedFiles = 0;

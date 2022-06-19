@@ -87,7 +87,7 @@ namespace Lina::Editor
 
     private:
         int                      m_currentSelectedPrimitive = 0;
-        Vector<std::string> m_primitives;
+        Vector<String> m_primitives;
         Graphics::Model*         m_targetModel             = nullptr;
         Graphics::Texture*       m_targetTexture           = nullptr;
         Graphics::Material*      m_targetMaterial          = nullptr;

@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina::Physics
 {
-    PhysicsMaterial* PhysicsMaterial::CreatePhysicsMaterial(const std::string& savePath, float staticFriction, float dynamicFriction, float restitution)
+    PhysicsMaterial* PhysicsMaterial::CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution)
     {
         auto* storage = Resources::ResourceStorage::Get();
 
@@ -54,7 +54,7 @@ namespace Lina::Physics
         Resources::SaveArchiveToFile<PhysicsMaterial>(savePath, *mat);
         return mat;
     }
-    void* PhysicsMaterial::LoadFromFile(const std::string& path)
+    void* PhysicsMaterial::LoadFromFile(const String& path)
     {
         LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);
         *this = Resources::LoadArchiveFromFile<PhysicsMaterial>(path);
@@ -62,7 +62,7 @@ namespace Lina::Physics
         return static_cast<void*>(this);
     }
 
-    void* PhysicsMaterial::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* PhysicsMaterial::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);
         *this = Resources::LoadArchiveFromMemory<PhysicsMaterial>(path, data, dataSize);

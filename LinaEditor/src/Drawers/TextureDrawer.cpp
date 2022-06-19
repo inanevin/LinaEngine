@@ -77,8 +77,8 @@ namespace Lina::Editor
         const int         wrapS                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapS);
         const int         wrapR                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapR);
         const int         wrapT                      = Graphics::WrapModeToInt(assetData->m_samplerParameters.m_textureParams.m_wrapT);
-        const std::string textureSize                = texture->GetSize().ToString();
-        const std::string channelCount               = std::to_string(texture->GetNumComponents());
+        const String textureSize                = texture->GetSize().ToString();
+        const String channelCount               = TO_STRING(texture->GetNumComponents());
 
         WidgetsUtility::IncrementCursorPosY(ImGui::GetStyle().ItemSpacing.y + 9.5f);
 
@@ -217,7 +217,7 @@ namespace Lina::Editor
         if (WidgetsUtility::Button("Save Settings", ImVec2(paneWidth - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->GetDPIScale())))
         {
             Resources::SaveArchiveToFile(assetData->GetPath(), *assetData);
-            const std::string  path = texture->GetPath();
+            const String  path = texture->GetPath();
             const StringIDType sid  = texture->GetSID();
             const TypeID       tid  = GetTypeID<Graphics::Texture>();
             Resources::ResourceStorage::Get()->Unload<Graphics::Texture>(sid);

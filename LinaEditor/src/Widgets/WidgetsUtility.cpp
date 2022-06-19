@@ -71,21 +71,21 @@ namespace Lina::Editor
 
     static bool                                          s_isDraggingWidgetInput = false;
     static bool                                          s_mouseReleased         = true;
-    static std::string                                   s_draggedInput          = "";
+    static String                                   s_draggedInput          = "";
     static float                                         s_valueOnDragStart      = 0.0f;
     static int                                           s_valueOnDragStartInt   = 0;
-    static std::map<TypeID, bool>                        m_classFoldoutMap;
-    static std::map<TypeID, std::map<const char*, bool>> m_headerFoldoutMap;
-    static std::map<std::string, bool>                   m_idFoldoutMap;
+    static Map<TypeID, bool>                        m_classFoldoutMap;
+    static Map<TypeID, Map<const char*, bool>> m_headerFoldoutMap;
+    static Map<String, bool>                   m_idFoldoutMap;
     static bool                                          m_shouldShowCameraOptions;
     static float                                         m_editorCameraSpeed           = 1.0f;
     static float                                         m_editorCameraSpeedMultiplier = 1.0f;
-    static std::map<std::string, MovableChildData>       m_movableChildData;
-    static std::map<StringIDType, uint32>                m_resourcePreviewTextures;
+    static Map<String, MovableChildData>       m_movableChildData;
+    static Map<StringIDType, uint32>                m_resourcePreviewTextures;
     static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
-    const std::string                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
+    const String                                    editorSnapshotLightName              = "##snapshot_light##_lina##";
 
     void WidgetsUtility::Tooltip(const char* tooltip)
     {
@@ -108,8 +108,8 @@ namespace Lina::Editor
 
     bool WidgetsUtility::IsProtectedDirectory(Utility::DirectoryItem* item)
     {
-        return item->m_fullPath.compare("Resources/") == 0 || item->m_fullPath.find("Resources/Engine") != std::string::npos ||
-               item->m_fullPath.compare("Resources/Sandbox") == 0 || item->m_fullPath.find("Resources/Editor") != std::string::npos;
+        return item->m_fullPath.compare("Resources/") == 0 || item->m_fullPath.find("Resources/Engine") != String::npos ||
+               item->m_fullPath.compare("Resources/Sandbox") == 0 || item->m_fullPath.find("Resources/Editor") != String::npos;
     }
 
     bool WidgetsUtility::DrawTreeFolder(Utility::Folder* folder, Utility::Folder*& selectedFolder, bool canRename)
@@ -157,7 +157,7 @@ namespace Lina::Editor
             lighterFrameBG.y += 0.1f;
             lighterFrameBG.z += 0.1f;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, lighterFrameBG);
-            const std::string inputLabel = "##_A_" + folder->m_name;
+            const String inputLabel = "##_A_" + folder->m_name;
             if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
             {
                 folder->m_isRenaming = false;
@@ -255,7 +255,7 @@ namespace Lina::Editor
         const bool         hovered            = ImGui::IsMouseHoveringRect(itemRectMin, itemRectMax);
         ImVec4             childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
                                                                                                                      : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
-        const std::string  fullPath           = item->m_fullPath;
+        const String  fullPath           = item->m_fullPath;
         const bool         isFolder           = item->m_typeID == 0;
         const StringIDType sid                = item->m_sid;
 
@@ -399,7 +399,7 @@ namespace Lina::Editor
         if (!isFolder)
             ImGui::GetWindowDrawList()->AddRect(borderMin, borderMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)), 0.0f, 0, 1.5f);
 
-        const std::string name           = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(fullPath));
+        const String name           = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(fullPath));
         const float       textSize       = ImGui::CalcTextSize(name.c_str()).x;
         const bool        shouldWrapText = textSize >= imageSize.x + 3;
 
@@ -426,7 +426,7 @@ namespace Lina::Editor
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - inputTextWidth / 2.0f);
 
             ImGui::PushItemWidth(inputTextWidth);
-            const std::string inputLabel = "##_A_" + item->m_fullPath;
+            const String inputLabel = "##_A_" + item->m_fullPath;
             if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
             {
                 item->m_isRenaming = false;
@@ -499,7 +499,7 @@ namespace Lina::Editor
             saved_palette_init = false;
         }
 
-        std::string   buf(id);
+        String   buf(id);
         static ImVec4 backup_color;
         bool          open_popup = ImGui::ColorButton(buf.c_str(), ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
         buf.append("##p");
@@ -595,7 +595,7 @@ namespace Lina::Editor
             size.y += iconOffset;
 
         // Set the position only if first launch.
-        const std::string childIDStr     = std::string(childID);
+        const String childIDStr     = String(childID);
         ImVec2            targetPosition = ImVec2(confineRect.Min.x + m_movableChildData[childIDStr].m_position.x, confineRect.Min.y + m_movableChildData[childIDStr].m_position.y);
 
         if (targetPosition.x > confineRect.Max.x - size.x)
@@ -857,17 +857,17 @@ namespace Lina::Editor
         }
     }
 
-    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const Vector<std::string>& primitives, int currentSelected, float widthDecrease)
+    int WidgetsUtility::SelectPrimitiveCombobox(const char* comboID, const Vector<String>& primitives, int currentSelected, float widthDecrease)
     {
         int primitiveToReturn = currentSelected;
 
-        const std::string label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[currentSelected]));
+        const String label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[currentSelected]));
         if (BeginComboBox(comboID, label.c_str(), false, widthDecrease))
         {
             for (int i = 0; i < primitives.size(); i++)
             {
                 const bool        selected     = i == currentSelected;
-                const std::string primitiveStr = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[i]));
+                const String primitiveStr = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(primitives[i]));
                 if (ImGui::Selectable(primitiveStr.c_str(), selected))
                     primitiveToReturn = i;
 
@@ -1034,7 +1034,7 @@ namespace Lina::Editor
         const float cursorPosX = ImGui::GetWindowWidth() - (VALUE_OFFSET_FROM_WINDOW + 15 * GUILayer::Get()->GetDPIScale());
         ImGui::SetCursorPosX(cursorPosX);
         bool              anyButtonHovered = false;
-        const std::string popupName        = "##popup_" + std::string(componentLabel);
+        const String popupName        = "##popup_" + String(componentLabel);
 
         if (IconButton(ICON_FA_COG))
         {
@@ -1080,7 +1080,7 @@ namespace Lina::Editor
         if (toggled != nullptr)
         {
             // Toggle
-            const std::string toggleID = "##_toggle_" + std::string(componentLabel);
+            const String toggleID = "##_toggle_" + String(componentLabel);
             ToggleButton(toggleID.c_str(), toggled);
 
             if (ImGui::IsItemHovered())
@@ -1109,7 +1109,7 @@ namespace Lina::Editor
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, normalColor);
 
-        const std::string id = "##_" + std::string(label);
+        const String id = "##_" + String(label);
         if (Button(id.c_str(), rectSize))
             m_headerFoldoutMap[tid][label] = !m_headerFoldoutMap[tid][label];
 
@@ -1151,7 +1151,7 @@ namespace Lina::Editor
         }
     }
 
-    bool WidgetsUtility::CaretTitle(const char* title, const std::string& id)
+    bool WidgetsUtility::CaretTitle(const char* title, const String& id)
     {
         bool   clicked          = false;
         bool   hovered          = false;
@@ -1181,7 +1181,7 @@ namespace Lina::Editor
         return m_idFoldoutMap[id];
     }
 
-    void WidgetsUtility::PropertyLabel(const char* label, bool sameLine, const std::string& tooltip)
+    void WidgetsUtility::PropertyLabel(const char* label, bool sameLine, const String& tooltip)
     {
         ImGui::SetCursorPosX(CURSOR_X_LABELS);
         ImGui::AlignTextToFramePadding();
@@ -1230,7 +1230,7 @@ namespace Lina::Editor
         ImGuiStyle& style = ImGui::GetStyle();
         ImGui::SameLine(0.0f, 0.0f);
         float             frameHeight = ImGui::GetFrameHeight() - 2;
-        const std::string btnLabel    = std::string(ICON_FA_MINUS) + "##" + std::string(id);
+        const String btnLabel    = String(ICON_FA_MINUS) + "##" + String(id);
         bool              button      = Button(btnLabel.c_str(), ImVec2(frameHeight, frameHeight), 0.7f, 2.0f, ImVec2(0.1f, 0.0f));
 
         if (ImGui::IsItemHovered())
@@ -1399,9 +1399,9 @@ namespace Lina::Editor
         return typeToReturn;
     }
 
-    StringIDType WidgetsUtility::ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
+    StringIDType WidgetsUtility::ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
-        std::string resourceName        = "None" + std::string("##") + id;
+        String resourceName        = "None" + String("##") + id;
         const float spaceFromEnd        = 11.25f * GUILayer::Get()->GetDPIScale();
         const float removeButtonSize    = ImGui::GetFrameHeight();
         const float buttonOffsetFromEnd = (ImGui::GetWindowWidth() - ImGui::GetCursorPos().x) - spaceFromEnd;
@@ -1424,7 +1424,7 @@ namespace Lina::Editor
         ImGui::GetWindowDrawList()->AddText(iconPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), ICON_FA_DOT_CIRCLE);
         ImGui::PopFont();
 
-        const std::string popupID = id + "_popup";
+        const String popupID = id + "_popup";
         if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
         {
             ImGui::OpenPopup(popupID.c_str());
@@ -1460,7 +1460,7 @@ namespace Lina::Editor
         return 0;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionMaterial(const std::string& id, void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionMaterial(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
 
@@ -1495,7 +1495,7 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionTexture(const std::string& id, void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionTexture(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Texture>* handle = static_cast<Resources::ResourceHandle<Graphics::Texture>*>(handleAddr);
 
@@ -1530,7 +1530,7 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionAudio(const std::string& id, void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionAudio(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Audio::Audio>* handle = static_cast<Resources::ResourceHandle<Audio::Audio>*>(handleAddr);
 
@@ -1565,7 +1565,7 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Physics::PhysicsMaterial>* handle = static_cast<Resources::ResourceHandle<Physics::PhysicsMaterial>*>(handleAddr);
 
@@ -1601,7 +1601,7 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionShader(const std::string& id, void* handleAddr)
+    StringIDType WidgetsUtility::ResourceSelectionShader(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Shader>* handle = static_cast<Resources::ResourceHandle<Graphics::Shader>*>(handleAddr);
 
@@ -1654,10 +1654,10 @@ namespace Lina::Editor
         else
         {
             const ImVec2      currentCursor = ImGui::GetCursorScreenPos();
-            const std::string finalLabel    = "##_" + std::string(label);
+            const String finalLabel    = "##_" + String(label);
             button                          = ImGui::Button(finalLabel.c_str(), size);
-            std::string  labelStr           = std::string(label);
-            std::string  text               = labelStr.substr(0, labelStr.find("#"));
+            String  labelStr           = String(label);
+            String  text               = labelStr.substr(0, labelStr.find("#"));
             const ImVec2 calcSize           = ImGui::CalcTextSize(text.c_str());
             const ImVec2 textPos            = ImVec2(currentCursor.x + size.x / 2.0f - calcSize.x / 2.0f + contentOffset.x, currentCursor.y + size.y / 2.0f - calcSize.y / 2.0f + contentOffset.y);
             ImGui::GetWindowDrawList()->AddText(textPos, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), text.c_str());
@@ -1809,7 +1809,7 @@ namespace Lina::Editor
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
         ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
         ImVec4            textCol    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        const std::string rectID     = std::string(id) + "_rect";
+        const String rectID     = String(id) + "_rect";
 
         if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
             ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
@@ -1863,7 +1863,7 @@ namespace Lina::Editor
         ImVec2            rectSize   = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
         ImVec4            rectCol    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
         ImVec4            textCol    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        const std::string rectID     = std::string(id) + "_rect";
+        const String rectID     = String(id) + "_rect";
 
         if (ImGui::IsMouseHoveringRect(rectMin, rectMax))
             ImGui::SetHoveredID(ImHashStr(rectID.c_str()));
@@ -1897,8 +1897,8 @@ namespace Lina::Editor
         float       currentCursor  = ImGui::GetCursorPosX();
         const float labelIncrement = 12;
         float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 1.0f) / 2.0f;
-        std::string xid            = std::string(id) + "_x";
-        std::string yid            = std::string(id) + "_y";
+        String xid            = String(id) + "_x";
+        String yid            = String(id) + "_y";
 
         bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
         ImGui::SameLine();
@@ -1913,8 +1913,8 @@ namespace Lina::Editor
         float       currentCursor  = ImGui::GetCursorPosX();
         const float labelIncrement = 12;
         float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 1.0f) / 2.0f;
-        std::string xid            = std::string(id) + "_x";
-        std::string yid            = std::string(id) + "_y";
+        String xid            = String(id) + "_x";
+        String yid            = String(id) + "_y";
 
         bool x = DragInt(xid.c_str(), "X", &var[0], widthPerItem);
         ImGui::SameLine();
@@ -1929,9 +1929,9 @@ namespace Lina::Editor
         float       currentCursor  = ImGui::GetCursorPosX();
         const float labelIncrement = 12;
         float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 2.0f) / 3.0f;
-        std::string xid            = std::string(id) + "_x";
-        std::string yid            = std::string(id) + "_y";
-        std::string zid            = std::string(id) + "_z";
+        String xid            = String(id) + "_x";
+        String yid            = String(id) + "_y";
+        String zid            = String(id) + "_z";
 
         bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
         ImGui::SameLine();
@@ -1948,9 +1948,9 @@ namespace Lina::Editor
         float       currentCursor  = ImGui::GetCursorPosX();
         const float labelIncrement = 12;
         float       widthPerItem   = (windowWidth - currentCursor - VALUE_OFFSET_FROM_WINDOW - ImGui::GetStyle().ItemSpacing.x * 3.0f) / 4.0f;
-        std::string xid            = std::string(id) + "_x";
-        std::string yid            = std::string(id) + "_y";
-        std::string zid            = std::string(id) + "_z";
+        String xid            = String(id) + "_x";
+        String yid            = String(id) + "_y";
+        String zid            = String(id) + "_z";
 
         bool x = DragFloat(xid.c_str(), "X", &var[0], widthPerItem);
         ImGui::SameLine();
@@ -2134,9 +2134,9 @@ namespace Lina::Editor
         ImGui::PushFont(GUILayer::Get()->GetIconFontSmall());
     }
 
-    std::string WidgetsUtility::PathSelectPopup(const std::string& original)
+    String WidgetsUtility::PathSelectPopup(const String& original)
     {
-        std::string toReturn = original;
+        String toReturn = original;
 
         InputTextCallback_UserData cb_user_data;
         cb_user_data.Str = &toReturn;

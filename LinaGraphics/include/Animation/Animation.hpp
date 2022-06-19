@@ -40,7 +40,7 @@ Timestamp: 12/7/2021 11:34:48 AM
 #define Animation_HPP
 
 // Headers here.
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
@@ -51,7 +51,7 @@ namespace Lina::Graphics
         Animation() = default;
         ~Animation() = default;
 
-        bool LoadAnimation(const std::string& animPath);
+        bool LoadAnimation(const String& animPath);
 
     private:
     };

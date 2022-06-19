@@ -43,7 +43,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 
 #include "Core/SizeDefinitions.hpp"
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
@@ -61,7 +61,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Load a non-HDRI texture from a file.
         /// </summary>
-        int Load(const std::string& fileName);
+        int Load(const String& fileName);
 
         /// <summary>
         /// Load a non-HDRI texture from memory.
@@ -81,7 +81,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Writes the current texture data to file.
         /// </summary>
-        void Save(const std::string& path, int quality = 100);
+        void Save(const String& path, int quality = 100);
 
         // Accessors & Mutators.
         int32 GetWidth() const

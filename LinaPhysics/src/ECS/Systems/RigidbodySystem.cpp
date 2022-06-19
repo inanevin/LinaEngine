@@ -42,7 +42,7 @@ using namespace physx;
 namespace Lina::ECS
 {
 
-    void RigidbodySystem::Initialize(const std::string& name, Physics::PhysicsEngine* engine)
+    void RigidbodySystem::Initialize(const String& name, Physics::PhysicsEngine* engine)
     {
         System::Initialize(name);
         m_engine = engine;

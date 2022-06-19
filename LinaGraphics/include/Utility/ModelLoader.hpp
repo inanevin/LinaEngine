@@ -39,7 +39,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 #ifndef ModelLoader_HPP
 #define ModelLoader_HPP
 
-#include <string>
+#include <Data/String.hpp>
 #include "Data/Vector.hpp"
 
 struct aiNode;
@@ -58,7 +58,7 @@ namespace Lina::Graphics
         static void FillMeshData(const aiMesh* aimesh, Mesh* linaMesh);
         static bool LoadModel(const aiScene* scene, Model* model);
         static bool LoadModel(unsigned char* data, size_t dataSize, Model* model);
-        static bool LoadModel(const std::string& fileName, Model* model);
+        static bool LoadModel(const String& fileName, Model* model);
         static bool LoadSpriteQuad(Mesh& model);
         static void SetVertexBoneData(Vector<int>& vertexBoneIDs, Vector<float>& vertexBoneWeights, int boneID, float weight);
     };

@@ -149,10 +149,10 @@ namespace Lina::Graphics
 
     GLint       GetOpenGLFormat(PixelFormat dataFormat);
     GLint       GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, Vector<GLuint>* shaders);
-    static void AddAllAttributes(GLuint program, const std::string& vertexShaderText, uint32 version);
-    static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage);
-    static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap);
+    static bool AddShader(GLuint shaderProgram, const String& text, GLenum type, Vector<GLuint>* shaders);
+    static void AddAllAttributes(GLuint program, const String& vertexShaderText, uint32 version);
+    static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const String& errorMessage);
+    static void AddShaderUniforms(GLuint shaderProgram, const String& shaderText, Map<String, GLint>& uniformBlockMap, Map<String, GLint>& uniformMap, Map<String, GLint>& samplerMap);
 
     RenderDevice::RenderDevice()
     {
@@ -571,7 +571,7 @@ namespace Lina::Graphics
         // Terminate if vao is null or does not exist in our mapped objects.
         if (vao == 0)
             return 0;
-        std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
+        Map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
         if (it == m_vaoMap.end())
             return 0;
 
@@ -718,7 +718,7 @@ namespace Lina::Graphics
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
 
-    uint32 RenderDevice::CreateShaderProgram(const std::string& shaderText, ShaderUniformData* data, bool usesGeometryShader)
+    uint32 RenderDevice::CreateShaderProgram(const String& shaderText, ShaderUniformData* data, bool usesGeometryShader)
     {
         // Shader program instance.
         GLuint shaderProgram = glCreateProgram();
@@ -730,9 +730,9 @@ namespace Lina::Graphics
         }
 
         // Modify the shader text to include the version data.
-        std::string version            = GetShaderVersion();
-        std::string vertexShaderText   = "#version " + version + " core" + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
-        std::string fragmentShaderText = "#version " + version + " core" + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+        String version            = GetShaderVersion();
+        String vertexShaderText   = "#version " + version + " core" + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+        String fragmentShaderText = "#version " + version + " core" + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 
         // Add the shader program, terminate if fails.
         ShaderProgram programData;
@@ -741,7 +741,7 @@ namespace Lina::Graphics
 
         if (usesGeometryShader)
         {
-            std::string geometryShaderText = "#version " + version + "\n#define GS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+            String geometryShaderText = "#version " + version + "\n#define GS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
             if (!AddShader(shaderProgram, geometryShaderText, GL_GEOMETRY_SHADER, &programData.shaders))
                 return (uint32)-1;
         }
@@ -777,7 +777,7 @@ namespace Lina::Graphics
         // Terminate if shader is not valid or does not exist in our map.
         if (shader == 0)
             return 0;
-        std::map<uint32, ShaderProgram>::iterator programIt = m_shaderProgramMap.find(shader);
+        Map<uint32, ShaderProgram>::iterator programIt = m_shaderProgramMap.find(shader);
         if (programIt == m_shaderProgramMap.end())
             return 0;
 
@@ -984,7 +984,7 @@ namespace Lina::Graphics
             glBindSampler(unit, sampler);
     }
 
-    void RenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer)
+    void RenderDevice::SetShaderUniformBuffer(uint32 shader, const String& uniformBufferName, uint32 buffer)
     {
         // Use shader first.
         SetShader(shader);
@@ -1016,7 +1016,7 @@ namespace Lina::Graphics
         glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
     }
 
-    void RenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
+    void RenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, String& blockName)
     {
         glUniformBlockBinding(shader, m_shaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
     }
@@ -1032,7 +1032,7 @@ namespace Lina::Graphics
         // Terminate if VAO is not valid or does not exist in our map.
         if (vao == 0)
             return;
-        std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
+        Map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
         if (it == m_vaoMap.end())
             return;
 
@@ -1099,16 +1099,16 @@ namespace Lina::Graphics
             // Get sampler uniform data & store it on our sampler map.
             glGetActiveUniform(shader, uniform, (GLsizei)uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
-            std::string nameStr = &uniformName[0];
+            String nameStr = &uniformName[0];
             //	for (int j = 0; j < uniformName.size(); j++)
             //	nameStr += uniformName[j];
 
-            if (nameStr.find("material.") != std::string::npos || nameStr.find("uf_") != std::string::npos)
+            if (nameStr.find("material.") != String::npos || nameStr.find("uf_") != String::npos)
             {
-                if (nameStr.find(".texture") != std::string::npos)
+                if (nameStr.find(".texture") != String::npos)
                 {
                     size_t      lastindex   = nameStr.find_last_of(".");
-                    std::string samplerName = nameStr.substr(0, lastindex);
+                    String samplerName = nameStr.substr(0, lastindex);
 
                     if (type == GL_SAMPLER_2D)
                     {
@@ -1121,7 +1121,7 @@ namespace Lina::Graphics
                         samplerUnit++;
                     }
                 }
-                else if (nameStr.find(".isActive") != std::string::npos)
+                else if (nameStr.find(".isActive") != String::npos)
                     continue;
 
                 if (type == GL_FLOAT)
@@ -1132,14 +1132,14 @@ namespace Lina::Graphics
                     data.m_vector2s[&uniformName[0]] = Vector2::One;
                 else if (type == GL_FLOAT_VEC3)
                 {
-                    if (nameStr.find("color") != std::string::npos || nameStr.find("Color") != std::string::npos)
+                    if (nameStr.find("color") != String::npos || nameStr.find("Color") != String::npos)
                         data.m_colors[&uniformName[0]] = Color::White;
                     else
                         data.m_vector3s[&uniformName[0]] = Vector3::One;
                 }
                 else if (type == GL_FLOAT_VEC4)
                 {
-                    if (nameStr.find("color") != std::string::npos || nameStr.find("Color") != std::string::npos)
+                    if (nameStr.find("color") != String::npos || nameStr.find("Color") != String::npos)
                         data.m_colors[&uniformName[0]] = Color::White;
                     else
                         data.m_vector4s[&uniformName[0]] = Vector4::One;
@@ -1274,43 +1274,43 @@ namespace Lina::Graphics
         glClear(flags);
     }
 
-    void RenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
+    void RenderDevice::UpdateShaderUniformFloat(uint32 shader, const String& uniform, const float f)
     {
         glUniform1f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
     }
 
-    void RenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
+    void RenderDevice::UpdateShaderUniformInt(uint32 shader, const String& uniform, const int f)
     {
         glUniform1i(m_shaderProgramMap[shader].uniformMap[uniform], (GLint)f);
     }
 
-    void RenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
+    void RenderDevice::UpdateShaderUniformColor(uint32 shader, const String& uniform, const Color& color)
     {
         glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
     }
 
-    void RenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)
+    void RenderDevice::UpdateShaderUniformVector2(uint32 shader, const String& uniform, const Vector2& m)
     {
         glUniform2f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
     }
 
-    void RenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m)
+    void RenderDevice::UpdateShaderUniformVector3(uint32 shader, const String& uniform, const Vector3& m)
     {
         glUniform3f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
     }
 
-    void RenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m)
+    void RenderDevice::UpdateShaderUniformVector4F(uint32 shader, const String& uniform, const Vector4& m)
     {
         glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
     }
 
-    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
+    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const String& uniform, void* data)
     {
         float* matrixData = ((float*)data);
         glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
     }
 
-    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
+    void RenderDevice::UpdateShaderUniformMatrix(uint32 shader, const String& uniform, const Matrix& m)
     {
         glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
     }
@@ -1501,7 +1501,7 @@ namespace Lina::Graphics
         m_isScissorsTestEnabled = true;
     }
 
-    std::string RenderDevice::GetShaderVersion()
+    String RenderDevice::GetShaderVersion()
     {
         // Return if not valid.
         if (!m_shaderVersion.empty())
@@ -1511,7 +1511,7 @@ namespace Lina::Graphics
         uint32 version = GetVersion();
 
         if (version >= 330)
-            m_shaderVersion = std::to_string(version);
+            m_shaderVersion = TO_STRING(version);
         else if (version >= 320)
             m_shaderVersion = "150";
         else if (version >= 310)
@@ -1629,7 +1629,7 @@ namespace Lina::Graphics
         };
     }
 
-    static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, Vector<GLuint>* shaders)
+    static bool AddShader(GLuint shaderProgram, const String& text, GLenum type, Vector<GLuint>* shaders)
     {
         // Build shader object.
         GLuint shader = glCreateShader(type);
@@ -1667,7 +1667,7 @@ namespace Lina::Graphics
         return true;
     }
 
-    static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage)
+    static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const String& errorMessage)
     {
         // Check shader errors from OpenGl.
         GLint  success     = 0;
@@ -1693,7 +1693,7 @@ namespace Lina::Graphics
         return false;
     }
 
-    static void AddAllAttributes(GLuint program, const std::string& vertexShaderText, uint32 version)
+    static void AddAllAttributes(GLuint program, const String& vertexShaderText, uint32 version)
     {
         // Terminate if attribute layout feature is enabled.
         if (version >= 320)
@@ -1723,7 +1723,7 @@ namespace Lina::Graphics
         }
     }
 
-    static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap)
+    static void AddShaderUniforms(GLuint shaderProgram, const String& shaderText, Map<String, GLint>& uniformBlockMap, Map<String, GLint>& uniformMap, Map<String, GLint>& samplerMap)
     {
         // Load uniform sets.
         GLint numBlocks;
@@ -1737,7 +1737,7 @@ namespace Lina::Graphics
             glGetActiveUniformBlockiv(shaderProgram, block, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
             Vector<GLchar> name(nameLen);
             glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
-            std::string uniformBlockName((char*)&name[0], nameLen - 1);
+            String uniformBlockName((char*)&name[0], nameLen - 1);
             uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
         }
 
@@ -1762,17 +1762,17 @@ namespace Lina::Graphics
                 continue;
             }*/
 
-            std::string name((char*)&uniformName[0], actualLength - 1);
+            String name((char*)&uniformName[0], actualLength - 1);
             samplerMap[name]            = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
             GLint loc                   = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
             uniformMap[&uniformName[0]] = loc;
 
             for (int i = 1; i < arraySize; i++)
             {
-                std::string name((char*)&uniformName[0], actualLength - 2);
-                name = name + std::to_string(i) + "]";
+                String name((char*)&uniformName[0], actualLength - 2);
+                name = name + TO_STRING(i) + "]";
 
-                std::string newName(name.c_str(), actualLength - 1);
+                String newName(name.c_str(), actualLength - 1);
                 samplerMap[newName] = glGetUniformLocation(shaderProgram, name.c_str());
                 GLint loc           = glGetUniformLocation(shaderProgram, name.c_str());
                 uniformMap[name]    = loc;

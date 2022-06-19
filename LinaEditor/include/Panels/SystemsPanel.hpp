@@ -67,7 +67,7 @@ namespace Lina::Editor
         virtual void Draw() override;
 
     private:
-		void DrawSystem(const ECS::System* system, const std::string& pipeline);
+		void DrawSystem(const ECS::System* system, const String& pipeline);
     };
 } // namespace Lina::Editor
 

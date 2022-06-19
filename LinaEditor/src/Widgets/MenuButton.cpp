@@ -89,9 +89,9 @@ namespace Lina::Editor
 
     void MenuBarElement::Draw()
     {
-        const std::string emptyLabel     = "      ";
+        const String emptyLabel     = "      ";
         const float       emptyLabelSize = ImGui::CalcTextSize(emptyLabel.c_str()).x;
-        const std::string itemStr        = emptyLabel + std::string(m_title);
+        const String itemStr        = emptyLabel + String(m_title);
         const ImVec2      cursorPos      = ImVec2(ImGui::GetCursorScreenPos().x + 16, ImGui::GetCursorScreenPos().y);
 
         if (m_children.size() > 0)
@@ -137,7 +137,7 @@ namespace Lina::Editor
             textAddition = 30.0f * GUILayer::Get()->GetDPIScale();
 
         bool arrowExists = m_children.size() > 0;
-        if (m_tooltip != nullptr && std::string(m_tooltip).compare("") != 0)
+        if (m_tooltip != nullptr && String(m_tooltip).compare("") != 0)
         {
             ImGui::SameLine();
             ImGui::SetCursorPosX(textAddition + 110 * GUILayer::Get()->GetDPIScale());

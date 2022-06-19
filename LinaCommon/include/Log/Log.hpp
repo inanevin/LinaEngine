@@ -98,7 +98,7 @@ namespace Lina
     public:
         template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
         {
-            s_onLog.publish(Event::ELog(level, fmt::format(args...)));
+            s_onLog.publish(Event::ELog(level, fmt::format(args...).c_str()));
         }
 
     private:

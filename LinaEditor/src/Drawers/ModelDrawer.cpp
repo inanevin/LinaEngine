@@ -42,12 +42,12 @@ namespace Lina::Editor
     {
         auto* assetData = model->GetAssetData();
         WidgetsUtility::IncrementCursorPosY(ImGui::GetStyle().ItemSpacing.y + 9.5f);
-        const std::string numMeshes    = std::to_string(model->GetNumMeshes());
-        const std::string numBones     = std::to_string(model->GetNumBones());
-        const std::string numMaterials = std::to_string(model->GetNumMaterials());
-        const std::string numAnims     = std::to_string(model->GetNumAnims());
-        const std::string numVertices  = std::to_string(model->GetNumVertices());
-        const std::string numNodes     = std::to_string(model->GetNumNodes());
+        const String numMeshes    = TO_STRING(model->GetNumMeshes());
+        const String numBones     = TO_STRING(model->GetNumBones());
+        const String numMaterials = TO_STRING(model->GetNumMaterials());
+        const String numAnims     = TO_STRING(model->GetNumAnims());
+        const String numVertices  = TO_STRING(model->GetNumVertices());
+        const String numNodes     = TO_STRING(model->GetNumNodes());
 
         WidgetsUtility::PropertyLabel("Num Meshes");
         ImGui::Text(numMeshes.c_str());
@@ -79,7 +79,7 @@ namespace Lina::Editor
         if (WidgetsUtility::Button("Save Settings", ImVec2(leftPaneWidth - CURSOR_X_LABELS * 2, 25 * GUILayer::Get()->GetDPIScale())))
         {
             Resources::SaveArchiveToFile(assetData->GetPath(), *assetData);
-            const std::string  path = model->GetPath();
+            const String  path = model->GetPath();
             const StringIDType sid  = model->GetSID();
             const TypeID       tid  = GetTypeID<Graphics::Model>();
             Resources::ResourceStorage::Get()->Unload<Graphics::Model>(sid);

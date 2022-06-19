@@ -42,7 +42,7 @@ Timestamp: 6/5/2020 12:54:52 AM
 #include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
 #include "Data/Vector.hpp"
-#include <map>
+#include "Data/Map.hpp"
 
 namespace Lina
 {
@@ -97,8 +97,8 @@ namespace Lina::Editor
         bool ContextMenuCanAddAsset();
 
     private:
-        std::string                 m_folderSearchFilter        = "";
-        std::string                 m_fileSearchFilter          = "";
+        String                 m_folderSearchFilter        = "";
+        String                 m_fileSearchFilter          = "";
         bool                        m_draggingChildWindowBorder = false;
         bool                        m_showEditorFolders         = true;
         bool                        m_showEngineFolders         = true;

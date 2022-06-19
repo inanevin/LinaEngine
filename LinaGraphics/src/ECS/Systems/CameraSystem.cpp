@@ -41,7 +41,7 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-    void CameraSystem::Initialize(const std::string& name, float aspect)
+    void CameraSystem::Initialize(const String& name, float aspect)
     {
         System::Initialize(name);
         SetAspectRatio(aspect);

@@ -48,8 +48,8 @@ Timestamp: 10/11/2020 1:39:01 PM
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
 
-#include <map>
-#include <string>
+#include "Data/Map.hpp"
+#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -165,7 +165,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a combo-box for primitive selection.
         /// </summary>
-        static int SelectPrimitiveCombobox(const char* comboID, const Vector<std::string>& primitives, int currentSelected, float widthDecrease = 0.0f);
+        static int SelectPrimitiveCombobox(const char* comboID, const Vector<String>& primitives, int currentSelected, float widthDecrease = 0.0f);
 
         /// <summary>
         /// Draws a full-window-width line, the Y position determines the local offset from current cursor pos.
@@ -205,13 +205,13 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a simple caret and a title, return true upon press.
         /// </summary>
-        static bool CaretTitle(const char* title, const std::string& id);
+        static bool CaretTitle(const char* title, const String& id);
 
         /// <summary>
         /// Draws a property label, automatically sets the cursor position, asks for the same line.
         /// </summary>
         /// <param name="label"></param>
-        static void PropertyLabel(const char* label, bool sameLine = true, const std::string& tooltip = "");
+        static void PropertyLabel(const char* label, bool sameLine = true, const String& tooltip = "");
 
         /// <summary>
         /// Base implementation of a combobox begin, uses ImGui Combo with custom remove buttons.
@@ -251,32 +251,32 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
         /// </summary>
-        static StringIDType ResourceSelection(const std::string& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
+        static StringIDType ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionMaterial(const std::string& id, void* handleAddr);
+        static StringIDType ResourceSelectionMaterial(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionTexture(const std::string& id, void* handleAddr);
+        static StringIDType ResourceSelectionTexture(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionAudio(const std::string& id, void* handleAddr);
+        static StringIDType ResourceSelectionAudio(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionPhysicsMaterial(const std::string& id, void* handleAddr);
+        static StringIDType ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionShader(const std::string& id, void* handleAddr);
+        static StringIDType ResourceSelectionShader(const String& id, void* handleAddr);
 
         /// <summary>
         /// Default IMGUI button with fixed styling options.
@@ -496,7 +496,7 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a clickable button to select OS path.
         /// </summary>
-        static std::string PathSelectPopup(const std::string& original);
+        static String PathSelectPopup(const String& original);
     };
 } // namespace Lina::Editor
 

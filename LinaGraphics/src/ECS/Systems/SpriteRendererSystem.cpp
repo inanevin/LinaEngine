@@ -44,7 +44,7 @@ namespace Lina::ECS
             delete m_quadMesh;
     }
 
-    void SpriteRendererSystem::Initialize(const std::string& name)
+    void SpriteRendererSystem::Initialize(const String& name)
     {
         System::Initialize(name);
         m_renderEngine = Graphics::RenderEngine::Get();
@@ -90,7 +90,7 @@ namespace Lina::ECS
         // When flushed, all the data is delegated to the render device to do the actual
         // drawing. Then the data is cleared if complete flush is requested.
 
-        for (std::map<Graphics::Material*, BatchModelData>::iterator it = m_renderBatch.begin(); it != m_renderBatch.end(); ++it)
+        for (Map<Graphics::Material*, BatchModelData>::iterator it = m_renderBatch.begin(); it != m_renderBatch.end(); ++it)
         {
             // Get references.
             BatchModelData& modelData     = it->second;

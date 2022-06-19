@@ -48,8 +48,8 @@ Timestamp: 12/30/2021 9:37:39 PM
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
 #include "Data/Vector.hpp"
-#include <unordered_map>
-#include <set>
+#include "Data/HashMap.hpp"
+#include "Data/Set.hpp"
 
 namespace Lina
 {
@@ -65,14 +65,14 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    typedef std::unordered_map<StringIDType, void*> Cache;
+    typedef HashMap<StringIDType, void*> Cache;
 
     struct ResourceTypeData
     {
         int                      m_loadPriority = 0;
         ResourceCreateFunc       m_createFunc;
         ResourceDeleteFunc       m_deleteFunc;
-        Vector<std::string> m_associatedExtensions;
+        Vector<String> m_associatedExtensions;
         Color                    m_resourceIdentifierColor = Color::White;
         bool                     m_isAssetData             = false;
     };
@@ -100,7 +100,7 @@ namespace Lina::Resources
         /// Returns true if the given path's string ID exists in the cache for the type T.
         /// </summary>
         template <typename T>
-        bool Exists(const std::string& path)
+        bool Exists(const String& path)
         {
             return Exists<T>(StringID(path.c_str()).value());
         }
@@ -130,7 +130,7 @@ namespace Lina::Resources
         /// If you are not sure about the resource's existance, use Exists() method first.
         /// </summary>
         template <typename T>
-        T* GetResource(const std::string& path)
+        T* GetResource(const String& path)
         {
             return GetResource<T>(StringID(path.c_str()).value());
         }
@@ -175,7 +175,7 @@ namespace Lina::Resources
         /// <typeparam name="T"></typeparam>
         /// <param name="sid"></param>
         template <typename T>
-        void Unload(const std::string& path)
+        void Unload(const String& path)
         {
             Unload<T>(StringID(path.c_str()).value());
         }
@@ -207,7 +207,7 @@ namespace Lina::Resources
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="sid"></param>
-        void Unload(TypeID tid, const std::string& path)
+        void Unload(TypeID tid, const String& path)
         {
             Unload(tid, StringID(path.c_str()).value());
         }
@@ -235,7 +235,7 @@ namespace Lina::Resources
         /// <summary>
         /// Returns the type ID of the resource associated with the given extension.
         /// </summary>
-        TypeID GetTypeIDFromExtension(const std::string& extension);
+        TypeID GetTypeIDFromExtension(const String& extension);
 
         /// <summary>
         /// Returns the binded type data with the resource type.
@@ -287,7 +287,7 @@ namespace Lina::Resources
             return m_resourceTypes.find(tid) != m_resourceTypes.end();
         }
 
-        inline const std::unordered_map<TypeID, ResourceTypeData>& GetResourceTypes() const
+        inline const HashMap<TypeID, ResourceTypeData>& GetResourceTypes() const
         {
             return m_resourceTypes;
         }
@@ -304,8 +304,8 @@ namespace Lina::Resources
 
     private:
         static ResourceStorage*                      s_instance;
-        std::unordered_map<TypeID, Cache>            m_resources;
-        std::unordered_map<TypeID, ResourceTypeData> m_resourceTypes;
+        HashMap<TypeID, Cache>            m_resources;
+        HashMap<TypeID, ResourceTypeData> m_resourceTypes;
     };
 } // namespace Lina::Resources
 

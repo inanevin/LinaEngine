@@ -27,58 +27,18 @@ SOFTWARE.
 */
 
 /*
-Class: CommonApplication
+Class: VectorSerialization
 
 
-
-Timestamp: 12/25/2021 12:21:22 PM
+Timestamp: 05/12/2022 11:33:56 PM
 */
 
 #pragma once
 
-#ifndef CommonApplication_HPP
-#define CommonApplication_HPP
+#ifndef DataStructuresHashMapSerialization_HPP
+#define DataStructuresHashMapSerialization_HPP
 
-// Headers here.
-#include "Core/CommonWindow.hpp"
-
-namespace Lina
-{
-    enum class LogLevel
-    {
-        None     = 1 << 0,
-        Debug    = 1 << 1,
-        Info     = 1 << 2,
-        Critical = 1 << 3,
-        Error    = 1 << 4,
-        Trace    = 1 << 5,
-        Warn     = 1 << 6
-    };
-
-    enum class ApplicationMode
-    {
-        Editor     = 1 << 0,
-        Standalone = 1 << 1
-    };
-
-    struct ApplicationInfo
-    {
-        // Bundle name that is used to load resources package on Standalone builds.
-        String m_bundleName = "";
-
-        // App Info
-        const char*    m_appName     = "Lina Engine";
-        const wchar_t* m_packagePass = nullptr;
-        int            m_build       = 0;
-        int            m_appMajor    = 1;
-        int            m_appMinor    = 0;
-        int            m_appPatch    = 0;
-
-        ApplicationMode  m_appMode          = ApplicationMode::Editor;
-        WindowProperties m_windowProperties = WindowProperties();
-    };
-
-    extern String LogLevelAsString(LogLevel level);
-} // namespace Lina
+#include <cereal/types/concepts/pair_associative_container.hpp>
+#include <EASTL/hash_map.h>
 
 #endif

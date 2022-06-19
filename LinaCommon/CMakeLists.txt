@@ -133,6 +133,10 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
 	include/Data/Serialization/VectorSerialization.hpp
+	include/Data/Serialization/SetSerialization.hpp
+	include/Data/Serialization/StringSerialization.hpp
+	include/Data/Serialization/HashMapSerialization.hpp
+	include/Data/Serialization/MapSerialization.hpp
 
 	# Log
 	include/Log/Log.hpp
@@ -174,7 +178,7 @@ set(LINACOMMON_HEADERS
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON UNITY_BUILD_UNIQUE_ID "LinaCommon")
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaCommon")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 target_precompile_headers(${PROJECT_NAME}
@@ -215,6 +219,9 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/String.hpp
 	include/Data/Serialization/VectorSerialization.hpp
 	include/Data/Serialization/StringSerialization.hpp
+	include/Data/Serialization/SetSerialization.hpp
+	include/Data/Serialization/MapSerialization.hpp
+	include/Data/Serialization/HashMapSerialization.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions

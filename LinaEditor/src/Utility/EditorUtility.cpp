@@ -34,7 +34,7 @@ SOFTWARE.
 #include <cereal/archives/binary.hpp>
 #include <filesystem>
 #include <fstream>
-#include <string>
+#include <Data/String.hpp>
 #include <sys/stat.h>
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -47,23 +47,23 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    bool EditorUtility::CreateFolderInPath(const std::string& path)
+    bool EditorUtility::CreateFolderInPath(const String& path)
     {
-        return std::filesystem::create_directory(path);
+        return std::filesystem::create_directory(path.c_str());
     }
 
-    bool EditorUtility::DeleteDirectory(const std::string& path)
+    bool EditorUtility::DeleteDirectory(const String& path)
     {
         return false;
     }
 
-    std::string EditorUtility::RemoveExtensionFromFilename(const std::string& fileName)
+    String EditorUtility::RemoveExtensionFromFilename(const String& fileName)
     {
         size_t lastindex = fileName.find_last_of(".");
         return fileName.substr(0, lastindex);
     }
 
-    std::string EditorUtility::OpenFile(const char* filter, void* window)
+    String EditorUtility::OpenFile(const char* filter, void* window)
     {
 #ifdef LINA_PLATFORM_WINDOWS
         OPENFILENAMEA ofn;
@@ -79,16 +79,16 @@ namespace Lina::Editor
 
         if (GetOpenFileNameA(&ofn) == TRUE)
         {
-            std::string replacedPath = ofn.lpstrFile;
+            String replacedPath = ofn.lpstrFile;
             std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
             return replacedPath;
         }
 
 #endif
-        return std::string();
+        return String();
     }
 
-    std::string EditorUtility::SaveFile(const char* filter, void* window)
+    String EditorUtility::SaveFile(const char* filter, void* window)
     {
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -104,15 +104,15 @@ namespace Lina::Editor
         ofn.Flags        = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
         if (GetSaveFileNameA(&ofn) == TRUE)
         {
-            std::string replacedPath = ofn.lpstrFile;
+            String replacedPath = ofn.lpstrFile;
             std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
             return replacedPath;
         }
 #endif
-        return std::string();
+        return String();
     }
 
-    std::string EditorUtility::SelectPath(void* window)
+    String EditorUtility::SelectPath(void* window)
     {
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -129,19 +129,19 @@ namespace Lina::Editor
 
         if (GetOpenFileNameA(&ofn) == TRUE)
         {
-            std::string replacedPath = ofn.lpstrFile;
+            String replacedPath = ofn.lpstrFile;
             std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
             return replacedPath;
         }
 
 #endif
-        return std::string();
+        return String();
     }
 
     bool EditorUtility::ChangeFilename(const char* folderPath, const char* oldName, const char* newName)
     {
-        std::string oldPathStr = std::string(folderPath) + std::string(oldName);
-        std::string newPathStr = std::string(folderPath) + std::string(newName);
+        String oldPathStr = String(folderPath) + String(oldName);
+        String newPathStr = String(folderPath) + String(newName);
 
         /*	Deletes the file if exists */
         if (std::rename(oldPathStr.c_str(), newPathStr.c_str()) != 0)

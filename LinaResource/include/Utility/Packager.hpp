@@ -42,7 +42,7 @@ Timestamp: 12/20/2020 8:56:18 PM
 // Headers here.
 #include "Core/CommonResources.hpp"
 
-#include <unordered_map>
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -59,9 +59,9 @@ namespace Lina::Resources
     private:
         friend class ResourceManager;
 
-        void PackageDirectory(const std::string& dir, const std::string& output, const wchar_t* pass);
-        void PackageFileset(Vector<std::string> files, const std::string& output, const wchar_t* pass);
-        void Unpack(const std::string& filePath, const wchar_t* pass, ResourceBundle* outBundle);
+        void PackageDirectory(const String& dir, const String& output, const wchar_t* pass);
+        void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
+        void Unpack(const String& filePath, const wchar_t* pass, ResourceBundle* outBundle);
     };
 
 }; // namespace Lina::Resources

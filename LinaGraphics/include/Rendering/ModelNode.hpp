@@ -80,7 +80,7 @@ namespace Lina::Graphics
         {
             return m_meshes;
         }
-        inline const std::string& GetName() const
+        inline const String& GetName() const
         {
             return m_name;
         }
@@ -117,7 +117,7 @@ namespace Lina::Graphics
 
         int                     m_nodeIndexInParentHierarchy = 0;
         Vector<Mesh*>      m_meshes;
-        std::string             m_name              = "";
+        String             m_name              = "";
         Vector3                 m_totalVertexCenter = Vector3::Zero;
         AABB                    m_aabb;
         Matrix                  m_localTransform;

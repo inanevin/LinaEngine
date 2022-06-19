@@ -44,7 +44,7 @@ namespace Lina::ECS
     StringIDType sLightIconID = -1;
     StringIDType dLightIconID = -1;
 
-    void LightingSystem::Initialize(const std::string& name, ApplicationMode& appMode)
+    void LightingSystem::Initialize(const String& name, ApplicationMode& appMode)
     {
         System::Initialize(name);
         m_renderEngine = Graphics::RenderEngine::Get();
@@ -153,7 +153,7 @@ namespace Lina::ECS
         {
             EntityDataComponent* data                 = std::get<0>(*it);
             PointLightComponent* pointLight           = std::get<1>(*it);
-            std::string          currentPointLightStr = std::to_string(currentPointLightCount);
+            String          currentPointLightStr = TO_STRING(currentPointLightCount);
             m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
             m_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTCOLOR, pointLight->m_color * pointLight->m_intensity);
             m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTDISTANCE, pointLight->m_distance);
@@ -170,7 +170,7 @@ namespace Lina::ECS
         {
             EntityDataComponent* data                = std::get<0>(*it);
             SpotLightComponent*  spotLight           = std::get<1>(*it);
-            std::string          currentSpotLightStr = std::to_string(currentSpotLightCount);
+            String          currentSpotLightStr = TO_STRING(currentSpotLightCount);
             m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
             m_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCOLOR, spotLight->m_color * spotLight->m_intensity);
             m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDIRECTION, data->GetRotation().GetForward());

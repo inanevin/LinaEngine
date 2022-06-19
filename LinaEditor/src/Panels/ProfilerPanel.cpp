@@ -65,7 +65,7 @@ namespace Lina::Editor
 #define CURSORPOS_X_LABELS     12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
-    std::map<std::string, std::string> m_timerMSStorage;
+    Map<String, String> m_timerMSStorage;
 
     void ProfilerPanel::Initialize(const char* id, const char* icon)
     {
@@ -79,7 +79,7 @@ namespace Lina::Editor
         {
             float                                cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
             float                                cursorPosLabels = CURSORPOS_X_LABELS;
-            const std::map<std::string, Timer*>& map             = Timer::GetTimerMap();
+            const HashMap<String, Timer*>& map             = Timer::GetTimerMap();
 
             if (Begin())
             {
@@ -99,24 +99,24 @@ namespace Lina::Editor
                 WidgetsUtility::IncrementCursorPosX(12);
 
                 double            updateTime    = Engine::Get()->GetUpdateTime();
-                const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
+                const String updateTimeStr = "Update Time: " + TO_STRING(updateTime);
                 WidgetsUtility::PropertyLabel(updateTimeStr.c_str());
 
                 double            renderTime    = Engine::Get()->GetRenderTime();
-                const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
+                const String renderTimeStr = "Render Time: " + TO_STRING(renderTime);
                 WidgetsUtility::PropertyLabel(renderTimeStr.c_str());
 
                 double            frameTime    = Engine::Get()->GetFrameTime();
-                const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
+                const String frameTimeStr = "Frame Time: " + TO_STRING(frameTime);
                 WidgetsUtility::PropertyLabel(frameTimeStr.c_str());
 
-                for (std::map<std::string, Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+                for (HashMap<String, Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
                 {
-                    std::string txt = "";
+                    String txt = "";
                     txt             = it->first + " " + m_timerMSStorage[it->first] + " ms";
 
                     if (displayMS)
-                        m_timerMSStorage[it->first] = std::to_string(it->second->GetDuration());
+                        m_timerMSStorage[it->first] = TO_STRING(it->second->GetDuration());
 
                     WidgetsUtility::IncrementCursorPosX(12);
                     ImGui::Text(txt.c_str());
@@ -153,8 +153,8 @@ namespace Lina::Editor
                 if (ImPlot::BeginPlot("##fpsUPS", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
                 {
 
-                    std::string fpsLabel = "FPS " + std::to_string(fps);
-                    std::string upsLabel = "UPS " + std::to_string(ups);
+                    String fpsLabel = "FPS " + TO_STRING(fps);
+                    String upsLabel = "UPS " + TO_STRING(ups);
                     ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
                     ImPlot::PlotLine(fpsLabel.c_str(), &fpsData.m_data[0].x, &fpsData.m_data[0].y, fpsData.m_data.size(), 0, 2 * sizeof(float));
                     ImPlot::PopStyleColor();
@@ -178,8 +178,8 @@ namespace Lina::Editor
                 if (ImPlot::BeginPlot("##deltas", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis))
                 {
 
-                    std::string rawDeltaLabel    = "Raw DT " + std::to_string(rawDelta);
-                    std::string smoothDeltaLabel = "Smooth DT " + std::to_string(smoothDelta);
+                    String rawDeltaLabel    = "Raw DT " + TO_STRING(rawDelta);
+                    String smoothDeltaLabel = "Smooth DT " + TO_STRING(smoothDelta);
                     ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
                     ImPlot::PlotLine(rawDeltaLabel.c_str(), &rawDeltaData.m_data[0].x, &rawDeltaData.m_data[0].y, rawDeltaData.m_data.size(), 0, 2 * sizeof(float));
                     ImPlot::PopStyleColor();

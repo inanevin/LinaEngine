@@ -43,7 +43,7 @@ Timestamp: 05/12/2022 11:33:56 PM
 namespace Lina
 {
     template <typename T>
-    using Vector = std::vector<T>;
+    using Vector = eastl::vector<T>;
 } // namespace Lina
 
 #endif

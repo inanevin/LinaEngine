@@ -47,8 +47,8 @@ Timestamp: 5/6/2019 5:10:23 PM
 #include "Resources/ResourceHandle.hpp"
 #include "Rendering/Material.hpp"
 #include "Core/CommonReflection.hpp"
+#include "Data/String.hpp"
 #include <cereal/access.hpp>
-#include <string>
 
 namespace Lina
 {
@@ -79,12 +79,12 @@ namespace Lina::World
         /// <summary>
         /// Save the level data to given file.
         /// </summary>
-        void SaveToFile(const std::string& path);
+        void SaveToFile(const String& path);
 
         /// <summary>
         /// Install the level from given file.
         /// </summary>
-        void InstallFromFile(const std::string& path);
+        void InstallFromFile(const String& path);
 
         LINA_PROPERTY("Skybox", "Material", "", "", "Sky")
         Resources::ResourceHandle<Graphics::Material> m_skyboxMaterial;

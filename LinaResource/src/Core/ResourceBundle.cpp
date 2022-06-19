@@ -42,10 +42,10 @@ namespace Lina::Resources
         m_data.clear();
     }
 
-    void ResourceBundle::PushResourceFromMemory(const std::string& path, Vector<unsigned char>& data)
+    void ResourceBundle::PushResourceFromMemory(const String& path, Vector<unsigned char>& data)
     {
         auto*             storage   = Resources::ResourceStorage::Get();
-        const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
+        const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
         auto&             typeData  = storage->GetTypeData(storage->GetTypeIDFromExtension(extension));
         m_memoryResources.push(MemoryEntry(typeData.m_loadPriority, path, data));
         data.clear();
@@ -58,7 +58,7 @@ namespace Lina::Resources
         {
 
             MemoryEntry       entry     = m_memoryResources.top();
-            const std::string extension = Utility::GetFileExtension(Utility::GetFileNameOnly(entry.m_path));
+            const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(entry.m_path));
             TypeID            tid       = storage->GetTypeIDFromExtension(extension);
             StringIDType      sid       = StringID(entry.m_path.c_str()).value();
 
@@ -138,7 +138,7 @@ namespace Lina::Resources
         }
     }
 
-    void ResourceBundle::LoadSingleFile(TypeID tid, const std::string& path)
+    void ResourceBundle::LoadSingleFile(TypeID tid, const String& path)
     {
         auto*        storage = ResourceStorage::Get();
         StringIDType sid     = StringID(path.c_str()).value();

@@ -37,11 +37,10 @@ SOFTWARE.
 #include <entt/meta/node.hpp>
 #include <entt/meta/resolve.hpp>
 #include "IconsFontAwesome5.h"
-#include <unordered_map>
+
 
 using namespace entt::literals;
 
-std::unordered_map<std::string, Vector<entt::meta_data>> m_propertyList; // Category- property pair
 
 namespace Lina::Editor
 {
@@ -70,7 +69,7 @@ namespace Lina::Editor
                         if (!labelProperty || !typeProperty)
                             continue;
 
-                        std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
+                        String category = String(data.prop("Category"_hs).value().cast<const char*>());
 
                         AddPropertyToDrawList(category, data);
                     }
@@ -83,12 +82,12 @@ namespace Lina::Editor
         return anyPropertyChanged;
     }
 
-    void ClassDrawer::AddPropertyToDrawList(const std::string& category, entt::meta_data& data)
+    void ClassDrawer::AddPropertyToDrawList(const String& category, entt::meta_data& data)
     {
         m_propertyList[category].push_back(data);
     }
 
-    bool ClassDrawer::FlushDrawList(const std::string& id, entt::meta_type& owningType, entt::meta_any& instance)
+    bool ClassDrawer::FlushDrawList(const String& id, entt::meta_type& owningType, entt::meta_any& instance)
     {
         bool anyPropertyChanged = false;
 
@@ -98,7 +97,7 @@ namespace Lina::Editor
 
             if (category.compare("") != 0)
             {
-                const std::string caretID = id + std::string(category);
+                const String caretID = id + String(category);
                 show                      = WidgetsUtility::CaretTitle(category.c_str(), caretID);
             }
 
@@ -133,11 +132,11 @@ namespace Lina::Editor
 
         const char* typeVal = typeProperty.value().cast<const char*>();
 
-        if (std::string(typeVal).compare("") == 0)
+        if (String(typeVal).compare("") == 0)
             return false;
 
         const char* label                     = labelProperty.value().cast<const char*>();
-        std::string type                      = std::string(typeProperty.value().cast<const char*>());
+        String type                      = String(typeProperty.value().cast<const char*>());
         auto        displayDependencyProperty = data.prop("Depends"_hs);
         const char* owningTypeTitle           = owningType.prop("Title"_hs).value().cast<const char*>();
 
@@ -154,14 +153,14 @@ namespace Lina::Editor
             }
         }
 
-        std::string varLabelID = "##_" + std::string(label);
+        String varLabelID = "##_" + String(label);
         WidgetsUtility::PropertyLabel(label);
-        const std::string variableID = "##_" + std::string(owningTypeTitle) + varLabelID;
+        const String variableID = "##_" + String(owningTypeTitle) + varLabelID;
 
         auto tooltipProperty = data.prop("Tooltip"_hs);
         if (tooltipProperty)
         {
-            std::string tooltip = std::string(tooltipProperty.value().cast<const char*>());
+            String tooltip = String(tooltipProperty.value().cast<const char*>());
             if (ImGui::IsItemHovered() && tooltip.compare("") != 0)
                 WidgetsUtility::Tooltip(tooltip.c_str());
         }
@@ -248,8 +247,8 @@ namespace Lina::Editor
         }
         else if (type.compare("String") == 0)
         {
-            std::string                var  = data.get(instance).cast<std::string>();
-            const std::string          prev = var;
+            String                var  = data.get(instance).cast<String>();
+            const String          prev = var;
             InputTextCallback_UserData cb_user_data;
             cb_user_data.Str = &var;
             ImGui::InputText(varLabelID.c_str(), (char*)var.c_str(), var.capacity() + 1, ImGuiInputTextFlags_CallbackResize, InputTextCallback, &cb_user_data);
@@ -260,8 +259,8 @@ namespace Lina::Editor
         }
         else if (type.compare("StringPath") == 0)
         {
-            std::string       var  = data.get(instance).cast<std::string>();
-            const std::string prev = var;
+            String       var  = data.get(instance).cast<String>();
+            const String prev = var;
 
             var = WidgetsUtility::PathSelectPopup(var);
             data.set(instance, var);
@@ -285,10 +284,10 @@ namespace Lina::Editor
 
             auto arr = data.get(instance).cast<Vector<Resources::ResourceHandle<Graphics::Material>>>();
 
-            Vector<std::string> materialNameVector;
+            Vector<String> materialNameVector;
 
             // We are looking for a property with title MaterialArray's title + _Names
-            const std::string labelNames = std::string(label) + "_Names";
+            const String labelNames = String(label) + "_Names";
 
             // Search through the reflected data of the owning type.
             for (auto& d : owningType.data())
@@ -300,9 +299,9 @@ namespace Lina::Editor
                     // If any property's title matches the label we are looking for
                     // it means we found the array containing the names for the current material array.
                     const char* dTitleChr = dTitle.value().cast<const char*>();
-                    if (std::string(dTitleChr).compare(labelNames) == 0)
+                    if (String(dTitleChr).compare(labelNames) == 0)
                     {
-                        materialNameVector = d.get(instance).cast<Vector<std::string>>();
+                        materialNameVector = d.get(instance).cast<Vector<String>>();
                         break;
                     }
                 }
@@ -311,9 +310,9 @@ namespace Lina::Editor
             for (int i = 0; i < arr.size(); i++)
             {
                 const StringIDType prev      = arr[i].m_sid;
-                const std::string  elementID = variableID + std::to_string(i);
+                const String  elementID = variableID + TO_STRING(i);
 
-                std::string materialName = "Material " + std::to_string(i);
+                String materialName = "Material " + TO_STRING(i);
                 if (materialNameVector.size() > 0)
                     materialName = materialNameVector[i];
 

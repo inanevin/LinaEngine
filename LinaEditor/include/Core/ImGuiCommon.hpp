@@ -41,13 +41,13 @@ Timestamp: 1/2/2022 5:03:25 PM
 
 // Headers here.
 #include "imgui/imgui.h"
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Editor
 {
     struct InputTextCallback_UserData
     {
-        std::string*           Str;
+        String*           Str;
         ImGuiInputTextCallback ChainCallback;
         void*                  ChainCallbackUserData;
     };

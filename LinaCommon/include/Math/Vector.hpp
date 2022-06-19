@@ -71,11 +71,11 @@ namespace Lina
             return os << "X:" << x << "   Y:" << y;
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive>
@@ -105,11 +105,11 @@ namespace Lina
             return os << "X:" << x << "   Y:" << y;
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive>
@@ -234,11 +234,11 @@ namespace Lina
             return os << "X:" << x << "   Y:" << y;
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive>
@@ -439,11 +439,11 @@ namespace Lina
             return os << "X:" << x << "   Y:" << y << "   Z:" << z;
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y << "   Z:" << z;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive>
@@ -649,11 +649,11 @@ namespace Lina
             return os << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive>

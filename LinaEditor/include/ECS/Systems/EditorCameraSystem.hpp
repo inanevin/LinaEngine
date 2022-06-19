@@ -40,6 +40,7 @@ Timestamp: 10/27/2020 4:58:35 PM
 #define EditorCameraSystem_HPP
 
 // Headers here.
+#include "Math/Vector.hpp"
 #include "Core/CommonECS.hpp"
 #include "Core/InputEngineFwd.hpp"
 #include "ECS/System.hpp"
@@ -59,7 +60,7 @@ namespace Lina::ECS
     class EditorCameraSystem : public System
     {
     public:
-        void         Initialize(const std::string& name, Editor::LevelPanel& scenePanel);
+        void         Initialize(const String& name, Editor::LevelPanel& scenePanel);
         virtual void UpdateComponents(float delta) override;
         void         SetEditorCamera(Entity entity)
         {

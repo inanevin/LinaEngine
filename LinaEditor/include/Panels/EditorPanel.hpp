@@ -88,7 +88,7 @@ namespace Lina::Editor
         {
             return m_isDocked;
         }
-        inline std::string GetTitle()
+        inline String GetTitle()
         {
             return m_title;
         }
@@ -105,7 +105,7 @@ namespace Lina::Editor
         bool        m_lockWindowPos          = false;
         const char* m_id                     = nullptr;
         const char* m_icon                   = nullptr;
-        std::string m_title                  = "";
+        String m_title                  = "";
         int         m_windowFlags            = 0;
         bool        m_setWindowSizeNextFrame = false;
         bool        m_setWindowPosNextFrame  = false;

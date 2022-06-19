@@ -44,7 +44,7 @@ Timestamp: 12/30/2021 9:37:53 PM
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include <cereal/access.hpp>
-#include <set>
+#include "Data/Set.hpp"
 
 namespace Lina::Resources
 {
@@ -61,7 +61,7 @@ namespace Lina::Resources
 
     protected:
         friend class ResourceStorage;
-        static std::set<ResourceHandleBase*> s_resourceHandles;
+        static Set<ResourceHandleBase*> s_resourceHandles;
     };
 
     template <typename T>

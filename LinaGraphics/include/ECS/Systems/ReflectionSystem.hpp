@@ -67,7 +67,7 @@ namespace Lina::ECS
     public:
         ReflectionSystem()  = default;
         ~ReflectionSystem() = default;
-        virtual void Initialize(const std::string& name, ApplicationMode& appMode);
+        virtual void Initialize(const String& name, ApplicationMode& appMode);
         virtual void UpdateComponents(float delta){UpdateReflectionData();};
 
         /// <summary>

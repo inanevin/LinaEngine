@@ -90,10 +90,10 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Trigger<Event::EResourceLoadUpdated>(Event::EResourceLoadUpdated{ResourceManager::s_currentProgressData.m_currentResourceName, ResourceManager::s_currentProgressData.m_currentProgress});
     }
 
-    void ResourceManager::PackageProject(const std::string& path, const std::string& name)
+    void ResourceManager::PackageProject(const String& path, const String& name)
     {
         // Find out which resources to export.
-        Vector<std::string> filesToPack;
+        Vector<String> filesToPack;
         AddAllResourcesToPack(filesToPack, m_rootFolder);
 
         // Export resources.
@@ -107,12 +107,12 @@ namespace Lina::Resources
         m_appInfo  = appInfo;
         m_eventSys = Event::EventSystem::Get();
         m_eventSys->Connect<Event::ERequestResourceReload, &ResourceManager::OnRequestResourceReload>(this);
-        m_workingDirectory         = std::filesystem::current_path().string();
+        m_workingDirectory         = std::filesystem::current_path().string().c_str();
         m_workingDirectoryReplaced = m_workingDirectory;
         std::replace(m_workingDirectoryReplaced.begin(), m_workingDirectoryReplaced.end(), '\\', '/');
     }
 
-    void ResourceManager::AddAllResourcesToPack(Vector<std::string>& resources, Utility::Folder* folder)
+    void ResourceManager::AddAllResourcesToPack(Vector<String>& resources, Utility::Folder* folder)
     {
         for (auto& childFolder : folder->m_folders)
             AddAllResourcesToPack(resources, childFolder);
@@ -121,16 +121,16 @@ namespace Lina::Resources
             resources.push_back(file->m_fullPath);
     }
 
-    void ResourceManager::ImportResourceBundle(const std::string& path, const std::string& name)
+    void ResourceManager::ImportResourceBundle(const String& path, const String& name)
     {
-        const std::string fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
+        const String fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
         {
             LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
             return;
         }
 
-        std::string fullBundlePath                  = fullPath;
+        String fullBundlePath                  = fullPath;
         s_currentProgressData.m_progressTitle       = "Unpacking level resources...";
         s_currentProgressData.m_currentResourceName = fullBundlePath;
 

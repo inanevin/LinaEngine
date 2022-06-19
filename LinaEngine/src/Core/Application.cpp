@@ -78,7 +78,7 @@ namespace Lina
 
     void Application::OnLog(const Event::ELog& dump)
     {
-        std::string msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
+        String msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
 
 #ifdef LINA_WINDOWS
         HANDLE hConsole;
@@ -103,7 +103,7 @@ namespace Lina
             msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
 #endif
-        std::cout << msg << std::endl;
+        std::cout << msg.c_str() << std::endl;
 
         m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
     }

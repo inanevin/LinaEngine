@@ -40,8 +40,8 @@ Timestamp: 10/22/2020 11:04:40 PM
 #define Timer_HPP
 
 #include <chrono>
-#include <map>
-#include <string>
+#include "Data/HashMap.hpp"
+#include <Data/String.hpp>
 
 #ifdef LINA_ENABLE_PROFILING
 
@@ -78,11 +78,11 @@ namespace Lina
             return m_duration;
         }
 
-        static const std::map<std::string, Timer*>& GetTimerMap()
+        static const HashMap<String, Timer*>& GetTimerMap()
         {
             return s_activeTimers;
         }
-        static Timer& GetTimer(const std::string& name);
+        static Timer& GetTimer(const String& name);
         static void   UnloadTimers();
 
     private:
@@ -91,7 +91,7 @@ namespace Lina
         std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
         bool                                               m_active   = false;
         double                                             m_duration = 0;
-        static std::map<std::string, Timer*>               s_activeTimers;
+        static HashMap<String, Timer*>                     s_activeTimers;
     };
 } // namespace Lina
 

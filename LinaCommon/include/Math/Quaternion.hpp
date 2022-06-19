@@ -145,18 +145,18 @@ namespace Lina
             return Vector4(x, y, z, w);
         }
 
-        std::string ToStringEuler() const
+        String ToStringEuler() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y << "   Z:" << z;
-            return ss.str();
+            return ss.str().c_str();
         }
 
-        std::string ToString() const
+        String ToString() const
         {
             std::stringstream ss;
             ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
-            return ss.str();
+            return ss.str().c_str();
         }
 
         template <class Archive> void serialize(Archive& archive)

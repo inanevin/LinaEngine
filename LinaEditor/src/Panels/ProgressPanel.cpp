@@ -36,7 +36,7 @@ namespace Lina::Editor
 {
     constexpr float lineWidth = 2.0f;
 
-    void ProgressPanel::Draw(const std::string& currentResource, float percentage)
+    void ProgressPanel::Draw(const String& currentResource, float percentage)
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar;
 

@@ -30,5 +30,5 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    std::string& EditorPathConstants::contentsPath = std::string("ProjectContents/");
+    String& EditorPathConstants::contentsPath = String("ProjectContents/");
 }

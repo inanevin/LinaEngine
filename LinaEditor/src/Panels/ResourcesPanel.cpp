@@ -510,7 +510,7 @@ namespace Lina::Editor
                         }
                         else if (file->m_typeID == GetTypeID<Graphics::Shader>() || file->m_typeID == GetTypeID<Graphics::ShaderInclude>())
                         {
-                            std::string command = "python \"Resources/Editor/Scripts/open_in_subprocess.py\" --app \"" + EditorApplication::Get()->GetEditorSettings().m_textEditorPath + 
+                            String command = "python \"Resources/Editor/Scripts/open_in_subprocess.py\" --app \"" + EditorApplication::Get()->GetEditorSettings().m_textEditorPath + 
                             "\" --filename \"" + file->m_fullPath + "\"";
                             system(command.c_str());
 
@@ -624,7 +624,7 @@ namespace Lina::Editor
             if (ContextMenuCanAddAsset())
             {
                 Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
-                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
+                const String uniqueName = Utility::GetUniqueDirectoryName(parent, "NewMaterial", ".linamat");
                 Graphics::Material::CreateMaterial(Graphics::RenderEngine::Get()->GetDefaultLitShader(), parent->m_fullPath + "/" + uniqueName + ".linamat");
                 Utility::ScanFolder(parent, true, nullptr, true);
             }
@@ -634,7 +634,7 @@ namespace Lina::Editor
             if (ContextMenuCanAddAsset())
             {
                 Utility::Folder*  parent     = m_selectedFolder == nullptr ? m_rootFolder->m_folders[2] : m_selectedFolder;
-                const std::string uniqueName = Utility::GetUniqueDirectoryName(parent, "NewPhyMaterial", ".linaphymat");
+                const String uniqueName = Utility::GetUniqueDirectoryName(parent, "NewPhyMaterial", ".linaphymat");
                 Physics::PhysicsMaterial::CreatePhysicsMaterial(parent->m_fullPath + "/" + uniqueName + ".linaphymat", 0.5f, 0.5f, 0.5f);
                 Utility::ScanFolder(parent, true, nullptr, true);
             }
@@ -679,7 +679,7 @@ namespace Lina::Editor
 
     bool ResourcesPanel::ContextMenuCanAddAsset()
     {
-        if (m_selectedFolder != nullptr && m_selectedFolder->m_fullPath.find("Resources/Sandbox") == std::string::npos)
+        if (m_selectedFolder != nullptr && m_selectedFolder->m_fullPath.find("Resources/Sandbox") == String::npos)
         {
             Snackbar::PushSnackbar(LogLevel::Warn, "New assets and folders can only be added under the Sandbox directory!");
             return false;

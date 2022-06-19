@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "ECS/Registry.hpp"
-
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "EventSystem/EventSystem.hpp"
@@ -36,6 +35,7 @@ SOFTWARE.
 #include <entt/meta/resolve.hpp>
 #include <entt/meta/meta.hpp>
 #include <entt/entity/snapshot.hpp>
+
 namespace Lina::ECS
 {
     template <typename Type>
@@ -129,8 +129,8 @@ namespace Lina::ECS
             return;
 
         int                        counter  = 0;
-        std::set<Entity>           children = data->m_children;
-        std::set<Entity>::iterator it;
+        Set<Entity>           children = data->m_children;
+        Set<Entity>::iterator it;
         for (it = children.begin(); it != children.end(); ++it)
         {
             DestroyEntity(*it);
@@ -141,7 +141,7 @@ namespace Lina::ECS
 
     void Registry::RemoveChildFromEntity(Entity parent, Entity child)
     {
-        std::set<Entity>& children = get<EntityDataComponent>(parent).m_children;
+        Set<Entity>& children = get<EntityDataComponent>(parent).m_children;
         if (children.find(child) != children.end())
         {
             children.erase(child);
@@ -182,12 +182,12 @@ namespace Lina::ECS
         }
     }
 
-    const std::set<Entity>& Registry::GetChildren(Entity parent)
+    const Set<Entity>& Registry::GetChildren(Entity parent)
     {
         return get<EntityDataComponent>(parent).m_children;
     }
 
-    Entity Registry::CreateEntity(const std::string& name)
+    Entity Registry::CreateEntity(const String& name)
     {
         entt::entity ent = create();
         emplace<EntityDataComponent>(ent, EntityDataComponent(true, true, name));
@@ -223,7 +223,7 @@ namespace Lina::ECS
         return copy;
     }
 
-    Entity Registry::GetEntity(const std::string& name)
+    Entity Registry::GetEntity(const String& name)
     {
         auto singleView = view<EntityDataComponent>();
 
@@ -239,7 +239,7 @@ namespace Lina::ECS
 
     void Registry::DestroyEntity(Entity entity, bool isRoot)
     {
-        std::set<Entity> toErase;
+        Set<Entity> toErase;
         for (Entity child : get<EntityDataComponent>(entity).m_children)
         {
             toErase.emplace(child);

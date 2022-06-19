@@ -44,8 +44,8 @@ Timestamp: 12/8/2021 5:35:25 PM
 #include "ECS/Component.hpp"
 #include "Math/Transformation.hpp"
 
-#include <cereal/types/set.hpp>
-#include <cereal/types/string.hpp>
+#include "Data/Serialization/SetSerialization.hpp"
+#include "Data/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -66,20 +66,20 @@ namespace Lina::ECS
     LINA_COMPONENT("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false")
     struct EntityDataComponent : public Component
     {
-        EntityDataComponent(bool enabled, bool serialized, std::string name)
+        EntityDataComponent(bool enabled, bool serialized, String name)
         {
-            m_isEnabled  = enabled;
-            m_serialized = serialized;
-            m_name       = name;
+            m_isEnabled            = enabled;
+            m_serialized           = serialized;
+            m_name                 = name;
             m_wasPreviouslyEnabled = m_isEnabled;
         }
 
         EntityDataComponent() = default;
 
-        bool             m_serialized = true;
-        std::string      m_name       = "";
-        std::set<Entity> m_children;
-        Entity           m_parent = entt::null;
+        bool        m_serialized = true;
+        String      m_name       = "";
+        Set<Entity> m_children;
+        Entity      m_parent = entt::null;
 
         virtual void SetIsEnabled(bool isEnabled) override;
         /* TRANSFORM OPERATIONS */
@@ -161,8 +161,8 @@ namespace Lina::ECS
         friend class Physics::PhysicsEngine;
 #endif
 
-        bool m_isTransformLocked = false;
-        bool m_wasPreviouslyEnabled = false;
+        bool           m_isTransformLocked    = false;
+        bool           m_wasPreviouslyEnabled = false;
         Transformation m_transform;
 
         template <class Archive>

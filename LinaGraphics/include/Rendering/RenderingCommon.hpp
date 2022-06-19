@@ -46,7 +46,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include <cereal/types/map.hpp>
 #include <Data/Serialization/VectorSerialization.hpp>
 #include <Data/Map.hpp>
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
@@ -213,15 +213,15 @@ namespace Lina::Graphics
 
     struct ShaderUniformData
     {
-        std::map<std::string, float>             m_floats;
-        std::map<std::string, int>               m_ints;
-        std::map<std::string, ShaderSamplerData> m_sampler2Ds;
-        std::map<std::string, Color>             m_colors;
-        std::map<std::string, Vector2>           m_vector2s;
-        std::map<std::string, Vector3>           m_vector3s;
-        std::map<std::string, Vector4>           m_vector4s;
-        std::map<std::string, Matrix>            m_matrices;
-        std::map<std::string, bool>              m_bools;
+        Map<String, float>             m_floats;
+        Map<String, int>               m_ints;
+        Map<String, ShaderSamplerData> m_sampler2Ds;
+        Map<String, Color>             m_colors;
+        Map<String, Vector2>           m_vector2s;
+        Map<String, Vector3>           m_vector3s;
+        Map<String, Vector4>           m_vector4s;
+        Map<String, Matrix>            m_matrices;
+        Map<String, bool>              m_bools;
     };
 
     struct SamplerData
@@ -344,8 +344,8 @@ namespace Lina::Graphics
 
     struct ImportedModelMaterial
     {
-        std::string                                 m_name = "Material";
-        Map<ImportTextureType, Vector<std::string>> m_textures;
+        String                                 m_name = "Material";
+        Map<ImportTextureType, Vector<String>> m_textures;
     };
 
     struct TextureParameters
@@ -393,9 +393,9 @@ namespace Lina::Graphics
     struct ShaderProgram
     {
         Vector<uint32>               shaders;
-        std::map<std::string, int32> uniformBlockMap;
-        std::map<std::string, int32> samplerMap;
-        std::map<std::string, int32> uniformMap;
+        Map<String, int32> uniformBlockMap;
+        Map<String, int32> samplerMap;
+        Map<String, int32> uniformMap;
     };
 
     struct BufferData
@@ -415,12 +415,12 @@ namespace Lina::Graphics
     /// <summary>
     /// Used for loading shaders from memory.
     /// </summary>
-    extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword);
+    extern bool LoadTextWithIncludes(String& output, const String& includeKeyword);
 
     /// <summary>
     /// Used for loading shaders from file.
     /// </summary>
-    extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+    extern bool LoadTextFileWithIncludes(String& output, const String& fileName, const String& includeKeyword);
 
     /// <summary>
     /// Converts the given sampler filter to int, for enumeration purposes.

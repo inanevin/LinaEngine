@@ -162,8 +162,8 @@ namespace Lina::Editor
 
         float                               m_headerSize = 0.0f;
         float                               m_footerSize = 20.0f;
-        std::map<const char*, const char*>  m_windowIconMap;
-        std::map<const char*, EditorPanel*> m_editorPanels;
+        Map<const char*, const char*>  m_windowIconMap;
+        Map<const char*, EditorPanel*> m_editorPanels;
 
     private:
         void DrawSplashScreen();
@@ -200,7 +200,7 @@ namespace Lina::Editor
         PreviewPanel                m_previewPanel;
         TextEditorPanel             m_textEditorPanel;
         Resources::ResourceStorage* m_storage                  = nullptr;
-        std::string                 m_currentlyLoadingResource = "";
+        String                 m_currentlyLoadingResource = "";
         float                       m_percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;
         bool                        m_shouldDrawProgressPanel  = false;

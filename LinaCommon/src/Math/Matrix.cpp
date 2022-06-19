@@ -238,11 +238,11 @@ namespace Lina
         return Inverse().Transpose();
     }
 
-    std::string Matrix::ToString()
+    String Matrix::ToString()
     {
-        std::string str = "0: " + std::to_string((*this)[0][0]) + " | " + std::to_string((*this)[0][1]) + " | " + std::to_string((*this)[0][2]) + " | " + std::to_string((*this)[0][3]) + "\n" + std::to_string((*this)[1][0]) + " | " + std::to_string((*this)[1][1]) + " | " +
-                          std::to_string((*this)[1][2]) + " | " + std::to_string((*this)[1][3]) + "\n" + std::to_string((*this)[2][0]) + " | " + std::to_string((*this)[2][1]) + " | " + std::to_string((*this)[2][2]) + " | " + std::to_string((*this)[2][3]) + "\n" + std::to_string((*this)[3][0]) +
-                          " | " + std::to_string((*this)[3][1]) + " | " + std::to_string((*this)[3][2]) + " | " + std::to_string((*this)[3][3]) + "\n";
+        String str = "0: " + TO_STRING((*this)[0][0])+ " | " + TO_STRING((*this)[0][1]) + " | " + TO_STRING((*this)[0][2]) + " | " + TO_STRING((*this)[0][3]) + "\n" + TO_STRING((*this)[1][0]) + " | " + TO_STRING((*this)[1][1]) + " | " +
+                          TO_STRING((*this)[1][2]) + " | " + TO_STRING((*this)[1][3]) + "\n" + TO_STRING((*this)[2][0]) + " | " + TO_STRING((*this)[2][1]) + " | " + TO_STRING((*this)[2][2]) + " | " + TO_STRING((*this)[2][3]) + "\n" + TO_STRING((*this)[3][0]) +
+                          " | " + TO_STRING((*this)[3][1]) + " | " + TO_STRING((*this)[3][2]) + " | " + TO_STRING((*this)[3][3]) + "\n";
 
         return str;
     }

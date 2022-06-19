@@ -126,7 +126,7 @@ namespace Lina::Editor
         ECS::EditorCameraSystem                          m_editorCameraSystem;
         GUILayer                                         m_guiLayer;
         FileWatcher                                      m_shaderWatcher;
-        std::unordered_map<StringIDType, SnapshotBuffer> m_previewBuffers;
+        HashMap<StringIDType, SnapshotBuffer> m_previewBuffers;
         bool                                             m_snapshotsTaken = false;
     };
 } // namespace Lina::Editor

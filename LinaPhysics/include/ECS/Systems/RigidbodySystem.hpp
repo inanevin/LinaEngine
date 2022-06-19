@@ -49,7 +49,7 @@ namespace Lina::ECS
     public:
         RigidbodySystem() = default;
 
-        virtual void Initialize(const std::string& name, Physics::PhysicsEngine* engine);
+        virtual void Initialize(const String& name, Physics::PhysicsEngine* engine);
         virtual void UpdateComponents(float delta) override;
 
     private:

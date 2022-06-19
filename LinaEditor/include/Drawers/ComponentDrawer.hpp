@@ -55,7 +55,7 @@ namespace Lina::Editor
     struct ETransformPivotChanged;
     struct EComponentOrderSwapped;
 
-    typedef Map<std::string, Vector<std::pair<std::string, TypeID>>> AddComponentMap;
+    typedef Map<String, Vector<std::pair<String, TypeID>>> AddComponentMap;
 
     class ComponentDrawer
     {

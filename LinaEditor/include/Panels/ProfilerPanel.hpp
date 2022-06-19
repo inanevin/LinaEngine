@@ -41,7 +41,7 @@ Timestamp: 10/22/2020 11:22:48 PM
 
 #include "Panels/EditorPanel.hpp"
 
-#include <deque>
+#include "Data/Deque.hpp"
 
 namespace Lina::Editor
 {

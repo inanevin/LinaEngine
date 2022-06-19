@@ -43,7 +43,7 @@ namespace Lina::Graphics
     {
         auto* storage = Resources::ResourceStorage::Get();
 
-        for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
+        for (Map<String, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
         {
             if (storage->Exists<Texture>(it->second.m_texture.m_sid))
             {
@@ -62,7 +62,7 @@ namespace Lina::Graphics
         }
     }
 
-    void Material::SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode)
+    void Material::SetTexture(const String& textureName, Texture* texture, TextureBindMode bindMode)
     {
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
@@ -77,7 +77,7 @@ namespace Lina::Graphics
             return;
         }
     }
-    void Material::RemoveTexture(const std::string& textureName)
+    void Material::RemoveTexture(const String& textureName)
     {
         if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
         {
@@ -91,7 +91,7 @@ namespace Lina::Graphics
             return;
         }
     }
-    Texture* Material::GetTexture(const std::string& name)
+    Texture* Material::GetTexture(const String& name)
     {
         if (!(m_sampler2Ds.find(name) == m_sampler2Ds.end()))
             return m_sampler2Ds[name].m_texture.m_value;
@@ -108,7 +108,7 @@ namespace Lina::Graphics
         SetInt(MAT_SURFACETYPE, static_cast<int>(type));
     }
 
-    void Material::SetInt(const std::string& name, int value)
+    void Material::SetInt(const String& name, int value)
     {
         m_ints[name] = value;
 
@@ -116,7 +116,7 @@ namespace Lina::Graphics
             m_surfaceType = static_cast<MaterialSurfaceType>(value);
     }
 
-    Material* Material::CreateMaterial(Shader* shader, const std::string& savePath)
+    Material* Material::CreateMaterial(Shader* shader, const String& savePath)
     {
         auto* storage = Resources::ResourceStorage::Get();
 
@@ -134,7 +134,7 @@ namespace Lina::Graphics
         return mat;
     }
 
-    void* Material::LoadFromFile(const std::string& path)
+    void* Material::LoadFromFile(const String& path)
     {
         LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
 
@@ -152,7 +152,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Material::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Material::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
 
@@ -278,7 +278,7 @@ namespace Lina::Graphics
         // m_vector4s             = data.m_vector4s;
         // m_matrices             = data.m_matrices;
         //
-        // for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
+        // for (Map<String, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
         //     m_sampler2Ds[it->first] = {
         //         it->second.m_unit,
         //         it->second.m_bindMode,

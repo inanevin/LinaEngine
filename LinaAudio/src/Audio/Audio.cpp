@@ -44,7 +44,7 @@ namespace Lina::Audio
         alDeleteBuffers(1, &m_buffer);
     }
 
-    void* Audio::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* Audio::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         LINA_TRACE("[Audio Loader - Memory] -> Loading: {0}", path);
         ALsizei size;
@@ -60,8 +60,8 @@ namespace Lina::Audio
         m_size           = size;
         m_freq           = freq;
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaaudiodata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaaudiodata";
         GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
 
         alGenBuffers((ALuint)1, &m_buffer);
@@ -75,7 +75,7 @@ namespace Lina::Audio
         return static_cast<void*>(this);
     }
 
-    void* Audio::LoadFromFile(const std::string& path)
+    void* Audio::LoadFromFile(const String& path)
     {
         LINA_TRACE("[Audio Loader - File] -> Loading: {0}", path);
         IResource::SetSID(path);
@@ -92,8 +92,8 @@ namespace Lina::Audio
         m_size   = size;
         m_freq   = freq;
 
-        const std::string fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const std::string assetDataPath = fileNameNoExt + ".linaaudiodata";
+        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
+        const String assetDataPath = fileNameNoExt + ".linaaudiodata";
         GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
 
         alGenBuffers((ALuint)1, &m_buffer);

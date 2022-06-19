@@ -46,7 +46,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 #include "ECS/System.hpp"
 #include "Math/Matrix.hpp"
 
-#include <map>
+#include "Data/Map.hpp"
 #include <queue>
 
 namespace Lina
@@ -106,7 +106,7 @@ namespace Lina::ECS
         ModelNodeSystem()          = default;
         virtual ~ModelNodeSystem() = default;
 
-        void         Initialize(const std::string& name, ApplicationMode appMode);
+        void         Initialize(const String& name, ApplicationMode appMode);
         virtual void UpdateComponents(float delta) override;
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Lina::ECS
         Graphics::RenderEngine* m_renderEngine = nullptr;
         ApplicationMode         m_appMode      = ApplicationMode::Editor;
         // Map & queue to see the list of same vertex array & textures to compress them into single draw call.
-        std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
+        Map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
         std::priority_queue<BatchPair, Vector<BatchPair>, BatchComparison>        m_transparentRenderBatch;
     };
 } // namespace Lina::ECS

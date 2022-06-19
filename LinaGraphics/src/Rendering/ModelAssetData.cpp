@@ -30,13 +30,13 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void* ModelAssetData::LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
+    void* ModelAssetData::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         *this = Resources::LoadArchiveFromMemory<ModelAssetData>(path, data, dataSize);
         Resources::IResource::SetSID(path);
         return static_cast<void*>(this);
     }
-    void* ModelAssetData::LoadFromFile(const std::string& path)
+    void* ModelAssetData::LoadFromFile(const String& path)
     {
         *this = Resources::LoadArchiveFromFile<ModelAssetData>(path);
         Resources::IResource::SetSID(path);

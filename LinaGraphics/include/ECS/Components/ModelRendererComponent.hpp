@@ -45,7 +45,7 @@ Timestamp: 12/8/2021 12:27:21 PM
 #include "Math/Matrix.hpp"
 #include "Utility/StringId.hpp"
 
-#include <cereal/types/string.hpp>
+#include "Data/Serialization/StringSerialization.hpp"
 #include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina
@@ -88,11 +88,11 @@ namespace Lina::ECS
         {
             return m_modelID;
         }
-        std::string GetModelPath()
+        String GetModelPath()
         {
             return m_modelPath;
         }
-        Vector<std::string> GetMaterialPaths()
+        Vector<String> GetMaterialPaths()
         {
             return m_materialPaths;
         }
@@ -108,9 +108,9 @@ namespace Lina::ECS
         friend class Editor::ComponentDrawer;
 
         StringIDType             m_modelID         = 0;
-        std::string              m_modelPath       = "";
-        std::string              m_modelParamsPath = "";
-        Vector<std::string> m_materialPaths;
+        String              m_modelPath       = "";
+        String              m_modelParamsPath = "";
+        Vector<String> m_materialPaths;
         int                      m_materialCount      = -1;
         bool                     m_generateMeshPivots = false;
 

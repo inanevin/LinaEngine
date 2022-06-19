@@ -50,8 +50,8 @@ namespace Lina::Audio
         AudioAssetData()          = default;
         virtual ~AudioAssetData() = default;
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
         int m_dummy = 0;
 

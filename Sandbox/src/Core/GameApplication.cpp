@@ -30,7 +30,9 @@ SOFTWARE.
 
 #include "Core/EditorApplication.hpp"
 #include "Core/Engine.hpp"
-
+#include "Data/HashMap.hpp"
+#include <EASTL/hash_map.h>
+#include <EASTL/string.h>
 namespace Lina
 {
     void GameApplication::Initialize(ApplicationInfo appInfo)

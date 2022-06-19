@@ -66,7 +66,7 @@ namespace Lina::ECS
         FrustumSystem()  = default;
         ~FrustumSystem() = default;
 
-        virtual void Initialize(const std::string& name) override;
+        virtual void Initialize(const String& name) override;
         virtual void UpdateComponents(float delta);
 
         /// <summary>

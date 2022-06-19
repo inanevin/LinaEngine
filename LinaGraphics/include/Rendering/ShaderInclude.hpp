@@ -49,16 +49,16 @@ namespace Lina::Graphics
 		
 	public:
 		
-		virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const std::string& path) override;
+		virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 	
-		const std::string& GetText() const
+		const String& GetText() const
         {
 			return m_text;
 		}
 	private:
 	
-		std::string m_text;
+		String m_text;
 
 	};
 }

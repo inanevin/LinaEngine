@@ -40,15 +40,15 @@ Timestamp: 4/14/2019 1:37:59 AM
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 
-#include <cereal/types/string.hpp>
+#include "Data/Serialization/StringSerialization.hpp"
 #include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina::ECS
 {
     struct MeshRendererComponent : public Component
     {
-        std::string      m_modelPath         = "";
-        std::string      m_materialPath      = "";
+        String      m_modelPath         = "";
+        String      m_materialPath      = "";
         StringIDType     m_modelID           = -1;
         StringIDType     m_materialID        = -1;
         Vector3          m_totalVertexCenter = Vector3::Zero;

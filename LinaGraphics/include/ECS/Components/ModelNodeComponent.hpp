@@ -63,7 +63,7 @@ namespace Lina::ECS
         Vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
         
         LINA_PROPERTY("Materials_Names")
-        Vector<std::string> m_materialsNames;
+        Vector<String> m_materialsNames;
 
         int                                        m_nodeIndex = -1;
         Resources::ResourceHandle<Graphics::Model> m_model;

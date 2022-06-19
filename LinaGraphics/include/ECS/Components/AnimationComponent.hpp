@@ -42,13 +42,13 @@ Timestamp: 12/7/2021 4:13:25 PM
 // Headers here.
 #include "ECS/Component.hpp"
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::ECS
 {
     struct AnimationComponent : public Component
     {
-        std::string m_animationName;
+        String m_animationName;
     };
 } // namespace Lina::ECS
 

@@ -36,7 +36,7 @@ namespace Lina::Graphics
     {
     }
 
-    bool Skeleton::LoadSkeleton(const std::string& skelPath)
+    bool Skeleton::LoadSkeleton(const String& skelPath)
     {
         return false;
     }

@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    void AnimationSystem::Initialize(const std::string& name)
+    void AnimationSystem::Initialize(const String& name)
     {
         System::Initialize(name);
     }

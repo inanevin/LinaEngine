@@ -45,7 +45,7 @@ namespace Lina::Editor
         EditorPanel::Initialize(id, icon);
     }
 
-    void SystemsPanel::DrawSystem(const ECS::System* system, const std::string& pipeline)
+    void SystemsPanel::DrawSystem(const ECS::System* system, const String& pipeline)
     {
         // Label.
         ImGui::TableNextRow();
@@ -57,7 +57,7 @@ namespace Lina::Editor
         ImGui::Text(pipeline.c_str());
 
         // Pool
-        const std::string poolSize = std::to_string(system->GetPoolSize());
+        const String poolSize = TO_STRING(system->GetPoolSize());
         ImGui::TableNextColumn();
         ImGui::Text(poolSize.c_str());
     }

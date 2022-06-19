@@ -39,25 +39,25 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef ShaderConstants_HPP
 #define ShaderConstants_HPP
 
-#include <string>
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
 
-#define SC_LIGHTCOLOR              std::string(".color")
-#define SC_LIGHTDISTANCE           std::string(".distance")
-#define SC_LIGHTBIAS               std::string(".bias")
-#define SC_LIGHTSHADOWNEAR         std::string(".shadowNear")
-#define SC_LIGHTSHADOWFAR          std::string(".shadowFar")
-#define SC_LIGHTCUTOFF             std::string(".cutOff")
-#define SC_LIGHTOUTERCUTOFF        std::string(".outerCutOff")
-#define SC_LIGHTINTENSITY          std::string(".intensity")
-#define SC_LIGHTDIRECTION          std::string(".direction")
-#define SC_LIGHTPOSITION           std::string(".position")
-#define SC_DIRECTIONALLIGHT        std::string("directionalLight")
-#define SC_DIRECTIONALLIGHT_EXISTS std::string("directionalLightExists")
-#define SC_POINTLIGHTS             std::string("pointLights")
-#define SC_SPOTLIGHTS              std::string("spotLights")
+#define SC_LIGHTCOLOR              String(".color")
+#define SC_LIGHTDISTANCE           String(".distance")
+#define SC_LIGHTBIAS               String(".bias")
+#define SC_LIGHTSHADOWNEAR         String(".shadowNear")
+#define SC_LIGHTSHADOWFAR          String(".shadowFar")
+#define SC_LIGHTCUTOFF             String(".cutOff")
+#define SC_LIGHTOUTERCUTOFF        String(".outerCutOff")
+#define SC_LIGHTINTENSITY          String(".intensity")
+#define SC_LIGHTDIRECTION          String(".direction")
+#define SC_LIGHTPOSITION           String(".position")
+#define SC_DIRECTIONALLIGHT        String("directionalLight")
+#define SC_DIRECTIONALLIGHT_EXISTS String("directionalLightExists")
+#define SC_POINTLIGHTS             String("pointLights")
+#define SC_SPOTLIGHTS              String("spotLights")
 
 #define MAT_COLOR                            "material.color"
 #define MAT_STARTCOLOR                       "material.startColor"

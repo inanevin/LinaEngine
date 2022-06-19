@@ -47,9 +47,9 @@ namespace Lina::Event
     struct ELog
     {
         ELog() = default;
-        ELog(LogLevel level, const std::string& message) : m_level(level), m_message(message){};
+        ELog(LogLevel level, const String& message) : m_level(level), m_message(message){};
         LogLevel    m_level   = LogLevel::Info;
-        std::string m_message = "";
+        String m_message = "";
 
         friend bool operator==(const ELog c1, const ELog& c2)
         {

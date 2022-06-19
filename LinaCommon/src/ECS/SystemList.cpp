@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "ECS/SystemList.hpp"
-
 #include "ECS/System.hpp"
 
 namespace Lina::ECS

@@ -43,7 +43,7 @@ Timestamp: 12/30/2021 9:37:24 PM
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/StringId.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include <string>
+#include <Data/String.hpp>
 #include <cereal/archives/portable_binary.hpp>
 #include <functional>
 #include <fstream>
@@ -57,8 +57,8 @@ namespace Lina::Resources
         IResource() = default;
         virtual ~IResource(){};
 
-        virtual void* LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) = 0;
-        virtual void* LoadFromFile(const std::string& path)                                         = 0;
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) = 0;
+        virtual void* LoadFromFile(const String& path)                                         = 0;
 
         inline StringIDType GetSID()
         {
@@ -70,24 +70,24 @@ namespace Lina::Resources
             return m_sid;
         }
 
-        inline std::string GetPath()
+        inline String GetPath()
         {
             return m_path;
         }
 
-        inline const std::string& GetPath() const
+        inline const String& GetPath() const
         {
             return m_path;
         }
 
-        inline void SetSID(const std::string& path)
+        inline void SetSID(const String& path)
         {
             m_path = path;
             m_sid  = StringID(path.c_str()).value();
         }
 
         template <typename T>
-        void GetCreateAssetdata(const std::string& path, T*& assetData)
+        void GetCreateAssetdata(const String& path, T*& assetData)
         {
             StringIDType sid     = StringID(path.c_str()).value();
             auto*        storage = Resources::ResourceStorage::Get();
@@ -108,14 +108,14 @@ namespace Lina::Resources
     protected:
         friend class ResourceStorage;
         StringIDType m_sid  = 0;
-        std::string  m_path = "";
+        String  m_path = "";
     };
 
     template <typename T>
-    T LoadArchiveFromFile(const std::string& path)
+    T LoadArchiveFromFile(const String& path)
     {
         T             obj;
-        std::ifstream stream(path, std::ios::binary);
+        std::ifstream stream(path.c_str(), std::ios::binary);
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(obj);
@@ -124,12 +124,12 @@ namespace Lina::Resources
     }
 
     template <typename T>
-    T LoadArchiveFromMemory(const std::string& idPath, unsigned char* data, size_t dataSize)
+    T LoadArchiveFromMemory(const String& idPath, unsigned char* data, size_t dataSize)
     {
         T obj;
         {
-            std::string        data((char*)data, dataSize);
-            std::istringstream stream(data, std::ios::binary);
+            String        data((char*)data, dataSize);
+            std::istringstream stream(data.c_str(), std::ios::binary);
             {
                 cereal::PortableBinaryInputArchive iarchive(stream);
                 iarchive(obj);
@@ -139,12 +139,12 @@ namespace Lina::Resources
     }
 
     template <typename T>
-    void SaveArchiveToFile(const std::string& path, T& obj)
+    void SaveArchiveToFile(const String& path, T& obj)
     {
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        std::ofstream stream(path, std::ios::binary);
+        std::ofstream stream(path.c_str(), std::ios::binary);
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(obj);

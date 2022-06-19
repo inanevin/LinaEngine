@@ -41,10 +41,8 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
-
-#include <map>
+#include "Data/HashMap.hpp"
 #include <mutex>
-#include <unordered_map>
 
 struct ALCcontext;
 struct ALCdevice;
@@ -89,12 +87,12 @@ namespace Lina::Audio
         void Shutdown();
 
     private:
-        static AudioEngine*                  s_audioEngine;
-        mutable std::mutex                   m_mutex;
-        ALCcontext*                          m_context             = nullptr;
-        ALCdevice*                           m_device              = nullptr;
-        Vector3                              m_mainListenerLastPos = Vector3::Zero;
-        std::map<StringIDType, unsigned int> m_generatedSources;
+        static AudioEngine*                 s_audioEngine;
+        mutable std::mutex                  m_mutex;
+        ALCcontext*                         m_context             = nullptr;
+        ALCdevice*                          m_device              = nullptr;
+        Vector3                             m_mainListenerLastPos = Vector3::Zero;
+        HashMap<StringIDType, unsigned int> m_generatedSources;
     };
 } // namespace Lina::Audio
 

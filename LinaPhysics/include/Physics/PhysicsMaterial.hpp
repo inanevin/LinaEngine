@@ -41,7 +41,7 @@ Timestamp: 12/20/2021 10:16:40 PM
 
 #include "Utility/StringId.hpp"
 #include "Resources/IResource.hpp"
-#include <cereal/types/string.hpp>
+#include "Data/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -59,9 +59,9 @@ namespace Lina::Physics
         PhysicsMaterial()  = default;
         ~PhysicsMaterial() = default;
 
-        static PhysicsMaterial* CreatePhysicsMaterial(const std::string& savePath, float staticFriction, float dynamicFriction, float restitution);
-        virtual void*           LoadFromMemory(const std::string& path, unsigned char* data, size_t dataSize) override;
-        virtual void*           LoadFromFile(const std::string& path) override;
+        static PhysicsMaterial* CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution);
+        virtual void*           LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void*           LoadFromFile(const String& path) override;
 
         float GetStaticFriction()
         {

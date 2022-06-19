@@ -137,9 +137,9 @@ namespace Lina::Editor
 
             auto categoryProp = meta.prop("Category"_hs);
 
-            std::string categoryStr = "";
+            String categoryStr = "";
             if (categoryProp)
-                categoryStr = std::string(categoryProp.value().cast<const char*>());
+                categoryStr = String(categoryProp.value().cast<const char*>());
             else
                 categoryStr = "Default";
 
@@ -153,8 +153,8 @@ namespace Lina::Editor
             {
                 const char* canAdd = canAddProp.value().cast<const char*>();
 
-                if (std::string(canAdd).compare("1") == 0)
-                    map[categoryStr].push_back(std::make_pair(std::string(title), tid));
+                if (String(canAdd).compare("1") == 0)
+                    map[categoryStr].push_back(std::make_pair(String(title), tid));
             }
         }
 
@@ -209,7 +209,7 @@ namespace Lina::Editor
 
             if (ImGui::IsItemHovered())
             {
-                const std::string tooltipData = "Global: " + data.GetLocation().ToString();
+                const String tooltipData = "Global: " + data.GetLocation().ToString();
                 WidgetsUtility::Tooltip(tooltipData.c_str());
             }
 
@@ -223,7 +223,7 @@ namespace Lina::Editor
             WidgetsUtility::PropertyLabel("Rotation");
             if (ImGui::IsItemHovered())
             {
-                const std::string tooltipData = "Global: " + data.GetRotation().ToString();
+                const String tooltipData = "Global: " + data.GetRotation().ToString();
                 WidgetsUtility::Tooltip(tooltipData.c_str());
             }
 
@@ -234,7 +234,7 @@ namespace Lina::Editor
             WidgetsUtility::PropertyLabel("Scale");
             if (ImGui::IsItemHovered())
             {
-                const std::string tooltipData = "Global: " + data.GetScale().ToString();
+                const String tooltipData = "Global: " + data.GetScale().ToString();
                 WidgetsUtility::Tooltip(tooltipData.c_str());
             }
 
@@ -297,7 +297,7 @@ namespace Lina::Editor
             }
 
             WidgetsUtility::PropertyLabel("Physics Material");
-            const std::string currentMaterial = phy.m_material.m_value->GetPath();
+            const String currentMaterial = phy.m_material.m_value->GetPath();
             StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial("entity_phy_mat", &phy.m_material);
 
             if (selected != 0 && phy.m_material.m_value->GetSID() != selected)
@@ -424,7 +424,7 @@ namespace Lina::Editor
 
             if (foldoutOpen)
             {
-                std::map<entt::meta_data, StringIDType> materials;
+                Map<entt::meta_data, StringIDType> materials;
 
                 // Draw each reflected property in the component according to it's type.
                 for (auto data : resolvedData.data())
@@ -436,7 +436,7 @@ namespace Lina::Editor
                         continue;
 
                     auto        label    = labelProperty.value().cast<const char*>();
-                    std::string category = std::string(data.prop("Category"_hs).value().cast<const char*>());
+                    String category = String(data.prop("Category"_hs).value().cast<const char*>());
 
                     ClassDrawer::AddPropertyToDrawList(category, data);
                 }

@@ -45,8 +45,7 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
 #include "Math/Vector.hpp"
-
-#include <map>
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -70,14 +69,14 @@ namespace Lina::Input
         {
             return s_inputEngine;
         }
-        bool           GetKey(int keyCode);
-        bool           GetKeyDown(int keyCode);
-        bool           GetKeyUp(int keyCode);
-        bool           GetMouseButton(int index);
-        bool           GetMouseButtonDown(int index);
-        bool           GetMouseButtonUp(int index);
-        void           SetCursorMode(CursorMode mode);
-        void           SetMousePosition(const Vector2& v) const;
+        bool GetKey(int keyCode);
+        bool GetKeyDown(int keyCode);
+        bool GetKeyUp(int keyCode);
+        bool GetMouseButton(int index);
+        bool GetMouseButtonDown(int index);
+        bool GetMouseButtonUp(int index);
+        void SetCursorMode(CursorMode mode);
+        void SetMousePosition(const Vector2& v) const;
 
         /// <summary>
         /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
@@ -130,21 +129,21 @@ namespace Lina::Input
     private:
         friend class Engine;
         static InputEngine* s_inputEngine;
-        int                     m_keyStatesDown[NUM_KEY_STATES];
-        int                     m_keyStatesUp[NUM_KEY_STATES]       = {0};
-        int                     m_mouseStatesDown[NUM_MOUSE_STATES] = {0};
-        int                     m_mouseStatesUp[NUM_MOUSE_STATES]   = {0};
-        std::map<int, int>      m_keyDownNewStateMap;
-        std::map<int, int>      m_keyUpNewStateMap;
-        std::map<int, int>      m_mouseDownNewStateMap;
-        std::map<int, int>      m_mouseUpNewStateMap;
-        InputAxis               m_horizontalAxis;
-        InputAxis               m_verticalAxis;
-        CursorMode              m_cursorMode = CursorMode::Visible;
-        ECS::FreeLookSystem     m_freeLookSystem;
-        ECS::SystemList         m_inputPipeline;
-        Vector2                 m_currentMouseScroll = Vector2::Zero;
-        Vector2                 m_axisMousePos       = Vector2::Zero;
+        int                 m_keyStatesDown[NUM_KEY_STATES];
+        int                 m_keyStatesUp[NUM_KEY_STATES]       = {0};
+        int                 m_mouseStatesDown[NUM_MOUSE_STATES] = {0};
+        int                 m_mouseStatesUp[NUM_MOUSE_STATES]   = {0};
+        HashMap<int, int>   m_keyDownNewStateMap;
+        HashMap<int, int>   m_keyUpNewStateMap;
+        HashMap<int, int>   m_mouseDownNewStateMap;
+        HashMap<int, int>   m_mouseUpNewStateMap;
+        InputAxis           m_horizontalAxis;
+        InputAxis           m_verticalAxis;
+        CursorMode          m_cursorMode = CursorMode::Visible;
+        ECS::FreeLookSystem m_freeLookSystem;
+        ECS::SystemList     m_inputPipeline;
+        Vector2             m_currentMouseScroll = Vector2::Zero;
+        Vector2             m_axisMousePos       = Vector2::Zero;
     };
 } // namespace Lina::Input
 

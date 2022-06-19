@@ -116,7 +116,7 @@ namespace Lina::Editor
         //  WidgetsUtility::IncrementCursorPosX(12);
         //
         //  char*       label     = nullptr;
-        //  std::string tooltip   = "";
+        //  String tooltip   = "";
         //  const float cursorPos = ImGui::GetCursorPosY() + 1.5f;
         //  for (int i = 0; i < 3; i++)
         //  {
@@ -144,7 +144,7 @@ namespace Lina::Editor
         //  }
         //
         //  char*       pivotLabel   = m_currentGizmoGlobal ? ICON_FA_GLOBE_AMERICAS : ICON_FA_CUBE;
-        //  std::string pivotTooltip = m_currentGizmoGlobal ? "Currently Global" : "Currently Local";
+        //  String pivotTooltip = m_currentGizmoGlobal ? "Currently Global" : "Currently Local";
         //  if (WidgetsUtility::ToolbarToggleIcon(pivotLabel, ImVec2(30, 22), 1, false, cursorPos, pivotTooltip))
         //      Event::EventSystem::Get()->Trigger<ETransformPivotChanged>(ETransformPivotChanged{!m_currentGizmoGlobal});
         //

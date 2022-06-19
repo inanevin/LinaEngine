@@ -42,8 +42,8 @@ Timestamp: 12/7/2021 2:13:56 PM
 // Headers here.
 #include "Rendering/RenderingCommon.hpp"
 
-#include <map>
-#include <string>
+#include "Data/Map.hpp"
+#include <Data/String.hpp>
 
 namespace Lina::Graphics
 {
@@ -56,7 +56,7 @@ namespace Lina::Graphics
         Skeleton() = default;
         ~Skeleton();
 
-        bool LoadSkeleton(const std::string& path);
+        bool LoadSkeleton(const String& path);
 
         bool IsLoaded() const
         {
@@ -66,7 +66,7 @@ namespace Lina::Graphics
         void SetVertexBoneDataToDefault(VertexBoneData& vertex);
         void SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight);
 
-        std::map<std::string, Animation*>& GetAnimations()
+        Map<String, Animation*>& GetAnimations()
         {
             return m_animationMap;
         }
@@ -74,8 +74,8 @@ namespace Lina::Graphics
     private:
         bool                              m_loaded = false;
         Vector<VertexBoneData>       m_vertexBoneData;
-        std::map<std::string, Animation*> m_animationMap;
-        std::map<std::string, BoneInfo>   m_boneInfoMap;
+        Map<String, Animation*> m_animationMap;
+        Map<String, BoneInfo>   m_boneInfoMap;
 
         int   m_boneIDs[MAX_BONE_INFLUENCE];
         float m_boneWeights[MAX_BONE_INFLUENCE];
