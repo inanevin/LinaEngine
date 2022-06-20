@@ -14,8 +14,6 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -123,7 +121,9 @@ set(LINACOMMON_HEADERS
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp
 	include/Data/Set.hpp
+	include/Data/HashSet.hpp
 	include/Data/Queue.hpp
+	include/Data/PriorityQueue.hpp
 	include/Data/Deque.hpp
 	include/Data/FixedVector.hpp
 	include/Data/FixedMap.hpp
@@ -208,7 +208,9 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp
 	include/Data/Set.hpp
+	include/Data/HashSet.hpp
 	include/Data/Queue.hpp
+	include/Data/PriorityQueue.hpp
 	include/Data/Deque.hpp
 	include/Data/FixedVector.hpp
 	include/Data/FixedMap.hpp

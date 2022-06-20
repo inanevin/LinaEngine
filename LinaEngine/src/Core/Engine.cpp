@@ -39,9 +39,9 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Core/ReflectionRegistry.hpp"
-#include <EASTL/hash_map.h>
-#include <unordered_map>
 #include "Math/Math.hpp"
+#include "Core/EngineSettings.hpp"
+#include "Data/HashSet.hpp"
 
 namespace Lina
 {
@@ -87,6 +87,8 @@ namespace Lina
         Resources::ResourceStorage::s_instance        = &m_resourceStorage;
         m_appInfo                                     = appInfo;
 
+        RegisterResourceTypes();
+
         m_eventSystem.Initialize();
         m_resourceStorage.Initialize();
         m_inputEngine.Initialize();
@@ -95,53 +97,54 @@ namespace Lina
         m_messageBus.Initialize(m_appInfo.m_appMode);
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
 
-        // m_renderEngine.SetScreenDisplay(Vector2::Zero, m_window.GetSize());
-        // m_renderEngine.ConnectEvents();
-        // m_renderEngine.Initialize(m_appInfo.m_appMode, &m_engineSettings.m_renderSettings, m_window.GetProperties());
+        // Load default editor resources.
+        if (appInfo.m_appMode == ApplicationMode::Editor)
+        {
+            if (!Utility::FileExists("Resources/lina.enginesettings"))
+            {
+                EngineSettings s;
+                s.m_dummy = 16;
+                Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
+            }
 
-        m_audioEngine.Shutdown();
-        m_physicsEngine.Shutdown();
-        m_inputEngine.Shutdown();
-        m_resourceManager.Shutdown();
-        m_resourceStorage.Shutdown();
-        m_eventSystem.Shutdown();
-        return;
-
-        bool engineSettingsExists = Utility::FileExists("engine.linasettings");
-
-        if (engineSettingsExists)
-            m_engineSettings = Resources::LoadArchiveFromFile<EngineSettings>("engine.linasettings");
+            m_resourceManager.LoadSingleResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
+        }
         else
-            Resources::SaveArchiveToFile<EngineSettings>("engine.linasettings", m_engineSettings);
+        {
+            // Load always-needed resources.
+            m_resourceManager.ImportResourcePackage("", "static");
+        }
 
+        m_engineSettings = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
     }
 
-    void Engine::StartLoadingResources()
+    void Engine::PackageProject(const String& path)
     {
-        if (m_appInfo.m_appMode == ApplicationMode::Editor)
-            m_resourceManager.LoadEditorResources();
-        else
-            m_resourceManager.ImportResourceBundle("", m_appInfo.m_bundleName);
+        HashMap<TypeID, HashSet<StringIDType>> resourceMap;
+
+        // Add all levels' resources to a joint map.
+        for (auto level : m_levelList)
+        {
+            const HashMap<TypeID, HashSet<StringIDType>>& resources = level->GetResources();
+
+            for (const auto& pair : resources)
+            {
+                for (auto sid : pair.second)
+                    resourceMap[pair.first].insert(sid);
+            }
+        }
+
+        m_resourceManager.PackageProject(path, resourceMap);
+    }
+
+    void Engine::InstallLevel(uint8 index)
+    {
+        m_levelList[index]->Install();
     }
 
     void Engine::Run()
     {
-
-        if (m_resourceStorage.Exists<World::Level>(m_engineSettings.m_startupLevel.m_sid))
-        {
-            // Load the startup level.
-        }
-        // else
-        //     m_defaultLevel.Install();
-
         m_deltaTimeArray.fill(-1.0);
-
-        if (m_appInfo.m_appMode == ApplicationMode::Editor)
-        {
-            // m_audioEngine.PlayOneShot(m_resourceStorage.GetResource<Audio::Audio>(StringID("Resources/Editor/Audio/LinaStartup.wav").value()));
-        }
-        else
-            SetPlayMode(true);
 
         m_running            = true;
         m_startTime          = Utility::GetCPUTime();
@@ -159,8 +162,13 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
+        static float updateCounter = 15;
+
         while (m_running)
         {
+            if (updates > updateCounter)
+                m_running = false;
+
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
@@ -195,8 +203,9 @@ namespace Lina
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
 
         // Shutting down.
-        m_physicsEngine.Shutdown();
+        PackageProject("");
         m_audioEngine.Shutdown();
+        m_physicsEngine.Shutdown();
         m_inputEngine.Shutdown();
         m_resourceManager.Shutdown();
         m_resourceStorage.Shutdown();
@@ -262,7 +271,6 @@ namespace Lina
     {
         if (m_canRender)
         {
-           
         }
     }
 
@@ -307,74 +315,59 @@ namespace Lina
     {
         m_resourceStorage.m_resources.clear();
 
+        Vector<String> extensions;
+
+        extensions.push_back("enginesettings");
+
+        m_resourceStorage.RegisterResource<EngineSettings>(
+            Resources::ResourceTypeData{
+                .loadPriority         = 0,
+                .isAssetData          = false,
+                .packageType          = Resources::PackageType::Static,
+                .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<EngineSettings>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
+
+        extensions.clear();
+        extensions.push_back("linaaudiodata");
+
         m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
             Resources::ResourceTypeData{
-                0,
-                std::bind(Resources::CreateResource<Audio::AudioAssetData>),
-                std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
-                Vector<String>{"linaaudiodata"}, Color::White, true});
+                .loadPriority         = 0,
+                .isAssetData          = true,
+                .packageType          = Resources::PackageType::Audio,
+                .createFunc           = std::bind(Resources::CreateResource<Audio::AudioAssetData>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
 
-      // m_resourceStorage.RegisterResource<Graphics::ShaderInclude>(
-      //     Resources::ResourceTypeData{
-      //         0,
-      //         std::bind(Resources::CreateResource<Graphics::ShaderInclude>),
-      //         std::bind(Resources::DeleteResource<Graphics::ShaderInclude>, std::placeholders::_1),
-      //         Vector<String>{"linaglh"}});
-      //
-      // m_resourceStorage.RegisterResource<Graphics::ImageAssetData>(
-      //     Resources::ResourceTypeData{
-      //         0,
-      //         std::bind(Resources::CreateResource<Graphics::ImageAssetData>),
-      //         std::bind(Resources::DeleteResource<Graphics::ImageAssetData>, std::placeholders::_1),
-      //         Vector<String>{"linaimagedata"}, Color::White, true});
-      //
-      // m_resourceStorage.RegisterResource<Graphics::ModelAssetData>(
-      //     Resources::ResourceTypeData{
-      //         0,
-      //         std::bind(Resources::CreateResource<Graphics::ModelAssetData>),
-      //         std::bind(Resources::DeleteResource<Graphics::ModelAssetData>, std::placeholders::_1),
-      //         Vector<String>{"linamodeldata"}, Color::White, true});
-      //
-      // m_resourceStorage.RegisterResource<Graphics::Shader>(
-      //     Resources::ResourceTypeData{
-      //         1,
-      //         std::bind(Resources::CreateResource<Graphics::Shader>),
-      //         std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
-      //         Vector<String>{"linaglsl"}, Color(255, 71, 108, 255, true)});
-      //
-      // m_resourceStorage.RegisterResource<Graphics::Texture>(
-      //     Resources::ResourceTypeData{
-      //         2,
-      //         std::bind(Resources::CreateResource<Graphics::Texture>),
-      //         std::bind(Resources::DeleteResource<Graphics::Texture>, std::placeholders::_1),
-      //         Vector<String>{"png", "jpg", "jpeg", "hdr", "tga"}, Color(204, 86, 255, 255, true)});
-      //
-      // m_resourceStorage.RegisterResource<Graphics::Material>(
-      //     Resources::ResourceTypeData{
-      //         3,
-      //         std::bind(Resources::CreateResource<Graphics::Material>),
-      //         std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
-      //         Vector<String>{"linamat"}, Color(56, 79, 255, 255, true)});
-
-      // m_resourceStorage.RegisterResource<Graphics::Model>(
-      //     Resources::ResourceTypeData{
-      //         4,
-      //         std::bind(Resources::CreateResource<Graphics::Model>),
-      //         std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
-      //         Vector<String>{"fbx", "obj", "gltf", "glb"}, Color(255, 146, 22, 255, true)});
-
+        extensions.clear();
+        extensions.push_back("mp3");
+        extensions.push_back("wav");
+        extensions.push_back("ogg");
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
-            5,
-            std::bind(Resources::CreateResource<Audio::Audio>),
-            std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
-            Vector<String>{"wav", "mp3", "ogg"}, Color(255, 235, 170, 255, true)});
+            .loadPriority         = 5,
+            .isAssetData          = true,
+            .packageType          = Resources::PackageType::Audio,
+            .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
+            .deleteFunc           = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
+            .associatedExtensions = extensions,
+            .debugColor           = Color(255, 235, 170, 255),
+        });
 
+        extensions.clear();
+        extensions.push_back("linaphymat");
         m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
-            5,
-            std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
-            std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
-            Vector<String>{"linaphymat"},
-            Color(17, 120, 255, 255, true),
+            .loadPriority         = 5,
+            .isAssetData          = true,
+            .packageType          = Resources::PackageType::Physics,
+            .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
+            .deleteFunc           = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
+            .associatedExtensions = extensions,
+            .debugColor           = Color(17, 120, 255, 255),
         });
 
         // TODO: Font class.

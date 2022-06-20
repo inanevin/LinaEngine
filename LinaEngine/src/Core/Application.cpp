@@ -59,17 +59,29 @@ namespace Lina
 
     void Application::Initialize(ApplicationInfo& appInfo)
     {
+        if (m_initialized)
+        {
+            LINA_ERR("Lina application already initialized!");
+            return;
+        }
+
         LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
 
         m_engine.Initialize(appInfo);
-
-        // Connect events.
         m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
         m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
+        m_initialized = true;
     }
 
     void Application::Run()
     {
+        if (m_ranOnce)
+        {
+            LINA_ERR("Application already running!");
+            return;
+        }
+
+        m_ranOnce = true;
         m_engine.Run();
 
         entt::sink logSink{Log::s_onLog};
@@ -84,13 +96,13 @@ namespace Lina
         HANDLE hConsole;
         int    color = 15;
 
-        if (dump.m_level == LogLevel::Trace || dump.m_level == LogLevel::Debug)
+        if ((dump.m_level == LogLevel::Trace) || (dump.m_level == LogLevel::Debug))
             color = 3;
-        else if (dump.m_level == LogLevel::Info || dump.m_level == LogLevel::None)
+        else if ((dump.m_level == LogLevel::Info) || (dump.m_level == LogLevel::None))
             color = 15;
-        else if (dump.m_level == LogLevel::Warn)
+        else if ((dump.m_level == LogLevel::Warn))
             color = 6;
-        else if (dump.m_level == LogLevel::Error || dump.m_level == LogLevel::Critical)
+        else if ((dump.m_level == LogLevel::Error) || (dump.m_level == LogLevel::Critical))
             color = 4;
 
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);

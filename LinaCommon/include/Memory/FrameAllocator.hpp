@@ -51,8 +51,10 @@ namespace Lina
     {
 
     public:
-        FrameAllocator::FrameAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize)
+
+        FrameAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize)
         {
+           
         }
         virtual ~FrameAllocator();
 

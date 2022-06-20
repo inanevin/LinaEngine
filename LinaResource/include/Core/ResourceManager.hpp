@@ -41,9 +41,10 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 #include "Core/CommonApplication.hpp"
 #include "JobSystem/JobSystem.hpp"
-#include "ResourceBundle.hpp"
 #include "Utility/Packager.hpp"
 #include "Utility/StringId.hpp"
+#include "ResourceLoader.hpp"
+#include "Data/HashSet.hpp"
 
 namespace Lina
 {
@@ -78,14 +79,32 @@ namespace Lina::Resources
         static void                 TriggerResourceUpdatedEvent();
 
         /// <summary>
-        /// StartFrame packing the project Resource contents into a Lina Bundle.
+        /// Loads a single resource given it's full path (relative path + extension)
+        /// !USED FOR EDITOR!
         /// </summary>
-        void PackageProject(const String& path, const String& name);
+        /// <returns> true if successfuly loaded </returns>
+        bool LoadSingleResource(TypeID typeID, const String& relativePath);
+
+        /// <summary>
+        /// Loads all resources in the given folder.
+        /// !USED IN EDITOR!
+        /// </summary>
+        void LoadResourcesInFolder(Utility::Folder* folder);
+
+        /// <summary>
+        /// Loads the given resource map from the resources packages.
+        /// </summary>
+        void LoadLevelResources(const HashMap<TypeID, HashSet<StringIDType>>& resources);
+
+        /// <summary>
+        /// Start packing the project Resource contents into their respective packages.
+        /// </summary>
+        void PackageProject(const String& path, const HashMap<TypeID, HashSet<StringIDType>>& resourceList);
 
         /// <summary>
         /// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
         /// </summary>
-        void ImportResourceBundle(const String& path, const String& name);
+        void ImportResourcePackage(const String& path, const String& name);
 
         /// <summary>
         /// !! Root folder will be nullptr during Standalone builds, which are required to run through the package import system instead of a file system.
@@ -118,22 +137,22 @@ namespace Lina::Resources
         ResourceManager()  = default;
         ~ResourceManager() = default;
 
-        void Initialize(ApplicationInfo& appInfo);
-        void AddAllResourcesToPack(Vector<String>& resources, Utility::Folder* folder);
-        void LoadEditorResources();
-        void OnRequestResourceReload(const Event::ERequestResourceReload& ev);
-        void Shutdown();
+        void   Initialize(ApplicationInfo& appInfo);
+        void   ScanRootFolder();
+        void   OnRequestResourceReload(const Event::ERequestResourceReload& ev);
+        void   Shutdown();
+        String SearchFolderForSID(Utility::Folder* folder, StringIDType sid);
 
     private:
         static ResourceManager* s_resourceManager;
         Event::EventSystem*     m_eventSys = nullptr;
         ApplicationInfo         m_appInfo;
         Packager                m_packager;
-        ResourceBundle          m_bundle;
+        ResourceLoader          m_bundle;
         Utility::Folder*        m_rootFolder               = nullptr;
         ApplicationMode         m_appMode                  = ApplicationMode::Editor;
-        String             m_workingDirectory         = "";
-        String             m_workingDirectoryReplaced = "";
+        String                  m_workingDirectory         = "";
+        String                  m_workingDirectoryReplaced = "";
     };
 } // namespace Lina::Resources
 

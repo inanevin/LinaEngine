@@ -61,9 +61,6 @@ namespace Lina::Event
     struct EResourceProgressEnded
     {
     };
-    struct EAllResourcesLoaded
-    {
-    };
     struct EResourcePathUpdated
     {
         StringIDType m_previousStringID;

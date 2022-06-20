@@ -14,6 +14,7 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
 project(Sandbox)
+set(CMAKE_CXX_STANDARD 20)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -23,18 +24,11 @@ set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc")
 
 set(SANDBOX_SOURCES 
 
-src/Core/GameApplication.cpp
-src/Levels/ExampleLevel.cpp
-src/Game/GameManager.cpp
-src/Editor/ClientComponentDrawer.cpp
+src/Core/Main.cpp
 )
 
 set(SANDBOX_HEADERS
 
-include/Core/GameApplication.hpp
-include/Levels/ExampleLevel.hpp
-include/Game/GameManager.hpp
-include/Editor/ClientComponentDrawer.hpp
 )
 
 #--------------------------------------------------------------------

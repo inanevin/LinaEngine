@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/Packager.hpp"
-#include <Data/Serialization/VectorSerialization.hpp>
+#include "Data/Serialization/VectorSerialization.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -101,7 +101,6 @@ namespace Lina::Resources
     {
         try
         {
-
             if (files.empty())
             {
                 LINA_TRACE("[Packager] -> No files found in fileset, aborting packing...");
@@ -133,7 +132,7 @@ namespace Lina::Resources
             compressor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
                 loadingData->m_currentResourceName = String(chr);
-                LINA_TRACE("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
+                LINA_INFO("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
                 delete chr;
             });
 
@@ -150,7 +149,7 @@ namespace Lina::Resources
 
             // Setup output path.
             const char*  outputchr = output.c_str();
-            const size_t outSize   = strlen(outputchr);
+            const size_t outSize   = strlen(outputchr) + 1;
             std::wstring woutput(outSize, L'#');
             size_t       numConverted;
             mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
@@ -162,7 +161,7 @@ namespace Lina::Resources
                 vfiles.push_back(wfiles[i]);
 
             compressor.compress(vfiles, woutput);
-            LINA_TRACE("[Packager] -> Successfully packed files.");
+            LINA_INFO("[Packager] -> Successfully packed files to: {0}", output);
         }
         catch (const bit7z::BitException& ex)
         {
@@ -170,11 +169,10 @@ namespace Lina::Resources
         }
     }
 
-    void Packager::Unpack(const String& filePath, const wchar_t* pass, ResourceBundle* outBundle)
+    void Packager::UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader)
     {
         try
         {
-
             // Delete first if exists.
             if (!Utility::FileExists(filePath))
             {
@@ -189,7 +187,7 @@ namespace Lina::Resources
 
             // Setup path.
             const char*  filePathChr = filePath.c_str();
-            const size_t dirSize     = strlen(filePathChr);
+            const size_t dirSize     = strlen(filePathChr) + 1;
             std::wstring wdir(dirSize, L'#');
             size_t       numConverted;
             mbstowcs_s(&numConverted, &wdir[0], dirSize, filePathChr, dirSize - 1);
@@ -210,7 +208,7 @@ namespace Lina::Resources
             extractor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
                 loadingData->m_currentResourceName = String(chr);
-                LINA_TRACE("[Packager] -> Unpacking {0}", loadingData->m_currentResourceName);
+                LINA_INFO("[Packager] -> Unpacking: {0}", loadingData->m_currentResourceName);
                 delete chr;
             });
 
@@ -218,26 +216,28 @@ namespace Lina::Resources
             std::map<std::wstring, std::vector<bit7z::byte_t>> map;
             extractor.extract(wdir, map);
 
-            // Sort the resources into their respective packages in the bundle.
+            // Clear the current memory queue in the loader.
+          //  MemoryQueue empty;
+          //  loader->m_memoryResources.swap(empty);
+
+            // Sort the resources into their respective packages in the loader.
             for (auto& item : map)
             {
                 // Setup paths
                 const char* filePath    = Utility::WCharToChar(item.first.c_str());
                 String filePathStr = filePath;
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
-                String ext = Utility::GetFileExtension(filePath);
 
-                // Pass the resource to bundle.
-
+                // Pass the resource to loader.
                 Vector<bit7z::byte_t> v;
-                v.reserve(item.second.size());
+              //  v.reserve(item.second.size());
                 for (int i = 0; i < item.second.size(); i++)
                     v.push_back(item.second[i]);
 
-                outBundle->PushResourceFromMemory(filePathStr, v);
+                loader->PushResourceFromMemory(filePathStr, v);
             }
 
-            LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);
+            LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
         }
         catch (const bit7z::BitException& ex)
         {

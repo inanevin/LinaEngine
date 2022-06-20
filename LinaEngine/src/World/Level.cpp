@@ -48,9 +48,34 @@ namespace Lina::World
         if (s_currentLevel != nullptr)
             s_currentLevel->Uninstall();
 
+        Resources::ResourceManager::Get()->LoadLevelResources(m_usedResources);
         ECS::Registry::s_ecs = &m_registry;
         s_currentLevel       = this;
         SetupData();
+    }
+
+    void* Level::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        String             dataStr((char*)data, dataSize);
+        std::istringstream stream(dataStr.c_str(), std::ios::binary);
+        {
+            cereal::PortableBinaryInputArchive iarchive(stream);
+            iarchive(*this);
+            m_registry.DeserializeComponentsInRegistry(iarchive);
+        }
+
+        return static_cast<void*>(this);
+    }
+
+    void* Level::LoadFromFile(const String& path)
+    {
+        std::ifstream stream(path.c_str(), std::ios::binary);
+        {
+            cereal::PortableBinaryInputArchive iarchive(stream);
+            iarchive(*this);
+            m_registry.DeserializeComponentsInRegistry(iarchive);
+        }
+        return static_cast<void*>(this);
     }
 
     void Level::Uninstall()
@@ -70,23 +95,6 @@ namespace Lina::World
             m_registry.SerializeComponentsInRegistry(oarchive);
         }
         Event::EventSystem::Get()->Trigger<Event::ESerializedLevel>(Event::ESerializedLevel{});
-    }
-
-    void Level::InstallFromFile(const String& path)
-    {
-        if (s_currentLevel != nullptr)
-            s_currentLevel->Uninstall();
-
-        std::ifstream stream(path.c_str(), std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(*this);
-            m_registry.DeserializeComponentsInRegistry(iarchive);
-        }
-
-        ECS::Registry::s_ecs = &m_registry;
-        s_currentLevel       = this;
-        SetupData();
     }
 
     void Level::SetupData()

@@ -42,11 +42,14 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include "EventSystem/MainLoopEvents.hpp"
+#include "Utility/StringId.hpp"
 #include "Math/Color.hpp"
 #include "ECS/Registry.hpp"
-#include "Resources/ResourceHandle.hpp"
+#include "Resources/IResource.hpp"
 #include "Core/CommonReflection.hpp"
 #include "Data/String.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/HashSet.hpp"
 #include <cereal/access.hpp>
 
 namespace Lina
@@ -57,10 +60,11 @@ namespace Lina
 namespace Lina::World
 {
     LINA_CLASS("Level Settings")
-    class Level
+    class Level : public Resources::IResource
     {
     public:
-        Level() = default;
+
+        Level(){};
         virtual ~Level()
         {
         }
@@ -69,6 +73,9 @@ namespace Lina::World
         {
             return s_currentLevel;
         }
+
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
         /// <summary>
         /// Uninstalls the previous level if exists, then installs this one.
@@ -80,10 +87,10 @@ namespace Lina::World
         /// </summary>
         void SaveToFile(const String& path);
 
-        /// <summary>
-        /// Install the level from given file.
-        /// </summary>
-        void InstallFromFile(const String& path);
+        const HashMap<TypeID, HashSet<StringIDType>>& GetResources()
+        {
+            return m_usedResources;
+        }
 
         LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
         Color m_ambientColor = Color(0);
@@ -92,13 +99,17 @@ namespace Lina::World
         ECS::Registry m_registry;
 
     private:
+
         void Uninstall();
         void SetupData();
 
     private:
+
         friend class Application;
         friend class cereal::access;
         static Level* s_currentLevel;
+
+        HashMap<TypeID, HashSet<StringIDType>> m_usedResources;
 
         template <class Archive>
         void serialize(Archive& archive)

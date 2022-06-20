@@ -46,13 +46,13 @@ namespace Lina
 {
     enum class LogLevel
     {
-        None     = 1 << 0,
-        Debug    = 1 << 1,
-        Info     = 1 << 2,
-        Critical = 1 << 3,
-        Error    = 1 << 4,
-        Trace    = 1 << 5,
-        Warn     = 1 << 6
+        None     = 0,
+        Debug    = 1,
+        Info     = 2,
+        Critical = 3,
+        Error    = 4,
+        Trace    = 5,
+        Warn     = 6,
     };
 
     enum class ApplicationMode

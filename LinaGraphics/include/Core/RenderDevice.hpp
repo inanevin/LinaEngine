@@ -46,8 +46,6 @@ Timestamp: 4/27/2019 10:12:16 PM
 
 #include "Data/Map.hpp"
 
-using namespace Lina;
-
 namespace Lina::Graphics
 {
 

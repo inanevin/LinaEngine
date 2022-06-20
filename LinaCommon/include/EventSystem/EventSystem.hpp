@@ -47,6 +47,8 @@ namespace Lina
     class Engine;
 }
 
+#define EVENT_SYSTEM Event::EventSystem::Get()
+
 namespace Lina::Event
 {
     class EventSystem

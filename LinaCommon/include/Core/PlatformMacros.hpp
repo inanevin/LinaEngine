@@ -43,7 +43,6 @@
 #define BIT(x)                    (1 << x)
 #define INVALID_VALUE             0xFFFFFFFF
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
-#define LINA_BIND_EVENT_FN(fn)    std::bind(&fn, this, std::placeholders::_1)
 
 #define NULL_COPY_AND_ASSIGN(T)                                                                                                                                                                                                                                                                            \
     T(const T& other)                                                                                                                                                                                                                                                                                      \

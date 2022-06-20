@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    ResourceStorage*              ResourceStorage::s_instance = nullptr;
+    ResourceStorage*         ResourceStorage::s_instance = nullptr;
     Set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
 
     void ResourceStorage::Shutdown()
@@ -42,7 +42,7 @@ namespace Lina::Resources
         {
             for (auto& [sid, ptr] : cache)
             {
-                GetTypeData(resType).m_deleteFunc(ptr);
+                GetTypeData(resType).deleteFunc(ptr);
             }
             cache.clear();
         }
@@ -100,7 +100,7 @@ namespace Lina::Resources
 
         for (auto& typeCachePair : m_resourceTypes)
         {
-            auto& extensions = typeCachePair.second.m_associatedExtensions;
+            auto& extensions = typeCachePair.second.associatedExtensions;
 
             for (int i = 0; i < extensions.size(); i++)
             {
@@ -119,4 +119,26 @@ namespace Lina::Resources
         return tid;
     }
 
+    String ResourceStorage::PackageTypeToString(PackageType type)
+    {
+        switch (type)
+        {
+        case PackageType::Static:
+            return "static";
+        case PackageType::Custom:
+            return "custom";
+        case PackageType::Audio:
+            return "audio";
+        case PackageType::Graphics:
+            return "graphics";
+        case PackageType::Meshes:
+            return "meshes";
+        case PackageType::Physics:
+            return "physics";
+        case PackageType::Textures:
+            return "textures";
+        default:
+            return "";
+        }
+    }
 } // namespace Lina::Resources

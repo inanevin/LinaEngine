@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,40 +40,45 @@ Timestamp: 1/6/2022 6:58:17 PM
 #define EngineSettings_HPP
 
 // Headers here.
-#include "Resources/ResourceHandle.hpp"
-#include "World/Level.hpp"
-
+#include "Resources/IResource.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Serialization/VectorSerialization.hpp"
 namespace Lina
 {
     namespace Editor
     {
         class ClassDrawer;
     }
-}
+} // namespace Lina
 
 namespace Lina
 {
     class Engine;
 
     LINA_CLASS("Engine Settings")
-    class EngineSettings
+    class EngineSettings : public Resources::IResource
     {
 
     public:
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
+        // Inherited via IResource
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_startupLevel);
+            archive(m_dummy);
         }
+        int m_dummy = 5;
 
     private:
+
         friend class Engine;
         friend class Editor::ClassDrawer;
-        Resources::ResourceHandle<World::Level> m_startupLevel;
+        Vector<int32> m_levelIndices;
     };
 } // namespace Lina
 

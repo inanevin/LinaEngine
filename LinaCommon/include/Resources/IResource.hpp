@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,6 +50,47 @@ Timestamp: 12/30/2021 9:37:24 PM
 namespace Lina::Resources
 {
     class ResourceStorage;
+
+    template <typename T>
+    T LoadArchiveFromFile(const String& path)
+    {
+        T obj;
+
+        std::ifstream stream(path.c_str(), std::ios::binary);
+        {
+            cereal::PortableBinaryInputArchive iarchive(stream);
+            iarchive(obj);
+        }
+        return obj;
+    }
+
+    template <typename T>
+    T LoadArchiveFromMemory(const String& idPath, unsigned char* data, size_t dataSize)
+    {
+        T obj;
+        {
+            std::string        dataStr((char*)data, dataSize);
+            std::istringstream stream(dataStr, std::ios::binary);
+            {
+                cereal::PortableBinaryInputArchive iarchive(stream);
+                iarchive(obj);
+            }
+        }
+        return obj;
+    }
+
+    template <typename T>
+    void SaveArchiveToFile(const String& path, T& obj)
+    {
+        if (Utility::FileExists(path))
+            Utility::DeleteFileInPath(path);
+
+        std::ofstream stream(path.c_str(), std::ios::binary);
+        {
+            cereal::PortableBinaryOutputArchive oarchive(stream);
+            oarchive(obj);
+        }
+    }
 
     class IResource
     {
@@ -108,48 +149,8 @@ namespace Lina::Resources
     protected:
         friend class ResourceStorage;
         StringIDType m_sid  = 0;
-        String  m_path = "";
+        String       m_path = "";
     };
-
-    template <typename T>
-    T LoadArchiveFromFile(const String& path)
-    {
-        T             obj;
-        std::ifstream stream(path.c_str(), std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(obj);
-        }
-        return obj;
-    }
-
-    template <typename T>
-    T LoadArchiveFromMemory(const String& idPath, unsigned char* data, size_t dataSize)
-    {
-        T obj;
-        {
-            String        data((char*)data, dataSize);
-            std::istringstream stream(data.c_str(), std::ios::binary);
-            {
-                cereal::PortableBinaryInputArchive iarchive(stream);
-                iarchive(obj);
-            }
-        }
-        return obj;
-    }
-
-    template <typename T>
-    void SaveArchiveToFile(const String& path, T& obj)
-    {
-        if (Utility::FileExists(path))
-            Utility::DeleteFileInPath(path);
-
-        std::ofstream stream(path.c_str(), std::ios::binary);
-        {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(obj);
-        }
-    }
 
     template <typename T>
     IResource* CreateResource()
@@ -163,7 +164,6 @@ namespace Lina::Resources
         T* typePtr = static_cast<T*>(ptr);
         delete typePtr;
     }
-
 
     typedef std::function<IResource*()>    ResourceCreateFunc;
     typedef std::function<void(void* ptr)> ResourceDeleteFunc;

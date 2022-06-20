@@ -64,10 +64,10 @@ namespace Lina
             return s_application;
         }
 
-    protected:
-        virtual void Initialize(ApplicationInfo& appInfo);
-        void         Run();
+        void Initialize(ApplicationInfo& appInfo);
+        void Run();
 
+    protected:
     private:
         // Callbacks.
         void OnLog(const Event::ELog& dump);
@@ -80,6 +80,8 @@ namespace Lina
         Engine              m_engine;
 
         bool m_activeLevelExists = false;
+        bool m_initialized       = false;
+        bool m_ranOnce           = false;
     };
 
 }; // namespace Lina

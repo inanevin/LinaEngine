@@ -54,8 +54,8 @@ namespace Lina::Utility
         DirectoryItem()  = default;
         ~DirectoryItem() = default;
 
-        String                     m_fullPath   = "";
-        String                     m_name       = ""; // name without extension
+        String                          m_fullPath   = "";
+        String                          m_name       = ""; // name without extension
         Folder*                         m_parent     = nullptr;
         TypeID                          m_typeID     = 0;
         StringIDType                    m_sid        = 0;
@@ -80,7 +80,7 @@ namespace Lina::Utility
 
         Vector<File*>   m_files;
         Vector<Folder*> m_folders;
-        bool                 m_isOpen = false;
+        bool            m_isOpen = false;
     };
 } // namespace Lina::Utility
 

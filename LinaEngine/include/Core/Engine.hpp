@@ -50,13 +50,14 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Core/EngineSettings.hpp"
+#include "Data/Vector.hpp"
 
 #define DELTA_TIME_HISTORY 11
 
 namespace Lina
 {
     class Application;
+    class EngineSettings;
 
     class Engine
     {
@@ -71,9 +72,10 @@ namespace Lina
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
-        void   StartLoadingResources();
+        void   PackageProject(const String& path);
+        void   InstallLevel(uint8 index);
 
-        inline EngineSettings& GetEngineSettings()
+        inline EngineSettings* GetEngineSettings()
         {
             return m_engineSettings;
         }
@@ -134,6 +136,11 @@ namespace Lina
             return m_appInfo;
         }
 
+        inline const Vector<World::Level*>& GetLevelList()
+        {
+            return m_levelList;
+        }
+
     private:
         friend class Application;
 
@@ -159,6 +166,8 @@ namespace Lina
         Resources::ResourceManager m_resourceManager;
         MessageBus                 m_messageBus;
 
+        Vector<World::Level*> m_levelList;
+
         ApplicationInfo m_appInfo;
         bool            m_running         = false;
         bool            m_canRender       = true;
@@ -182,7 +191,7 @@ namespace Lina
         bool                                   m_deltaFilled        = false;
         double                                 m_startTime          = 0.0;
         float                                  m_physicsAccumulator = 0.0f;
-        EngineSettings                         m_engineSettings;
+        EngineSettings*                        m_engineSettings     = nullptr;
         World::DefaultLevel                    m_defaultLevel;
     };
 } // namespace Lina

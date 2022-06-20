@@ -43,12 +43,13 @@ Timestamp: 12/20/2020 8:56:18 PM
 #include "Core/CommonResources.hpp"
 
 #include "Data/HashMap.hpp"
+#include "Data/HashSet.hpp"
 
 namespace Lina
 {
     namespace Resources
     {
-        class ResourceBundle;
+        class ResourceLoader;
     }
 } // namespace Lina
 namespace Lina::Resources
@@ -61,7 +62,8 @@ namespace Lina::Resources
 
         void PackageDirectory(const String& dir, const String& output, const wchar_t* pass);
         void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
-        void Unpack(const String& filePath, const wchar_t* pass, ResourceBundle* outBundle);
+        void UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader);
+        
     };
 
 }; // namespace Lina::Resources

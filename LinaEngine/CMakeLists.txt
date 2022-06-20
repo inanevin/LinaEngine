@@ -14,7 +14,6 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
 project(LinaEngine)
-set(CMAKE_CXX_STANDARD 17)
 
 
 #--------------------------------------------------------------------
@@ -27,6 +26,7 @@ set (LINAENGINE_SOURCES
 	src/Core/Engine.cpp
 	src/Core/MessageBus.cpp
 	src/Core/ReflectionRegistry.cpp
+	src/Core/EngineSettings.cpp
 	src/World/Level.cpp
 	src/World/DefaultLevel.cpp
 )
@@ -49,7 +49,7 @@ set(LINAENGINE_HEADERS
 	include/World/DefaultLevel.hpp
 	
 	#Others
-	include/LinaPch.hpp
+	include/Lina.hpp
 	
 )
 

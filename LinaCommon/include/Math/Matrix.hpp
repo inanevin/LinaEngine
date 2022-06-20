@@ -83,7 +83,7 @@ namespace Lina
             return Vector3((*this)[3][0], (*this)[3][1], (*this)[3][2]);
         }
 
-        void        Decompose(Vector3& position = Vector3::Zero, Quaternion& rotation = Quaternion(), Vector3& scale = Vector3::One);
+        void        Decompose(Vector3& position = Vector3::Zero, Quaternion rotation = Quaternion(), Vector3 scale = Vector3::One);
         static bool Decompose(const glm::mat4& transform, glm::vec3& outTranslation, glm::vec3& outRotation, glm::vec3& outScale);
 
         Transformation ToTransform();

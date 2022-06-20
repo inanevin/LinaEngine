@@ -2429,7 +2429,7 @@ static bool ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
             }
     }
 
-    // 3. Unpack our bit map into a flat list (we now have all the Unicode points that we know are requested _and_ available _and_ not overlapping another)
+    // 3. UnpackAndLoad our bit map into a flat list (we now have all the Unicode points that we know are requested _and_ available _and_ not overlapping another)
     for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
     {
         ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];

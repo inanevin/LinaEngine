@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -67,14 +67,25 @@ namespace Lina::Resources
 {
     typedef HashMap<StringIDType, void*> Cache;
 
+    enum class PackageType
+    {
+        Custom,
+        Static,
+        Audio,
+        Physics,
+        Textures,
+        Meshes,
+        Graphics,
+    };
     struct ResourceTypeData
     {
-        int                      m_loadPriority = 0;
-        ResourceCreateFunc       m_createFunc;
-        ResourceDeleteFunc       m_deleteFunc;
-        Vector<String> m_associatedExtensions;
-        Color                    m_resourceIdentifierColor = Color::White;
-        bool                     m_isAssetData             = false;
+        int                loadPriority = 0;
+        bool               isAssetData  = false;
+        PackageType        packageType  = PackageType::Custom;
+        ResourceCreateFunc createFunc;
+        ResourceDeleteFunc deleteFunc;
+        Vector<String>     associatedExtensions;
+        Color              debugColor = Color::White;
     };
 
     class ResourceStorage
@@ -165,7 +176,7 @@ namespace Lina::Resources
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
-            GetTypeData(tid).m_deleteFunc(cache[sid]);
+            GetTypeData(tid).deleteFunc(cache[sid]);
             cache.erase(sid);
         }
 
@@ -198,7 +209,7 @@ namespace Lina::Resources
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
-            GetTypeData(tid).m_deleteFunc(cache[sid]);
+            GetTypeData(tid).deleteFunc(cache[sid]);
             cache.erase(sid);
         }
 
@@ -232,6 +243,11 @@ namespace Lina::Resources
             return m_resources.at(GetTypeID<T>());
         }
 
+        const Cache& GetCache(TypeID tid)
+        {
+            return m_resources.at(tid);
+        }
+
         /// <summary>
         /// Returns the type ID of the resource associated with the given extension.
         /// </summary>
@@ -250,7 +266,7 @@ namespace Lina::Resources
         /// </summary>
         inline bool IsTypeAssetData(TypeID tid)
         {
-            return m_resourceTypes[tid].m_isAssetData;
+            return m_resourceTypes[tid].isAssetData;
         }
 
         /// <summary>
@@ -259,7 +275,7 @@ namespace Lina::Resources
         template <typename T>
         Color GetTypeColor()
         {
-            return m_resourceTypes[GetTypeID<T>()].m_resourceIdentifierColor;
+            return m_resourceTypes[GetTypeID<T>()].debugColor;
         }
 
         /// <summary>
@@ -267,7 +283,7 @@ namespace Lina::Resources
         /// </summary>
         Color GetTypeColor(TypeID tid)
         {
-            return m_resourceTypes[tid].m_resourceIdentifierColor;
+            return m_resourceTypes[tid].debugColor;
         }
 
         /// <summary>
@@ -292,6 +308,8 @@ namespace Lina::Resources
             return m_resourceTypes;
         }
 
+        String PackageTypeToString(PackageType type);
+
     private:
         friend class Engine;
         ResourceStorage()  = default;
@@ -303,7 +321,7 @@ namespace Lina::Resources
         void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
-        static ResourceStorage*                      s_instance;
+        static ResourceStorage*           s_instance;
         HashMap<TypeID, Cache>            m_resources;
         HashMap<TypeID, ResourceTypeData> m_resourceTypes;
     };
