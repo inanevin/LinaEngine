@@ -27,13 +27,8 @@ SOFTWARE.
 */
 
 #include "World/Level.hpp"
-
-#include "Core/Application.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
+#include "Core/Engine.hpp"
 #include "ECS/Registry.hpp"
-#include "Log/Log.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "Resources/ResourceStorage.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
@@ -41,29 +36,28 @@ SOFTWARE.
 
 namespace Lina::World
 {
-    Level* Level::s_currentLevel = nullptr;
-
     void Level::Install()
     {
-        if (s_currentLevel != nullptr)
-            s_currentLevel->Uninstall();
-
-        Resources::ResourceManager::Get()->LoadLevelResources(m_usedResources);
         ECS::Registry::s_ecs = &m_registry;
-        s_currentLevel       = this;
-        SetupData();
+        LINA_TRACE("Level installed: {0}", m_path);
+    }
+
+    Level::Level(const Level& lvl)
+    {
+        m_ambientColor  = lvl.m_ambientColor;
+        m_usedResources = lvl.m_usedResources;
     }
 
     void* Level::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
-        String             dataStr((char*)data, dataSize);
-        std::istringstream stream(dataStr.c_str(), std::ios::binary);
+        std::string        dataStr((char*)data, dataSize);
+        std::istringstream stream(dataStr, std::ios::binary);
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);
             m_registry.DeserializeComponentsInRegistry(iarchive);
         }
-
+        IResource::SetSID(path);
         return static_cast<void*>(this);
     }
 
@@ -75,18 +69,20 @@ namespace Lina::World
             iarchive(*this);
             m_registry.DeserializeComponentsInRegistry(iarchive);
         }
+        IResource::SetSID(path);
         return static_cast<void*>(this);
     }
 
     void Level::Uninstall()
     {
-        Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
         m_registry.clear();
+        LINA_TRACE("Level uninstalled: {0}", m_path);
     }
 
     void Level::SaveToFile(const String& path)
     {
-        Event::EventSystem::Get()->Trigger<Event::EPreSerializingLevel>(Event::EPreSerializingLevel{});
+        if (Utility::FileExists(path))
+            Utility::DeleteFileInPath(path);
 
         std::ofstream stream(path.c_str(), std::ios::binary);
         {
@@ -94,12 +90,11 @@ namespace Lina::World
             oarchive(*this);
             m_registry.SerializeComponentsInRegistry(oarchive);
         }
-        Event::EventSystem::Get()->Trigger<Event::ESerializedLevel>(Event::ESerializedLevel{});
     }
 
-    void Level::SetupData()
+    void Level::AddResourceReference(TypeID tid, StringIDType sid)
     {
-        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
-    };
+        m_usedResources[tid].insert(sid);
+    }
 
 } // namespace Lina::World

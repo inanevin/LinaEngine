@@ -129,6 +129,8 @@ namespace Lina::Resources
             return "custom";
         case PackageType::Audio:
             return "audio";
+        case PackageType::Level:
+            return "levels";
         case PackageType::Graphics:
             return "graphics";
         case PackageType::Meshes:

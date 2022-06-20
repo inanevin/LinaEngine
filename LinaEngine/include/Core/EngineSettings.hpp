@@ -43,13 +43,7 @@ Timestamp: 1/6/2022 6:58:17 PM
 #include "Resources/IResource.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Serialization/VectorSerialization.hpp"
-namespace Lina
-{
-    namespace Editor
-    {
-        class ClassDrawer;
-    }
-} // namespace Lina
+#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -67,18 +61,26 @@ namespace Lina
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
 
+        inline const Vector<String>& GetPackagedLevels()
+        {
+            return m_packagedLevels;
+        }
+
+    private:
+        friend class Engine;
+        friend class cereal::access;
+
+        // These are the sid accessors for the levels cooked with the game packages.
+        // Level manager uses the first one to load
+        Vector<String> m_packagedLevels;
+
         template <class Archive>
         void serialize(Archive& archive)
         {
             archive(m_dummy);
         }
-        int m_dummy = 5;
 
-    private:
-
-        friend class Engine;
-        friend class Editor::ClassDrawer;
-        Vector<int32> m_levelIndices;
+        int m_dummy = 0;
     };
 } // namespace Lina
 

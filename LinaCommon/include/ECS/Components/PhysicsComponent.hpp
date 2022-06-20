@@ -42,11 +42,6 @@ Timestamp: 9/30/2020 2:46:27 AM
 #include "Resources/ResourceHandle.hpp"
 namespace Lina
 {
-    namespace Editor
-    {
-        class ComponentDrawer;
-    }
-
     namespace Physics
     {
         class PhysicsMaterial;
@@ -109,7 +104,6 @@ namespace Lina::ECS
         friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
-        friend class Editor::ComponentDrawer;
         friend class ECS::RigidbodySystem;
         friend class Physics::PhysicsEngine;
 

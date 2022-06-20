@@ -71,6 +71,7 @@ namespace Lina::Resources
     {
         Custom,
         Static,
+        Level,
         Audio,
         Physics,
         Textures,

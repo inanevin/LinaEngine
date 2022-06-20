@@ -50,6 +50,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/HashSet.hpp"
+#include "Data/Serialization/SetSerialization.hpp"
 #include <cereal/access.hpp>
 
 namespace Lina
@@ -63,29 +64,14 @@ namespace Lina::World
     class Level : public Resources::IResource
     {
     public:
-
         Level(){};
-        virtual ~Level()
-        {
-        }
-
-        inline static Level* GetCurrent()
-        {
-            return s_currentLevel;
-        }
+        virtual ~Level(){};
+        Level(const Level&);
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
-
-        /// <summary>
-        /// Uninstalls the previous level if exists, then installs this one.
-        /// </summary>
-        virtual void Install();
-
-        /// <summary>
-        /// Save the level data to given file.
-        /// </summary>
-        void SaveToFile(const String& path);
+        void          SaveToFile(const String& path);
+        void          AddResourceReference(TypeID tid, StringIDType sid);
 
         const HashMap<TypeID, HashSet<StringIDType>>& GetResources()
         {
@@ -95,26 +81,21 @@ namespace Lina::World
         LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
         Color m_ambientColor = Color(0);
 
-    protected:
-        ECS::Registry m_registry;
-
     private:
-
+        void Install();
         void Uninstall();
-        void SetupData();
 
     private:
-
-        friend class Application;
+        friend class LevelManager;
         friend class cereal::access;
-        static Level* s_currentLevel;
 
+        ECS::Registry                          m_registry;
         HashMap<TypeID, HashSet<StringIDType>> m_usedResources;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_ambientColor);
+            archive(m_ambientColor, m_usedResources);
         }
     };
 } // namespace Lina::World

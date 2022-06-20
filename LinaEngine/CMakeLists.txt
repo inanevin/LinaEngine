@@ -28,7 +28,7 @@ set (LINAENGINE_SOURCES
 	src/Core/ReflectionRegistry.cpp
 	src/Core/EngineSettings.cpp
 	src/World/Level.cpp
-	src/World/DefaultLevel.cpp
+	src/World/LevelManager.cpp
 )
 
 #--------------------------------------------------------------------
@@ -46,7 +46,7 @@ set(LINAENGINE_HEADERS
 
 	#World
 	include/World/Level.hpp
-	include/World/DefaultLevel.hpp
+	include/World/LevelManager.hpp
 	
 	#Others
 	include/Lina.hpp

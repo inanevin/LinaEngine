@@ -45,7 +45,7 @@ Timestamp: 12/14/2021 10:09:33 PM
 #include "Core/MessageBus.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Core/ResourceManager.hpp"
-#include "World/DefaultLevel.hpp"
+#include "World/LevelManager.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"
@@ -68,12 +68,11 @@ namespace Lina
             return s_engine;
         }
 
+        void   PackageProject(const String& path);
         double GetElapsedTime();
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
-        void   PackageProject(const String& path);
-        void   InstallLevel(uint8 index);
 
         inline EngineSettings* GetEngineSettings()
         {
@@ -127,18 +126,9 @@ namespace Lina
         {
             return m_mainECSPipeline;
         }
-        inline World::Level& GetDefaultLevel()
-        {
-            return m_defaultLevel;
-        }
         inline ApplicationInfo GetAppInfo()
         {
             return m_appInfo;
-        }
-
-        inline const Vector<World::Level*>& GetLevelList()
-        {
-            return m_levelList;
         }
 
     private:
@@ -164,17 +154,15 @@ namespace Lina
         Event::EventSystem         m_eventSystem;
         ECS::SystemList            m_mainECSPipeline;
         Resources::ResourceManager m_resourceManager;
+        World::LevelManager        m_levelManager;
         MessageBus                 m_messageBus;
-
-        Vector<World::Level*> m_levelList;
-
-        ApplicationInfo m_appInfo;
-        bool            m_running         = false;
-        bool            m_canRender       = true;
-        bool            m_firstRun        = true;
-        bool            m_isInPlayMode    = false;
-        bool            m_paused          = false;
-        bool            m_shouldSkipFrame = false;
+        ApplicationInfo            m_appInfo;
+        bool                       m_running         = false;
+        bool                       m_canRender       = true;
+        bool                       m_firstRun        = true;
+        bool                       m_isInPlayMode    = false;
+        bool                       m_paused          = false;
+        bool                       m_shouldSkipFrame = false;
 
         // Performance & variable stepping
         int                                    m_currentFPS = 0;
@@ -192,7 +180,6 @@ namespace Lina
         double                                 m_startTime          = 0.0;
         float                                  m_physicsAccumulator = 0.0f;
         EngineSettings*                        m_engineSettings     = nullptr;
-        World::DefaultLevel                    m_defaultLevel;
     };
 } // namespace Lina
 

@@ -42,20 +42,16 @@ Timestamp: 12/25/2021 12:19:08 PM
 namespace Lina::Event
 {
     // Level
+    struct ELevelInstallStarted
+    {
+    };
     struct ELevelInstalled
     {
     };
     struct ELevelUninstalled
     {
     };
-    struct EPreSerializingLevel
-    {
-    
-    };
-    struct ESerializedLevel
-    {
-    
-    };
+  
 } // namespace Lina::Event
 
 #endif

@@ -31,11 +31,9 @@ SOFTWARE.
 #include "Core/PlatformMacros.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "World/Level.hpp"
 
 #ifdef LINA_WINDOWS
 #include <windows.h>

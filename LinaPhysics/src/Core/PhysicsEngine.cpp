@@ -479,6 +479,10 @@ namespace Lina::Physics
         ECS::Registry::Get()->on_construct<ECS::EntityDataComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
 
         m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+
+        if (m_defaultMaterial == nullptr)
+            return;
+
         m_pxDefaultMaterial->setStaticFriction(m_defaultMaterial->m_staticFriction);
         m_pxDefaultMaterial->setDynamicFriction(m_defaultMaterial->m_dynamicFriction);
         m_pxDefaultMaterial->setRestitution(m_defaultMaterial->m_restitution);

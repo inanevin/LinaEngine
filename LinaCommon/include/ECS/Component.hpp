@@ -47,10 +47,6 @@ namespace Lina
 {
     class ReflectionRegistry;
 
-    namespace Editor
-    {
-        class ComponentDrawer;
-    }
 } // namespace Lina
 
 namespace Lina::ECS
@@ -74,7 +70,6 @@ namespace Lina::ECS
 
     protected:
 
-        friend class Editor::ComponentDrawer;
         friend class ReflectionRegistry;
         bool m_isEnabled = true;
     };

@@ -37,6 +37,7 @@ Timestamp: 05/12/2022 11:33:56 PM
 
 #include "cereal/cereal.hpp"
 #include <EASTL/set.h>
+#include <EASTL/hash_set.h>
 
 namespace cereal
 {
@@ -100,6 +101,20 @@ namespace cereal
     //! Loading for eastl::multiset
     template <class Archive, class K, class C, class A> inline
         void CEREAL_LOAD_FUNCTION_NAME(Archive& ar, eastl::multiset<K, C, A>& multiset)
+    {
+        set_detail::load(ar, multiset);
+    }
+
+    //! Saving for eastl::hashset
+    template <class Archive, class K, class C, class A> inline
+        void CEREAL_SAVE_FUNCTION_NAME(Archive& ar, eastl::hash_set<K, C, A> const& multiset)
+    {
+        set_detail::save(ar, multiset);
+    }
+
+    //! Loading for eastl::hashset
+    template <class Archive, class K, class C, class A> inline
+        void CEREAL_LOAD_FUNCTION_NAME(Archive& ar, eastl::hash_set<K, C, A>& multiset)
     {
         set_detail::load(ar, multiset);
     }

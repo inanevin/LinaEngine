@@ -79,10 +79,10 @@ namespace Lina::Resources
         static void                 TriggerResourceUpdatedEvent();
 
         /// <summary>
-        /// Loads a single resource given it's full path (relative path + extension)
+        /// Loads a single resource given it's full path (relative path and extension)
         /// !USED FOR EDITOR!
         /// </summary>
-        /// <returns> true if successfuly loaded </returns>
+        /// <returns> </returns>
         bool LoadSingleResource(TypeID typeID, const String& relativePath);
 
         /// <summary>
@@ -92,19 +92,19 @@ namespace Lina::Resources
         void LoadResourcesInFolder(Utility::Folder* folder);
 
         /// <summary>
-        /// Loads the given resource map from the resources packages.
-        /// </summary>
-        void LoadLevelResources(const HashMap<TypeID, HashSet<StringIDType>>& resources);
-
-        /// <summary>
         /// Start packing the project Resource contents into their respective packages.
         /// </summary>
-        void PackageProject(const String& path, const HashMap<TypeID, HashSet<StringIDType>>& resourceList);
+        void PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, HashSet<StringIDType>>& resourceList);
 
         /// <summary>
-        /// Given a path to a Lina Bundle file, starts unpacking the file & loading resources inside.
+        /// Given a path to a Lina Bundle file, starts unpacking the package & loading all resources inside.
         /// </summary>
-        void ImportResourcePackage(const String& path, const String& name);
+        void LoadPackage(const String& packageName);
+
+        /// <summary>
+        /// Unpacks the given package & loads all the given files from it.
+        /// </summary>
+        void LoadFilesFromPackage(const String& packageName, const Vector<String>& filesToLoad);
 
         /// <summary>
         /// !! Root folder will be nullptr during Standalone builds, which are required to run through the package import system instead of a file system.

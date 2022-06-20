@@ -36,7 +36,7 @@ SOFTWARE.
 namespace Lina::Resources
 {
 
-#define RESOURCEPACKAGE_EXTENSION ".linapackage"
+#define RESOURCEPACKAGE_EXTENSION String(".linapackage")
 
     ResourceManager*     ResourceManager::s_resourceManager = nullptr;
     ResourceProgressData ResourceManager::s_currentProgressData;
@@ -83,39 +83,44 @@ namespace Lina::Resources
         ResourceManager::ResetProgress();
     }
 
-    void ResourceManager::LoadLevelResources(const HashMap<TypeID, HashSet<StringIDType>>& resources)
+    void ResourceManager::PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, HashSet<StringIDType>>& resourceMap)
     {
-    }
-
-    void ResourceManager::PackageProject(const String& path, const HashMap<TypeID, HashSet<StringIDType>>& resourceMap)
-    {
-        auto* storage = ResourceStorage::Get();
-
-        Vector<String> filesToPack;
-
-        auto& allTypes = storage->GetResourceTypes();
-
         ScanRootFolder();
+        auto*          storage = ResourceStorage::Get();
+        Vector<String> filesToPack;
+        auto&          allTypes = storage->GetResourceTypes();
 
+        // Pack the static resources, all static resources should be loaded into the memory during the lifetime of the editor.
+        // So we can find them from the resource cache.
         for (const auto& [tid, typeData] : allTypes)
         {
             if (typeData.packageType == PackageType::Static)
             {
                 const Cache& cache = storage->GetCache(tid);
 
-                for (auto [sid, ptr] : cache)
+                for (auto& pair : cache)
                 {
-                    String fullpath = SearchFolderForSID(m_rootFolder, sid);
+                    String fullpath = SearchFolderForSID(m_rootFolder, pair.first);
                     if (fullpath.compare("") != 0)
                         filesToPack.push_back(fullpath);
                 }
             }
         }
 
-        // Pack the static fileset.
-        m_packager.PackageFileset(filesToPack, path + "static" + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
+        const String workingPath = path.compare("") == 0 ? "Packages/" : (path + "/Packages/");
+        if (Utility::FileExists(workingPath))
+            Utility::DeleteDirectory(workingPath);
+        Utility::CreateFolderInPath(workingPath);
+
+        m_packager.PackageFileset(filesToPack, workingPath + + "static" + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
+
+        // Pack the level resources, level resources might not be alive in the resource storage.
+        // Thus use the table sent by the engine to figure out what to pack.
+        m_packager.PackageFileset(levelResources, workingPath + "levels" + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
 
         // Now for all resource types that are marked as non-static, package them into their respective packages.
+        // We do not use the storage to get the resources here, we merely use it to check the type data, which is guaranteed to be registered.
+        // We package the files based on the resource table sent by the engine here.
         for (const auto& [tid, sidVector] : resourceMap)
         {
             ResourceTypeData& typeData = storage->GetTypeData(tid);
@@ -132,14 +137,14 @@ namespace Lina::Resources
                         filesToPack.push_back(fullpath);
                 }
 
-                m_packager.PackageFileset(filesToPack, path + "/" + storage->PackageTypeToString(typeData.packageType) + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
+                m_packager.PackageFileset(filesToPack, workingPath  + storage->PackageTypeToString(typeData.packageType) + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
             }
         }
     }
 
-    void ResourceManager::ImportResourcePackage(const String& path, const String& name)
+    void ResourceManager::LoadPackage(const String& packageName)
     {
-        const String fullPath = path + name + RESOURCEPACKAGE_EXTENSION;
+        const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
         {
             LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
@@ -152,6 +157,27 @@ namespace Lina::Resources
 
         // Start unpacking.
         m_packager.UnpackAndLoad(fullBundlePath, m_appInfo.m_packagePass, &m_bundle);
+        m_bundle.LoadAllMemoryResources();
+
+        // Set progress end.
+        ResetProgress();
+    }
+
+    void ResourceManager::LoadFilesFromPackage(const String& packageName, const Vector<String>& filesToLoad)
+    {
+        const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
+        if (!Utility::FileExists(fullPath))
+        {
+            LINA_ERR("Package does not exist, aborting import. {0}", fullPath);
+            return;
+        }
+
+        String fullBundlePath                       = fullPath;
+        s_currentProgressData.m_progressTitle       = "Unpacking resources...";
+        s_currentProgressData.m_currentResourceName = fullBundlePath;
+
+        // Start unpacking.
+        m_packager.UnpackAndLoad(fullBundlePath, filesToLoad, m_appInfo.m_packagePass, &m_bundle);
         m_bundle.LoadAllMemoryResources();
 
         // Set progress end.

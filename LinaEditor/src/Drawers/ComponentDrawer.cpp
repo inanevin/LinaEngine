@@ -53,7 +53,6 @@ SOFTWARE.
 #include "imgui/imgui.h"
 
 using namespace ECS;
-using namespace Editor;
 
 namespace Lina::Editor
 {

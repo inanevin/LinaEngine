@@ -38,6 +38,7 @@ SOFTWARE.
 #include <bit7z/include/bitformat.hpp>
 #include <bit7z/include/bitmemextractor.hpp>
 #include <bit7z/include/bittypes.hpp>
+#include <bit7z/include/bitarchiveinfo.hpp>
 
 namespace Lina::Resources
 {
@@ -217,20 +218,20 @@ namespace Lina::Resources
             extractor.extract(wdir, map);
 
             // Clear the current memory queue in the loader.
-          //  MemoryQueue empty;
-          //  loader->m_memoryResources.swap(empty);
+            MemoryQueue empty;
+            loader->m_memoryResources.swap(empty);
 
             // Sort the resources into their respective packages in the loader.
             for (auto& item : map)
             {
                 // Setup paths
                 const char* filePath    = Utility::WCharToChar(item.first.c_str());
-                String filePathStr = filePath;
+                String      filePathStr = filePath;
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
 
                 // Pass the resource to loader.
                 Vector<bit7z::byte_t> v;
-              //  v.reserve(item.second.size());
+                v.reserve(item.second.size());
                 for (int i = 0; i < item.second.size(); i++)
                     v.push_back(item.second[i]);
 
@@ -243,6 +244,97 @@ namespace Lina::Resources
         {
             LINA_ERR("[Packager] -> Failed unpacking file {0} {1}", filePath, ex.what());
         }
+    }
+
+    void Packager::UnpackAndLoad(const String& filePath, const Vector<String>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
+    {
+        int loadedFiles = 0;
+        try
+        {
+            // Delete first if exists.
+            if (!Utility::FileExists(filePath))
+            {
+                LINA_ERR("[Packager] -> Failed unpacking file, file does not exist: {0}", filePath);
+                return;
+            }
+
+            // Setup extractor.
+            bit7z::Bit7zLibrary lib{L"7z.dll"};
+            bit7z::BitExtractor extractor{lib, bit7z::BitFormat::SevenZip};
+            extractor.setPassword(pass);
+
+            // Setup path.
+            const char*  filePathChr = filePath.c_str();
+            const size_t dirSize     = strlen(filePathChr) + 1;
+            std::wstring wdir(dirSize, L'#');
+            size_t       numConverted;
+            mbstowcs_s(&numConverted, &wdir[0], dirSize, filePathChr, dirSize - 1);
+
+            // Progress callback.
+            bit7z::BitExtractor*  pExtractor   = &extractor;
+            ResourceProgressData* loadingData  = &ResourceManager::s_currentProgressData;
+            loadingData->m_currentResourceName = "nofile";
+            loadingData->m_currentProgress     = 0;
+            loadingData->m_state               = ResourceProgressState::Pending;
+            loadingData->m_progressTitle       = "Unpacking file " + filePath;
+
+            extractor.setTotalCallback([=](uint64_t size) {
+                loadingData->m_state = ResourceProgressState::Pending;
+                pExtractor->setProgressCallback([size, loadingData](uint64_t processedSize) { loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size); });
+            });
+
+            extractor.setFileCallback([=](std::wstring file) {
+                char* chr                          = Utility::WCharToChar(file.c_str());
+                loadingData->m_currentResourceName = String(chr);
+                LINA_INFO("[Packager] -> Unpacking: {0}", loadingData->m_currentResourceName);
+                delete chr;
+            });
+
+            // Clear the current memory queue in the loader.
+            MemoryQueue empty;
+            loader->m_memoryResources.swap(empty);
+
+            bit7z::BitArchiveInfo arc{lib, wdir, bit7z::BitFormat::SevenZip};
+
+            auto items = arc.items();
+
+            Vector<bit7z::byte_t>      v;
+            std::vector<bit7z::byte_t> stdv;
+
+            // For every single file to be extracted, search all items & find the matching item index.
+            // Then extract that item into memory from the archive.
+            for (auto& file : filesToLoad)
+            {
+                for (auto& item : items)
+                {
+                    const char* path    = Utility::WCharToChar(item.path().c_str());
+                    String      pathStr = path;
+                    std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+
+                    if (pathStr.compare(file) == 0)
+                    {
+                        extractor.extract(wdir, stdv, item.index());
+
+                        for (int i = 0; i < stdv.size(); i++)
+                            v.push_back(stdv[i]);
+
+                        loader->PushResourceFromMemory(file, v);
+
+                        LINA_INFO("[Packager] -> Successfully loaded file {0} from the package: {1}", file, filePath);
+                        loadedFiles++;
+                        stdv.clear();
+                        v.clear();
+                        break;
+                    }
+                }
+            }
+        }
+        catch (const bit7z::BitException& ex)
+        {
+            LINA_ERR("[Packager] -> Failed unpacking file {0} {1}", filePath, ex.what());
+        }
+
+        assert(loadedFiles == filesToLoad.size(), "Could not load all files!");
     }
 
 } // namespace Lina::Resources

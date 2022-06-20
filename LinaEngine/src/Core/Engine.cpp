@@ -34,6 +34,7 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/PhysicsEvents.hpp"
 #include "Log/Log.hpp"
+#include "World/Level.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Physics/PhysicsMaterial.hpp"
@@ -42,6 +43,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Core/EngineSettings.hpp"
 #include "Data/HashSet.hpp"
+#include "World/Level.hpp"
 
 namespace Lina
 {
@@ -85,6 +87,7 @@ namespace Lina
         Resources::ResourceManager::s_resourceManager = &m_resourceManager;
         Audio::AudioEngine::s_audioEngine             = &m_audioEngine;
         Resources::ResourceStorage::s_instance        = &m_resourceStorage;
+        World::LevelManager::s_instance               = &m_levelManager;
         m_appInfo                                     = appInfo;
 
         RegisterResourceTypes();
@@ -96,23 +99,25 @@ namespace Lina
         m_audioEngine.Initialize();
         m_messageBus.Initialize(m_appInfo.m_appMode);
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
+        m_levelManager.Initialize(m_appInfo);
 
         // Load default editor resources.
+        // If not editor, load the static & always needed resources from package.
         if (appInfo.m_appMode == ApplicationMode::Editor)
         {
             if (!Utility::FileExists("Resources/lina.enginesettings"))
             {
                 EngineSettings s;
-                s.m_dummy = 16;
                 Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
             }
 
             m_resourceManager.LoadSingleResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
+            m_resourceManager.LoadSingleResource(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
         }
         else
         {
             // Load always-needed resources.
-            m_resourceManager.ImportResourcePackage("", "static");
+            m_resourceManager.LoadPackage("static");
         }
 
         m_engineSettings = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
@@ -120,26 +125,50 @@ namespace Lina
 
     void Engine::PackageProject(const String& path)
     {
-        HashMap<TypeID, HashSet<StringIDType>> resourceMap;
-
-        // Add all levels' resources to a joint map.
-        for (auto level : m_levelList)
+        if (m_appInfo.m_appMode != ApplicationMode::Editor)
         {
-            const HashMap<TypeID, HashSet<StringIDType>>& resources = level->GetResources();
-
-            for (const auto& pair : resources)
-            {
-                for (auto sid : pair.second)
-                    resourceMap[pair.first].insert(sid);
-            }
+            LINA_ERR("You can only package the project in editor mode!");
+            return;
         }
 
-        m_resourceManager.PackageProject(path, resourceMap);
-    }
+        HashMap<TypeID, HashSet<StringIDType>> resourceMap;
 
-    void Engine::InstallLevel(uint8 index)
-    {
-        m_levelList[index]->Install();
+        // Iterate all levels to be packed.
+        // If the level is currently loaded, retrieve the resources right away.
+        // If not, load the level from file.
+        // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
+        // Retrieve resource info & dump it when it's out of scope.
+        const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
+        for (const String& str : packagedLevels)
+        {
+            // If the level is the currently loaded one, retrieve the resource map right away.
+            if (m_levelManager.GetCurrentLevel() != nullptr && str.compare(m_levelManager.GetCurrentLevel()->GetPath()))
+            {
+                const HashMap<TypeID, HashSet<StringIDType>>& resources = m_levelManager.GetCurrentLevel()->GetResources();
+
+                // Add all resources used by the level to the resource table
+                for (const auto& pair : resources)
+                {
+                    for (auto sid : pair.second)
+                        resourceMap[pair.first].insert(sid);
+                }
+            }
+            else
+            {
+                // If the level is not loaded, load it & retrieve the resource map.
+                // Note, we use Resources::LoadArchieve, as the LoadFromFile function inside a level is used for constructed & installed levels.
+                World::Level                                  lvl       = Resources::LoadArchiveFromFile<World::Level>(str);
+                const HashMap<TypeID, HashSet<StringIDType>>& resources = lvl.GetResources();
+
+                // Add all resources used by the level to the resource table
+                for (const auto& pair : resources)
+                {
+                    for (auto sid : pair.second)
+                        resourceMap[pair.first].insert(sid);
+                }
+            }
+        }
+        m_resourceManager.PackageProject(path, packagedLevels, resourceMap);
     }
 
     void Engine::Run()
@@ -162,11 +191,20 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        static float updateCounter = 15;
-
         while (m_running)
         {
-            if (updates > updateCounter)
+            if (updates > 15 && m_engineSettings->m_packagedLevels.empty())
+            {
+                String lvlPath = "Resources/Sandbox/Levels/Level1.linalevel";
+                //m_levelManager.CreateLevel(lvlPath);
+                m_engineSettings->m_packagedLevels.push_back(lvlPath);
+
+                m_levelManager.InstallLevel(lvlPath);
+                m_levelManager.m_currentLevel->AddResourceReference(GetTypeID<Audio::Audio>(), StringID("Resources/Editor/Audio/LinaStartup.wav").value());
+                m_levelManager.SaveCurrentLevel();
+            }
+
+            if (updates > 100)
                 m_running = false;
 
             previousFrameTime = currentFrameTime;
@@ -204,12 +242,13 @@ namespace Lina
 
         // Shutting down.
         PackageProject("");
+        m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
+        m_levelManager.Shutdown();
         m_audioEngine.Shutdown();
         m_physicsEngine.Shutdown();
         m_inputEngine.Shutdown();
         m_resourceManager.Shutdown();
         m_resourceStorage.Shutdown();
-        m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
         m_eventSystem.Shutdown();
 
         PROFILER_DUMP("profile.prof");
@@ -318,7 +357,6 @@ namespace Lina
         Vector<String> extensions;
 
         extensions.push_back("enginesettings");
-
         m_resourceStorage.RegisterResource<EngineSettings>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
@@ -326,6 +364,20 @@ namespace Lina
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<EngineSettings>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
+
+        extensions.clear();
+
+        extensions.push_back("linalevel");
+        m_resourceStorage.RegisterResource<World::Level>(
+            Resources::ResourceTypeData{
+                .loadPriority         = 0,
+                .isAssetData          = false,
+                .packageType          = Resources::PackageType::Level,
+                .createFunc           = std::bind(Resources::CreateResource<World::Level>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<World::Level>, std::placeholders::_1),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
