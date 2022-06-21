@@ -1,5 +1,3 @@
-// MIT License
-
 // Copyright (c) 2020 Evan Pezent
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy

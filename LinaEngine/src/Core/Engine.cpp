@@ -1,31 +1,3 @@
-/*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
-
-Author: Inan Evin
-http://www.inanevin.com
-
-Copyright (c) [2018-] [Inan Evin]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
 #include "Core/Engine.hpp"
 
 #include "Audio/Audio.hpp"
@@ -84,7 +56,6 @@ namespace Lina
         Event::EventSystem::s_eventSystem             = &m_eventSystem;
         Physics::PhysicsEngine::s_physicsEngine       = &m_physicsEngine;
         Input::InputEngine::s_inputEngine             = &m_inputEngine;
-        Resources::ResourceManager::s_resourceManager = &m_resourceManager;
         Audio::AudioEngine::s_audioEngine             = &m_audioEngine;
         Resources::ResourceStorage::s_instance        = &m_resourceStorage;
         World::LevelManager::s_instance               = &m_levelManager;
@@ -93,9 +64,8 @@ namespace Lina
         RegisterResourceTypes();
 
         m_eventSystem.Initialize();
-        m_resourceStorage.Initialize();
+        m_resourceStorage.Initialize(m_appInfo);
         m_inputEngine.Initialize();
-        m_resourceManager.Initialize(m_appInfo);
         m_audioEngine.Initialize();
         m_messageBus.Initialize(m_appInfo.m_appMode);
         m_physicsEngine.Initialize(m_appInfo.m_appMode);
@@ -111,13 +81,13 @@ namespace Lina
                 Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
             }
 
-            m_resourceManager.LoadSingleResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
-            m_resourceManager.LoadSingleResource(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+            m_resourceStorage.GetLoader().LoadSingleResourceFromFile(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
+            m_resourceStorage.GetLoader().LoadSingleResourceFromFile(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
         }
         else
         {
             // Load always-needed resources.
-            m_resourceManager.LoadPackage("static");
+            m_resourceStorage.GetPackager().LoadPackage("static");
         }
 
         m_engineSettings = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
@@ -168,7 +138,8 @@ namespace Lina
                 }
             }
         }
-        m_resourceManager.PackageProject(path, packagedLevels, resourceMap);
+
+        m_resourceStorage.GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
     void Engine::Run()
@@ -190,23 +161,25 @@ namespace Lina
 
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
+        int a = 0;
 
         while (m_running)
         {
-            if (updates > 15 && m_engineSettings->m_packagedLevels.empty())
+            if (updates > 15 && a == 0)
             {
+                a              = 1;
                 String lvlPath = "Resources/Sandbox/Levels/Level1.linalevel";
-                //m_levelManager.CreateLevel(lvlPath);
+                m_levelManager.InstallLevel(lvlPath);
                 m_engineSettings->m_packagedLevels.push_back(lvlPath);
 
-                m_levelManager.InstallLevel(lvlPath);
                 m_levelManager.m_currentLevel->AddResourceReference(GetTypeID<Audio::Audio>(), StringID("Resources/Editor/Audio/LinaStartup.wav").value());
                 m_levelManager.SaveCurrentLevel();
             }
 
-            if (updates > 100)
-                m_running = false;
-
+            if (updates > 100 && a == 1)
+            {
+                a = 2;
+            }
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
@@ -247,7 +220,6 @@ namespace Lina
         m_audioEngine.Shutdown();
         m_physicsEngine.Shutdown();
         m_inputEngine.Shutdown();
-        m_resourceManager.Shutdown();
         m_resourceStorage.Shutdown();
         m_eventSystem.Shutdown();
 

@@ -78,7 +78,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 #--------------------------------------------------------------------
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
+target_link_libraries(${PROJECT_NAME} 
+PRIVATE Lina::Common)
 
 include(../_Dependencies/glfw/link.cmake)
 link_glfw()

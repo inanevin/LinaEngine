@@ -27,9 +27,9 @@ SOFTWARE.
 */
 
 #include "Physics/PhysicsMaterial.hpp"
-#include "Core/CommonResources.hpp"
+#include "Core/ResourceCommon.hpp"
 #include "Log/Log.hpp"
-#include "Resources/ResourceStorage.hpp"
+#include "Core/ResourceStorage.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 

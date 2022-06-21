@@ -39,7 +39,8 @@ Timestamp: 9/30/2020 2:46:27 AM
 #include "Core/CommonPhysics.hpp"
 #include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
-#include "Resources/ResourceHandle.hpp"
+#include "Core/ResourceHandle.hpp"
+
 namespace Lina
 {
     namespace Physics

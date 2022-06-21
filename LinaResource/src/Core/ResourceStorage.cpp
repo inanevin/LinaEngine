@@ -26,18 +26,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Resources/ResourceStorage.hpp"
+#include "Core/ResourceStorage.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "Resources/ResourceHandle.hpp"
+#include "Utility/ResourceUtility.hpp"
+#include "Core/ResourceHandle.hpp"
 
 namespace Lina::Resources
 {
+
     ResourceStorage*         ResourceStorage::s_instance = nullptr;
     Set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
 
+    void ResourceStorage::Initialize(ApplicationInfo& appInfo)
+    {
+        LINA_TRACE("[Initialization] -> Resource Storage {0}", typeid(*this).name());
+
+        m_packager.Initialize(appInfo.m_appMode);
+
+        Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceStorage::OnResourcePathUpdated>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceStorage::OnResourceReloaded>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
+
+        m_appInfo = appInfo;
+
+        m_workingDirectory = std::filesystem::current_path().string().c_str();
+        m_workingDirectoryReplaced = m_workingDirectory;
+        std::replace(m_workingDirectoryReplaced.begin(), m_workingDirectoryReplaced.end(), '\\', '/');
+
+        // Fill the folder structure.
+        if (appInfo.m_appMode == ApplicationMode::Editor)
+            ScanRootFolder();
+    }
+
     void ResourceStorage::Shutdown()
     {
+        LINA_TRACE("[Shutdown] -> Resource Storage {0}", typeid(*this).name());
+
         for (auto& [resType, cache] : m_resources)
         {
             for (auto& [sid, ptr] : cache)
@@ -47,6 +72,8 @@ namespace Lina::Resources
             cache.clear();
         }
         m_resources.clear();
+
+        delete ResourceUtility::s_rootFolder;
     }
 
     void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
@@ -84,13 +111,6 @@ namespace Lina::Resources
     {
         for (auto* handle : ResourceHandleBase::s_resourceHandles)
             handle->ResourceUnloaded(ev);
-    }
-
-    void ResourceStorage::Initialize()
-    {
-        Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceStorage::OnResourcePathUpdated>(this);
-        Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceStorage::OnResourceReloaded>(this);
-        Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
     }
 
     TypeID ResourceStorage::GetTypeIDFromExtension(const String& extension)
@@ -143,4 +163,6 @@ namespace Lina::Resources
             return "";
         }
     }
+
+
 } // namespace Lina::Resources

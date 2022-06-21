@@ -37,7 +37,7 @@ SOFTWARE.
 #include "EventSystem/ECSEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
-#include "Resources/ResourceStorage.hpp"
+#include "Core/ResourceStorage.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Physics/Raycast.hpp"
 #include <PxPhysicsAPI.h>

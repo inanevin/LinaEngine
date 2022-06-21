@@ -1,31 +1,3 @@
-/*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
-
-Author: Inan Evin
-http://www.inanevin.com
-
-Copyright (c) [2018-] [Inan Evin]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
 #ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
 #include <shellapi.h>
@@ -259,7 +231,7 @@ namespace Lina::Editor
         splashWindow->SetPosCentered(Vector2((-splashSize.x / 2.0f), (-splashSize.y / 2.0f)));
         splashWindow->SetSize(splashSize);
 
-        Event::EventSystem::Get()->Connect<Event::EResourceLoadUpdated, &GUILayer::OnResourceLoadUpdated>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceProgressUpdated, &GUILayer::OnResourceLoadUpdated>(this);
         splashScreenTexture = new Graphics::Texture();
         splashScreenTexture->LoadFromFile("Resources/Editor/Textures/SplashScreen.png");
         m_storage->Add(static_cast<void*>(splashScreenTexture), GetTypeID<Graphics::Texture>(), StringID("Resources/Editor/Textures/SplashScreen.png").value());
@@ -516,7 +488,7 @@ namespace Lina::Editor
         }
     }
 
-    void GUILayer::OnResourceLoadUpdated(const Event::EResourceLoadUpdated& ev)
+    void GUILayer::OnResourceLoadUpdated(const Event::EResourceProgressUpdated& ev)
     {
         m_currentlyLoadingResource = ev.m_currentResource;
         m_percentage               = ev.m_percentage;

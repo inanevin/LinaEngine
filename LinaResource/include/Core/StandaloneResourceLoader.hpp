@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,55 +27,34 @@ SOFTWARE.
 */
 
 /*
-Class: CommonResources
+Class: StandaloneResourceLoader
 
 
 
-Timestamp: 12/25/2021 11:44:29 AM
+Timestamp: 6/21/2022 1:31:58 PM
 */
 
 #pragma once
 
-#ifndef CommonResources_HPP
-#define CommonResources_HPP
+#ifndef StandaloneResourceLoader_HPP
+#define StandaloneResourceLoader_HPP
 
 // Headers here.
-#include "Utility/StringId.hpp"
-#include "Math/Color.hpp"
 
-#include <Data/String.hpp>
-#include "Data/HashMap.hpp"
-#include <functional>
-#include <cereal/archives/portable_binary.hpp>
 
-namespace Lina::Resources
+namespace LinaEngine
 {
-
-    enum class ResourceProgressState
-    {
-        None,
-        Pending,
-        InProgress
-    };
-
-    class ResourceProgressData
-    {
-    public:
-        ResourceProgressData()  = default;
-        ~ResourceProgressData() = default;
-
-        ResourceProgressState m_state                 = ResourceProgressState::None;
-        String           m_currentResourceName   = "";
-        String           m_progressTitle         = "";
-        float                 m_currentProgress       = 0.0f;
-        int                   m_currentTotalFiles     = 0;
-        int                   m_currentProcessedFiles = 0;
-
-    private:
-        ResourceProgressData(const ResourceProgressData&);            // = delete
-        ResourceProgressData& operator=(const ResourceProgressData&); // = delete
-    };
-
-} // namespace Lina::Resources
+	class StandaloneResourceLoader
+	{
+		
+	public:
+		
+		StandaloneResourceLoader();
+		~StandaloneResourceLoader();
+	
+	private:
+	
+	};
+}
 
 #endif

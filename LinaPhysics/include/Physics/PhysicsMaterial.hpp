@@ -40,7 +40,7 @@ Timestamp: 12/20/2021 10:16:40 PM
 #define PhysicsMaterial_HPP
 
 #include "Utility/StringId.hpp"
-#include "Resources/IResource.hpp"
+#include "Core/IResource.hpp"
 #include "Data/Serialization/StringSerialization.hpp"
 
 namespace Lina

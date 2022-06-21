@@ -58,11 +58,6 @@ set (LINACOMMON_SOURCES
 	src/ECS/System.cpp
 	src/ECS/Registry.cpp
 	src/ECS/Components/EntityDataComponent.cpp
-	src/ECS/Components/PhysicsComponent.cpp
-	
-	# Reosurces
-	src/Resources/ResourceStorage.cpp
-
 )
 
 
@@ -76,7 +71,6 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonWindow.hpp
 	include/Core/CommonInput.hpp
 	include/Core/CommonPhysics.hpp
-	include/Core/CommonResources.hpp
 	include/Core/CommonECS.hpp
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
@@ -157,16 +151,10 @@ set(LINACOMMON_HEADERS
 	
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
-	include/ECS/Components/PhysicsComponent.hpp
 	include/ECS/Registry.hpp
 	include/ECS/Component.hpp
 	include/ECS/System.hpp
 	include/ECS/SystemList.hpp
-	
-	# Resources
-	include/Resources/IResource.hpp
-	include/Resources/ResourceStorage.hpp
-	include/Resources/ResourceHandle.hpp
 	
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
@@ -257,6 +245,7 @@ link_entt()
 link_eastl()
 link_phmap()
 link_taskflow()
+
 
 
 #--------------------------------------------------------------------

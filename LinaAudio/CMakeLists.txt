@@ -65,12 +65,15 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
+target_link_libraries(${PROJECT_NAME}
+PRIVATE Lina::Common
+PRIVATE Lina::Resource)
 	
 include(../_Dependencies/alut/link.cmake)
 include(../_Dependencies/openal/link.cmake)

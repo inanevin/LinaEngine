@@ -27,6 +27,7 @@ set (LINAPHYSICS_SOURCES
 
 	src/Core/PhysicsCommon.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
+	src/ECS/Components/PhysicsComponent.cpp
 
 	src/Physics/PhysicsMaterial.cpp
 	src/Physics/Raycast.cpp
@@ -45,6 +46,7 @@ set(LINAPHYSICS_HEADERS
 	include/Core/PhysicsCommon.hpp
 
 	include/ECS/Systems/RigidbodySystem.hpp
+	include/ECS/Components/PhysicsComponent.hpp
 	
 	include/Physics/PhysicsMaterial.hpp
 	include/Physics/Raycast.hpp
@@ -75,13 +77,17 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
 
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
+target_link_libraries(${PROJECT_NAME} 
+PRIVATE Lina::Common
+PRIVATE Lina::Resource
+)
 
 include(../_Dependencies/physx/link.cmake)
 link_physx()

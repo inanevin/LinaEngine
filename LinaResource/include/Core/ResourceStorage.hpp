@@ -40,16 +40,18 @@ Timestamp: 12/30/2021 9:37:39 PM
 #define ResourceStorage_HPP
 
 // Headers here.
+#include "Core/ResourcePackager.hpp"
+#include "Core/ResourceLoader.hpp"
+#include "Core/ResourceCommon.hpp"
 #include "Utility/StringId.hpp"
-#include "Core/CommonResources.hpp"
 #include "Log/Log.hpp"
-#include "Resources/IResource.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Color.hpp"
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Set.hpp"
+#include "Core/IResource.hpp"
 
 namespace Lina
 {
@@ -304,9 +306,23 @@ namespace Lina::Resources
             return m_resourceTypes.find(tid) != m_resourceTypes.end();
         }
 
+        /// <summary>
+        /// All registered resource types.
+        /// </summary>
+        /// <returns></returns>
         inline const HashMap<TypeID, ResourceTypeData>& GetResourceTypes() const
         {
             return m_resourceTypes;
+        }
+
+        inline ResourcePackager& GetPackager()
+        {
+            return m_packager;
+        }
+
+        inline ResourceLoader& GetLoader()
+        {
+            return m_loader;
         }
 
         String PackageTypeToString(PackageType type);
@@ -315,16 +331,22 @@ namespace Lina::Resources
         friend class Engine;
         ResourceStorage()  = default;
         ~ResourceStorage() = default;
-        void Initialize();
-        void Shutdown();
-        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
-        void OnResourceReloaded(const Event::EResourceReloaded& ev);
-        void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
+
+        void   Initialize(ApplicationInfo& appInfo);
+        void   Shutdown();
+        void   OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
+        void   OnResourceReloaded(const Event::EResourceReloaded& ev);
+        void   OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
         static ResourceStorage*           s_instance;
         HashMap<TypeID, Cache>            m_resources;
         HashMap<TypeID, ResourceTypeData> m_resourceTypes;
+
+        ApplicationInfo  m_appInfo;
+        ResourcePackager m_packager;
+        ResourceLoader   m_loader;
+
     };
 } // namespace Lina::Resources
 

@@ -40,7 +40,7 @@ Timestamp: 12/30/2021 9:37:53 PM
 #define ResourceHandle_HPP
 
 // Headers here.
-#include "Resources/ResourceStorage.hpp"
+#include "Core/ResourceStorage.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Set.hpp"

@@ -40,7 +40,7 @@ Timestamp: 12/22/2020 12:26:55 AM
 #define ResourceBundle_HPP
 
 // Headers here.
-#include "Core/CommonResources.hpp"
+#include "Core/ResourceCommon.hpp"
 #include "Core/CommonUtility.hpp"
 #include "Data/PriorityQueue.hpp"
 
@@ -114,9 +114,15 @@ namespace Lina::Resources
     class ResourceLoader
     {
 
+    public:
+        /// <summary>
+        /// Loads a single file resource.
+        /// </summary>
+        bool LoadSingleResourceFromFile(TypeID tid, const String& fullpath);
+
     private:
-        friend class ResourceManager;
-        friend class Packager;
+
+        friend class ResourcePackager;
 
         /// <summary>
         /// Stores the given memory resource into a priority queue.
@@ -124,7 +130,7 @@ namespace Lina::Resources
         void PushResourceFromMemory(const String& path, Vector<unsigned char>& data);
 
         /// <summary>
-        /// Loads all memory buffers stored in memory resource queue.
+        /// Loads all memory buffers stored in memory resource queue. Use PushResourceFromMemory to push resources in.
         /// </summary>
         void LoadAllMemoryResources();
 
@@ -134,14 +140,9 @@ namespace Lina::Resources
         void ScanResourcesInFolder(Utility::Folder* folder);
 
         /// <summary>
-        /// Loads all the resources in m_fileResources queue.
+        /// Loads all the resources in m_fileResources queue. Use ScanResourcesInFolder to push resources in.
         /// </summary>
         void LoadAllScannedResources();
-
-        /// <summary>
-        /// Loads a single file resource.
-        /// </summary>
-        bool LoadSingleResource(TypeID tid, const String& fullpath);
 
         MemoryQueue m_memoryResources;
         FileQueue   m_fileResources;

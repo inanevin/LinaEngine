@@ -27,8 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/ResourceLoader.hpp"
-#include "Resources/ResourceStorage.hpp"
-#include "Core/ResourceManager.hpp"
+#include "Core/ResourceStorage.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
@@ -76,12 +75,6 @@ namespace Lina::Resources
                 void*      loadedResource = res->LoadFromMemory(entry.m_path, &entry.m_data[0], entry.m_data.size());
                 storage->Add(loadedResource, tid, sid);
                 Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
-
-                ResourceManager::s_currentProgressData.m_currentResourceName = entry.m_path;
-                ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
-                ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
-                ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
-                ResourceManager::TriggerResourceUpdatedEvent();
             }
 
             m_memoryResources.pop();
@@ -90,7 +83,7 @@ namespace Lina::Resources
 
     void ResourceLoader::ScanResourcesInFolder(Utility::Folder* folder)
     {
-      
+
         // Recursively scan children.
         for (auto* folder : folder->m_folders)
             ScanResourcesInFolder(folder);
@@ -127,13 +120,13 @@ namespace Lina::Resources
             }
 
             m_lastResourceTypeID = tid;
-            LoadSingleResource(tid, fileEntry.m_file->m_fullPath);
+            LoadSingleResourceFromFile(tid, fileEntry.m_file->m_fullPath);
 
             m_fileResources.pop();
         }
     }
 
-    bool ResourceLoader::LoadSingleResource(TypeID tid, const String& path)
+    bool ResourceLoader::LoadSingleResourceFromFile(TypeID tid, const String& path)
     {
         auto*        storage = ResourceStorage::Get();
         StringIDType sid     = StringID(path.c_str()).value();
@@ -149,12 +142,6 @@ namespace Lina::Resources
 
             storage->Add(loadedResource, tid, sid);
             Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
-
-            ResourceManager::s_currentProgressData.m_currentResourceName = path;
-            ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
-            ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
-            ResourceManager::s_currentProgressData.m_currentProgress = Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
-            ResourceManager::TriggerResourceUpdatedEvent();
         }
 
         return true;

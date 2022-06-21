@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,45 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Packager
+#include "Core/StandaloneResourceLoader.hpp"
 
-Responsible for packing asset & resource files into a single compressed file format as well as reading from it.
-
-Timestamp: 12/20/2020 8:56:18 PM
-*/
-
-#pragma once
-
-#ifndef Packager_HPP
-#define Packager_HPP
-
-// Headers here.
-#include "Core/CommonResources.hpp"
-#include "Data/String.hpp"
-#include "Data/Vector.hpp"
-
-namespace Lina
+namespace LinaResources
 {
-    namespace Resources
-    {
-        class ResourceLoader;
-    }
-} // namespace Lina
-namespace Lina::Resources
-{
-    class Packager
-    {
-
-    private:
-        friend class ResourceManager;
-
-        void PackageDirectory(const String& dir, const String& output, const wchar_t* pass);
-        void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
-        void UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, const Vector<String>& filesToLoad, const wchar_t* pass, ResourceLoader* loader);
-    };
-
-}; // namespace Lina::Resources
-
-#endif
+	
+}
