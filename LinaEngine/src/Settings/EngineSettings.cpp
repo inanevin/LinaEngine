@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: PhysicsEngineFwd
+#include "Settings/EngineSettings.hpp"
 
-
-
-Timestamp: 12/12/2021 11:55:32 AM
-*/
-
-#pragma once
-
-#ifndef PhysicsEngineFwd_HPP
-#define PhysicsEngineFwd_HPP
-
-namespace Lina::Physics
+namespace Lina
 {
-    class PhysicsEngine;
-} // namespace Lina::Physics
-
-#endif
+    void* EngineSettings::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        *this = Resources::LoadArchiveFromMemory<EngineSettings>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+    void* EngineSettings::LoadFromFile(const String& path)
+    {
+        *this = Resources::LoadArchiveFromFile<EngineSettings>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+}

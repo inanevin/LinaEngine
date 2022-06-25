@@ -1,6 +1,6 @@
-/*
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,13 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: FreeLookComponent
 
-Used for free look functionality, much like a fly-camera.
-
-Timestamp: 5/2/2019 1:40:16 AM
-*/
 
 #pragma once
 

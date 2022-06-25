@@ -26,35 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: StandaloneResourceLoader
-
-
-
-Timestamp: 6/21/2022 1:31:58 PM
-*/
 
 #pragma once
 
-#ifndef StandaloneResourceLoader_HPP
-#define StandaloneResourceLoader_HPP
+#ifndef RenderSettings_HPP
+#define RenderSettings_HPP
 
 // Headers here.
+#include "Core/IResource.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Serialization/VectorSerialization.hpp"
+#include "Data/String.hpp"
 
-
-namespace LinaEngine
+namespace Lina
 {
-	class StandaloneResourceLoader
-	{
-		
-	public:
-		
-		StandaloneResourceLoader();
-		~StandaloneResourceLoader();
-	
-	private:
-	
-	};
-}
+    class Engine;
+
+    LINA_CLASS("Engine Settings")
+    class RenderSettings : public Resources::IResource
+    {
+
+    public:
+       RenderSettings()  = default;
+        ~RenderSettings() = default;
+
+        // Inherited via IResource
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
+
+    private:
+        friend class Engine;
+        friend class cereal::access;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_dummy);
+        }
+
+        int m_dummy = 0;
+    };
+} // namespace Lina
 
 #endif

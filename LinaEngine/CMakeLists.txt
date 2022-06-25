@@ -26,7 +26,8 @@ set (LINAENGINE_SOURCES
 	src/Core/Engine.cpp
 	src/Core/MessageBus.cpp
 	src/Core/ReflectionRegistry.cpp
-	src/Core/EngineSettings.cpp
+	src/Settings/EngineSettings.cpp
+	src/Settings/RenderSettings.cpp
 	src/World/Level.cpp
 	src/World/LevelManager.cpp
 )
@@ -41,8 +42,11 @@ set(LINAENGINE_HEADERS
 	include/Core/Engine.hpp
 	include/Core/MessageBus.hpp
 	include/Core/ReflectionRegistry.hpp
-	include/Core/EngineSettings.hpp
 	include/Core/EditorSettings.hpp
+
+	# Settings
+	include/Settings/EngineSettings.hpp
+	include/Settings/RenderSettings.hpp
 
 	#World
 	include/World/Level.hpp

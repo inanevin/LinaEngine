@@ -42,7 +42,6 @@ set(LINAPHYSICS_HEADERS
 	include/Core/PhysicsEngine.hpp
 	include/Core/PhysicsCooker.hpp
 
-	include/Core/PhysicsEngineFwd.hpp
 	include/Core/PhysicsCommon.hpp
 
 	include/ECS/Systems/RigidbodySystem.hpp

@@ -26,9 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/StandaloneResourceLoader.hpp"
+#pragma once
 
-namespace LinaResources
+#ifndef EditorResourceLoader_HPP
+#define EditorResourceLoader_HPP
+
+// Headers here.
+#include "ResourceLoader.hpp"
+
+namespace Lina::Resources
 {
+	class EditorResourceLoader : public ResourceLoader
+	{
+		
+	public:
+		
+		EditorResourceLoader() = default;
+		virtual ~EditorResourceLoader() = default;
 	
+		virtual void LoadResource(TypeID tid, const String& path) override;
+		virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
+
+	};
 }
+
+#endif

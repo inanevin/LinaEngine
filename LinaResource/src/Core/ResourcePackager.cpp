@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/ResourcePackager.hpp"
 #include "Core/ResourceStorage.hpp"
+#include "Loaders/ResourceLoader.hpp"
 #include "Data/Serialization/VectorSerialization.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -49,7 +50,6 @@ namespace Lina::Resources
 
     void ResourcePackager::LoadPackage(const String& packageName, const wchar_t* pass, ResourceLoader* loader)
     {
-        if (m_appMode == ApplicationMode::Editor) return;
 
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
@@ -59,9 +59,9 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        ResourceStorage::s_currentProgressData.Reset();
-        ResourceStorage::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
-        ResourceStorage::s_currentProgressData.m_currentResourceName = fullBundlePath;
+        ResourceUtility::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
+        ResourceUtility::s_currentProgressData.m_currentResourceName = fullBundlePath;
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
 
         // Start unpacking.
@@ -69,14 +69,12 @@ namespace Lina::Resources
         loader->LoadAllMemoryResources();
 
         // Set progress end.
-        ResourceStorage::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.Reset();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
     void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
     {
-        if(m_appMode == ApplicationMode::Editor) return;
-        
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
         {
@@ -85,9 +83,9 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        ResourceStorage::s_currentProgressData.Reset();
-        ResourceStorage::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
-        ResourceStorage::s_currentProgressData.m_currentResourceName = fullBundlePath;
+        ResourceUtility::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
+        ResourceUtility::s_currentProgressData.m_currentResourceName = fullBundlePath;
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
 
         // Start unpacking.
@@ -95,151 +93,8 @@ namespace Lina::Resources
         loader->LoadAllMemoryResources();
 
         // Set progress end.
-        ResourceStorage::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.Reset();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
-    }
-
-    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, HashSet<StringIDType>>& resourceMap)
-    {
-        if (m_appMode == ApplicationMode::Standalone) return;
-
-        ResourceStorage::Get()->ScanRootFolder();
-        auto*          storage = ResourceStorage::Get();
-        Vector<String> filesToPack;
-        auto&          allTypes = storage->GetResourceTypes();
-
-        // 1: Pack static resources
-        // 2: Pack level data
-        // 3: Pack all resources referenced by the levels.
-
-        // Pack the static resources, all static resources should be loaded into the memory during the lifetime of the editor.
-        // So we can find them from the resource cache.
-        for (const auto& [tid, typeData] : allTypes)
-        {
-            if (typeData.packageType == PackageType::Static)
-            {
-                const Cache& cache = storage->GetCache(tid);
-
-                for (auto& pair : cache)
-                {
-                    String fullpath = ResourcesUtility::SearchFolderForSID(m_rootFolder, pair.first);
-                    if (fullpath.compare("") != 0)
-                        filesToPack.push_back(fullpath);
-                }
-            }
-        }
-
-        const String workingPath = path.compare("") == 0 ? "Packages/" : (path + "/Packages/");
-        if (Utility::FileExists(workingPath))
-            Utility::DeleteDirectory(workingPath);
-        Utility::CreateFolderInPath(workingPath);
-
-        m_packager.PackageFileset(filesToPack, workingPath + +"static" + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
-
-        // Pack the level resources, level resources might not be alive in the resource storage.
-        // Thus use the table sent by the engine to figure out what to pack.
-        m_packager.PackageFileset(levelResources, workingPath + "levels" + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
-
-        // Now for all resource types that are marked as non-static, package them into their respective packages.
-        // We do not use the storage to get the resources here, we merely use it to check the type data, which is guaranteed to be registered.
-        // We package the files based on the resource table sent by the engine here.
-        for (const auto& [tid, sidVector] : resourceMap)
-        {
-            ResourceTypeData& typeData = storage->GetTypeData(tid);
-
-            if (typeData.packageType != PackageType::Static)
-            {
-                filesToPack.clear();
-
-                // Find the full paths & add them based on sids.
-                for (auto sid : sidVector)
-                {
-                    String fullpath = SearchFolderForSID(m_rootFolder, sid);
-                    if (fullpath.compare("") != 0)
-                        filesToPack.push_back(fullpath);
-                }
-
-                m_packager.PackageFileset(filesToPack, workingPath + storage->PackageTypeToString(typeData.packageType) + RESOURCEPACKAGE_EXTENSION, m_appInfo.m_packagePass);
-            }
-        }
-    }
-    void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
-    {
-        if (m_appMode == ApplicationMode::Standalone) return;
-
-        try
-        {
-            if (files.empty())
-            {
-                LINA_TRACE("[Packager] -> No files found in fileset, aborting packing...");
-                return;
-            }
-
-            LINA_INFO("[Packager] -> Started packaging process: {0}", output);
-
-            // Delete first if exists.
-            if (Utility::FileExists(output))
-                Utility::DeleteFileInPath(output);
-
-            // Setup compression.
-            bit7z::Bit7zLibrary  lib{L"7z.dll"};
-            bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
-            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
-            compressor.setPassword(pass);
-
-            // Progress callback.
-            bit7z::BitCompressor* pCompressor = &compressor;
-            ResourceProgressData* loadingData = &ResourceStorage::s_currentProgressData;
-            loadingData->Reset();
-            loadingData->m_currentResourceName = "Packing directory";
-            loadingData->m_progressTitle       = "Packing multiple files...";
-
-            compressor.setTotalCallback([=](uint64_t size) {
-                pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) {
-                    loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size);
-                    Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.m_currentResource = loadingData->m_currentResourceName, .m_percentage = loadingData->m_currentProgress});
-                });
-            });
-
-            compressor.setFileCallback([=](std::wstring file) {
-                char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = String(chr);
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.m_currentResource = loadingData->m_currentResourceName, .m_percentage = loadingData->m_currentProgress});
-                delete chr;
-            });
-
-            // Create a vector of unicode file paths.
-            Vector<std::wstring> wfiles;
-            for (auto& file : files)
-            {
-                const size_t size = strlen(file.c_str()) + 1;
-                std::wstring wfile(size, L'#');
-                size_t       numConverted;
-                mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);
-                wfiles.push_back(wfile);
-            }
-
-            // Setup output path.
-            const char*  outputchr = output.c_str();
-            const size_t outSize   = strlen(outputchr) + 1;
-            std::wstring woutput(outSize, L'#');
-            size_t       numConverted;
-            mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
-
-            // compress.
-            std::vector<std::wstring> vfiles;
-            vfiles.reserve(wfiles.size());
-            for (int i = 0; i < wfiles.size(); i++)
-                vfiles.push_back(wfiles[i]);
-
-            compressor.compress(vfiles, woutput);
-        }
-        catch (const bit7z::BitException& ex)
-        {
-            LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
-        }
-
-        LINA_INFO("[Packager] -> Successfully completed packaging: {0}", output);
     }
 
     void ResourcePackager::UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader)
@@ -277,7 +132,7 @@ namespace Lina::Resources
                 return;
             }
 
-            ResourceProgressData* loadingData = &ResourceStorage::s_currentProgressData;
+            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
             loadingData->Reset();
             auto  wFirstItemName               = arc.getItemProperty(0, bit7z::BitProperty::Path).getString();
             char* firstItemName                = Utility::WCharToChar(wFirstItemName.c_str());
@@ -293,7 +148,7 @@ namespace Lina::Resources
                 loadingData->m_currentResourceName = String(chr);
                 loadingData->m_currentProgress     = ((100.0f * (float)fileCounter) / (float)totalFiles);
                 fileCounter++;
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.m_currentResource = loadingData->m_currentResourceName, .m_percentage = loadingData->m_currentProgress});
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
                 delete[] chr;
             });
 
@@ -368,7 +223,7 @@ namespace Lina::Resources
             }
 
             // Progress callback.
-            ResourceProgressData* loadingData = &ResourceStorage::s_currentProgressData;
+            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
             loadingData->Reset();
             loadingData->m_currentTotalFiles = totalFiles;
             loadingData->m_progressTitle     = "Unpacking file " + filePath;
@@ -394,7 +249,7 @@ namespace Lina::Resources
                     {
                         loadingData->m_currentResourceName = pathStr;
                         loadingData->m_currentProgress     = (loadedFiles / static_cast<float>(loadingData->m_currentTotalFiles)) * 100.0f;
-                        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.m_currentResource = loadingData->m_currentResourceName, .m_percentage = loadingData->m_currentProgress});
+                        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
 
                         extractor.extract(wdir, stdv, item.index());
 
@@ -420,6 +275,140 @@ namespace Lina::Resources
 
         assert(loadedFiles == filesToLoad.size());
         LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
+    }
+
+    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass)
+    {
+        ResourceUtility::ScanRootFolder();
+        auto*          storage = ResourceStorage::Get();
+        Vector<String> filesToPack;
+        auto&          allTypes = storage->GetResourceTypes();
+
+        // 1: Pack static resources
+        // 2: Pack level data
+        // 3: Pack all resources referenced by the levels.
+
+        // Pack the static resources, all static resources should be loaded into the memory during the lifetime of the editor.
+        // So we can find them from the resource cache.
+        for (const auto& [tid, typeData] : allTypes)
+        {
+            if (typeData.packageType == PackageType::Static)
+            {
+                const Cache& cache = storage->GetCache(tid);
+
+                for (auto& pair : cache)
+                {
+                    String fullpath = ResourceUtility::SearchFolderForSID(ResourceUtility::s_rootFolder, pair.first);
+                    if (fullpath.compare("") != 0)
+                        filesToPack.push_back(fullpath);
+                }
+            }
+        }
+
+        const String workingPath = path.compare("") == 0 ? "Packages/" : (path + "/Packages/");
+        if (Utility::FileExists(workingPath))
+            Utility::DeleteDirectory(workingPath);
+        Utility::CreateFolderInPath(workingPath);
+
+        PackageFileset(filesToPack, workingPath + "static" + RESOURCEPACKAGE_EXTENSION, pass);
+
+        // Pack the level resources, level resources might not be alive in the resource storage.
+        // Thus use the table sent by the engine to figure out what to pack.
+        PackageFileset(levelResources, workingPath + "levels" + RESOURCEPACKAGE_EXTENSION, pass);
+
+        // Now for all resource types that are marked as non-static, package them into their respective packages.
+        // We do not use the storage to get the resources here, we merely use it to check the type data, which is guaranteed to be registered.
+        // We package the files based on the resource table sent by the engine here.
+        for (const auto& [tid, vector] : resourceMap)
+        {
+            ResourceTypeData& typeData = storage->GetTypeData(tid);
+
+            if (typeData.packageType != PackageType::Static && typeData.packageType != PackageType::Level)
+            {
+                filesToPack.clear();
+
+                // Find the full paths & add them based on sids.
+                for (auto fullpath : vector)
+                    filesToPack.push_back(fullpath);
+
+                PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(typeData.packageType) + RESOURCEPACKAGE_EXTENSION, pass);
+            }
+        }
+    }
+    void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
+    {
+        try
+        {
+            if (files.empty())
+            {
+                LINA_TRACE("[Packager] -> No files found in fileset, aborting packing...");
+                return;
+            }
+
+            LINA_INFO("[Packager] -> Started packaging process: {0}", output);
+
+            // Delete first if exists.
+            if (Utility::FileExists(output))
+                Utility::DeleteFileInPath(output);
+
+            // Setup compression.
+            bit7z::Bit7zLibrary  lib{L"7z.dll"};
+            bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
+            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
+            compressor.setPassword(pass);
+
+            // Progress callback.
+            bit7z::BitCompressor* pCompressor = &compressor;
+            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
+            loadingData->Reset();
+            loadingData->m_progressTitle = "Packing multiple files...";
+
+            compressor.setTotalCallback([=](uint64_t size) {
+                pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) {
+                    loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size);
+                });
+            });
+
+            compressor.setFileCallback([=](std::wstring file) {
+                char* chr                          = Utility::WCharToChar(file.c_str());
+                loadingData->m_currentResourceName = String(chr);
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
+                delete chr;
+            });
+
+            // Create a vector of unicode file paths.
+            Vector<std::wstring> wfiles;
+            for (auto& file : files)
+            {
+                const size_t size = strlen(file.c_str()) + 1;
+                std::wstring wfile(size, L'#');
+                size_t       numConverted;
+                mbstowcs_s(&numConverted, &wfile[0], size, file.c_str(), size - 1);
+                wfiles.push_back(wfile);
+            }
+
+            // Setup output path.
+            const char*  outputchr = output.c_str();
+            const size_t outSize   = strlen(outputchr) + 1;
+            std::wstring woutput(outSize, L'#');
+            size_t       numConverted;
+            mbstowcs_s(&numConverted, &woutput[0], outSize, outputchr, outSize - 1);
+
+            // compress.
+            std::vector<std::wstring> vfiles;
+            vfiles.reserve(wfiles.size());
+            for (int i = 0; i < wfiles.size(); i++)
+                vfiles.push_back(wfiles[i]);
+
+            compressor.compress(vfiles, woutput);
+        }
+        catch (const bit7z::BitException& ex)
+        {
+            LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
+        }
+
+
+        LINA_INFO("[Packager] -> Successfully completed packaging: {0}", output);
     }
 
 } // namespace Lina::Resources

@@ -26,13 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ResourceHandle
-
-
-
-Timestamp: 12/30/2021 9:37:53 PM
-*/
 
 #pragma once
 
@@ -93,13 +86,13 @@ namespace Lina::Resources
     private:
         virtual void ResourcePathUpdated(const Event::EResourcePathUpdated& ev) override
         {
-            if (m_sid == ev.m_previousStringID)
-                m_sid = ev.m_newStringID;
+            if (m_sid == ev.previousStringID)
+                m_sid = ev.newStringID;
         }
 
         void ResourceUnloaded(const Event::EResourceUnloaded& ev) override
         {
-            if (m_sid == ev.m_sid)
+            if (m_sid == ev.sid)
             {
                 m_unloadedSid = m_sid;
                 m_sid         = 0;
@@ -109,10 +102,10 @@ namespace Lina::Resources
 
         void ResourceReloaded(const Event::EResourceReloaded& ev) override
         {
-            if (ev.m_sid == m_unloadedSid)
+            if (ev.sid == m_unloadedSid)
             {
-                m_sid    = ev.m_sid;
-                m_typeID = ev.m_tid;
+                m_sid    = ev.sid;
+                m_typeID = ev.tid;
                 m_value  = Resources::ResourceStorage::Get()->GetResource<T>(m_sid);
             }
         }

@@ -248,7 +248,7 @@ namespace Lina::Editor
         Utility::RewriteFileContents(m_currentFile, text);
 
         const String  path   = m_currentFile->m_fullPath;
-        const StringIDType sid    = m_currentFile->m_sid;
+        const StringIDType sid    = m_currentFile->sid;
         TypeID             tid    = 0;
         bool               reload = false;
 

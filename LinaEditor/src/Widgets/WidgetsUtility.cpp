@@ -110,8 +110,8 @@ namespace Lina::Editor
                 else
                 {
                     Memory::memset(str0, 0, 128);
-                    Memory::memcpy(str0, folder->m_name.c_str(), folder->m_name.capacity() + 1);
-                    folder->m_isRenaming = true;
+                    Memory::memcpy(str0, folder->name.c_str(), folder->name.capacity() + 1);
+                    folder->isRenaming = true;
                 }
             }
         }
@@ -121,7 +121,7 @@ namespace Lina::Editor
 
         bool node = false;
 
-        if (canRename && folder->m_isRenaming)
+        if (canRename && folder->isRenaming)
         {
             IncrementCursorPosX(34 * GUILayer::Get()->GetDPIScale());
 
@@ -130,26 +130,26 @@ namespace Lina::Editor
             lighterFrameBG.y += 0.1f;
             lighterFrameBG.z += 0.1f;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, lighterFrameBG);
-            const String inputLabel = "##_A_" + folder->m_name;
+            const String inputLabel = "##_A_" + folder->name;
             if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                folder->m_isRenaming = false;
+                folder->isRenaming = false;
                 Utility::ChangeFolderName(folder, str0);
             }
             ImGui::PopStyleColor();
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
-                folder->m_isRenaming = false;
+                folder->isRenaming = false;
         }
         else
         {
-            node = ImGui::TreeNodeEx((void*)&folder->m_fullPath, flags, folder->m_name.c_str());
+            node = ImGui::TreeNodeEx((void*)&folder->m_fullPath, flags, folder->name.c_str());
         }
 
         if (hasChildren)
         {
             PushIconFontSmall();
-            const char* arrow = folder->m_isOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+            const char* arrow = folder->isOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
             ImGui::GetWindowDrawList()->AddText(iconArrowMin, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Text)), arrow);
             ImGui::PopFont();
         }
@@ -229,8 +229,8 @@ namespace Lina::Editor
         ImVec4             childBG            = selected ? ImGui::GetStyleColorVec4(ImGuiCol_FolderActive) : hovered ? ImGui::GetStyleColorVec4(ImGuiCol_FolderHovered)
                                                                                                                      : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
         const String  fullPath           = item->m_fullPath;
-        const bool         isFolder           = item->m_typeID == 0;
-        const StringIDType sid                = item->m_sid;
+        const bool         isFolder           = item->typeID == 0;
+        const StringIDType sid                = item->sid;
 
         ImGui::BeginChild(fullPath.c_str(), totalSize, false, ImGuiWindowFlags_NoScrollbar);
 
@@ -243,20 +243,20 @@ namespace Lina::Editor
             textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/Folder.png")->GetID();
         else
         {
-            if (item->m_typeID == GetTypeID<Graphics::Texture>())
+            if (item->typeID == GetTypeID<Graphics::Texture>())
                 textureID = storage->GetResource<Graphics::Texture>(fullPath)->GetID();
-            else if (item->m_typeID == GetTypeID<Graphics::Model>() || item->m_typeID == GetTypeID<Graphics::Material>())
+            else if (item->typeID == GetTypeID<Graphics::Model>() || item->typeID == GetTypeID<Graphics::Material>())
             {
-                if (m_resourcePreviewTextures.find(item->m_sid) == m_resourcePreviewTextures.end())
-                    m_resourcePreviewTextures[item->m_sid] = EditorApplication::Get()->GetSnapshotTexture(item->m_sid);
+                if (m_resourcePreviewTextures.find(item->sid) == m_resourcePreviewTextures.end())
+                    m_resourcePreviewTextures[item->sid] = EditorApplication::Get()->GetSnapshotTexture(item->sid);
 
-                textureID = m_resourcePreviewTextures[item->m_sid];
+                textureID = m_resourcePreviewTextures[item->sid];
             }
-            else if (item->m_typeID == GetTypeID<Graphics::Shader>() || item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+            else if (item->typeID == GetTypeID<Graphics::Shader>() || item->typeID == GetTypeID<Graphics::ShaderInclude>())
                 textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Shader.png")->GetID();
-            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+            else if (item->typeID == GetTypeID<Audio::Audio>())
                 textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_Audio.png")->GetID();
-            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+            else if (item->typeID == GetTypeID<Physics::PhysicsMaterial>())
                 textureID = storage->GetResource<Graphics::Texture>("Resources/Editor/Textures/FileIcon_PhyMat.png")->GetID();
         }
 
@@ -275,23 +275,23 @@ namespace Lina::Editor
 
         if (ImGui::IsItemHovered())
         {
-            if (item->m_typeID == GetTypeID<Graphics::Model>())
+            if (item->typeID == GetTypeID<Graphics::Model>())
                 Tooltip("Model");
-            else if (item->m_typeID == GetTypeID<Graphics::Material>())
+            else if (item->typeID == GetTypeID<Graphics::Material>())
                 Tooltip("Material");
-            else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+            else if (item->typeID == GetTypeID<Graphics::Texture>())
                 Tooltip("Texture");
-            else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+            else if (item->typeID == GetTypeID<Graphics::Shader>())
                 Tooltip("Shader");
-            else if (item->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+            else if (item->typeID == GetTypeID<Graphics::ShaderInclude>())
                 Tooltip("Shader Include");
-            else if (item->m_typeID == GetTypeID<Audio::Audio>())
+            else if (item->typeID == GetTypeID<Audio::Audio>())
                 Tooltip("Audio");
-            else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+            else if (item->typeID == GetTypeID<Physics::PhysicsMaterial>())
                 Tooltip("Physics Material");
         }
 
-        if (item->m_typeID == GetTypeID<Graphics::Model>())
+        if (item->typeID == GetTypeID<Graphics::Model>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -302,7 +302,7 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
-        else if (item->m_typeID == GetTypeID<Graphics::Material>())
+        else if (item->typeID == GetTypeID<Graphics::Material>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -313,7 +313,7 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
-        else if (item->m_typeID == GetTypeID<Graphics::Texture>())
+        else if (item->typeID == GetTypeID<Graphics::Texture>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -324,7 +324,7 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
-        else if (item->m_typeID == GetTypeID<Graphics::Shader>())
+        else if (item->typeID == GetTypeID<Graphics::Shader>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -335,7 +335,7 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
-        else if (item->m_typeID == GetTypeID<Audio::Audio>())
+        else if (item->typeID == GetTypeID<Audio::Audio>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -346,7 +346,7 @@ namespace Lina::Editor
                 ImGui::EndDragDropSource();
             }
         }
-        else if (item->m_typeID == GetTypeID<Physics::PhysicsMaterial>())
+        else if (item->typeID == GetTypeID<Physics::PhysicsMaterial>())
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
@@ -363,7 +363,7 @@ namespace Lina::Editor
         {
             const ImVec2 extRectMin   = ImVec2(borderMin.x, borderMax.y - fileTypeRectHeight);
             const ImVec2 extRectMax   = ImVec2(extRectMin.x + imageSize.x, extRectMin.y + fileTypeRectHeight);
-            const Color  extColorLina = storage->GetTypeColor(item->m_typeID);
+            const Color  extColorLina = storage->GetTypeColor(item->typeID);
             const ImVec4 extColor     = ImVec4(extColorLina.r, extColorLina.g, extColorLina.b, extColorLina.a);
             ImGui::GetWindowDrawList()->AddRectFilled(extRectMin, extRectMax, ImGui::ColorConvertFloat4ToU32(extColor), 2.0f, ImDrawFlags_RoundCornersTop);
         }
@@ -387,13 +387,13 @@ namespace Lina::Editor
             }
             else
             {
-                item->m_isRenaming = true;
+                item->isRenaming = true;
                 Memory::memset(str0, 0, 128);
-                Memory::memcpy(str0, item->m_name.c_str(), item->m_name.capacity() + 1);
+                Memory::memcpy(str0, item->name.c_str(), item->name.capacity() + 1);
             }
         }
 
-        if (item->m_isRenaming)
+        if (item->isRenaming)
         {
             const float inputTextWidth = ImGui::GetWindowWidth() * 0.7f;
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - inputTextWidth / 2.0f);
@@ -402,17 +402,17 @@ namespace Lina::Editor
             const String inputLabel = "##_A_" + item->m_fullPath;
             if (ImGui::InputText(inputLabel.c_str(), str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                item->m_isRenaming = false;
+                item->isRenaming = false;
 
                 if (!isFolder)
                 {
                     // If we have an asset data associated with the file, change it's name as well.
-                    auto* parent = item->m_parent;
+                    auto* parent = item->parent;
                     if (parent != nullptr)
                     {
                         for (auto* subfile : parent->m_files)
                         {
-                            if (subfile != item && subfile->m_name.compare(item->m_name) == 0)
+                            if (subfile != item && subfile->name.compare(item->name) == 0)
                                 Utility::ChangeFileName(subfile, str0);
                         }
                     }
@@ -426,7 +426,7 @@ namespace Lina::Editor
             }
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked())
-                item->m_isRenaming = false;
+                item->isRenaming = false;
         }
         else
         {

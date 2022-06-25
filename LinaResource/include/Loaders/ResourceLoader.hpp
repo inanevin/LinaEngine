@@ -26,30 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ResourceLoader
-
-Represents a bundle, containing various packages for resource categories. Raw packages contain RAW data loaded from .linapackage files.
-
-Timestamp: 12/22/2020 12:26:55 AM
-*/
-
 #pragma once
 
-#ifndef ResourceBundle_HPP
-#define ResourceBundle_HPP
+#ifndef IResourceLoader_HPP
+#define IResourceLoader_HPP
 
 // Headers here.
-#include "Core/ResourceCommon.hpp"
-#include "Core/CommonUtility.hpp"
+#include "Core/CommonApplication.hpp"
+#include "Utility/StringId.hpp"
+#include "Core/ResourcePackager.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/HashSet.hpp"
 #include "Data/PriorityQueue.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-    namespace Event
+    namespace Utility
     {
-        class EventSystem;
-    }
+        struct Folder;
+        struct File;
+    } // namespace Utility
 } // namespace Lina
 
 namespace Lina::Resources
@@ -113,16 +110,32 @@ namespace Lina::Resources
 
     class ResourceLoader
     {
-
     public:
+        ResourceLoader()
+        {
+        }
+        virtual ~ResourceLoader(){};
+
+        virtual void Initialize(const ApplicationInfo& info)
+        {
+            m_appInfo = info;
+        }
+        virtual void LoadResource(TypeID tid, const String& path)                            = 0;
+        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) = 0;
+
+        inline ResourcePackager& GetPackager()
+        {
+            return m_packager;
+        }
+
+    protected:
+
+        friend class ResourcePackager;
+
         /// <summary>
         /// Loads a single file resource.
         /// </summary>
         bool LoadSingleResourceFromFile(TypeID tid, const String& fullpath);
-
-    private:
-
-        friend class ResourcePackager;
 
         /// <summary>
         /// Stores the given memory resource into a priority queue.
@@ -144,10 +157,19 @@ namespace Lina::Resources
         /// </summary>
         void LoadAllScannedResources();
 
-        MemoryQueue m_memoryResources;
-        FileQueue   m_fileResources;
-        TypeID      m_lastResourceTypeID   = -1;
-        int         m_lastResourcePriority = 0;
+        /// <summary>
+        /// Checks the current level resources to load & unloads any active resource that doesn't belong in the map.
+        /// </summary>
+        /// <param name="currentLevelResources"></param>
+        void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& currentLevelResources);
+
+    protected:
+        ResourcePackager m_packager;
+        MemoryQueue      m_memoryResources;
+        FileQueue        m_fileResources;
+        TypeID           m_lastResourceTypeID   = -1;
+        int              m_lastResourcePriority = 0;
+        ApplicationInfo  m_appInfo;
     };
 } // namespace Lina::Resources
 

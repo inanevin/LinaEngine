@@ -42,7 +42,7 @@ namespace Lina::Resources
 
     void ResourceUtility::ScanFolder(Utility::Folder* root, bool recursive, int* totalFiles, bool isRescan)
     {
-        for (const auto& entry : std::filesystem::directory_iterator(root->m_fullPath.c_str()))
+        for (const auto& entry : std::filesystem::directory_iterator(root->fullPath.c_str()))
         {
             String replacedFullPath = entry.path().string().c_str();
             std::replace(replacedFullPath.begin(), replacedFullPath.end(), '\\', '/');
@@ -59,10 +59,10 @@ namespace Lina::Resources
                         // Check for reload.
                         auto lastTime = std::filesystem::last_write_time(replacedFullPath.c_str());
 
-                        if (outItem != nullptr && lastTime != outItem->m_lastWriteTime)
+                        if (outItem != nullptr && lastTime != outItem->lastWriteTime)
                         {
                             const StringIDType sid = StringID(replacedFullPath.c_str()).value();
-                            const TypeID       tid = outItem->m_typeID;
+                            const TypeID       tid = outItem->typeID;
                             Resources::ResourceStorage::Get()->Unload(tid, sid);
                             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                         }
@@ -86,18 +86,18 @@ namespace Lina::Resources
             if (entry.path().has_extension())
             {
                 Utility::File* file = new Utility::File();
-                root->m_files.push_back(file);
+                root->files.push_back(file);
 
-                file->m_fullName       = entry.path().filename().string().c_str();
-                file->m_folderPath     = (entry.path().parent_path().string() + "/").c_str();
-                file->m_fullPath       = replacedFullPath;
-                file->m_extension      = file->m_fullName.substr(file->m_fullName.find(".") + 1);
-                file->m_name           = Utility::GetFileWithoutExtension(file->m_fullName);
-                file->m_parent         = root;
-                file->m_typeID         = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->m_extension);
-                file->m_lastWriteTime  = std::filesystem::last_write_time(file->m_fullPath.c_str());
-                const StringIDType sid = StringID(file->m_fullPath.c_str()).value();
-                file->m_sid            = sid;
+                file->fullName         = entry.path().filename().string().c_str();
+                file->folderPath       = (entry.path().parent_path().string() + "/").c_str();
+                file->fullPath         = replacedFullPath;
+                file->extension        = file->fullName.substr(file->fullName.find(".") + 1);
+                file->name             = Utility::GetFileWithoutExtension(file->fullName);
+                file->parent           = root;
+                file->typeID           = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->extension);
+                file->lastWriteTime    = std::filesystem::last_write_time(file->fullPath.c_str());
+                const StringIDType sid = StringID(file->fullPath.c_str()).value();
+                file->sid              = sid;
 
                 if (totalFiles != nullptr)
                     (*totalFiles) = (*totalFiles) + 1;
@@ -105,14 +105,14 @@ namespace Lina::Resources
             else
             {
                 Utility::Folder* folder = new Utility::Folder();
-                root->m_folders.push_back(folder);
-                folder->m_name          = entry.path().filename().string().c_str();
-                folder->m_fullPath      = replacedFullPath;
-                folder->m_parent        = root;
-                folder->m_typeID        = 0;
-                folder->m_lastWriteTime = std::filesystem::last_write_time(folder->m_fullPath.c_str());
-                const StringIDType sid  = StringID(folder->m_fullPath.c_str()).value();
-                folder->m_sid           = sid;
+                root->folders.push_back(folder);
+                folder->name           = entry.path().filename().string().c_str();
+                folder->fullPath       = replacedFullPath;
+                folder->parent         = root;
+                folder->typeID         = 0;
+                folder->lastWriteTime  = std::filesystem::last_write_time(folder->fullPath.c_str());
+                const StringIDType sid = StringID(folder->fullPath.c_str()).value();
+                folder->sid            = sid;
 
                 if (recursive)
                     ScanFolder(folder, recursive, totalFiles);
@@ -122,19 +122,19 @@ namespace Lina::Resources
 
     void ResourceUtility::DeleteResourceFile(Utility::File* file)
     {
-        if (file->m_typeID != -1)
-            Resources::ResourceStorage::Get()->Unload(file->m_typeID, file->m_fullPath);
+        if (file->typeID != -1)
+            Resources::ResourceStorage::Get()->Unload(file->typeID, file->fullPath);
 
-        for (Vector<Utility::File*>::iterator it = file->m_parent->m_files.begin(); it < file->m_parent->m_files.end(); it++)
+        for (Vector<Utility::File*>::iterator it = file->parent->files.begin(); it < file->parent->files.end(); it++)
         {
             if (*it == file)
             {
-                file->m_parent->m_files.erase(it);
+                file->parent->files.erase(it);
                 break;
             }
         }
 
-        Utility::DeleteFileInPath(file->m_fullPath);
+        Utility::DeleteFileInPath(file->fullPath);
         delete file;
         file = nullptr;
     }
@@ -143,11 +143,11 @@ namespace Lina::Resources
     {
         String foundFile = "";
         bool   found     = false;
-        for (Utility::File* file : folder->m_files)
+        for (Utility::File* file : folder->files)
         {
-            if (file->m_sid == sid)
+            if (file->sid == sid)
             {
-                foundFile = file->m_fullPath;
+                foundFile = file->fullPath;
                 found     = true;
             }
         }
@@ -155,7 +155,7 @@ namespace Lina::Resources
         if (found)
             return foundFile;
 
-        for (Utility::Folder* sub : folder->m_folders)
+        for (Utility::Folder* sub : folder->folders)
         {
             String found = SearchFolderForSID(sub, sid);
 
@@ -171,10 +171,41 @@ namespace Lina::Resources
         if (s_rootFolder != nullptr)
             delete s_rootFolder;
 
-        s_rootFolder             = new Utility::Folder();
-        s_rootFolder->m_fullPath = "Resources/";
-        s_rootFolder->m_name     = "Resources";
+        s_rootFolder           = new Utility::Folder();
+        s_rootFolder->fullPath = "Resources/";
+        s_rootFolder->name     = "Resources";
         ResourceUtility::ScanFolder(s_rootFolder, true, &s_currentProgressData.m_currentTotalFiles);
     }
 
+    void ResourceUtility::InitializeWorkingDirectory()
+    {
+        s_workingDirectory         = std::filesystem::current_path().string().c_str();
+        s_workingDirectoryReplaced = s_workingDirectory;
+        std::replace(s_workingDirectoryReplaced.begin(), s_workingDirectoryReplaced.end(), '\\', '/');
+    }
+
+    String ResourceUtility::PackageTypeToString(PackageType type)
+    {
+        switch (type)
+        {
+        case PackageType::Static:
+            return "static";
+        case PackageType::Custom:
+            return "custom";
+        case PackageType::Audio:
+            return "audio";
+        case PackageType::Level:
+            return "levels";
+        case PackageType::Graphics:
+            return "graphics";
+        case PackageType::Meshes:
+            return "meshes";
+        case PackageType::Physics:
+            return "physics";
+        case PackageType::Textures:
+            return "textures";
+        default:
+            return "";
+        }
+    }
 } // namespace Lina::Resources

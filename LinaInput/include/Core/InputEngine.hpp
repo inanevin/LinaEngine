@@ -1,6 +1,6 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/Lina
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,13 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: InputEngine
 
-Acts as a wrapper for input device functionality and also manages any additional functionality.
-
-Timestamp: 4/14/2019 7:46:20 PM
-*/
 
 #pragma once
 

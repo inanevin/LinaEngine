@@ -1,6 +1,6 @@
-/*
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,22 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: FreeLookSystem
-
-System that manages free look components and the functionality.
-
-Timestamp: 5/2/2019 2:21:35 AM
-*/
 
 #pragma once
 
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "Core/InputEngineFwd.hpp"
 #include "ECS/System.hpp"
 
+namespace Lina
+{
+    namespace Input
+    {
+        class InputEngine;
+    }
+}
 namespace Lina::ECS
 {
     class FreeLookSystem : public System

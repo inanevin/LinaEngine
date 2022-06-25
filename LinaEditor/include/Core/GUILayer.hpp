@@ -173,7 +173,7 @@ namespace Lina::Editor
         TextEditorPanel             m_textEditorPanel;
         Resources::ResourceStorage* m_storage                  = nullptr;
         String                 m_currentlyLoadingResource = "";
-        float                       m_percentage               = 0.0f;
+        float                       percentage               = 0.0f;
         bool                        m_shouldDrawSplash         = false;
         bool                        m_shouldDrawProgressPanel  = false;
         Vector2                     m_minMonitorPos            = Vector2::Zero;

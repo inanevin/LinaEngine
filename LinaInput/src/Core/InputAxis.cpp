@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,16 +42,16 @@ namespace Lina::Input
 
     void InputAxis::OnKey(const Event::EKeyCallback& key)
     {
-        if (key.m_action == InputAction::Pressed)
+        if (key.action == InputAction::Pressed)
         {
-            if (key.m_key == m_positiveKey)
+            if (key.key == m_positiveKey)
                 m_value = 1.0f;
-            else if (key.m_key == m_negativeKey)
+            else if (key.key == m_negativeKey)
                 m_value = -1.0f;
         }
-        else if (key.m_action == InputAction::Released)
+        else if (key.action == InputAction::Released)
         {
-            if (key.m_key == m_positiveKey || key.m_key == m_negativeKey)
+            if (key.key == m_positiveKey || key.key == m_negativeKey)
                 m_value = 0.0f;
         }
     }

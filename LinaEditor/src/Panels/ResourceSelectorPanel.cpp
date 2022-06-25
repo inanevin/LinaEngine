@@ -114,22 +114,22 @@ namespace Lina::Editor
             if (m_storage->GetTypeIDFromExtension(file->m_extension) != m_currentFileType)
                 continue;
 
-            const String fileNameLower  = Utility::ToLower(file->m_name);
+            const String fileNameLower  = Utility::ToLower(file->name);
             const String searchStrLower = Utility::ToLower(m_searchFilter);
 
             if (m_searchFilter.compare("") != 0 && fileNameLower.find(searchStrLower) != 0)
                 continue;
 
             ImGui::SetCursorPosX(5);
-            ImGui::Selectable(file->m_name.c_str(), m_selectedFile == file);
+            ImGui::Selectable(file->name.c_str(), m_selectedFile == file);
 
             if (ImGui::IsItemHovered())
             {
 #pragma warning(disable : 4312)
 
-                if (file->m_typeID == GetTypeID<Graphics::Model>() || file->m_typeID == GetTypeID<Graphics::Material>())
+                if (file->typeID == GetTypeID<Graphics::Model>() || file->typeID == GetTypeID<Graphics::Material>())
                 {
-                    uint32       textureID   = EditorApplication::Get()->GetSnapshotTexture(file->m_sid);
+                    uint32       textureID   = EditorApplication::Get()->GetSnapshotTexture(file->sid);
                     uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
                     const ImVec2 imageMin    = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
                     const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->GetDPIScale(), imageMin.y + 128 * GUILayer::Get()->GetDPIScale());
@@ -137,9 +137,9 @@ namespace Lina::Editor
                     ImGui::GetForegroundDrawList()->AddImage((void*)textureID, imageMin, imageMax, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::GetForegroundDrawList()->AddRect(imageMin, imageMax, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)), 0.0f, ImDrawFlags_None, 1.5f);
                 }
-                else if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                else if (file->typeID == GetTypeID<Graphics::Texture>())
                 {
-                    uint32       textureID   = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(file->m_sid)->GetID();
+                    uint32       textureID   = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(file->sid)->GetID();
                     uint32       bgTextureID = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/Checkered.png")->GetID();
                     const ImVec2 imageMin    = ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
                     const ImVec2 imageMax    = ImVec2(imageMin.x + 128 * GUILayer::Get()->GetDPIScale(), imageMin.y + 128 * GUILayer::Get()->GetDPIScale());

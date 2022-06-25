@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: RigidbodySystem
-
-Responsible for maintaining rigidbody physics.
-
-Timestamp: 9/30/2020 2:52:58 AM
-*/
 
 #pragma once
 
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
-#include "Core/PhysicsEngineFwd.hpp"
 #include "ECS/System.hpp"
 
+namespace Lina
+{
+    namespace Physics
+    {
+        class PhysicsEngine;
+    }
+}
 namespace Lina::ECS
 {
     class RigidbodySystem : public System

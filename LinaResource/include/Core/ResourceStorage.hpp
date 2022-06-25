@@ -26,14 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ResourceStorage
-
-
-
-Timestamp: 12/30/2021 9:37:39 PM
-*/
-
 #pragma once
 
 #ifndef ResourceStorage_HPP
@@ -41,7 +33,6 @@ Timestamp: 12/30/2021 9:37:39 PM
 
 // Headers here.
 #include "Core/ResourcePackager.hpp"
-#include "Core/ResourceLoader.hpp"
 #include "Core/ResourceCommon.hpp"
 #include "Utility/StringId.hpp"
 #include "Log/Log.hpp"
@@ -69,22 +60,14 @@ namespace Lina::Resources
 {
     typedef HashMap<StringIDType, void*> Cache;
 
-    enum class PackageType
-    {
-        Custom,
-        Static,
-        Level,
-        Audio,
-        Physics,
-        Textures,
-        Meshes,
-        Graphics,
-    };
+    class ResourceLoader;
+
     struct ResourceTypeData
     {
-        int                loadPriority = 0;
-        bool               isAssetData  = false;
-        PackageType        packageType  = PackageType::Custom;
+        int                loadPriority         = 0;
+        bool               isAssetData          = false;
+        bool               doesContainAssetData = false;
+        PackageType        packageType          = PackageType::Custom;
         ResourceCreateFunc createFunc;
         ResourceDeleteFunc deleteFunc;
         Vector<String>     associatedExtensions;
@@ -136,7 +119,7 @@ namespace Lina::Resources
         T* GetResource(StringIDType sid)
         {
             auto& cache = m_resources[GetTypeID<T>()];
-            return (T*)cache[sid];
+            return (T*)cache.at(sid);
         }
 
         /// <summary>
@@ -176,6 +159,7 @@ namespace Lina::Resources
                 return;
             }
 
+            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", sid);
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
@@ -243,12 +227,12 @@ namespace Lina::Resources
         template <typename T>
         const Cache& GetCache() const
         {
-            return m_resources.at(GetTypeID<T>());
+            return m_resources[GetTypeID<T>()];
         }
 
         const Cache& GetCache(TypeID tid)
         {
-            return m_resources.at(tid);
+            return m_resources[tid];
         }
 
         /// <summary>
@@ -315,38 +299,28 @@ namespace Lina::Resources
             return m_resourceTypes;
         }
 
-        inline ResourcePackager& GetPackager()
-        {
-            return m_packager;
-        }
-
-        inline ResourceLoader& GetLoader()
+        inline ResourceLoader* GetLoader()
         {
             return m_loader;
         }
-
-        String PackageTypeToString(PackageType type);
 
     private:
         friend class Engine;
         ResourceStorage()  = default;
         ~ResourceStorage() = default;
 
-        void   Initialize(ApplicationInfo& appInfo);
-        void   Shutdown();
-        void   OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
-        void   OnResourceReloaded(const Event::EResourceReloaded& ev);
-        void   OnResourceUnloaded(const Event::EResourceUnloaded& ev);
+        void Initialize(ApplicationInfo& appInfo);
+        void Shutdown();
+        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
+        void OnResourceReloaded(const Event::EResourceReloaded& ev);
+        void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
         static ResourceStorage*           s_instance;
         HashMap<TypeID, Cache>            m_resources;
         HashMap<TypeID, ResourceTypeData> m_resourceTypes;
-
-        ApplicationInfo  m_appInfo;
-        ResourcePackager m_packager;
-        ResourceLoader   m_loader;
-
+        ResourceLoader*                   m_loader = nullptr;
+        ApplicationInfo                   m_appInfo;
     };
 } // namespace Lina::Resources
 

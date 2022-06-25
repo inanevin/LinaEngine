@@ -1,6 +1,6 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/Lina
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -66,13 +66,13 @@ namespace Lina::Input
 
     void InputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
     {
-        glfwWindow = static_cast<GLFWwindow*>(e.m_window);
+        glfwWindow = static_cast<GLFWwindow*>(e.window);
     }
 
     void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
     {
-        m_currentMouseScroll.x = (float)e.m_xoff;
-        m_currentMouseScroll.y = (float)e.m_yoff;
+        m_currentMouseScroll.x = (float)e.xoff;
+        m_currentMouseScroll.y = (float)e.yoff;
     }
 
     bool InputEngine::GetKey(int keycode)

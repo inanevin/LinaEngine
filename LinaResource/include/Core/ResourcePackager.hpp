@@ -26,14 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Packager
-
-Responsible for packing asset & resource files into a single compressed file format as well as reading from it.
-
-Timestamp: 12/20/2020 8:56:18 PM
-*/
-
 #pragma once
 
 #ifndef ResourcePackager_HPP
@@ -57,24 +49,17 @@ namespace Lina::Resources
 {
     class ResourcePackager
     {
-
     private:
         friend class Engine;
-        friend class ResourceStorage;
-        void Initialize(ApplicationMode& appMode)
-        {
-            m_appMode = appMode;
-        }
+        friend class EditorResourceLoader;
+        friend class StandaloneResourceLoader;
 
         void LoadPackage(const String& packageName, const wchar_t* pass, ResourceLoader* loader);
         void LoadFilesFromPackage(const String& packageName, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader);
-        void PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, HashSet<StringIDType>>& resourceMap);
-        void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
         void UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader);
         void UnpackAndLoad(const String& filePath, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader);
-
-    private:
-        ApplicationMode m_appMode;
+        void PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass);
+        void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
     };
 
 }; // namespace Lina::Resources

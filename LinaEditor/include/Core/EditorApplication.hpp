@@ -39,7 +39,7 @@ namespace Lina
         struct EPreSerializingLevel;
         struct ESerializedLevel;
         struct EWindowResized;
-        struct EResourceLoadCompleted;
+        struct EResourceLoaded;
         struct EResourceReloaded;
         struct EResourcePathUpdated;
 
@@ -88,7 +88,7 @@ namespace Lina::Editor
         void OnPreSerializingLevel(const Event::EPreSerializingLevel& ev);
         void OnSerializedLevel(const Event::ESerializedLevel& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
-        void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
+        void OnResourceLoadCompleted(const Event::EResourceLoaded& ev);
         void OnResourceReloaded(const Event::EResourceReloaded& ev);
         void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
 

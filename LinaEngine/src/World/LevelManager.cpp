@@ -1,11 +1,39 @@
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include "World/LevelManager.hpp"
 #include "Core/Engine.hpp"
 #include "World/Level.hpp"
-#include "Core/EngineSettings.hpp"
-#include "Core/ResourceManager.hpp"
+#include "Settings/EngineSettings.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "Loaders/ResourceLoader.hpp"
 
 namespace Lina::World
 {
@@ -24,80 +52,28 @@ namespace Lina::World
 
     void LevelManager::InstallLevel(const String& path)
     {
-        HashMap<TypeID, HashSet<StringIDType>> previousLevelResources;
-
-        const bool sameLevel = m_currentLevel->GetSID() == StringID(path.c_str()).value();
+        const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == StringID(path.c_str()).value() : false;
 
         // Uninstall current level if exists.
         if (m_currentLevel != nullptr)
         {
-            // Store the current levels resources for cross-checking with the target level to load
-            if (!sameLevel)
-                previousLevelResources = m_currentLevel->GetResources();
-
             // Uninstall current level.
             Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
             m_currentLevel->Uninstall();
 
-            Resources::ResourceStorage::Get()->Unload<Level>(path);
+            Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
         }
 
-        if (m_appInfo.m_appMode == ApplicationMode::Editor)
-        {
-            // Create the level & add it to the resource storage.
-            m_currentLevel = new Level();
-            Resources::ResourceStorage::Get()->Add(m_currentLevel, GetTypeID<Level>(), StringID(path.c_str()).value());
-
-            // Load level data from the file, this will also load the ECS registry.
-            m_currentLevel->LoadFromFile(path);
-        }
-        else
-        {
-            // In standalone builds, level data would be packed into the respective levels package.
-            // We first need to load the target file from the package into memory, this will create the level resource managed by the resource storage.
-            HashSet<StringIDType> v;
-            v.insert(StringID(path.c_str()).value());
-            Resources::ResourceManager::Get()->LoadFilesFromPackage(Resources::ResourceStorage::Get()->PackageTypeToString(Resources::PackageType::Level), v);
-
-            // Now simply retrieve the pointer to the level.
-            m_currentLevel = Resources::ResourceStorage::Get()->GetResource<Level>(path);
-        }
+        // Load level file itself.
+        Resources::ResourceStorage* storage = Resources::ResourceStorage::Get();
+        storage->GetLoader()->LoadResource(GetTypeID<Level>(), path);
+        m_currentLevel = storage->GetResource<Level>(path);
 
         // Notify that we are starting to load the resources for this level.
         Event::EventSystem::Get()->Trigger<Event::ELevelInstallStarted>(Event::ELevelInstallStarted{});
 
-        // Don't change any resources if we are loading the same level.
-        if (!sameLevel)
-        {
-            auto& resources = m_currentLevel->GetResources();
-            auto* storage = Resources::ResourceStorage::Get();
-            auto* manager = Resources::ResourceManager::Get();
-
-            for (auto& pair : previousLevelResources)
-            {
-                const HashSet<StringIDType> set = resources.at(pair.first);
-                
-                // For every type id, search all the resources referenced by the previous level.
-                // If the same resource is not reference by the level we are loading right now, unload them.
-                for (auto sid : pair.second)
-                {
-                    if (set.find(sid) == set.end())
-                        storage->Unload(pair.first, sid);
-                }
-            }
-
-            for (auto& pair : resources)
-            {
-                Resources::ResourceTypeData& typeData = storage->GetTypeData(pair.first);
-
-                if(m_appInfo.m_appMode == ApplicationMode::Standalone)
-                manager->LoadFilesFromPackage(storage->PackageTypeToString(typeData.packageType), pair.second);
-                else
-                {
-                   
-                }
-            }
-        }
+        // Load level resources
+        storage->GetLoader()->LoadLevelResources(m_currentLevel->GetResources());
 
         // After all resources are loaded, activate the level, actively switching the ECS registry & then notify.
         m_currentLevel->Install();

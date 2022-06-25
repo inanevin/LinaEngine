@@ -268,7 +268,7 @@ namespace Lina::Editor
                 auto* folder = hierarchy[i];
 
                 // Switch the selected folder.
-                if (WidgetsUtility::Button(folder->m_name.c_str()))
+                if (WidgetsUtility::Button(folder->name.c_str()))
                 {
                     DeselectNodes(false);
                     m_selectedFolder = folder;
@@ -278,7 +278,7 @@ namespace Lina::Editor
                 ImGui::SameLine();
             }
 
-            WidgetsUtility::Button(m_selectedFolder->m_name.c_str());
+            WidgetsUtility::Button(m_selectedFolder->name.c_str());
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
             ImGui::SameLine();
@@ -370,9 +370,9 @@ namespace Lina::Editor
 
         if (!dontDraw)
         {
-            ImGui::SetNextItemOpen(folder->m_isOpen);
+            ImGui::SetNextItemOpen(folder->isOpen);
 
-            folder->m_isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder, m_leftPaneFocused);
+            folder->isOpen = WidgetsUtility::DrawTreeFolder(folder, m_selectedFolder, m_leftPaneFocused);
 
             if (ImGui::IsItemClicked())
             {
@@ -381,7 +381,7 @@ namespace Lina::Editor
             }
         }
 
-        if (folder->m_isOpen && folder->m_folders.size() > 0)
+        if (folder->isOpen && folder->m_folders.size() > 0)
         {
             for (auto& f : folder->m_folders)
                 DrawFolderHierarchy(f, shouldSubsPerformCheck);
@@ -421,8 +421,8 @@ namespace Lina::Editor
                         m_selectedFolder = subfolder;
 
                         // Open the fold-out of the parent folder if closed.
-                        if (!m_selectedFolder->m_parent->m_isOpen)
-                            m_selectedFolder->m_parent->m_isOpen = true;
+                        if (!m_selectedFolder->parent->isOpen)
+                            m_selectedFolder->parent->isOpen = true;
                     }
                 }
             }
@@ -431,7 +431,7 @@ namespace Lina::Editor
         for (auto* file : folder->m_files)
         {
 
-            TypeID tid = file->m_typeID;
+            TypeID tid = file->typeID;
             if (!m_storage->IsTypeRegistered(tid))
                 continue;
 
@@ -445,7 +445,7 @@ namespace Lina::Editor
             if (ImGui::IsItemClicked())
             {
                 if (m_selectedFile != nullptr && m_selectedFile != file)
-                    m_selectedFile->m_isRenaming = false;
+                    m_selectedFile->isRenaming = false;
 
                 m_selectedFile = file;
             }
@@ -456,31 +456,31 @@ namespace Lina::Editor
                 {
                     if (m_selectedFile == nullptr || !renamedItem)
                     {
-                        if (file->m_typeID == GetTypeID<Graphics::Texture>())
+                        if (file->typeID == GetTypeID<Graphics::Texture>())
                         {
                             auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
-                            previewPanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->m_sid));
+                            previewPanel.SetTargetTexture(m_storage->GetResource<Graphics::Texture>(file->sid));
 
                             if (!previewPanel.IsMaximized())
                                 previewPanel.ToggleMaximize();
                         }
-                        else if (file->m_typeID == GetTypeID<Graphics::Model>())
+                        else if (file->typeID == GetTypeID<Graphics::Model>())
                         {
                             auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
-                            previewPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->m_sid));
+                            previewPanel.SetTargetModel(m_storage->GetResource<Graphics::Model>(file->sid));
 
                             if (!previewPanel.IsMaximized())
                                 previewPanel.ToggleMaximize();
                         }
-                        else if (file->m_typeID == GetTypeID<Graphics::Material>())
+                        else if (file->typeID == GetTypeID<Graphics::Material>())
                         {
                             auto& previewPanel = GUILayer::Get()->GetPreviewPanel();
-                            previewPanel.SetTargetMaterial(m_storage->GetResource<Graphics::Material>(file->m_sid));
+                            previewPanel.SetTargetMaterial(m_storage->GetResource<Graphics::Material>(file->sid));
 
                             if (!previewPanel.IsMaximized())
                                 previewPanel.ToggleMaximize();
                         }
-                        else if (file->m_typeID == GetTypeID<Graphics::Shader>() || file->m_typeID == GetTypeID<Graphics::ShaderInclude>())
+                        else if (file->typeID == GetTypeID<Graphics::Shader>() || file->typeID == GetTypeID<Graphics::ShaderInclude>())
                         {
                             String command = "python \"Resources/Editor/Scripts/open_in_subprocess.py\" --app \"" + EditorApplication::Get()->GetEditorSettings().m_textEditorPath + 
                             "\" --filename \"" + file->m_fullPath + "\"";
@@ -537,14 +537,14 @@ namespace Lina::Editor
 
                 if (!currentIsEngineFolder)
                 {
-                    while (f->m_parent != nullptr)
+                    while (f->parent != nullptr)
                     {
-                        if (f->m_parent->m_fullPath.compare("Resources/Engine") == 0)
+                        if (f->parent->m_fullPath.compare("Resources/Engine") == 0)
                         {
                             currentIsEngineFolder = true;
                             break;
                         }
-                        f = f->m_parent;
+                        f = f->parent;
                     }
                 }
 
@@ -567,14 +567,14 @@ namespace Lina::Editor
 
                 if (!currentIsEditorFolder)
                 {
-                    while (f->m_parent != nullptr)
+                    while (f->parent != nullptr)
                     {
-                        if (f->m_parent->m_fullPath.compare("Resources/Editor") == 0)
+                        if (f->parent->m_fullPath.compare("Resources/Editor") == 0)
                         {
                             currentIsEditorFolder = true;
                             break;
                         }
-                        f = f->m_parent;
+                        f = f->parent;
                     }
                 }
 
@@ -621,16 +621,16 @@ namespace Lina::Editor
     void ResourcesPanel::DeselectNodes(bool deselectAll)
     {
         if (m_selectedFile != nullptr)
-            m_selectedFile->m_isRenaming = false;
+            m_selectedFile->isRenaming = false;
 
         if (m_selectedSubfolder != nullptr)
-            m_selectedSubfolder->m_isRenaming = false;
+            m_selectedSubfolder->isRenaming = false;
 
         m_selectedFile      = nullptr;
         m_selectedSubfolder = nullptr;
 
         if (m_selectedFolder != nullptr)
-            m_selectedFolder->m_isRenaming = false;
+            m_selectedFolder->isRenaming = false;
 
         if (deselectAll)
             m_selectedFolder = nullptr;

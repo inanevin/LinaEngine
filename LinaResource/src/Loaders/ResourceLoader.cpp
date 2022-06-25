@@ -26,13 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/ResourceLoader.hpp"
+#include "Loaders/ResourceLoader.hpp"
 #include "Core/ResourceStorage.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/ResourceEvents.hpp"
-#include "Log/Log.hpp"
-#include "Math/Math.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "EventSystem/EventSystem.hpp"
 
 namespace Lina::Resources
 {
@@ -62,10 +59,8 @@ namespace Lina::Resources
             StringIDType sid       = StringID(entry.m_path.c_str()).value();
 
             if (m_lastResourcePriority != entry.m_priority)
-            {
                 m_lastResourcePriority = entry.m_priority;
-                Event::EventSystem::Get()->Trigger<Event::EAllResourcesOfTypeLoaded>(Event::EAllResourcesOfTypeLoaded{m_lastResourceTypeID});
-            }
+
             m_lastResourceTypeID = tid;
 
             if (!storage->Exists(tid, sid))
@@ -74,7 +69,7 @@ namespace Lina::Resources
                 IResource* res            = typeData.createFunc();
                 void*      loadedResource = res->LoadFromMemory(entry.m_path, &entry.m_data[0], entry.m_data.size());
                 storage->Add(loadedResource, tid, sid);
-                Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
+                Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{tid, sid});
             }
 
             m_memoryResources.pop();
@@ -85,15 +80,15 @@ namespace Lina::Resources
     {
 
         // Recursively scan children.
-        for (auto* folder : folder->m_folders)
+        for (auto* folder : folder->folders)
             ScanResourcesInFolder(folder);
 
         // We find the resource type id by extension,
         // get it's priority from the storage and add it into a priority queue.
         auto* storage = ResourceStorage::Get();
-        for (auto* file : folder->m_files)
+        for (auto* file : folder->files)
         {
-            TypeID tid = storage->GetTypeIDFromExtension(file->m_extension);
+            TypeID tid = storage->GetTypeIDFromExtension(file->extension);
 
             if (tid != -1)
             {
@@ -110,19 +105,65 @@ namespace Lina::Resources
         while (!m_fileResources.empty())
         {
             auto         fileEntry = m_fileResources.top();
-            TypeID       tid       = storage->GetTypeIDFromExtension(fileEntry.m_file->m_extension);
-            StringIDType sid       = StringID(fileEntry.m_file->m_fullPath.c_str()).value();
+            TypeID       tid       = storage->GetTypeIDFromExtension(fileEntry.m_file->extension);
+            StringIDType sid       = StringID(fileEntry.m_file->fullPath.c_str()).value();
 
             if (m_lastResourcePriority != fileEntry.m_priority)
-            {
                 m_lastResourcePriority = fileEntry.m_priority;
-                Event::EventSystem::Get()->Trigger<Event::EAllResourcesOfTypeLoaded>(Event::EAllResourcesOfTypeLoaded{m_lastResourceTypeID});
-            }
 
             m_lastResourceTypeID = tid;
-            LoadSingleResourceFromFile(tid, fileEntry.m_file->m_fullPath);
+            LoadSingleResourceFromFile(tid, fileEntry.m_file->fullPath);
 
             m_fileResources.pop();
+        }
+    }
+
+    void ResourceLoader::UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& currentLevelResources)
+    {
+        ResourceStorage* storage = ResourceStorage::Get();
+
+        // Find all resources that are not used by the next level, unload them.
+        auto& resourceTypes = storage->GetResourceTypes();
+
+        // For every resource type
+        for (auto pair : resourceTypes)
+        {
+            if (pair.second.packageType == PackageType::Static || pair.second.packageType == PackageType::Level)
+                continue;
+
+            if (pair.second.isAssetData)
+                continue;
+
+            const Cache& cache = storage->GetCache(pair.first);
+
+            // If the new resources to load doesn't contain the type id at all, unload all resoruces belonging to this type id.
+            if (!currentLevelResources.contains(pair.first))
+            {
+                for (auto existingResource : cache)
+                    storage->Unload(pair.first, existingResource.first);
+
+                continue;
+            }
+
+            const auto& set = currentLevelResources.at(pair.first);
+
+            // Search all resources belonging to the type.
+            for (auto existingResource : cache)
+            {
+                bool found = false;
+                // If resource doesn't exist in the resourceMap to load, unload it.
+                for (auto path : set)
+                {
+                    if (StringID(path.c_str()).value() == existingResource.first)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    storage->Unload(pair.first, existingResource.first);
+            }
         }
     }
 
@@ -141,7 +182,7 @@ namespace Lina::Resources
                 return false;
 
             storage->Add(loadedResource, tid, sid);
-            Event::EventSystem::Get()->Trigger<Event::EResourceLoadCompleted>(Event::EResourceLoadCompleted{tid, sid});
+            Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{tid, sid});
         }
 
         return true;

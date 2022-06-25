@@ -1,6 +1,6 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/Lina
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -26,13 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: InputMappings
-
-Key/mouse binding macros are stored here.
-
-Timestamp: 1/6/2019 4:33:31 AM
-*/
 
 #pragma once
 #ifndef InputMappings_HPP

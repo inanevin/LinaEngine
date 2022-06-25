@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,13 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: PhysXCooker
 
-
-
-Timestamp: 12/24/2021 7:47:26 PM
-*/
 
 #pragma once
 
@@ -48,7 +42,7 @@ Timestamp: 12/24/2021 7:47:26 PM
 namespace Lina::Event
 {
     struct EShutdown;
-    struct EResourceLoadCompleted;
+    struct EResourceLoaded;
 } // namespace Lina::Event
 
 namespace physx
@@ -74,7 +68,7 @@ namespace Lina::Physics
         /// </summary>
         void CookConvexMesh(Vector<Vector3>& vertices, Vector<uint8>& bufferData);
 
-        void OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev);
+        void OnResourceLoadCompleted(const Event::EResourceLoaded& ev);
         // void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
     private:

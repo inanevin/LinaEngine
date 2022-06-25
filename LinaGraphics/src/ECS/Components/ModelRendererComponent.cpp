@@ -56,7 +56,7 @@ namespace Lina::ECS
         //	nodeEntity = parent;
         // else
         //{
-        //	nodeEntity = reg->CreateEntity(node.m_name);
+        //	nodeEntity = reg->CreateEntity(node.name);
         //	reg->AddChildToEntity(parent, nodeEntity);
         //}
         //
@@ -78,7 +78,7 @@ namespace Lina::ECS
         //		const Vector3 offsetAddition = data.GetRotation().GetForward() * vertexOffset.z + data.GetRotation().GetRight() * vertexOffset.x + data.GetRotation().GetUp() * vertexOffset.y;
         //
         //		// Create an entity, attach as a child, move to calculated position, make it a parent of the current entity.
-        //		ECS::Entity pivotParent = reg->CreateEntity(node.m_name + "_pvt");
+        //		ECS::Entity pivotParent = reg->CreateEntity(node.name + "_pvt");
         //		reg->AddChildToEntity(parent, pivotParent);
         //		auto& pivotParentData = reg->get<ECS::EntityDataComponent>(pivotParent);
         //		pivotParentData.SetLocation(data.GetLocation() + offsetAddition);

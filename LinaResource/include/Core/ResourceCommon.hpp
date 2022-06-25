@@ -26,21 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: CommonResources
-
-
-
-Timestamp: 12/25/2021 11:44:29 AM
-*/
-
 #pragma once
 
 #ifndef ResourceCommon_HPP
 #define ResourceCommon_HPP
 
 // Headers here.
-#include <Data/String.hpp>
+#include "Data/String.hpp"
 
 namespace Lina::Resources
 {
@@ -50,6 +42,18 @@ namespace Lina::Resources
         None,
         Pending,
         InProgress
+    };
+
+    enum class PackageType
+    {
+        Custom,
+        Static,
+        Level,
+        Audio,
+        Physics,
+        Textures,
+        Meshes,
+        Graphics,
     };
 
     class ResourceProgressData
@@ -67,11 +71,12 @@ namespace Lina::Resources
         void Reset()
         {
             m_currentProcessedFiles = 0;
-            m_currentProgress = 0.0f;
-            m_currentTotalFiles = 0;
-            m_progressTitle = "";
-            m_currentResourceName = "";
+            m_currentProgress       = 0.0f;
+            m_currentTotalFiles     = 0;
+            m_progressTitle         = "";
+            m_currentResourceName   = "";
         }
+
     private:
         ResourceProgressData(const ResourceProgressData&);            // = delete
         ResourceProgressData& operator=(const ResourceProgressData&); // = delete

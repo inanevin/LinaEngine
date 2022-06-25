@@ -1,3 +1,31 @@
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include "Core/Application.hpp"
 
 #include "Core/PlatformMacros.hpp"
@@ -62,28 +90,28 @@ namespace Lina
 
     void Application::OnLog(const Event::ELog& dump)
     {
-        String msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
+        String msg = "[" + LogLevelAsString(dump.level) + "] " + dump.message;
 
 #ifdef LINA_WINDOWS
         HANDLE hConsole;
         int    color = 15;
 
-        if ((dump.m_level == LogLevel::Trace) || (dump.m_level == LogLevel::Debug))
+        if ((dump.level == LogLevel::Trace) || (dump.level == LogLevel::Debug))
             color = 3;
-        else if ((dump.m_level == LogLevel::Info) || (dump.m_level == LogLevel::None))
+        else if ((dump.level == LogLevel::Info) || (dump.level == LogLevel::None))
             color = 15;
-        else if ((dump.m_level == LogLevel::Warn))
+        else if ((dump.level == LogLevel::Warn))
             color = 6;
-        else if ((dump.m_level == LogLevel::Error) || (dump.m_level == LogLevel::Critical))
+        else if ((dump.level == LogLevel::Error) || (dump.level == LogLevel::Critical))
             color = 4;
 
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, color);
 
 #elif LINA_LINUX
-        if (dump.m_level == LogLevel::Error)
+        if (dump.level == LogLevel::Error)
             msg = "\033{1;31m" + dump.m_message + "\033[0m";
-        else if (dump.m_level == LogLevel::Warn)
+        else if (dump.level == LogLevel::Warn)
             msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
 #endif
@@ -92,15 +120,15 @@ namespace Lina
         m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
     }
 
-    bool Application::OnWindowClose(const Event::EWindowClosed& event)
+    bool Application::OnWindowClose(const Event::EWindowClosed& ev)
     {
         m_engine.m_running = false;
         return true;
     }
 
-    void Application::OnWindowResize(const Event::EWindowResized& event)
+    void Application::OnWindowResize(const Event::EWindowResized& ev)
     {
-        if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
+        if (ev.windowProps.m_width == 0.0f || ev.windowProps.m_height == 0.0f)
             m_engine.m_canRender = false;
         else
             m_engine.m_canRender = true;
@@ -108,7 +136,7 @@ namespace Lina
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {
-        LINA_INFO("{0} - {1}", ev.m_currentResource, ev.m_percentage);
+        LINA_INFO("[{0}] - [{1}] - [{2}%]", StringID(ev.currentResource.c_str()).value(), ev.currentResource, ev.percentage);
     }
 
 } // namespace Lina

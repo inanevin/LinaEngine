@@ -22,9 +22,11 @@ project(LinaResource)
 #--------------------------------------------------------------------
 set (LINARESOURCE_SOURCES
 	
-	src/Core/ResourceLoader.cpp
 	src/Core/ResourceStorage.cpp
 	src/Core/ResourcePackager.cpp
+	src/Loaders/ResourceLoader.cpp
+	src/Loaders/EditorResourceLoader.cpp
+	src/Loaders/StandaloneResourceLoader.cpp
 	src/Utility/ResourceUtility.cpp
 )
 
@@ -34,11 +36,13 @@ set (LINARESOURCE_SOURCES
 set(LINARESOURCE_HEADERS
 
 	include/Core/ResourceCommon.hpp
-	include/Core/ResourceLoader.hpp
 	include/Core/ResourceHandle.hpp
 	include/Core/ResourceStorage.hpp
 	include/Core/ResourcePackager.hpp
 	include/Core/IResource.hpp
+	include/Loaders/ResourceLoader.hpp
+	include/Loaders/EditorResourceLoader.hpp
+	include/Loaders/StandaloneResourceLoader.hpp
 	include/Utility/ResourceUtility.hpp
 )
 

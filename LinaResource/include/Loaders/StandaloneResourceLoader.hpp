@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,9 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorResourceLoader.hpp"
+#pragma once
 
-namespace LinaResources
+#ifndef StandaloneResourceLoader_HPP
+#define StandaloneResourceLoader_HPP
+
+// Headers here.
+#include "ResourceLoader.hpp"
+
+namespace Lina::Resources
 {
-	
-}
+    class StandaloneResourceLoader : public ResourceLoader
+    {
+
+    public:
+        StandaloneResourceLoader()          = default;
+        virtual ~StandaloneResourceLoader() = default;
+
+        virtual void Initialize(const ApplicationInfo& appInfo) override;
+        virtual void LoadResource(TypeID tid, const String& path) override;
+        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
+
+    private:
+
+    };
+} // namespace Lina::Resources
+
+#endif

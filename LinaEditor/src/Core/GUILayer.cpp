@@ -331,7 +331,7 @@ namespace Lina::Editor
         if (m_shouldDrawProgressPanel)
         {
             m_shouldDrawProgressPanel = false;
-            m_progressPanel.Draw(m_currentlyLoadingResource, m_percentage);
+            m_progressPanel.Draw(m_currentlyLoadingResource, percentage);
         }
         // Should be drawn last.
         m_previewPanel.Draw();
@@ -490,8 +490,8 @@ namespace Lina::Editor
 
     void GUILayer::OnResourceLoadUpdated(const Event::EResourceProgressUpdated& ev)
     {
-        m_currentlyLoadingResource = ev.m_currentResource;
-        m_percentage               = ev.m_percentage;
+        m_currentlyLoadingResource = ev.currentResource;
+        percentage               = ev.percentage;
 
         if (m_shouldDrawSplash)
             DrawSplashScreen();
@@ -530,13 +530,13 @@ namespace Lina::Editor
         ImGui::BeginChild("text", ImVec2(640 * GetDPIScale(), 90 * GetDPIScale()), false, ImGuiWindowFlags_NoDecoration);
         ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
         ImGui::Text(m_currentlyLoadingResource.c_str());
-        String loadData = TO_STRING(m_percentage) + "%";
+        String loadData = TO_STRING(percentage) + "%";
         ImGui::Text(loadData.c_str());
         WidgetsUtility::IncrementCursorPosY(10);
         WidgetsUtility::HorizontalDivider(2.0f);
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-        WidgetsUtility::HorizontalDivider(2.0f, 2.0f, ImGui::GetWindowWidth() * m_percentage / 100.0f);
+        WidgetsUtility::HorizontalDivider(2.0f, 2.0f, ImGui::GetWindowWidth() * percentage / 100.0f);
         ImGui::PopStyleColor();
         ImGui::EndChild();
         ImGui::PopStyleVar();

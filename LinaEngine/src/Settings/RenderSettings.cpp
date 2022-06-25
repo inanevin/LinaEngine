@@ -26,9 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/IResourceLoader.hpp"
+#include "Settings/RenderSettings.hpp"
 
-namespace LinaResources
+namespace Lina
 {
-	
+    void* RenderSettings::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        *this = Resources::LoadArchiveFromMemory<RenderSettings>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+    void* RenderSettings::LoadFromFile(const String& path)
+    {
+        *this = Resources::LoadArchiveFromFile<RenderSettings>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
 }

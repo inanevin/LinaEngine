@@ -50,7 +50,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EPreSerializingLevel, &EditorApplication::OnPreSerializingLevel>(this);
         Event::EventSystem::Get()->Connect<Event::ESerializedLevel, &EditorApplication::OnSerializedLevel>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorApplication::OnWindowResized>(this);
-        Event::EventSystem::Get()->Connect<Event::EResourceLoadCompleted, &EditorApplication::OnResourceLoadCompleted>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &EditorApplication::OnResourceLoadCompleted>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &EditorApplication::OnResourceReloaded>(this);
         Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &EditorApplication::OnResourcePathUpdated>(this);
 
@@ -97,7 +97,7 @@ namespace Lina::Editor
             }
         };
 
-        m_shaderWatcher.Initialize(Resources::ResourceManager::Get()->GetRootFolder()->m_fullPath, 0.75f, FileWatchStatus::Modified);
+        m_shaderWatcher.Initialize(Resources::ResourceManager::Get()->GetRootFolder()->fullPath, 0.75f, FileWatchStatus::Modified);
 
     }
 
@@ -175,7 +175,7 @@ namespace Lina::Editor
         }
     }
 
-    void EditorApplication::OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev)
+    void EditorApplication::OnResourceLoadCompleted(const Event::EResourceLoaded& ev)
     {
         // Only for resources loaded after the initial bulk-load.
         // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
@@ -193,7 +193,7 @@ namespace Lina::Editor
 
     void EditorApplication::OnResourceReloaded(const Event::EResourceReloaded& ev)
     {
-        Event::EResourceLoadCompleted load;
+        Event::EResourceLoaded load;
         load.m_sid = ev.m_sid;
         load.m_tid = ev.m_tid;
         OnResourceLoadCompleted(load);

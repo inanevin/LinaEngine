@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,13 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: PhysicsEngine
 
-Responsible for initializing, running and cleaning up the physics world. Also a wrapper for bt3.
-
-Timestamp: 5/1/2019 2:35:28 AM
-*/
 
 #pragma once
 

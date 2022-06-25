@@ -478,7 +478,10 @@ namespace Lina::Physics
         ECS::Registry::Get()->on_construct<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
         ECS::Registry::Get()->on_construct<ECS::EntityDataComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
 
-        m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>("Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat");
+        const String defaultMaterialPath = "Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat";
+
+        if (Resources::ResourceStorage::Get()->Exists<PhysicsMaterial>(defaultMaterialPath))
+            m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>(defaultMaterialPath);
 
         if (m_defaultMaterial == nullptr)
             return;
@@ -508,17 +511,17 @@ namespace Lina::Physics
     void PhysicsEngine::OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev)
     {
 
-        if (IsEntityAPhysicsActor(ev.m_entity))
+        if (IsEntityAPhysicsActor(ev.entity))
         {
-            if (!ev.m_enabled)
-                RemoveBodyFromWorld(ev.m_entity);
+            if (!ev.enabled)
+                RemoveBodyFromWorld(ev.entity);
         }
         else
         {
-            auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(ev.m_entity);
+            auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(ev.entity);
 
-            if (ev.m_enabled && phy.m_simType != SimulationType::None)
-                AddBodyToWorld(ev.m_entity, phy.m_simType == SimulationType::Dynamic);
+            if (ev.enabled && phy.m_simType != SimulationType::None)
+                AddBodyToWorld(ev.entity, phy.m_simType == SimulationType::Dynamic);
         }
     }
 

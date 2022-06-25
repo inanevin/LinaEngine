@@ -37,7 +37,6 @@ set(LINAINPUT_HEADERS
 	
 	#Input
 	include/Core/InputEngine.hpp
-	include/Core/InputEngineFwd.hpp
 	include/Core/InputMappings.hpp
 	include/Core/InputAxis.hpp
 	

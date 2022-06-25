@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -121,12 +121,12 @@ namespace Lina::Physics
    //     //	CreateConvexMeshesFromNodes(child, model);
    // }
 
-    void PhysXCooker::OnResourceLoadCompleted(const Event::EResourceLoadCompleted& ev)
+    void PhysXCooker::OnResourceLoadCompleted(const Event::EResourceLoaded& ev)
     {
         // Handle convex mesh cooking if the loaded model does not contain any.
         // if (ev.m_type == Resources::ResourceType::Model)
         //{
-        //	auto& model = Graphics::Model::GetModel(ev.m_sid);
+        //	auto& model = Graphics::Model::GetModel(ev.sid);
         //	auto& meshes = model.GetMeshes();
         //
         //	if (m_appMode == ApplicationMode::Editor)

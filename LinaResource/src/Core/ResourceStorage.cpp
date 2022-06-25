@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,6 +31,8 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "Utility/ResourceUtility.hpp"
 #include "Core/ResourceHandle.hpp"
+#include "Loaders/EditorResourceLoader.hpp"
+#include "Loaders/StandaloneResourceLoader.hpp"
 
 namespace Lina::Resources
 {
@@ -42,21 +44,24 @@ namespace Lina::Resources
     {
         LINA_TRACE("[Initialization] -> Resource Storage {0}", typeid(*this).name());
 
-        m_packager.Initialize(appInfo.m_appMode);
-
         Event::EventSystem::Get()->Connect<Event::EResourcePathUpdated, &ResourceStorage::OnResourcePathUpdated>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceStorage::OnResourceReloaded>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
 
         m_appInfo = appInfo;
 
-        m_workingDirectory = std::filesystem::current_path().string().c_str();
-        m_workingDirectoryReplaced = m_workingDirectory;
-        std::replace(m_workingDirectoryReplaced.begin(), m_workingDirectoryReplaced.end(), '\\', '/');
+        if(appInfo.m_appMode == ApplicationMode::Editor)
+            m_loader = new EditorResourceLoader();
+        else
+            m_loader = new StandaloneResourceLoader();
+
+        m_loader->Initialize(appInfo);
+
+        ResourceUtility::InitializeWorkingDirectory();
 
         // Fill the folder structure.
         if (appInfo.m_appMode == ApplicationMode::Editor)
-            ScanRootFolder();
+            ResourceUtility::ScanRootFolder();
     }
 
     void ResourceStorage::Shutdown()
@@ -74,6 +79,7 @@ namespace Lina::Resources
         m_resources.clear();
 
         delete ResourceUtility::s_rootFolder;
+        delete m_loader;
     }
 
     void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
@@ -83,13 +89,13 @@ namespace Lina::Resources
         {
             for (auto& [stringID, ptr] : cache)
             {
-                if (stringID == ev.m_previousStringID)
+                if (stringID == ev.previousStringID)
                 {
                     IResource* res = static_cast<IResource*>(ptr);
-                    res->m_sid     = ev.m_newStringID;
-                    res->m_path    = ev.m_newPath;
+                    res->m_sid     = ev.newStringID;
+                    res->m_path    = ev.newPath;
 
-                    cache[ev.m_newStringID] = ptr;
+                    cache[ev.newStringID] = ptr;
                     cache.erase(stringID);
 
                     break;
@@ -138,31 +144,5 @@ namespace Lina::Resources
 
         return tid;
     }
-
-    String ResourceStorage::PackageTypeToString(PackageType type)
-    {
-        switch (type)
-        {
-        case PackageType::Static:
-            return "static";
-        case PackageType::Custom:
-            return "custom";
-        case PackageType::Audio:
-            return "audio";
-        case PackageType::Level:
-            return "levels";
-        case PackageType::Graphics:
-            return "graphics";
-        case PackageType::Meshes:
-            return "meshes";
-        case PackageType::Physics:
-            return "physics";
-        case PackageType::Textures:
-            return "textures";
-        default:
-            return "";
-        }
-    }
-
 
 } // namespace Lina::Resources

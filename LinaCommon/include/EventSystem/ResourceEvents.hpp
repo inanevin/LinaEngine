@@ -1,9 +1,29 @@
 /*
-Class: ResourceEvents
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
+Author: Inan Evin
+http://www.inanevin.com
 
+Copyright (c) [2018-] [Inan Evin]
 
-Timestamp: 12/25/2021 12:18:35 PM
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 #pragma once
@@ -16,50 +36,46 @@ Timestamp: 12/25/2021 12:18:35 PM
 
 namespace Lina::Event
 {
-    struct EResourceLoadCompleted
-    {
-        TypeID       m_tid;
-        StringIDType m_sid;
-    };
-
-    struct EAllResourcesOfTypeLoaded
-    {
-        TypeID m_tid;
-    };
-
     struct EResourceProgressStarted
     {
     };
     struct EResourceProgressEnded
     {
     };
-    struct EResourcePathUpdated
-    {
-        StringIDType m_previousStringID;
-        StringIDType m_newStringID;
-        String m_oldPath;
-        String m_newPath;
-    };
     struct EResourceProgressUpdated
     {
-        String m_currentResource;
-        float       m_percentage;
+        String currentResource = "";
+        float  percentage      = 0.0f;
     };
+    struct EResourceLoaded
+    {
+        TypeID       tid;
+        StringIDType sid;
+    };
+
+    struct EResourcePathUpdated
+    {
+        StringIDType previousStringID = 0;
+        StringIDType newStringID      = 0;
+        String       oldPath          = "";
+        String       newPath          = "";
+    };
+
     struct EResourceUnloaded
     {
-        StringIDType m_sid;
-        TypeID m_tid;
+        StringIDType sid = 0;
+        TypeID       tid = 0;
     };
     struct ERequestResourceReload
     {
-        String  m_fullPath;
-        TypeID       m_tid;
-        StringIDType m_sid;
+        String       fullPath = "";
+        TypeID       tid      = 0;
+        StringIDType sid      = 0;
     };
     struct EResourceReloaded
     {
-        TypeID       m_tid;
-        StringIDType m_sid;
+        TypeID       tid = 0;
+        StringIDType sid = 0;
     };
 
 } // namespace Lina::Event

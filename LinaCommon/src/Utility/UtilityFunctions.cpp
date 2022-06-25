@@ -1,3 +1,31 @@
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include "Utility/UtilityFunctions.hpp"
 
 #include "Core/PlatformMacros.hpp"
@@ -81,9 +109,9 @@ namespace Lina
         {
             bool contains = false;
 
-            for (auto* folder : root->m_folders)
+            for (auto* folder : root->folders)
             {
-                if (folder->m_fullPath.compare(path) == 0)
+                if (folder->fullPath.compare(path) == 0)
                 {
                     contains = true;
                     outItem  = folder;
@@ -93,9 +121,9 @@ namespace Lina
 
             if (!contains)
             {
-                for (auto* file : root->m_files)
+                for (auto* file : root->files)
                 {
-                    if (file->m_fullPath.compare(path) == 0)
+                    if (file->fullPath.compare(path) == 0)
                     {
                         contains = true;
                         outItem  = file;
@@ -109,10 +137,10 @@ namespace Lina
 
         void GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy)
         {
-            if (folder->m_parent != nullptr)
+            if (folder->parent != nullptr)
             {
-                hierarchy.push_back(folder->m_parent);
-                GetFolderHierarchToRoot(folder->m_parent, hierarchy);
+                hierarchy.push_back(folder->parent);
+                GetFolderHierarchToRoot(folder->parent, hierarchy);
             }
         }
 
@@ -134,9 +162,9 @@ namespace Lina
                 bool found = false;
 
                 // Check sub-folders
-                for (auto* folder : parent->m_folders)
+                for (auto* folder : parent->folders)
                 {
-                    if (folder->m_name.compare(newName) == 0)
+                    if (folder->name.compare(newName) == 0)
                     {
                         found = true;
                         break;
@@ -146,9 +174,9 @@ namespace Lina
                 // Check files.
                 if (!found)
                 {
-                    for (auto* file : parent->m_files)
+                    for (auto* file : parent->files)
                     {
-                        if (file->m_fullName.compare(newName + extension) == 0)
+                        if (file->fullName.compare(newName + extension) == 0)
                         {
                             found = true;
                             break;
@@ -177,29 +205,29 @@ namespace Lina
             const String newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
             Folder* folder     = new Folder();
-            folder->m_parent   = parent;
-            folder->m_name     = newFolderName;
-            folder->m_fullPath = parent->m_fullPath + "/" + folder->m_name;
-            parent->m_folders.push_back(folder);
+            folder->parent   = parent;
+            folder->name     = newFolderName;
+            folder->fullPath = parent->fullPath + "/" + folder->name;
+            parent->folders.push_back(folder);
 
-            CreateFolderInPath(folder->m_fullPath);
+            CreateFolderInPath(folder->fullPath);
         }
 
         void DeleteFolder(Folder* folder)
         {
-            for (auto* subfolder : folder->m_folders)
+            for (auto* subfolder : folder->folders)
                 DeleteFolder(subfolder);
 
-            for (Vector<Folder*>::iterator it = folder->m_parent->m_folders.begin(); it < folder->m_parent->m_folders.end(); it++)
+            for (Vector<Folder*>::iterator it = folder->parent->folders.begin(); it < folder->parent->folders.end(); it++)
             {
                 if (*it == folder)
                 {
-                    folder->m_parent->m_folders.erase(it);
+                    folder->parent->folders.erase(it);
                     break;
                 }
             }
 
-            DeleteDirectory(folder->m_fullPath);
+            DeleteDirectory(folder->fullPath);
             delete folder;
             folder = nullptr;
         }
@@ -217,58 +245,63 @@ namespace Lina
 
         bool DeleteDirectory(const String& path)
         {
-            bool success = std::filesystem::remove_all(path.c_str());
+            try
+            {
+                bool success = std::filesystem::remove_all(path.c_str());
+            }
+            catch (const std::exception& err)
+            {
+                LINA_ERR("Could not delete directory. {0} {1}", path, err.what());
+                return false;
+            }
 
-            if (!success)
-                LINA_ERR("Could not delete directory. {0}", path);
-
-            return success;
+            return true;
         }
 
         void ParentPathUpdated(Folder* folder)
         {
-            const String oldPath = folder->m_fullPath;
-            folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + folder->m_name;
+            const String oldPath = folder->fullPath;
+            folder->fullPath        = folder->parent->fullPath + "/" + folder->name;
 
-            for (auto* subfolder : folder->m_folders)
+            for (auto* subfolder : folder->folders)
                 ParentPathUpdated(subfolder);
 
-            for (auto* file : folder->m_files)
+            for (auto* file : folder->files)
                 ParentPathUpdated(file);
         }
 
         void ParentPathUpdated(File* file)
         {
-            const StringIDType sidBefore = StringID(file->m_fullPath.c_str()).value();
-            const String oldPath = file->m_fullPath;
-            file->m_fullPath             = file->m_parent->m_fullPath + "/" + file->m_fullName;
-            const StringIDType sidNow    = StringID(file->m_fullPath.c_str()).value();
-            file->m_sid                  = sidNow;
-            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow, oldPath, file->m_fullPath});
+            const StringIDType sidBefore = StringID(file->fullPath.c_str()).value();
+            const String oldPath = file->fullPath;
+            file->fullPath             = file->parent->fullPath + "/" + file->fullName;
+            const StringIDType sidNow    = StringID(file->fullPath.c_str()).value();
+            file->sid                  = sidNow;
+            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow, oldPath, file->fullPath});
         }
 
         void ChangeFileName(File* file, const String& newName)
         {
-            const String oldPath = file->m_fullPath;
-            file->m_name              = newName;
-            file->m_fullName          = newName + "." + file->m_extension;
+            const String oldPath = file->fullPath;
+            file->name              = newName;
+            file->fullName          = newName + "." + file->extension;
             ParentPathUpdated(file);
-            ChangeDirectoryName(oldPath, file->m_fullPath);
+            ChangeDirectoryName(oldPath, file->fullPath);
         }
 
         void ChangeFolderName(Folder* folder, const String& newName)
         {
-            const String oldPath = folder->m_fullPath;
-            folder->m_fullPath        = folder->m_parent->m_fullPath + "/" + newName;
-            folder->m_name            = newName;
+            const String oldPath = folder->fullPath;
+            folder->fullPath        = folder->parent->fullPath + "/" + newName;
+            folder->name            = newName;
 
-            for (auto* subfolder : folder->m_folders)
+            for (auto* subfolder : folder->folders)
                 ParentPathUpdated(subfolder);
 
-            for (auto* file : folder->m_files)
+            for (auto* file : folder->files)
                 ParentPathUpdated(file);
 
-            ChangeDirectoryName(oldPath, folder->m_fullPath);
+            ChangeDirectoryName(oldPath, folder->fullPath);
         }
 
         bool ChangeDirectoryName(const String& oldPath, const String& newPath)
@@ -287,7 +320,7 @@ namespace Lina
         void RewriteFileContents(File* file, const String& newContent)
         {
             std::ofstream newFile;
-            newFile.open(file->m_fullPath.c_str(), std::ofstream::out | std::ofstream::trunc);
+            newFile.open(file->fullPath.c_str(), std::ofstream::out | std::ofstream::trunc);
             newFile << newContent.c_str() << std::endl;
             newFile.close();
         }
@@ -368,14 +401,14 @@ namespace Lina
         bool FileContainsFilter(const File& file, const String& filter)
         {
             const String filterLowercase = Utility::ToLower(filter);
-            const String fileLower       = Utility::ToLower(file.m_fullName);
+            const String fileLower       = Utility::ToLower(file.fullName);
             return fileLower.find(filterLowercase) != String::npos;
         }
 
         bool FolderContainsFilter(const Folder* folder, const String& filter)
         {
             const String filterLowercase = Utility::ToLower(filter);
-            const String folderLower     = Utility::ToLower(folder->m_name);
+            const String folderLower     = Utility::ToLower(folder->name);
             const bool        folderContains  = folderLower.find(filterLowercase) != String::npos;
             return folderContains;
         }
@@ -384,7 +417,7 @@ namespace Lina
         {
             bool subFoldersContain = false;
 
-            for (auto* folder : folder->m_folders)
+            for (auto* folder : folder->folders)
             {
                 if (Utility::FolderContainsFilter(folder, filter))
                 {
@@ -404,7 +437,7 @@ namespace Lina
 
         File* FindFile(Folder* root, const String& path)
         {
-            for (auto* subfolder : root->m_folders)
+            for (auto* subfolder : root->folders)
             {
                 File* f = FindFile(subfolder, path);
 
@@ -412,9 +445,9 @@ namespace Lina
                     return f;
             }
 
-            for (auto* file : root->m_files)
+            for (auto* file : root->files)
             {
-                if (file->m_fullPath.compare(path) == 0)
+                if (file->fullPath.compare(path) == 0)
                     return file;
             }
 

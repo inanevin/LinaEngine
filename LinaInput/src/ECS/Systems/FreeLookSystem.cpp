@@ -1,6 +1,6 @@
-/*
-This file is a part of: Lina AudioEngine
-https://github.com/inanevin/Lina
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -25,6 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"

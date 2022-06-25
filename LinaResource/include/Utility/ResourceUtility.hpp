@@ -26,14 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: ResourceUtility
-
-Timestamp: 1/5/2019 12:42:58 AM
-*/
-
 #ifndef ResourceUtility_HPP
 #define ResourceUtility_HPP
+
+#include "Core/ResourceCommon.hpp"
 
 namespace Lina
 {
@@ -51,8 +47,26 @@ namespace Lina::Resources
     public:
         static Utility::Folder*     s_rootFolder;
         static ResourceProgressData s_currentProgressData;
-        static String               s_workingDirectory;
-        static String               s_workingDirectoryReplaced;
+
+        static String& GetWorkingDire()
+        {
+            return s_workingDirectory;
+        }
+
+        static String& GetWorkingDirReplaced()
+        {
+            return s_workingDirectoryReplaced;
+        }
+
+    private:
+
+        friend class ResourceStorage;
+        friend class ResourcePackager;
+        friend class StandaloneResourceLoader;
+        friend class EditorResourceLoader;
+
+        static String s_workingDirectory;
+        static String s_workingDirectoryReplaced;
 
         /// <summary>
         /// Scans the given folder and fills it's child folder data
@@ -75,12 +89,23 @@ namespace Lina::Resources
         /// <param name="folder"></param>
         /// <param name="sid"></param>
         /// <returns></returns>
-        String SearchFolderForSID(Utility::Folder* folder, StringIDType sid);
+        static String SearchFolderForSID(Utility::Folder* folder, StringIDType sid);
 
         /// <summary>
         /// Scans root folder structure & re-constructs.
         /// </summary>
-        void ScanRootFolder();
+        static void ScanRootFolder();
+
+        /// <summary>
+        ///
+        /// </summary>
+        static void InitializeWorkingDirectory();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        static String PackageTypeToString(PackageType type);
+
     };
 }; // namespace Lina::Resources
 

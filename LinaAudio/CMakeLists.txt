@@ -37,7 +37,6 @@ set(LINAAUDIO_HEADERS
 	
 	# Core
 	include/Core/AudioEngine.hpp
-	include/Core/AudioEngineFwd.hpp
 	
 	# Audio
 	include/Audio/Audio.hpp
