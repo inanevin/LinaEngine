@@ -64,11 +64,19 @@ namespace Lina
         IntrusiveList<Scope> Scopes;
     };
 
+    struct MemStackTrace : public IntrusiveListNode
+    {
+        String Location   = "";
+        String SymbolName = "";
+        String ModuleName = "";
+        uint64 SmybolAddr = 0;
+        int    Line       = 0;
+    };
+
     struct MemAllocationInfo
     {
-        size_t Size     = 0;
-        String Location = "";
-        int    Line     = 0;
+        size_t                       Size = 0;
+        IntrusiveList<MemStackTrace> StackTrace;
     };
 
     class Profiler
@@ -79,15 +87,14 @@ namespace Lina
             return s_instance;
         }
 
-        size_t GetAl();
-        void StartFrame();
-        void StartScope(const String& scope, const String& thread = "Main");
-        void EndScope();
-        void OnAllocation(void* ptr, size_t size);
-        void OnVRAMAllocation(void* ptr, size_t size);
-        void OnFree(void* ptr);
-        void OnVRAMFree(void* ptr);
-        void DumpToText(const String& path);
+        void             StartFrame();
+        void             StartScope(const String& scope, const String& thread = "Main");
+        void             EndScope();
+        void             OnAllocation(void* ptr, size_t size);
+        void             OnVRAMAllocation(void* ptr, size_t size);
+        void             OnFree(void* ptr);
+        void             OnVRAMFree(void* ptr);
+        void             DumpToText(const String& path);
         static Profiler* s_instance;
 
     private:

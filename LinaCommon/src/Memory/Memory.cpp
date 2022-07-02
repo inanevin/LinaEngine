@@ -42,12 +42,22 @@ bool g_skipAllocTrack = false;
 
 void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    return new uint8_t[size];
+    void* ptr = std::malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_ALLOC(ptr, size);
+#endif
+    return ptr;
 }
 
 void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    return new uint8_t[size];
+    void* ptr = std::malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_ALLOC(ptr, size);
+#endif
+    return ptr;
 }
 
 void* operator new(std::size_t size)

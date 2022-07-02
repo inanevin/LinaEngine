@@ -43,15 +43,6 @@ namespace Lina
 {
     Profiler* Profiler::s_instance = nullptr;
 
-    size_t Profiler::GetAl()
-    {
-        size_t a = 0;
-
-        for (auto& b : m_memAllocations)
-            a += b.second.Size;
-        return a;
-    }
-
     void Profiler::StartFrame()
     {
         const double cpuTimeNow = Time::GetCPUTime();
@@ -156,16 +147,20 @@ namespace Lina
     void Profiler::CaptureTrace(MemAllocationInfo& info)
     {
 
-        return;
 #ifdef LINA_PLATFORM_WINDOWS
         HANDLE process = GetCurrentProcess();
         SymInitialize(process, nullptr, TRUE);
 
-        void* stack[128];
-        int   frames = (int)CaptureStackBackTrace(0, 128, stack, nullptr);
+        void* stack[10];
+        int   frames = (int)CaptureStackBackTrace(3, 1, stack, nullptr);
 
-        SYMBOL_INFO* symbol  = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
-        symbol->MaxNameLen   = 255;
+        void* symbolAll = calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
+
+        if (symbolAll == nullptr)
+            return;
+
+        SYMBOL_INFO* symbol = static_cast<SYMBOL_INFO*>(symbolAll);
+        symbol->MaxNameLen = 255;
         symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
         DWORD           displacement;
@@ -174,35 +169,44 @@ namespace Lina
         for (int i = 0; i < frames; ++i)
         {
             DWORD64 address = (DWORD64)(stack[i]);
+            MemStackTrace trace;
 
             SymFromAddr(process, address, NULL, symbol);
+
             if (SymGetLineFromAddr64(process, address, &displacement, &line))
             {
-                printf("\tat %s in %s: line: %lu: address: 0x%0X\n", symbol->Name, line.FileName, line.LineNumber, symbol->Address);
+                trace.Line       = static_cast<int>(line.LineNumber);
+                trace.Location   = static_cast<String>(line.FileName);
+                trace.SymbolName = static_cast<String>(symbol->Name);
+                trace.SmybolAddr = static_cast<uint64>(symbol->Address);
             }
             else
             {
-                printf("\tSymGetLineFromAddr64 returned error code %lu.\n", GetLastError());
-                printf("\tat %s, address 0x%0X.\n", symbol->Name, symbol->Address);
+                trace.SymbolName = static_cast<String>(symbol->Name);
+                trace.SmybolAddr = static_cast<uint64>(symbol->Address);
             }
 
             IMAGEHLP_MODULE64 moduleInfo;
             moduleInfo.SizeOfStruct = sizeof(moduleInfo);
-
             if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
             {
-                moduleInfo.ModuleName;
+               trace.ModuleName = static_cast<String>(moduleInfo.ModuleName);
             }
+
+            info.StackTrace.push_back(trace);
         }
 
 #else
 
-        void*  stack[128];
+        void*  stack[5];
         int    frames       = backtrace(stack, numElementsInArray(stack));
         char** frameStrings = backtrace_symbols(stack, frames);
 
-        for (int i = 0; i < frames; ++i)
-            result << frameStrings[i] << newLine;
+        for (int i = 4; i < frames; ++i)
+        {
+            // TODO: Use backtrace to implement Linux & MacOs functionality.
+            LINA_ERR("Backtrace is not implemented yet! Profiler allocation data will be empty.");
+        }
 
         ::free(frameStrings);
 
