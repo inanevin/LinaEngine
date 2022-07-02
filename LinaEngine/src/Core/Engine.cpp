@@ -210,6 +210,8 @@ namespace Lina
             [&]() {
                 m_renderEngine.Render();
                 frames++;
+                MemAllocationInfo* inf = new MemAllocationInfo();
+                delete inf;
             },
             [&]() {
                 UpdateGame((float)m_rawDeltaTime);
@@ -229,7 +231,7 @@ namespace Lina
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
-            m_jobSystem.RunAndWait(gameLoop);
+            m_jobSystem.Run(gameLoop).wait();
 
             auto size = Profiler::Get()->GetAl();
             LINA_TRACE("Aloc {0}", size);

@@ -44,15 +44,25 @@ namespace Lina
     class JobSystem
     {
     public:
-
         static inline JobSystem* Get()
         {
             return s_instance;
         }
 
-        void Run(Taskflow& flow);
-        void RunAndWait(Taskflow& flow);
-        void WaitForAll();
+        inline tf::Future<void> Run(Taskflow& flow)
+        {
+            return m_executor.run(flow);
+        }
+
+        inline void RunAndWait(Taskflow& flow)
+        {
+            m_executor.run_and_wait(flow);
+        }
+
+        inline void WaitForAll()
+        {
+            m_executor.wait_for_all();
+        }
 
     private:
         friend class Engine;

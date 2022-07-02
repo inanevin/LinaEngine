@@ -41,20 +41,6 @@ namespace Lina
     {
         LINA_TRACE("[Shutdown] -> Job System ({0})", typeid(*this).name());
     }
-    void JobSystem::Run(Taskflow& flow)
-    {
-        m_executor.run(flow);
-    }
-
-    void JobSystem::RunAndWait(Taskflow& flow)
-    {
-       m_executor.run_and_wait(flow);
-    }
-
-    void JobSystem::WaitForAll()
-    {
-        m_executor.wait_for_all();
-    }
 
 } // namespace Lina
 
