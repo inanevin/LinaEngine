@@ -15,8 +15,6 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaResource)
 
-
-
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -56,6 +54,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
+# Config & Options & Compile Definitions
+#--------------------------------------------------------------------
+include(../CMake/ProjectSettings.cmake)
+
+#--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 
@@ -66,7 +69,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
-
 
 target_link_libraries(${PROJECT_NAME} PUBLIC user32.lib PRIVATE Lina::Common)
 

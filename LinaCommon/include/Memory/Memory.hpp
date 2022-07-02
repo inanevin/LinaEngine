@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,20 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Memory_HPP
 #define Memory_HPP
 
 #define NOMINMAX
+#define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
 
 #include "Core/SizeDefinitions.hpp"
-
 #include <cstring>
 
-#define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
+#ifdef LINA_ENABLE_PROFILING
+extern bool g_skipAllocTrack;
+#endif
 
 namespace Lina
 {
@@ -62,7 +62,8 @@ namespace Lina
             return ::memcmp(dest, src, amt);
         }
 
-        template <typename T> static inline void* memset(void* destIn, T val, uintptr amt)
+        template <typename T>
+        static inline void* memset(void* destIn, T val, uintptr amt)
         {
             T*      dest      = (T*)destIn;
             uintptr amtT      = amt / sizeof(T);
@@ -93,7 +94,8 @@ namespace Lina
                 bigmemswap(a, b, size);
         }
 
-        template <typename T> static constexpr T align(const T ptr, uintptr alignment)
+        template <typename T>
+        static constexpr T align(const T ptr, uintptr alignment)
         {
             return (T)(((intptr)ptr + alignment - 1) & ~(alignment - 1));
         }
@@ -116,7 +118,8 @@ namespace Lina
         }
     };
 
-    template <> inline void* Memory::memset(void* dest, uint8 val, uintptr amt)
+    template <>
+    inline void* Memory::memset(void* dest, uint8 val, uintptr amt)
     {
         return ::memset(dest, val, amt);
     }

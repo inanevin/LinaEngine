@@ -62,12 +62,12 @@ namespace Lina
 
     Vector4 Vector4::Min(const Vector4& other) const
     {
-        return length() < other.length() ? glm::vec4(*this) : other;
+        return length() < other.length() ? *this : other;
     }
 
     Vector4 Vector4::Max(const Vector4& other) const
     {
-        return length() > other.length() ? glm::vec4(*this) : other;
+        return length() > other.length() ? *this : other;
     }
 
     Vector4 Vector4::Normalized() const

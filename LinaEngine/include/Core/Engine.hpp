@@ -36,12 +36,14 @@ SOFTWARE.
 #include "Core/InputEngine.hpp"
 #include "Core/MessageBus.hpp"
 #include "Core/PhysicsEngine.hpp"
+#include "Core/RenderEngine.hpp"
 #include "World/LevelManager.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
+#include "JobSystem/JobSystem.hpp"
 
 #define DELTA_TIME_HISTORY 11
 
@@ -50,6 +52,7 @@ namespace Lina
     class Application;
     class EngineSettings;
     class RenderSettings;
+    class Profiler;
 
     class Engine
     {
@@ -137,7 +140,6 @@ namespace Lina
         void   Initialize(ApplicationInfo& appInfo);
         void   Run();
         void   UpdateGame(float deltaTime);
-        void   DisplayGame(float interpolation);
         void   RemoveOutliers(bool biggest);
         void   RegisterResourceTypes();
         double SmoothDeltaTime(double dt);
@@ -151,8 +153,11 @@ namespace Lina
         Event::EventSystem         m_eventSystem;
         ECS::SystemList            m_mainECSPipeline;
         World::LevelManager        m_levelManager;
+        Graphics::RenderEngine     m_renderEngine;
         MessageBus                 m_messageBus;
         ApplicationInfo            m_appInfo;
+        JobSystem                  m_jobSystem;
+        Profiler*                  m_profiler        = nullptr;
         bool                       m_running         = false;
         bool                       m_canRender       = true;
         bool                       m_firstRun        = true;

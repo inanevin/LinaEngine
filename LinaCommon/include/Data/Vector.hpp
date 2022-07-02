@@ -38,6 +38,7 @@ namespace Lina
 {
     template <typename T>
     using Vector = eastl::vector<T>;
+
 } // namespace Lina
 
 #endif

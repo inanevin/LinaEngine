@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
-#ifdef LINA_WINDOWS
+#ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
 #endif
 
@@ -90,9 +90,11 @@ namespace Lina
 
     void Application::OnLog(const Event::ELog& dump)
     {
+        m_lock.lock();
+
         String msg = "[" + LogLevelAsString(dump.level) + "] " + dump.message;
 
-#ifdef LINA_WINDOWS
+#ifdef LINA_PLATFORM_WINDOWS
         HANDLE hConsole;
         int    color = 15;
 
@@ -118,6 +120,7 @@ namespace Lina
         std::cout << msg.c_str() << std::endl;
 
         m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
+        m_lock.unlock();
     }
 
     bool Application::OnWindowClose(const Event::EWindowClosed& ev)

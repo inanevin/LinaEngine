@@ -53,29 +53,22 @@ add_library(${PROJECT_NAME} ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
 add_library(Lina::Input ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaInput")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
 
-
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
-# Language standard
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
-
 
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Common)

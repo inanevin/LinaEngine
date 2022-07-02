@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Data/HashSet.hpp"
 #include "Data/PriorityQueue.hpp"
 #include "Data/Vector.hpp"
+#include "JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
@@ -129,7 +130,6 @@ namespace Lina::Resources
         }
 
     protected:
-
         friend class ResourcePackager;
 
         /// <summary>
@@ -164,12 +164,12 @@ namespace Lina::Resources
         void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& currentLevelResources);
 
     protected:
-        ResourcePackager m_packager;
-        MemoryQueue      m_memoryResources;
-        FileQueue        m_fileResources;
-        TypeID           m_lastResourceTypeID   = -1;
-        int              m_lastResourcePriority = 0;
-        ApplicationInfo  m_appInfo;
+        ResourcePackager    m_packager;
+        MemoryQueue         m_memoryResources;
+        FileQueue           m_fileResources;
+        TypeID              m_lastResourceTypeID   = -1;
+        int                 m_lastResourcePriority = 0;
+        ApplicationInfo     m_appInfo;
     };
 } // namespace Lina::Resources
 

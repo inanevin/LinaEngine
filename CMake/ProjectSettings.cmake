@@ -1,6 +1,6 @@
 
 # Language standard
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 
 #--------------------------------------------------------------------
@@ -18,6 +18,9 @@ if(UNIX AND NOT APPLE)
     # for Linux, BSD, Solaris, Minix
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNIX=1)
 endif()
+if(NOT WIN32 AND NOT APPLE AND NOT UNIX)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNKNOWN=1)
+endif()
 
 #--------------------------------------------------------------------
 # Properties
@@ -26,15 +29,14 @@ endif()
 set_target_properties(
     ${PROJECT_NAME}
       PROPERTIES 
-        CXX_STANDARD 17 
+        CXX_STANDARD 20 
         CXX_STANDARD_REQUIRED YES 
         CXX_EXTENSIONS NO
 )
    
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MAJOR=1)
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINOR=0)
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PATCH=0)
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILD="9xx")
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MAJOR=1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINOR=0)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PATCH=0)
    
 #--------------------------------------------------------------------
 # Compiler
@@ -55,24 +57,7 @@ endif()
 # Lina
 #--------------------------------------------------------------------
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
-
-if(LINA_CORE_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_CORE_ENABLE_LOGGING=1)
-endif()
-
-if(LINA_CLIENT_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_CLIENT_ENABLE_LOGGING=1)
-endif()
-
-if(LINA_ENABLE_EDITOR)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
-
-if(LINA_ENABLE_TIMEPROFILING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
-endif()
 
 #--------------------------------------------------------------------
 # Build Type Config
@@ -89,7 +74,7 @@ if ( CMAKE_BUILD_TYPE STREQUAL "" )
 		FORCE
 	)
 	
-	set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
+set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
 endif ( CMAKE_BUILD_TYPE STREQUAL "" )
 
 if ( CMAKE_BUILD_TYPE STREQUAL "Release" )

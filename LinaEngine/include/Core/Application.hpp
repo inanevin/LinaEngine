@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -25,7 +25,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 
 #pragma once
 #ifndef Lina_Application_HPP
@@ -73,9 +72,10 @@ namespace Lina
         static Application* s_application;
         Engine              m_engine;
 
-        bool m_activeLevelExists = false;
-        bool m_initialized       = false;
-        bool m_ranOnce           = false;
+        bool       m_activeLevelExists = false;
+        bool       m_initialized       = false;
+        bool       m_ranOnce           = false;
+        std::mutex m_lock;
     };
 
 }; // namespace Lina

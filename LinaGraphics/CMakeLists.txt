@@ -20,49 +20,13 @@ project(LinaGraphics)
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
-	#Animation
-	src/Animation/Animation.cpp
-	src/Animation/Skeleton.cpp
-	
-	#Rendering
-	src/Rendering/ArrayBitmap.cpp
-	src/Rendering/Texture.cpp
-	src/Rendering/Mesh.cpp
-	src/Rendering/SkinnedMesh.cpp
-	src/Rendering/StaticMesh.cpp
-	src/Rendering/Material.cpp
-	src/Rendering/Model.cpp
-	src/Rendering/ModelNode.cpp
-	src/Rendering/ModelAssetData.cpp
-	src/Rendering/RenderingCommon.cpp
-	src/Rendering/Shader.cpp
-	src/Rendering/ShaderInclude.cpp
-	src/Rendering/RenderSettings.cpp
-	src/Rendering/PostProcessEffect.cpp
-	src/Rendering/RenderBuffer.cpp
-	src/Rendering/RenderTarget.cpp
-	src/Rendering/Sampler.cpp
-	src/Rendering/UniformBuffer.cpp
-	src/Rendering/VertexArray.cpp
-	src/Rendering/ImageAssetData.cpp
-	
-	#Utility 
-	src/Utility/AssimpUtility.cpp
-	src/Utility/ModelLoader.cpp
-
-	src/Core/Window.cpp
 	src/Core/RenderEngine.cpp
-	src/Core/RenderDevice.cpp
-
-	src/ECS/Systems/ModelNodeSystem.cpp
-	src/ECS/Systems/SpriteRendererSystem.cpp
-	src/ECS/Systems/CameraSystem.cpp
+	src/ECS/Systems/SkySystem.cpp
+	src/ECS/Systems/SpriteSystem.cpp
+	src/ECS/Systems/MeshSystem.cpp
+	src/ECS/Systems/DecalSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
-	src/ECS/Systems/AnimationSystem.cpp
-	src/ECS/Systems/FrustumSystem.cpp
-	src/ECS/Systems/ReflectionSystem.cpp
-		
-	src/ECS/Components/ModelRendererComponent.cpp
+	src/ECS/Systems/ParticleSystem.cpp
 )
 
 #--------------------------------------------------------------------
@@ -70,69 +34,22 @@ set (LINAGRAPHICS_SOURCES
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
 
-	# Backend
 	include/Core/RenderEngine.hpp
-	include/Core/RenderDevice.hpp
-	include/Core/Window.hpp
-	include/Core/RenderEngineFwd.hpp
-	
-	#Helpers
-	include/Helpers/DrawParameterHelper.hpp
-	
-	#Animation
-	include/Animation/Animation.hpp
-	include/Animation/Skeleton.hpp
-
-
-	#Rendering
-	include/Rendering/ArrayBitmap.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/Texture.hpp
-	include/Rendering/ImageAssetData.hpp
-	include/Rendering/Mesh.hpp
-	include/Rendering/SkinnedMesh.hpp
-	include/Rendering/StaticMesh.hpp
-	include/Rendering/VertexArray.hpp
-	include/Rendering/Material.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/ShaderInclude.hpp
-	include/Rendering/Sampler.hpp
-	include/Rendering/UniformBuffer.hpp
-	include/Rendering/RenderTarget.hpp
-	include/Rendering/Model.hpp
-	include/Rendering/ModelNode.hpp
-	include/Rendering/ModelAssetData.hpp
-	include/Rendering/RenderingCommon.hpp
-	include/Rendering/RenderConstants.hpp
-	include/Rendering/RenderBuffer.hpp
-	include/Rendering/RenderSettings.hpp
-	include/Rendering/PostProcessEffect.hpp
-	
-	
-	include/ECS/Systems/AnimationSystem.hpp
-	include/ECS/Systems/CameraSystem.hpp
-	include/ECS/Systems/ModelNodeSystem.hpp
-	include/ECS/Systems/LightingSystem.hpp
-	include/ECS/Systems/SpriteRendererSystem.hpp
-	include/ECS/Systems/FrustumSystem.hpp
-	include/ECS/Systems/ReflectionSystem.hpp
-	
-	include/ECS/Components/MeshRendererComponent.hpp
-	include/ECS/Components/ModelRendererComponent.hpp
-	include/ECS/Components/CameraComponent.hpp
+	include/ECS/Components/SkyComponent.hpp
+	include/ECS/Components/SpriteComponent.hpp
+	include/ECS/Components/MeshComponent.hpp
+	include/ECS/Components/DecalComponent.hpp
 	include/ECS/Components/LightComponent.hpp
-	include/ECS/Components/SpriteRendererComponent.hpp
-	include/ECS/Components/AnimationComponent.hpp
-	include/ECS/Components/ModelNodeComponent.hpp
-	include/ECS/Components/ReflectionAreaComponent.hpp
-
-	include/Utility/AssimpUtility.hpp
-	include/Utility/ModelLoader.hpp
-
+	include/ECS/Components/ParticleComponent.hpp
+	include/ECS/Systems/SkySystem.hpp
+	include/ECS/Systems/SpriteSystem.hpp
+	include/ECS/Systems/MeshSystem.hpp
+	include/ECS/Systems/DecalSystem.hpp
+	include/ECS/Systems/LightingSystem.hpp
+	include/ECS/Systems/ParticleSystem.hpp
 
 	include/Utility/stb/stb_image.h
 	include/Utility/stb/stb_image_write.h
-
 
 )
 
@@ -144,6 +61,11 @@ add_library(${PROJECT_NAME} ${LINAGRAPHICS_SOURCES} ${LINAGRAPHICS_HEADERS})
 add_library(Lina::Graphics ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaGraphics")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
+#--------------------------------------------------------------------
+# Config & Options & Compile Definitions
+#--------------------------------------------------------------------
+include(../CMake/ProjectSettings.cmake)
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -166,13 +88,6 @@ include(../_Dependencies/assimp/link.cmake)
 link_glad()
 link_glfw()
 link_assimp()
-
-#--------------------------------------------------------------------
-# Options & Packages
-#--------------------------------------------------------------------
-include(../CMake/GLGraphicsDefinitions.cmake)
-find_package(OpenGL REQUIRED)
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

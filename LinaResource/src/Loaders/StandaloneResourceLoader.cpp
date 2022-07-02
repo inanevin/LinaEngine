@@ -38,6 +38,7 @@ namespace Lina::Resources
         ResourceLoader::Initialize(appInfo);
         m_packager.LoadPackage("static", m_appInfo.m_packagePass, this);
     }
+
     void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path)
     {
         const ResourceTypeData& typeData = ResourceStorage::Get()->GetTypeData(tid);
@@ -52,13 +53,17 @@ namespace Lina::Resources
 
     void StandaloneResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
-        ResourceStorage* storage = ResourceStorage::Get();
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
+        ResourceUtility::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.m_progressTitle = "Loading Level";
+
+        ResourceStorage*                       storage = ResourceStorage::Get();
         HashMap<TypeID, HashSet<StringIDType>> toLoad;
 
         // 1: Take a look at all the existing resources in storage, if it doesn't exist in the current level's resources we are loading, unload it.
         // 2: Iterate all the resourceMap we are about to load, find the one's that are not existing right now, add them to a seperate map.
         // 3: Load the separate map.
-        
+
         UnloadUnusedResources(resourceMap);
 
         // Now iterate the resourceMap again, find the non-existing resources,
@@ -79,5 +84,7 @@ namespace Lina::Resources
             ResourceTypeData& typeData = storage->GetTypeData(pair.first);
             m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, m_appInfo.m_packagePass, this);
         }
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 } // namespace Lina::Resources

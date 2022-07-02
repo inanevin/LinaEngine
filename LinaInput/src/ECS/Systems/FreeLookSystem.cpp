@@ -47,7 +47,7 @@ namespace Lina::ECS
             return;
         auto* ecs = ECS::Registry::Get();
 
-        auto& view = ecs->view<FreeLookComponent>();
+        const auto& view = ecs->view<FreeLookComponent>();
         m_poolSize = (int)view.size();
 
         for (auto entity : view)

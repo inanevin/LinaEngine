@@ -82,7 +82,7 @@ namespace Lina::ECS
                     if (entity == p.first)
                     {
                         PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
-                        auto&           pose  = rigid->getGlobalPose();
+                        const auto&           pose  = rigid->getGlobalPose();
                         data.SetLocation(Physics::ToLinaVector3(pose.p));
                         data.SetRotation(Physics::ToLinaQuat(pose.q));
                     }

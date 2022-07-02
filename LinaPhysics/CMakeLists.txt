@@ -60,14 +60,13 @@ add_library(Lina::Physics ALIAS ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaPhysics")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
-## Remove Nvidia PhysX linker pdb warning
-target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
-
+## Remove Nvidia PhysX linker pdb warning
+target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
 
 #--------------------------------------------------------------------
 # Set include directories

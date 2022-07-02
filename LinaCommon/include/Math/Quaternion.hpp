@@ -119,7 +119,7 @@ namespace Lina
         Quaternion        Conjugate() const;
         Quaternion        Inverse() const;
         Quaternion        Normalized() const;
-        static Quaternion FromVector(glm::vec3& rot)
+        static Quaternion FromVector(const glm::vec3& rot)
         {
             return glm::quat(rot);
         }

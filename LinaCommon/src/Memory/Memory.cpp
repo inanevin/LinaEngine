@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,22 +27,114 @@ SOFTWARE.
 */
 
 #include "Memory/Memory.hpp"
-
 #include "Math/Math.hpp"
+#include "Profiling/Profiler.hpp"
 
 #include <cstdlib>
 #include <stdio.h>
+#include <iostream>
+
+#ifdef LINA_ENABLE_PROFILING
+bool g_skipAllocTrack = false;
+#endif
+
+// EASTL OPERATOR NEW[] REQUIREMENTS
+
+void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
+{
+    return new uint8_t[size];
+}
+
+void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
+{
+    return new uint8_t[size];
+}
+
+void* operator new(std::size_t size)
+{
+    void* ptr = std::malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_ALLOC(ptr, size);
+#endif
+    return ptr;
+}
+
+void* operator new[](size_t size)
+{
+    void* ptr = std::malloc(size);
+
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_ALLOC(ptr, size);
+#endif
+    return ptr;
+}
+
+void operator delete(void* ptr)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+void operator delete(void* ptr, size_t sz)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+void operator delete[](void* ptr)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+
+void operator delete  (void* ptr, const std::nothrow_t& tag)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+void operator delete[](void* ptr, const std::nothrow_t& tag)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+void operator delete[](void* ptr, std::size_t sz)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!g_skipAllocTrack && Lina::Profiler::Get() != nullptr)
+        Lina::PROFILER_FREE(ptr);
+#endif
+    free(ptr);
+}
+
 
 namespace Lina
 {
 
     void* Memory::malloc(uintptr amt, uint32 alignment)
     {
-        alignment                                                       = Math::Max(amt >= 16 ? 16u : 8u, alignment);
-        void* ptr                                                       = ::malloc(amt + alignment + sizeof(void*) + sizeof(uintptr));
-        void* result                                                    = align((uint8*)ptr + sizeof(void*) + sizeof(uintptr), (uintptr)alignment);
-        *((void**)((uint8*)result - sizeof(void*)))                     = ptr;
-        *((uintptr*)((uint8*)result - sizeof(void*) - sizeof(uintptr))) = amt;
+        alignment                                   = Math::Max(amt >= 16 ? 16u : 8u, alignment);
+        void* ptr                                   = ::malloc(amt + alignment + sizeof(void*) + sizeof(uintptr));
+        void* result                                = align((uint8*)ptr + sizeof(void*) + sizeof(uintptr), (uintptr)alignment);
+        *((void**)((uint8*)result - sizeof(void*))) = ptr;
+#ifdef LINA_ENABLE_PROFILING
+        if (!g_skipAllocTrack && Profiler::Get() != nullptr)
+            PROFILER_ALLOC(result, amt + alignment + sizeof(void*) + sizeof(uintptr));
+#endif
         return result;
     }
 
@@ -69,6 +161,11 @@ namespace Lina
 
     void* Memory::free(void* ptr)
     {
+#ifdef LINA_ENABLE_PROFILING
+        if (!g_skipAllocTrack && Profiler::Get() != nullptr)
+            PROFILER_FREE(ptr);
+#endif
+
         if (ptr)
             ::free(*((void**)((uint8*)ptr - sizeof(void*))));
 

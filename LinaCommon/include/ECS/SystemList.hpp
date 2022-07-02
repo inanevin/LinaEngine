@@ -54,6 +54,11 @@ namespace Lina::ECS
             return m_systems;
         }
 
+        inline Vector<System*>& GetSystems()
+        {
+            return m_systems;
+        }
+
     private:
         Vector<System*> m_systems;
     };

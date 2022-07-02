@@ -2,8 +2,8 @@
 
 int main(int argc, char** argv)
 {
-    Lina::Application* application = new Lina::Application();
-    Lina::ApplicationInfo  appInfo;
+    Lina::Application*    application = new Lina::Application();
+    Lina::ApplicationInfo appInfo;
     appInfo.m_appMode                        = Lina::ApplicationMode::Editor;
     appInfo.m_appName                        = "Lina Sandbox Game";
     appInfo.m_bundleName                     = "Example";

@@ -52,16 +52,16 @@ namespace Lina::ECS
 
     void Registry::SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive)
     {
-        auto& snapshot = entt::snapshot{*this};
+        const auto& snapshot = entt::snapshot{*this};
         snapshot.entities(archive);
 
-        auto& it = storage();
-        for (auto& store : it)
+        const auto& it = storage();
+        for (const auto& store : it)
         {
-            auto resolved = entt::resolve(store.first);
+            const auto resolved = entt::resolve(store.first);
             if (resolved)
             {
-                auto& serializeFunc = resolved.func("serialize"_hs);
+                const auto& serializeFunc = resolved.func("serialize"_hs);
                 if (serializeFunc)
                     serializeFunc.invoke({}, entt::forward_as_meta(snapshot), entt::forward_as_meta(archive));
             }
@@ -70,17 +70,17 @@ namespace Lina::ECS
 
     void Registry::DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive)
     {
-        auto& loader = entt::snapshot_loader{*this};
+        const auto& loader = entt::snapshot_loader{*this};
         loader.entities(archive);
 
-        auto& it = storage();
-        for (auto& store : it)
+        const auto& it = storage();
+        for (const auto& store : it)
         {
             auto resolved = entt::resolve(store.first);
 
             if (resolved)
             {
-                auto& deserializeFunc = resolved.func("deserialize"_hs);
+                const auto& deserializeFunc = resolved.func("deserialize"_hs);
 
                 if (deserializeFunc)
                     deserializeFunc.invoke({}, entt::forward_as_meta(loader), entt::forward_as_meta(archive));
@@ -159,8 +159,8 @@ namespace Lina::ECS
 
     void Registry::CloneEntity(Entity from, Entity to)
     {
-        auto& it = storage();
-        for (auto& store : it)
+        const auto& it = storage();
+        for (const auto& store : it)
         {
             for (auto ent : store.second)
             {
@@ -170,7 +170,7 @@ namespace Lina::ECS
 
                     if (resolved)
                     {
-                        auto& cloneFunc = resolved.func("clone"_hs);
+                        const auto& cloneFunc = resolved.func("clone"_hs);
 
                         if (cloneFunc)
                             cloneFunc.invoke({}, from, to);

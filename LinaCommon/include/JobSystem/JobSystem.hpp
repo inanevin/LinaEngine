@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef JobSystem_HPP
 #define JobSystem_HPP
 
+#include <taskflow/taskflow.hpp>
+
 namespace Lina
 {
+    typedef tf::Executor Executor;
+    typedef tf::Taskflow Taskflow;
+
+    template <typename T>
+    using Future = tf::Future<T>;
+
+    class JobSystem
+    {
+    public:
+
+        static inline JobSystem* Get()
+        {
+            return s_instance;
+        }
+
+        void Run(Taskflow& flow);
+        void RunAndWait(Taskflow& flow);
+        void WaitForAll();
+
+    private:
+        friend class Engine;
+
+        void Initialize();
+        void Shutdown();
+        JobSystem()  = default;
+        ~JobSystem() = default;
+
+    private:
+        static JobSystem* s_instance;
+        Executor          m_executor;
+    };
 
 } // namespace Lina
 

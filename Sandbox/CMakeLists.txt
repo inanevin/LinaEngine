@@ -14,7 +14,6 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
 project(Sandbox)
-set(CMAKE_CXX_STANDARD 20)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -40,12 +39,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
-# Options & Definitions
+# Config & Options & Compile Definitions
+#--------------------------------------------------------------------
+include(../CMake/ProjectSettings.cmake)
+
+#--------------------------------------------------------------------
+# Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
-
-include(../CMake/ProjectSettings.cmake)
 
 #--------------------------------------------------------------------
 # Links
@@ -53,6 +54,10 @@ include(../CMake/ProjectSettings.cmake)
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Engine
 )
+
+if(WIN32 AND LINA_ENABLE_PROFILING)
+  target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
+endif()
 
 include(../_Dependencies/glfw/link.cmake)
 link_glfw()

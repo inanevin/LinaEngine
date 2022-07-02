@@ -15,7 +15,6 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaEngine)
 
-
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -64,11 +63,13 @@ add_library(${PROJECT_NAME} ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Engine ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaEngine")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 20)
+
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
-include(../CMake/GLGraphicsDefinitions.cmake)
+include(../CMake/ProjectSettings.cmake)
 add_definitions(/bigobj)
+
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -81,6 +82,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 
 include(../_Dependencies/iconfontheaders/link.cmake)
 link_iconfontheaders()
@@ -99,6 +101,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio
 	PUBLIC Lina::Resource
+	PUBLIC Lina::Graphics
 )
 
 #--------------------------------------------------------------------

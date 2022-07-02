@@ -42,8 +42,10 @@ namespace Lina::Resources
     void EditorResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
+        ResourceUtility::s_currentProgressData.Reset();
+        ResourceUtility::s_currentProgressData.m_progressTitle = "Loading Level";
 
-        ResourceStorage* storage = ResourceStorage::Get();
+        ResourceStorage*                 storage = ResourceStorage::Get();
         HashMap<TypeID, HashSet<String>> toLoad;
 
         // 1: Take a look at all the existing resources in storage, if it doesn't exist in the current level's resources we are loading, unload it.
@@ -51,7 +53,7 @@ namespace Lina::Resources
         // 3: Load the separate map.
 
         UnloadUnusedResources(resourceMap);
-        
+
         // Now iterate the resourceMap again, find the non-existing resources,
         for (auto pair : resourceMap)
         {

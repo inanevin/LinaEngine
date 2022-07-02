@@ -182,10 +182,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
-# Options & Definitions
+# Config & Options & Compile Definitions
+#--------------------------------------------------------------------
+include(../CMake/ProjectSettings.cmake)
+
+#--------------------------------------------------------------------
+# Include & Link
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
 
 include(../CMake/ProjectSettings.cmake)
 include(../_Dependencies/iconfontheaders/link.cmake)

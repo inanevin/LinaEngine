@@ -59,18 +59,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        ResourceUtility::s_currentProgressData.Reset();
-        ResourceUtility::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
-        ResourceUtility::s_currentProgressData.m_currentResourceName = fullBundlePath;
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
 
         // Start unpacking.
         UnpackAndLoad(fullBundlePath, pass, loader);
         loader->LoadAllMemoryResources();
-
-        // Set progress end.
-        ResourceUtility::s_currentProgressData.Reset();
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
     void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
@@ -83,18 +75,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        ResourceUtility::s_currentProgressData.Reset();
-        ResourceUtility::s_currentProgressData.m_progressTitle       = "Unpacking package: " + packageName;
-        ResourceUtility::s_currentProgressData.m_currentResourceName = fullBundlePath;
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
 
         // Start unpacking.
         UnpackAndLoad(fullBundlePath, filesToLoad, pass, loader);
         loader->LoadAllMemoryResources();
-
-        // Set progress end.
-        ResourceUtility::s_currentProgressData.Reset();
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
     void ResourcePackager::UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader)
@@ -224,9 +208,6 @@ namespace Lina::Resources
 
             // Progress callback.
             ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
-            loadingData->Reset();
-            loadingData->m_currentTotalFiles = totalFiles;
-            loadingData->m_progressTitle     = "Unpacking file " + filePath;
 
             // Clear the current memory queue in the loader.
             MemoryQueue empty;
@@ -360,8 +341,6 @@ namespace Lina::Resources
             // Progress callback.
             bit7z::BitCompressor* pCompressor = &compressor;
             ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
-            loadingData->Reset();
-            loadingData->m_progressTitle = "Packing multiple files...";
 
             compressor.setTotalCallback([=](uint64_t size) {
                 pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) {

@@ -26,35 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Timer.hpp"
+#pragma once
 
-#include "Log/Log.hpp"
+#ifndef MeshComponent_HPP
+#define MeshComponent_HPP
 
-namespace Lina
+// Headers here.
+#include "ECS/Component.hpp"
+
+namespace Lina::ECS
 {
-    HashMap<String, Timer*> Timer::s_activeTimers;
-
-    void Timer::Stop()
+    LINA_COMPONENT("Mesh Component", "ICON_FA_EYE", "Graphics", "true", "true")
+        struct MeshComponent : public Component
     {
-        std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli>                   ms  = now - m_startTimePoint;
-        m_duration                                                      = ms.count();
-        m_active                                                        = false;
-    }
 
-    Timer& Timer::GetTimer(const String& name)
-    {
-        if (s_activeTimers.find(name) == s_activeTimers.end())
-            s_activeTimers[name] = new Timer();
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            // archive();
+        }
+    };
+} // namespace Lina::ECS
 
-        return *s_activeTimers[name];
-    }
-
-    void Timer::UnloadTimers()
-    {
-        for (HashMap<String, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-            delete it->second;
-
-        s_activeTimers.clear();
-    }
-} // namespace Lina
+#endif

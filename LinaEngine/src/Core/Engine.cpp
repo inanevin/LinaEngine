@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 
 #include "Audio/Audio.hpp"
-#include "Core/Timer.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/PhysicsEvents.hpp"
@@ -46,6 +45,7 @@ SOFTWARE.
 #include "Data/HashSet.hpp"
 #include "World/Level.hpp"
 #include "Loaders/ResourceLoader.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina
 {
@@ -53,7 +53,7 @@ namespace Lina
 
     double Engine::GetElapsedTime()
     {
-        return Utility::GetCPUTime() - m_startTime;
+        return Time::GetCPUTime() - m_startTime;
     }
 
     void Engine::SetPlayMode(bool enabled)
@@ -83,17 +83,25 @@ namespace Lina
 
     void Engine::Initialize(ApplicationInfo& appInfo)
     {
+
+#ifdef LINA_ENABLE_PROFILING
+        m_profiler           = new Profiler();
+        Profiler::s_instance = m_profiler;
+#endif
+
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
         Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
         Input::InputEngine::s_inputEngine       = &m_inputEngine;
         Audio::AudioEngine::s_audioEngine       = &m_audioEngine;
         Resources::ResourceStorage::s_instance  = &m_resourceStorage;
         World::LevelManager::s_instance         = &m_levelManager;
+        JobSystem::s_instance                   = &m_jobSystem;
         m_appInfo                               = appInfo;
 
         RegisterResourceTypes();
 
         m_eventSystem.Initialize();
+        m_jobSystem.Initialize();
         m_resourceStorage.Initialize(m_appInfo);
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
@@ -120,7 +128,6 @@ namespace Lina
         m_resourceStorage.GetLoader()->LoadResource(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
         m_engineSettings = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
         m_renderSettings = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
-
     }
 
     void Engine::PackageProject(const String& path)
@@ -172,16 +179,15 @@ namespace Lina
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.m_packagePass);
     }
 
+    int test = 0;
+
     void Engine::Run()
     {
         m_deltaTimeArray.fill(-1.0);
 
         m_running            = true;
-        m_startTime          = Utility::GetCPUTime();
+        m_startTime          = Time::GetCPUTime();
         m_physicsAccumulator = 0.0f;
-
-        PROFILER_MAIN_THREAD;
-        PROFILER_ENABLE;
 
         int    frames       = 0;
         int    updates      = 0;
@@ -191,39 +197,42 @@ namespace Lina
 
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
-        int a = 0;
+
+        // First the inputs are polled.
+        // Then the previous frame is rendered in parallel to calculating the current frame.
+        // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
+
+        Taskflow gameLoop;
+        auto [Input, RenderPreviousFrame, RunSimulation, SyncRenderData] = gameLoop.emplace(
+            [&]() {
+                m_inputEngine.Tick();
+            },
+            [&]() {
+                m_renderEngine.Render();
+                frames++;
+            },
+            [&]() {
+                UpdateGame((float)m_rawDeltaTime);
+                updates++;
+            },
+            [&]() {
+                m_renderEngine.SyncRenderData();
+            });
+
+        Input.precede(RenderPreviousFrame, RunSimulation);
+        SyncRenderData.succeed(RunSimulation);
 
         while (m_running)
         {
-            if (updates > 15 && a == 0)
-            {
-                a = 1;
-                //   String lvlPath = "Resources/Sandbox/Levels/Level1.linalevel";
-                //   m_levelManager.InstallLevel(lvlPath);
-                //   m_engineSettings->m_packagedLevels.push_back(lvlPath);
-
-                //  m_levelManager.m_currentLevel->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-                //   m_levelManager.SaveCurrentLevel();
-            }
-
-            if (updates > 100 && a == 1)
-            {
-                a         = 2;
-                m_running = false;
-            }
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
-            PROFILER_BLOCK("Input Tick");
-            m_inputEngine.Tick();
-            PROFILER_END_BLOCK;
+            m_jobSystem.RunAndWait(gameLoop);
 
-            updates++;
-            UpdateGame((float)m_rawDeltaTime);
-            DisplayGame(1.0f);
-            frames++;
+            auto size = Profiler::Get()->GetAl();
+            LINA_TRACE("Aloc {0}", size);
 
             double now = GetElapsedTime();
             // Calculate FPS, UPS.
@@ -252,24 +261,23 @@ namespace Lina
         m_physicsEngine.Shutdown();
         m_inputEngine.Shutdown();
         m_resourceStorage.Shutdown();
+        m_jobSystem.Shutdown();
         m_eventSystem.Shutdown();
 
-        PROFILER_DUMP("profile.prof");
-        Timer::UnloadTimers();
+        PROFILER_DUMP("profile.txt");
+
+        if (m_profiler != nullptr)
+            delete m_profiler;
     }
 
     void Engine::UpdateGame(float deltaTime)
     {
-        PROFILER_FUNC("Update Game");
-
         // Pause & skip frame controls.
         if (m_paused && !m_shouldSkipFrame)
             return;
         m_shouldSkipFrame = false;
 
-        PROFILER_BLOCK("Event: Pre Tick");
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_END_BLOCK;
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -278,42 +286,21 @@ namespace Lina
         if (m_physicsAccumulator >= physicsStep)
         {
             m_physicsAccumulator -= physicsStep;
-            PROFILER_BLOCK("Pre Tick");
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-            PROFILER_END_BLOCK;
 
-            PROFILER_BLOCK("Physics Engine Tick");
             m_physicsEngine.Tick(physicsStep);
-            PROFILER_END_BLOCK;
 
-            PROFILER_BLOCK("Event: Physics Tick");
             m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{physicsStep, m_isInPlayMode});
-            PROFILER_END_BLOCK;
 
-            PROFILER_BLOCK("Event: Post Physics Tick");
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
-            PROFILER_END_BLOCK;
         }
 
         // Other main systems (engine or game)
-        PROFILER_BLOCK("ECS Pipeline Tick");
         m_mainECSPipeline.UpdateSystems(deltaTime);
-        PROFILER_END_BLOCK;
 
-        PROFILER_BLOCK("Event: Tick");
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_END_BLOCK;
 
-        PROFILER_BLOCK("Event: Post Tick");
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_END_BLOCK;
-    }
-
-    void Engine::DisplayGame(float interpolation)
-    {
-        if (m_canRender)
-        {
-        }
     }
 
     void Engine::RemoveOutliers(bool biggest)

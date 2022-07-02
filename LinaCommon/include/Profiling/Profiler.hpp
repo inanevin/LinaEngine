@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,60 +26,111 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Profiler_HPP
 #define Profiler_HPP
 
-// Headers here.
-
 #ifdef LINA_ENABLE_PROFILING
 
-#else
-
-#endif
+// Headers here.
+#include "Data/String.hpp"
+#include "Data/IntrusiveList.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
+    struct Scope : public IntrusiveListNode
+    {
+    public:
+        String               ThreadName = "";
+        String               Name       = "";
+        double               DurationNS = 0.0;
+        double               StartTime  = 0.0;
+        Scope*               Parent     = nullptr;
+        IntrusiveList<Scope> Children;
+    };
 
-#ifdef LINA_ENABLE_PROFILING
+    struct Function
+    {
+        Function(const String& funcName, const String& threadName = "Main");
+        ~Function();
+    };
 
-// #define PROFILER_MAIN_THREAD       EASY_MAIN_THREAD
-// #define PROFILER_ENABLE            EASY_PROFILER_ENABLE
-// #define PROFILER_BLOCK(...)        EASY_BLOCK(__VA_ARGS__)
-// #define PROFILER_EVENT(...)        EASY_EVENT(__VA_ARGS__)
-// #define PROFILER_THREAD(...)       EASY_THREAD(__VA_ARGS__)
-// #define PROFILER_THREAD_SCOPE(...) EASY_THREAD_SCOPE(__VA_ARGS__)
-// #define PROFILER_FUNC(...)         EASY_FUNCTION(__VA_ARGS__)
-// #define PROFILER_STARTLISTEN       profiler::startListen()
-// #define PROFILER_DUMP(...)         profiler::dumpBlocksToFile(__VA_ARGS__)
-// #define PROFILER_END_BLOCK         EASY_END_BLOCK
+    struct Frame : public IntrusiveListNode
+    {
+        double               DurationNS = 0.0;
+        double               StartTime  = 0.0;
+        IntrusiveList<Scope> Scopes;
+    };
 
-#define PROFILER_MAIN_THREAD
-#define PROFILER_ENABLE
-#define PROFILER_BLOCK(...)
-#define PROFILER_FUNC(...)
-#define PROFILER_THREAD(...)
-#define PROFILER_THREAD_SCOPE(...)
-#define PROFILER_EVENT(...)
-#define PROFILER_VALUE(...)
-#define PROFILER_STARTLISTEN
-#define PROFILER_DUMP(...)
-#define PROFILER_END_BLOCK
+    struct MemAllocationInfo
+    {
+        size_t Size     = 0;
+        String Location = "";
+        int    Line     = 0;
+    };
+
+    class Profiler
+    {
+    public:
+        static Profiler* Get()
+        {
+            return s_instance;
+        }
+
+        size_t GetAl();
+        void StartFrame();
+        void StartScope(const String& scope, const String& thread = "Main");
+        void EndScope();
+        void OnAllocation(void* ptr, size_t size);
+        void OnVRAMAllocation(void* ptr, size_t size);
+        void OnFree(void* ptr);
+        void OnVRAMFree(void* ptr);
+        void DumpToText(const String& path);
+        static Profiler* s_instance;
+
+    private:
+        void CaptureTrace(MemAllocationInfo& info);
+
+    private:
+        friend class Engine;
+
+        IntrusiveList<Frame>                      m_frames;
+        Scope*                                    m_lastScope = nullptr;
+        Frame*                                    m_lastFrame = nullptr;
+        ParallelHashMap<void*, MemAllocationInfo> m_memAllocations;
+        ParallelHashMap<void*, MemAllocationInfo> m_vramAllocations;
+        size_t                                    m_totalMemAllocationSize  = 0;
+        size_t                                    m_totalVRAMAllocationSize = 0;
+        std::mutex                                m_lock;
+    };
+
+#define PROFILER_FRAME_START()               Profiler::Get()->StartFrame()
+#define PROFILER_SCOPE_START(SCOPENAME, ...) Profiler::Get()->StartScope(SCOPENAME, __VA_ARGS__)
+#define PROFILER_SCOPE_END                   Profiler::Get()->EndScope()
+#define PROFILER_FUNC(...)                   Function func(__func__, __VA_ARGS__)
+#define PROFILER_DUMP(PATH)                  Profiler::Get()->DumpToText(PATH)
+#define PROFILER_ALLOC(PTR, SZ)              Profiler::Get()->OnAllocation(PTR, SZ)
+#define PROFILER_VRAMALLOC(PTR, SZ)          Profiler::Get()->OnVRAMAllocation(PTR, SZ)
+#define PROFILER_FREE(PTR)                   Profiler::Get()->OnFree(PTR)
+#define PROFILER_VRAMFREE(PTR)               Profiler::Get()->OnVRAMFree(PTR)
+#define PROFILER_SKIPTRACK(skip)             g_skipAllocTrack = skip
+} // namespace Lina
+
 #else
-#define PROFILER_MAIN_THREAD
-#define PROFILER_ENABLE
-#define PROFILER_BLOCK(...)
+
+#define PROFILER_FRAME_START()
+#define PROFILER_SCOPE_START(SCOPENAME, ...)
+#define PROFILER_SCOPE_END
 #define PROFILER_FUNC(...)
-#define PROFILER_THREAD(...)
-#define PROFILER_THREAD_SCOPE(...)
-#define PROFILER_EVENT(...)
-#define PROFILER_VALUE(...)
-#define PROFILER_STARTLISTEN
-#define PROFILER_DUMP(...)
+#define PROFILER_DUMP(PATH)
+#define PROFILER_ALLOC(PTR, SZ)
+#define PROFILER_VRAMALLOC(PTR, SZ)
+#define PROFILER_FREE(PTR)
+#define PROFILER_VRAMFREE(PTR)
+#define PROFILER_SKIPTRACK(skip)
 
 #endif
-} // namespace Lina
 
 #endif

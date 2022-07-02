@@ -38,6 +38,9 @@ namespace Lina
 {
     template <typename T, typename U>
     using HashMap = phmap::flat_hash_map<T, U>;
+
+    template <typename T, typename U>
+    using ParallelHashMap = phmap::parallel_flat_hash_map<T,U>;
 } // namespace Lina
 
 #endif

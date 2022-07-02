@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Timer_HPP
@@ -37,55 +35,24 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include <Data/String.hpp>
 
-#ifdef LINA_ENABLE_PROFILING
-
-#define LINA_TIMER_START(...) ::Timer::GetTimer(__VA_ARGS__).Initialize()
-#define LINA_TIMER_STOP(...)  ::Timer::GetTimer(__VA_ARGS__).Stop()
-
-#else
-
-#define LINA_TIMER_START(...)
-#define LINA_TIMER_STOP(...)
-
-#endif
-
 namespace Lina
 {
-    class Timer
+    class Time
     {
-
     public:
-        Timer() = default;
-
-        ~Timer() = default;
-
-        void Initialize()
-        {
-            m_active         = true;
-            m_startTimePoint = std::chrono::high_resolution_clock::now();
-        }
-
-        void Stop();
-
-        double GetDuration()
-        {
-            return m_duration;
-        }
-
-        static const HashMap<String, Timer*>& GetTimerMap()
-        {
-            return s_activeTimers;
-        }
-        static Timer& GetTimer(const String& name);
-        static void   UnloadTimers();
+        /// <summary>
+        /// CPU clock time. This is NOT elapsed time. You can use this to create time points & measure differences.
+        /// </summary>
+        /// <returns>In seconds</returns>
+        static double GetCPUTime();
 
     private:
-        const char* m_name = "";
-        std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
-        bool                                               m_active   = false;
-        double                                             m_duration = 0;
-        static HashMap<String, Timer*>                     s_activeTimers;
+#ifdef LINA_PLATFORM_WINDOWS
+        static double s_timerFrequency;
+        static bool   s_isTimerInitialized;
+#endif
     };
+
 } // namespace Lina
 
 #endif

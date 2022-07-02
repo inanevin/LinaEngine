@@ -15,13 +15,14 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
 
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 set (LINACOMMON_SOURCES
 
 	src/Core/Common.cpp
-    src/Core/Timer.cpp
+    src/Core/Time.cpp
 	
 	#Utility
 	src/Utility/UtilityFunctions.cpp
@@ -48,6 +49,12 @@ set (LINACOMMON_SOURCES
 	src/Memory/PoolAllocator.cpp
 	src/Memory/FreeListAllocator.cpp
 	src/Memory/Memory.cpp
+
+	# Profiling
+	src/Profiling/Profiler.cpp
+	
+	# Job System
+	src/JobSystem/JobSystem.cpp
 	
 	#src/Utility/FileUtility.cpp
 	src/Utility/StringID.cpp
@@ -75,7 +82,7 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
 	include/Core/SizeDefinitions.hpp
-	include/Core/Timer.hpp
+	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
 	
 	# Job System
@@ -110,6 +117,7 @@ set(LINACOMMON_HEADERS
 
 	# Data
 	include/Data/Vector.hpp
+	include/Data/IntrusiveList.hpp
 	include/Data/Map.hpp
 	include/Data/List.hpp
 	include/Data/SList.hpp
@@ -181,7 +189,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Memory/FreeListAllocator.hpp	
 	include/Memory/Memory.hpp
 	include/Core/SizeDefinitions.hpp
-	include/Core/Timer.hpp
+	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
 	include/JobSystem/JobSystem.hpp
 	include/Profiling/Profiler.hpp
@@ -221,7 +229,6 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 

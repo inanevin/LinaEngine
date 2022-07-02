@@ -294,7 +294,7 @@ namespace Lina::Resources
         /// All registered resource types.
         /// </summary>
         /// <returns></returns>
-        inline const HashMap<TypeID, ResourceTypeData>& GetResourceTypes() const
+        inline const ParallelHashMap<TypeID, ResourceTypeData>& GetResourceTypes() const
         {
             return m_resourceTypes;
         }
@@ -316,11 +316,11 @@ namespace Lina::Resources
         void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
-        static ResourceStorage*           s_instance;
-        HashMap<TypeID, Cache>            m_resources;
-        HashMap<TypeID, ResourceTypeData> m_resourceTypes;
-        ResourceLoader*                   m_loader = nullptr;
-        ApplicationInfo                   m_appInfo;
+        static ResourceStorage*                   s_instance;
+        ParallelHashMap<TypeID, Cache>            m_resources;
+        ParallelHashMap<TypeID, ResourceTypeData> m_resourceTypes;
+        ResourceLoader*                           m_loader = nullptr;
+        ApplicationInfo                           m_appInfo;
     };
 } // namespace Lina::Resources
 

@@ -89,9 +89,6 @@ namespace Lina
         // Creates a GUID.
         extern int GetUniqueID();
 
-        // Return CPU's clock time.
-        extern double GetCPUTime();
-
         // Check if given file exists.
         extern bool FileExists(const String& path);
 

@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Utility/UtilityFunctions.hpp"
-
 #include "Core/PlatformMacros.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/ResourceEvents.hpp"
@@ -36,51 +35,16 @@ SOFTWARE.
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <Data/String.hpp>
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <iostream>
-#include <stdlib.h>
-#include <Data/String.hpp>
 #include <windows.h>
-double g_timerFrequency;
-bool   g_isTimerInitialized = false;
 #endif
 
 namespace Lina
 {
     namespace Utility
     {
-        double GetCPUTime()
-        {
-#ifdef LINA_WINDOWS
-            if (!g_isTimerInitialized)
-            {
-                LARGE_INTEGER li;
-                if (!QueryPerformanceFrequency(&li))
-                    LINA_ERR("Initialization -> QueryPerformanceFrequency failed!");
-
-                g_timerFrequency     = double(li.QuadPart);
-                g_isTimerInitialized = true;
-            }
-
-            LARGE_INTEGER li;
-            if (!QueryPerformanceCounter(&li))
-                LINA_ERR("GetTime -> QueryPerformanceCounter failed in get time!");
-
-            return double(li.QuadPart) / g_timerFrequency;
-#endif
-
-#ifdef LINA_LINUX
-            timespec ts;
-            clock_gettime(CLOCK_REALTIME, &ts);
-            return (double)(((long)ts.tv_sec * NANOSECONDS_PER_SECOND) + ts.tv_nsec) / ((double)(NANOSECONDS_PER_SECOND));
-#endif
-
-#ifdef LINA_UNKNOWN_PLATFORM
-            LINA_ERR("Uknown platform!");
-            return 0.0f;
-#endif
-        }
 
         char* WCharToChar(const wchar_t* input)
         {

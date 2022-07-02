@@ -151,7 +151,8 @@ namespace Lina::ECS
         if (m_isTransformLocked)
             return;
         m_transform.m_localRotationAngles = angles;
-        m_transform.m_localRotation       = Quaternion::FromVector(glm::radians((glm::vec3)angles));
+        const Vector3 vang = glm::radians(static_cast<glm::vec3>(angles));
+        m_transform.m_localRotation       = Quaternion::FromVector(vang);
         UpdateGlobalRotation();
 
         for (auto child : m_children)
@@ -189,7 +190,7 @@ namespace Lina::ECS
             return;
         m_transform.m_previousAngles = m_transform.m_rotationAngles;
         m_transform.m_rotationAngles = angles;
-        m_transform.m_rotation       = Quaternion::FromVector(glm::radians((glm::vec3)angles));
+        m_transform.m_rotation       = Quaternion::FromVector(glm::radians(static_cast<glm::vec3>(angles)));
         UpdateLocalRotation();
 
         for (auto child : m_children)
@@ -321,7 +322,8 @@ namespace Lina::ECS
             auto&      d      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix     global = Matrix::InitRotation(d.m_transform.m_rotation) * m_transform.ToLocalMatrix();
             Quaternion targetRot;
-            global.Decompose(Vector3(), targetRot);
+            Vector3 s = Vector3(), p = Vector3();
+            global.Decompose(p, targetRot, s);
             m_transform.m_previousAngles = m_transform.m_rotationAngles;
             m_transform.m_rotation       = targetRot;
             m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
@@ -363,7 +365,8 @@ namespace Lina::ECS
         {
             auto&  d      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix global = Matrix::InitRotation(d.m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
-            global.Decompose(Vector3(), m_transform.m_localRotation);
+            Vector3 s = Vector3(), p = Vector3();
+            global.Decompose(s, m_transform.m_localRotation, p);
             m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();
         }
     }

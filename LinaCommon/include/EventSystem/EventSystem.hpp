@@ -136,7 +136,6 @@ namespace Lina::Event
         template <typename Type>
         void Update()
         {
-            std::lock_guard<std::recursive_mutex> l(m_mutex);
             if (!m_mainDispatcher.sink<Type>().empty())
                 m_mainDispatcher.update<Type>();
             else
@@ -145,7 +144,6 @@ namespace Lina::Event
 
         void Update()
         {
-            std::lock_guard<std::recursive_mutex> l(m_mutex);
             m_mainDispatcher.update();
         }
 
@@ -155,7 +153,6 @@ namespace Lina::Event
         void Shutdown();
 
     private:
-        mutable std::recursive_mutex m_mutex;
         Dispatcher                   m_mainDispatcher{};
         static EventSystem*          s_eventSystem;
     };

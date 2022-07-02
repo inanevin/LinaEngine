@@ -51,6 +51,7 @@ add_library(${PROJECT_NAME} ${LINAAUDIO_SOURCES} ${LINAAUDIO_HEADERS})
 add_library(Lina::Audio ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaAudio")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
