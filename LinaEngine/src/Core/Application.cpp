@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -45,6 +45,14 @@ namespace Lina
 
     Application* Application::s_application = nullptr;
 
+    void Application::Cleanup()
+    {
+        PROFILER_DUMPLEAKS("lina_memleaks.txt");
+#ifdef LINA_ENABLE_PROFILING
+        delete Profiler::s_instance;
+        Profiler::s_instance = nullptr;
+#endif
+    }
     Application::Application()
     {
         LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
@@ -56,13 +64,19 @@ namespace Lina
         logSink.connect<&Application::OnLog>(this);
     }
 
-    void Application::Initialize(ApplicationInfo& appInfo)
+    void Application::Initialize(const ApplicationInfo& appInfo)
     {
         if (m_initialized)
         {
             LINA_ERR("Lina application already initialized!");
             return;
         }
+
+#ifdef LINA_ENABLE_PROFILING
+        m_profiler = new Profiler();
+        Profiler::s_instance = m_profiler;
+        m_profiler->Initialize();
+#endif
 
         LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
 

@@ -34,6 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
+    class Profiler;
 
     namespace Event
     {
@@ -56,10 +57,10 @@ namespace Lina
             return s_application;
         }
 
-        void Initialize(ApplicationInfo& appInfo);
-        void Run();
+        static void Cleanup();
+        void        Initialize(const ApplicationInfo& appInfo);
+        void        Run();
 
-    protected:
     private:
         // Callbacks.
         void OnLog(const Event::ELog& dump);
@@ -71,6 +72,7 @@ namespace Lina
         // Active engines running in the application.
         static Application* s_application;
         Engine              m_engine;
+        Profiler*           m_profiler = nullptr;
 
         bool       m_activeLevelExists = false;
         bool       m_initialized       = false;

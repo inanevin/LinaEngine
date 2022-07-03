@@ -52,7 +52,6 @@ namespace Lina
     class Application;
     class EngineSettings;
     class RenderSettings;
-    class Profiler;
 
     class Engine
     {
@@ -137,7 +136,7 @@ namespace Lina
         Engine()  = default;
         ~Engine() = default;
 
-        void   Initialize(ApplicationInfo& appInfo);
+        void   Initialize(const ApplicationInfo& appInfo);
         void   Run();
         void   UpdateGame(float deltaTime);
         void   RemoveOutliers(bool biggest);
@@ -157,7 +156,6 @@ namespace Lina
         MessageBus                 m_messageBus;
         ApplicationInfo            m_appInfo;
         JobSystem                  m_jobSystem;
-        Profiler*                  m_profiler        = nullptr;
         bool                       m_running         = false;
         bool                       m_canRender       = true;
         bool                       m_firstRun        = true;

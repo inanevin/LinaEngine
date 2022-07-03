@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,14 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 #ifndef EventSystem_HPP
 #define EventSystem_HPP
 
 #include "EventCommon.hpp"
-
+#include "Data/HashMap.hpp"
 #include <mutex>
 
 namespace Lina
@@ -45,6 +43,7 @@ namespace Lina
 
 namespace Lina::Event
 {
+    typedef std::function<void()> DisconnectFunc;
     class EventSystem
     {
     public:
@@ -62,16 +61,32 @@ namespace Lina::Event
             return m_mainDispatcher.sink<T>().empty();
         }
 
+        template <typename T>
+        void DisconnectAllEvents()
+        {
+            m_mainDispatcher.sink<T>().disconnect();
+        }
+
         template <typename T, auto Candidate, typename Type>
         void Connect(Type&& value_or_instance...)
         {
             m_mainDispatcher.sink<T>().connect<Candidate>(value_or_instance);
+
+            const TypeID tid            = GetTypeID<T>();
+            auto&        disconnectFunc = m_eventDisconnectors[tid];
+            if (!disconnectFunc)
+                disconnectFunc = std::bind(&EventSystem::DisconnectAllEvents<T>, this);
         }
 
         template <typename T, auto Candidate>
         void Connect()
         {
             m_mainDispatcher.sink<T>().connect<Candidate>();
+
+            const TypeID tid            = GetTypeID<T>();
+            auto&        disconnectFunc = m_eventDisconnectors[tid];
+            if (!disconnectFunc)
+                disconnectFunc = std::bind(&EventSystem::DisconnectAllEvents<T>, this);
         }
 
         template <typename T, auto Candidate, typename Type>
@@ -153,8 +168,9 @@ namespace Lina::Event
         void Shutdown();
 
     private:
-        Dispatcher                   m_mainDispatcher{};
-        static EventSystem*          s_eventSystem;
+        Dispatcher                      m_mainDispatcher{};
+        static EventSystem*             s_eventSystem;
+        HashMap<TypeID, DisconnectFunc> m_eventDisconnectors;
     };
 } // namespace Lina::Event
 

@@ -81,14 +81,8 @@ namespace Lina
         m_shouldSkipFrame = true;
     }
 
-    void Engine::Initialize(ApplicationInfo& appInfo)
+    void Engine::Initialize(const ApplicationInfo& appInfo)
     {
-
-#ifdef LINA_ENABLE_PROFILING
-        m_profiler           = new Profiler();
-        Profiler::s_instance = m_profiler;
-#endif
-
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
         Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
         Input::InputEngine::s_inputEngine       = &m_inputEngine;
@@ -179,8 +173,6 @@ namespace Lina
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.m_packagePass);
     }
 
-    int test = 0;
-
     void Engine::Run()
     {
         m_deltaTimeArray.fill(-1.0);
@@ -231,7 +223,10 @@ namespace Lina
 
             m_jobSystem.Run(gameLoop).wait();
 
-            auto size = Profiler::Get()->m_totalMemAllocationSize;;
+            if (GetElapsedTime() > 5)
+                m_running = false;
+
+            auto size = Profiler::Get()->m_totalMemAllocationSize;
             LINA_TRACE("Aloc {0}", size);
 
             double now = GetElapsedTime();
@@ -249,6 +244,7 @@ namespace Lina
             if (m_firstRun)
                 m_firstRun = false;
         }
+        m_jobSystem.WaitForAll();
 
         // Ending game.
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
@@ -263,11 +259,6 @@ namespace Lina
         m_resourceStorage.Shutdown();
         m_jobSystem.Shutdown();
         m_eventSystem.Shutdown();
-
-        PROFILER_DUMP("profile.txt");
-
-        if (m_profiler != nullptr)
-            delete m_profiler;
     }
 
     void Engine::UpdateGame(float deltaTime)

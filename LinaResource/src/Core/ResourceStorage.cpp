@@ -77,6 +77,7 @@ namespace Lina::Resources
             cache.clear();
         }
         m_resources.clear();
+        m_resourceTypes.clear();
 
         delete ResourceUtility::s_rootFolder;
         delete m_loader;

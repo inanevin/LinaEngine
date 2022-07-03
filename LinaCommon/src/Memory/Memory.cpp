@@ -131,77 +131,7 @@ void operator delete[](void* ptr, std::size_t sz)
     free(ptr);
 }
 
-
 namespace Lina
 {
-
-    void* Memory::malloc(uintptr amt, uint32 alignment)
-    {
-        alignment                                   = Math::Max(amt >= 16 ? 16u : 8u, alignment);
-        void* ptr                                   = ::malloc(amt + alignment + sizeof(void*) + sizeof(uintptr));
-        void* result                                = align((uint8*)ptr + sizeof(void*) + sizeof(uintptr), (uintptr)alignment);
-        *((void**)((uint8*)result - sizeof(void*))) = ptr;
-#ifdef LINA_ENABLE_PROFILING
-        if (!g_skipAllocTrack && Profiler::Get() != nullptr)
-            PROFILER_ALLOC(result, amt + alignment + sizeof(void*) + sizeof(uintptr));
-#endif
-        return result;
-    }
-
-    void* Memory::realloc(void* ptr, uintptr amt, uint32 alignment)
-    {
-        alignment = Math::Max(amt >= 16 ? 16u : 8u, alignment);
-
-        if (ptr == nullptr)
-            return Memory::malloc(amt, alignment);
-
-        if (amt == 0)
-        {
-            Memory::free(ptr);
-            return nullptr;
-        }
-
-        void*   result = malloc(amt, alignment);
-        uintptr size   = Memory::getAllocSize(ptr);
-        Memory::memcpy(result, ptr, Math::Min(size, amt));
-        free(ptr);
-
-        return result;
-    }
-
-    void* Memory::free(void* ptr)
-    {
-#ifdef LINA_ENABLE_PROFILING
-        if (!g_skipAllocTrack && Profiler::Get() != nullptr)
-            PROFILER_FREE(ptr);
-#endif
-
-        if (ptr)
-            ::free(*((void**)((uint8*)ptr - sizeof(void*))));
-
-        return nullptr;
-    }
-
-    uintptr Memory::getAllocSize(void* ptr)
-    {
-        return *((uintptr*)((uint8*)ptr - sizeof(void*) - sizeof(uintptr)));
-    }
-
-    void Memory::bigmemswap(void* a, void* b, uintptr size)
-    {
-        uint64* ptr1 = (uint64*)a;
-        uint64* ptr2 = (uint64*)b;
-
-        while (size > GENERIC_MEMORY_SMALL_MEMSWAP_MAX)
-        {
-            uint64 tmp = *ptr1;
-            *ptr1      = *ptr2;
-            *ptr2      = tmp;
-            size -= 8;
-            ptr1++;
-            ptr2++;
-        }
-
-        smallmemswap(ptr1, ptr2, size);
-    }
+  
 } // namespace Lina

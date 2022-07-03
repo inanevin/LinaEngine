@@ -33,10 +33,13 @@ SOFTWARE.
 
 #ifdef LINA_ENABLE_PROFILING
 
+#define MEMORY_STACK_TRACE_SIZE 20
+
 // Headers here.
 #include "Data/String.hpp"
 #include "Data/IntrusiveList.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/FixedVector.hpp"
 
 namespace Lina
 {
@@ -64,19 +67,11 @@ namespace Lina
         IntrusiveList<Scope> Scopes;
     };
 
-    struct MemStackTrace : public IntrusiveListNode
-    {
-        String Location   = "";
-        String SymbolName = "";
-        String ModuleName = "";
-        uint64 SmybolAddr = 0;
-        int    Line       = 0;
-    };
-
     struct MemAllocationInfo
     {
-        size_t                       Size = 0;
-        IntrusiveList<MemStackTrace> StackTrace;
+        size_t         Size      = 0;
+        unsigned short StackSize = 0;
+        void*          Stack[MEMORY_STACK_TRACE_SIZE];
     };
 
     class Profiler
@@ -94,14 +89,18 @@ namespace Lina
         void             OnVRAMAllocation(void* ptr, size_t size);
         void             OnFree(void* ptr);
         void             OnVRAMFree(void* ptr);
-        void             DumpToText(const String& path);
+        void             DumpMemoryLeaks(const String& path);
         static Profiler* s_instance;
 
     private:
         void CaptureTrace(MemAllocationInfo& info);
 
     private:
+        friend class Application;
         friend class Engine;
+
+        void Initialize();
+        void Shutdown();
 
         IntrusiveList<Frame>                      m_frames;
         Scope*                                    m_lastScope = nullptr;
@@ -117,12 +116,15 @@ namespace Lina
 #define PROFILER_SCOPE_START(SCOPENAME, ...) Profiler::Get()->StartScope(SCOPENAME, __VA_ARGS__)
 #define PROFILER_SCOPE_END                   Profiler::Get()->EndScope()
 #define PROFILER_FUNC(...)                   Function func(__func__, __VA_ARGS__)
-#define PROFILER_DUMP(PATH)                  Profiler::Get()->DumpToText(PATH)
+#define PROFILER_DUMPLEAKS(PATH)             Profiler::Get()->DumpMemoryLeaks(PATH)
 #define PROFILER_ALLOC(PTR, SZ)              Profiler::Get()->OnAllocation(PTR, SZ)
 #define PROFILER_VRAMALLOC(PTR, SZ)          Profiler::Get()->OnVRAMAllocation(PTR, SZ)
 #define PROFILER_FREE(PTR)                   Profiler::Get()->OnFree(PTR)
 #define PROFILER_VRAMFREE(PTR)               Profiler::Get()->OnVRAMFree(PTR)
 #define PROFILER_SKIPTRACK(skip)             g_skipAllocTrack = skip
+#define PROFILER_DESTROY()         \
+    delete ::Profiler::s_instance; \
+    ::Profiler::s_instance = nullptr
 } // namespace Lina
 
 #else
@@ -131,13 +133,13 @@ namespace Lina
 #define PROFILER_SCOPE_START(SCOPENAME, ...)
 #define PROFILER_SCOPE_END
 #define PROFILER_FUNC(...)
-#define PROFILER_DUMP(PATH)
+#define PROFILER_DUMPLEAKS(PATH)
 #define PROFILER_ALLOC(PTR, SZ)
 #define PROFILER_VRAMALLOC(PTR, SZ)
 #define PROFILER_FREE(PTR)
 #define PROFILER_VRAMFREE(PTR)
 #define PROFILER_SKIPTRACK(skip)
-
+#define PROFILER_DESTROY
 #endif
 
 #endif

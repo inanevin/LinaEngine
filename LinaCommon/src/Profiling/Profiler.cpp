@@ -31,6 +31,9 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/Time.hpp"
 #include "Memory/Memory.hpp"
+#include <iostream>
+#include <fstream>
+#include "Utility/UtilityFunctions.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <process.h>
@@ -124,10 +127,12 @@ namespace Lina
 
     void Profiler::OnVRAMFree(void* ptr)
     {
+        m_lock.lock();
         g_skipAllocTrack = true;
         m_totalVRAMAllocationSize -= m_memAllocations[ptr].Size;
         m_vramAllocations.erase(ptr);
         g_skipAllocTrack = false;
+        m_lock.unlock();
     }
 
     Function::Function(const String& funcName, const String& threadName)
@@ -140,65 +145,123 @@ namespace Lina
         Profiler::Get()->EndScope();
     }
 
-    void Profiler::DumpToText(const String& path)
+    void Profiler::DumpMemoryLeaks(const String& path)
     {
+        if (Utility::FileExists(path))
+            Utility::DeleteFileInPath(path);
+
+        std::ofstream file(path.c_str());
+
+        auto writeTrace = [&](const ParallelHashMap<void*, MemAllocationInfo>& map) {
+            for (const auto& alloc : map)
+            {
+                if(alloc.first == 0)
+                    continue;
+
+                file << "****************** LEAK DETECTED ******************\n";
+                file << "Size: " << alloc.second.Size << " bytes \n";
+
+#ifdef LINA_PLATFORM_WINDOWS
+                HANDLE      process = GetCurrentProcess();
+                static bool inited  = false;
+
+                if (!inited)
+                {
+                    inited = true;
+                    SymInitialize(process, nullptr, TRUE);
+                }
+
+                void* symbolAll = calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
+
+                SYMBOL_INFO* symbol  = static_cast<SYMBOL_INFO*>(symbolAll);
+                symbol->MaxNameLen   = 255;
+                symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+                DWORD            displacement;
+                IMAGEHLP_LINE64* line;
+                line               = (IMAGEHLP_LINE64*)std::malloc(sizeof(IMAGEHLP_LINE64));
+                line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+
+                for (int i = 0; i < alloc.second.StackSize; ++i)
+                {
+                    file << "------ Stack Trace " << i << "------\n";
+
+                    DWORD64       address = (DWORD64)(alloc.second.Stack[i]);
+
+                    SymFromAddr(process, address, NULL, symbol);
+                   
+                    if (SymGetLineFromAddr64(process, address, &displacement, line))
+                    {
+                        file << "Location:" << line->FileName << "\n";
+                        file << "Smybol:" << symbol->Name << "\n";
+                        file << "Line:" << line->LineNumber << "\n";
+                        file << "SymbolAddr:" << symbol->Address << "\n";
+                    }
+                    else
+                    {
+                        file << "Smybol:" << symbol->Name << "\n";
+                        file << "SymbolAddr:" << symbol->Address << "\n";
+                    }
+                   
+                    IMAGEHLP_MODULE64 moduleInfo;
+                    moduleInfo.SizeOfStruct = sizeof(moduleInfo);
+                    if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
+                        file << "Module:" << moduleInfo.ModuleName << "\n";
+                }
+                std::free(line);
+                std::free(symbolAll);
+#endif
+
+                file << "\n";
+                file << "\n";
+            }
+        };
+
+        if (file.is_open())
+        {
+            size_t totalSizeBytes = 0;
+            size_t totalSizeKB    = 0;
+
+            for (auto& alloc : m_memAllocations)
+                totalSizeBytes += alloc.second.Size;
+
+            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+
+            file << "-------------------------------------------\n";
+            file << "PROCESS MEMORY LEAKS\n";
+            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
+            file << "-------------------------------------------\n";
+            file << "\n";
+
+            writeTrace(m_memAllocations);
+
+            totalSizeBytes = totalSizeKB = 0;
+
+            for (auto& alloc : m_vramAllocations)
+                totalSizeBytes += alloc.second.Size;
+
+            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+
+            file << "-------------------------------------------\n";
+            file << "VRAM MEMORY LEAKS\n";
+            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (mkb)\n";
+            file << "-------------------------------------------\n";
+            file << "\n";
+
+            writeTrace(m_vramAllocations);
+
+            file.close();
+        }
     }
 
     void Profiler::CaptureTrace(MemAllocationInfo& info)
     {
 
 #ifdef LINA_PLATFORM_WINDOWS
-        HANDLE process = GetCurrentProcess();
-        SymInitialize(process, nullptr, TRUE);
-
-        void* stack[10];
-        int   frames = (int)CaptureStackBackTrace(3, 1, stack, nullptr);
-
-        void* symbolAll = calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
-
-        if (symbolAll == nullptr)
-            return;
-
-        SYMBOL_INFO* symbol = static_cast<SYMBOL_INFO*>(symbolAll);
-        symbol->MaxNameLen = 255;
-        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-
-        DWORD           displacement;
-        IMAGEHLP_LINE64 line;
-
-        for (int i = 0; i < frames; ++i)
-        {
-            DWORD64 address = (DWORD64)(stack[i]);
-            MemStackTrace trace;
-
-            SymFromAddr(process, address, NULL, symbol);
-
-            if (SymGetLineFromAddr64(process, address, &displacement, &line))
-            {
-                trace.Line       = static_cast<int>(line.LineNumber);
-                trace.Location   = static_cast<String>(line.FileName);
-                trace.SymbolName = static_cast<String>(symbol->Name);
-                trace.SmybolAddr = static_cast<uint64>(symbol->Address);
-            }
-            else
-            {
-                trace.SymbolName = static_cast<String>(symbol->Name);
-                trace.SmybolAddr = static_cast<uint64>(symbol->Address);
-            }
-
-            IMAGEHLP_MODULE64 moduleInfo;
-            moduleInfo.SizeOfStruct = sizeof(moduleInfo);
-            if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
-            {
-               trace.ModuleName = static_cast<String>(moduleInfo.ModuleName);
-            }
-
-            info.StackTrace.push_back(trace);
-        }
-
+        info.StackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, info.Stack, nullptr);
 #else
 
-        void*  stack[5];
+        void*  stack[MEMORY_STACK_TRACE_SIZE];
         int    frames       = backtrace(stack, numElementsInArray(stack));
         char** frameStrings = backtrace_symbols(stack, frames);
 
@@ -209,7 +272,21 @@ namespace Lina
         }
 
         ::free(frameStrings);
+#endif
+    }
 
+    void Profiler::Initialize()
+    {
+        LINA_TRACE("[Initialization] -> Profiler {0}", typeid(*this).name());
+    }
+
+    void Profiler::Shutdown()
+    {
+        LINA_TRACE("[Shutdown] -> Profiler {0}", typeid(*this).name());
+
+#ifdef LINA_PLATFORM_WINDOWS
+        HANDLE process = GetCurrentProcess();
+        SymCleanup(process);
 #endif
     }
 

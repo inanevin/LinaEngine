@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-    Lina::Application*    application = new Lina::Application();
+    Lina::Application* application = new Lina::Application();
     Lina::ApplicationInfo appInfo;
     appInfo.m_appMode                        = Lina::ApplicationMode::Editor;
     appInfo.m_appName                        = "Lina Sandbox Game";
@@ -21,8 +21,10 @@ int main(int argc, char** argv)
     appInfo.m_windowProperties.m_vsync       = 0;
     appInfo.m_windowProperties.m_msaaSamples = 0;
     appInfo.m_windowProperties.m_title       = "Lina Engine - Demo Sandbox Project";
+
     application->Initialize(appInfo);
     application->Run();
-
     delete application;
+
+    Lina::Application::Cleanup();
 }

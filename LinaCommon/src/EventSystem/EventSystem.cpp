@@ -42,6 +42,10 @@ namespace Lina::Event
     void EventSystem::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Event System ({0})", typeid(*this).name());
+        for(auto disconnector : m_eventDisconnectors)
+            disconnector.second();
+
+        m_eventDisconnectors.clear();
         m_mainDispatcher.clear();
     }
 } // namespace Lina::Event
