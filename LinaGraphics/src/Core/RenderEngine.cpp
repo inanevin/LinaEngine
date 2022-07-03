@@ -52,6 +52,8 @@ namespace Lina::Graphics
 
     void RenderEngine::SyncRenderData()
     {
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+
         m_systemList.UpdateSystems(0.0f);
     }
 
@@ -61,25 +63,25 @@ namespace Lina::Graphics
 
     void RenderEngine::Render()
     {
-        PROFILER_SCOPE_START("Render Sky", "Render");
+        PROFILER_SCOPE_START("Render Sky", PROFILER_THREAD_RENDER);
         m_skySystem.Render();
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Render Sky", PROFILER_THREAD_RENDER);
 
-        PROFILER_SCOPE_START("Render Particles", "Render");
+        PROFILER_SCOPE_START("Render Particles", PROFILER_THREAD_RENDER);
         m_particleSystem.Render();
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Render Particles", PROFILER_THREAD_RENDER);
 
-        PROFILER_SCOPE_START("Render Decals", "Render");
+        PROFILER_SCOPE_START("Render Decals", PROFILER_THREAD_RENDER);
         m_decalSystem.Render();
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Render Decals", PROFILER_THREAD_RENDER);
 
-        PROFILER_SCOPE_START("Render Sprites", "Render");
+        PROFILER_SCOPE_START("Render Sprites", PROFILER_THREAD_RENDER);
         m_spriteSystem.Render();
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Render Sprites", PROFILER_THREAD_RENDER);
 
-        PROFILER_SCOPE_START("Render Meshes", "Render");
+        PROFILER_SCOPE_START("Render Meshes", PROFILER_THREAD_RENDER);
         m_meshSystem.Render();
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Render Meshes", PROFILER_THREAD_RENDER);
     }
 
     void RenderEngine::Shutdown()

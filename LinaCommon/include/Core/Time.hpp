@@ -41,10 +41,15 @@ namespace Lina
     {
     public:
         /// <summary>
-        /// CPU clock time. This is NOT elapsed time. You can use this to create time points & measure differences.
+        /// CPU clock time. This is NOT elapsed time. You can use this to create time points and measure differences.
         /// </summary>
         /// <returns>In seconds</returns>
         static double GetCPUTime();
+
+        /// <summary>
+        /// Sleeps for given amount of seconds.
+        /// </summary>
+        static void Sleep(double seconds);
 
     private:
 #ifdef LINA_PLATFORM_WINDOWS

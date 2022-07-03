@@ -202,6 +202,8 @@ namespace Lina::Input
 
     void InputEngine::Tick()
     {
+        PROFILER_FUNC(PROFILER_THREAD_INPUT);
+
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)
             m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];

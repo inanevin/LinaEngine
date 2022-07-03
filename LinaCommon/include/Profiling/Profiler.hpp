@@ -62,13 +62,22 @@ namespace Lina
     {
         Function(const String& funcName, const String& threadName = "Main");
         ~Function();
+
+        String ScopeName  = "";
+        String ThreadName = "";
+    };
+
+    struct ThreadBranch
+    {
+        Scope*         LastScope = nullptr;
+        Vector<Scope*> Scopes;
     };
 
     struct Frame
     {
-        double         DurationNS = 0.0;
-        double         StartTime  = 0.0;
-        Vector<Scope*> Scopes;
+        double                        DurationNS = 0.0;
+        double                        StartTime  = 0.0;
+        HashMap<String, ThreadBranch> ThreadBranches;
     };
 
     struct MemAllocationInfo
@@ -104,8 +113,8 @@ namespace Lina
         DeviceMemoryInfo QueryMemoryInfo();
         DeviceCPUInfo    QueryCPUInfo();
         void             StartFrame();
-        void             StartScope(const String& scope, const String& thread = "Main");
-        void             EndScope();
+        void             StartScope(const String& scope, const String& thread);
+        void             EndScope(const String& scope, const String& thread);
         void             OnAllocation(void* ptr, size_t size);
         void             OnVRAMAllocation(void* ptr, size_t size);
         void             OnFree(void* ptr);
@@ -128,7 +137,6 @@ namespace Lina
         void CleanupScope(Scope* s);
 
         double                                    m_totalFrameTimeNS = 0.0;
-        Scope*                                    m_lastScope        = nullptr;
         Queue<Frame>                              m_frames;
         ParallelHashMap<void*, MemAllocationInfo> m_memAllocations;
         ParallelHashMap<void*, MemAllocationInfo> m_vramAllocations;
@@ -137,24 +145,28 @@ namespace Lina
         std::mutex                                m_lock;
     };
 
-#define PROFILER_FRAME_START()               Profiler::Get()->StartFrame()
-#define PROFILER_SCOPE_START(SCOPENAME, ...) Profiler::Get()->StartScope(SCOPENAME, __VA_ARGS__)
-#define PROFILER_SCOPE_END()                 Profiler::Get()->EndScope()
-#define PROFILER_FUNC(...)                   Function func(__FUNCTION__, __VA_ARGS__)
-#define PROFILER_DUMP_LEAKS(PATH)            Profiler::Get()->DumpMemoryLeaks(PATH)
-#define PROFILER_ALLOC(PTR, SZ)              Profiler::Get()->OnAllocation(PTR, SZ)
-#define PROFILER_VRAMALLOC(PTR, SZ)          Profiler::Get()->OnVRAMAllocation(PTR, SZ)
-#define PROFILER_FREE(PTR)                   Profiler::Get()->OnFree(PTR)
-#define PROFILER_VRAMFREE(PTR)               Profiler::Get()->OnVRAMFree(PTR)
-#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)   Profiler::Get()->DumpFrameAnalysis(PATH)
+#define PROFILER_FRAME_START()                      Profiler::Get()->StartFrame()
+#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Profiler::Get()->StartScope(SCOPENAME, THREADNAME)
+#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Profiler::Get()->EndScope(SCOPENAME, THREADNAME)
+#define PROFILER_FUNC(...)                          Function func(__FUNCTION__, __VA_ARGS__)
+#define PROFILER_DUMP_LEAKS(PATH)                   Profiler::Get()->DumpMemoryLeaks(PATH)
+#define PROFILER_ALLOC(PTR, SZ)                     Profiler::Get()->OnAllocation(PTR, SZ)
+#define PROFILER_VRAMALLOC(PTR, SZ)                 Profiler::Get()->OnVRAMAllocation(PTR, SZ)
+#define PROFILER_FREE(PTR)                          Profiler::Get()->OnFree(PTR)
+#define PROFILER_VRAMFREE(PTR)                      Profiler::Get()->OnVRAMFree(PTR)
+#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)          Profiler::Get()->DumpFrameAnalysis(PATH)
+#define PROFILER_THREAD_RENDER                      "Render"
+#define PROFILER_THREAD_INPUT                       "Input"
+#define PROFILER_THREAD_SIMULATION                  "Simulation"
+#define PROFILER_THREAD_MAIN                        "Main"
 
 } // namespace Lina
 
 #else
 
 #define PROFILER_FRAME_START()
-#define PROFILER_SCOPE_START(SCOPENAME, ...)
-#define PROFILER_SCOPE_END()
+#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME)
+#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)
 #define PROFILER_FUNC(...)
 #define PROFILER_DUMP_LEAKS(PATH)
 #define PROFILER_ALLOC(PTR, SZ)
@@ -163,6 +175,10 @@ namespace Lina
 #define PROFILER_VRAMFREE(PTR)
 #define PROFILER_SKIPTRACK(skip)
 #define PROFILER_DUMP_FRAME_ANALYSIS(PATH)
+#define PROFILER_THREAD_RENDER
+#define PROFILER_THREAD_INPUT
+#define PROFILER_THREAD_SIMULATION
+#define PROFILER_THREAD_MAIN
 #endif
 
 #endif

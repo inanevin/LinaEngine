@@ -172,7 +172,7 @@ namespace Lina
 
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.m_packagePass);
     }
-
+  
     void Engine::Run()
     {
         m_deltaTimeArray.fill(-1.0);
@@ -197,31 +197,24 @@ namespace Lina
         Taskflow gameLoop;
         auto [_Input, _RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
             [&]() {
-                PROFILER_SCOPE_START("Input Poll", "Input");
                 m_inputEngine.Tick();
-                PROFILER_SCOPE_END();
             },
             [&]() {
-                PROFILER_SCOPE_START("Render Previous Frame", "Render");
                 m_renderEngine.Render();
                 frames++;
-                PROFILER_SCOPE_END();
             },
             [&]() {
-                PROFILER_SCOPE_START("Game Simulation", "Simulation");
                 RunSimulation((float)m_rawDeltaTime);
                 updates++;
-                PROFILER_SCOPE_END();
             },
             [&]() {
-                PROFILER_SCOPE_START("Synchronize Render Data", "Simulation");
                 m_renderEngine.SyncRenderData();
-                PROFILER_SCOPE_END();
             });
 
         _Input.precede(_RenderPreviousFrame, _RunSimulation);
         _SyncRenderData.succeed(_RunSimulation);
         int counter = 0;
+
         while (m_running)
         {
             PROFILER_FRAME_START();
@@ -229,6 +222,21 @@ namespace Lina
 
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
+
+            if (m_frameLimit > 0 && !m_firstRun)
+            {
+                const double diff              = currentFrameTime - previousFrameTime;
+
+                if (diff < m_frameLimitSeconds)
+                {
+                    const double waitAmount = (m_frameLimitSeconds - diff);
+                    PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
+                    Time::Sleep(waitAmount);
+                    PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
+                    currentFrameTime += waitAmount;
+                }
+            }
+
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
@@ -240,20 +248,21 @@ namespace Lina
 #ifdef LINA_ENABLE_PROFILING
 
 #endif
-            double now = GetElapsedTime();
             // Calculate FPS, UPS.
-            if (now - totalFPSTime >= 1.0)
+            if (currentFrameTime - totalFPSTime >= 1.0)
             {
                 m_frameTime  = m_rawDeltaTime * 1000;
                 m_currentFPS = frames;
                 m_currentUPS = updates;
-                totalFPSTime += 1.0;
+                totalFPSTime = currentFrameTime;
                 frames  = 0;
                 updates = 0;
             }
 
             if (m_firstRun)
                 m_firstRun = false;
+
+            LINA_TRACE("{0}", m_currentFPS);
         }
 
         m_jobSystem.WaitForAll();
@@ -282,9 +291,9 @@ namespace Lina
             return;
         m_shouldSkipFrame = false;
 
-        PROFILER_SCOPE_START("Pre Tick", "Simulation");
+        PROFILER_SCOPE_START("Pre Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Pre Tick", PROFILER_THREAD_SIMULATION);
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -294,31 +303,31 @@ namespace Lina
         {
             m_physicsAccumulator -= physicsStep;
 
-            PROFILER_SCOPE_START("Pre Physics", "Simulation");
+            PROFILER_SCOPE_START("Pre Physics", PROFILER_THREAD_SIMULATION);
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-            PROFILER_SCOPE_END();
+            PROFILER_SCOPE_END("Pre Physics", PROFILER_THREAD_SIMULATION);
 
-            PROFILER_SCOPE_START("Physics Simulation", "Simulation");
+            PROFILER_SCOPE_START("Physics Simulation", PROFILER_THREAD_SIMULATION);
             m_physicsEngine.Tick(physicsStep);
-            PROFILER_SCOPE_END();
+            PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_SIMULATION);
 
-            PROFILER_SCOPE_START("Post Tick", "Simulation");
+            PROFILER_SCOPE_START("Post Tick", PROFILER_THREAD_SIMULATION);
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
-            PROFILER_SCOPE_END();
+            PROFILER_SCOPE_END("Post Tick", PROFILER_THREAD_SIMULATION);
         }
 
         // Other main systems (engine or game)
-        PROFILER_SCOPE_START("Main ECS Pipeline", "Simulation");
+        PROFILER_SCOPE_START("Main ECS Pipeline", PROFILER_THREAD_SIMULATION);
         m_mainECSPipeline.UpdateSystems(deltaTime);
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Main ECS Pipeline", PROFILER_THREAD_SIMULATION);
 
-        PROFILER_SCOPE_START("Simulation Tick", "Simulation");
+        PROFILER_SCOPE_START("Simulation Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Simulation Tick", PROFILER_THREAD_SIMULATION);
 
-        PROFILER_SCOPE_START("Post Simulation Tick", "Simulation");
+        PROFILER_SCOPE_START("Post Simulation Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END();
+        PROFILER_SCOPE_END("Post Simulation Tick", PROFILER_THREAD_SIMULATION);
     }
 
     void Engine::RemoveOutliers(bool biggest)

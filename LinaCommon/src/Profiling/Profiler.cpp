@@ -161,31 +161,33 @@ namespace Lina
     void Profiler::StartScope(const String& scope, const String& thread)
     {
         m_lock.lock();
-        g_skipAllocTrack        = true;
-        const double cpuTimeNow = Time::GetCPUTime();
+        g_skipAllocTrack         = true;
+        const double  cpuTimeNow = Time::GetCPUTime();
+        ThreadBranch& branch     = m_frames.back().ThreadBranches[thread];
 
         Scope* s      = new Scope();
         s->Name       = scope;
         s->ThreadName = thread;
         s->StartTime  = cpuTimeNow;
-        s->Parent     = m_lastScope;
+        s->Parent     = branch.LastScope;
         s->ThreadID   = StringID(thread.c_str()).value();
 
-        if (m_lastScope == nullptr || m_lastScope->ThreadID != s->ThreadID)
-            m_frames.back().Scopes.push_back(s);
+        if (branch.LastScope == nullptr)
+            branch.Scopes.push_back(s);
         else
-            m_lastScope->Children.push_back(s);
+            branch.LastScope->Children.push_back(s);
 
-        m_lastScope      = s;
+        branch.LastScope = s;
         g_skipAllocTrack = false;
         m_lock.unlock();
     }
 
-    void Profiler::EndScope()
+    void Profiler::EndScope(const String& scope, const String& thread)
     {
         m_lock.lock();
-        m_lastScope->DurationNS = (Time::GetCPUTime() - m_lastScope->StartTime) * 1.0e9;
-        m_lastScope             = m_lastScope->Parent;
+        ThreadBranch& branch         = m_frames.back().ThreadBranches[thread];
+        branch.LastScope->DurationNS = (Time::GetCPUTime() - branch.LastScope->StartTime) * 1.0e9;
+        branch.LastScope             = branch.LastScope->Parent;
         m_lock.unlock();
     }
 
@@ -234,13 +236,14 @@ namespace Lina
 
     Function::Function(const String& funcName, const String& threadName)
     {
+        ScopeName  = funcName;
+        ThreadName = threadName;
         Profiler::Get()->StartScope(funcName, threadName);
-        
     }
 
     Function::~Function()
     {
-        Profiler::Get()->EndScope();
+        Profiler::Get()->EndScope(ScopeName, ThreadName);
     }
 
     void Profiler::DumpMemoryLeaks(const String& path)
@@ -369,36 +372,46 @@ namespace Lina
         if (file.is_open())
         {
 
-            const double avgTimeNS = m_totalFrameTimeNS / static_cast<double>(MAX_FRAME_BACKTRACE);
+            const double avgTimeNS = m_totalFrameTimeNS / static_cast<double>(m_frames.size());
             const double avgTimeMS = avgTimeNS * 0.000001;
 
             file << "-------------------------------------------\n";
-            file << "FRAME ANALYSIS - SHOWING LAST " << MAX_FRAME_BACKTRACE << " FRAMES \n";
+            file << "FRAME ANALYSIS - SHOWING LAST " << m_frames.size() << " FRAMES \n";
             file << "-------------------------------------------\n";
             file << "Average Frame Time: " << avgTimeNS << " (NS) " << avgTimeMS << " (MS) \n";
+            file << "Average FPS: " << static_cast<int>(1000.0 / avgTimeMS) << "\n";
             file << "\n";
 
             int frameCounter = 0;
             while (!m_frames.empty())
             {
                 auto f = m_frames.front();
-                
+
                 file << "------------------------------------ FRAME " << frameCounter << "------------------------------------\n";
                 file << "Duration: " << f.DurationNS << " (NS) " << f.DurationNS * 0.000001 << " (MS)\n";
-
-                String indent = "";
-                for(auto s : f.Scopes)
-                    WriteScopeData(indent, s, file);
-
-                file << "\n";
                 file << "\n";
 
+                for (const auto& t : f.ThreadBranches)
+                {
+                    double threadDurationNS = 0.0;
+                    for (auto s : t.second.Scopes)
+                        threadDurationNS += s->DurationNS;
+
+                    file << "********************************* THREAD: " << t.first.c_str() << " *********************************\n";
+                    file << "** Total Duration: " << threadDurationNS << " (NS) " << threadDurationNS * 0.000001 << " (MS)\n";
+                    String indent = "** ";
+                    for (auto s : t.second.Scopes)
+                        WriteScopeData(indent, s, file);
+
+                    file << "\n";
+                }
+
+                file << "\n";
                 CleanupFrame(f);
                 m_frames.pop();
                 frameCounter++;
             }
 
-            
             file.close();
         }
     }
@@ -406,14 +419,13 @@ namespace Lina
     void Profiler::WriteScopeData(String& indent, Scope* scope, std::ofstream& file)
     {
         String newIndent = indent;
-        file << "\n";
+        file << "**\n";
         file << indent.c_str() << "-------- " << scope->Name.c_str() << " --------\n";
         file << indent.c_str() << "Duration: " << scope->DurationNS * 0.000001 << " (MS)\n";
-        file << indent.c_str() << "Thread: " << scope->ThreadName.c_str()  << "\n";
+        file << indent.c_str() << "Thread: " << scope->ThreadName.c_str() << "\n";
         newIndent += "    ";
-        for(auto s : scope->Children)
+        for (auto s : scope->Children)
             WriteScopeData(newIndent, s, file);
-
     }
 
     void Profiler::CaptureTrace(MemAllocationInfo& info)
@@ -464,10 +476,13 @@ namespace Lina
 
     void Profiler::CleanupFrame(Frame& frame)
     {
-        for (auto scope : frame.Scopes)
-            CleanupScope(scope);
+        for (auto& [threadName, threadInfo] : frame.ThreadBranches)
+        {
+            for (auto* scope : threadInfo.Scopes)
+                CleanupScope(scope);
 
-        frame.Scopes.clear();
+            threadInfo.Scopes.clear();
+        }
     }
 
     void Profiler::CleanupScope(Scope* scope)
@@ -477,7 +492,6 @@ namespace Lina
 
         delete scope;
     }
-
 
 } // namespace Lina
 

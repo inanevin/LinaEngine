@@ -68,6 +68,17 @@ namespace Lina
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
 
+        /// <summary>
+        /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
+        /// Setting 0 removes the cap.
+        /// </summary>
+        /// <param name="maxFPS"></param>
+        inline void SetFrameLimit(int maxFPS)
+        {
+            m_frameLimit        = maxFPS;
+            m_frameLimitSeconds = 1.0 / static_cast<double>(m_frameLimit);
+        }
+
         inline EngineSettings* GetEngineSettings()
         {
             return m_engineSettings;
@@ -156,13 +167,14 @@ namespace Lina
         MessageBus                 m_messageBus;
         ApplicationInfo            m_appInfo;
         JobSystem                  m_jobSystem;
-        bool                       m_running         = false;
-        bool                       m_canRender       = true;
-        bool                       m_firstRun        = true;
-        bool                       m_isInPlayMode    = false;
-        bool                       m_paused          = false;
-        bool                       m_shouldSkipFrame = false;
-
+        bool                       m_running           = false;
+        bool                       m_canRender         = true;
+        bool                       m_firstRun          = true;
+        bool                       m_isInPlayMode      = false;
+        bool                       m_paused            = false;
+        bool                       m_shouldSkipFrame   = false;
+        int                        m_frameLimit        = 0;
+        double                     m_frameLimitSeconds = 0;
         // Performance & variable stepping
         int                                    m_currentFPS = 0;
         int                                    m_currentUPS = 0;

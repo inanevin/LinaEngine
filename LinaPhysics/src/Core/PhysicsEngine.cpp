@@ -125,7 +125,7 @@ namespace Lina::Physics
 
     void PhysicsEngine::Tick(float fixedDelta)
     {
-        PROFILER_FUNC("Simulation");
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
 
         // Update phy.
         m_pxScene->simulate((PxReal)m_stepTime);
