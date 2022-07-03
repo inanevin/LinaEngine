@@ -74,6 +74,21 @@ namespace Lina
         void*          Stack[MEMORY_STACK_TRACE_SIZE];
     };
 
+    struct DeviceMemoryInfo
+    {
+        unsigned long TotalVirtualMemory        = 0;
+        unsigned long TotalUsedVirtualMemory    = 0;
+        unsigned long TotalProcessVirtualMemory = 0;
+        unsigned long TotalRAM                  = 0;
+        unsigned long TotalUsedRAM              = 0;
+        unsigned long TotalProcessRAM           = 0;
+    };
+
+    struct DeviceCPUInfo
+    {
+        double ProcessUse = 0;
+    };
+
     class Profiler
     {
     public:
@@ -82,6 +97,8 @@ namespace Lina
             return s_instance;
         }
 
+        DeviceMemoryInfo QueryMemoryInfo();
+        DeviceCPUInfo    QueryCPUInfo();
         void             StartFrame();
         void             StartScope(const String& scope, const String& thread = "Main");
         void             EndScope();
@@ -139,7 +156,11 @@ namespace Lina
 #define PROFILER_FREE(PTR)
 #define PROFILER_VRAMFREE(PTR)
 #define PROFILER_SKIPTRACK(skip)
+#define PROFILER_TOTAL_MEMALLOCS  0
+#define PROFILER_TOTAL_VRAMALLOCS 0
 #define PROFILER_DESTROY
+#define PROFILER_GET_MEMINFO() 
+#define PROFILER_GET_CPUINFO() 
 #endif
 
 #endif

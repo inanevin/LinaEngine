@@ -39,12 +39,99 @@ SOFTWARE.
 #include <process.h>
 #include <iostream>
 #include <Windows.h>
+#include <psapi.h>
 #include <DbgHelp.h>
 #endif
 
 namespace Lina
 {
     Profiler* Profiler::s_instance = nullptr;
+
+    DeviceMemoryInfo Profiler::QueryMemoryInfo()
+    {
+        DeviceMemoryInfo info;
+
+#ifdef LINA_PLATFORM_WINDOWS
+        MEMORYSTATUSEX memInfo;
+        memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+        GlobalMemoryStatusEx(&memInfo);
+        info.TotalVirtualMemory     = static_cast<unsigned long>(memInfo.ullTotalPageFile);
+        info.TotalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
+        info.TotalRAM               = static_cast<unsigned long>(memInfo.ullTotalPhys);
+        info.TotalUsedRAM           = static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
+        PROCESS_MEMORY_COUNTERS_EX pmc;
+        GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+        info.TotalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
+        info.TotalProcessRAM           = static_cast<unsigned long>(pmc.WorkingSetSize);
+#else
+        LINA_ERR("[Profiler] -> Memory query for other platforms not implemented!");
+#endif
+
+        return info;
+    }
+
+    DeviceCPUInfo Profiler::QueryCPUInfo()
+    {
+        DeviceCPUInfo info;
+
+#ifdef LINA_PLATFORM_WINDOWS
+        static bool           inited        = false;
+        static int            numProcessors = 0;
+        static HANDLE         self;
+        static ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
+
+        if (!inited)
+        {
+            inited = true;
+            SYSTEM_INFO sysInfo;
+            FILETIME    ftime, fsys, fuser;
+
+            GetSystemInfo(&sysInfo);
+            numProcessors = sysInfo.dwNumberOfProcessors;
+
+            GetSystemTimeAsFileTime(&ftime);
+            memcpy(&lastCPU, &ftime, sizeof(FILETIME));
+
+            self = GetCurrentProcess();
+            if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
+            {
+                memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
+                memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
+            }
+        }
+
+        FILETIME       ftime, fsys, fuser;
+        ULARGE_INTEGER now, sys, user;
+        double         percent = 0.0;
+
+        GetSystemTimeAsFileTime(&ftime);
+        memcpy(&now, &ftime, sizeof(FILETIME));
+
+        if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
+        {
+            memcpy(&sys, &fsys, sizeof(FILETIME));
+            memcpy(&user, &fuser, sizeof(FILETIME));
+            percent = (sys.QuadPart - lastSysCPU.QuadPart) +
+                      (user.QuadPart - lastUserCPU.QuadPart);
+
+            auto diff = now.QuadPart - lastCPU.QuadPart;
+
+            if (diff != 0)
+                percent /= diff;
+
+            percent /= numProcessors;
+            lastCPU         = now;
+            lastUserCPU     = user;
+            lastSysCPU      = sys;
+            info.ProcessUse = percent * 100.0;
+        }
+
+#else
+        LINA_ERR("[Profiler] -> CPU query for other platforms not implemented!");
+#endif
+
+        return info;
+    }
 
     void Profiler::StartFrame()
     {
@@ -155,7 +242,7 @@ namespace Lina
         auto writeTrace = [&](const ParallelHashMap<void*, MemAllocationInfo>& map) {
             for (const auto& alloc : map)
             {
-                if(alloc.first == 0)
+                if (alloc.first == 0)
                     continue;
 
                 file << "****************** LEAK DETECTED ******************\n";
@@ -186,10 +273,10 @@ namespace Lina
                 {
                     file << "------ Stack Trace " << i << "------\n";
 
-                    DWORD64       address = (DWORD64)(alloc.second.Stack[i]);
+                    DWORD64 address = (DWORD64)(alloc.second.Stack[i]);
 
                     SymFromAddr(process, address, NULL, symbol);
-                   
+
                     if (SymGetLineFromAddr64(process, address, &displacement, line))
                     {
                         file << "Location:" << line->FileName << "\n";
@@ -202,7 +289,7 @@ namespace Lina
                         file << "Smybol:" << symbol->Name << "\n";
                         file << "SymbolAddr:" << symbol->Address << "\n";
                     }
-                   
+
                     IMAGEHLP_MODULE64 moduleInfo;
                     moduleInfo.SizeOfStruct = sizeof(moduleInfo);
                     if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))

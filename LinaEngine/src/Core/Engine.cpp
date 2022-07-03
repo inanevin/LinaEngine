@@ -223,12 +223,23 @@ namespace Lina
 
             m_jobSystem.Run(gameLoop).wait();
 
-            if (GetElapsedTime() > 5)
-                m_running = false;
+            //if (GetElapsedTime() > 5)
+            //    m_running = false;
 
+#ifdef LINA_ENABLE_PROFILING
             auto size = Profiler::Get()->m_totalMemAllocationSize;
             LINA_TRACE("Aloc {0}", size);
 
+            DeviceMemoryInfo memInfo = Profiler::Get()->QueryMemoryInfo();
+            DeviceCPUInfo cpuInfo = Profiler::Get()->QueryCPUInfo();
+            LINA_TRACE("Total Virtual Mem {0}", memInfo.TotalVirtualMemory);
+            LINA_TRACE("Used Virtual Mem {0}", memInfo.TotalUsedVirtualMemory);
+            LINA_TRACE("Process Virtual Mem {0}", memInfo.TotalProcessVirtualMemory);
+            LINA_TRACE("Total RAM {0}", memInfo.TotalRAM);
+            LINA_TRACE("Used RAM {0}", memInfo.TotalUsedRAM);
+            LINA_TRACE("Process RAM {0}", memInfo.TotalProcessRAM);
+            LINA_TRACE("CPU Use {0}", cpuInfo.ProcessUse);
+#endif
             double now = GetElapsedTime();
             // Calculate FPS, UPS.
             if (now - totalFPSTime >= 1.0)
