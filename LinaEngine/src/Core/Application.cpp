@@ -47,7 +47,7 @@ namespace Lina
 
     void Application::Cleanup()
     {
-        PROFILER_DUMPLEAKS("lina_memleaks.txt");
+        PROFILER_DUMP_LEAKS("lina_memleaks.txt");
 #ifdef LINA_ENABLE_PROFILING
         delete Profiler::s_instance;
         Profiler::s_instance = nullptr;
@@ -73,7 +73,7 @@ namespace Lina
         }
 
 #ifdef LINA_ENABLE_PROFILING
-        m_profiler = new Profiler();
+        m_profiler           = new Profiler();
         Profiler::s_instance = m_profiler;
         m_profiler->Initialize();
 #endif

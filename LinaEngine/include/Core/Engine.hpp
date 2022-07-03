@@ -138,7 +138,7 @@ namespace Lina
 
         void   Initialize(const ApplicationInfo& appInfo);
         void   Run();
-        void   UpdateGame(float deltaTime);
+        void   RunSimulation(float deltaTime);
         void   RemoveOutliers(bool biggest);
         void   RegisterResourceTypes();
         double SmoothDeltaTime(double dt);

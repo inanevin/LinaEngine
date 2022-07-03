@@ -35,11 +35,6 @@ SOFTWARE.
 
 namespace Lina::Event
 {
-    struct EPhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
-    };
     struct EPrePhysicsTick
     {
         float fixedDelta   = 0.0f;

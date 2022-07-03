@@ -61,11 +61,25 @@ namespace Lina::Graphics
 
     void RenderEngine::Render()
     {
+        PROFILER_SCOPE_START("Render Sky", "Render");
         m_skySystem.Render();
+        PROFILER_SCOPE_END();
+
+        PROFILER_SCOPE_START("Render Particles", "Render");
         m_particleSystem.Render();
+        PROFILER_SCOPE_END();
+
+        PROFILER_SCOPE_START("Render Decals", "Render");
         m_decalSystem.Render();
+        PROFILER_SCOPE_END();
+
+        PROFILER_SCOPE_START("Render Sprites", "Render");
         m_spriteSystem.Render();
+        PROFILER_SCOPE_END();
+
+        PROFILER_SCOPE_START("Render Meshes", "Render");
         m_meshSystem.Render();
+        PROFILER_SCOPE_END();
     }
 
     void RenderEngine::Shutdown()

@@ -34,24 +34,28 @@ SOFTWARE.
 #ifdef LINA_ENABLE_PROFILING
 
 #define MEMORY_STACK_TRACE_SIZE 20
+#define MAX_FRAME_BACKTRACE     500
 
 // Headers here.
 #include "Data/String.hpp"
-#include "Data/IntrusiveList.hpp"
 #include "Data/HashMap.hpp"
-#include "Data/FixedVector.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Queue.hpp"
+#include "Utility/StringId.hpp"
+#include <source_location>
 
 namespace Lina
 {
-    struct Scope : public IntrusiveListNode
+    struct Scope
     {
     public:
-        String               ThreadName = "";
-        String               Name       = "";
-        double               DurationNS = 0.0;
-        double               StartTime  = 0.0;
-        Scope*               Parent     = nullptr;
-        IntrusiveList<Scope> Children;
+        String         ThreadName = "";
+        StringIDType   ThreadID   = 0;
+        String         Name       = "";
+        double         DurationNS = 0.0;
+        double         StartTime  = 0.0;
+        Scope*         Parent     = nullptr;
+        Vector<Scope*> Children;
     };
 
     struct Function
@@ -60,11 +64,11 @@ namespace Lina
         ~Function();
     };
 
-    struct Frame : public IntrusiveListNode
+    struct Frame
     {
-        double               DurationNS = 0.0;
-        double               StartTime  = 0.0;
-        IntrusiveList<Scope> Scopes;
+        double         DurationNS = 0.0;
+        double         StartTime  = 0.0;
+        Vector<Scope*> Scopes;
     };
 
     struct MemAllocationInfo
@@ -107,6 +111,8 @@ namespace Lina
         void             OnFree(void* ptr);
         void             OnVRAMFree(void* ptr);
         void             DumpMemoryLeaks(const String& path);
+        void             DumpFrameAnalysis(const String& path);
+        void             WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
         static Profiler* s_instance;
 
     private:
@@ -118,10 +124,12 @@ namespace Lina
 
         void Initialize();
         void Shutdown();
+        void CleanupFrame(Frame& frame);
+        void CleanupScope(Scope* s);
 
-        IntrusiveList<Frame>                      m_frames;
-        Scope*                                    m_lastScope = nullptr;
-        Frame*                                    m_lastFrame = nullptr;
+        double                                    m_totalFrameTimeNS = 0.0;
+        Scope*                                    m_lastScope        = nullptr;
+        Queue<Frame>                              m_frames;
         ParallelHashMap<void*, MemAllocationInfo> m_memAllocations;
         ParallelHashMap<void*, MemAllocationInfo> m_vramAllocations;
         size_t                                    m_totalMemAllocationSize  = 0;
@@ -131,36 +139,30 @@ namespace Lina
 
 #define PROFILER_FRAME_START()               Profiler::Get()->StartFrame()
 #define PROFILER_SCOPE_START(SCOPENAME, ...) Profiler::Get()->StartScope(SCOPENAME, __VA_ARGS__)
-#define PROFILER_SCOPE_END                   Profiler::Get()->EndScope()
-#define PROFILER_FUNC(...)                   Function func(__func__, __VA_ARGS__)
-#define PROFILER_DUMPLEAKS(PATH)             Profiler::Get()->DumpMemoryLeaks(PATH)
+#define PROFILER_SCOPE_END()                 Profiler::Get()->EndScope()
+#define PROFILER_FUNC(...)                   Function func(__FUNCTION__, __VA_ARGS__)
+#define PROFILER_DUMP_LEAKS(PATH)            Profiler::Get()->DumpMemoryLeaks(PATH)
 #define PROFILER_ALLOC(PTR, SZ)              Profiler::Get()->OnAllocation(PTR, SZ)
 #define PROFILER_VRAMALLOC(PTR, SZ)          Profiler::Get()->OnVRAMAllocation(PTR, SZ)
 #define PROFILER_FREE(PTR)                   Profiler::Get()->OnFree(PTR)
 #define PROFILER_VRAMFREE(PTR)               Profiler::Get()->OnVRAMFree(PTR)
-#define PROFILER_SKIPTRACK(skip)             g_skipAllocTrack = skip
-#define PROFILER_DESTROY()         \
-    delete ::Profiler::s_instance; \
-    ::Profiler::s_instance = nullptr
+#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)   Profiler::Get()->DumpFrameAnalysis(PATH)
+
 } // namespace Lina
 
 #else
 
 #define PROFILER_FRAME_START()
 #define PROFILER_SCOPE_START(SCOPENAME, ...)
-#define PROFILER_SCOPE_END
+#define PROFILER_SCOPE_END()
 #define PROFILER_FUNC(...)
-#define PROFILER_DUMPLEAKS(PATH)
+#define PROFILER_DUMP_LEAKS(PATH)
 #define PROFILER_ALLOC(PTR, SZ)
 #define PROFILER_VRAMALLOC(PTR, SZ)
 #define PROFILER_FREE(PTR)
 #define PROFILER_VRAMFREE(PTR)
 #define PROFILER_SKIPTRACK(skip)
-#define PROFILER_TOTAL_MEMALLOCS  0
-#define PROFILER_TOTAL_VRAMALLOCS 0
-#define PROFILER_DESTROY
-#define PROFILER_GET_MEMINFO() 
-#define PROFILER_GET_CPUINFO() 
+#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)
 #endif
 
 #endif

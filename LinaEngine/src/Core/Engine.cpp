@@ -195,27 +195,38 @@ namespace Lina
         // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
 
         Taskflow gameLoop;
-        auto [Input, RenderPreviousFrame, RunSimulation, SyncRenderData] = gameLoop.emplace(
+        auto [_Input, _RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
             [&]() {
+                PROFILER_SCOPE_START("Input Poll", "Input");
                 m_inputEngine.Tick();
+                PROFILER_SCOPE_END();
             },
             [&]() {
+                PROFILER_SCOPE_START("Render Previous Frame", "Render");
                 m_renderEngine.Render();
                 frames++;
+                PROFILER_SCOPE_END();
             },
             [&]() {
-                UpdateGame((float)m_rawDeltaTime);
+                PROFILER_SCOPE_START("Game Simulation", "Simulation");
+                RunSimulation((float)m_rawDeltaTime);
                 updates++;
+                PROFILER_SCOPE_END();
             },
             [&]() {
+                PROFILER_SCOPE_START("Synchronize Render Data", "Simulation");
                 m_renderEngine.SyncRenderData();
+                PROFILER_SCOPE_END();
             });
 
-        Input.precede(RenderPreviousFrame, RunSimulation);
-        SyncRenderData.succeed(RunSimulation);
-
+        _Input.precede(_RenderPreviousFrame, _RunSimulation);
+        _SyncRenderData.succeed(_RunSimulation);
+        int counter = 0;
         while (m_running)
         {
+            PROFILER_FRAME_START();
+            counter++;
+
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
@@ -223,22 +234,11 @@ namespace Lina
 
             m_jobSystem.Run(gameLoop).wait();
 
-            //if (GetElapsedTime() > 5)
-            //    m_running = false;
+            if (GetElapsedTime() > 5)
+                m_running = false;
 
 #ifdef LINA_ENABLE_PROFILING
-            auto size = Profiler::Get()->m_totalMemAllocationSize;
-            LINA_TRACE("Aloc {0}", size);
 
-            DeviceMemoryInfo memInfo = Profiler::Get()->QueryMemoryInfo();
-            DeviceCPUInfo cpuInfo = Profiler::Get()->QueryCPUInfo();
-            LINA_TRACE("Total Virtual Mem {0}", memInfo.TotalVirtualMemory);
-            LINA_TRACE("Used Virtual Mem {0}", memInfo.TotalUsedVirtualMemory);
-            LINA_TRACE("Process Virtual Mem {0}", memInfo.TotalProcessVirtualMemory);
-            LINA_TRACE("Total RAM {0}", memInfo.TotalRAM);
-            LINA_TRACE("Used RAM {0}", memInfo.TotalUsedRAM);
-            LINA_TRACE("Process RAM {0}", memInfo.TotalProcessRAM);
-            LINA_TRACE("CPU Use {0}", cpuInfo.ProcessUse);
 #endif
             double now = GetElapsedTime();
             // Calculate FPS, UPS.
@@ -255,10 +255,13 @@ namespace Lina
             if (m_firstRun)
                 m_firstRun = false;
         }
+
         m_jobSystem.WaitForAll();
 
         // Ending game.
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
+
+        PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
         // Shutting down.
         PackageProject("");
@@ -272,14 +275,16 @@ namespace Lina
         m_eventSystem.Shutdown();
     }
 
-    void Engine::UpdateGame(float deltaTime)
+    void Engine::RunSimulation(float deltaTime)
     {
         // Pause & skip frame controls.
         if (m_paused && !m_shouldSkipFrame)
             return;
         m_shouldSkipFrame = false;
 
+        PROFILER_SCOPE_START("Pre Tick", "Simulation");
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_SCOPE_END();
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -288,21 +293,32 @@ namespace Lina
         if (m_physicsAccumulator >= physicsStep)
         {
             m_physicsAccumulator -= physicsStep;
+
+            PROFILER_SCOPE_START("Pre Physics", "Simulation");
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+            PROFILER_SCOPE_END();
 
+            PROFILER_SCOPE_START("Physics Simulation", "Simulation");
             m_physicsEngine.Tick(physicsStep);
+            PROFILER_SCOPE_END();
 
-            m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{physicsStep, m_isInPlayMode});
-
+            PROFILER_SCOPE_START("Post Tick", "Simulation");
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
+            PROFILER_SCOPE_END();
         }
 
         // Other main systems (engine or game)
+        PROFILER_SCOPE_START("Main ECS Pipeline", "Simulation");
         m_mainECSPipeline.UpdateSystems(deltaTime);
+        PROFILER_SCOPE_END();
 
+        PROFILER_SCOPE_START("Simulation Tick", "Simulation");
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_SCOPE_END();
 
+        PROFILER_SCOPE_START("Post Simulation Tick", "Simulation");
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        PROFILER_SCOPE_END();
     }
 
     void Engine::RemoveOutliers(bool biggest)
