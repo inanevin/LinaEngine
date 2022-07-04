@@ -55,6 +55,7 @@ namespace Lina::World
         void Initialize(ApplicationInfo appInfo);
         void Shutdown();
         void InstallLevel(const String& path);
+        void UninstallCurrent();
         void SaveCurrentLevel();
 
         /// <summary>

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -80,6 +80,30 @@ namespace Lina::World
         Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
     }
 
+    void LevelManager::UninstallCurrent()
+    {
+        if (m_currentLevel == nullptr)
+        {
+            LINA_WARN("[Level Manager] -> No level to uninstall.");
+            return;
+        }
+
+        // Uninstall current level.
+        Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
+        m_currentLevel->Uninstall();
+
+        // Unload resources
+        auto& resMap = m_currentLevel->GetResources();
+        auto* storage = Resources::ResourceStorage::Get();
+        for (const auto& [tid, set] : resMap)
+        {
+            for (auto sid : set)
+                storage->Unload(tid, sid);
+        }
+
+        Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
+    }
+
     void LevelManager::SaveCurrentLevel()
     {
         if (m_currentLevel == nullptr)
@@ -90,6 +114,8 @@ namespace Lina::World
 
         const String path = m_currentLevel->GetPath();
         m_currentLevel->SaveToFile(path);
+
+        LINA_TRACE("[Level Manager] -> Level saved: {0}", m_currentLevel->GetPath());
     }
 
     void LevelManager::CreateLevel(const String& path)

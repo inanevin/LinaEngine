@@ -46,7 +46,6 @@ namespace Lina::Resources
     {
     public:
         static Utility::Folder*     s_rootFolder;
-        static ResourceProgressData s_currentProgressData;
 
         static String& GetWorkingDire()
         {

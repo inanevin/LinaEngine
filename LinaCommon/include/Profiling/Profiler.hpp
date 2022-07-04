@@ -49,13 +49,13 @@ namespace Lina
     struct Scope
     {
     public:
-        String         ThreadName = "";
-        StringIDType   ThreadID   = 0;
-        String         Name       = "";
-        double         DurationNS = 0.0;
-        double         StartTime  = 0.0;
-        Scope*         Parent     = nullptr;
-        Vector<Scope*> Children;
+        String         threadName = "";
+        StringIDType   threadID   = 0;
+        String         name       = "";
+        double         durationNS = 0.0;
+        double         startTime  = 0.0;
+        Scope*         parent     = nullptr;
+        Vector<Scope*> children;
     };
 
     struct Function
@@ -64,42 +64,42 @@ namespace Lina
         ~Function();
 
         String ScopeName  = "";
-        String ThreadName = "";
+        String threadName = "";
     };
 
     struct ThreadBranch
     {
-        Scope*         LastScope = nullptr;
-        Vector<Scope*> Scopes;
+        Scope*         lastScope = nullptr;
+        Vector<Scope*> scopes;
     };
 
     struct Frame
     {
-        double                        DurationNS = 0.0;
-        double                        StartTime  = 0.0;
-        HashMap<String, ThreadBranch> ThreadBranches;
+        double                        durationNS = 0.0;
+        double                        startTime  = 0.0;
+        HashMap<String, ThreadBranch> threadBranches;
     };
 
     struct MemAllocationInfo
     {
-        size_t         Size      = 0;
-        unsigned short StackSize = 0;
-        void*          Stack[MEMORY_STACK_TRACE_SIZE];
+        size_t         size      = 0;
+        unsigned short stackSize = 0;
+        void*          stack[MEMORY_STACK_TRACE_SIZE];
     };
 
     struct DeviceMemoryInfo
     {
-        unsigned long TotalVirtualMemory        = 0;
-        unsigned long TotalUsedVirtualMemory    = 0;
-        unsigned long TotalProcessVirtualMemory = 0;
-        unsigned long TotalRAM                  = 0;
-        unsigned long TotalUsedRAM              = 0;
-        unsigned long TotalProcessRAM           = 0;
+        unsigned long totalVirtualMemory        = 0;
+        unsigned long totalUsedVirtualMemory    = 0;
+        unsigned long totalProcessVirtualMemory = 0;
+        unsigned long totalRAM                  = 0;
+        unsigned long totalUsedRAM              = 0;
+        unsigned long totalProcessRAM           = 0;
     };
 
     struct DeviceCPUInfo
     {
-        double ProcessUse = 0;
+        double processUse = 0;
     };
 
     class Profiler

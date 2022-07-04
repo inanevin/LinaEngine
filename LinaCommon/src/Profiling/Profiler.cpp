@@ -55,14 +55,14 @@ namespace Lina
         MEMORYSTATUSEX memInfo;
         memInfo.dwLength = sizeof(MEMORYSTATUSEX);
         GlobalMemoryStatusEx(&memInfo);
-        info.TotalVirtualMemory     = static_cast<unsigned long>(memInfo.ullTotalPageFile);
-        info.TotalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
-        info.TotalRAM               = static_cast<unsigned long>(memInfo.ullTotalPhys);
-        info.TotalUsedRAM           = static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
+        info.totalVirtualMemory     = static_cast<unsigned long>(memInfo.ullTotalPageFile);
+        info.totalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
+        info.totalRAM               = static_cast<unsigned long>(memInfo.ullTotalPhys);
+        info.totalUsedRAM           = static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
         PROCESS_MEMORY_COUNTERS_EX pmc;
         GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-        info.TotalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
-        info.TotalProcessRAM           = static_cast<unsigned long>(pmc.WorkingSetSize);
+        info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
+        info.totalProcessRAM           = static_cast<unsigned long>(pmc.WorkingSetSize);
 #else
         LINA_ERR("[Profiler] -> Memory query for other platforms not implemented!");
 #endif
@@ -123,7 +123,7 @@ namespace Lina
             lastCPU         = now;
             lastUserCPU     = user;
             lastSysCPU      = sys;
-            info.ProcessUse = percent * 100.0;
+            info.processUse = percent * 100.0;
         }
 
 #else
@@ -141,18 +141,18 @@ namespace Lina
         if (m_frames.size() == MAX_FRAME_BACKTRACE)
         {
             CleanupFrame(m_frames.front());
-            m_totalFrameTimeNS -= m_frames.front().DurationNS;
+            m_totalFrameTimeNS -= m_frames.front().durationNS;
             m_frames.pop();
         }
 
         if (!m_frames.empty())
         {
-            m_frames.back().DurationNS = (cpuTimeNow - m_frames.back().StartTime) * 1.0e9;
-            m_totalFrameTimeNS += m_frames.back().DurationNS;
+            m_frames.back().durationNS = (cpuTimeNow - m_frames.back().startTime) * 1.0e9;
+            m_totalFrameTimeNS += m_frames.back().durationNS;
         }
 
         Frame f;
-        f.StartTime = cpuTimeNow;
+        f.startTime = cpuTimeNow;
         m_frames.emplace(f);
 
         g_skipAllocTrack = false;
@@ -163,21 +163,21 @@ namespace Lina
         m_lock.lock();
         g_skipAllocTrack         = true;
         const double  cpuTimeNow = Time::GetCPUTime();
-        ThreadBranch& branch     = m_frames.back().ThreadBranches[thread];
+        ThreadBranch& branch     = m_frames.back().threadBranches[thread];
 
         Scope* s      = new Scope();
-        s->Name       = scope;
-        s->ThreadName = thread;
-        s->StartTime  = cpuTimeNow;
-        s->Parent     = branch.LastScope;
-        s->ThreadID   = StringID(thread.c_str()).value();
+        s->name       = scope;
+        s->threadName = thread;
+        s->startTime  = cpuTimeNow;
+        s->parent     = branch.lastScope;
+        s->threadID   = StringID(thread.c_str()).value();
 
-        if (branch.LastScope == nullptr)
-            branch.Scopes.push_back(s);
+        if (branch.lastScope == nullptr)
+            branch.scopes.push_back(s);
         else
-            branch.LastScope->Children.push_back(s);
+            branch.lastScope->children.push_back(s);
 
-        branch.LastScope = s;
+        branch.lastScope = s;
         g_skipAllocTrack = false;
         m_lock.unlock();
     }
@@ -185,9 +185,9 @@ namespace Lina
     void Profiler::EndScope(const String& scope, const String& thread)
     {
         m_lock.lock();
-        ThreadBranch& branch         = m_frames.back().ThreadBranches[thread];
-        branch.LastScope->DurationNS = (Time::GetCPUTime() - branch.LastScope->StartTime) * 1.0e9;
-        branch.LastScope             = branch.LastScope->Parent;
+        ThreadBranch& branch         = m_frames.back().threadBranches[thread];
+        branch.lastScope->durationNS = (Time::GetCPUTime() - branch.lastScope->startTime) * 1.0e9;
+        branch.lastScope             = branch.lastScope->parent;
         m_lock.unlock();
     }
 
@@ -196,7 +196,7 @@ namespace Lina
         m_lock.lock();
         g_skipAllocTrack = true;
         MemAllocationInfo info;
-        info.Size = size;
+        info.size = size;
         CaptureTrace(info);
         m_memAllocations[ptr] = info;
         m_totalMemAllocationSize += size;
@@ -207,7 +207,7 @@ namespace Lina
     {
         g_skipAllocTrack = true;
         MemAllocationInfo info;
-        info.Size = size;
+        info.size = size;
         CaptureTrace(info);
         m_memAllocations[ptr] = info;
         m_totalVRAMAllocationSize += size;
@@ -218,7 +218,7 @@ namespace Lina
     {
         m_lock.lock();
         g_skipAllocTrack = true;
-        m_totalMemAllocationSize -= m_memAllocations[ptr].Size;
+        m_totalMemAllocationSize -= m_memAllocations[ptr].size;
         m_memAllocations.erase(ptr);
         g_skipAllocTrack = false;
         m_lock.unlock();
@@ -228,22 +228,22 @@ namespace Lina
     {
         m_lock.lock();
         g_skipAllocTrack = true;
-        m_totalVRAMAllocationSize -= m_memAllocations[ptr].Size;
+        m_totalVRAMAllocationSize -= m_memAllocations[ptr].size;
         m_vramAllocations.erase(ptr);
         g_skipAllocTrack = false;
         m_lock.unlock();
     }
 
-    Function::Function(const String& funcName, const String& threadName)
+    Function::Function(const String& funcName, const String& thread)
     {
         ScopeName  = funcName;
-        ThreadName = threadName;
-        Profiler::Get()->StartScope(funcName, threadName);
+        threadName = thread;
+        Profiler::Get()->StartScope(funcName, thread);
     }
 
     Function::~Function()
     {
-        Profiler::Get()->EndScope(ScopeName, ThreadName);
+        Profiler::Get()->EndScope(ScopeName, threadName);
     }
 
     void Profiler::DumpMemoryLeaks(const String& path)
@@ -260,7 +260,7 @@ namespace Lina
                     continue;
 
                 file << "****************** LEAK DETECTED ******************\n";
-                file << "Size: " << alloc.second.Size << " bytes \n";
+                file << "Size: " << alloc.second.size << " bytes \n";
 
 #ifdef LINA_PLATFORM_WINDOWS
                 HANDLE      process = GetCurrentProcess();
@@ -290,11 +290,11 @@ namespace Lina
 
                 line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-                for (int i = 0; i < alloc.second.StackSize; ++i)
+                for (int i = 0; i < alloc.second.stackSize; ++i)
                 {
                     file << "------ Stack Trace " << i << "------\n";
 
-                    DWORD64 address = (DWORD64)(alloc.second.Stack[i]);
+                    DWORD64 address = (DWORD64)(alloc.second.stack[i]);
 
                     SymFromAddr(process, address, NULL, symbol);
 
@@ -331,7 +331,7 @@ namespace Lina
             size_t totalSizeKB    = 0;
 
             for (auto& alloc : m_memAllocations)
-                totalSizeBytes += alloc.second.Size;
+                totalSizeBytes += alloc.second.size;
 
             totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 
@@ -346,7 +346,7 @@ namespace Lina
             totalSizeBytes = totalSizeKB = 0;
 
             for (auto& alloc : m_vramAllocations)
-                totalSizeBytes += alloc.second.Size;
+                totalSizeBytes += alloc.second.size;
 
             totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 
@@ -388,19 +388,19 @@ namespace Lina
                 auto f = m_frames.front();
 
                 file << "------------------------------------ FRAME " << frameCounter << "------------------------------------\n";
-                file << "Duration: " << f.DurationNS << " (NS) " << f.DurationNS * 0.000001 << " (MS)\n";
+                file << "Duration: " << f.durationNS << " (NS) " << f.durationNS * 0.000001 << " (MS)\n";
                 file << "\n";
 
-                for (const auto& t : f.ThreadBranches)
+                for (const auto& t : f.threadBranches)
                 {
-                    double threadDurationNS = 0.0;
-                    for (auto s : t.second.Scopes)
-                        threadDurationNS += s->DurationNS;
+                    double threaddurationNS = 0.0;
+                    for (auto s : t.second.scopes)
+                        threaddurationNS += s->durationNS;
 
                     file << "********************************* THREAD: " << t.first.c_str() << " *********************************\n";
-                    file << "** Total Duration: " << threadDurationNS << " (NS) " << threadDurationNS * 0.000001 << " (MS)\n";
+                    file << "** Total Duration: " << threaddurationNS << " (NS) " << threaddurationNS * 0.000001 << " (MS)\n";
                     String indent = "** ";
-                    for (auto s : t.second.Scopes)
+                    for (auto s : t.second.scopes)
                         WriteScopeData(indent, s, file);
 
                     file << "\n";
@@ -420,11 +420,11 @@ namespace Lina
     {
         String newIndent = indent;
         file << "**\n";
-        file << indent.c_str() << "-------- " << scope->Name.c_str() << " --------\n";
-        file << indent.c_str() << "Duration: " << scope->DurationNS * 0.000001 << " (MS)\n";
-        file << indent.c_str() << "Thread: " << scope->ThreadName.c_str() << "\n";
+        file << indent.c_str() << "-------- " << scope->name.c_str() << " --------\n";
+        file << indent.c_str() << "Duration: " << scope->durationNS * 0.000001 << " (MS)\n";
+        file << indent.c_str() << "Thread: " << scope->threadName.c_str() << "\n";
         newIndent += "    ";
-        for (auto s : scope->Children)
+        for (auto s : scope->children)
             WriteScopeData(newIndent, s, file);
     }
 
@@ -432,7 +432,7 @@ namespace Lina
     {
 
 #ifdef LINA_PLATFORM_WINDOWS
-        info.StackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, info.Stack, nullptr);
+        info.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, info.stack, nullptr);
 #else
 
         void*  stack[MEMORY_STACK_TRACE_SIZE];
@@ -476,18 +476,18 @@ namespace Lina
 
     void Profiler::CleanupFrame(Frame& frame)
     {
-        for (auto& [threadName, threadInfo] : frame.ThreadBranches)
+        for (auto& [threadName, threadInfo] : frame.threadBranches)
         {
-            for (auto* scope : threadInfo.Scopes)
+            for (auto* scope : threadInfo.scopes)
                 CleanupScope(scope);
 
-            threadInfo.Scopes.clear();
+            threadInfo.scopes.clear();
         }
     }
 
     void Profiler::CleanupScope(Scope* scope)
     {
-        for (auto s : scope->Children)
+        for (auto s : scope->children)
             CleanupScope(s);
 
         delete scope;

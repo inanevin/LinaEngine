@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,36 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
 #pragma once
 
-#ifndef ResourceCommon_HPP
-#define ResourceCommon_HPP
+#ifndef DataStructuresDataCommon_HPP
+#define DataStructuresDataCommon_HPP
+#include <EASTL/utility.h>
 
-// Headers here.
-#include "Data/String.hpp"
-
-namespace Lina::Resources
+namespace Lina
 {
-
-    enum class ResourceProgressState
-    {
-        None,
-        Pending,
-        InProgress
-    };
-
-    enum class PackageType
-    {
-        Custom,
-        Static,
-        Level,
-        Audio,
-        Physics,
-        Textures,
-        Meshes,
-        Graphics,
-    };
-
-} // namespace Lina::Resources
+	template<typename T, typename U>
+	using Pair = eastl::pair<T, U>;
+} // namespace Lina
 
 #endif

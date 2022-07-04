@@ -45,18 +45,16 @@ namespace Lina::Resources
 
         if (typeData.packageType == PackageType::Level)
         {
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
             HashSet<StringIDType> set;
             set.insert(StringID(path.c_str()).value());
             m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.m_packagePass, this);
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
         }
     }
 
     void StandaloneResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
-        ResourceUtility::s_currentProgressData.Reset();
-        ResourceUtility::s_currentProgressData.m_progressTitle = "Loading Level";
-
         ResourceStorage*                       storage = ResourceStorage::Get();
         HashMap<TypeID, HashSet<StringIDType>> toLoad;
 
@@ -77,6 +75,12 @@ namespace Lina::Resources
                     toLoad[pair.first].insert(sid);
             }
         }
+
+        int totalCount = 0;
+        for (auto& pair : toLoad)
+            totalCount += static_cast<int>(pair.second.size());
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Loading Level Resources", .totalFiles = totalCount });
 
         // Finally, load all designated resources by type id.
         for (const auto& pair : toLoad)

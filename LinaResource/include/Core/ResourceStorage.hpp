@@ -43,6 +43,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Set.hpp"
 #include "Core/IResource.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
@@ -58,7 +59,7 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    typedef HashMap<StringIDType, void*> Cache;
+    typedef ParallelHashMap<StringIDType, void*> Cache;
 
     class ResourceLoader;
 
@@ -138,6 +139,7 @@ namespace Lina::Resources
         /// </summary>
         void Add(void* resource, TypeID tid, StringIDType sid)
         {
+            LOCK_GUARD(m_mutex);
             auto& cache = m_resources[tid];
             cache[sid]  = resource;
         }
@@ -321,6 +323,7 @@ namespace Lina::Resources
         ParallelHashMap<TypeID, ResourceTypeData> m_resourceTypes;
         ResourceLoader*                           m_loader = nullptr;
         ApplicationInfo                           m_appInfo;
+        Mutex                                     m_mutex;
     };
 } // namespace Lina::Resources
 

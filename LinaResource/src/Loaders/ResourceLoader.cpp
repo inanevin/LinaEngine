@@ -43,7 +43,9 @@ namespace Lina::Resources
         auto*        storage   = Resources::ResourceStorage::Get();
         const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
         auto&        typeData  = storage->GetTypeData(storage->GetTypeIDFromExtension(extension));
+        m_mutex.lock();
         m_memoryResources.push(MemoryEntry(typeData.loadPriority, path, data));
+        m_mutex.unlock();
         data.clear();
     }
 
@@ -112,6 +114,7 @@ namespace Lina::Resources
                 m_lastResourcePriority = fileEntry.m_priority;
 
             m_lastResourceTypeID = tid;
+
             LoadSingleResourceFromFile(tid, fileEntry.m_file->fullPath);
 
             m_fileResources.pop();
@@ -182,6 +185,7 @@ namespace Lina::Resources
                 return false;
 
             storage->Add(loadedResource, tid, sid);
+
             Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{tid, sid});
         }
 

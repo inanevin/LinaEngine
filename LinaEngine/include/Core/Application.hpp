@@ -42,6 +42,8 @@ namespace Lina
         struct EWindowClosed;
         struct EWindowResized;
         struct EResourceProgressUpdated;
+        struct EResourceProgressStarted;
+        struct EResourceProgressEnded;
     } // namespace Event
 
     class Application
@@ -67,6 +69,8 @@ namespace Lina
         bool OnWindowClose(const Event::EWindowClosed& ev);
         void OnWindowResize(const Event::EWindowResized& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);
+        void OnResourceProgressStarted(const Event::EResourceProgressStarted& ev);
+        void OnResourceProgressEnded(const Event::EResourceProgressEnded& ev);
 
     private:
         // Active engines running in the application.
@@ -74,9 +78,12 @@ namespace Lina
         Engine              m_engine;
         Profiler*           m_profiler = nullptr;
 
-        bool       m_activeLevelExists = false;
-        bool       m_initialized       = false;
-        bool       m_ranOnce           = false;
+        String     m_resourceProgressCurrentTitle      = "";
+        int        m_resourceProgressCurrentTotalFiles = 0;
+        int        m_resourceProgressCurrentProcessed  = 0;
+        bool       m_activeLevelExists                 = false;
+        bool       m_initialized                       = false;
+        bool       m_ranOnce                           = false;
         std::mutex m_lock;
     };
 

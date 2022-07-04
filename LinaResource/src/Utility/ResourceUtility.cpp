@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    ResourceProgressData ResourceUtility::s_currentProgressData;
     Utility::Folder*     ResourceUtility::s_rootFolder               = nullptr;
     String               ResourceUtility::s_workingDirectory         = "";
     String               ResourceUtility::s_workingDirectoryReplaced = "";
@@ -174,7 +173,8 @@ namespace Lina::Resources
         s_rootFolder           = new Utility::Folder();
         s_rootFolder->fullPath = "Resources/";
         s_rootFolder->name     = "Resources";
-        ResourceUtility::ScanFolder(s_rootFolder, true, &s_currentProgressData.m_currentTotalFiles);
+        int totalFiles = 0;
+        ResourceUtility::ScanFolder(s_rootFolder, true, &totalFiles);
     }
 
     void ResourceUtility::InitializeWorkingDirectory()

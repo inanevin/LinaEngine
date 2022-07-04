@@ -134,6 +134,8 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
+	include/Data/DataCommon.hpp
+	include/Data/Mutex.hpp
 	include/Data/Serialization/VectorSerialization.hpp
 	include/Data/Serialization/SetSerialization.hpp
 	include/Data/Serialization/StringSerialization.hpp
@@ -215,6 +217,8 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
+	include/Data/DataCommon.hpp
+	include/Data/Mutex.hpp
 	include/Data/Serialization/VectorSerialization.hpp
 	include/Data/Serialization/StringSerialization.hpp
 	include/Data/Serialization/SetSerialization.hpp

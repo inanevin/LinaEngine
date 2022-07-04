@@ -215,6 +215,19 @@ namespace Lina
         _SyncRenderData.succeed(_RunSimulation);
         int counter = 0;
 
+        SetFrameLimit(60);
+
+        auto t = Time::GetCPUTime();
+        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
+         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level1aud.wav");
+        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level2aud.wav");
+        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level3aud.wav");
+        //m_levelManager.SaveCurrentLevel();
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        LINA_TRACE("Level Loading took {0} seconds", Time::GetCPUTime() - t);
+    
+        bool loaded = false;
         while (m_running)
         {
             PROFILER_FRAME_START();
@@ -222,6 +235,13 @@ namespace Lina
 
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
+
+            if (GetElapsedTime() > 3 && !loaded)
+            {
+                loaded = true;
+                m_running =false;
+               // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+            }
 
             if (m_frameLimit > 0 && !m_firstRun)
             {
@@ -242,8 +262,6 @@ namespace Lina
 
             m_jobSystem.Run(gameLoop).wait();
 
-            if (GetElapsedTime() > 5)
-                m_running = false;
 
 #ifdef LINA_ENABLE_PROFILING
 
@@ -254,7 +272,7 @@ namespace Lina
                 m_frameTime  = m_rawDeltaTime * 1000;
                 m_currentFPS = frames;
                 m_currentUPS = updates;
-                totalFPSTime = currentFrameTime;
+                totalFPSTime += 1.0f;
                 frames  = 0;
                 updates = 0;
             }
@@ -262,7 +280,6 @@ namespace Lina
             if (m_firstRun)
                 m_firstRun = false;
 
-            LINA_TRACE("{0}", m_currentFPS);
         }
 
         m_jobSystem.WaitForAll();

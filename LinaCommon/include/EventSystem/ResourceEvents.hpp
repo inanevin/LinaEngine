@@ -38,6 +38,8 @@ namespace Lina::Event
 {
     struct EResourceProgressStarted
     {
+        String title      = "";
+        int    totalFiles = 0;
     };
     struct EResourceProgressEnded
     {
@@ -45,7 +47,6 @@ namespace Lina::Event
     struct EResourceProgressUpdated
     {
         String currentResource = "";
-        float  percentage      = 0.0f;
     };
     struct EResourceLoaded
     {

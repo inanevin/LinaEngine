@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Data/PriorityQueue.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
@@ -164,12 +165,13 @@ namespace Lina::Resources
         void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& currentLevelResources);
 
     protected:
-        ResourcePackager    m_packager;
-        MemoryQueue         m_memoryResources;
-        FileQueue           m_fileResources;
-        TypeID              m_lastResourceTypeID   = -1;
-        int                 m_lastResourcePriority = 0;
-        ApplicationInfo     m_appInfo;
+        ResourcePackager m_packager;
+        MemoryQueue      m_memoryResources;
+        FileQueue        m_fileResources;
+        TypeID           m_lastResourceTypeID   = -1;
+        int              m_lastResourcePriority = 0;
+        ApplicationInfo  m_appInfo;
+        Mutex            m_mutex;
     };
 } // namespace Lina::Resources
 

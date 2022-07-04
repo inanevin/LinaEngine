@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,36 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
 #pragma once
 
-#ifndef ResourceCommon_HPP
-#define ResourceCommon_HPP
+#ifndef DataStructuresMutex_HPP
+#define DataStructuresMutex_HPP
 
-// Headers here.
-#include "Data/String.hpp"
-
-namespace Lina::Resources
+#include <mutex>
+namespace Lina
 {
+	typedef std::mutex Mutex;
+	typedef std::lock_guard<std::mutex> LockGuard;
 
-    enum class ResourceProgressState
-    {
-        None,
-        Pending,
-        InProgress
-    };
-
-    enum class PackageType
-    {
-        Custom,
-        Static,
-        Level,
-        Audio,
-        Physics,
-        Textures,
-        Meshes,
-        Graphics,
-    };
-
-} // namespace Lina::Resources
+	#define LOCK_GUARD(mtx) std::lock_guard<Mutex> grd(mtx)
+} // namespace Lina
 
 #endif

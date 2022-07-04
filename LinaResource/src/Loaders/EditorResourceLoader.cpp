@@ -31,19 +31,21 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "Utility/ResourceUtility.hpp"
 #include "Core/ResourceStorage.hpp"
+#include "JobSystem/JobSystem.hpp"
+#include "Data/DataCommon.hpp"
 
 namespace Lina::Resources
 {
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
         LoadSingleResourceFromFile(tid, path);
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
     void EditorResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>();
-        ResourceUtility::s_currentProgressData.Reset();
-        ResourceUtility::s_currentProgressData.m_progressTitle = "Loading Level";
 
         ResourceStorage*                 storage = ResourceStorage::Get();
         HashMap<TypeID, HashSet<String>> toLoad;
@@ -69,17 +71,28 @@ namespace Lina::Resources
         for (auto& pair : toLoad)
             totalCount += static_cast<int>(pair.second.size());
 
-        int currentCount = 0;
-        for (const auto& pair : toLoad)
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount});
+
+        Vector<Pair<TypeID, String>> toLoadVec;
+
+        for (const auto& [tid, set] : toLoad)
         {
-            for (auto str : pair.second)
-            {
-                LoadSingleResourceFromFile(pair.first, str);
-                const float perc = static_cast<float>(currentCount) / static_cast<float>(totalCount);
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str, .percentage = perc});
-                currentCount++;
-            }
+            for (const auto& str : set)
+                toLoadVec.push_back(eastl::make_pair(tid, str));
         }
+
+        Taskflow taskflow;
+        taskflow.for_each(toLoadVec.begin(), toLoadVec.end(), [&](const Pair<TypeID, String>& p) {
+            LoadSingleResourceFromFile(p.first, p.second);
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = p.second});
+        });
+        JobSystem::Get()->Run(taskflow).wait();
+
+        // for (auto str : set)
+        // {
+        //     LoadSingleResourceFromFile(tid, str);
+        //     Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str});
+        // }
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }

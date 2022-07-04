@@ -116,23 +116,9 @@ namespace Lina::Resources
                 return;
             }
 
-            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
-            loadingData->Reset();
-            auto  wFirstItemName               = arc.getItemProperty(0, bit7z::BitProperty::Path).getString();
-            char* firstItemName                = Utility::WCharToChar(wFirstItemName.c_str());
-            loadingData->m_currentResourceName = String(firstItemName);
-            loadingData->m_progressTitle       = "Unpacking file " + filePath;
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{loadingData->m_currentResourceName, loadingData->m_currentProgress});
-            delete[] firstItemName;
-
-            int fileCounter = 0;
-
             extractor.setFileCallback([&](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = String(chr);
-                loadingData->m_currentProgress     = ((100.0f * (float)fileCounter) / (float)totalFiles);
-                fileCounter++;
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = String(chr)});
                 delete[] chr;
             });
 
@@ -206,8 +192,6 @@ namespace Lina::Resources
                 return;
             }
 
-            // Progress callback.
-            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
 
             // Clear the current memory queue in the loader.
             MemoryQueue empty;
@@ -228,9 +212,7 @@ namespace Lina::Resources
 
                     if (StringID(pathStr.c_str()).value() == file)
                     {
-                        loadingData->m_currentResourceName = pathStr;
-                        loadingData->m_currentProgress     = (loadedFiles / static_cast<float>(loadingData->m_currentTotalFiles)) * 100.0f;
-                        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
+                        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = pathStr});
 
                         extractor.extract(wdir, stdv, item.index());
 
@@ -264,6 +246,8 @@ namespace Lina::Resources
         auto*          storage = ResourceStorage::Get();
         Vector<String> filesToPack;
         auto&          allTypes = storage->GetResourceTypes();
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Packaging project...", .totalFiles = 0});
 
         // 1: Pack static resources
         // 2: Pack level data
@@ -316,6 +300,7 @@ namespace Lina::Resources
             }
         }
     }
+    
     void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
     {
         try
@@ -340,18 +325,10 @@ namespace Lina::Resources
 
             // Progress callback.
             bit7z::BitCompressor* pCompressor = &compressor;
-            ResourceProgressData* loadingData = &ResourceUtility::s_currentProgressData;
-
-            compressor.setTotalCallback([=](uint64_t size) {
-                pCompressor->setProgressCallback([size, loadingData](uint64_t processedSize) {
-                    loadingData->m_currentProgress = ((100.0f * (float)processedSize) / (float)size);
-                });
-            });
 
             compressor.setFileCallback([=](std::wstring file) {
                 char* chr                          = Utility::WCharToChar(file.c_str());
-                loadingData->m_currentResourceName = String(chr);
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = loadingData->m_currentResourceName, .percentage = loadingData->m_currentProgress});
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{ .currentResource = String(chr) });
                 delete chr;
             });
 

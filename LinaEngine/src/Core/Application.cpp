@@ -35,6 +35,7 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Utility/ResourceUtility.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
@@ -83,6 +84,8 @@ namespace Lina
         m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
         m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressUpdated, &Application::OnResourceProgressUpdated>(this);
+        m_engine.m_eventSystem.Connect<Event::EResourceProgressStarted, &Application::OnResourceProgressStarted>(this);
+        m_engine.m_eventSystem.Connect<Event::EResourceProgressEnded, &Application::OnResourceProgressEnded>(this);
         m_engine.Initialize(appInfo);
         m_initialized = true;
     }
@@ -153,7 +156,21 @@ namespace Lina
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {
-        LINA_INFO("[{0}] - [{1}] - [{2}%]", StringID(ev.currentResource.c_str()).value(), ev.currentResource, ev.percentage);
+        const int   processed = ++m_resourceProgressCurrentProcessed;
+        const float perc      = static_cast<float>(processed) / static_cast<float>(m_resourceProgressCurrentTotalFiles);
+        LINA_INFO("{0} - [{1}] - [{2}] - [{3}%]", m_resourceProgressCurrentTitle, StringID(ev.currentResource.c_str()).value(), ev.currentResource, perc * 100.0f);
+    }
+
+    void Application::OnResourceProgressStarted(const Event::EResourceProgressStarted& ev)
+    {
+        m_resourceProgressCurrentTotalFiles = ev.totalFiles;
+        m_resourceProgressCurrentTitle      = ev.title;
+    }
+
+    void Application::OnResourceProgressEnded(const Event::EResourceProgressEnded& ev)
+    {
+        m_resourceProgressCurrentTotalFiles = 0;
+        m_resourceProgressCurrentProcessed = 0;
     }
 
 } // namespace Lina
