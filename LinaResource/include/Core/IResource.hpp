@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef IResource_HPP
@@ -37,6 +36,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include <Data/String.hpp>
+#include "Data/Mutex.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <functional>
 #include <fstream>
@@ -125,7 +125,12 @@ namespace Lina::Resources
         {
             StringIDType sid     = StringID(path.c_str()).value();
             auto*        storage = Resources::ResourceStorage::Get();
-            if (storage->Exists<T>(sid))
+
+            m_mutex.lock();
+            const bool exists = storage->Exists<T>(sid);
+            m_mutex.unlock();
+
+            if (exists)
             {
                 assetData = storage->GetResource<T>(sid);
             }
@@ -141,8 +146,9 @@ namespace Lina::Resources
 
     protected:
         friend class ResourceStorage;
-        StringIDType m_sid  = 0;
-        String       m_path = "";
+        StringIDType m_sid   = 0;
+        String       m_path  = "";
+        Mutex        m_mutex;
     };
 
     template <typename T>

@@ -172,7 +172,7 @@ namespace Lina
 
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.m_packagePass);
     }
-  
+
     void Engine::Run()
     {
         m_deltaTimeArray.fill(-1.0);
@@ -218,15 +218,20 @@ namespace Lina
         SetFrameLimit(60);
 
         auto t = Time::GetCPUTime();
-        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level1aud.wav");
-        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level2aud.wav");
-        //m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level3aud.wav");
+        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel");
+
+        //for (int i = 2; i < 54; i++)
+        //{
+        //    const String res = "Resources/Editor/Audio/Test/level1aud - Copy(" + TO_STRING(i) + ").wav";
+        //    m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(),res);
+        //}
+        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level2aud.wav");
+        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level3aud.wav");
         //m_levelManager.SaveCurrentLevel();
-        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        //  m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
         LINA_TRACE("Level Loading took {0} seconds", Time::GetCPUTime() - t);
-    
+
         bool loaded = false;
         while (m_running)
         {
@@ -238,14 +243,14 @@ namespace Lina
 
             if (GetElapsedTime() > 3 && !loaded)
             {
-                loaded = true;
-                m_running =false;
-               // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+                loaded    = true;
+                m_running = false;
+                // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
             }
 
             if (m_frameLimit > 0 && !m_firstRun)
             {
-                const double diff              = currentFrameTime - previousFrameTime;
+                const double diff = currentFrameTime - previousFrameTime;
 
                 if (diff < m_frameLimitSeconds)
                 {
@@ -261,7 +266,6 @@ namespace Lina
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
             m_jobSystem.Run(gameLoop).wait();
-
 
 #ifdef LINA_ENABLE_PROFILING
 
@@ -279,7 +283,6 @@ namespace Lina
 
             if (m_firstRun)
                 m_firstRun = false;
-
         }
 
         m_jobSystem.WaitForAll();
