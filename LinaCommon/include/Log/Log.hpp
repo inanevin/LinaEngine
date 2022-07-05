@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Log_HPP
@@ -48,15 +47,15 @@ SOFTWARE.
 
 #ifdef LINA_PRODUCTION_BUILD
 
-#define LINA_ERR(...)      
-#define LINA_WARN(...)     
-#define LINA_INFO(...)     
-#define LINA_TRACE(...)    
-#define LINA_CRITICAL(...) 
+#define LINA_ERR(...)
+#define LINA_WARN(...)
+#define LINA_INFO(...)
+#define LINA_TRACE(...)
+#define LINA_CRITICAL(...)
 
 #else
 
-#define LINA_TRACE(...)    
+#define LINA_TRACE(...)
 #define LINA_ERR(...)      Log::LogMessage(LogLevel::Error, __VA_ARGS__);
 #define LINA_WARN(...)     Log::LogMessage(LogLevel::Warn, __VA_ARGS__);
 #define LINA_INFO(...)     Log::LogMessage(LogLevel::Info, __VA_ARGS__);
@@ -66,13 +65,14 @@ SOFTWARE.
 #endif
 
 #ifdef LINA_DEBUG_BUILD
-#define LINA_ASSERT(x, ...)                                      \
-    {                                                            \
-        if (!(x))                                                \
-        {                                                        \
-            LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); \
-            __debugbreak();                                      \
-        }                                                        \
+
+#define LINA_ASSERT(x, ...)            \
+    {                                  \
+        if (!(x))                      \
+        {                              \
+            LINA_CRITICAL(__VA_ARGS__) \
+            __debugbreak();            \
+        }                              \
     }
 #else
 #define LINA_ASSERT(x, ...)

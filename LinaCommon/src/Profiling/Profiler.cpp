@@ -41,11 +41,14 @@ SOFTWARE.
 #include <Windows.h>
 #include <psapi.h>
 #include <DbgHelp.h>
+#include <TlHelp32.h>
 #endif
 
 namespace Lina
 {
     Profiler* Profiler::s_instance = nullptr;
+
+#define QUERY_CPU_INTERVAL_SECS 2
 
     DeviceMemoryInfo Profiler::QueryMemoryInfo()
     {
@@ -82,7 +85,7 @@ namespace Lina
 
         if (!inited)
         {
-            inited = true;
+            // Querying CPU usage
             SYSTEM_INFO sysInfo;
             FILETIME    ftime, fsys, fuser;
 
@@ -98,32 +101,43 @@ namespace Lina
                 memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
                 memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
             }
+            inited          = true;
+            m_numberOfCores = std::thread::hardware_concurrency();
         }
 
-        FILETIME       ftime, fsys, fuser;
-        ULARGE_INTEGER now, sys, user;
-        double         percent = 0.0;
+        const double time = Time::GetCPUTime();
 
-        GetSystemTimeAsFileTime(&ftime);
-        memcpy(&now, &ftime, sizeof(FILETIME));
-
-        if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
+        if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
         {
-            memcpy(&sys, &fsys, sizeof(FILETIME));
-            memcpy(&user, &fuser, sizeof(FILETIME));
-            percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) +
-                                          (user.QuadPart - lastUserCPU.QuadPart));
+            m_lastCPUQueryTime = time;
 
-            auto diff = now.QuadPart - lastCPU.QuadPart;
+            /* QUERYING CPU INFO */
+            FILETIME       ftime, fsys, fuser;
+            ULARGE_INTEGER now, sys, user;
+            double         percent = 0.0;
 
-            if (diff != 0)
-                percent /= static_cast<double>(diff);
+            GetSystemTimeAsFileTime(&ftime);
+            memcpy(&now, &ftime, sizeof(FILETIME));
 
-            percent /= static_cast<double>(numProcessors);
-            lastCPU         = now;
-            lastUserCPU     = user;
-            lastSysCPU      = sys;
-            info.processUse = percent * 100.0;
+            if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
+            {
+                memcpy(&sys, &fsys, sizeof(FILETIME));
+                memcpy(&user, &fuser, sizeof(FILETIME));
+                percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) +
+                                              (user.QuadPart - lastUserCPU.QuadPart));
+
+                auto diff = now.QuadPart - lastCPU.QuadPart;
+
+                if (diff != 0)
+                    percent /= static_cast<double>(diff);
+
+                percent /= static_cast<double>(numProcessors);
+                lastCPU            = now;
+                lastUserCPU        = user;
+                lastSysCPU         = sys;
+                info.numberOfCores = m_numberOfCores;
+                info.processUse    = percent * 100.0;
+            }
         }
 
 #else

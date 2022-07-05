@@ -59,6 +59,18 @@ namespace Lina
             m_executor.run_and_wait(flow);
         }
 
+        template <typename F, typename... ArgsT>
+        void RunAsync(F&& f, ArgsT&&... args)
+        {
+            m_executor.silent_async(f, args...);
+        }
+
+        template <typename F, typename... ArgsT>
+        void RunAsync(const String& name, F&& f, ArgsT&&... args)
+        {
+            m_executor.named_silent_async(name.c_str(), f, args...);
+        }
+
         inline void WaitForAll()
         {
             m_executor.wait_for_all();

@@ -33,14 +33,15 @@ SOFTWARE.
 #include "Core/ResourceStorage.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "Data/DataCommon.hpp"
+#include "Core/PlatformMacros.hpp"
 
 namespace Lina::Resources
 {
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Loading File", .totalFiles = 1 });
         LoadSingleResourceFromFile(tid, path);
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{ .currentResource = path });
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
@@ -73,12 +74,14 @@ namespace Lina::Resources
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount});
 
+#ifdef LINA_MT
+
         Vector<Pair<TypeID, String>> toLoadVec;
 
         for (const auto& [tid, set] : toLoad)
         {
             for (const auto& str : set)
-                toLoadVec.push_back(eastl::make_pair(tid, str));
+                toLoadVec.push_back(linatl::make_pair(tid, str));
         }
 
         Taskflow taskflow;
@@ -88,12 +91,16 @@ namespace Lina::Resources
         });
         JobSystem::Get()->Run(taskflow).wait();
 
-        // for (auto str : set)
-        // {
-        //     LoadSingleResourceFromFile(tid, str);
-        //     Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str});
-        // }
-
+#else
+        for (const auto& [tid, set] : toLoad)
+        {
+            for (const auto& str : set)
+            {
+                LoadSingleResourceFromFile(tid, str);
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str});
+            }
+        }
+#endif
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 

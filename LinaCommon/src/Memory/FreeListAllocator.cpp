@@ -65,8 +65,8 @@ namespace Lina
     {
         const std::size_t allocationHeaderSize = sizeof(FreeListAllocator::AllocationHeader);
         const std::size_t freeHeaderSize       = sizeof(FreeListAllocator::FreeHeader);
-        LINA_ASSERT("Allocation size must be bigger", size >= sizeof(Node));
-        LINA_ASSERT("Alignment must be 8 at least", alignment >= 8);
+        LINA_ASSERT(size >= sizeof(Node), "Allocation size must be bigger");
+        LINA_ASSERT(alignment >= 8, "Alignment must be 8 at least");
 
         // Search through the free list for a free block that has enough space to allocate our data
         std::size_t padding;

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,19 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresMutex_HPP
 #define DataStructuresMutex_HPP
 
+#include "Core/PlatformMacros.hpp"
 #include <mutex>
 namespace Lina
 {
-	typedef std::mutex Mutex;
-	typedef std::lock_guard<std::mutex> LockGuard;
+    typedef std::mutex                  Mutex;
+    typedef std::lock_guard<std::mutex> LockGuard;
 
-	#define LOCK_GUARD(mtx) std::lock_guard<Mutex> grd(mtx)
+#ifdef LINA_MT
+#define DEFINE_MUTEX(NAME)     std::mutex NAME
+#define LOCK_GUARD(mtx) std::lock_guard<Mutex> grd(mtx)
+#define LOCK(mtx)       mtx.lock()
+#define UNLOCK(mtx)     mtx.unlock()
+#else
+#define DEFINE_MUTEX(NAME)
+#define LOCK_GUARD(mtx)
+#define LOCK(mtx)
+#define UNLOCK(mtx)
+#endif
+
 } // namespace Lina
 
 #endif

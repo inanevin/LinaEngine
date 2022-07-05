@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Set.hpp"
 #include "Core/IResource.hpp"
-#include "Data/Mutex.hpp"
+#include "Core/PlatformMacros.hpp"
 
 namespace Lina
 {
@@ -59,7 +59,6 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    typedef ParallelHashMap<StringIDType, void*> Cache;
 
     class ResourceLoader;
 
@@ -74,6 +73,16 @@ namespace Lina::Resources
         Vector<String>     associatedExtensions;
         Color              debugColor = Color::White;
     };
+
+#ifdef LINA_MT
+    typedef ParallelHashMapMutex<StringIDType, void*>      Cache;
+    typedef ParallelHashMapMutex<TypeID, Cache>            ResourceMap;
+    typedef ParallelHashMapMutex<TypeID, ResourceTypeData> ResourceTypeMap;
+#else
+    typedef ParallelHashMap<StringIDType, void*>      Cache;
+    typedef ParallelHashMap<TypeID, Cache>            ResourceMap;
+    typedef ParallelHashMap<TypeID, ResourceTypeData> ResourceTypeMap;
+#endif
 
     class ResourceStorage
     {
@@ -139,7 +148,6 @@ namespace Lina::Resources
         /// </summary>
         void Add(void* resource, TypeID tid, StringIDType sid)
         {
-            LOCK_GUARD(m_mutex);
             auto& cache = m_resources[tid];
             cache[sid]  = resource;
         }
@@ -296,7 +304,7 @@ namespace Lina::Resources
         /// All registered resource types.
         /// </summary>
         /// <returns></returns>
-        inline const ParallelHashMap<TypeID, ResourceTypeData>& GetResourceTypes() const
+        inline const ResourceTypeMap& GetResourceTypes() const
         {
             return m_resourceTypes;
         }
@@ -318,12 +326,11 @@ namespace Lina::Resources
         void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
-        static ResourceStorage*                   s_instance;
-        ParallelHashMap<TypeID, Cache>            m_resources;
-        ParallelHashMap<TypeID, ResourceTypeData> m_resourceTypes;
-        ResourceLoader*                           m_loader = nullptr;
-        ApplicationInfo                           m_appInfo;
-        Mutex                                     m_mutex;
+        static ResourceStorage* s_instance;
+        ResourceMap             m_resources;
+        ResourceTypeMap         m_resourceTypes;
+        ResourceLoader*         m_loader = nullptr;
+        ApplicationInfo         m_appInfo;
     };
 } // namespace Lina::Resources
 

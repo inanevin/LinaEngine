@@ -117,7 +117,7 @@ namespace Lina::Resources
             }
 
             extractor.setFileCallback([&](std::wstring file) {
-                char* chr                          = Utility::WCharToChar(file.c_str());
+                char* chr = Utility::WCharToChar(file.c_str());
                 Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = String(chr)});
                 delete[] chr;
             });
@@ -158,7 +158,11 @@ namespace Lina::Resources
 
     void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
     {
+#ifdef LINA_MT
+        Atomic<int> loadedFiles = 0;
+#else
         int loadedFiles = 0;
+#endif
         try
         {
             // Delete first if exists.
@@ -192,44 +196,52 @@ namespace Lina::Resources
                 return;
             }
 
-
             // Clear the current memory queue in the loader.
             MemoryQueue empty;
             loader->m_memoryResources.swap(empty);
 
-            Vector<bit7z::byte_t>      v;
-            std::vector<bit7z::byte_t> stdv;
-
-            // For every single file to be extracted, search all items & find the matching item index.
-            // Then extract that item into memory from the archive.
-            for (auto& file : filesToLoad)
+            // Determine which item indices to load.
+            Vector<Pair<uint32_t, String>> itemIndices;
+            for (auto& item : items)
             {
-                for (auto& item : items)
-                {
-                    const char* path    = Utility::WCharToChar(item.path().c_str());
-                    String      pathStr = path;
-                    std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+                const char* path    = Utility::WCharToChar(item.path().c_str());
+                String      pathStr = path;
+                std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
 
-                    if (StringID(pathStr.c_str()).value() == file)
-                    {
-                        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = pathStr});
+                auto it = linatl::find_if(filesToLoad.begin(), filesToLoad.end(), [&](const auto& file) {
+                    return file == StringID(pathStr.c_str()).value();
+                });
 
-                        extractor.extract(wdir, stdv, item.index());
+                if (it != filesToLoad.end())
+                    itemIndices.push_back(linatl::make_pair(item.index(), pathStr));
 
-                        for (int i = 0; i < stdv.size(); i++)
-                            v.push_back(stdv[i]);
-
-                        loader->PushResourceFromMemory(pathStr, v);
-
-                        loadedFiles++;
-                        stdv.clear();
-                        v.clear();
-                        break;
-                    }
-
-                    delete[] path;
-                }
+                delete[] path;
             }
+
+            auto load = [&](uint32_t index, const String& str) {
+                std::vector<bit7z::byte_t> stdv;
+                extractor.extract(wdir, stdv, index);
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str});
+
+                Vector<bit7z::byte_t> v;
+                for (int i = 0; i < stdv.size(); i++)
+                    v.push_back(stdv[i]);
+
+                loader->PushResourceFromMemory(str, v);
+
+                loadedFiles++;
+                stdv.clear();
+                v.clear();
+            };
+
+#ifdef LINA_MT
+            Taskflow taskflow;
+            taskflow.for_each(itemIndices.begin(), itemIndices.end(), [&](const Pair<uint32_t, String>& pair) { load(pair.first, pair.second); });
+            JobSystem::Get()->Run(taskflow).wait();
+#else
+            for (auto& pair : itemIndices)
+                load(pair.first, pair.second);
+#endif
         }
         catch (const bit7z::BitException& ex)
         {
@@ -300,7 +312,7 @@ namespace Lina::Resources
             }
         }
     }
-    
+
     void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
     {
         try
@@ -320,15 +332,16 @@ namespace Lina::Resources
             // Setup compression.
             bit7z::Bit7zLibrary  lib{L"7z.dll"};
             bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
-            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma);
+            compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma2);
+            compressor.setCompressionLevel(bit7z::BitCompressionLevel::ULTRA);
             compressor.setPassword(pass);
 
             // Progress callback.
             bit7z::BitCompressor* pCompressor = &compressor;
 
             compressor.setFileCallback([=](std::wstring file) {
-                char* chr                          = Utility::WCharToChar(file.c_str());
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{ .currentResource = String(chr) });
+                char* chr = Utility::WCharToChar(file.c_str());
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = String(chr)});
                 delete chr;
             });
 
@@ -362,7 +375,6 @@ namespace Lina::Resources
         {
             LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
         }
-
 
         LINA_INFO("[Packager] -> Successfully completed packaging: {0}", output);
     }

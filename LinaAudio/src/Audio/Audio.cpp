@@ -69,7 +69,7 @@ namespace Lina::Audio
         alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
         free(aldata);
 
-#ifndef LINA_PRODUCTION_BUILD
+#ifdef LINA_DEBUG_BUILD
         CheckForError();
 #endif
 
@@ -87,7 +87,7 @@ namespace Lina::Audio
 
         ALenum err = alutGetError();
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
-
+     
         m_data   = data;
         m_format = format;
         m_size   = size;
@@ -101,7 +101,14 @@ namespace Lina::Audio
         alBufferData(m_buffer, format, data, size, (ALsizei)freq);
         free(data);
 
-#ifndef LINA_PRODUCTION_BUILD
+        #ifdef LINA_COMPILER_MSVC
+
+        #endif
+
+        #ifdef LINA_DEBUG
+
+        #endif
+#ifdef LINA_DEBUG
         CheckForError();
 #endif
 
@@ -114,7 +121,7 @@ namespace Lina::Audio
         error = alGetError();
         if (error != AL_NO_ERROR)
         {
-            LINA_ERR("[Audio Engine OpenAL] -> Open AL Error {0}", alutGetErrorString(error));
+            LINA_ERR("[Audio Engine OpenAL] -> Open AL Error: {0}", alutGetErrorString(error));
         }
     }
 } // namespace Lina::Audio

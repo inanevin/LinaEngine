@@ -43,9 +43,11 @@ namespace Lina::Resources
         auto*        storage   = Resources::ResourceStorage::Get();
         const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
         auto&        typeData  = storage->GetTypeData(storage->GetTypeIDFromExtension(extension));
-        m_mutex.lock();
+
+        LOCK(m_mutex);
         m_memoryResources.push(MemoryEntry(typeData.loadPriority, path, data));
-        m_mutex.unlock();
+        UNLOCK(m_mutex);
+
         data.clear();
     }
 

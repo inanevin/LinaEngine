@@ -126,9 +126,7 @@ namespace Lina::Resources
             StringIDType sid     = StringID(path.c_str()).value();
             auto*        storage = Resources::ResourceStorage::Get();
 
-            m_mutex.lock();
             const bool exists = storage->Exists<T>(sid);
-            m_mutex.unlock();
 
             if (exists)
             {
@@ -148,7 +146,6 @@ namespace Lina::Resources
         friend class ResourceStorage;
         StringIDType m_sid   = 0;
         String       m_path  = "";
-        Mutex        m_mutex;
     };
 
     template <typename T>

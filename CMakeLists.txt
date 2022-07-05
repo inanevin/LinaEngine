@@ -64,6 +64,8 @@ endif()
 
 if(LINA_PRODUCTION_BUILD)
 	add_compile_definitions(LINA_PRODUCTION_BUILD)
+else()
+	add_compile_definitions(LINA_DEBUG_BUILD)
 endif()
 
 if(LINA_UNITY_BUILDS)

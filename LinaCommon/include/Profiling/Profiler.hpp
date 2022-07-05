@@ -99,7 +99,8 @@ namespace Lina
 
     struct DeviceCPUInfo
     {
-        double processUse = 0;
+        int    numberOfCores = 0;
+        double processUse    = 0.0;
     };
 
     class Profiler
@@ -142,6 +143,8 @@ namespace Lina
         ParallelHashMap<void*, MemAllocationInfo> m_vramAllocations;
         size_t                                    m_totalMemAllocationSize  = 0;
         size_t                                    m_totalVRAMAllocationSize = 0;
+        double                                    m_lastCPUQueryTime        = 0.0;
+        int                                       m_numberOfCores           = 0;
         std::mutex                                m_lock;
     };
 

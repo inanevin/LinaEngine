@@ -83,7 +83,7 @@ namespace Lina
 
     void FrameAllocator::Free(void* ptr)
     {
-        LINA_ASSERT(false, "Use Reset() method for frame allocators.");
+       // LINA_ASSERT(false, "Use Reset() method for frame allocators.");
     }
 
     void FrameAllocator::Reset()

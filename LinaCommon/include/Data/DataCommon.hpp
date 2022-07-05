@@ -37,6 +37,12 @@ namespace Lina
 {
 	template<typename T, typename U>
 	using Pair = eastl::pair<T, U>;
+
+	namespace linatl = eastl;
+
+	template<typename T>
+	using Atomic = std::atomic<T>;
+
 } // namespace Lina
 
 #endif

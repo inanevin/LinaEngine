@@ -218,20 +218,20 @@ namespace Lina
         SetFrameLimit(60);
 
         auto t = Time::GetCPUTime();
-        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel");
+     //   m_levelManager.CreateLevel("Resources/Sandbox/Levels/level4.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level4.linalevel");
 
-        //for (int i = 2; i < 54; i++)
-        //{
-        //    const String res = "Resources/Editor/Audio/Test/level1aud - Copy(" + TO_STRING(i) + ").wav";
-        //    m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(),res);
-        //}
+      // for (int i = 1; i < 7; i++)
+      // {
+      //     const String res = "Resources/Editor/Audio/Test/audio" + TO_STRING(i) + ".wav";
+      //     m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(),res);
+      // }
         //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level2aud.wav");
         //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level3aud.wav");
         //m_levelManager.SaveCurrentLevel();
-        //  m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+      //   m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level4.linalevel");
         LINA_TRACE("Level Loading took {0} seconds", Time::GetCPUTime() - t);
-
+       
         bool loaded = false;
         while (m_running)
         {
@@ -241,10 +241,10 @@ namespace Lina
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
 
-            if (GetElapsedTime() > 3 && !loaded)
+            if (GetElapsedTime() > 1 && !loaded)
             {
                 loaded    = true;
-                m_running = false;
+                // m_running = false;
                 // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
             }
 
