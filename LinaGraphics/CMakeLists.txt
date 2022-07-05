@@ -20,13 +20,22 @@ project(LinaGraphics)
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
+	# Core
 	src/Core/RenderEngine.cpp
+	src/Core/Backend.cpp
+	src/Core/Window.cpp
+	src/Core/Bootstrap.cpp
+
+	# ECS
 	src/ECS/Systems/SkySystem.cpp
 	src/ECS/Systems/SpriteSystem.cpp
 	src/ECS/Systems/MeshSystem.cpp
 	src/ECS/Systems/DecalSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
 	src/ECS/Systems/ParticleSystem.cpp
+
+	# Utility
+	
 )
 
 #--------------------------------------------------------------------
@@ -34,7 +43,14 @@ set (LINAGRAPHICS_SOURCES
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
 
+	# Core
+	include/Core/GraphicsCommon.hpp
 	include/Core/RenderEngine.hpp
+	include/Core/Backend.hpp
+	include/Core/Window.hpp
+	include/Core/Bootstrap.hpp
+
+	# ECS
 	include/ECS/Components/SkyComponent.hpp
 	include/ECS/Components/SpriteComponent.hpp
 	include/ECS/Components/MeshComponent.hpp
@@ -48,6 +64,7 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Systems/ParticleSystem.hpp
 
+	# Utility
 	include/Utility/stb/stb_image.h
 	include/Utility/stb/stb_image_write.h
 
@@ -70,17 +87,19 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
+find_package(Vulkan REQUIRED FATAL_ERROR)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
+target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common Vulkan::Vulkan)
 	
 include(../_Dependencies/glad/link.cmake)
 include(../_Dependencies/glfw/link.cmake)

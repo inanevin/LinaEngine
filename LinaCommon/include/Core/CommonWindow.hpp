@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef CommonWindow_HPP
@@ -37,50 +36,26 @@ SOFTWARE.
 
 namespace Lina
 {
-    enum class WindowState
-    {
-        Normal    = 0,
-        Maximized = 1,
-        Iconified = 2
-    };
 
+    enum class VsyncMode
+    {
+        None = 0
+    };
     struct WindowProperties
     {
-        String  m_title;
-        int          m_width                = 1440;
-        int          m_height               = 900;
-        int          m_monitorWidth         = 0;
-        int          m_monitorHeight        = 0;
-        unsigned int m_xPos                 = 0;
-        unsigned int m_yPos                 = 0;
-        unsigned int m_xPosBeforeMaximize   = 0;
-        unsigned int m_yPosBeforeMaximize   = 0;
-        unsigned int m_widthBeforeMaximize  = 768;
-        unsigned int m_heightBeforeMaximize = 768;
-        unsigned int m_workingAreaWidth     = 768;
-        unsigned int m_workingAreaHeight    = 768;
-        int          m_vsync                = 0;
-        bool         m_decorated            = true;
-        bool         m_resizable            = true;
-        bool         m_fullscreen           = false;
-        int          m_msaaSamples          = 4;
-        float        m_contentScaleWidth    = 1.0f;
-        float        m_contentScaleHeight   = 1.0f;
-        WindowState  m_windowState;
-
-        WindowProperties()
-        {
-            m_title  = "Lina Engine";
-            m_width  = 1440;
-            m_height = 900;
-        }
-
-        WindowProperties(const String& title, unsigned int width, unsigned int height)
-        {
-            m_title  = title;
-            m_width  = width;
-            m_height = height;
-        }
+        String       title;
+        int          width              = 1440;
+        int          height             = 900;
+        VsyncMode    vsync              = VsyncMode::None;
+        bool         decorated          = true;
+        bool         resizable          = true;
+        bool         fullscreen         = false;
+        float        contentScaleWidth  = 1.0f;
+        float        contentScaleHeight = 1.0f;
+        int          monitorWidth       = 0;
+        int          monitorHeight      = 0;
+        unsigned int workingAreaWidth   = 0;
+        unsigned int workingAreaHeight  = 0;
     };
 } // namespace Lina
 

@@ -41,7 +41,9 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
         m_appInfo = appInfo;
-
+        
+        m_window.Initialize(appInfo);
+        m_backend.Initialize(appInfo);
         m_skySystem.Initialize("Sky System");
         m_particleSystem.Initialize("Particle System");
         m_decalSystem.Initialize("Decal System");

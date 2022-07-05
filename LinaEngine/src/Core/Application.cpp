@@ -148,7 +148,7 @@ namespace Lina
 
     void Application::OnWindowResize(const Event::EWindowResized& ev)
     {
-        if (ev.windowProps.m_width == 0.0f || ev.windowProps.m_height == 0.0f)
+        if (ev.newSize.x == 0 || ev.newSize.y == 0)
             m_engine.m_canRender = false;
         else
             m_engine.m_canRender = true;

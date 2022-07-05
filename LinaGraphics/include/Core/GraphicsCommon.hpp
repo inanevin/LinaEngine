@@ -28,54 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderEngine_HPP
-#define RenderEngine_HPP
-
-#include "Utility/StringId.hpp"
-#include "Data/FixedVector.hpp"
-#include "ECS/SystemList.hpp"
-#include "Core/CommonApplication.hpp"
-#include "ECS/Systems/ParticleSystem.hpp"
-#include "ECS/Systems/SpriteSystem.hpp"
-#include "ECS/Systems/DecalSystem.hpp"
-#include "ECS/Systems/MeshSystem.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
-#include "ECS/Systems/SkySystem.hpp"
-#include "Backend.hpp"
-#include "Window.hpp"
+#ifndef GraphicsCommon_HPP
+#define GraphicsCommon_HPP
 
 namespace Lina::Graphics
 {
-    class RenderEngine
-    {
-
-        typedef FixedVector<TypeID, 8> GraphicsComponents;
-
-    public:
-        RenderEngine()  = default;
-        ~RenderEngine() = default;
-
-        void Initialize(ApplicationInfo& appInfo);
-        void SyncRenderData();
-        void Clear();
-        void Render();
-        void Shutdown();
-
-    private:
-        friend class Engine;
-
-        ECS::SkySystem      m_skySystem;
-        ECS::DecalSystem    m_decalSystem;
-        ECS::ParticleSystem m_particleSystem;
-        ECS::SpriteSystem   m_spriteSystem;
-        ECS::MeshSystem     m_meshSystem;
-        ECS::LightingSystem m_lightingSystem;
-        ECS::SystemList     m_systemList;
-
-        ApplicationInfo m_appInfo;
-        Window          m_window;
-        Backend         m_backend;
-    };
+   
 } // namespace Lina::Graphics
 
 #endif

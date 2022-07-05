@@ -109,7 +109,7 @@ namespace Lina::World
         if (m_currentLevel == nullptr)
             return;
 
-        if (m_appInfo.m_appMode == ApplicationMode::Standalone)
+        if (m_appInfo.appMode == ApplicationMode::Standalone)
             return;
 
         const String path = m_currentLevel->GetPath();

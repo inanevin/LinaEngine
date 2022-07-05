@@ -36,7 +36,7 @@ namespace Lina::Resources
     void StandaloneResourceLoader::Initialize(const ApplicationInfo& appInfo)
     {
         ResourceLoader::Initialize(appInfo);
-        m_packager.LoadPackage("static", m_appInfo.m_packagePass, this);
+        m_packager.LoadPackage("static", m_appInfo.packagePass, this);
     }
 
     void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path)
@@ -48,7 +48,7 @@ namespace Lina::Resources
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
             HashSet<StringIDType> set;
             set.insert(StringID(path.c_str()).value());
-            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.m_packagePass, this);
+            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.packagePass, this);
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
         }
     }
@@ -86,7 +86,7 @@ namespace Lina::Resources
         for (const auto& pair : toLoad)
         {
             ResourceTypeData& typeData = storage->GetTypeData(pair.first);
-            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, m_appInfo.m_packagePass, this);
+            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, m_appInfo.packagePass, this);
         }
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();

@@ -28,53 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderEngine_HPP
-#define RenderEngine_HPP
+#ifndef Backend_HPP
+#define Backend_HPP
 
-#include "Utility/StringId.hpp"
-#include "Data/FixedVector.hpp"
-#include "ECS/SystemList.hpp"
 #include "Core/CommonApplication.hpp"
-#include "ECS/Systems/ParticleSystem.hpp"
-#include "ECS/Systems/SpriteSystem.hpp"
-#include "ECS/Systems/DecalSystem.hpp"
-#include "ECS/Systems/MeshSystem.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
-#include "ECS/Systems/SkySystem.hpp"
-#include "Backend.hpp"
-#include "Window.hpp"
 
 namespace Lina::Graphics
 {
-    class RenderEngine
+    class Backend
     {
 
-        typedef FixedVector<TypeID, 8> GraphicsComponents;
+    private:
+        friend class RenderEngine;
 
-    public:
-        RenderEngine()  = default;
-        ~RenderEngine() = default;
+        Backend()  = default;
+        ~Backend() = default;
 
-        void Initialize(ApplicationInfo& appInfo);
-        void SyncRenderData();
-        void Clear();
-        void Render();
+        void Initialize(const ApplicationInfo& appInfo);
         void Shutdown();
 
     private:
-        friend class Engine;
-
-        ECS::SkySystem      m_skySystem;
-        ECS::DecalSystem    m_decalSystem;
-        ECS::ParticleSystem m_particleSystem;
-        ECS::SpriteSystem   m_spriteSystem;
-        ECS::MeshSystem     m_meshSystem;
-        ECS::LightingSystem m_lightingSystem;
-        ECS::SystemList     m_systemList;
-
-        ApplicationInfo m_appInfo;
-        Window          m_window;
-        Backend         m_backend;
+        ApplicationInfo          m_appInfo;
     };
 } // namespace Lina::Graphics
 

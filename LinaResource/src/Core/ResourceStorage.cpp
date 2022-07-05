@@ -50,7 +50,7 @@ namespace Lina::Resources
 
         m_appInfo = appInfo;
 
-        if(appInfo.m_appMode == ApplicationMode::Editor)
+        if(appInfo.appMode == ApplicationMode::Editor)
             m_loader = new EditorResourceLoader();
         else
             m_loader = new StandaloneResourceLoader();
@@ -60,7 +60,7 @@ namespace Lina::Resources
         ResourceUtility::InitializeWorkingDirectory();
 
         // Fill the folder structure.
-        if (appInfo.m_appMode == ApplicationMode::Editor)
+        if (appInfo.appMode == ApplicationMode::Editor)
             ResourceUtility::ScanRootFolder();
     }
 

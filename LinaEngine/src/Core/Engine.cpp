@@ -99,12 +99,13 @@ namespace Lina
         m_resourceStorage.Initialize(m_appInfo);
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
-        m_messageBus.Initialize(m_appInfo.m_appMode);
-        m_physicsEngine.Initialize(m_appInfo.m_appMode);
+        m_messageBus.Initialize(m_appInfo.appMode);
+        m_physicsEngine.Initialize(m_appInfo.appMode);
         m_levelManager.Initialize(m_appInfo);
+        m_renderEngine.Initialize(m_appInfo);
 
         // Make sure the static resources needed are initialized.
-        if (appInfo.m_appMode == ApplicationMode::Editor)
+        if (appInfo.appMode == ApplicationMode::Editor)
         {
             if (!Utility::FileExists("Resources/lina.enginesettings"))
             {
@@ -126,7 +127,7 @@ namespace Lina
 
     void Engine::PackageProject(const String& path)
     {
-        if (m_appInfo.m_appMode != ApplicationMode::Editor)
+        if (m_appInfo.appMode != ApplicationMode::Editor)
         {
             LINA_ERR("You can only package the project in editor mode!");
             return;
@@ -170,7 +171,7 @@ namespace Lina
             }
         }
 
-        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.m_packagePass);
+        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.packagePass);
     }
 
     void Engine::Run()
@@ -195,10 +196,7 @@ namespace Lina
         // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
 
         Taskflow gameLoop;
-        auto [_Input, _RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
-            [&]() {
-                m_inputEngine.Tick();
-            },
+        auto [ _RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
             [&]() {
                 m_renderEngine.Render();
                 frames++;
@@ -211,7 +209,6 @@ namespace Lina
                 m_renderEngine.SyncRenderData();
             });
 
-        _Input.precede(_RenderPreviousFrame, _RunSimulation);
         _SyncRenderData.succeed(_RunSimulation);
 
       //  m_levelManager.InstallLevel("Resources/Sandbox/Levels/level4.linalevel");
@@ -229,7 +226,6 @@ namespace Lina
         while (m_running)
         {
             PROFILER_FRAME_START();
-            m_running = false;
 
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
@@ -251,6 +247,7 @@ namespace Lina
             m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
             m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 
+            m_inputEngine.Tick();
             m_jobSystem.Run(gameLoop).wait();
 
             // Calculate FPS, UPS.
@@ -279,6 +276,7 @@ namespace Lina
         // Shutting down.
         PackageProject("");
         m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
+        m_renderEngine.Shutdown();
         m_levelManager.Shutdown();
         m_audioEngine.Shutdown();
         m_physicsEngine.Shutdown();

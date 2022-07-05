@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -25,7 +25,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 
 #pragma once
 
@@ -56,19 +55,16 @@ namespace Lina
 
     struct ApplicationInfo
     {
-        // Bundle name that is used to load resources package on Standalone builds.
-        String m_bundleName = "";
-
         // App Info
-        const char*    m_appName     = "Lina Engine";
-        const wchar_t* m_packagePass = nullptr;
-        int            m_build       = 0;
-        int            m_appMajor    = 1;
-        int            m_appMinor    = 0;
-        int            m_appPatch    = 0;
+        const char*    appName      = "Lina Engine";
+        const wchar_t* packagePass  = nullptr;
+        int            build        = 0;
+        int            versionMajor = 1;
+        int            versionMinor = 0;
+        int            versionPatch = 0;
 
-        ApplicationMode  m_appMode          = ApplicationMode::Editor;
-        WindowProperties m_windowProperties = WindowProperties();
+        ApplicationMode  appMode          = ApplicationMode::Editor;
+        WindowProperties windowProperties = WindowProperties();
     };
 
     extern String LogLevelAsString(LogLevel level);

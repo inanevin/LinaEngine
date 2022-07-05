@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,7 +41,7 @@ namespace Lina::Input
 {
 #define AXIS_SENSITIVITY  0.1f
 #define MOUSE_SENSITIVITY 5.0f
-    GLFWwindow*      glfwWindow                     = nullptr;
+    GLFWwindow*  glfwWindow                 = nullptr;
     InputEngine* InputEngine::s_inputEngine = nullptr;
 
     void InputEngine::Initialize()

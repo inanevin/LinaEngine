@@ -26,44 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/Backend.hpp"
+#include "Log/Log.hpp"
+#include "Core/Bootstrap.hpp"
 
-#ifndef WindowEvents_HPP
-#define WindowEvents_HPP
-
-// Headers here.
-#include "Core/CommonWindow.hpp"
-
-namespace Lina::Event
+namespace Lina::Graphics
 {
-    struct EWindowContextCreated
-    {
-        void* window = nullptr;
-    };
-    struct EWindowResized
-    {
-        void*    window  = nullptr;
-        Vector2i newSize = Vector2();
-    };
-    struct EWindowPositioned
-    {
-        void*    window = nullptr;
-        Vector2i newPos = Vector2();
-    };
-    struct EWindowClosed
-    {
-        void* window = nullptr;
-    };
-    struct EWindowFocused
-    {
-        void* window  = nullptr;
-        int   focused = false;
-    };
-    // struct EWindowMaximized { void* m_window; int m_isMaximized; };
-    // struct EWindowIconified { void* m_window; int m_isIconified; };
-    // struct EWindowRefreshed { void* m_window; };
-    // struct EWindowMoved { void* m_window; int m_x; int m_y; };
 
-} // namespace Lina::Event
 
-#endif
+    void Backend::Initialize(const ApplicationInfo& appInfo)
+    {
+        LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
+        m_appInfo = appInfo;
+
+    }
+
+    void Backend::Shutdown()
+    {
+        LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
+    }
+
+} // namespace Lina::Graphics
