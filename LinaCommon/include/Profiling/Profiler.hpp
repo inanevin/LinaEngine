@@ -82,9 +82,9 @@ namespace Lina
 
     struct MemAllocationInfo
     {
-        size_t         size      = 0;
-        unsigned short stackSize = 0;
-        void*          stack[MEMORY_STACK_TRACE_SIZE];
+        size_t         size                           = 0;
+        unsigned short stackSize                      = 0;
+        void*          stack[MEMORY_STACK_TRACE_SIZE] = {};
     };
 
     struct DeviceMemoryInfo
@@ -99,8 +99,15 @@ namespace Lina
 
     struct DeviceCPUInfo
     {
-        int    numberOfCores = 0;
-        double processUse    = 0.0;
+        // Total % of CPU used by this process.
+        double processUse = 0.0;
+
+        // Total % of CPU utilization by this process.
+        double processUtilization = 0.0;
+
+        int                     numberOfCores      = 0;
+        double                  averageFrameTimeNS = 0.0;
+        HashMap<uint64, double> cpuUsages;
     };
 
     class Profiler
@@ -112,7 +119,7 @@ namespace Lina
         }
 
         DeviceMemoryInfo QueryMemoryInfo();
-        DeviceCPUInfo    QueryCPUInfo();
+        DeviceCPUInfo&   QueryCPUInfo();
         void             StartFrame();
         void             StartScope(const String& scope, const String& thread);
         void             EndScope(const String& scope, const String& thread);
@@ -144,8 +151,9 @@ namespace Lina
         size_t                                    m_totalMemAllocationSize  = 0;
         size_t                                    m_totalVRAMAllocationSize = 0;
         double                                    m_lastCPUQueryTime        = 0.0;
-        int                                       m_numberOfCores           = 0;
         std::mutex                                m_lock;
+        bool                                      m_totalFrameQueueReached = false;
+        DeviceCPUInfo                             m_cpuInfo;
     };
 
 #define PROFILER_FRAME_START()                      Profiler::Get()->StartFrame()

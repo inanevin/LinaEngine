@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -56,10 +56,10 @@ namespace Lina::Audio
         ALenum err = alutGetError();
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
 
-        m_data           = aldata;
-        m_format         = format;
-        m_size           = size;
-        m_freq           = freq;
+        m_data   = aldata;
+        m_format = format;
+        m_size   = size;
+        m_freq   = freq;
 
         const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
         const String assetDataPath = fileNameNoExt + ".linaaudiodata";
@@ -87,7 +87,7 @@ namespace Lina::Audio
 
         ALenum err = alutGetError();
         LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
-     
+
         m_data   = data;
         m_format = format;
         m_size   = size;
@@ -101,14 +101,7 @@ namespace Lina::Audio
         alBufferData(m_buffer, format, data, size, (ALsizei)freq);
         free(data);
 
-        #ifdef LINA_COMPILER_MSVC
-
-        #endif
-
-        #ifdef LINA_DEBUG
-
-        #endif
-#ifdef LINA_DEBUG
+#ifdef LINA_DEBUG_BUILD
         CheckForError();
 #endif
 

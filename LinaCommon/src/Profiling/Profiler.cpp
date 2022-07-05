@@ -41,7 +41,9 @@ SOFTWARE.
 #include <Windows.h>
 #include <psapi.h>
 #include <DbgHelp.h>
-#include <TlHelp32.h>
+#include <Pdh.h>
+#include <PdhMsg.h>
+#pragma comment(lib, "pdh.lib")
 #endif
 
 namespace Lina
@@ -73,10 +75,8 @@ namespace Lina
         return info;
     }
 
-    DeviceCPUInfo Profiler::QueryCPUInfo()
+    DeviceCPUInfo& Profiler::QueryCPUInfo()
     {
-        DeviceCPUInfo info;
-
 #ifdef LINA_PLATFORM_WINDOWS
         static bool           inited        = false;
         static int            numProcessors = 0;
@@ -101,11 +101,12 @@ namespace Lina
                 memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
                 memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
             }
-            inited          = true;
-            m_numberOfCores = std::thread::hardware_concurrency();
+            inited                  = true;
+            m_cpuInfo.numberOfCores = std::thread::hardware_concurrency();
         }
 
-        const double time = Time::GetCPUTime();
+        const double  time    = Time::GetCPUTime();
+        static double percent = 0.0;
 
         if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
         {
@@ -114,7 +115,6 @@ namespace Lina
             /* QUERYING CPU INFO */
             FILETIME       ftime, fsys, fuser;
             ULARGE_INTEGER now, sys, user;
-            double         percent = 0.0;
 
             GetSystemTimeAsFileTime(&ftime);
             memcpy(&now, &ftime, sizeof(FILETIME));
@@ -126,25 +126,28 @@ namespace Lina
                 percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) +
                                               (user.QuadPart - lastUserCPU.QuadPart));
 
-                auto diff = now.QuadPart - lastCPU.QuadPart;
+                m_cpuInfo.processUtilization = (percent / 100000.0) / static_cast<double>(numProcessors);
 
+                auto diff = now.QuadPart - lastCPU.QuadPart;
                 if (diff != 0)
                     percent /= static_cast<double>(diff);
 
                 percent /= static_cast<double>(numProcessors);
-                lastCPU            = now;
-                lastUserCPU        = user;
-                lastSysCPU         = sys;
-                info.numberOfCores = m_numberOfCores;
-                info.processUse    = percent * 100.0;
+                lastCPU              = now;
+                lastUserCPU          = user;
+                lastSysCPU           = sys;
+                m_cpuInfo.processUse = percent * 100.0f;
             }
         }
+
+        // info.processUse              = percent * 100.0;
+        m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
 
 #else
         LINA_ERR("[Profiler] -> CPU query for other platforms not implemented!");
 #endif
 
-        return info;
+        return m_cpuInfo;
     }
 
     void Profiler::StartFrame()
