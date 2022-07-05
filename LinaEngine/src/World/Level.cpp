@@ -57,6 +57,8 @@ namespace Lina::World
             iarchive(*this);
             m_registry.DeserializeComponentsInRegistry(iarchive);
         }
+
+        stream.clear();
         IResource::SetSID(path);
         return static_cast<void*>(this);
     }
@@ -69,6 +71,8 @@ namespace Lina::World
             iarchive(*this);
             m_registry.DeserializeComponentsInRegistry(iarchive);
         }
+
+        stream.close();
         IResource::SetSID(path);
         return static_cast<void*>(this);
     }
@@ -90,6 +94,8 @@ namespace Lina::World
             oarchive(*this);
             m_registry.SerializeComponentsInRegistry(oarchive);
         }
+
+        stream.close();
     }
 
     void Level::AddResourceReference(TypeID tid, const String& path)

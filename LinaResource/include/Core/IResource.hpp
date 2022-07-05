@@ -54,6 +54,8 @@ namespace Lina::Resources
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(obj);
         }
+
+        stream.close();
         return obj;
     }
 
@@ -68,6 +70,7 @@ namespace Lina::Resources
                 cereal::PortableBinaryInputArchive iarchive(stream);
                 iarchive(obj);
             }
+            stream.clear();
         }
         return obj;
     }
@@ -83,6 +86,8 @@ namespace Lina::Resources
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(obj);
         }
+
+        stream.close();
     }
 
     class IResource

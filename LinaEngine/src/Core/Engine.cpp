@@ -213,47 +213,27 @@ namespace Lina
 
         _Input.precede(_RenderPreviousFrame, _RunSimulation);
         _SyncRenderData.succeed(_RunSimulation);
-        int counter = 0;
 
-        auto t = Time::GetCPUTime();
-        //   m_levelManager.CreateLevel("Resources/Sandbox/Levels/level4.linalevel");
-        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level4.linalevel");
+      //  m_levelManager.InstallLevel("Resources/Sandbox/Levels/level4.linalevel");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio1.wav");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
+      // m_levelManager.SaveCurrentLevel();
+      // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level4.linalevel");
 
-        // for (int i = 1; i < 7; i++)
-        // {
-        //     const String res = "Resources/Editor/Audio/Test/audio" + TO_STRING(i) + ".wav";
-        //     m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(),res);
-        // }
-        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level2aud.wav");
-        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/level3aud.wav");
-        // m_levelManager.SaveCurrentLevel();
-        //   m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level4.linalevel");
-        LINA_TRACE("Level Loading took {0} seconds", Time::GetCPUTime() - t);
-
-        bool loaded = false;
-        // SetFrameLimit(60);
+        SetFrameLimit(60);
 
         while (m_running)
         {
             PROFILER_FRAME_START();
-            counter++;
+            m_running = false;
 
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
 
-            if (GetElapsedTime() < 0 && !loaded)
-            {
-                loaded    = true;
-                m_running = false;
-                // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-            }
-
-  
-            DeviceCPUInfo& inf = Profiler::Get()->QueryCPUInfo();
-            LINA_TRACE("CPU UTIL {0} CPU USE {1}", inf.processUtilization, inf.processUse);
-
-            // for (auto& p : inf.cpuUsages)
-            //     LINA_TRACE("CPU: {0}  Usage: {1}", p.first, p.second);
             if (m_frameLimit > 0 && !m_firstRun)
             {
                 const double diff = currentFrameTime - previousFrameTime;
@@ -273,9 +253,6 @@ namespace Lina
 
             m_jobSystem.Run(gameLoop).wait();
 
-#ifdef LINA_ENABLE_PROFILING
-
-#endif
             // Calculate FPS, UPS.
             if (currentFrameTime - totalFPSTime >= 1.0)
             {
@@ -292,6 +269,7 @@ namespace Lina
         }
 
         m_jobSystem.WaitForAll();
+        gameLoop.clear();
 
         // Ending game.
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
