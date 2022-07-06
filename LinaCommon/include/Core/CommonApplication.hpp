@@ -53,6 +53,13 @@ namespace Lina
         Standalone = 1 << 1
     };
 
+    enum class PreferredGPUType
+    {
+        Discrete = 0,
+        Integrated,
+        CPU
+    };
+
     struct ApplicationInfo
     {
         // App Info
@@ -65,6 +72,7 @@ namespace Lina
 
         ApplicationMode  appMode          = ApplicationMode::Editor;
         WindowProperties windowProperties = WindowProperties();
+        PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;
     };
 
     extern String LogLevelAsString(LogLevel level);

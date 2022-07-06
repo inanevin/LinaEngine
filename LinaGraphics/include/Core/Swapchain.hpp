@@ -28,30 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Bootstrap_HPP
-#define Bootstrap_HPP
-#include "vulkan/vulkan.h"
+#ifndef Swapchain_HPP
+#define Swapchain_HPP
 
-namespace Lina
-{
-    struct ApplicationInfo;
-}
+#include "Data/Vector.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include <vulkan/vulkan.h>
+
 namespace Lina::Graphics
 {
-    class Bootstrap
+    class Swapchain
     {
+    public:
+        void Create(VkPhysicalDevice gpu, VkDevice device, VkSurfaceKHR surface);
+        void Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
 
-    private:
-        friend class Backend;
+        // Desired
+        uint32      width       = 0;
+        uint32      height      = 0;
+        Format      format      = Format::B8G8R8A8_SRGB;
+        ColorSpace  colorSpace  = ColorSpace::SRGB_NONLINEAR;
+        PresentMode presentMode = PresentMode::Immediate;
 
-        Bootstrap()  = default;
-        ~Bootstrap() = default;
-
-        static bool InitVulkan(const ApplicationInfo& appInfo, VkInstance& instance, VkAllocationCallbacks* pAllocator);
-        static bool CheckValidationLayers();
-        static void CreateDebugMessenger(VkInstance inst, VkDebugUtilsMessengerEXT& messenger);
-        static void DestroyDebugMessenger(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks* pAllocator);
-        static void GetDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        // Runtime
+        VkSwapchainKHR      _ptr = nullptr;
+        Vector<VkImage>     _images;
+        Vector<VkImageView> _imageViews;
+        VkFormat            _format;
     };
 } // namespace Lina::Graphics
 

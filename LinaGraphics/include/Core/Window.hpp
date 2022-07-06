@@ -40,6 +40,13 @@ namespace Lina::Graphics
 {
     class Window
     {
+    public:
+
+        GLFWwindow* GetGLFWWindow()
+        {
+            return m_glfwWindow;
+        }
+
         void SetSize(const Vector2i& newSize);
         void SetPos(const Vector2i& newPos);
         void SetPosCentered(const Vector2i& newPos);

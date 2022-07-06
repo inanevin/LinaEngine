@@ -44,6 +44,11 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include <source_location>
 
+namespace Graphics
+{
+    class Backend;
+}
+
 namespace Lina
 {
     struct Scope
@@ -110,6 +115,12 @@ namespace Lina
         HashMap<uint64, double> cpuUsages;
     };
 
+    struct DeviceGPUInfo
+    {
+        uint64 m_memoryHeapSize  = 0;
+        uint32 m_memoryHeapCount = 0;
+    };
+
     class Profiler
     {
     public:
@@ -130,6 +141,10 @@ namespace Lina
         void             DumpMemoryLeaks(const String& path);
         void             DumpFrameAnalysis(const String& path);
         void             WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
+        inline void      SetGPUInfo(const DeviceGPUInfo& info)
+        {
+            m_gpuInfo = info;
+        }
         static Profiler* s_instance;
 
     private:
@@ -154,6 +169,7 @@ namespace Lina
         std::mutex                                m_lock;
         bool                                      m_totalFrameQueueReached = false;
         DeviceCPUInfo                             m_cpuInfo;
+        DeviceGPUInfo                             m_gpuInfo;
     };
 
 #define PROFILER_FRAME_START()                      Profiler::Get()->StartFrame()

@@ -24,7 +24,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/RenderEngine.cpp
 	src/Core/Backend.cpp
 	src/Core/Window.cpp
-	src/Core/Bootstrap.cpp
+	src/Core/Swapchain.cpp
 
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
@@ -35,7 +35,7 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/ParticleSystem.cpp
 
 	# Utility
-	
+	src/Utility/VkBootstrap.cpp
 )
 
 #--------------------------------------------------------------------
@@ -48,7 +48,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderEngine.hpp
 	include/Core/Backend.hpp
 	include/Core/Window.hpp
-	include/Core/Bootstrap.hpp
+	include/Core/Swapchain.hpp
+
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp
@@ -67,6 +68,8 @@ set(LINAGRAPHICS_HEADERS
 	# Utility
 	include/Utility/stb/stb_image.h
 	include/Utility/stb/stb_image_write.h
+	include/Utility/VkBootstrap.h
+	include/Utility/VkBootstrapDispatch.h
 
 )
 

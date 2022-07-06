@@ -23,6 +23,7 @@ int main(int argc, char** argv)
         .versionPatch     = LINA_PATCH,
         .appMode          = Lina::ApplicationMode::Editor,
         .windowProperties = windowProps,
+        .preferredGPU     = Lina::PreferredGPUType::Discrete,
     };
 
     application->Initialize(appInfo);

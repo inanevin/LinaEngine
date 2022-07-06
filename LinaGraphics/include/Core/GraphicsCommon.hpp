@@ -30,10 +30,28 @@ SOFTWARE.
 
 #ifndef GraphicsCommon_HPP
 #define GraphicsCommon_HPP
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-   
+    enum class Format
+    {
+        B8G8R8A8_SRGB = VK_FORMAT_B8G8R8A8_SRGB,
+    };
+
+    enum class ColorSpace
+    {
+        SRGB_NONLINEAR = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+    };
+
+    enum class PresentMode
+    {
+        Immediate   = VK_PRESENT_MODE_IMMEDIATE_KHR,
+        Mailbox     = VK_PRESENT_MODE_MAILBOX_KHR,
+        FIFO        = VK_PRESENT_MODE_FIFO_KHR,
+        FIFORelaxed = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+    };
+
 } // namespace Lina::Graphics
 
 #endif

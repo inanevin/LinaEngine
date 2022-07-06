@@ -32,8 +32,16 @@ SOFTWARE.
 #define Backend_HPP
 
 #include "Core/CommonApplication.hpp"
+#include "Core/Swapchain.hpp"
 #include <vulkan/vulkan.h>
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct EWindowResized;
+    }
+}
 namespace Lina::Graphics
 {
     class Backend
@@ -48,11 +56,17 @@ namespace Lina::Graphics
         bool Initialize(const ApplicationInfo& appInfo);
         void Shutdown();
 
+        void OnWindowResized(const Event::EWindowResized& ev);
+
     private:
         ApplicationInfo          m_appInfo;
         VkInstance               m_vkInstance     = nullptr;
         VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;
         VkAllocationCallbacks*   m_allocator      = nullptr;
+        VkDevice                 m_device         = nullptr;
+        VkPhysicalDevice         m_gpu            = nullptr;
+        VkSurfaceKHR             m_surface        = nullptr;
+        Swapchain                m_swapchain;
     };
 } // namespace Lina::Graphics
 
