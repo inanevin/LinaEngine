@@ -69,7 +69,7 @@ namespace Lina::Audio
         alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
         free(aldata);
 
-#ifdef LINA_DEBUG_BUILD
+#ifdef LINA_DEBUG
         CheckForError();
 #endif
 
@@ -101,7 +101,7 @@ namespace Lina::Audio
         alBufferData(m_buffer, format, data, size, (ALsizei)freq);
         free(data);
 
-#ifdef LINA_DEBUG_BUILD
+#ifdef LINA_DEBUG
         CheckForError();
 #endif
 

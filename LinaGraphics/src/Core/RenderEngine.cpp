@@ -41,9 +41,17 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
         m_appInfo = appInfo;
-        
-        m_window.Initialize(appInfo);
-        m_backend.Initialize(appInfo);
+
+        Window::s_instance   = &m_window;
+        m_initedSuccessfully = m_window.Initialize(appInfo);
+        m_initedSuccessfully = m_backend.Initialize(appInfo);
+
+        if (!m_initedSuccessfully)
+        {
+            LINA_ERR("[Render Engine] -> Initialization failed, no rendering will occur!");
+            return;
+        }
+
         m_skySystem.Initialize("Sky System");
         m_particleSystem.Initialize("Particle System");
         m_decalSystem.Initialize("Decal System");
@@ -89,6 +97,9 @@ namespace Lina::Graphics
     void RenderEngine::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
+
+        m_window.Shutdown();
+        m_backend.Shutdown();
     }
 
 } // namespace Lina::Graphics

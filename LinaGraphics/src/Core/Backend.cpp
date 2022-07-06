@@ -33,17 +33,24 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-
-    void Backend::Initialize(const ApplicationInfo& appInfo)
+    bool Backend::Initialize(const ApplicationInfo& appInfo)
     {
         LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
         m_appInfo = appInfo;
 
+        m_allocator      = nullptr;
+        bool initialized = Bootstrap::InitVulkan(appInfo, m_vkInstance, m_allocator);
+        Bootstrap::CreateDebugMessenger(m_vkInstance, m_debugMessenger);
+
+        return initialized;
     }
 
     void Backend::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
+
+        Bootstrap::DestroyDebugMessenger(m_vkInstance, m_debugMessenger, m_allocator);
+        vkDestroyInstance(m_vkInstance, nullptr);
     }
 
 } // namespace Lina::Graphics

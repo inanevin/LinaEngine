@@ -45,16 +45,22 @@ namespace Lina::Graphics
         void SetPosCentered(const Vector2i& newPos);
         void SetVsync(VsyncMode mode);
 
+        static Window* Get()
+        {
+            return s_instance;
+        }
+
     private:
         friend class RenderEngine;
 
         Window()  = default;
         ~Window() = default;
 
-        void Initialize(ApplicationInfo& appInfo);
+        bool Initialize(ApplicationInfo& appInfo);
         void Shutdown();
         void Close();
 
+        static Window*  s_instance;
         ApplicationInfo m_appInfo;
         GLFWwindow*     m_glfwWindow = nullptr;
         void*           m_userPtr    = nullptr;

@@ -37,13 +37,14 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    Window* Window::s_instance = nullptr;
 
     static void GLFWErrorCallback(int error, const char* desc)
     {
         LINA_ERR("GLFW Error: {0} Description: {1} ", error, desc);
     }
 
-    void Window::Initialize(ApplicationInfo& appInfo)
+    bool Window::Initialize(ApplicationInfo& appInfo)
     {
         LINA_TRACE("[Initialization] -> Window ({0})", typeid(*this).name());
 
@@ -71,7 +72,7 @@ namespace Lina::Graphics
         {
             // Assert window creation.
             LINA_ERR("[Window] -> GLFW could not initialize!");
-            return;
+            return false;
         }
 
         m_userPtr = static_cast<void*>(m_glfwWindow);
@@ -82,11 +83,11 @@ namespace Lina::Graphics
         // Set working area width, exclude taskbar.
         if (appInfo.appMode == ApplicationMode::Editor)
         {
-            // int xpos, ypos, width, height;
-            // glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
-            // glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
-            // appInfo.windowProperties.workingAreaWidth  = width;
-            // appInfo.windowProperties.workingAreaHeight = height;
+            int xpos, ypos, width, height;
+            glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
+            glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
+            appInfo.windowProperties.workingAreaWidth  = width;
+            appInfo.windowProperties.workingAreaHeight = height;
             // SetSize(Vector2i(width, height));
         }
         else
@@ -117,7 +118,7 @@ namespace Lina::Graphics
             else if (action == GLFW_REPEAT)
                 inputAction = Input::InputAction::Repeated;
 
-            Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{ window->m_userPtr, key, scancode, inputAction, modes });
+            Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{window->m_userPtr, key, scancode, inputAction, modes});
         };
 
         auto windowButtonFunc = [](GLFWwindow* w, int button, int action, int modes) {
@@ -129,22 +130,22 @@ namespace Lina::Graphics
             else if (action == GLFW_REPEAT)
                 inputAction = Input::InputAction::Repeated;
 
-            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{ window->m_userPtr, button, inputAction, modes });
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{window->m_userPtr, button, inputAction, modes});
         };
 
         auto windowMouseScrollFunc = [](GLFWwindow* w, double xOff, double yOff) {
             auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
-            Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{ window->m_userPtr, xOff, yOff });
+            Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{window->m_userPtr, xOff, yOff});
         };
 
         auto windowCursorPosFunc = [](GLFWwindow* w, double xPos, double yPos) {
             auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
-            Event::EventSystem::Get()->Trigger<Event::EMouseCursorCallback>(Event::EMouseCursorCallback{ window->m_userPtr, xPos, yPos });
+            Event::EventSystem::Get()->Trigger<Event::EMouseCursorCallback>(Event::EMouseCursorCallback{window->m_userPtr, xPos, yPos});
         };
 
         auto windowFocusFunc = [](GLFWwindow* w, int f) {
             auto* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
-            Event::EventSystem::Get()->Trigger<Event::EWindowFocused>(Event::EWindowFocused{ window->m_userPtr, f });
+            Event::EventSystem::Get()->Trigger<Event::EWindowFocused>(Event::EWindowFocused{window->m_userPtr, f});
         };
 
         // Register window callbacks.
@@ -156,13 +157,15 @@ namespace Lina::Graphics
         glfwSetCursorPosCallback(m_glfwWindow, windowCursorPosFunc);
         glfwSetWindowFocusCallback(m_glfwWindow, windowFocusFunc);
 
-        Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{ .window = m_userPtr});
+        Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = m_userPtr});
+        return true;
     }
 
     void Window::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Window ({0})", typeid(*this).name());
 
+        glfwDestroyWindow(m_glfwWindow);
         glfwTerminate();
     }
 
@@ -186,13 +189,11 @@ namespace Lina::Graphics
 
     void Window::SetVsync(VsyncMode mode)
     {
-
     }
 
     void Window::Close()
     {
         Event::EventSystem::Get()->Trigger<Event::EWindowClosed>();
     }
-
 
 } // namespace Lina::Graphics

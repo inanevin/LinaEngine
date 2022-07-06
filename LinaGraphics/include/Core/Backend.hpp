@@ -32,6 +32,7 @@ SOFTWARE.
 #define Backend_HPP
 
 #include "Core/CommonApplication.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -44,11 +45,14 @@ namespace Lina::Graphics
         Backend()  = default;
         ~Backend() = default;
 
-        void Initialize(const ApplicationInfo& appInfo);
+        bool Initialize(const ApplicationInfo& appInfo);
         void Shutdown();
 
     private:
         ApplicationInfo          m_appInfo;
+        VkInstance               m_vkInstance     = nullptr;
+        VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;
+        VkAllocationCallbacks*   m_allocator      = nullptr;
     };
 } // namespace Lina::Graphics
 

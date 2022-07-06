@@ -75,6 +75,7 @@ namespace Lina::Graphics
         ApplicationInfo m_appInfo;
         Window          m_window;
         Backend         m_backend;
+        bool            m_initedSuccessfully = false;
     };
 } // namespace Lina::Graphics
 

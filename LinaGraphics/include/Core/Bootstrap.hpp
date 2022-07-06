@@ -28,21 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Backend_HPP
-#define Backend_HPP
+#ifndef Bootstrap_HPP
+#define Bootstrap_HPP
+#include "vulkan/vulkan.h"
 
-#include "Core/CommonApplication.hpp"
-#include <vulkan/vulkan.h>
-
+namespace Lina
+{
+    struct ApplicationInfo;
+}
 namespace Lina::Graphics
 {
     class Bootstrap
     {
-        
 
     private:
+        friend class Backend;
+
         Bootstrap()  = default;
         ~Bootstrap() = default;
+
+        static bool InitVulkan(const ApplicationInfo& appInfo, VkInstance& instance, VkAllocationCallbacks* pAllocator);
+        static bool CheckValidationLayers();
+        static void CreateDebugMessenger(VkInstance inst, VkDebugUtilsMessengerEXT& messenger);
+        static void DestroyDebugMessenger(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks* pAllocator);
+        static void GetDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     };
 } // namespace Lina::Graphics
 

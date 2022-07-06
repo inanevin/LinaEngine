@@ -45,7 +45,7 @@ SOFTWARE.
 
 #else
 
-#ifdef LINA_PRODUCTION_BUILD
+#ifdef LINA_PRODUCTION
 
 #define LINA_ERR(...)
 #define LINA_WARN(...)
@@ -64,7 +64,7 @@ SOFTWARE.
 #endif
 #endif
 
-#ifdef LINA_DEBUG_BUILD
+#ifdef LINA_DEBUG
 
 #define LINA_ASSERT(x, ...)            \
     {                                  \
