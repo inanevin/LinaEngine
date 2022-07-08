@@ -26,55 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Window_HPP
-#define Window_HPP
-
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Data/RQueue.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {
-    class Window
+    HashMap<uint32, uint32> RQueue::s_queueCounterPerFamily;
+
+    void RQueue::Get(VkPhysicalDevice gpu, VkDevice device, uint32 family)
     {
-    public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        _family = family;
+        vkGetDeviceQueue(device, _family, s_queueCounterPerFamily[_family], &_ptr);
+        LINA_ASSERT(_ptr, "[Queue] -> Could not get device queue.");
+    }
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
-
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
-    };
 } // namespace Lina::Graphics
-
-#endif

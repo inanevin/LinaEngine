@@ -24,7 +24,17 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/RenderEngine.cpp
 	src/Core/Backend.cpp
 	src/Core/Window.cpp
-	src/Core/Swapchain.cpp
+
+	# Vulkan
+	src/Data/Attachment.cpp
+	src/Data/Framebuffer.cpp
+	src/Data/SwapChain.cpp
+	src/Data/RQueue.cpp
+	src/Data/CommandPool.cpp
+	src/Data/CommandBuffer.cpp
+	src/Data/RenderPass.cpp
+	src/Data/Fence.cpp
+	src/Data/Semaphore.cpp
 
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
@@ -48,7 +58,17 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderEngine.hpp
 	include/Core/Backend.hpp
 	include/Core/Window.hpp
-	include/Core/Swapchain.hpp
+
+	# Vulkan
+	include/Data/Attachment.hpp
+	include/Data/Framebuffer.hpp
+	include/Data/Swapchain.hpp
+	include/Data/RQueue.hpp
+	include/Data/CommandPool.hpp
+	include/Data/CommandBuffer.hpp
+	include/Data/RenderPass.hpp
+	include/Data/Fence.hpp
+	include/Data/Semaphore.hpp
 
 
 	# ECS

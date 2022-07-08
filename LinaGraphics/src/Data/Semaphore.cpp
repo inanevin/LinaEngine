@@ -26,55 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Window_HPP
-#define Window_HPP
-
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Data/Semaphore.hpp"
 
 namespace Lina::Graphics
 {
-    class Window
+    Semaphore Semaphore::Create(VkDevice device, const VkAllocationCallbacks* allocator)
     {
-    public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = flags,
+        };
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
-
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
-    };
+        VkResult result = vkCreateSemaphore(device, &info, allocator, &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS);
+        return *this;
+    }
 } // namespace Lina::Graphics
-
-#endif

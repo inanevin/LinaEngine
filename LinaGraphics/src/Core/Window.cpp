@@ -48,7 +48,6 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Window ({0})", typeid(*this).name());
 
-        m_appInfo = appInfo;
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_DECORATED, appInfo.windowProperties.decorated);
@@ -158,6 +157,7 @@ namespace Lina::Graphics
         glfwSetWindowFocusCallback(m_glfwWindow, windowFocusFunc);
 
         Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = m_userPtr});
+        m_size = Vector2i(appInfo.windowProperties.width, appInfo.windowProperties.height);
         return true;
     }
 
@@ -173,6 +173,7 @@ namespace Lina::Graphics
     {
         glfwSetWindowSize(m_glfwWindow, size.x, size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_userPtr, .newSize = size});
+        m_size = size;
     }
 
     void Window::SetPos(const Vector2i& pos)

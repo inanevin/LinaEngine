@@ -26,55 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Window_HPP
-#define Window_HPP
-
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Data/Framebuffer.hpp"
 
 namespace Lina::Graphics
 {
-    class Window
+    Framebuffer Framebuffer::Create(VkDevice device, VkImageView imageView, const VkAllocationCallbacks* allocator)
     {
-    public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        VkFramebufferCreateInfo info = VkFramebufferCreateInfo{
+            .sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+            .pNext           = nullptr,
+            .renderPass      = _renderPass,
+            .attachmentCount = _attCount,
+            .pAttachments    = &imageView,
+            .width           = width,
+            .height          = height,
+            .layers          = layers,
+        };
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
-
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
-    };
+        VkResult result = vkCreateFramebuffer(device, &info, allocator, &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Framebuffer] -> Could not create Vulkan framebuffer!");
+        return *this;
+    }
+    Framebuffer Framebuffer::AttachRenderPass(const RenderPass& pass)
+    {
+        _renderPass = pass._ptr;
+        _attCount   = static_cast<uint32>(pass.attachments.size());
+        return *this;
+    }
+    void Framebuffer::Destroy(VkDevice device, const VkAllocationCallbacks* allocator)
+    {
+        vkDestroyFramebuffer(device, _ptr, allocator);
+    }
 } // namespace Lina::Graphics
-
-#endif

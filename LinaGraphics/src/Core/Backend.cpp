@@ -119,7 +119,7 @@ namespace Lina::Graphics
         }
 
         LINA_TRACE("[Vulkan Backend] -> Created GLFW surface.");
-      
+
         vkb::PreferredDeviceType targetDeviceType = vkb::PreferredDeviceType::discrete;
 
         // if (appInfo.preferredGPU == PreferredGPUType::CPU)
@@ -168,6 +168,21 @@ namespace Lina::Graphics
         m_swapchain.Create(m_gpu, m_device, m_surface);
         LINA_TRACE("[Swapchain] -> Swapchain created: {0}x{1}", m_swapchain.width, m_swapchain.height);
 
+        // Query queue family indices.
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queueFamilyCount, nullptr);
+
+        Vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queueFamilyCount, queueFamilies.data());
+
+        uint32 i = 0;
+        for (const auto& queueFamily : queueFamilies)
+        {
+            QueueFamily family = QueueFamily{.flags = queueFamily.queueFlags, .count = queueFamily.queueCount};
+            m_queueFamilies.push_back(family);
+            i++;
+        }
+
         return true;
     }
 
@@ -188,6 +203,20 @@ namespace Lina::Graphics
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);
         vkDestroyInstance(m_vkInstance, m_allocator);
+    }
+
+    uint32 Backend::GetQueueFamilyIndex(QueueFamilies family)
+    {
+        uint32 index = 0;
+        for (auto& f : m_queueFamilies)
+        {
+            if (f.flags & static_cast<VkQueueFlagBits>(family))
+                return index;
+            index++;
+        }
+
+        LINA_ASSERT(false, "Requested queue family does not exists in the device! {0}", static_cast<uint32>(family));
+        return 0;
     }
 
 } // namespace Lina::Graphics

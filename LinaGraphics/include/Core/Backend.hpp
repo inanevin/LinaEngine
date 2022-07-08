@@ -31,8 +31,9 @@ SOFTWARE.
 #ifndef Backend_HPP
 #define Backend_HPP
 
+#include "Data/Vector.hpp"
 #include "Core/CommonApplication.hpp"
-#include "Core/Swapchain.hpp"
+#include "Data/Swapchain.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina
@@ -41,9 +42,15 @@ namespace Lina
     {
         struct EWindowResized;
     }
-}
+} // namespace Lina
 namespace Lina::Graphics
 {
+
+    struct QueueFamily
+    {
+        VkQueueFlags flags = 0;
+        uint32       count = 0;
+    };
     class Backend
     {
 
@@ -53,8 +60,9 @@ namespace Lina::Graphics
         Backend()  = default;
         ~Backend() = default;
 
-        bool Initialize(const ApplicationInfo& appInfo);
-        void Shutdown();
+        bool   Initialize(const ApplicationInfo& appInfo);
+        void   Shutdown();
+        uint32 GetQueueFamilyIndex(QueueFamilies family);
 
         void OnWindowResized(const Event::EWindowResized& ev);
 
@@ -67,6 +75,7 @@ namespace Lina::Graphics
         VkPhysicalDevice         m_gpu            = nullptr;
         VkSurfaceKHR             m_surface        = nullptr;
         Swapchain                m_swapchain;
+        Vector<QueueFamily>      m_queueFamilies;
     };
 } // namespace Lina::Graphics
 

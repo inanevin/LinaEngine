@@ -26,55 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Window_HPP
-#define Window_HPP
-
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Data/Attachment.hpp"
 
 namespace Lina::Graphics
 {
-    class Window
+    Attachment Attachment::Create()
     {
-    public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        _desc = VkAttachmentDescription{
+            .format         = static_cast<VkFormat>(format),
+            .samples        = VK_SAMPLE_COUNT_1_BIT,
+            .loadOp         = static_cast<VkAttachmentLoadOp>(loadOp),
+            .storeOp        = static_cast<VkAttachmentStoreOp>(storeOp),
+            .stencilLoadOp  = static_cast<VkAttachmentLoadOp>(stencilLoadOp),
+            .stencilStoreOp = static_cast<VkAttachmentStoreOp>(stencilStoreOp),
+            .initialLayout  = static_cast<VkImageLayout>(initialLayout),
+            .finalLayout    = static_cast<VkImageLayout>(finalLayout),
+        };
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
-
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
-    };
+        return *this;
+    }
 } // namespace Lina::Graphics
-
-#endif

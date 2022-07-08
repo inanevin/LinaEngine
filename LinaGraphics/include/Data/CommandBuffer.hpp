@@ -28,52 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef CommandBuffer_HPP
+#define CommandBuffer_HPP
 
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Core/GraphicsCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Window
+    class CommandBuffer
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        CommandBuffer Create(VkDevice device, VkCommandPool pool);
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
+        // Description
+        uint32             count = 0;
+        CommandBufferLevel level = CommandBufferLevel::Primary;
 
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
+        // Runtime
+        VkCommandBuffer _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

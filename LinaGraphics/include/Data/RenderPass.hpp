@@ -28,52 +28,47 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef RenderPass_HPP
+#define RenderPass_HPP
 
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Data/HashMap.hpp"
+#include "Data/Attachment.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Window
+    class SubPass
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        SubPass Create();
+        SubPass AddColorAttachmentRef(uint32 index, ImageLayout layout);
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
+        // Description
+        PipelineBindPoint            bindPoint = PipelineBindPoint::Graphics;
+        HashMap<uint32, ImageLayout> colorAttachmentRefs;
 
-        static Window* Get()
-        {
-            return s_instance;
-        }
+        // Runtime
+        Vector<VkAttachmentReference> _colorAttachments;
+        VkSubpassDescription          _desc;
+    };
+    class RenderPass
+    {
+    public:
+        RenderPass Create(VkDevice device, const VkAllocationCallbacks* allocator);
+        RenderPass AddSubpass(SubPass sp);
+        RenderPass AddAttachment(Attachment att);
+        void       Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
 
-    private:
-        friend class RenderEngine;
+        // Description
+        Vector<Attachment> attachments;
+        Vector<SubPass>    subpasses;
 
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
+        // Runtime
+        VkRenderPass                    _ptr = nullptr;
+        Vector<VkSubpassDescription>    _subpassDescriptions;
+        Vector<VkAttachmentDescription> _attachmentDescriptions;
     };
 } // namespace Lina::Graphics
 

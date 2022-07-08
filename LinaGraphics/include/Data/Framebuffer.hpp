@@ -28,52 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef Framebuffer_HPP
+#define Framebuffer_HPP
 
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Core/GraphicsCommon.hpp"
+#include "Data/RenderPass.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Window
+    class RenderPass;
+    class Framebuffer
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        Framebuffer Create(VkDevice device, VkImageView imageView, const VkAllocationCallbacks* allocator);
+        Framebuffer AttachRenderPass(const RenderPass& pass);
+        void        Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
+        // Description
+        uint32 width  = 0;
+        uint32 height = 0;
+        uint32 layers = 1;
 
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
+        // Runtime
+        VkFramebuffer _ptr;
+        VkRenderPass  _renderPass;
+        uint32        _attCount = 0;
     };
 } // namespace Lina::Graphics
 

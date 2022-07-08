@@ -28,52 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef Fence_HPP
+#define Fence_HPP
 
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Core/GraphicsCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Window
+    // Description of the image we'll be writing into w/ render commands.
+    class Fence
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        Fence Create(VkDevice device, const VkAllocationCallbacks* allocator);
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
+        // Description
+        FenceFlags flags = FenceFlags::Signaled;
 
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
+        // Runtime
+        VkFence _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

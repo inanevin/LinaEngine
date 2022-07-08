@@ -34,9 +34,22 @@ SOFTWARE.
 #include "ECS/Components/MeshComponent.hpp"
 #include "ECS/Components/SpriteComponent.hpp"
 #include "ECS/Components/ParticleComponent.hpp"
+#include "Data/RQueue.hpp"
+#include "Data/CommandBuffer.hpp"
+#include "Data/CommandPool.hpp"
+#include "Data/RenderPass.hpp"
+#include "Data/Framebuffer.hpp"
 
 namespace Lina::Graphics
 {
+
+    RQueue              m_graphicsQueue;
+    CommandPool         m_pool;
+    CommandBuffer       m_buffer;
+    RenderPass          m_renderPass;
+    SubPass             m_subpass;
+    Vector<Framebuffer> m_framebuffers;
+
     void RenderEngine::Initialize(ApplicationInfo& appInfo)
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
@@ -58,6 +71,26 @@ namespace Lina::Graphics
         m_spriteSystem.Initialize("Sprite System");
         m_lightingSystem.Initialize("Lighting System");
         m_meshSystem.Initialize("Mesh System");
+
+        m_graphicsQueue.Get(m_backend.m_gpu, m_backend.m_device, m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
+        m_pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = CommandPoolFlags::Reset}.Create(m_backend.m_device, m_backend.m_allocator);
+
+        m_buffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary}
+                       .Create(m_backend.m_device, m_pool._ptr);
+
+        Attachment att = Attachment{.format = static_cast<Format>(m_backend.m_swapchain.format), .loadOp = LoadOp::Clear}.Create();
+        SubPass    sp  = SubPass{.bindPoint = PipelineBindPoint::Graphics}.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).Create();
+
+        m_renderPass = RenderPass().AddAttachment(att).AddSubpass(sp).Create(m_backend.m_device, m_backend.m_allocator);
+        m_framebuffers.reserve(m_backend.m_swapchain._imageViews.size());
+
+        const Vector2i size = m_window.GetSize();
+
+        for (auto iv : m_backend.m_swapchain._imageViews)
+        {
+            Framebuffer fb = Framebuffer{.width = static_cast<uint32>(size.x), .height = static_cast<uint32>(size.y), .layers = 1}.AttachRenderPass(m_renderPass).Create(m_backend.m_device, iv, m_backend.m_allocator);
+            m_framebuffers.push_back(fb);
+        }
     }
 
     void RenderEngine::SyncRenderData()
@@ -98,8 +131,15 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
+        m_pool.Destroy(m_backend.m_device, m_backend.m_allocator);
+        m_renderPass.Destroy(m_backend.m_device, m_backend.m_allocator);
+
+        for (int i = 0; i < m_framebuffers.size(); i++)
+            m_framebuffers[i].Destroy(m_backend.m_device, m_backend.m_allocator);
+
         m_window.Shutdown();
         m_backend.Shutdown();
+       
     }
 
 } // namespace Lina::Graphics

@@ -28,52 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef Attachment_HPP
+#define Attachment_HPP
 
-#include "Core/CommonApplication.hpp"
-#include "Math/Vector.hpp"
-
-struct GLFWwindow;
+#include "Core/GraphicsCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Window
+    // Description of the image we'll be writing into w/ render commands.
+    class Semaphore
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
+        Semaphore Create(VkDevice device, const VkAllocationCallbacks* allocator);
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
-        inline const Vector2i& GetSize()
-        {
-            return m_size;
-        }
+        // Description
+        uint32 flags = 0;
 
-        static Window* Get()
-        {
-            return s_instance;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        Window()  = default;
-        ~Window() = default;
-
-        bool Initialize(ApplicationInfo& appInfo);
-        void Shutdown();
-        void Close();
-
-        Vector2i       m_size = Vector2i(0, 0);
-        static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
+        // Runtime
+        VkSemaphore _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

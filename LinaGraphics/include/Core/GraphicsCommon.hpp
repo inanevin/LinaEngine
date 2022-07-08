@@ -52,6 +52,65 @@ namespace Lina::Graphics
         FIFORelaxed = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
     };
 
+    enum class CommandBufferLevel
+    {
+        Primary   = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        Secondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+    };
+
+    enum class CommandPoolFlags
+    {
+        Transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+        Reset     = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        Protected = VK_COMMAND_POOL_CREATE_PROTECTED_BIT,
+    };
+
+    enum class QueueFamilies
+    {
+        Graphics      = VK_QUEUE_GRAPHICS_BIT,
+        Compute       = VK_QUEUE_COMPUTE_BIT,
+        Transfer      = VK_QUEUE_TRANSFER_BIT,
+        SparseBinding = VK_QUEUE_SPARSE_BINDING_BIT,
+        Protected     = VK_QUEUE_PROTECTED_BIT,
+    };
+
+    enum class ImageLayout
+    {
+        Undefined                   = VK_IMAGE_LAYOUT_UNDEFINED,
+        General                     = VK_IMAGE_LAYOUT_GENERAL,
+        ColorOptimal                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        DepthStencilOptimal         = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        DepthStencilReadOnlyOptimal = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+        PresentSurface              = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+    };
+
+    enum class PipelineBindPoint
+    {
+        Graphics = VK_PIPELINE_BIND_POINT_GRAPHICS,
+        Computer = VK_PIPELINE_BIND_POINT_COMPUTE,
+    };
+
+    enum class LoadOp
+    {
+        Load     = VK_ATTACHMENT_LOAD_OP_LOAD,
+        Clear    = VK_ATTACHMENT_LOAD_OP_CLEAR,
+        DontCare = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        None     = VK_ATTACHMENT_LOAD_OP_NONE_EXT,
+    };
+
+    enum class StoreOp
+    {
+        Store    = VK_ATTACHMENT_STORE_OP_STORE,
+        DontCare = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        None     = VK_ATTACHMENT_STORE_OP_NONE,
+        NoneKHR  = VK_ATTACHMENT_STORE_OP_NONE_KHR,
+    };
+
+    enum class FenceFlags
+    {
+        Signaled = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
+
 } // namespace Lina::Graphics
 
 #endif
