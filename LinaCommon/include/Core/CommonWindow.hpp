@@ -39,7 +39,10 @@ namespace Lina
 
     enum class VsyncMode
     {
-        None = 0
+        None = 0,
+        StrongVsync,
+        AdaptiveVsync,
+        TripleBuffer
     };
     struct WindowProperties
     {

@@ -98,6 +98,11 @@ namespace Lina::Event
         bool       half      = false;
         Quaternion rotation  = Quaternion();
     };
+    struct ESwapchainRecreated
+    {
+        void* oldPtr = nullptr;
+        void* newPtr = nullptr;
+    };
 } // namespace Lina::Event
 
 #endif

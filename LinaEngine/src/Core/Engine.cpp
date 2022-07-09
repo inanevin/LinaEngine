@@ -221,7 +221,7 @@ namespace Lina
       // m_levelManager.SaveCurrentLevel();
       // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level4.linalevel");
 
-        SetFrameLimit(60);
+       // SetFrameLimit(60);
 
         while (m_running)
         {
@@ -260,6 +260,8 @@ namespace Lina
                 frames  = 0;
                 updates = 0;
             }
+
+            LINA_TRACE("FPS : {0}", m_currentFPS);
 
             if (m_firstRun)
                 m_firstRun = false;

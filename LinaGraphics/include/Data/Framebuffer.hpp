@@ -35,6 +35,10 @@ SOFTWARE.
 #include "Data/RenderPass.hpp"
 #include <vulkan/vulkan.h>
 
+namespace Lina
+{
+ 
+} // namespace Lina
 namespace Lina::Graphics
 {
     class RenderPass;

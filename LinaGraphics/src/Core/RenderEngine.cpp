@@ -41,9 +41,13 @@ SOFTWARE.
 #include "Data/Framebuffer.hpp"
 #include "Data/Semaphore.hpp"
 #include "Data/Fence.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 
 namespace Lina::Graphics
 {
+
+    #define RETURN_NOTINITED  if(!m_initedSuccessfully) return
 
     RQueue              m_graphicsQueue;
     CommandPool         m_pool;
@@ -63,7 +67,10 @@ namespace Lina::Graphics
         Window::s_instance   = &m_window;
         Backend::s_instance  = &m_backend;
         m_initedSuccessfully = m_window.Initialize(appInfo);
+
+
         m_initedSuccessfully = m_backend.Initialize(appInfo);
+        Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -105,6 +112,8 @@ namespace Lina::Graphics
 
     void RenderEngine::SyncRenderData()
     {
+        RETURN_NOTINITED;
+
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
 
         m_systemList.UpdateSystems(0.0f);
@@ -112,10 +121,13 @@ namespace Lina::Graphics
 
     void RenderEngine::Clear()
     {
+        RETURN_NOTINITED;
+
     }
 
     void RenderEngine::Render()
     {
+    
         m_renderFence.Wait(true, 1.0);
         m_renderFence.Reset();
 
@@ -153,6 +165,8 @@ namespace Lina::Graphics
 
     void RenderEngine::Shutdown()
     {
+        RETURN_NOTINITED;
+
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
         m_renderFence.Wait();
@@ -168,6 +182,17 @@ namespace Lina::Graphics
 
         m_window.Shutdown();
         m_backend.Shutdown();
+    }
+
+    void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)
+    {
+        const Vector2i size = m_window.GetSize();
+        for (int i = 0; i < m_framebuffers.size(); i++)
+        {
+            Framebuffer& fb = m_framebuffers[i];
+            fb.Destroy();
+            fb = Framebuffer{.width = static_cast<uint32>(size.x), .height = static_cast<uint32>(size.y), .layers = 1}.AttachRenderPass(m_renderPass).Create(m_backend.m_swapchain._imageViews[i]);
+        }
     }
 
 } // namespace Lina::Graphics

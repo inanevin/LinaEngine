@@ -70,7 +70,9 @@ namespace Lina
 
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
-        /// Setting 0 removes the cap.
+        /// Setting 0 removes the cap. 
+        /// Frame limit is first and foremost depending on GPU and vsync mode. After rendering and refreshing, if there are still some time to cap,
+        /// then this frame limit is used.
         /// </summary>
         /// <param name="maxFPS"></param>
         inline void SetFrameLimit(int maxFPS)

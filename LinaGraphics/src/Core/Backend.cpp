@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Window.hpp"
 #include "Profiling/Profiler.hpp"
 #include "EventSystem/WindowEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include <GLFW/glfw3.h>
 
@@ -123,10 +124,10 @@ namespace Lina::Graphics
 
         vkb::PreferredDeviceType targetDeviceType = vkb::PreferredDeviceType::discrete;
 
-        // if (appInfo.preferredGPU == PreferredGPUType::CPU)
-        //     targetDeviceType = vkb::PreferredDeviceType::cpu;
-        // else if (appInfo.preferredGPU == PreferredGPUType::Integrated)
-        //     targetDeviceType = vkb::PreferredDeviceType::integrated;
+        if (appInfo.preferredGPU == PreferredGPUType::CPU)
+            targetDeviceType = vkb::PreferredDeviceType::cpu;
+        else if (appInfo.preferredGPU == PreferredGPUType::Integrated)
+            targetDeviceType = vkb::PreferredDeviceType::integrated;
 
         // Physical device
         vkb::PhysicalDeviceSelector selector{inst};
@@ -159,12 +160,23 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
+        PresentMode vsyncMode = PresentMode::Immediate;
+
+        if (appInfo.windowProperties.vsync == VsyncMode::StrongVsync)
+            vsyncMode = PresentMode::Immediate;
+        else if (appInfo.windowProperties.vsync == VsyncMode::StrongVsync)
+            vsyncMode = PresentMode::FIFO;
+        else if (appInfo.windowProperties.vsync == VsyncMode::AdaptiveVsync)
+            vsyncMode = PresentMode::FIFORelaxed;
+        else if (appInfo.windowProperties.vsync == VsyncMode::TripleBuffer)
+            vsyncMode = PresentMode::Mailbox;
+
         m_swapchain = Swapchain{
             .width       = static_cast<uint32>(appInfo.windowProperties.width),
             .height      = static_cast<uint32>(appInfo.windowProperties.height),
             .format      = Format::B8G8R8A8_SRGB,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
-            .presentMode = PresentMode::Immediate,
+            .presentMode = vsyncMode,
         };
         m_swapchain.Create();
         LINA_TRACE("[Swapchain] -> Swapchain created: {0}x{1}", m_swapchain.width, m_swapchain.height);
@@ -189,10 +201,12 @@ namespace Lina::Graphics
 
     void Backend::OnWindowResized(const Event::EWindowResized& ev)
     {
+        void* oldPtr = static_cast<void*>(m_swapchain._ptr);
         m_swapchain.Destroy();
         m_swapchain.width  = static_cast<uint32>(ev.newSize.x);
         m_swapchain.height = static_cast<uint32>(ev.newSize.y);
         m_swapchain.Create();
+        Event::EventSystem::Get()->Trigger<Event::ESwapchainRecreated>(Event::ESwapchainRecreated{.oldPtr = oldPtr, .newPtr = m_swapchain._ptr});
     }
 
     void Backend::Shutdown()

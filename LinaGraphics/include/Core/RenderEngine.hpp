@@ -44,6 +44,13 @@ SOFTWARE.
 #include "Backend.hpp"
 #include "Window.hpp"
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct ESwapchainRecreated;
+    }
+}
 namespace Lina::Graphics
 {
     class RenderEngine
@@ -60,6 +67,7 @@ namespace Lina::Graphics
         void Clear();
         void Render();
         void Shutdown();
+        void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
 
     private:
         friend class Engine;
