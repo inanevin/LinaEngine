@@ -55,4 +55,9 @@ namespace Lina::Graphics
         vkResetFences(Backend::Get()->GetDevice(), 1, &_ptr);
     }
 
+    void Fence::Destroy()
+    {
+        vkDestroyFence(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+    }
+
 } // namespace Lina::Graphics

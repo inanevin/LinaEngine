@@ -155,8 +155,13 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
-        m_pool.Destroy();
+        m_renderFence.Wait();
+        m_renderFence.Destroy();
+        m_renderSemaphore.Destroy();
+        m_presentSemaphore.Destroy();
+
         m_renderPass.Destroy();
+        m_pool.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();

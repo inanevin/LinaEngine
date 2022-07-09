@@ -41,6 +41,7 @@ namespace Lina::Graphics
     {
     public:
         Semaphore Create();
+        void      Destroy();
 
         // Description
         uint32 flags = 0;

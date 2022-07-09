@@ -43,4 +43,8 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
         return *this;
     }
+    void Semaphore::Destroy()
+    {
+        vkDestroySemaphore(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+    }
 } // namespace Lina::Graphics

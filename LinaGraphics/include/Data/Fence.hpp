@@ -43,6 +43,7 @@ namespace Lina::Graphics
         Fence Create();
         void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
         void Reset();
+        void Destroy();
 
         // Description
         FenceFlags flags = FenceFlags::Signaled;
