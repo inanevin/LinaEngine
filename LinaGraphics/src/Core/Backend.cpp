@@ -37,6 +37,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    Backend* Backend::s_instance = nullptr;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
@@ -165,7 +166,7 @@ namespace Lina::Graphics
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
             .presentMode = PresentMode::Immediate,
         };
-        m_swapchain.Create(m_gpu, m_device, m_surface);
+        m_swapchain.Create();
         LINA_TRACE("[Swapchain] -> Swapchain created: {0}x{1}", m_swapchain.width, m_swapchain.height);
 
         // Query queue family indices.
@@ -188,17 +189,17 @@ namespace Lina::Graphics
 
     void Backend::OnWindowResized(const Event::EWindowResized& ev)
     {
-        m_swapchain.Destroy(m_device, m_allocator);
+        m_swapchain.Destroy();
         m_swapchain.width  = static_cast<uint32>(ev.newSize.x);
         m_swapchain.height = static_cast<uint32>(ev.newSize.y);
-        m_swapchain.Create(m_gpu, m_device, m_surface);
+        m_swapchain.Create();
     }
 
     void Backend::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
 
-        m_swapchain.Destroy(m_device, m_allocator);
+        m_swapchain.Destroy();
         vkDestroyDevice(m_device, m_allocator);
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);

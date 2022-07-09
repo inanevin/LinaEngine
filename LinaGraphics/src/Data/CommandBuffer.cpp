@@ -27,22 +27,46 @@ SOFTWARE.
 */
 
 #include "Data/CommandBuffer.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {
-    CommandBuffer CommandBuffer::Create(VkDevice device, VkCommandPool pool)
+    CommandBuffer CommandBuffer::Create(VkCommandPool pool)
     {
-        VkCommandBufferAllocateInfo cmdAllocInfo = VkCommandBufferAllocateInfo
-        {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .pNext = nullptr,
-            .commandPool = pool,
-            .level = static_cast<VkCommandBufferLevel>(level),
+        VkCommandBufferAllocateInfo cmdAllocInfo = VkCommandBufferAllocateInfo{
+            .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .pNext              = nullptr,
+            .commandPool        = pool,
+            .level              = static_cast<VkCommandBufferLevel>(level),
             .commandBufferCount = count,
         };
 
-        VkResult result = vkAllocateCommandBuffers(device, &cmdAllocInfo, &_ptr);
+        VkResult result = vkAllocateCommandBuffers(Backend::Get()->GetDevice(), &cmdAllocInfo, &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
         return *this;
+    }
+
+    void CommandBuffer::Reset(bool releaseResources)
+    {
+        VkResult result = vkResetCommandBuffer(_ptr, releaseResources ? VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT : 0);
+        LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Resetting command buffer failed!");
+    }
+
+    void CommandBuffer::Begin(CommandBufferFlags flags)
+    {
+        VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo{
+            .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .pNext            = nullptr,
+            .flags            = static_cast<VkCommandBufferUsageFlags>(flags),
+            .pInheritanceInfo = nullptr,
+        };
+
+        VkResult result = vkBeginCommandBuffer(_ptr, &beginInfo);
+        LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed to begin!");
+    }
+    void CommandBuffer::End()
+    {
+        VkResult result = vkEndCommandBuffer(_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed ending command buffer!");
     }
 } // namespace Lina::Graphics

@@ -32,17 +32,21 @@ SOFTWARE.
 #define Swapchain_HPP
 
 #include "Data/Vector.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
+    class Semaphore;
+    class Fence;
     class Swapchain
     {
     public:
-        void Create(VkPhysicalDevice gpu, VkDevice device, VkSurfaceKHR surface);
-        void Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
+        void Create();
+        void Destroy();
+        uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore);
+        uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence);
+        uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence);
 
         // Desired
         uint32      width       = 0;

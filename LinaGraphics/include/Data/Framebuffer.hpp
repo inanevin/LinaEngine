@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Data/RenderPass.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -42,9 +41,9 @@ namespace Lina::Graphics
     class Framebuffer
     {
     public:
-        Framebuffer Create(VkDevice device, VkImageView imageView, const VkAllocationCallbacks* allocator);
+        Framebuffer Create(VkImageView imageView);
         Framebuffer AttachRenderPass(const RenderPass& pass);
-        void        Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
+        void        Destroy();
 
         // Description
         uint32 width  = 0;

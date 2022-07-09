@@ -46,13 +46,18 @@ namespace Lina::Graphics
             return m_glfwWindow;
         }
 
-        void                   SetSize(const Vector2i& newSize);
-        void                   SetPos(const Vector2i& newPos);
-        void                   SetPosCentered(const Vector2i& newPos);
-        void                   SetVsync(VsyncMode mode);
+        void SetSize(const Vector2i& newSize);
+        void SetPos(const Vector2i& newPos);
+        void SetPosCentered(const Vector2i& newPos);
+        void SetVsync(VsyncMode mode);
+
         inline const Vector2i& GetSize()
         {
             return m_size;
+        }
+        inline const Vector2i& GetPos()
+        {
+            return m_pos;
         }
 
         static Window* Get()
@@ -71,6 +76,7 @@ namespace Lina::Graphics
         void Close();
 
         Vector2i       m_size = Vector2i(0, 0);
+        Vector2i       m_pos  = Vector2i(0, 0);
         static Window* s_instance;
         GLFWwindow*    m_glfwWindow = nullptr;
         void*          m_userPtr    = nullptr;

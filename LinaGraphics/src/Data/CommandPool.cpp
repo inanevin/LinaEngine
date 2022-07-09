@@ -27,10 +27,11 @@ SOFTWARE.
 */
 
 #include "Data/CommandPool.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {
-    CommandPool CommandPool::Create(VkDevice device, const VkAllocationCallbacks* allocator)
+    CommandPool CommandPool::Create()
     {
         VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -39,14 +40,17 @@ namespace Lina::Graphics
             .queueFamilyIndex = familyIndex,
         };
 
-        VkResult result = vkCreateCommandPool(device, &commandPoolInfo, allocator, &_ptr);
+        VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
         return *this;
     }
 
-    void CommandPool::Destroy(VkDevice device, const VkAllocationCallbacks* allocator)
+    void CommandPool::Destroy()
     {
-        vkDestroyCommandPool(device, _ptr, allocator);
-        _ptr = nullptr;
+        if (_ptr != nullptr)
+        {
+            vkDestroyCommandPool(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+            _ptr = nullptr;
+        }
     }
 } // namespace Lina::Graphics

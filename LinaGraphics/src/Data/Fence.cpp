@@ -27,10 +27,11 @@ SOFTWARE.
 */
 
 #include "Data/Fence.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {
-    Fence Fence::Create(VkDevice device, const VkAllocationCallbacks* allocator)
+    Fence Fence::Create()
     {
         VkFenceCreateInfo info = VkFenceCreateInfo{
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -38,9 +39,20 @@ namespace Lina::Graphics
             .flags = static_cast<uint32>(flags),
         };
 
-        VkResult result = vkCreateFence(device, &info, allocator, &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS);
+        VkResult result = vkCreateFence(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
         return *this;
+    }
+
+    void Fence::Wait(bool waitForAll, double timeoutSeconds)
+    {
+        const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+        vkWaitForFences(Backend::Get()->GetDevice(), 1, &_ptr, waitForAll, timeout);
+    }
+
+    void Fence::Reset()
+    {
+        vkResetFences(Backend::Get()->GetDevice(), 1, &_ptr);
     }
 
 } // namespace Lina::Graphics

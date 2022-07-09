@@ -27,10 +27,11 @@ SOFTWARE.
 */
 
 #include "Data/Semaphore.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {
-    Semaphore Semaphore::Create(VkDevice device, const VkAllocationCallbacks* allocator)
+    Semaphore Semaphore::Create()
     {
         VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -38,8 +39,8 @@ namespace Lina::Graphics
             .flags = flags,
         };
 
-        VkResult result = vkCreateSemaphore(device, &info, allocator, &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS);
+        VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
         return *this;
     }
 } // namespace Lina::Graphics

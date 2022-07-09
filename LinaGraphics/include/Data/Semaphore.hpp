@@ -28,11 +28,10 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Attachment_HPP
-#define Attachment_HPP
+#ifndef Semaphore_HPP
+#define Semaphore_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -41,7 +40,7 @@ namespace Lina::Graphics
     class Semaphore
     {
     public:
-        Semaphore Create(VkDevice device, const VkAllocationCallbacks* allocator);
+        Semaphore Create();
 
         // Description
         uint32 flags = 0;

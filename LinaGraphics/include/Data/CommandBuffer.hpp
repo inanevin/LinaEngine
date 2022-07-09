@@ -32,7 +32,6 @@ SOFTWARE.
 #define CommandBuffer_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -40,7 +39,10 @@ namespace Lina::Graphics
     class CommandBuffer
     {
     public:
-        CommandBuffer Create(VkDevice device, VkCommandPool pool);
+        CommandBuffer Create(VkCommandPool pool);
+        void          Reset(bool releaseResources = false);
+        void          Begin(CommandBufferFlags flags);
+        void          End();
 
         // Description
         uint32             count = 0;

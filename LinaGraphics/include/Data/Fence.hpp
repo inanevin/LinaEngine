@@ -32,7 +32,6 @@ SOFTWARE.
 #define Fence_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -41,7 +40,9 @@ namespace Lina::Graphics
     class Fence
     {
     public:
-        Fence Create(VkDevice device, const VkAllocationCallbacks* allocator);
+        Fence Create();
+        void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
+        void Reset();
 
         // Description
         FenceFlags flags = FenceFlags::Signaled;

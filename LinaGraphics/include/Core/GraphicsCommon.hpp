@@ -30,6 +30,9 @@ SOFTWARE.
 
 #ifndef GraphicsCommon_HPP
 #define GraphicsCommon_HPP
+
+#include "Math/Color.hpp"
+#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -109,6 +112,20 @@ namespace Lina::Graphics
     enum class FenceFlags
     {
         Signaled = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
+
+    enum class CommandBufferFlags
+    {
+        OneTimeSubmit      = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+        RenderPassContinue = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+        SimultaneousUse    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+    };
+
+    struct ClearValue
+    {
+        Color  clearColor = Color::White;
+        float  depth      = 0.0f;
+        uint32 stencil    = 0;
     };
 
 } // namespace Lina::Graphics

@@ -180,6 +180,7 @@ namespace Lina::Graphics
     {
         glfwSetWindowPos(m_glfwWindow, pos.x, pos.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_userPtr, .newPos = pos});
+        m_pos = pos;
     }
 
     void Window::SetPosCentered(const Vector2i& newPos)

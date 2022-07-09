@@ -28,10 +28,13 @@ SOFTWARE.
 
 #include "Data/Swapchain.hpp"
 #include "Utility/VkBootstrap.h"
+#include "Core/Backend.hpp"
+#include "Data/Semaphore.hpp"
+#include "Data/Fence.hpp"
 
 namespace Lina::Graphics
 {
-    void Swapchain::Create(VkPhysicalDevice gpu, VkDevice device, VkSurfaceKHR surface)
+    void Swapchain::Create()
     {
         LINA_ASSERT(_ptr == nullptr, "[Swapchain] -> Can not re-create swapchain before it's destroyed!");
 
@@ -41,7 +44,7 @@ namespace Lina::Graphics
             return;
         }
 
-        vkb::SwapchainBuilder swapchainBuilder{gpu, device, surface};
+        vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), Backend::Get()->GetSurface()};
         swapchainBuilder = swapchainBuilder
                                // use vsync present mode
                                .set_desired_present_mode(static_cast<VkPresentModeKHR>(presentMode))
@@ -63,13 +66,15 @@ namespace Lina::Graphics
 
         for (VkImageView view : views)
             _imageViews.push_back(view);
-
     }
 
-    void Swapchain::Destroy(VkDevice device, const VkAllocationCallbacks* allocator)
+    void Swapchain::Destroy()
     {
         if (_ptr != nullptr)
         {
+            auto*       device    = Backend::Get()->GetDevice();
+            const auto* allocator = Backend::Get()->GetAllocator();
+
             // Destroy existing swapchain.
             vkDestroySwapchainKHR(device, _ptr, allocator);
 
@@ -80,5 +85,30 @@ namespace Lina::Graphics
             _imageViews.clear();
             _ptr = nullptr;
         }
+    }
+
+    uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore)
+    {
+        uint32   index;
+        uint64   timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+        VkResult result  = vkAcquireNextImageKHR(Backend::Get()->GetDevice(), _ptr, timeout, semaphore._ptr, nullptr, &index);
+        LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
+        return index;
+    }
+    uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence)
+    {
+        uint32   index;
+        uint64   timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+        VkResult result  = vkAcquireNextImageKHR(Backend::Get()->GetDevice(), _ptr, timeout, semaphore._ptr, fence._ptr, &index);
+        LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
+        return index;
+    }
+    uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Fence& fence)
+    {
+        uint32   index;
+        uint64   timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+        VkResult result  = vkAcquireNextImageKHR(Backend::Get()->GetDevice(), _ptr, timeout, nullptr, nullptr, &index);
+        LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
+        return index;
     }
 } // namespace Lina::Graphics

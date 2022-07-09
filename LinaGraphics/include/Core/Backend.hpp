@@ -53,6 +53,36 @@ namespace Lina::Graphics
     };
     class Backend
     {
+    public:
+        static Backend* Get()
+        {
+            return s_instance;
+        }
+
+        inline VkDevice GetDevice()
+        {
+            return m_device;
+        }
+
+        inline VkPhysicalDevice GetGPU()
+        {
+            return m_gpu;
+        }
+
+        inline VkSurfaceKHR GetSurface()
+        {
+            return m_surface;
+        }
+
+        inline const VkAllocationCallbacks* GetAllocator()
+        {
+            return m_allocator;
+        }
+
+        inline const Swapchain& GetSwapchain()
+        {
+            return m_swapchain;
+        }
 
     private:
         friend class RenderEngine;
@@ -63,10 +93,10 @@ namespace Lina::Graphics
         bool   Initialize(const ApplicationInfo& appInfo);
         void   Shutdown();
         uint32 GetQueueFamilyIndex(QueueFamilies family);
-
-        void OnWindowResized(const Event::EWindowResized& ev);
+        void   OnWindowResized(const Event::EWindowResized& ev);
 
     private:
+        static Backend*          s_instance;
         ApplicationInfo          m_appInfo;
         VkInstance               m_vkInstance     = nullptr;
         VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;

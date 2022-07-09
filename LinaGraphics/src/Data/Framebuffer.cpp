@@ -27,10 +27,11 @@ SOFTWARE.
 */
 
 #include "Data/Framebuffer.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {
-    Framebuffer Framebuffer::Create(VkDevice device, VkImageView imageView, const VkAllocationCallbacks* allocator)
+    Framebuffer Framebuffer::Create(VkImageView imageView)
     {
         VkFramebufferCreateInfo info = VkFramebufferCreateInfo{
             .sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
@@ -43,7 +44,7 @@ namespace Lina::Graphics
             .layers          = layers,
         };
 
-        VkResult result = vkCreateFramebuffer(device, &info, allocator, &_ptr);
+        VkResult result = vkCreateFramebuffer(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Framebuffer] -> Could not create Vulkan framebuffer!");
         return *this;
     }
@@ -53,8 +54,9 @@ namespace Lina::Graphics
         _attCount   = static_cast<uint32>(pass.attachments.size());
         return *this;
     }
-    void Framebuffer::Destroy(VkDevice device, const VkAllocationCallbacks* allocator)
+    void Framebuffer::Destroy()
     {
-        vkDestroyFramebuffer(device, _ptr, allocator);
+        if (_ptr != nullptr)
+            vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 } // namespace Lina::Graphics

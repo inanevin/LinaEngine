@@ -34,11 +34,12 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Attachment.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
+    class Framebuffer;
+    class CommandBuffer;
     class SubPass
     {
     public:
@@ -56,10 +57,12 @@ namespace Lina::Graphics
     class RenderPass
     {
     public:
-        RenderPass Create(VkDevice device, const VkAllocationCallbacks* allocator);
+        RenderPass Create();
         RenderPass AddSubpass(SubPass sp);
         RenderPass AddAttachment(Attachment att);
-        void       Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
+        void       Destroy();
+        void       Begin(const ClearValue& clear, const Framebuffer& fb, const CommandBuffer& cmd);
+        void       End(const CommandBuffer& cmd);
 
         // Description
         Vector<Attachment> attachments;

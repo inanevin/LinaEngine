@@ -32,7 +32,6 @@ SOFTWARE.
 #define Attachment_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

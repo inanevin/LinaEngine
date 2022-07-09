@@ -32,7 +32,6 @@ SOFTWARE.
 #define Commandpools_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Core/SizeDefinitions.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -41,8 +40,8 @@ namespace Lina::Graphics
     {
     public:
 
-        CommandPool Create(VkDevice device, const VkAllocationCallbacks* allocator);
-        void Destroy(VkDevice device, const VkAllocationCallbacks* allocator);
+        CommandPool Create();
+        void Destroy();
 
         // Description
         uint32           familyIndex = 0;
