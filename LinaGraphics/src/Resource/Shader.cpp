@@ -28,17 +28,18 @@ SOFTWARE.
 
 #include "Resource/Shader.hpp"
 #include "Core/ResourceDataManager.hpp"
+#include "Core/Backend.hpp"
+#include "Utility/SPIRVUtility.hpp"
+
 #include <sstream>
 #include <iostream>
 #include <string>
-#include "Data/Framebuffer.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
-       Framebuffer b;
-
         IResource::SetSID(path);
         LoadAssetData();
         m_text = String(reinterpret_cast<char*>(data), dataSize);
@@ -48,6 +49,9 @@ namespace Lina::Graphics
 
         if (m_assetData.geoShader)
             m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
+
+        if (!CreateShaderModules())
+            LINA_ERR("[Shader Loader - Memory] -> Could not load shader! {0}", path);
 
         return static_cast<void*>(this);
     }
@@ -71,6 +75,8 @@ namespace Lina::Graphics
         if (m_assetData.geoShader)
             m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
 
+        if (!CreateShaderModules())
+            LINA_ERR("[Shader Loader - File] -> Could not load shader! {0}", path);
         return static_cast<void*>(this);
     }
 
@@ -110,9 +116,75 @@ namespace Lina::Graphics
 
             if (line.compare(defineStart.c_str()) == 0)
                 append = true;
-           
         }
-        LINA_TRACE("{0}", out.c_str());
         return out;
+    }
+
+    bool Shader::CreateShaderModules()
+    {
+        Vector<unsigned int> vertexBuffer;
+        Vector<unsigned int> fragBuffer;
+        SPIRVUtility::GLSLToSPV(ShaderStage::Vertex, m_vertexText.c_str(), vertexBuffer);
+        SPIRVUtility::GLSLToSPV(ShaderStage::Fragment, m_fragText.c_str(), fragBuffer);
+
+        // Vtx shader
+        VkShaderModuleCreateInfo vtxCreateInfo = {
+            .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .pNext    = nullptr,
+            .codeSize = vertexBuffer.size() * sizeof(uint32_t),
+            .pCode    = vertexBuffer.data(),
+        };
+
+        VkResult res = vkCreateShaderModule(Backend::Get()->GetDevice(), &vtxCreateInfo, nullptr, &_ptrVtx);
+        if (res != VK_SUCCESS)
+        {
+            LINA_ERR("[Shader] -> Could not create Vertex shader module!");
+            return false;
+        }
+
+        vertexBuffer.clear();
+
+        // Frag shader
+        VkShaderModuleCreateInfo fragCreateInfo = {
+            .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .pNext    = nullptr,
+            .codeSize = fragBuffer.size() * sizeof(uint32_t),
+            .pCode    = fragBuffer.data(),
+        };
+
+        res = vkCreateShaderModule(Backend::Get()->GetDevice(), &fragCreateInfo, nullptr, &_ptrFrag);
+
+        if (res != VK_SUCCESS)
+        {
+            LINA_ERR("[Shader] -> Could not create Fragment shader module!");
+            return false;
+        }
+
+        fragBuffer.clear();
+
+        if (m_assetData.geoShader)
+        {
+            Vector<unsigned int> geoBuffer(m_geoText.size() / sizeof(uint32_t));
+            SPIRVUtility::GLSLToSPV(ShaderStage::Geometry, m_geoText.c_str(), geoBuffer);
+
+            // Vtx shader
+            VkShaderModuleCreateInfo geoCreateInfo = {
+                .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+                .pNext    = nullptr,
+                .codeSize = geoBuffer.size() * sizeof(uint32_t),
+                .pCode    = geoBuffer.data(),
+            };
+
+            res = vkCreateShaderModule(Backend::Get()->GetDevice(), &geoCreateInfo, nullptr, &_ptrGeo);
+            if (res != VK_SUCCESS)
+            {
+                LINA_ERR("[Shader] -> Could not create Geometry shader module!");
+                return false;
+            }
+
+            geoBuffer.clear();
+        }
+
+        return true;
     }
 } // namespace Lina::Graphics

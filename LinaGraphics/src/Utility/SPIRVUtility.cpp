@@ -207,7 +207,10 @@ namespace Lina::Graphics
         auto& inter = *program.getIntermediate(stage);
         glslang::GlslangToSpv(inter, arr);
         spirv.reserve(arr.size());
-        linatl::copy(arr.begin(), arr.end(), spirv.begin());
+
+        for(auto i : arr)
+            spirv.push_back(i);
+
         return true;
     }
 } // namespace Lina::Graphics

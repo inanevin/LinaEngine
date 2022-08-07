@@ -47,7 +47,6 @@ namespace Lina::Audio
 
     void* Audio::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
-        LINA_TRACE("[Audio Loader - Memory] -> Loading: {0}", path);
         ALsizei size;
         ALfloat freq;
         ALenum  format;
@@ -75,7 +74,6 @@ namespace Lina::Audio
 
     void* Audio::LoadFromFile(const String& path)
     {
-        LINA_TRACE("[Audio Loader - File] -> Loading: {0}", path);
         IResource::SetSID(path);
         ALsizei size;
         ALfloat freq;

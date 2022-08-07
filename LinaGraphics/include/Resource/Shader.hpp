@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Core/IResource.hpp"
 #include "Data/String.hpp"
 
+struct VkShaderModule_T;
+
 namespace Lina::Graphics
 {
     class Shader : public Resources::IResource
@@ -56,6 +58,9 @@ namespace Lina::Graphics
         static String GetShaderStageText(const String& shader, const String& defineStart);
 
     private:
+        bool CreateShaderModules();
+
+    private:
         struct AssetData
         {
             int  dummy     = 0;
@@ -68,6 +73,11 @@ namespace Lina::Graphics
         String    m_vertexText = "";
         String    m_fragText   = "";
         String    m_geoText    = "";
+
+    private:
+        VkShaderModule_T* _ptrVtx  = nullptr;
+        VkShaderModule_T* _ptrFrag = nullptr;
+        VkShaderModule_T* _ptrGeo  = nullptr;
     };
 
 } // namespace Lina::Graphics
