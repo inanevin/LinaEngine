@@ -26,26 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Semaphore.hpp"
-#include "Core/Backend.hpp"
-#include <vulkan/vulkan.h>
+#include "Utility/VulkanUtility.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include "Data/Attachment.hpp"
 
 namespace Lina::Graphics
 {
-    Semaphore Semaphore::Create()
+    VkAttachmentDescription VulkanUtility::CreateAttachmentDescription(const Attachment& att)
     {
-        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = flags,
+        return VkAttachmentDescription{
+            .format         = GetFormat(att.format),
+            .samples        = VK_SAMPLE_COUNT_1_BIT,
+            .loadOp         = GetLoadOp(att.loadOp),
+            .storeOp        = GetStoreOp(att.storeOp),
+            .stencilLoadOp  = GetLoadOp(att.stencilLoadOp),
+            .stencilStoreOp = GetStoreOp(att.stencilStoreOp),
+            .initialLayout  = GetImageLayout(att.initialLayout),
+            .finalLayout    = GetImageLayout(att.finalLayout),
         };
-
-        VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
-        return *this;
-    }
-    void Semaphore::Destroy()
-    {
-        vkDestroySemaphore(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 } // namespace Lina::Graphics

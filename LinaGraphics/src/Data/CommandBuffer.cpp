@@ -28,16 +28,17 @@ SOFTWARE.
 
 #include "Data/CommandBuffer.hpp"
 #include "Core/Backend.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    CommandBuffer CommandBuffer::Create(VkCommandPool pool)
+    CommandBuffer CommandBuffer::Create(VkCommandPool_T* pool)
     {
         VkCommandBufferAllocateInfo cmdAllocInfo = VkCommandBufferAllocateInfo{
             .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
             .pNext              = nullptr,
             .commandPool        = pool,
-            .level              = static_cast<VkCommandBufferLevel>(level),
+            .level              = GetCommandBufferLevel(level),
             .commandBufferCount = count,
         };
 
@@ -57,7 +58,7 @@ namespace Lina::Graphics
         VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .pNext            = nullptr,
-            .flags            = static_cast<VkCommandBufferUsageFlags>(flags),
+            .flags            = static_cast<VkCommandBufferUsageFlags>(GetCommandBufferFlags(flags)),
             .pInheritanceInfo = nullptr,
         };
 

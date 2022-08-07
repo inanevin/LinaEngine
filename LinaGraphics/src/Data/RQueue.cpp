@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Data/Fence.hpp"
 #include "Data/Semaphore.hpp"
 #include "Data/CommandBuffer.hpp"
+#include "vulkan/vulkan.h"
 
 namespace Lina::Graphics
 {

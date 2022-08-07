@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Data/Fence.hpp"
 #include "Core/Backend.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -36,7 +37,7 @@ namespace Lina::Graphics
         VkFenceCreateInfo info = VkFenceCreateInfo{
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
             .pNext = nullptr,
-            .flags = static_cast<uint32>(flags),
+            .flags = static_cast<uint32>(GetFenceFlags(flags)),
         };
 
         VkResult result = vkCreateFence(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);

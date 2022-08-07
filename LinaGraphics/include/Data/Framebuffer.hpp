@@ -32,20 +32,18 @@ SOFTWARE.
 #define Framebuffer_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Data/RenderPass.hpp"
-#include <vulkan/vulkan.h>
 
-namespace Lina
-{
- 
-} // namespace Lina
+struct VkImageView_T;
+struct VkFramebuffer_T;
+struct VkRenderPass_T;
+
 namespace Lina::Graphics
 {
     class RenderPass;
     class Framebuffer
     {
     public:
-        Framebuffer Create(VkImageView imageView);
+        Framebuffer Create(VkImageView_T* imageView);
         Framebuffer AttachRenderPass(const RenderPass& pass);
         void        Destroy();
 
@@ -55,9 +53,9 @@ namespace Lina::Graphics
         uint32 layers = 1;
 
         // Runtime
-        VkFramebuffer _ptr;
-        VkRenderPass  _renderPass;
-        uint32        _attCount = 0;
+        VkFramebuffer_T* _ptr;
+        VkRenderPass_T*  _renderPass;
+        uint32           _attCount = 0;
     };
 } // namespace Lina::Graphics
 

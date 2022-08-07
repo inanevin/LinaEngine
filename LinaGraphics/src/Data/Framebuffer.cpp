@@ -28,10 +28,12 @@ SOFTWARE.
 
 #include "Data/Framebuffer.hpp"
 #include "Core/Backend.hpp"
+#include "Data/RenderPass.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    Framebuffer Framebuffer::Create(VkImageView imageView)
+    Framebuffer Framebuffer::Create(VkImageView_T* imageView)
     {
         VkFramebufferCreateInfo info = VkFramebufferCreateInfo{
             .sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,

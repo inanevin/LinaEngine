@@ -27,22 +27,9 @@ SOFTWARE.
 */
 
 #include "Data/Attachment.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    Attachment Attachment::Create()
-    {
-        _desc = VkAttachmentDescription{
-            .format         = static_cast<VkFormat>(format),
-            .samples        = VK_SAMPLE_COUNT_1_BIT,
-            .loadOp         = static_cast<VkAttachmentLoadOp>(loadOp),
-            .storeOp        = static_cast<VkAttachmentStoreOp>(storeOp),
-            .stencilLoadOp  = static_cast<VkAttachmentLoadOp>(stencilLoadOp),
-            .stencilStoreOp = static_cast<VkAttachmentStoreOp>(stencilStoreOp),
-            .initialLayout  = static_cast<VkImageLayout>(initialLayout),
-            .finalLayout    = static_cast<VkImageLayout>(finalLayout),
-        };
-
-        return *this;
-    }
+  
 } // namespace Lina::Graphics

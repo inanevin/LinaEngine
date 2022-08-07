@@ -33,93 +33,130 @@ SOFTWARE.
 
 #include "Math/Color.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include <vulkan/vulkan.h>
+
+enum VkFormat;
+enum VkColorSpaceKHR;
+enum VkPresentModeKHR;
+enum VkCommandBufferLevel;
+enum VkCommandPoolCreateFlagBits;
+enum VkQueueFlagBits;
+enum VkImageLayout;
+enum VkPipelineBindPoint;
+enum VkAttachmentLoadOp;
+enum VkAttachmentStoreOp;
+enum VkFenceCreateFlagBits;
+enum VkCommandBufferUsageFlagBits;
+
+enum VkShaderStageFlagBits;
 
 namespace Lina::Graphics
 {
     enum class Format
     {
-        B8G8R8A8_SRGB = VK_FORMAT_B8G8R8A8_SRGB,
+        B8G8R8A8_SRGB,
     };
+
+    extern VkFormat GetFormat(Format f);
 
     enum class ColorSpace
     {
-        SRGB_NONLINEAR = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+        SRGB_NONLINEAR,
     };
+
+    extern VkColorSpaceKHR GetColorSpace(ColorSpace f);
 
     enum class PresentMode
     {
-        Immediate   = VK_PRESENT_MODE_IMMEDIATE_KHR,
-        Mailbox     = VK_PRESENT_MODE_MAILBOX_KHR,
-        FIFO        = VK_PRESENT_MODE_FIFO_KHR,
-        FIFORelaxed = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+        Immediate,
+        Mailbox,
+        FIFO,
+        FIFORelaxed,
     };
+
+    extern VkPresentModeKHR GetPresentMode(PresentMode m);
 
     enum class CommandBufferLevel
     {
-        Primary   = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        Secondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+        Primary,
+        Secondary,
     };
+
+    extern VkCommandBufferLevel GetCommandBufferLevel(CommandBufferLevel lvl);
 
     enum class CommandPoolFlags
     {
-        Transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-        Reset     = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-        Protected = VK_COMMAND_POOL_CREATE_PROTECTED_BIT,
+        Transient,
+        Reset,
+        Protected,
     };
+
+    extern VkCommandPoolCreateFlagBits GetCommandPoolCreateFlags(CommandPoolFlags f);
 
     enum class QueueFamilies
     {
-        Graphics      = VK_QUEUE_GRAPHICS_BIT,
-        Compute       = VK_QUEUE_COMPUTE_BIT,
-        Transfer      = VK_QUEUE_TRANSFER_BIT,
-        SparseBinding = VK_QUEUE_SPARSE_BINDING_BIT,
-        Protected     = VK_QUEUE_PROTECTED_BIT,
+        Graphics,
+        Compute,
+        Transfer,
+        SparseBinding,
+        Protected,
     };
+
+    extern VkQueueFlagBits GetQueueFamilyBit(QueueFamilies f);
 
     enum class ImageLayout
     {
-        Undefined                   = VK_IMAGE_LAYOUT_UNDEFINED,
-        General                     = VK_IMAGE_LAYOUT_GENERAL,
-        ColorOptimal                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        DepthStencilOptimal         = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        DepthStencilReadOnlyOptimal = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
-        PresentSurface              = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+        Undefined,
+        General,
+        ColorOptimal,
+        DepthStencilOptimal,
+        DepthStencilReadOnlyOptimal,
+        PresentSurface,
     };
+
+    extern VkImageLayout GetImageLayout(ImageLayout l);
 
     enum class PipelineBindPoint
     {
-        Graphics = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        Computer = VK_PIPELINE_BIND_POINT_COMPUTE,
+        Graphics,
+        Computer,
     };
+
+    extern VkPipelineBindPoint GetPipelineBindPoint(PipelineBindPoint p);
 
     enum class LoadOp
     {
-        Load     = VK_ATTACHMENT_LOAD_OP_LOAD,
-        Clear    = VK_ATTACHMENT_LOAD_OP_CLEAR,
-        DontCare = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        None     = VK_ATTACHMENT_LOAD_OP_NONE_EXT,
+        Load,
+        Clear,
+        DontCare,
+        None,
     };
+
+    extern VkAttachmentLoadOp GetLoadOp(LoadOp p);
 
     enum class StoreOp
     {
-        Store    = VK_ATTACHMENT_STORE_OP_STORE,
-        DontCare = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        None     = VK_ATTACHMENT_STORE_OP_NONE,
-        NoneKHR  = VK_ATTACHMENT_STORE_OP_NONE_KHR,
+        Store,
+        DontCare,
+        None,
     };
+
+    extern VkAttachmentStoreOp GetStoreOp(StoreOp op);
 
     enum class FenceFlags
     {
-        Signaled = VK_FENCE_CREATE_SIGNALED_BIT,
+        Signaled,
     };
+
+    extern VkFenceCreateFlagBits GetFenceFlags(FenceFlags f);
 
     enum class CommandBufferFlags
     {
-        OneTimeSubmit      = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-        RenderPassContinue = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
-        SimultaneousUse    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+        OneTimeSubmit,
+        RenderPassContinue,
+        SimultaneousUse,
     };
+
+    extern VkCommandBufferUsageFlagBits GetCommandBufferFlags(CommandBufferFlags f);
 
     struct ClearValue
     {
@@ -130,13 +167,22 @@ namespace Lina::Graphics
 
     enum class ShaderStage
     {
-        Vertex             = VK_SHADER_STAGE_VERTEX_BIT,
-        TesellationControl = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
-        TesellationEval    = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
-        Geometry           = VK_SHADER_STAGE_GEOMETRY_BIT,
-        Fragment           = VK_SHADER_STAGE_FRAGMENT_BIT,
-        Compute            = VK_SHADER_STAGE_COMPUTE_BIT,
+        Vertex,
+        TesellationControl,
+        TesellationEval,
+        Geometry,
+        Fragment,
+        Compute,
     };
+
+    extern VkShaderStageFlagBits GetShaderStage(ShaderStage s);
+
+    struct AttachmentReference
+    {
+        uint32      attachment;
+        ImageLayout layout;
+    };
+
 } // namespace Lina::Graphics
 
 #endif

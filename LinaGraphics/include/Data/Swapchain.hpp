@@ -33,7 +33,10 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkImage_T;
+struct VkImageView_T;
+struct VkSwapchainKHR_T;
 
 namespace Lina::Graphics
 {
@@ -42,8 +45,8 @@ namespace Lina::Graphics
     class Swapchain
     {
     public:
-        void Create();
-        void Destroy();
+        void   Create();
+        void   Destroy();
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore);
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence);
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence);
@@ -56,10 +59,10 @@ namespace Lina::Graphics
         PresentMode presentMode = PresentMode::Immediate;
 
         // Runtime
-        VkSwapchainKHR      _ptr = nullptr;
-        Vector<VkImage>     _images;
-        Vector<VkImageView> _imageViews;
-        VkFormat            _format;
+        VkSwapchainKHR_T*      _ptr = nullptr;
+        Vector<VkImage_T*>     _images;
+        Vector<VkImageView_T*> _imageViews;
+        VkFormat               _format;
     };
 } // namespace Lina::Graphics
 

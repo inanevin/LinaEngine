@@ -91,7 +91,7 @@ namespace Lina::Graphics
         m_buffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary}
                        .Create(m_pool._ptr);
 
-        Attachment att = Attachment{.format = static_cast<Format>(m_backend.m_swapchain.format), .loadOp = LoadOp::Clear}.Create();
+        Attachment att = Attachment{.format = m_backend.m_swapchain.format, .loadOp = LoadOp::Clear};
         SubPass    sp  = SubPass{.bindPoint = PipelineBindPoint::Graphics}.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).Create();
 
         m_renderPass = RenderPass().AddAttachment(att).AddSubpass(sp).Create();

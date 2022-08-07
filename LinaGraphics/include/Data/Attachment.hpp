@@ -32,7 +32,8 @@ SOFTWARE.
 #define Attachment_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkAttachmentDescription;
 
 namespace Lina::Graphics
 {
@@ -40,8 +41,6 @@ namespace Lina::Graphics
     class Attachment
     {
     public:
-        Attachment Create();
-
         // Description
         Format      format         = Format::B8G8R8A8_SRGB;
         LoadOp      loadOp         = LoadOp::Load;
@@ -50,9 +49,6 @@ namespace Lina::Graphics
         StoreOp     stencilStoreOp = StoreOp::DontCare;
         ImageLayout initialLayout  = ImageLayout::Undefined;
         ImageLayout finalLayout    = ImageLayout::PresentSurface;
-
-        // Runtime
-        VkAttachmentDescription _desc;
     };
 } // namespace Lina::Graphics
 

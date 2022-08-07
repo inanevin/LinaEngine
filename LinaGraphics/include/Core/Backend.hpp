@@ -34,7 +34,14 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Data/Swapchain.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkDevice_T;
+struct VkPhysicalDevice_T;
+struct VkSurfaceKHR_T;
+struct VkAllocationCallbacks;
+struct VkDevice_T;
+struct VkDebugUtilsMessengerEXT_T;
+struct VkInstance_T;
 
 namespace Lina
 {
@@ -49,9 +56,10 @@ namespace Lina::Graphics
 
     struct QueueFamily
     {
-        VkQueueFlags flags = 0;
-        uint32       count = 0;
+        uint32 flags = 0;
+        uint32 count = 0;
     };
+
     class Backend
     {
     public:
@@ -60,17 +68,17 @@ namespace Lina::Graphics
             return s_instance;
         }
 
-        inline VkDevice GetDevice()
+        inline VkDevice_T* GetDevice()
         {
             return m_device;
         }
 
-        inline VkPhysicalDevice GetGPU()
+        inline VkPhysicalDevice_T* GetGPU()
         {
             return m_gpu;
         }
 
-        inline VkSurfaceKHR GetSurface()
+        inline VkSurfaceKHR_T* GetSurface()
         {
             return m_surface;
         }
@@ -99,16 +107,16 @@ namespace Lina::Graphics
         PresentMode VsyncToPresentMode(VsyncMode mode);
 
     private:
-        static Backend*          s_instance;
-        ApplicationInfo          m_appInfo;
-        VkInstance               m_vkInstance     = nullptr;
-        VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;
-        VkAllocationCallbacks*   m_allocator      = nullptr;
-        VkDevice                 m_device         = nullptr;
-        VkPhysicalDevice         m_gpu            = nullptr;
-        VkSurfaceKHR             m_surface        = nullptr;
-        Swapchain                m_swapchain;
-        Vector<QueueFamily>      m_queueFamilies;
+        static Backend*             s_instance;
+        ApplicationInfo             m_appInfo;
+        VkInstance_T*               m_vkInstance     = nullptr;
+        VkDebugUtilsMessengerEXT_T* m_debugMessenger = nullptr;
+        VkAllocationCallbacks*      m_allocator      = nullptr;
+        VkDevice_T*                 m_device         = nullptr;
+        VkPhysicalDevice_T*         m_gpu            = nullptr;
+        VkSurfaceKHR_T*             m_surface        = nullptr;
+        Swapchain                   m_swapchain;
+        Vector<QueueFamily>         m_queueFamilies;
     };
 } // namespace Lina::Graphics
 

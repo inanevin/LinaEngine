@@ -32,14 +32,16 @@ SOFTWARE.
 #define CommandBuffer_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkCommandBuffer_T;
+struct VkCommandPool_T;
 
 namespace Lina::Graphics
 {
     class CommandBuffer
     {
     public:
-        CommandBuffer Create(VkCommandPool pool);
+        CommandBuffer Create(VkCommandPool_T* pool);
         void          Reset(bool releaseResources = false);
         void          Begin(CommandBufferFlags flags);
         void          End();
@@ -49,7 +51,7 @@ namespace Lina::Graphics
         CommandBufferLevel level = CommandBufferLevel::Primary;
 
         // Runtime
-        VkCommandBuffer _ptr = nullptr;
+        VkCommandBuffer_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

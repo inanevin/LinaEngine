@@ -32,23 +32,23 @@ SOFTWARE.
 #define Commandpools_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkCommandPool_T;
 
 namespace Lina::Graphics
 {
     class CommandPool
     {
     public:
-
         CommandPool Create();
-        void Destroy();
+        void        Destroy();
 
         // Description
         uint32           familyIndex = 0;
         CommandPoolFlags flags       = CommandPoolFlags::Reset;
 
         // Runtime
-        VkCommandPool _ptr = nullptr;
+        VkCommandPool_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

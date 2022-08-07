@@ -33,33 +33,45 @@ SOFTWARE.
 #include "Core/Window.hpp"
 #include "Data/Framebuffer.hpp"
 #include "Data/CommandBuffer.hpp"
+#include "Utility/VulkanUtility.hpp"
 
 namespace Lina::Graphics
 {
     RenderPass RenderPass::Create()
     {
-        _subpassDescriptions.clear();
-        _attachmentDescriptions.clear();
+        Vector<VkSubpassDescription>    subpassDescriptions;
+        Vector<VkAttachmentDescription> attachmentDescriptions;
+        Vector<VkAttachmentReference>   colorAttachments;
+        uint32                          colorAttIndex = 0;
 
         for (auto& sp : subpasses)
         {
-            sp._desc = VkSubpassDescription{
-                .pipelineBindPoint    = static_cast<VkPipelineBindPoint>(sp.bindPoint),
-                .colorAttachmentCount = static_cast<uint32>(sp._colorAttachments.size()),
-                .pColorAttachments    = sp._colorAttachments.data(),
-            };
-            _subpassDescriptions.push_back(sp._desc);
+            uint32 addedSize = 0;
+            for (auto pair : sp.colorAttachmentRefs)
+            {
+                VkAttachmentReference ref = VkAttachmentReference{.attachment = pair.first, .layout = GetImageLayout(pair.second)};
+                colorAttachments.push_back(ref);
+                addedSize++;
+            }
+
+            VkSubpassDescription d = VkSubpassDescription{
+                .pipelineBindPoint    = GetPipelineBindPoint(sp.bindPoint),
+                .colorAttachmentCount = addedSize,
+                .pColorAttachments    = &colorAttachments[colorAttIndex]};
+
+            colorAttIndex += addedSize;
+            subpassDescriptions.push_back(d);
         }
 
         for (const auto& att : attachments)
-            _attachmentDescriptions.push_back(att._desc);
+            attachmentDescriptions.push_back(VulkanUtility::CreateAttachmentDescription(att));
 
         VkRenderPassCreateInfo rpInfo = VkRenderPassCreateInfo{
             .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-            .attachmentCount = static_cast<uint32>(_attachmentDescriptions.size()),
-            .pAttachments    = _attachmentDescriptions.data(),
-            .subpassCount    = static_cast<uint32>(_subpassDescriptions.size()),
-            .pSubpasses      = _subpassDescriptions.data(),
+            .attachmentCount = static_cast<uint32>(attachmentDescriptions.size()),
+            .pAttachments    = attachmentDescriptions.data(),
+            .subpassCount    = static_cast<uint32>(subpassDescriptions.size()),
+            .pSubpasses      = subpassDescriptions.data(),
         };
 
         VkResult result = vkCreateRenderPass(Backend::Get()->GetDevice(), &rpInfo, Backend::Get()->GetAllocator(), &_ptr);
@@ -119,12 +131,6 @@ namespace Lina::Graphics
 
     SubPass SubPass::Create()
     {
-        for (auto att : colorAttachmentRefs)
-        {
-            VkAttachmentReference ref = VkAttachmentReference{.attachment = att.first, .layout = static_cast<VkImageLayout>(att.second)};
-            _colorAttachments.push_back(ref);
-        }
-
         // Description needs to be created within the used renderpass due to invalidated pointers of color attachments array.
         return *this;
     }

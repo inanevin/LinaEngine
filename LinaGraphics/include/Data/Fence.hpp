@@ -32,7 +32,8 @@ SOFTWARE.
 #define Fence_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkFence_T;
 
 namespace Lina::Graphics
 {
@@ -49,7 +50,7 @@ namespace Lina::Graphics
         FenceFlags flags = FenceFlags::Signaled;
 
         // Runtime
-        VkFence _ptr = nullptr;
+        VkFence_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

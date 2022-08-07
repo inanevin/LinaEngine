@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "Data/Semaphore.hpp"
 #include "Data/Fence.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -47,11 +48,11 @@ namespace Lina::Graphics
         vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), Backend::Get()->GetSurface()};
         swapchainBuilder = swapchainBuilder
                                // use vsync present mode
-                               .set_desired_present_mode(static_cast<VkPresentModeKHR>(presentMode))
+                               .set_desired_present_mode(GetPresentMode(presentMode))
                                .set_desired_extent(width, height);
 
-        VkFormat        vkformat     = static_cast<VkFormat>(format);
-        VkColorSpaceKHR vkcolorspace = static_cast<VkColorSpaceKHR>(colorSpace);
+        VkFormat        vkformat     = GetFormat(format);
+        VkColorSpaceKHR vkcolorspace = GetColorSpace(colorSpace);
         swapchainBuilder             = swapchainBuilder.set_desired_format({vkformat, vkcolorspace});
 
         vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();

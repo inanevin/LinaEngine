@@ -32,7 +32,8 @@ SOFTWARE.
 #define Semaphore_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkSemaphore_T;
 
 namespace Lina::Graphics
 {
@@ -47,7 +48,7 @@ namespace Lina::Graphics
         uint32 flags = 0;
 
         // Runtime
-        VkSemaphore _ptr = nullptr;
+        VkSemaphore_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

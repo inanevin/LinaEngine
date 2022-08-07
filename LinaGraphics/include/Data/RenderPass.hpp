@@ -31,15 +31,18 @@ SOFTWARE.
 #ifndef RenderPass_HPP
 #define RenderPass_HPP
 
+#include "Core/GraphicsCommon.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Attachment.hpp"
-#include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkRenderPass_T;
 
 namespace Lina::Graphics
 {
     class Framebuffer;
     class CommandBuffer;
+
+ 
     class SubPass
     {
     public:
@@ -49,11 +52,8 @@ namespace Lina::Graphics
         // Description
         PipelineBindPoint            bindPoint = PipelineBindPoint::Graphics;
         HashMap<uint32, ImageLayout> colorAttachmentRefs;
-
-        // Runtime
-        Vector<VkAttachmentReference> _colorAttachments;
-        VkSubpassDescription          _desc;
     };
+
     class RenderPass
     {
     public:
@@ -69,9 +69,8 @@ namespace Lina::Graphics
         Vector<SubPass>    subpasses;
 
         // Runtime
-        VkRenderPass                    _ptr = nullptr;
-        Vector<VkSubpassDescription>    _subpassDescriptions;
-        Vector<VkAttachmentDescription> _attachmentDescriptions;
+        VkRenderPass_T* _ptr = nullptr;
+        ;
     };
 } // namespace Lina::Graphics
 

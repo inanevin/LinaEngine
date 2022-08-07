@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Data/CommandPool.hpp"
 #include "Core/Backend.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -36,7 +37,7 @@ namespace Lina::Graphics
         VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .pNext            = nullptr,
-            .flags            = static_cast<unsigned int>(flags),
+            .flags            = static_cast<unsigned int>(GetCommandPoolCreateFlags(flags)),
             .queueFamilyIndex = familyIndex,
         };
 

@@ -31,11 +31,14 @@ SOFTWARE.
 #include <sstream>
 #include <iostream>
 #include <string>
+#include "Data/Framebuffer.hpp"
 
 namespace Lina::Graphics
 {
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
+       Framebuffer b;
+
         IResource::SetSID(path);
         LoadAssetData();
         m_text = String(reinterpret_cast<char*>(data), dataSize);

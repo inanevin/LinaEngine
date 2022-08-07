@@ -26,26 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Semaphore.hpp"
-#include "Core/Backend.hpp"
+#pragma once
+
+#ifndef VulkanUtility_HPP
+#define VulkanUtility_HPP
+
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    Semaphore Semaphore::Create()
-    {
-        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = flags,
-        };
+    class Attachment;
 
-        VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
-        return *this;
-    }
-    void Semaphore::Destroy()
+    class VulkanUtility
     {
-        vkDestroySemaphore(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
-    }
+    public:
+        static VkAttachmentDescription CreateAttachmentDescription(const Attachment& att);
+    };
+
 } // namespace Lina::Graphics
+
+#endif

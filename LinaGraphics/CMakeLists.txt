@@ -24,6 +24,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/RenderEngine.cpp
 	src/Core/Backend.cpp
 	src/Core/Window.cpp
+	src/Core/GraphicsCommon.cpp
 
 	# Vulkan
 	src/Data/Attachment.cpp
@@ -50,6 +51,7 @@ set (LINAGRAPHICS_SOURCES
 	# Utility
 	src/Utility/VkBootstrap.cpp
 	src/Utility/SPIRVUtility.cpp
+	src/Utility/VulkanUtility.cpp
 )
 
 #--------------------------------------------------------------------
@@ -97,6 +99,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/VkBootstrap.h
 	include/Utility/VkBootstrapDispatch.h
 	include/Utility/SPIRVUtility.hpp
+	include/Utility/VulkanUtility.hpp
 
 )
 

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Utility/SPIRVUtility.hpp"
+#include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 
 namespace Lina::Graphics
@@ -244,7 +245,7 @@ namespace Lina::Graphics
         uint32 index = 0;
         for (auto& f : m_queueFamilies)
         {
-            if (f.flags & static_cast<VkQueueFlagBits>(family))
+            if (f.flags & GetQueueFamilyBit(family))
                 return index;
             index++;
         }

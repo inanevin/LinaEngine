@@ -33,7 +33,8 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Data/HashMap.hpp"
-#include <vulkan/vulkan.h>
+
+struct VkQueue_T;
 
 namespace Lina::Graphics
 {
@@ -55,8 +56,8 @@ namespace Lina::Graphics
         void Present(const Semaphore& waitSemaphore, uint32* swapchainImageIndex);
 
         // Runtime
-        VkQueue _ptr    = nullptr;
-        uint32  _family = 0;
+        VkQueue_T* _ptr    = nullptr;
+        uint32     _family = 0;
 
         static HashMap<uint32, uint32> s_queueCounterPerFamily;
     };
