@@ -22,6 +22,7 @@ set (LINARESOURCE_SOURCES
 	
 	src/Core/ResourceStorage.cpp
 	src/Core/ResourcePackager.cpp
+	src/Core/ResourceDataManager.cpp
 	src/Loaders/ResourceLoader.cpp
 	src/Loaders/EditorResourceLoader.cpp
 	src/Loaders/StandaloneResourceLoader.cpp
@@ -37,6 +38,7 @@ set(LINARESOURCE_HEADERS
 	include/Core/ResourceHandle.hpp
 	include/Core/ResourceStorage.hpp
 	include/Core/ResourcePackager.hpp
+	include/Core/ResourceDataManager.hpp
 	include/Core/IResource.hpp
 	include/Loaders/ResourceLoader.hpp
 	include/Loaders/EditorResourceLoader.hpp

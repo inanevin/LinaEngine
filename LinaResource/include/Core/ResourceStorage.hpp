@@ -65,8 +65,6 @@ namespace Lina::Resources
     struct ResourceTypeData
     {
         int                loadPriority         = 0;
-        bool               isAssetData          = false;
-        bool               doesContainAssetData = false;
         PackageType        packageType          = PackageType::Custom;
         ResourceCreateFunc createFunc;
         ResourceDeleteFunc deleteFunc;
@@ -79,9 +77,9 @@ namespace Lina::Resources
     typedef ParallelHashMapMutex<TypeID, Cache>            ResourceMap;
     typedef ParallelHashMapMutex<TypeID, ResourceTypeData> ResourceTypeMap;
 #else
-    typedef ParallelHashMap<StringIDType, void*>      Cache;
-    typedef ParallelHashMap<TypeID, Cache>            ResourceMap;
-    typedef ParallelHashMap<TypeID, ResourceTypeData> ResourceTypeMap;
+    typedef HashMap<StringIDType, void*>      Cache;
+    typedef HashMap<TypeID, Cache>            ResourceMap;
+    typedef HashMap<TypeID, ResourceTypeData> ResourceTypeMap;
 #endif
 
     class ResourceStorage
@@ -259,14 +257,6 @@ namespace Lina::Resources
         }
 
         /// <summary>
-        /// Returns whether the given type is an asset data, or level file etc.
-        /// </summary>
-        inline bool IsTypeAssetData(TypeID tid)
-        {
-            return m_resourceTypes[tid].isAssetData;
-        }
-
-        /// <summary>
         /// Returns the color associated with the given type.
         /// </summary>
         template <typename T>
@@ -315,7 +305,9 @@ namespace Lina::Resources
         }
 
     private:
+
         friend class Engine;
+
         ResourceStorage()  = default;
         ~ResourceStorage() = default;
 

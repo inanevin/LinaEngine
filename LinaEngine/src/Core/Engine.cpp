@@ -46,6 +46,7 @@ SOFTWARE.
 #include "World/Level.hpp"
 #include "Loaders/ResourceLoader.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Core/ResourceDataManager.hpp"
 
 namespace Lina
 {
@@ -117,12 +118,21 @@ namespace Lina
                 RenderSettings s;
                 Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
             }
+            if (!Utility::FileExists("Resources/lina.assetdata"))
+            {
+                Resources::ResourceDataManager s;
+                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.assetdata", s);
+            }
         }
 
         m_resourceStorage.GetLoader()->LoadResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
         m_resourceStorage.GetLoader()->LoadResource(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
-        m_engineSettings = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
-        m_renderSettings = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
+        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.assetdata");
+        m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
+        m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
+        m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.assetdata");
+        m_resourceDataManager->Initialize(m_appInfo);
+        Resources::ResourceDataManager::s_instance = m_resourceDataManager;
     }
 
     void Engine::PackageProject(const String& path)
@@ -139,7 +149,7 @@ namespace Lina
         // If the level is currently loaded, retrieve the resources right away.
         // If not, load the level from file.
         // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
-        // Retrieve resource info & dump it when it's out of scope.
+        // Retrieve resource info & dump it.
         const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
         for (const String& str : packagedLevels)
         {
@@ -171,6 +181,36 @@ namespace Lina
             }
         }
 
+        // Iterate all resource meta-data
+        // If the resource does not exists in any of the packed level resources, discard it.
+        Vector<StringIDType> resourceMetadataToRemove;
+
+        for (auto& [sid, resData] : m_resourceDataManager->m_resourceData)
+        {
+            bool found = false;
+            for (auto& [tid, sidVec] : resourceMap)
+            {
+                for (auto& resourceStr : sidVec)
+                {
+                    const StringIDType resourceSid = StringID(resourceStr.c_str()).value();
+                    if (resourceSid == sid)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    break;
+            }
+
+            if (!found)
+                resourceMetadataToRemove.push_back(sid);
+        }
+
+        for (auto sid : resourceMetadataToRemove)
+            m_resourceDataManager->Remove(sid);
+
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.packagePass);
     }
 
@@ -196,7 +236,7 @@ namespace Lina
         // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
 
         Taskflow gameLoop;
-        auto [ _RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
+        auto [_RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
             [&]() {
                 m_renderEngine.Render();
                 frames++;
@@ -211,17 +251,19 @@ namespace Lina
 
         _SyncRenderData.succeed(_RunSimulation);
 
-      //  m_levelManager.InstallLevel("Resources/Sandbox/Levels/level4.linalevel");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio1.wav");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-      // m_levelManager.SaveCurrentLevel();
-      // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level4.linalevel");
+        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
+        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
+        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
+        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
+        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
+        m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        m_levelManager.SaveCurrentLevel();
+        m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
 
-       // SetFrameLimit(60);
+        // SetFrameLimit(60);
 
         while (m_running)
         {
@@ -261,7 +303,7 @@ namespace Lina
                 updates = 0;
             }
 
-            LINA_TRACE("FPS : {0}", m_currentFPS);
+            // LINA_TRACE("FPS : {0}", m_currentFPS);
 
             if (m_firstRun)
                 m_firstRun = false;
@@ -381,7 +423,6 @@ namespace Lina
         m_resourceStorage.RegisterResource<EngineSettings>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
-                .isAssetData          = false,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<EngineSettings>, std::placeholders::_1),
@@ -395,10 +436,22 @@ namespace Lina
         m_resourceStorage.RegisterResource<RenderSettings>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
-                .isAssetData          = false,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<RenderSettings>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<RenderSettings>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
+
+        extensions.clear();
+
+        extensions.push_back("assetdata");
+        m_resourceStorage.RegisterResource<Resources::ResourceDataManager>(
+            Resources::ResourceTypeData{
+                .loadPriority         = 0,
+                .packageType          = Resources::PackageType::Static,
+                .createFunc           = std::bind(Resources::CreateResource<Resources::ResourceDataManager>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<Resources::ResourceDataManager>, std::placeholders::_1),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -409,24 +462,9 @@ namespace Lina
         m_resourceStorage.RegisterResource<World::Level>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
-                .isAssetData          = false,
                 .packageType          = Resources::PackageType::Level,
                 .createFunc           = std::bind(Resources::CreateResource<World::Level>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<World::Level>, std::placeholders::_1),
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
-
-        extensions.clear();
-        extensions.push_back("linaaudiodata");
-
-        m_resourceStorage.RegisterResource<Audio::AudioAssetData>(
-            Resources::ResourceTypeData{
-                .loadPriority         = 0,
-                .isAssetData          = true,
-                .packageType          = Resources::PackageType::Audio,
-                .createFunc           = std::bind(Resources::CreateResource<Audio::AudioAssetData>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<Audio::AudioAssetData>, std::placeholders::_1),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -437,8 +475,6 @@ namespace Lina
         extensions.push_back("ogg");
         m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
             .loadPriority         = 5,
-            .isAssetData          = false,
-            .doesContainAssetData = true,
             .packageType          = Resources::PackageType::Audio,
             .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
             .deleteFunc           = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
@@ -450,7 +486,6 @@ namespace Lina
         extensions.push_back("linaphymat");
         m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
             .loadPriority         = 5,
-            .isAssetData          = true,
             .packageType          = Resources::PackageType::Physics,
             .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
             .deleteFunc           = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),

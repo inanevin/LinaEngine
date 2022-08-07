@@ -103,4 +103,13 @@ namespace Lina::World
         m_usedResources[tid].insert(path);
     }
 
+    void Level::RemoveResourceReference(TypeID tid, const String& path)
+    {
+        auto&       set = m_usedResources[tid];
+        const auto& it  = set.find(path);
+
+        if (it != set.end())
+            set.erase(it);
+    }
+
 } // namespace Lina::World

@@ -128,6 +128,15 @@ namespace Lina::Graphics
         uint32 stencil    = 0;
     };
 
+    enum class ShaderStage
+    {
+        Vertex             = VK_SHADER_STAGE_VERTEX_BIT,
+        TesellationControl = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
+        TesellationEval    = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
+        Geometry           = VK_SHADER_STAGE_GEOMETRY_BIT,
+        Fragment           = VK_SHADER_STAGE_FRAGMENT_BIT,
+        Compute            = VK_SHADER_STAGE_COMPUTE_BIT,
+    };
 } // namespace Lina::Graphics
 
 #endif

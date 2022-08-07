@@ -60,6 +60,7 @@ namespace Lina::World
         virtual void* LoadFromFile(const String& path) override;
         void          SaveToFile(const String& path);
         void          AddResourceReference(TypeID tid, const String& path);
+        void          RemoveResourceReference(TypeID tid, const String& path);
 
         const HashMap<TypeID, HashSet<String>>& GetResources()
         {

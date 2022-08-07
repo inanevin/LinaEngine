@@ -26,7 +26,6 @@ set (LINAAUDIO_SOURCES
 
 	# Audio
 	src/Audio/Audio.cpp
-	src/Audio/AudioAssetData.cpp
 
 )
 
@@ -40,7 +39,6 @@ set(LINAAUDIO_HEADERS
 	
 	# Audio
 	include/Audio/Audio.hpp
-	include/Audio/AudioAssetData.hpp
 )
 
 

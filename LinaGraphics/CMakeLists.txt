@@ -46,6 +46,7 @@ set (LINAGRAPHICS_SOURCES
 
 	# Utility
 	src/Utility/VkBootstrap.cpp
+	src/Utility/SPIRVUtility.cpp
 )
 
 #--------------------------------------------------------------------
@@ -90,6 +91,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/stb/stb_image_write.h
 	include/Utility/VkBootstrap.h
 	include/Utility/VkBootstrapDispatch.h
+	include/Utility/SPIRVUtility.hpp
 
 )
 
@@ -127,9 +129,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common Vulkan::Vulkan)
 include(../_Dependencies/glad/link.cmake)
 include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/assimp/link.cmake)
+include(../_Dependencies/glslang/link.cmake)
 link_glad()
 link_glfw()
 link_assimp()
+link_glslang()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

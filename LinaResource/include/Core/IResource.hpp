@@ -35,11 +35,13 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/StringId.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include <Data/String.hpp>
+#include "Data/String.hpp"
 #include "Data/Mutex.hpp"
+
 #include <cereal/archives/portable_binary.hpp>
 #include <functional>
 #include <fstream>
+
 namespace Lina::Resources
 {
     class ResourceStorage;
@@ -98,6 +100,8 @@ namespace Lina::Resources
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) = 0;
         virtual void* LoadFromFile(const String& path)                                         = 0;
+        virtual void  LoadAssetData(){};
+        virtual void  SaveAssetData(){};
 
         inline StringIDType GetSID()
         {
@@ -125,32 +129,10 @@ namespace Lina::Resources
             m_sid  = StringID(path.c_str()).value();
         }
 
-        template <typename T>
-        void GetCreateAssetdata(const String& path, T*& assetData)
-        {
-            StringIDType sid     = StringID(path.c_str()).value();
-            auto*        storage = Resources::ResourceStorage::Get();
-
-            const bool exists = storage->Exists<T>(sid);
-
-            if (exists)
-            {
-                assetData = storage->GetResource<T>(sid);
-            }
-            else
-            {
-                assetData         = new T();
-                assetData->m_sid  = sid;
-                assetData->m_path = path;
-                Resources::SaveArchiveToFile<T>(path, *assetData);
-                storage->Add(static_cast<void*>(assetData), GetTypeID<T>(), sid);
-            }
-        }
-
     protected:
         friend class ResourceStorage;
-        StringIDType m_sid   = 0;
-        String       m_path  = "";
+        StringIDType m_sid  = 0;
+        String       m_path = "";
     };
 
     template <typename T>

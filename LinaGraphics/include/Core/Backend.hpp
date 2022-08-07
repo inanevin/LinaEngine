@@ -41,7 +41,8 @@ namespace Lina
     namespace Event
     {
         struct EWindowResized;
-    }
+        struct EVsyncModeChanged;
+    } // namespace Event
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -90,10 +91,12 @@ namespace Lina::Graphics
         Backend()  = default;
         ~Backend() = default;
 
-        bool   Initialize(const ApplicationInfo& appInfo);
-        void   Shutdown();
-        uint32 GetQueueFamilyIndex(QueueFamilies family);
-        void   OnWindowResized(const Event::EWindowResized& ev);
+        bool        Initialize(const ApplicationInfo& appInfo);
+        void        Shutdown();
+        uint32      GetQueueFamilyIndex(QueueFamilies family);
+        void        OnWindowResized(const Event::EWindowResized& ev);
+        void        OnVsyncModeChanged(const Event::EVsyncModeChanged& ev);
+        PresentMode VsyncToPresentMode(VsyncMode mode);
 
     private:
         static Backend*          s_instance;

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Audio_HPP
@@ -34,7 +33,6 @@ SOFTWARE.
 
 // Headers here.
 #include "Utility/StringId.hpp"
-#include "Audio/AudioAssetData.hpp"
 #include "Core/IResource.hpp"
 #include "Data/Map.hpp"
 #include <Data/String.hpp>
@@ -43,6 +41,10 @@ namespace Lina::Audio
 {
     class Audio : public Resources::IResource
     {
+        struct AssetData
+        {
+            int dummy = 0;
+        };
 
     public:
         Audio()
@@ -52,6 +54,8 @@ namespace Lina::Audio
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
+        virtual void  LoadAssetData() override;
+        virtual void  SaveAssetData() override;
 
         unsigned int GetBuffer()
         {
@@ -62,12 +66,12 @@ namespace Lina::Audio
         static void CheckForError();
 
     private:
-        AudioAssetData* m_assetData = nullptr;
-        int             m_size      = 0;
-        int             m_format    = 0;
-        unsigned int    m_buffer    = 0;
-        float           m_freq      = 0.0f;
-        void*           m_data      = nullptr;
+        AssetData    m_assetData;
+        int          m_size   = 0;
+        int          m_format = 0;
+        unsigned int m_buffer = 0;
+        float        m_freq   = 0.0f;
+        void*        m_data   = nullptr;
     };
 } // namespace Lina::Audio
 

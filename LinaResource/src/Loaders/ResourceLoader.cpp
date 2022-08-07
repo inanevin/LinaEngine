@@ -136,9 +136,6 @@ namespace Lina::Resources
             if (pair.second.packageType == PackageType::Static || pair.second.packageType == PackageType::Level)
                 continue;
 
-            if (pair.second.isAssetData)
-                continue;
-
             const Cache& cache = storage->GetCache(pair.first);
 
             // If the new resources to load doesn't contain the type id at all, unload all resoruces belonging to this type id.

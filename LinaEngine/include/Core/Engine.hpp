@@ -49,6 +49,10 @@ SOFTWARE.
 
 namespace Lina
 {
+    namespace Resources
+    {
+        class ResourceDataManager;
+    }
     class Application;
     class EngineSettings;
     class RenderSettings;
@@ -70,7 +74,7 @@ namespace Lina
 
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
-        /// Setting 0 removes the cap. 
+        /// Setting 0 removes the cap.
         /// Frame limit is first and foremost depending on GPU and vsync mode. After rendering and refreshing, if there are still some time to cap,
         /// then this frame limit is used.
         /// </summary>
@@ -157,26 +161,27 @@ namespace Lina
         double SmoothDeltaTime(double dt);
 
     private:
-        static Engine*             s_engine;
-        Resources::ResourceStorage m_resourceStorage;
-        Physics::PhysicsEngine     m_physicsEngine;
-        Audio::AudioEngine         m_audioEngine;
-        Input::InputEngine         m_inputEngine;
-        Event::EventSystem         m_eventSystem;
-        ECS::SystemList            m_mainECSPipeline;
-        World::LevelManager        m_levelManager;
-        Graphics::RenderEngine     m_renderEngine;
-        MessageBus                 m_messageBus;
-        ApplicationInfo            m_appInfo;
-        JobSystem                  m_jobSystem;
-        bool                       m_running           = false;
-        bool                       m_canRender         = true;
-        bool                       m_firstRun          = true;
-        bool                       m_isInPlayMode      = false;
-        bool                       m_paused            = false;
-        bool                       m_shouldSkipFrame   = false;
-        int                        m_frameLimit        = 0;
-        double                     m_frameLimitSeconds = 0;
+        static Engine*                  s_engine;
+        Resources::ResourceStorage      m_resourceStorage;
+        Physics::PhysicsEngine          m_physicsEngine;
+        Audio::AudioEngine              m_audioEngine;
+        Input::InputEngine              m_inputEngine;
+        Event::EventSystem              m_eventSystem;
+        ECS::SystemList                 m_mainECSPipeline;
+        World::LevelManager             m_levelManager;
+        Graphics::RenderEngine          m_renderEngine;
+        Resources::ResourceDataManager* m_resourceDataManager;
+        MessageBus                      m_messageBus;
+        ApplicationInfo                 m_appInfo;
+        JobSystem                       m_jobSystem;
+        bool                            m_running           = false;
+        bool                            m_canRender         = true;
+        bool                            m_firstRun          = true;
+        bool                            m_isInPlayMode      = false;
+        bool                            m_paused            = false;
+        bool                            m_shouldSkipFrame   = false;
+        int                             m_frameLimit        = 0;
+        double                          m_frameLimitSeconds = 0;
         // Performance & variable stepping
         int                                    m_currentFPS = 0;
         int                                    m_currentUPS = 0;

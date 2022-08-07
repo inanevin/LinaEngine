@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Audio/AudioAssetData.hpp"
+#pragma once
 
-namespace Lina::Audio
+#ifndef SPIRVUtility_HPP
+#define SPIRVUtility_HPP
+
+#include "Data/Vector.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include <glslang/SPIRV/GlslangToSpv.h>
+#include <vulkan/vulkan.h>
+
+namespace Lina::Graphics
 {
-    void* AudioAssetData::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    class SPIRVUtility
     {
-        *this = Resources::LoadArchiveFromMemory<AudioAssetData>(path, data, dataSize);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
-    }
+    public:
+        static void        Initialize();
+        static void        Shutdown();
+        static void        InitResources(TBuiltInResource& resources);
+        static EShLanguage FindLanguage(ShaderStage stage);
+        static bool        GLSLToSPV(ShaderStage stage, const char* pShader, Vector<unsigned int>& spirv);
 
-    void* AudioAssetData::LoadFromFile(const String& path)
-    {
-        *this = Resources::LoadArchiveFromFile<AudioAssetData>(path);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
-    }
+    private:
+        SPIRVUtility()  = default;
+        ~SPIRVUtility() = default;
+    };
 
-} // namespace Lina::Audio
+} // namespace Lina::Graphics
+
+#endif

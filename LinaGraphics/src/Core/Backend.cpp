@@ -34,6 +34,7 @@ SOFTWARE.
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Utility/SPIRVUtility.hpp"
 #include <GLFW/glfw3.h>
 
 namespace Lina::Graphics
@@ -67,6 +68,7 @@ namespace Lina::Graphics
         m_appInfo   = appInfo;
         m_allocator = nullptr;
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &Backend::OnWindowResized>(this);
+        Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
 
         // Data for glfw extensions.
         uint32_t     glfwExtensionCount = 0;
@@ -160,23 +162,14 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
-        PresentMode vsyncMode = PresentMode::Immediate;
-
-        if (appInfo.windowProperties.vsync == VsyncMode::StrongVsync)
-            vsyncMode = PresentMode::Immediate;
-        else if (appInfo.windowProperties.vsync == VsyncMode::StrongVsync)
-            vsyncMode = PresentMode::FIFO;
-        else if (appInfo.windowProperties.vsync == VsyncMode::AdaptiveVsync)
-            vsyncMode = PresentMode::FIFORelaxed;
-        else if (appInfo.windowProperties.vsync == VsyncMode::TripleBuffer)
-            vsyncMode = PresentMode::Mailbox;
+        PresentMode pMode = VsyncToPresentMode(appInfo.windowProperties.vsync);
 
         m_swapchain = Swapchain{
             .width       = static_cast<uint32>(appInfo.windowProperties.width),
             .height      = static_cast<uint32>(appInfo.windowProperties.height),
             .format      = Format::B8G8R8A8_SRGB,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
-            .presentMode = vsyncMode,
+            .presentMode = pMode,
         };
         m_swapchain.Create();
         LINA_TRACE("[Swapchain] -> Swapchain created: {0}x{1}", m_swapchain.width, m_swapchain.height);
@@ -196,6 +189,7 @@ namespace Lina::Graphics
             i++;
         }
 
+       // SPIRVUtility::Initialize();
         return true;
     }
 
@@ -209,9 +203,34 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Trigger<Event::ESwapchainRecreated>(Event::ESwapchainRecreated{.oldPtr = oldPtr, .newPtr = m_swapchain._ptr});
     }
 
+    void Backend::OnVsyncModeChanged(const Event::EVsyncModeChanged& ev)
+    {
+        m_swapchain.Destroy();
+        m_swapchain.presentMode = VsyncToPresentMode(ev.newMode);
+        m_swapchain.Create();
+    }
+
+    PresentMode Backend::VsyncToPresentMode(VsyncMode mode)
+    {
+        PresentMode pMode = PresentMode::Immediate;
+
+        if (mode == VsyncMode::StrongVsync)
+            pMode = PresentMode::Immediate;
+        else if (mode == VsyncMode::StrongVsync)
+            pMode = PresentMode::FIFO;
+        else if (mode == VsyncMode::AdaptiveVsync)
+            pMode = PresentMode::FIFORelaxed;
+        else if (mode == VsyncMode::TripleBuffer)
+            pMode = PresentMode::Mailbox;
+
+        return pMode;
+    }
+
     void Backend::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
+
+     //   SPIRVUtility::Shutdown();
 
         m_swapchain.Destroy();
         vkDestroyDevice(m_device, m_allocator);

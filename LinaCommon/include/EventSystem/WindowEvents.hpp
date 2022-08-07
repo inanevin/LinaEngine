@@ -59,6 +59,10 @@ namespace Lina::Event
         void* window  = nullptr;
         int   focused = false;
     };
+    struct EVsyncModeChanged
+    {
+        VsyncMode newMode = VsyncMode::None;
+    };
     // struct EWindowMaximized { void* m_window; int m_isMaximized; };
     // struct EWindowIconified { void* m_window; int m_isIconified; };
     // struct EWindowRefreshed { void* m_window; };

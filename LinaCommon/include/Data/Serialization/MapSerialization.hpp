@@ -33,8 +33,8 @@ SOFTWARE.
 #ifndef DataStructuresMapSerialization_HPP
 #define DataStructuresMapSerialization_HPP
 
-#include <cereal/types/concepts/pair_associative_container.hpp>
-#include <EASTL/map.h>
+#include "cereal/types/concepts/pair_associative_container.hpp"
+#include <parallel_hashmap/phmap.h>
 
 
 #endif

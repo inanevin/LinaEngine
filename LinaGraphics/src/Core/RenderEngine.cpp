@@ -108,6 +108,7 @@ namespace Lina::Graphics
         m_presentSemaphore.Create();
         m_renderSemaphore.Create();
         m_renderFence = Fence{.flags = FenceFlags::Signaled}.Create();
+
     }
 
     void RenderEngine::SyncRenderData()
@@ -139,6 +140,9 @@ namespace Lina::Graphics
         m_renderPass.Begin(ClearValue{.clearColor = Color::Red}, m_framebuffers[imageIndex], m_buffer);
         m_renderPass.End(m_buffer);
         m_buffer.End();
+
+        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
+        // Then submits command, and signals render semaphore when its submitted.
         m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_buffer, 1);
         m_graphicsQueue.Present(m_renderSemaphore, &imageIndex);
 

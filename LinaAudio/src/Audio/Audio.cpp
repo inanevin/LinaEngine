@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/ResourceStorage.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Core/ResourceDataManager.hpp"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -41,7 +42,6 @@ namespace Lina::Audio
 {
     Audio::~Audio()
     {
-        Resources::ResourceStorage::Get()->Unload<AudioAssetData>(m_assetData->GetSID());
         alDeleteBuffers(1, &m_buffer);
     }
 
@@ -61,10 +61,7 @@ namespace Lina::Audio
         m_size   = size;
         m_freq   = freq;
 
-        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const String assetDataPath = fileNameNoExt + ".linaaudiodata";
-        GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
-
+        LoadAssetData();
         alGenBuffers((ALuint)1, &m_buffer);
         alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
         free(aldata);
@@ -93,10 +90,7 @@ namespace Lina::Audio
         m_size   = size;
         m_freq   = freq;
 
-        const String fileNameNoExt = Utility::GetFileWithoutExtension(path);
-        const String assetDataPath = fileNameNoExt + ".linaaudiodata";
-        GetCreateAssetdata<AudioAssetData>(assetDataPath, m_assetData);
-
+        LoadAssetData();
         alGenBuffers((ALuint)1, &m_buffer);
         alBufferData(m_buffer, format, data, size, (ALsizei)freq);
         free(data);
@@ -106,6 +100,21 @@ namespace Lina::Audio
 #endif
 
         return static_cast<void*>(this);
+    }
+
+    void Audio::LoadAssetData()
+    {
+        auto dm = Resources::ResourceDataManager::Get();
+        if (!dm->Exists(m_sid))
+            SaveAssetData();
+
+        m_assetData.dummy = Resources::ResourceDataManager::Get()->GetValue<int>(m_sid, "Dummy");
+    }
+
+    void Audio::SaveAssetData()
+    {
+        Resources::ResourceDataManager::Get()->SetValue<int>(m_sid, "Dummy", 0);
+        Resources::ResourceDataManager::Get()->Save();
     }
 
     void Audio::CheckForError()

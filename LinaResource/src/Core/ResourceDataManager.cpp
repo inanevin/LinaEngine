@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,35 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/ResourceDataManager.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
-
-#pragma once
-
-#ifndef AudioAssetData_HPP
-#define AudioAssetData_HPP
-
-#include "Core/IResource.hpp"
-
-namespace Lina::Audio
+namespace Lina::Resources
 {
-    class AudioAssetData : public Resources::IResource
+    ResourceDataManager* ResourceDataManager::s_instance = nullptr;
+
+    void ResourceDataManager::Initialize(const ApplicationInfo& appInfo)
     {
+        m_isEditor = appInfo.appMode == ApplicationMode::Editor;
+    }
 
-    public:
-        AudioAssetData()          = default;
-        virtual ~AudioAssetData() = default;
-
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-
-        int m_dummy = 0;
-
-        template <class Archive>
-        void serialize(Archive& archive)
+    void ResourceDataManager::Save()
+    {
+        if (m_isEditor)
         {
-            archive(m_dummy);
+            const String path = "Resources/lina.resourcedata";
+            IResource::SetSID(path);
+            SaveArchiveToFile<ResourceDataManager>(path, *this);
         }
-    };
-} // namespace Lina::Audio
+    }
 
-#endif
+    void* ResourceDataManager::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        *this = Resources::LoadArchiveFromMemory<ResourceDataManager>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+
+    void* ResourceDataManager::LoadFromFile(const String& path)
+    {
+        *this = Resources::LoadArchiveFromFile<ResourceDataManager>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+
+} // namespace Lina::Resources

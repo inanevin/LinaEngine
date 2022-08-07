@@ -75,7 +75,8 @@ namespace Lina
         PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;
     };
 
-    extern String LogLevelAsString(LogLevel level);
+    extern String          LogLevelAsString(LogLevel level);
+
 } // namespace Lina
 
 #endif

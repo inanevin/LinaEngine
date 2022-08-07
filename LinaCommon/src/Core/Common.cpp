@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Core/CommonPhysics.hpp"
 #include "Core/CommonUtility.hpp"
 
-
 namespace EA
 {
     namespace StdC
@@ -38,7 +37,7 @@ namespace EA
         // Provided by the EAStdC package or by the user.
         int Vsnprintf(char* EA_RESTRICT pDestination, size_t n, const char* EA_RESTRICT pFormat, va_list arguments)
         {
-        return vsnprintf(pDestination, n, pFormat, arguments);
+            return vsnprintf(pDestination, n, pFormat, arguments);
         }
         int Vsnprintf(char16_t* EA_RESTRICT pDestination, size_t n, const char16_t* EA_RESTRICT pFormat, va_list arguments)
         {

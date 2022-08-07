@@ -71,9 +71,8 @@ namespace Lina::Resources
         for (auto& [resType, cache] : m_resources)
         {
             for (auto& [sid, ptr] : cache)
-            {
                 GetTypeData(resType).deleteFunc(ptr);
-            }
+
             cache.clear();
         }
         m_resources.clear();

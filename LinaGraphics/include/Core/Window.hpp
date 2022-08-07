@@ -75,8 +75,9 @@ namespace Lina::Graphics
         void Shutdown();
         void Close();
 
-        Vector2i       m_size = Vector2i(0, 0);
-        Vector2i       m_pos  = Vector2i(0, 0);
+        VsyncMode      m_vsync = VsyncMode::None;
+        Vector2i       m_size  = Vector2i(0, 0);
+        Vector2i       m_pos   = Vector2i(0, 0);
         static Window* s_instance;
         GLFWwindow*    m_glfwWindow = nullptr;
         void*          m_userPtr    = nullptr;

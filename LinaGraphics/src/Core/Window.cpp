@@ -157,7 +157,9 @@ namespace Lina::Graphics
         glfwSetWindowFocusCallback(m_glfwWindow, windowFocusFunc);
 
         Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = m_userPtr});
-        m_size = Vector2i(appInfo.windowProperties.width, appInfo.windowProperties.height);
+        m_size  = Vector2i(appInfo.windowProperties.width, appInfo.windowProperties.height);
+        m_pos   = Vector2(0, 0);
+        m_vsync = appInfo.windowProperties.vsync;
         return true;
     }
 
@@ -191,6 +193,8 @@ namespace Lina::Graphics
 
     void Window::SetVsync(VsyncMode mode)
     {
+        m_vsync = mode;
+        Event::EventSystem::Get()->Trigger<Event::EVsyncModeChanged>(Event::EVsyncModeChanged{.newMode = mode});
     }
 
     void Window::Close()
