@@ -47,10 +47,8 @@ namespace Lina::Audio
         };
 
     public:
-        Audio()
-        {
-        }
-        ~Audio();
+        Audio() = default;
+        virtual ~Audio();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;

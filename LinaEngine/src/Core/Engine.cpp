@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Loaders/ResourceLoader.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/ResourceDataManager.hpp"
+#include "Resource/Shader.hpp"
 
 namespace Lina
 {
@@ -252,18 +253,19 @@ namespace Lina
         _SyncRenderData.succeed(_RunSimulation);
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        //m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-        m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        m_levelManager.SaveCurrentLevel();
-        m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        //m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        //m_levelManager.SaveCurrentLevel();
+        //m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
 
         // SetFrameLimit(60);
+        m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
 
         while (m_running)
         {
@@ -443,6 +445,7 @@ namespace Lina
                 .debugColor           = Color::White,
             });
 
+
         extensions.clear();
 
         extensions.push_back("assetdata");
@@ -467,6 +470,19 @@ namespace Lina
                 .deleteFunc           = std::bind(Resources::DeleteResource<World::Level>, std::placeholders::_1),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
+            });
+
+        extensions.clear();
+
+        extensions.push_back("linashader");
+        m_resourceStorage.RegisterResource<Graphics::Shader>(
+            Resources::ResourceTypeData{
+                .loadPriority = 0,
+                .packageType = Resources::PackageType::Graphics,
+                .createFunc = std::bind(Resources::CreateResource<Graphics::Shader>),
+                .deleteFunc = std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor = Color::White,
             });
 
         extensions.clear();

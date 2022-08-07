@@ -128,13 +128,14 @@ namespace Lina::Graphics
 
     void RenderEngine::Render()
     {
-    
+        RETURN_NOTINITED;
+
         m_renderFence.Wait(true, 1.0);
         m_renderFence.Reset();
 
         uint32 imageIndex = m_backend.m_swapchain.AcquireNextImage(1.0, m_presentSemaphore);
-        m_buffer.Reset();
 
+        m_buffer.Reset();
         m_buffer.Begin(CommandBufferFlags::OneTimeSubmit);
 
         m_renderPass.Begin(ClearValue{.clearColor = Color::Red}, m_framebuffers[imageIndex], m_buffer);

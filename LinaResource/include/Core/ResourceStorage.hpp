@@ -219,6 +219,13 @@ namespace Lina::Resources
         }
 
         /// <summary>
+        /// Loads a single resource, preferably use for runtime-loading.
+        /// </summary>
+        /// <param name="tid"></param>
+        /// <param name="path"></param>
+        void Load(TypeID tid, const String& path);
+
+        /// <summary>
         /// Registering a resource will allow the ResourceManager to load & save the resource during editor, run-time and
         /// packaging processes. Resource Manager will pick-up the resource type from type ID and associate it with the given
         /// extensions.

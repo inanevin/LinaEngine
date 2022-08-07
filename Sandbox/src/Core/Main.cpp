@@ -8,7 +8,7 @@ int main(int argc, char** argv)
         .title      = "Lina Engine - Demo Sandbox Project",
         .width      = 1200,
         .height     = 1200,
-        .vsync      = Lina::VsyncMode::AdaptiveVsync,
+        .vsync      = Lina::VsyncMode::Adaptive,
         .decorated  = true,
         .resizable  = true,
         .fullscreen = false,

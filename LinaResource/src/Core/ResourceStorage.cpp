@@ -82,6 +82,11 @@ namespace Lina::Resources
         delete m_loader;
     }
 
+    void ResourceStorage::Load(TypeID tid, const String& path)
+    {
+        GetLoader()->LoadResource(tid, path);
+    }
+
     void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)
     {
         // Find the resources with the updated sid, add the new string ID & delete the previous one.

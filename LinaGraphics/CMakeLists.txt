@@ -36,6 +36,9 @@ set (LINAGRAPHICS_SOURCES
 	src/Data/Fence.cpp
 	src/Data/Semaphore.cpp
 
+	# Resource
+	src/Resource/Shader.cpp
+
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
 	src/ECS/Systems/SpriteSystem.cpp
@@ -71,6 +74,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Data/Fence.hpp
 	include/Data/Semaphore.hpp
 
+	# Resource
+	include/Resource/Shader.hpp
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp
@@ -117,6 +122,8 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
 
@@ -124,7 +131,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common Vulkan::Vulkan)
+target_link_libraries(${PROJECT_NAME} 
+PRIVATE Lina::Common
+PRIVATE Lina::Resource 
+Vulkan::Vulkan)
 	
 include(../_Dependencies/glad/link.cmake)
 include(../_Dependencies/glfw/link.cmake)

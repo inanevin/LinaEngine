@@ -26,40 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#LINA_VS
 
-#ifndef CommonWindow_HPP
-#define CommonWindow_HPP
+#version 450
 
-// Headers here.
-#include "Data/String.hpp"
-
-namespace Lina
+void main()
 {
+	//const array of positions for the triangle
+	const vec3 positions[3] = vec3[3](
+		vec3(1.f,1.f, 0.0f),
+		vec3(-1.f,1.f, 0.0f),
+		vec3(0.f,-1.f, 0.0f)
+	);
 
-    enum class VsyncMode
-    {
-        None = 0,
-        StrongVsync,
-        Adaptive,
-        TripleBuffer
-    };
-    struct WindowProperties
-    {
-        String       title;
-        int          width              = 1440;
-        int          height             = 900;
-        VsyncMode    vsync              = VsyncMode::None;
-        bool         decorated          = true;
-        bool         resizable          = true;
-        bool         fullscreen         = false;
-        float        contentScaleWidth  = 1.0f;
-        float        contentScaleHeight = 1.0f;
-        int          monitorWidth       = 0;
-        int          monitorHeight      = 0;
-        unsigned int workingAreaWidth   = 0;
-        unsigned int workingAreaHeight  = 0;
-    };
-} // namespace Lina
+	//output the position of each vertex
+	gl_Position = vec4(positions[gl_VertexIndex], 1.0f);
+}
 
-#endif
+#LINA_END
+
+#LINA_FS
+
+#version 450
+
+//output write
+layout (location = 0) out vec4 outFragColor;
+
+void main()
+{
+	//return red
+	outFragColor = vec4(1.f,0.f,0.f,1.0f);
+}
+
+#LINA_END

@@ -28,38 +28,48 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonWindow_HPP
-#define CommonWindow_HPP
+#ifndef Shader_HPP
+#define Shader_HPP
 
-// Headers here.
+#include "Core/IResource.hpp"
 #include "Data/String.hpp"
 
-namespace Lina
+namespace Lina::Graphics
 {
+    class Shader : public Resources::IResource
+    {
+    public:
+        Shader()          = default;
+        virtual ~Shader() = default;
 
-    enum class VsyncMode
-    {
-        None = 0,
-        StrongVsync,
-        Adaptive,
-        TripleBuffer
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
+        virtual void  LoadAssetData() override;
+        virtual void  SaveAssetData() override;
+
+        /// <summary>
+        /// Returns a shader block from a full linashader text.
+        /// </summary>
+        /// <param name="shader">Full text.</param>
+        /// <param name="defineStart">Define string, e.g. #LINA_VS or #LINA_FRAG </param>
+        /// <returns></returns>
+        static String GetShaderStageText(const String& shader, const String& defineStart);
+
+    private:
+        struct AssetData
+        {
+            int  dummy     = 0;
+            bool geoShader = false;
+        };
+
+    private:
+        AssetData m_assetData;
+        String    m_text       = "";
+        String    m_vertexText = "";
+        String    m_fragText   = "";
+        String    m_geoText    = "";
     };
-    struct WindowProperties
-    {
-        String       title;
-        int          width              = 1440;
-        int          height             = 900;
-        VsyncMode    vsync              = VsyncMode::None;
-        bool         decorated          = true;
-        bool         resizable          = true;
-        bool         fullscreen         = false;
-        float        contentScaleWidth  = 1.0f;
-        float        contentScaleHeight = 1.0f;
-        int          monitorWidth       = 0;
-        int          monitorHeight      = 0;
-        unsigned int workingAreaWidth   = 0;
-        unsigned int workingAreaHeight  = 0;
-    };
-} // namespace Lina
+
+} // namespace Lina::Graphics
 
 #endif

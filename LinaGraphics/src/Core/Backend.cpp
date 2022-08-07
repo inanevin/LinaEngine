@@ -189,7 +189,7 @@ namespace Lina::Graphics
             i++;
         }
 
-       // SPIRVUtility::Initialize();
+        SPIRVUtility::Initialize();
         return true;
     }
 
@@ -218,7 +218,7 @@ namespace Lina::Graphics
             pMode = PresentMode::Immediate;
         else if (mode == VsyncMode::StrongVsync)
             pMode = PresentMode::FIFO;
-        else if (mode == VsyncMode::AdaptiveVsync)
+        else if (mode == VsyncMode::Adaptive)
             pMode = PresentMode::FIFORelaxed;
         else if (mode == VsyncMode::TripleBuffer)
             pMode = PresentMode::Mailbox;
@@ -230,7 +230,7 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
 
-     //   SPIRVUtility::Shutdown();
+        SPIRVUtility::Shutdown();
 
         m_swapchain.Destroy();
         vkDestroyDevice(m_device, m_allocator);
