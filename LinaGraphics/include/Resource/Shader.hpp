@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/IResource.hpp"
 #include "Data/String.hpp"
+#include "Data/Vector.hpp"
 
 struct VkShaderModule_T;
 
@@ -58,13 +59,16 @@ namespace Lina::Graphics
         static String GetShaderStageText(const String& shader, const String& defineStart);
 
     private:
+        void GenerateByteCode();
         bool CreateShaderModules();
 
     private:
         struct AssetData
         {
-            int  dummy     = 0;
-            bool geoShader = false;
+            bool                 geoShader = false;
+            Vector<unsigned int> vtxData;
+            Vector<unsigned int> fragData;
+            Vector<unsigned int> geoData;
         };
 
     private:

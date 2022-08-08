@@ -142,10 +142,6 @@ namespace Lina
         {
             return m_mainECSPipeline;
         }
-        inline ApplicationInfo GetAppInfo()
-        {
-            return m_appInfo;
-        }
 
     private:
         friend class Application;
@@ -153,7 +149,7 @@ namespace Lina
         Engine()  = default;
         ~Engine() = default;
 
-        void   Initialize(const ApplicationInfo& appInfo);
+        void   Initialize(ApplicationInfo& appInfo);
         void   Run();
         void   RunSimulation(float deltaTime);
         void   RemoveOutliers(bool biggest);
@@ -172,7 +168,6 @@ namespace Lina
         Graphics::RenderEngine          m_renderEngine;
         Resources::ResourceDataManager* m_resourceDataManager;
         MessageBus                      m_messageBus;
-        ApplicationInfo                 m_appInfo;
         JobSystem                       m_jobSystem;
         bool                            m_running           = false;
         bool                            m_canRender         = true;

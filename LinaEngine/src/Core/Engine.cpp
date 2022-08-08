@@ -83,7 +83,7 @@ namespace Lina
         m_shouldSkipFrame = true;
     }
 
-    void Engine::Initialize(const ApplicationInfo& appInfo)
+    void Engine::Initialize(ApplicationInfo& appInfo)
     {
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
         Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
@@ -92,19 +92,18 @@ namespace Lina
         Resources::ResourceStorage::s_instance  = &m_resourceStorage;
         World::LevelManager::s_instance         = &m_levelManager;
         JobSystem::s_instance                   = &m_jobSystem;
-        m_appInfo                               = appInfo;
 
         RegisterResourceTypes();
 
         m_eventSystem.Initialize();
         m_jobSystem.Initialize();
-        m_resourceStorage.Initialize(m_appInfo);
+        m_resourceStorage.Initialize(appInfo);
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
-        m_messageBus.Initialize(m_appInfo.appMode);
-        m_physicsEngine.Initialize(m_appInfo.appMode);
-        m_levelManager.Initialize(m_appInfo);
-        m_renderEngine.Initialize(m_appInfo);
+        m_messageBus.Initialize(appInfo.appMode);
+        m_physicsEngine.Initialize(appInfo.appMode);
+        m_levelManager.Initialize(appInfo);
+        m_renderEngine.Initialize(appInfo);
 
         // Make sure the static resources needed are initialized.
         if (appInfo.appMode == ApplicationMode::Editor)
@@ -119,26 +118,38 @@ namespace Lina
                 RenderSettings s;
                 Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
             }
-            if (!Utility::FileExists("Resources/lina.assetdata"))
+            if (!Utility::FileExists("Resources/lina.resourcedata"))
             {
                 Resources::ResourceDataManager s;
-                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.assetdata", s);
+                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
             }
         }
 
         m_resourceStorage.GetLoader()->LoadResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
         m_resourceStorage.GetLoader()->LoadResource(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
-        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.assetdata");
+        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata");
         m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
         m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
-        m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.assetdata");
-        m_resourceDataManager->Initialize(m_appInfo);
+        m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
+        m_resourceDataManager->Initialize(appInfo);
         Resources::ResourceDataManager::s_instance = m_resourceDataManager;
+
+        for (auto a : m_resourceDataManager->m_resourceData)
+        {
+            auto  sid = a.first;
+            auto& dm  = a.second;
+
+            for (auto p : dm.data)
+            {
+                auto datasid = p.first;
+                int  x       = 5;
+            }
+        }
     }
 
     void Engine::PackageProject(const String& path)
     {
-        if (m_appInfo.appMode != ApplicationMode::Editor)
+        if (g_appInfo.appMode != ApplicationMode::Editor)
         {
             LINA_ERR("You can only package the project in editor mode!");
             return;
@@ -212,7 +223,21 @@ namespace Lina
         for (auto sid : resourceMetadataToRemove)
             m_resourceDataManager->Remove(sid);
 
-        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, m_appInfo.packagePass);
+        for (auto a : m_resourceDataManager->m_resourceData)
+        {
+            auto  sid = a.first;
+            auto& dm  = a.second;
+
+            for (auto p : dm.data)
+            {
+                auto datasid = p.first;
+                int  x       = 5;
+            }
+        }
+
+        // DO NOT STORE BYTE CODE IN THE METADATA BUT COMPILE WHILE PACKAGING
+
+        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, g_appInfo.packagePass);
     }
 
     void Engine::Run()
@@ -253,16 +278,16 @@ namespace Lina
         _SyncRenderData.succeed(_RunSimulation);
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-        //m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-        //m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        //m_levelManager.SaveCurrentLevel();
-        //m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        //   m_levelManager.SaveCurrentLevel();
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
 
         // SetFrameLimit(60);
         m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -445,10 +470,9 @@ namespace Lina
                 .debugColor           = Color::White,
             });
 
-
         extensions.clear();
 
-        extensions.push_back("assetdata");
+        extensions.push_back("resourcedata");
         m_resourceStorage.RegisterResource<Resources::ResourceDataManager>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
@@ -477,12 +501,12 @@ namespace Lina
         extensions.push_back("linashader");
         m_resourceStorage.RegisterResource<Graphics::Shader>(
             Resources::ResourceTypeData{
-                .loadPriority = 0,
-                .packageType = Resources::PackageType::Graphics,
-                .createFunc = std::bind(Resources::CreateResource<Graphics::Shader>),
-                .deleteFunc = std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
+                .loadPriority         = 0,
+                .packageType          = Resources::PackageType::Graphics,
+                .createFunc           = std::bind(Resources::CreateResource<Graphics::Shader>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
                 .associatedExtensions = extensions,
-                .debugColor = Color::White,
+                .debugColor           = Color::White,
             });
 
         extensions.clear();

@@ -45,6 +45,7 @@ namespace Lina
 {
 
     Application* Application::s_application = nullptr;
+    ApplicationInfo g_appInfo;
 
     void Application::Cleanup()
     {
@@ -65,13 +66,15 @@ namespace Lina
         logSink.connect<&Application::OnLog>(this);
     }
 
-    void Application::Initialize(const ApplicationInfo& appInfo)
+    void Application::Initialize(ApplicationInfo& appInfo)
     {
         if (m_initialized)
         {
             LINA_ERR("Lina application already initialized!");
             return;
         }
+
+        g_appInfo = appInfo;
 
 #ifdef LINA_ENABLE_PROFILING
         m_profiler           = new Profiler();

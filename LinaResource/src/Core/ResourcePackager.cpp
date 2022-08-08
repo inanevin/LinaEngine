@@ -249,7 +249,7 @@ namespace Lina::Resources
         }
 
         assert(loadedFiles == filesToLoad.size());
-        LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
+        LINA_INFO("[Packager] -> Successfully loaded files from package: {0}", filePath);
     }
 
     void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass)

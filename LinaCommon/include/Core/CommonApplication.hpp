@@ -74,6 +74,8 @@ namespace Lina
         WindowProperties windowProperties = WindowProperties();
         PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;
     };
+    
+    extern ApplicationInfo g_appInfo;
 
     extern String          LogLevelAsString(LogLevel level);
 

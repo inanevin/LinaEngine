@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/IResource.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/Vector.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Utility/StringId.hpp"
 #include "Data/Serialization/HashMapSerialization.hpp"
@@ -53,7 +54,7 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    typedef std::variant<int, float, double, bool, String> DataVariant;
+    typedef std::variant<int, float, double, bool, String, Vector<unsigned int>> DataVariant;
 
 #ifdef LINA_MT
     typedef ParallelHashMapMutex<StringIDType, DataVariant> DataMap;
