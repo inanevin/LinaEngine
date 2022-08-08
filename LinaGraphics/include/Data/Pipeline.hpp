@@ -55,7 +55,6 @@ namespace Lina::Graphics
         Pipeline SetLayout(const PipelineLayout& layout);
 
         void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
-        void Draw(const CommandBuffer& cmd, uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
         void Destroy();
 
         // Desc

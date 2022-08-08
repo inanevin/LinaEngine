@@ -140,11 +140,6 @@ namespace Lina::Graphics
         vkCmdBindPipeline(cmd._ptr, GetPipelineBindPoint(bindpoint), _ptr);
     }
 
-    void Pipeline::Draw(const CommandBuffer& cmd, uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
-    {
-        vkCmdDraw(cmd._ptr, vtxCount, instCount, firstVtx, firstInst);
-    }
-
     void Pipeline::Destroy()
     {
         vkDestroyPipeline(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());

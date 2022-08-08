@@ -58,6 +58,11 @@ namespace Lina
             return Color(r * rhs, g * rhs, b * rhs, a * rhs);
         }
 
+        Color operator+(const Color& rhs) const
+        {
+            return Color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
+        }
+
     public:
         static Color Red;
         static Color Green;
@@ -76,7 +81,7 @@ namespace Lina
 
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(r, g, b, a); // serialize things by passing them to the archive
+            archive(r, g, b, a);
         }
     };
 

@@ -179,9 +179,10 @@ namespace Lina::Graphics
         m_commandBuffer.Reset();
         m_commandBuffer.Begin(CommandBufferFlags::OneTimeSubmit);
 
-        m_renderPass.Begin(ClearValue{.clearColor = Color::White}, m_framebuffers[imageIndex], m_commandBuffer);
+        m_renderPass.Begin(ClearValue{.clearColor = Color::Blue}, m_framebuffers[imageIndex], m_commandBuffer);
         m_pipeline.Bind(m_commandBuffer, PipelineBindPoint::Graphics);
-        m_pipeline.Draw(m_commandBuffer, 3, 1, 0, 0);
+        m_commandBuffer.Draw(3,1,0,0);
+
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();
 

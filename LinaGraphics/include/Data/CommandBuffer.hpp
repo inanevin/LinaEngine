@@ -42,9 +42,11 @@ namespace Lina::Graphics
     {
     public:
         CommandBuffer Create(VkCommandPool_T* pool);
-        void          Reset(bool releaseResources = false);
-        void          Begin(CommandBufferFlags flags);
-        void          End();
+
+        void Reset(bool releaseResources = false);
+        void Begin(CommandBufferFlags flags);
+        void Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
+        void End();
 
         // Description
         uint32             count = 0;

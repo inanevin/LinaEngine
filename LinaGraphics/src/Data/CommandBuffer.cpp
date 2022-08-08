@@ -65,6 +65,12 @@ namespace Lina::Graphics
         VkResult result = vkBeginCommandBuffer(_ptr, &beginInfo);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed to begin!");
     }
+
+    void CommandBuffer::Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
+    {
+        vkCmdDraw(_ptr, vtxCount, instCount, firstVtx, firstInst);
+    }
+
     void CommandBuffer::End()
     {
         VkResult result = vkEndCommandBuffer(_ptr);
