@@ -39,6 +39,15 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    Shader::~Shader()
+    {
+        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrVtx, Backend::Get()->GetAllocator());
+        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrFrag, Backend::Get()->GetAllocator());
+
+        if (m_assetData.geoShader)
+            vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrGeo, Backend::Get()->GetAllocator());
+    }
+
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         IResource::SetSID(path);
@@ -48,7 +57,7 @@ namespace Lina::Graphics
         // So only re-generate if its missing.
         if (m_assetData.vtxData.empty())
         {
-            m_text = String(reinterpret_cast<char*>(data), dataSize);
+            m_text       = String(reinterpret_cast<char*>(data), dataSize);
             m_vertexText = GetShaderStageText(m_text, "#LINA_VS");
             m_fragText   = GetShaderStageText(m_text, "#LINA_FS");
 
@@ -74,24 +83,23 @@ namespace Lina::Graphics
         IResource::SetSID(path);
         LoadAssetData();
 
-        if (m_assetData.vtxData.empty())
-        {
-            // Get the text from file.
-            std::ifstream file;
-            file.open(path.c_str());
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            m_text = buffer.str().c_str();
-            file.close();
+        // Always regenerate in editor.
 
-            m_vertexText = GetShaderStageText(m_text, "#LINA_VS");
-            m_fragText = GetShaderStageText(m_text, "#LINA_FS");
+        // Get the text from file.
+        std::ifstream file;
+        file.open(path.c_str());
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        m_text = buffer.str().c_str();
+        file.close();
 
-            if (m_assetData.geoShader)
-                m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
+        m_vertexText = GetShaderStageText(m_text, "#LINA_VS");
+        m_fragText   = GetShaderStageText(m_text, "#LINA_FS");
 
-            GenerateByteCode();
-        }
+        if (m_assetData.geoShader)
+            m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
+
+        GenerateByteCode();
 
         if (!CreateShaderModules())
             LINA_ERR("[Shader Loader - File] -> Could not load shader! {0}", path);
@@ -119,6 +127,35 @@ namespace Lina::Graphics
         Resources::ResourceDataManager::Get()->Save();
     }
 
+    bool Shader::HasStage(ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case ShaderStage::Fragment:
+        case ShaderStage::Vertex:
+            return true;
+        case ShaderStage::Geometry:
+            return m_assetData.geoShader;
+        default:
+            return false;
+        }
+    }
+
+    VkShaderModule_T* Shader::GetModule(ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case ShaderStage::Vertex:
+            return _ptrVtx;
+        case ShaderStage::Fragment:
+            return _ptrFrag;
+        case ShaderStage::Geometry:
+            return _ptrGeo;
+        default:
+            return _ptrVtx;
+        }
+    }
+
     String Shader::GetShaderStageText(const String& shader, const String& defineStart)
     {
         std::istringstream f(shader.c_str());
@@ -127,7 +164,7 @@ namespace Lina::Graphics
         String             out    = "";
         while (std::getline(f, line))
         {
-            if (!line.empty() && * line.rbegin() == '\r')
+            if (!line.empty() && *line.rbegin() == '\r')
                 line.erase(line.end() - 1);
 
             if (append && line.compare("#LINA_END") == 0)
@@ -159,7 +196,7 @@ namespace Lina::Graphics
             SPIRVUtility::GLSLToSPV(ShaderStage::Geometry, m_geoText.c_str(), m_assetData.geoData);
         }
 
-        if(g_appInfo.appMode == ApplicationMode::Editor)
+        if (g_appInfo.appMode == ApplicationMode::Editor)
             SaveAssetData();
     }
 

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,7 +50,7 @@ namespace Lina::Resources
 
         m_appInfo = appInfo;
 
-        if(appInfo.appMode == ApplicationMode::Editor)
+        if (appInfo.appMode == ApplicationMode::Editor)
             m_loader = new EditorResourceLoader();
         else
             m_loader = new StandaloneResourceLoader();
@@ -85,6 +85,15 @@ namespace Lina::Resources
     void ResourceStorage::Load(TypeID tid, const String& path)
     {
         GetLoader()->LoadResource(tid, path);
+    }
+
+    void ResourceStorage::UnloadAll()
+    {
+        for (auto& [tid, cache] : m_resources)
+        {
+            for (auto& [sid, ptr] : cache)
+                Unload(tid, sid);
+        }
     }
 
     void ResourceStorage::OnResourcePathUpdated(const Event::EResourcePathUpdated& ev)

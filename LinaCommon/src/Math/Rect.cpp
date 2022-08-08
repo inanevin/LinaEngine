@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,55 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#define NOMINMAX
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
-
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
-namespace Lina::Event
-{
-    struct EShutdown
-    {
-    };
-    struct EStartGame
-    {
-    };
-    struct EPreStartGame
-    {
-
-    };
-    struct EEndGame
-    {
-    };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct ERender
-    {
-    };
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
-} // namespace Lina::Event
-
-#endif
+#include "Math/Rect.hpp"

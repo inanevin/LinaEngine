@@ -36,6 +36,8 @@ set (LINAGRAPHICS_SOURCES
 	src/Data/RenderPass.cpp
 	src/Data/Fence.cpp
 	src/Data/Semaphore.cpp
+	src/Data/Pipeline.cpp
+	src/Data/PipelineLayout.cpp
 
 	# Resource
 	src/Resource/Shader.cpp
@@ -75,6 +77,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Data/RenderPass.hpp
 	include/Data/Fence.hpp
 	include/Data/Semaphore.hpp
+	include/Data/Pipeline.hpp
+	include/Data/PipelineLayout.hpp
 
 	# Resource
 	include/Resource/Shader.hpp

@@ -28,53 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
+#ifndef PipelineLayout_HPP
+#define PipelineLayout_HPP
 
-// Headers here.
-#include "Core/CommonApplication.hpp"
+#include "Core/GraphicsCommon.hpp"
 
-namespace Lina::Event
+struct VkPipelineLayout_T;
+
+namespace Lina::Graphics
 {
-    struct EShutdown
-    {
-    };
-    struct EStartGame
-    {
-    };
-    struct EPreStartGame
-    {
 
-    };
-    struct EEndGame
+    class PipelineLayout
     {
+    public:
+        PipelineLayout Create();
+        void           Destroy();
+
+        // Desc
+
+        // Runtime
+        VkPipelineLayout_T* _ptr = nullptr;
     };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct ERender
-    {
-    };
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
-} // namespace Lina::Event
+} // namespace Lina::Graphics
 
 #endif

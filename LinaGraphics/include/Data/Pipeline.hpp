@@ -28,28 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef VulkanUtility_HPP
-#define VulkanUtility_HPP
+#ifndef Pipeline_HPP
+#define Pipeline_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+#include "Math/Rect.hpp"
+
+struct VkPipeline_T;
+struct VkRenderPass_T;
+struct VkPipelineLayout_T;
 
 namespace Lina::Graphics
 {
-    class Attachment;
+    class RenderPass;
+    class Shader;
+    class PipelineLayout;
+    class CommandBuffer;
 
-    class VulkanUtility
+    // Description of the image we'll be writing into w/ render commands.
+    class Pipeline
     {
     public:
-        static VkAttachmentDescription                CreateAttachmentDescription(const Attachment& att);
-        static VkPipelineShaderStageCreateInfo        CreatePipelineShaderStageCreateInfo(ShaderStage stage, VkShaderModule shaderModule);
-        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo();
-        static VkPipelineInputAssemblyStateCreateInfo CreatePipelineInputAssemblyCreateInfo(Topology top, bool primitiveRestart = false);
-        static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode = CullMode::None);
-        static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
-        static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState();
-    };
+        Pipeline Create();
+        Pipeline AddShader(Shader* shader);
+        Pipeline SetRenderPass(const RenderPass& rp);
+        Pipeline SetLayout(const PipelineLayout& layout);
 
+        void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
+        void Draw(const CommandBuffer& cmd, uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
+        void Destroy();
+
+        // Desc
+        Viewport    viewport;
+        Recti       scissor;
+        Topology    topology;
+        PolygonMode polygonMode = PolygonMode::Fill;
+        CullMode    cullMode    = CullMode::None;
+
+        // Runtime
+        Vector<Shader*>     _shaders;
+        VkRenderPass_T*     _renderPass = nullptr;
+        VkPipelineLayout_T* _layout     = nullptr;
+        VkPipeline_T*       _ptr        = nullptr;
+    };
 } // namespace Lina::Graphics
 
 #endif

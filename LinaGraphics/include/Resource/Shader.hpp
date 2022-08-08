@@ -42,13 +42,16 @@ namespace Lina::Graphics
     class Shader : public Resources::IResource
     {
     public:
-        Shader()          = default;
-        virtual ~Shader() = default;
+        Shader() = default;
+        virtual ~Shader();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
         virtual void  LoadAssetData() override;
         virtual void  SaveAssetData() override;
+
+        bool              HasStage(ShaderStage stage);
+        VkShaderModule_T* GetModule(ShaderStage stage);
 
         /// <summary>
         /// Returns a shader block from a full linashader text.

@@ -26,55 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Data/PipelineLayout.hpp"
+#include "Core/Backend.hpp"
+#include <vulkan/vulkan.h>
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
-
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
-namespace Lina::Event
+namespace Lina::Graphics
 {
-    struct EShutdown
+    PipelineLayout PipelineLayout::Create()
     {
-    };
-    struct EStartGame
-    {
-    };
-    struct EPreStartGame
-    {
+        VkPipelineLayoutCreateInfo info{
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+            .pNext = nullptr,
 
-    };
-    struct EEndGame
-    {
-    };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct ERender
-    {
-    };
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
-} // namespace Lina::Event
+            // empty defaults
+            .flags                  = 0,
+            .setLayoutCount         = 0,
+            .pSetLayouts            = nullptr,
+            .pushConstantRangeCount = 0,
+            .pPushConstantRanges    = nullptr,
+        };
 
-#endif
+        VkResult res = vkCreatePipelineLayout(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(res == VK_SUCCESS, "[Pipeline Layout] -> Creating pipeline layout failed!");
+        return *this;
+    }
+    void PipelineLayout::Destroy()
+    {
+        vkDestroyPipelineLayout(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+    }
+} // namespace Lina::Graphics

@@ -49,8 +49,9 @@ namespace Lina
     namespace Event
     {
         struct ESwapchainRecreated;
-    }
-}
+        struct EPreStartGame;
+    } // namespace Event
+} // namespace Lina
 namespace Lina::Graphics
 {
     class RenderEngine
@@ -67,6 +68,7 @@ namespace Lina::Graphics
         void Clear();
         void Render();
         void Shutdown();
+        void OnPreStartGame(const Event::EPreStartGame& ev);
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
 
     private:
@@ -84,7 +86,6 @@ namespace Lina::Graphics
         Window          m_window;
         Backend         m_backend;
         bool            m_initedSuccessfully = false;
-
     };
 } // namespace Lina::Graphics
 

@@ -41,23 +41,32 @@ SOFTWARE.
 #include "Data/Framebuffer.hpp"
 #include "Data/Semaphore.hpp"
 #include "Data/Fence.hpp"
+#include "Data/Pipeline.hpp"
+#include "Data/PipelineLayout.hpp"
+#include "Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "Core/ResourceStorage.hpp"
 
 namespace Lina::Graphics
 {
 
-    #define RETURN_NOTINITED  if(!m_initedSuccessfully) return
+#define RETURN_NOTINITED       \
+    if (!m_initedSuccessfully) \
+    return
 
     RQueue              m_graphicsQueue;
     CommandPool         m_pool;
-    CommandBuffer       m_buffer;
+    CommandBuffer       m_commandBuffer;
     RenderPass          m_renderPass;
     SubPass             m_subpass;
     Vector<Framebuffer> m_framebuffers;
     Fence               m_renderFence;
     Semaphore           m_renderSemaphore;
     Semaphore           m_presentSemaphore;
+    Pipeline            m_pipeline;
+    PipelineLayout      m_pipelineLayout;
 
     void RenderEngine::Initialize(ApplicationInfo& appInfo)
     {
@@ -68,9 +77,9 @@ namespace Lina::Graphics
         Backend::s_instance  = &m_backend;
         m_initedSuccessfully = m_window.Initialize(appInfo);
 
-
         m_initedSuccessfully = m_backend.Initialize(appInfo);
         Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreStartGame, &RenderEngine::OnPreStartGame>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -88,8 +97,8 @@ namespace Lina::Graphics
         m_graphicsQueue.Get(m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
         m_pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = CommandPoolFlags::Reset}.Create();
 
-        m_buffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary}
-                       .Create(m_pool._ptr);
+        m_commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary}
+                              .Create(m_pool._ptr);
 
         Attachment att = Attachment{.format = m_backend.m_swapchain.format, .loadOp = LoadOp::Clear};
         SubPass    sp  = SubPass{.bindPoint = PipelineBindPoint::Graphics}.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).Create();
@@ -108,7 +117,40 @@ namespace Lina::Graphics
         m_presentSemaphore.Create();
         m_renderSemaphore.Create();
         m_renderFence = Fence{.flags = FenceFlags::Signaled}.Create();
+    }
 
+    void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
+    {
+        const Vector2i size = m_window.GetSize();
+
+        Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
+
+        m_pipelineLayout = PipelineLayout{}.Create();
+
+        Viewport vp = Viewport{
+            .x        = 0.0f,
+            .y        = 0.0f,
+            .width    = static_cast<float>(size.x),
+            .height   = static_cast<float>(size.y),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
+        Recti scissors = Recti{
+            .pos  = Vector2(0.0f, 0.0f),
+            .size = size,
+        };
+
+        m_pipeline = Pipeline{
+            .viewport    = vp,
+            .scissor     = scissors,
+            .topology    = Topology::TriangleList,
+            .polygonMode = PolygonMode::Fill,
+            .cullMode    = CullMode::None,
+        }
+                         .AddShader(defaultShader)
+                         .SetLayout(m_pipelineLayout)
+                         .SetRenderPass(m_renderPass)
+                         .Create();
     }
 
     void RenderEngine::SyncRenderData()
@@ -123,7 +165,6 @@ namespace Lina::Graphics
     void RenderEngine::Clear()
     {
         RETURN_NOTINITED;
-
     }
 
     void RenderEngine::Render()
@@ -135,16 +176,18 @@ namespace Lina::Graphics
 
         uint32 imageIndex = m_backend.m_swapchain.AcquireNextImage(1.0, m_presentSemaphore);
 
-        m_buffer.Reset();
-        m_buffer.Begin(CommandBufferFlags::OneTimeSubmit);
+        m_commandBuffer.Reset();
+        m_commandBuffer.Begin(CommandBufferFlags::OneTimeSubmit);
 
-        m_renderPass.Begin(ClearValue{.clearColor = Color::Red}, m_framebuffers[imageIndex], m_buffer);
-        m_renderPass.End(m_buffer);
-        m_buffer.End();
+        m_renderPass.Begin(ClearValue{.clearColor = Color::White}, m_framebuffers[imageIndex], m_commandBuffer);
+        m_pipeline.Bind(m_commandBuffer, PipelineBindPoint::Graphics);
+        m_pipeline.Draw(m_commandBuffer, 3, 1, 0, 0);
+        m_renderPass.End(m_commandBuffer);
+        m_commandBuffer.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
-        m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_buffer, 1);
+        m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_commandBuffer, 1);
         m_graphicsQueue.Present(m_renderSemaphore, &imageIndex);
 
         PROFILER_SCOPE_START("Render Sky", PROFILER_THREAD_RENDER);
@@ -173,6 +216,8 @@ namespace Lina::Graphics
         RETURN_NOTINITED;
 
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
+        m_pipelineLayout.Destroy();
+        m_pipeline.Destroy();
 
         m_renderFence.Wait();
         m_renderFence.Destroy();

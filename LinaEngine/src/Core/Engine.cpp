@@ -133,18 +133,6 @@ namespace Lina
         m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
         m_resourceDataManager->Initialize(appInfo);
         Resources::ResourceDataManager::s_instance = m_resourceDataManager;
-
-        for (auto a : m_resourceDataManager->m_resourceData)
-        {
-            auto  sid = a.first;
-            auto& dm  = a.second;
-
-            for (auto p : dm.data)
-            {
-                auto datasid = p.first;
-                int  x       = 5;
-            }
-        }
     }
 
     void Engine::PackageProject(const String& path)
@@ -223,25 +211,14 @@ namespace Lina
         for (auto sid : resourceMetadataToRemove)
             m_resourceDataManager->Remove(sid);
 
-        for (auto a : m_resourceDataManager->m_resourceData)
-        {
-            auto  sid = a.first;
-            auto& dm  = a.second;
-
-            for (auto p : dm.data)
-            {
-                auto datasid = p.first;
-                int  x       = 5;
-            }
-        }
-
-        // DO NOT STORE BYTE CODE IN THE METADATA BUT COMPILE WHILE PACKAGING
-
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, g_appInfo.packagePass);
     }
 
     void Engine::Run()
     {
+        m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
+        m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
+
         m_deltaTimeArray.fill(-1.0);
 
         m_running            = true;
@@ -278,7 +255,7 @@ namespace Lina
         _SyncRenderData.succeed(_RunSimulation);
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
         //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
@@ -290,7 +267,6 @@ namespace Lina
         // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
 
         // SetFrameLimit(60);
-        m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
 
         while (m_running)
         {
@@ -338,6 +314,9 @@ namespace Lina
 
         m_jobSystem.WaitForAll();
         gameLoop.clear();
+        m_levelManager.UninstallCurrent();
+
+        PackageProject("");
 
         // Ending game.
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
@@ -345,7 +324,7 @@ namespace Lina
         PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
         // Shutting down.
-        PackageProject("");
+        m_resourceStorage.UnloadAll();
         m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
         m_renderEngine.Shutdown();
         m_levelManager.Shutdown();

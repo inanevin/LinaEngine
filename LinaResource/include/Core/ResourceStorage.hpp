@@ -201,6 +201,7 @@ namespace Lina::Resources
                 return;
             }
 
+            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", sid);
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
@@ -217,6 +218,11 @@ namespace Lina::Resources
         {
             Unload(tid, StringID(path.c_str()).value());
         }
+
+        /// <summary>
+        /// Unloads all resources, use with caution!
+        /// </summary>
+        void UnloadAll();
 
         /// <summary>
         /// Loads a single resource, preferably use for runtime-loading.

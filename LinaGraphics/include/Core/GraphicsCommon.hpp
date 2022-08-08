@@ -46,8 +46,10 @@ enum VkAttachmentLoadOp;
 enum VkAttachmentStoreOp;
 enum VkFenceCreateFlagBits;
 enum VkCommandBufferUsageFlagBits;
-
 enum VkShaderStageFlagBits;
+enum VkPrimitiveTopology;
+enum VkPolygonMode;
+enum VkCullModeFlagBits;
 
 namespace Lina::Graphics
 {
@@ -158,13 +160,6 @@ namespace Lina::Graphics
 
     extern VkCommandBufferUsageFlagBits GetCommandBufferFlags(CommandBufferFlags f);
 
-    struct ClearValue
-    {
-        Color  clearColor = Color::White;
-        float  depth      = 0.0f;
-        uint32 stencil    = 0;
-    };
-
     enum class ShaderStage
     {
         Vertex,
@@ -177,10 +172,61 @@ namespace Lina::Graphics
 
     extern VkShaderStageFlagBits GetShaderStage(ShaderStage s);
 
+    enum class Topology
+    {
+        PointList,
+        LineList,
+        LineStrip,
+        TriangleList,
+        TriangleStrip,
+        TriangleFan,
+        TriangleListAdjacency,
+        TriangleStripAdjacency,
+    };
+
+    extern VkPrimitiveTopology GetTopology(Topology t);
+
+    enum class PolygonMode
+    {
+        Fill,
+        Line,
+        Point,
+        FillRect,
+    };
+
+    extern VkPolygonMode GetPolygonMode(PolygonMode m);
+
+    enum class CullMode
+    {
+        None,
+        Front,
+        Back,
+        FrontAndBack,
+    };
+
+    extern VkCullModeFlagBits GetCullMode(CullMode cm);
+
+    struct ClearValue
+    {
+        Color  clearColor = Color::White;
+        float  depth      = 0.0f;
+        uint32 stencil    = 0;
+    };
+
     struct AttachmentReference
     {
         uint32      attachment;
         ImageLayout layout;
+    };
+
+    struct Viewport
+    {
+        float x        = 0.0f;
+        float y        = 0.0f;
+        float width    = 0.0f;
+        float height   = 0.0f;
+        float minDepth = 0.0f;
+        float maxDepth = 0.0f;
     };
 
 } // namespace Lina::Graphics

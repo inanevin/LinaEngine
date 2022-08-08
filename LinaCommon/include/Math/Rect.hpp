@@ -28,53 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
+#ifndef Rect_HPP
+#define Rect_HPP
 
-// Headers here.
-#include "Core/CommonApplication.hpp"
+#include "Vector.hpp"
 
-namespace Lina::Event
+namespace Lina
 {
-    struct EShutdown
+    class Rect
     {
+    public:
+        Vector2 pos;
+        Vector2 size;
     };
-    struct EStartGame
-    {
-    };
-    struct EPreStartGame
-    {
 
-    };
-    struct EEndGame
+    class Recti
     {
+    public:
+        Vector2i pos;
+        Vector2i size;
     };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct ERender
-    {
-    };
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
-} // namespace Lina::Event
+
+} // namespace Lina
 
 #endif

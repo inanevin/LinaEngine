@@ -201,4 +201,64 @@ namespace Lina::Graphics
             return VK_SHADER_STAGE_VERTEX_BIT;
         }
     }
+
+    VkPrimitiveTopology GetTopology(Topology t)
+    {
+        switch (t)
+        {
+        case Topology::PointList:
+            return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case Topology::LineList:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case Topology::LineStrip:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        case Topology::TriangleList:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case Topology::TriangleStrip:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        case Topology::TriangleFan:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+        case Topology::TriangleListAdjacency:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+        case Topology::TriangleStripAdjacency:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+        default:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        }
+    }
+
+    VkPolygonMode GetPolygonMode(PolygonMode m)
+    {
+        switch (m)
+        {
+        case PolygonMode::Fill:
+            return VK_POLYGON_MODE_FILL;
+        case PolygonMode::Line:
+            return VK_POLYGON_MODE_LINE;
+        case PolygonMode::Point:
+            return VK_POLYGON_MODE_POINT;
+        case PolygonMode::FillRect:
+            return VK_POLYGON_MODE_FILL_RECTANGLE_NV;
+        default:
+            return VK_POLYGON_MODE_FILL;
+        }
+    }
+
+    VkCullModeFlagBits GetCullMode(CullMode m)
+    {
+        switch (m)
+        {
+        case CullMode::None:
+            return VK_CULL_MODE_NONE;
+        case CullMode::Front:
+            return VK_CULL_MODE_FRONT_BIT;
+        case CullMode::Back:
+            return VK_CULL_MODE_BACK_BIT;
+        case CullMode::FrontAndBack:
+            return VK_CULL_MODE_FRONT_AND_BACK;
+        default:
+            return VK_CULL_MODE_NONE;
+        }
+    }
+
 } // namespace Lina::Graphics

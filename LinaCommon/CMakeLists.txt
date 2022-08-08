@@ -38,6 +38,7 @@ set (LINACOMMON_SOURCES
 	src/Math/Quaternion.cpp
 	src/Math/Transformation.cpp
 	src/Math/Vector.cpp
+	src/Math/Rect.cpp
 	src/Math/Color.cpp
 	src/Math/Frustum.cpp
 	src/Math/AABB.cpp
@@ -155,6 +156,7 @@ set(LINACOMMON_HEADERS
 	include/Math/Quaternion.hpp
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
+	include/Math/Rect.hpp
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
