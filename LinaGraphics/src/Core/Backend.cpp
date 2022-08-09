@@ -72,14 +72,14 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
 
         // Data for glfw extensions.
-        uint32_t     glfwExtensionCount = 0;
-        const char** glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        // No need to query unless extension is desired, it'll only return VK_KHR_surface
+        // uint32_t     glfwExtensionCount = 0;
+        // const char** glfwExtensions;
+        // glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
         // Total extensions
         Vector<const char*> requiredExtensions;
-        for (uint32_t i = 0; i < glfwExtensionCount; i++)
-            requiredExtensions.push_back(glfwExtensions[i]);
+        requiredExtensions.push_back("VK_KHR_surface");
 
 #ifdef LINA_DEBUG
         // Debug messenger
@@ -106,7 +106,14 @@ namespace Lina::Graphics
         builder.set_debug_messenger_severity(severity | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT);
         builder.set_debug_messenger_type(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT);
 
-        vkb::Instance inst = builder.build().value();
+        auto res = builder.build();
+        if (!res)
+        {
+            LINA_ERR("[Vulkan Backend] -> Vulkan builder failed!");
+            return false;
+        }
+
+        vkb::Instance inst = res.value();
         m_vkInstance       = inst.instance;
         m_debugMessenger   = inst.debug_messenger;
 

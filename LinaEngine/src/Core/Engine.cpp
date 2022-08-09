@@ -91,6 +91,7 @@ namespace Lina
         Audio::AudioEngine::s_audioEngine       = &m_audioEngine;
         Resources::ResourceStorage::s_instance  = &m_resourceStorage;
         World::LevelManager::s_instance         = &m_levelManager;
+        Graphics::RenderEngine::s_instance      = &m_renderEngine;
         JobSystem::s_instance                   = &m_jobSystem;
 
         RegisterResourceTypes();
@@ -239,20 +240,16 @@ namespace Lina
         // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
 
         Taskflow gameLoop;
-        auto [_RenderPreviousFrame, _RunSimulation, _SyncRenderData] = gameLoop.emplace(
+        auto [_RenderPreviousFrame, _RunSimulation] = gameLoop.emplace(
             [&]() {
                 m_renderEngine.Render();
                 frames++;
             },
             [&]() {
                 RunSimulation((float)m_rawDeltaTime);
-                updates++;
-            },
-            [&]() {
                 m_renderEngine.SyncRenderData();
+                updates++;
             });
-
-        _SyncRenderData.succeed(_RunSimulation);
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");

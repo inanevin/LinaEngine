@@ -51,6 +51,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    RenderEngine* RenderEngine::s_instance = nullptr;
 
 #define RETURN_NOTINITED       \
     if (!m_initedSuccessfully) \
@@ -73,11 +74,12 @@ namespace Lina::Graphics
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
         m_appInfo = appInfo;
 
-        Window::s_instance   = &m_window;
-        Backend::s_instance  = &m_backend;
-        m_initedSuccessfully = m_window.Initialize(appInfo);
+        Window::s_instance  = &m_window;
+        Backend::s_instance = &m_backend;
 
+        m_initedSuccessfully = m_window.Initialize(appInfo);
         m_initedSuccessfully = m_backend.Initialize(appInfo);
+
         Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
         Event::EventSystem::Get()->Connect<Event::EPreStartGame, &RenderEngine::OnPreStartGame>(this);
 
@@ -181,7 +183,7 @@ namespace Lina::Graphics
 
         m_renderPass.Begin(ClearValue{.clearColor = Color::Blue}, m_framebuffers[imageIndex], m_commandBuffer);
         m_pipeline.Bind(m_commandBuffer, PipelineBindPoint::Graphics);
-        m_commandBuffer.Draw(3,1,0,0);
+        m_commandBuffer.Draw(3, 1, 0, 0);
 
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();
@@ -217,13 +219,14 @@ namespace Lina::Graphics
         RETURN_NOTINITED;
 
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
-        m_pipelineLayout.Destroy();
-        m_pipeline.Destroy();
 
         m_renderFence.Wait();
         m_renderFence.Destroy();
         m_renderSemaphore.Destroy();
         m_presentSemaphore.Destroy();
+
+        m_pipelineLayout.Destroy();
+        m_pipeline.Destroy();
 
         m_renderPass.Destroy();
         m_pool.Destroy();

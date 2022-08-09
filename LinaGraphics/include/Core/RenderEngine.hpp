@@ -63,6 +63,11 @@ namespace Lina::Graphics
         RenderEngine()  = default;
         ~RenderEngine() = default;
 
+        static inline RenderEngine* Get()
+        {
+            return s_instance;
+        }
+
         void Initialize(ApplicationInfo& appInfo);
         void SyncRenderData();
         void Clear();
@@ -71,8 +76,16 @@ namespace Lina::Graphics
         void OnPreStartGame(const Event::EPreStartGame& ev);
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
 
+        inline bool IsInitialized()
+        {
+            return m_initedSuccessfully;
+        }
+
     private:
+
         friend class Engine;
+
+        static RenderEngine* s_instance;
 
         ECS::SkySystem      m_skySystem;
         ECS::DecalSystem    m_decalSystem;

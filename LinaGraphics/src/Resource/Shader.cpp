@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "Utility/SPIRVUtility.hpp"
 #include "Core/CommonApplication.hpp"
+#include "Core/RenderEngine.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -184,6 +185,8 @@ namespace Lina::Graphics
 
     void Shader::GenerateByteCode()
     {
+        if(!RenderEngine::Get()->IsInitialized()) return;
+
         m_assetData.vtxData.clear();
         m_assetData.fragData.clear();
 
@@ -202,6 +205,11 @@ namespace Lina::Graphics
 
     bool Shader::CreateShaderModules()
     {
+        if (!RenderEngine::Get()->IsInitialized()) 
+        {
+            LINA_ERR("[Shader] -> Could not create shader, render engine is not initialized!");
+            return false;
+        }
 
         // Vtx shader
         VkShaderModuleCreateInfo vtxCreateInfo = {
