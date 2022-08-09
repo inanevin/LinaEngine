@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
+#include "Data/Deque.hpp"
 #include "Utility/StringId.hpp"
 #include "Data/FixedVector.hpp"
 #include "ECS/SystemList.hpp"
@@ -41,8 +42,19 @@ SOFTWARE.
 #include "ECS/Systems/MeshSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/SkySystem.hpp"
+#include "Utility/DeletionQueue.hpp"
+#include "Data/RQueue.hpp"
+#include "Data/CommandBuffer.hpp"
+#include "Data/CommandPool.hpp"
+#include "Data/RenderPass.hpp"
+#include "Data/Framebuffer.hpp"
+#include "Data/Semaphore.hpp"
+#include "Data/Fence.hpp"
+#include "Data/Pipeline.hpp"
+#include "Data/PipelineLayout.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
+#include <functional>
 
 namespace Lina
 {
@@ -76,13 +88,17 @@ namespace Lina::Graphics
         void OnPreStartGame(const Event::EPreStartGame& ev);
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
 
+        inline DeletionQueue& GetMainDeletionQueue()
+        {
+            return m_mainDeletionQueue;
+        }
+
         inline bool IsInitialized()
         {
             return m_initedSuccessfully;
         }
 
     private:
-
         friend class Engine;
 
         static RenderEngine* s_instance;
@@ -94,6 +110,20 @@ namespace Lina::Graphics
         ECS::MeshSystem     m_meshSystem;
         ECS::LightingSystem m_lightingSystem;
         ECS::SystemList     m_systemList;
+
+        RQueue              m_graphicsQueue;
+        CommandPool         m_pool;
+        CommandBuffer       m_commandBuffer;
+        RenderPass          m_renderPass;
+        SubPass             m_subpass;
+        Vector<Framebuffer> m_framebuffers;
+        Fence               m_renderFence;
+        Semaphore           m_renderSemaphore;
+        Semaphore           m_presentSemaphore;
+        Pipeline            m_pipeline;
+        PipelineLayout      m_pipelineLayout;
+
+        DeletionQueue m_mainDeletionQueue;
 
         ApplicationInfo m_appInfo;
         Window          m_window;

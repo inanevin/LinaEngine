@@ -45,17 +45,15 @@ namespace Lina::Graphics
     class PipelineLayout;
     class CommandBuffer;
 
-    // Description of the image we'll be writing into w/ render commands.
     class Pipeline
     {
     public:
         Pipeline Create();
-        Pipeline AddShader(Shader* shader);
+        Pipeline SetShader(Shader* shader);
         Pipeline SetRenderPass(const RenderPass& rp);
         Pipeline SetLayout(const PipelineLayout& layout);
 
         void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
-        void Destroy();
 
         // Desc
         Viewport    viewport;
@@ -65,7 +63,7 @@ namespace Lina::Graphics
         CullMode    cullMode    = CullMode::None;
 
         // Runtime
-        Vector<Shader*>     _shaders;
+        Shader*             _shader     = nullptr;
         VkRenderPass_T*     _renderPass = nullptr;
         VkPipelineLayout_T* _layout     = nullptr;
         VkPipeline_T*       _ptr        = nullptr;

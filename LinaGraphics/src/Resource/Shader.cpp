@@ -40,15 +40,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Shader::~Shader()
-    {
-        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrVtx, Backend::Get()->GetAllocator());
-        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrFrag, Backend::Get()->GetAllocator());
-
-        if (m_assetData.geoShader)
-            vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrGeo, Backend::Get()->GetAllocator());
-    }
-
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         IResource::SetSID(path);

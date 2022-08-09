@@ -28,10 +28,12 @@ SOFTWARE.
 
 #include "Data/Fence.hpp"
 #include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
+
     Fence Fence::Create()
     {
         VkFenceCreateInfo info = VkFenceCreateInfo{
@@ -42,6 +44,11 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateFence(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
+
+        VkFence_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+            vkDestroyFence(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        });
         return *this;
     }
 
@@ -54,11 +61,6 @@ namespace Lina::Graphics
     void Fence::Reset()
     {
         vkResetFences(Backend::Get()->GetDevice(), 1, &_ptr);
-    }
-
-    void Fence::Destroy()
-    {
-        vkDestroyFence(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
 } // namespace Lina::Graphics

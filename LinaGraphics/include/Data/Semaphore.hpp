@@ -37,12 +37,10 @@ struct VkSemaphore_T;
 
 namespace Lina::Graphics
 {
-    // Description of the image we'll be writing into w/ render commands.
     class Semaphore
     {
     public:
         Semaphore Create();
-        void      Destroy();
 
         // Description
         uint32 flags = 0;

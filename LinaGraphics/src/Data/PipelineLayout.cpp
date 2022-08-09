@@ -28,10 +28,12 @@ SOFTWARE.
 
 #include "Data/PipelineLayout.hpp"
 #include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
+
     PipelineLayout PipelineLayout::Create()
     {
         VkPipelineLayoutCreateInfo info{
@@ -48,10 +50,13 @@ namespace Lina::Graphics
 
         VkResult res = vkCreatePipelineLayout(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Pipeline Layout] -> Creating pipeline layout failed!");
+
+        VkPipelineLayout_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+            vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        });
+
         return *this;
     }
-    void PipelineLayout::Destroy()
-    {
-        vkDestroyPipelineLayout(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
-    }
+
 } // namespace Lina::Graphics

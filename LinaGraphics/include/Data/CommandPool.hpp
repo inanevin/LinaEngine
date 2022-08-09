@@ -41,7 +41,6 @@ namespace Lina::Graphics
     {
     public:
         CommandPool Create();
-        void        Destroy();
 
         // Description
         uint32           familyIndex = 0;

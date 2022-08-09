@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Data/RenderPass.hpp"
 #include "Data/Vector.hpp"
 #include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Math/Vector.hpp"
 #include "Core/Window.hpp"
 #include "Data/Framebuffer.hpp"
@@ -37,6 +38,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     RenderPass RenderPass::Create()
     {
         Vector<VkSubpassDescription>    subpassDescriptions;
@@ -76,6 +78,12 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateRenderPass(Backend::Get()->GetDevice(), &rpInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Pass] -> Could not create Vulkan render pass!");
+
+        VkRenderPass_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+            vkDestroyRenderPass(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        });
+
         return *this;
     }
 
@@ -89,12 +97,6 @@ namespace Lina::Graphics
     {
         attachments.push_back(att);
         return *this;
-    }
-
-    void RenderPass::Destroy()
-    {
-        if (_ptr != nullptr)
-            vkDestroyRenderPass(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
     void RenderPass::Begin(const ClearValue& clr, const Framebuffer& fb, const CommandBuffer& cmd)

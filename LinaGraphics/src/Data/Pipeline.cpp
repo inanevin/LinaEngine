@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Data/Pipeline.hpp"
 #include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Utility/VulkanUtility.hpp"
 #include "Data/RenderPass.hpp"
 #include "Data/CommandBuffer.hpp"
@@ -37,6 +38,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     Pipeline Pipeline::Create()
     {
         VkViewport _viewport = VkViewport{
@@ -81,18 +83,23 @@ namespace Lina::Graphics
 
         Vector<VkPipelineShaderStageCreateInfo> _shaderStages;
 
-        for (auto* shader : _shaders)
-        {
-            VkPipelineShaderStageCreateInfo vtxInfo  = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Vertex, shader->GetModule(ShaderStage::Vertex));
-            VkPipelineShaderStageCreateInfo fragInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Fragment, shader->GetModule(ShaderStage::Fragment));
-            _shaderStages.push_back(vtxInfo);
-            _shaderStages.push_back(fragInfo);
+        Vector<VkShaderModule_T*> addedModules;
+        VkShaderModule_T*         vtxMod  = _shader->GetModule(ShaderStage::Vertex);
+        VkShaderModule_T*         fragMod = _shader->GetModule(ShaderStage::Fragment);
+        addedModules.push_back(vtxMod);
+        addedModules.push_back(fragMod);
 
-            if (shader->HasStage(ShaderStage::Geometry))
-            {
-                VkPipelineShaderStageCreateInfo geoInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Geometry, shader->GetModule(ShaderStage::Geometry));
-                _shaderStages.push_back(geoInfo);
-            }
+        VkPipelineShaderStageCreateInfo vtxInfo  = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Vertex, vtxMod);
+        VkPipelineShaderStageCreateInfo fragInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Fragment, fragMod);
+        _shaderStages.push_back(vtxInfo);
+        _shaderStages.push_back(fragInfo);
+
+        if (_shader->HasStage(ShaderStage::Geometry))
+        {
+            VkShaderModule_T* geoMod = _shader->GetModule(ShaderStage::Geometry);
+            addedModules.push_back(geoMod);
+            VkPipelineShaderStageCreateInfo geoInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Geometry, geoMod);
+            _shaderStages.push_back(geoInfo);
         }
 
         VkGraphicsPipelineCreateInfo pipelineInfo = VkGraphicsPipelineCreateInfo{
@@ -115,12 +122,21 @@ namespace Lina::Graphics
         VkResult res = vkCreateGraphicsPipelines(Backend::Get()->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
 
+        // We don't need the modules anymore
+        for (auto mod : addedModules)
+            vkDestroyShaderModule(Backend::Get()->GetDevice(), mod, Backend::Get()->GetAllocator());
+
+        VkPipeline_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+            vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        });
+
         return *this;
     }
 
-    Pipeline Pipeline::AddShader(Shader* shader)
+    Pipeline Pipeline::SetShader(Shader* shader)
     {
-        _shaders.push_back(shader);
+        _shader = shader;
         return *this;
     }
 
@@ -140,8 +156,4 @@ namespace Lina::Graphics
         vkCmdBindPipeline(cmd._ptr, GetPipelineBindPoint(bindpoint), _ptr);
     }
 
-    void Pipeline::Destroy()
-    {
-        vkDestroyPipeline(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
-    }
 } // namespace Lina::Graphics

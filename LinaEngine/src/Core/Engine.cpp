@@ -303,7 +303,7 @@ namespace Lina
                 updates = 0;
             }
 
-            // LINA_TRACE("FPS : {0}", m_currentFPS);
+            LINA_TRACE("FPS : {0}", m_currentFPS);
 
             if (m_firstRun)
                 m_firstRun = false;

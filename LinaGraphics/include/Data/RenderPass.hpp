@@ -42,7 +42,6 @@ namespace Lina::Graphics
     class Framebuffer;
     class CommandBuffer;
 
- 
     class SubPass
     {
     public:
@@ -60,7 +59,6 @@ namespace Lina::Graphics
         RenderPass Create();
         RenderPass AddSubpass(SubPass sp);
         RenderPass AddAttachment(Attachment att);
-        void       Destroy();
         void       Begin(const ClearValue& clear, const Framebuffer& fb, const CommandBuffer& cmd);
         void       End(const CommandBuffer& cmd);
 

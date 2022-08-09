@@ -37,14 +37,12 @@ struct VkFence_T;
 
 namespace Lina::Graphics
 {
-    // Description of the image we'll be writing into w/ render commands.
     class Fence
     {
     public:
-        Fence Create();
-        void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
-        void Reset();
-        void Destroy();
+        Fence        Create();
+        void         Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
+        void         Reset();
 
         // Description
         FenceFlags flags = FenceFlags::Signaled;

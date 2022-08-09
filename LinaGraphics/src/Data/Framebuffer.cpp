@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Data/Framebuffer.hpp"
 #include "Core/Backend.hpp"
 #include "Data/RenderPass.hpp"
+#include "Core/RenderEngine.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -56,9 +57,10 @@ namespace Lina::Graphics
         _attCount   = static_cast<uint32>(pass.attachments.size());
         return *this;
     }
+
     void Framebuffer::Destroy()
     {
-        if (_ptr != nullptr)
-            vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+        vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
+
 } // namespace Lina::Graphics

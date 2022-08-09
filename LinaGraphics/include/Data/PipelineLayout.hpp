@@ -42,9 +42,6 @@ namespace Lina::Graphics
     {
     public:
         PipelineLayout Create();
-        void           Destroy();
-
-        // Desc
 
         // Runtime
         VkPipelineLayout_T* _ptr = nullptr;

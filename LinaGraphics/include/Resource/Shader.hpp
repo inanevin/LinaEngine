@@ -42,8 +42,8 @@ namespace Lina::Graphics
     class Shader : public Resources::IResource
     {
     public:
-        Shader() = default;
-        virtual ~Shader();
+        Shader()          = default;
+        virtual ~Shader() = default;
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;

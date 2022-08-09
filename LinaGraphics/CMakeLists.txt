@@ -54,6 +54,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Utility/VkBootstrap.cpp
 	src/Utility/SPIRVUtility.cpp
 	src/Utility/VulkanUtility.cpp
+	src/Utility/DeletionQueue.cpp
 )
 
 #--------------------------------------------------------------------
@@ -104,6 +105,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/VkBootstrapDispatch.h
 	include/Utility/SPIRVUtility.hpp
 	include/Utility/VulkanUtility.hpp
+	include/Utility/DeletionQueue.hpp
 
 )
 

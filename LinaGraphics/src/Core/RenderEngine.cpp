@@ -34,15 +34,7 @@ SOFTWARE.
 #include "ECS/Components/MeshComponent.hpp"
 #include "ECS/Components/SpriteComponent.hpp"
 #include "ECS/Components/ParticleComponent.hpp"
-#include "Data/RQueue.hpp"
-#include "Data/CommandBuffer.hpp"
-#include "Data/CommandPool.hpp"
-#include "Data/RenderPass.hpp"
-#include "Data/Framebuffer.hpp"
-#include "Data/Semaphore.hpp"
-#include "Data/Fence.hpp"
-#include "Data/Pipeline.hpp"
-#include "Data/PipelineLayout.hpp"
+
 #include "Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
@@ -57,17 +49,7 @@ namespace Lina::Graphics
     if (!m_initedSuccessfully) \
     return
 
-    RQueue              m_graphicsQueue;
-    CommandPool         m_pool;
-    CommandBuffer       m_commandBuffer;
-    RenderPass          m_renderPass;
-    SubPass             m_subpass;
-    Vector<Framebuffer> m_framebuffers;
-    Fence               m_renderFence;
-    Semaphore           m_renderSemaphore;
-    Semaphore           m_presentSemaphore;
-    Pipeline            m_pipeline;
-    PipelineLayout      m_pipelineLayout;
+    
 
     void RenderEngine::Initialize(ApplicationInfo& appInfo)
     {
@@ -149,7 +131,7 @@ namespace Lina::Graphics
             .polygonMode = PolygonMode::Fill,
             .cullMode    = CullMode::None,
         }
-                         .AddShader(defaultShader)
+                         .SetShader(defaultShader)
                          .SetLayout(m_pipelineLayout)
                          .SetRenderPass(m_renderPass)
                          .Create();
@@ -221,16 +203,18 @@ namespace Lina::Graphics
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
         m_renderFence.Wait();
-        m_renderFence.Destroy();
-        m_renderSemaphore.Destroy();
-        m_presentSemaphore.Destroy();
+        m_mainDeletionQueue.Flush();
 
-        m_pipelineLayout.Destroy();
-        m_pipeline.Destroy();
-
-        m_renderPass.Destroy();
-        m_pool.Destroy();
-
+        // m_renderFence.Destroy();
+        // m_renderSemaphore.Destroy();
+        // m_presentSemaphore.Destroy();
+        //
+        // m_pipelineLayout.Destroy();
+        // m_pipeline.Destroy();
+        //
+        // m_renderPass.Destroy();
+        // m_pool.Destroy();
+        //
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
 

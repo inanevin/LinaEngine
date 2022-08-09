@@ -26,30 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/CommandPool.hpp"
-#include "Core/Backend.hpp"
-#include "Core/RenderEngine.hpp"
-#include <vulkan/vulkan.h>
+#include "Utility/DeletionQueue.hpp"
 
 namespace Lina::Graphics
 {
-    CommandPool CommandPool::Create()
+    void DeletionQueue::Push(std::function<void()>&& f)
     {
-        VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
-            .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .pNext            = nullptr,
-            .flags            = static_cast<unsigned int>(GetCommandPoolCreateFlags(flags)),
-            .queueFamilyIndex = familyIndex,
-        };
+        m_queue.push_back(f);
+    }
 
-        VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
-
-        VkCommandPool_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-            vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        }));
-        return *this;
+    void DeletionQueue::Flush()
+    {
+        for (auto it = m_queue.rbegin(); it != m_queue.rend(); it++)
+            (*it)(); // call the function
+        m_queue.clear();
     }
 
 } // namespace Lina::Graphics
