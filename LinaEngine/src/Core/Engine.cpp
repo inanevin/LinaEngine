@@ -127,9 +127,9 @@ namespace Lina
             }
         }
 
-        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
-        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
-        m_resourceStorage.GetLoader()->LoadResource(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata");
+        m_resourceStorage.Load(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
+        m_resourceStorage.Load(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
+        m_resourceStorage.Load(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata");
         m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
         m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
         m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
@@ -253,18 +253,18 @@ namespace Lina
                 updates++;
             });
 
-       // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
-      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
-       //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
-       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
-       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
-       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
-       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-       //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-       //m_levelManager.SaveCurrentLevel();
-       m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
+        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
+        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
+        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
+        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
+        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
+        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
+        //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+        //  m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        //  m_levelManager.SaveCurrentLevel();
 
         // SetFrameLimit(60);
 

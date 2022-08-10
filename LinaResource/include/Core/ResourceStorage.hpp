@@ -163,11 +163,11 @@ namespace Lina::Resources
 
             if (!Exists<T>(sid))
             {
-                LINA_WARN("Resource you are trying to unload does not exists! {0}", sid);
+                LINA_WARN("Resource you are trying to unload does not exists! {0}", GetPathFromSID(sid));
                 return;
             }
 
-            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", sid);
+            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", GetPathFromSID(sid));
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
@@ -197,11 +197,11 @@ namespace Lina::Resources
 
             if (!Exists(tid, sid))
             {
-                LINA_WARN("Resource you are trying to unload does not exists! {0}", sid);
+                LINA_WARN("Resource you are trying to unload does not exists! {0}", GetPathFromSID(sid));
                 return;
             }
 
-            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", sid);
+            LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", GetPathFromSID(sid));
             Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, tid});
 
             auto* ptr = cache[sid];
@@ -255,6 +255,8 @@ namespace Lina::Resources
         {
             return m_resources[tid];
         }
+
+        String GetPathFromSID(StringIDType sid);
 
         /// <summary>
         /// Returns the type ID of the resource associated with the given extension.

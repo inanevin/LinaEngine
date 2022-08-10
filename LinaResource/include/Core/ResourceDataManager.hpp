@@ -115,6 +115,8 @@ namespace Lina::Resources
             m_resourceData.erase(it);
         }
 
+        void CleanSlate(StringIDType sid);
+
         ResourceDataManager()  = default;
         ~ResourceDataManager() = default;
 

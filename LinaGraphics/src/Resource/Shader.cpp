@@ -114,19 +114,24 @@ namespace Lina::Graphics
         if (!dm->Exists(m_sid))
             SaveAssetData();
 
-        m_assetData.geoShader = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "GeoShader");
-        m_assetData.vtxData   = Resources::ResourceDataManager::Get()->GetValue<Vector<unsigned int>>(m_sid, "VtxData");
-        m_assetData.fragData  = Resources::ResourceDataManager::Get()->GetValue<Vector<unsigned int>>(m_sid, "FragData");
-        m_assetData.geoData   = Resources::ResourceDataManager::Get()->GetValue<Vector<unsigned int>>(m_sid, "GeoData");
+        int sa = 0;
+
+        m_assetData.geoShader = dm->GetValue<bool>(m_sid, "GeoShader");
+        m_assetData.vtxData   = dm->GetValue<Vector<unsigned int>>(m_sid, "VtxData");
+        m_assetData.fragData  = dm->GetValue<Vector<unsigned int>>(m_sid, "FragData");
+        m_assetData.geoData   = dm->GetValue<Vector<unsigned int>>(m_sid, "GeoData");
     }
 
     void Shader::SaveAssetData()
     {
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "GeoShader", false);
-        Resources::ResourceDataManager::Get()->SetValue<Vector<unsigned int>>(m_sid, "VtxData", m_assetData.vtxData);
-        Resources::ResourceDataManager::Get()->SetValue<Vector<unsigned int>>(m_sid, "FragData", m_assetData.fragData);
-        Resources::ResourceDataManager::Get()->SetValue<Vector<unsigned int>>(m_sid, "GeoData", m_assetData.geoData);
-        Resources::ResourceDataManager::Get()->Save();
+        auto* dm = Resources::ResourceDataManager::Get();
+
+        dm->CleanSlate(m_sid);
+        dm->SetValue<bool>(m_sid, "GeoShader", false);
+        dm->SetValue<Vector<unsigned int>>(m_sid, "VtxData", m_assetData.vtxData);
+        dm->SetValue<Vector<unsigned int>>(m_sid, "FragData", m_assetData.fragData);
+        dm->SetValue<Vector<unsigned int>>(m_sid, "GeoData", m_assetData.geoData);
+        dm->Save();
     }
 
     void Shader::UploadedToPipeline()

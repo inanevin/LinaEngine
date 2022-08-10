@@ -89,6 +89,8 @@ namespace Lina::Resources
 
     void ResourceStorage::UnloadAll()
     {
+        LINA_TRACE("[Resource Storage] -> Unloading all.");
+
         for (auto& [tid, cache] : m_resources)
         {
             for (auto& [sid, ptr] : cache)
@@ -157,6 +159,29 @@ namespace Lina::Resources
         }
 
         return tid;
+    }
+
+    String ResourceStorage::GetPathFromSID(StringIDType sid)
+    {
+#ifdef LINA_ENABLE_LOGGING
+
+        for (auto& [tid, cache] : m_resources)
+        {
+            for (auto& [s, ptr] : cache)
+            {
+                if (s == sid)
+                {
+                    IResource* res = static_cast<IResource*>(ptr);
+                    return res->GetPath();
+                }
+            }
+        }
+
+        return "-path-not-found-";
+
+#else
+        return "";
+#endif
     }
 
 } // namespace Lina::Resources

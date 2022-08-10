@@ -293,6 +293,8 @@ namespace Lina::Resources
         // Thus use the table sent by the engine to figure out what to pack.
         PackageFileset(levelResources, workingPath + "levels" + RESOURCEPACKAGE_EXTENSION, pass);
 
+        HashMap<PackageType, Vector<String>> resourcesPerPackageType;
+
         // Now for all resource types that are marked as non-static, package them into their respective packages.
         // We do not use the storage to get the resources here, we merely use it to check the type data, which is guaranteed to be registered.
         // We package the files based on the resource table sent by the engine here.
@@ -302,15 +304,22 @@ namespace Lina::Resources
 
             if (typeData.packageType != PackageType::Static && typeData.packageType != PackageType::Level)
             {
-                filesToPack.clear();
-
                 // Find the full paths & add them based on sids.
                 for (auto fullpath : vector)
-                    filesToPack.push_back(fullpath);
+                    resourcesPerPackageType[typeData.packageType].push_back(fullpath);
 
-                PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(typeData.packageType) + RESOURCEPACKAGE_EXTENSION, pass);
             }
         }
+
+        for (auto pt : resourcesPerPackageType)
+        {
+            filesToPack.clear();
+            for(auto str : pt.second)
+                filesToPack.push_back(str);
+
+            PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(pt.first) + RESOURCEPACKAGE_EXTENSION, pass);
+        }
+
     }
 
     void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)

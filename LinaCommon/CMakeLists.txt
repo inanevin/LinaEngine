@@ -160,13 +160,14 @@ set(LINACOMMON_HEADERS
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
 	include/Utility/FileWatcher.hpp
+
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
-add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
+add_library(Lina::Common ALIAS ${PROJECT_NAME} ) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaCommon")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 

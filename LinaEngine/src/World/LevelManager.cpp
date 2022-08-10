@@ -124,6 +124,7 @@ namespace Lina::World
     void LevelManager::CreateLevel(const String& path)
     {
         Level lvl;
+        lvl.SaveToFile(path);
         lvl.SetSID(path);
     }
 

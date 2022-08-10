@@ -62,12 +62,12 @@ namespace Lina::Graphics
         // m_vertices[0].pos = {1.f, 1.f, 0.0f};
         // m_vertices[1].pos = {-1.f, 1.f, 0.0f};
         // m_vertices[2].pos = {0.f, -1.f, 0.0f};
-        // 
+        //
         // // vertex colors, all green
         // m_vertices[0].color = {0.f, 1.f, 0.0f}; // pure green
         // m_vertices[1].color = {0.f, 1.f, 0.0f}; // pure green
         // m_vertices[2].color = {0.f, 1.f, 0.0f}; // pure green
-        // 
+        //
         // AllocateBuffers(this);
 
         return static_cast<void*>(this);
@@ -79,22 +79,24 @@ namespace Lina::Graphics
         if (!dm->Exists(m_sid))
             SaveAssetData();
 
-        m_assetData.calculateTangent = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "CalcTang");
-        m_assetData.smoothNormals    = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "SmoothNorm");
-        m_assetData.flipUVs          = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "flipUV");
-        m_assetData.flipWinding      = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "flipWinding");
-        m_assetData.triangulate      = Resources::ResourceDataManager::Get()->GetValue<bool>(m_sid, "tri");
-        m_assetData.globalScale      = Resources::ResourceDataManager::Get()->GetValue<float>(m_sid, "scale");
+        m_assetData.calculateTangent = dm->GetValue<bool>(m_sid, "CalcTang");
+        m_assetData.smoothNormals    = dm->GetValue<bool>(m_sid, "SmoothNorm");
+        m_assetData.flipUVs          = dm->GetValue<bool>(m_sid, "flipUV");
+        m_assetData.flipWinding      = dm->GetValue<bool>(m_sid, "flipWinding");
+        m_assetData.triangulate      = dm->GetValue<bool>(m_sid, "tri");
+        m_assetData.globalScale      = dm->GetValue<float>(m_sid, "scale");
     }
 
     void Model::SaveAssetData()
     {
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "CalcTang", m_assetData.calculateTangent);
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "SmoothNorm", m_assetData.smoothNormals);
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "flipUV", m_assetData.flipUVs);
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "flipWinding", m_assetData.flipWinding);
-        Resources::ResourceDataManager::Get()->SetValue<bool>(m_sid, "tri", m_assetData.triangulate);
-        Resources::ResourceDataManager::Get()->SetValue<float>(m_sid, "scale", m_assetData.globalScale);
-        Resources::ResourceDataManager::Get()->Save();
+        auto dm = Resources::ResourceDataManager::Get();
+        dm->CleanSlate(m_sid);
+        dm->SetValue<bool>(m_sid, "CalcTang", m_assetData.calculateTangent);
+        dm->SetValue<bool>(m_sid, "SmoothNorm", m_assetData.smoothNormals);
+        dm->SetValue<bool>(m_sid, "flipUV", m_assetData.flipUVs);
+        dm->SetValue<bool>(m_sid, "flipWinding", m_assetData.flipWinding);
+        dm->SetValue<bool>(m_sid, "tri", m_assetData.triangulate);
+        dm->SetValue<float>(m_sid, "scale", m_assetData.globalScale);
+        dm->Save();
     }
 } // namespace Lina::Graphics

@@ -110,8 +110,10 @@ namespace Lina::Audio
 
     void Audio::SaveAssetData()
     {
-        Resources::ResourceDataManager::Get()->SetValue<int>(m_sid, "Dummy", 0);
-        Resources::ResourceDataManager::Get()->Save();
+        auto* dm = Resources::ResourceDataManager::Get();
+        dm->CleanSlate(m_sid);
+        dm->SetValue<int>(m_sid, "Dummy", 0);
+        dm->Save();
     }
 
     void Audio::CheckForError()
