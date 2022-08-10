@@ -38,7 +38,7 @@ namespace Lina::Graphics
     void DeletionQueue::Flush()
     {
         for (auto it = m_queue.rbegin(); it != m_queue.rend(); it++)
-            (*it)(); // call the function
+            (*it)();
         m_queue.clear();
     }
 

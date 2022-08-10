@@ -41,6 +41,6 @@ SOFTWARE.
 extern bool g_skipAllocTrack;
 #endif
 
-
+#define MEMCPY(...) memcpy(__VA_ARGS__)
 
 #endif

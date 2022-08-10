@@ -41,6 +41,11 @@ set (LINAGRAPHICS_SOURCES
 
 	# Resource
 	src/Resource/Shader.cpp
+	src/Resource/Mesh.cpp
+	src/Resource/Model.cpp
+	src/Resource/ModelNode.cpp
+	src/Resource/SkinnedMesh.cpp
+	src/Resource/StaticMesh.cpp
 
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
@@ -51,10 +56,11 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/ParticleSystem.cpp
 
 	# Utility
-	src/Utility/VkBootstrap.cpp
-	src/Utility/SPIRVUtility.cpp
-	src/Utility/VulkanUtility.cpp
+	src/Utility/Vulkan/VkBootstrap.cpp
+	src/Utility/Vulkan/SPIRVUtility.cpp
+	src/Utility/Vulkan/VulkanUtility.cpp
 	src/Utility/DeletionQueue.cpp
+	src/Utility/ModelLoader.cpp
 )
 
 #--------------------------------------------------------------------
@@ -83,6 +89,11 @@ set(LINAGRAPHICS_HEADERS
 
 	# Resource
 	include/Resource/Shader.hpp
+	include/Resource/Mesh.hpp
+	include/Resource/Model.hpp
+	include/Resource/ModelNode.hpp
+	include/Resource/SkinnedMesh.hpp
+	include/Resource/StaticMesh.hpp
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp
@@ -101,12 +112,13 @@ set(LINAGRAPHICS_HEADERS
 	# Utility
 	include/Utility/stb/stb_image.h
 	include/Utility/stb/stb_image_write.h
-	include/Utility/VkBootstrap.h
-	include/Utility/VkBootstrapDispatch.h
-	include/Utility/SPIRVUtility.hpp
-	include/Utility/VulkanUtility.hpp
+	include/Utility/Vulkan/VkBootstrap.h
+	include/Utility/Vulkan/VkBootstrapDispatch.h
+	include/Utility/Vulkan/SPIRVUtility.hpp
+	include/Utility/Vulkan/VulkanUtility.hpp
+	include/Utility/Vulkan/vk_mem_alloc.h
 	include/Utility/DeletionQueue.hpp
-
+	include/Utility/ModelLoader.hpp
 )
 
 

@@ -41,16 +41,16 @@ namespace Lina::Resources
 
     void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path)
     {
+        if (ResourceStorage::Get()->Exists(tid, StringID(path.c_str()).value()))
+            return;
+
         const ResourceTypeData& typeData = ResourceStorage::Get()->GetTypeData(tid);
 
-        if (typeData.packageType == PackageType::Level)
-        {
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
-            HashSet<StringIDType> set;
-            set.insert(StringID(path.c_str()).value());
-            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.packagePass, this);
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
-        }
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
+        HashSet<StringIDType> set;
+        set.insert(StringID(path.c_str()).value());
+        m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.packagePass, this);
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
     void StandaloneResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
@@ -80,7 +80,7 @@ namespace Lina::Resources
         for (auto& pair : toLoad)
             totalCount += static_cast<int>(pair.second.size());
 
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Loading Level Resources", .totalFiles = totalCount });
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount});
 
         // Finally, load all designated resources by type id.
         for (const auto& pair : toLoad)

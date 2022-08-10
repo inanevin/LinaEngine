@@ -37,13 +37,24 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Data/String.hpp"
 #include "Data/Mutex.hpp"
-
-#include <cereal/archives/portable_binary.hpp>
 #include <functional>
 #include <fstream>
 
+// #define USE_JSON
+
+#ifdef USE_JSON
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/xml.hpp>
+#else
+#include <cereal/archives/portable_binary.hpp>
+#endif
+
+#include <cereal/archives/json.hpp>
+#include "Data/String.hpp"
+#include "Data/Serialization/StringSerialization.hpp"
 namespace Lina::Resources
 {
+
     class ResourceStorage;
 
     template <typename T>
@@ -51,9 +62,14 @@ namespace Lina::Resources
     {
         T obj;
 
-        std::ifstream stream(path.c_str(), std::ios::binary);
+        std::ifstream stream(path.c_str());
         {
+#ifdef USE_JSON
+            cereal::XMLInputArchive iarchive(stream);
+            // cereal::JSONInputArchive iarchive(stream);
+#else
             cereal::PortableBinaryInputArchive iarchive(stream);
+#endif
             iarchive(obj);
         }
 
@@ -67,9 +83,14 @@ namespace Lina::Resources
         T obj;
         {
             std::string        dataStr((char*)data, dataSize);
-            std::istringstream stream(dataStr, std::ios::binary);
+            std::istringstream stream(dataStr);
             {
+#ifdef USE_JSON
+                cereal::XMLInputArchive iarchive(stream);
+                // cereal::JSONInputArchive iarchive(stream);
+#else
                 cereal::PortableBinaryInputArchive iarchive(stream);
+#endif
                 iarchive(obj);
             }
             stream.clear();
@@ -77,15 +98,40 @@ namespace Lina::Resources
         return obj;
     }
 
+    struct Test
+    {
+        std::string s  = "";
+        int         dm = 0;
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(dm, s);
+        }
+    };
+
     template <typename T>
     void SaveArchiveToFile(const String& path, T& obj)
     {
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        std::ofstream stream(path.c_str(), std::ios::binary);
+        Test          t;
+        std::ofstream stream2("Resources/Test.data");
         {
+            cereal::JSONOutputArchive oarchive2(stream2);
+            oarchive2(t);
+        }
+
+        stream2.close();
+
+        std::ofstream stream(path.c_str());
+        {
+#ifdef USE_JSON
+            cereal::XMLOutputArchive oarchive(stream);
+            // cereal::JSONOutputArchive oarchive(stream);
+#else
             cereal::PortableBinaryOutputArchive oarchive(stream);
+#endif
             oarchive(obj);
         }
 

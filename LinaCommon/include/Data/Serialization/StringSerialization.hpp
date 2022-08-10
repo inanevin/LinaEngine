@@ -34,6 +34,7 @@ SOFTWARE.
 #define DataStructuresStringSerialization_HPP
 
 #include <EASTL/string.h>
+#include <cereal/types/string.hpp>
 
 namespace cereal
 {

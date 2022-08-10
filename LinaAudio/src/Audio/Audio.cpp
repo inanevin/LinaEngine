@@ -35,7 +35,6 @@ SOFTWARE.
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alut.h>
-#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Audio

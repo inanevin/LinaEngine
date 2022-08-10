@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Resource/ModelNode.hpp"
 
-#pragma once
-
-#ifndef CommonECS_HPP
-#define CommonECS_HPP
-
-// Headers here.
-#define ENTT_USE_ATOMIC
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-#define ECSNULL entt::null
+    ModelNode::~ModelNode()
+    {
+        for (auto m : m_meshes)
+            delete m;
 
-    typedef entt::entity Entity;
+        for (auto c : m_children)
+            delete c;
 
-} // namespace Lina::ECS
-
-#endif
+        m_children.clear();
+    }
+} // namespace Lina::Graphics

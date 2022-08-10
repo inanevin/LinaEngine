@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,43 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef PoolAllocator_HPP
-#define PoolAllocator_HPP
+#ifndef ModelNode_HPP
+#define ModelNode_HPP
 
-// Headers here.
-#include "MemoryAllocator.hpp"
-#include "StackLinkedList.hpp"
+#include "Math/AABB.hpp"
+#include "Math/Matrix.hpp"
+#include "Data/Vector.hpp"
+#include "Data/String.hpp"
 
-namespace Lina
+namespace Lina::Graphics
 {
-    class PoolAllocator : public MemoryAllocator
+    class Mesh;
+
+    class ModelNode
     {
-
     public:
-        PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
-        virtual ~PoolAllocator();
 
-        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void  Free(void* ptr) override;
-        virtual void  Init() override;
-        virtual void  Reset();
+        ModelNode() = default;
+        ~ModelNode();
 
-    private:
-        PoolAllocator(PoolAllocator& poolAllocator);
-
-    private:
-        struct FreeHeader
+        inline void ClearData()
         {
-        };
-        using Node = StackLinkedList<FreeHeader>::Node;
-        StackLinkedList<FreeHeader> m_freeList;
+            m_name              = "";
+            m_localTransform    = Matrix();
+            m_totalVertexCenter = Vector3::Zero;
+            m_aabb              = AABB();
+            m_children.clear();
+            m_meshes.clear();
+        }
 
-        void*       m_start_ptr = nullptr;
-        std::size_t m_chunkSize;
+    private:
+        friend class ModelLoader;
+
+        AABB               m_aabb;
+        Matrix             m_localTransform;
+        Vector3            m_totalVertexCenter = Vector3::Zero;
+        String             m_name              = "";
+        Vector<ModelNode*> m_children;
+        Vector<Mesh*>      m_meshes;
     };
-} // namespace Lina
+} // namespace Lina::Graphics
 
 #endif

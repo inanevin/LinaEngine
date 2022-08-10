@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,40 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Resource/Mesh.hpp"
 
-#pragma once
-
-#ifndef FrameAllocator_HPP
-#define FrameAllocator_HPP
-
-// Headers here.
-#include "MemoryAllocator.hpp"
-
-namespace Lina
+namespace Lina::Graphics
 {
-    class FrameAllocator : public MemoryAllocator
-    {
-
-    public:
-
-        FrameAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize)
-        {
-           
-        }
-        virtual ~FrameAllocator();
-
-        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void  Free(void* ptr) override;
-        virtual void  Init() override;
-        virtual void  Reset();
-
-    protected:
-        void*       m_start_ptr = nullptr;
-        std::size_t m_offset    = 0;
-
-    private:
-        FrameAllocator(FrameAllocator& linearAllocator);
-    };
-} // namespace Lina
-
-#endif
+    
+} // namespace Lina::Graphics

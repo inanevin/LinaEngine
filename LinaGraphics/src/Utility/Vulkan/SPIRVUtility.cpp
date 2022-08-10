@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/SPIRVUtility.hpp"
+#include "Utility/Vulkan/SPIRVUtility.hpp"
 #include "Data/DataCommon.hpp"
 
 namespace Lina::Graphics

@@ -39,6 +39,9 @@ namespace Lina::Resources
 {
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
+        if (ResourceStorage::Get()->Exists(tid, StringID(path.c_str()).value()))
+            return;
+
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Loading File", .totalFiles = 1 });
         LoadSingleResourceFromFile(tid, path);
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{ .currentResource = path });

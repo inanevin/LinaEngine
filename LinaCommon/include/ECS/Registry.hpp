@@ -36,9 +36,9 @@ SOFTWARE.
 #include "Core/CommonECS.hpp"
 #include "Data/Map.hpp"
 #include <cereal/access.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <entt/config/config.h>
 #include <entt/entity/snapshot.hpp>
-
 namespace Lina
 {
     namespace World

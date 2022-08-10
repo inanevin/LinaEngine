@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef CommonECS_HPP
-#define CommonECS_HPP
+#ifndef ModelLoader_HPP
+#define ModelLoader_HPP
 
-// Headers here.
-#define ENTT_USE_ATOMIC
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-namespace Lina::ECS
+#include "Data/String.hpp"
+
+struct aiMesh;
+struct aiNode;
+struct aiScene;
+
+namespace Lina::Graphics
 {
-#define ECSNULL entt::null
+    class Model;
+    class Mesh;
+    class ModelNode;
 
-    typedef entt::entity Entity;
+    class ModelLoader
+    {
+    public:
+        static bool LoadModel(unsigned char* data, size_t dataSize, Model* model);
+        static bool LoadModel(const String& fileName, Model* model);
 
-} // namespace Lina::ECS
+    private:
+        static void   FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh);
+        static void   FillNodeHierarchy(const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* linanode);
+        static bool   LoadModelProcess(const aiScene* scene, Model* model);
+        static uint32 GetImportFlags(Model* model);
+    };
+} // namespace Lina::Graphics
 
 #endif

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Data/Swapchain.hpp"
-#include "Utility/VkBootstrap.h"
+#include "Utility/Vulkan/VkBootstrap.h"
 #include "Core/Backend.hpp"
 #include "Data/Semaphore.hpp"
 #include "Data/Fence.hpp"

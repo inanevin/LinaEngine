@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,47 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Resource/Mesh.hpp"
 
-#pragma once
-
-#ifndef StackLinkedList_HPP
-#define StackLinkedList_HPP
-
-// Headers here.
-
-namespace Lina
+namespace Lina::Graphics
 {
-    template <class T> class StackLinkedList
-    {
-    public:
-        struct Node
-        {
-            T     data;
-            Node* next = nullptr;
-        };
-
-        Node* head = nullptr;
-
-        StackLinkedList()                                 = default;
-        StackLinkedList(StackLinkedList& stackLinkedList) = delete;
-        void  push(Node* newNode);
-        Node* pop();
-    };
-
-#include "SinglyLinkedList.hpp"
-
-    template <class T> void StackLinkedList<T>::push(Node* newNode)
-    {
-        newNode->next = head;
-        head          = newNode;
-    }
-
-    template <class T> typename StackLinkedList<T>::Node* StackLinkedList<T>::pop()
-    {
-        Node* top = head;
-        head      = head->next;
-        return top;
-    }
-} // namespace Lina
-
-#endif
+    
+} // namespace Lina::Graphics

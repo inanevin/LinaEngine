@@ -28,65 +28,56 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Shader_HPP
-#define Shader_HPP
+#ifndef Model_HPP
+#define Model_HPP
 
 #include "Core/IResource.hpp"
-#include "Data/String.hpp"
 #include "Data/Vector.hpp"
-
-struct VkShaderModule_T;
+#include "Math/Vertex.hpp"
+#include "Data/String.hpp"
 
 namespace Lina::Graphics
 {
-    class Shader : public Resources::IResource
+    class ModelNode;
+
+    class Model : public Resources::IResource
     {
     public:
-        Shader()          = default;
-        virtual ~Shader();
+        struct AssetData
+        {
+            bool  calculateTangent = false;
+            bool  flipUVs          = false;
+            bool  triangulate      = true;
+            bool  smoothNormals    = false;
+            bool  flipWinding      = false;
+            float globalScale      = 1.0f;
+        };
+
+        Model()          = default;
+        virtual ~Model();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
         virtual void  LoadAssetData() override;
         virtual void  SaveAssetData() override;
 
-        void UploadedToPipeline();
-
-        bool              HasStage(ShaderStage stage);
-        VkShaderModule_T* GetModule(ShaderStage stage);
-
-        /// <summary>
-        /// Returns a shader block from a full linashader text.
-        /// </summary>
-        /// <param name="shader">Full text.</param>
-        /// <param name="defineStart">Define string, e.g. #LINA_VS or #LINA_FRAG </param>
-        /// <returns></returns>
-        static String GetShaderStageText(const String& shader, const String& defineStart);
-
-    private:
-        void GenerateByteCode();
-        bool CreateShaderModules();
-
-    private:
-        struct AssetData
+        inline AssetData& GetAssetData()
         {
-            bool                 geoShader = false;
-            Vector<unsigned int> vtxData;
-            Vector<unsigned int> fragData;
-            Vector<unsigned int> geoData;
-        };
+            return m_assetData;
+        }
 
     private:
+        friend class ModelLoader;
+
         AssetData m_assetData;
-        String    m_text       = "";
-        String    m_vertexText = "";
-        String    m_fragText   = "";
-        String    m_geoText    = "";
 
-    private:
-        VkShaderModule_T* _ptrVtx  = nullptr;
-        VkShaderModule_T* _ptrFrag = nullptr;
-        VkShaderModule_T* _ptrGeo  = nullptr;
+        // Runtime
+        int             m_numMaterials = 0;
+        int             m_numMeshes    = 0;
+        int             m_numAnims     = 0;
+        int             m_numVertices  = 0;
+        int             m_numBones     = 0;
+        ModelNode*      m_rootNode     = nullptr;
     };
 
 } // namespace Lina::Graphics

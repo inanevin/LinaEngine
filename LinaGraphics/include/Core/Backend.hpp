@@ -42,6 +42,7 @@ struct VkAllocationCallbacks;
 struct VkDevice_T;
 struct VkDebugUtilsMessengerEXT_T;
 struct VkInstance_T;
+struct VmaAllocator_T;
 
 namespace Lina
 {
@@ -93,6 +94,11 @@ namespace Lina::Graphics
             return m_swapchain;
         }
 
+        inline VmaAllocator_T* GetVMA()
+        {
+            return m_vmaAllocator;
+        }
+
     private:
         friend class RenderEngine;
 
@@ -115,6 +121,7 @@ namespace Lina::Graphics
         VkDevice_T*                 m_device         = nullptr;
         VkPhysicalDevice_T*         m_gpu            = nullptr;
         VkSurfaceKHR_T*             m_surface        = nullptr;
+        VmaAllocator_T*             m_vmaAllocator   = nullptr;
         Swapchain                   m_swapchain;
         Vector<QueueFamily>         m_queueFamilies;
     };

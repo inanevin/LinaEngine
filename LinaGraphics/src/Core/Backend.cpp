@@ -28,15 +28,18 @@ SOFTWARE.
 
 #include "Core/Backend.hpp"
 #include "Log/Log.hpp"
-#include "Utility/VkBootstrap.h"
+#include "Utility/Vulkan/VkBootstrap.h"
+#include "Utility/Vulkan/SPIRVUtility.hpp"
 #include "Core/Window.hpp"
 #include "Profiling/Profiler.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Utility/SPIRVUtility.hpp"
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
+
+#define VMA_IMPLEMENTATION
+#include "Utility/Vulkan/vk_mem_alloc.h"
 
 namespace Lina::Graphics
 {
@@ -198,6 +201,13 @@ namespace Lina::Graphics
         }
 
         SPIRVUtility::Initialize();
+
+        VmaAllocatorCreateInfo allocatorInfo = {};
+        allocatorInfo.physicalDevice         = m_gpu;
+        allocatorInfo.device                 = m_device;
+        allocatorInfo.instance               = m_vkInstance;
+        vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator);
+
         return true;
     }
 
@@ -240,6 +250,7 @@ namespace Lina::Graphics
 
         SPIRVUtility::Shutdown();
 
+        vmaDestroyAllocator(m_vmaAllocator);
         m_swapchain.Destroy();
         vkDestroyDevice(m_device, m_allocator);
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);

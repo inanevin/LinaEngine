@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Data/Pipeline.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
-#include "Utility/VulkanUtility.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Data/RenderPass.hpp"
 #include "Data/CommandBuffer.hpp"
 #include "Data/PipelineLayout.hpp"
@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-
     Pipeline Pipeline::Create()
     {
         VkViewport _viewport = VkViewport{
@@ -123,8 +122,7 @@ namespace Lina::Graphics
         LINA_ASSERT(res == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
 
         // We don't need the modules anymore
-        for (auto mod : addedModules)
-            vkDestroyShaderModule(Backend::Get()->GetDevice(), mod, Backend::Get()->GetAllocator());
+        _shader->UploadedToPipeline();
 
         VkPipeline_T* ptr = _ptr;
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {

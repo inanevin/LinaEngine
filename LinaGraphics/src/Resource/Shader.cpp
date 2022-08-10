@@ -29,9 +29,10 @@ SOFTWARE.
 #include "Resource/Shader.hpp"
 #include "Core/ResourceDataManager.hpp"
 #include "Core/Backend.hpp"
-#include "Utility/SPIRVUtility.hpp"
+#include "Utility/Vulkan/SPIRVUtility.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Core/ResourceStorage.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -40,6 +41,15 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    Shader::~Shader()
+    {
+        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrVtx, Backend::Get()->GetAllocator());
+        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrFrag, Backend::Get()->GetAllocator());
+
+        if (m_assetData.geoShader)
+            vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrGeo, Backend::Get()->GetAllocator());
+    }
+
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         IResource::SetSID(path);
@@ -119,6 +129,12 @@ namespace Lina::Graphics
         Resources::ResourceDataManager::Get()->Save();
     }
 
+    void Shader::UploadedToPipeline()
+    {
+        // We're not needed anymore.
+        // Resources::ResourceStorage::Get()->Unload<Shader>(m_sid);
+    }
+
     bool Shader::HasStage(ShaderStage stage)
     {
         switch (stage)
@@ -176,7 +192,8 @@ namespace Lina::Graphics
 
     void Shader::GenerateByteCode()
     {
-        if(!RenderEngine::Get()->IsInitialized()) return;
+        if (!RenderEngine::Get()->IsInitialized())
+            return;
 
         m_assetData.vtxData.clear();
         m_assetData.fragData.clear();
@@ -196,7 +213,7 @@ namespace Lina::Graphics
 
     bool Shader::CreateShaderModules()
     {
-        if (!RenderEngine::Get()->IsInitialized()) 
+        if (!RenderEngine::Get()->IsInitialized())
         {
             LINA_ERR("[Shader] -> Could not create shader, render engine is not initialized!");
             return false;

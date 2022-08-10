@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Core/ResourceCommon.hpp"
 #include "Log/Log.hpp"
 #include "Core/ResourceStorage.hpp"
-#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Physics

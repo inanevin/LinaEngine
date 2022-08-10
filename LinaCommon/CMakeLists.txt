@@ -45,10 +45,6 @@ set (LINACOMMON_SOURCES
 	src/Math/Plane.cpp
 	
 	# Memory
-	src/Memory/StackAllocator.cpp
-	src/Memory/FrameAllocator.cpp
-	src/Memory/PoolAllocator.cpp
-	src/Memory/FreeListAllocator.cpp
 	src/Memory/Memory.cpp
 
 	# Profiling
@@ -92,17 +88,6 @@ set(LINACOMMON_HEADERS
 	# Profiler
 	include/Profiling/Profiler.hpp
 	
-	# Memory
-	include/Memory/MemoryAllocator.hpp
-	include/Memory/StackAllocator.hpp
-	include/Memory/MemoryUtility.hpp
-	include/Memory/FrameAllocator.hpp
-	include/Memory/PoolAllocator.hpp
-	include/Memory/StackLinkedList.hpp
-	include/Memory/SinglyLinkedList.hpp
-	include/Memory/FreeListAllocator.hpp	
-	include/Memory/Memory.hpp
-	
 	# Events
 	include/EventSystem/EventCommon.hpp
 	include/EventSystem/PhysicsEvents.hpp
@@ -143,6 +128,9 @@ set(LINACOMMON_HEADERS
 	include/Data/Serialization/HashMapSerialization.hpp
 	include/Data/Serialization/MapSerialization.hpp
 
+	# Memory
+	include/Memory/Memory.hpp
+	
 	# Log
 	include/Log/Log.hpp
 	
@@ -157,6 +145,7 @@ set(LINACOMMON_HEADERS
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
 	include/Math/Rect.hpp
+	include/Math/Vertex.hpp
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
@@ -183,14 +172,17 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 
 target_precompile_headers(${PROJECT_NAME}
   PUBLIC
-	include/Memory/MemoryAllocator.hpp
-	include/Memory/StackAllocator.hpp
-	include/Memory/MemoryUtility.hpp
-	include/Memory/FrameAllocator.hpp
-	include/Memory/PoolAllocator.hpp
-	include/Memory/StackLinkedList.hpp
-	include/Memory/SinglyLinkedList.hpp
-	include/Memory/FreeListAllocator.hpp	
+  	include/Math/Color.hpp
+	include/Math/Math.hpp
+	include/Math/Matrix.hpp
+	include/Math/Quaternion.hpp
+	include/Math/Transformation.hpp
+	include/Math/Vector.hpp
+	include/Math/Rect.hpp
+	include/Math/Vertex.hpp
+	include/Math/AABB.hpp
+	include/Math/Frustum.hpp
+	include/Math/Plane.hpp
 	include/Memory/Memory.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp

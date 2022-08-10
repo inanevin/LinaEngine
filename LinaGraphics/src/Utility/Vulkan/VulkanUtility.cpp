@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/VulkanUtility.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "Data/Attachment.hpp"
 

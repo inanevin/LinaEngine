@@ -14,7 +14,7 @@
  * Copyright © 2020 Charles Giessen (charles@lunarg.com)
  */
 
-#include "Utility/VkBootstrap.h"
+#include "Utility/Vulkan/VkBootstrap.h"
 
 #include <cstring>
 

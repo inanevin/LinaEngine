@@ -51,6 +51,9 @@ enum VkPrimitiveTopology;
 enum VkPolygonMode;
 enum VkCullModeFlagBits;
 
+struct VmaAllocation_T;
+struct VkBuffer_T;
+
 namespace Lina::Graphics
 {
     enum class Format
@@ -227,6 +230,12 @@ namespace Lina::Graphics
         float height   = 0.0f;
         float minDepth = 0.0f;
         float maxDepth = 0.0f;
+    };
+
+    struct AllocatedBuffer
+    {
+        VkBuffer_T*      buffer     = nullptr;
+        VmaAllocation_T* allocation = nullptr;
     };
 
 } // namespace Lina::Graphics

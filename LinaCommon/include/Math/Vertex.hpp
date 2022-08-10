@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,43 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef StackAllocator_HPP
-#define StackAllocator_HPP
+#ifndef Vertex_HPP
+#define Vertex_HPP
 
-// Headers here.
-#include "MemoryAllocator.hpp"
+#include "Vector.hpp"
+#include "Color.hpp"
 
 namespace Lina
 {
-    class StackAllocator : public MemoryAllocator
+    class Vertex
     {
-
     public:
-        StackAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize)
-        {
-        }
-        virtual ~StackAllocator();
 
-        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-        virtual void  Free(void* ptr);
-        virtual void  Init() override;
-        virtual void  Reset();
-
-    protected:
-        void*       m_start_ptr = nullptr;
-        std::size_t m_offset    = 0;
-
-    private:
-        StackAllocator(StackAllocator& stackAllocator);
-
-        struct AllocationHeader
-        {
-            char padding;
-        };
+        Vector3 pos;
+        Vector3 normal;
+        Color   color;
     };
+
 } // namespace Lina
 
 #endif

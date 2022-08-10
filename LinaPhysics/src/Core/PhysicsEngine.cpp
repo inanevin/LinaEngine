@@ -41,7 +41,6 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Physics/Raycast.hpp"
 #include <PxPhysicsAPI.h>
-#include <cereal/archives/portable_binary.hpp>
 #include <fstream>
 
 namespace Lina::Physics

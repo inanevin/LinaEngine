@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Core/Window.hpp"
 #include "Data/Framebuffer.hpp"
 #include "Data/CommandBuffer.hpp"
-#include "Utility/VulkanUtility.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 
 namespace Lina::Graphics
 {

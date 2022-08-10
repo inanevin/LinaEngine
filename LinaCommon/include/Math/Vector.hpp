@@ -33,6 +33,8 @@ SOFTWARE.
 #ifndef Vector_HPP
 #define Vector_HPP
 
+#include "Data/String.hpp"
+
 #include "glm/glm.hpp"
 #include "glm/gtx/norm.hpp"
 #include "glm/vec2.hpp"
@@ -496,6 +498,21 @@ namespace Lina
         return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z);
     }
 
+    class Vector3ui : public glm::uvec3
+    {
+
+    public:
+        Vector3ui() = default;
+        Vector3ui(uint32 x, uint32 y, uint32 z)
+            : glm::uvec3(x, y, z) {};
+        Vector3ui(const Vector3ui& rhs)
+            : glm::uvec3(rhs) {};
+        Vector3ui(const Vector2ui& rhs)
+            : glm::uvec3(rhs.x, rhs.y, 0.0f) {};
+        Vector3ui(const glm::uvec3& rhs)
+            : glm::uvec3(rhs.x, rhs.y, rhs.z) {};
+
+    };
 
     class Vector4 : public glm::vec4
     {

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,22 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef CommonECS_HPP
-#define CommonECS_HPP
+#ifndef SkinnedMesh_HPP
+#define SkinnedMesh_HPP
 
-// Headers here.
-#define ENTT_USE_ATOMIC
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-namespace Lina::ECS
+#include "Mesh.hpp"
+
+namespace Lina::Graphics
 {
-#define ECSNULL entt::null
+    class SkinnedMesh : public Mesh
+    {
+    public:
+        SkinnedMesh()         = default;
+        virtual ~SkinnedMesh() = default;
+    };
 
-    typedef entt::entity Entity;
-
-} // namespace Lina::ECS
+} // namespace Lina::Graphics
 
 #endif

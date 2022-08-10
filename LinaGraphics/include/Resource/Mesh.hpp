@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,40 +26,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef MemoryAllocator_HPP
-#define MemoryAllocator_HPP
+#ifndef Mesh_HPP
+#define Mesh_HPP
 
-// Headers here.
-#define NOMINMAX
+#include "Data/String.hpp"
+#include "Data/Vector.hpp"
+#include "Math/Vertex.hpp"
+#include "Math/AABB.hpp"
+#include "Core/GraphicsCommon.hpp"
 
-#include <cstddef>
-
-namespace Lina
+namespace Lina::Graphics
 {
-    class MemoryAllocator
+    class Mesh
     {
-
     public:
-        MemoryAllocator(const std::size_t totalSize) : m_totalSize{totalSize}, m_used{0}, m_peak{0}
-        {
-        }
-        virtual ~MemoryAllocator()
-        {
-            m_totalSize = 0;
-        }
-
-        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) = 0;
-        virtual void  Free(void* ptr)                                                   = 0;
-        virtual void  Init()                                                            = 0;
+        Mesh() = default;
+        virtual ~Mesh();
 
     protected:
-        std::size_t m_totalSize = 0;
-        std::size_t m_used      = 0;
-        std::size_t m_peak      = 0;
+    private:
+        void AddVertex(const Vector3& pos, const Vector3& normal);
+        void AddIndices(uint32 i1, uint32 i2, uint32 i3);
+        void GenerateBuffers();
+
+    private:
+    protected:
+        friend class ModelLoader;
+
+        AllocatedBuffer   m_gpuVtxBuffer;
+        Vector<Vector3ui> m_indices;
+        Vector<Vertex>    m_vertices;
+        Vector3           m_vertexCenter = Vector3::Zero;
+        AABB              m_aabb;
+        int               m_materialSlot = 0;
+        String            m_name         = "";
     };
-} // namespace Lina
+
+} // namespace Lina::Graphics
 
 #endif

@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/ResourceDataManager.hpp"
 #include "Resource/Shader.hpp"
+#include "Resource/Model.hpp"
 
 namespace Lina
 {
@@ -218,6 +219,7 @@ namespace Lina
     void Engine::Run()
     {
         m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
+
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
 
         m_deltaTimeArray.fill(-1.0);
@@ -251,17 +253,18 @@ namespace Lina
                 updates++;
             });
 
-        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
-        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
-        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
-        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
-        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
-        //  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-        // m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        //   m_levelManager.SaveCurrentLevel();
-        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+       // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
+      // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
+       //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
+       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
+       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
+       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
+       ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
+       //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
+       //m_levelManager.SaveCurrentLevel();
+       m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
 
         // SetFrameLimit(60);
 
@@ -481,6 +484,18 @@ namespace Lina
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Shader>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
+
+        extensions.push_back("fbx");
+        extensions.push_back("obj");
+        m_resourceStorage.RegisterResource<Graphics::Model>(
+            Resources::ResourceTypeData{
+                .loadPriority         = 0,
+                .packageType          = Resources::PackageType::Graphics,
+                .createFunc           = std::bind(Resources::CreateResource<Graphics::Model>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });

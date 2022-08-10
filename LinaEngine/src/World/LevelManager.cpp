@@ -55,6 +55,8 @@ namespace Lina::World
         const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == StringID(path.c_str()).value() : false;
 
         // Uninstall current level if exists.
+        // We don't use UninstallCurrent() here as it'll uninstall all resources that level contains.
+        // We want to keep the shared resources.
         if (m_currentLevel != nullptr)
         {
             // Uninstall current level.
@@ -93,7 +95,7 @@ namespace Lina::World
         m_currentLevel->Uninstall();
 
         // Unload resources
-        auto& resMap = m_currentLevel->GetResources();
+        auto& resMap  = m_currentLevel->GetResources();
         auto* storage = Resources::ResourceStorage::Get();
         for (const auto& [tid, set] : resMap)
         {
@@ -102,6 +104,7 @@ namespace Lina::World
         }
 
         Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
+        m_currentLevel = nullptr;
     }
 
     void LevelManager::SaveCurrentLevel()
@@ -121,7 +124,6 @@ namespace Lina::World
     void LevelManager::CreateLevel(const String& path)
     {
         Level lvl;
-        lvl.SaveToFile(path);
         lvl.SetSID(path);
     }
 
