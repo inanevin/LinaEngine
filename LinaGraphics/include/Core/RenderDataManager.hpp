@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,26 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef StringId_HPP
-#define StringId_HPP
+#ifndef RenderDataManager_HPP
+#define RenderDataManager_HPP
 
-// Headers here.
-#include <entt/entt.hpp>
+#include "Core/GraphicsCommon.hpp"
 
-namespace Lina
+namespace Lina::Graphics
 {
-    typedef entt::hashed_string::hash_type StringIDType;
-    typedef entt::hashed_string            StringID;
-    typedef entt::id_type                  TypeID;
-
-    template <typename T>
-    TypeID GetTypeID()
+    struct RenderData
     {
-        return entt::type_hash<T>::value();
-    }
-} // namespace Lina
+
+    };
+
+} // namespace Lina::Graphics
 
 #endif

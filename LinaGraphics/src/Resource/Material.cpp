@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,26 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Resource/Material.hpp"
 
-#pragma once
-
-#ifndef StringId_HPP
-#define StringId_HPP
-
-// Headers here.
-#include <entt/entt.hpp>
-
-namespace Lina
+namespace Lina::Graphics
 {
-    typedef entt::hashed_string::hash_type StringIDType;
-    typedef entt::hashed_string            StringID;
-    typedef entt::id_type                  TypeID;
-
-    template <typename T>
-    TypeID GetTypeID()
+    Material::~Material()
     {
-        return entt::type_hash<T>::value();
+        
     }
-} // namespace Lina
 
-#endif
+    void* Material::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+
+    void* Material::LoadFromFile(const String& path)
+    {
+        *this = Resources::LoadArchiveFromFile<Material>(path);
+        IResource::SetSID(path);
+        return static_cast<void*>(this);
+    }
+   
+} // namespace Lina::Graphics

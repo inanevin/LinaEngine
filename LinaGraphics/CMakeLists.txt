@@ -25,6 +25,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend.cpp
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
+	src/Core/RenderDataManager.cpp
 
 	# Data
 	src/Data/Vertex.cpp
@@ -50,6 +51,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/SkinnedMesh.cpp
 	src/Resource/StaticMesh.cpp
 	src/Resource/Texture.cpp
+	src/Resource/Material.cpp
 
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
@@ -77,6 +79,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderEngine.hpp
 	include/Core/Backend.hpp
 	include/Core/Window.hpp
+	include/Core/RenderDataManager.hpp
 
 	# Data
 	include/Data/Vertex.hpp
@@ -102,6 +105,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/SkinnedMesh.hpp
 	include/Resource/StaticMesh.hpp
 	include/Resource/Texture.hpp
+	include/Resource/Material.hpp
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp

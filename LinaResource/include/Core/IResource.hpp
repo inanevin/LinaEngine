@@ -91,7 +91,6 @@ namespace Lina::Resources
         return obj;
     }
 
-
     template <typename T>
     void SaveArchiveToFile(const String& path, T& obj)
     {
@@ -101,7 +100,7 @@ namespace Lina::Resources
         std::ofstream stream(path.c_str(), std::ios::binary);
         {
 #ifdef USE_JSON
-           cereal::JSONOutputArchive oarchive(stream);
+            cereal::JSONOutputArchive oarchive(stream);
 #else
             cereal::PortableBinaryOutputArchive oarchive(stream);
 #endif
@@ -149,9 +148,10 @@ namespace Lina::Resources
         }
 
     protected:
+
         friend class ResourceStorage;
-        StringIDType m_sid  = 0;
-        String       m_path = "";
+        StringIDType m_sid            = 0;
+        String       m_path           = "";
     };
 
     template <typename T>

@@ -57,7 +57,7 @@ SOFTWARE.
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
-#include "Core/EditorSettings.hpp"
+#include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "World/Level.hpp"
 //INC_END - !! DO NOT MODIFY THIS LINE !!

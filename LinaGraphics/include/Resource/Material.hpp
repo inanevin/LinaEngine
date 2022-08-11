@@ -28,17 +28,47 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Attachment_HPP
-#define Attachment_HPP
+#ifndef Material_HPP
+#define Material_HPP
 
-#include "Core/GraphicsCommon.hpp"
+#define VERSION_MATERIAL 1
 
-struct VkAttachmentDescription;
+#include "Core/IResource.hpp"
+#include <cereal/access.hpp>
 
 namespace Lina::Graphics
 {
-    // Description of the image we'll be writing into w/ render commands.
-  
+    class Material : public Resources::IResource
+    {
+    public:
+
+        Material() = default;
+        virtual ~Material();
+
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
+
+    private:
+
+        int dummy = 0;
+        friend class cereal::access;
+
+        template <class Archive>
+        void serialize(Archive& archive, std::uint32_t const version)
+        {
+            if (version == VERSION_MATERIAL)
+                archive(dummy);
+            else
+            {
+                // Previous version
+                // archive(m_dummy);
+            }
+        }
+
+    };
+
 } // namespace Lina::Graphics
+
+CEREAL_CLASS_VERSION(Lina::Graphics::Material, VERSION_MATERIAL);
 
 #endif

@@ -61,11 +61,12 @@ namespace Lina::Resources
 {
 
     class ResourceLoader;
+    class ResourceHandleBase;
 
     struct ResourceTypeData
     {
-        int                loadPriority         = 0;
-        PackageType        packageType          = PackageType::Custom;
+        int                loadPriority = 0;
+        PackageType        packageType  = PackageType::Custom;
         ResourceCreateFunc createFunc;
         ResourceDeleteFunc deleteFunc;
         Vector<String>     associatedExtensions;
@@ -319,8 +320,10 @@ namespace Lina::Resources
             return m_loader;
         }
 
-    private:
+        void AddResourceHandle(ResourceHandleBase* handle);
+        void RemoveResourceHandle(ResourceHandleBase* handle);
 
+    private:
         friend class Engine;
 
         ResourceStorage()  = default;
@@ -333,11 +336,12 @@ namespace Lina::Resources
         void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
 
     private:
-        static ResourceStorage* s_instance;
-        ResourceMap             m_resources;
-        ResourceTypeMap         m_resourceTypes;
-        ResourceLoader*         m_loader = nullptr;
-        ApplicationInfo         m_appInfo;
+        Vector<ResourceHandleBase*> m_resourceHandles;
+        static ResourceStorage*     s_instance;
+        ResourceMap                 m_resources;
+        ResourceTypeMap             m_resourceTypes;
+        ResourceLoader*             m_loader = nullptr;
+        ApplicationInfo             m_appInfo;
     };
 } // namespace Lina::Resources
 

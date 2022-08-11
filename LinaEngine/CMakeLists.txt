@@ -41,9 +41,9 @@ set(LINAENGINE_HEADERS
 	include/Core/Engine.hpp
 	include/Core/MessageBus.hpp
 	include/Core/ReflectionRegistry.hpp
-	include/Core/EditorSettings.hpp
 
 	# Settings
+	include/Settings/EditorSettings.hpp
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
 

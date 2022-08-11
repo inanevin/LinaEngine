@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/ResourceStorage.hpp"
+#include "Data/DataCommon.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Utility/ResourceUtility.hpp"
@@ -37,8 +38,7 @@ SOFTWARE.
 namespace Lina::Resources
 {
 
-    ResourceStorage*         ResourceStorage::s_instance = nullptr;
-    Set<ResourceHandleBase*> ResourceHandleBase::s_resourceHandles;
+    ResourceStorage* ResourceStorage::s_instance = nullptr;
 
     void ResourceStorage::Initialize(ApplicationInfo& appInfo)
     {
@@ -118,21 +118,14 @@ namespace Lina::Resources
                 }
             }
         }
-
-        for (auto* handle : ResourceHandleBase::s_resourceHandles)
-            handle->ResourcePathUpdated(ev);
     }
 
     void ResourceStorage::OnResourceReloaded(const Event::EResourceReloaded& ev)
     {
-        for (auto* handle : ResourceHandleBase::s_resourceHandles)
-            handle->ResourceReloaded(ev);
     }
 
     void ResourceStorage::OnResourceUnloaded(const Event::EResourceUnloaded& ev)
     {
-        for (auto* handle : ResourceHandleBase::s_resourceHandles)
-            handle->ResourceUnloaded(ev);
     }
 
     TypeID ResourceStorage::GetTypeIDFromExtension(const String& extension)
@@ -182,6 +175,18 @@ namespace Lina::Resources
 #else
         return "";
 #endif
+    }
+
+    void ResourceStorage::AddResourceHandle(ResourceHandleBase* handle)
+    {
+        m_resourceHandles.push_back(handle);
+    }
+
+    void ResourceStorage::RemoveResourceHandle(ResourceHandleBase* handle)
+    {
+        const auto it = linatl::find(m_resourceHandles.begin(), m_resourceHandles.end(), handle);
+        if (it != m_resourceHandles.end())
+            m_resourceHandles.erase(it);
     }
 
 } // namespace Lina::Resources
