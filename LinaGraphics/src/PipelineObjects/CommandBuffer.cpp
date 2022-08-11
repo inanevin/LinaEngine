@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    CommandBuffer CommandBuffer::Create(VkCommandPool_T* pool)
+    void CommandBuffer::Create(VkCommandPool_T* pool)
     {
         VkCommandBufferAllocateInfo cmdAllocInfo = VkCommandBufferAllocateInfo{
             .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -44,7 +44,6 @@ namespace Lina::Graphics
 
         VkResult result = vkAllocateCommandBuffers(Backend::Get()->GetDevice(), &cmdAllocInfo, &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
-        return *this;
     }
 
     void CommandBuffer::Reset(bool releaseResources)

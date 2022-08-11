@@ -37,7 +37,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    class Attachment;
+    struct Attachment;
 
     class VulkanUtility
     {
@@ -51,6 +51,7 @@ namespace Lina::Graphics
         static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode = CullMode::None);
         static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
         static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState();
+        static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
         // InputDesc
         static VertexInputDescription GetVertexDescription();
@@ -59,6 +60,9 @@ namespace Lina::Graphics
         // Image View
         static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent);
         static VkImageViewCreateInfo GetImageViewCreateInfo(VkImage img, Format format, uint32 aspectFlags);
+
+        // Pass
+        static VkSubpassDependency GetSubpassDependency(SubPassDependency& dependency);
     };
 
 } // namespace Lina::Graphics

@@ -30,7 +30,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Data/Vertex.cpp
 
 	# Vulkan
-	src/PipelineObjects/Attachment.cpp
 	src/PipelineObjects/Framebuffer.cpp
 	src/PipelineObjects/SwapChain.cpp
 	src/PipelineObjects/RQueue.cpp
@@ -83,7 +82,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Data/Vertex.hpp
 
 	# Vulkan
-	include/PipelineObjects/Attachment.hpp
 	include/PipelineObjects/Framebuffer.hpp
 	include/PipelineObjects/Swapchain.hpp
 	include/PipelineObjects/RQueue.hpp

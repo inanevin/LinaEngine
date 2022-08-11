@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Pipeline Pipeline::Create()
+    void Pipeline::Create()
     {
         VkViewport _viewport = VkViewport{
             .x        = viewport.x,
@@ -78,7 +78,7 @@ namespace Lina::Graphics
         VkPipelineInputAssemblyStateCreateInfo _inputAssembly = VulkanUtility::CreatePipelineInputAssemblyCreateInfo(topology);
         VkPipelineMultisampleStateCreateInfo   _msaa          = VulkanUtility::CreatePipelineMSAACreateInfo();
         VkPipelineRasterizationStateCreateInfo _raster        = VulkanUtility::CreatePipelineRasterStateCreateInfo(polygonMode, cullMode);
-
+        VkPipelineDepthStencilStateCreateInfo  _depthStencil  = VulkanUtility::CreatePipelineDepthStencilStateCreateInfo(depthTestEnabled, depthWriteEnabled, depthCompareOp);
         // First get vertex input description
         // Then fill binding & description VULKAN structs with this data
         // Use the structs to get input state create info
@@ -89,10 +89,9 @@ namespace Lina::Graphics
         VkPipelineVertexInputStateCreateInfo _vertexInput = VulkanUtility::CreatePipelineVertexInputStateCreateInfo(_bindingDescs, _attDescs);
 
         Vector<VkPipelineShaderStageCreateInfo> _shaderStages;
-
-        Vector<VkShaderModule_T*> addedModules;
-        VkShaderModule_T*         vtxMod  = _shader->GetModule(ShaderStage::Vertex);
-        VkShaderModule_T*         fragMod = _shader->GetModule(ShaderStage::Fragment);
+        Vector<VkShaderModule_T*>               addedModules;
+        VkShaderModule_T*                       vtxMod  = _shader->GetModule(ShaderStage::Vertex);
+        VkShaderModule_T*                       fragMod = _shader->GetModule(ShaderStage::Fragment);
         addedModules.push_back(vtxMod);
         addedModules.push_back(fragMod);
 
@@ -119,6 +118,7 @@ namespace Lina::Graphics
             .pViewportState      = &viewportState,
             .pRasterizationState = &_raster,
             .pMultisampleState   = &_msaa,
+            .pDepthStencilState  = &_depthStencil,
             .pColorBlendState    = &_colorBlending,
             .layout              = _layout,
             .renderPass          = _renderPass,
@@ -137,22 +137,20 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
-
-        return *this;
     }
 
-    Pipeline Pipeline::SetShader(Shader* shader)
+    Pipeline& Pipeline::SetShader(Shader* shader)
     {
         _shader = shader;
         return *this;
     }
 
-    Pipeline Pipeline::SetRenderPass(const RenderPass& rp)
+    Pipeline& Pipeline::SetRenderPass(const RenderPass& rp)
     {
         _renderPass = rp._ptr;
         return *this;
     }
-    Pipeline Pipeline::SetLayout(const PipelineLayout& layout)
+    Pipeline& Pipeline::SetLayout(const PipelineLayout& layout)
     {
         _layout = layout._ptr;
         return *this;

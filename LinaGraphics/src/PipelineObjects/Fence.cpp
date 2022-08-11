@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    Fence Fence::Create()
+    void Fence::Create()
     {
         VkFenceCreateInfo info = VkFenceCreateInfo{
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -49,7 +49,6 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyFence(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
-        return *this;
     }
 
     void Fence::Wait(bool waitForAll, double timeoutSeconds)

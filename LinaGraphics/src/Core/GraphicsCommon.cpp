@@ -185,6 +185,31 @@ namespace Lina::Graphics
         }
     }
 
+    VkCompareOp GetCompareOp(CompareOp op)
+    {
+        switch (op)
+        {
+        case CompareOp::Never:
+            return VK_COMPARE_OP_NEVER;
+        case CompareOp::Less:
+            return VK_COMPARE_OP_LESS;
+        case CompareOp::Equal:
+            return VK_COMPARE_OP_EQUAL;
+        case CompareOp::LEqual:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+        case CompareOp::Greater:
+            return VK_COMPARE_OP_GREATER;
+        case CompareOp::NotEqual:
+            return VK_COMPARE_OP_NOT_EQUAL;
+        case CompareOp::GEqual:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+        case CompareOp::Always:
+            return VK_COMPARE_OP_ALWAYS;
+        default:
+            return VK_COMPARE_OP_ALWAYS;
+        }
+    }
+
     uint32 GetShaderStage(ShaderStage s)
     {
         switch (s)
@@ -332,6 +357,38 @@ namespace Lina::Graphics
             return VK_IMAGE_ASPECT_METADATA_BIT;
         default:
             return VK_IMAGE_ASPECT_COLOR_BIT;
+        }
+    }
+
+    uint32 GetAccessFlags(AccessFlags flags)
+    {
+        switch (flags)
+        {
+        case AccessFlags::ColorAttachmentRead:
+            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        case AccessFlags::ColorAttachmentWrite:
+            return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        case AccessFlags::DepthStencilAttachmentRead:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        case AccessFlags::DepthStencilAttachmentWrite:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        default:
+            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        }
+    }
+
+    uint32 GetPipelineStageFlags(PipelineStageFlags flags)
+    {
+        switch (flags)
+        {
+        case PipelineStageFlags::ColorAttachmentOutput:
+            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        case PipelineStageFlags::EarlyFragmentTests:
+            return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        case PipelineStageFlags::LateFragmentTests:
+            return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        default:
+            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         }
     }
 

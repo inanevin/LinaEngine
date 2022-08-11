@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Data/HashMap.hpp"
-#include "PipelineObjects/Attachment.hpp"
 
 struct VkRenderPass_T;
 
@@ -45,9 +44,9 @@ namespace Lina::Graphics
     class SubPass
     {
     public:
-        SubPass Create();
-        SubPass AddColorAttachmentRef(uint32 index, ImageLayout layout);
-        SubPass SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout);
+        void     Create();
+        SubPass& AddColorAttachmentRef(uint32 index, ImageLayout layout);
+        SubPass& SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout);
 
         // Description
         PipelineBindPoint bindPoint = PipelineBindPoint::Graphics;
@@ -62,15 +61,19 @@ namespace Lina::Graphics
     class RenderPass
     {
     public:
-        RenderPass Create();
-        RenderPass AddSubpass(SubPass sp);
-        RenderPass AddAttachment(Attachment att);
-        void       Begin(const ClearValue& clear, const Framebuffer& fb, const CommandBuffer& cmd);
-        void       End(const CommandBuffer& cmd);
+        void        Create();
+        RenderPass& AddSubpass(SubPass sp);
+        RenderPass& AddAttachment(Attachment att);
+        RenderPass& AddSubPassDependency(SubPassDependency& d);
+        RenderPass& AddClearValue(const ClearValue& clear);
+        void        Begin(const Framebuffer& fb, const CommandBuffer& cmd);
+        void        End(const CommandBuffer& cmd);
 
         // Description
-        Vector<Attachment> attachments;
-        Vector<SubPass>    subpasses;
+        Vector<ClearValue>        clearValues;
+        Vector<Attachment>        attachments;
+        Vector<SubPass>           subpasses;
+        Vector<SubPassDependency> dependencies;
 
         // Runtime
         VkRenderPass_T* _ptr = nullptr;

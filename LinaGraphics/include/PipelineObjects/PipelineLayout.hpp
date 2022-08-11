@@ -41,8 +41,8 @@ namespace Lina::Graphics
     class PipelineLayout
     {
     public:
-        PipelineLayout Create();
-        PipelineLayout AddPushConstant(const PushConstantRange& r);
+        void            Create();
+        PipelineLayout& AddPushConstant(const PushConstantRange& r);
 
         Vector<PushConstantRange> pushConstantRanges;
 

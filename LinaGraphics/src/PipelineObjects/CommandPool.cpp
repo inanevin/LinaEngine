@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    CommandPool CommandPool::Create()
+    void CommandPool::Create()
     {
         VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -49,7 +49,6 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
             vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         }));
-        return *this;
     }
 
 } // namespace Lina::Graphics

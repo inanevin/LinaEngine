@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include "PipelineObjects/Attachment.hpp"
 #include "Data/Vertex.hpp"
 
 namespace Lina::Graphics
@@ -126,6 +125,23 @@ namespace Lina::Graphics
             .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                               VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
         };
+        return info;
+    }
+
+    VkPipelineDepthStencilStateCreateInfo VulkanUtility::CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op)
+    {
+        VkPipelineDepthStencilStateCreateInfo info = {
+            .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+            .pNext                 = nullptr,
+            .depthTestEnable       = depthTest ? VK_TRUE : VK_FALSE,
+            .depthWriteEnable      = depthWrite ? VK_TRUE : VK_FALSE,
+            .depthCompareOp        = depthTest ? GetCompareOp(op) : VK_COMPARE_OP_ALWAYS,
+            .depthBoundsTestEnable = VK_FALSE,
+            .stencilTestEnable     = VK_FALSE,
+            .minDepthBounds        = 0.0f, // Optional
+            .maxDepthBounds        = 1.0f, // Optional
+        };
+
         return info;
     }
 
@@ -231,6 +247,20 @@ namespace Lina::Graphics
         };
 
         return info;
+    }
+
+    VkSubpassDependency VulkanUtility::GetSubpassDependency(SubPassDependency& dependency)
+    {
+        VkSubpassDependency dep = VkSubpassDependency{
+            .srcSubpass    = VK_SUBPASS_EXTERNAL,
+            .dstSubpass    = dependency.dstSubpass,
+            .srcStageMask  = dependency.srcStageMask,
+            .dstStageMask  = dependency.dstStageMask,
+            .srcAccessMask = dependency.srcAccessMask,
+            .dstAccessMask = dependency.dstAccessMask,
+        };
+
+        return dep;
     }
 
 } // namespace Lina::Graphics

@@ -38,19 +38,7 @@ struct VkAttachmentDescription;
 namespace Lina::Graphics
 {
     // Description of the image we'll be writing into w/ render commands.
-    class Attachment
-    {
-    public:
-        // Description
-        uint32      flags          = 0;
-        Format      format         = Format::B8G8R8A8_SRGB;
-        LoadOp      loadOp         = LoadOp::Load;
-        StoreOp     storeOp        = StoreOp::Store;
-        LoadOp      stencilLoadOp  = LoadOp::DontCare;
-        StoreOp     stencilStoreOp = StoreOp::DontCare;
-        ImageLayout initialLayout  = ImageLayout::Undefined;
-        ImageLayout finalLayout    = ImageLayout::PresentSurface;
-    };
+  
 } // namespace Lina::Graphics
 
 #endif

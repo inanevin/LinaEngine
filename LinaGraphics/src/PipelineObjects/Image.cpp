@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Image Image::Create()
+    void Image::Create()
     {
         VkImageCreateInfo imgInfo = VulkanUtility::GetImageCreateInfo(format, imageUsageFlags, tiling, extent);
 
@@ -62,9 +62,8 @@ namespace Lina::Graphics
                 vmaDestroyImage(Backend::Get()->GetVMA(), ptrImg, allocation);
             }));
         }
-
-        return *this;
     }
+
     void Image::Destroy()
     {
     }

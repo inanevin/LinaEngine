@@ -40,9 +40,9 @@ namespace Lina::Graphics
     class Fence
     {
     public:
-        Fence Create();
-        void  Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
-        void  Reset();
+        void Create();
+        void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
+        void Reset();
 
         // Description
         uint32 flags = 0;

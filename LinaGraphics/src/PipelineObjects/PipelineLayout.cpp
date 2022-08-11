@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    PipelineLayout PipelineLayout::Create()
+    void PipelineLayout::Create()
     {
         Vector<VkPushConstantRange> ranges;
 
@@ -67,11 +67,9 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
-
-        return *this;
     }
 
-    PipelineLayout PipelineLayout::AddPushConstant(const PushConstantRange& r)
+    PipelineLayout& PipelineLayout::AddPushConstant(const PushConstantRange& r)
     {
         pushConstantRanges.push_back(r);
         return *this;

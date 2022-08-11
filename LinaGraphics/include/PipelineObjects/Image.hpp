@@ -41,8 +41,8 @@ namespace Lina::Graphics
     class Image
     {
     public:
-        Image Create();
-        void  Destroy();
+        void Create();
+        void Destroy();
 
         Format      format          = Format::R32G32B32_SFLOAT;
         ImageTiling tiling          = ImageTiling::Optimal;

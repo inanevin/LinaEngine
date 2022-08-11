@@ -40,7 +40,7 @@ namespace Lina::Graphics
     class CommandPool
     {
     public:
-        CommandPool Create();
+        void Create();
 
         // Description
         uint32 familyIndex = 0;

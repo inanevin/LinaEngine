@@ -40,7 +40,7 @@ namespace Lina::Graphics
     class Semaphore
     {
     public:
-        Semaphore Create();
+        void Create();
 
         // Description
         uint32 flags = 0;

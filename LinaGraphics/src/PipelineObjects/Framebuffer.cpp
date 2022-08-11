@@ -34,14 +34,14 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Framebuffer Framebuffer::Create(VkImageView_T* imageView)
+    void Framebuffer::Create()
     {
         VkFramebufferCreateInfo info = VkFramebufferCreateInfo{
             .sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
             .pNext           = nullptr,
             .renderPass      = _renderPass,
-            .attachmentCount = _attCount,
-            .pAttachments    = &imageView,
+            .attachmentCount = static_cast<uint32>(_imageViews.size()),
+            .pAttachments    = _imageViews.data(),
             .width           = width,
             .height          = height,
             .layers          = layers,
@@ -49,12 +49,17 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateFramebuffer(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Framebuffer] -> Could not create Vulkan framebuffer!");
+    }
+
+    Framebuffer& Framebuffer::AddImageView(VkImageView_T* imageView)
+    {
+        _imageViews.push_back(imageView);
         return *this;
     }
-    Framebuffer Framebuffer::AttachRenderPass(const RenderPass& pass)
+
+    Framebuffer& Framebuffer::AttachRenderPass(const RenderPass& pass)
     {
         _renderPass = pass._ptr;
-        _attCount   = static_cast<uint32>(pass.attachments.size());
         return *this;
     }
 

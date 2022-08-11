@@ -33,8 +33,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-
-    Semaphore Semaphore::Create()
+    void Semaphore::Create()
     {
         VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -49,8 +48,6 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
             vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         }));
-
-        return *this;
     }
 
 } // namespace Lina::Graphics

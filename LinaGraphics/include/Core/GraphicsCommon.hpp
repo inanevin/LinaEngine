@@ -46,6 +46,7 @@ enum VkImageLayout;
 enum VkPipelineBindPoint;
 enum VkAttachmentLoadOp;
 enum VkAttachmentStoreOp;
+enum VkCompareOp;
 enum VkFenceCreateFlagBits;
 enum VkCommandBufferUsageFlagBits;
 enum VkShaderStageFlagBits;
@@ -156,6 +157,20 @@ namespace Lina::Graphics
 
     extern VkAttachmentStoreOp GetStoreOp(StoreOp op);
 
+    enum class CompareOp
+    {
+        Never,
+        Less,
+        Equal,
+        LEqual,
+        Greater,
+        NotEqual,
+        GEqual,
+        Always
+    };
+
+    extern VkCompareOp GetCompareOp(CompareOp op);
+
     enum class FenceFlags
     {
         Signaled,
@@ -249,7 +264,7 @@ namespace Lina::Graphics
 
     extern VkImageTiling GetImageTiling(ImageTiling tiling);
 
-    enum ImageAspectFlags
+    enum class ImageAspectFlags
     {
         AspectColor,
         AspectDepth,
@@ -259,11 +274,43 @@ namespace Lina::Graphics
 
     extern uint32 GetImageAspectFlags(ImageAspectFlags aspectFlags);
 
+    enum class AccessFlags
+    {
+        ColorAttachmentRead,
+        ColorAttachmentWrite,
+        DepthStencilAttachmentRead,
+        DepthStencilAttachmentWrite,
+    };
+
+    extern uint32 GetAccessFlags(AccessFlags flags);
+
+    enum class PipelineStageFlags
+    {
+        ColorAttachmentOutput,
+        EarlyFragmentTests,
+        LateFragmentTests,
+    };
+
+    extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
+
     struct ClearValue
     {
         Color  clearColor = Color::White;
         float  depth      = 0.0f;
         uint32 stencil    = 0;
+    };
+
+    struct Attachment
+    {
+    public:
+        uint32      flags          = 0;
+        Format      format         = Format::B8G8R8A8_SRGB;
+        LoadOp      loadOp         = LoadOp::Load;
+        StoreOp     storeOp        = StoreOp::Store;
+        LoadOp      stencilLoadOp  = LoadOp::DontCare;
+        StoreOp     stencilStoreOp = StoreOp::DontCare;
+        ImageLayout initialLayout  = ImageLayout::Undefined;
+        ImageLayout finalLayout    = ImageLayout::PresentSurface;
     };
 
     struct AttachmentReference
@@ -334,6 +381,15 @@ namespace Lina::Graphics
         uint32 width  = 0;
         uint32 height = 0;
         uint32 depth  = 0;
+    };
+
+    struct SubPassDependency
+    {
+        uint32 dstSubpass    = 0;
+        uint32 srcStageMask  = 0;
+        uint32 srcAccessMask = 0;
+        uint32 dstStageMask  = 0;
+        uint32 dstAccessMask = 0;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

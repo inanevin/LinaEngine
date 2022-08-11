@@ -43,7 +43,7 @@ namespace Lina::Graphics
     class CommandBuffer
     {
     public:
-        CommandBuffer Create(VkCommandPool_T* pool);
+        void Create(VkCommandPool_T* pool);
 
         void Reset(bool releaseResources = false);
         void Begin(uint32 flags);

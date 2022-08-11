@@ -219,7 +219,7 @@ namespace Lina
     void Engine::Run()
     {
         m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
-        m_resourceStorage.Load(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
+        m_resourceStorage.Load(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
 
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
 
@@ -255,7 +255,7 @@ namespace Lina
             });
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
+        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
         //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");

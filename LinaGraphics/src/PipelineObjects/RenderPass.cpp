@@ -39,7 +39,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    RenderPass RenderPass::Create()
+    void RenderPass::Create()
     {
         Vector<VkSubpassDescription>    subpassDescriptions;
         Vector<VkAttachmentDescription> attachmentDescriptions;
@@ -65,8 +65,8 @@ namespace Lina::Graphics
             if (sp._depthStencilAttachmentSet)
             {
                 VkAttachmentReference depthStencilRef = VkAttachmentReference{.attachment = sp._depthStencilAttachmentIndex, .layout = GetImageLayout(sp._depthStencilAttachmentLayout)};
-                d.pDepthStencilAttachment             = &depthStencilAttachments[depthStencilAttachments.size()];
                 depthStencilAttachments.push_back(depthStencilRef);
+                d.pDepthStencilAttachment = &depthStencilAttachments[depthStencilAttachments.size() - 1];
             }
 
             colorAttIndex += addedSize;
@@ -76,12 +76,19 @@ namespace Lina::Graphics
         for (const auto& att : attachments)
             attachmentDescriptions.push_back(VulkanUtility::CreateAttachmentDescription(att));
 
+        Vector<VkSubpassDependency> _dependencies;
+
+        for (auto& d : dependencies)
+            _dependencies.push_back(VulkanUtility::GetSubpassDependency(d));
+
         VkRenderPassCreateInfo rpInfo = VkRenderPassCreateInfo{
             .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
             .attachmentCount = static_cast<uint32>(attachmentDescriptions.size()),
             .pAttachments    = attachmentDescriptions.data(),
             .subpassCount    = static_cast<uint32>(subpassDescriptions.size()),
             .pSubpasses      = subpassDescriptions.data(),
+            .dependencyCount = static_cast<uint32>(_dependencies.size()),
+            .pDependencies   = _dependencies.data(),
         };
 
         VkResult result = vkCreateRenderPass(Backend::Get()->GetDevice(), &rpInfo, Backend::Get()->GetAllocator(), &_ptr);
@@ -91,38 +98,56 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyRenderPass(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
-
-        return *this;
     }
 
-    RenderPass RenderPass::AddSubpass(SubPass sp)
+    RenderPass& RenderPass::AddSubpass(SubPass sp)
     {
         subpasses.push_back(sp);
         return *this;
     }
 
-    RenderPass RenderPass::AddAttachment(Attachment att)
+    RenderPass& RenderPass::AddAttachment(Attachment att)
     {
         attachments.push_back(att);
         return *this;
     }
 
-    void RenderPass::Begin(const ClearValue& clr, const Framebuffer& fb, const CommandBuffer& cmd)
+    RenderPass& RenderPass::AddSubPassDependency(SubPassDependency& d)
+    {
+        dependencies.push_back(d);
+        return *this;
+    }
+
+    RenderPass& RenderPass::AddClearValue(const ClearValue& clear)
+    {
+        clearValues.push_back(clear);
+        return *this;
+    }
+
+    void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd)
     {
         const Vector2i windowSize = Window::Get()->GetSize();
         const Vector2i pos        = Window::Get()->GetPos();
 
-        VkClearColorValue clearColor = {clr.clearColor.r, clr.clearColor.g, clr.clearColor.b, clr.clearColor.a};
-        VkClearValue      clearValue = {};
-        clearValue.color             = clearColor;
+        Vector<VkClearValue> _clearValues;
+
+        for (auto& cv : clearValues)
+        {
+            VkClearColorValue clearColor    = {cv.clearColor.r, cv.clearColor.g, cv.clearColor.b, cv.clearColor.a};
+            VkClearValue      clearValue    = {};
+            clearValue.color                = clearColor;
+            clearValue.depthStencil.depth   = cv.depth;
+            clearValue.depthStencil.stencil = cv.stencil;
+            _clearValues.push_back(clearValue);
+        }
 
         VkRenderPassBeginInfo info = VkRenderPassBeginInfo{
             .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
             .pNext           = nullptr,
             .renderPass      = _ptr,
             .framebuffer     = fb._ptr,
-            .clearValueCount = 1,
-            .pClearValues    = &clearValue,
+            .clearValueCount = static_cast<uint32>(clearValues.size()),
+            .pClearValues    = _clearValues.data(),
         };
 
         info.renderArea.extent.width  = static_cast<uint32>(windowSize.x);
@@ -139,19 +164,18 @@ namespace Lina::Graphics
         vkCmdEndRenderPass(cmd._ptr);
     }
 
-    SubPass SubPass::Create()
+    void SubPass::Create()
     {
         // Description needs to be created within the used renderpass due to invalidated pointers of color attachments array.
-        return *this;
     }
 
-    SubPass SubPass::AddColorAttachmentRef(uint32 index, ImageLayout layout)
+    SubPass& SubPass::AddColorAttachmentRef(uint32 index, ImageLayout layout)
     {
         _colorAttachmentRefs[index] = layout;
         return *this;
     }
 
-    SubPass SubPass::SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout)
+    SubPass& SubPass::SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout)
     {
         _depthStencilAttachmentIndex  = index;
         _depthStencilAttachmentSet    = true;

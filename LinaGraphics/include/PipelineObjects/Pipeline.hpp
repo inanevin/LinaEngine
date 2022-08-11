@@ -48,14 +48,17 @@ namespace Lina::Graphics
     class Pipeline
     {
     public:
-        Pipeline Create();
-        Pipeline SetShader(Shader* shader);
-        Pipeline SetRenderPass(const RenderPass& rp);
-        Pipeline SetLayout(const PipelineLayout& layout);
+        void      Create();
+        Pipeline& SetShader(Shader* shader);
+        Pipeline& SetRenderPass(const RenderPass& rp);
+        Pipeline& SetLayout(const PipelineLayout& layout);
 
         void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
 
         // Desc
+        bool        depthTestEnabled  = true;
+        bool        depthWriteEnabled = true;
+        CompareOp   depthCompareOp    = CompareOp::LEqual;
         Viewport    viewport;
         Recti       scissor;
         Topology    topology;
