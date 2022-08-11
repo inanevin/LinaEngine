@@ -26,18 +26,22 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
 
+	# Data
+	src/Data/Vertex.cpp
+
 	# Vulkan
-	src/Data/Attachment.cpp
-	src/Data/Framebuffer.cpp
-	src/Data/SwapChain.cpp
-	src/Data/RQueue.cpp
-	src/Data/CommandPool.cpp
-	src/Data/CommandBuffer.cpp
-	src/Data/RenderPass.cpp
-	src/Data/Fence.cpp
-	src/Data/Semaphore.cpp
-	src/Data/Pipeline.cpp
-	src/Data/PipelineLayout.cpp
+	src/PipelineObjects/Attachment.cpp
+	src/PipelineObjects/Framebuffer.cpp
+	src/PipelineObjects/SwapChain.cpp
+	src/PipelineObjects/RQueue.cpp
+	src/PipelineObjects/CommandPool.cpp
+	src/PipelineObjects/CommandBuffer.cpp
+	src/PipelineObjects/RenderPass.cpp
+	src/PipelineObjects/Fence.cpp
+	src/PipelineObjects/Semaphore.cpp
+	src/PipelineObjects/Pipeline.cpp
+	src/PipelineObjects/PipelineLayout.cpp
+	src/PipelineObjects/Image.cpp
 
 	# Resource
 	src/Resource/Shader.cpp
@@ -46,6 +50,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/ModelNode.cpp
 	src/Resource/SkinnedMesh.cpp
 	src/Resource/StaticMesh.cpp
+	src/Resource/Texture.cpp
 
 	# ECS
 	src/ECS/Systems/SkySystem.cpp
@@ -74,18 +79,22 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/Backend.hpp
 	include/Core/Window.hpp
 
+	# Data
+	include/Data/Vertex.hpp
+
 	# Vulkan
-	include/Data/Attachment.hpp
-	include/Data/Framebuffer.hpp
-	include/Data/Swapchain.hpp
-	include/Data/RQueue.hpp
-	include/Data/CommandPool.hpp
-	include/Data/CommandBuffer.hpp
-	include/Data/RenderPass.hpp
-	include/Data/Fence.hpp
-	include/Data/Semaphore.hpp
-	include/Data/Pipeline.hpp
-	include/Data/PipelineLayout.hpp
+	include/PipelineObjects/Attachment.hpp
+	include/PipelineObjects/Framebuffer.hpp
+	include/PipelineObjects/Swapchain.hpp
+	include/PipelineObjects/RQueue.hpp
+	include/PipelineObjects/CommandPool.hpp
+	include/PipelineObjects/CommandBuffer.hpp
+	include/PipelineObjects/RenderPass.hpp
+	include/PipelineObjects/Fence.hpp
+	include/PipelineObjects/Semaphore.hpp
+	include/PipelineObjects/Pipeline.hpp
+	include/PipelineObjects/PipelineLayout.hpp
+	include/PipelineObjects/Image.hpp
 
 	# Resource
 	include/Resource/Shader.hpp
@@ -94,6 +103,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/ModelNode.hpp
 	include/Resource/SkinnedMesh.hpp
 	include/Resource/StaticMesh.hpp
+	include/Resource/Texture.hpp
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp

@@ -57,19 +57,6 @@ namespace Lina::Graphics
         IResource::SetSID(path);
         LoadAssetData();
         ModelLoader::LoadModel(path, this);
-
-        // m_vertices.resize(3);
-        // m_vertices[0].pos = {1.f, 1.f, 0.0f};
-        // m_vertices[1].pos = {-1.f, 1.f, 0.0f};
-        // m_vertices[2].pos = {0.f, -1.f, 0.0f};
-        //
-        // // vertex colors, all green
-        // m_vertices[0].color = {0.f, 1.f, 0.0f}; // pure green
-        // m_vertices[1].color = {0.f, 1.f, 0.0f}; // pure green
-        // m_vertices[2].color = {0.f, 1.f, 0.0f}; // pure green
-        //
-        // AllocateBuffers(this);
-
         return static_cast<void*>(this);
     }
 

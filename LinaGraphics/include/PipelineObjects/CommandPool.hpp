@@ -28,32 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommandBuffer_HPP
-#define CommandBuffer_HPP
+#ifndef Commandpools_HPP
+#define Commandpools_HPP
 
 #include "Core/GraphicsCommon.hpp"
 
-struct VkCommandBuffer_T;
 struct VkCommandPool_T;
 
 namespace Lina::Graphics
 {
-    class CommandBuffer
+    class CommandPool
     {
     public:
-        CommandBuffer Create(VkCommandPool_T* pool);
-
-        void Reset(bool releaseResources = false);
-        void Begin(CommandBufferFlags flags);
-        void Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
-        void End();
+        CommandPool Create();
 
         // Description
-        uint32             count = 0;
-        CommandBufferLevel level = CommandBufferLevel::Primary;
+        uint32 familyIndex = 0;
+        uint32 flags       = 0;
 
         // Runtime
-        VkCommandBuffer_T* _ptr = nullptr;
+        VkCommandPool_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

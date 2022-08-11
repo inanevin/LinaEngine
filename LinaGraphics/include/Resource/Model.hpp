@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Core/IResource.hpp"
 #include "Data/Vector.hpp"
-#include "Math/Vertex.hpp"
+#include "Data/Vertex.hpp"
 #include "Data/String.hpp"
 
 namespace Lina::Graphics
@@ -66,7 +66,13 @@ namespace Lina::Graphics
             return m_assetData;
         }
 
+        inline ModelNode* GetRootNode()
+        {
+            return m_rootNode;
+        }
+
     private:
+
         friend class ModelLoader;
 
         AssetData m_assetData;

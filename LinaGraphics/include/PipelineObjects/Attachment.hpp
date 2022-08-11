@@ -28,48 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ModelNode_HPP
-#define ModelNode_HPP
+#ifndef Attachment_HPP
+#define Attachment_HPP
 
-#include "Math/AABB.hpp"
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
+#include "Core/GraphicsCommon.hpp"
+
+struct VkAttachmentDescription;
 
 namespace Lina::Graphics
 {
-    class Mesh;
-
-    class ModelNode
+    // Description of the image we'll be writing into w/ render commands.
+    class Attachment
     {
     public:
-        ModelNode() = default;
-        ~ModelNode();
-
-        inline void ClearData()
-        {
-            m_name              = "";
-            m_localTransform    = Matrix();
-            m_totalVertexCenter = Vector3::Zero;
-            m_aabb              = AABB();
-            m_children.clear();
-            m_meshes.clear();
-        }
-
-        inline const Vector<Mesh*> GetMeshes()
-        {
-            return m_meshes;
-        }
-
-    private:
-        friend class ModelLoader;
-
-        AABB               m_aabb;
-        Matrix             m_localTransform;
-        Vector3            m_totalVertexCenter = Vector3::Zero;
-        String             m_name              = "";
-        Vector<ModelNode*> m_children;
-        Vector<Mesh*>      m_meshes;
+        // Description
+        uint32      flags          = 0;
+        Format      format         = Format::B8G8R8A8_SRGB;
+        LoadOp      loadOp         = LoadOp::Load;
+        StoreOp     storeOp        = StoreOp::Store;
+        LoadOp      stencilLoadOp  = LoadOp::DontCare;
+        StoreOp     stencilStoreOp = StoreOp::DontCare;
+        ImageLayout initialLayout  = ImageLayout::Undefined;
+        ImageLayout finalLayout    = ImageLayout::PresentSurface;
     };
 } // namespace Lina::Graphics
 

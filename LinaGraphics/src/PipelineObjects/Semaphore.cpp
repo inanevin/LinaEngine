@@ -26,25 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "PipelineObjects/Semaphore.hpp"
+#include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
+#include <vulkan/vulkan.h>
 
-#ifndef Vertex_HPP
-#define Vertex_HPP
-
-#include "Vector.hpp"
-#include "Color.hpp"
-
-namespace Lina
+namespace Lina::Graphics
 {
-    class Vertex
+
+    Semaphore Semaphore::Create()
     {
-    public:
+        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = flags,
+        };
 
-        Vector3 pos;
-        Vector3 normal;
-        Color   color;
-    };
+        VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
 
-} // namespace Lina
+        VkSemaphore_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
+            vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        }));
 
-#endif
+        return *this;
+    }
+
+} // namespace Lina::Graphics

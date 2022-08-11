@@ -26,30 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Fence_HPP
-#define Fence_HPP
-
-#include "Core/GraphicsCommon.hpp"
-
-struct VkFence_T;
+#include "Data/Vertex.hpp"
 
 namespace Lina::Graphics
 {
-    class Fence
-    {
-    public:
-        Fence        Create();
-        void         Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
-        void         Reset();
+   
 
-        // Description
-        FenceFlags flags = FenceFlags::Signaled;
-
-        // Runtime
-        VkFence_T* _ptr = nullptr;
-    };
 } // namespace Lina::Graphics
-
-#endif

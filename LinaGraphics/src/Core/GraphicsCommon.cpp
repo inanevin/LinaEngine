@@ -9,6 +9,10 @@ namespace Lina::Graphics
         {
         case Format::B8G8R8A8_SRGB:
             return VK_FORMAT_B8G8R8A8_SRGB;
+        case Format::R32G32B32_SFLOAT:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case Format::D32_SFLOAT:
+            return VK_FORMAT_D32_SFLOAT;
         default:
             return VK_FORMAT_B8G8R8A8_SRGB;
         }
@@ -55,7 +59,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkCommandPoolCreateFlagBits GetCommandPoolCreateFlags(CommandPoolFlags f)
+    uint32 GetCommandPoolCreateFlags(CommandPoolFlags f)
     {
         switch (f)
         {
@@ -70,7 +74,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkQueueFlagBits GetQueueFamilyBit(QueueFamilies f)
+    uint32 GetQueueFamilyBit(QueueFamilies f)
     {
         switch (f)
         {
@@ -155,7 +159,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkFenceCreateFlagBits GetFenceFlags(FenceFlags f)
+    uint32 GetFenceFlags(FenceFlags f)
     {
         switch (f)
         {
@@ -166,7 +170,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkCommandBufferUsageFlagBits GetCommandBufferFlags(CommandBufferFlags f)
+    uint32 GetCommandBufferFlags(CommandBufferFlags f)
     {
         switch (f)
         {
@@ -181,7 +185,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkShaderStageFlagBits GetShaderStage(ShaderStage s)
+    uint32 GetShaderStage(ShaderStage s)
     {
         switch (s)
         {
@@ -244,7 +248,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkCullModeFlagBits GetCullMode(CullMode m)
+    uint32 GetCullMode(CullMode m)
     {
         switch (m)
         {
@@ -258,6 +262,76 @@ namespace Lina::Graphics
             return VK_CULL_MODE_FRONT_AND_BACK;
         default:
             return VK_CULL_MODE_NONE;
+        }
+    }
+
+    VkVertexInputRate GetVertexInputRate(VertexInputRate rate)
+    {
+        switch (rate)
+        {
+        case VertexInputRate::Vertex:
+            return VK_VERTEX_INPUT_RATE_VERTEX;
+        case VertexInputRate::Instance:
+            return VK_VERTEX_INPUT_RATE_INSTANCE;
+        default:
+            return VK_VERTEX_INPUT_RATE_VERTEX;
+        }
+    }
+
+    uint32 GetImageUsage(ImageUsageFlags usage)
+    {
+        switch (usage)
+        {
+        case ImageUsageFlags::TransferSrc:
+            return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        case ImageUsageFlags::TransferDest:
+            return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        case ImageUsageFlags::Sampled:
+            return VK_IMAGE_USAGE_SAMPLED_BIT;
+        case ImageUsageFlags::Storage:
+            return VK_IMAGE_USAGE_STORAGE_BIT;
+        case ImageUsageFlags::ColorAttachment:
+            return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        case ImageUsageFlags::DepthStencilAttachment:
+            return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        case ImageUsageFlags::TransientAttachment:
+            return VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+        case ImageUsageFlags::InputAttachment:
+            return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+        case ImageUsageFlags::FragmentDensity:
+            return VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT;
+        default:
+            return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        }
+    }
+
+    VkImageTiling GetImageTiling(ImageTiling tiling)
+    {
+        switch (tiling)
+        {
+        case ImageTiling::Optimal:
+            return VK_IMAGE_TILING_OPTIMAL;
+        case ImageTiling::Linear:
+            return VK_IMAGE_TILING_LINEAR;
+        default:
+            return VK_IMAGE_TILING_OPTIMAL;
+        }
+    }
+
+    uint32 GetImageAspectFlags(ImageAspectFlags aspectFlags)
+    {
+        switch (aspectFlags)
+        {
+        case ImageAspectFlags::AspectColor:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+        case ImageAspectFlags::AspectDepth:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        case ImageAspectFlags::AspectStencil:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case ImageAspectFlags::AspectMetadata:
+            return VK_IMAGE_ASPECT_METADATA_BIT;
+        default:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
         }
     }
 

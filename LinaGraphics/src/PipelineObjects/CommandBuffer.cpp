@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/CommandBuffer.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
 #include "Core/Backend.hpp"
 #include <vulkan/vulkan.h>
 
@@ -53,17 +53,27 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Resetting command buffer failed!");
     }
 
-    void CommandBuffer::Begin(CommandBufferFlags flags)
+    void CommandBuffer::Begin(uint32 flags)
     {
         VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .pNext            = nullptr,
-            .flags            = static_cast<VkCommandBufferUsageFlags>(GetCommandBufferFlags(flags)),
+            .flags            = flags,
             .pInheritanceInfo = nullptr,
         };
 
         VkResult result = vkBeginCommandBuffer(_ptr, &beginInfo);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed to begin!");
+    }
+
+    void CommandBuffer::BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset)
+    {
+        vkCmdBindVertexBuffers(_ptr, firstBinding, bindingCount, &buffer, offset);
+    }
+
+    void CommandBuffer::PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants)
+    {
+        vkCmdPushConstants(_ptr, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), constants);
     }
 
     void CommandBuffer::Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)

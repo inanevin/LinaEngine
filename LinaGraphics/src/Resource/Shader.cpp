@@ -137,7 +137,7 @@ namespace Lina::Graphics
     void Shader::UploadedToPipeline()
     {
         // We're not needed anymore.
-        // Resources::ResourceStorage::Get()->Unload<Shader>(m_sid);
+        Resources::ResourceStorage::Get()->Unload<Shader>(m_sid);
     }
 
     bool Shader::HasStage(ShaderStage stage)

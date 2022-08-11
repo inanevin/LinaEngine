@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Swapchain.hpp"
+#include "PipelineObjects/Swapchain.hpp"
 #include "Utility/Vulkan/VkBootstrap.h"
 #include "Core/Backend.hpp"
-#include "Data/Semaphore.hpp"
-#include "Data/Fence.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/Fence.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

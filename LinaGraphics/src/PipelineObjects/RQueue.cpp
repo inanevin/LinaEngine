@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/RQueue.hpp"
+#include "PipelineObjects/RQueue.hpp"
 #include "Data/Vector.hpp"
 #include "Core/Backend.hpp"
-#include "Data/Fence.hpp"
-#include "Data/Semaphore.hpp"
-#include "Data/CommandBuffer.hpp"
+#include "PipelineObjects/Fence.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
 #include "vulkan/vulkan.h"
 
 namespace Lina::Graphics

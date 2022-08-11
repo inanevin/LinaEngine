@@ -32,6 +32,7 @@ SOFTWARE.
 #define VulkanUtility_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Data/Vector.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -41,13 +42,23 @@ namespace Lina::Graphics
     class VulkanUtility
     {
     public:
-        static VkAttachmentDescription                CreateAttachmentDescription(const Attachment& att);
+        static VkAttachmentDescription CreateAttachmentDescription(const Attachment& att);
+
+        // Pipeline
         static VkPipelineShaderStageCreateInfo        CreatePipelineShaderStageCreateInfo(ShaderStage stage, VkShaderModule shaderModule);
-        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo();
+        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs);
         static VkPipelineInputAssemblyStateCreateInfo CreatePipelineInputAssemblyCreateInfo(Topology top, bool primitiveRestart = false);
         static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode = CullMode::None);
         static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
         static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState();
+
+        // InputDesc
+        static VertexInputDescription GetVertexDescription();
+        static void                   GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
+
+        // Image View
+        static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent);
+        static VkImageViewCreateInfo GetImageViewCreateInfo(VkImage img, Format format, uint32 aspectFlags);
     };
 
 } // namespace Lina::Graphics

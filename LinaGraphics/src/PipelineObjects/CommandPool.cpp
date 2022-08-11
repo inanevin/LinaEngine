@@ -26,51 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef ModelNode_HPP
-#define ModelNode_HPP
-
-#include "Math/AABB.hpp"
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
+#include "PipelineObjects/CommandPool.hpp"
+#include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    class Mesh;
-
-    class ModelNode
+    CommandPool CommandPool::Create()
     {
-    public:
-        ModelNode() = default;
-        ~ModelNode();
+        VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
+            .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .pNext            = nullptr,
+            .flags            = flags,
+            .queueFamilyIndex = familyIndex,
+        };
 
-        inline void ClearData()
-        {
-            m_name              = "";
-            m_localTransform    = Matrix();
-            m_totalVertexCenter = Vector3::Zero;
-            m_aabb              = AABB();
-            m_children.clear();
-            m_meshes.clear();
-        }
+        VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
 
-        inline const Vector<Mesh*> GetMeshes()
-        {
-            return m_meshes;
-        }
+        VkCommandPool_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
+            vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        }));
+        return *this;
+    }
 
-    private:
-        friend class ModelLoader;
-
-        AABB               m_aabb;
-        Matrix             m_localTransform;
-        Vector3            m_totalVertexCenter = Vector3::Zero;
-        String             m_name              = "";
-        Vector<ModelNode*> m_children;
-        Vector<Mesh*>      m_meshes;
-    };
 } // namespace Lina::Graphics
-
-#endif

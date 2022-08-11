@@ -219,6 +219,7 @@ namespace Lina
     void Engine::Run()
     {
         m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
+        m_resourceStorage.Load(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
 
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
 
@@ -314,6 +315,7 @@ namespace Lina
 
         m_jobSystem.WaitForAll();
         gameLoop.clear();
+        m_renderEngine.Join();
         m_levelManager.UninstallCurrent();
 
         PackageProject("");

@@ -28,48 +28,36 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ModelNode_HPP
-#define ModelNode_HPP
+#ifndef CommandBuffer_HPP
+#define CommandBuffer_HPP
 
-#include "Math/AABB.hpp"
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
+#include "Core/GraphicsCommon.hpp"
+
+struct VkCommandBuffer_T;
+struct VkCommandPool_T;
+struct VkBuffer_T;
+struct VkPipelineLayout_T;
 
 namespace Lina::Graphics
 {
-    class Mesh;
-
-    class ModelNode
+    class CommandBuffer
     {
     public:
-        ModelNode() = default;
-        ~ModelNode();
+        CommandBuffer Create(VkCommandPool_T* pool);
 
-        inline void ClearData()
-        {
-            m_name              = "";
-            m_localTransform    = Matrix();
-            m_totalVertexCenter = Vector3::Zero;
-            m_aabb              = AABB();
-            m_children.clear();
-            m_meshes.clear();
-        }
+        void Reset(bool releaseResources = false);
+        void Begin(uint32 flags);
+        void BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset);
+        void PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants);
+        void Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
+        void End();
 
-        inline const Vector<Mesh*> GetMeshes()
-        {
-            return m_meshes;
-        }
+        // Description
+        uint32             count = 0;
+        CommandBufferLevel level = CommandBufferLevel::Primary;
 
-    private:
-        friend class ModelLoader;
-
-        AABB               m_aabb;
-        Matrix             m_localTransform;
-        Vector3            m_totalVertexCenter = Vector3::Zero;
-        String             m_name              = "";
-        Vector<ModelNode*> m_children;
-        Vector<Mesh*>      m_meshes;
+        // Runtime
+        VkCommandBuffer_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

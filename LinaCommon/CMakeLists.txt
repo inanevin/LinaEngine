@@ -145,7 +145,6 @@ set(LINACOMMON_HEADERS
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
 	include/Math/Rect.hpp
-	include/Math/Vertex.hpp
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
@@ -180,7 +179,6 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
 	include/Math/Rect.hpp
-	include/Math/Vertex.hpp
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp

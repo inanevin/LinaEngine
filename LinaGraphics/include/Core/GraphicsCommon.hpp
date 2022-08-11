@@ -32,6 +32,8 @@ SOFTWARE.
 #define GraphicsCommon_HPP
 
 #include "Math/Color.hpp"
+#include "Data/Vector.hpp"
+#include "Math/Matrix.hpp"
 #include "Core/SizeDefinitions.hpp"
 
 enum VkFormat;
@@ -50,15 +52,22 @@ enum VkShaderStageFlagBits;
 enum VkPrimitiveTopology;
 enum VkPolygonMode;
 enum VkCullModeFlagBits;
+enum VkVertexInputRate;
+enum VkImageUsageFlagBits;
+enum VkImageTiling;
+enum VkImageAspectFlagBits;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
+struct VkImage_T;
 
 namespace Lina::Graphics
 {
     enum class Format
     {
         B8G8R8A8_SRGB,
+        R32G32B32_SFLOAT,
+        D32_SFLOAT,
     };
 
     extern VkFormat GetFormat(Format f);
@@ -95,7 +104,7 @@ namespace Lina::Graphics
         Protected,
     };
 
-    extern VkCommandPoolCreateFlagBits GetCommandPoolCreateFlags(CommandPoolFlags f);
+    extern uint32 GetCommandPoolCreateFlags(CommandPoolFlags f);
 
     enum class QueueFamilies
     {
@@ -106,7 +115,7 @@ namespace Lina::Graphics
         Protected,
     };
 
-    extern VkQueueFlagBits GetQueueFamilyBit(QueueFamilies f);
+    extern uint32 GetQueueFamilyBit(QueueFamilies f);
 
     enum class ImageLayout
     {
@@ -152,7 +161,7 @@ namespace Lina::Graphics
         Signaled,
     };
 
-    extern VkFenceCreateFlagBits GetFenceFlags(FenceFlags f);
+    extern uint32 GetFenceFlags(FenceFlags f);
 
     enum class CommandBufferFlags
     {
@@ -161,7 +170,7 @@ namespace Lina::Graphics
         SimultaneousUse,
     };
 
-    extern VkCommandBufferUsageFlagBits GetCommandBufferFlags(CommandBufferFlags f);
+    extern uint32 GetCommandBufferFlags(CommandBufferFlags f);
 
     enum class ShaderStage
     {
@@ -173,7 +182,7 @@ namespace Lina::Graphics
         Compute,
     };
 
-    extern VkShaderStageFlagBits GetShaderStage(ShaderStage s);
+    extern uint32 GetShaderStage(ShaderStage s);
 
     enum class Topology
     {
@@ -207,7 +216,48 @@ namespace Lina::Graphics
         FrontAndBack,
     };
 
-    extern VkCullModeFlagBits GetCullMode(CullMode cm);
+    extern uint32 GetCullMode(CullMode cm);
+
+    enum class VertexInputRate
+    {
+        Vertex,
+        Instance
+    };
+
+    extern VkVertexInputRate GetVertexInputRate(VertexInputRate rate);
+
+    enum class ImageUsageFlags
+    {
+        TransferSrc,
+        TransferDest,
+        Sampled,
+        Storage,
+        ColorAttachment,
+        DepthStencilAttachment,
+        TransientAttachment,
+        InputAttachment,
+        FragmentDensity,
+    };
+
+    extern uint32 GetImageUsage(ImageUsageFlags usage);
+
+    enum class ImageTiling
+    {
+        Optimal,
+        Linear
+    };
+
+    extern VkImageTiling GetImageTiling(ImageTiling tiling);
+
+    enum ImageAspectFlags
+    {
+        AspectColor,
+        AspectDepth,
+        AspectStencil,
+        AspectMetadata
+    };
+
+    extern uint32 GetImageAspectFlags(ImageAspectFlags aspectFlags);
 
     struct ClearValue
     {
@@ -237,6 +287,56 @@ namespace Lina::Graphics
         VkBuffer_T*      buffer     = nullptr;
         VmaAllocation_T* allocation = nullptr;
     };
+
+    struct AllocatedImage
+    {
+        VkImage_T*       image      = nullptr;
+        VmaAllocation_T* allocation = nullptr;
+    };
+
+    struct VertexInputBinding
+    {
+        uint32          binding   = 0;
+        uint32          stride    = 0;
+        VertexInputRate inputRate = VertexInputRate::Vertex;
+    };
+
+    struct VertexInputAttribute
+    {
+        uint32 binding  = 0;
+        uint32 location = 0;
+        Format format   = Format::R32G32B32_SFLOAT;
+        uint32 offset   = 0;
+    };
+
+    struct VertexInputDescription
+    {
+        Vector<VertexInputBinding>   bindings;
+        Vector<VertexInputAttribute> attributes;
+        uint32                       flags = 0;
+    };
+
+    struct PushConstantRange
+    {
+        uint32 offset     = 0;
+        uint32 size       = 0;
+        uint32 stageFlags = 0;
+    };
+
+    struct MeshPushConstants
+    {
+        Vector4 data         = Vector4::Zero;
+        Matrix  renderMatrix = Matrix::Identity();
+    };
+
+    struct Extent3D
+    {
+        uint32 width  = 0;
+        uint32 height = 0;
+        uint32 depth  = 0;
+    };
+
+#define TO_FLAGS(X) static_cast<uint32>(X)
 
 } // namespace Lina::Graphics
 

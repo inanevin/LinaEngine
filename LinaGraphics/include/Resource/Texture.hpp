@@ -26,41 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Fence.hpp"
-#include "Core/Backend.hpp"
-#include "Core/RenderEngine.hpp"
-#include <vulkan/vulkan.h>
+#pragma once
+
+#ifndef Texture_HPP
+#define Texture_HPP
+
+#include "Core/IResource.hpp"
 
 namespace Lina::Graphics
 {
-
-    Fence Fence::Create()
+    class Texture : public Resources::IResource
     {
-        VkFenceCreateInfo info = VkFenceCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = static_cast<uint32>(GetFenceFlags(flags)),
+        struct AssetData
+        {
+            int dummy = 0;
         };
 
-        VkResult result = vkCreateFence(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
+    public:
+        Texture() = default;
+        ~Texture();
 
-        VkFence_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyFence(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
-        return *this;
-    }
+        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
+        virtual void* LoadFromFile(const String& path) override;
+        virtual void  LoadAssetData() override;
+        virtual void  SaveAssetData() override;
 
-    void Fence::Wait(bool waitForAll, double timeoutSeconds)
-    {
-        const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
-        vkWaitForFences(Backend::Get()->GetDevice(), 1, &_ptr, waitForAll, timeout);
-    }
-
-    void Fence::Reset()
-    {
-        vkResetFences(Backend::Get()->GetDevice(), 1, &_ptr);
-    }
-
+    private:
+        AssetData m_assetData;
+    };
 } // namespace Lina::Graphics
+
+#endif

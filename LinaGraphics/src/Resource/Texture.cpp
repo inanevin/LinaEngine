@@ -26,30 +26,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Attachment_HPP
-#define Attachment_HPP
-
-#include "Core/GraphicsCommon.hpp"
-
-struct VkAttachmentDescription;
+#include "Resource/Texture.hpp"
+#include "Core/ResourceDataManager.hpp"
+#include "Utility/stb/stb_image.h"
 
 namespace Lina::Graphics
 {
-    // Description of the image we'll be writing into w/ render commands.
-    class Attachment
+    Texture::~Texture()
     {
-    public:
-        // Description
-        Format      format         = Format::B8G8R8A8_SRGB;
-        LoadOp      loadOp         = LoadOp::Load;
-        StoreOp     storeOp        = StoreOp::Store;
-        LoadOp      stencilLoadOp  = LoadOp::DontCare;
-        StoreOp     stencilStoreOp = StoreOp::DontCare;
-        ImageLayout initialLayout  = ImageLayout::Undefined;
-        ImageLayout finalLayout    = ImageLayout::PresentSurface;
-    };
-} // namespace Lina::Graphics
+    }
 
-#endif
+    void* Texture::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    {
+        IResource::SetSID(path);
+        LoadAssetData();
+
+        return static_cast<void*>(this);
+    }
+
+    void* Texture::LoadFromFile(const String& path)
+    {
+        IResource::SetSID(path);
+        LoadAssetData();
+
+        return static_cast<void*>(this);
+    }
+
+    void Texture::LoadAssetData()
+    {
+        return;
+
+        auto dm = Resources::ResourceDataManager::Get();
+        if (!dm->Exists(m_sid))
+            SaveAssetData();
+
+        m_assetData.dummy = dm->GetValue<bool>(m_sid, "dummy");
+    }
+
+    void Texture::SaveAssetData()
+    {
+        return;
+
+        auto dm = Resources::ResourceDataManager::Get();
+        dm->CleanSlate(m_sid);
+        dm->SetValue<bool>(m_sid, "dummy", m_assetData.dummy);
+        dm->Save();
+    }
+
+} // namespace Lina::Graphics

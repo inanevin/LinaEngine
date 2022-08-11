@@ -28,48 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderPass_HPP
-#define RenderPass_HPP
+#ifndef Vertex_HPP
+#define Vertex_HPP
 
-#include "Core/GraphicsCommon.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Attachment.hpp"
-
-struct VkRenderPass_T;
+#include "Math/Vector.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina::Graphics
 {
-    class Framebuffer;
-    class CommandBuffer;
 
-    class SubPass
+    class Vertex
     {
     public:
-        SubPass Create();
-        SubPass AddColorAttachmentRef(uint32 index, ImageLayout layout);
 
-        // Description
-        PipelineBindPoint            bindPoint = PipelineBindPoint::Graphics;
-        HashMap<uint32, ImageLayout> colorAttachmentRefs;
+        Vector3 pos;
+        Vector3 normal;
+        Color   color;
     };
 
-    class RenderPass
-    {
-    public:
-        RenderPass Create();
-        RenderPass AddSubpass(SubPass sp);
-        RenderPass AddAttachment(Attachment att);
-        void       Begin(const ClearValue& clear, const Framebuffer& fb, const CommandBuffer& cmd);
-        void       End(const CommandBuffer& cmd);
-
-        // Description
-        Vector<Attachment> attachments;
-        Vector<SubPass>    subpasses;
-
-        // Runtime
-        VkRenderPass_T* _ptr = nullptr;
-        ;
-    };
-} // namespace Lina::Graphics
+} // namespace Lina
 
 #endif

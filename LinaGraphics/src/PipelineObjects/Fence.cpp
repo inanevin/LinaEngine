@@ -26,26 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef PipelineLayout_HPP
-#define PipelineLayout_HPP
-
-#include "Core/GraphicsCommon.hpp"
-
-struct VkPipelineLayout_T;
+#include "PipelineObjects/Fence.hpp"
+#include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
 
-    class PipelineLayout
+    Fence Fence::Create()
     {
-    public:
-        PipelineLayout Create();
+        VkFenceCreateInfo info = VkFenceCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = flags,
+        };
 
-        // Runtime
-        VkPipelineLayout_T* _ptr = nullptr;
-    };
+        VkResult result = vkCreateFence(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
+
+        VkFence_T* ptr = _ptr;
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+            vkDestroyFence(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+        });
+        return *this;
+    }
+
+    void Fence::Wait(bool waitForAll, double timeoutSeconds)
+    {
+        const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+        vkWaitForFences(Backend::Get()->GetDevice(), 1, &_ptr, waitForAll, timeout);
+    }
+
+    void Fence::Reset()
+    {
+        vkResetFences(Backend::Get()->GetDevice(), 1, &_ptr);
+    }
+
 } // namespace Lina::Graphics
-
-#endif

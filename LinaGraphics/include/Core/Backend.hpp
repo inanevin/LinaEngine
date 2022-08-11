@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Core/CommonApplication.hpp"
-#include "Data/Swapchain.hpp"
+#include "PipelineObjects/Swapchain.hpp"
 
 struct VkDevice_T;
 struct VkPhysicalDevice_T;
@@ -43,6 +43,7 @@ struct VkDevice_T;
 struct VkDebugUtilsMessengerEXT_T;
 struct VkInstance_T;
 struct VmaAllocator_T;
+struct VkImageView_T;
 
 namespace Lina
 {

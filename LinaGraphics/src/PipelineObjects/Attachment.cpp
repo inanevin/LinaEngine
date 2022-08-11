@@ -26,41 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Framebuffer.hpp"
-#include "Core/Backend.hpp"
-#include "Data/RenderPass.hpp"
-#include "Core/RenderEngine.hpp"
+#include "PipelineObjects/Attachment.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    Framebuffer Framebuffer::Create(VkImageView_T* imageView)
-    {
-        VkFramebufferCreateInfo info = VkFramebufferCreateInfo{
-            .sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-            .pNext           = nullptr,
-            .renderPass      = _renderPass,
-            .attachmentCount = _attCount,
-            .pAttachments    = &imageView,
-            .width           = width,
-            .height          = height,
-            .layers          = layers,
-        };
-
-        VkResult result = vkCreateFramebuffer(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Framebuffer] -> Could not create Vulkan framebuffer!");
-        return *this;
-    }
-    Framebuffer Framebuffer::AttachRenderPass(const RenderPass& pass)
-    {
-        _renderPass = pass._ptr;
-        _attCount   = static_cast<uint32>(pass.attachments.size());
-        return *this;
-    }
-
-    void Framebuffer::Destroy()
-    {
-        vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
-    }
-
+  
 } // namespace Lina::Graphics

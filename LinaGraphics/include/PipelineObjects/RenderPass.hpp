@@ -28,26 +28,52 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Commandpools_HPP
-#define Commandpools_HPP
+#ifndef RenderPass_HPP
+#define RenderPass_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Data/HashMap.hpp"
+#include "PipelineObjects/Attachment.hpp"
 
-struct VkCommandPool_T;
+struct VkRenderPass_T;
 
 namespace Lina::Graphics
 {
-    class CommandPool
+    class Framebuffer;
+    class CommandBuffer;
+
+    class SubPass
     {
     public:
-        CommandPool Create();
+        SubPass Create();
+        SubPass AddColorAttachmentRef(uint32 index, ImageLayout layout);
+        SubPass SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout);
 
         // Description
-        uint32           familyIndex = 0;
-        CommandPoolFlags flags       = CommandPoolFlags::Reset;
+        PipelineBindPoint bindPoint = PipelineBindPoint::Graphics;
 
         // Runtime
-        VkCommandPool_T* _ptr = nullptr;
+        HashMap<uint32, ImageLayout> _colorAttachmentRefs;
+        uint32                       _depthStencilAttachmentIndex  = 0;
+        ImageLayout                  _depthStencilAttachmentLayout = ImageLayout::DepthStencilOptimal;
+        bool                         _depthStencilAttachmentSet    = false;
+    };
+
+    class RenderPass
+    {
+    public:
+        RenderPass Create();
+        RenderPass AddSubpass(SubPass sp);
+        RenderPass AddAttachment(Attachment att);
+        void       Begin(const ClearValue& clear, const Framebuffer& fb, const CommandBuffer& cmd);
+        void       End(const CommandBuffer& cmd);
+
+        // Description
+        Vector<Attachment> attachments;
+        Vector<SubPass>    subpasses;
+
+        // Runtime
+        VkRenderPass_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

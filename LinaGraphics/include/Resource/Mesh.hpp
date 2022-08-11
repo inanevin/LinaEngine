@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
-#include "Math/Vertex.hpp"
+#include "Data/Vertex.hpp"
 #include "Math/AABB.hpp"
 #include "Core/GraphicsCommon.hpp"
 
@@ -44,6 +44,16 @@ namespace Lina::Graphics
     public:
         Mesh() = default;
         virtual ~Mesh();
+
+        inline const Vector<Vertex>& GetVertices()
+        {
+            return m_vertices;
+        }
+
+        inline const AllocatedBuffer& GetGPUVtxBuffer()
+        {
+            return m_gpuVtxBuffer;
+        }
 
     protected:
     private:

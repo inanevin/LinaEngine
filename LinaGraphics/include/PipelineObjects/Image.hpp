@@ -26,31 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Semaphore.hpp"
-#include "Core/Backend.hpp"
-#include "Core/RenderEngine.hpp"
-#include <vulkan/vulkan.h>
+#pragma once
+
+#ifndef Image_HPP
+#define Image_HPP
+
+#include "Core/GraphicsCommon.hpp"
+
+struct VkImageView_T;
+struct VkImage_T;
 
 namespace Lina::Graphics
 {
-
-    Semaphore Semaphore::Create()
+    class Image
     {
-        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = flags,
-        };
+    public:
+        Image Create();
+        void  Destroy();
 
-        VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
+        Format      format          = Format::R32G32B32_SFLOAT;
+        ImageTiling tiling          = ImageTiling::Optimal;
+        Extent3D    extent          = Extent3D();
+        uint32      aspectFlags     = 0;
+        uint32      imageUsageFlags = 0;
+        bool        autoDestroy     = true;
 
-        VkSemaphore_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-            vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        }));
-
-        return *this;
-    }
-
+        // Runtime
+        AllocatedImage _allocatedImg;
+        VkImageView_T* _ptrImgView = nullptr;
+    };
 } // namespace Lina::Graphics
+
+#endif

@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Core/Backend.hpp"
 #include "Math/Color.hpp"
+#include "Core/RenderEngine.hpp"
 #include <vulkan/vulkan.h>
 #include "Utility/Vulkan/vk_mem_alloc.h"
 
@@ -43,15 +44,21 @@ namespace Lina::Graphics
 
     void Mesh::AddVertex(const Vector3& pos, const Vector3& normal)
     {
-        m_vertices.emplace_back(Vertex{pos, normal, Color(1, 0, 0, 1)});
+      m_vertices.emplace_back(Vertex{pos, normal, Color(normal.r, normal.g, normal.b, 1)});
     }
     void Mesh::AddIndices(uint32 i1, uint32 i2, uint32 i3)
     {
-        m_indices.push_back(Vector3ui(i1, i2, i3));
+       m_indices.push_back(Vector3ui(i1, i2, i3));
     }
 
     void Mesh::GenerateBuffers()
     {
+        if (!RenderEngine::Get()->IsInitialized())
+        {
+            LINA_ERR("[Mesh] -> Could not create mesh, render engine is not initialized!");
+            return;
+        }
+
         // Allocate Vertex buffer
         VkBufferCreateInfo bufferInfo = VkBufferCreateInfo{
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

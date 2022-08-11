@@ -28,48 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ModelNode_HPP
-#define ModelNode_HPP
+#ifndef PipelineLayout_HPP
+#define PipelineLayout_HPP
 
-#include "Math/AABB.hpp"
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
+#include "Core/GraphicsCommon.hpp"
+
+struct VkPipelineLayout_T;
 
 namespace Lina::Graphics
 {
-    class Mesh;
 
-    class ModelNode
+    class PipelineLayout
     {
     public:
-        ModelNode() = default;
-        ~ModelNode();
+        PipelineLayout Create();
+        PipelineLayout AddPushConstant(const PushConstantRange& r);
 
-        inline void ClearData()
-        {
-            m_name              = "";
-            m_localTransform    = Matrix();
-            m_totalVertexCenter = Vector3::Zero;
-            m_aabb              = AABB();
-            m_children.clear();
-            m_meshes.clear();
-        }
+        Vector<PushConstantRange> pushConstantRanges;
 
-        inline const Vector<Mesh*> GetMeshes()
-        {
-            return m_meshes;
-        }
-
-    private:
-        friend class ModelLoader;
-
-        AABB               m_aabb;
-        Matrix             m_localTransform;
-        Vector3            m_totalVertexCenter = Vector3::Zero;
-        String             m_name              = "";
-        Vector<ModelNode*> m_children;
-        Vector<Mesh*>      m_meshes;
+        // Runtime
+        VkPipelineLayout_T* _ptr = nullptr;
     };
 } // namespace Lina::Graphics
 

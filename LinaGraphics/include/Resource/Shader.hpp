@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/IResource.hpp"
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
+#include "Core/GraphicsCommon.hpp"
 
 struct VkShaderModule_T;
 

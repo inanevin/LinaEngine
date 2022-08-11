@@ -41,15 +41,19 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Core/ResourceStorage.hpp"
 
+#include "Resource/Model.hpp"
+#include "Resource/ModelNode.hpp"
+#include "Resource/Mesh.hpp"
+
 namespace Lina::Graphics
 {
     RenderEngine* RenderEngine::s_instance = nullptr;
 
+    Model* cube = nullptr;
+
 #define RETURN_NOTINITED       \
     if (!m_initedSuccessfully) \
     return
-
-    
 
     void RenderEngine::Initialize(ApplicationInfo& appInfo)
     {
@@ -79,13 +83,24 @@ namespace Lina::Graphics
         m_meshSystem.Initialize("Mesh System");
 
         m_graphicsQueue.Get(m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
-        m_pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = CommandPoolFlags::Reset}.Create();
+        m_pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)}.Create();
 
         m_commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary}
                               .Create(m_pool._ptr);
 
-        Attachment att = Attachment{.format = m_backend.m_swapchain.format, .loadOp = LoadOp::Clear};
-        SubPass    sp  = SubPass{.bindPoint = PipelineBindPoint::Graphics}.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).Create();
+        Attachment att          = Attachment{.format = m_backend.m_swapchain.format, .loadOp = LoadOp::Clear};
+        Attachment depthStencil = Attachment{
+            .format         = Format::D32_SFLOAT,
+            .loadOp         = LoadOp::Clear,
+            .storeOp        = StoreOp::Store,
+            .stencilLoadOp  = LoadOp::Clear,
+            .stencilStoreOp = StoreOp::DontCare,
+            .initialLayout  = ImageLayout::Undefined,
+            .finalLayout    = ImageLayout::DepthStencilOptimal};
+
+        SubPass sp = SubPass{.bindPoint = PipelineBindPoint::Graphics}
+                         .AddColorAttachmentRef(0, ImageLayout::ColorOptimal)
+                         .Create();
 
         m_renderPass = RenderPass().AddAttachment(att).AddSubpass(sp).Create();
         m_framebuffers.reserve(m_backend.m_swapchain._imageViews.size());
@@ -100,16 +115,37 @@ namespace Lina::Graphics
 
         m_presentSemaphore.Create();
         m_renderSemaphore.Create();
-        m_renderFence = Fence{.flags = FenceFlags::Signaled}.Create();
+        m_renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)}.Create();
     }
 
     void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
     {
+
+        RETURN_NOTINITED;
         const Vector2i size = m_window.GetSize();
 
-        Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
+        Extent3D ext = Extent3D{.width  = static_cast<unsigned int>(size.x),
+                                .height = static_cast<unsigned int>(size.y),
+                                .depth  = 1};
 
-        m_pipelineLayout = PipelineLayout{}.Create();
+        m_depthImage = Image{
+            .format          = Format::D32_SFLOAT,
+            .tiling          = ImageTiling::Optimal,
+            .extent          = ext,
+            .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
+            .imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment)}
+                           .Create();
+
+        Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
+        cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx");
+
+        PushConstantRange r = PushConstantRange{
+            .offset     = 0,
+            .size       = sizeof(MeshPushConstants),
+            .stageFlags = GetShaderStage(ShaderStage::Vertex),
+        };
+
+        m_pipelineLayout = PipelineLayout{}.AddPushConstant(r).Create();
 
         Viewport vp = Viewport{
             .x        = 0.0f,
@@ -161,11 +197,37 @@ namespace Lina::Graphics
         uint32 imageIndex = m_backend.m_swapchain.AcquireNextImage(1.0, m_presentSemaphore);
 
         m_commandBuffer.Reset();
-        m_commandBuffer.Begin(CommandBufferFlags::OneTimeSubmit);
+        m_commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
         m_renderPass.Begin(ClearValue{.clearColor = Color::Blue}, m_framebuffers[imageIndex], m_commandBuffer);
         m_pipeline.Bind(m_commandBuffer, PipelineBindPoint::Graphics);
-        m_commandBuffer.Draw(3, 1, 0, 0);
+        Mesh* m = cube->GetRootNode()->GetMeshes()[0];
+
+        uint64 offset = 0;
+        m_commandBuffer.BindVertexBuffers(0, 1, m->GetGPUVtxBuffer().buffer, &offset);
+
+        glm::vec3 camPos = {0.f, 0.f, -2.f};
+
+        static float _frameNumber = 0.0f;
+        _frameNumber += 0.1f;
+
+        glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
+        // camera projection
+        glm::mat4 projection = glm::perspective(glm::radians(70.f), 1200.0f / 1200.0f, 0.1f, 200.0f);
+        projection[1][1] *= -1;
+        // model rotation
+        glm::mat4 model = glm::rotate(glm::mat4{1.0f}, glm::radians(_frameNumber * 0.4f), glm::vec3(0, 1, 0));
+        // glm::mat4 model = glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 0.0f));
+
+        // calculate final mesh matrix
+        glm::mat4 meshMatrix = projection * view * model;
+
+        MeshPushConstants constants;
+        constants.renderMatrix = meshMatrix;
+
+        m_commandBuffer.PushConstants(m_pipelineLayout._ptr, GetShaderStage(ShaderStage::Vertex), 0, sizeof(MeshPushConstants), &constants);
+
+        m_commandBuffer.Draw(m->GetVertices().size(), 1, 0, 0);
 
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();
@@ -196,13 +258,18 @@ namespace Lina::Graphics
         PROFILER_SCOPE_END("Render Meshes", PROFILER_THREAD_RENDER);
     }
 
+    void RenderEngine::Join()
+    {
+        RETURN_NOTINITED;
+        m_renderFence.Wait();
+    }
+
     void RenderEngine::Shutdown()
     {
         RETURN_NOTINITED;
 
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
-        m_renderFence.Wait();
         m_mainDeletionQueue.Flush();
 
         // m_renderFence.Destroy();

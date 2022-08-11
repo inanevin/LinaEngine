@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/RenderPass.hpp"
+#include "PipelineObjects/RenderPass.hpp"
 #include "Data/Vector.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Math/Vector.hpp"
 #include "Core/Window.hpp"
-#include "Data/Framebuffer.hpp"
-#include "Data/CommandBuffer.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 
 namespace Lina::Graphics
@@ -44,12 +44,13 @@ namespace Lina::Graphics
         Vector<VkSubpassDescription>    subpassDescriptions;
         Vector<VkAttachmentDescription> attachmentDescriptions;
         Vector<VkAttachmentReference>   colorAttachments;
+        Vector<VkAttachmentReference>   depthStencilAttachments;
         uint32                          colorAttIndex = 0;
 
         for (auto& sp : subpasses)
         {
             uint32 addedSize = 0;
-            for (auto pair : sp.colorAttachmentRefs)
+            for (auto pair : sp._colorAttachmentRefs)
             {
                 VkAttachmentReference ref = VkAttachmentReference{.attachment = pair.first, .layout = GetImageLayout(pair.second)};
                 colorAttachments.push_back(ref);
@@ -60,6 +61,13 @@ namespace Lina::Graphics
                 .pipelineBindPoint    = GetPipelineBindPoint(sp.bindPoint),
                 .colorAttachmentCount = addedSize,
                 .pColorAttachments    = &colorAttachments[colorAttIndex]};
+
+            if (sp._depthStencilAttachmentSet)
+            {
+                VkAttachmentReference depthStencilRef = VkAttachmentReference{.attachment = sp._depthStencilAttachmentIndex, .layout = GetImageLayout(sp._depthStencilAttachmentLayout)};
+                d.pDepthStencilAttachment             = &depthStencilAttachments[depthStencilAttachments.size()];
+                depthStencilAttachments.push_back(depthStencilRef);
+            }
 
             colorAttIndex += addedSize;
             subpassDescriptions.push_back(d);
@@ -139,7 +147,16 @@ namespace Lina::Graphics
 
     SubPass SubPass::AddColorAttachmentRef(uint32 index, ImageLayout layout)
     {
-        colorAttachmentRefs[index] = layout;
+        _colorAttachmentRefs[index] = layout;
         return *this;
     }
+
+    SubPass SubPass::SetDepthStencilAttachmentRef(uint32 index, ImageLayout layout)
+    {
+        _depthStencilAttachmentIndex  = index;
+        _depthStencilAttachmentSet    = true;
+        _depthStencilAttachmentLayout = layout;
+        return *this;
+    }
+
 } // namespace Lina::Graphics

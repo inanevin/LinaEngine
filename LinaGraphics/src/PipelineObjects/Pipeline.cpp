@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/Pipeline.hpp"
+#include "PipelineObjects/Pipeline.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
-#include "Data/RenderPass.hpp"
-#include "Data/CommandBuffer.hpp"
-#include "Data/PipelineLayout.hpp"
+#include "PipelineObjects/RenderPass.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
 #include "Resource/Shader.hpp"
 #include <vulkan/vulkan.h>
 
@@ -78,7 +78,15 @@ namespace Lina::Graphics
         VkPipelineInputAssemblyStateCreateInfo _inputAssembly = VulkanUtility::CreatePipelineInputAssemblyCreateInfo(topology);
         VkPipelineMultisampleStateCreateInfo   _msaa          = VulkanUtility::CreatePipelineMSAACreateInfo();
         VkPipelineRasterizationStateCreateInfo _raster        = VulkanUtility::CreatePipelineRasterStateCreateInfo(polygonMode, cullMode);
-        VkPipelineVertexInputStateCreateInfo   _vertexInput   = VulkanUtility::CreatePipelineVertexInputStateCreateInfo();
+
+        // First get vertex input description
+        // Then fill binding & description VULKAN structs with this data
+        // Use the structs to get input state create info
+        const VertexInputDescription              _vertexInputDesc = VulkanUtility::GetVertexDescription();
+        Vector<VkVertexInputBindingDescription>   _bindingDescs;
+        Vector<VkVertexInputAttributeDescription> _attDescs;
+        VulkanUtility::GetDescriptionStructs(_vertexInputDesc, _bindingDescs, _attDescs);
+        VkPipelineVertexInputStateCreateInfo _vertexInput = VulkanUtility::CreatePipelineVertexInputStateCreateInfo(_bindingDescs, _attDescs);
 
         Vector<VkPipelineShaderStageCreateInfo> _shaderStages;
 
@@ -119,9 +127,10 @@ namespace Lina::Graphics
         };
 
         VkResult res = vkCreateGraphicsPipelines(Backend::Get()->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(res == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
+        LINA_ASSERT(res == VK_SUCCESS, "[Pipeline] -> Could not create VK pipeline!");
 
         // We don't need the modules anymore
+        _shaderStages.clear();
         _shader->UploadedToPipeline();
 
         VkPipeline_T* ptr = _ptr;

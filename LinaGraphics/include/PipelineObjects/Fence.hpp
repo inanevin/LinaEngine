@@ -26,30 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/CommandPool.hpp"
-#include "Core/Backend.hpp"
-#include "Core/RenderEngine.hpp"
-#include <vulkan/vulkan.h>
+#pragma once
+
+#ifndef Fence_HPP
+#define Fence_HPP
+
+#include "Core/GraphicsCommon.hpp"
+
+struct VkFence_T;
 
 namespace Lina::Graphics
 {
-    CommandPool CommandPool::Create()
+    class Fence
     {
-        VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
-            .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .pNext            = nullptr,
-            .flags            = static_cast<unsigned int>(GetCommandPoolCreateFlags(flags)),
-            .queueFamilyIndex = familyIndex,
-        };
+    public:
+        Fence Create();
+        void  Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
+        void  Reset();
 
-        VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
-        LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
+        // Description
+        uint32 flags = 0;
 
-        VkCommandPool_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-            vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        }));
-        return *this;
-    }
-
+        // Runtime
+        VkFence_T* _ptr = nullptr;
+    };
 } // namespace Lina::Graphics
+
+#endif

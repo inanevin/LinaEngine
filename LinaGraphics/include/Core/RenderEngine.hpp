@@ -43,15 +43,16 @@ SOFTWARE.
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/SkySystem.hpp"
 #include "Utility/DeletionQueue.hpp"
-#include "Data/RQueue.hpp"
-#include "Data/CommandBuffer.hpp"
-#include "Data/CommandPool.hpp"
-#include "Data/RenderPass.hpp"
-#include "Data/Framebuffer.hpp"
-#include "Data/Semaphore.hpp"
-#include "Data/Fence.hpp"
-#include "Data/Pipeline.hpp"
-#include "Data/PipelineLayout.hpp"
+#include "PipelineObjects/RQueue.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/CommandPool.hpp"
+#include "PipelineObjects/RenderPass.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/Fence.hpp"
+#include "PipelineObjects/Pipeline.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
+#include "PipelineObjects/Image.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
 #include <functional>
@@ -84,6 +85,7 @@ namespace Lina::Graphics
         void SyncRenderData();
         void Clear();
         void Render();
+        void Join();
         void Shutdown();
         void OnPreStartGame(const Event::EPreStartGame& ev);
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
@@ -122,6 +124,7 @@ namespace Lina::Graphics
         Semaphore           m_presentSemaphore;
         Pipeline            m_pipeline;
         PipelineLayout      m_pipelineLayout;
+        Image               m_depthImage;
 
         DeletionQueue m_mainDeletionQueue;
 

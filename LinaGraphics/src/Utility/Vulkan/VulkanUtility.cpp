@@ -28,13 +28,15 @@ SOFTWARE.
 
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include "Data/Attachment.hpp"
+#include "PipelineObjects/Attachment.hpp"
+#include "Data/Vertex.hpp"
 
 namespace Lina::Graphics
 {
     VkAttachmentDescription VulkanUtility::CreateAttachmentDescription(const Attachment& att)
     {
         return VkAttachmentDescription{
+            .flags          = att.flags,
             .format         = GetFormat(att.format),
             .samples        = VK_SAMPLE_COUNT_1_BIT,
             .loadOp         = GetLoadOp(att.loadOp),
@@ -50,20 +52,22 @@ namespace Lina::Graphics
         VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo{
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext  = nullptr,
-            .stage  = GetShaderStage(stage),
+            .stage  = static_cast<VkShaderStageFlagBits>(GetShaderStage(stage)),
             .module = shaderModule,
             .pName  = "main",
         };
 
         return info;
     }
-    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo()
+    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs)
     {
         VkPipelineVertexInputStateCreateInfo info = VkPipelineVertexInputStateCreateInfo{
             .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
             .pNext                           = nullptr,
-            .vertexBindingDescriptionCount   = 0,
-            .vertexAttributeDescriptionCount = 0,
+            .vertexBindingDescriptionCount   = static_cast<uint32>(bindingDescs.size()),
+            .pVertexBindingDescriptions      = bindingDescs.data(),
+            .vertexAttributeDescriptionCount = static_cast<uint32>(attDescs.size()),
+            .pVertexAttributeDescriptions    = attDescs.data(),
         };
 
         return info;
@@ -88,7 +92,7 @@ namespace Lina::Graphics
             .depthClampEnable        = VK_FALSE,
             .rasterizerDiscardEnable = VK_FALSE,
             .polygonMode             = GetPolygonMode(pm),
-            .cullMode                = static_cast<VkCullModeFlags>(GetCullMode(cm)),
+            .cullMode                = GetCullMode(cm),
             .frontFace               = VK_FRONT_FACE_CLOCKWISE,
             .depthBiasEnable         = VK_FALSE,
             .depthBiasConstantFactor = 0.0f,
@@ -124,4 +128,109 @@ namespace Lina::Graphics
         };
         return info;
     }
+
+    VertexInputDescription VulkanUtility::GetVertexDescription()
+    {
+        VertexInputDescription description;
+
+        VertexInputBinding mainBinding = VertexInputBinding{
+            .binding   = 0,
+            .stride    = sizeof(Vertex),
+            .inputRate = VertexInputRate::Vertex,
+        };
+
+        description.bindings.push_back(mainBinding);
+
+        VertexInputAttribute positionAtt = VertexInputAttribute{
+            .binding  = 0,
+            .location = 0,
+            .format   = Format::R32G32B32_SFLOAT,
+            .offset   = offsetof(Vertex, pos),
+        };
+
+        VertexInputAttribute normalAtt = VertexInputAttribute{
+            .binding  = 0,
+            .location = 1,
+            .format   = Format::R32G32B32_SFLOAT,
+            .offset   = offsetof(Vertex, normal),
+        };
+
+        VertexInputAttribute colorAtt = VertexInputAttribute{
+            .binding  = 0,
+            .location = 2,
+            .format   = Format::R32G32B32_SFLOAT,
+            .offset   = offsetof(Vertex, color),
+        };
+
+        description.attributes.push_back(positionAtt);
+        description.attributes.push_back(normalAtt);
+        description.attributes.push_back(colorAtt);
+
+        return description;
+    }
+    void VulkanUtility::GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs)
+    {
+        for (const auto& d : desc.bindings)
+        {
+            VkVertexInputBindingDescription binding = VkVertexInputBindingDescription{
+                .binding   = d.binding,
+                .stride    = d.stride,
+                .inputRate = GetVertexInputRate(d.inputRate),
+            };
+
+            bindingDescs.push_back(binding);
+        }
+
+        for (const auto& a : desc.attributes)
+        {
+            VkVertexInputAttributeDescription att = VkVertexInputAttributeDescription{
+                .location = a.location,
+                .binding  = a.binding,
+                .format   = GetFormat(a.format),
+                .offset   = a.offset,
+            };
+
+            attDescs.push_back(att);
+        }
+    }
+
+    VkImageCreateInfo VulkanUtility::GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent)
+    {
+        VkImageCreateInfo info = VkImageCreateInfo{
+            .sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .pNext       = nullptr,
+            .imageType   = VK_IMAGE_TYPE_2D,
+            .format      = GetFormat(format),
+            .extent      = VkExtent3D{extent.width, extent.height, extent.depth},
+            .mipLevels   = 1,
+            .arrayLayers = 1,
+            .samples     = VK_SAMPLE_COUNT_1_BIT,
+            .tiling      = GetImageTiling(tiling),
+            .usage       = usageFlags,
+        };
+        return info;
+    }
+
+    VkImageViewCreateInfo VulkanUtility::GetImageViewCreateInfo(VkImage img, Format format, uint32 aspectFlags)
+    {
+        VkImageSubresourceRange subResRange = VkImageSubresourceRange{
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        };
+
+        VkImageViewCreateInfo info = VkImageViewCreateInfo{
+            .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .pNext            = nullptr,
+            .image            = img,
+            .viewType         = VK_IMAGE_VIEW_TYPE_2D,
+            .format           = GetFormat(format),
+            .subresourceRange = subResRange,
+        };
+
+        return info;
+    }
+
 } // namespace Lina::Graphics
