@@ -85,7 +85,7 @@ namespace Lina::Audio
         ALCcontext*                         m_context             = nullptr;
         ALCdevice*                          m_device              = nullptr;
         Vector3                             m_mainListenerLastPos = Vector3::Zero;
-        HashMap<StringIDType, unsigned int> m_generatedSources;
+        HashMap<StringID, unsigned int> m_generatedSources;
     };
 } // namespace Lina::Audio
 

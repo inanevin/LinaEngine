@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Loaders/EditorResourceLoader.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Data/PriorityQueue.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Utility/ResourceUtility.hpp"
 #include "Core/ResourceStorage.hpp"
@@ -39,12 +40,12 @@ namespace Lina::Resources
 {
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
-        if (ResourceStorage::Get()->Exists(tid, StringID(path.c_str()).value()))
+        if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
 
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Loading File", .totalFiles = 1 });
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
         LoadSingleResourceFromFile(tid, path);
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{ .currentResource = path });
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
@@ -55,18 +56,16 @@ namespace Lina::Resources
         HashMap<TypeID, HashSet<String>> toLoad;
 
         // 1: Take a look at all the existing resources in storage, if it doesn't exist in the current level's resources we are loading, unload it.
-        // 2: Iterate all the resourceMap we are about to load, find the one's that are not existing right now, add them to a seperate map.
-        // 3: Load the separate map.
-
         UnloadUnusedResources(resourceMap);
 
-        // Now iterate the resourceMap again, find the non-existing resources,
+        // 2: Iterate all the resourceMap we are about to load, find the one's that are not existing right now, add them to a seperate map.
+        // 3: Load the separate map.
         for (auto pair : resourceMap)
         {
-            const HashSet<String> set = resourceMap.at(pair.first);
+            const HashSet<String> set = pair.second;
             for (auto str : set)
             {
-                if (!storage->Exists(pair.first, StringID(str.c_str()).value()))
+                if (!storage->Exists(pair.first, HashedString(str.c_str()).value()))
                     toLoad[pair.first].insert(str);
             }
         }
@@ -80,11 +79,16 @@ namespace Lina::Resources
 #ifdef LINA_MT
 
         Vector<Pair<TypeID, String>> toLoadVec;
+        PriorityQueue<LoadingPair>   loadQueue;
 
         for (const auto& [tid, set] : toLoad)
         {
+            const ResourceTypeData& tdata = storage->GetTypeData(tid);
+
             for (const auto& str : set)
+            {
                 toLoadVec.push_back(linatl::make_pair(tid, str));
+            }
         }
 
         Taskflow taskflow;

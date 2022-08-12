@@ -82,7 +82,7 @@ namespace Lina::Physics
         /// <summary>
         /// Given a convex mesh buffer data, creates a convex mesh object and stores it.
         /// </summary>
-        void CreateConvexMesh(Vector<uint8>& data, StringIDType sid, int nodeID);
+        void CreateConvexMesh(Vector<uint8>& data, StringID sid, int nodeID);
 
         /// <summary>
         /// Returns all moving actor within the Nvidia PhysX scene.
@@ -103,7 +103,7 @@ namespace Lina::Physics
         /// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
         /// value is the PhysX object.
         /// </summary>
-        HashMap<StringIDType, physx::PxMaterial*>& GetMaterials();
+        HashMap<StringID, physx::PxMaterial*>& GetMaterials();
 
         /// <summary>
         /// Returns true if the given entity is alive in the physics world, static or dynamic.

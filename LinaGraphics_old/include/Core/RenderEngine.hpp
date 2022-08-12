@@ -139,7 +139,7 @@ namespace Lina::Graphics
         /// <summary>
         /// Add the texture with the given StringID to the debug icon buffer.
         /// </summary>
-        void DrawIcon(Vector3 p, StringIDType textureID, float size = 1.0f);
+        void DrawIcon(Vector3 p, StringID textureID, float size = 1.0f);
 
         /// <summary>
         /// Adds a line to the debug buffer with given parameters.

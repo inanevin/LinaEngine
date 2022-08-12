@@ -59,11 +59,11 @@ namespace Lina::Physics
     PxPvd*                  m_pxPvd             = nullptr;
 
     HashMap<ECS::Entity, physx::PxRigidActor*> m_actors;
-    HashMap<StringIDType, physx::PxMaterial*>  m_materials;
+    HashMap<StringID, physx::PxMaterial*>  m_materials;
     HashMap<ECS::Entity, PxShape*>             m_shapes;
 
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
-    HashMap<StringIDType, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
+    HashMap<StringID, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
     void PhysicsEngine::Initialize(ApplicationMode appMode)
     {
@@ -188,13 +188,13 @@ namespace Lina::Physics
 
         PxMaterial* mat = nullptr;
 
-        if (m_materials.find(phy.m_material.m_sid) != m_materials.end())
-            mat = m_materials[phy.m_material.m_sid];
+        if (m_materials.find(phy.m_material.sid) != m_materials.end())
+            mat = m_materials[phy.m_material.sid];
         else
         {
-            auto* phyMat                      = phy.m_material.m_value;
-            m_materials[phy.m_material.m_sid] = m_pxPhysics->createMaterial(phyMat->m_staticFriction, phyMat->m_dynamicFriction, phyMat->m_restitution);
-            mat                               = m_materials[phy.m_material.m_sid];
+            auto* phyMat                      = phy.m_material.value;
+            m_materials[phy.m_material.sid] = m_pxPhysics->createMaterial(phyMat->m_staticFriction, phyMat->m_dynamicFriction, phyMat->m_restitution);
+            mat                               = m_materials[phy.m_material.sid];
         }
 
         LINA_ASSERT(mat != nullptr, "Physics material is null!");
@@ -225,7 +225,7 @@ namespace Lina::Physics
         return m_pxPhysics->createShape(PxBoxGeometry(ToPxVector3(phy.GetHalfExtents())), *mat);
     }
 
-    void PhysicsEngine::CreateConvexMesh(Vector<uint8>& data, StringIDType sid, int nodeID)
+    void PhysicsEngine::CreateConvexMesh(Vector<uint8>& data, StringID sid, int nodeID)
     {
         PxDefaultMemoryInputData input(&data[0], (PxU32)data.size());
         m_convexMeshMap[sid].push_back(std::make_pair(nodeID, m_pxPhysics->createConvexMesh(input)));
@@ -245,7 +245,7 @@ namespace Lina::Physics
 
     void PhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)
     {
-        StringIDType sid = mat.GetSID();
+        StringID sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -254,7 +254,7 @@ namespace Lina::Physics
 
     void PhysicsEngine::SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction)
     {
-        StringIDType sid = mat.GetSID();
+        StringID sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -263,7 +263,7 @@ namespace Lina::Physics
 
     void PhysicsEngine::SetMaterialRestitution(PhysicsMaterial& mat, float restitution)
     {
-        StringIDType sid = mat.GetSID();
+        StringID sid = mat.GetSID();
         if (m_materials.find(sid) == m_materials.end())
             m_materials[sid] = m_pxPhysics->createMaterial(mat.m_staticFriction, mat.m_dynamicFriction, mat.m_restitution);
 
@@ -334,8 +334,8 @@ namespace Lina::Physics
             return;
 
         auto& phy              = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_material.m_sid   = material->GetSID();
-        phy.m_material.m_value = material;
+        phy.m_material.sid   = material->GetSID();
+        phy.m_material.value = material;
 
         PxMaterial* pxMaterial = nullptr;
         m_shapes[body]->getMaterials(&pxMaterial, 1);
@@ -374,10 +374,10 @@ namespace Lina::Physics
         if (phy == nullptr)
             return;
 
-        if (phy->m_material.m_value == nullptr)
+        if (phy->m_material.value == nullptr)
         {
-            phy->m_material.m_value = m_defaultMaterial;
-            phy->m_material.m_sid   = phy->m_material.m_value->GetSID();
+            phy->m_material.value = m_defaultMaterial;
+            phy->m_material.sid   = phy->m_material.value->GetSID();
         }
 
         auto* data = ECS::Registry::Get()->try_get<ECS::EntityDataComponent>(ent);
@@ -592,7 +592,7 @@ namespace Lina::Physics
         return m_actors;
     }
 
-    HashMap<StringIDType, physx::PxMaterial*>& PhysicsEngine::GetMaterials()
+    HashMap<StringID, physx::PxMaterial*>& PhysicsEngine::GetMaterials()
     {
         return m_materials;
     }

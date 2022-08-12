@@ -234,7 +234,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EResourceProgressUpdated, &GUILayer::OnResourceLoadUpdated>(this);
         splashScreenTexture = new Graphics::Texture();
         splashScreenTexture->LoadFromFile("Resources/Editor/Textures/SplashScreen.png");
-        m_storage->Add(static_cast<void*>(splashScreenTexture), GetTypeID<Graphics::Texture>(), StringID("Resources/Editor/Textures/SplashScreen.png").value());
+        m_storage->Add(static_cast<void*>(splashScreenTexture), GetTypeID<Graphics::Texture>(), HashedString("Resources/Editor/Textures/SplashScreen.png").value());
         DrawSplashScreen();
 
         Engine::Get()->StartLoadingResources();

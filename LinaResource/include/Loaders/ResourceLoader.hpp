@@ -52,66 +52,21 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    class MemoryEntry
-    {
-    public:
-        MemoryEntry() = default;
-        ~MemoryEntry();
-
-        MemoryEntry(int priority, const String& path, Vector<unsigned char>& data)
-        {
-            m_priority = priority;
-            m_path     = path;
-            m_data     = data;
-        }
-
-        int                   m_priority = 100;
-        String                m_path     = "";
-        Vector<unsigned char> m_data;
-    };
-
-    struct CompareMemEntry
-    {
-        bool operator()(MemoryEntry const& p1, MemoryEntry const& p2)
-        {
-            // return "true" if "p1" is ordered
-            // before "p2", for example:
-            return p1.m_priority > p2.m_priority;
-        }
-    };
-
-    class FileEntry
-    {
-    public:
-        FileEntry()  = default;
-        ~FileEntry() = default;
-
-        FileEntry(int priority, Utility::File* file)
-        {
-            m_priority = priority;
-            m_file     = file;
-        }
-
-        Utility::File* m_file     = nullptr;
-        int            m_priority = 100;
-    };
-
-    struct CompareFileEntry
-    {
-        bool operator()(FileEntry const& p1, FileEntry const& p2)
-        {
-            // return "true" if "p1" is ordered
-            // before "p2", for example:
-            return p1.m_priority > p2.m_priority;
-        }
-    };
-
-    typedef PriorityQueue<MemoryEntry, Vector<MemoryEntry>, CompareMemEntry> MemoryQueue;
-    typedef PriorityQueue<FileEntry, Vector<FileEntry>, CompareFileEntry>    FileQueue;
-
     class ResourceLoader
     {
     public:
+        struct LoadingPair
+        {
+        public:
+            bool operator()(LoadingPair p1, LoadingPair p2)
+            {
+                return p1.priority > p2.priority;
+            }
+
+            TypeID tid      = 0;
+            String path     = "";
+            uint32 priority = 0;
+        };
         ResourceLoader()
         {
         }
@@ -138,35 +93,18 @@ namespace Lina::Resources
         bool LoadSingleResourceFromFile(TypeID tid, const String& fullpath);
 
         /// <summary>
-        /// Stores the given memory resource into a priority queue.
+        /// Loads a memory file resource.
         /// </summary>
-        void PushResourceFromMemory(const String& path, Vector<unsigned char>& data);
-
-        /// <summary>
-        /// Loads all memory buffers stored in memory resource queue. Use PushResourceFromMemory to push resources in.
-        /// </summary>
-        void LoadAllMemoryResources();
-
-        /// <summary>
-        /// Scans the given file for resources and saves the contents into m_fileResources priority queue.
-        /// </summary>
-        void ScanResourcesInFolder(Utility::Folder* folder);
-
-        /// <summary>
-        /// Loads all the resources in m_fileResources queue. Use ScanResourcesInFolder to push resources in.
-        /// </summary>
-        void LoadAllScannedResources();
+        bool LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data);
 
         /// <summary>
         /// Checks the current level resources to load & unloads any active resource that doesn't belong in the map.
         /// </summary>
         /// <param name="currentLevelResources"></param>
-        void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& currentLevelResources);
+        void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& levelResources);
 
     protected:
         ResourcePackager m_packager;
-        MemoryQueue      m_memoryResources;
-        FileQueue        m_fileResources;
         TypeID           m_lastResourceTypeID   = -1;
         int              m_lastResourcePriority = 0;
         ApplicationInfo  m_appInfo;

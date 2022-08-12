@@ -157,7 +157,7 @@ namespace Lina::Editor
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
             {
                 m_selectedFile     = file;
-                m_selectedResource = StringID(m_selectedFile->m_fullPath.c_str()).value();
+                m_selectedResource = HashedString(m_selectedFile->m_fullPath.c_str()).value();
                 Close();
             }
         }

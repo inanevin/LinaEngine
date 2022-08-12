@@ -223,32 +223,32 @@ namespace Lina::Editor
         /// <summary>
         /// Draws a combo-box selection type of frame which launches the resource selector panel upon clicking.
         /// </summary>
-        static StringIDType ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
+        static StringID ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionMaterial(const String& id, void* handleAddr);
+        static StringID ResourceSelectionMaterial(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionTexture(const String& id, void* handleAddr);
+        static StringID ResourceSelectionTexture(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionAudio(const String& id, void* handleAddr);
+        static StringID ResourceSelectionAudio(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr);
+        static StringID ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr);
 
         /// <summary>
         /// Material selection helper, calls ResourceSelection().
         /// </summary>
-        static StringIDType ResourceSelectionShader(const String& id, void* handleAddr);
+        static StringID ResourceSelectionShader(const String& id, void* handleAddr);
 
         /// <summary>
         /// Default IMGUI button with fixed styling options.

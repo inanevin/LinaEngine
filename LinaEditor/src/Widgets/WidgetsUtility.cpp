@@ -54,7 +54,7 @@ namespace Lina::Editor
     static float                                         m_editorCameraSpeed           = 1.0f;
     static float                                         m_editorCameraSpeedMultiplier = 1.0f;
     static Map<String, MovableChildData>       m_movableChildData;
-    static Map<StringIDType, uint32>                m_resourcePreviewTextures;
+    static Map<StringID, uint32>                m_resourcePreviewTextures;
     static float                                         m_editorCameraAspectBeforeSnapshot   = 0.0f;
     static Vector3                                       m_editorCameraLocationBeforeSnapshot = Vector3::Zero;
     static Quaternion                                    m_editorCameraRotationBeforeSnapshot = Quaternion();
@@ -230,7 +230,7 @@ namespace Lina::Editor
                                                                                                                      : ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
         const String  fullPath           = item->m_fullPath;
         const bool         isFolder           = item->typeID == 0;
-        const StringIDType sid                = item->sid;
+        const StringID sid                = item->sid;
 
         ImGui::BeginChild(fullPath.c_str(), totalSize, false, ImGuiWindowFlags_NoScrollbar);
 
@@ -295,7 +295,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVEMODEL_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVEMODEL_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -306,7 +306,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -317,7 +317,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -328,7 +328,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -339,7 +339,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVEAUDIO_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVEAUDIO_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -350,7 +350,7 @@ namespace Lina::Editor
         {
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(RESOURCES_MOVEPHYMAT_ID, &sid, sizeof(StringIDType));
+                ImGui::SetDragDropPayload(RESOURCES_MOVEPHYMAT_ID, &sid, sizeof(StringID));
 
                 // Display preview
                 ImGui::Text(fullPath.c_str());
@@ -1372,7 +1372,7 @@ namespace Lina::Editor
         return typeToReturn;
     }
 
-    StringIDType WidgetsUtility::ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
+    StringID WidgetsUtility::ResourceSelection(const String& id, void* currentResource, void* currentHandle, const char* resourceStr, bool* removed, TypeID resourceType)
     {
         String resourceName        = "None" + String("##") + id;
         const float spaceFromEnd        = 11.25f * GUILayer::Get()->GetDPIScale();
@@ -1421,7 +1421,7 @@ namespace Lina::Editor
             resSelector.Open();
         }
 
-        const StringIDType selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
+        const StringID selectedResource = GUILayer::Get()->GetResourceSelector().m_selectedResource;
 
         if (resSelector.m_currentSelectorID.compare(id) == 0 && selectedResource != 0)
         {
@@ -1433,20 +1433,20 @@ namespace Lina::Editor
         return 0;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionMaterial(const String& id, void* handleAddr)
+    StringID WidgetsUtility::ResourceSelectionMaterial(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Material>* handle = static_cast<Resources::ResourceHandle<Graphics::Material>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
+        StringID selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Material", &removed, GetTypeID<Graphics::Material>());
 
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
             {
-                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                StringIDType sid = *(StringIDType*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(StringID));
+                StringID sid = *(StringID*)payload->Data;
                 handle->m_sid    = sid;
                 handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);
             }
@@ -1468,20 +1468,20 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionTexture(const String& id, void* handleAddr)
+    StringID WidgetsUtility::ResourceSelectionTexture(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Texture>* handle = static_cast<Resources::ResourceHandle<Graphics::Texture>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
+        StringID selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Texture", &removed, GetTypeID<Graphics::Texture>());
 
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
             {
-                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                StringIDType sid = *(StringIDType*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(StringID));
+                StringID sid = *(StringID*)payload->Data;
                 handle->m_sid    = sid;
                 handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Texture>(sid);
             }
@@ -1503,20 +1503,20 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionAudio(const String& id, void* handleAddr)
+    StringID WidgetsUtility::ResourceSelectionAudio(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Audio::Audio>* handle = static_cast<Resources::ResourceHandle<Audio::Audio>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Audio", &removed, GetTypeID<Audio::Audio>());
+        StringID selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Audio", &removed, GetTypeID<Audio::Audio>());
 
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEAUDIO_ID))
             {
-                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                StringIDType sid = *(StringIDType*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(StringID));
+                StringID sid = *(StringID*)payload->Data;
                 handle->m_sid    = sid;
                 handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Audio::Audio>(sid);
             }
@@ -1538,20 +1538,20 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr)
+    StringID WidgetsUtility::ResourceSelectionPhysicsMaterial(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Physics::PhysicsMaterial>* handle = static_cast<Resources::ResourceHandle<Physics::PhysicsMaterial>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
+        StringID selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Physics Material", &removed, GetTypeID<Physics::PhysicsMaterial>());
 
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEPHYMAT_ID))
             {
-                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                StringIDType sid = *(StringIDType*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(StringID));
+                StringID sid = *(StringID*)payload->Data;
                 handle->m_sid    = sid;
                 handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Physics::PhysicsMaterial>(sid);
             }
@@ -1574,20 +1574,20 @@ namespace Lina::Editor
         return selected;
     }
 
-    StringIDType WidgetsUtility::ResourceSelectionShader(const String& id, void* handleAddr)
+    StringID WidgetsUtility::ResourceSelectionShader(const String& id, void* handleAddr)
     {
         Resources::ResourceHandle<Graphics::Shader>* handle = static_cast<Resources::ResourceHandle<Graphics::Shader>*>(handleAddr);
 
         bool         pressed  = false;
         bool         removed  = false;
-        StringIDType selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Shader", &removed, GetTypeID<Graphics::Shader>());
+        StringID selected = ResourceSelection(id, static_cast<void*>(handle->m_value), static_cast<void*>(handle), "Shader", &removed, GetTypeID<Graphics::Shader>());
 
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
             {
-                IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                StringIDType sid = *(StringIDType*)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(StringID));
+                StringID sid = *(StringID*)payload->Data;
                 handle->m_sid    = sid;
                 handle->m_value  = Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sid);
             }

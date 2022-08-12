@@ -17,13 +17,13 @@ namespace Lina::Editor
         WidgetsUtility::IncrementCursorPosY(12);
 
         // Store the current shader.
-        const StringIDType sidBefore = mat->GetShaderHandle().m_sid;
+        const StringID sidBefore = mat->GetShaderHandle().m_sid;
 
         // Draw the free data.
         ClassDrawer::DrawClass(GetTypeID<Graphics::Material>(), entt::forward_as_meta(*mat), false);
 
         // Set shader if changed.
-        const StringIDType sidNow = mat->GetShaderHandle().m_sid;
+        const StringID sidNow = mat->GetShaderHandle().m_sid;
         if (sidNow != sidBefore)
             mat->SetShader(Resources::ResourceStorage::Get()->GetResource<Graphics::Shader>(sidNow));
 
@@ -180,7 +180,7 @@ namespace Lina::Editor
                     const String id       = "##_" + usedName;
                     WidgetsUtility::PropertyLabel(usedName.c_str());
 
-                    const StringIDType sidBefore = value.m_texture.m_sid;
+                    const StringID sidBefore = value.m_texture.m_sid;
                     WidgetsUtility::ResourceSelectionTexture(id, &value.m_texture);
 
                     if (value.m_texture.m_sid != sidBefore)
@@ -206,7 +206,7 @@ namespace Lina::Editor
                 Graphics::RenderEngine::Get()->SetSkyboxMaterial(nullptr);
 
             const String  path = mat->GetPath();
-            const StringIDType sid  = mat->GetSID();
+            const StringID sid  = mat->GetSID();
             Resources::ResourceStorage::Get()->Unload<Graphics::Material>(sid);
             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{path, tid, sid});
             mat = Resources::ResourceStorage::Get()->GetResource<Graphics::Material>(sid);

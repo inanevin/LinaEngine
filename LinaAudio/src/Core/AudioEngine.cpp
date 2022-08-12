@@ -107,7 +107,7 @@ namespace Lina::Audio
     {
         unsigned int source = -1;
 
-        StringIDType sid = audio->GetSID();
+        StringID sid = audio->GetSID();
 
         if (m_generatedSources.find(sid) == m_generatedSources.end())
         {

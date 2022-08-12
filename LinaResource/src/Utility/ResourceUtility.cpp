@@ -60,7 +60,7 @@ namespace Lina::Resources
 
                         if (outItem != nullptr && lastTime != outItem->lastWriteTime)
                         {
-                            const StringIDType sid = StringID(replacedFullPath.c_str()).value();
+                            const StringID sid = HashedString(replacedFullPath.c_str()).value();
                             const TypeID       tid = outItem->typeID;
                             Resources::ResourceStorage::Get()->Unload(tid, sid);
                             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
@@ -76,7 +76,7 @@ namespace Lina::Resources
                 }
                 else
                 {
-                    const StringIDType sid = StringID(replacedFullPath.c_str()).value();
+                    const StringID sid = HashedString(replacedFullPath.c_str()).value();
                     const TypeID       tid = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
                     Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                 }
@@ -95,7 +95,7 @@ namespace Lina::Resources
                 file->parent           = root;
                 file->typeID           = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->extension);
                 file->lastWriteTime    = std::filesystem::last_write_time(file->fullPath.c_str());
-                const StringIDType sid = StringID(file->fullPath.c_str()).value();
+                const StringID sid = HashedString(file->fullPath.c_str()).value();
                 file->sid              = sid;
 
                 if (totalFiles != nullptr)
@@ -110,7 +110,7 @@ namespace Lina::Resources
                 folder->parent         = root;
                 folder->typeID         = 0;
                 folder->lastWriteTime  = std::filesystem::last_write_time(folder->fullPath.c_str());
-                const StringIDType sid = StringID(folder->fullPath.c_str()).value();
+                const StringID sid = HashedString(folder->fullPath.c_str()).value();
                 folder->sid            = sid;
 
                 if (recursive)
@@ -138,7 +138,7 @@ namespace Lina::Resources
         file = nullptr;
     }
 
-    String ResourceUtility::SearchFolderForSID(Utility::Folder* folder, StringIDType sid)
+    String ResourceUtility::SearchFolderForSID(Utility::Folder* folder, StringID sid)
     {
         String foundFile = "";
         bool   found     = false;

@@ -221,8 +221,8 @@ namespace Lina::Editor
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMODEL_ID))
                     {
-                        IM_ASSERT(payload->DataSize == sizeof(StringIDType));
-                        Graphics::RenderEngine::Get()->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringIDType*)payload->Data));
+                        IM_ASSERT(payload->DataSize == sizeof(StringID));
+                        Graphics::RenderEngine::Get()->GetModelNodeSystem()->CreateModelHierarchy(Resources::ResourceStorage::Get()->GetResource<Graphics::Model>(*(StringID*)payload->Data));
                     }
                     ImGui::EndDragDropTarget();
                 }

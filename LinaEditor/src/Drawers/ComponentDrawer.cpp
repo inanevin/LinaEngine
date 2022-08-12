@@ -62,7 +62,7 @@ namespace Lina::Editor
                 Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{data.GetLocation(), area.m_halfExtents, Color::Red, 3.4f});
             }
 
-            Graphics::RenderEngine::Get()->DrawIcon(data.GetLocation(), StringID("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
+            Graphics::RenderEngine::Get()->DrawIcon(data.GetLocation(), HashedString("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
         }
         else if (tid == GetTypeID<CameraComponent>())
         {
@@ -269,7 +269,7 @@ namespace Lina::Editor
 
             WidgetsUtility::PropertyLabel("Physics Material");
             const String currentMaterial = phy.m_material.m_value->GetPath();
-            StringIDType      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial("entity_phy_mat", &phy.m_material);
+            StringID      selected        = WidgetsUtility::ResourceSelectionPhysicsMaterial("entity_phy_mat", &phy.m_material);
 
             if (selected != 0 && phy.m_material.m_value->GetSID() != selected)
             {
@@ -395,7 +395,7 @@ namespace Lina::Editor
 
             if (foldoutOpen)
             {
-                Map<entt::meta_data, StringIDType> materials;
+                Map<entt::meta_data, StringID> materials;
 
                 // Draw each reflected property in the component according to it's type.
                 for (auto data : resolvedData.data())

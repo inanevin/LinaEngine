@@ -34,6 +34,8 @@ SOFTWARE.
 #define VERSION_MATERIAL 1
 
 #include "Core/IResource.hpp"
+#include "Core/ResourceHandle.hpp"
+#include "Shader.hpp"
 #include <cereal/access.hpp>
 
 namespace Lina::Graphics
@@ -49,15 +51,22 @@ namespace Lina::Graphics
         virtual void* LoadFromFile(const String& path) override;
 
     private:
+        
+        void FindShader();
+        void GeneratePipeline();
 
-        int dummy = 0;
+
+    private:
+
+        Resources::ResourceHandle<Shader> m_shader;
+
         friend class cereal::access;
 
         template <class Archive>
         void serialize(Archive& archive, std::uint32_t const version)
         {
-            if (version == VERSION_MATERIAL)
-                archive(dummy);
+            if (version == VERSION_MATERIAL) 
+                archive(m_shader);
             else
             {
                 // Previous version

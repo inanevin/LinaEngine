@@ -78,12 +78,12 @@ namespace Lina::Editor
             return m_editorSettings;
         }
 
-        Graphics::RenderTarget* AddSnapshotBuffer(StringIDType sid);
-        uint32                  GetSnapshotTexture(StringIDType sid);
+        Graphics::RenderTarget* AddSnapshotBuffer(StringID sid);
+        uint32                  GetSnapshotTexture(StringID sid);
 
     private:
         void PlayModeChanged(const Event::EPlayModeChanged& playmode);
-        void TakeModelSnapshot(StringIDType bufferSid, StringIDType modelSid, StringIDType materialSid);
+        void TakeModelSnapshot(StringID bufferSid, StringID modelSid, StringID materialSid);
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void OnPreSerializingLevel(const Event::EPreSerializingLevel& ev);
         void OnSerializedLevel(const Event::ESerializedLevel& ev);
@@ -98,7 +98,7 @@ namespace Lina::Editor
         ECS::EditorCameraSystem                          m_editorCameraSystem;
         GUILayer                                         m_guiLayer;
         FileWatcher                                      m_shaderWatcher;
-        HashMap<StringIDType, SnapshotBuffer> m_previewBuffers;
+        HashMap<StringID, SnapshotBuffer> m_previewBuffers;
         bool                                             m_snapshotsTaken = false;
     };
 } // namespace Lina::Editor

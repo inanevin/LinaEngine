@@ -88,7 +88,7 @@ namespace Lina::Resources
         /// <param name="folder"></param>
         /// <param name="sid"></param>
         /// <returns></returns>
-        static String SearchFolderForSID(Utility::Folder* folder, StringIDType sid);
+        static String SearchFolderForSID(Utility::Folder* folder, StringID sid);
 
         /// <summary>
         /// Scans root folder structure & re-constructs.

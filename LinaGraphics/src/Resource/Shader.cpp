@@ -114,8 +114,6 @@ namespace Lina::Graphics
         if (!dm->Exists(m_sid))
             SaveAssetData();
 
-        int sa = 0;
-
         m_assetData.geoShader = dm->GetValue<bool>(m_sid, "GeoShader");
         m_assetData.vtxData   = dm->GetValue<Vector<unsigned int>>(m_sid, "VtxData");
         m_assetData.fragData  = dm->GetValue<Vector<unsigned int>>(m_sid, "FragData");

@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "World/LevelManager.hpp"
 #include "Core/Engine.hpp"
+#include "Core/RenderEngine.hpp"
 #include "World/Level.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Core/ResourceStorage.hpp"
@@ -52,7 +53,11 @@ namespace Lina::World
 
     void LevelManager::InstallLevel(const String& path)
     {
-        const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == StringID(path.c_str()).value() : false;
+        // We're gonna be unloading/loading resources
+        // So wait for render engine to finish it's jobs.
+        Graphics::RenderEngine::Get()->Join();
+
+        const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == HashedString(path.c_str()).value() : false;
 
         // Uninstall current level if exists.
         // We don't use UninstallCurrent() here as it'll uninstall all resources that level contains.

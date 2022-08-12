@@ -55,7 +55,7 @@ namespace Lina
     {
     public:
         String         threadName = "";
-        StringIDType   threadID   = 0;
+        StringID   threadID   = 0;
         String         name       = "";
         double         durationNS = 0.0;
         double         startTime  = 0.0;

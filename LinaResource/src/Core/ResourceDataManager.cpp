@@ -62,7 +62,7 @@ namespace Lina::Resources
         return static_cast<void*>(this);
     }
 
-    void ResourceDataManager::CleanSlate(StringIDType sid)
+    void ResourceDataManager::CleanSlate(StringID sid)
     {
         m_resourceData[sid].data.clear();
     }

@@ -253,7 +253,7 @@ namespace Lina::Editor
         {
             Resources::SaveArchiveToFile(assetData->GetPath(), *assetData);
             const String  path = m_targetTexture->GetPath();
-            const StringIDType sid  = m_targetTexture->GetSID();
+            const StringID sid  = m_targetTexture->GetSID();
             const TypeID       tid  = GetTypeID<Graphics::Texture>();
             Resources::ResourceStorage::Get()->Unload<Graphics::Texture>(sid);
             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{path, tid, sid});

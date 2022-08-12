@@ -236,12 +236,12 @@ namespace Lina
 
         void ParentPathUpdated(File* file)
         {
-            const StringIDType sidBefore = StringID(file->fullPath.c_str()).value();
+            const StringID sidBefore = HashedString(file->fullPath.c_str()).value();
             const String oldPath = file->fullPath;
             file->fullPath             = file->parent->fullPath + "/" + file->fullName;
-            const StringIDType sidNow    = StringID(file->fullPath.c_str()).value();
+            const StringID sidNow    = HashedString(file->fullPath.c_str()).value();
             file->sid                  = sidNow;
-            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{sidBefore, sidNow, oldPath, file->fullPath});
+            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{file->typeID, sidBefore, sidNow, oldPath, file->fullPath});
         }
 
         void ChangeFileName(File* file, const String& newName)

@@ -46,26 +46,52 @@ namespace Lina::Resources
     public:
         ResourceHandleBase()          = default;
         virtual ~ResourceHandleBase() = default;
+
+        virtual void OnResourceLoaded()   = 0;
+        virtual void OnResourceUnloaded() = 0;
+        virtual bool IsValid()            = 0;
+
+        void OnResourceSIDChanged(StringID resSidNew)
+        {
+            sid = resSidNew;
+        }
+
+        StringID sid = 0;
+        TypeID   tid = 0;
     };
 
     template <typename T>
     class ResourceHandle : public ResourceHandleBase
     {
     public:
-        StringIDType m_sid   = 0;
-        T*           m_value = nullptr;
+        T* value = nullptr;
 
-        ResourceHandle()          = default;
-        virtual ~ResourceHandle() = default;
-
-        inline TypeID GetTID()
+        ResourceHandle()
         {
-            return GetTypeID<T>();
+            tid = GetTypeID<T>();
+        }
+        virtual ~ResourceHandle()
+        {
+            Resources::ResourceStorage::Get()->RemoveResourceHandle(this, tid);
         }
 
-        inline void OnResourceLoaded(TypeID tid, StringIDType sid)
+        virtual void OnResourceLoaded() override
         {
+            if (value != nullptr)
+                return;
+            value = ResourceStorage::Get()->GetResource<T>(sid);
+        }
 
+        virtual void OnResourceUnloaded() override
+        {
+            if (value == nullptr)
+                return;
+            value = nullptr;
+        }
+
+        virtual bool IsValid() override
+        {
+            return sid != 0 && value != nullptr;
         }
 
     private:
@@ -74,23 +100,24 @@ namespace Lina::Resources
         template <class Archive>
         void save(Archive& archive) const
         {
-            archive(m_sid);
+            archive(sid);
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(m_sid);
+            archive(sid);
+            tid = GetTypeID<T>();
 
-            if (m_sid != 0)
+            if (sid != 0)
             {
                 auto* storage = Resources::ResourceStorage::Get();
-                storage->AddResourceHandle(this);
+                storage->AddResourceHandle(this, tid);
 
-                if (storage->Exists<T>(m_sid))
-                    m_value = storage->GetResource<T>(m_sid);
+                if (storage->Exists<T>(sid))
+                    value = storage->GetResource<T>(sid);
                 else
-                    m_value = nullptr;
+                    value = nullptr;
             }
         }
     };

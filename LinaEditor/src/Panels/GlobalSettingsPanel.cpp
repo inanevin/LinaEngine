@@ -33,7 +33,7 @@ namespace Lina::Editor
             {
 
                 auto*              currentLevel               = World::Level::GetCurrent();
-                const StringIDType sidBefore                  = currentLevel->m_skyboxMaterial.m_sid;
+                const StringID sidBefore                  = currentLevel->m_skyboxMaterial.m_sid;
                 bool               anySettingsChanged         = false;
                 auto&              engineSettings             = Engine::Get()->GetEngineSettings();
                

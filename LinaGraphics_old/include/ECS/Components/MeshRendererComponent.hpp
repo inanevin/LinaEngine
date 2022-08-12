@@ -21,8 +21,8 @@ namespace Lina::ECS
     {
         String      m_modelPath         = "";
         String      m_materialPath      = "";
-        StringIDType     m_modelID           = -1;
-        StringIDType     m_materialID        = -1;
+        StringID     m_modelID           = -1;
+        StringID     m_materialID        = -1;
         Vector3          m_totalVertexCenter = Vector3::Zero;
         Vector3          m_totalBoundsMin    = Vector3::Zero;
         Vector3          m_totalBoundsMax    = Vector3::Zero;

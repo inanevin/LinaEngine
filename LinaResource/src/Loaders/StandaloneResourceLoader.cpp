@@ -41,14 +41,14 @@ namespace Lina::Resources
 
     void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path)
     {
-        if (ResourceStorage::Get()->Exists(tid, StringID(path.c_str()).value()))
+        if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
 
         const ResourceTypeData& typeData = ResourceStorage::Get()->GetTypeData(tid);
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
-        HashSet<StringIDType> set;
-        set.insert(StringID(path.c_str()).value());
+        HashSet<StringID> set;
+        set.insert(HashedString(path.c_str()).value());
         m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.packagePass, this);
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
@@ -56,7 +56,7 @@ namespace Lina::Resources
     void StandaloneResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
         ResourceStorage*                       storage = ResourceStorage::Get();
-        HashMap<TypeID, HashSet<StringIDType>> toLoad;
+        HashMap<TypeID, HashSet<StringID>> toLoad;
 
         // 1: Take a look at all the existing resources in storage, if it doesn't exist in the current level's resources we are loading, unload it.
         // 2: Iterate all the resourceMap we are about to load, find the one's that are not existing right now, add them to a seperate map.
@@ -70,7 +70,7 @@ namespace Lina::Resources
             const HashSet<String> set = resourceMap.at(pair.first);
             for (auto str : set)
             {
-                const StringIDType sid = StringID(str.c_str()).value();
+                const StringID sid = HashedString(str.c_str()).value();
                 if (!storage->Exists(pair.first, sid))
                     toLoad[pair.first].insert(sid);
             }
@@ -85,7 +85,7 @@ namespace Lina::Resources
         // Finally, load all designated resources by type id.
         for (const auto& pair : toLoad)
         {
-            ResourceTypeData& typeData = storage->GetTypeData(pair.first);
+            const ResourceTypeData& typeData = storage->GetTypeData(pair.first);
             m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, m_appInfo.packagePass, this);
         }
 

@@ -50,33 +50,34 @@ namespace Lina::Event
     };
     struct EResourceLoaded
     {
-        TypeID       tid;
-        StringIDType sid;
+        TypeID   tid = 0;
+        StringID sid = 0;
     };
 
     struct EResourcePathUpdated
     {
-        StringIDType previousStringID = 0;
-        StringIDType newStringID      = 0;
-        String       oldPath          = "";
-        String       newPath          = "";
+        TypeID   tid              = 0;
+        StringID previousStringID = 0;
+        StringID newStringID      = 0;
+        String   oldPath          = "";
+        String   newPath          = "";
     };
 
     struct EResourceUnloaded
     {
-        StringIDType sid = 0;
-        TypeID       tid = 0;
+        StringID sid = 0;
+        TypeID   tid = 0;
     };
     struct ERequestResourceReload
     {
-        String       fullPath = "";
-        TypeID       tid      = 0;
-        StringIDType sid      = 0;
+        String   fullPath = "";
+        TypeID   tid      = 0;
+        StringID sid      = 0;
     };
     struct EResourceReloaded
     {
-        TypeID       tid = 0;
-        StringIDType sid = 0;
+        TypeID   tid = 0;
+        StringID sid = 0;
     };
 
 } // namespace Lina::Event

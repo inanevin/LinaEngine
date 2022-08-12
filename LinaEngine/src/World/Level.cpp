@@ -85,6 +85,20 @@ namespace Lina::World
 
     void Level::SaveToFile(const String& path)
     {
+        // Find the resources used by this level by adding all currently active resource handles.
+        auto* storage = Resources::ResourceStorage::Get();
+        const auto& caches = storage->GetCaches();
+        for (const auto& [tid, cache] : caches)
+        {
+            const auto& handles = cache.GetResourceHandles();
+            for (auto handle : handles)
+            {
+                const StringID sid = handle->sid;
+                IResource*     res = static_cast<IResource*>(storage->GetResource(tid, sid));
+                m_usedResources[tid].insert(res->GetPath());
+            }
+        }
+
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
@@ -97,19 +111,4 @@ namespace Lina::World
 
         stream.close();
     }
-
-    void Level::AddResourceReference(TypeID tid, const String& path)
-    {
-        m_usedResources[tid].insert(path);
-    }
-
-    void Level::RemoveResourceReference(TypeID tid, const String& path)
-    {
-        auto&       set = m_usedResources[tid];
-        const auto& it  = set.find(path);
-
-        if (it != set.end())
-            set.erase(it);
-    }
-
 } // namespace Lina::World

@@ -243,7 +243,7 @@ namespace Lina::Editor
         else if (type.compare("Material") == 0)
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Material>>();
-            const StringIDType prev   = handle.m_sid;
+            const StringID prev   = handle.m_sid;
             WidgetsUtility::ResourceSelectionMaterial(variableID, static_cast<void*>(&handle));
             data.set(instance, handle);
 
@@ -281,7 +281,7 @@ namespace Lina::Editor
 
             for (int i = 0; i < arr.size(); i++)
             {
-                const StringIDType prev      = arr[i].m_sid;
+                const StringID prev      = arr[i].m_sid;
                 const String  elementID = variableID + TO_STRING(i);
 
                 String materialName = "Material " + TO_STRING(i);
@@ -299,7 +299,7 @@ namespace Lina::Editor
         else if (type.compare("Shader") == 0)
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Shader>>();
-            const StringIDType prev   = handle.m_sid;
+            const StringID prev   = handle.m_sid;
             WidgetsUtility::ResourceSelectionShader(variableID, &handle);
             data.set(instance, handle);
 
@@ -309,7 +309,7 @@ namespace Lina::Editor
         else if (type.compare("Texture") == 0)
         {
             auto               handle = data.get(instance).cast<Resources::ResourceHandle<Graphics::Texture>>();
-            const StringIDType prev   = handle.m_sid;
+            const StringID prev   = handle.m_sid;
             WidgetsUtility::ResourceSelectionTexture(variableID, &handle);
             data.set(instance, handle);
 

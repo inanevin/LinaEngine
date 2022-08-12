@@ -121,12 +121,12 @@ namespace Lina::Resources
         virtual void  LoadAssetData(){};
         virtual void  SaveAssetData(){};
 
-        inline StringIDType GetSID()
+        inline StringID GetSID()
         {
             return m_sid;
         }
 
-        inline const StringIDType GetSID() const
+        inline const StringID GetSID() const
         {
             return m_sid;
         }
@@ -144,13 +144,13 @@ namespace Lina::Resources
         inline void SetSID(const String& path)
         {
             m_path = path;
-            m_sid  = StringID(path.c_str()).value();
+            m_sid  = HashedString(path.c_str()).value();
         }
 
     protected:
 
         friend class ResourceStorage;
-        StringIDType m_sid            = 0;
+        StringID m_sid            = 0;
         String       m_path           = "";
     };
 

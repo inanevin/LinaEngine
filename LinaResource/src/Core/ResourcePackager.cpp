@@ -59,13 +59,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-
-        // Start unpacking.
         UnpackAndLoad(fullBundlePath, pass, loader);
-        loader->LoadAllMemoryResources();
     }
 
-    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
     {
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
@@ -75,10 +72,7 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-
-        // Start unpacking.
         UnpackAndLoad(fullBundlePath, filesToLoad, pass, loader);
-        loader->LoadAllMemoryResources();
     }
 
     void ResourcePackager::UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader)
@@ -126,10 +120,6 @@ namespace Lina::Resources
             std::map<std::wstring, std::vector<bit7z::byte_t>> map;
             extractor.extract(wdir, map);
 
-            // Clear the current memory queue in the loader.
-            MemoryQueue empty;
-            loader->m_memoryResources.swap(empty);
-
             // Sort the resources into their respective packages in the loader.
             for (auto& item : map)
             {
@@ -144,7 +134,7 @@ namespace Lina::Resources
                 for (int i = 0; i < item.second.size(); i++)
                     v.push_back(item.second[i]);
 
-                loader->PushResourceFromMemory(filePathStr, v);
+                loader->LoadSingleResourceFromMemory(filePathStr, v);
                 delete[] filePath;
             }
         }
@@ -156,7 +146,7 @@ namespace Lina::Resources
         LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringIDType>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
     {
 #ifdef LINA_MT
         Atomic<int> loadedFiles = 0;
@@ -196,10 +186,6 @@ namespace Lina::Resources
                 return;
             }
 
-            // Clear the current memory queue in the loader.
-            MemoryQueue empty;
-            loader->m_memoryResources.swap(empty);
-
             // Determine which item indices to load.
             Vector<Pair<uint32_t, String>> itemIndices;
             for (auto& item : items)
@@ -209,7 +195,7 @@ namespace Lina::Resources
                 std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
 
                 auto it = linatl::find_if(filesToLoad.begin(), filesToLoad.end(), [&](const auto& file) {
-                    return file == StringID(pathStr.c_str()).value();
+                    return file == HashedString(pathStr.c_str()).value();
                 });
 
                 if (it != filesToLoad.end())
@@ -227,7 +213,7 @@ namespace Lina::Resources
                 for (int i = 0; i < stdv.size(); i++)
                     v.push_back(stdv[i]);
 
-                loader->PushResourceFromMemory(str, v);
+                loader->LoadSingleResourceFromMemory(str, v);
 
                 loadedFiles++;
                 stdv.clear();
@@ -257,7 +243,7 @@ namespace Lina::Resources
         ResourceUtility::ScanRootFolder();
         auto*          storage = ResourceStorage::Get();
         Vector<String> filesToPack;
-        auto&          allTypes = storage->GetResourceTypes();
+        const auto&    allTypes = storage->GetCaches();
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Packaging project...", .totalFiles = 0});
 
@@ -267,13 +253,14 @@ namespace Lina::Resources
 
         // Pack the static resources, all static resources should be loaded into the memory during the lifetime of the editor.
         // So we can find them from the resource cache.
-        for (const auto& [tid, typeData] : allTypes)
+        for (const auto& [tid, cache] : allTypes)
         {
+            const ResourceTypeData& typeData = cache.GetTypeData();
             if (typeData.packageType == PackageType::Static)
             {
-                const Cache& cache = storage->GetCache(tid);
+                const auto& resources = cache.m_resources;
 
-                for (auto& pair : cache)
+                for (auto& pair : resources)
                 {
                     String fullpath = ResourceUtility::SearchFolderForSID(ResourceUtility::s_rootFolder, pair.first);
                     if (fullpath.compare("") != 0)
@@ -300,26 +287,24 @@ namespace Lina::Resources
         // We package the files based on the resource table sent by the engine here.
         for (const auto& [tid, vector] : resourceMap)
         {
-            ResourceTypeData& typeData = storage->GetTypeData(tid);
+            const ResourceTypeData& typeData = storage->GetTypeData(tid);
 
             if (typeData.packageType != PackageType::Static && typeData.packageType != PackageType::Level)
             {
                 // Find the full paths & add them based on sids.
                 for (auto fullpath : vector)
                     resourcesPerPackageType[typeData.packageType].push_back(fullpath);
-
             }
         }
 
         for (auto pt : resourcesPerPackageType)
         {
             filesToPack.clear();
-            for(auto str : pt.second)
+            for (auto str : pt.second)
                 filesToPack.push_back(str);
 
             PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(pt.first) + RESOURCEPACKAGE_EXTENSION, pass);
         }
-
     }
 
     void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)

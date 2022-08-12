@@ -75,7 +75,7 @@ namespace Lina::Editor
                 if (ext.compare("linaglh") == 0 || ext.compare("linaglsl") == 0)
                 {
                     bool               reload = false;
-                    const StringIDType sid    = StringID(path.c_str()).value();
+                    const StringID sid    = HashedString(path.c_str()).value();
                     TypeID             tid    = 0;
 
                     if (ext.compare("linaglh") == 0)
@@ -126,7 +126,7 @@ namespace Lina::Editor
             auto* sphere        = storage->GetResource<Graphics::Model>("Resources/Engine/Meshes/Primitives/Sphere.fbx");
 
             for (auto& [sid, ptr] : modelCache)
-                TakeModelSnapshot(sid, sid, (StringIDType)0);
+                TakeModelSnapshot(sid, sid, (StringID)0);
 
             for (auto& [sid, ptr] : materialCache)
                 TakeModelSnapshot(sid, sphere->GetSID(), sid);
@@ -181,7 +181,7 @@ namespace Lina::Editor
         // Prepare editor camera, add a new buffer for the resource, take & store a snapshot, reset the editor camera.
         if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Model>())
         {
-            TakeModelSnapshot(ev.m_sid, ev.m_sid, (StringIDType)0);
+            TakeModelSnapshot(ev.m_sid, ev.m_sid, (StringID)0);
         }
         if (m_snapshotsTaken && ev.m_tid == GetTypeID<Graphics::Material>())
         {
@@ -208,7 +208,7 @@ namespace Lina::Editor
         }
     }
 
-    void EditorApplication::TakeModelSnapshot(StringIDType bufferSid, StringIDType modelSid, StringIDType materialSid)
+    void EditorApplication::TakeModelSnapshot(StringID bufferSid, StringID modelSid, StringID materialSid)
     {
         WidgetsUtility::SaveEditorCameraBeforeSnapshot(1.0f);
         WidgetsUtility::SetEditorCameraForSnapshot();
@@ -219,7 +219,7 @@ namespace Lina::Editor
         WidgetsUtility::ResetEditorCamera();
     }
 
-    Graphics::RenderTarget* EditorApplication::AddSnapshotBuffer(StringIDType sid)
+    Graphics::RenderTarget* EditorApplication::AddSnapshotBuffer(StringID sid)
     {
         if (m_previewBuffers.find(sid) != m_previewBuffers.end())
             return m_previewBuffers[sid].m_rt;
@@ -238,7 +238,7 @@ namespace Lina::Editor
         return buffer.m_rt;
     }
 
-    uint32 EditorApplication::GetSnapshotTexture(StringIDType sid)
+    uint32 EditorApplication::GetSnapshotTexture(StringID sid)
     {
         return m_previewBuffers[sid].m_rtTexture->GetID();
     }

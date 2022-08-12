@@ -123,7 +123,7 @@ namespace Lina::ECS
                 uint32 materialSlot = mesh->GetMaterialSlotIndex();
 
                 // Check if material exists.
-                const StringIDType materialSID = nodeComponent.m_materials[i].m_sid;
+                const StringID materialSID = nodeComponent.m_materials[i].m_sid;
                 if (!Resources::ResourceStorage::Get()->Exists<Graphics::Material>(materialSID))
                     continue;
 

@@ -57,9 +57,9 @@ namespace Lina::Resources
     typedef std::variant<int, float, double, bool, String, Vector<unsigned int>> DataVariant;
 
 #ifdef LINA_MT
-    typedef ParallelHashMapMutex<StringIDType, DataVariant> DataMap;
+    typedef ParallelHashMapMutex<StringID, DataVariant> DataMap;
 #else
-    typedef HashMap<StringIDType, DataVariant> DataMap;
+    typedef HashMap<StringID, DataVariant> DataMap;
 #endif
 
     struct ResourceData
@@ -77,9 +77,9 @@ namespace Lina::Resources
     {
 
 #ifdef LINA_MT
-        typedef ParallelHashMapMutex<StringIDType, ResourceData> ResourceMap;
+        typedef ParallelHashMapMutex<StringID, ResourceData> ResourceMap;
 #else
-        typedef HashMap<StringIDType, ResourceData> ResourceMap;
+        typedef HashMap<StringID, ResourceData> ResourceMap;
 #endif
 
     public:
@@ -91,31 +91,31 @@ namespace Lina::Resources
         }
 
         template <typename T>
-        T GetValue(StringIDType sid, const String& name)
+        T GetValue(StringID sid, const String& name)
         {
-            const StringIDType valSid = StringID(name.c_str()).value();
+            const StringID valSid = HashedString(name.c_str()).value();
             return std::get<T>(m_resourceData[sid].data[valSid]);
         }
 
         template <typename T>
-        void SetValue(StringIDType sid, const String& name, const T& val)
+        void SetValue(StringID sid, const String& name, const T& val)
         {
-            const StringIDType valSid = StringID(name.c_str()).value();
+            const StringID valSid = HashedString(name.c_str()).value();
             m_resourceData[sid].data[valSid].emplace<T>(val);
         }
 
-        bool Exists(StringIDType sid)
+        bool Exists(StringID sid)
         {
             return m_resourceData.find(sid) != m_resourceData.end();
         }
 
-        void Remove(StringIDType sid)
+        void Remove(StringID sid)
         {
             const auto& it = m_resourceData.find(sid);
             m_resourceData.erase(it);
         }
 
-        void CleanSlate(StringIDType sid);
+        void CleanSlate(StringID sid);
 
         ResourceDataManager()  = default;
         ~ResourceDataManager() = default;

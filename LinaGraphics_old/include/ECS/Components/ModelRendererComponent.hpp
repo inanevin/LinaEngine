@@ -56,7 +56,7 @@ namespace Lina::ECS
             return m_generateMeshPivots;
         }
         void         RefreshHierarchy(ECS::Entity parent);
-        StringIDType GetModelID()
+        StringID GetModelID()
         {
             return m_modelID;
         }
@@ -79,7 +79,7 @@ namespace Lina::ECS
         friend class World::Level;
         friend class Editor::ComponentDrawer;
 
-        StringIDType             m_modelID         = 0;
+        StringID             m_modelID         = 0;
         String              m_modelPath       = "";
         String              m_modelParamsPath = "";
         Vector<String> m_materialPaths;

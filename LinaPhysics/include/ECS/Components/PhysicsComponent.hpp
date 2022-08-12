@@ -95,7 +95,7 @@ namespace Lina::ECS
             return m_simType;
         }
         
-        StringIDType m_attachedModelID = 0;
+        StringID m_attachedModelID = 0;
 
     private:
         friend class cereal::access;

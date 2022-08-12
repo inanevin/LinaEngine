@@ -765,7 +765,7 @@ namespace Lina::Graphics
         return m_previewRTTexture.GetID();
     }
 
-    void RenderEngine::DrawIcon(Vector3 position, StringIDType textureID, float size)
+    void RenderEngine::DrawIcon(Vector3 position, StringID textureID, float size)
     {
         m_debugIconQueue.push(DebugIcon{position, textureID, size});
     }

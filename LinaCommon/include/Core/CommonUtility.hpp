@@ -50,7 +50,7 @@ namespace Lina::Utility
         String                          name       = ""; // name without extension
         Folder*                         parent     = nullptr;
         TypeID                          typeID     = 0;
-        StringIDType                    sid        = 0;
+        StringID                    sid        = 0;
         bool                            isRenaming = false;
         std::filesystem::file_time_type lastWriteTime;
     };

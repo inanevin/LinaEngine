@@ -12,9 +12,9 @@ namespace Lina::ECS
 
     const float DIRLIGHT_DISTANCE_OFFSET = 10;
 
-    StringIDType pLightIconID = -1;
-    StringIDType sLightIconID = -1;
-    StringIDType dLightIconID = -1;
+    StringID pLightIconID = -1;
+    StringID sLightIconID = -1;
+    StringID dLightIconID = -1;
 
     void LightingSystem::Initialize(const String& name, ApplicationMode& appMode)
     {

@@ -49,7 +49,7 @@ namespace Lina::Editor
             m_selectedFile = nullptr;
         }
 
-        StringIDType m_selectedResource  = 0;
+        StringID m_selectedResource  = 0;
         String  m_currentSelectorID = "";
     private:
         void DrawTop();

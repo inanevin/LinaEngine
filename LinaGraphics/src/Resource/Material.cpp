@@ -27,18 +27,19 @@ SOFTWARE.
 */
 
 #include "Resource/Material.hpp"
+#include "Core/ResourceStorage.hpp"
 
 namespace Lina::Graphics
 {
     Material::~Material()
     {
-        
     }
 
     void* Material::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
         IResource::SetSID(path);
+        GeneratePipeline();
         return static_cast<void*>(this);
     }
 
@@ -46,7 +47,28 @@ namespace Lina::Graphics
     {
         *this = Resources::LoadArchiveFromFile<Material>(path);
         IResource::SetSID(path);
+        GeneratePipeline();
         return static_cast<void*>(this);
     }
-   
+
+    void Material::FindShader()
+    {
+        auto* storage = Resources::ResourceStorage::Get();
+
+        if (storage->Exists(m_shader.tid, m_shader.sid))
+        {
+            m_shader.value = storage->GetResource<Shader>(m_shader.sid);
+            GeneratePipeline();
+        }
+        else
+        {
+        }
+    }
+
+    void Material::GeneratePipeline()
+    {
+        if (!m_shader.IsValid())
+            return;
+    }
+
 } // namespace Lina::Graphics

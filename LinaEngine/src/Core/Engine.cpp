@@ -49,6 +49,7 @@ SOFTWARE.
 #include "Core/ResourceDataManager.hpp"
 #include "Resource/Shader.hpp"
 #include "Resource/Model.hpp"
+#include "Resource/Material.hpp"
 
 namespace Lina
 {
@@ -145,6 +146,7 @@ namespace Lina
             return;
         }
 
+        // Vector - Allow duplicates
         HashMap<TypeID, Vector<String>> resourceMap;
 
         // Iterate all levels to be packed.
@@ -185,7 +187,7 @@ namespace Lina
 
         // Iterate all resource meta-data
         // If the resource does not exists in any of the packed level resources, discard it.
-        Vector<StringIDType> resourceMetadataToRemove;
+        Vector<StringID> resourceMetadataToRemove;
 
         for (auto& [sid, resData] : m_resourceDataManager->m_resourceData)
         {
@@ -194,7 +196,7 @@ namespace Lina
             {
                 for (auto& resourceStr : sidVec)
                 {
-                    const StringIDType resourceSid = StringID(resourceStr.c_str()).value();
+                    const StringID resourceSid = HashedString(resourceStr.c_str()).value();
                     if (resourceSid == sid)
                     {
                         found = true;
@@ -423,12 +425,12 @@ namespace Lina
 
     void Engine::RegisterResourceTypes()
     {
-        m_resourceStorage.m_resources.clear();
+        m_resourceStorage.m_caches.clear();
 
         Vector<String> extensions;
 
         extensions.push_back("enginesettings");
-        m_resourceStorage.RegisterResource<EngineSettings>(
+        m_resourceStorage.RegisterResourceType<EngineSettings>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
@@ -439,9 +441,8 @@ namespace Lina
             });
 
         extensions.clear();
-
         extensions.push_back("rendersettings");
-        m_resourceStorage.RegisterResource<RenderSettings>(
+        m_resourceStorage.RegisterResourceType<RenderSettings>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
@@ -452,9 +453,8 @@ namespace Lina
             });
 
         extensions.clear();
-
         extensions.push_back("resourcedata");
-        m_resourceStorage.RegisterResource<Resources::ResourceDataManager>(
+        m_resourceStorage.RegisterResourceType<Resources::ResourceDataManager>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
@@ -465,9 +465,8 @@ namespace Lina
             });
 
         extensions.clear();
-
         extensions.push_back("linalevel");
-        m_resourceStorage.RegisterResource<World::Level>(
+        m_resourceStorage.RegisterResourceType<World::Level>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Level,
@@ -478,9 +477,32 @@ namespace Lina
             });
 
         extensions.clear();
+        extensions.push_back("mp3");
+        extensions.push_back("wav");
+        extensions.push_back("ogg");
+        m_resourceStorage.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
+            .loadPriority = 0,
+            .packageType = Resources::PackageType::Audio,
+            .createFunc = std::bind(Resources::CreateResource<Audio::Audio>),
+            .deleteFunc = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
+            .associatedExtensions = extensions,
+            .debugColor = Color(255, 235, 170, 255),
+            });
 
+        extensions.clear();
+        extensions.push_back("linaphymat");
+        m_resourceStorage.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
+            .loadPriority = 0,
+            .packageType = Resources::PackageType::Physics,
+            .createFunc = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
+            .deleteFunc = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
+            .associatedExtensions = extensions,
+            .debugColor = Color(17, 120, 255, 255),
+            });
+
+        extensions.clear();
         extensions.push_back("linashader");
-        m_resourceStorage.RegisterResource<Graphics::Shader>(
+        m_resourceStorage.RegisterResourceType<Graphics::Shader>(
             Resources::ResourceTypeData{
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Graphics,
@@ -490,11 +512,24 @@ namespace Lina
                 .debugColor           = Color::White,
             });
 
+        extensions.clear();
+        extensions.push_back("linamat");
+        m_resourceStorage.RegisterResourceType<Graphics::Material>(
+            Resources::ResourceTypeData{
+                .loadPriority = 1,
+                .packageType = Resources::PackageType::Graphics,
+                .createFunc = std::bind(Resources::CreateResource<Graphics::Material>),
+                .deleteFunc = std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
+                .associatedExtensions = extensions,
+                .debugColor = Color::White,
+            });
+
+        extensions.clear();
         extensions.push_back("fbx");
         extensions.push_back("obj");
-        m_resourceStorage.RegisterResource<Graphics::Model>(
+        m_resourceStorage.RegisterResourceType<Graphics::Model>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
+                .loadPriority         = 2,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Model>),
                 .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
@@ -502,29 +537,6 @@ namespace Lina
                 .debugColor           = Color::White,
             });
 
-        extensions.clear();
-        extensions.push_back("mp3");
-        extensions.push_back("wav");
-        extensions.push_back("ogg");
-        m_resourceStorage.RegisterResource<Audio::Audio>(Resources::ResourceTypeData{
-            .loadPriority         = 5,
-            .packageType          = Resources::PackageType::Audio,
-            .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
-            .deleteFunc           = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
-            .associatedExtensions = extensions,
-            .debugColor           = Color(255, 235, 170, 255),
-        });
-
-        extensions.clear();
-        extensions.push_back("linaphymat");
-        m_resourceStorage.RegisterResource<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
-            .loadPriority         = 5,
-            .packageType          = Resources::PackageType::Physics,
-            .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
-            .deleteFunc           = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
-            .associatedExtensions = extensions,
-            .debugColor           = Color(17, 120, 255, 255),
-        });
 
         // TODO: Font class.
     }
