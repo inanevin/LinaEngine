@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,17 +27,65 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/MeshSystem.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "Resource/Mesh.hpp"
+#include "Resource/Material.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-	void MeshSystem::Initialize(const String& name)
-	{
-	}
-	void MeshSystem::UpdateComponents(float delta)
-	{
-	}
-	void MeshSystem::Render()
-	{
-	}
-} // namespace Lina::ECS
 
+    Material* lastMaterial = nullptr;
+    Mesh*     lastMesh     = nullptr;
+
+    void MeshSystem::Initialize(const String& name)
+    {
+    }
+
+    void MeshSystem::UpdateComponents(float delta)
+    {
+    }
+
+    void MeshSystem::FetchData()
+    {
+    }
+
+    void MeshSystem::Render(Graphics::CommandBuffer& buffer)
+    {
+        m_renderables.clear();
+        m_renderables.resize(m_fetchedData.size());
+
+        glm::vec3 camPos = {0.f, 0.f, -350.f};
+
+        static float _frameNumber = 0.0f;
+        _frameNumber += 0.1f;
+
+        glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
+        // camera projection
+        glm::mat4 projection = glm::perspective(glm::radians(70.f), 1200.0f / 1200.0f, 0.1f, 1000.0f);
+        projection[1][1] *= -1;
+
+        for (auto& renderable : m_renderables)
+        {
+            if (renderable.material != lastMaterial)
+            {
+                renderable.material->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
+                renderable.material = lastMaterial;
+            }
+
+            const glm::mat4 meshMatrix = projection * view * renderable.transform;
+
+            Graphics::MeshPushConstants constants;
+            constants.renderMatrix = meshMatrix;
+
+            buffer.PushConstants(lastMaterial->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+
+            if (renderable.mesh != lastMesh)
+            {
+                buffer.Draw(static_cast<uint32>(renderable.mesh->GetVertices().size()), 1, 0, 0);
+                lastMesh = renderable.mesh;
+            }
+        }
+    }
+
+} // namespace Lina::Graphics

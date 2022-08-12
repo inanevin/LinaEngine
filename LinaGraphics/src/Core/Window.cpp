@@ -175,7 +175,8 @@ namespace Lina::Graphics
     {
         glfwSetWindowSize(m_glfwWindow, size.x, size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_userPtr, .newSize = size});
-        m_size = size;
+        m_size      = size;
+        m_minimized = size.x == 0 || size.y == 0;
     }
 
     void Window::SetPos(const Vector2i& pos)

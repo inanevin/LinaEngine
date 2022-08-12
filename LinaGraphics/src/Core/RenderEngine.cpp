@@ -80,145 +80,55 @@ namespace Lina::Graphics
         m_decalSystem.Initialize("Decal System");
         m_spriteSystem.Initialize("Sprite System");
         m_lightingSystem.Initialize("Lighting System");
-        m_meshSystem.Initialize("Mesh System");
-
-        const Vector2i size = m_window.GetSize();
-
-        m_graphicsQueue.Get(m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
-        m_pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
-        m_pool.Create();
-
-        m_commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
-        m_commandBuffer.Create(m_pool._ptr);
-
-        Extent3D ext = Extent3D{.width  = static_cast<unsigned int>(size.x),
-                                .height = static_cast<unsigned int>(size.y),
-                                .depth  = 1};
-
-        m_depthImage = Image{
-            .format          = Format::D32_SFLOAT,
-            .tiling          = ImageTiling::Optimal,
-            .extent          = ext,
-            .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
-            .imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment)};
-        m_depthImage.Create();
-
-        Attachment att          = Attachment{.format = m_backend.m_swapchain.format, .loadOp = LoadOp::Clear};
-        Attachment depthStencil = Attachment{
-            .format         = Format::D32_SFLOAT,
-            .loadOp         = LoadOp::Clear,
-            .storeOp        = StoreOp::Store,
-            .stencilLoadOp  = LoadOp::Clear,
-            .stencilStoreOp = StoreOp::DontCare,
-            .initialLayout  = ImageLayout::Undefined,
-            .finalLayout    = ImageLayout::DepthStencilOptimal};
-
-        SubPass sp = SubPass{.bindPoint = PipelineBindPoint::Graphics};
-        sp.AddColorAttachmentRef(0, ImageLayout::ColorOptimal)
-            .SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal)
-            .Create();
-
-        SubPassDependency dep = SubPassDependency{
-            .dstSubpass    = 0,
-            .srcStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
-            .srcAccessMask = 0,
-            .dstStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
-            .dstAccessMask = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
-        };
-
-        const uint32 depthFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
-
-        SubPassDependency depDepth = SubPassDependency{
-            .dstSubpass    = 0,
-            .srcStageMask  = depthFlags,
-            .srcAccessMask = 0,
-            .dstStageMask  = depthFlags,
-            .dstAccessMask = GetAccessFlags(AccessFlags::DepthStencilAttachmentWrite),
-        };
-
-        ClearValue clrCol = ClearValue{
-            .clearColor = Color::Blue,
-        };
-
-        ClearValue clrDepth = ClearValue{
-            .depth = 1.0f,
-        };
-
-        m_renderPass = RenderPass{};
-        m_renderPass.AddAttachment(att)
-            .AddAttachment(depthStencil)
-            .AddSubpass(sp)
-            .AddSubPassDependency(dep)
-            .AddSubPassDependency(depDepth)
-            .AddClearValue(clrCol)
-            .AddClearValue(clrDepth)
-            .Create();
-        m_framebuffers.reserve(m_backend.m_swapchain._imageViews.size());
-
-        for (auto iv : m_backend.m_swapchain._imageViews)
-        {
-            Framebuffer fb = Framebuffer{
-                .width  = static_cast<uint32>(size.x),
-                .height = static_cast<uint32>(size.y),
-                .layers = 1,
-            };
-
-            fb.AttachRenderPass(m_renderPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
-            m_framebuffers.push_back(fb);
-        }
-
-        m_presentSemaphore.Create();
-        m_renderSemaphore.Create();
-        m_renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
-        m_renderFence.Create();
+        m_renderer.Initialize();
     }
 
     void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
     {
 
-        RETURN_NOTINITED;
-        const Vector2i size = m_window.GetSize();
-
-        Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
-        cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
-
-        PushConstantRange r = PushConstantRange{
-            .offset     = 0,
-            .size       = sizeof(MeshPushConstants),
-            .stageFlags = GetShaderStage(ShaderStage::Vertex),
-        };
-
-        m_pipelineLayout = PipelineLayout{};
-        m_pipelineLayout.AddPushConstant(r).Create();
-
-        Viewport vp = Viewport{
-            .x        = 0.0f,
-            .y        = 0.0f,
-            .width    = static_cast<float>(size.x),
-            .height   = static_cast<float>(size.y),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f,
-        };
-        Recti scissors = Recti{
-            .pos  = Vector2(0.0f, 0.0f),
-            .size = size,
-        };
-
-        m_pipeline = Pipeline{
-            .depthTestEnabled  = true,
-            .depthWriteEnabled = true,
-            .depthCompareOp    = CompareOp::LEqual,
-            .viewport          = vp,
-            .scissor           = scissors,
-            .topology          = Topology::TriangleList,
-            .polygonMode       = PolygonMode::Fill,
-            .cullMode          = CullMode::None,
-        };
-
-        m_pipeline.SetShader(defaultShader)
-            .SetLayout(m_pipelineLayout)
-            .SetRenderPass(m_renderPass)
-            .Create();
+        //  RETURN_NOTINITED;
+        //  const Vector2i size = m_window.GetSize();
+        //
+        //  Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
+        //  cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
+        //
+        //  PushConstantRange r = PushConstantRange{
+        //      .offset     = 0,
+        //      .size       = sizeof(MeshPushConstants),
+        //      .stageFlags = GetShaderStage(ShaderStage::Vertex),
+        //  };
+        //
+        //  m_pipelineLayout = PipelineLayout{};
+        //  m_pipelineLayout.AddPushConstant(r).Create();
+        //
+        //  Viewport vp = Viewport{
+        //      .x        = 0.0f,
+        //      .y        = 0.0f,
+        //      .width    = static_cast<float>(size.x),
+        //      .height   = static_cast<float>(size.y),
+        //      .minDepth = 0.0f,
+        //      .maxDepth = 1.0f,
+        //  };
+        //  Recti scissors = Recti{
+        //      .pos  = Vector2(0.0f, 0.0f),
+        //      .size = size,
+        //  };
+        //
+        //  m_pipeline = Pipeline{
+        //      .depthTestEnabled  = true,
+        //      .depthWriteEnabled = true,
+        //      .depthCompareOp    = CompareOp::LEqual,
+        //      .viewport          = vp,
+        //      .scissor           = scissors,
+        //      .topology          = Topology::TriangleList,
+        //      .polygonMode       = PolygonMode::Fill,
+        //      .cullMode          = CullMode::None,
+        //  };
+        //
+        //  m_pipeline.SetShader(defaultShader)
+        //      .SetLayout(m_pipelineLayout)
+        //      .SetRenderPass(m_renderPass)
+        //      .Create();
     }
 
     void RenderEngine::SyncRenderData()
@@ -227,7 +137,7 @@ namespace Lina::Graphics
 
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
 
-        m_systemList.UpdateSystems(0.0f);
+        m_renderer.FetchData();
     }
 
     void RenderEngine::Clear()
@@ -239,51 +149,10 @@ namespace Lina::Graphics
     {
         RETURN_NOTINITED;
 
-        m_renderFence.Wait(true, 1.0);
-        m_renderFence.Reset();
+        if (m_window.IsMinimized())
+            return;
 
-        uint32 imageIndex = m_backend.m_swapchain.AcquireNextImage(1.0, m_presentSemaphore);
-
-        m_commandBuffer.Reset();
-        m_commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-
-        m_renderPass.Begin(m_framebuffers[imageIndex], m_commandBuffer);
-        m_pipeline.Bind(m_commandBuffer, PipelineBindPoint::Graphics);
-        Mesh* m = cube->GetRootNode()->GetMeshes()[0];
-
-        uint64 offset = 0;
-        m_commandBuffer.BindVertexBuffers(0, 1, m->GetGPUVtxBuffer().buffer, &offset);
-
-        glm::vec3 camPos = {0.f, 0.f, -350.f};
-
-        static float _frameNumber = 0.0f;
-        _frameNumber += 0.1f;
-
-        glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
-        // camera projection
-        glm::mat4 projection = glm::perspective(glm::radians(70.f), 1200.0f / 1200.0f, 0.1f, 1000.0f);
-        projection[1][1] *= -1;
-        // model rotation
-        glm::mat4 model = glm::rotate(glm::mat4{1.0f}, glm::radians(_frameNumber * 0.4f), glm::vec3(0, 1, 0));
-        // glm::mat4 model = glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 0.0f));
-
-        // calculate final mesh matrix
-        glm::mat4 meshMatrix = projection * view * model;
-
-        MeshPushConstants constants;
-        constants.renderMatrix = meshMatrix;
-
-        m_commandBuffer.PushConstants(m_pipelineLayout._ptr, GetShaderStage(ShaderStage::Vertex), 0, sizeof(MeshPushConstants), &constants);
-
-        m_commandBuffer.Draw(static_cast<uint32>(m->GetVertices().size()), 1, 0, 0);
-
-        m_renderPass.End(m_commandBuffer);
-        m_commandBuffer.End();
-
-        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
-        // Then submits command, and signals render semaphore when its submitted.
-        m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_commandBuffer, 1);
-        m_graphicsQueue.Present(m_renderSemaphore, &imageIndex);
+        m_renderer.Render();
 
         PROFILER_SCOPE_START("Render Sky", PROFILER_THREAD_RENDER);
         m_skySystem.Render();
@@ -301,15 +170,12 @@ namespace Lina::Graphics
         m_spriteSystem.Render();
         PROFILER_SCOPE_END("Render Sprites", PROFILER_THREAD_RENDER);
 
-        PROFILER_SCOPE_START("Render Meshes", PROFILER_THREAD_RENDER);
-        m_meshSystem.Render();
-        PROFILER_SCOPE_END("Render Meshes", PROFILER_THREAD_RENDER);
     }
 
     void RenderEngine::Join()
     {
         RETURN_NOTINITED;
-        m_renderFence.Wait();
+        m_renderer.Join();
     }
 
     void RenderEngine::Shutdown()
@@ -320,33 +186,21 @@ namespace Lina::Graphics
 
         m_mainDeletionQueue.Flush();
 
-        // m_renderFence.Destroy();
-        // m_renderSemaphore.Destroy();
-        // m_presentSemaphore.Destroy();
-        //
-        // m_pipelineLayout.Destroy();
-        // m_pipeline.Destroy();
-        //
-        // m_renderPass.Destroy();
-        // m_pool.Destroy();
-        //
-        for (int i = 0; i < m_framebuffers.size(); i++)
-            m_framebuffers[i].Destroy();
-
+        m_renderer.Shutdown();
         m_window.Shutdown();
         m_backend.Shutdown();
     }
 
     void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)
     {
-        const Vector2i size = m_window.GetSize();
-        for (int i = 0; i < m_framebuffers.size(); i++)
-        {
-            Framebuffer& fb = m_framebuffers[i];
-            fb.Destroy();
-            fb = Framebuffer{.width = static_cast<uint32>(size.x), .height = static_cast<uint32>(size.y), .layers = 1};
-            fb.AttachRenderPass(m_renderPass).AddImageView(m_backend.m_swapchain._imageViews[i]).AddImageView(m_depthImage._ptrImgView).Create();
-        }
+        // const Vector2i size = m_window.GetSize();
+        // for (int i = 0; i < m_framebuffers.size(); i++)
+        // {
+        //     Framebuffer& fb = m_framebuffers[i];
+        //     fb.Destroy();
+        //     fb = Framebuffer{.width = static_cast<uint32>(size.x), .height = static_cast<uint32>(size.y), .layers = 1};
+        //     fb.AttachRenderPass(m_renderPass).AddImageView(m_backend.m_swapchain._imageViews[i]).AddImageView(m_depthImage._ptrImgView).Create();
+        // }
     }
 
 } // namespace Lina::Graphics

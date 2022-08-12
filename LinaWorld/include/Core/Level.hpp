@@ -28,60 +28,82 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Material_HPP
-#define Material_HPP
+#ifndef Level_HPP
+#define Level_HPP
 
-#define VERSION_MATERIAL 1
-
-#include "PipelineObjects/Pipeline.hpp"
+#include "World.hpp"
 #include "Core/IResource.hpp"
-#include "Core/ResourceHandle.hpp"
-#include "Shader.hpp"
+#include "Utility/StringId.hpp"
+#include "Math/Color.hpp"
+#include "ECS/Registry.hpp"
+#include "Core/CommonReflection.hpp"
+#include "Data/String.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/HashSet.hpp"
+#include "Data/Serialization/SetSerialization.hpp"
 #include <cereal/access.hpp>
 
-namespace Lina::Graphics
+namespace Lina::World
 {
-    class Material : public Resources::IResource
+    class Application;
+
+    LINA_CLASS("Level Settings")
+    class Level : public Resources::IResource
     {
     public:
-        Material() = default;
-        virtual ~Material();
+        Level(){};
+        virtual ~Level(){};
+
+        Level(const Level&);
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
+        void          SaveToFile(const String& path);
 
-        inline Pipeline& GetPipeline()
+        ObjectWorld& GetObjectWorld()
         {
-            return m_pipeline;
+            return m_world;
         }
 
+        VisibilityWorld& GetVisibilityWorld()
+        {
+            return m_visWorld;
+        }
+
+        RenderWorld& GetRenderWorld()
+        {
+            return m_renderWorld;
+        }
+
+        const HashMap<TypeID, HashSet<String>>& GetResources()
+        {
+            return m_usedResources;
+        }
+
+        LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
+        Color m_ambientColor = Color(0);
+
     private:
-
-        void FindShader();
-        void GeneratePipeline();
+        void Install();
+        void Uninstall();
 
     private:
+        ObjectWorld     m_world;
+        VisibilityWorld m_visWorld;
+        RenderWorld     m_renderWorld;
 
-        Resources::ResourceHandle<Shader> m_shader;
-        Pipeline                          m_pipeline;
-
+    private:
+        friend class LevelManager;
         friend class cereal::access;
 
+        HashMap<TypeID, HashSet<String>> m_usedResources;
+
         template <class Archive>
-        void serialize(Archive& archive, std::uint32_t const version)
+        void serialize(Archive& archive)
         {
-            if (version == VERSION_MATERIAL)
-                archive(m_shader);
-            else
-            {
-                // Previous version
-                // archive(m_dummy);
-            }
+            archive(m_ambientColor, m_usedResources);
         }
     };
-
-} // namespace Lina::Graphics
-
-CEREAL_CLASS_VERSION(Lina::Graphics::Material, VERSION_MATERIAL);
+} // namespace Lina::World
 
 #endif

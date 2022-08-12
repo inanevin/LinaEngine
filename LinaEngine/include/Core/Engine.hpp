@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Core/MessageBus.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Core/RenderEngine.hpp"
-#include "World/LevelManager.hpp"
+#include "Core/LevelManager.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "ECS/System.hpp"
 #include "ECS/SystemList.hpp"

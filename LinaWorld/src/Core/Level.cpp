@@ -26,8 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level.hpp"
-#include "Core/Engine.hpp"
+#include "Core/Level.hpp"
+#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceHandle.hpp"
 #include "ECS/Registry.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include <cereal/archives/portable_binary.hpp>
@@ -38,7 +39,7 @@ namespace Lina::World
 {
     void Level::Install()
     {
-        ECS::Registry::s_ecs = &m_registry;
+        ECS::Registry::s_ecs = &m_world.m_registry;
         LINA_TRACE("Level installed: {0}", m_path);
     }
 
@@ -55,7 +56,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);
-            m_registry.DeserializeComponentsInRegistry(iarchive);
+            m_world.m_registry.DeserializeComponentsInRegistry(iarchive);
         }
 
         stream.clear();
@@ -69,7 +70,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);
-            m_registry.DeserializeComponentsInRegistry(iarchive);
+            m_world.m_registry.DeserializeComponentsInRegistry(iarchive);
         }
 
         stream.close();
@@ -79,7 +80,7 @@ namespace Lina::World
 
     void Level::Uninstall()
     {
-        m_registry.clear();
+        m_world.m_registry.clear();
         LINA_TRACE("Level uninstalled: {0}", m_path);
     }
 
@@ -106,7 +107,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(*this);
-            m_registry.SerializeComponentsInRegistry(oarchive);
+            m_world.m_registry.SerializeComponentsInRegistry(oarchive);
         }
 
         stream.close();

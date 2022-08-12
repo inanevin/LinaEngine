@@ -25,31 +25,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-#ifndef MeshSystem_HPP
-#define MeshSystem_HPP
+#include "Core/World.hpp"
+#include "Core/LevelManager.hpp"
+#include "Core/Level.hpp"
 
-#include "ECS/System.hpp"
-#include "Core/RenderData.hpp"
-
-namespace Lina::Graphics
+namespace Lina::World
 {
-    class CommandBuffer;
-
-    class MeshSystem : public ECS::System
+    ObjectWorld* ObjectWorld::Get()
     {
-    public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
+        auto* lvl = LevelManager::Get()->GetCurrentLevel();
+        return lvl == nullptr ? nullptr : &lvl->GetObjectWorld();
+    }
+    
+    VisibilityWorld* VisibilityWorld::Get()
+    {
+        auto* lvl = LevelManager::Get()->GetCurrentLevel();
+        return lvl == nullptr ? nullptr : &lvl->GetVisibilityWorld();
+    }
 
-        void FetchData();
-        void Render(Graphics::CommandBuffer& buffer);
-
-    private:
-        Vector<Graphics::Renderable> m_fetchedData;
-        Vector<Graphics::Renderable> m_renderables;
-    };
-} // namespace Lina::Graphics
-
-#endif
+    RenderWorld* RenderWorld::Get()
+    {
+        auto* lvl = LevelManager::Get()->GetCurrentLevel();
+        return lvl == nullptr ? nullptr : &lvl->GetRenderWorld();
+    }
+} // namespace Lina::World

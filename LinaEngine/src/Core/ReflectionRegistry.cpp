@@ -59,7 +59,7 @@ SOFTWARE.
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
-#include "World/Level.hpp"
+#include "Core/Level.hpp"
 //INC_END - !! DO NOT MODIFY THIS LINE !!
 
 namespace Lina

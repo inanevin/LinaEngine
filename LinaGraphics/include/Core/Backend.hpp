@@ -102,6 +102,7 @@ namespace Lina::Graphics
 
     private:
         friend class RenderEngine;
+        friend class Renderer;
 
         Backend()  = default;
         ~Backend() = default;

@@ -26,11 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/LevelManager.hpp"
-#include "Core/Engine.hpp"
+#include "Core/LevelManager.hpp"
 #include "Core/RenderEngine.hpp"
-#include "World/Level.hpp"
-#include "Settings/EngineSettings.hpp"
+#include "Core/Level.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/LevelEvents.hpp"

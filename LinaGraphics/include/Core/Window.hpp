@@ -55,6 +55,11 @@ namespace Lina::Graphics
         {
             return m_size;
         }
+
+        inline bool IsMinimized()
+        {
+            return m_minimized;
+        }
         inline const Vector2i& GetPos()
         {
             return m_pos;
@@ -81,6 +86,7 @@ namespace Lina::Graphics
         static Window* s_instance;
         GLFWwindow*    m_glfwWindow = nullptr;
         void*          m_userPtr    = nullptr;
+        bool           m_minimized  = false;
     };
 } // namespace Lina::Graphics
 

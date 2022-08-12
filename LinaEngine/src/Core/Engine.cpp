@@ -33,7 +33,7 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/PhysicsEvents.hpp"
 #include "Log/Log.hpp"
-#include "World/Level.hpp"
+#include "Core/Level.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Physics/PhysicsMaterial.hpp"
@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
 #include "Data/HashSet.hpp"
-#include "World/Level.hpp"
+#include "Core/Level.hpp"
 #include "Loaders/ResourceLoader.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/ResourceDataManager.hpp"
@@ -220,9 +220,6 @@ namespace Lina
 
     void Engine::Run()
     {
-        m_resourceStorage.Load(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
-        m_resourceStorage.Load(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
-
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
 
         m_deltaTimeArray.fill(-1.0);
@@ -481,24 +478,24 @@ namespace Lina
         extensions.push_back("wav");
         extensions.push_back("ogg");
         m_resourceStorage.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
-            .loadPriority = 0,
-            .packageType = Resources::PackageType::Audio,
-            .createFunc = std::bind(Resources::CreateResource<Audio::Audio>),
-            .deleteFunc = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
+            .loadPriority         = 0,
+            .packageType          = Resources::PackageType::Audio,
+            .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
+            .deleteFunc           = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
             .associatedExtensions = extensions,
-            .debugColor = Color(255, 235, 170, 255),
-            });
+            .debugColor           = Color(255, 235, 170, 255),
+        });
 
         extensions.clear();
         extensions.push_back("linaphymat");
         m_resourceStorage.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
-            .loadPriority = 0,
-            .packageType = Resources::PackageType::Physics,
-            .createFunc = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
-            .deleteFunc = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
+            .loadPriority         = 0,
+            .packageType          = Resources::PackageType::Physics,
+            .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
+            .deleteFunc           = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
             .associatedExtensions = extensions,
-            .debugColor = Color(17, 120, 255, 255),
-            });
+            .debugColor           = Color(17, 120, 255, 255),
+        });
 
         extensions.clear();
         extensions.push_back("linashader");
@@ -516,12 +513,12 @@ namespace Lina
         extensions.push_back("linamat");
         m_resourceStorage.RegisterResourceType<Graphics::Material>(
             Resources::ResourceTypeData{
-                .loadPriority = 1,
-                .packageType = Resources::PackageType::Graphics,
-                .createFunc = std::bind(Resources::CreateResource<Graphics::Material>),
-                .deleteFunc = std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
+                .loadPriority         = 1,
+                .packageType          = Resources::PackageType::Graphics,
+                .createFunc           = std::bind(Resources::CreateResource<Graphics::Material>),
+                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
                 .associatedExtensions = extensions,
-                .debugColor = Color::White,
+                .debugColor           = Color::White,
             });
 
         extensions.clear();
@@ -536,7 +533,6 @@ namespace Lina
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
-
 
         // TODO: Font class.
     }

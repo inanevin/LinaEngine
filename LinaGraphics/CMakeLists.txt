@@ -25,7 +25,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend.cpp
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
-	src/Core/RenderDataManager.cpp
+	src/Core/Renderer.cpp
 
 	# Data
 	src/Data/Vertex.cpp
@@ -79,7 +79,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderEngine.hpp
 	include/Core/Backend.hpp
 	include/Core/Window.hpp
-	include/Core/RenderDataManager.hpp
+	include/Core/Renderer.hpp
+	include/Core/RenderData.hpp
 
 	# Data
 	include/Data/Vertex.hpp

@@ -26,9 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <vulkan/vulkan.h>
+#pragma once
+
+#ifndef RenderData_HPP
+#define RenderData_HPP
+
+#include "Math/Matrix.hpp"
+#include "Data/Vector.hpp"
+
 
 namespace Lina::Graphics
 {
-  
+    class Mesh;
+    class Material;
+
+    struct Renderable
+    {
+        Mesh*     mesh      = nullptr;
+        Material* material  = nullptr;
+        Matrix    transform = Matrix::Identity();
+    };
+
+    struct RenderData
+    {
+        Vector<Renderable> renderables;
+    };
+
+
 } // namespace Lina::Graphics
+
+#endif

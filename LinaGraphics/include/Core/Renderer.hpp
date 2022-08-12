@@ -31,13 +31,57 @@ SOFTWARE.
 #ifndef RenderDataManager_HPP
 #define RenderDataManager_HPP
 
+#include "Math/Matrix.hpp"
+#include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/RQueue.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/CommandPool.hpp"
+#include "PipelineObjects/RenderPass.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/Fence.hpp"
+#include "PipelineObjects/Pipeline.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
+#include "PipelineObjects/Image.hpp"
+#include "ECS/Systems/MeshSystem.hpp"
+
 
 namespace Lina::Graphics
 {
-    struct RenderData
-    {
+    class Backend;
 
+    class Renderer
+    {
+    public:
+        Renderer()  = default;
+        ~Renderer() = default;
+
+    private:
+        friend class RenderEngine;
+
+        void Initialize();
+        void Render();
+        void Join();
+        void Shutdown();
+        void FetchData();
+
+    private:
+
+        MeshSystem     m_meshSystem;
+
+    private:
+        Backend*            m_backend = nullptr;
+        RQueue              m_graphicsQueue;
+        CommandPool         m_pool;
+        CommandBuffer       m_commandBuffer;
+        RenderPass          m_renderPass;
+        SubPass             m_subpass;
+        Vector<Framebuffer> m_framebuffers;
+        Fence               m_renderFence;
+        Semaphore           m_renderSemaphore;
+        Semaphore           m_presentSemaphore;
+        Image               m_depthImage;
     };
 
 } // namespace Lina::Graphics
