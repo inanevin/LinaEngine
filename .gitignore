@@ -26,7 +26,6 @@ LinaEngineBuildLauncher
 
 # Visual Studio cache/options directory
 .vs/
-x64
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -277,5 +276,6 @@ _VERSION0_SRC/Debug/LinaEngine.exe.lastcodeanalysissucceeded
 CMakeCache.txt
 Sandbox/Resources
 bin
-lib
 CMakeFiles
+lib/Release
+lib/Debug
