@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,31 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Views/View.hpp"
 
-#ifndef LightingSystem_HPP
-#define LightingSystem_HPP
-
-#include "ECS/System.hpp"
-
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    class Registry;
 
-    class LightingSystem : public System
-    {
-    public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
-
-        inline void SetTargetRegistry(Registry* reg)
-        {
-            m_registry = reg;
-        }
-    private:
-
-        Registry* m_registry = nullptr;
-    };
-} // namespace Lina::ECS
-
-#endif
+} // namespace Lina::Graphics

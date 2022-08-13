@@ -65,16 +65,6 @@ namespace Lina::World
             return m_world;
         }
 
-        VisibilityWorld& GetVisibilityWorld()
-        {
-            return m_visWorld;
-        }
-
-        RenderWorld& GetRenderWorld()
-        {
-            return m_renderWorld;
-        }
-
         const HashMap<TypeID, HashSet<String>>& GetResources()
         {
             return m_usedResources;
@@ -88,9 +78,7 @@ namespace Lina::World
         void Uninstall();
 
     private:
-        ObjectWorld     m_world;
-        VisibilityWorld m_visWorld;
-        RenderWorld     m_renderWorld;
+        ObjectWorld m_world;
 
     private:
         friend class LevelManager;

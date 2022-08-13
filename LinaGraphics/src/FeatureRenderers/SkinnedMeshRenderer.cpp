@@ -26,18 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/SpriteSystem.hpp"
+#include "FeatureRenderers/SkinnedMeshRenderer.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-	void SpriteSystem::Initialize(const String& name)
-	{
-	}
-	void SpriteSystem::UpdateComponents(float delta)
-	{
-	}
-	void SpriteSystem::Render()
-	{
-	}
-} // namespace Lina::ECS
-
+    void SkinnedMeshRenderer::Initialize()
+    {
+    }
+    void SkinnedMeshRenderer::Shutdown()
+    {
+    }
+} // namespace Lina::Graphics

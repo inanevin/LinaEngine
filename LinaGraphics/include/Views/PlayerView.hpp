@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,18 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/ParticleSystem.hpp"
+#pragma once
 
-namespace Lina::ECS
+#ifndef PlayerView_HPP
+#define PlayerView_HPP
+
+#include "View.hpp"
+#include "Math/Frustum.hpp"
+
+namespace Lina::Graphics
 {
-	void ParticleSystem::Initialize(const String& name)
-	{
-	}
-	void ParticleSystem::UpdateComponents(float delta)
-	{
-	}
-	void ParticleSystem::Render()
-	{
-	}
-} // namespace Lina::ECS
+    class PlayerView : public View
+    {
+    public:
+    protected:
+     
+    };
+} // namespace Lina::Graphics
 
+#endif

@@ -45,6 +45,8 @@ SOFTWARE.
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
 
+#include "FeatureRenderers/FeatureRenderer.hpp"
+
 namespace Lina::Graphics
 {
     RenderEngine* RenderEngine::s_instance = nullptr;
@@ -75,12 +77,8 @@ namespace Lina::Graphics
             return;
         }
 
-        m_skySystem.Initialize("Sky System");
-        m_particleSystem.Initialize("Particle System");
-        m_decalSystem.Initialize("Decal System");
-        m_spriteSystem.Initialize("Sprite System");
-        m_lightingSystem.Initialize("Lighting System");
         m_renderer.Initialize();
+        m_meshRenderer.Initialize();
     }
 
     void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
@@ -131,14 +129,6 @@ namespace Lina::Graphics
         //      .Create();
     }
 
-    void RenderEngine::SyncRenderData()
-    {
-        RETURN_NOTINITED;
-
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-
-        m_renderer.FetchData();
-    }
 
     void RenderEngine::Clear()
     {
@@ -148,28 +138,12 @@ namespace Lina::Graphics
     void RenderEngine::Render()
     {
         RETURN_NOTINITED;
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         if (m_window.IsMinimized())
             return;
 
         m_renderer.Render();
-
-        PROFILER_SCOPE_START("Render Sky", PROFILER_THREAD_RENDER);
-        m_skySystem.Render();
-        PROFILER_SCOPE_END("Render Sky", PROFILER_THREAD_RENDER);
-
-        PROFILER_SCOPE_START("Render Particles", PROFILER_THREAD_RENDER);
-        m_particleSystem.Render();
-        PROFILER_SCOPE_END("Render Particles", PROFILER_THREAD_RENDER);
-
-        PROFILER_SCOPE_START("Render Decals", PROFILER_THREAD_RENDER);
-        m_decalSystem.Render();
-        PROFILER_SCOPE_END("Render Decals", PROFILER_THREAD_RENDER);
-
-        PROFILER_SCOPE_START("Render Sprites", PROFILER_THREAD_RENDER);
-        m_spriteSystem.Render();
-        PROFILER_SCOPE_END("Render Sprites", PROFILER_THREAD_RENDER);
-
     }
 
     void RenderEngine::Join()
@@ -186,9 +160,33 @@ namespace Lina::Graphics
 
         m_mainDeletionQueue.Flush();
 
+        m_meshRenderer.Shutdown();
         m_renderer.Shutdown();
         m_window.Shutdown();
         m_backend.Shutdown();
+    }
+
+    void RenderEngine::FetchVisibilityState()
+    {
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        m_renderer.FetchVisibilityState();
+    }
+
+    void RenderEngine::ExtractGameState()
+    {
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        Vector<View*> views;
+        views.push_back(&m_playerView);
+
+        m_renderer.ExtractGameState(views);
+    }
+
+    void RenderEngine::PrepareRenderData()
+    {
+        Vector<View*> views;
+        views.push_back(&m_playerView);
+
+        m_renderer.PrepareRenderData(views);
     }
 
     void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)

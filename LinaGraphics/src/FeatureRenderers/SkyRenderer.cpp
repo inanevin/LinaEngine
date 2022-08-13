@@ -26,17 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/SkySystem.hpp"
+#include "FeatureRenderers/SkyRenderer.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    void SkySystem::Initialize(const String& name)
+    void SkyRenderer::Initialize()
     {
     }
-    void SkySystem::UpdateComponents(float delta)
+
+    void SkyRenderer::Shutdown()
     {
     }
-    void SkySystem::Render()
-    {
-    }
-} // namespace Lina::ECS
+} // namespace Lina::Graphics

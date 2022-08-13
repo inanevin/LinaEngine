@@ -26,29 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/RenderWorld.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/LevelEvents.hpp"
 
-#ifndef World_HPP
-#define World_HPP
-
-#include "ECS/Registry.hpp"
-
-namespace Lina::World
+namespace Lina::Graphics
 {
-    // Actual game state
-    class ObjectWorld
+    void RenderWorld::Initialize()
     {
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &RenderWorld::OnLevelInstalled>(this);
+    }
 
-    public:
+    void RenderWorld::Shutdown()
+    {
+        m_renderableData.clear();
+        m_visibilityData.clear();
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+    }
 
-        static ObjectWorld* Get();
+    void RenderWorld::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        m_visibilityCounter = m_renderableCounter = 0;
+    }
 
-    private:
-        friend class Level;
+    RenderWorldHandle RenderWorld::AddVisibility()
+    {
+        m_visibilityData[m_visibilityCounter] = VisibilityData{};
+        return m_visibilityCounter++;
+    }
 
-        ECS::Registry m_registry;
-    };
+    RenderWorldHandle RenderWorld::AddRenderable()
+    {
+        m_renderableData[m_renderableCounter] = RenderableData{};
+        return m_renderableCounter++;
+    }
 
-} // namespace Lina::World
+    void RenderWorld::RemoveVisibility(RenderWorldHandle handle)
+    {
+    }
+    void RenderWorld::RemoveRenderable(RenderWorldHandle handle)
+    {
+    }
 
-#endif
+} // namespace Lina::Graphics

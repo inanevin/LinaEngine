@@ -44,18 +44,40 @@ SOFTWARE.
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/Image.hpp"
-#include "ECS/Systems/MeshSystem.hpp"
 
+#include "RenderWorld.hpp"
+
+#include <functional>
 
 namespace Lina::Graphics
 {
     class Backend;
+    class View;
+
+    typedef std::function<void()> FeatureRendererFunction;
+    typedef std::function<void()> FeatureRendererViewFunction;
+
+    enum class FeatureRendererStage
+    {
+        OnExtract,
+        OnExtractView,
+        OnExtractViewFinalize,
+        OnExtractEnd,
+        OnPrepare,
+        OnPrepareView,
+        OnPrepareViewFinalize,
+        OnPrepareEnd,
+        OnSubmit
+    };
 
     class Renderer
     {
     public:
         Renderer()  = default;
         ~Renderer() = default;
+
+        void RegisterToStageFunction(FeatureRendererStage stage, FeatureRendererFunction&& func);
+        void RegisterToStageViewFunction(FeatureRendererStage stage, FeatureRendererViewFunction&& func);
 
     private:
         friend class RenderEngine;
@@ -64,13 +86,22 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void Shutdown();
-        void FetchData();
+        void FetchVisibilityState();
+        void ExtractGameState(Vector<View*>& views);
+        void PrepareRenderData(Vector<View*>& views);
 
     private:
+        Vector<FeatureRendererFunction>     m_onExtract;
+        Vector<FeatureRendererViewFunction> m_onExtractView;
+        Vector<FeatureRendererViewFunction> m_onExtractViewFinalize;
+        Vector<FeatureRendererFunction>     m_onExtractEnd;
+        Vector<FeatureRendererFunction>     m_onPrepare;
+        Vector<FeatureRendererViewFunction> m_onPrepareView;
+        Vector<FeatureRendererViewFunction> m_onPrepareViewFinalize;
+        Vector<FeatureRendererFunction>     m_onPrepareEnd;
+        Vector<FeatureRendererFunction>     m_onSubmit;
 
-        MeshSystem     m_meshSystem;
-
-    private:
+        RenderWorld         m_world;
         Backend*            m_backend = nullptr;
         RQueue              m_graphicsQueue;
         CommandPool         m_pool;

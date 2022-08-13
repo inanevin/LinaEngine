@@ -28,27 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef World_HPP
-#define World_HPP
+#ifndef SpriteRenderer_HPP
+#define SpriteRenderer_HPP
 
-#include "ECS/Registry.hpp"
-
-namespace Lina::World
+namespace Lina::Graphics
 {
-    // Actual game state
-    class ObjectWorld
+    class SpriteRenderer 
     {
-
     public:
-
-        static ObjectWorld* Get();
-
-    private:
-        friend class Level;
-
-        ECS::Registry m_registry;
+        void Initialize();
+        void Shutdown();
     };
-
-} // namespace Lina::World
+} // namespace Lina::Graphics
 
 #endif

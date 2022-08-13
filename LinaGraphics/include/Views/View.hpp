@@ -28,27 +28,22 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef World_HPP
-#define World_HPP
+#ifndef View_HPP
+#define View_HPP
 
-#include "ECS/Registry.hpp"
+#include "Math/Frustum.hpp"
+#include "Math/Vector.hpp"
 
-namespace Lina::World
+namespace Lina::Graphics
 {
-    // Actual game state
-    class ObjectWorld
+    class View
     {
-
     public:
 
-        static ObjectWorld* Get();
-
-    private:
-        friend class Level;
-
-        ECS::Registry m_registry;
+    protected:
+        Vector3 m_pos     = Vector3::Zero;
+        Frustum m_frustum = Frustum();
     };
-
-} // namespace Lina::World
+} // namespace Lina::Graphics
 
 #endif

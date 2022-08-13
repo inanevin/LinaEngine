@@ -37,16 +37,4 @@ namespace Lina::World
         auto* lvl = LevelManager::Get()->GetCurrentLevel();
         return lvl == nullptr ? nullptr : &lvl->GetObjectWorld();
     }
-    
-    VisibilityWorld* VisibilityWorld::Get()
-    {
-        auto* lvl = LevelManager::Get()->GetCurrentLevel();
-        return lvl == nullptr ? nullptr : &lvl->GetVisibilityWorld();
-    }
-
-    RenderWorld* RenderWorld::Get()
-    {
-        auto* lvl = LevelManager::Get()->GetCurrentLevel();
-        return lvl == nullptr ? nullptr : &lvl->GetRenderWorld();
-    }
 } // namespace Lina::World

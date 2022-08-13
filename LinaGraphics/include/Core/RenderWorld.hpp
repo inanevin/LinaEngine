@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,17 +26,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/LightingSystem.hpp"
+#pragma once
 
+#ifndef RenderWorld_HPP
+#define RenderWorld_HPP
 
-namespace Lina::ECS
+#include "RenderData.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/Vector.hpp"
+
+namespace Lina
 {
-	void LightingSystem::Initialize(const String& name)
-	{
-	}
-	void LightingSystem::UpdateComponents(float delta)
-	{
-	}
-} // namespace Lina::ECS
+    namespace Event
+    {
+        struct ELevelInstalled;
+    }
+}
 
+namespace Lina::Graphics
+{
+    class RenderWorld
+    {
+    public:
 
+        RenderWorldHandle AddVisibility();
+        RenderWorldHandle AddRenderable();
+        void              RemoveVisibility(RenderWorldHandle handle);
+        void              RemoveRenderable(RenderWorldHandle handle);
+
+    private:
+
+        void Initialize();
+        void Shutdown();
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+
+    private:
+        
+        friend class Renderer;
+        friend class RenderEngine;
+
+        HashMap<RenderWorldHandle, VisibilityData> m_visibilityData;
+        HashMap<RenderWorldHandle, RenderableData> m_renderableData;
+        RenderWorldHandle       m_visibilityCounter = 0;
+        RenderWorldHandle       m_renderableCounter = 0;
+    };
+
+} // namespace Lina::Graphics
+
+#endif

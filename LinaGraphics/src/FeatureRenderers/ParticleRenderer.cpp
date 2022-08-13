@@ -26,29 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "FeatureRenderers/ParticleRenderer.hpp"
 
-#ifndef World_HPP
-#define World_HPP
-
-#include "ECS/Registry.hpp"
-
-namespace Lina::World
+namespace Lina::Graphics
 {
-    // Actual game state
-    class ObjectWorld
+    void ParticleRenderer::Initialize()
     {
-
-    public:
-
-        static ObjectWorld* Get();
-
-    private:
-        friend class Level;
-
-        ECS::Registry m_registry;
-    };
-
-} // namespace Lina::World
-
-#endif
+    }
+    void ParticleRenderer::Shutdown()
+    {
+    }
+} // namespace Lina::Graphics

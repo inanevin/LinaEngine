@@ -38,7 +38,7 @@ SOFTWARE.
 #include <entt/entity/registry.hpp>
 namespace Lina::ECS
 {
-#define ECSNULL entt::null
+#define ECS_NULL entt::null
 
     typedef entt::entity Entity;
 

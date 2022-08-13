@@ -28,30 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SpriteSystem_HPP
-#define SpriteSystem_HPP
+#ifndef FeatureRenderer_HPP
+#define FeatureRenderer_HPP
 
-#include "ECS/System.hpp"
-
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    class Registry;
+    class View;
 
-    class SpriteSystem : public System
+    class FeatureRenderer
     {
     public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
-        void         Render();
 
-        inline void SetTargetRegistry(Registry* reg)
-        {
-            m_registry = reg;
-        }
+        // void OnExtract();
+        // void OnExtractView(View* v);
+        // void OnExtractViewsFinalize();
+        // void OnPrepare();
+        // void OnPrepareView(View* v);
+        // void OnPrepareViewsFinalize();
+        // void OnSubmit();
 
     private:
-        Registry* m_registry = nullptr;
     };
-} // namespace Lina::ECS
+
+} // namespace Lina::Graphics
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,18 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/DecalSystem.hpp"
+#pragma once
 
-namespace Lina::ECS
+#ifndef ParticleRenderer_HPP
+#define ParticleRenderer_HPP
+
+namespace Lina::Graphics
 {
-	void DecalSystem::Initialize(const String& name)
-	{
-	}
-	void DecalSystem::UpdateComponents(float delta)
-	{
-	}
-	void DecalSystem::Render()
-	{
-	}
-} // namespace Lina::ECS
+    class ParticleRenderer
+    {
+    private:
+        friend class RenderEngine;
 
+        void Initialize();
+        void Shutdown();
+    };
+} // namespace Lina::Graphics
+
+#endif

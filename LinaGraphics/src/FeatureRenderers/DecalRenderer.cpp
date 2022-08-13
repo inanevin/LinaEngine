@@ -25,32 +25,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-#ifndef SkySystem_HPP
-#define SkySystem_HPP
+#include "FeatureRenderers/DecalRenderer.hpp"
 
-#include "ECS/System.hpp"
-
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    class Registry;
-
-    class SkySystem : public System
+    void DecalRenderer::Initialize()
     {
-    public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
-        void         Render();
-
-        inline void SetTargetRegistry(Registry* reg)
-        {
-            m_registry = reg;
-        }
-
-    private:
-        Registry* m_registry = nullptr;
-    };
-} // namespace Lina::ECS
-
-#endif
+    }
+    void DecalRenderer::Shutdown()
+    {
+    }
+} // namespace Lina::Graphics

@@ -26,33 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Systems/MeshSystem.hpp"
-#include "Core/GraphicsCommon.hpp"
-#include "PipelineObjects/CommandBuffer.hpp"
-#include "Resource/Mesh.hpp"
-#include "Resource/Material.hpp"
+#include "FeatureRenderers/StaticMeshRenderer.hpp"
 
 namespace Lina::Graphics
 {
-
-    Material* lastMaterial = nullptr;
-    Mesh*     lastMesh     = nullptr;
-
-    void MeshSystem::Initialize(const String& name)
+    void StaticMeshRenderer::Initialize()
     {
     }
-
-    void MeshSystem::UpdateComponents(float delta)
+    void StaticMeshRenderer::Shutdown()
     {
     }
+} // namespace Lina::Graphics
 
-    void MeshSystem::FetchData()
-    {
-    }
-
-    void MeshSystem::Render(Graphics::CommandBuffer& buffer)
-    {
-        m_renderables.clear();
+/*
+ m_renderables.clear();
         m_renderables.resize(m_fetchedData.size());
 
         glm::vec3 camPos = {0.f, 0.f, -350.f};
@@ -86,6 +73,4 @@ namespace Lina::Graphics
                 lastMesh = renderable.mesh;
             }
         }
-    }
-
-} // namespace Lina::Graphics
+*/

@@ -25,30 +25,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #pragma once
 
-#ifndef MeshSystem_HPP
-#define MeshSystem_HPP
-
-#include "ECS/System.hpp"
-#include "Core/RenderData.hpp"
+#ifndef SkyRenderer_HPP
+#define SkyRenderer_HPP
 
 namespace Lina::Graphics
 {
-    class CommandBuffer;
-
-    class MeshSystem : public ECS::System
+    class SkyRenderer 
     {
-    public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
-
-        void FetchData();
-        void Render(Graphics::CommandBuffer& buffer);
-
     private:
-        Vector<Graphics::Renderable> m_fetchedData;
-        Vector<Graphics::Renderable> m_renderables;
+        friend class RenderEngine;
+        
+        void Initialize();
+        void Shutdown();
     };
 } // namespace Lina::Graphics
 

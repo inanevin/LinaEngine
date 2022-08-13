@@ -242,15 +242,16 @@ namespace Lina
         // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
 
         Taskflow gameLoop;
-        auto [_RenderPreviousFrame, _RunSimulation] = gameLoop.emplace(
+        auto [_RunSimulation, _RenderPreviousFrame] = gameLoop.emplace(
+            [&]() {
+                RunSimulation((float)m_rawDeltaTime);
+                m_renderEngine.FetchVisibilityState();
+                m_renderEngine.ExtractGameState();
+                updates++;
+            },
             [&]() {
                 m_renderEngine.Render();
                 frames++;
-            },
-            [&]() {
-                RunSimulation((float)m_rawDeltaTime);
-                m_renderEngine.SyncRenderData();
-                updates++;
             });
 
         // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");

@@ -33,25 +33,33 @@ SOFTWARE.
 
 #include "Math/Matrix.hpp"
 #include "Data/Vector.hpp"
-
+#include "Core/CommonECS.hpp"
 
 namespace Lina::Graphics
 {
     class Mesh;
     class Material;
 
-    struct Renderable
+    typedef uint32 RenderWorldHandle;
+
+    struct RenderableData
     {
-        Mesh*     mesh      = nullptr;
-        Material* material  = nullptr;
-        Matrix    transform = Matrix::Identity();
+        ECS::Entity entity    = ECS_NULL;
+        Mesh*       mesh      = nullptr;
+        Material*   material  = nullptr;
+        Matrix      transform = Matrix::Identity();
+    };
+
+
+
+    struct VisibilityData
+    {
+        RenderWorldHandle renderable = 0;
     };
 
     struct RenderData
     {
-        Vector<Renderable> renderables;
     };
-
 
 } // namespace Lina::Graphics
 

@@ -28,30 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ParticleSystem_HPP
-#define ParticleSystem_HPP
+#ifndef SkinnedMeshRenderer_HPP
+#define SkinnedMeshRenderer_HPP
 
-#include "ECS/System.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    class Registry;
-
-    class ParticleSystem : public System
+    class SkinnedMeshRenderer 
     {
     public:
-        virtual void Initialize(const String& name);
-        virtual void UpdateComponents(float delta) override;
-        void         Render();
-
-        inline void SetTargetRegistry(Registry* reg)
-        {
-            m_registry = reg;
-        }
-
     private:
-        Registry* m_registry = nullptr;
+        friend class RenderEngine;
+
+        void Initialize();
+        void Shutdown();
     };
-} // namespace Lina::ECS
+} // namespace Lina::Graphics
 
 #endif

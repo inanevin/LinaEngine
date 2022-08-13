@@ -33,9 +33,36 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    void Renderer::RegisterToStageFunction(FeatureRendererStage stage, FeatureRendererFunction&& func)
+    {
+        if (stage == FeatureRendererStage::OnExtract)
+            m_onExtract.push_back(func);
+        else if (stage == FeatureRendererStage::OnExtractEnd)
+            m_onExtractEnd.push_back(func);
+        else if (stage == FeatureRendererStage::OnPrepare)
+            m_onPrepare.push_back(func);
+        else if (stage == FeatureRendererStage::OnPrepareEnd)
+            m_onPrepareEnd.push_back(func);
+        else if (stage == FeatureRendererStage::OnSubmit)
+            m_onSubmit.push_back(func);
+    }
+
+    void Renderer::RegisterToStageViewFunction(FeatureRendererStage stage, FeatureRendererViewFunction&& func)
+    {
+        if (stage == FeatureRendererStage::OnExtractView)
+            m_onExtractView.push_back(func);
+        if (stage == FeatureRendererStage::OnExtractViewFinalize)
+            m_onExtractViewFinalize.push_back(func);
+        else if (stage == FeatureRendererStage::OnPrepareView)
+            m_onPrepareView.push_back(func);
+        else if (stage == FeatureRendererStage::OnPrepareViewFinalize)
+            m_onPrepareViewFinalize.push_back(func);
+    }
+
     void Renderer::Initialize()
     {
-        m_meshSystem.Initialize("Mesh System");
+        m_world.Initialize();
+
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
 
@@ -128,8 +155,6 @@ namespace Lina::Graphics
         m_renderFence.Create();
     }
 
-   
-
     void Renderer::Render()
     {
         m_renderFence.Wait(true, 1.0);
@@ -142,9 +167,7 @@ namespace Lina::Graphics
 
         m_renderPass.Begin(m_framebuffers[imageIndex], m_commandBuffer);
 
-        PROFILER_SCOPE_START("Render Meshes", PROFILER_THREAD_RENDER);
-        m_meshSystem.Render(m_commandBuffer);
-        PROFILER_SCOPE_END("Render Meshes", PROFILER_THREAD_RENDER);
+        // RENDER SHIT
 
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();
@@ -154,19 +177,88 @@ namespace Lina::Graphics
         m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_commandBuffer, 1);
         m_graphicsQueue.Present(m_renderSemaphore, &imageIndex);
     }
+
     void Renderer::Join()
     {
         m_renderFence.Wait();
     }
+
     void Renderer::Shutdown()
     {
+        m_world.Shutdown();
+
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
     }
 
-    void Renderer::FetchData()
+    void Renderer::FetchVisibilityState()
     {
-        auto* ecs = ECS::Registry::Get();
-        m_meshSystem.FetchData();
     }
+
+    void Renderer::ExtractGameState(Vector<View*>& views)
+    {
+        Taskflow taskflow;
+
+        // On Extract
+        taskflow.for_each(m_onExtract.begin(), m_onExtract.end(), [](auto&& f) {
+            f();
+        });
+        JobSystem::Get()->Run(taskflow).wait();
+        taskflow.clear();
+
+        // On Extract Per View
+        for (auto view : views)
+        {
+            taskflow.for_each(m_onExtractView.begin(), m_onExtractView.end(), [](auto&& f) {
+                f();
+            });
+            JobSystem::Get()->Run(taskflow).wait();
+
+            taskflow.clear();
+            taskflow.for_each(m_onExtractViewFinalize.begin(), m_onExtractViewFinalize.end(), [](auto&& f) {
+                f();
+            });
+            JobSystem::Get()->Run(taskflow).wait();
+        }
+
+        taskflow.clear();
+        taskflow.for_each(m_onExtractEnd.begin(), m_onExtractEnd.end(), [](auto&& f) {
+            f();
+        });
+        JobSystem::Get()->Run(taskflow).wait();
+    }
+
+    void Renderer::PrepareRenderData(Vector<View*>& views)
+    {
+        Taskflow taskflow;
+
+        // On Prepare
+        taskflow.for_each(m_onPrepare.begin(), m_onPrepare.end(), [](auto&& f) {
+            f();
+        });
+        JobSystem::Get()->Run(taskflow).wait();
+        taskflow.clear();
+
+        // On Prepare Per View
+        for (auto view : views)
+        {
+            taskflow.for_each(m_onPrepareView.begin(), m_onPrepareView.end(), [](auto&& f) {
+                f();
+            });
+            JobSystem::Get()->Run(taskflow).wait();
+
+            taskflow.clear();
+            taskflow.for_each(m_onPrepareViewFinalize.begin(), m_onPrepareViewFinalize.end(), [](auto&& f) {
+                f();
+            });
+            JobSystem::Get()->Run(taskflow).wait();
+        }
+
+        taskflow.clear();
+        taskflow.for_each(m_onPrepareEnd.begin(), m_onPrepareEnd.end(), [](auto&& f) {
+            f();
+        });
+        JobSystem::Get()->Run(taskflow).wait();
+    }
+
 } // namespace Lina::Graphics

@@ -37,14 +37,11 @@ SOFTWARE.
 #include "Data/FixedVector.hpp"
 #include "ECS/SystemList.hpp"
 #include "Core/CommonApplication.hpp"
-#include "ECS/Systems/ParticleSystem.hpp"
-#include "ECS/Systems/SpriteSystem.hpp"
-#include "ECS/Systems/DecalSystem.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
-#include "ECS/Systems/SkySystem.hpp"
 #include "Utility/DeletionQueue.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
+#include "FeatureRenderers/StaticMeshRenderer.hpp"
+#include "Views/PlayerView.hpp"
 #include <functional>
 
 namespace Lina
@@ -55,12 +52,13 @@ namespace Lina
         struct EPreStartGame;
     } // namespace Event
 } // namespace Lina
+
 namespace Lina::Graphics
 {
+    class FeatureRenderer;
+
     class RenderEngine
     {
-
-        typedef FixedVector<TypeID, 8> GraphicsComponents;
 
     public:
         RenderEngine()  = default;
@@ -72,13 +70,20 @@ namespace Lina::Graphics
         }
 
         void Initialize(ApplicationInfo& appInfo);
-        void SyncRenderData();
         void Clear();
         void Render();
         void Join();
         void Shutdown();
+        void FetchVisibilityState();
+        void ExtractGameState();
+        void PrepareRenderData();
         void OnPreStartGame(const Event::EPreStartGame& ev);
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
+
+        inline Renderer& GetRenderer()
+        {
+            return m_renderer;
+        }
 
         inline DeletionQueue& GetMainDeletionQueue()
         {
@@ -93,20 +98,17 @@ namespace Lina::Graphics
     private:
         friend class Engine;
 
-        static RenderEngine* s_instance;
+        Vector<FeatureRenderer*> m_featureRenderers;
+        static RenderEngine*     s_instance;
+        DeletionQueue            m_mainDeletionQueue;
+        ApplicationInfo          m_appInfo;
+        Window                   m_window;
+        Backend                  m_backend;
+        bool                     m_initedSuccessfully = false;
 
-        ECS::SkySystem      m_skySystem;
-        ECS::DecalSystem    m_decalSystem;
-        ECS::ParticleSystem m_particleSystem;
-        ECS::SpriteSystem   m_spriteSystem;
-        ECS::LightingSystem m_lightingSystem;
-        ECS::SystemList     m_systemList;
-        Renderer            m_renderer;
-        DeletionQueue       m_mainDeletionQueue;
-        ApplicationInfo     m_appInfo;
-        Window              m_window;
-        Backend             m_backend;
-        bool                m_initedSuccessfully = false;
+        PlayerView         m_playerView;
+        Renderer           m_renderer;
+        StaticMeshRenderer m_meshRenderer;
     };
 } // namespace Lina::Graphics
 
