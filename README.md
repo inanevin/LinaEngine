@@ -98,7 +98,8 @@ cmake -DLINA_ENABLE_LOGGING=OFF
 cmake -DLINA_ENABLE_LOGGING=OFF -DLINA_ENABLE_PROFILING=OFF
 
 # It is recommended to declare the type of the option if multiple options are defined
-cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_ENABLE_PROFILING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
+cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_ENABLE_PROFILING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release"
+# cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_ENABLE_PROFILING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug"
 
 # Above commands will generate project files with default generator, you can specify a generator if you want.
 cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
@@ -132,13 +133,13 @@ cmake --build . --target ALL_BUILD
 
 ## Build Options
 
-| Option  | Description | Default |
-| ------------- | ------------- | ------------- |
-| LINA_ENABLE_EDITOR | Launches the sandbox in editor mode.  | ON  |
-| LINA_ENABLE_LOGGING | Enables log features for core modules.  | ON |
-| LINA_ENABLE_PROFILING  | Enables profiler integration & profile data serialization. | ON |
-| LINA_PRODUCTION_BUILD | Disable debug error checking & reporting. | OFF |
-| CMAKE_CONFIGURATION_TYPES | Config types that will be available on the IDE. | Debug, Release, MinSizeRel, RelWithDebInfo  
+| Option                    | Description                                                | Default                                    |
+| ------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
+| LINA_ENABLE_EDITOR        | Launches the sandbox in editor mode.                       | ON                                         |
+| LINA_ENABLE_LOGGING       | Enables log features for core modules.                     | ON                                         |
+| LINA_ENABLE_PROFILING     | Enables profiler integration & profile data serialization. | ON                                         |
+| LINA_PRODUCTION_BUILD     | Disable debug error checking & reporting.                  | OFF                                        |
+| CMAKE_CONFIGURATION_TYPES | Config types that will be available on the IDE.            | Debug, Release, MinSizeRel, RelWithDebInfo |
 
 ## License
 
