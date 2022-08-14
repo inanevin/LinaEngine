@@ -1,4 +1,4 @@
-![Lina](https://user-images.githubusercontent.com/62678643/184497512-a4126f70-5d9e-434e-a1eb-3a871a7ada88.png)
+![Lina](https://user-images.githubusercontent.com/62678643/184518813-bd8d872e-4b03-43b5-a3a3-77bf6d326a7c.svg)
 
 <div align="center">
 
