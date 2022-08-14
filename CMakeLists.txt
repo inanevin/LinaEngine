@@ -54,10 +54,6 @@ add_compile_definitions(LINA_PHYSICS_PHYSX)
 
 set(TARGET_ARCHITECTURE "x64")
 
-set(ASSIMP_LIB "assimp-vc142-mtd.lib")
-set(ASSIMP_DLL "assimp-vc142-mtd.dll")
-
-
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 
