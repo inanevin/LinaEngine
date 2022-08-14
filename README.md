@@ -126,3 +126,5 @@ Check out [Licence](LICENSE) file.
 [Link to the Software Design Document of Lina Engine (PDF)](https://www.inanevin.com/docs/lina_sdd.pdf)
 
 [Lina Engine Project Report (PDF)](https://www.inanevin.com/docs/lina_postmortem.pdf)
+
+### [Contributing](https://github.com/inanevin/LinaEngine/blob/master/CONTRIBUTING.md)
