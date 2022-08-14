@@ -31,34 +31,16 @@ SOFTWARE.
 #ifndef RenderData_HPP
 #define RenderData_HPP
 
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
 #include "Core/CommonECS.hpp"
+#include "Math/AABB.hpp"
 
 namespace Lina::Graphics
 {
-    class Mesh;
-    class Material;
-
-    typedef uint32 RenderWorldHandle;
-
-    struct RenderableData
-    {
-        ECS::Entity entity    = ECS_NULL;
-        Mesh*       mesh      = nullptr;
-        Material*   material  = nullptr;
-        Matrix      transform = Matrix::Identity();
-    };
-
-
-
     struct VisibilityData
     {
-        RenderWorldHandle renderable = 0;
-    };
-
-    struct RenderData
-    {
+        ECS::Entity entity   = ECS_NULL;
+        Vector3     position = Vector3::Zero;
+        AABB        aabb     = AABB();
     };
 
 } // namespace Lina::Graphics

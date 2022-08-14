@@ -31,18 +31,8 @@ SOFTWARE.
 #ifndef RenderWorld_HPP
 #define RenderWorld_HPP
 
-#include "RenderData.hpp"
-#include "Core/SizeDefinitions.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    }
-}
+#include "Core/CommonECS.hpp"
+#include "Data/HashSet.hpp"
 
 namespace Lina::Graphics
 {
@@ -50,26 +40,12 @@ namespace Lina::Graphics
     {
     public:
 
-        RenderWorldHandle AddVisibility();
-        RenderWorldHandle AddRenderable();
-        void              RemoveVisibility(RenderWorldHandle handle);
-        void              RemoveRenderable(RenderWorldHandle handle);
-
-    private:
-
         void Initialize();
         void Shutdown();
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
 
     private:
-        
-        friend class Renderer;
-        friend class RenderEngine;
 
-        HashMap<RenderWorldHandle, VisibilityData> m_visibilityData;
-        HashMap<RenderWorldHandle, RenderableData> m_renderableData;
-        RenderWorldHandle       m_visibilityCounter = 0;
-        RenderWorldHandle       m_renderableCounter = 0;
+   
     };
 
 } // namespace Lina::Graphics

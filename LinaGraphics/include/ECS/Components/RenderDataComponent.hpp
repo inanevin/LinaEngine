@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -28,23 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MeshComponent_HPP
-#define MeshComponent_HPP
+#ifndef RenderDataComponent_HPP
+#define RenderDataComponent_HPP
 
 // Headers here.
 #include "ECS/Component.hpp"
+#include "Math/Matrix.hpp"
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Mesh Component", "ICON_FA_EYE", "Graphics", "true", "true")
-        struct MeshComponent : public Component
+    // Runtime only component generated via rendering visibility fetch & extrac stages
+    struct RenderDataComponent : public Component
     {
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            // archive();
-        }
+        Matrix transform = Matrix();
     };
 } // namespace Lina::ECS
 

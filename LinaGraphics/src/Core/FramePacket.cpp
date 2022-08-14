@@ -26,9 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Views/View.hpp"
+#include "Core/FramePacket.hpp"
 
 namespace Lina::Graphics
 {
+    void FramePacket::AddVisibilityData(const VisibilityData& vis)
+    {
+        m_visibilityData.push_back(vis);
+    }
 
 } // namespace Lina::Graphics

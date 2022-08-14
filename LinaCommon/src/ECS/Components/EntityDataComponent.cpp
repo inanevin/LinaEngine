@@ -43,7 +43,7 @@ namespace Lina::ECS
         Quaternion rot;
         Vector3    scale;
         mat.Decompose(loc, rot, scale);
-        SetLocation(loc);
+        SetPosition(loc);
         SetRotation(rot);
 
         if (!omitScale)
@@ -56,7 +56,7 @@ namespace Lina::ECS
         Quaternion rot;
         Vector3    scale;
         mat.Decompose(loc, rot, scale);
-        SetLocalLocation(loc);
+        SetLocalPosition(loc);
         SetLocalRotation(rot);
 
         if (!omitScale)
@@ -70,41 +70,41 @@ namespace Lina::ECS
         SetRotationAngles(GetRotationAngles() + angles);
     }
 
-    void EntityDataComponent::AddLocaRotation(const Vector3& angles)
+    void EntityDataComponent::AddLocalRotation(const Vector3& angles)
     {
         if (m_isTransformLocked)
             return;
         SetLocalRotationAngles(GetLocalRotationAngles() + angles);
     }
 
-    void EntityDataComponent::AddLocation(const Vector3& loc)
+    void EntityDataComponent::AddPosition(const Vector3& loc)
     {
         if (m_isTransformLocked)
             return;
-        SetLocation(GetLocation() + loc);
+        SetPosition(GetPosition() + loc);
     }
 
-    void EntityDataComponent::AddLocalLocation(const Vector3& loc)
+    void EntityDataComponent::AddLocalPosition(const Vector3& loc)
     {
         if (m_isTransformLocked)
             return;
-        SetLocalLocation(GetLocalLocation() + loc);
+        SetLocalPosition(GetLocalPosition() + loc);
     }
 
     Transformation EntityDataComponent::GetInterpolated(float interpolation)
     {
         Transformation t;
-        t.m_location = Vector3::Lerp(m_transform.m_previousLocation, m_transform.m_location, interpolation);
+        t.m_position = Vector3::Lerp(m_transform.m_previousLocation, m_transform.m_position, interpolation);
         t.m_scale    = Vector3::Lerp(m_transform.m_previousScale, m_transform.m_scale, interpolation);
         t.m_rotation = Quaternion::Euler(Vector3::Lerp(m_transform.m_previousAngles, m_transform.m_rotation.GetEuler(), interpolation));
         return t;
     }
 
-    void EntityDataComponent::SetLocalLocation(const Vector3& loc)
+    void EntityDataComponent::SetLocalPosition(const Vector3& loc)
     {
         if (m_isTransformLocked)
             return;
-        m_transform.m_localLocation = loc;
+        m_transform.m_localPosition = loc;
         UpdateGlobalLocation();
 
         for (auto child : m_children)
@@ -113,12 +113,12 @@ namespace Lina::ECS
             d.UpdateGlobalLocation();
         }
     }
-    void EntityDataComponent::SetLocation(const Vector3& loc)
+    void EntityDataComponent::SetPosition(const Vector3& loc)
     {
         if (m_isTransformLocked)
             return;
-        m_transform.m_previousLocation = m_transform.m_location;
-        m_transform.m_location         = loc;
+        m_transform.m_previousLocation = m_transform.m_position;
+        m_transform.m_position         = loc;
         UpdateLocalLocation();
 
         for (auto child : m_children)
@@ -245,16 +245,16 @@ namespace Lina::ECS
 
         if (m_parent == entt::null)
         {
-            m_transform.m_previousLocation = m_transform.m_location;
-            m_transform.m_location         = m_transform.m_localLocation;
+            m_transform.m_previousLocation = m_transform.m_position;
+            m_transform.m_position         = m_transform.m_localPosition;
         }
         else
         {
             auto&   d                      = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix  global                 = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
             Vector3 translation            = global.GetTranslation();
-            m_transform.m_previousLocation = m_transform.m_location;
-            m_transform.m_location         = translation;
+            m_transform.m_previousLocation = m_transform.m_position;
+            m_transform.m_position         = translation;
         }
 
         for (auto child : m_children)
@@ -270,12 +270,12 @@ namespace Lina::ECS
             return;
 
         if (m_parent == entt::null)
-            m_transform.m_localLocation = m_transform.m_location;
+            m_transform.m_localPosition = m_transform.m_position;
         else
         {
             auto&  d                    = ECS::Registry::Get()->get<EntityDataComponent>(m_parent);
             Matrix global               = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
-            m_transform.m_localLocation = global.GetTranslation();
+            m_transform.m_localPosition = global.GetTranslation();
         }
     }
 

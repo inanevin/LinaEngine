@@ -27,6 +27,8 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/GraphicsCommon.cpp
 	src/Core/Renderer.cpp
 	src/Core/RenderWorld.cpp
+	src/Core/FramePacket.cpp
+	src/Core/View.cpp
 
 	# Data
 	src/Data/Vertex.cpp
@@ -57,7 +59,7 @@ set (LINAGRAPHICS_SOURCES
 	# ECS
 
 	# Features
-	src/FeatureRenderers/FeatureRenderer.cpp
+	src/FeatureRenderers/FeatureRendererManager.cpp
 	src/FeatureRenderers/SkyRenderer.cpp
 	src/FeatureRenderers/StaticMeshRenderer.cpp
 	src/FeatureRenderers/SkinnedMeshRenderer.cpp
@@ -65,10 +67,6 @@ set (LINAGRAPHICS_SOURCES
 	src/FeatureRenderers/SpriteRenderer.cpp
 	src/FeatureRenderers/ParticleRenderer.cpp
 
-	# Views
-	src/Views/View.cpp
-	src/Views/PlayerView.cpp
-	
 	# Utility
 	src/Utility/Vulkan/VkBootstrap.cpp
 	src/Utility/Vulkan/SPIRVUtility.cpp
@@ -90,6 +88,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/Renderer.hpp
 	include/Core/RenderData.hpp
 	include/Core/RenderWorld.hpp
+	include/Core/FramePacket.hpp
+	include/Core/View.hpp
 
 	# Data
 	include/Data/Vertex.hpp
@@ -119,24 +119,21 @@ set(LINAGRAPHICS_HEADERS
 
 	# ECS
 	include/ECS/Components/SkyComponent.hpp
+	include/ECS/Components/RenderDataComponent.hpp
 	include/ECS/Components/SpriteComponent.hpp
-	include/ECS/Components/MeshComponent.hpp
+	include/ECS/Components/ModelNodeComponent.hpp
 	include/ECS/Components/DecalComponent.hpp
 	include/ECS/Components/LightComponent.hpp
 	include/ECS/Components/ParticleComponent.hpp
 	
 	# Features
-	include/FeatureRenderers/FeatureRenderer.hpp
+	include/FeatureRenderers/FeatureRendererManager.hpp
 	include/FeatureRenderers/SkyRenderer.hpp
 	include/FeatureRenderers/StaticMeshRenderer.hpp
 	include/FeatureRenderers/SkinnedMeshRenderer.hpp
 	include/FeatureRenderers/DecalRenderer.hpp
 	include/FeatureRenderers/SpriteRenderer.hpp
 	include/FeatureRenderers/ParticleRenderer.hpp
-
-	# Views
-	include/Views/View.hpp
-	include/Views/PlayerView.hpp
 
 	# Utility
 	include/Utility/stb/stb_image.h

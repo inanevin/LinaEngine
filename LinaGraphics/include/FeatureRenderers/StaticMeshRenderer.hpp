@@ -31,15 +31,61 @@ SOFTWARE.
 #ifndef StaticMeshRenderer_HPP
 #define StaticMeshRenderer_HPP
 
+#include "Core/CommonECS.hpp"
+#include "Data/HashSet.hpp"
+#include "Data/Vector.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
+#include "Core/RenderData.hpp"
+#include "Data/DataCommon.hpp"
 
 namespace Lina::Graphics
 {
+    class View;
+    class Material;
+    class ModelNode;
+
     class StaticMeshRenderer
     {
     public:
-        
+        struct RenderableData
+        {
+            ECS::Entity       entity = ECS_NULL;
+            ModelNode*        node   = nullptr;
+            Vector<Material*> materials;
+        };
+
+        struct FetchedData
+        {
+            RenderableData renderable;
+            VisibilityData visibility;
+        };
+
+        struct GPUData
+        {
+            Matrix    transform = Matrix::Identity();
+            Material* mat       = nullptr;
+            Mesh*     mesh      = nullptr;
+        };
+
         void Initialize();
         void Shutdown();
+
+        void OnFetchVisibility();
+        void OnAssignVisibility();
+        void OnExtractPerView(View* v);
+        void OnPrepare();
+        void OnSubmit(CommandBuffer& buffer);
+
+    private:
+
+        // Fetch result
+        Vector<FetchedData> m_fetchedObjects;
+
+        // Extract result
+        Vector<RenderableData> m_renderableObjects;
+
+        // Prepared result
+        Vector<GPUData> m_gpuData;
     };
 } // namespace Lina::Graphics
 

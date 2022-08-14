@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef EntityDataComponent_HPP
@@ -50,8 +49,6 @@ namespace Lina
 
 namespace Lina::ECS
 {
-    struct ModelRendererComponent;
-
     LINA_COMPONENT("Entity Data Component", "ICON_FA_DATABASE", "", "false", "false")
     struct EntityDataComponent : public Component
     {
@@ -65,19 +62,14 @@ namespace Lina::ECS
 
         EntityDataComponent() = default;
 
-        bool        m_serialized = true;
-        String      m_name       = "";
-        Set<Entity> m_children;
-        Entity      m_parent = entt::null;
-
         virtual void SetIsEnabled(bool isEnabled) override;
         /* TRANSFORM OPERATIONS */
 
-        Matrix ToMatrix()
+        Matrix ToMatrix() const
         {
             return m_transform.ToMatrix();
         }
-        Matrix ToLocalMatrix()
+        Matrix ToLocalMatrix() const
         {
             return m_transform.ToLocalMatrix();
         }
@@ -85,13 +77,13 @@ namespace Lina::ECS
         void SetLocalTransformation(Matrix& mat, bool omitScale = false);
 
         void AddRotation(const Vector3& angles);
-        void AddLocaRotation(const Vector3& angles);
-        void AddLocation(const Vector3& loc);
-        void AddLocalLocation(const Vector3& loc);
+        void AddLocalRotation(const Vector3& angles);
+        void AddPosition(const Vector3& loc);
+        void AddLocalPosition(const Vector3& loc);
 
         Transformation GetInterpolated(float interpolation);
-        void           SetLocalLocation(const Vector3& loc);
-        void           SetLocation(const Vector3& loc);
+        void           SetLocalPosition(const Vector3& loc);
+        void           SetPosition(const Vector3& loc);
         void           SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
         void           SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
         void           SetRotation(const Quaternion& rot, bool isThisPivot = true);
@@ -103,9 +95,9 @@ namespace Lina::ECS
         {
             return m_transform.m_localRotationAngles;
         }
-        const Vector3& GetLocalLocation()
+        const Vector3& GetLocalPosition()
         {
-            return m_transform.m_localLocation;
+            return m_transform.m_localPosition;
         }
         const Quaternion& GetLocalRotation()
         {
@@ -115,9 +107,9 @@ namespace Lina::ECS
         {
             return m_transform.m_localScale;
         }
-        const Vector3& GetLocation()
+        const Vector3& GetPosition()
         {
-            return m_transform.m_location;
+            return m_transform.m_position;
         }
         const Quaternion& GetRotation()
         {
@@ -145,6 +137,10 @@ namespace Lina::ECS
         friend class Registry;
         friend class Physics::PhysicsEngine;
 
+        bool           m_serialized = true;
+        String         m_name       = "";
+        Set<Entity>    m_children;
+        Entity         m_parent               = entt::null;
         bool           m_isTransformLocked    = false;
         bool           m_wasPreviouslyEnabled = false;
         Transformation m_transform;

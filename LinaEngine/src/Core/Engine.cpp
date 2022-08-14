@@ -245,8 +245,7 @@ namespace Lina
         auto [_RunSimulation, _RenderPreviousFrame] = gameLoop.emplace(
             [&]() {
                 RunSimulation((float)m_rawDeltaTime);
-                m_renderEngine.FetchVisibilityState();
-                m_renderEngine.ExtractGameState();
+                m_renderEngine.GameSimCompleted();
                 updates++;
             },
             [&]() {

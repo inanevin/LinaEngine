@@ -33,10 +33,15 @@ SOFTWARE.
 
 #include "Core/PlatformMacros.hpp"
 #include <mutex>
+#include <atomic>
+
 namespace Lina
 {
     typedef std::mutex                  Mutex;
     typedef std::lock_guard<std::mutex> LockGuard;
+
+    template<typename T>
+    using Atomic = std::atomic<T>;
 
 #ifdef LINA_MT
 #define DEFINE_MUTEX(NAME)     std::mutex NAME

@@ -293,6 +293,15 @@ namespace Lina::Graphics
 
     extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
 
+
+
+    enum class SurfaceType
+    {
+        Opaque,
+        Transparent,
+        Glass
+    };
+
     struct ClearValue
     {
         Color  clearColor = Color::White;

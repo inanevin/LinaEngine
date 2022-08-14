@@ -41,6 +41,8 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
+
     class Material : public Resources::IResource
     {
     public:
@@ -55,8 +57,13 @@ namespace Lina::Graphics
             return m_pipeline;
         }
 
-    private:
+        inline Resources::ResourceHandle<Shader>& GetShaderHandle()
+        {
+            return m_shader;
+        }
 
+    private:
+    
         void FindShader();
         void GeneratePipeline();
 

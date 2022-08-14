@@ -35,14 +35,14 @@ namespace Lina::ECS
 
             EntityDataComponent& data = ECS::Registry::Get()->get<EntityDataComponent>(m_editorCamera);
 
-            Vector3    location = data.GetLocation();
+            Vector3    location = data.GetPosition();
             Quaternion rotation = data.GetRotation();
 
             RotateBehaviour(delta, rotation, freeLook.m_angles);
             data.SetLocalRotation(rotation);
 
             MoveBehaviour(delta, freeLook.m_mouseDrag, location, rotation);
-            data.SetLocation(location);
+            data.SetPosition(location);
         }
     }
 

@@ -27,45 +27,18 @@ SOFTWARE.
 */
 
 #include "Core/RenderWorld.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/LevelEvents.hpp"
 
 namespace Lina::Graphics
 {
     void RenderWorld::Initialize()
     {
-        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &RenderWorld::OnLevelInstalled>(this);
+      
     }
 
     void RenderWorld::Shutdown()
     {
-        m_renderableData.clear();
-        m_visibilityData.clear();
-        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+      
     }
 
-    void RenderWorld::OnLevelInstalled(const Event::ELevelInstalled& ev)
-    {
-        m_visibilityCounter = m_renderableCounter = 0;
-    }
-
-    RenderWorldHandle RenderWorld::AddVisibility()
-    {
-        m_visibilityData[m_visibilityCounter] = VisibilityData{};
-        return m_visibilityCounter++;
-    }
-
-    RenderWorldHandle RenderWorld::AddRenderable()
-    {
-        m_renderableData[m_renderableCounter] = RenderableData{};
-        return m_renderableCounter++;
-    }
-
-    void RenderWorld::RemoveVisibility(RenderWorldHandle handle)
-    {
-    }
-    void RenderWorld::RemoveRenderable(RenderWorldHandle handle)
-    {
-    }
 
 } // namespace Lina::Graphics

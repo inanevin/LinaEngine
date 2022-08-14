@@ -169,7 +169,7 @@ namespace Lina::Editor
         if (ImGui::IsWindowFocused())
             editorCamSystem.MoveBehaviour(delta, m_mouseDragStart, m_previewCameraPosition, m_previewCameraRotation);
 
-        data.SetLocation(m_previewCameraPosition);
+        data.SetPosition(m_previewCameraPosition);
     }
     void PreviewPanel::EndPreviewCamera(const Vector2& bgMinLina, const Vector2& bgMaxLina)
     {

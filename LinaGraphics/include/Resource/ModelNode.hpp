@@ -61,6 +61,16 @@ namespace Lina::Graphics
             return m_meshes;
         }
 
+        inline AABB& GetAABB()
+        {
+            return m_aabb;
+        }
+
+        inline Vector3& GetVertexCenter()
+        {
+            return m_totalVertexCenter;
+        }
+
     private:
         friend class ModelLoader;
 

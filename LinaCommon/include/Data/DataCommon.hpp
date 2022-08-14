@@ -40,9 +40,6 @@ namespace Lina
 
 	namespace linatl = eastl;
 
-	template<typename T>
-	using Atomic = std::atomic<T>;
-
 } // namespace Lina
 
 #endif

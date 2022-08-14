@@ -36,21 +36,21 @@ namespace Lina::Editor
         {
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             ECS::PointLightComponent& pLight = ECS::Registry::Get()->get<ECS::PointLightComponent>(ent);
-            Event::EventSystem::Get()->Trigger<Event::EDrawSphere>(Event::EDrawSphere{data.GetLocation(), pLight.m_distance, Color::Red, 1.4f});
+            Event::EventSystem::Get()->Trigger<Event::EDrawSphere>(Event::EDrawSphere{data.GetPosition(), pLight.m_distance, Color::Red, 1.4f});
         }
         else if (tid == GetTypeID<SpotLightComponent>())
         {
             ECS::EntityDataComponent& data   = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
             ECS::SpotLightComponent&  sLight = ECS::Registry::Get()->get<ECS::SpotLightComponent>(ent);
-            Vector3                   end1   = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-            Graphics::RenderEngine::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+            Vector3                   end1   = data.GetPosition() + (sLight.m_distance * data.GetRotation().GetForward());
+            Graphics::RenderEngine::Get()->DrawLine(data.GetPosition(), end1, Color::Red, 1.4f);
         }
         else if (tid == GetTypeID<DirectionalLightComponent>())
         {
             ECS::EntityDataComponent& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(ent);
-            Vector3                   dir  = Vector3::Zero - data.GetLocation();
-            Vector3                   end1 = data.GetLocation() + dir;
-            Graphics::RenderEngine::Get()->DrawLine(data.GetLocation(), end1, Color::Red, 1.4f);
+            Vector3                   dir  = Vector3::Zero - data.GetPosition();
+            Vector3                   end1 = data.GetPosition() + dir;
+            Graphics::RenderEngine::Get()->DrawLine(data.GetPosition(), end1, Color::Red, 1.4f);
         }
         else if (tid == GetTypeID<ReflectionAreaComponent>())
         {
@@ -59,10 +59,10 @@ namespace Lina::Editor
 
             if (area.m_isLocal)
             {
-                Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{data.GetLocation(), area.m_halfExtents, Color::Red, 3.4f});
+                Event::EventSystem::Get()->Trigger<Event::EDrawBox>(Event::EDrawBox{data.GetPosition(), area.m_halfExtents, Color::Red, 3.4f});
             }
 
-            Graphics::RenderEngine::Get()->DrawIcon(data.GetLocation(), HashedString("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
+            Graphics::RenderEngine::Get()->DrawIcon(data.GetPosition(), HashedString("Resources/Editor/Textures/Icons/ReflectionIcon.png").value(), 2);
         }
         else if (tid == GetTypeID<CameraComponent>())
         {
@@ -180,16 +180,16 @@ namespace Lina::Editor
 
             if (ImGui::IsItemHovered())
             {
-                const String tooltipData = "Global: " + data.GetLocation().ToString();
+                const String tooltipData = "Global: " + data.GetPosition().ToString();
                 WidgetsUtility::Tooltip(tooltipData.c_str());
             }
 
             if (disableTransform)
                 ImGui::BeginDisabled();
 
-            Vector3 location = data.GetLocalLocation();
+            Vector3 location = data.GetLocalPosition();
             WidgetsUtility::DragVector3("##loc", &location.x);
-            data.SetLocalLocation(location);
+            data.SetLocalPosition(location);
 
             WidgetsUtility::PropertyLabel("Rotation");
             if (ImGui::IsItemHovered())

@@ -26,24 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef View_HPP
-#define View_HPP
-
-#include "Math/Frustum.hpp"
-#include "Math/Vector.hpp"
+#include "Core/View.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
-    class View
+    void View::CalculateVisibility()
     {
-    public:
+        PROFILER_FUNC("Render View");
+        FramePacket&                  packet  = RenderEngine::Get()->GetFramePacket();
+        const Vector<VisibilityData>& visData = packet.GetVisibilityData();
 
-    protected:
-        Vector3 m_pos     = Vector3::Zero;
-        Frustum m_frustum = Frustum();
-    };
+        for (auto& vis : visData)
+        {
+            FrustumTest test = m_frustum.TestIntersection(vis.aabb);
+
+            // if visible for this view.
+            if (test != FrustumTest::Outside)
+                m_visibleObjects.insert(vis.entity);
+        }
+    }
+    bool View::IsVisibleByView(ECS::Entity e)
+    {
+        const auto& it = m_visibleObjects.find(e);
+        return it != m_visibleObjects.end();
+    }
 } // namespace Lina::Graphics
-
-#endif

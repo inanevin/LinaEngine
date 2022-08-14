@@ -83,8 +83,8 @@ namespace Lina::ECS
             Vector3    up               = rotation.GetUp();
             Vector3    rg               = rotation.GetRight();
 
-            data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * sprintMultiplier * fw.Normalized());
-            data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * sprintMultiplier * rg.Normalized());
+            data.AddPosition(verticalKey * delta * freeLook.m_movementSpeeds.y * sprintMultiplier * fw.Normalized());
+            data.AddPosition(horizontalKey * delta * freeLook.m_movementSpeeds.y * sprintMultiplier * rg.Normalized());
         }
     }
 } // namespace Lina::ECS

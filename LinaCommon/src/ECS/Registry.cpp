@@ -97,7 +97,7 @@ namespace Lina::ECS
         EntityDataComponent& childData  = get<EntityDataComponent>(child);
         EntityDataComponent& parentData = get<EntityDataComponent>(parent);
 
-        const Vector3    childGlobalPos   = childData.GetLocation();
+        const Vector3    childGlobalPos   = childData.GetPosition();
         const Quaternion childGlobalRot   = childData.GetRotation();
         const Vector3    childGlobalScale = childData.GetScale();
         if (parentData.m_parent == child || childData.m_parent == parent)
@@ -115,7 +115,7 @@ namespace Lina::ECS
         // Due to this, child's local values will be according to the previous parent if exists.
         // So we update the global transformation, which makes sure local transformations are set according to
         // the current parent.
-        childData.SetLocation(childGlobalPos);
+        childData.SetPosition(childGlobalPos);
         childData.SetRotation(childGlobalRot);
         childData.SetScale(childGlobalScale);
     }

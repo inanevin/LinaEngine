@@ -118,7 +118,7 @@ namespace Lina
         if (tid == GetTypeID<ECS::EntityDataComponent>())
         {
             ECS::EntityDataComponent& comp = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
-            comp.SetLocalLocation(Vector3::Zero);
+            comp.SetLocalPosition(Vector3::Zero);
             comp.SetLocalRotation(Quaternion());
             comp.SetLocalScale(Vector3::One);
         }
@@ -153,7 +153,7 @@ namespace Lina
                     ECS::EntityDataComponent& copy = ECS::Registry::Get()->get<ECS::EntityDataComponent>(m_copyBuffer.first);
 
                     auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
-                    data.SetLocation(copy.GetLocation());
+                    data.SetPosition(copy.GetPosition());
                     data.SetRotation(copy.GetRotation());
                     data.SetScale(copy.GetScale());
                 }

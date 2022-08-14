@@ -100,11 +100,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::World
 )
 
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
-find_package(OpenGL REQUIRED)
-
 # Launch Lina Header tool prior to building to prepare the reflection data for runtime.
 
 ## add_custom_command(

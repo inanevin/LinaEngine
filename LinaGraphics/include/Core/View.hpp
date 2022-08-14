@@ -26,10 +26,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Views/PlayerView.hpp"
+#pragma once
+
+#ifndef View_HPP
+#define View_HPP
+
+#include "Math/Frustum.hpp"
+#include "Math/Vector.hpp"
+#include "Data/HashSet.hpp"
+#include "Core/RenderData.hpp"
+#include "Core/CommonECS.hpp"
 
 namespace Lina::Graphics
 {
- 
+    enum class ViewType
+    {
+        Player,
+        SunShadow,
+    };
 
+    class View
+    {
+    public:
+        void CalculateVisibility();
+        bool IsVisibleByView(ECS::Entity e);
+
+        inline ViewType GetType()
+        {
+            return m_viewType;
+        }
+
+        inline HashSet<ECS::Entity>& GetVisibleObjects()
+        {
+            return m_visibleObjects;
+        }
+
+    protected:
+        friend class RenderEngine;
+        ViewType             m_viewType = ViewType::Player;
+        HashSet<ECS::Entity> m_visibleObjects;
+        Vector3              m_pos     = Vector3::Zero;
+        Frustum              m_frustum = Frustum();
+    };
 } // namespace Lina::Graphics
+
+#endif

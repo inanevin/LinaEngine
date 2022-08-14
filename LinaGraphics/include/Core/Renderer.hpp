@@ -44,31 +44,14 @@ SOFTWARE.
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/Image.hpp"
-
-#include "RenderWorld.hpp"
+#include "ECS/Registry.hpp"
+#include "FeatureRenderers/FeatureRendererManager.hpp"
 
 #include <functional>
 
 namespace Lina::Graphics
 {
     class Backend;
-    class View;
-
-    typedef std::function<void()> FeatureRendererFunction;
-    typedef std::function<void()> FeatureRendererViewFunction;
-
-    enum class FeatureRendererStage
-    {
-        OnExtract,
-        OnExtractView,
-        OnExtractViewFinalize,
-        OnExtractEnd,
-        OnPrepare,
-        OnPrepareView,
-        OnPrepareViewFinalize,
-        OnPrepareEnd,
-        OnSubmit
-    };
 
     class Renderer
     {
@@ -76,8 +59,15 @@ namespace Lina::Graphics
         Renderer()  = default;
         ~Renderer() = default;
 
-        void RegisterToStageFunction(FeatureRendererStage stage, FeatureRendererFunction&& func);
-        void RegisterToStageViewFunction(FeatureRendererStage stage, FeatureRendererViewFunction&& func);
+        static Renderer* Get()
+        {
+            return s_instance;
+        }
+
+        inline FeatureRendererManager& GetFeatureRendererManager()
+        {
+            return m_featureRendererManager;
+        }
 
     private:
         friend class RenderEngine;
@@ -86,33 +76,22 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void Shutdown();
-        void FetchVisibilityState();
-        void ExtractGameState(Vector<View*>& views);
-        void PrepareRenderData(Vector<View*>& views);
+        void GameSimCompleted();
 
     private:
-        Vector<FeatureRendererFunction>     m_onExtract;
-        Vector<FeatureRendererViewFunction> m_onExtractView;
-        Vector<FeatureRendererViewFunction> m_onExtractViewFinalize;
-        Vector<FeatureRendererFunction>     m_onExtractEnd;
-        Vector<FeatureRendererFunction>     m_onPrepare;
-        Vector<FeatureRendererViewFunction> m_onPrepareView;
-        Vector<FeatureRendererViewFunction> m_onPrepareViewFinalize;
-        Vector<FeatureRendererFunction>     m_onPrepareEnd;
-        Vector<FeatureRendererFunction>     m_onSubmit;
-
-        RenderWorld         m_world;
-        Backend*            m_backend = nullptr;
-        RQueue              m_graphicsQueue;
-        CommandPool         m_pool;
-        CommandBuffer       m_commandBuffer;
-        RenderPass          m_renderPass;
-        SubPass             m_subpass;
-        Vector<Framebuffer> m_framebuffers;
-        Fence               m_renderFence;
-        Semaphore           m_renderSemaphore;
-        Semaphore           m_presentSemaphore;
-        Image               m_depthImage;
+        static Renderer*       s_instance;
+        FeatureRendererManager m_featureRendererManager;
+        Backend*               m_backend = nullptr;
+        RQueue                 m_graphicsQueue;
+        CommandPool            m_pool;
+        CommandBuffer          m_commandBuffer;
+        RenderPass             m_renderPass;
+        SubPass                m_subpass;
+        Vector<Framebuffer>    m_framebuffers;
+        Fence                  m_renderFence;
+        Semaphore              m_renderSemaphore;
+        Semaphore              m_presentSemaphore;
+        Image                  m_depthImage;
     };
 
 } // namespace Lina::Graphics

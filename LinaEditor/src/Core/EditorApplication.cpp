@@ -140,7 +140,7 @@ namespace Lina::Editor
         Entity editorCamera      = ecs->GetEntity(EDITOR_CAMERA_NAME);
         cameraCopy               = ecs->get<ECS::CameraComponent>(editorCamera);
         auto& data               = ecs->get<ECS::EntityDataComponent>(editorCamera);
-        editorCameraLocationCopy = data.GetLocation();
+        editorCameraLocationCopy = data.GetPosition();
         editorCameraRotationCopy = data.GetRotation();
         freeLookCopy             = ecs->get<ECS::FreeLookComponent>(editorCamera);
         ecs->DestroyEntity(editorCamera);
@@ -152,7 +152,7 @@ namespace Lina::Editor
         auto*  ecs          = ECS::Registry::Get();
         Entity editorCamera = ecs->CreateEntity(EDITOR_CAMERA_NAME);
         auto&  data         = ecs->get<ECS::EntityDataComponent>(editorCamera);
-        data.SetLocation(editorCameraLocationCopy);
+        data.SetPosition(editorCameraLocationCopy);
         data.SetRotation(editorCameraRotationCopy);
         ecs->emplace<ECS::FreeLookComponent>(editorCamera, freeLookCopy);
         ecs->emplace<ECS::CameraComponent>(editorCamera, cameraCopy);

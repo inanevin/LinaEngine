@@ -27,21 +27,140 @@ SOFTWARE.
 */
 
 #include "FeatureRenderers/StaticMeshRenderer.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelNodeComponent.hpp"
+#include "Core/Renderer.hpp"
+#include "Core/RenderEngine.hpp"
+#include "Resource/Mesh.hpp"
+#include "Resource/Material.hpp"
 
 namespace Lina::Graphics
 {
     void StaticMeshRenderer::Initialize()
     {
+        auto& fr = Renderer::Get()->GetFeatureRendererManager();
+        fr.RegisterVisibility(FeatureRendererVisibilityStage::FetchVisibility, std::bind(&StaticMeshRenderer::OnFetchVisibility, this));
+        fr.RegisterVisibility(FeatureRendererVisibilityStage::AssignVisibility, std::bind(&StaticMeshRenderer::OnAssignVisibility, this));
+        fr.RegisterViewStage(FeatureRendererViewStage::OnExtractView, std::bind(&StaticMeshRenderer::OnExtractPerView, this, std::placeholders::_1));
+        fr.RegisterDefaultStage(FeatureRendererDefaultStage::OnPrepare, std::bind(&StaticMeshRenderer::OnPrepare, this));
+        fr.RegisterSubmit(FeatureRendererSubmitStage::OnSubmit, std::bind(&StaticMeshRenderer::OnSubmit, this, std::placeholders::_1));
     }
+
     void StaticMeshRenderer::Shutdown()
     {
     }
-} // namespace Lina::Graphics
 
-/*
- m_renderables.clear();
-        m_renderables.resize(m_fetchedData.size());
+    void StaticMeshRenderer::OnFetchVisibility()
+    {
+        PROFILER_FUNC("Static Mesh Renderer");
+        auto* ecs = ECS::Registry::Get();
+        if (ecs == nullptr)
+            return;
 
+        const auto& view = ecs->view<ECS::ModelNodeComponent>();
+
+        for (auto e : view)
+        {
+            auto modelComp = view.get<ECS::ModelNodeComponent>(e);
+            if (!modelComp.visible)
+                continue;
+
+            auto entityData = ecs->get<ECS::EntityDataComponent>(e);
+
+            // Generate visibility data
+            VisibilityData visData;
+            visData.position = entityData.GetPosition();
+            visData.entity   = e;
+
+            if (modelComp.m_node.IsValid())
+                visData.aabb = modelComp.m_node.value->GetAABB();
+            else
+                visData.aabb = RenderEngine::Get()->GetPlaceholderModelNode()->GetAABB();
+
+            // Generate renderable data
+            RenderableData renderable;
+            renderable.node = modelComp.m_node.IsValid() ? RenderEngine::Get()->GetPlaceholderModelNode() : modelComp.m_node.value;
+
+            for (auto matHandle : modelComp.m_materials)
+            {
+                if (matHandle.IsValid())
+                    renderable.materials.push_back(matHandle.value);
+                else
+                    renderable.materials.push_back(RenderEngine::Get()->GetPlaceholderMaterial());
+            }
+
+            FetchedData fetchedData;
+            fetchedData.visibility = visData;
+            fetchedData.renderable = renderable;
+            m_fetchedObjects.push_back(fetchedData);
+        }
+    }
+
+    void StaticMeshRenderer::OnAssignVisibility()
+    {
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        linatl::for_each(m_fetchedObjects.begin(), m_fetchedObjects.end(), [](const FetchedData& fd) { RenderEngine::Get()->GetFramePacket().AddVisibilityData(fd.visibility); });
+    }
+
+    void StaticMeshRenderer::OnExtractPerView(View* v)
+    {
+        if (v->GetType() != ViewType::Player)
+            return;
+
+        const auto& visibles = v->GetVisibleObjects();
+        for (const auto& r : m_fetchedObjects)
+        {
+            // Skip if this object is not visible by this view.
+            if (!v->IsVisibleByView(r.visibility.entity))
+                continue;
+
+            m_renderableObjects.push_back(r.renderable);
+        }
+
+        m_fetchedObjects.clear();
+    }
+
+    void StaticMeshRenderer::OnPrepare()
+    {
+        Vector<GPUData> opaques;
+        Vector<GPUData> transparents;
+
+        for (auto& renderable : m_renderableObjects)
+        {
+            const auto& meshes    = renderable.node->GetMeshes();
+            const auto& materials = renderable.materials;
+
+            for (int i = 0; i < meshes.size(); i++)
+            {
+                GPUData gpuData;
+                gpuData.mesh = meshes[i];
+                gpuData.mat  = materials[i];
+
+                const auto& handle = gpuData.mat->GetShaderHandle();
+                Shader*     shader = nullptr;
+                if (!handle.IsValid())
+                    gpuData.mat = RenderEngine::Get()->GetPlaceholderMaterial();
+
+                shader = gpuData.mat->GetShaderHandle().value;
+
+                if (shader->GetSurfaceType() == SurfaceType::Opaque)
+                    opaques.push_back(gpuData);
+                else
+                    transparents.push_back(gpuData);
+            }
+        }
+
+        linatl::copy(opaques.begin(), opaques.end(), linatl::back_inserter(m_gpuData));
+        linatl::copy(transparents.begin(), transparents.end(), linatl::back_inserter(m_gpuData));
+        opaques.clear();
+        transparents.clear();
+    }
+
+    Material* lastMaterial;
+    Mesh*     lastMesh;
+
+    void StaticMeshRenderer::OnSubmit(CommandBuffer& buffer)
+    {
         glm::vec3 camPos = {0.f, 0.f, -350.f};
 
         static float _frameNumber = 0.0f;
@@ -52,12 +171,12 @@ namespace Lina::Graphics
         glm::mat4 projection = glm::perspective(glm::radians(70.f), 1200.0f / 1200.0f, 0.1f, 1000.0f);
         projection[1][1] *= -1;
 
-        for (auto& renderable : m_renderables)
+        for (auto& renderable : m_gpuData)
         {
-            if (renderable.material != lastMaterial)
+            if (renderable.mat != lastMaterial)
             {
-                renderable.material->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
-                renderable.material = lastMaterial;
+                renderable.mat->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
+                renderable.mat = lastMaterial;
             }
 
             const glm::mat4 meshMatrix = projection * view * renderable.transform;
@@ -73,4 +192,6 @@ namespace Lina::Graphics
                 lastMesh = renderable.mesh;
             }
         }
-*/
+    }
+
+} // namespace Lina::Graphics

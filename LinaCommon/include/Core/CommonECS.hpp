@@ -36,6 +36,7 @@ SOFTWARE.
 #define ENTT_USE_ATOMIC
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
+
 namespace Lina::ECS
 {
 #define ECS_NULL entt::null

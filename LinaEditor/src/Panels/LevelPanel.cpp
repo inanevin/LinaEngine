@@ -211,7 +211,7 @@ namespace Lina::Editor
                 Vector2                   windowPos = Vector2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
                 Vector2                   mousePos  = Vector2(ImGui::GetMousePos().x - windowPos.x, ImGui::GetMousePos().y - windowPos.y);
 
-                const Vector3 camLocation = camData.GetLocation();
+                const Vector3 camLocation = camData.GetPosition();
                 const Vector3 clickPos    = Graphics::RenderEngine::Get()->GetCameraSystem()->ScreenToWorldCoordinates(Vector3(mousePos.x, mousePos.y, 500.0f));
                 const Vector3 rayDir      = (clickPos - camLocation).Normalized();
 
@@ -270,7 +270,7 @@ namespace Lina::Editor
                 data.SetRotationAngles(rot + deltaRotation);
             }
 
-            data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+            data.SetPosition(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
             data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
             // Draw the selected entities bounding box.
@@ -295,9 +295,9 @@ namespace Lina::Editor
             ImGuizmo::EnablePlanes(false);
             Transformation            sceneOrientationTransform;
             ECS::EntityDataComponent& data       = reg->get<ECS::EntityDataComponent>(editorCam);
-            const Vector3             camLoc     = data.GetLocation();
-            sceneOrientationTransform.m_location = ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
-            sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_location, Vector3(camLoc.x, camLoc.y, camLoc.z + 300), Vector3::Up);
+            const Vector3             camLoc     = data.GetPosition();
+            sceneOrientationTransform.m_position = ECS::CameraSystem::ViewportToWorldCoordinates(Vector3(0.95f, 0.9f, 2.0f));
+            sceneOrientationTransform.m_rotation = Quaternion::LookAt(sceneOrientationTransform.m_position, Vector3(camLoc.x, camLoc.y, camLoc.z + 300), Vector3::Up);
             glm::mat4 sceneOrientation           = sceneOrientationTransform.ToMatrix();
             ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &sceneOrientation[0][0]);
         }

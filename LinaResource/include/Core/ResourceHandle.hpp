@@ -49,7 +49,7 @@ namespace Lina::Resources
 
         virtual void OnResourceLoaded()   = 0;
         virtual void OnResourceUnloaded() = 0;
-        virtual bool IsValid()            = 0;
+        virtual bool IsValid() const      = 0;
 
         void OnResourceSIDChanged(StringID resSidNew)
         {
@@ -89,7 +89,7 @@ namespace Lina::Resources
             value = nullptr;
         }
 
-        virtual bool IsValid() override
+        virtual bool IsValid() const override
         {
             return sid != 0 && value != nullptr;
         }

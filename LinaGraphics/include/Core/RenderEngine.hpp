@@ -38,10 +38,11 @@ SOFTWARE.
 #include "ECS/SystemList.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Utility/DeletionQueue.hpp"
-#include "Backend.hpp"
-#include "Window.hpp"
 #include "FeatureRenderers/StaticMeshRenderer.hpp"
-#include "Views/PlayerView.hpp"
+#include "Core/View.hpp"
+#include "Backend.hpp"
+#include "FramePacket.hpp"
+#include "Window.hpp"
 #include <functional>
 
 namespace Lina
@@ -49,13 +50,12 @@ namespace Lina
     namespace Event
     {
         struct ESwapchainRecreated;
-        struct EPreStartGame;
     } // namespace Event
 } // namespace Lina
 
 namespace Lina::Graphics
 {
-    class FeatureRenderer;
+    class ModelNode;
 
     class RenderEngine
     {
@@ -74,11 +74,18 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void Shutdown();
-        void FetchVisibilityState();
-        void ExtractGameState();
-        void PrepareRenderData();
-        void OnPreStartGame(const Event::EPreStartGame& ev);
+        void GameSimCompleted();
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
+
+        inline ModelNode* GetPlaceholderModelNode()
+        {
+            return m_placeholderModelNode;
+        }
+
+        inline Material* GetPlaceholderMaterial()
+        {
+            return m_placeholderMaterial;
+        }
 
         inline Renderer& GetRenderer()
         {
@@ -95,18 +102,31 @@ namespace Lina::Graphics
             return m_initedSuccessfully;
         }
 
+        inline FramePacket& GetFramePacket()
+        {
+            return m_framePacket;
+        }
+
+        inline const Vector<View*>& GetViews()
+        {
+            return m_views;
+        }
+
     private:
         friend class Engine;
 
-        Vector<FeatureRenderer*> m_featureRenderers;
-        static RenderEngine*     s_instance;
-        DeletionQueue            m_mainDeletionQueue;
-        ApplicationInfo          m_appInfo;
-        Window                   m_window;
-        Backend                  m_backend;
-        bool                     m_initedSuccessfully = false;
+        static RenderEngine* s_instance;
+        Vector<View*>        m_views;
+        View                 m_playerView;
+        ModelNode*           m_placeholderModelNode = nullptr;
+        Material*            m_placeholderMaterial  = nullptr;
+        DeletionQueue        m_mainDeletionQueue;
+        ApplicationInfo      m_appInfo;
+        Window               m_window;
+        Backend              m_backend;
+        bool                 m_initedSuccessfully = false;
 
-        PlayerView         m_playerView;
+        FramePacket        m_framePacket;
         Renderer           m_renderer;
         StaticMeshRenderer m_meshRenderer;
     };

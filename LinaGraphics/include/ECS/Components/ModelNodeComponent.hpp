@@ -28,20 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PlayerView_HPP
-#define PlayerView_HPP
+#ifndef ModelNodeComponent_HPP
+#define ModelNodeComponent_HPP
 
-#include "View.hpp"
-#include "Math/Frustum.hpp"
+// Headers here.
+#include "ECS/Component.hpp"
+#include "Core/ResourceHandle.hpp"
+#include "Resource/ModelNode.hpp"
+#include "Resource/Material.hpp"
+#include "Data/Vector.hpp"
+#include <cereal/access.hpp>
 
-namespace Lina::Graphics
+namespace Lina
 {
-    class PlayerView : public View
+    namespace Graphics
     {
-    public:
-    protected:
-     
+        class StaticMeshRenderer;
+    }
+} // namespace Lina
+
+namespace Lina::ECS
+{
+    LINA_COMPONENT("Model Node Component", "ICON_FA_EYE", "Graphics", "true", "true")
+    struct ModelNodeComponent : public Component
+    {
+        bool visible = true;
+
+    private:
+        friend class Graphics::StaticMeshRenderer;
+
+        Resources::ResourceHandle<Graphics::ModelNode>        m_node;
+        Vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
+
+        friend class cereal::access;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_node, visible, m_materials);
+        }
     };
-} // namespace Lina::Graphics
+} // namespace Lina::ECS
 
 #endif

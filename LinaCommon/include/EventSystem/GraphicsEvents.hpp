@@ -103,6 +103,7 @@ namespace Lina::Event
         void* oldPtr = nullptr;
         void* newPtr = nullptr;
     };
+
 } // namespace Lina::Event
 
 #endif

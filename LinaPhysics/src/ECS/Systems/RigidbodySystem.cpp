@@ -66,7 +66,7 @@ namespace Lina::ECS
             if (phyComp.m_isKinematic)
             {
                 PxTransform destination;
-                destination.p = Physics::ToPxVector3(data.GetLocation());
+                destination.p = Physics::ToPxVector3(data.GetPosition());
                 destination.q = Physics::ToPxQuat(data.GetRotation());
                 ((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
                 m_engine->UpdateBodyShapeParameters(p.first);
@@ -83,7 +83,7 @@ namespace Lina::ECS
                     {
                         PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
                         const auto&           pose  = rigid->getGlobalPose();
-                        data.SetLocation(Physics::ToLinaVector3(pose.p));
+                        data.SetPosition(Physics::ToLinaVector3(pose.p));
                         data.SetRotation(Physics::ToLinaQuat(pose.q));
                     }
                 }

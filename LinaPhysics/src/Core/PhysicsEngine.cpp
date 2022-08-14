@@ -543,7 +543,7 @@ namespace Lina::Physics
         ECS::EntityDataComponent& data    = ECS::Registry::Get()->get<ECS::EntityDataComponent>(body);
         ECS::PhysicsComponent&    phyComp = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
         PxTransform               pose;
-        pose.p         = ToPxVector3(data.GetLocation());
+        pose.p         = ToPxVector3(data.GetPosition());
         pose.q         = ToPxQuat(data.GetRotation());
         PxShape* shape = GetCreateShape(phyComp);
 

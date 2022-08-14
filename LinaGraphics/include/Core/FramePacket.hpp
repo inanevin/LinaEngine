@@ -28,28 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef FeatureRenderer_HPP
-#define FeatureRenderer_HPP
+#ifndef FramePacket_HPP
+#define FramePacket_HPP
+
+#include "RenderData.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina::Graphics
 {
-    class View;
-
-    class FeatureRenderer
+    class FramePacket
     {
     public:
+        void AddVisibilityData(const VisibilityData& vis);
 
-        // void OnExtract();
-        // void OnExtractView(View* v);
-        // void OnExtractViewsFinalize();
-        // void OnPrepare();
-        // void OnPrepareView(View* v);
-        // void OnPrepareViewsFinalize();
-        // void OnSubmit();
+        inline const Vector<VisibilityData>& GetVisibilityData()
+        {
+            return m_visibilityData;
+        }
 
     private:
-    };
+        friend class RenderEngine;
+        void Reset()
+        {
+            m_visibilityData.clear();
+        }
 
+        Vector<VisibilityData> m_visibilityData;
+    };
 } // namespace Lina::Graphics
 
 #endif

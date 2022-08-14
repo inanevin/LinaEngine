@@ -170,7 +170,7 @@ namespace Lina::Editor
     {
         auto& editorCamSystem                = EditorApplication::Get()->GetCameraSystem();
         auto& data                           = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
-        m_editorCameraLocationBeforeSnapshot = data.GetLocation();
+        m_editorCameraLocationBeforeSnapshot = data.GetPosition();
         m_editorCameraRotationBeforeSnapshot = data.GetRotation();
 
         // Handle aspect resizing.
@@ -184,7 +184,7 @@ namespace Lina::Editor
         auto*       reg       = ECS::Registry::Get();
         ECS::Entity ent       = reg->CreateEntity(editorSnapshotLightName);
         auto&       lightData = reg->get<ECS::EntityDataComponent>(ent);
-        lightData.SetLocation(Vector3(5, 8, 0));
+        lightData.SetPosition(Vector3(5, 8, 0));
         reg->emplace<ECS::DirectionalLightComponent>(ent);
     }
 
@@ -192,8 +192,8 @@ namespace Lina::Editor
     {
         auto& editorCamSystem = EditorApplication::Get()->GetCameraSystem();
         auto& data            = ECS::Registry::Get()->get<ECS::EntityDataComponent>(editorCamSystem.GetEditorCamera());
-        data.SetLocation(Vector3(0, 1, -4));
-        data.SetRotation(Quaternion::LookAt(data.GetLocation(), Vector3::Zero, Vector3::Up));
+        data.SetPosition(Vector3(0, 1, -4));
+        data.SetRotation(Quaternion::LookAt(data.GetPosition(), Vector3::Zero, Vector3::Up));
     }
 
     void WidgetsUtility::ResetEditorCamera()
@@ -209,7 +209,7 @@ namespace Lina::Editor
         // Reset camera transformation.
         auto& camSystem = EditorApplication::Get()->GetCameraSystem();
         auto& data      = ECS::Registry::Get()->get<ECS::EntityDataComponent>(camSystem.GetEditorCamera());
-        data.SetLocation(m_editorCameraLocationBeforeSnapshot);
+        data.SetPosition(m_editorCameraLocationBeforeSnapshot);
         data.SetRotation(m_editorCameraRotationBeforeSnapshot);
     }
 

@@ -31,7 +31,6 @@ SOFTWARE.
 #include "ECS/Components/DecalComponent.hpp"
 #include "ECS/Components/SkyComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/MeshComponent.hpp"
 #include "ECS/Components/SpriteComponent.hpp"
 #include "ECS/Components/ParticleComponent.hpp"
 
@@ -44,8 +43,6 @@ SOFTWARE.
 #include "Resource/Model.hpp"
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
-
-#include "FeatureRenderers/FeatureRenderer.hpp"
 
 namespace Lina::Graphics
 {
@@ -62,14 +59,14 @@ namespace Lina::Graphics
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
         m_appInfo = appInfo;
 
-        Window::s_instance  = &m_window;
-        Backend::s_instance = &m_backend;
+        Window::s_instance   = &m_window;
+        Backend::s_instance  = &m_backend;
+        Renderer::s_instance = &m_renderer;
 
         m_initedSuccessfully = m_window.Initialize(appInfo);
         m_initedSuccessfully = m_backend.Initialize(appInfo);
 
         Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreStartGame, &RenderEngine::OnPreStartGame>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -77,62 +74,69 @@ namespace Lina::Graphics
             return;
         }
 
+        m_playerView.m_viewType = ViewType::Player;
+        m_views.push_back(&m_playerView);
         m_renderer.Initialize();
         m_meshRenderer.Initialize();
     }
 
-    void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
-    {
+    //  void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
+    //  {
 
-        //  RETURN_NOTINITED;
-        //  const Vector2i size = m_window.GetSize();
-        //
-        //  Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
-        //  cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
-        //
-        //  PushConstantRange r = PushConstantRange{
-        //      .offset     = 0,
-        //      .size       = sizeof(MeshPushConstants),
-        //      .stageFlags = GetShaderStage(ShaderStage::Vertex),
-        //  };
-        //
-        //  m_pipelineLayout = PipelineLayout{};
-        //  m_pipelineLayout.AddPushConstant(r).Create();
-        //
-        //  Viewport vp = Viewport{
-        //      .x        = 0.0f,
-        //      .y        = 0.0f,
-        //      .width    = static_cast<float>(size.x),
-        //      .height   = static_cast<float>(size.y),
-        //      .minDepth = 0.0f,
-        //      .maxDepth = 1.0f,
-        //  };
-        //  Recti scissors = Recti{
-        //      .pos  = Vector2(0.0f, 0.0f),
-        //      .size = size,
-        //  };
-        //
-        //  m_pipeline = Pipeline{
-        //      .depthTestEnabled  = true,
-        //      .depthWriteEnabled = true,
-        //      .depthCompareOp    = CompareOp::LEqual,
-        //      .viewport          = vp,
-        //      .scissor           = scissors,
-        //      .topology          = Topology::TriangleList,
-        //      .polygonMode       = PolygonMode::Fill,
-        //      .cullMode          = CullMode::None,
-        //  };
-        //
-        //  m_pipeline.SetShader(defaultShader)
-        //      .SetLayout(m_pipelineLayout)
-        //      .SetRenderPass(m_renderPass)
-        //      .Create();
-    }
-
+    //  RETURN_NOTINITED;
+    //  const Vector2i size = m_window.GetSize();
+    //
+    //  Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
+    //  cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
+    //
+    //  PushConstantRange r = PushConstantRange{
+    //      .offset     = 0,
+    //      .size       = sizeof(MeshPushConstants),
+    //      .stageFlags = GetShaderStage(ShaderStage::Vertex),
+    //  };
+    //
+    //  m_pipelineLayout = PipelineLayout{};
+    //  m_pipelineLayout.AddPushConstant(r).Create();
+    //
+    //  Viewport vp = Viewport{
+    //      .x        = 0.0f,
+    //      .y        = 0.0f,
+    //      .width    = static_cast<float>(size.x),
+    //      .height   = static_cast<float>(size.y),
+    //      .minDepth = 0.0f,
+    //      .maxDepth = 1.0f,
+    //  };
+    //  Recti scissors = Recti{
+    //      .pos  = Vector2(0.0f, 0.0f),
+    //      .size = size,
+    //  };
+    //
+    //  m_pipeline = Pipeline{
+    //      .depthTestEnabled  = true,
+    //      .depthWriteEnabled = true,
+    //      .depthCompareOp    = CompareOp::LEqual,
+    //      .viewport          = vp,
+    //      .scissor           = scissors,
+    //      .topology          = Topology::TriangleList,
+    //      .polygonMode       = PolygonMode::Fill,
+    //      .cullMode          = CullMode::None,
+    //  };
+    //
+    //  m_pipeline.SetShader(defaultShader)
+    //      .SetLayout(m_pipelineLayout)
+    //      .SetRenderPass(m_renderPass)
+    //      .Create();
+    //  }
 
     void RenderEngine::Clear()
     {
         RETURN_NOTINITED;
+    }
+
+    void RenderEngine::GameSimCompleted()
+    {
+        m_framePacket.Reset();
+        m_renderer.GameSimCompleted();
     }
 
     void RenderEngine::Render()
@@ -164,29 +168,6 @@ namespace Lina::Graphics
         m_renderer.Shutdown();
         m_window.Shutdown();
         m_backend.Shutdown();
-    }
-
-    void RenderEngine::FetchVisibilityState()
-    {
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        m_renderer.FetchVisibilityState();
-    }
-
-    void RenderEngine::ExtractGameState()
-    {
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        Vector<View*> views;
-        views.push_back(&m_playerView);
-
-        m_renderer.ExtractGameState(views);
-    }
-
-    void RenderEngine::PrepareRenderData()
-    {
-        Vector<View*> views;
-        views.push_back(&m_playerView);
-
-        m_renderer.PrepareRenderData(views);
     }
 
     void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)

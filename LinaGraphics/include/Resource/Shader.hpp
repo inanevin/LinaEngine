@@ -43,7 +43,7 @@ namespace Lina::Graphics
     class Shader : public Resources::IResource
     {
     public:
-        Shader()          = default;
+        Shader() = default;
         virtual ~Shader();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
@@ -55,6 +55,11 @@ namespace Lina::Graphics
 
         bool              HasStage(ShaderStage stage);
         VkShaderModule_T* GetModule(ShaderStage stage);
+
+        inline SurfaceType GetSurfaceType()
+        {
+            return m_surface;
+        }
 
         /// <summary>
         /// Returns a shader block from a full linashader text.
@@ -78,11 +83,12 @@ namespace Lina::Graphics
         };
 
     private:
-        AssetData m_assetData;
-        String    m_text       = "";
-        String    m_vertexText = "";
-        String    m_fragText   = "";
-        String    m_geoText    = "";
+        SurfaceType m_surface = SurfaceType::Opaque;
+        AssetData   m_assetData;
+        String      m_text       = "";
+        String      m_vertexText = "";
+        String      m_fragText   = "";
+        String      m_geoText    = "";
 
     private:
         VkShaderModule_T* _ptrVtx  = nullptr;
