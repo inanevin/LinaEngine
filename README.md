@@ -145,6 +145,10 @@ cmake --build . --target ALL_BUILD
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
 Check out [Licence](LICENSE) file.
 
+## Contributing
+
+Please check out [Contributing](CONTRIBUTING.md) for further information.
+
 ## Design Diagrams
 
 ### System Architecture
