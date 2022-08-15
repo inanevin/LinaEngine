@@ -148,10 +148,10 @@ namespace Lina::Resources
         }
 
     protected:
-
         friend class ResourceStorage;
-        StringID m_sid            = 0;
-        String       m_path           = "";
+
+        StringID m_sid  = 0;
+        String   m_path = "";
     };
 
     template <typename T>

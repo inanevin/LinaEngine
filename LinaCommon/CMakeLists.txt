@@ -78,6 +78,7 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonECS.hpp
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
+	include/Core/CommonEngine.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
@@ -186,6 +187,14 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
+	include/Core/CommonApplication.hpp
+	include/Core/CommonWindow.hpp
+	include/Core/CommonInput.hpp
+	include/Core/CommonPhysics.hpp
+	include/Core/CommonECS.hpp
+	include/Core/CommonUtility.hpp
+	include/Core/CommonReflection.hpp
+	include/Core/CommonEngine.hpp
 	include/JobSystem/JobSystem.hpp
 	include/Profiling/Profiler.hpp
 	include/Log/Log.hpp

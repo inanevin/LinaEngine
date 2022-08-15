@@ -64,7 +64,6 @@ namespace Lina::World
             // Uninstall current level.
             Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
             m_currentLevel->Uninstall();
-
             Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
         }
 

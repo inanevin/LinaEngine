@@ -153,7 +153,7 @@ namespace Lina
         ~Engine() = default;
 
         void   Initialize(const InitInfo& initInfo);
-        void   LoadDefaults();
+        void   LoadEngineResources();
         void   Run();
         void   RunSimulation(float deltaTime);
         void   RemoveOutliers(bool biggest);
@@ -197,7 +197,6 @@ namespace Lina
         float                                  m_physicsAccumulator = 0.0f;
         EngineSettings*                        m_engineSettings     = nullptr;
         RenderSettings*                        m_renderSettings     = nullptr;
-        Vector<Pair<TypeID, String>>           m_engineResources;
 
 #ifndef LINA_PRODUCTION_BUILD
         Editor::EditorManager m_editor;

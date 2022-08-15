@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Resource/Material.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Core/ResourceStorage.hpp"
 
 namespace Lina::Graphics
@@ -39,6 +40,7 @@ namespace Lina::Graphics
     {
         *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
         IResource::SetSID(path);
+        FindShader();
         return static_cast<void*>(this);
     }
 
@@ -46,6 +48,7 @@ namespace Lina::Graphics
     {
         *this = Resources::LoadArchiveFromFile<Material>(path);
         IResource::SetSID(path);
+        FindShader();
         return static_cast<void*>(this);
     }
 
@@ -54,14 +57,23 @@ namespace Lina::Graphics
         auto* storage = Resources::ResourceStorage::Get();
 
         if (storage->Exists(m_shader.tid, m_shader.sid))
-        {
             m_shader.value = storage->GetResource<Shader>(m_shader.sid);
-        }
         else
-        {
-        }
+            Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &Material::OnResourceLoaded>(this);
     }
 
-
+    void Material::OnResourceLoaded(const Event::EResourceLoaded& ev)
+    {
+        // Assign our shader if it's not loaded yet.
+        if (ev.tid == GetTypeID<Shader>())
+        {
+            auto* storage = Resources::ResourceStorage::Get();
+            if (ev.sid == m_shader.sid)
+            {
+                m_shader.value = storage->GetResource<Shader>(m_shader.sid);
+                Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
+            }
+        }
+    }
 
 } // namespace Lina::Graphics

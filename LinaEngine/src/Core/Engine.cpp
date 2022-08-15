@@ -50,6 +50,7 @@ SOFTWARE.
 #include "Resource/Shader.hpp"
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
@@ -106,33 +107,39 @@ namespace Lina
         m_levelManager.Initialize();
         m_renderEngine.Initialize(initInfo);
 
-        LoadDefaults();
+        LoadEngineResources();
     }
 
-    void Engine::LoadDefaults()
+    void Engine::LoadEngineResources()
     {
 #ifndef LINA_PRODUCTION_BUILD
         if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
-            m_editor.LoadDefaults();
+            m_editor.VerifyStaticResources();
 #endif
 
-        m_resourceStorage.Load(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings", false);
-        m_resourceStorage.Load(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings", false);
-        m_resourceStorage.Load(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata", false);
+        // Static resources
+        g_defaultResources.m_staticResources[GetTypeID<EngineSettings>()].push_back("Resources/lina.enginesettings");
+        g_defaultResources.m_staticResources[GetTypeID<RenderSettings>()].push_back("Resources/lina.rendersettings");
+        g_defaultResources.m_staticResources[GetTypeID<Resources::ResourceDataManager>()].push_back("Resources/lina.resourcedata");
+        m_resourceStorage.GetLoader()->LoadStaticResources();
         m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
         m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
         m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
         m_resourceDataManager->Initialize();
         Resources::ResourceDataManager::s_instance = m_resourceDataManager;
 
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Shaders/default.linashader"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/BlenderMonkey.obj"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Capsule.fbx"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Plane.fbx"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Quad.fbx"));
-        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Sphere.fbx"));
+        // Engine resources.
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Capsule.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+        m_resourceStorage.GetLoader()->LoadEngineResources();
+
     }
 
     void Engine::PackageProject(const String& path)
@@ -152,6 +159,12 @@ namespace Lina
         // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
         // Retrieve resource info & dump it.
         const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
+
+        if (packagedLevels.empty())
+        {
+            LINA_ERR("Packaging failed, no levels to pack!");
+            return;
+        }
         for (const String& str : packagedLevels)
         {
             // If the level is the currently loaded one, retrieve the resource map right away.
@@ -212,7 +225,7 @@ namespace Lina
         for (auto sid : resourceMetadataToRemove)
             m_resourceDataManager->Remove(sid);
 
-        // m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
+        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
     void Engine::Run()

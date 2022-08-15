@@ -94,14 +94,8 @@ namespace Lina::Resources
             if (typeData.packageType == PackageType::Static || typeData.packageType == PackageType::Level)
                 continue;
 
-            // If the new resources to load doesn't contain the type id at all, unload all resources belonging to this type id.
-            if (!levelResources.contains(tid))
-            {
-                storage->UnloadAllPerType(tid);
-                continue;
-            }
-
-            const HashSet<String>& set = levelResources.at(tid);
+            const auto&            engineRes = g_defaultResources.GetEngineResources();
+            const HashSet<String>& set       = levelResources.at(tid);
 
             Vector<StringID> toRemove;
             toRemove.reserve(cache.m_resources.size() / 2);
@@ -112,7 +106,8 @@ namespace Lina::Resources
                     return HashedString(str.c_str()).value() == sid;
                 });
 
-                if (it == set.end())
+                // If we're going to remove this resource, make sure it's not an engine resource.
+                if (it == set.end() && !g_defaultResources.IsEngineResource(tid, sid))
                     toRemove.push_back(sid);
             }
 

@@ -28,40 +28,40 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourcePackager_HPP
-#define ResourcePackager_HPP
+#ifndef CommonEngine_HPP
+#define CommonEngine_HPP
 
-// Headers here.
-#include "ResourceCommon.hpp"
+#include "Data/Vector.hpp"
+#include "Data/HashMap.hpp"
 #include "Data/String.hpp"
 #include "Utility/StringId.hpp"
-#include "Data/HashSet.hpp"
-#include "Data/HashMap.hpp"
+#include "Data/DataCommon.hpp"
 
 namespace Lina
 {
-    namespace Resources
+    class DefaultResources
     {
-        class ResourceLoader;
-    }
-} // namespace Lina
-namespace Lina::Resources
-{
-    class ResourcePackager
-    {
+    public:
+        inline const HashMap<TypeID, Vector<String>>& GetEngineResources()
+        {
+            return m_engineResources;
+        }
+
+        inline const HashMap<TypeID, Vector<String>>& GetStaticResources()
+        {
+            return m_staticResources;
+        }
+
+        bool IsEngineResource(TypeID tid, StringID sid);
+
     private:
         friend class Engine;
-        friend class EditorResourceLoader;
-        friend class StandaloneResourceLoader;
 
-        void LoadPackage(const String& packageName, ResourceLoader* loader);
-        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
-        void PackageProject(const String& path, const Vector<String>& levelsToPackage, const HashMap<TypeID, Vector<String>>& resourceMap);
-        void PackageFileset(Vector<String> files, const String& output);
+        HashMap<TypeID, Vector<String>> m_engineResources;
+        HashMap<TypeID, Vector<String>> m_staticResources;
     };
 
-}; // namespace Lina::Resources
+    extern DefaultResources g_defaultResources;
+} // namespace Lina
 
 #endif

@@ -45,7 +45,6 @@ namespace Lina
 {
 
     Application*    Application::s_application = nullptr;
-    ApplicationInfo g_appInfo;
 
     void Application::Cleanup()
     {
@@ -74,7 +73,9 @@ namespace Lina
             return;
         }
 
-        g_appInfo.m_appMode = initInfo.appMode;
+        g_appInfo.m_appMode     = initInfo.appMode;
+        g_appInfo.m_appName     = initInfo.appName;
+        g_appInfo.m_packagePass = initInfo.packagePass;
 
 // Editor will be compiled out, force standalone.
 #ifdef LINA_PRODUCTION_BUILD

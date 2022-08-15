@@ -33,11 +33,22 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void StandaloneResourceLoader::LoadDefaults(const Vector<String>& defaults)
+    void Lina::Resources::StandaloneResourceLoader::LoadStaticResources()
     {
+        const int totalFiles = static_cast<int>(g_defaultResources.GetStaticResources().size());
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading static packages", .totalFiles = totalFiles});
         m_packager.LoadPackage(PACKAGE_STATIC, this);
-        m_packager.LoadPackage(PACKAGE_ENGINERES, this);
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
+
+    void StandaloneResourceLoader::LoadEngineResources()
+    {
+        const int totalFiles = static_cast<int>(g_defaultResources.GetEngineResources().size());
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading engine resources", .totalFiles = totalFiles});
+        m_packager.LoadPackage(PACKAGE_ENGINERES, this);
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
+    }
+
     void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))

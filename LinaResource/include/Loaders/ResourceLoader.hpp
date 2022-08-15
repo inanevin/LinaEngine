@@ -74,7 +74,8 @@ namespace Lina::Resources
 
         virtual void LoadResource(TypeID tid, const String& path, bool loadAsync)            = 0;
         virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) = 0;
-        virtual void LoadDefaults(const Vector<String>& defaults)                            = 0;
+        virtual void LoadStaticResources()                                                   = 0;
+        virtual void LoadEngineResources()                                                   = 0;
 
         inline ResourcePackager& GetPackager()
         {

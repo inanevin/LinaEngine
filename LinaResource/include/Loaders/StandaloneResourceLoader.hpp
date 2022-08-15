@@ -45,7 +45,8 @@ namespace Lina::Resources
 
         virtual void LoadResource(TypeID tid, const String& path, bool async) override;
         virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadDefaults(const Vector<String>& defaults) override;
+        virtual void LoadStaticResources() override;
+        virtual void LoadEngineResources() override;
 
     private:
     };

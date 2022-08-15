@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/CommonApplication.hpp"
 #include "Core/CommonPhysics.hpp"
 #include "Core/CommonUtility.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace EA
 {
@@ -66,6 +67,25 @@ namespace EA
 
 namespace Lina
 {
+    DefaultResources g_defaultResources;
+    ApplicationInfo  g_appInfo;
+
+    bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
+    {
+        const auto& it = m_engineResources.find(tid);
+        if (it != m_engineResources.end())
+        {
+            bool found = false;
+            for (auto& str : it->second)
+            {
+                if (HashedString(str.c_str()).value() == sid)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     String LogLevelAsString(LogLevel level)
     {
         switch (level)

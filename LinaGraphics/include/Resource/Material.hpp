@@ -38,10 +38,16 @@ SOFTWARE.
 #include "Shader.hpp"
 #include <cereal/access.hpp>
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct EResourceLoaded;
+    }
+}
+
 namespace Lina::Graphics
 {
-
-
     class Material : public Resources::IResource
     {
     public:
@@ -59,6 +65,7 @@ namespace Lina::Graphics
     private:
     
         void FindShader();
+        void OnResourceLoaded(const Event::EResourceLoaded& ev);
 
     private:
 

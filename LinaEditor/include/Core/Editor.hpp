@@ -40,7 +40,7 @@ namespace Lina::Editor
         virtual ~EditorManager() = default;
 
 
-        void LoadDefaults();
+        void VerifyStaticResources();
     };
 } // namespace Lina::Editor
 

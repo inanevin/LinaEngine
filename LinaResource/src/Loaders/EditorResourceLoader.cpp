@@ -38,10 +38,35 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void EditorResourceLoader::LoadDefaults(const Vector<String>& defaults)
+    void EditorResourceLoader::LoadStaticResources()
     {
-
+        const auto& staticResources = g_defaultResources.GetStaticResources();
+        Executor    exec;
+        for (auto& [tid, vec] : staticResources)
+        {
+            for (auto& str : vec)
+                exec.silent_async([tid, str, this]() {
+                    LoadResource(tid, str, false);
+                });
+        }
+        exec.wait_for_all();
     }
+
+    void EditorResourceLoader::LoadEngineResources()
+    {
+        const auto& engineResources = g_defaultResources.GetEngineResources();
+        Executor    exec;
+
+        for (auto& [tid, vec] : engineResources)
+        {
+            for (auto& str : vec)
+                exec.silent_async([tid, str, this]() {
+                    LoadResource(tid, str, false);
+                });
+        }
+        exec.wait_for_all();
+    }
+
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
@@ -86,8 +111,7 @@ namespace Lina::Resources
         for (auto& pair : toLoad)
             totalCount += static_cast<int>(pair.second.size());
 
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount}
-        );
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount});
 
         Vector<Pair<TypeID, String>> toLoadVec;
 
@@ -111,4 +135,3 @@ namespace Lina::Resources
     }
 
 } // namespace Lina::Resources
-

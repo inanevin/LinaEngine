@@ -34,26 +34,23 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void EditorManager::LoadDefaults()
+    void EditorManager::VerifyStaticResources()
     {
         // Make sure the static resources needed are initialized.
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        if (!Utility::FileExists("Resources/lina.enginesettings"))
         {
-            if (!Utility::FileExists("Resources/lina.enginesettings"))
-            {
-                EngineSettings s;
-                Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
-            }
-            if (!Utility::FileExists("Resources/lina.rendersettings"))
-            {
-                RenderSettings s;
-                Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
-            }
-            if (!Utility::FileExists("Resources/lina.resourcedata"))
-            {
-                Resources::ResourceDataManager s;
-                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
-            }
+            EngineSettings s;
+            Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
+        }
+        if (!Utility::FileExists("Resources/lina.rendersettings"))
+        {
+            RenderSettings s;
+            Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
+        }
+        if (!Utility::FileExists("Resources/lina.resourcedata"))
+        {
+            Resources::ResourceDataManager s;
+            Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
         }
     }
 } // namespace Lina::Editor

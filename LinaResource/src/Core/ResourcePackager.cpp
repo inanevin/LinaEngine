@@ -50,7 +50,6 @@ namespace Lina::Resources
 
     void ResourcePackager::LoadPackage(const String& packageName, ResourceLoader* loader)
     {
-
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
         {
@@ -75,7 +74,7 @@ namespace Lina::Resources
         UnpackAndLoad(fullBundlePath, filesToLoad, loader);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath,ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath, ResourceLoader* loader)
     {
         try
         {
@@ -110,12 +109,6 @@ namespace Lina::Resources
                 return;
             }
 
-            extractor.setFileCallback([&](std::wstring file) {
-                char* chr = Utility::WCharToChar(file.c_str());
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = String(chr)});
-                delete[] chr;
-            });
-
             // Extract.
             std::map<std::wstring, std::vector<bit7z::byte_t>> map;
             extractor.extract(wdir, map);
@@ -136,6 +129,7 @@ namespace Lina::Resources
                     for (int i = 0; i < item.second.size(); i++)
                         v.push_back(item.second[i]);
 
+                    Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = filePathStr});
                     loader->LoadSingleResourceFromMemory(filePathStr, v);
                 });
 
@@ -241,7 +235,7 @@ namespace Lina::Resources
         LINA_INFO("[Packager] -> Successfully loaded files from package: {0}", filePath);
     }
 
-    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelsToPackage, const Vector<String>& engineResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass)
+    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelsToPackage, const HashMap<TypeID, Vector<String>>& resourceMap)
     {
         ResourceUtility::ScanRootFolder();
         auto*          storage = ResourceStorage::Get();
@@ -279,6 +273,12 @@ namespace Lina::Resources
 
         PackageFileset(filesToPack, workingPath + PACKAGE_STATIC + RESOURCEPACKAGE_EXTENSION);
 
+        Vector<String> engineResources;
+        const auto&    defaultEngineResources = g_defaultResources.GetEngineResources();
+        linatl::for_each(defaultEngineResources.begin(), defaultEngineResources.end(), [&](const auto& pair) {
+            for (const String& str : pair.second)
+                engineResources.push_back(str);
+        });
         PackageFileset(engineResources, workingPath + PACKAGE_ENGINERES + RESOURCEPACKAGE_EXTENSION);
 
         // Pack the level resources, level resources might not be alive in the resource storage.
