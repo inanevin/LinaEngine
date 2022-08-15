@@ -153,7 +153,7 @@ namespace Lina::Physics
         PhysicsEngine()  = default;
         ~PhysicsEngine() = default;
 
-        void  Initialize(ApplicationMode appMode);
+        void  Initialize();
         void  Tick(float fixedDelta);
         void  Shutdown();
         float GetStepTime()
@@ -177,7 +177,6 @@ namespace Lina::Physics
         ECS::RigidbodySystem  m_rigidbodySystem;
         ECS::SystemList       m_physicsPipeline;
         Event::EventSystem*   m_eventSystem;
-        ApplicationMode       m_appMode = ApplicationMode::Editor;
         PhysXCooker           m_cooker;
         PhysicsMaterial*      m_defaultMaterial  = nullptr;
         bool                  m_debugDrawEnabled = false;

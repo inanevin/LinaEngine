@@ -65,12 +65,11 @@ namespace Lina::Physics
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
     HashMap<StringID, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
 
-    void PhysicsEngine::Initialize(ApplicationMode appMode)
+    void PhysicsEngine::Initialize()
     {
         LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
-        m_appMode = appMode;
 
-        if (m_appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
             SetDebugDraw(true);
 
         m_pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_pxAllocator, m_pxErrorCallback);
@@ -91,7 +90,7 @@ namespace Lina::Physics
         m_pxScene               = m_pxPhysics->createScene(sceneDesc);
         m_pxScene->setFlag(PxSceneFlag::eENABLE_ACTIVE_ACTORS, true);
 
-        if (m_appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
         {
             m_pxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
             m_pxScene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 2.0f);
@@ -119,7 +118,7 @@ namespace Lina::Physics
         m_eventSystem->Connect<Event::ELevelInstalled, &PhysicsEngine::OnLevelInstalled>(this);
         m_eventSystem->Connect<Event::EEntityEnabledChanged, &PhysicsEngine::OnEntityEnabledChanged>(this);
 
-        m_cooker.Initialize(m_appMode, m_pxFoundation);
+        m_cooker.Initialize(m_pxFoundation);
     }
 
     void PhysicsEngine::Tick(float fixedDelta)

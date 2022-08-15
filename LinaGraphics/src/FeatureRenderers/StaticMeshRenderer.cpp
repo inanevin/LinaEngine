@@ -175,7 +175,7 @@ namespace Lina::Graphics
         {
             if (renderable.mat != lastMaterial)
             {
-                renderable.mat->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
+                renderable.mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
                 renderable.mat = lastMaterial;
             }
 
@@ -184,7 +184,7 @@ namespace Lina::Graphics
             Graphics::MeshPushConstants constants;
             constants.renderMatrix = meshMatrix;
 
-            buffer.PushConstants(lastMaterial->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+            buffer.PushConstants(lastMaterial->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
 
             if (renderable.mesh != lastMesh)
             {

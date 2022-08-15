@@ -56,6 +56,10 @@ namespace Lina::Resources
         Graphics,
     };
 
+#define PACKAGE_STATIC    "static"
+#define PACKAGE_ENGINERES "engineres"
+#define PACKAGE_LEVELS    "levels"
+
 } // namespace Lina::Resources
 
 #endif

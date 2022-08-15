@@ -44,28 +44,28 @@ namespace Lina::Graphics
         LINA_ERR("GLFW Error: {0} Description: {1} ", error, desc);
     }
 
-    bool Window::Initialize(ApplicationInfo& appInfo)
+    bool Window::Initialize(const WindowProperties& props)
     {
         LINA_TRACE("[Initialization] -> Window ({0})", typeid(*this).name());
 
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_DECORATED, appInfo.windowProperties.decorated);
-        glfwWindowHint(GLFW_RESIZABLE, appInfo.windowProperties.resizable);
+        glfwWindowHint(GLFW_DECORATED, props.decorated);
+        glfwWindowHint(GLFW_RESIZABLE, props.resizable);
 
-        auto*              primaryMonitor      = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode                = glfwGetVideoMode(primaryMonitor);
-        appInfo.windowProperties.monitorWidth  = mode->width;
-        appInfo.windowProperties.monitorHeight = mode->height;
+        auto*              primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode           = glfwGetVideoMode(primaryMonitor);
 
-        if (appInfo.windowProperties.fullscreen)
+        int width  = props.width;
+        int height = props.height;
+        if (props.fullscreen)
         {
-            appInfo.windowProperties.width  = appInfo.windowProperties.monitorWidth;
-            appInfo.windowProperties.height = appInfo.windowProperties.monitorHeight;
+            width  = mode->width;
+            height = mode->height;
         }
 
-        m_glfwWindow = (glfwCreateWindow(appInfo.windowProperties.width, appInfo.windowProperties.height, appInfo.windowProperties.title.c_str(), appInfo.windowProperties.fullscreen ? primaryMonitor : NULL, NULL));
-        glfwGetMonitorContentScale(primaryMonitor, &(appInfo.windowProperties.contentScaleWidth), &(appInfo.windowProperties.contentScaleHeight));
+        m_glfwWindow = (glfwCreateWindow(width, height, props.title.c_str(), props.fullscreen ? primaryMonitor : NULL, NULL));
+        glfwGetMonitorContentScale(primaryMonitor, &(g_appInfo.m_contentScaleWidth), &(g_appInfo.m_contentScaleHeight));
 
         if (!m_glfwWindow)
         {
@@ -80,22 +80,15 @@ namespace Lina::Graphics
         glfwSetErrorCallback(GLFWErrorCallback);
 
         // Set working area width, exclude taskbar.
-        if (appInfo.appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
         {
             int xpos, ypos, width, height;
             glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
             glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
-            appInfo.windowProperties.workingAreaWidth  = width;
-            appInfo.windowProperties.workingAreaHeight = height;
             // SetSize(Vector2i(width, height));
         }
-        else
-        {
-            appInfo.windowProperties.workingAreaWidth  = appInfo.windowProperties.width;
-            appInfo.windowProperties.workingAreaHeight = appInfo.windowProperties.height;
-        }
 
-        SetVsync(appInfo.windowProperties.vsync);
+        SetVsync(props.vsync);
         glfwSetWindowUserPointer(m_glfwWindow, this);
 
         auto windowResizeFunc = [](GLFWwindow* w, int wi, int he) {
@@ -157,9 +150,9 @@ namespace Lina::Graphics
         glfwSetWindowFocusCallback(m_glfwWindow, windowFocusFunc);
 
         Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = m_userPtr});
-        m_size  = Vector2i(appInfo.windowProperties.width, appInfo.windowProperties.height);
+        m_size  = Vector2i(props.width, props.height);
         m_pos   = Vector2(0, 0);
-        m_vsync = appInfo.windowProperties.vsync;
+        m_vsync = props.vsync;
         return true;
     }
 

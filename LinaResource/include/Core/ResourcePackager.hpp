@@ -54,12 +54,12 @@ namespace Lina::Resources
         friend class EditorResourceLoader;
         friend class StandaloneResourceLoader;
 
-        void LoadPackage(const String& packageName, const wchar_t* pass, ResourceLoader* loader);
-        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader);
-        void PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass);
-        void PackageFileset(Vector<String> files, const String& output, const wchar_t* pass);
+        void LoadPackage(const String& packageName, ResourceLoader* loader);
+        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
+        void UnpackAndLoad(const String& filePath, ResourceLoader* loader);
+        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
+        void PackageProject(const String& path, const Vector<String>& levelsToPackage, const Vector<String>& engineResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass);
+        void PackageFileset(Vector<String> files, const String& output);
     };
 
 }; // namespace Lina::Resources

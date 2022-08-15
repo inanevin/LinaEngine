@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/Pipeline.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
 
 struct VkShaderModule_T;
 
@@ -61,6 +63,11 @@ namespace Lina::Graphics
             return m_surface;
         }
 
+        inline Pipeline& GetPipeline()
+        {
+            return m_pipeline;
+        }
+
         /// <summary>
         /// Returns a shader block from a full linashader text.
         /// </summary>
@@ -72,6 +79,7 @@ namespace Lina::Graphics
     private:
         void GenerateByteCode();
         bool CreateShaderModules();
+        void GeneratePipeline();
 
     private:
         struct AssetData
@@ -83,12 +91,14 @@ namespace Lina::Graphics
         };
 
     private:
-        SurfaceType m_surface = SurfaceType::Opaque;
-        AssetData   m_assetData;
-        String      m_text       = "";
-        String      m_vertexText = "";
-        String      m_fragText   = "";
-        String      m_geoText    = "";
+        Pipeline       m_pipeline;
+        PipelineLayout m_pipelineLayout;
+        SurfaceType    m_surface = SurfaceType::Opaque;
+        AssetData      m_assetData;
+        String         m_text       = "";
+        String         m_vertexText = "";
+        String         m_fragText   = "";
+        String         m_geoText    = "";
 
     private:
         VkShaderModule_T* _ptrVtx  = nullptr;

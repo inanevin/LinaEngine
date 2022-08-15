@@ -112,4 +112,9 @@ namespace Lina::World
 
         stream.close();
     }
+
+    void Level::ResourcesLoaded()
+    {
+        m_resourcesLoaded.store(true);
+    }
 } // namespace Lina::World

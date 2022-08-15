@@ -59,6 +59,7 @@ namespace Lina::World
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
         void          SaveToFile(const String& path);
+        void          ResourcesLoaded();
 
         ObjectWorld& GetObjectWorld()
         {
@@ -70,6 +71,11 @@ namespace Lina::World
             return m_usedResources;
         }
 
+        inline bool GetIsReady()
+        {
+            return m_resourcesLoaded.load();
+        }
+
         LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
         Color m_ambientColor = Color(0);
 
@@ -78,7 +84,8 @@ namespace Lina::World
         void Uninstall();
 
     private:
-        ObjectWorld m_world;
+        ObjectWorld  m_world;
+        Atomic<bool> m_resourcesLoaded = false;
 
     private:
         friend class LevelManager;

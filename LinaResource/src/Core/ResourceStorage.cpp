@@ -98,7 +98,7 @@ namespace Lina::Resources
 
     ResourceStorage* ResourceStorage::s_instance = nullptr;
 
-    void ResourceStorage::Initialize(ApplicationInfo& appInfo)
+    void ResourceStorage::Initialize()
     {
         LINA_TRACE("[Initialization] -> Resource Storage {0}", typeid(*this).name());
 
@@ -107,19 +107,15 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Connect<Event::EResourceReloaded, &ResourceStorage::OnResourceReloaded>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceUnloaded, &ResourceStorage::OnResourceUnloaded>(this);
 
-        m_appInfo = appInfo;
-
-        if (appInfo.appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
             m_loader = new EditorResourceLoader();
         else
             m_loader = new StandaloneResourceLoader();
 
-        m_loader->Initialize(appInfo);
-
         ResourceUtility::InitializeWorkingDirectory();
 
         // Fill the folder structure.
-        if (appInfo.appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
             ResourceUtility::ScanRootFolder();
     }
 
@@ -141,9 +137,9 @@ namespace Lina::Resources
         delete m_loader;
     }
 
-    void ResourceStorage::Load(TypeID tid, const String& path)
+    void ResourceStorage::Load(TypeID tid, const String& path, bool loadAsync)
     {
-        GetLoader()->LoadResource(tid, path);
+        GetLoader()->LoadResource(tid, path, loadAsync);
     }
 
     void ResourceStorage::UnloadAll()

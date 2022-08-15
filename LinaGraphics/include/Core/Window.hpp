@@ -76,7 +76,7 @@ namespace Lina::Graphics
         Window()  = default;
         ~Window() = default;
 
-        bool Initialize(ApplicationInfo& appInfo);
+        bool Initialize(const WindowProperties& props);
         void Shutdown();
         void Close();
 

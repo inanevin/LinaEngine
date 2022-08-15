@@ -23,7 +23,6 @@ set (LINAENGINE_SOURCES
 	# CORE
     src/Core/Application.cpp
 	src/Core/Engine.cpp
-	src/Core/MessageBus.cpp
 	src/Core/ReflectionRegistry.cpp
 	src/Settings/EngineSettings.cpp
 	src/Settings/RenderSettings.cpp
@@ -37,24 +36,21 @@ set(LINAENGINE_HEADERS
 	#CORE
 	include/Core/Application.hpp
 	include/Core/Engine.hpp
-	include/Core/MessageBus.hpp
 	include/Core/ReflectionRegistry.hpp
 
 	# Settings
 	include/Settings/EditorSettings.hpp
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
-
-	#Others
-	include/Lina.hpp
 	
+	include/Lina.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
-add_library(Engine ALIAS ${PROJECT_NAME}) 
+add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaEngine")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 20)
 
@@ -79,6 +75,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResour
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaWorld/include)
 
+if(NOT LINA_PRODUCTION_BUILD)
+	target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
+endif()
+
 include(../_Dependencies/iconfontheaders/link.cmake)
 link_iconfontheaders()
 
@@ -99,6 +99,10 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Graphics
 	PUBLIC Lina::World
 )
+
+if(NOT LINA_PRODUCTION_BUILD)
+	target_link_libraries(${PROJECT_NAME} PUBLIC Lina::Editor)
+endif()
 
 # Launch Lina Header tool prior to building to prepare the reflection data for runtime.
 

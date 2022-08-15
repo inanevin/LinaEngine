@@ -60,7 +60,7 @@ namespace Lina
         }
 
         static void Cleanup();
-        void        Initialize(ApplicationInfo& appInfo);
+        void        Initialize(const InitInfo& initInfo);
         void        Run();
 
     private:

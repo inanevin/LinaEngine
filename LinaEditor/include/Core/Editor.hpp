@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,35 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
-#ifndef MessageBus_HPP
-#define MessageBus_HPP
+#ifndef LinaEditor_HPP
+#define LinaEditor_HPP
 
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-    class Engine;
-
-    class MessageBus
+    class EditorManager
     {
-
     public:
-        MessageBus() = default;
-        ~MessageBus() = default;
+        EditorManager()          = default;
+        virtual ~EditorManager() = default;
 
-    private:
-        friend class Engine;
 
-        void Initialize(ApplicationMode appMode);
-
-    private:
-        ApplicationMode m_appMode = ApplicationMode::Editor;
+        void LoadDefaults();
     };
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

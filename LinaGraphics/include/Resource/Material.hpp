@@ -33,7 +33,6 @@ SOFTWARE.
 
 #define VERSION_MATERIAL 1
 
-#include "PipelineObjects/Pipeline.hpp"
 #include "Core/IResource.hpp"
 #include "Core/ResourceHandle.hpp"
 #include "Shader.hpp"
@@ -52,11 +51,6 @@ namespace Lina::Graphics
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
 
-        inline Pipeline& GetPipeline()
-        {
-            return m_pipeline;
-        }
-
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {
             return m_shader;
@@ -65,12 +59,10 @@ namespace Lina::Graphics
     private:
     
         void FindShader();
-        void GeneratePipeline();
 
     private:
 
         Resources::ResourceHandle<Shader> m_shader;
-        Pipeline                          m_pipeline;
 
         friend class cereal::access;
 

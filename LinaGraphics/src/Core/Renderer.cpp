@@ -130,7 +130,7 @@ namespace Lina::Graphics
     }
 
 
-    void Renderer::GameSimCompleted()
+    void Renderer::FetchAndExtract()
     {
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
         m_featureRendererManager.FetchVisibility();

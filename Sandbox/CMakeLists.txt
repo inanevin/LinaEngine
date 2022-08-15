@@ -47,12 +47,13 @@ include(../CMake/ProjectSettings.cmake)
 # Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEngine/include)
 
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
-PRIVATE Engine
+PUBLIC Lina::Engine
 )
 
 if(WIN32 AND LINA_ENABLE_PROFILING)

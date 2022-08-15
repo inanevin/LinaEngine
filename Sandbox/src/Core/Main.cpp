@@ -14,13 +14,9 @@ int main(int argc, char** argv)
         .fullscreen = false,
     };
 
-    Lina::ApplicationInfo appInfo = Lina::ApplicationInfo{
+    Lina::InitInfo appInfo = Lina::InitInfo{
         .appName          = "Lina Sandbox Game",
         .packagePass      = L"1234",
-        .build            = LINA_BUILD,
-        .versionMajor     = LINA_MAJOR,
-        .versionMinor     = LINA_MINOR,
-        .versionPatch     = LINA_PATCH,
         .appMode          = Lina::ApplicationMode::Editor,
         .windowProperties = windowProps,
         .preferredGPU     = Lina::PreferredGPUType::Discrete,

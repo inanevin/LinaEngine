@@ -33,9 +33,9 @@ namespace Lina::Resources
 {
     ResourceDataManager* ResourceDataManager::s_instance = nullptr;
 
-    void ResourceDataManager::Initialize(const ApplicationInfo& appInfo)
+    void ResourceDataManager::Initialize()
     {
-        m_isEditor = appInfo.appMode == ApplicationMode::Editor;
+        m_isEditor = g_appInfo.GetAppMode() == ApplicationMode::Editor;
     }
 
     void ResourceDataManager::Save()

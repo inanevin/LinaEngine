@@ -41,9 +41,8 @@ namespace Lina::Physics
 
     PxCooking* m_pxCooking = nullptr;
 
-    void PhysXCooker::Initialize(ApplicationMode appMode, physx::PxFoundation* foundation)
+    void PhysXCooker::Initialize(physx::PxFoundation* foundation)
     {
-        m_appMode   = appMode;
         m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(PxTolerancesScale()));
     }
 

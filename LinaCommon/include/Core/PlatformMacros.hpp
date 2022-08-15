@@ -60,8 +60,6 @@ SOFTWARE.
 // #define LINA_DEBUG_BUILD
 // #endif
 
-#define LINA_MT
-
 #ifdef LINA_COMPILER_MSVC
 #define FORCEINLINE __forceinline
 #elif defined(LINA_COMPILER_GCC) || defined(LINA_COMPILER_CLANG)

@@ -33,29 +33,35 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void StandaloneResourceLoader::Initialize(const ApplicationInfo& appInfo)
+    void StandaloneResourceLoader::LoadDefaults(const Vector<String>& defaults)
     {
-        ResourceLoader::Initialize(appInfo);
-        m_packager.LoadPackage("static", m_appInfo.packagePass, this);
+        m_packager.LoadPackage(PACKAGE_STATIC, this);
+        m_packager.LoadPackage(PACKAGE_ENGINERES, this);
     }
-
-    void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path)
+    void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
 
         const ResourceTypeData& typeData = ResourceStorage::Get()->GetTypeData(tid);
-
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
-        HashSet<StringID> set;
-        set.insert(HashedString(path.c_str()).value());
-        m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, m_appInfo.packagePass, this);
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
+
+        const auto& loadRes = [path, this, typeData]() {
+            HashSet<StringID> set;
+            set.insert(HashedString(path.c_str()).value());
+            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), set, this);
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
+        };
+
+        if (async)
+            JobSystem::Get()->RunAsync(loadRes);
+        else
+            loadRes();
     }
 
     void StandaloneResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
     {
-        ResourceStorage*                       storage = ResourceStorage::Get();
+        ResourceStorage*                   storage = ResourceStorage::Get();
         HashMap<TypeID, HashSet<StringID>> toLoad;
 
         // 1: Take a look at all the existing resources in storage, if it doesn't exist in the current level's resources we are loading, unload it.
@@ -86,7 +92,7 @@ namespace Lina::Resources
         for (const auto& pair : toLoad)
         {
             const ResourceTypeData& typeData = storage->GetTypeData(pair.first);
-            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, m_appInfo.packagePass, this);
+            m_packager.LoadFilesFromPackage(ResourceUtility::PackageTypeToString(typeData.packageType), pair.second, this);
         }
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();

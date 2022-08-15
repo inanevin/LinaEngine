@@ -64,7 +64,7 @@ namespace Lina::Editor
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
 
-        const ApplicationInfo appInfo              = Engine::Get()->GetAppInfo();
+        const InitInfo appInfo              = Engine::Get()->GetAppInfo();
         const float           contentScale         = appInfo.m_windowProperties.m_contentScaleWidth;
         const int             iconFontDefaultSize  = static_cast<int>((18.0f * contentScale));
         const int             iconFontDefaultSmall = static_cast<int>((13.0f * contentScale));

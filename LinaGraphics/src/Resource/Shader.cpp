@@ -210,7 +210,7 @@ namespace Lina::Graphics
             SPIRVUtility::GLSLToSPV(ShaderStage::Geometry, m_geoText.c_str(), m_assetData.geoData);
         }
 
-        if (g_appInfo.appMode == ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
             SaveAssetData();
     }
 
@@ -272,5 +272,36 @@ namespace Lina::Graphics
         }
 
         return true;
+    }
+
+    void Shader::GeneratePipeline()
+    {
+        if (!RenderEngine::Get()->IsInitialized())
+            return;
+
+        PushConstantRange r = PushConstantRange{
+            .offset     = 0,
+            .size       = sizeof(MeshPushConstants),
+            .stageFlags = GetShaderStage(ShaderStage::Vertex),
+        };
+
+        m_pipelineLayout = PipelineLayout{};
+        m_pipelineLayout.AddPushConstant(r).Create();
+
+        m_pipeline = Pipeline{
+            .depthTestEnabled  = true,
+            .depthWriteEnabled = true,
+            .depthCompareOp    = CompareOp::LEqual,
+            .viewport          = RenderEngine::Get()->GetViewport(),
+            .scissor           = RenderEngine::Get()->GetScissor(),
+            .topology          = Topology::TriangleList,
+            .polygonMode       = PolygonMode::Fill,
+            .cullMode          = CullMode::None,
+        };
+
+        m_pipeline.SetShader(this)
+            .SetLayout(m_pipelineLayout)
+            .SetRenderPass(Renderer::Get()->GetRP())
+            .Create();
     }
 } // namespace Lina::Graphics

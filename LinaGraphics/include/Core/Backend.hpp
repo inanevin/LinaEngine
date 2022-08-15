@@ -107,7 +107,7 @@ namespace Lina::Graphics
         Backend()  = default;
         ~Backend() = default;
 
-        bool        Initialize(const ApplicationInfo& appInfo);
+        bool        Initialize(const InitInfo& appInfo);
         void        Shutdown();
         uint32      GetQueueFamilyIndex(QueueFamilies family);
         void        OnWindowResized(const Event::EWindowResized& ev);
@@ -116,7 +116,6 @@ namespace Lina::Graphics
 
     private:
         static Backend*             s_instance;
-        ApplicationInfo             m_appInfo;
         VkInstance_T*               m_vkInstance     = nullptr;
         VkDebugUtilsMessengerEXT_T* m_debugMessenger = nullptr;
         VkAllocationCallbacks*      m_allocator      = nullptr;

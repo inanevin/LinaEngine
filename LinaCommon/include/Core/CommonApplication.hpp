@@ -36,6 +36,11 @@ SOFTWARE.
 
 namespace Lina
 {
+    namespace Graphics
+    {
+        class Window;
+    }
+
     enum class LogLevel
     {
         None     = 0,
@@ -60,24 +65,49 @@ namespace Lina
         CPU
     };
 
-    struct ApplicationInfo
+    class ApplicationInfo
+    {
+
+    public:
+        inline const char* GetAppName()
+        {
+            return m_appName;
+        }
+
+        inline const wchar_t* GetPackagePass()
+        {
+            return m_packagePass;
+        }
+
+        inline ApplicationMode GetAppMode()
+        {
+            return m_appMode;
+        }
+
+    private:
+        friend class Application;
+        friend class Graphics::Window;
+        const char*     m_appName            = "Lina Engine";
+        const wchar_t*  m_packagePass        = nullptr;
+        float           m_contentScaleWidth  = 1.0f;
+        float           m_contentScaleHeight = 1.0f;
+        ApplicationMode m_appMode            = ApplicationMode::Editor;
+    };
+
+    struct InitInfo
     {
         // App Info
-        const char*    appName      = "Lina Engine";
-        const wchar_t* packagePass  = nullptr;
-        int            build        = 0;
-        int            versionMajor = 1;
-        int            versionMinor = 0;
-        int            versionPatch = 0;
+        const char*    appName     = "Lina Engine";
+        const wchar_t* packagePass = nullptr;
 
         ApplicationMode  appMode          = ApplicationMode::Editor;
         WindowProperties windowProperties = WindowProperties();
         PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;
     };
-    
+
     extern ApplicationInfo g_appInfo;
 
-    extern String          LogLevelAsString(LogLevel level);
+    extern String LogLevelAsString(LogLevel level);
 
 } // namespace Lina
 

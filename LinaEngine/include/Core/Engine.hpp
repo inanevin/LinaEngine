@@ -34,7 +34,6 @@ SOFTWARE.
 // Headers here.
 #include "Core/AudioEngine.hpp"
 #include "Core/InputEngine.hpp"
-#include "Core/MessageBus.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/LevelManager.hpp"
@@ -44,6 +43,10 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
+
+#ifndef LINA_PRODUCTION_BUILD
+    #include "Core/Editor.hpp"
+#endif
 
 #define DELTA_TIME_HISTORY 11
 
@@ -149,7 +152,8 @@ namespace Lina
         Engine()  = default;
         ~Engine() = default;
 
-        void   Initialize(ApplicationInfo& appInfo);
+        void   Initialize(const InitInfo& initInfo);
+        void   LoadDefaults();
         void   Run();
         void   RunSimulation(float deltaTime);
         void   RemoveOutliers(bool biggest);
@@ -167,7 +171,6 @@ namespace Lina
         World::LevelManager             m_levelManager;
         Graphics::RenderEngine          m_renderEngine;
         Resources::ResourceDataManager* m_resourceDataManager;
-        MessageBus                      m_messageBus;
         JobSystem                       m_jobSystem;
         bool                            m_running           = false;
         bool                            m_canRender         = true;
@@ -194,6 +197,11 @@ namespace Lina
         float                                  m_physicsAccumulator = 0.0f;
         EngineSettings*                        m_engineSettings     = nullptr;
         RenderSettings*                        m_renderSettings     = nullptr;
+        Vector<Pair<TypeID, String>>           m_engineResources;
+
+#ifndef LINA_PRODUCTION_BUILD
+        Editor::EditorManager m_editor;
+#endif
     };
 } // namespace Lina
 

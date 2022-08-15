@@ -38,9 +38,8 @@ namespace Lina::World
 {
     LevelManager* LevelManager::s_instance = nullptr;
 
-    void LevelManager::Initialize(ApplicationInfo appInfo)
+    void LevelManager::Initialize()
     {
-        m_appInfo = appInfo;
         LINA_TRACE("[Initialization] -> Level Manager {0}", typeid(*this).name());
     }
 
@@ -49,7 +48,7 @@ namespace Lina::World
         LINA_TRACE("[Shutdown] -> Level Manager {0}", typeid(*this).name());
     }
 
-    void LevelManager::InstallLevel(const String& path)
+    void LevelManager::InstallLevel(const String& path, bool loadAsync)
     {
         // We're gonna be unloading/loading resources
         // So wait for render engine to finish it's jobs.
@@ -71,18 +70,28 @@ namespace Lina::World
 
         // Load level file itself.
         Resources::ResourceStorage* storage = Resources::ResourceStorage::Get();
-        storage->GetLoader()->LoadResource(GetTypeID<Level>(), path);
+        storage->GetLoader()->LoadResource(GetTypeID<Level>(), path, false);
         m_currentLevel = storage->GetResource<Level>(path);
 
         // Notify that we are starting to load the resources for this level.
         Event::EventSystem::Get()->Trigger<Event::ELevelInstallStarted>(Event::ELevelInstallStarted{});
 
         // Load level resources
-        storage->GetLoader()->LoadLevelResources(m_currentLevel->GetResources());
+        const auto& load = [storage, this]() {
+            storage->GetLoader()->LoadLevelResources(m_currentLevel->GetResources());
+            m_currentLevel->ResourcesLoaded();
+            Event::EventSystem::Get()->Trigger<Event::ELevelResourcesLoaded>(Event::ELevelResourcesLoaded{.path = m_currentLevel->GetPath()});
+        };
 
-        // After all resources are loaded, activate the level, actively switching the ECS registry & then notify.
+        if (loadAsync)
+            JobSystem::Get()->RunAsync(load);
+        else
+            load();
+
+        // Activate the level, actively switching the ECS registry & then notify.
+        // Level might still be unplayable if the resources are not loaded (level loaded async).
         m_currentLevel->Install();
-        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
+        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{.path = m_currentLevel->GetPath()});
     }
 
     void LevelManager::UninstallCurrent()
@@ -115,7 +124,7 @@ namespace Lina::World
         if (m_currentLevel == nullptr)
             return;
 
-        if (m_appInfo.appMode == ApplicationMode::Standalone)
+        if (g_appInfo.GetAppMode() == ApplicationMode::Standalone)
             return;
 
         const String path = m_currentLevel->GetPath();

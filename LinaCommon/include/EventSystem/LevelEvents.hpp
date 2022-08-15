@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef LevelEvents_HPP
 #define LevelEvents_HPP
+
+#include "Data/String.hpp"
 
 namespace Lina::Event
 {
@@ -41,11 +41,20 @@ namespace Lina::Event
     };
     struct ELevelInstalled
     {
+        String path = "";
+    };
+
+    /// <summary>
+    /// Warning! Will be called from seperate thread if level is loaded as async.
+    /// </summary>
+    struct ELevelResourcesLoaded
+    {
+        String path = "";
     };
     struct ELevelUninstalled
     {
     };
-  
+
 } // namespace Lina::Event
 
 #endif

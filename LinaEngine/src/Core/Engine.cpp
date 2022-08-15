@@ -85,7 +85,7 @@ namespace Lina
         m_shouldSkipFrame = true;
     }
 
-    void Engine::Initialize(ApplicationInfo& appInfo)
+    void Engine::Initialize(const InitInfo& initInfo)
     {
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
         Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
@@ -97,50 +97,47 @@ namespace Lina
         JobSystem::s_instance                   = &m_jobSystem;
 
         RegisterResourceTypes();
-
         m_eventSystem.Initialize();
         m_jobSystem.Initialize();
-        m_resourceStorage.Initialize(appInfo);
+        m_resourceStorage.Initialize();
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
-        m_messageBus.Initialize(appInfo.appMode);
-        m_physicsEngine.Initialize(appInfo.appMode);
-        m_levelManager.Initialize(appInfo);
-        m_renderEngine.Initialize(appInfo);
+        m_physicsEngine.Initialize();
+        m_levelManager.Initialize();
+        m_renderEngine.Initialize(initInfo);
 
-        // Make sure the static resources needed are initialized.
-        if (appInfo.appMode == ApplicationMode::Editor)
-        {
-            if (!Utility::FileExists("Resources/lina.enginesettings"))
-            {
-                EngineSettings s;
-                Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
-            }
-            if (!Utility::FileExists("Resources/lina.rendersettings"))
-            {
-                RenderSettings s;
-                Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
-            }
-            if (!Utility::FileExists("Resources/lina.resourcedata"))
-            {
-                Resources::ResourceDataManager s;
-                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
-            }
-        }
+        LoadDefaults();
+    }
 
-        m_resourceStorage.Load(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings");
-        m_resourceStorage.Load(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings");
-        m_resourceStorage.Load(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata");
+    void Engine::LoadDefaults()
+    {
+#ifndef LINA_PRODUCTION_BUILD
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+            m_editor.LoadDefaults();
+#endif
+
+        m_resourceStorage.Load(GetTypeID<EngineSettings>(), "Resources/lina.enginesettings", false);
+        m_resourceStorage.Load(GetTypeID<RenderSettings>(), "Resources/lina.rendersettings", false);
+        m_resourceStorage.Load(GetTypeID<Resources::ResourceDataManager>(), "Resources/lina.resourcedata", false);
         m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
         m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
         m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
-        m_resourceDataManager->Initialize(appInfo);
+        m_resourceDataManager->Initialize();
         Resources::ResourceDataManager::s_instance = m_resourceDataManager;
+
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Shaders/default.linashader"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/BlenderMonkey.obj"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Capsule.fbx"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cylinder.fbx"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Plane.fbx"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Quad.fbx"));
+        m_engineResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Sphere.fbx"));
     }
 
     void Engine::PackageProject(const String& path)
     {
-        if (g_appInfo.appMode != ApplicationMode::Editor)
+        if (g_appInfo.GetAppMode() != ApplicationMode::Editor)
         {
             LINA_ERR("You can only package the project in editor mode!");
             return;
@@ -215,7 +212,7 @@ namespace Lina
         for (auto sid : resourceMetadataToRemove)
             m_resourceDataManager->Remove(sid);
 
-        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap, g_appInfo.packagePass);
+        // m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
     void Engine::Run()

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,14 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef LevelManager_HPP
 #define LevelManager_HPP
 
-#include "Core/CommonApplication.hpp"
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"
 
@@ -52,11 +49,19 @@ namespace Lina::World
             return s_instance;
         }
 
-        void Initialize(ApplicationInfo appInfo);
+        void Initialize();
         void Shutdown();
-        void InstallLevel(const String& path);
         void UninstallCurrent();
         void SaveCurrentLevel();
+
+        /// <summary>
+        /// Async loading will install the level & call ELevelInstalled immediately.
+        /// Check for level's readyness and ELevelResourcesLoaded event to know when the level is playable.
+        /// Normal loading will wait for the resources to load first.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="loadAsync"></param>
+        void InstallLevel(const String& path, bool loadAsync);
 
         /// <summary>
         /// !Works in editor only!
@@ -71,11 +76,10 @@ namespace Lina::World
 
     private:
         friend class Engine;
+        friend class LevelManager;
 
         static LevelManager* s_instance;
-        ApplicationInfo      m_appInfo;
-
-        Level* m_currentLevel = nullptr;
+        Level*               m_currentLevel = nullptr;
     };
 } // namespace Lina::World
 

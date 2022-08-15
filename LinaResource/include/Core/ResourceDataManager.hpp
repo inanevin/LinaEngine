@@ -55,12 +55,8 @@ namespace Lina
 namespace Lina::Resources
 {
     typedef std::variant<int, float, double, bool, String, Vector<unsigned int>> DataVariant;
-
-#ifdef LINA_MT
     typedef ParallelHashMapMutex<StringID, DataVariant> DataMap;
-#else
-    typedef HashMap<StringID, DataVariant> DataMap;
-#endif
+
 
     struct ResourceData
     {
@@ -75,12 +71,7 @@ namespace Lina::Resources
 
     class ResourceDataManager : public IResource
     {
-
-#ifdef LINA_MT
         typedef ParallelHashMapMutex<StringID, ResourceData> ResourceMap;
-#else
-        typedef HashMap<StringID, ResourceData> ResourceMap;
-#endif
 
     public:
         void Save();
@@ -124,7 +115,7 @@ namespace Lina::Resources
         friend class Engine;
         friend class cereal::access;
 
-        void          Initialize(const ApplicationInfo& appInfo);
+        void          Initialize();
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         virtual void* LoadFromFile(const String& path) override;
 

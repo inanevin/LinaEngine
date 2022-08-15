@@ -216,8 +216,8 @@ entt::meta<ECS::FreeLookComponent>().func<&REF_Remove<ECS::FreeLookComponent>, e
 entt::meta<ECS::FreeLookComponent>().func<&REF_Copy<ECS::FreeLookComponent>, entt::as_void_t>("copy"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Paste<ECS::FreeLookComponent>, entt::as_void_t>("paste"_hs);
 entt::meta<ECS::FreeLookComponent>().func<&REF_Add<ECS::FreeLookComponent>, entt::as_void_t>("add"_hs);
-entt::meta<Editor::	EditorSettings>().type().props(std::make_pair("Title"_hs, "Editor"));
-entt::meta<Editor::	EditorSettings>().data<&Editor::	EditorSettings::m_textEditorPath>("m_textEditorPath"_hs).props(std::make_pair("Title"_hs,"Text Editor"),std::make_pair("Type"_hs,"StringPath"),std::make_pair("Tooltip"_hs,"Default text editor to open shader & similar files."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
+entt::meta<Editor::EditorSettings>().type().props(std::make_pair("Title"_hs, "Editor"));
+entt::meta<Editor::EditorSettings>().data<&Editor::EditorSettings::m_textEditorPath>("m_textEditorPath"_hs).props(std::make_pair("Title"_hs,"Text Editor"),std::make_pair("Type"_hs,"StringPath"),std::make_pair("Tooltip"_hs,"Default text editor to open shader & similar files."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
 entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
 entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));

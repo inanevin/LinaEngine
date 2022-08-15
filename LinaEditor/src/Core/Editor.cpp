@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/MessageBus.hpp"
+#include "Core/Editor.hpp"
+#include "Settings/EngineSettings.hpp"
+#include "Settings/EditorSettings.hpp"
+#include "Settings/RenderSettings.hpp"
+#include "Core/ResourceDataManager.hpp"
 
-#include "EventSystem/EventSystem.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-    void MessageBus::Initialize(ApplicationMode appMode)
+    void EditorManager::LoadDefaults()
     {
-        auto* eventSystem = Event::EventSystem::Get();
-        m_appMode         = appMode;
+        // Make sure the static resources needed are initialized.
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        {
+            if (!Utility::FileExists("Resources/lina.enginesettings"))
+            {
+                EngineSettings s;
+                Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
+            }
+            if (!Utility::FileExists("Resources/lina.rendersettings"))
+            {
+                RenderSettings s;
+                Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
+            }
+            if (!Utility::FileExists("Resources/lina.resourcedata"))
+            {
+                Resources::ResourceDataManager s;
+                Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
+            }
+        }
     }
-} // namespace Lina
+} // namespace Lina::Editor

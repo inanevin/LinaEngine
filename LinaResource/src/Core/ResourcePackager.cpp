@@ -48,7 +48,7 @@ namespace Lina::Resources
 {
 #define RESOURCEPACKAGE_EXTENSION String(".linapackage")
 
-    void ResourcePackager::LoadPackage(const String& packageName, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::LoadPackage(const String& packageName, ResourceLoader* loader)
     {
 
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
@@ -59,10 +59,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        UnpackAndLoad(fullBundlePath, pass, loader);
+        UnpackAndLoad(fullBundlePath, loader);
     }
 
-    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader)
     {
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
@@ -72,10 +72,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        UnpackAndLoad(fullBundlePath, filesToLoad, pass, loader);
+        UnpackAndLoad(fullBundlePath, filesToLoad, loader);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath,ResourceLoader* loader)
     {
         try
         {
@@ -91,7 +91,7 @@ namespace Lina::Resources
             // Setup extractor.
             bit7z::Bit7zLibrary lib{L"7z.dll"};
             bit7z::BitExtractor extractor{lib, bit7z::BitFormat::SevenZip};
-            extractor.setPassword(pass);
+            extractor.setPassword(g_appInfo.GetPackagePass());
 
             // Setup path.
             const char*  filePathChr = filePath.c_str();
@@ -120,6 +120,7 @@ namespace Lina::Resources
             std::map<std::wstring, std::vector<bit7z::byte_t>> map;
             extractor.extract(wdir, map);
 
+            Executor exec;
             // Sort the resources into their respective packages in the loader.
             for (auto& item : map)
             {
@@ -128,15 +129,19 @@ namespace Lina::Resources
                 String      filePathStr = filePath;
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
 
-                // Pass the resource to loader.
-                Vector<bit7z::byte_t> v;
-                v.reserve(item.second.size());
-                for (int i = 0; i < item.second.size(); i++)
-                    v.push_back(item.second[i]);
+                // Load async.
+                exec.silent_async([loader, filePathStr, &item]() {
+                    Vector<bit7z::byte_t> v;
+                    v.reserve(item.second.size());
+                    for (int i = 0; i < item.second.size(); i++)
+                        v.push_back(item.second[i]);
 
-                loader->LoadSingleResourceFromMemory(filePathStr, v);
+                    loader->LoadSingleResourceFromMemory(filePathStr, v);
+                });
+
                 delete[] filePath;
             }
+            exec.wait_for_all();
         }
         catch (const bit7z::BitException& ex)
         {
@@ -146,13 +151,10 @@ namespace Lina::Resources
         LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, const wchar_t* pass, ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader)
     {
-#ifdef LINA_MT
         Atomic<int> loadedFiles = 0;
-#else
-        int loadedFiles = 0;
-#endif
+
         try
         {
             // Delete first if exists.
@@ -167,7 +169,7 @@ namespace Lina::Resources
             // Setup extractor.
             bit7z::Bit7zLibrary lib{L"7z.dll"};
             bit7z::BitExtractor extractor{lib, bit7z::BitFormat::SevenZip};
-            extractor.setPassword(pass);
+            extractor.setPassword(g_appInfo.GetPackagePass());
 
             // Setup path.
             const char*  filePathChr = filePath.c_str();
@@ -220,14 +222,15 @@ namespace Lina::Resources
                 v.clear();
             };
 
-#ifdef LINA_MT
-            Taskflow taskflow;
-            taskflow.for_each(itemIndices.begin(), itemIndices.end(), [&](const Pair<uint32_t, String>& pair) { load(pair.first, pair.second); });
-            JobSystem::Get()->Run(taskflow).wait();
-#else
-            for (auto& pair : itemIndices)
-                load(pair.first, pair.second);
-#endif
+            // Load async.
+            Executor exec;
+            Taskflow tf;
+            tf.for_each(itemIndices.begin(), itemIndices.end(), [&](const auto& pair) {
+                const uint32 index = pair.first;
+                const String path  = pair.second;
+                load(index, path);
+            });
+            exec.run(tf).wait();
         }
         catch (const bit7z::BitException& ex)
         {
@@ -238,7 +241,7 @@ namespace Lina::Resources
         LINA_INFO("[Packager] -> Successfully loaded files from package: {0}", filePath);
     }
 
-    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass)
+    void ResourcePackager::PackageProject(const String& path, const Vector<String>& levelsToPackage, const Vector<String>& engineResources, const HashMap<TypeID, Vector<String>>& resourceMap, const wchar_t* pass)
     {
         ResourceUtility::ScanRootFolder();
         auto*          storage = ResourceStorage::Get();
@@ -274,11 +277,13 @@ namespace Lina::Resources
             Utility::DeleteDirectory(workingPath);
         Utility::CreateFolderInPath(workingPath);
 
-        PackageFileset(filesToPack, workingPath + "static" + RESOURCEPACKAGE_EXTENSION, pass);
+        PackageFileset(filesToPack, workingPath + PACKAGE_STATIC + RESOURCEPACKAGE_EXTENSION);
+
+        PackageFileset(engineResources, workingPath + PACKAGE_ENGINERES + RESOURCEPACKAGE_EXTENSION);
 
         // Pack the level resources, level resources might not be alive in the resource storage.
         // Thus use the table sent by the engine to figure out what to pack.
-        PackageFileset(levelResources, workingPath + "levels" + RESOURCEPACKAGE_EXTENSION, pass);
+        PackageFileset(levelsToPackage, workingPath + PACKAGE_LEVELS + RESOURCEPACKAGE_EXTENSION);
 
         HashMap<PackageType, Vector<String>> resourcesPerPackageType;
 
@@ -303,11 +308,11 @@ namespace Lina::Resources
             for (auto str : pt.second)
                 filesToPack.push_back(str);
 
-            PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(pt.first) + RESOURCEPACKAGE_EXTENSION, pass);
+            PackageFileset(filesToPack, workingPath + ResourceUtility::PackageTypeToString(pt.first) + RESOURCEPACKAGE_EXTENSION);
         }
     }
 
-    void ResourcePackager::PackageFileset(Vector<String> files, const String& output, const wchar_t* pass)
+    void ResourcePackager::PackageFileset(Vector<String> files, const String& output)
     {
         try
         {
@@ -328,7 +333,7 @@ namespace Lina::Resources
             bit7z::BitCompressor compressor{lib, bit7z::BitFormat::SevenZip};
             compressor.setCompressionMethod(bit7z::BitCompressionMethod::Lzma2);
             compressor.setCompressionLevel(bit7z::BitCompressionLevel::ULTRA);
-            compressor.setPassword(pass);
+            compressor.setPassword(g_appInfo.GetPackagePass());
 
             // Progress callback.
             bit7z::BitCompressor* pCompressor = &compressor;

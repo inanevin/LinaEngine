@@ -43,12 +43,11 @@ namespace Lina::Resources
         StandaloneResourceLoader()          = default;
         virtual ~StandaloneResourceLoader() = default;
 
-        virtual void Initialize(const ApplicationInfo& appInfo) override;
-        virtual void LoadResource(TypeID tid, const String& path) override;
+        virtual void LoadResource(TypeID tid, const String& path, bool async) override;
         virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
+        virtual void LoadDefaults(const Vector<String>& defaults) override;
 
     private:
-
     };
 } // namespace Lina::Resources
 

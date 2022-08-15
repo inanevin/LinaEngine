@@ -69,7 +69,7 @@ namespace Lina::Graphics
             return s_instance;
         }
 
-        void Initialize(ApplicationInfo& appInfo);
+        void Initialize(const InitInfo& initInfo);
         void Clear();
         void Render();
         void Join();
@@ -112,6 +112,16 @@ namespace Lina::Graphics
             return m_views;
         }
 
+        inline Recti& GetScissor()
+        {
+            return m_scissor;
+        }
+
+        inline Viewport& GetViewport()
+        {
+            return m_viewport;
+        }
+
     private:
         friend class Engine;
 
@@ -121,11 +131,13 @@ namespace Lina::Graphics
         ModelNode*           m_placeholderModelNode = nullptr;
         Material*            m_placeholderMaterial  = nullptr;
         DeletionQueue        m_mainDeletionQueue;
-        ApplicationInfo      m_appInfo;
+        InitInfo      m_appInfo;
         Window               m_window;
         Backend              m_backend;
         bool                 m_initedSuccessfully = false;
 
+        Viewport           m_viewport;
+        Recti              m_scissor;
         FramePacket        m_framePacket;
         Renderer           m_renderer;
         StaticMeshRenderer m_meshRenderer;

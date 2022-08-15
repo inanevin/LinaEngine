@@ -40,20 +40,13 @@ namespace Lina
     typedef std::mutex                  Mutex;
     typedef std::lock_guard<std::mutex> LockGuard;
 
-    template<typename T>
+    template <typename T>
     using Atomic = std::atomic<T>;
 
-#ifdef LINA_MT
-#define DEFINE_MUTEX(NAME)     std::mutex NAME
-#define LOCK_GUARD(mtx) std::lock_guard<Mutex> grd(mtx)
-#define LOCK(mtx)       mtx.lock()
-#define UNLOCK(mtx)     mtx.unlock()
-#else
-#define DEFINE_MUTEX(NAME)
-#define LOCK_GUARD(mtx)
-#define LOCK(mtx)
-#define UNLOCK(mtx)
-#endif
+#define DEFINE_MUTEX(NAME) std::mutex NAME
+#define LOCK_GUARD(mtx)    std::lock_guard<Mutex> grd(mtx)
+#define LOCK(mtx)          mtx.lock()
+#define UNLOCK(mtx)        mtx.unlock()
 
 } // namespace Lina
 

@@ -58,7 +58,7 @@ namespace Lina::Physics
     public:
         PhysXCooker() = default;
         ~PhysXCooker() = default;
-        void Initialize(ApplicationMode appMode, physx::PxFoundation* foundation);
+        void Initialize(physx::PxFoundation* foundation);
         void Shutdown();
 
     private:
@@ -72,7 +72,6 @@ namespace Lina::Physics
         // void CookModelNodeVertices(Graphics::ModelNode& node, Graphics::Model& model);
 
     private:
-        ApplicationMode m_appMode;
     };
 } // namespace Lina::Physics
 

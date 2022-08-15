@@ -51,7 +51,7 @@ set(CMAKE_SUPPRESS_REGENERATION true)
 
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
 option(LINA_ENABLE_PROFILING "Enables profiling" ON)
-option(LINA_PRODUCTION_BUILD "Enable distribution ready build." OFF)
+option(LINA_PRODUCTION_BUILD "Enable distribution ready build, disables editor." OFF)
 option(LINA_UNITY_BUILDS "Faster build times with unity builds." ON)
 
 if(LINA_ENABLE_LOGGING)
@@ -66,6 +66,10 @@ if(LINA_PRODUCTION_BUILD)
 	add_compile_definitions(LINA_PRODUCTION)
 else()
 	add_compile_definitions(LINA_DEBUG)
+endif()
+
+if(LINA_EDITOR)
+	add_compile_definitions(LINA_EDITOR)
 endif()
 
 if(LINA_UNITY_BUILDS)
@@ -99,10 +103,12 @@ add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaWorld)
-add_subdirectory(LinaEditor)
 add_subdirectory(LinaResource)
 add_subdirectory(Sandbox)
 
+if(NOT LINA_PRODUCTION_BUILD)
+	add_subdirectory(LinaEditor)
+endif()
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 

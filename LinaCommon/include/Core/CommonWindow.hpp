@@ -53,12 +53,6 @@ namespace Lina
         bool         decorated          = true;
         bool         resizable          = true;
         bool         fullscreen         = false;
-        float        contentScaleWidth  = 1.0f;
-        float        contentScaleHeight = 1.0f;
-        int          monitorWidth       = 0;
-        int          monitorHeight      = 0;
-        unsigned int workingAreaWidth   = 0;
-        unsigned int workingAreaHeight  = 0;
     };
 } // namespace Lina
 

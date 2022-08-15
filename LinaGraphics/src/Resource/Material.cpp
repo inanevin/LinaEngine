@@ -39,7 +39,6 @@ namespace Lina::Graphics
     {
         *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
         IResource::SetSID(path);
-        GeneratePipeline();
         return static_cast<void*>(this);
     }
 
@@ -47,7 +46,6 @@ namespace Lina::Graphics
     {
         *this = Resources::LoadArchiveFromFile<Material>(path);
         IResource::SetSID(path);
-        GeneratePipeline();
         return static_cast<void*>(this);
     }
 
@@ -58,17 +56,12 @@ namespace Lina::Graphics
         if (storage->Exists(m_shader.tid, m_shader.sid))
         {
             m_shader.value = storage->GetResource<Shader>(m_shader.sid);
-            GeneratePipeline();
         }
         else
         {
         }
     }
 
-    void Material::GeneratePipeline()
-    {
-        if (!m_shader.IsValid())
-            return;
-    }
+
 
 } // namespace Lina::Graphics

@@ -54,17 +54,16 @@ namespace Lina::Graphics
     if (!m_initedSuccessfully) \
     return
 
-    void RenderEngine::Initialize(ApplicationInfo& appInfo)
+    void RenderEngine::Initialize(const InitInfo& initInfo)
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
-        m_appInfo = appInfo;
 
         Window::s_instance   = &m_window;
         Backend::s_instance  = &m_backend;
         Renderer::s_instance = &m_renderer;
 
-        m_initedSuccessfully = m_window.Initialize(appInfo);
-        m_initedSuccessfully = m_backend.Initialize(appInfo);
+        m_initedSuccessfully = m_window.Initialize(initInfo.windowProperties);
+        m_initedSuccessfully = m_backend.Initialize(initInfo);
 
         Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
 
@@ -73,6 +72,21 @@ namespace Lina::Graphics
             LINA_ERR("[Render Engine] -> Initialization failed, no rendering will occur!");
             return;
         }
+        const Vector2i size = m_window.GetSize();
+
+        m_viewport = Viewport{
+            .x        = 0.0f,
+            .y        = 0.0f,
+            .width    = static_cast<float>(size.x),
+            .height   = static_cast<float>(size.y),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
+
+        m_scissor = Recti{
+            .pos  = Vector2(0.0f, 0.0f),
+            .size = size,
+        };
 
         m_playerView.m_viewType = ViewType::Player;
         m_views.push_back(&m_playerView);
@@ -98,18 +112,18 @@ namespace Lina::Graphics
     //  m_pipelineLayout = PipelineLayout{};
     //  m_pipelineLayout.AddPushConstant(r).Create();
     //
-    //  Viewport vp = Viewport{
-    //      .x        = 0.0f,
-    //      .y        = 0.0f,
-    //      .width    = static_cast<float>(size.x),
-    //      .height   = static_cast<float>(size.y),
-    //      .minDepth = 0.0f,
-    //      .maxDepth = 1.0f,
-    //  };
-    //  Recti scissors = Recti{
-    //      .pos  = Vector2(0.0f, 0.0f),
-    //      .size = size,
-    //  };
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
     //
     //  m_pipeline = Pipeline{
     //      .depthTestEnabled  = true,
@@ -136,7 +150,7 @@ namespace Lina::Graphics
     void RenderEngine::GameSimCompleted()
     {
         m_framePacket.Reset();
-        m_renderer.GameSimCompleted();
+        m_renderer.FetchAndExtract();
     }
 
     void RenderEngine::Render()
@@ -172,6 +186,16 @@ namespace Lina::Graphics
 
     void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)
     {
+        Swapchain*     swp  = static_cast<Swapchain*>(ev.newPtr);
+
+        m_viewport = Viewport{
+            .x        = 0.0f,
+            .y        = 0.0f,
+            .width    = static_cast<float>(swp->width),
+            .height   = static_cast<float>(swp->height),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
         // const Vector2i size = m_window.GetSize();
         // for (int i = 0; i < m_framebuffers.size(); i++)
         // {

@@ -55,10 +55,6 @@ namespace Lina::Event
         }
     };
 
-    struct EAppLoad
-    {
-        ApplicationInfo* m_appInfo = nullptr;
-    };
 } // namespace Lina::Event
 
 #endif

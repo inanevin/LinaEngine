@@ -38,15 +38,27 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
+    void EditorResourceLoader::LoadDefaults(const Vector<String>& defaults)
+    {
+
+    }
+    void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
-        LoadSingleResourceFromFile(tid, path);
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
+
+        const auto& loadRes = [this, tid, path]() {
+            LoadSingleResourceFromFile(tid, path);
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
+        };
+
+        if (async)
+            JobSystem::Get()->RunAsync(loadRes);
+        else
+            loadRes();
     }
 
     void EditorResourceLoader::LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)
@@ -74,41 +86,29 @@ namespace Lina::Resources
         for (auto& pair : toLoad)
             totalCount += static_cast<int>(pair.second.size());
 
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount});
-
-#ifdef LINA_MT
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading Level Resources", .totalFiles = totalCount}
+        );
 
         Vector<Pair<TypeID, String>> toLoadVec;
-        PriorityQueue<LoadingPair>   loadQueue;
 
         for (const auto& [tid, set] : toLoad)
         {
             const ResourceTypeData& tdata = storage->GetTypeData(tid);
 
             for (const auto& str : set)
-            {
                 toLoadVec.push_back(linatl::make_pair(tid, str));
-            }
         }
 
         Taskflow taskflow;
+        Executor exec;
         taskflow.for_each(toLoadVec.begin(), toLoadVec.end(), [&](const Pair<TypeID, String>& p) {
             LoadSingleResourceFromFile(p.first, p.second);
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = p.second});
         });
-        JobSystem::Get()->Run(taskflow).wait();
+        exec.run(taskflow).wait();
 
-#else
-        for (const auto& [tid, set] : toLoad)
-        {
-            for (const auto& str : set)
-            {
-                LoadSingleResourceFromFile(tid, str);
-                Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = str});
-            }
-        }
-#endif
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
 } // namespace Lina::Resources
+

@@ -72,12 +72,9 @@ namespace Lina::Resources
         }
         virtual ~ResourceLoader(){};
 
-        virtual void Initialize(const ApplicationInfo& info)
-        {
-            m_appInfo = info;
-        }
-        virtual void LoadResource(TypeID tid, const String& path)                            = 0;
+        virtual void LoadResource(TypeID tid, const String& path, bool loadAsync)            = 0;
         virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) = 0;
+        virtual void LoadDefaults(const Vector<String>& defaults)                            = 0;
 
         inline ResourcePackager& GetPackager()
         {
@@ -98,7 +95,7 @@ namespace Lina::Resources
         bool LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data);
 
         /// <summary>
-        /// Checks the current level resources to load & unloads any active resource that doesn't belong in the map.
+        /// Checks the current level resources to load and unloads any active resource that doesn't belong in the map.
         /// </summary>
         /// <param name="currentLevelResources"></param>
         void UnloadUnusedResources(const HashMap<TypeID, HashSet<String>>& levelResources);
@@ -107,7 +104,6 @@ namespace Lina::Resources
         ResourcePackager m_packager;
         TypeID           m_lastResourceTypeID   = -1;
         int              m_lastResourcePriority = 0;
-        ApplicationInfo  m_appInfo;
         DEFINE_MUTEX(m_mutex);
     };
 } // namespace Lina::Resources

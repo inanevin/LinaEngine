@@ -44,7 +44,7 @@ SOFTWARE.
 namespace Lina
 {
 
-    Application* Application::s_application = nullptr;
+    Application*    Application::s_application = nullptr;
     ApplicationInfo g_appInfo;
 
     void Application::Cleanup()
@@ -66,7 +66,7 @@ namespace Lina
         logSink.connect<&Application::OnLog>(this);
     }
 
-    void Application::Initialize(ApplicationInfo& appInfo)
+    void Application::Initialize(const InitInfo& initInfo)
     {
         if (m_initialized)
         {
@@ -74,7 +74,12 @@ namespace Lina
             return;
         }
 
-        g_appInfo = appInfo;
+        g_appInfo.m_appMode = initInfo.appMode;
+
+// Editor will be compiled out, force standalone.
+#ifdef LINA_PRODUCTION_BUILD
+        g_appInfo.m_appMode = ApplicationMode::Standalone;
+#endif
 
 #ifdef LINA_ENABLE_PROFILING
         m_profiler           = new Profiler();
@@ -89,7 +94,7 @@ namespace Lina
         m_engine.m_eventSystem.Connect<Event::EResourceProgressUpdated, &Application::OnResourceProgressUpdated>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressStarted, &Application::OnResourceProgressStarted>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressEnded, &Application::OnResourceProgressEnded>(this);
-        m_engine.Initialize(appInfo);
+        m_engine.Initialize(initInfo);
         m_initialized = true;
     }
 
@@ -173,7 +178,7 @@ namespace Lina
     void Application::OnResourceProgressEnded(const Event::EResourceProgressEnded& ev)
     {
         m_resourceProgressCurrentTotalFiles = 0;
-        m_resourceProgressCurrentProcessed = 0;
+        m_resourceProgressCurrentProcessed  = 0;
     }
 
 } // namespace Lina

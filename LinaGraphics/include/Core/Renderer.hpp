@@ -69,6 +69,11 @@ namespace Lina::Graphics
             return m_featureRendererManager;
         }
 
+        inline RenderPass& GetRP()
+        {
+            return m_renderPass;
+        }
+
     private:
         friend class RenderEngine;
 
@@ -76,7 +81,7 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void Shutdown();
-        void GameSimCompleted();
+        void FetchAndExtract();
 
     private:
         static Renderer*       s_instance;

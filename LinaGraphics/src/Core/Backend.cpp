@@ -66,10 +66,9 @@ namespace Lina::Graphics
         return VK_FALSE;
     }
 
-    bool Backend::Initialize(const ApplicationInfo& appInfo)
+    bool Backend::Initialize(const InitInfo& initInfo)
     {
         LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
-        m_appInfo   = appInfo;
         m_allocator = nullptr;
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &Backend::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
@@ -91,7 +90,7 @@ namespace Lina::Graphics
 
         // Instance builder
         vkb::InstanceBuilder builder;
-        builder = builder.set_app_name(appInfo.windowProperties.title.c_str()).request_validation_layers(true).require_api_version(1, 1, 0);
+        builder = builder.set_app_name(initInfo.windowProperties.title.c_str()).request_validation_layers(true).require_api_version(1, 1, 0);
 
         // Extensions
         for (auto ext : requiredExtensions)
@@ -137,9 +136,9 @@ namespace Lina::Graphics
 
         vkb::PreferredDeviceType targetDeviceType = vkb::PreferredDeviceType::discrete;
 
-        if (appInfo.preferredGPU == PreferredGPUType::CPU)
+        if (initInfo.preferredGPU == PreferredGPUType::CPU)
             targetDeviceType = vkb::PreferredDeviceType::cpu;
-        else if (appInfo.preferredGPU == PreferredGPUType::Integrated)
+        else if (initInfo.preferredGPU == PreferredGPUType::Integrated)
             targetDeviceType = vkb::PreferredDeviceType::integrated;
 
         // Physical device
@@ -173,11 +172,11 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
-        PresentMode pMode = VsyncToPresentMode(appInfo.windowProperties.vsync);
+        PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
 
         m_swapchain = Swapchain{
-            .width       = static_cast<uint32>(appInfo.windowProperties.width),
-            .height      = static_cast<uint32>(appInfo.windowProperties.height),
+            .width       = static_cast<uint32>(initInfo.windowProperties.width),
+            .height      = static_cast<uint32>(initInfo.windowProperties.height),
             .format      = Format::B8G8R8A8_SRGB,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
             .presentMode = pMode,

@@ -64,14 +64,8 @@ namespace Lina::Resources
     class ResourceLoader;
     class ResourceHandleBase;
     struct ResourceCache;
-
-#ifdef LINA_MT
     typedef ParallelHashMapMutex<StringID, void*>       ResourceMap;
     typedef ParallelHashMapMutex<TypeID, ResourceCache> CacheMap;
-#else
-    typedef HashMap<StringID, void*> Cache;
-    typedef HashMap<TypeID, Cache>   ResourceMap;
-#endif
 
     struct ResourceTypeData
     {
@@ -226,7 +220,7 @@ namespace Lina::Resources
         }
 
         void   UnloadAll();
-        void   Load(TypeID tid, const String& path);
+        void   Load(TypeID tid, const String& path, bool loadAsync);
         String GetPathFromSID(StringID sid);
         TypeID GetTypeIDFromExtension(const String& extension);
 
@@ -238,7 +232,7 @@ namespace Lina::Resources
         ResourceStorage()  = default;
         ~ResourceStorage() = default;
 
-        void Initialize(ApplicationInfo& appInfo);
+        void Initialize();
         void Shutdown();
         void OnResourceLoaded(const Event::EResourceLoaded& ev);
         void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
@@ -249,7 +243,6 @@ namespace Lina::Resources
         static ResourceStorage* s_instance;
         CacheMap                m_caches;
         ResourceLoader*         m_loader = nullptr;
-        ApplicationInfo         m_appInfo;
     };
 } // namespace Lina::Resources
 
