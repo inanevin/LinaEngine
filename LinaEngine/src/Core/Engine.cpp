@@ -138,7 +138,7 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        m_resourceStorage.GetLoader()->LoadEngineResources();
+        // m_resourceStorage.GetLoader()->LoadEngineResources();
 
     }
 

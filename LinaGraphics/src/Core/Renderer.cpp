@@ -153,7 +153,7 @@ namespace Lina::Graphics
         m_renderPass.Begin(m_framebuffers[imageIndex], m_commandBuffer);
 
         // Render commands.
-        m_featureRendererManager.Submit(m_commandBuffer);
+        // m_featureRendererManager.Submit(m_commandBuffer);
 
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();

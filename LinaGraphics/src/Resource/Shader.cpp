@@ -70,7 +70,11 @@ namespace Lina::Graphics
         }
 
         if (!CreateShaderModules())
+        {
             LINA_ERR("[Shader Loader - Memory] -> Could not load shader! {0}", path);
+        }
+        else
+            GeneratePipeline();
 
         // We do not need the byte code in standalone, clear it.
         m_assetData.vtxData.clear();
@@ -104,7 +108,12 @@ namespace Lina::Graphics
         GenerateByteCode();
 
         if (!CreateShaderModules())
+        {
             LINA_ERR("[Shader Loader - File] -> Could not load shader! {0}", path);
+        }
+        else
+            GeneratePipeline();
+
         return static_cast<void*>(this);
     }
 
