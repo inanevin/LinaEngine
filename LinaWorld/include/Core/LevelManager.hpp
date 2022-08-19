@@ -40,7 +40,8 @@ namespace Lina::World
 
     class LevelManager
     {
-    public:
+
+    private:
         LevelManager()          = default;
         virtual ~LevelManager() = default;
 
@@ -74,9 +75,8 @@ namespace Lina::World
             return m_currentLevel;
         }
 
-    private:
         friend class Engine;
-        friend class LevelManager;
+        friend class EntityWorld;
 
         static LevelManager* s_instance;
         Level*               m_currentLevel = nullptr;

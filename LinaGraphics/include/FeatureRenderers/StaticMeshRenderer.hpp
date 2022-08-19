@@ -43,6 +43,7 @@ namespace Lina::Graphics
     class View;
     class Material;
     class ModelNode;
+    class Mesh;
 
     class StaticMeshRenderer
     {

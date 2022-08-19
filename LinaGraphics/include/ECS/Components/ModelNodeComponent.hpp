@@ -34,7 +34,7 @@ SOFTWARE.
 // Headers here.
 #include "ECS/Component.hpp"
 #include "Core/ResourceHandle.hpp"
-#include "Resource/ModelNode.hpp"
+#include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
 #include "Data/Vector.hpp"
 #include <cereal/access.hpp>
@@ -49,23 +49,28 @@ namespace Lina
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Model Node Component", "ICON_FA_EYE", "Graphics", "true", "true")
     struct ModelNodeComponent : public Component
     {
         bool visible = true;
 
+        inline uint32 GetNodeIndex()
+        {
+            return m_nodeIndex;
+        }
+
     private:
         friend class Graphics::StaticMeshRenderer;
+        friend struct ModelComponent;
 
-        Resources::ResourceHandle<Graphics::ModelNode>        m_node;
-        Vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
+        Resources::ResourceHandle<Graphics::Model> m_modelHandle;
+        uint32                                     m_nodeIndex = 0;
 
         friend class cereal::access;
 
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_node, visible, m_materials);
+            archive(m_modelHandle, visible, m_nodeIndex);
         }
     };
 } // namespace Lina::ECS

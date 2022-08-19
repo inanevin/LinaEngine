@@ -36,16 +36,15 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Free Look Component", "ICON_FA_EYE", "Input", "true", "true")
     struct FreeLookComponent : public Component
     {
         Vector2 m_angles = Vector2::Zero;
         Vector2 m_mouseDrag = Vector2::Zero;
 
-        LINA_PROPERTY("Movement Speed", "Vector2")
+        LINA_FIELD("Movement Speed", "Vector2")
         Vector2 m_movementSpeeds = Vector2(12, 12);
 
-        LINA_PROPERTY("Rotation Speed", "Vector2")
+        LINA_FIELD("Rotation Speed", "Vector2")
         Vector2 m_rotationSpeeds = Vector2(3, 3);
 
         template <class Archive>

@@ -33,7 +33,6 @@ SOFTWARE.
 
 // Headers here.
 #include <entt/entt.hpp>
-
 namespace Lina
 {
     typedef entt::hashed_string::hash_type StringID;
@@ -44,6 +43,10 @@ namespace Lina
     TypeID GetTypeID()
     {
         return entt::type_hash<T>::value();
+    }
+
+    constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept {
+        return HashedString(str).value();
     }
 } // namespace Lina
 

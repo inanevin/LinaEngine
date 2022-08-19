@@ -42,7 +42,7 @@ namespace Lina
 {
     class Engine;
 
-    LINA_CLASS("Engine Settings")
+    LINA_CLASS("Render Settings")
     class RenderSettings : public Resources::IResource
     {
 

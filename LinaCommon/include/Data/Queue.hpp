@@ -33,10 +33,11 @@ SOFTWARE.
 #define DataStructuresQueue_HPP
 
 #include <EASTL/queue.h>
+
 namespace Lina
 {
-	template<typename T>
-	using Queue = eastl::queue<T>;
+	template<typename T, typename Container = eastl::deque<T, EASTLAllocatorType, DEQUE_DEFAULT_SUBARRAY_SIZE(T)>>
+	using Queue = eastl::queue<T, Container>;
 
 } // namespace Lina
 

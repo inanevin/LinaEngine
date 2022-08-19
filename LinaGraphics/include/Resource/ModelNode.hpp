@@ -71,8 +71,19 @@ namespace Lina::Graphics
             return m_totalVertexCenter;
         }
 
+        inline String& GetName()
+        {
+            return m_name;
+        }
+
+        inline uint32 GetNodeIndex()
+        {
+            return m_index;
+        }
+
     private:
         friend class ModelLoader;
+        friend struct ECS::ModelComponent;
 
         AABB               m_aabb;
         Matrix             m_localTransform;
@@ -80,6 +91,7 @@ namespace Lina::Graphics
         String             m_name              = "";
         Vector<ModelNode*> m_children;
         Vector<Mesh*>      m_meshes;
+        uint32             m_index = 0;
     };
 } // namespace Lina::Graphics
 

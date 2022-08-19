@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Sky Component", "ICON_FA_EYE", "Graphics", "true", "true")
     struct SkyComponent : public Component
     {
 

@@ -24,10 +24,13 @@ set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc")
 set(SANDBOX_SOURCES 
 
 src/Core/Main.cpp
+src/Game/GameManager.cpp
+src/Lina/ReflectionRegistry.cpp
 )
 
 set(SANDBOX_HEADERS
-
+include/Game/GameManager.hpp
+include/Lina/ReflectionRegistry.hpp
 )
 
 #--------------------------------------------------------------------
@@ -92,6 +95,13 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
+
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
+COMMAND "LinaHeader.exe")
+
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")

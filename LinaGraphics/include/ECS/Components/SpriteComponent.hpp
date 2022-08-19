@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Sprite Component", "ICON_FA_EYE", "Graphics", "true", "true")
     struct SpriteComponent : public Component
     {
 

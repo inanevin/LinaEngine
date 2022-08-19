@@ -45,7 +45,7 @@ SOFTWARE.
 #include "JobSystem/JobSystem.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
-    #include "Core/Editor.hpp"
+#include "Core/Editor.hpp"
 #endif
 
 #define DELTA_TIME_HISTORY 11
@@ -74,6 +74,7 @@ namespace Lina
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);
         void   SkipNextFrame();
+        void   InstallLevel(const String& path, bool async);
 
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.

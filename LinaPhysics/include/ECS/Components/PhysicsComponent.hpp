@@ -57,8 +57,7 @@ namespace Lina::ECS
     class RigidbodySystem;
     class Registry;
 
-    LINA_COMPONENT("Physics Component", "ICON_FA_APPLE_ALT", "", "false", "false")
-    struct PhysicsComponent : public Component
+    struct PhysicsComponent : public ECS::Component
     {
         virtual void SetIsEnabled(bool isEnabled) override;
 

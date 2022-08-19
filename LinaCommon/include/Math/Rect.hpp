@@ -38,15 +38,15 @@ namespace Lina
     class Rect
     {
     public:
-        Vector2 pos;
-        Vector2 size;
+        Vector2 pos  = Vector2i(0, 0);
+        Vector2 size = Vector2i(0, 0);
     };
 
     class Recti
     {
     public:
-        Vector2i pos;
-        Vector2i size;
+        Vector2i pos  = Vector2i(0, 0);
+        Vector2i size = Vector2i(0, 0);
     };
 
 } // namespace Lina

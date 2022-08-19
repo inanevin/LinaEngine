@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Decal Component", "ICON_FA_EYE", "Graphics", "true", "true")
+    //LINA_COMPONENT("Decal Component", "ICON_FA_EYE", "Graphics", "true", "true")
     struct DecalComponent : public Component
     {
         

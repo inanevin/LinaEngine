@@ -220,7 +220,6 @@ entt::meta<Editor::EditorSettings>().type().props(std::make_pair("Title"_hs, "Ed
 entt::meta<Editor::EditorSettings>().data<&Editor::EditorSettings::m_textEditorPath>("m_textEditorPath"_hs).props(std::make_pair("Title"_hs,"Text Editor"),std::make_pair("Type"_hs,"StringPath"),std::make_pair("Tooltip"_hs,"Default text editor to open shader & similar files."),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, ""));
 entt::meta<EngineSettings>().type().props(std::make_pair("Title"_hs, "Engine Settings"));
 entt::meta<World::Level>().type().props(std::make_pair("Title"_hs, "Level Settings"));
-entt::meta<World::Level>().data<&World::Level::m_ambientColor>("m_ambientColor"_hs).props(std::make_pair("Title"_hs,"Ambient"),std::make_pair("Type"_hs,"Color"),std::make_pair("Tooltip"_hs,""),std::make_pair("Depends"_hs,""_hs), std::make_pair("Category"_hs, "Sky"));
         //REGFUNC_END - !! DO NOT CHANGE THIS LINE !!
     }
 } // namespace Lina

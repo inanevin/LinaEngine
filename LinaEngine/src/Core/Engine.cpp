@@ -51,6 +51,8 @@ SOFTWARE.
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
 #include "Core/CommonEngine.hpp"
+#include "Reflection/ReflectionSystem.hpp"
+#include "Components/Renderable.hpp"
 
 namespace Lina
 {
@@ -86,6 +88,12 @@ namespace Lina
         m_shouldSkipFrame = true;
     }
 
+    void Engine::InstallLevel(const String& path, bool async)
+    {
+        m_renderEngine.Join();
+        m_levelManager.InstallLevel(path, async);
+    }
+
     void Engine::Initialize(const InitInfo& initInfo)
     {
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
@@ -106,7 +114,6 @@ namespace Lina
         m_physicsEngine.Initialize();
         m_levelManager.Initialize();
         m_renderEngine.Initialize(initInfo);
-
         LoadEngineResources();
     }
 
@@ -131,15 +138,15 @@ namespace Lina
         // Engine resources.
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/BlenderMonkey.obj");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/LinaLogo.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Capsule.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        // m_resourceStorage.GetLoader()->LoadEngineResources();
-
+        m_resourceStorage.GetLoader()->LoadEngineResources();
     }
 
     void Engine::PackageProject(const String& path)
@@ -263,7 +270,42 @@ namespace Lina
                 frames++;
             });
 
-        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level1.linalevel");
+        //  m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        // int                 a = 5;
+
+        World::EntityWorld& w = m_levelManager.GetCurrentLevel()->GetWorld();
+        auto&               v = w.View<World::RenderableComponent>();
+        for (auto [e, c] : v)
+        {
+            int b = 5;
+        }
+
+        World::EntityWorld newWorld;
+        newWorld.CopyFrom(w);
+
+        auto& v2 = newWorld.View<World::RenderableComponent>();
+        for (auto [e, c] : v2)
+        {
+            int b = 5;
+        }
+
+        newWorld.DestroyWorld();
+        int xd = 15;
+        // World::Entity*      e1 = w.CreateEntity("Entity 1");
+        // w.CreateEntity("Entity 2");
+        // World::Entity* e3 = w.CreateEntity("Entity 3");
+        // World::Entity* e4 = w.CreateEntity("Entity 4");
+        // w.DestroyEntity(e3);
+        //
+        //  auto r1    = w.AddComponent<World::RenderableComponent>(e1);
+        //  auto r4    = w.AddComponent<World::RenderableComponent>(e4);
+        //  r1->dummy  = 12;
+        //  r1->dummy2 = 26;
+        //  r4->dummy  = 16;
+        //  r4->dummy2 = 66;
+        //  m_levelManager.SaveCurrentLevel();
+
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
@@ -274,7 +316,7 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
         //  m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
-        //  m_levelManager.SaveCurrentLevel();
+        // m_levelManager.SaveCurrentLevel();
 
         // SetFrameLimit(60);
 
@@ -326,6 +368,7 @@ namespace Lina
         gameLoop.clear();
         m_renderEngine.Join();
         m_levelManager.UninstallCurrent();
+        Reflection::Clear();
 
         PackageProject("");
 

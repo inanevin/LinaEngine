@@ -37,6 +37,14 @@ SOFTWARE.
 #include "Math/AABB.hpp"
 #include "Core/GraphicsCommon.hpp"
 
+namespace Lina
+{
+    namespace ECS
+    {
+        struct ModelComponent;
+    }
+}
+
 namespace Lina::Graphics
 {
     class Mesh
@@ -64,6 +72,7 @@ namespace Lina::Graphics
     private:
     protected:
         friend class ModelLoader;
+        friend struct ECS::ModelComponent;
 
         AllocatedBuffer   m_gpuVtxBuffer;
         Vector<Vector3ui> m_indices;

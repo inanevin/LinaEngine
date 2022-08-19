@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    LINA_CLASS("Editor")
+	LINA_CLASS("Editor Settings")
 	class EditorSettings
 	{
 		
@@ -54,7 +54,7 @@ namespace Lina::Editor
             archive(m_textEditorPath);
         }
 	
-		LINA_PROPERTY("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
+		LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
 		String m_textEditorPath = "";
 	
 	};

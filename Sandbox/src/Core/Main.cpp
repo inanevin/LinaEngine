@@ -1,4 +1,5 @@
 #include "Lina.hpp"
+#include "Lina/ReflectionRegistry.hpp"
 
 int main(int argc, char** argv)
 {
@@ -22,6 +23,7 @@ int main(int argc, char** argv)
         .preferredGPU     = Lina::PreferredGPUType::Discrete,
     };
 
+    Lina::RegisterReflectedTypes();
     application->Initialize(appInfo);
     application->Run();
     delete application;

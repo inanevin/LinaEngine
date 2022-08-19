@@ -36,6 +36,13 @@ SOFTWARE.
 #include "Data/Vertex.hpp"
 #include "Data/String.hpp"
 
+namespace Lina
+{
+    namespace ECS
+    {
+        struct ModelComponent;
+    }
+} // namespace Lina
 namespace Lina::Graphics
 {
     class ModelNode;
@@ -53,7 +60,7 @@ namespace Lina::Graphics
             float globalScale      = 1.0f;
         };
 
-        Model()          = default;
+        Model() = default;
         virtual ~Model();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
@@ -71,19 +78,25 @@ namespace Lina::Graphics
             return m_rootNode;
         }
 
+        inline const Vector<ModelNode*>& GetNodes()
+        {
+            return m_nodes;
+        }
+
     private:
-
         friend class ModelLoader;
-
+        friend struct ECS::ModelComponent;
+        friend class StaticMeshRenderer;
         AssetData m_assetData;
 
         // Runtime
-        int             m_numMaterials = 0;
-        int             m_numMeshes    = 0;
-        int             m_numAnims     = 0;
-        int             m_numVertices  = 0;
-        int             m_numBones     = 0;
-        ModelNode*      m_rootNode     = nullptr;
+        int                m_numMaterials = 0;
+        int                m_numMeshes    = 0;
+        int                m_numAnims     = 0;
+        int                m_numVertices  = 0;
+        int                m_numBones     = 0;
+        ModelNode*         m_rootNode     = nullptr;
+        Vector<ModelNode*> m_nodes;
     };
 
 } // namespace Lina::Graphics

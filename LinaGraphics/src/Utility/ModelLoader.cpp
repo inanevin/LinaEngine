@@ -261,6 +261,8 @@ namespace Lina::Graphics
         for (uint32 i = 0; i < ainode->mNumChildren; i++)
         {
             ModelNode* newNode = new ModelNode();
+            newNode->m_index   = static_cast<uint32>(parentModel->m_nodes.size());
+            parentModel->m_nodes.push_back(newNode);
             n->m_children.push_back(newNode);
             FillNodeHierarchy(ainode->mChildren[i], scene, parentModel, n);
         }
@@ -272,8 +274,10 @@ namespace Lina::Graphics
         model->m_numMaterials = scene->mNumMaterials;
         model->m_numAnims     = scene->mNumAnimations;
 
-        ModelNode* n      = new ModelNode();
-        model->m_rootNode = n;
+        ModelNode* n               = new ModelNode();
+        model->m_rootNode          = n;
+        model->m_rootNode->m_index = static_cast<uint32>(model->m_nodes.size());
+        model->m_nodes.push_back(model->m_rootNode);
         FillNodeHierarchy(scene->mRootNode, scene, model, n);
 
         // TODO?: Materials & textures.

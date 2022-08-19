@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "Core/ResourceHandle.hpp"
-#include "ECS/Registry.hpp"
+#include "Core/World.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <fstream>
@@ -39,13 +39,11 @@ namespace Lina::World
 {
     void Level::Install()
     {
-        ECS::Registry::s_ecs = &m_world.m_registry;
         LINA_TRACE("Level installed: {0}", m_path);
     }
 
     Level::Level(const Level& lvl)
     {
-        m_ambientColor  = lvl.m_ambientColor;
         m_usedResources = lvl.m_usedResources;
     }
 
@@ -56,7 +54,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);
-            m_world.m_registry.DeserializeComponentsInRegistry(iarchive);
+            m_world.LoadFromArchive(iarchive);
         }
 
         stream.clear();
@@ -70,7 +68,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryInputArchive iarchive(stream);
             iarchive(*this);
-            m_world.m_registry.DeserializeComponentsInRegistry(iarchive);
+            m_world.LoadFromArchive(iarchive);
         }
 
         stream.close();
@@ -80,15 +78,15 @@ namespace Lina::World
 
     void Level::Uninstall()
     {
-        m_world.m_registry.clear();
         LINA_TRACE("Level uninstalled: {0}", m_path);
     }
+
 
     void Level::SaveToFile(const String& path)
     {
         // Find the resources used by this level by adding all currently active resource handles.
-        auto* storage = Resources::ResourceStorage::Get();
-        const auto& caches = storage->GetCaches();
+        auto*       storage = Resources::ResourceStorage::Get();
+        const auto& caches  = storage->GetCaches();
         for (const auto& [tid, cache] : caches)
         {
             const auto& handles = cache.GetResourceHandles();
@@ -107,7 +105,7 @@ namespace Lina::World
         {
             cereal::PortableBinaryOutputArchive oarchive(stream);
             oarchive(*this);
-            m_world.m_registry.SerializeComponentsInRegistry(oarchive);
+            m_world.SaveToArchive(oarchive);
         }
 
         stream.close();

@@ -95,22 +95,37 @@ namespace Lina::Resources
                 continue;
 
             const auto&            engineRes = g_defaultResources.GetEngineResources();
-            const HashSet<String>& set       = levelResources.at(tid);
-
             Vector<StringID> toRemove;
             toRemove.reserve(cache.m_resources.size() / 2);
 
-            for (auto [sid, ptr] : cache.m_resources)
+            const auto& it = levelResources.find(tid);
+
+            if (it != levelResources.end())
             {
-                const auto& it = linatl::find_if(set.begin(), set.end(), [sid](const String& str) {
-                    return HashedString(str.c_str()).value() == sid;
-                });
+                // Check both if engine resource or not
+                const HashSet<String>& set = levelResources.at(tid);
+                for (auto [sid, ptr] : cache.m_resources)
+                {
+                    const auto& it = linatl::find_if(set.begin(), set.end(), [sid](const String& str) {
+                        return HashedString(str.c_str()).value() == sid;
+                        });
 
-                // If we're going to remove this resource, make sure it's not an engine resource.
-                if (it == set.end() && !g_defaultResources.IsEngineResource(tid, sid))
-                    toRemove.push_back(sid);
+                    // If we're going to remove this resource, make sure it's not an engine resource.
+                    if (it == set.end() && !g_defaultResources.IsEngineResource(tid, sid))
+                        toRemove.push_back(sid);
+                }
             }
-
+            else
+            {
+                // Only check if engine resource or not, if not remove it.
+                for (auto [sid, ptr] : cache.m_resources)
+                {
+                    if (!g_defaultResources.IsEngineResource(tid, sid))
+                        toRemove.push_back(sid);
+                }
+            }
+         
+           
             for (StringID sid : toRemove)
                 cache.Unload(sid);
         }

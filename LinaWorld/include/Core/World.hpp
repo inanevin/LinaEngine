@@ -31,22 +31,115 @@ SOFTWARE.
 #ifndef World_HPP
 #define World_HPP
 
-#include "ECS/Registry.hpp"
+#include "Entity.hpp"
+#include "ComponentCache.hpp"
+#include "Data/Queue.hpp"
+#include "Reflection/ReflectionSystem.hpp"
 
 namespace Lina::World
 {
+#define MAX_ENTITY_COUNT 50000
+
+    class Entity;
+    class Component;
+
     // Actual game state
-    class ObjectWorld
+    class EntityWorld
     {
+    public:
+        EntityWorld() = default;
+        ~EntityWorld();
+
+        static EntityWorld* Get();
 
     public:
 
-        static ObjectWorld* Get();
+        Entity* GetEntity(uint32 id);
+        void    CopyFrom(EntityWorld& world);
+        void    DestroyWorld();
+        Entity* CreateEntity(const String& name);
+        void    DestroyEntity(Entity* e);
+
+        template <typename T>
+        ComponentCache<T>* Cache()
+        {
+            const TypeID       tid   = GetTypeID<T>();
+            ComponentCache<T>* cache = nullptr;
+            const auto&        it    = m_componentCaches.find(tid);
+            if (it == m_componentCaches.end())
+            {
+                cache                  = new ComponentCache<T>();
+                m_componentCaches[tid] = cache;
+            }
+            else
+                cache = static_cast<ComponentCache<T>*>(it->second);
+
+            return cache;
+        }
+
+        template <typename T>
+        HashMap<Entity*, T*>& View()
+        {
+            return Cache<T>()->m_map;
+        }
+
+        template <typename T>
+        T* GetComponent(Entity* e)
+        {
+            return Cache<T>()->m_map[e];
+        }
+
+        template <typename T>
+        bool HasComponent(Entity* e)
+        {
+            auto* cache = Cache<T>();
+            return cache->m_map.find(e) != cache->m_map.end();
+        }
+
+        template <typename T>
+        T* AddComponent(Entity* e, T& t)
+        {
+            if (HasComponent<T>(e))
+                return GetComponent<T>(e);
+
+            T* tptr              = new T(t);
+            tptr->m_entity       = e;
+            tptr->m_entityID     = e->m_id;
+            Cache<T>()->m_map[e] = tptr;
+            return tptr;
+        }
+
+        template <typename T>
+        T* AddComponent(Entity* e)
+        {
+            if (HasComponent<T>(e))
+                return GetComponent<T>(e);
+
+            T* t                 = new T();
+            t->m_entity          = e;
+            t->m_entityID        = e->m_id;
+            Cache<T>()->m_map[e] = t;
+            return t;
+        }
+
+        template <typename T>
+        void RemoveComponent(Entity* e)
+        {
+            if (!HasComponent<T>(e))
+                return;
+
+            auto* cache = Cache<T>();
+            cache->RemoveComponent(e);
+        }
+
+        void SaveToArchive(cereal::PortableBinaryOutputArchive& archive);
+        void LoadFromArchive(cereal::PortableBinaryInputArchive& archive);
 
     private:
-        friend class Level;
-
-        ECS::Registry m_registry;
+        HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
+        Entity*                              m_entities[MAX_ENTITY_COUNT] = {nullptr};
+        uint32                               m_nextID                     = 0;
+        Queue<uint32>                        m_availableIDs;
     };
 
 } // namespace Lina::World

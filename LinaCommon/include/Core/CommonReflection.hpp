@@ -38,14 +38,14 @@ SOFTWARE.
 namespace Lina
 {
 
-// Class Title
-#define LINA_CLASS(...)
+// Title
+#define LINA_CLASS(Title)
 
-// ClassTitle, ClassIcon, Category, CanAddComponent, BaseClass
-#define LINA_COMPONENT(...)
+// Title, Category
+#define LINA_COMPONENT(Title, Category)
 
 // Title, Type, Tooltip, Dependency, Category
-#define LINA_PROPERTY(...)
+#define LINA_FIELD(...)
 }
 
 #endif

@@ -104,13 +104,6 @@ if(NOT LINA_PRODUCTION_BUILD)
 	target_link_libraries(${PROJECT_NAME} PUBLIC Lina::Editor)
 endif()
 
-# Launch Lina Header tool prior to building to prepare the reflection data for runtime.
-
-## add_custom_command(
-## TARGET ${PROJECT_NAME}
-## PRE_BUILD
-## COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/LinaHeaderTool/bin/ LinaHeader.exe)
-
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------

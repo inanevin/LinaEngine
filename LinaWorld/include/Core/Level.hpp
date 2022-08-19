@@ -41,13 +41,11 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/HashSet.hpp"
 #include "Data/Serialization/SetSerialization.hpp"
-#include <cereal/access.hpp>
 
 namespace Lina::World
 {
     class Application;
 
-    LINA_CLASS("Level Settings")
     class Level : public Resources::IResource
     {
     public:
@@ -61,11 +59,6 @@ namespace Lina::World
         void          SaveToFile(const String& path);
         void          ResourcesLoaded();
 
-        ObjectWorld& GetObjectWorld()
-        {
-            return m_world;
-        }
-
         const HashMap<TypeID, HashSet<String>>& GetResources()
         {
             return m_usedResources;
@@ -76,15 +69,17 @@ namespace Lina::World
             return m_resourcesLoaded.load();
         }
 
-        LINA_PROPERTY("Ambient", "Color", "", "", "Sky")
-        Color m_ambientColor = Color(0);
+        inline EntityWorld& GetWorld()
+        {
+            return m_world;
+        }
 
     private:
         void Install();
         void Uninstall();
 
     private:
-        ObjectWorld  m_world;
+        EntityWorld  m_world;
         Atomic<bool> m_resourcesLoaded = false;
 
     private:
@@ -93,10 +88,11 @@ namespace Lina::World
 
         HashMap<TypeID, HashSet<String>> m_usedResources;
 
+        // This is only used to load level resources.
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_ambientColor, m_usedResources);
+            archive(m_usedResources);
         }
     };
 } // namespace Lina::World

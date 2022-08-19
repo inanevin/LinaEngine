@@ -33,6 +33,9 @@ set (LINAGRAPHICS_SOURCES
 	# Data
 	src/Data/Vertex.cpp
 
+	# Components
+	src/Components/Renderable.cpp
+
 	# Vulkan
 	src/PipelineObjects/Framebuffer.cpp
 	src/PipelineObjects/SwapChain.cpp
@@ -57,6 +60,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/Material.cpp
 
 	# ECS
+	src/ECS/Components/ModelComponent.cpp
 
 	# Features
 	src/FeatureRenderers/FeatureRendererManager.cpp
@@ -94,6 +98,9 @@ set(LINAGRAPHICS_HEADERS
 	# Data
 	include/Data/Vertex.hpp
 
+	# Components
+	include/Components/Renderable.hpp
+
 	# Vulkan
 	include/PipelineObjects/Framebuffer.hpp
 	include/PipelineObjects/Swapchain.hpp
@@ -122,6 +129,7 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Components/RenderDataComponent.hpp
 	include/ECS/Components/SpriteComponent.hpp
 	include/ECS/Components/ModelNodeComponent.hpp
+	include/ECS/Components/ModelComponent.hpp
 	include/ECS/Components/DecalComponent.hpp
 	include/ECS/Components/LightComponent.hpp
 	include/ECS/Components/ParticleComponent.hpp
@@ -170,6 +178,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaWorld/include)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
@@ -181,6 +190,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Common
 PRIVATE Lina::Resource 
+PRIVATE Lina::World 
 Vulkan::Vulkan)
 	
 include(../_Dependencies/glad/link.cmake)

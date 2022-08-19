@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-    LINA_COMPONENT("Particle Component", "ICON_FA_EYE", "Graphics", "true", "true")
     struct ParticleComponent : public Component
     {
 

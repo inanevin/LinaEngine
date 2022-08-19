@@ -62,6 +62,9 @@ set (LINACOMMON_SOURCES
 	src/ECS/System.cpp
 	src/ECS/Registry.cpp
 	src/ECS/Components/EntityDataComponent.cpp
+
+	# Reflection
+	src/Reflection/ReflectionSystem.cpp
 )
 
 
@@ -88,6 +91,9 @@ set(LINACOMMON_HEADERS
 
 	# Profiler
 	include/Profiling/Profiler.hpp
+
+	# Reflection
+	include/Reflection/ReflectionSystem.hpp
 	
 	# Events
 	include/EventSystem/EventCommon.hpp
@@ -128,6 +134,7 @@ set(LINACOMMON_HEADERS
 	include/Data/Serialization/StringSerialization.hpp
 	include/Data/Serialization/HashMapSerialization.hpp
 	include/Data/Serialization/MapSerialization.hpp
+	include/Data/Serialization/QueueSerialization.hpp
 
 	# Memory
 	include/Memory/Memory.hpp
@@ -157,6 +164,7 @@ set(LINACOMMON_HEADERS
 	include/ECS/System.hpp
 	include/ECS/SystemList.hpp
 	
+
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
 	include/Utility/FileWatcher.hpp
@@ -222,10 +230,12 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/DataCommon.hpp
 	include/Data/Mutex.hpp
 	include/Data/Serialization/VectorSerialization.hpp
+	include/Data/Serialization/QueueSerialization.hpp
 	include/Data/Serialization/StringSerialization.hpp
 	include/Data/Serialization/SetSerialization.hpp
 	include/Data/Serialization/MapSerialization.hpp
 	include/Data/Serialization/HashMapSerialization.hpp
+	include/Reflection/ReflectionSystem.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -251,6 +261,7 @@ include(../_Dependencies/eastl/link.cmake)
 include(../_Dependencies/phmap/link.cmake)
 include(../_Dependencies/taskflow/link.cmake)
 include(../_Dependencies/memallocators/link.cmake)
+include(../_Dependencies/ctti/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
@@ -260,6 +271,7 @@ link_eastl()
 link_phmap()
 link_taskflow()
 link_memallocators()
+link_ctti()
 
 
 #--------------------------------------------------------------------

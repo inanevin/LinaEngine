@@ -474,6 +474,8 @@ namespace Lina::Physics
 
     void PhysicsEngine::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
+        return;
+
         ECS::Registry::Get()->on_destroy<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentRemoved>(this);
         ECS::Registry::Get()->on_construct<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
         ECS::Registry::Get()->on_construct<ECS::EntityDataComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
