@@ -261,7 +261,6 @@ include(../_Dependencies/eastl/link.cmake)
 include(../_Dependencies/phmap/link.cmake)
 include(../_Dependencies/taskflow/link.cmake)
 include(../_Dependencies/memallocators/link.cmake)
-include(../_Dependencies/ctti/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
@@ -271,7 +270,6 @@ link_eastl()
 link_phmap()
 link_taskflow()
 link_memallocators()
-link_ctti()
 
 
 #--------------------------------------------------------------------
