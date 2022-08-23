@@ -26,19 +26,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/RenderWorld.hpp"
+#pragma once
+
+#ifndef RenderableComponent_HPP
+#define RenderableComponent_HPP
+
+#include "Core/Component.hpp"
+#include "Core/CommonReflection.hpp"
 
 namespace Lina::Graphics
 {
-    void RenderWorld::Initialize()
+    LINA_COMPONENT("Renderable", "Graphics", "True")
+    class RenderableComponent : public World::Component
     {
-      
-    }
+    public:
 
-    void RenderWorld::Shutdown()
-    {
-      
-    }
+        virtual bool IsVisible()
+        {
+            return enabled && isVisible;
+        }
 
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        {
+            Component::SaveToArchive(oarchive);
+            oarchive(dummy, dummy2);
+        };
 
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            Component::LoadFromArchive(iarchive);
+            iarchive(dummy, dummy2);
+        };
+
+        bool isVisible = true;
+        int  dummy     = 0;
+        int  dummy2    = 0;
+    };
 } // namespace Lina::Graphics
+
+#endif

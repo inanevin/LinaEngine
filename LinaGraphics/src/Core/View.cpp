@@ -31,11 +31,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void View::CalculateVisibility()
+    void View::CalculateVisibility(FramePacket& fp)
     {
         PROFILER_FUNC("Render View");
-        FramePacket&                  packet  = RenderEngine::Get()->GetFramePacket();
-        const Vector<VisibilityData>& visData = packet.GetVisibilityData();
+        const HashSet<VisibilityData>& visData = fp.visibles;
 
         for (auto& vis : visData)
         {
@@ -43,12 +42,21 @@ namespace Lina::Graphics
 
             // if visible for this view.
             if (test != FrustumTest::Outside)
-                m_visibleObjects.insert(vis.entity);
+                m_visibleRenderables.insert(vis.renderable);
         }
     }
-    bool View::IsVisibleByView(ECS::Entity e)
+
+    bool View::IsVisibleByView(RenderableComponent* r)
     {
-        const auto& it = m_visibleObjects.find(e);
-        return it != m_visibleObjects.end();
+        const auto& it = m_visibleRenderables.find(r);
+        return it != m_visibleRenderables.end();
+    }
+
+    void View::CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj)
+    {
+        m_pos  = pos;
+        m_view = view;
+        m_proj = proj;
+        m_frustum.Calculate(proj * view, false);
     }
 } // namespace Lina::Graphics

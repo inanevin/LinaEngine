@@ -26,15 +26,15 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
 	src/Core/Renderer.cpp
-	src/Core/RenderWorld.cpp
 	src/Core/FramePacket.cpp
 	src/Core/View.cpp
+	src/Core/CameraSystem.cpp
 
 	# Data
 	src/Data/Vertex.cpp
 
 	# Components
-	src/Components/Renderable.cpp
+	src/Components/RenderableComponent.cpp
 
 	# Vulkan
 	src/PipelineObjects/Framebuffer.cpp
@@ -58,9 +58,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/StaticMesh.cpp
 	src/Resource/Texture.cpp
 	src/Resource/Material.cpp
-
-	# ECS
-	src/ECS/Components/ModelComponent.cpp
 
 	# Features
 	src/FeatureRenderers/FeatureRendererManager.cpp
@@ -91,15 +88,22 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/Window.hpp
 	include/Core/Renderer.hpp
 	include/Core/RenderData.hpp
-	include/Core/RenderWorld.hpp
 	include/Core/FramePacket.hpp
 	include/Core/View.hpp
+	include/Core/CameraSystem.hpp
 
 	# Data
 	include/Data/Vertex.hpp
 
 	# Components
-	include/Components/Renderable.hpp
+	include/Components/RenderableComponent.hpp
+	include/Components/SkyComponent.hpp
+	include/Components/SpriteComponent.hpp
+	include/Components/ModelNodeComponent.hpp
+	include/Components/DecalComponent.hpp
+	include/Components/LightComponent.hpp
+	include/Components/ParticleComponent.hpp
+	include/Components/CameraComponent.hpp
 
 	# Vulkan
 	include/PipelineObjects/Framebuffer.hpp
@@ -123,16 +127,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/StaticMesh.hpp
 	include/Resource/Texture.hpp
 	include/Resource/Material.hpp
-
-	# ECS
-	include/ECS/Components/SkyComponent.hpp
-	include/ECS/Components/RenderDataComponent.hpp
-	include/ECS/Components/SpriteComponent.hpp
-	include/ECS/Components/ModelNodeComponent.hpp
-	include/ECS/Components/ModelComponent.hpp
-	include/ECS/Components/DecalComponent.hpp
-	include/ECS/Components/LightComponent.hpp
-	include/ECS/Components/ParticleComponent.hpp
 	
 	# Features
 	include/FeatureRenderers/FeatureRendererManager.hpp

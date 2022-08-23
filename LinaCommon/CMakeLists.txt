@@ -56,12 +56,6 @@ set (LINACOMMON_SOURCES
 	#src/Utility/FileUtility.cpp
 	src/Utility/StringID.cpp
 	src/Utility/FileWatcher.cpp
-	
-	# ECS 
-	src/ECS/SystemList.cpp
-	src/ECS/System.cpp
-	src/ECS/Registry.cpp
-	src/ECS/Components/EntityDataComponent.cpp
 
 	# Reflection
 	src/Reflection/ReflectionSystem.cpp
@@ -78,7 +72,6 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonWindow.hpp
 	include/Core/CommonInput.hpp
 	include/Core/CommonPhysics.hpp
-	include/Core/CommonECS.hpp
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
 	include/Core/CommonEngine.hpp
@@ -97,7 +90,6 @@ set(LINACOMMON_HEADERS
 	
 	# Events
 	include/EventSystem/EventCommon.hpp
-	include/EventSystem/PhysicsEvents.hpp
 	include/EventSystem/WindowEvents.hpp
 	include/EventSystem/InputEvents.hpp
 	include/EventSystem/LevelEvents.hpp
@@ -105,7 +97,6 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/MainLoopEvents.hpp
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp
-	include/EventSystem/ECSEvents.hpp
 	include/EventSystem/EventSystem.hpp
 
 	# Data
@@ -128,6 +119,7 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
 	include/Data/DataCommon.hpp
+	include/Data/Bitmask.hpp
 	include/Data/Mutex.hpp
 	include/Data/Serialization/VectorSerialization.hpp
 	include/Data/Serialization/SetSerialization.hpp
@@ -156,14 +148,6 @@ set(LINACOMMON_HEADERS
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
-	
-	#ECS
-	include/ECS/Components/EntityDataComponent.hpp
-	include/ECS/Registry.hpp
-	include/ECS/Component.hpp
-	include/ECS/System.hpp
-	include/ECS/SystemList.hpp
-	
 
 	#include/Utility/FileUtility.hpp
 	include/Utility/StringID.hpp
@@ -199,19 +183,16 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Core/CommonWindow.hpp
 	include/Core/CommonInput.hpp
 	include/Core/CommonPhysics.hpp
-	include/Core/CommonECS.hpp
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
 	include/Core/CommonEngine.hpp
 	include/JobSystem/JobSystem.hpp
 	include/Profiling/Profiler.hpp
 	include/Log/Log.hpp
-	include/ECS/Component.hpp
-	include/ECS/System.hpp
-	include/ECS/SystemList.hpp
 	include/Utility/StringID.hpp
 	include/Data/Vector.hpp
 	include/Data/Map.hpp
+	include/Data/Bitmask.hpp
 	include/Data/List.hpp
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -28,31 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef FreeLookComponent_HPP
-#define FreeLookComponent_HPP
+#ifndef ParticleComponent_HPP
+#define ParticleComponent_HPP
 
-#include "ECS/Component.hpp"
-#include "Math/Vector.hpp"
+// Headers here.
+#include "RenderableComponent.hpp"
+#include "Core/CommonReflection.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    struct FreeLookComponent : public Component
+    LINA_COMPONENT("Particle Component", "Graphics")
+    class ParticleComponent : public RenderableComponent
     {
-        Vector2 m_angles = Vector2::Zero;
-        Vector2 m_mouseDrag = Vector2::Zero;
-
-        LINA_FIELD("Movement Speed", "Vector2")
-        Vector2 m_movementSpeeds = Vector2(12, 12);
-
-        LINA_FIELD("Rotation Speed", "Vector2")
-        Vector2 m_rotationSpeeds = Vector2(3, 3);
-
-        template <class Archive>
-        void serialize(Archive& archive)
+    public:
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
-            archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
+            RenderableComponent::SaveToArchive(oarchive);
+        };
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            RenderableComponent::LoadFromArchive(iarchive);
+        };
+
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<ParticleComponent>();
         }
     };
-} // namespace Lina::ECS
+} // namespace Lina::Graphics
 
 #endif

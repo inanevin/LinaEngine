@@ -23,7 +23,6 @@ set (LINAENGINE_SOURCES
 	# CORE
     src/Core/Application.cpp
 	src/Core/Engine.cpp
-	src/Core/ReflectionRegistry.cpp
 	src/Settings/EngineSettings.cpp
 	src/Settings/RenderSettings.cpp
 )
@@ -36,7 +35,6 @@ set(LINAENGINE_HEADERS
 	#CORE
 	include/Core/Application.hpp
 	include/Core/Engine.hpp
-	include/Core/ReflectionRegistry.hpp
 
 	# Settings
 	include/Settings/EditorSettings.hpp

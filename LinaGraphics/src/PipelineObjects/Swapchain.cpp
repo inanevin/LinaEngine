@@ -47,7 +47,7 @@ namespace Lina::Graphics
 
         vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), Backend::Get()->GetSurface()};
         swapchainBuilder = swapchainBuilder
-                               // use vsync present mode
+                               //.use_default_format_selection()
                                .set_desired_present_mode(GetPresentMode(presentMode))
                                .set_desired_extent(width, height);
 

@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/Registry.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/Window.hpp"
 #include "Core/Backend.hpp"
@@ -93,11 +92,13 @@ namespace Lina::Graphics
         };
 
         ClearValue clrCol = ClearValue{
-            .clearColor = Color::Blue,
+            .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
+            .isColor    = true,
         };
 
         ClearValue clrDepth = ClearValue{
-            .depth = 1.0f,
+            .isColor = false,
+            .depth   = 1.0f,
         };
 
         m_renderPass = RenderPass{};
@@ -127,19 +128,39 @@ namespace Lina::Graphics
         m_renderSemaphore.Create();
         m_renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
         m_renderFence.Create();
+
+        // Views
+        m_playerView.m_viewType = ViewType::Player;
+        m_views.push_back(&m_playerView);
+
+        // Feature renderers.
+        m_featureRendererManager.m_renderer = this;
+        m_meshRenderer.Initialize(m_featureRendererManager);
     }
 
-
-    void Renderer::FetchAndExtract()
+    void Renderer::Tick()
     {
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        m_featureRendererManager.FetchVisibility();
-        m_featureRendererManager.ExtractGameState();
+        m_cameraSystem.Tick();
+        m_playerView.CalculateFrustum(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
+    }
+
+    void Renderer::FetchAndExtract(World::EntityWorld* world)
+    {
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        m_framePacket.Reset();
+
+        if (world != nullptr)
+        {
+            m_featureRendererManager.FetchVisibility(world, m_framePacket);
+            m_featureRendererManager.ExtractGameState(world, m_framePacket);
+        }
     }
 
     void Renderer::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
         m_featureRendererManager.PrepareRenderData();
 
         m_renderFence.Wait(true, 1.0);
@@ -153,15 +174,17 @@ namespace Lina::Graphics
         m_renderPass.Begin(m_framebuffers[imageIndex], m_commandBuffer);
 
         // Render commands.
-        // m_featureRendererManager.Submit(m_commandBuffer);
+        m_featureRendererManager.Submit(m_commandBuffer);
 
         m_renderPass.End(m_commandBuffer);
         m_commandBuffer.End();
 
+        PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         m_graphicsQueue.Submit(m_presentSemaphore, m_renderSemaphore, m_renderFence, m_commandBuffer, 1);
         m_graphicsQueue.Present(m_renderSemaphore, &imageIndex);
+        PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
     }
 
     void Renderer::Join()
@@ -171,10 +194,10 @@ namespace Lina::Graphics
 
     void Renderer::Shutdown()
     {
+        m_meshRenderer.Shutdown();
+
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
     }
-
-
 
 } // namespace Lina::Graphics

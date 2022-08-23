@@ -27,178 +27,169 @@ SOFTWARE.
 */
 
 #include "FeatureRenderers/StaticMeshRenderer.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/ModelNodeComponent.hpp"
-#include "ECS/Components/ModelComponent.hpp"
+#include "Components/ModelNodeComponent.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Resource/Mesh.hpp"
 #include "Resource/Material.hpp"
 #include "Resource/ModelNode.hpp"
+#include "Core/World.hpp"
 
 namespace Lina::Graphics
 {
-    void StaticMeshRenderer::Initialize()
+    void StaticMeshRenderer::Initialize(FeatureRendererManager& manager)
     {
-        auto& fr = Renderer::Get()->GetFeatureRendererManager();
-        fr.RegisterVisibility(FeatureRendererVisibilityStage::FetchVisibility, std::bind(&StaticMeshRenderer::OnFetchVisibility, this));
-        fr.RegisterVisibility(FeatureRendererVisibilityStage::AssignVisibility, std::bind(&StaticMeshRenderer::OnAssignVisibility, this));
-        fr.RegisterViewStage(FeatureRendererViewStage::OnExtractView, std::bind(&StaticMeshRenderer::OnExtractPerView, this, std::placeholders::_1));
-        fr.RegisterDefaultStage(FeatureRendererDefaultStage::OnPrepare, std::bind(&StaticMeshRenderer::OnPrepare, this));
-        fr.RegisterSubmit(FeatureRendererSubmitStage::OnSubmit, std::bind(&StaticMeshRenderer::OnSubmit, this, std::placeholders::_1));
+        manager.onFetchVisibility.push_back(std::bind(&StaticMeshRenderer::OnFetchVisibility, this, std::placeholders::_1));
+        manager.onAssignVisibility.push_back(std::bind(&StaticMeshRenderer::OnAssignVisibility, this, std::placeholders::_1));
+        manager.onExtractPerView.push_back(std::bind(&StaticMeshRenderer::OnExtractPerView, this, std::placeholders::_1));
+        manager.onPrepare.push_back(std::bind(&StaticMeshRenderer::OnPrepare, this));
+        manager.onSubmitPerView.push_back(std::bind(&StaticMeshRenderer::OnSubmitPerView, this, std::placeholders::_1, std::placeholders::_2));
+        m_renderData[0].m_visibleObjects.reserve(1000);
     }
 
     void StaticMeshRenderer::Shutdown()
     {
     }
 
-    void StaticMeshRenderer::OnFetchVisibility()
+    void StaticMeshRenderer::OnFetchVisibility(World::EntityWorld* world)
     {
-       // PROFILER_FUNC("Static Mesh Renderer");
-       // auto* ecs = ECS::Registry::Get();
-       // if (ecs == nullptr)
-       //     return;
-       //
-       // const auto& view = ecs->view<ECS::ModelNodeComponent>();
-       //
-       // for (auto e : view)
-       // {
-       //     auto modelNodeComp = view.get<ECS::ModelNodeComponent>(e);
-       //     if (!modelNodeComp.visible)
-       //         continue;
-       //
-       //     auto entityData = ecs->get<ECS::EntityDataComponent>(e);
-       //
-       //     // Generate visibility data
-       //     VisibilityData visData;
-       //     visData.position = entityData.GetPosition();
-       //     visData.entity   = e;
-       //
-       //     Model*     model     = modelNodeComp.m_modelHandle.value;
-       //     ModelNode* modelNode = model->m_nodes[modelNodeComp.m_nodeIndex];
-       //
-       //     if (model != nullptr)
-       //         visData.aabb = modelNode->GetAABB();
-       //     else
-       //         visData.aabb = RenderEngine::Get()->GetPlaceholderModelNode()->GetAABB();
-       //
-       //     // Generate renderable data
-       //     const int      meshCount = modelNode->GetMeshes().size();
-       //     RenderableData renderable;
-       //     renderable.node = model != nullptr ? RenderEngine::Get()->GetPlaceholderModelNode() : model->m_nodes[modelNodeComp.m_nodeIndex];
-       //     renderable.materials.resize(meshCount);
-       //
-       //     const auto& meshes = renderable.node->GetMeshes();
-       //     for (int i = 0; i < meshCount; i++)
-       //     {
-       //         Material* mat = nullptr;
-       //         
-       //         renderable.materials[i] = mat;
-       //     }
-       //
-       //     FetchedData fetchedData;
-       //     fetchedData.visibility = visData;
-       //     fetchedData.renderable = renderable;
-       //     m_fetchedObjects.push_back(fetchedData);
-       // }
+        PROFILER_FUNC("Static Mesh Renderer");
+        uint32      compSize = 0;
+        const auto& comps    = world->View<ModelNodeComponent>(&compSize);
+
+        Model*     placeholderModel = RenderEngine::Get()->GetPlaceholderModel();
+        ModelNode* placeholderNode  = RenderEngine::Get()->GetPlaceholderModelNode();
+
+         for (uint32 i = 0; i < compSize; i++)
+         {
+             ModelNodeComponent* comp = comps[i];
+             if (!comp->IsVisible())
+                 continue;
+        
+             // if (comp)
+             // {
+             //     Model*     model = comp->m_modelHandle.IsValid() ? comp->m_modelHandle.value : placeholderModel;
+             //     ModelNode* node  = comp->m_modelHandle.IsValid() ? model->GetNodes()[comp->m_nodeIndex] : placeholderNode;
+             // 
+             //     VisibilityData visdata;
+             //     visdata.position   = comp->GetEntity()->GetPosition();
+             //     visdata.renderable = comp;
+             //     visdata.aabb       = node->GetAABB();
+             // 
+             //     // GetDataToWrite().m_visibleObjects.insert(visdata);
+             // }
+         }
     }
 
-    void StaticMeshRenderer::OnAssignVisibility()
+    void StaticMeshRenderer::OnAssignVisibility(FramePacket& fp)
     {
+        return;
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        linatl::for_each(m_fetchedObjects.begin(), m_fetchedObjects.end(), [](const FetchedData& fd) { RenderEngine::Get()->GetFramePacket().AddVisibilityData(fd.visibility); });
+        linatl::for_each(GetDataToWrite().m_visibleObjects.begin(), GetDataToWrite().m_visibleObjects.end(), [&](const VisibilityData& vd) { fp.visibles.insert(vd); });
     }
 
     void StaticMeshRenderer::OnExtractPerView(View* v)
     {
+        return;
         if (v->GetType() != ViewType::Player)
             return;
-//
-//   const auto& visibles = v->GetVisibleObjects();
-//   for (const auto& r : m_fetchedObjects)
-//   {
-//       // Skip if this object is not visible by this view.
-//       if (!v->IsVisibleByView(r.visibility.entity))
-//           continue;
-//
-//       m_renderableObjects.push_back(r.renderable);
-//   }
-//
-//   m_fetchedObjects.clear();
+
+        const auto& visibles     = v->GetVisibleObjects();
+        auto&       myVisibles   = GetDataToWrite().m_visibleObjects;
+        auto&       visibleNodes = GetDataToWrite().m_visibleNodeComponents;
+
+        for (auto& vis : myVisibles)
+        {
+            // Skip if this object is not visible by this view.
+            // if (!v->IsVisibleByView(vis.renderable))
+            //     continue;
+
+            visibleNodes.insert(static_cast<ModelNodeComponent*>(vis.renderable));
+        }
+
+        myVisibles.clear();
+        m_dataToWrite = m_dataToWrite == 0 ? 1 : 0;
     }
 
     void StaticMeshRenderer::OnPrepare()
     {
-      // Vector<GPUData> opaques;
-      // Vector<GPUData> transparents;
-      //
-      // for (auto& renderable : m_renderableObjects)
-      // {
-      //     const auto& meshes    = renderable.node->GetMeshes();
-      //     const auto& materials = renderable.materials;
-      //
-      //     for (int i = 0; i < meshes.size(); i++)
-      //     {
-      //         GPUData gpuData;
-      //         gpuData.mesh = meshes[i];
-      //         gpuData.mat  = materials[i];
-      //
-      //         const auto& handle = gpuData.mat->GetShaderHandle();
-      //         Shader*     shader = nullptr;
-      //         if (!handle.IsValid())
-      //             gpuData.mat = RenderEngine::Get()->GetPlaceholderMaterial();
-      //
-      //         shader = gpuData.mat->GetShaderHandle().value;
-      //
-      //         if (shader->GetSurfaceType() == SurfaceType::Opaque)
-      //             opaques.push_back(gpuData);
-      //         else
-      //             transparents.push_back(gpuData);
-      //     }
-      // }
-      //
-      // linatl::copy(opaques.begin(), opaques.end(), linatl::back_inserter(m_gpuData));
-      // linatl::copy(transparents.begin(), transparents.end(), linatl::back_inserter(m_gpuData));
-      // opaques.clear();
-      // transparents.clear();
+
+        auto data = GetDataToRead().m_visibleNodeComponents;
+
+        return;
+
+        for (auto comp : data)
+        {
+            Model*     model = comp->m_modelHandle.IsValid() ? comp->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
+            ModelNode* node  = comp->m_modelHandle.IsValid() ? model->GetNodes()[comp->m_nodeIndex] : RenderEngine::Get()->GetPlaceholderModelNode();
+
+            for (auto m : node->GetMeshes())
+            {
+                const uint32 meshSlot = static_cast<uint32>(m->GetMaterialSlot());
+                auto&        handle   = comp->m_materials[meshSlot];
+                Material*    mat      = handle.IsValid() ? handle.value : RenderEngine::Get()->GetPlaceholderMaterial();
+
+                RenderPair pair = RenderPair{
+                    .transform = comp->GetEntity()->GetTransform().ToMatrix(),
+                    .mesh      = m,
+                };
+
+                GetDataToRead().m_gpuData[mat].push_back(pair);
+            }
+        }
+
+        GetDataToRead().m_visibleNodeComponents.clear();
     }
 
-    Material* lastMaterial;
-    Mesh*     lastMesh;
-
-    void StaticMeshRenderer::OnSubmit(CommandBuffer& buffer)
+    void StaticMeshRenderer::OnSubmitPerView(CommandBuffer& buffer, View* v)
     {
-        glm::vec3 camPos = {0.f, 0.f, -350.f};
+        return;
+        if (v->GetType() != ViewType::Player)
+            return;
 
         static float _frameNumber = 0.0f;
         _frameNumber += 0.1f;
 
-        glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
-        // camera projection
-        glm::mat4 projection = glm::perspective(glm::radians(70.f), 1200.0f / 1200.0f, 0.1f, 1000.0f);
-        projection[1][1] *= -1;
+        Material* mat  = Resources::ResourceStorage::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
+        Model*    mod  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/BlenderMonkey.obj");
+        Mesh*     mesh = mod->GetRootNode()->GetMeshes()[0];
+        mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
+        uint64 offset = 0;
+        buffer.BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer().buffer, &offset);
 
-        for (auto& renderable : m_gpuData)
+        for (int i = -6000; i < 6000; i++)
         {
-            if (renderable.mat != lastMaterial)
-            {
-                renderable.mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
-                renderable.mat = lastMaterial;
-            }
-
-            const glm::mat4 meshMatrix = projection * view * renderable.transform;
+            Matrix    t          = Matrix::Translate(Vector3(i * 2, 0, 0));
+            glm::mat4 meshMatrix = v->GetProj() * v->GetView() * t;
 
             Graphics::MeshPushConstants constants;
             constants.renderMatrix = meshMatrix;
+            buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
 
-            buffer.PushConstants(lastMaterial->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
-
-            if (renderable.mesh != lastMesh)
-            {
-                buffer.Draw(static_cast<uint32>(renderable.mesh->GetVertices().size()), 1, 0, 0);
-                lastMesh = renderable.mesh;
-            }
+            buffer.Draw(static_cast<uint32>(mesh->GetVertices().size()), 1, 0, 0);
         }
+        // for (auto [mat, pair] : GetDataToRead().m_gpuData)
+        // {
+        //     mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
+        //
+        //     for (auto& rp : pair)
+        //     {
+        //         Matrix t = rp.transform ;
+        //         glm::mat4 meshMatrix = v->GetProj()  * v->GetView() * t;
+        //
+        //         Graphics::MeshPushConstants constants;
+        //         constants.renderMatrix = meshMatrix;
+        //         buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+        //
+        //         uint64 offset = 0;
+        //         buffer.BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer().buffer, &offset);
+        //
+        //         buffer.Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, 0);
+        //     }
+        // }
+
+        GetDataToRead().m_gpuData.clear();
+        m_dataToRead = m_dataToRead == 1 ? 0 : 1;
     }
 
 } // namespace Lina::Graphics

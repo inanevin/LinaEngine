@@ -31,25 +31,47 @@ SOFTWARE.
 #ifndef ComponentCache_HPP
 #define ComponentCache_HPP
 
+#include "WorldCommon.hpp"
 #include "Entity.hpp"
 #include "Core/SizeDefinitions.hpp"
+#include "Data/Queue.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/Serialization/HashMapSerialization.hpp"
+#include "Data/Serialization/QueueSerialization.hpp"
+
 #include <functional>
 #include <cereal/archives/portable_binary.hpp>
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct EStartGame;
+        struct EEndGame;
+        struct ETick;
+        struct EPreTick;
+        struct EPostTick;
+        struct EPostPhysicsTick;
+    } // namespace Event
+} // namespace Lina
+
 namespace Lina::World
 {
-
     typedef std::function<void()>                                     CacheDestroyFunction;
     typedef std::function<void*()>                                    CacheCreateFunction;
     typedef std::function<void(cereal::PortableBinaryOutputArchive&)> CacheSaveFunction;
     typedef std::function<void(cereal::PortableBinaryInputArchive&)>  CacheLoadFunction;
 
+#define MAX_COMP_COUNT 5
+
+    class Component;
     class ComponentCacheBase
     {
-    public:
+    protected:
+        friend class EntityWorld;
+
         virtual ComponentCacheBase* CopyCreate()                                                                     = 0;
-        virtual void                DestroyComponent(Entity* e)                                                      = 0;
-        virtual bool                ContainsEntity(Entity* e)                                                        = 0;
+        virtual void                OnEntityDestroyed(Entity* e)                                                     = 0;
         virtual void                Destroy()                                                                        = 0;
         virtual void                SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive)                     = 0;
         virtual void                LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive, Entity** entities) = 0;
@@ -58,70 +80,163 @@ namespace Lina::World
     template <typename T>
     class ComponentCache : public ComponentCacheBase
     {
-    public:
+    protected:
         virtual ComponentCacheBase* CopyCreate() override
         {
             ComponentCache<T>* newCache = new ComponentCache<T>();
 
-            for (auto [entity, comp] : m_map)
-                newCache->m_map[entity] = new T(*comp);
+            for (uint32 i = 0; i < m_nextID; i++)
+            {
+                if (m_components[i] != nullptr)
+                {
+                    T* newComp = new T(*m_components[i]);
+                    newComp->OnComponentCreated();
+                    newCache->m_components[i] = newComp;
+                }
+            }
 
             return newCache;
         }
-        virtual void DestroyComponent(Entity* e) override
+
+        inline T* AddComponent(Entity* e)
         {
-            delete m_map[e];
-            m_map.erase(m_map.find(e));
+            T* comp          = new T();
+            comp->m_entityID = e->GetID();
+            comp->m_entity   = e;
+            comp->OnComponentCreated();
+
+            uint32 id = 0;
+
+            if (!m_availableIDs.empty())
+            {
+                id = m_availableIDs.back();
+                m_availableIDs.pop();
+            }
+            else
+                id = m_nextID++;
+
+            m_components[id] = comp;
+            return comp;
         }
 
-        virtual bool ContainsEntity(Entity* e) override
+        inline T* AddComponent(Entity* e, const T& t)
         {
-            return m_map.find(e) != m_map.end();
+            T* comp          = new T(t);
+            comp->m_entityID = e->GetID();
+            comp->m_entity   = e;
+            comp->OnComponentCreated();
+
+            uint32 id = 0;
+
+            if (!m_availableIDs.empty())
+            {
+                id = m_availableIDs.back();
+                m_availableIDs.pop();
+            }
+            else
+                id = m_nextID++;
+
+            m_components[id] = comp;
+            return comp;
+        }
+
+        inline T* GetComponent(Entity* e)
+        {
+            for (uint32 i = 0; i < m_nextID; i++)
+            {
+                if (m_components[i] != nullptr)
+                {
+                    if (m_components[i]->m_entityID == e->GetID())
+                        return m_components[i];
+                }
+            }
+
+            return nullptr;
+        }
+
+        inline void DestroyComponent(Entity* e)
+        {
+            for (uint32 i = 0; i < m_nextID; i++)
+            {
+                if (m_components[i] != nullptr)
+                {
+                    if (m_components[i]->m_entityID == e->GetID())
+                    {
+                        T* comp = m_components[i];
+                        comp->OnComponentDestroyed();
+                        m_availableIDs.push(i);
+                        m_components[i] = nullptr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        virtual void OnEntityDestroyed(Entity* e) override
+        {
+            DestroyComponent(e);
         }
 
         virtual void Destroy() override
         {
-            for (auto& pair : m_map)
-                delete pair.second;
+            for (uint32 i = 0; i < m_nextID; i++)
+            {
+                if (m_components[i] != nullptr)
+                {
+                    delete m_components[i];
+                    m_components[i] = nullptr;
+                }
+            }
 
-            m_map.clear();
+            m_availableIDs = Queue<uint32>();
+            m_nextID       = 0;
         }
 
         virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
-            Vector<uint32> entityIDs;
+            oarchive(m_availableIDs);
+            oarchive(m_nextID);
+            HashMap<uint32, uint32> compEntityIDs;
 
-            for (auto [e, c] : m_map)
-                entityIDs.push_back(e->GetID());
+            for (uint32 i = 0; i < m_nextID; i++)
+            {
+                if (m_components[i] != nullptr)
+                    compEntityIDs[i] = m_components[i]->m_entityID;
+            }
 
-            oarchive(entityIDs);
+            oarchive(compEntityIDs);
 
-            for (auto [e, c] : m_map)
-                c->SaveToArchive(oarchive);
+            for (auto [compID, entityID] : compEntityIDs)
+            {
+                m_components[compID]->SaveToArchive(oarchive);
+            }
         }
 
         virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive, Entity** entities) override
         {
-            Vector<uint32> entityIDs;
-            iarchive(entityIDs);
+            iarchive(m_availableIDs);
+            iarchive(m_nextID);
 
-            for (uint32 i = 0; i < entityIDs.size(); i++)
+            HashMap<uint32, uint32> compEntityIDs;
+            iarchive(compEntityIDs);
+
+            for (auto [compID, entityID] : compEntityIDs)
             {
                 T* comp = new T();
                 comp->LoadFromArchive(iarchive);
-                m_map[entities[entityIDs[i]]] = comp;
+                comp->OnComponentCreated();
+                comp->m_entityID     = entityID;
+                comp->m_entity       = entities[entityID];
+                m_components[compID] = comp;
             }
-        }
-
-        void RemoveComponent(Entity* e)
-        {
-            delete m_map[e];
-            m_map.erase(m_map.find(e));
         }
 
     private:
         friend class EntityWorld;
-        HashMap<Entity*, T*> m_map;
+
+        T*            m_components[MAX_COMP_COUNT] = {nullptr};
+        uint32        m_nextID                     = 0;
+        Queue<uint32> m_availableIDs;
     };
 
 } // namespace Lina::World

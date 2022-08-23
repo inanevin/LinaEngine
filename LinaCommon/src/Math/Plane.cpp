@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -34,12 +34,12 @@ namespace Lina
 {
     void Plane::Normalize()
     {
-        m_normal = m_normal.Normalized();
-        LINA_TRACE("Normalized {0}", m_normal.ToString());
+        normal = normal.Normalized();
+        LINA_TRACE("Normalized {0}", normal.ToString());
     }
 
     float Plane::GetSignedDistance(const Vector3& point) const
     {
-        return m_normal.Dot(point) - m_distance;
+        return normal.Dot(point) - distance;
     }
 } // namespace Lina

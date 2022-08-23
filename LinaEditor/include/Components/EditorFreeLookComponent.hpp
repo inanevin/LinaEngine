@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,42 +26,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef SystemList_HPP
-#define SystemList_HPP
+#ifndef FreeLookComponent_HPP
+#define FreeLookComponent_HPP
 
-// Headers here.
-#include "Data/Vector.hpp"
+#include "Core/Component.hpp"
+#include "Core/CommonReflection.hpp"
+#include "Math/Vector.hpp"
 
-namespace Lina::ECS
+namespace Lina::World
 {
-    class System;
-
-    class SystemList
+    LINA_COMPONENT("Editor Free Look", "")
+    class EditorFreeLookComponent : public Component
     {
     public:
-        SystemList()  = default;
-        ~SystemList() = default;
+        LINA_FIELD("Movement Speed", "Float")
+        float movementSpeed = 12.0f;
 
-        bool AddSystem(System& system);
-        void UpdateSystems(float delta);
-        bool RemoveSystem(System& system);
+        LINA_FIELD("Rotation Power", "float")
+        float rotationPower = 1.5f;
 
-        inline const Vector<System*>& GetSystems() const
+        virtual TypeID GetTID() override
         {
-            return m_systems;
+            return GetTypeID<EditorFreeLookComponent>();
         }
 
-        inline Vector<System*>& GetSystems()
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
-            return m_systems;
+            Component::SaveToArchive(oarchive);
+            oarchive(movementSpeed, rotationPower, m_angles);
+        }
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            Component::LoadFromArchive(iarchive);
+            iarchive(movementSpeed, rotationPower, m_angles);
+        }
+
+        virtual void OnTick(const Event::ETick& ev) override;
+
+        virtual Bitmask GetComponentMask() override
+        {
+            return ComponentMask::ReceiveOnTick;
         }
 
     private:
-        Vector<System*> m_systems;
+        Vector2 m_lastMousePos = Vector2::Zero;
+        Vector2 m_angles       = Vector2::Zero;
     };
-} // namespace Lina::ECS
+} // namespace Lina::World
 
 #endif

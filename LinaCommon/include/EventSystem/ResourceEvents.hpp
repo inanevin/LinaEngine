@@ -80,6 +80,10 @@ namespace Lina::Event
         StringID sid = 0;
     };
 
+    struct EEngineResourcesLoaded
+    {
+    };
+
 } // namespace Lina::Event
 
 #endif

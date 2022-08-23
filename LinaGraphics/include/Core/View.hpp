@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Data/HashSet.hpp"
 #include "Core/RenderData.hpp"
-#include "Core/CommonECS.hpp"
 
 namespace Lina::Graphics
 {
@@ -45,28 +44,52 @@ namespace Lina::Graphics
         SunShadow,
     };
 
+    class FramePacket;
+    class RenderableComponent;
+
     class View
     {
     public:
-        void CalculateVisibility();
-        bool IsVisibleByView(ECS::Entity e);
+        void CalculateVisibility(FramePacket& fp);
+        bool IsVisibleByView(RenderableComponent* r);
 
         inline ViewType GetType()
         {
             return m_viewType;
         }
 
-        inline HashSet<ECS::Entity>& GetVisibleObjects()
+        inline HashSet<RenderableComponent*>& GetVisibleObjects()
         {
-            return m_visibleObjects;
+            return m_visibleRenderables;
         }
 
-    protected:
+        inline const Vector3& GetPos() const
+        {
+            return m_pos;
+        }
+        inline const Matrix& GetView() const
+        {
+            return m_view;
+        }
+
+        inline const Matrix& GetProj() const
+        {
+            return m_proj;
+        }
+
+    private:
         friend class RenderEngine;
-        ViewType             m_viewType = ViewType::Player;
-        HashSet<ECS::Entity> m_visibleObjects;
-        Vector3              m_pos     = Vector3::Zero;
-        Frustum              m_frustum = Frustum();
+        friend class Renderer;
+
+        void CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj);
+
+    private:
+        ViewType                      m_viewType = ViewType::Player;
+        HashSet<RenderableComponent*> m_visibleRenderables;
+        Matrix                        m_view;
+        Matrix                        m_proj;
+        Vector3                       m_pos     = Vector3::Zero;
+        Frustum                       m_frustum = Frustum();
     };
 } // namespace Lina::Graphics
 

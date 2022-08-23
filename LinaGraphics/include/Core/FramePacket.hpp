@@ -32,28 +32,20 @@ SOFTWARE.
 #define FramePacket_HPP
 
 #include "RenderData.hpp"
-#include "Data/Vector.hpp"
+#include "Data/HashSet.hpp"
 
 namespace Lina::Graphics
 {
+
     class FramePacket
     {
     public:
-        void AddVisibilityData(const VisibilityData& vis);
-
-        inline const Vector<VisibilityData>& GetVisibilityData()
-        {
-            return m_visibilityData;
-        }
-
-    private:
-        friend class RenderEngine;
         void Reset()
         {
-            m_visibilityData.clear();
+            visibles.clear();
         }
 
-        Vector<VisibilityData> m_visibilityData;
+        HashSet<VisibilityData> visibles;
     };
 } // namespace Lina::Graphics
 

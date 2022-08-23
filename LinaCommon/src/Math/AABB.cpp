@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -35,30 +35,30 @@ namespace Lina
 
     bool AABB::IsInsidePlane(const Vector3& center, const Plane& plane)
     {
-        const float r = m_boundsHalfExtents.x * Math::Abs(plane.m_normal.x) + m_boundsHalfExtents.y * Math::Abs(plane.m_normal.y) + m_boundsHalfExtents.z * Math::Abs(plane.m_normal.z);
+        const float r = boundsHalfExtents.x * Math::Abs(plane.normal.x) + boundsHalfExtents.y * Math::Abs(plane.normal.y) + boundsHalfExtents.z * Math::Abs(plane.normal.z);
         return -r <= plane.GetSignedDistance(center);
     }
     Vector3 AABB::GetPositive(const Vector3& normal) const
     {
-        Vector3 positive = m_boundsMin;
+        Vector3 positive = boundsMin;
         if (normal.x >= 0.0f)
-            positive.x = m_boundsMax.x;
+            positive.x = boundsMax.x;
         if (normal.y >= 0.0f)
-            positive.y = m_boundsMax.y;
+            positive.y = boundsMax.y;
         if (normal.z >= 0.0f)
-            positive.z = m_boundsMax.z;
+            positive.z = boundsMax.z;
 
         return positive;
     }
     Vector3 AABB::GetNegative(const Vector3& normal) const
     {
-        Vector3 negative = m_boundsMax;
+        Vector3 negative = boundsMax;
         if (normal.x >= 0.0f)
-            negative.x = m_boundsMin.x;
+            negative.x = boundsMin.x;
         if (normal.y >= 0.0f)
-            negative.y = m_boundsMin.y;
+            negative.y = boundsMin.y;
         if (normal.z >= 0.0f)
-            negative.z = m_boundsMin.z;
+            negative.z = boundsMin.z;
 
         return negative;
     }

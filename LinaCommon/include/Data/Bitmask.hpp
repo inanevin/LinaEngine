@@ -28,20 +28,38 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderDataComponent_HPP
-#define RenderDataComponent_HPP
+#ifndef DataStructuresBitmask_HPP
+#define DataStructuresBitmask_HPP
 
-// Headers here.
-#include "ECS/Component.hpp"
-#include "Math/Matrix.hpp"
+#include "Core/SizeDefinitions.hpp"
 
-namespace Lina::ECS
+namespace Lina
 {
-    // Runtime only component generated via rendering visibility fetch & extrac stages
-    struct RenderDataComponent : public Component
+    class Bitmask
     {
-        Matrix transform = Matrix();
+    public:
+        Bitmask()  = default;
+        ~Bitmask() = default;
+        Bitmask(int m)
+            : m_mask(m){};
+        inline bool IsSet(uint8 m)
+        {
+            return m_mask & m;
+        }
+
+        inline void Set(uint8 m)
+        {
+            m_mask |= m;
+        }
+
+        inline void Remove(uint8 m)
+        {
+            m_mask &= ~m;
+        }
+
+    private:
+        uint8 m_mask = 0;
     };
-} // namespace Lina::ECS
+} // namespace Lina
 
 #endif

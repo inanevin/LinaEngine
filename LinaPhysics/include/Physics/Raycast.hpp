@@ -1,4 +1,5 @@
-/* 
+/*
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,25 +27,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Raycast_HPP
 #define Raycast_HPP
 
 // Headers here.
-#include "Core/CommonECS.hpp"
 #include "Math/Vector.hpp"
+
+namespace Lina
+{
+    namespace World
+    {
+        class Entity;
+    }
+} // namespace Lina
 
 namespace Lina::Physics
 {
     struct HitInfo
     {
-        int         m_hitCount = 0;
-        ECS::Entity m_entity   = entt::null;
-        Vector3     m_position = Vector3::Zero;
-        Vector3     m_normal   = Vector3::Zero;
-        float       m_distance = 0.0f;
+        int            hitCount = 0;
+        World::Entity* entity   = nullptr;
+        Vector3        position = Vector3::Zero;
+        Vector3        normal   = Vector3::Zero;
+        float          distance = 0.0f;
     };
 
     /// <summary>

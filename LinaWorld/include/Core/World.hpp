@@ -35,26 +35,45 @@ SOFTWARE.
 #include "ComponentCache.hpp"
 #include "Data/Queue.hpp"
 #include "Reflection/ReflectionSystem.hpp"
+#include "Data/FixedList.hpp"
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct EStartGame;
+        struct EEndGame;
+        struct ETick;
+        struct EPreTick;
+        struct EPostTick;
+        struct EPostPhysicsTick;
+    } // namespace Event
+} // namespace Lina
 namespace Lina::World
 {
-#define MAX_ENTITY_COUNT 50000
 
     class Entity;
     class Component;
+
+#define ENTITY_STACK_SIZE 10000
+
+    struct EntityStack
+    {
+        Entity* ptr = nullptr;
+    };
 
     // Actual game state
     class EntityWorld
     {
     public:
-        EntityWorld() = default;
-        ~EntityWorld();
+        EntityWorld()  = default;
+        ~EntityWorld() = default;
 
         static EntityWorld* Get();
 
     public:
-
         Entity* GetEntity(uint32 id);
+        Entity* GetEntity(const String& name);
         void    CopyFrom(EntityWorld& world);
         void    DestroyWorld();
         Entity* CreateEntity(const String& name);
@@ -78,68 +97,55 @@ namespace Lina::World
         }
 
         template <typename T>
-        HashMap<Entity*, T*>& View()
+        T** View(uint32* size)
         {
-            return Cache<T>()->m_map;
+            auto* cache = Cache<T>();
+            *size       = cache->m_nextID;
+            return cache->m_components;
         }
 
         template <typename T>
         T* GetComponent(Entity* e)
         {
-            return Cache<T>()->m_map[e];
+            return Cache<T>()->GetComponent(e);
         }
 
         template <typename T>
-        bool HasComponent(Entity* e)
+        T* AddComponent(Entity* e, const T& t)
         {
-            auto* cache = Cache<T>();
-            return cache->m_map.find(e) != cache->m_map.end();
-        }
-
-        template <typename T>
-        T* AddComponent(Entity* e, T& t)
-        {
-            if (HasComponent<T>(e))
-                return GetComponent<T>(e);
-
-            T* tptr              = new T(t);
-            tptr->m_entity       = e;
-            tptr->m_entityID     = e->m_id;
-            Cache<T>()->m_map[e] = tptr;
-            return tptr;
+            return Cache<T>()->AddComponent(e, t);
         }
 
         template <typename T>
         T* AddComponent(Entity* e)
         {
-            if (HasComponent<T>(e))
-                return GetComponent<T>(e);
-
-            T* t                 = new T();
-            t->m_entity          = e;
-            t->m_entityID        = e->m_id;
-            Cache<T>()->m_map[e] = t;
-            return t;
+            return Cache<T>()->AddComponent(e);
         }
 
         template <typename T>
         void RemoveComponent(Entity* e)
         {
-            if (!HasComponent<T>(e))
-                return;
-
-            auto* cache = Cache<T>();
-            cache->RemoveComponent(e);
+            Cache<T>()->DestroyComponent(e);
         }
 
         void SaveToArchive(cereal::PortableBinaryOutputArchive& archive);
         void LoadFromArchive(cereal::PortableBinaryInputArchive& archive);
 
     private:
+        void DestroyEntityData(Entity* e);
+        friend class Level;
+
+        void Initialize();
+        void Shutdown();
+
+    private:
+        bool                                 m_initialized = false;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         Entity*                              m_entities[MAX_ENTITY_COUNT] = {nullptr};
-        uint32                               m_nextID                     = 0;
-        Queue<uint32>                        m_availableIDs;
+
+        uint32              m_nextID = 0;
+        Queue<uint32>       m_availableIDs;
+        Vector<EntityStack> m_stacks;
     };
 
 } // namespace Lina::World

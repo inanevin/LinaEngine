@@ -51,5 +51,6 @@ public:
 private:
     void OnGameStarted(const Lina::Event::EStartGame& ev);
     void OnTick(const Lina::Event::ETick& ev);
+    void OnLevelInstalled(const Lina::Event::ELevelInstalled& ev);
 };
 #endif

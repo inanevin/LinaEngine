@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,10 +31,12 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 
 #include "Math/Quaternion.hpp"
-#include "glm/gtx/projection.hpp"
-#include "glm/gtx/rotate_vector.hpp"
-#include "glm/gtx/transform.hpp"
-
+#define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/gtx/projection.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/glm.hpp>
 namespace Lina
 {
 

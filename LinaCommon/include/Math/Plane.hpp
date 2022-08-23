@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Plane_HPP
@@ -43,15 +41,15 @@ namespace Lina
 
     public:
         Plane() = default;
-        Plane(const Vector3& normal, float dist)
-            : m_normal(normal), m_distance(dist){};
+        Plane(const Vector3& n, float dist)
+            : normal(n), distance(dist){};
         ~Plane() = default;
 
-        void Normalize();
+        void  Normalize();
         float GetSignedDistance(const Vector3& point) const;
 
-        Vector3 m_normal   = Vector3::Zero;
-        float   m_distance = 0.0f;
+        Vector3 normal   = Vector3::Zero;
+        float   distance = 0.0f;
 
     private:
     };

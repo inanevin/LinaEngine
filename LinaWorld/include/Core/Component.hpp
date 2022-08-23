@@ -31,12 +31,15 @@ SOFTWARE.
 #ifndef Component_HPP
 #define Component_HPP
 
+#include "WorldCommon.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "ComponentCache.hpp"
+#include "Utility/StringId.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include <cereal/archives/portable_binary.hpp>
 
 namespace Lina::World
 {
+
     class Entity;
     // Actual game state
     class Component
@@ -48,14 +51,38 @@ namespace Lina::World
         virtual TypeID GetTID() = 0;
         virtual void   SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive);
         virtual void   LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive);
+        virtual void   OnComponentCreated();
+        virtual void   OnComponentDestroyed();
+
+        virtual void   OnStartGame(const Event::EStartGame& ev){};
+        virtual void   OnEndGame(const Event::EEndGame& ev){};
+        virtual void   OnTick(const Event::ETick& ev){};
+        virtual void   OnPreTick(const Event::EPreTick& ev){};
+        virtual void   OnPostTick(const Event::EPostTick& ev){};
+        virtual void   OnPostPhysicsTick(const Event::EPostPhysicsTick& ev){};
+
+        inline Entity* GetEntity()
+        {
+            return m_entity;
+        }
+
+        virtual Bitmask GetComponentMask()
+        {
+            return 0;
+        }
+
+        bool enabled = true;
+
+    protected:
+        Entity* m_entity = nullptr;
 
     private:
-
-        friend class World;
+        template <typename U>
+        friend class ComponentCache;
+        friend class EntityWorld;
         friend class Entity;
 
-        uint32  m_entityID = 0;
-        Entity* m_entity   = nullptr;
+        uint32 m_entityID = 0;
     };
 
 } // namespace Lina::World

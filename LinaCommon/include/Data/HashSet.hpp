@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresHashSet_HPP
@@ -35,8 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	template<typename T>
-	using HashSet = eastl::hash_set<T>;
+    template <typename T, typename Hash = eastl::hash<T>, typename Predicate = eastl::equal_to<T>>
+    using HashSet = eastl::hash_set<T, Hash, Predicate>;
 } // namespace Lina
 
 #endif

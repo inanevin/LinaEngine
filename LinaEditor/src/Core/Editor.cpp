@@ -31,9 +31,22 @@ SOFTWARE.
 #include "Settings/EditorSettings.hpp"
 #include "Settings/RenderSettings.hpp"
 #include "Core/ResourceDataManager.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/LevelEvents.hpp"
+#include "Core/LevelManager.hpp"
+#include "Core/World.hpp"
+#include "Components/CameraComponent.hpp"
+#include "Components/EditorFreeLookComponent.hpp"
+#include "Core/RenderEngine.hpp"
 
 namespace Lina::Editor
 {
+
+    void EditorManager::Initialize()
+    {
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorManager::OnLevelInstalled>(this);
+    }
+
     void EditorManager::VerifyStaticResources()
     {
         // Make sure the static resources needed are initialized.
@@ -53,4 +66,32 @@ namespace Lina::Editor
             Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
         }
     }
+
+    void EditorManager::CreateEditorCamera()
+    {
+        World::Entity* e = World::EntityWorld::Get()->CreateEntity("Editor Camera");
+        e->SetPosition(Vector3(0, 0, 10));
+        e->SetRotationAngles(Vector3(0, 180, 0));
+        Graphics::CameraComponent*      cam      = World::EntityWorld::Get()->AddComponent<Graphics::CameraComponent>(e);
+        World::EditorFreeLookComponent* freeLook = World::EntityWorld::Get()->AddComponent<World::EditorFreeLookComponent>(e);
+        Graphics::RenderEngine::Get()->GetLevelRenderer().GetCameraSystem().SetActiveCamera(cam);
+    }
+
+    void EditorManager::DeleteEditorCamera()
+    {
+        World::EntityWorld::Get()->DestroyEntity(m_editorCamera);
+    }
+
+    void EditorManager::SaveCurrentLevel()
+    {
+        DeleteEditorCamera();
+        World::LevelManager::Get()->SaveCurrentLevel();
+        CreateEditorCamera();
+    }
+
+    void EditorManager::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        CreateEditorCamera();
+    }
+
 } // namespace Lina::Editor

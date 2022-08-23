@@ -35,13 +35,9 @@ SOFTWARE.
 #include "Data/Deque.hpp"
 #include "Utility/StringId.hpp"
 #include "Data/FixedVector.hpp"
-#include "ECS/SystemList.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Utility/DeletionQueue.hpp"
-#include "FeatureRenderers/StaticMeshRenderer.hpp"
-#include "Core/View.hpp"
 #include "Backend.hpp"
-#include "FramePacket.hpp"
 #include "Window.hpp"
 #include <functional>
 
@@ -50,12 +46,13 @@ namespace Lina
     namespace Event
     {
         struct ESwapchainRecreated;
+        struct EEngineResourcesLoaded;
     } // namespace Event
 } // namespace Lina
 
 namespace Lina::Graphics
 {
-    class ModelNode;
+    class Model;
 
     class RenderEngine
     {
@@ -69,13 +66,10 @@ namespace Lina::Graphics
             return s_instance;
         }
 
-        void Initialize(const InitInfo& initInfo);
-        void Clear();
-        void Render();
-        void Join();
-        void Shutdown();
-        void GameSimCompleted();
-        void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
+        inline Model* GetPlaceholderModel()
+        {
+            return m_placeholderModel;
+        }
 
         inline ModelNode* GetPlaceholderModelNode()
         {
@@ -87,9 +81,9 @@ namespace Lina::Graphics
             return m_placeholderMaterial;
         }
 
-        inline Renderer& GetRenderer()
+        inline Renderer& GetLevelRenderer()
         {
-            return m_renderer;
+            return m_levelRenderer;
         }
 
         inline DeletionQueue& GetMainDeletionQueue()
@@ -100,16 +94,6 @@ namespace Lina::Graphics
         inline bool IsInitialized()
         {
             return m_initedSuccessfully;
-        }
-
-        inline FramePacket& GetFramePacket()
-        {
-            return m_framePacket;
-        }
-
-        inline const Vector<View*>& GetViews()
-        {
-            return m_views;
         }
 
         inline Recti& GetScissor()
@@ -123,24 +107,33 @@ namespace Lina::Graphics
         }
 
     private:
+        void Initialize(const InitInfo& initInfo);
+        void Clear();
+        void Tick();
+        void Render();
+        void Join();
+        void Shutdown();
+        void GameSimCompleted();
+        void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
+        void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
+
+    private:
         friend class Engine;
 
         static RenderEngine* s_instance;
-        Vector<View*>        m_views;
-        View                 m_playerView;
+  
+        Model*               m_placeholderModel     = nullptr;
         ModelNode*           m_placeholderModelNode = nullptr;
         Material*            m_placeholderMaterial  = nullptr;
         DeletionQueue        m_mainDeletionQueue;
-        InitInfo      m_appInfo;
+        InitInfo             m_appInfo;
         Window               m_window;
         Backend              m_backend;
         bool                 m_initedSuccessfully = false;
 
-        Viewport           m_viewport;
-        Recti              m_scissor;
-        FramePacket        m_framePacket;
-        Renderer           m_renderer;
-        StaticMeshRenderer m_meshRenderer;
+        Viewport m_viewport;
+        Recti    m_scissor;
+        Renderer m_levelRenderer;
     };
 } // namespace Lina::Graphics
 

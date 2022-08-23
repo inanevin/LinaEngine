@@ -39,6 +39,7 @@ namespace Lina::World
 {
     void Level::Install()
     {
+        m_world.Initialize();
         LINA_TRACE("Level installed: {0}", m_path);
     }
 
@@ -78,9 +79,9 @@ namespace Lina::World
 
     void Level::Uninstall()
     {
+        m_world.Shutdown();
         LINA_TRACE("Level uninstalled: {0}", m_path);
     }
-
 
     void Level::SaveToFile(const String& path)
     {

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,17 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
 #include "Core/PhysicsCooker.hpp"
-#include "Core/CommonECS.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
-#include "ECS/SystemList.hpp"
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 
@@ -52,12 +48,15 @@ namespace Lina
     {
         class EventSystem;
         struct ELevelInstalled;
-        struct EPostSceneDraw;
         struct ELoadResourceFromFile;
         struct ELoadResourceFromMemory;
         struct ELoadResourceFromMemory;
-        struct EEntityEnabledChanged;
     } // namespace Event
+
+    namespace World
+    {
+        class Entity;
+    }
 } // namespace Lina
 
 namespace physx
@@ -92,12 +91,12 @@ namespace Lina::Physics
         /// <summary>
         /// Given a PxActor, returns the Entity it belongs to.
         /// </summary>
-        ECS::Entity GetEntityOfActor(physx::PxActor* actor);
+        World::Entity* GetEntityOfActor(physx::PxActor* actor);
 
         /// <summary>
         /// Returns all Dynamic bodies, regardless of whether they are static or not.
         /// </summary>
-        HashMap<ECS::Entity, physx::PxRigidActor*>& GetAllActors();
+        HashMap<World::Entity*, physx::PxRigidActor*>& GetAllActors();
 
         /// <summary>
         /// Returns a map of created physics material, the key represents the Lina ID of the PhysicsMaterial object,
@@ -108,20 +107,7 @@ namespace Lina::Physics
         /// <summary>
         /// Returns true if the given entity is alive in the physics world, static or dynamic.
         /// </summary>
-        bool IsEntityAPhysicsActor(ECS::Entity ent);
-
-        /// <summary>
-        /// Gets a const reference to the main physics pipeline, which contains a list of physics systems.
-        /// </summary>
-        inline const ECS::SystemList& GetPipeline()
-        {
-            return m_physicsPipeline;
-        }
-
-        /// <summary>
-        /// Any system added to the physics pipeline will get updated during the physics update.
-        /// </summary>
-        void AddToPhysicsPipeline(ECS::System& system);
+        bool IsEntityAPhysicsActor(World::Entity* ent);
 
         inline PhysicsMaterial* GetDefaultPhysicsMaterial()
         {
@@ -131,15 +117,15 @@ namespace Lina::Physics
         void SetMaterialStaticFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialDynamicFriction(PhysicsMaterial& mat, float friction);
         void SetMaterialRestitution(PhysicsMaterial& mat, float restitution);
-        void SetBodySimulation(ECS::Entity body, SimulationType type);
-        void SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape);
-        void SetBodyMass(ECS::Entity body, float mass);
-        void SetBodyMaterial(ECS::Entity body, PhysicsMaterial* mat);
-        void SetBodyRadius(ECS::Entity body, float radius);
-        void SetBodyHeight(ECS::Entity body, float height);
-        void SetBodyHalfExtents(ECS::Entity body, const Vector3& extents);
-        void SetBodyKinematic(ECS::Entity body, bool kinematic);
-        void UpdateBodyShapeParameters(ECS::Entity body);
+        void SetBodySimulation(World::Entity* body, SimulationType type);
+        void SetBodyCollisionShape(World::Entity* body, Physics::CollisionShape shape);
+        void SetBodyMass(World::Entity* body, float mass);
+        void SetBodyMaterial(World::Entity* body, PhysicsMaterial* mat);
+        void SetBodyRadius(World::Entity* body, float radius);
+        void SetBodyHeight(World::Entity* body, float height);
+        void SetBodyHalfExtents(World::Entity* body, const Vector3& extents);
+        void SetBodyKinematic(World::Entity* body, bool kinematic);
+        void UpdateBodyShapeParameters(World::Entity* body);
 
         void SetDebugDraw(bool enabled)
         {
@@ -148,7 +134,7 @@ namespace Lina::Physics
 
     private:
         friend class Engine;
-        friend struct ECS::PhysicsComponent;
+        friend struct PysicsComponent;
 
         PhysicsEngine()  = default;
         ~PhysicsEngine() = default;
@@ -162,20 +148,19 @@ namespace Lina::Physics
         }
 
     private:
-        void            OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
-        void            RecreateBodyShape(ECS::Entity body);
-        void            OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void            OnPostSceneDraw(const Event::EPostSceneDraw&);
-        void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
-        void            OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev);
-        void            RemoveBodyFromWorld(ECS::Entity body);
-        void            AddBodyToWorld(ECS::Entity body, bool isDynamic);
-        physx::PxShape* GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent = entt::null);
+        // void            OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent);
+        void RecreateBodyShape(World::Entity* body);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        // void OnPostSceneDraw(const Event::EPostSceneDraw&);
+        // void            OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent);
+        // void            OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev);
+        void            RemoveBodyFromWorld(World::Entity* body);
+        void            AddBodyToWorld(World::Entity* body, bool isDynamic);
+        physx::PxShape* GetCreateShape(PhysicsComponent& phy, World::Entity* ent = nullptr);
 
     private:
         static PhysicsEngine* s_physicsEngine;
-        ECS::RigidbodySystem  m_rigidbodySystem;
-        ECS::SystemList       m_physicsPipeline;
+        RigidbodySystem       m_rigidbodySystem;
         Event::EventSystem*   m_eventSystem;
         PhysXCooker           m_cooker;
         PhysicsMaterial*      m_defaultMaterial  = nullptr;

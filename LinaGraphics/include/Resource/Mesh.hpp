@@ -43,7 +43,7 @@ namespace Lina
     {
         struct ModelComponent;
     }
-}
+} // namespace Lina
 
 namespace Lina::Graphics
 {
@@ -61,6 +61,11 @@ namespace Lina::Graphics
         inline const AllocatedBuffer& GetGPUVtxBuffer()
         {
             return m_gpuVtxBuffer;
+        }
+
+        inline int GetMaterialSlot()
+        {
+            return m_materialSlot;
         }
 
     protected:

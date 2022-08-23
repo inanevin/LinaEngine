@@ -44,11 +44,21 @@ SOFTWARE.
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/Image.hpp"
-#include "ECS/Registry.hpp"
 #include "FeatureRenderers/FeatureRendererManager.hpp"
+#include "FeatureRenderers/StaticMeshRenderer.hpp"
+#include "FramePacket.hpp"
+#include "CameraSystem.hpp"
+#include "Core/View.hpp"
 
 #include <functional>
 
+namespace Lina
+{
+    namespace World
+    {
+        class EntityWorld;
+    }
+} // namespace Lina
 namespace Lina::Graphics
 {
     class Backend;
@@ -64,39 +74,51 @@ namespace Lina::Graphics
             return s_instance;
         }
 
-        inline FeatureRendererManager& GetFeatureRendererManager()
-        {
-            return m_featureRendererManager;
-        }
-
         inline RenderPass& GetRP()
         {
             return m_renderPass;
+        }
+
+        inline CameraSystem& GetCameraSystem()
+        {
+            return m_cameraSystem;
+        }
+
+        inline const Vector<View*>& GetViews()
+        {
+            return m_views;
         }
 
     private:
         friend class RenderEngine;
 
         void Initialize();
+        void Tick();
         void Render();
         void Join();
         void Shutdown();
-        void FetchAndExtract();
+        void FetchAndExtract(World::EntityWorld* world);
 
     private:
         static Renderer*       s_instance;
         FeatureRendererManager m_featureRendererManager;
-        Backend*               m_backend = nullptr;
-        RQueue                 m_graphicsQueue;
-        CommandPool            m_pool;
-        CommandBuffer          m_commandBuffer;
-        RenderPass             m_renderPass;
-        SubPass                m_subpass;
-        Vector<Framebuffer>    m_framebuffers;
-        Fence                  m_renderFence;
-        Semaphore              m_renderSemaphore;
-        Semaphore              m_presentSemaphore;
-        Image                  m_depthImage;
+        FramePacket            m_framePacket;
+        StaticMeshRenderer     m_meshRenderer;
+        Vector<View*>          m_views;
+        View                   m_playerView;
+
+        CameraSystem        m_cameraSystem;
+        Backend*            m_backend = nullptr;
+        RQueue              m_graphicsQueue;
+        CommandPool         m_pool;
+        CommandBuffer       m_commandBuffer;
+        RenderPass          m_renderPass;
+        SubPass             m_subpass;
+        Vector<Framebuffer> m_framebuffers;
+        Fence               m_renderFence;
+        Semaphore           m_renderSemaphore;
+        Semaphore           m_presentSemaphore;
+        Image               m_depthImage;
     };
 
 } // namespace Lina::Graphics

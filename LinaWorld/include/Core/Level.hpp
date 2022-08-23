@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Core/IResource.hpp"
 #include "Utility/StringId.hpp"
 #include "Math/Color.hpp"
-#include "ECS/Registry.hpp"
 #include "Core/CommonReflection.hpp"
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"

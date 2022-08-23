@@ -37,21 +37,6 @@ SOFTWARE.
 
 namespace Lina::Event
 {
-    struct EPreRender
-    {
-    };
-    struct EPostSceneDraw
-    {
-    };
-    struct EPostRender
-    {
-    };
-    struct EGUIRender
-    {
-    };
-    struct ECustomRender
-    {
-    };
     struct EDrawLine
     {
         Vector3 from      = Vector3();

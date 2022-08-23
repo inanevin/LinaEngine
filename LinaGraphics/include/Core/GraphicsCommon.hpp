@@ -69,6 +69,7 @@ namespace Lina::Graphics
         B8G8R8A8_SRGB,
         R32G32B32_SFLOAT,
         D32_SFLOAT,
+        R8G8B8A8_UNORM,
     };
 
     extern VkFormat GetFormat(Format f);
@@ -293,8 +294,6 @@ namespace Lina::Graphics
 
     extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
 
-
-
     enum class SurfaceType
     {
         Opaque,
@@ -305,7 +304,8 @@ namespace Lina::Graphics
     struct ClearValue
     {
         Color  clearColor = Color::White;
-        float  depth      = 0.0f;
+        bool   isColor    = false;
+        float  depth      = 1.0f;
         uint32 stencil    = 0;
     };
 

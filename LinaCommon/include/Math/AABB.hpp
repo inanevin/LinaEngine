@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef AABB_HPP
@@ -46,9 +45,9 @@ namespace Lina
         AABB() = default;
         AABB(Vector3 min, Vector3 max)
         {
-            m_boundsMin         = min;
-            m_boundsMax         = max;
-            m_boundsHalfExtents = (max - min) / 2.0f;
+            boundsMin         = min;
+            boundsMax         = max;
+            boundsHalfExtents = (max - min) / 2.0f;
         }
         ~AABB() = default;
 
@@ -62,10 +61,10 @@ namespace Lina
         Vector3 GetPositive(const Vector3& normal) const;
         Vector3 GetNegative(const Vector3& normal) const;
 
-        Vector3              m_boundsHalfExtents = Vector3::Zero;
-        Vector3              m_boundsMin         = Vector3::Zero;
-        Vector3              m_boundsMax         = Vector3::Zero;
-        Vector<Vector3> m_positions;
+        Vector3         boundsHalfExtents = Vector3::Zero;
+        Vector3         boundsMin         = Vector3::Zero;
+        Vector3         boundsMax         = Vector3::Zero;
+        Vector<Vector3> positions;
 
     private:
     };

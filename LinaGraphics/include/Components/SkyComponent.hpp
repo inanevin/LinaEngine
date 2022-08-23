@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,35 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: BaseSystem
-
-
-
-Timestamp: 12/25/2021 12:35:22 PM
-*/
-
 #pragma once
 
-#ifndef BaseSystem_HPP
-#define BaseSystem_HPP
+#ifndef SkyComponent_HPP
+#define SkyComponent_HPP
 
 // Headers here.
+#include "RenderableComponent.hpp"
+#include "Core/CommonReflection.hpp"
 
-
-namespace Lina
+namespace Lina::Graphics
 {
-	class BaseSystem
-	{
-		
-	public:
-		
-		BaseSystem();
-		~BaseSystem();
-	
-	private:
-	
-	};
-}
+    LINA_COMPONENT("Sky Component", "Graphics")
+    class SkyComponent : public RenderableComponent
+    {
+    public:
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        {
+            RenderableComponent::SaveToArchive(oarchive);
+        };
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            RenderableComponent::LoadFromArchive(iarchive);
+        };
+
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<SkyComponent>();
+        }
+    };
+} // namespace Lina::Graphics
 
 #endif

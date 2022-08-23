@@ -31,12 +31,20 @@ SOFTWARE.
 #ifndef StaticMeshRenderer_HPP
 #define StaticMeshRenderer_HPP
 
-#include "Core/CommonECS.hpp"
 #include "Data/HashSet.hpp"
 #include "Data/Vector.hpp"
-#include "ECS/Components/ModelNodeComponent.hpp"
+#include "Components/ModelNodeComponent.hpp"
 #include "Core/RenderData.hpp"
 #include "Data/DataCommon.hpp"
+
+namespace Lina
+{
+    namespace World
+    {
+        class EntityWorld;
+        class Entity;
+    } // namespace World
+} // namespace Lina
 
 namespace Lina::Graphics
 {
@@ -44,49 +52,49 @@ namespace Lina::Graphics
     class Material;
     class ModelNode;
     class Mesh;
+    class FramePacket;
+    class ModelNodeComponent;
+    class FeatureRendererManager;
 
     class StaticMeshRenderer
     {
     public:
-        struct RenderableData
+        struct RenderPair
         {
-            ECS::Entity       entity = ECS_NULL;
-            ModelNode*        node   = nullptr;
-            Vector<Material*> materials;
+            Matrix transform = Matrix::Identity();
+            Mesh*  mesh      = nullptr;
         };
 
-        struct FetchedData
+        struct Data
         {
-            RenderableData renderable;
-            VisibilityData visibility;
+            HashSet<VisibilityData>                m_visibleObjects;
+            HashSet<ModelNodeComponent*>           m_visibleNodeComponents;
+            HashMap<Material*, Vector<RenderPair>> m_gpuData;
         };
 
-        struct GPUData
-        {
-            Matrix    transform = Matrix::Identity();
-            Material* mat       = nullptr;
-            Mesh*     mesh      = nullptr;
-        };
-
-        void Initialize();
+        void Initialize(FeatureRendererManager& manager);
         void Shutdown();
 
-        void OnFetchVisibility();
-        void OnAssignVisibility();
+        void OnFetchVisibility(World::EntityWorld* world);
+        void OnAssignVisibility(FramePacket& fp);
         void OnExtractPerView(View* v);
         void OnPrepare();
-        void OnSubmit(CommandBuffer& buffer);
+        void OnSubmitPerView(CommandBuffer& buffer, View* v);
+
+        Data& GetDataToWrite()
+        {
+            return m_renderData[m_dataToWrite];
+        }
+
+        Data& GetDataToRead()
+        {
+            return m_renderData[m_dataToRead];
+        }
 
     private:
-
-        // Fetch result
-        Vector<FetchedData> m_fetchedObjects;
-
-        // Extract result
-        Vector<RenderableData> m_renderableObjects;
-
-        // Prepared result
-        Vector<GPUData> m_gpuData;
+        Data m_renderData[2];
+        int  m_dataToWrite = 0;
+        int  m_dataToRead  = 1;
     };
 } // namespace Lina::Graphics
 

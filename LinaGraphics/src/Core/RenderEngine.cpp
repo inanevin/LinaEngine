@@ -28,16 +28,13 @@ SOFTWARE.
 
 #include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
-#include "ECS/Components/DecalComponent.hpp"
-#include "ECS/Components/SkyComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/SpriteComponent.hpp"
-#include "ECS/Components/ParticleComponent.hpp"
+#include "Core/World.hpp"
 
 #include "Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Core/ResourceStorage.hpp"
 
 #include "Resource/Model.hpp"
@@ -60,12 +57,13 @@ namespace Lina::Graphics
 
         Window::s_instance   = &m_window;
         Backend::s_instance  = &m_backend;
-        Renderer::s_instance = &m_renderer;
+        Renderer::s_instance = &m_levelRenderer;
 
         m_initedSuccessfully = m_window.Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
 
         Event::EventSystem::Get()->Connect<Event::ESwapchainRecreated, &RenderEngine::OnSwapchainRecreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -88,10 +86,7 @@ namespace Lina::Graphics
             .size = size,
         };
 
-        m_playerView.m_viewType = ViewType::Player;
-        m_views.push_back(&m_playerView);
-        m_renderer.Initialize();
-        m_meshRenderer.Initialize();
+        m_levelRenderer.Initialize();
     }
 
     //  void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
@@ -147,27 +142,32 @@ namespace Lina::Graphics
         RETURN_NOTINITED;
     }
 
+    void RenderEngine::Tick()
+    {
+        m_levelRenderer.Tick();
+    }
+
     void RenderEngine::GameSimCompleted()
     {
-        m_framePacket.Reset();
-        m_renderer.FetchAndExtract();
+        auto* world = World::EntityWorld::Get();
+        m_levelRenderer.FetchAndExtract(world);
     }
 
     void RenderEngine::Render()
     {
-        RETURN_NOTINITED;
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
+        RETURN_NOTINITED;
 
         if (m_window.IsMinimized())
             return;
 
-        m_renderer.Render();
+        m_levelRenderer.Render();
     }
 
     void RenderEngine::Join()
     {
         RETURN_NOTINITED;
-        m_renderer.Join();
+        m_levelRenderer.Join();
     }
 
     void RenderEngine::Shutdown()
@@ -178,15 +178,14 @@ namespace Lina::Graphics
 
         m_mainDeletionQueue.Flush();
 
-        m_meshRenderer.Shutdown();
-        m_renderer.Shutdown();
+        m_levelRenderer.Shutdown();
         m_window.Shutdown();
         m_backend.Shutdown();
     }
 
     void RenderEngine::OnSwapchainRecreated(const Event::ESwapchainRecreated& ev)
     {
-        Swapchain*     swp  = static_cast<Swapchain*>(ev.newPtr);
+        Swapchain* swp = static_cast<Swapchain*>(ev.newPtr);
 
         m_viewport = Viewport{
             .x        = 0.0f,
@@ -204,6 +203,13 @@ namespace Lina::Graphics
         //     fb = Framebuffer{.width = static_cast<uint32>(size.x), .height = static_cast<uint32>(size.y), .layers = 1};
         //     fb.AttachRenderPass(m_renderPass).AddImageView(m_backend.m_swapchain._imageViews[i]).AddImageView(m_depthImage._ptrImgView).Create();
         // }
+    }
+
+    void RenderEngine::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
+    {
+        m_placeholderMaterial  = Resources::ResourceStorage::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
+        m_placeholderModel     = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx");
+        m_placeholderModelNode = m_placeholderModel->GetRootNode();
     }
 
 } // namespace Lina::Graphics

@@ -30,9 +30,5 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void FramePacket::AddVisibilityData(const VisibilityData& vis)
-    {
-        m_visibilityData.push_back(vis);
-    }
 
 } // namespace Lina::Graphics

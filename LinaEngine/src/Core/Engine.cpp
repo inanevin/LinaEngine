@@ -31,14 +31,12 @@ SOFTWARE.
 #include "Audio/Audio.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include "EventSystem/PhysicsEvents.hpp"
 #include "Log/Log.hpp"
 #include "Core/Level.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
-#include "Core/ReflectionRegistry.hpp"
 #include "Math/Math.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
@@ -52,8 +50,7 @@ SOFTWARE.
 #include "Resource/Material.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Reflection/ReflectionSystem.hpp"
-#include "Components/Renderable.hpp"
-
+#include "Components/RenderableComponent.hpp"
 namespace Lina
 {
     Engine* Engine::s_engine = nullptr;
@@ -114,6 +111,12 @@ namespace Lina
         m_physicsEngine.Initialize();
         m_levelManager.Initialize();
         m_renderEngine.Initialize(initInfo);
+
+#ifndef LINA_PRODUCTION_BUILD
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+            m_editor.Initialize();
+#endif
+
         LoadEngineResources();
     }
 
@@ -147,6 +150,7 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
         m_resourceStorage.GetLoader()->LoadEngineResources();
+        m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
     }
 
     void Engine::PackageProject(const String& path)
@@ -183,7 +187,10 @@ namespace Lina
                 for (const auto& pair : resources)
                 {
                     for (auto resStr : pair.second)
-                        resourceMap[pair.first].push_back(resStr);
+                    {
+                        if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
+                            resourceMap[pair.first].push_back(resStr);
+                    }
                 }
             }
             else
@@ -197,7 +204,10 @@ namespace Lina
                 for (const auto& pair : resources)
                 {
                     for (auto resStr : pair.second)
-                        resourceMap[pair.first].push_back(resStr);
+                    {
+                        if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
+                            resourceMap[pair.first].push_back(resStr);
+                    }
                 }
             }
         }
@@ -235,6 +245,13 @@ namespace Lina
         m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
+    struct Test
+    {
+        Vector3                        position = Vector3::Zero;
+        Graphics::RenderableComponent* rend     = nullptr;
+        AABB                           aabb;
+    };
+
     void Engine::Run()
     {
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
@@ -270,41 +287,8 @@ namespace Lina
                 frames++;
             });
 
-        //  m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-        // int                 a = 5;
-
-        World::EntityWorld& w = m_levelManager.GetCurrentLevel()->GetWorld();
-        auto&               v = w.View<World::RenderableComponent>();
-        for (auto [e, c] : v)
-        {
-            int b = 5;
-        }
-
-        World::EntityWorld newWorld;
-        newWorld.CopyFrom(w);
-
-        auto& v2 = newWorld.View<World::RenderableComponent>();
-        for (auto [e, c] : v2)
-        {
-            int b = 5;
-        }
-
-        newWorld.DestroyWorld();
-        int xd = 15;
-        // World::Entity*      e1 = w.CreateEntity("Entity 1");
-        // w.CreateEntity("Entity 2");
-        // World::Entity* e3 = w.CreateEntity("Entity 3");
-        // World::Entity* e4 = w.CreateEntity("Entity 4");
-        // w.DestroyEntity(e3);
-        //
-        //  auto r1    = w.AddComponent<World::RenderableComponent>(e1);
-        //  auto r4    = w.AddComponent<World::RenderableComponent>(e4);
-        //  r1->dummy  = 12;
-        //  r1->dummy2 = 26;
-        //  r4->dummy  = 16;
-        //  r4->dummy2 = 66;
-        //  m_levelManager.SaveCurrentLevel();
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -315,38 +299,67 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        //  m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level1.linalevel");
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
         // m_levelManager.SaveCurrentLevel();
 
-        // SetFrameLimit(60);
+        //  SetFrameLimit(60);
 
+        const String initialTitle = m_renderEngine.m_window.GetTitle();
+        // double nextTime = 0.0;
         while (m_running)
         {
             PROFILER_FRAME_START();
 
+            //     if (m_frameLimit > 0)
+            //     {
+            //         while (GetElapsedTime() < nextTime)
+            //         {
+            //
+            //         }
+            //     }
+            //
+            //     currentFrameTime = GetElapsedTime();
+            //
+            //     if (m_frameLimit > 0)
+            //     {
+            //         nextTime = currentFrameTime + m_frameLimitSeconds;
+            //     }
+
             previousFrameTime = currentFrameTime;
             currentFrameTime  = GetElapsedTime();
 
-            if (m_frameLimit > 0 && !m_firstRun)
-            {
-                const double diff = currentFrameTime - previousFrameTime;
+            //  if (m_frameLimit > 0 && !m_firstRun)
+            //  {
+            //      const double diff = currentFrameTime - previousFrameTime;
+            //
+            //      if (diff < m_frameLimitSeconds)
+            //      {
+            //          const double wa = (m_frameLimitSeconds - diff);
+            //          PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
+            //          Time::Sleep(wa);
+            //          PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
+            //          currentFrameTime += wa;
+            //      }
+            //  }
 
-                if (diff < m_frameLimitSeconds)
-                {
-                    const double waitAmount = (m_frameLimitSeconds - diff);
-                    PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
-                    Time::Sleep(waitAmount);
-                    PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
-                    currentFrameTime += waitAmount;
-                }
-            }
-
-            m_rawDeltaTime    = (currentFrameTime - previousFrameTime);
-            m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
+            m_rawDeltaTime = (currentFrameTime - previousFrameTime);
+            // m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
+            //  previousFrameTime = currentFrameTime;
 
             m_inputEngine.Tick();
+            // RunSimulation((float)m_rawDeltaTime);
+            // m_renderEngine.GameSimCompleted();
+            // updates++;
+            // m_renderEngine.Render();
+            // frames++;
             m_jobSystem.Run(gameLoop).wait();
 
+        
+
+            PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_SIMULATION);
+
+
+     
             // Calculate FPS, UPS.
             if (currentFrameTime - totalFPSTime >= 1.0)
             {
@@ -358,10 +371,12 @@ namespace Lina
                 updates = 0;
             }
 
-            LINA_TRACE("FPS : {0}", m_currentFPS);
+            m_renderEngine.m_window.SetTitle(initialTitle + " " + TO_STRING(m_currentFPS) + " FPS");
 
             if (m_firstRun)
                 m_firstRun = false;
+
+            PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_SIMULATION);
         }
 
         m_jobSystem.WaitForAll();
@@ -397,9 +412,9 @@ namespace Lina
             return;
         m_shouldSkipFrame = false;
 
-        PROFILER_SCOPE_START("Pre Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Pre Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_SIMULATION);
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -409,31 +424,31 @@ namespace Lina
         {
             m_physicsAccumulator -= physicsStep;
 
-            PROFILER_SCOPE_START("Pre Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_START("Event: Pre Physics", PROFILER_THREAD_SIMULATION);
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-            PROFILER_SCOPE_END("Pre Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Event: Pre Physics", PROFILER_THREAD_SIMULATION);
 
             PROFILER_SCOPE_START("Physics Simulation", PROFILER_THREAD_SIMULATION);
             m_physicsEngine.Tick(physicsStep);
             PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_SIMULATION);
 
-            PROFILER_SCOPE_START("Post Tick", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_SIMULATION);
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
-            PROFILER_SCOPE_END("Post Tick", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_SIMULATION);
         }
 
         // Other main systems (engine or game)
-        PROFILER_SCOPE_START("Main ECS Pipeline", PROFILER_THREAD_SIMULATION);
-        m_mainECSPipeline.UpdateSystems(deltaTime);
-        PROFILER_SCOPE_END("Main ECS Pipeline", PROFILER_THREAD_SIMULATION);
-
-        PROFILER_SCOPE_START("Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_SIMULATION);
 
-        PROFILER_SCOPE_START("Post Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_SIMULATION);
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Post Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_SIMULATION);
+
+        PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_SIMULATION);
+        m_renderEngine.Tick();
+        PROFILER_SCOPE_END("Render Engine Tick", PROFILER_THREAD_SIMULATION);
     }
 
     void Engine::RemoveOutliers(bool biggest)

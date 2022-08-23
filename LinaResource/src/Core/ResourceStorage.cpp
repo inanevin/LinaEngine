@@ -222,7 +222,7 @@ namespace Lina::Resources
         {
             for (auto& [s, ptr] : cache.m_resources)
             {
-                if (s == sid)
+                if (s == sid && ptr)
                 {
                     IResource* res = static_cast<IResource*>(ptr);
                     return res->GetPath();

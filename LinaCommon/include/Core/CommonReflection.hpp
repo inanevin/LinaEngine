@@ -41,8 +41,8 @@ namespace Lina
 // Title
 #define LINA_CLASS(Title)
 
-// Title, Category
-#define LINA_COMPONENT(Title, Category)
+// Title, Category, optionals = IsAbstract
+#define LINA_COMPONENT(Title, Category, ...)
 
 // Title, Type, Tooltip, Dependency, Category
 #define LINA_FIELD(...)

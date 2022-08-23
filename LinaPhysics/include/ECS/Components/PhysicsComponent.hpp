@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,25 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef PhysicsbodyComponent_HPP
 #define PhysicsbodyComponent_HPP
 
 #include "Core/CommonPhysics.hpp"
-#include "ECS/Component.hpp"
 #include "Math/Vector.hpp"
 #include "Core/ResourceHandle.hpp"
 
 namespace Lina
 {
-    namespace Physics
-    {
-        class PhysicsMaterial;
-        class PhysicsEngine;
-    } // namespace Physics
-
     namespace World
     {
         class Level;
@@ -52,15 +44,15 @@ namespace Lina
 
 }; // namespace Lina
 
-namespace Lina::ECS
+namespace Lina::Physics
 {
+    class PhysicsMaterial;
+    class PhysicsEngine;
     class RigidbodySystem;
     class Registry;
 
-    struct PhysicsComponent : public ECS::Component
+    struct PhysicsComponent
     {
-        virtual void SetIsEnabled(bool isEnabled) override;
-
         Vector3 GetVelocity()
         {
             return m_velocity;
@@ -93,16 +85,14 @@ namespace Lina::ECS
         {
             return m_simType;
         }
-        
+
         StringID m_attachedModelID = 0;
 
     private:
         friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
-        friend class ECS::RigidbodySystem;
         friend class Physics::PhysicsEngine;
-
 
         Physics::SimulationType                             m_simType           = Physics::SimulationType::None;
         Physics::CollisionShape                             m_collisionShape    = Physics::CollisionShape::Box;
@@ -131,12 +121,12 @@ namespace Lina::ECS
             ResetRuntimeState();
         }
 
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_collisionShape, m_material, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic, m_isEnabled);
-        }
+       // template <class Archive>
+       // void serialize(Archive& archive)
+       // {
+       //     archive(m_collisionShape, m_material, m_simType, m_halfExtents, m_mass, m_radius, m_capsuleHalfHeight, m_isKinematic);
+       // }
     };
-} // namespace Lina::ECS
+} // namespace Lina::Physics
 
 #endif

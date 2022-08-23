@@ -28,52 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ModelComponent_HPP
-#define ModelComponent_HPP
+#ifndef SpriteComponent_HPP
+#define SpriteComponent_HPP
 
 // Headers here.
-#include "ECS/Component.hpp"
-#include "Core/ResourceHandle.hpp"
-#include "Resource/Model.hpp"
-#include "Resource/Material.hpp"
-#include "Core/CommonECS.hpp"
-#include "Data/Vector.hpp"
-#include <cereal/access.hpp>
+#include "RenderableComponent.hpp"
+#include "Core/CommonReflection.hpp"
 
-namespace Lina
+namespace Lina::Graphics
 {
-    namespace Graphics
+    LINA_COMPONENT("Sprite Component", "Graphics")
+    class SpriteComponent : public RenderableComponent
     {
-        class StaticMeshRenderer;
-    } // namespace Graphics
-} // namespace Lina
-
-namespace Lina::ECS
-{
-    struct ModelComponent : public Component
-    {
-        bool visible = true;
-
-        void SetModel(Graphics::Model* model, Entity owner, Registry& reg);
-
-    private:
-        void AddNodeRenderer(Graphics::Model* parentModel, Entity parent, Registry& reg, Graphics::ModelNode* node);
-
-    private:
-        friend class Graphics::StaticMeshRenderer;
-
-        Resources::ResourceHandle<Graphics::Model>            m_modelHandle;
-        Vector<Resources::ResourceHandle<Graphics::Material>> m_materials;
-        Vector<ECS::Entity>                                   m_nodeEntities;
-
-        friend class cereal::access;
-
-        template <class Archive>
-        void serialize(Archive& archive)
+    public:
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
-            archive(m_modelHandle, visible, m_materials);
+            RenderableComponent::SaveToArchive(oarchive);
+        };
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            RenderableComponent::LoadFromArchive(iarchive);
+        };
+
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<SpriteComponent>();
         }
     };
-} // namespace Lina::ECS
+} // namespace Lina::Graphics
 
 #endif

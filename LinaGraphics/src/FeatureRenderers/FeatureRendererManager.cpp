@@ -28,86 +28,60 @@ SOFTWARE.
 
 #include "FeatureRenderers/FeatureRendererManager.hpp"
 #include "Core/FramePacket.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Core/Renderer.hpp"
 
 namespace Lina::Graphics
 {
-    void FeatureRendererManager::RegisterDefaultStage(FeatureRendererDefaultStage stage, FeatureRendererEmptyFunction&& func)
-    {
-        m_defaultStages[stage].push_back(func);
-    }
 
-    void FeatureRendererManager::RegisterViewStage(FeatureRendererViewStage stage, FeatureRendererViewFunction&& func)
-    {
-        m_viewStages[stage].push_back(func);
-    }
-
-    void FeatureRendererManager::RegisterVisibility(FeatureRendererVisibilityStage stage, FeatureRendererEmptyFunction&& func)
-    {
-        m_visibilityStages[stage].push_back(func);
-    }
-
-    void FeatureRendererManager::RegisterSubmit(FeatureRendererSubmitStage stage, FeatureRendererCBFunction&& func)
-    {
-        m_submitStages[stage].push_back(func);
-    }
-
-    void FeatureRendererManager::FetchVisibility()
+    void FeatureRendererManager::FetchVisibility(World::EntityWorld* world, FramePacket& fp)
     {
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
         Taskflow tf;
 
         // Fetch visibility, each feature renderer will check for their own components & acquire a list of visible entities.
-        const auto& fetchVisibility = m_visibilityStages[FeatureRendererVisibilityStage::FetchVisibility];
-        tf.for_each(fetchVisibility.begin(), fetchVisibility.end(), [](auto&& f) { f(); });
+        tf.for_each(onFetchVisibility.begin(), onFetchVisibility.end(), [&](auto&& f) { f(world); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
 
         // Single thread, each feature renderer registered will add their own visibility data to this combined list.
-        const auto& vec = m_visibilityStages[FeatureRendererVisibilityStage::AssignVisibility];
-        for (auto&& f : vec)
-            f();
+        for (auto&& f : onAssignVisibility)
+            f(fp);
 
         // Calculate visibility for each view.
-        const Vector<View*>& views = RenderEngine::Get()->GetViews();
-        tf.for_each(views.begin(), views.end(), [](View* v) { v->CalculateVisibility(); });
+        const Vector<View*>& views = m_renderer->GetViews();
+        tf.for_each(views.begin(), views.end(), [&](View* v) { v->CalculateVisibility(fp); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
-
     }
 
-    void FeatureRendererManager::ExtractGameState()
+    void FeatureRendererManager::ExtractGameState(World::EntityWorld* world, FramePacket& fp)
     {
         PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
         Taskflow tf;
 
         // Extract
-        const auto& onExtract = m_defaultStages[FeatureRendererDefaultStage::OnExtract];
-        tf.for_each(onExtract.begin(), onExtract.end(), [](auto&& f) { f(); });
+        tf.for_each(onExtract.begin(), onExtract.end(), [&](auto&& f) { f(fp); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
 
         // Per view
-        const Vector<View*>& views = RenderEngine::Get()->GetViews();
+        const Vector<View*>& views = m_renderer->GetViews();
         for (auto v : views)
         {
             // Extract per view
-            const auto& onExtractPerView = m_viewStages[FeatureRendererViewStage::OnExtractView];
             tf.for_each(onExtractPerView.begin(), onExtractPerView.end(), [v](auto&& f) { f(v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
 
             // Extract per view end.
-            const auto& onExtractPerViewFin = m_viewStages[FeatureRendererViewStage::OnExtractViewFinalize];
-            tf.for_each(onExtractPerViewFin.begin(), onExtractPerViewFin.end(), [v](auto&& f) { f(v); });
+            tf.for_each(onExtractPerViewEnd.begin(), onExtractPerViewEnd.end(), [v](auto&& f) { f(v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
         }
 
         // Extract end.
-        const auto& onExtractEnd = m_defaultStages[FeatureRendererDefaultStage::OnExtractEnd];
-        tf.for_each(onExtractEnd.begin(), onExtractEnd.end(), [](auto&& f) { f(); });
+        tf.for_each(onExtractEnd.begin(), onExtractEnd.end(), [&](auto&& f) { f(fp); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
     }
@@ -118,30 +92,26 @@ namespace Lina::Graphics
         Taskflow tf;
 
         // Prepare
-        const auto& onPrepare = m_defaultStages[FeatureRendererDefaultStage::OnPrepare];
         tf.for_each(onPrepare.begin(), onPrepare.end(), [](auto&& f) { f(); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
 
         // Per view
-        const Vector<View*>& views = RenderEngine::Get()->GetViews();
+        const Vector<View*>& views = m_renderer->GetViews();
         for (auto v : views)
         {
             // Prepare per view
-            const auto& onPreparePerView = m_viewStages[FeatureRendererViewStage::OnPrepareView];
             tf.for_each(onPreparePerView.begin(), onPreparePerView.end(), [v](auto&& f) { f(v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
 
             // Prepare per view end.
-            const auto& onPreparePerViewFin = m_viewStages[FeatureRendererViewStage::OnPrepareViewFinalize];
-            tf.for_each(onPreparePerViewFin.begin(), onPreparePerViewFin.end(), [v](auto&& f) { f(v); });
+            tf.for_each(onPreparePerViewEnd.begin(), onPreparePerViewEnd.end(), [v](auto&& f) { f(v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
         }
 
         // Prepare end.
-        const auto& onPrepareEnd = m_defaultStages[FeatureRendererDefaultStage::OnPrepareEnd];
         tf.for_each(onPrepareEnd.begin(), onPrepareEnd.end(), [](auto&& f) { f(); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
@@ -153,10 +123,14 @@ namespace Lina::Graphics
         Taskflow tf;
 
         // Submit.
-        const auto& onSubmit = m_submitStages[FeatureRendererSubmitStage::OnSubmit];
-        tf.for_each(onSubmit.begin(), onSubmit.end(), [&cb](auto&& f) { f(cb); });
-        JobSystem::Get()->Run(tf).wait();
-        tf.clear();
+        linatl::for_each(onSubmit.begin(), onSubmit.end(), [&cb](auto&& f) { f(cb); });
+        // JobSystem::Get()->Run(tf).wait();
+        // tf.clear();
+
+         // Per view
+        const Vector<View*>& views = m_renderer->GetViews();
+        for (auto v : views)
+            linatl::for_each(onSubmitPerView.begin(), onSubmitPerView.end(), [&](auto&& f) { f(cb, v); });
     }
 
 } // namespace Lina::Graphics

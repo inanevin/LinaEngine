@@ -32,24 +32,18 @@ SOFTWARE.
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
-#include "ECS/System.hpp"
 
-namespace Lina
+namespace Lina::Physics
 {
-    namespace Physics
-    {
-        class PhysicsEngine;
-    }
-}
-namespace Lina::ECS
-{
-    class RigidbodySystem : public System
+    class PhysicsEngine;
+
+    class RigidbodySystem
     {
     public:
         RigidbodySystem() = default;
 
         virtual void Initialize(const String& name, Physics::PhysicsEngine* engine);
-        virtual void UpdateComponents(float delta) override;
+        virtual void UpdateComponents(float delta);
 
     private:
         Physics::PhysicsEngine* m_engine   = nullptr;

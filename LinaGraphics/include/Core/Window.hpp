@@ -50,6 +50,7 @@ namespace Lina::Graphics
         void SetPos(const Vector2i& newPos);
         void SetPosCentered(const Vector2i& newPos);
         void SetVsync(VsyncMode mode);
+        void SetTitle(const String& title);
 
         inline const Vector2i& GetSize()
         {
@@ -70,6 +71,16 @@ namespace Lina::Graphics
             return s_instance;
         }
 
+        inline float GetAspect()
+        {
+            return m_aspectRatio;
+        }
+
+        inline String& GetTitle()
+        {
+            return m_title;
+        }
+
     private:
         friend class RenderEngine;
 
@@ -80,9 +91,11 @@ namespace Lina::Graphics
         void Shutdown();
         void Close();
 
-        VsyncMode      m_vsync = VsyncMode::None;
-        Vector2i       m_size  = Vector2i(0, 0);
-        Vector2i       m_pos   = Vector2i(0, 0);
+        VsyncMode      m_vsync       = VsyncMode::None;
+        Vector2i       m_size        = Vector2i(0, 0);
+        Vector2i       m_pos         = Vector2i(0, 0);
+        float          m_aspectRatio = 0.0f;
+        String         m_title       = "";
         static Window* s_instance;
         GLFWwindow*    m_glfwWindow = nullptr;
         void*          m_userPtr    = nullptr;

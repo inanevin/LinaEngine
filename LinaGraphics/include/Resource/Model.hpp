@@ -38,10 +38,11 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace ECS
+    namespace World
     {
-        struct ModelComponent;
-    }
+        class EntityWorld;
+        class Entity;
+    } // namespace World
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -68,6 +69,8 @@ namespace Lina::Graphics
         virtual void  LoadAssetData() override;
         virtual void  SaveAssetData() override;
 
+        World::Entity* AddToWorld(World::EntityWorld* w);
+
         inline AssetData& GetAssetData()
         {
             return m_assetData;
@@ -84,8 +87,10 @@ namespace Lina::Graphics
         }
 
     private:
+        World::Entity* CreateEntityForNode(World::Entity* parent, World::EntityWorld* w, ModelNode* n);
+
+    private:
         friend class ModelLoader;
-        friend struct ECS::ModelComponent;
         friend class StaticMeshRenderer;
         AssetData m_assetData;
 

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,9 +30,10 @@ SOFTWARE.
 
 #include "Math/Quaternion.hpp"
 #include "Math/Transformation.hpp"
+#define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/transform.hpp"
-
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/gtx/transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
 namespace Lina
@@ -60,15 +61,10 @@ namespace Lina
 
     Matrix Matrix::Orthographic(float left, float right, float bottom, float top, float n, float f)
     {
-        return glm::orthoLH(left, right, bottom, top, n, f);
+        return glm::ortho(left, right, bottom, top, n, f);
     }
 
     Matrix Matrix::Perspective(float halfFov, float aspect, float nearZ, float farZ)
-    {
-        return glm::perspectiveLH(glm::radians(halfFov), aspect, nearZ, farZ);
-    }
-
-    Matrix Matrix::PerspectiveRH(float halfFov, float aspect, float nearZ, float farZ)
     {
         return glm::perspective(glm::radians(halfFov), aspect, nearZ, farZ);
     }
@@ -129,11 +125,6 @@ namespace Lina
     }
 
     Matrix Matrix::InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up)
-    {
-        return glm::lookAtLH(location, forward, up);
-    }
-
-    Matrix Matrix::InitLookAtRH(const Vector3& location, const Vector3& forward, const Vector3& up)
     {
         return glm::lookAt(location, forward, up);
     }
@@ -240,9 +231,9 @@ namespace Lina
 
     String Matrix::ToString()
     {
-        String str = "0: " + TO_STRING((*this)[0][0])+ " | " + TO_STRING((*this)[0][1]) + " | " + TO_STRING((*this)[0][2]) + " | " + TO_STRING((*this)[0][3]) + "\n" + TO_STRING((*this)[1][0]) + " | " + TO_STRING((*this)[1][1]) + " | " +
-                          TO_STRING((*this)[1][2]) + " | " + TO_STRING((*this)[1][3]) + "\n" + TO_STRING((*this)[2][0]) + " | " + TO_STRING((*this)[2][1]) + " | " + TO_STRING((*this)[2][2]) + " | " + TO_STRING((*this)[2][3]) + "\n" + TO_STRING((*this)[3][0]) +
-                          " | " + TO_STRING((*this)[3][1]) + " | " + TO_STRING((*this)[3][2]) + " | " + TO_STRING((*this)[3][3]) + "\n";
+        String str = "0: " + TO_STRING((*this)[0][0]) + " | " + TO_STRING((*this)[0][1]) + " | " + TO_STRING((*this)[0][2]) + " | " + TO_STRING((*this)[0][3]) + "\n" + TO_STRING((*this)[1][0]) + " | " + TO_STRING((*this)[1][1]) + " | " +
+                     TO_STRING((*this)[1][2]) + " | " + TO_STRING((*this)[1][3]) + "\n" + TO_STRING((*this)[2][0]) + " | " + TO_STRING((*this)[2][1]) + " | " + TO_STRING((*this)[2][2]) + " | " + TO_STRING((*this)[2][3]) + "\n" + TO_STRING((*this)[3][0]) +
+                     " | " + TO_STRING((*this)[3][1]) + " | " + TO_STRING((*this)[3][2]) + " | " + TO_STRING((*this)[3][3]) + "\n";
 
         return str;
     }

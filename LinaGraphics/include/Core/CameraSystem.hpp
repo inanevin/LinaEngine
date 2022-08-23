@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,15 +26,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/System.hpp"
-#include "ECS/Registry.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/ECSEvents.hpp"
+#pragma once
 
-namespace Lina::ECS
+#ifndef CameraSystem_HPP
+#define CameraSystem_HPP
+
+namespace Lina::Graphics
 {
-    void System::Initialize(const String& name)
+    class CameraComponent;
+    class CameraSystem
     {
-        m_name = name;
-    }
-} // namespace Lina::ECS
+    public:
+        void SetActiveCamera(CameraComponent* c)
+        {
+            m_activeCamera = c;
+        }
+
+        inline const Vector3& GetPos() const
+        {
+            return m_pos;
+        }
+        inline const Matrix& GetView() const
+        {
+            return m_view;
+        }
+
+        inline const Matrix& GetProj() const
+        {
+            return m_proj;
+        }
+
+    private:
+        friend class Renderer;
+        CameraSystem()  = default;
+        ~CameraSystem() = default;
+
+        void Tick();
+
+    private:
+        Vector3          m_pos          = Vector3::Zero;
+        CameraComponent* m_activeCamera = nullptr;
+        Matrix           m_view         = Matrix::Identity();
+        Matrix           m_proj         = Matrix::Identity();
+    };
+} // namespace Lina::Graphics
+
+#endif

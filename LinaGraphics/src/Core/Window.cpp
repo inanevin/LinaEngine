@@ -55,9 +55,8 @@ namespace Lina::Graphics
 
         auto*              primaryMonitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode           = glfwGetVideoMode(primaryMonitor);
-
-        int width  = props.width;
-        int height = props.height;
+        int                width          = props.width;
+        int                height         = props.height;
         if (props.fullscreen)
         {
             width  = mode->width;
@@ -66,6 +65,9 @@ namespace Lina::Graphics
 
         m_glfwWindow = (glfwCreateWindow(width, height, props.title.c_str(), props.fullscreen ? primaryMonitor : NULL, NULL));
         glfwGetMonitorContentScale(primaryMonitor, &(g_appInfo.m_contentScaleWidth), &(g_appInfo.m_contentScaleHeight));
+
+        m_title       = props.title;
+        m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
         if (!m_glfwWindow)
         {
@@ -168,8 +170,9 @@ namespace Lina::Graphics
     {
         glfwSetWindowSize(m_glfwWindow, size.x, size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_userPtr, .newSize = size});
-        m_size      = size;
-        m_minimized = size.x == 0 || size.y == 0;
+        m_size        = size;
+        m_minimized   = size.x == 0 || size.y == 0;
+        m_aspectRatio = static_cast<float>(size.x) / static_cast<float>(size.y);
     }
 
     void Window::SetPos(const Vector2i& pos)
@@ -189,6 +192,12 @@ namespace Lina::Graphics
     {
         m_vsync = mode;
         Event::EventSystem::Get()->Trigger<Event::EVsyncModeChanged>(Event::EVsyncModeChanged{.newMode = mode});
+    }
+
+    void Window::SetTitle(const String& title)
+    {
+        m_title = title;
+        glfwSetWindowTitle(m_glfwWindow, title.c_str());
     }
 
     void Window::Close()

@@ -38,8 +38,6 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/ResourceStorage.hpp"
-#include "ECS/System.hpp"
-#include "ECS/SystemList.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
@@ -98,10 +96,6 @@ namespace Lina
         {
             return m_renderSettings;
         }
-        inline void AddToMainPipeline(ECS::System& system)
-        {
-            m_mainECSPipeline.AddSystem(system);
-        }
         inline int GetCurrentFPS()
         {
             return m_currentFPS;
@@ -142,10 +136,6 @@ namespace Lina
         {
             return m_paused;
         }
-        inline const ECS::SystemList& GetPipeline()
-        {
-            return m_mainECSPipeline;
-        }
 
     private:
         friend class Application;
@@ -168,7 +158,6 @@ namespace Lina
         Audio::AudioEngine              m_audioEngine;
         Input::InputEngine              m_inputEngine;
         Event::EventSystem              m_eventSystem;
-        ECS::SystemList                 m_mainECSPipeline;
         World::LevelManager             m_levelManager;
         Graphics::RenderEngine          m_renderEngine;
         Resources::ResourceDataManager* m_resourceDataManager;

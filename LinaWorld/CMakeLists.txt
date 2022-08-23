@@ -42,6 +42,7 @@ set(LINAWORLD_HEADERS
 	include/Core/World.hpp
 	include/Core/Entity.hpp
 	include/Core/Component.hpp
+	include/Core/WorldCommon.hpp
 )
 
 

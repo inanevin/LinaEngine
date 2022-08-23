@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Transformation_HPP
@@ -50,16 +49,20 @@ namespace Lina
     class Transformation
     {
     public:
-        Transformation() : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation()
+            : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Vector3& translationIn) : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation(const Vector3& translationIn)
+            : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Quaternion& rotationIn) : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation(const Quaternion& rotationIn)
+            : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
+        Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
+            : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
         {
         }
 
@@ -77,7 +80,7 @@ namespace Lina
             return Matrix::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
         }
 
-        Vector3 m_previousLocation = Vector3::Zero;
+        Vector3 m_previousPosition = Vector3::Zero;
         Vector3 m_previousAngles   = Vector3::Zero;
         Vector3 m_previousScale    = Vector3::Zero;
 
@@ -90,7 +93,8 @@ namespace Lina
         Vector3    m_localScale          = Vector3::One;
         Vector3    m_localRotationAngles = Vector3::Zero;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
             archive(m_position, m_rotation, m_scale, m_localPosition, m_localRotation, m_localScale, m_localRotationAngles, m_rotationAngles);
         }

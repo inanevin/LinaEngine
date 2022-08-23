@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,10 +42,11 @@ namespace Lina::Event
     void EventSystem::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Event System ({0})", typeid(*this).name());
-        for(auto disconnector : m_eventDisconnectors)
-            disconnector.second();
 
-        m_eventDisconnectors.clear();
-        m_mainDispatcher.clear();
+        for (auto& [tid, func] : m_disconnectFunctions)
+            func(m_eventSinks[tid]);
+
+        m_eventSinks.clear();
+        m_disconnectFunctions.clear();
     }
 } // namespace Lina::Event

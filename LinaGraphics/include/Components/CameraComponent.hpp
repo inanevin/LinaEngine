@@ -28,19 +28,40 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EntityEvents_HPP
-#define EntityEvents_HPP
+#ifndef CameraComponent_HPP
+#define CameraComponent_HPP
 
-#include "Core/CommonECS.hpp"
+// Headers here.
+#include "Core/Component.hpp"
+#include "Core/CommonReflection.hpp"
 
-namespace Lina::Event
+namespace Lina::Graphics
 {
-    struct EEntityEnabledChanged
+    LINA_COMPONENT("Camera Component", "Graphics")
+    class CameraComponent : public World::Component
     {
-        ECS::Entity entity = entt::null;
-        bool        enabled = false;
-    };
+    public:
+        float fieldOfView = 90.0f;
+        float zNear       = 0.01f;
+        float zFar        = 1000.0f;
 
-} // namespace Lina::Event
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        {
+            Component::SaveToArchive(oarchive);
+            oarchive(fieldOfView, zNear, zFar);
+        };
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            Component::LoadFromArchive(iarchive);
+            iarchive(fieldOfView, zNear, zFar);
+        };
+
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<CameraComponent>();
+        }
+    };
+} // namespace Lina::Graphics
 
 #endif

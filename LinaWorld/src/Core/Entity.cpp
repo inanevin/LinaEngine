@@ -28,9 +28,315 @@ SOFTWARE.
 
 #include "Core/Entity.hpp"
 #include "Core/Component.hpp"
+#include "Core/World.hpp"
 
 namespace Lina::World
 {
- 
+    void Entity::AddChild(Entity* e)
+    {
+        m_children.insert(e->m_id);
+        e->m_parent = m_id;
+    }
+
+    void Entity::RemoveChild(Entity* e)
+    {
+        m_children.erase(e->m_id);
+        e->m_parent = ENTITY_NULL;
+    }
+
+    void Entity::RemoveFromParent()
+    {
+        if (m_parent != ENTITY_NULL)
+            m_world->GetEntity(m_parent)->RemoveChild(this);
+    }
+
+
+    void Entity::SetTransformation(Matrix& mat, bool omitScale)
+    {
+        Vector3    loc;
+        Quaternion rot;
+        Vector3    scale;
+        mat.Decompose(loc, rot, scale);
+        SetPosition(loc);
+        SetRotation(rot);
+
+        if (!omitScale)
+            SetScale(scale);
+    }
+
+    void Entity::SetLocalTransformation(Matrix& mat, bool omitScale)
+    {
+        Vector3    loc;
+        Quaternion rot;
+        Vector3    scale;
+        mat.Decompose(loc, rot, scale);
+        SetLocalPosition(loc);
+        SetLocalRotation(rot);
+
+        if (!omitScale)
+            SetLocalScale(scale);
+    }
+
+    void Entity::AddRotation(const Vector3& angles)
+    {
+        SetRotationAngles(GetRotationAngles() + angles);
+    }
+
+    void Entity::AddLocalRotation(const Vector3& angles)
+    {
+        SetLocalRotationAngles(GetLocalRotationAngles() + angles);
+    }
+
+    void Entity::AddPosition(const Vector3& loc)
+    {
+        SetPosition(GetPosition() + loc);
+    }
+
+    void Entity::AddLocalPosition(const Vector3& loc)
+    {
+        SetLocalPosition(GetLocalPosition() + loc);
+    }
+
+    Transformation Entity::GetInterpolated(float interpolation)
+    {
+        Transformation t;
+        t.m_position = Vector3::Lerp(m_transform.m_previousPosition, m_transform.m_position, interpolation);
+        t.m_scale    = Vector3::Lerp(m_transform.m_previousScale, m_transform.m_scale, interpolation);
+        t.m_rotation = Quaternion::Euler(Vector3::Lerp(m_transform.m_previousAngles, m_transform.m_rotation.GetEuler(), interpolation));
+        return t;
+    }
+
+    void Entity::SetLocalPosition(const Vector3& loc)
+    {
+        m_transform.m_localPosition = loc;
+        UpdateGlobalPosition();
+
+        for (auto child : m_children)
+            m_world->GetEntity(child)->UpdateGlobalPosition();
+    }
+    void Entity::SetPosition(const Vector3& loc)
+    {
+
+        m_transform.m_previousPosition = m_transform.m_position;
+        m_transform.m_position         = loc;
+        UpdateLocalPosition();
+
+        for (auto child : m_children)
+            m_world->GetEntity(child)->UpdateGlobalPosition();
+    }
+
+    void Entity::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
+    {
+        m_transform.m_localRotation       = rot;
+        m_transform.m_localRotationAngles = rot.GetEuler();
+        UpdateGlobalRotation();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalRotation();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::SetLocalRotationAngles(const Vector3& angles, bool isThisPivot)
+    {
+        m_transform.m_localRotationAngles = angles;
+        const Vector3 vang                = glm::radians(static_cast<glm::vec3>(angles));
+        m_transform.m_localRotation       = Quaternion::FromVector(vang);
+        UpdateGlobalRotation();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalRotation();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::SetRotation(const Quaternion& rot, bool isThisPivot)
+    {
+        m_transform.m_previousAngles = m_transform.m_rotationAngles;
+        m_transform.m_rotation       = rot;
+        m_transform.m_rotationAngles = rot.GetEuler();
+        UpdateLocalRotation();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalRotation();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::SetRotationAngles(const Vector3& angles, bool isThisPivot)
+    {
+        m_transform.m_previousAngles = m_transform.m_rotationAngles;
+        m_transform.m_rotationAngles = angles;
+        m_transform.m_rotation       = Quaternion::FromVector(glm::radians(static_cast<glm::vec3>(angles)));
+        UpdateLocalRotation();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalRotation();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::SetLocalScale(const Vector3& scale, bool isThisPivot)
+    {
+        m_transform.m_localScale = scale;
+        UpdateGlobalScale();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalScale();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::SetScale(const Vector3& scale, bool isThisPivot)
+    {
+        m_transform.m_previousScale = m_transform.m_scale;
+        m_transform.m_scale         = scale;
+        UpdateLocalScale();
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalScale();
+
+            if (isThisPivot)
+                e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::UpdateGlobalPosition()
+    {
+        if (m_parent == ENTITY_NULL)
+        {
+            m_transform.m_previousPosition = m_transform.m_position;
+            m_transform.m_position         = m_transform.m_localPosition;
+        }
+        else
+        {
+            auto*   e                      = m_world->GetEntity(m_parent);
+            Matrix  global                 = e->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+            Vector3 translation            = global.GetTranslation();
+            m_transform.m_previousPosition = m_transform.m_position;
+            m_transform.m_position         = translation;
+        }
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalPosition();
+        }
+    }
+
+    void Entity::UpdateLocalPosition()
+    {
+        if (m_parent == ENTITY_NULL)
+            m_transform.m_localPosition = m_transform.m_position;
+        else
+        {
+            auto*  e                    = m_world->GetEntity(m_parent);
+            Matrix global               = e->m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
+            m_transform.m_localPosition = global.GetTranslation();
+        }
+    }
+
+    void Entity::UpdateGlobalScale()
+    {
+        if (m_parent == ENTITY_NULL)
+        {
+            m_transform.m_previousScale = m_transform.m_scale;
+            m_transform.m_scale         = m_transform.m_localScale;
+        }
+        else
+        {
+            auto*   e      = m_world->GetEntity(m_parent);
+            Matrix  global = Matrix::Scale(e->m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
+            Vector3 scale  = global.GetScale();
+            ;
+            m_transform.m_previousScale = m_transform.m_scale;
+            m_transform.m_scale         = scale;
+        }
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalScale();
+        }
+    }
+
+    void Entity::UpdateGlobalRotation()
+    {
+        if (m_parent == ENTITY_NULL)
+        {
+            m_transform.m_previousAngles = m_transform.m_rotationAngles;
+            m_transform.m_rotation       = m_transform.m_localRotation;
+            m_transform.m_rotationAngles = m_transform.m_localRotationAngles;
+        }
+        else
+        {
+            auto*      e      = m_world->GetEntity(m_parent);
+            Matrix     global = Matrix::InitRotation(e->m_transform.m_rotation) * m_transform.ToLocalMatrix();
+            Quaternion targetRot;
+            Vector3    s = Vector3(), p = Vector3();
+            global.Decompose(p, targetRot, s);
+            m_transform.m_previousAngles = m_transform.m_rotationAngles;
+            m_transform.m_rotation       = targetRot;
+            m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
+        }
+
+        for (auto child : m_children)
+        {
+            auto* e = m_world->GetEntity(child);
+            e->UpdateGlobalRotation();
+        }
+    }
+
+    void Entity::UpdateLocalScale()
+    {
+
+        if (m_parent == ENTITY_NULL)
+            m_transform.m_localScale = m_transform.m_scale;
+        else
+        {
+            auto*  e                 = m_world->GetEntity(m_parent);
+            Matrix global            = Matrix::Scale(e->m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
+            m_transform.m_localScale = global.GetScale();
+        }
+    }
+
+    void Entity::UpdateLocalRotation()
+    {
+        if (m_parent == ENTITY_NULL)
+        {
+            m_transform.m_localRotation       = m_transform.m_rotation;
+            m_transform.m_localRotationAngles = m_transform.m_rotationAngles;
+        }
+        else
+        {
+            auto*   e      = m_world->GetEntity(m_parent);
+            Matrix  global = Matrix::InitRotation(e->m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
+            Vector3 s = Vector3(), p = Vector3();
+            global.Decompose(s, m_transform.m_localRotation, p);
+            m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();
+        }
+    }
 
 } // namespace Lina::World

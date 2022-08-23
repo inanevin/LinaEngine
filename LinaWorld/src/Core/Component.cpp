@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Core/Component.hpp"
 #include "Core/World.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 
 namespace Lina::World
 {
@@ -38,6 +40,46 @@ namespace Lina::World
     void Component::LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive)
     {
         iarchive(m_entityID);
-        m_entity = EntityWorld::Get()->GetEntity(m_entityID);
+    }
+    void Component::OnComponentCreated()
+    {
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
+            Event::EventSystem::Get()->Connect<Event::EEndGame, &Component::OnEndGame>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameStart))
+            Event::EventSystem::Get()->Connect<Event::EStartGame, &Component::OnStartGame>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostPhysicsTick))
+            Event::EventSystem::Get()->Connect<Event::EPostPhysicsTick, &Component::OnPostPhysicsTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostTick))
+            Event::EventSystem::Get()->Connect<Event::EPostTick, &Component::OnPostTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPreTick))
+            Event::EventSystem::Get()->Connect<Event::EPreTick, &Component::OnPreTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnTick))
+            Event::EventSystem::Get()->Connect<Event::ETick, &Component::OnTick>(this);
+    }
+
+    void Component::OnComponentDestroyed()
+    {
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
+            Event::EventSystem::Get()->Disconnect<Event::EEndGame>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameStart))
+            Event::EventSystem::Get()->Disconnect<Event::EStartGame>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostPhysicsTick))
+            Event::EventSystem::Get()->Disconnect<Event::EPostPhysicsTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostTick))
+            Event::EventSystem::Get()->Disconnect<Event::EPostTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPreTick))
+            Event::EventSystem::Get()->Disconnect<Event::EPreTick>(this);
+
+        if (GetComponentMask().IsSet(ComponentMask::ReceiveOnTick))
+            Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
     }
 } // namespace Lina::World

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,26 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Components/RenderableComponent.hpp"
 
-
-#pragma once
-
-#ifndef ReflectionRegister_HPP
-#define ReflectionRegister_HPP
-
-// Headers here.
-
-
-namespace Lina
+namespace Lina::World
 {
-	class ReflectionRegistry
-	{
-		
-	public:
-		
-		static void RegisterReflectedComponents();
-	
-	};
-}
+   
 
-#endif
+} // namespace Lina::Graphics

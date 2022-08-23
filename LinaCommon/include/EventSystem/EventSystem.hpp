@@ -30,20 +30,66 @@ SOFTWARE.
 #ifndef EventSystem_HPP
 #define EventSystem_HPP
 
-#include "EventCommon.hpp"
 #include "Data/HashMap.hpp"
-#include <mutex>
+#include "Data/Vector.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
     class Engine;
 }
 
-#define EVENT_SYSTEM Event::EventSystem::Get()
-
 namespace Lina::Event
 {
-    typedef std::function<void()> DisconnectFunc;
+
+    template <typename T>
+    class EventSink
+    {
+    public:
+        typedef std::function<void(const T& t)> FuncTemplate;
+
+        template <auto DATA, typename Type>
+        void Connect(Type* obj)
+        {
+            functions[static_cast<void*>(obj)] = [obj](const T& ev) {
+                (obj->*DATA)(ev);
+            };
+        }
+
+        void Trigger(const T& t)
+        {
+            for (auto& [ptr, func] : functions)
+                func(t);
+        }
+
+        void Trigger()
+        {
+            for (auto& [ptr, func] : functions)
+                func(T());
+        }
+
+        template <typename T>
+        void Disconnect(T* inst)
+        {
+            void*       ptr = static_cast<void*>(inst);
+            const auto& it  = functions.find(ptr);
+            if (it != functions.end())
+                functions.erase(it);
+        }
+
+        HashMap<void*, FuncTemplate> functions;
+    };
+
+    template <typename T>
+    void DestroySink(void* sink)
+    {
+        EventSink<T>* sinkPtr = static_cast<EventSink<T>*>(sink);
+        sinkPtr->functions.clear();
+        delete sinkPtr;
+    }
+
+    typedef std::function<void(void* sink)> DisconnectFunc;
+
     class EventSystem
     {
     public:
@@ -56,110 +102,52 @@ namespace Lina::Event
         }
 
         template <typename T>
-        bool IsEmpty()
+        EventSink<T>* GetSink()
         {
-            return m_mainDispatcher.sink<T>().empty();
-        }
+            const TypeID  tid  = GetTypeID<T>();
+            EventSink<T>* sink = nullptr;
 
-        template <typename T>
-        void DisconnectAllEvents()
-        {
-            m_mainDispatcher.sink<T>().disconnect();
-        }
+            if (m_eventSinks.find(tid) == m_eventSinks.end())
+            {
+                sink              = new EventSink<T>();
+                m_eventSinks[tid] = static_cast<void*>(sink);
 
+                m_disconnectFunctions[tid] = std::bind(DestroySink<T>, std::placeholders::_1);
+            }
+            else
+                sink = static_cast<EventSink<T>*>(m_eventSinks[tid]);
+            return sink;
+        }
         template <typename T, auto Candidate, typename Type>
-        void Connect(Type&& value_or_instance...)
+        void Connect(Type* inst)
         {
-            m_mainDispatcher.sink<T>().connect<Candidate>(value_or_instance);
-
-            const TypeID tid            = GetTypeID<T>();
-            auto&        disconnectFunc = m_eventDisconnectors[tid];
-            if (!disconnectFunc)
-                disconnectFunc = std::bind(&EventSystem::DisconnectAllEvents<T>, this);
-        }
-
-        template <typename T, auto Candidate>
-        void Connect()
-        {
-            m_mainDispatcher.sink<T>().connect<Candidate>();
-
-            const TypeID tid            = GetTypeID<T>();
-            auto&        disconnectFunc = m_eventDisconnectors[tid];
-            if (!disconnectFunc)
-                disconnectFunc = std::bind(&EventSystem::DisconnectAllEvents<T>, this);
-        }
-
-        template <typename T, auto Candidate, typename Type>
-        void Disconnect(Type&& value_or_instance...)
-        {
-            m_mainDispatcher.sink<T>().disconnect<Candidate>(value_or_instance);
+            LOCK_GUARD(m_mtx);
+            GetSink<T>()->Connect<Candidate>(inst);
         }
 
         template <typename T, typename Type>
-        void Disconnect(Type&& value_or_instance...)
+        void Disconnect(Type* inst)
         {
-            m_mainDispatcher.sink<T>().disconnect(value_or_instance);
+            LOCK_GUARD(m_mtx);
+            GetSink<T>()->Disconnect(inst);
         }
 
-        template <typename T, auto Candidate>
-        void Disconnect()
+        template <typename T>
+        void Trigger(const T& args)
         {
-            m_mainDispatcher.sink<T>().disconnect<Candidate>();
+            GetSink<T>()->Trigger(args);
         }
 
-        template <typename Type>
-        void Trigger(const Type&& args)
+        template <typename T>
+        void Trigger(T&& args)
         {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger<Type>(args);
+            GetSink<T>()->Trigger(args);
         }
 
-        template <typename Type>
-        void Trigger(const Type& args)
-        {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger(args);
-        }
-        template <typename Type>
-        void Trigger(Type&& args)
-        {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger(args);
-        }
-
-        template <typename Type>
-        void Trigger(Type& args)
-        {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger(args);
-        }
-
-        template <typename Type>
+        template <typename T>
         void Trigger()
         {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.trigger<Type>();
-        }
-
-        template <typename Type>
-        void Enqueue(Type&& args)
-        {
-            // std::lock_guard<std::recursive_mutex> l(m_mutex);
-            m_mainDispatcher.enqueue<Type>(args);
-        }
-
-        template <typename Type>
-        void Update()
-        {
-            if (!m_mainDispatcher.sink<Type>().empty())
-                m_mainDispatcher.update<Type>();
-            else
-                m_mainDispatcher.clear<Type>();
-        }
-
-        void Update()
-        {
-            m_mainDispatcher.update();
+            GetSink<T>()->Trigger();
         }
 
     private:
@@ -168,9 +156,10 @@ namespace Lina::Event
         void Shutdown();
 
     private:
-        Dispatcher                      m_mainDispatcher{};
         static EventSystem*             s_eventSystem;
-        HashMap<TypeID, DisconnectFunc> m_eventDisconnectors;
+        Mutex                           m_mtx;
+        HashMap<TypeID, void*>          m_eventSinks;
+        HashMap<TypeID, DisconnectFunc> m_disconnectFunctions;
     };
 } // namespace Lina::Event
 

@@ -28,13 +28,14 @@ SOFTWARE.
 
 #include "Resource/Model.hpp"
 #include "Resource/ModelNode.hpp"
+#include "Resource/Mesh.hpp"
+#include "Components/ModelNodeComponent.hpp"
 #include "Core/ResourceDataManager.hpp"
 #include "Utility/ModelLoader.hpp"
+#include "Core/World.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Memory/Memory.hpp"
-#include "Utility/Vulkan/vk_mem_alloc.h"
-#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -85,5 +86,42 @@ namespace Lina::Graphics
         dm->SetValue<bool>(m_sid, "tri", m_assetData.triangulate);
         dm->SetValue<float>(m_sid, "scale", m_assetData.globalScale);
         dm->Save();
+    }
+
+    World::Entity* Model::AddToWorld(World::EntityWorld* w)
+    {
+        return CreateEntityForNode(nullptr, w, m_rootNode);
+    }
+
+    World::Entity* Model::CreateEntityForNode(World::Entity* parent, World::EntityWorld* world, ModelNode* node)
+    {
+        World::Entity* e = world->CreateEntity(node->GetName());
+        if (parent != nullptr)
+        {
+            parent->AddChild(e);
+            e->SetLocalTransformation(node->GetLocalTransform());
+        }
+
+        ModelNodeComponent* comp = world->AddComponent<ModelNodeComponent>(e);
+
+        comp->m_modelHandle.sid   = GetSID();
+        comp->m_modelHandle.value = this;
+        comp->m_nodeIndex         = node->GetNodeIndex();
+
+        for (auto mesh : node->GetMeshes())
+        {
+            const uint32 slot = static_cast<uint32>(mesh->GetMaterialSlot());
+
+            // Assign default material for now.
+            Resources::ResourceHandle<Material> handle;
+            handle.value            = RenderEngine::Get()->GetPlaceholderMaterial();
+            handle.sid              = handle.value->GetSID();
+            comp->m_materials[slot] = handle;
+        }
+
+        for (auto c : node->GetChildren())
+            CreateEntityForNode(e, world, c);
+
+        return e;
     }
 } // namespace Lina::Graphics

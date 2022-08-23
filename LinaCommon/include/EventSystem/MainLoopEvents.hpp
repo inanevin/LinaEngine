@@ -64,9 +64,6 @@ namespace Lina::Event
         float deltaTime    = 0.0f;
         bool  isInPlayMode = false;
     };
-    struct ERender
-    {
-    };
     struct EPlayModeChanged
     {
         bool playMode = false;
@@ -74,6 +71,17 @@ namespace Lina::Event
     struct EPauseModeChanged
     {
         bool isPaused = false;
+    };
+
+    struct EPrePhysicsTick
+    {
+        float fixedDelta = 0.0f;
+        bool  isInPlayMode = false;
+    };
+    struct EPostPhysicsTick
+    {
+        float fixedDelta = 0.0f;
+        bool  isInPlayMode = false;
     };
 } // namespace Lina::Event
 

@@ -51,8 +51,6 @@ namespace Lina::Input
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
-        m_freeLookSystem.Initialize("Free Look");
-        m_inputPipeline.AddSystem(m_freeLookSystem);
     }
 
     void InputEngine::Shutdown()
@@ -163,11 +161,6 @@ namespace Lina::Input
         return diff;
     }
 
-    void InputEngine::AddToInputPipeline(ECS::System& system)
-    {
-        m_inputPipeline.AddSystem(system);
-    }
-
     Vector2 InputEngine::GetMousePosition()
     {
         double xpos, ypos;
@@ -177,6 +170,9 @@ namespace Lina::Input
 
     void InputEngine::SetCursorMode(CursorMode mode)
     {
+        if (mode == m_cursorMode)
+            return;
+
         m_cursorMode = mode;
 
         switch (mode)
@@ -202,7 +198,7 @@ namespace Lina::Input
 
     void InputEngine::Tick()
     {
-        PROFILER_FUNC(PROFILER_THREAD_INPUT);
+        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
 
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)

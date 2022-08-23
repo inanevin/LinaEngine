@@ -26,25 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/CameraSystem.hpp"
+#include "Core/Entity.hpp"
+#include "Components/CameraComponent.hpp"
+#include "Core/Window.hpp"
 
-#ifndef SpriteComponent_HPP
-#define SpriteComponent_HPP
-
-// Headers here.
-#include "ECS/Component.hpp"
-
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    struct SpriteComponent : public Component
+    void CameraSystem::Tick()
     {
-
-        template <class Archive>
-        void serialize(Archive& archive)
+        if (m_activeCamera != nullptr)
         {
-            // archive();
-        }
-    };
-} // namespace Lina::ECS
+            const float      aspect = Window::Get()->GetAspect();
+            World::Entity*   e      = m_activeCamera->GetEntity();
+            const Vector3    camPos = e->GetPosition();
+            const Quaternion camRot = e->GetRotation();
+            m_pos                   = camPos;
+            m_view                  = Matrix::InitLookAt(camPos, camPos + camRot.GetForward(), camRot.GetUp());
+            m_proj                  = Matrix::Perspective(m_activeCamera->fieldOfView / 2.0f, aspect, m_activeCamera->zNear, m_activeCamera->zFar);
 
-#endif
+            const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
+                                 0.0f, -1.0f, 0.0f, 0.0f,
+                                 0.0f, 0.0f, 0.5f, 0.0f,
+                                 0.0f, 0.0f, 0.5f, 1.0f);
+            m_proj = clip * m_proj;
+            // m_proj[1][1] *= -1;
+        }
+    }
+} // namespace Lina::Graphics

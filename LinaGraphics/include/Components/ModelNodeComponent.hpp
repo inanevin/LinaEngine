@@ -32,12 +32,12 @@ SOFTWARE.
 #define ModelNodeComponent_HPP
 
 // Headers here.
-#include "ECS/Component.hpp"
+#include "Components/RenderableComponent.hpp"
+#include "Core/CommonReflection.hpp"
 #include "Core/ResourceHandle.hpp"
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
-#include "Data/Vector.hpp"
-#include <cereal/access.hpp>
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -47,11 +47,28 @@ namespace Lina
     }
 } // namespace Lina
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-    struct ModelNodeComponent : public Component
+    LINA_COMPONENT("Model Node", "Graphics")
+    class ModelNodeComponent : public RenderableComponent
     {
-        bool visible = true;
+    public:
+        virtual TypeID GetTID()
+        {
+            return GetTypeID<ModelNodeComponent>();
+        }
+
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        {
+            RenderableComponent::SaveToArchive(oarchive);
+            oarchive(m_modelHandle, m_nodeIndex, m_materials);
+        };
+
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            RenderableComponent::LoadFromArchive(iarchive);
+            iarchive(m_modelHandle, m_nodeIndex, m_materials);
+        };
 
         inline uint32 GetNodeIndex()
         {
@@ -60,19 +77,12 @@ namespace Lina::ECS
 
     private:
         friend class Graphics::StaticMeshRenderer;
-        friend struct ModelComponent;
+        friend class Model;
 
-        Resources::ResourceHandle<Graphics::Model> m_modelHandle;
-        uint32                                     m_nodeIndex = 0;
-
-        friend class cereal::access;
-
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_modelHandle, visible, m_nodeIndex);
-        }
+        Resources::ResourceHandle<Model>                     m_modelHandle;
+        HashMap<uint32, Resources::ResourceHandle<Material>> m_materials; // Index - material pair
+        uint32                                               m_nodeIndex = 0;
     };
-} // namespace Lina::ECS
+} // namespace Lina::Graphics
 
 #endif

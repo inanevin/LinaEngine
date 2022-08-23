@@ -81,9 +81,18 @@ namespace Lina::Graphics
             return m_index;
         }
 
+        inline Matrix& GetLocalTransform()
+        {
+            return m_localTransform;
+        }
+
+        inline const Vector<ModelNode*>& GetChildren()
+        {
+            return m_children;
+        }
+
     private:
         friend class ModelLoader;
-        friend struct ECS::ModelComponent;
 
         AABB               m_aabb;
         Matrix             m_localTransform;

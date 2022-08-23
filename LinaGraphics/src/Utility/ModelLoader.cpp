@@ -72,11 +72,11 @@ namespace Lina::Graphics
         Assimp::Importer importer;
         uint32           importFlags = GetImportFlags(model);
 
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale);
 
-        const String   ext   = "." + Utility::GetFileExtension(model->GetPath());
+        const String   ext = "." + Utility::GetFileExtension(model->GetPath());
         const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
-        const char*    err   = importer.GetErrorString();
+        const char* err = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
         return LoadModelProcess(scene, model);
     }
@@ -87,10 +87,10 @@ namespace Lina::Graphics
         Assimp::Importer importer;
         uint32           importFlags = GetImportFlags(model);
 
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale);
 
         const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
-        const char*    err   = importer.GetErrorString();
+        const char* err = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
         return LoadModelProcess(scene, model);
     }
@@ -98,7 +98,7 @@ namespace Lina::Graphics
     void ModelLoader::FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh)
     {
         // Build and indexed aiMesh for each aiMesh & fill in the data.
-        linaMesh->m_name         = aiMesh->mName.C_Str();
+        linaMesh->m_name = aiMesh->mName.C_Str();
         linaMesh->m_materialSlot = aiMesh->mMaterialIndex;
 
         const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -120,10 +120,10 @@ namespace Lina::Graphics
         {
 
             // Get array references from the current aiMesh on stack.
-            const aiVector3D pos       = aiMesh->mVertices[i];
-            const aiVector3D normal    = aiMesh->HasNormals() ? aiMesh->mNormals[i] : aiZeroVector;
-            const aiVector3D texCoord  = aiMesh->HasTextureCoords(0) ? aiMesh->mTextureCoords[0][i] : aiZeroVector;
-            const aiVector3D tangent   = aiMesh->HasTangentsAndBitangents() ? aiMesh->mTangents[i] : aiZeroVector;
+            const aiVector3D pos = aiMesh->mVertices[i];
+            const aiVector3D normal = aiMesh->HasNormals() ? aiMesh->mNormals[i] : aiZeroVector;
+            const aiVector3D texCoord = aiMesh->HasTextureCoords(0) ? aiMesh->mTextureCoords[0][i] : aiZeroVector;
+            const aiVector3D tangent = aiMesh->HasTangentsAndBitangents() ? aiMesh->mTangents[i] : aiZeroVector;
             const aiVector3D biTangent = aiMesh->HasTangentsAndBitangents() ? aiMesh->mBitangents[i] : aiZeroVector;
             linaMesh->AddVertex(AssimpToLinaVector3(pos), AssimpToLinaVector3(normal));
 
@@ -175,15 +175,15 @@ namespace Lina::Graphics
         }
 
         // Size calc.
-        linaMesh->m_aabb.m_boundsMin         = minVertexPos;
-        linaMesh->m_aabb.m_boundsMax         = maxVertexPos;
-        linaMesh->m_vertexCenter             = (minVertexPos + maxVertexPos) / 2.0f;
-        linaMesh->m_aabb.m_boundsHalfExtents = (maxVertexPos - minVertexPos) / 2.0f;
+        linaMesh->m_aabb.boundsMin = minVertexPos;
+        linaMesh->m_aabb.boundsMax = maxVertexPos;
+        linaMesh->m_vertexCenter = (minVertexPos + maxVertexPos) / 2.0f;
+        linaMesh->m_aabb.boundsHalfExtents = (maxVertexPos - minVertexPos) / 2.0f;
     }
 
     void ModelLoader::FillNodeHierarchy(const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* n)
     {
-        n->m_name           = String(ainode->mName.C_Str());
+        n->m_name = String(ainode->mName.C_Str());
         n->m_localTransform = AssimpToLinaMatrix(ainode->mTransformation);
 
         const unsigned int numMeshes = ainode->mNumMeshes;
@@ -216,8 +216,8 @@ namespace Lina::Graphics
 
             n->m_totalVertexCenter += addedMesh->m_vertexCenter;
 
-            const Vector3 meshBoundsMin = addedMesh->m_aabb.m_boundsMin;
-            const Vector3 meshBoundsMax = addedMesh->m_aabb.m_boundsMax;
+            const Vector3 meshBoundsMin = addedMesh->m_aabb.boundsMin;
+            const Vector3 meshBoundsMax = addedMesh->m_aabb.boundsMax;
 
             if (meshBoundsMin.x < currentMinBounds.x)
                 currentMinBounds.x = meshBoundsMin.x;
@@ -242,26 +242,26 @@ namespace Lina::Graphics
         {
             const float numMeshesFloat = static_cast<float>(numMeshes);
             n->m_totalVertexCenter /= numMeshesFloat;
-            n->m_aabb.m_boundsMin         = currentMinBounds;
-            n->m_aabb.m_boundsMax         = currentMaxBounds;
-            n->m_aabb.m_boundsHalfExtents = (currentMaxBounds - currentMinBounds) / 2.0f;
+            n->m_aabb.boundsMin = currentMinBounds;
+            n->m_aabb.boundsMax = currentMaxBounds;
+            n->m_aabb.boundsHalfExtents = (currentMaxBounds - currentMinBounds) / 2.0f;
 
-            n->m_aabb.m_positions.resize(8);
-            n->m_aabb.m_positions[0] = n->m_aabb.m_boundsMin;                                                              // bottom-left-back
-            n->m_aabb.m_positions[1] = Vector3(n->m_aabb.m_boundsMin.x, n->m_aabb.m_boundsMin.y, n->m_aabb.m_boundsMax.z); // bottom-left-front
-            n->m_aabb.m_positions[2] = Vector3(n->m_aabb.m_boundsMax.x, n->m_aabb.m_boundsMin.y, n->m_aabb.m_boundsMin.z); // bottom-right-back
-            n->m_aabb.m_positions[3] = Vector3(n->m_aabb.m_boundsMax.x, n->m_aabb.m_boundsMin.y, n->m_aabb.m_boundsMax.z); // bottom-right-front
-            n->m_aabb.m_positions[4] = Vector3(n->m_aabb.m_boundsMin.x, n->m_aabb.m_boundsMax.y, n->m_aabb.m_boundsMin.z); // top - left - back
-            n->m_aabb.m_positions[5] = Vector3(n->m_aabb.m_boundsMin.x, n->m_aabb.m_boundsMax.y, n->m_aabb.m_boundsMax.z); // top - left - front
-            n->m_aabb.m_positions[6] = Vector3(n->m_aabb.m_boundsMax.x, n->m_aabb.m_boundsMax.y, n->m_aabb.m_boundsMin.z); // top - right - back
-            n->m_aabb.m_positions[7] = n->m_aabb.m_boundsMax;                                                              // top - right - front
+            n->m_aabb.positions.resize(8);
+            n->m_aabb.positions[0] = n->m_aabb.boundsMin;                                                              // bottom-left-back
+            n->m_aabb.positions[1] = Vector3(n->m_aabb.boundsMin.x, n->m_aabb.boundsMin.y, n->m_aabb.boundsMax.z); // bottom-left-front
+            n->m_aabb.positions[2] = Vector3(n->m_aabb.boundsMax.x, n->m_aabb.boundsMin.y, n->m_aabb.boundsMin.z); // bottom-right-back
+            n->m_aabb.positions[3] = Vector3(n->m_aabb.boundsMax.x, n->m_aabb.boundsMin.y, n->m_aabb.boundsMax.z); // bottom-right-front
+            n->m_aabb.positions[4] = Vector3(n->m_aabb.boundsMin.x, n->m_aabb.boundsMax.y, n->m_aabb.boundsMin.z); // top - left - back
+            n->m_aabb.positions[5] = Vector3(n->m_aabb.boundsMin.x, n->m_aabb.boundsMax.y, n->m_aabb.boundsMax.z); // top - left - front
+            n->m_aabb.positions[6] = Vector3(n->m_aabb.boundsMax.x, n->m_aabb.boundsMax.y, n->m_aabb.boundsMin.z); // top - right - back
+            n->m_aabb.positions[7] = n->m_aabb.boundsMax;                                                              // top - right - front
         }
 
         // Recursively fill the other nodes.
         for (uint32 i = 0; i < ainode->mNumChildren; i++)
         {
             ModelNode* newNode = new ModelNode();
-            newNode->m_index   = static_cast<uint32>(parentModel->m_nodes.size());
+            newNode->m_index = static_cast<uint32>(parentModel->m_nodes.size());
             parentModel->m_nodes.push_back(newNode);
             n->m_children.push_back(newNode);
             FillNodeHierarchy(ainode->mChildren[i], scene, parentModel, n);
@@ -270,12 +270,12 @@ namespace Lina::Graphics
 
     bool ModelLoader::LoadModelProcess(const aiScene* scene, Model* model)
     {
-        model->m_numMeshes    = scene->mNumMeshes;
+        model->m_numMeshes = scene->mNumMeshes;
         model->m_numMaterials = scene->mNumMaterials;
-        model->m_numAnims     = scene->mNumAnimations;
+        model->m_numAnims = scene->mNumAnimations;
 
-        ModelNode* n               = new ModelNode();
-        model->m_rootNode          = n;
+        ModelNode* n = new ModelNode();
+        model->m_rootNode = n;
         model->m_rootNode->m_index = static_cast<uint32>(model->m_nodes.size());
         model->m_nodes.push_back(model->m_rootNode);
         FillNodeHierarchy(scene->mRootNode, scene, model, n);
@@ -288,7 +288,7 @@ namespace Lina::Graphics
     uint32 ModelLoader::GetImportFlags(Model* model)
     {
         uint32            importFlags = 0;
-        Model::AssetData& assetData   = model->GetAssetData();
+        Model::AssetData& assetData = model->GetAssetData();
         if (assetData.calculateTangent)
             importFlags |= aiProcess_CalcTangentSpace;
 

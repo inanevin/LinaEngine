@@ -34,6 +34,14 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"
 
+namespace Lina
+{
+    namespace Editor
+    {
+        class EditorManager;
+    }
+} // namespace Lina
+
 namespace Lina::World
 {
     class Level;
@@ -77,6 +85,7 @@ namespace Lina::World
 
         friend class Engine;
         friend class EntityWorld;
+        friend class Editor::EditorManager;
 
         static LevelManager* s_instance;
         Level*               m_currentLevel = nullptr;

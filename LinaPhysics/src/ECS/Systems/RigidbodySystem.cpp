@@ -30,64 +30,61 @@ SOFTWARE.
 
 #include "Core/PhysicsEngine.hpp"
 #include "Core/PhysicsCommon.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/PhysicsComponent.hpp"
-#include "ECS/Registry.hpp"
 
 #ifdef LINA_PHYSICS_PHYSX
 #include "PxPhysics.h"
 #endif
 
 using namespace physx;
-namespace Lina::ECS
+namespace Lina::Physics
 {
 
     void RigidbodySystem::Initialize(const String& name, Physics::PhysicsEngine* engine)
     {
-        System::Initialize(name);
         m_engine = engine;
     }
 
     void RigidbodySystem::UpdateComponents(float delta)
     {
-        auto* physicsEngine = Physics::PhysicsEngine::Get();
-        auto* ecs           = ECS::Registry::Get();
-
-        auto& actors = physicsEngine->GetAllActors();
-        m_poolSize   = (int)actors.size();
-
-        for (auto& p : actors)
-        {
-            EntityDataComponent& data    = ecs->get<EntityDataComponent>(p.first);
-            PhysicsComponent&    phyComp = ecs->get<PhysicsComponent>(p.first);
-            if (phyComp.m_simType == Physics::SimulationType::Static)
-                continue;
-
-            if (phyComp.m_isKinematic)
-            {
-                PxTransform destination;
-                destination.p = Physics::ToPxVector3(data.GetPosition());
-                destination.q = Physics::ToPxQuat(data.GetRotation());
-                ((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
-                m_engine->UpdateBodyShapeParameters(p.first);
-            }
-            else
-            {
-                PxU32     nbActiveActors;
-                PxActor** activeActors = m_engine->GetActiveActors(nbActiveActors);
-                for (PxU32 i = 0; i < nbActiveActors; ++i)
-                {
-                    ECS::Entity entity = m_engine->GetEntityOfActor(activeActors[i]);
-
-                    if (entity == p.first)
-                    {
-                        PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
-                        const auto&           pose  = rigid->getGlobalPose();
-                        data.SetPosition(Physics::ToLinaVector3(pose.p));
-                        data.SetRotation(Physics::ToLinaQuat(pose.q));
-                    }
-                }
-            }
-        }
+      // auto* physicsEngine = Physics::PhysicsEngine::Get();
+      // auto* ecs           = ECS::Registry::Get();
+      //
+      // auto& actors = physicsEngine->GetAllActors();
+      // m_poolSize   = (int)actors.size();
+      //
+      // for (auto& p : actors)
+      // {
+      //     EntityDataComponent& data    = ecs->get<EntityDataComponent>(p.first);
+      //     PhysicsComponent&    phyComp = ecs->get<PhysicsComponent>(p.first);
+      //     if (phyComp.m_simType == Physics::SimulationType::Static)
+      //         continue;
+      //
+      //     if (phyComp.m_isKinematic)
+      //     {
+      //         PxTransform destination;
+      //         destination.p = Physics::ToPxVector3(data.GetPosition());
+      //         destination.q = Physics::ToPxQuat(data.GetRotation());
+      //         ((PxRigidDynamic*)p.second)->setKinematicTarget(destination);
+      //         m_engine->UpdateBodyShapeParameters(p.first);
+      //     }
+      //     else
+      //     {
+      //         PxU32     nbActiveActors;
+      //         PxActor** activeActors = m_engine->GetActiveActors(nbActiveActors);
+      //         for (PxU32 i = 0; i < nbActiveActors; ++i)
+      //         {
+      //             ECS::Entity entity = m_engine->GetEntityOfActor(activeActors[i]);
+      //
+      //             if (entity == p.first)
+      //             {
+      //                 PxRigidDynamic* rigid = static_cast<PxRigidDynamic*>(activeActors[i]);
+      //                 const auto&           pose  = rigid->getGlobalPose();
+      //                 data.SetPosition(Physics::ToLinaVector3(pose.p));
+      //                 data.SetRotation(Physics::ToLinaQuat(pose.q));
+      //             }
+      //         }
+      //     }
+      // }
     }
 } // namespace Lina::ECS

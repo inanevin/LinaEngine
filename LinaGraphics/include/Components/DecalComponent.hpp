@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,23 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
-#ifndef CommonECS_HPP
-#define CommonECS_HPP
+#ifndef DecalComponent_HPP
+#define DecalComponent_HPP
 
 // Headers here.
-#define ENTT_USE_ATOMIC
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
+#include "RenderableComponent.hpp"
+#include "Core/CommonReflection.hpp"
 
-namespace Lina::ECS
+namespace Lina::Graphics
 {
-#define ECS_NULL entt::null
+    LINA_COMPONENT("Decal Component", "Graphics")
+    class DecalComponent : public RenderableComponent
+    {
+    public:
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        {
+            RenderableComponent::SaveToArchive(oarchive);
+        };
 
-    typedef entt::entity Entity;
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        {
+            RenderableComponent::LoadFromArchive(iarchive);
+        };
 
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<DecalComponent>();
+        }
+    };
 } // namespace Lina::ECS
 
 #endif

@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "Data/Vertex.hpp"
+#include "Core/Backend.hpp"
 
 namespace Lina::Graphics
 {

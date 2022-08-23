@@ -20,10 +20,7 @@ project(LinaInput CXX)
 #--------------------------------------------------------------------
 set (LINAINPUT_SOURCES
 	
-	#ECS
-	src/ECS/Systems/FreeLookSystem.cpp
-	
-	#Input
+	# Input
 	src/Core/InputEngine.cpp
 	src/Core/InputAxis.cpp
 )
@@ -40,9 +37,6 @@ set(LINAINPUT_HEADERS
 	include/Core/InputMappings.hpp
 	include/Core/InputAxis.hpp
 	
-	#ECS
-	include/ECS/Components/FreeLookComponent.hpp
-	include/ECS/Systems/FreeLookSystem.hpp
 
 )
 

@@ -31,6 +31,19 @@ SOFTWARE.
 #ifndef LinaEditor_HPP
 #define LinaEditor_HPP
 
+namespace Lina
+{
+    namespace Event
+    {
+        struct ELevelInstalled;
+    }
+
+    namespace World
+    {
+        class Entity;
+    }
+} // namespace Lina
+
 namespace Lina::Editor
 {
     class EditorManager
@@ -39,8 +52,15 @@ namespace Lina::Editor
         EditorManager()          = default;
         virtual ~EditorManager() = default;
 
-
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void Initialize();
         void VerifyStaticResources();
+        void CreateEditorCamera();
+        void DeleteEditorCamera();
+        void SaveCurrentLevel();
+
+    private:
+        World::Entity* m_editorCamera = nullptr;
     };
 } // namespace Lina::Editor
 

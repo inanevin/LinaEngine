@@ -1,5 +1,6 @@
 #include "Lina.hpp"
 #include "Lina/ReflectionRegistry.hpp"
+#include "Game/GameManager.hpp"
 
 int main(int argc, char** argv)
 {
@@ -7,9 +8,9 @@ int main(int argc, char** argv)
 
     Lina::WindowProperties windowProps = Lina::WindowProperties{
         .title      = "Lina Engine - Demo Sandbox Project",
-        .width      = 1200,
-        .height     = 1200,
-        .vsync      = Lina::VsyncMode::Adaptive,
+        .width      = 1920,
+        .height     = 1080,
+        .vsync      = Lina::VsyncMode::None,
         .decorated  = true,
         .resizable  = true,
         .fullscreen = false,
@@ -23,8 +24,10 @@ int main(int argc, char** argv)
         .preferredGPU     = Lina::PreferredGPUType::Discrete,
     };
 
+    GameManager game;
     Lina::RegisterReflectedTypes();
     application->Initialize(appInfo);
+    game.Initialize();
     application->Run();
     delete application;
 

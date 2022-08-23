@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef Frustum_HPP
@@ -52,7 +51,7 @@ namespace Lina
     {
 
     public:
-        Frustum() = default;
+        Frustum()  = default;
         ~Frustum() = default;
 
         /// <summary>
@@ -70,12 +69,13 @@ namespace Lina
         /// <returns></returns>
         FrustumTest TestIntersection(const AABB& aabb);
 
-        Plane             m_left;
-        Plane             m_right;
-        Plane             m_bottom;
-        Plane             m_top;
-        Plane             m_near;
-        Plane             m_far;
+    private:
+        Plane m_left;
+        Plane m_right;
+        Plane m_bottom;
+        Plane m_top;
+        Plane m_near;
+        Plane m_far;
     };
 } // namespace Lina
 

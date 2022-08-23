@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 #ifndef InputMappings_HPP
 #define InputMappings_HPP
@@ -37,18 +36,18 @@ namespace Lina::Input
 #define NUM_KEY_STATES   380
 #define NUM_MOUSE_STATES 8
 
-#define LINA_MOUSE_1      0
-#define LINA_MOUSE_2      1
-#define LINA_MOUSE_3      2
-#define LINA_MOUSE_4      3
-#define LINA_MOUSE_5      4
-#define LINA_MOUSE_6      5
-#define LINA_MOUSE_7      6
-#define LINA_MOUSE_8      7
-#define LINA_MOUSE_LAST   LINA_MOUSE_8
-#define LINA_MOUSE_LEFT   LINA_MOUSE_1
-#define LINA_MOUSE_RIGHT  LINA_MOUSE_2
-#define LINA_MOUSE_MIDDLE LINA_MOUSE_3
+#define LINA_MOUSE_0      0
+#define LINA_MOUSE_1      1
+#define LINA_MOUSE_2      2
+#define LINA_MOUSE_3      3
+#define LINA_MOUSE_4      4
+#define LINA_MOUSE_5      5
+#define LINA_MOUSE_6      6
+#define LINA_MOUSE_7      7
+#define LINA_MOUSE_LAST   LINA_MOUSE_7
+#define LINA_MOUSE_LEFT   LINA_MOUSE_0
+#define LINA_MOUSE_RIGHT  LINA_MOUSE_1
+#define LINA_MOUSE_MIDDLE LINA_MOUSE_2
 
 #define LINA_JOYSTICK_1    0
 #define LINA_JOYSTICK_2    1
@@ -351,6 +350,7 @@ namespace Lina::Input
         enum Mouse
         {
             MouseUnknown = LINA_KEY_UNKNOWN,
+            Mouse0       = LINA_MOUSE_0,
             Mouse1       = LINA_MOUSE_1,
             Mouse2       = LINA_MOUSE_2,
             Mouse3       = LINA_MOUSE_3,
@@ -358,7 +358,6 @@ namespace Lina::Input
             Mouse5       = LINA_MOUSE_5,
             Mouse6       = LINA_MOUSE_6,
             Mouse7       = LINA_MOUSE_7,
-            Mouse8       = LINA_MOUSE_8,
             MouseLast    = LINA_MOUSE_LAST,
             MouseLeft    = LINA_MOUSE_LEFT,
             MouseRight   = LINA_MOUSE_RIGHT,

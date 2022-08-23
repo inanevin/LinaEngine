@@ -32,10 +32,30 @@ SOFTWARE.
 #include "Core/Entity.hpp"
 #include "Core/Component.hpp"
 #include "Data/Serialization/QueueSerialization.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Lina::World
 {
-    EntityWorld::~EntityWorld()
+    void EntityWorld::Initialize()
+    {
+
+        if (m_initialized)
+            return;
+        m_initialized = true;
+
+        int stackCount = Math::FloorToInt(static_cast<float>(m_nextID) / static_cast<float>(ENTITY_STACK_SIZE)) + 1;
+
+        for (int i = 0; i < stackCount; i++)
+        {
+            EntityStack stack;
+            stack.ptr = new Entity[ENTITY_STACK_SIZE];
+            m_stacks.push_back(stack);
+        }
+    }
+
+    void EntityWorld::Shutdown()
     {
         DestroyWorld();
     }
@@ -52,25 +72,41 @@ namespace Lina::World
 
     void EntityWorld::DestroyWorld()
     {
-        for (uint32 i = 0; i < m_nextID; i++)
-        {
-            if (m_entities[i] != nullptr)
-                delete m_entities[i];
-
-            m_entities[i] = nullptr;
-        }
-
-        for (auto& [tid, cache] : m_componentCaches)
-            cache->Destroy();
-
-        m_componentCaches.clear();
-        m_nextID       = 0;
-        m_availableIDs = Queue<uint32>();
+        for (auto& stack : m_stacks)
+            delete[] stack.ptr;
+       // for (uint32 i = 0; i < m_nextID; i++)
+       // {
+       //     if (m_entities[i] != nullptr)
+       //         delete m_entities[i];
+       // 
+       //     m_entities[i] = nullptr;
+       // }
+       // 
+       // for (auto& [tid, cache] : m_componentCaches)
+       //     cache->Destroy();
+       // 
+       // m_componentCaches.clear();
+       // m_nextID       = 0;
+       // m_availableIDs = Queue<uint32>();
     }
 
     Entity* EntityWorld::GetEntity(uint32 id)
     {
         return m_entities[id];
+    }
+
+    Entity* EntityWorld::GetEntity(const String& name)
+    {
+        for (uint32 i = 0; i < m_nextID; i++)
+        {
+            if (m_entities[i] != nullptr)
+            {
+                if (m_entities[i]->m_name.compare(name) == 0)
+                    return m_entities[i];
+            }
+        }
+
+        return nullptr;
     }
 
     void EntityWorld::CopyFrom(EntityWorld& world)
@@ -97,8 +133,9 @@ namespace Lina::World
 
     Entity* EntityWorld::CreateEntity(const String& name)
     {
-        Entity* e = new Entity();
-        e->m_name = name;
+        Entity* e  = new Entity();
+        e->m_world = this;
+        e->m_name  = name;
 
         uint32 id = 0;
 
@@ -118,11 +155,19 @@ namespace Lina::World
 
     void EntityWorld::DestroyEntity(Entity* e)
     {
+        if (e->m_parent != ENTITY_NULL)
+            m_entities[e->m_parent]->RemoveChild(e);
+
+        DestroyEntityData(e);
+    }
+
+    void EntityWorld::DestroyEntityData(Entity* e)
+    {
+        for (auto child : e->m_children)
+            DestroyEntityData(m_entities[child]);
+
         for (auto& [tid, cache] : m_componentCaches)
-        {
-            if (cache->ContainsEntity(e))
-                cache->DestroyComponent(e);
-        }
+            cache->OnEntityDestroyed(e);
 
         const uint32 id = e->m_id;
         delete m_entities[id];
@@ -156,6 +201,7 @@ namespace Lina::World
 
     void EntityWorld::LoadFromArchive(cereal::PortableBinaryInputArchive& archive)
     {
+        Initialize();
         archive(m_nextID);
         archive(m_availableIDs);
 
@@ -165,6 +211,7 @@ namespace Lina::World
         for (int i = 0; i < entities.size(); i++)
         {
             Entity* e           = new Entity(entities[i]);
+            e->m_world          = this;
             m_entities[e->m_id] = e;
         }
 
@@ -176,10 +223,14 @@ namespace Lina::World
         for (uint32 i = 0; i < tids.size(); i++)
         {
             const Reflection::MetaType& type = Reflection::Resolve(tids[i]);
-
-            ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(type.createCompCacheFunc());
-            cache->LoadFromArchive(archive, m_entities);
-            m_componentCaches[tids[i]] = cache;
+            if (type.createCompCacheFunc)
+            {
+                ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(type.createCompCacheFunc());
+                cache->LoadFromArchive(archive, m_entities);
+                m_componentCaches[tids[i]] = cache;
+            }
+            else
+                LINA_ERR("Could not create a cache for the type ID {0}, did your component change?", tids[i]);
         }
     }
 

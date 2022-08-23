@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,16 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef InputEngine_HPP
 #define InputEngine_HPP
 
 #include "Core/CommonInput.hpp"
-#include "ECS/Systems/FreeLookSystem.hpp"
-#include "ECS/SystemList.hpp"
 #include "Core/InputAxis.hpp"
 #include "Core/InputMappings.hpp"
 #include "Math/Vector.hpp"
@@ -84,11 +80,6 @@ namespace Lina::Input
             return m_currentMouseScroll;
         }
 
-        /// <summary>
-        /// Any system added to the input pipeline will get updated during polling inputs.
-        /// </summary>
-        void AddToInputPipeline(ECS::System& system);
-
         inline CursorMode GetCursorMode()
         {
             return m_cursorMode;
@@ -101,10 +92,7 @@ namespace Lina::Input
         {
             return m_verticalAxis.GetValue();
         }
-        inline const ECS::SystemList& GetPipeline()
-        {
-            return m_inputPipeline;
-        }
+
         inline void SetAxisMousePos(const Vector2& v)
         {
             m_axisMousePos = v;
@@ -133,9 +121,7 @@ namespace Lina::Input
         HashMap<int, int>   m_mouseUpNewStateMap;
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
-        CursorMode          m_cursorMode = CursorMode::Visible;
-        ECS::FreeLookSystem m_freeLookSystem;
-        ECS::SystemList     m_inputPipeline;
+        CursorMode          m_cursorMode         = CursorMode::Visible;
         Vector2             m_currentMouseScroll = Vector2::Zero;
         Vector2             m_axisMousePos       = Vector2::Zero;
     };

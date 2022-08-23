@@ -41,6 +41,8 @@ SOFTWARE.
 
 namespace Lina::World
 {
+#define MAX_ENTITY_COUNT 5
+#define ENTITY_NULL      MAX_ENTITY_COUNT + 1
     // Actual game state
     class Entity
     {
@@ -53,13 +55,94 @@ namespace Lina::World
             return m_id;
         }
 
+        Matrix ToMatrix() const
+        {
+            return m_transform.ToMatrix();
+        }
+        Matrix ToLocalMatrix() const
+        {
+            return m_transform.ToLocalMatrix();
+        }
+
+        void           AddChild(Entity* e);
+        void           RemoveChild(Entity* e);
+        void           RemoveFromParent();
+        void           SetTransformation(Matrix& mat, bool omitScale = false);
+        void           SetLocalTransformation(Matrix& mat, bool omitScale = false);
+        void           AddRotation(const Vector3& angles);
+        void           AddLocalRotation(const Vector3& angles);
+        void           AddPosition(const Vector3& loc);
+        void           AddLocalPosition(const Vector3& loc);
+        Transformation GetInterpolated(float interpolation);
+        void           SetLocalPosition(const Vector3& loc);
+        void           SetPosition(const Vector3& loc);
+        void           SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+        void           SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
+        void           SetRotation(const Quaternion& rot, bool isThisPivot = true);
+        void           SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+        void           SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+        void           SetScale(const Vector3& scale, bool isThisPivot = true);
+
+        const Vector3& GetLocalRotationAngles()
+        {
+            return m_transform.m_localRotationAngles;
+        }
+        const Vector3& GetLocalPosition()
+        {
+            return m_transform.m_localPosition;
+        }
+        const Quaternion& GetLocalRotation()
+        {
+            return m_transform.m_localRotation;
+        }
+        const Vector3& GetLocalScale()
+        {
+            return m_transform.m_localScale;
+        }
+        const Vector3& GetPosition()
+        {
+            return m_transform.m_position;
+        }
+        const Quaternion& GetRotation()
+        {
+            return m_transform.m_rotation;
+        }
+        const Vector3& GetRotationAngles()
+        {
+            return m_transform.m_rotationAngles;
+        }
+        const Vector3& GetScale()
+        {
+            return m_transform.m_scale;
+        }
+
+        const Transformation& GetTransform()
+        {
+            return m_transform;
+        }
+
+        inline void SetName(const String& name)
+        {
+            m_name = name;
+        }
+
+    private:
+        void UpdateGlobalPosition();
+        void UpdateLocalPosition();
+        void UpdateGlobalRotation();
+        void UpdateLocalRotation();
+        void UpdateGlobalScale();
+        void UpdateLocalScale();
+
     private:
         friend class EntityWorld;
         friend struct EntitySerializer;
 
+        EntityWorld*    m_world  = nullptr;
         uint32          m_id     = 0;
+        uint32          m_stack  = 0;
         String          m_name   = "";
-        uint32          m_parent = 0;
+        uint32          m_parent = ENTITY_NULL;
         HashSet<uint32> m_children;
         Transformation  m_transform;
 

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,18 +27,14 @@ SOFTWARE.
 */
 
 #include "Physics/Raycast.hpp"
-
 #include "Core/PhysicsCommon.hpp"
-
-#ifdef LINA_PHYSICS_PHYSX
 #include <PxPhysicsAPI.h>
 using namespace physx;
-#endif
+
 namespace Lina::Physics
 {
     HitInfo RaycastPose(const Vector3& from, const Vector3& unitDir, const Vector3& targetPosition, const Vector3& targetHalfExtents, float dist)
     {
-#ifdef LINA_PHYSICS_PHYSX
         HitInfo      hitInfo;
         PxRaycastHit pxHit;
         PxU32        maxHits = 1;
@@ -50,12 +46,10 @@ namespace Lina::Physics
         PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eUV;
         PxU32      hitCount = PxGeometryQuery::raycast(ToPxVector3(from), ToPxVector3(unitDir), boxGeometry, pose, dist, hitFlags, maxHits, &pxHit);
 
-        hitInfo.m_hitCount = hitCount;
-        hitInfo.m_position = ToLinaVector3(pxHit.position);
-        hitInfo.m_distance = pxHit.distance;
-        hitInfo.m_normal   = ToLinaVector3(pxHit.normal);
+        hitInfo.hitCount = hitCount;
+        hitInfo.position = ToLinaVector3(pxHit.position);
+        hitInfo.distance = pxHit.distance;
+        hitInfo.normal   = ToLinaVector3(pxHit.normal);
         return hitInfo;
-#endif
-        return HitInfo();
     }
 } // namespace Lina::Physics

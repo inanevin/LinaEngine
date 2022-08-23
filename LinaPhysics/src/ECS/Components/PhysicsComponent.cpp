@@ -29,10 +29,7 @@ SOFTWARE.
 #include "ECS/Components/PhysicsComponent.hpp"
 #include "Log/Log.hpp"
 
-namespace Lina::ECS
+namespace Lina::Physics
 {
-    void PhysicsComponent::SetIsEnabled(bool isEnabled)
-    {
-        LINA_WARN("Setting the enabled state of PhysicsComponent does nothing. If you are trying to disable/enable simulation, use PhysicsEngineBackend::SetBodySimulation()");
-    }
+ 
 } // namespace Lina::ECS

@@ -28,23 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PhysicsEvents_HPP
-#define PhysicsEvents_HPP
+#ifndef WorldCommon_HPP
+#define WorldCommon_HPP
 
-// Headers here.
+#include "Data/Bitmask.hpp"
 
-namespace Lina::Event
+namespace Lina::World
 {
-    struct EPrePhysicsTick
+    enum ComponentMask
     {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
+        ReceiveOnGameStart       = 1 << 0,
+        ReceiveOnGameEnd         = 1 << 1,
+        ReceiveOnPreTick         = 1 << 2,
+        ReceiveOnTick            = 1 << 3,
+        ReceiveOnPostTick        = 1 << 4,
+        ReceiveOnPostPhysicsTick = 1 << 5,
     };
-    struct EPostPhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
-    };
-} // namespace Lina::Event
+
+} // namespace Lina::World
 
 #endif

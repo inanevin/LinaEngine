@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/AudioEngine.hpp"
 
 #include "Audio/Audio.hpp"
-#include "ECS/Registry.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"

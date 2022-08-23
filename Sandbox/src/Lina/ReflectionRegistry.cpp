@@ -44,7 +44,18 @@ SOFTWARE.
 
 
 //INC_BEGIN - !! DO NOT MODIFY THIS LINE !!
-#include "Components/Renderable.hpp"
+#include "Components/EditorFreeLookComponent.hpp"
+#include "Components/SkyComponent.hpp"
+#include "Components/ModelNodeComponent.hpp"
+#include "Components/CameraComponent.hpp"
+#include "Components/DecalComponent.hpp"
+#include "Components/LightComponent.hpp"
+#include "Components/LightComponent.hpp"
+#include "Components/LightComponent.hpp"
+#include "Components/LightComponent.hpp"
+#include "Components/ParticleComponent.hpp"
+#include "Components/RenderableComponent.hpp"
+#include "Components/SpriteComponent.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
@@ -83,11 +94,108 @@ namespace Lina
         g_reflectedTypesRegistered = true;
 
 //REGFUNC_BEGIN - !! DO NOT MODIFY THIS LINE !!
-Reflection::Meta<World::RenderableComponent>().AddProperty("Title"_hs,"Renderable");
-Reflection::Meta<World::RenderableComponent>().AddProperty("Category"_hs,"Graphics");
-Reflection::Meta<World::RenderableComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<World::RenderableComponent>);
-Reflection::Meta<World::RenderableComponent>().createFunc = std::bind(&REF_CreateComponentFunc<World::RenderableComponent>);
-Reflection::Meta<World::RenderableComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<World::RenderableComponent>, std::placeholders::_1);
+Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Title"_hs,"Editor Free Look");
+Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Category"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().AddField<&World::EditorFreeLookComponent::movementSpeed, World::EditorFreeLookComponent>("movementSpeed"_hs);
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Title"_hs,"Movement Speed");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Tooltip"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().AddField<&World::EditorFreeLookComponent::rotationPower, World::EditorFreeLookComponent>("rotationPower"_hs);
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Title"_hs,"Rotation Power");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Type"_hs,"float");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Tooltip"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<World::EditorFreeLookComponent>);
+Reflection::Meta<World::EditorFreeLookComponent>().createFunc = std::bind(&REF_CreateComponentFunc<World::EditorFreeLookComponent>);
+Reflection::Meta<World::EditorFreeLookComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<World::EditorFreeLookComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::SkyComponent>().AddProperty("Title"_hs,"Sky Component");
+Reflection::Meta<Graphics::SkyComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::SkyComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SkyComponent>);
+Reflection::Meta<Graphics::SkyComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SkyComponent>);
+Reflection::Meta<Graphics::SkyComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SkyComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::ModelNodeComponent>().AddProperty("Title"_hs,"Model Node");
+Reflection::Meta<Graphics::ModelNodeComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::ModelNodeComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::ModelNodeComponent>);
+Reflection::Meta<Graphics::ModelNodeComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::ModelNodeComponent>);
+Reflection::Meta<Graphics::ModelNodeComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::ModelNodeComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::CameraComponent>().AddProperty("Title"_hs,"Camera Component");
+Reflection::Meta<Graphics::CameraComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::CameraComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::CameraComponent>);
+Reflection::Meta<Graphics::CameraComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::CameraComponent>);
+Reflection::Meta<Graphics::CameraComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::CameraComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::DecalComponent>().AddProperty("Title"_hs,"Decal Component");
+Reflection::Meta<Graphics::DecalComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::DecalComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::DecalComponent>);
+Reflection::Meta<Graphics::DecalComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::DecalComponent>);
+Reflection::Meta<Graphics::DecalComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::DecalComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::SpotLightComponent>().AddProperty("Title"_hs,"Spot Light Component");
+Reflection::Meta<Graphics::SpotLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::SpotLightComponent>().AddField<&Graphics::SpotLightComponent::distance, Graphics::SpotLightComponent>("distance"_hs);
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Title"_hs,"Distance");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Tooltip"_hs,"Light Distance");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().AddField<&Graphics::SpotLightComponent::cutoff, Graphics::SpotLightComponent>("cutoff"_hs);
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("cutoff"_hs)->AddProperty("Title"_hs,"Cutoff");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("cutoff"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("cutoff"_hs)->AddProperty("Tooltip"_hs,"The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("cutoff"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("cutoff"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().AddField<&Graphics::SpotLightComponent::outerCutoff, Graphics::SpotLightComponent>("outerCutoff"_hs);
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("outerCutoff"_hs)->AddProperty("Title"_hs,"Outer Cutoff");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("outerCutoff"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("outerCutoff"_hs)->AddProperty("Tooltip"_hs,"The light will gradually dim from the edges of the cone defined by the Cutoff, to the cone defined by the Outer Cutoff.");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("outerCutoff"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().GetField("outerCutoff"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::SpotLightComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SpotLightComponent>);
+Reflection::Meta<Graphics::SpotLightComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SpotLightComponent>);
+Reflection::Meta<Graphics::SpotLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SpotLightComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::LightComponent>().AddProperty("Title"_hs,"Light Component");
+Reflection::Meta<Graphics::LightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::LightComponent>().AddField<&Graphics::LightComponent::color, Graphics::LightComponent>("color"_hs);
+Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Title"_hs,"Color");
+Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Type"_hs,"Color");
+Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Tooltip"_hs,"");
+Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::LightComponent>().AddField<&Graphics::LightComponent::intensity, Graphics::LightComponent>("intensity"_hs);
+Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Title"_hs,"Intensity");
+Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Tooltip"_hs,"");
+Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::PointLightComponent>().AddProperty("Title"_hs,"Point Light Component");
+Reflection::Meta<Graphics::PointLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::PointLightComponent>().AddField<&Graphics::PointLightComponent::distance, Graphics::PointLightComponent>("distance"_hs);
+Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Title"_hs,"Distance");
+Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Type"_hs,"Float");
+Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Tooltip"_hs,"Light Distance");
+Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Depends On"_hs,"");
+Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Category"_hs,"");
+Reflection::Meta<Graphics::PointLightComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::PointLightComponent>);
+Reflection::Meta<Graphics::PointLightComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::PointLightComponent>);
+Reflection::Meta<Graphics::PointLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::PointLightComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::DirectionalLightComponent>().AddProperty("Title"_hs,"Directional Light Component");
+Reflection::Meta<Graphics::DirectionalLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::DirectionalLightComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::DirectionalLightComponent>);
+Reflection::Meta<Graphics::DirectionalLightComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::DirectionalLightComponent>);
+Reflection::Meta<Graphics::DirectionalLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::DirectionalLightComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::ParticleComponent>().AddProperty("Title"_hs,"Particle Component");
+Reflection::Meta<Graphics::ParticleComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::ParticleComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::ParticleComponent>);
+Reflection::Meta<Graphics::ParticleComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::ParticleComponent>);
+Reflection::Meta<Graphics::ParticleComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::ParticleComponent>, std::placeholders::_1);
+Reflection::Meta<Graphics::RenderableComponent>().AddProperty("Title"_hs,"Renderable");
+Reflection::Meta<Graphics::RenderableComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::SpriteComponent>().AddProperty("Title"_hs,"Sprite Component");
+Reflection::Meta<Graphics::SpriteComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::SpriteComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SpriteComponent>);
+Reflection::Meta<Graphics::SpriteComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SpriteComponent>);
+Reflection::Meta<Graphics::SpriteComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SpriteComponent>, std::placeholders::_1);
 Reflection::Meta<Editor::EditorSettings>().AddProperty("Title"_hs,"Editor Settings");
 Reflection::Meta<Editor::EditorSettings>().AddField<&Editor::EditorSettings::m_textEditorPath, Editor::EditorSettings>("m_textEditorPath"_hs);
 Reflection::Meta<Editor::EditorSettings>().GetField("m_textEditorPath"_hs)->AddProperty("Title"_hs,"Text Editor");

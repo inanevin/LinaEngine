@@ -28,13 +28,10 @@ SOFTWARE.
 
 #include "Core/PhysicsEngine.hpp"
 #include "Core/PhysicsCommon.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Registry.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "EventSystem/ECSEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
 #include "Core/ResourceStorage.hpp"
@@ -58,9 +55,9 @@ namespace Lina::Physics
     PxMaterial*             m_pxDefaultMaterial = nullptr;
     PxPvd*                  m_pxPvd             = nullptr;
 
-    HashMap<ECS::Entity, physx::PxRigidActor*> m_actors;
-    HashMap<StringID, physx::PxMaterial*>  m_materials;
-    HashMap<ECS::Entity, PxShape*>             m_shapes;
+    HashMap<World::Entity*, physx::PxRigidActor*> m_actors;
+    HashMap<StringID, physx::PxMaterial*>         m_materials;
+    HashMap<World::Entity*, PxShape*>             m_shapes;
 
     // Key is the target model, value is a vector of pairs whose key is the node ID in the model and value is the cooked mesh.
     HashMap<StringID, Vector<std::pair<int, PxConvexMesh*>>> m_convexMeshMap;
@@ -110,13 +107,11 @@ namespace Lina::Physics
 
         // Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
         m_rigidbodySystem.Initialize("Rigidbody System", this);
-        m_physicsPipeline.AddSystem(m_rigidbodySystem);
 
         // Engine events.
         m_eventSystem = Event::EventSystem::Get();
-        m_eventSystem->Connect<Event::EPostSceneDraw, &PhysicsEngine::OnPostSceneDraw>(this);
+        // m_eventSystem->Connect<Event::EPostSceneDraw, &PhysicsEngine::OnPostSceneDraw>(this);
         m_eventSystem->Connect<Event::ELevelInstalled, &PhysicsEngine::OnLevelInstalled>(this);
-        m_eventSystem->Connect<Event::EEntityEnabledChanged, &PhysicsEngine::OnEntityEnabledChanged>(this);
 
         m_cooker.Initialize(m_pxFoundation);
     }
@@ -128,7 +123,7 @@ namespace Lina::Physics
         // Update phy.
         m_pxScene->simulate((PxReal)m_stepTime);
         m_pxScene->fetchResults(true);
-        m_physicsPipeline.UpdateSystems(fixedDelta);
+        // m_physicsPipeline.UpdateSystems(fixedDelta);
     }
 
     void PhysicsEngine::Shutdown()
@@ -166,22 +161,22 @@ namespace Lina::Physics
         m_pxFoundation->release();
     }
 
-    void PhysicsEngine::OnPostSceneDraw(const Event::EPostSceneDraw&)
-    {
-        const PxRenderBuffer& rb = m_pxScene->getRenderBuffer();
-        for (PxU32 i = 0; i < rb.getNbLines(); i++)
-        {
-            const PxDebugLine& line = rb.getLines()[i];
-            Color              renderColor;
-            renderColor.r = (float)((line.color0 >> 16) & 0xff);
-            renderColor.g = (float)((line.color0 >> 8) & 0xff);
-            renderColor.b = (float)((line.color0 & 0xff));
-            renderColor.a = 1.0f;
-            m_eventSystem->Trigger<Event::EDrawLine>(Event::EDrawLine{ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor});
-        }
-    }
+  // void PhysicsEngine::OnPostSceneDraw(const Event::EPostSceneDraw&)
+  // {
+  //     const PxRenderBuffer& rb = m_pxScene->getRenderBuffer();
+  //     for (PxU32 i = 0; i < rb.getNbLines(); i++)
+  //     {
+  //         const PxDebugLine& line = rb.getLines()[i];
+  //         Color              renderColor;
+  //         renderColor.r = (float)((line.color0 >> 16) & 0xff);
+  //         renderColor.g = (float)((line.color0 >> 8) & 0xff);
+  //         renderColor.b = (float)((line.color0 & 0xff));
+  //         renderColor.a = 1.0f;
+  //         m_eventSystem->Trigger<Event::EDrawLine>(Event::EDrawLine{ToLinaVector3(line.pos0), ToLinaVector3(line.pos1), renderColor});
+  //     }
+  // }
 
-    PxShape* PhysicsEngine::GetCreateShape(ECS::PhysicsComponent& phy, ECS::Entity ent)
+    PxShape* PhysicsEngine::GetCreateShape(PhysicsComponent& phy, World::Entity* ent)
     {
         const CollisionShape shape = phy.GetCollisionShape();
 
@@ -191,9 +186,9 @@ namespace Lina::Physics
             mat = m_materials[phy.m_material.sid];
         else
         {
-            auto* phyMat                      = phy.m_material.value;
+            auto* phyMat                    = phy.m_material.value;
             m_materials[phy.m_material.sid] = m_pxPhysics->createMaterial(phyMat->m_staticFriction, phyMat->m_dynamicFriction, phyMat->m_restitution);
-            mat                               = m_materials[phy.m_material.sid];
+            mat                             = m_materials[phy.m_material.sid];
         }
 
         LINA_ASSERT(mat != nullptr, "Physics material is null!");
@@ -232,14 +227,9 @@ namespace Lina::Physics
         LINA_TRACE("Created convex mesh with sid {0} and nodeID {1}", sid, nodeID);
     }
 
-    bool PhysicsEngine::IsEntityAPhysicsActor(ECS::Entity ent)
+    bool PhysicsEngine::IsEntityAPhysicsActor(World::Entity* ent)
     {
         return m_actors.find(ent) != m_actors.end();
-    }
-
-    void PhysicsEngine::AddToPhysicsPipeline(ECS::System& system)
-    {
-        m_physicsPipeline.AddSystem(system);
     }
 
     void PhysicsEngine::SetMaterialStaticFriction(PhysicsMaterial& mat, float friction)
@@ -269,307 +259,307 @@ namespace Lina::Physics
         m_materials[sid]->setRestitution(mat.m_restitution);
     }
 
-    void PhysicsEngine::SetBodySimulation(ECS::Entity body, SimulationType type)
+    void PhysicsEngine::SetBodySimulation(World::Entity* body, SimulationType type)
     {
-        auto& phy  = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(body);
-
-        if (type == SimulationType::Static)
-            data.m_isTransformLocked = true;
-        else
-            data.m_isTransformLocked = false;
-
-        SimulationType previousType = phy.m_simType;
-
-        if (previousType == SimulationType::None)
-        {
-            if (type == SimulationType::Dynamic)
-                AddBodyToWorld(body, true);
-            else if (type == SimulationType::Static)
-                AddBodyToWorld(body, false);
-        }
-        else if (previousType == SimulationType::Static)
-        {
-            if (type == SimulationType::None)
-                RemoveBodyFromWorld(body);
-            else if (type == SimulationType::Dynamic)
-            {
-                RemoveBodyFromWorld(body);
-                AddBodyToWorld(body, true);
-            }
-        }
-        else if (previousType == SimulationType::Dynamic)
-        {
-            if (type == SimulationType::None)
-                RemoveBodyFromWorld(body);
-            else if (type == SimulationType::Static)
-            {
-                RemoveBodyFromWorld(body);
-                AddBodyToWorld(body, false);
-            }
-        }
-
-        phy.m_simType = type;
+        //  auto& phy  = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        //  auto& data = ECS::Registry::Get()->get<World::Entity*DataComponent>(body);
+        //
+        //  if (type == SimulationType::Static)
+        //      data.m_isTransformLocked = true;
+        //  else
+        //      data.m_isTransformLocked = false;
+        //
+        //  SimulationType previousType = phy.m_simType;
+        //
+        //  if (previousType == SimulationType::None)
+        //  {
+        //      if (type == SimulationType::Dynamic)
+        //          AddBodyToWorld(body, true);
+        //      else if (type == SimulationType::Static)
+        //          AddBodyToWorld(body, false);
+        //  }
+        //  else if (previousType == SimulationType::Static)
+        //  {
+        //      if (type == SimulationType::None)
+        //          RemoveBodyFromWorld(body);
+        //      else if (type == SimulationType::Dynamic)
+        //      {
+        //          RemoveBodyFromWorld(body);
+        //          AddBodyToWorld(body, true);
+        //      }
+        //  }
+        //  else if (previousType == SimulationType::Dynamic)
+        //  {
+        //      if (type == SimulationType::None)
+        //          RemoveBodyFromWorld(body);
+        //      else if (type == SimulationType::Static)
+        //      {
+        //          RemoveBodyFromWorld(body);
+        //          AddBodyToWorld(body, false);
+        //      }
+        //  }
+        //
+        //  phy.m_simType = type;
     }
 
-    void PhysicsEngine::SetBodyCollisionShape(ECS::Entity body, Physics::CollisionShape shape)
+    void PhysicsEngine::SetBodyCollisionShape(World::Entity* body, Physics::CollisionShape shape)
     {
-        auto& phy            = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_collisionShape = shape;
-        RecreateBodyShape(body);
+        // auto& phy            = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_collisionShape = shape;
+        // RecreateBodyShape(body);
     }
 
-    void PhysicsEngine::SetBodyMass(ECS::Entity body, float mass)
+    void PhysicsEngine::SetBodyMass(World::Entity* body, float mass)
     {
-        auto& phy  = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_mass = Math::Clamp(mass, 0.1f, 1000.0f);
-        if (phy.GetSimType() == SimulationType::Dynamic)
-            PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)m_actors[body], phy.m_mass);
+        // auto& phy  = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_mass = Math::Clamp(mass, 0.1f, 1000.0f);
+        // if (phy.GetSimType() == SimulationType::Dynamic)
+        //     PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)m_actors[body], phy.m_mass);
     }
 
-    void PhysicsEngine::SetBodyMaterial(ECS::Entity body, PhysicsMaterial* material)
+    void PhysicsEngine::SetBodyMaterial(World::Entity* body, PhysicsMaterial* material)
     {
-        if (!IsEntityAPhysicsActor(body))
-            return;
-
-        auto& phy              = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_material.sid   = material->GetSID();
-        phy.m_material.value = material;
-
-        PxMaterial* pxMaterial = nullptr;
-        m_shapes[body]->getMaterials(&pxMaterial, 1);
-
-        if (pxMaterial == nullptr)
-            return;
-        pxMaterial->setStaticFriction(material->m_staticFriction);
-        pxMaterial->setDynamicFriction(material->m_dynamicFriction);
-        pxMaterial->setRestitution(material->m_restitution);
+        // if (!IsEntityAPhysicsActor(body))
+        //     return;
+        //
+        // auto& phy              = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_material.sid   = material->GetSID();
+        // phy.m_material.value = material;
+        //
+        // PxMaterial* pxMaterial = nullptr;
+        // m_shapes[body]->getMaterials(&pxMaterial, 1);
+        //
+        // if (pxMaterial == nullptr)
+        //     return;
+        // pxMaterial->setStaticFriction(material->m_staticFriction);
+        // pxMaterial->setDynamicFriction(material->m_dynamicFriction);
+        // pxMaterial->setRestitution(material->m_restitution);
     }
 
-    void PhysicsEngine::SetBodyRadius(ECS::Entity body, float radius)
+    void PhysicsEngine::SetBodyRadius(World::Entity* body, float radius)
     {
-        auto& phy    = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_radius = Math::Clamp(radius, 0.1f, 50.0f);
-        UpdateBodyShapeParameters(body);
+        // auto& phy    = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_radius = Math::Clamp(radius, 0.1f, 50.0f);
+        // UpdateBodyShapeParameters(body);
     }
 
-    void PhysicsEngine::SetBodyHeight(ECS::Entity body, float height)
+    void PhysicsEngine::SetBodyHeight(World::Entity* body, float height)
     {
-        auto& phy               = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_capsuleHalfHeight = Math::Clamp(height, 0.5f, 100.0f);
-        UpdateBodyShapeParameters(body);
+        // auto& phy               = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_capsuleHalfHeight = Math::Clamp(height, 0.5f, 100.0f);
+        // UpdateBodyShapeParameters(body);
     }
 
-    void PhysicsEngine::SetBodyHalfExtents(ECS::Entity body, const Vector3& extents)
+    void PhysicsEngine::SetBodyHalfExtents(World::Entity* body, const Vector3& extents)
     {
-        auto& phy         = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_halfExtents = Vector3(Math::Clamp(extents.x, 0.1f, 50.0f), Math::Clamp(extents.y, 0.1f, 50.0f), Math::Clamp(extents.z, 0.1f, 50.0f));
-        UpdateBodyShapeParameters(body);
+        // auto& phy         = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        // phy.m_halfExtents = Vector3(Math::Clamp(extents.x, 0.1f, 50.0f), Math::Clamp(extents.y, 0.1f, 50.0f), Math::Clamp(extents.z, 0.1f, 50.0f));
+        // UpdateBodyShapeParameters(body);
     }
 
-    void PhysicsEngine::OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent)
+  //  void PhysicsEngine::OnPhysicsComponentAdded(entt::registry& reg, entt::entity ent)
+  //  {
+  //      //  auto* phy = ECS::Registry::Get()->try_get<ECS::PhysicsComponent>(ent);
+  //      //  if (phy == nullptr)
+  //      //      return;
+  //      //
+  //      //  if (phy->m_material.value == nullptr)
+  //      //  {
+  //      //      phy->m_material.value = m_defaultMaterial;
+  //      //      phy->m_material.sid   = phy->m_material.value->GetSID();
+  //      //  }
+  //      //
+  //      //  auto* data = ECS::Registry::Get()->try_get<World::Entity*DataComponent>(ent);
+  //      //  if (phy->GetSimType() == SimulationType::None)
+  //      //      return;
+  //      //
+  //      //  if (data != nullptr && m_actors.find(ent) == m_actors.end())
+  //      //      AddBodyToWorld(ent, phy->GetSimType() == SimulationType::Dynamic);
+  //  }
+
+    void PhysicsEngine::UpdateBodyShapeParameters(World::Entity* body)
     {
-        auto* phy = ECS::Registry::Get()->try_get<ECS::PhysicsComponent>(ent);
-        if (phy == nullptr)
-            return;
-
-        if (phy->m_material.value == nullptr)
-        {
-            phy->m_material.value = m_defaultMaterial;
-            phy->m_material.sid   = phy->m_material.value->GetSID();
-        }
-
-        auto* data = ECS::Registry::Get()->try_get<ECS::EntityDataComponent>(ent);
-        if (phy->GetSimType() == SimulationType::None)
-            return;
-
-        if (data != nullptr && m_actors.find(ent) == m_actors.end())
-            AddBodyToWorld(ent, phy->GetSimType() == SimulationType::Dynamic);
+        //  auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        //  if (phy.m_simType == SimulationType::None)
+        //      return;
+        //
+        //  PxShape* shape = m_shapes[body];
+        //  auto&    data  = ECS::Registry::Get()->get<World::Entity*DataComponent>(body);
+        //
+        //  if (phy.m_collisionShape == CollisionShape::Sphere)
+        //  {
+        //      PxSphereGeometry geo;
+        //      shape->getSphereGeometry(geo);
+        //      geo.radius = phy.m_radius * data.GetScale().Avg();
+        //      shape->setGeometry(geo);
+        //  }
+        //  else if (phy.m_collisionShape == CollisionShape::Box)
+        //  {
+        //      PxBoxGeometry geo;
+        //      shape->getBoxGeometry(geo);
+        //      geo.halfExtents = ToPxVector3(phy.m_halfExtents * data.GetScale());
+        //      shape->setGeometry(geo);
+        //  }
+        //  else if (phy.m_collisionShape == CollisionShape::Capsule)
+        //  {
+        //      PxCapsuleGeometry geo;
+        //      shape->getCapsuleGeometry(geo);
+        //      geo.radius = phy.m_radius * data.GetScale().Avg();
+        //      ;
+        //      geo.halfHeight = phy.m_capsuleHalfHeight * data.GetScale().y;
+        //      shape->setGeometry(geo);
+        //  }
+        //  else if (phy.m_collisionShape == CollisionShape::ConvexMesh)
+        //  {
+        //      PxConvexMeshGeometry geo;
+        //      shape->getConvexMeshGeometry(geo);
+        //      geo.scale.scale = ToPxVector3(data.GetScale());
+        //      shape->setGeometry(geo);
+        //  }
     }
 
-    void PhysicsEngine::UpdateBodyShapeParameters(ECS::Entity body)
+    void PhysicsEngine::RecreateBodyShape(World::Entity* body)
     {
-        auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        if (phy.m_simType == SimulationType::None)
-            return;
-
-        PxShape* shape = m_shapes[body];
-        auto&    data  = ECS::Registry::Get()->get<ECS::EntityDataComponent>(body);
-
-        if (phy.m_collisionShape == CollisionShape::Sphere)
-        {
-            PxSphereGeometry geo;
-            shape->getSphereGeometry(geo);
-            geo.radius = phy.m_radius * data.GetScale().Avg();
-            shape->setGeometry(geo);
-        }
-        else if (phy.m_collisionShape == CollisionShape::Box)
-        {
-            PxBoxGeometry geo;
-            shape->getBoxGeometry(geo);
-            geo.halfExtents = ToPxVector3(phy.m_halfExtents * data.GetScale());
-            shape->setGeometry(geo);
-        }
-        else if (phy.m_collisionShape == CollisionShape::Capsule)
-        {
-            PxCapsuleGeometry geo;
-            shape->getCapsuleGeometry(geo);
-            geo.radius = phy.m_radius * data.GetScale().Avg();
-            ;
-            geo.halfHeight = phy.m_capsuleHalfHeight * data.GetScale().y;
-            shape->setGeometry(geo);
-        }
-        else if (phy.m_collisionShape == CollisionShape::ConvexMesh)
-        {
-            PxConvexMeshGeometry geo;
-            shape->getConvexMeshGeometry(geo);
-            geo.scale.scale = ToPxVector3(data.GetScale());
-            shape->setGeometry(geo);
-        }
+        // auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        //
+        // if (phy.m_simType != SimulationType::None)
+        // {
+        //     PxU32    nbShapes     = 0;
+        //     PxShape* currentShape = nullptr;
+        //     PxShape* newShape     = GetCreateShape(phy);
+        //     auto*    actor        = m_actors[body];
+        //
+        //     if (phy.m_simType == SimulationType::Dynamic)
+        //     {
+        //         currentShape = m_shapes[body];
+        //         actor->detachShape(*currentShape);
+        //         actor->attachShape(*newShape);
+        //     }
+        //     else
+        //     {
+        //         currentShape = m_shapes[body];
+        //         actor->detachShape(*currentShape);
+        //         actor->attachShape(*newShape);
+        //     }
+        //
+        //     m_shapes[body] = newShape;
+        //     newShape->release();
+        // }
     }
 
-    void PhysicsEngine::RecreateBodyShape(ECS::Entity body)
+    void PhysicsEngine::SetBodyKinematic(World::Entity* body, bool kinematic)
     {
-        auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-
-        if (phy.m_simType != SimulationType::None)
-        {
-            PxU32    nbShapes     = 0;
-            PxShape* currentShape = nullptr;
-            PxShape* newShape     = GetCreateShape(phy);
-            auto*    actor        = m_actors[body];
-
-            if (phy.m_simType == SimulationType::Dynamic)
-            {
-                currentShape = m_shapes[body];
-                actor->detachShape(*currentShape);
-                actor->attachShape(*newShape);
-            }
-            else
-            {
-                currentShape = m_shapes[body];
-                actor->detachShape(*currentShape);
-                actor->attachShape(*newShape);
-            }
-
-            m_shapes[body] = newShape;
-            newShape->release();
-        }
-    }
-
-    void PhysicsEngine::SetBodyKinematic(ECS::Entity body, bool kinematic)
-    {
-        auto& phy         = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        phy.m_isKinematic = kinematic;
-
-        if (phy.m_simType == SimulationType::Dynamic)
-        {
-            auto* act = (PxRigidDynamic*)m_actors[body];
-            act->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, kinematic);
-
-            if (!kinematic)
-                act->wakeUp();
-        }
+        //  auto& phy         = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        //  phy.m_isKinematic = kinematic;
+        //
+        //  if (phy.m_simType == SimulationType::Dynamic)
+        //  {
+        //      auto* act = (PxRigidDynamic*)m_actors[body];
+        //      act->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, kinematic);
+        //
+        //      if (!kinematic)
+        //          act->wakeUp();
+        //  }
     }
 
     void PhysicsEngine::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         return;
-
-        ECS::Registry::Get()->on_destroy<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentRemoved>(this);
-        ECS::Registry::Get()->on_construct<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
-        ECS::Registry::Get()->on_construct<ECS::EntityDataComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
-
-        const String defaultMaterialPath = "Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat";
-
-        if (Resources::ResourceStorage::Get()->Exists<PhysicsMaterial>(defaultMaterialPath))
-            m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>(defaultMaterialPath);
-
-        if (m_defaultMaterial == nullptr)
-            return;
-
-        m_pxDefaultMaterial->setStaticFriction(m_defaultMaterial->m_staticFriction);
-        m_pxDefaultMaterial->setDynamicFriction(m_defaultMaterial->m_dynamicFriction);
-        m_pxDefaultMaterial->setRestitution(m_defaultMaterial->m_restitution);
-
-        auto view = ECS::Registry::Get()->view<ECS::PhysicsComponent>();
-
-        for (auto entity : view)
-        {
-            ECS::PhysicsComponent& phyComp = view.get<ECS::PhysicsComponent>(entity);
-
-            if (phyComp.m_simType == SimulationType::Dynamic)
-                AddBodyToWorld(entity, true);
-            else if (phyComp.m_simType == SimulationType::Static)
-                AddBodyToWorld(entity, false);
-        }
+        //
+        //  ECS::Registry::Get()->on_destroy<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentRemoved>(this);
+        //  ECS::Registry::Get()->on_construct<ECS::PhysicsComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
+        //  ECS::Registry::Get()->on_construct<World::Entity*DataComponent>().connect<&PhysicsEngine::OnPhysicsComponentAdded>(this);
+        //
+        //  const String defaultMaterialPath = "Resources/Engine/Physics/Materials/DefaultPhysicsMaterial.linaphymat";
+        //
+        //  if (Resources::ResourceStorage::Get()->Exists<PhysicsMaterial>(defaultMaterialPath))
+        //      m_defaultMaterial = Resources::ResourceStorage::Get()->GetResource<PhysicsMaterial>(defaultMaterialPath);
+        //
+        //  if (m_defaultMaterial == nullptr)
+        //      return;
+        //
+        //  m_pxDefaultMaterial->setStaticFriction(m_defaultMaterial->m_staticFriction);
+        //  m_pxDefaultMaterial->setDynamicFriction(m_defaultMaterial->m_dynamicFriction);
+        //  m_pxDefaultMaterial->setRestitution(m_defaultMaterial->m_restitution);
+        //
+        //  auto view = ECS::Registry::Get()->view<ECS::PhysicsComponent>();
+        //
+        //  for (auto entity : view)
+        //  {
+        //      ECS::PhysicsComponent& phyComp = view.get<ECS::PhysicsComponent>(entity);
+        //
+        //      if (phyComp.m_simType == SimulationType::Dynamic)
+        //          AddBodyToWorld(entity, true);
+        //      else if (phyComp.m_simType == SimulationType::Static)
+        //          AddBodyToWorld(entity, false);
+        //  }
     }
 
-    void PhysicsEngine::OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent)
-    {
-        RemoveBodyFromWorld(ent);
-    }
+ //  void PhysicsEngine::OnPhysicsComponentRemoved(entt::registry& reg, entt::entity ent)
+ //  {
+ //      //  RemoveBodyFromWorld(ent);
+ //  }
 
-    void PhysicsEngine::OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev)
-    {
+ //   void PhysicsEngine::OnEntityEnabledChanged(const Event::EEntityEnabledChanged& ev)
+ //   {
+ //
+ //       // if (IsEntityAPhysicsActor(ev.entity))
+ //       // {
+ //       //     if (!ev.enabled)
+ //       //         RemoveBodyFromWorld(ev.entity);
+ //       // }
+ //       // else
+ //       // {
+ //       //    auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(ev.entity);
+ //       //
+ //       //    if (ev.enabled && phy.m_simType != SimulationType::None)
+ //       //        AddBodyToWorld(ev.entity, phy.m_simType == SimulationType::Dynamic);
+ //       // }
+ //   }
 
-        if (IsEntityAPhysicsActor(ev.entity))
-        {
-            if (!ev.enabled)
-                RemoveBodyFromWorld(ev.entity);
-        }
-        else
-        {
-            auto& phy = ECS::Registry::Get()->get<ECS::PhysicsComponent>(ev.entity);
-
-            if (ev.enabled && phy.m_simType != SimulationType::None)
-                AddBodyToWorld(ev.entity, phy.m_simType == SimulationType::Dynamic);
-        }
-    }
-
-    void PhysicsEngine::RemoveBodyFromWorld(ECS::Entity body)
+    void PhysicsEngine::RemoveBodyFromWorld(World::Entity* body)
     {
         if (m_actors.find(body) == m_actors.end())
             return;
-        LINA_TRACE("Removing body from the world. {0}", body);
+       // LINA_TRACE("Removing body from the world. {0}", body);
         m_actors[body]->release();
         m_actors.erase(body);
     }
 
-    void PhysicsEngine::AddBodyToWorld(ECS::Entity body, bool isDynamic)
+    void PhysicsEngine::AddBodyToWorld(World::Entity* body, bool isDynamic)
     {
-        if (isDynamic && m_actors.find(body) != m_actors.end())
-            return;
-
-        ECS::EntityDataComponent& data    = ECS::Registry::Get()->get<ECS::EntityDataComponent>(body);
-        ECS::PhysicsComponent&    phyComp = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
-        PxTransform               pose;
-        pose.p         = ToPxVector3(data.GetPosition());
-        pose.q         = ToPxQuat(data.GetRotation());
-        PxShape* shape = GetCreateShape(phyComp);
-
-        if (isDynamic)
-        {
-            LINA_TRACE("Adding a dynamic actor to the world. {0}", body);
-            PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
-            rigid->attachShape(*shape);
-            physx::PxRigidBodyExt::updateMassAndInertia(*rigid, 10.0f);
-            rigid->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, phyComp.GetIsKinematic());
-            m_actors[body] = rigid;
-            m_pxScene->addActor(*rigid);
-            m_shapes[body] = shape;
-        }
-        else
-        {
-            LINA_TRACE("Adding a static actor to the world. {0}", body);
-            PxRigidStatic* stc = m_pxPhysics->createRigidStatic(pose);
-            stc->attachShape(*shape);
-            m_actors[body] = stc;
-            m_pxScene->addActor(*stc);
-            m_shapes[body] = shape;
-        }
-
-        shape->release();
+        //  if (isDynamic && m_actors.find(body) != m_actors.end())
+        //      return;
+        //
+        //  World::Entity*DataComponent& data    = ECS::Registry::Get()->get<World::Entity*DataComponent>(body);
+        //  ECS::PhysicsComponent&    phyComp = ECS::Registry::Get()->get<ECS::PhysicsComponent>(body);
+        //  PxTransform               pose;
+        //  pose.p         = ToPxVector3(data.GetPosition());
+        //  pose.q         = ToPxQuat(data.GetRotation());
+        //  PxShape* shape = GetCreateShape(phyComp);
+        //
+        //  if (isDynamic)
+        //  {
+        //      LINA_TRACE("Adding a dynamic actor to the world. {0}", body);
+        //      PxRigidDynamic* rigid = m_pxPhysics->createRigidDynamic(pose);
+        //      rigid->attachShape(*shape);
+        //      physx::PxRigidBodyExt::updateMassAndInertia(*rigid, 10.0f);
+        //      rigid->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, phyComp.GetIsKinematic());
+        //      m_actors[body] = rigid;
+        //      m_pxScene->addActor(*rigid);
+        //      m_shapes[body] = shape;
+        //  }
+        //  else
+        //  {
+        //      LINA_TRACE("Adding a static actor to the world. {0}", body);
+        //      PxRigidStatic* stc = m_pxPhysics->createRigidStatic(pose);
+        //      stc->attachShape(*shape);
+        //      m_actors[body] = stc;
+        //      m_pxScene->addActor(*stc);
+        //      m_shapes[body] = shape;
+        //  }
+        //
+        //  shape->release();
     }
 
     physx::PxActor** PhysicsEngine::GetActiveActors(uint32& size)
@@ -577,7 +567,7 @@ namespace Lina::Physics
         return m_pxScene->getActiveActors(size);
     }
 
-    ECS::Entity PhysicsEngine::GetEntityOfActor(physx::PxActor* actor)
+    World::Entity* PhysicsEngine::GetEntityOfActor(physx::PxActor* actor)
     {
         for (auto& p : m_actors)
         {
@@ -585,10 +575,10 @@ namespace Lina::Physics
                 return p.first;
         }
 
-        return entt::null;
+        return nullptr;
     }
 
-    HashMap<ECS::Entity, physx::PxRigidActor*>& PhysicsEngine::GetAllActors()
+    HashMap<World::Entity*, physx::PxRigidActor*>& PhysicsEngine::GetAllActors()
     {
         return m_actors;
     }
