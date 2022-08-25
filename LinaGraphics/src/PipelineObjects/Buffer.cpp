@@ -26,28 +26,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "PipelineObjects/Buffer.hpp"
+#include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
+#include "Utility/Vulkan/vk_mem_alloc.h"
+#include <vulkan/vulkan.h>
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
-
-// Headers here.
-#include "ResourceLoader.hpp"
-
-namespace Lina::Resources
+namespace Lina::Graphics
 {
-    class EditorResourceLoader : public ResourceLoader
+    void Buffer::Create()
     {
+        VkBufferCreateInfo bufferInfo = VkBufferCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .pNext = nullptr,
+            .size  = size,
+            .usage = GetBufferUsageFlags(bufferUsage),
+        };
 
-    public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
+        VmaAllocationCreateInfo vmaallocInfo = {
+            .usage = GetMemoryUsageFlags(memoryUsage),
+        };
 
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
-    };
-} // namespace Lina::Resources
+        VkResult result = vmaCreateBuffer(Backend::Get()->GetVMA(), &bufferInfo, &vmaallocInfo, &_ptr, &_allocation, nullptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Buffer] -> Could not create Buffer!");
+    }
 
-#endif
+    void Buffer::Destroy()
+    {
+        vmaDestroyBuffer(Backend::Get()->GetVMA(), _ptr, _allocation);
+    }
+
+    void Buffer::CopyInto(const void* src, uint32 size)
+    {
+        void* data;
+        vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
+        MEMCPY(data, src, size);
+        vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+    }
+
+} // namespace Lina::Graphics

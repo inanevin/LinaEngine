@@ -34,22 +34,25 @@ namespace Lina::World
 {
     void Entity::AddChild(Entity* e)
     {
-        m_children.insert(e->m_id);
-        e->m_parent = m_id;
+        m_childrenID.insert(e->m_id);
+        m_children.insert(e);
+        e->m_parentID = m_id;
+        e->m_parent   = this;
     }
 
     void Entity::RemoveChild(Entity* e)
     {
-        m_children.erase(e->m_id);
-        e->m_parent = ENTITY_NULL;
+        m_childrenID.erase(e->m_id);
+        m_children.erase(e);
+        e->m_parentID = ENTITY_NULL;
+        e->m_parent   = nullptr;
     }
 
     void Entity::RemoveFromParent()
     {
-        if (m_parent != ENTITY_NULL)
-            m_world->GetEntity(m_parent)->RemoveChild(this);
+        if (m_parentID != ENTITY_NULL)
+            m_parent->RemoveChild(this);
     }
-
 
     void Entity::SetTransformation(Matrix& mat, bool omitScale)
     {
@@ -112,7 +115,7 @@ namespace Lina::World
         UpdateGlobalPosition();
 
         for (auto child : m_children)
-            m_world->GetEntity(child)->UpdateGlobalPosition();
+            child->UpdateGlobalPosition();
     }
     void Entity::SetPosition(const Vector3& loc)
     {
@@ -122,7 +125,7 @@ namespace Lina::World
         UpdateLocalPosition();
 
         for (auto child : m_children)
-            m_world->GetEntity(child)->UpdateGlobalPosition();
+            child->UpdateGlobalPosition();
     }
 
     void Entity::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
@@ -133,11 +136,10 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalRotation();
+            child->UpdateGlobalRotation();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
@@ -150,11 +152,10 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalRotation();
+            child->UpdateGlobalRotation();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
@@ -167,11 +168,10 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalRotation();
+            child->UpdateGlobalRotation();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
@@ -184,11 +184,10 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalRotation();
+            child->UpdateGlobalRotation();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
@@ -199,11 +198,10 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalScale();
+            child->UpdateGlobalScale();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
@@ -215,25 +213,23 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalScale();
+            child->UpdateGlobalScale();
 
             if (isThisPivot)
-                e->UpdateGlobalPosition();
+                child->UpdateGlobalPosition();
         }
     }
 
     void Entity::UpdateGlobalPosition()
     {
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
         {
             m_transform.m_previousPosition = m_transform.m_position;
             m_transform.m_position         = m_transform.m_localPosition;
         }
         else
         {
-            auto*   e                      = m_world->GetEntity(m_parent);
-            Matrix  global                 = e->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+            Matrix  global                 = m_parent->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
             Vector3 translation            = global.GetTranslation();
             m_transform.m_previousPosition = m_transform.m_position;
             m_transform.m_position         = translation;
@@ -241,34 +237,31 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalPosition();
+            child->UpdateGlobalPosition();
         }
     }
 
     void Entity::UpdateLocalPosition()
     {
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
             m_transform.m_localPosition = m_transform.m_position;
         else
         {
-            auto*  e                    = m_world->GetEntity(m_parent);
-            Matrix global               = e->m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
+            Matrix global               = m_parent->m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
             m_transform.m_localPosition = global.GetTranslation();
         }
     }
 
     void Entity::UpdateGlobalScale()
     {
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
         {
             m_transform.m_previousScale = m_transform.m_scale;
             m_transform.m_scale         = m_transform.m_localScale;
         }
         else
         {
-            auto*   e      = m_world->GetEntity(m_parent);
-            Matrix  global = Matrix::Scale(e->m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
+            Matrix  global = Matrix::Scale(m_parent->m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
             Vector3 scale  = global.GetScale();
             ;
             m_transform.m_previousScale = m_transform.m_scale;
@@ -277,14 +270,13 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalScale();
+            child->UpdateGlobalScale();
         }
     }
 
     void Entity::UpdateGlobalRotation()
     {
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
         {
             m_transform.m_previousAngles = m_transform.m_rotationAngles;
             m_transform.m_rotation       = m_transform.m_localRotation;
@@ -292,8 +284,7 @@ namespace Lina::World
         }
         else
         {
-            auto*      e      = m_world->GetEntity(m_parent);
-            Matrix     global = Matrix::InitRotation(e->m_transform.m_rotation) * m_transform.ToLocalMatrix();
+            Matrix     global = Matrix::InitRotation(m_parent->m_transform.m_rotation) * m_transform.ToLocalMatrix();
             Quaternion targetRot;
             Vector3    s = Vector3(), p = Vector3();
             global.Decompose(p, targetRot, s);
@@ -304,35 +295,32 @@ namespace Lina::World
 
         for (auto child : m_children)
         {
-            auto* e = m_world->GetEntity(child);
-            e->UpdateGlobalRotation();
+            child->UpdateGlobalRotation();
         }
     }
 
     void Entity::UpdateLocalScale()
     {
 
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
             m_transform.m_localScale = m_transform.m_scale;
         else
         {
-            auto*  e                 = m_world->GetEntity(m_parent);
-            Matrix global            = Matrix::Scale(e->m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
+            Matrix global            = Matrix::Scale(m_parent->m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
             m_transform.m_localScale = global.GetScale();
         }
     }
 
     void Entity::UpdateLocalRotation()
     {
-        if (m_parent == ENTITY_NULL)
+        if (m_parent == nullptr)
         {
             m_transform.m_localRotation       = m_transform.m_rotation;
             m_transform.m_localRotationAngles = m_transform.m_rotationAngles;
         }
         else
         {
-            auto*   e      = m_world->GetEntity(m_parent);
-            Matrix  global = Matrix::InitRotation(e->m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
+            Matrix  global = Matrix::InitRotation(m_parent->m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
             Vector3 s = Vector3(), p = Vector3();
             global.Decompose(s, m_transform.m_localRotation, p);
             m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();

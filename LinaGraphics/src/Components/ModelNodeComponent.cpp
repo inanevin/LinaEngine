@@ -26,28 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Components/ModelNodeComponent.hpp"
+#include "Core/RenderEngine.hpp"
+#include "Resource/ModelNode.hpp"
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
-
-// Headers here.
-#include "ResourceLoader.hpp"
-
-namespace Lina::Resources
+namespace Lina::Graphics
 {
-    class EditorResourceLoader : public ResourceLoader
+    AABB& ModelNodeComponent::GetAABB()
     {
+        Model*     placeholderModel = RenderEngine::Get()->GetPlaceholderModel();
+        ModelNode* placeholderNode  = RenderEngine::Get()->GetPlaceholderModelNode();
+        Model*     model            = m_modelHandle.IsValid() ? m_modelHandle.value : placeholderModel;
+        ModelNode* node             = m_modelHandle.IsValid() ? model->GetNodes()[m_nodeIndex] : placeholderNode;
+        return node->GetAABB();
+    }
 
-    public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
-
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
-    };
-} // namespace Lina::Resources
-
-#endif
+} // namespace Lina::Graphics

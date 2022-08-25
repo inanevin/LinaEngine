@@ -46,19 +46,17 @@ namespace Lina::Graphics
 
     class FramePacket;
     class RenderableComponent;
-
     class View
     {
     public:
-        void CalculateVisibility(FramePacket& fp);
-        bool IsVisibleByView(RenderableComponent* r);
+        void CalculateVisibility(RenderableComponent** renderables, uint32 size);
 
         inline ViewType GetType()
         {
             return m_viewType;
         }
 
-        inline HashSet<RenderableComponent*>& GetVisibleObjects()
+        inline Vector<RenderableComponent*>& GetVisibleObjects()
         {
             return m_visibleRenderables;
         }
@@ -84,12 +82,12 @@ namespace Lina::Graphics
         void CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj);
 
     private:
-        ViewType                      m_viewType = ViewType::Player;
-        HashSet<RenderableComponent*> m_visibleRenderables;
-        Matrix                        m_view;
-        Matrix                        m_proj;
-        Vector3                       m_pos     = Vector3::Zero;
-        Frustum                       m_frustum = Frustum();
+        Vector<RenderableComponent*> m_visibleRenderables;
+        ViewType                     m_viewType = ViewType::Player;
+        Matrix                       m_view;
+        Matrix                       m_proj;
+        Vector3                      m_pos     = Vector3::Zero;
+        Frustum                      m_frustum = Frustum();
     };
 } // namespace Lina::Graphics
 

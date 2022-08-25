@@ -1,5 +1,6 @@
 #include "Core/GraphicsCommon.hpp"
 #include <vulkan/vulkan.h>
+#include "Utility/Vulkan/vk_mem_alloc.h"
 
 namespace Lina::Graphics
 {
@@ -391,6 +392,84 @@ namespace Lina::Graphics
             return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         default:
             return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        }
+    }
+
+    uint32 GetBufferUsageFlags(BufferUsageFlags flags)
+    {
+        switch (flags)
+        {
+        case BufferUsageFlags::VertexBuffer:
+            return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        case BufferUsageFlags::UniformBuffer:
+            return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        default:
+            return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        }
+    }
+
+    VmaMemoryUsage GetMemoryUsageFlags(MemoryUsageFlags flags)
+    {
+        switch (flags)
+        {
+        case MemoryUsageFlags::CpuOnly:
+            return VMA_MEMORY_USAGE_CPU_ONLY;
+        case MemoryUsageFlags::GpuOnly:
+            return VMA_MEMORY_USAGE_GPU_ONLY;
+        case MemoryUsageFlags::CpuToGpu:
+            return VMA_MEMORY_USAGE_CPU_TO_GPU;
+        case MemoryUsageFlags::GpuToCpu:
+            return VMA_MEMORY_USAGE_GPU_TO_CPU;
+        default:
+            return VMA_MEMORY_USAGE_CPU_ONLY;
+        }
+    }
+
+    uint32 GetDescriptorSetCreateFlags(DescriptorSetCreateFlags flags)
+    {
+        switch (flags)
+        {
+        case DescriptorSetCreateFlags::None:
+            return 0;
+        case DescriptorSetCreateFlags::UpdateAfterBind:
+            return VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+        case DescriptorSetCreateFlags::Push:
+            return VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+        default:
+            return 0;
+        }
+    }
+
+    uint32 GetDescriptorPoolCreateFlags(DescriptorPoolCreateFlags flags)
+    {
+        switch (flags)
+        {
+        case DescriptorPoolCreateFlags::None:
+            return 0;
+        case DescriptorPoolCreateFlags::FreeDescriptorSet:
+            return VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+        case DescriptorPoolCreateFlags::UpdateAfterBind:
+            return VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+        case DescriptorPoolCreateFlags::HostOnly:
+            return VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_VALVE;
+        default:
+            return 0;
+        }
+    }
+
+    VkDescriptorType GetDescriptorType(DescriptorType type)
+    {
+        switch (type)
+        {
+        case DescriptorType::UniformBuffer:
+
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case DescriptorType::StorageBuffer:
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        case DescriptorType::CombinedImageSampler:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        default:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         }
     }
 

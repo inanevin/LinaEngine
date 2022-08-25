@@ -100,7 +100,7 @@ namespace Lina
     {
         Vector3 dir = to - from;
         dir         = dir.Normalized();
-        return glm::quatLookAtLH(dir, up);
+        return glm::quatLookAt(dir, up);
     }
 
     Quaternion Quaternion::Conjugate() const

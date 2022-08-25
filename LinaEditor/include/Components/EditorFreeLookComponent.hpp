@@ -52,16 +52,18 @@ namespace Lina::World
             return GetTypeID<EditorFreeLookComponent>();
         }
 
+        virtual void OnComponentCreated() override;
+
         virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
             Component::SaveToArchive(oarchive);
-            oarchive(movementSpeed, rotationPower, m_angles);
+            oarchive(movementSpeed, rotationPower, m_targetEuler, m_targetPosition);
         }
 
         virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
         {
             Component::LoadFromArchive(iarchive);
-            iarchive(movementSpeed, rotationPower, m_angles);
+            iarchive(movementSpeed, rotationPower, m_targetEuler, m_targetPosition);
         }
 
         virtual void OnTick(const Event::ETick& ev) override;
@@ -72,8 +74,9 @@ namespace Lina::World
         }
 
     private:
-        Vector2 m_lastMousePos = Vector2::Zero;
-        Vector2 m_angles       = Vector2::Zero;
+        Vector3 m_targetEuler    = Vector3();
+        Vector3 m_targetPosition = Vector3();
+        Vector2 m_lastMousePos   = Vector2::Zero;
     };
 } // namespace Lina::World
 

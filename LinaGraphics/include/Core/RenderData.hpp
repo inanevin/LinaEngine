@@ -42,25 +42,9 @@ namespace Lina::Graphics
         RenderableComponent* renderable = nullptr;
         Vector3              position   = Vector3::Zero;
         AABB                 aabb       = AABB();
-
-        bool operator==(const VisibilityData& v2) const
-        {
-            return renderable == v2.renderable;
-        }
+        bool                 valid      = false;
     };
 
 } // namespace Lina::Graphics
-
-namespace eastl
-{
-    template<>
-    struct hash<Lina::Graphics::VisibilityData>
-    {
-        size_t operator()(const Lina::Graphics::VisibilityData& v1) const
-        {
-            return reinterpret_cast<size_t>(v1.renderable);
-        }
-    };
-}
 
 #endif

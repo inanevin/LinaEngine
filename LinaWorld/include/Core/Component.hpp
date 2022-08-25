@@ -39,9 +39,8 @@ SOFTWARE.
 
 namespace Lina::World
 {
-
     class Entity;
-    // Actual game state
+
     class Component
     {
     public:
@@ -49,17 +48,18 @@ namespace Lina::World
         ~Component() = default;
 
         virtual TypeID GetTID() = 0;
-        virtual void   SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive);
-        virtual void   LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive);
-        virtual void   OnComponentCreated();
-        virtual void   OnComponentDestroyed();
 
-        virtual void   OnStartGame(const Event::EStartGame& ev){};
-        virtual void   OnEndGame(const Event::EEndGame& ev){};
-        virtual void   OnTick(const Event::ETick& ev){};
-        virtual void   OnPreTick(const Event::EPreTick& ev){};
-        virtual void   OnPostTick(const Event::EPostTick& ev){};
-        virtual void   OnPostPhysicsTick(const Event::EPostPhysicsTick& ev){};
+        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive);
+        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive);
+        virtual void OnComponentCreated();
+        virtual void OnComponentDestroyed();
+
+        virtual void OnStartGame(const Event::EStartGame& ev){};
+        virtual void OnEndGame(const Event::EEndGame& ev){};
+        virtual void OnTick(const Event::ETick& ev){};
+        virtual void OnPreTick(const Event::EPreTick& ev){};
+        virtual void OnPostTick(const Event::EPostTick& ev){};
+        virtual void OnPostPhysicsTick(const Event::EPostPhysicsTick& ev){};
 
         inline Entity* GetEntity()
         {
@@ -81,8 +81,10 @@ namespace Lina::World
         friend class ComponentCache;
         friend class EntityWorld;
         friend class Entity;
+        friend class Memory::MemoryManager;
 
-        uint32 m_entityID = 0;
+        uint32 m_entityID       = 0;
+        uint32 m_allocPoolIndex = 0;
     };
 
 } // namespace Lina::World

@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Data/PriorityQueue.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "Core/CommonMemory.hpp"
 
 namespace Lina
 {
@@ -72,10 +73,10 @@ namespace Lina::Resources
         }
         virtual ~ResourceLoader(){};
 
-        virtual void LoadResource(TypeID tid, const String& path, bool loadAsync)            = 0;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) = 0;
-        virtual void LoadStaticResources()                                                   = 0;
-        virtual void LoadEngineResources()                                                   = 0;
+        virtual void LoadResource(TypeID tid, const String& path, bool loadAsync, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) = 0;
+        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap)                                                         = 0;
+        virtual void LoadStaticResources()                                                                                                           = 0;
+        virtual void LoadEngineResources()                                                                                                           = 0;
 
         inline ResourcePackager& GetPackager()
         {
@@ -88,12 +89,12 @@ namespace Lina::Resources
         /// <summary>
         /// Loads a single file resource.
         /// </summary>
-        bool LoadSingleResourceFromFile(TypeID tid, const String& fullpath);
+        bool LoadSingleResourceFromFile(TypeID tid, const String& fullpath, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None);
 
         /// <summary>
         /// Loads a memory file resource.
         /// </summary>
-        bool LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data);
+        bool LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None);
 
         /// <summary>
         /// Checks the current level resources to load and unloads any active resource that doesn't belong in the map.

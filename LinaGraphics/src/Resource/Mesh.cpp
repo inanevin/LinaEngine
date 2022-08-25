@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "Math/Color.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Core/GraphicsCommon.hpp"
 #include <vulkan/vulkan.h>
 #include "Utility/Vulkan/vk_mem_alloc.h"
 
@@ -37,7 +38,7 @@ namespace Lina::Graphics
 {
     Mesh::~Mesh()
     {
-        vmaDestroyBuffer(Backend::Get()->GetVMA(), m_gpuVtxBuffer.buffer, m_gpuVtxBuffer.allocation);
+        m_gpuVtxBuffer.Destroy();
         m_vertices.clear();
         m_indices.clear();
     }
@@ -59,29 +60,14 @@ namespace Lina::Graphics
             return;
         }
 
-        // Allocate Vertex buffer
-        VkBufferCreateInfo bufferInfo = VkBufferCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-            .size  = m_vertices.size() * sizeof(Vertex),
-            .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        m_gpuVtxBuffer = Buffer{
+            .size        = m_vertices.size() * sizeof(Vertex),
+            .bufferUsage = BufferUsageFlags::VertexBuffer,
+            .memoryUsage = MemoryUsageFlags::CpuToGpu,
         };
-
-        VmaAllocationCreateInfo vmaallocInfo = {
-            .usage = VMA_MEMORY_USAGE_CPU_TO_GPU,
-        };
-
-        VkResult res = vmaCreateBuffer(Backend::Get()->GetVMA(), &bufferInfo, &vmaallocInfo,
-                                       &m_gpuVtxBuffer.buffer,
-                                       &m_gpuVtxBuffer.allocation,
-                                       nullptr);
 
         // Transfer the data from cpu to gpu
-        void* data;
-        vmaMapMemory(Backend::Get()->GetVMA(), m_gpuVtxBuffer.allocation, &data);
-        MEMCPY(data, m_vertices.data(), m_vertices.size() * sizeof(Vertex));
-        vmaUnmapMemory(Backend::Get()->GetVMA(), m_gpuVtxBuffer.allocation);
-
-        if (res != VK_SUCCESS)
-            LINA_ERR("[Model] -> Could not create Vulkan buffer for the mesh!");
+        m_gpuVtxBuffer.Create();
+        m_gpuVtxBuffer.CopyInto(m_vertices.data(), static_cast<uint32>(m_vertices.size() * sizeof(Vertex)));
     }
 } // namespace Lina::Graphics

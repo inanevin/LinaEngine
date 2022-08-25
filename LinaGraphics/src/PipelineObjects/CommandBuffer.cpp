@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
+#include "PipelineObjects/DescriptorSet.hpp"
 #include "Core/Backend.hpp"
 #include <vulkan/vulkan.h>
 
@@ -68,6 +70,16 @@ namespace Lina::Graphics
     void CommandBuffer::BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset)
     {
         vkCmdBindVertexBuffers(_ptr, firstBinding, bindingCount, &buffer, offset);
+    }
+
+    void CommandBuffer::BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets)
+    {
+        Vector<VkDescriptorSet> _sets;
+
+        for (uint32 i = 0; i < setCount; i++)
+            _sets.push_back(sets[i]._ptr);
+
+        vkCmdBindDescriptorSets(_ptr, GetPipelineBindPoint(bindPoint), pLayout, firstSet, setCount, _sets.data(), 0, nullptr);
     }
 
     void CommandBuffer::PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants)

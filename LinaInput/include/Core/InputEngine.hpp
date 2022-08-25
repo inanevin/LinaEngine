@@ -67,13 +67,14 @@ namespace Lina::Input
         bool GetMouseButtonUp(int index);
         void SetCursorMode(CursorMode mode);
         void SetMousePosition(const Vector2& v) const;
+        void SetRawMotion(bool enabled);
 
         /// <summary>
         /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
         /// </summary>
         /// <returns></returns>
         Vector2        GetMousePosition();
-        Vector2        GetRawMouseAxis();
+        Vector2        GetMouseAxisDefinite();
         Vector2        GetMouseAxis();
         inline Vector2 GetMouseScroll()
         {
@@ -124,6 +125,7 @@ namespace Lina::Input
         CursorMode          m_cursorMode         = CursorMode::Visible;
         Vector2             m_currentMouseScroll = Vector2::Zero;
         Vector2             m_axisMousePos       = Vector2::Zero;
+        bool                m_rawMotionSupported = false;
     };
 } // namespace Lina::Input
 

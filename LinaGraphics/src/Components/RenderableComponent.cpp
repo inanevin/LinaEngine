@@ -27,9 +27,19 @@ SOFTWARE.
 */
 
 #include "Components/RenderableComponent.hpp"
+#include "Core/RenderEngine.hpp"
 
-namespace Lina::World
+namespace Lina::Graphics
 {
-   
+    void RenderableComponent::OnComponentCreated()
+    {
+        Component::OnComponentCreated();
+        RenderEngine::Get()->GetLevelRenderer().AddRenderable(this);
+    }
 
+    void RenderableComponent::OnComponentDestroyed()
+    {
+        Component::OnComponentDestroyed();
+        RenderEngine::Get()->GetLevelRenderer().RemoveRenderable(this);
+    }
 } // namespace Lina::Graphics

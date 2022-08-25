@@ -32,8 +32,10 @@ SOFTWARE.
 #define PipelineLayout_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "DescriptorSetLayout.hpp"
 
 struct VkPipelineLayout_T;
+struct VkDescriptorSetLayout_T;
 
 namespace Lina::Graphics
 {
@@ -43,11 +45,14 @@ namespace Lina::Graphics
     public:
         void            Create();
         PipelineLayout& AddPushConstant(const PushConstantRange& r);
+        PipelineLayout& AddDescriptorSetLayout(const DescriptorSetLayout& l);
 
+        // Description
         Vector<PushConstantRange> pushConstantRanges;
 
         // Runtime
-        VkPipelineLayout_T* _ptr = nullptr;
+        VkPipelineLayout_T*              _ptr = nullptr;
+        Vector<VkDescriptorSetLayout_T*> _setLayoutPtrs;
     };
 } // namespace Lina::Graphics
 

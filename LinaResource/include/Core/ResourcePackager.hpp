@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "Data/HashSet.hpp"
 #include "Data/HashMap.hpp"
+#include "Core/CommonMemory.hpp"
 
 namespace Lina
 {
@@ -54,10 +55,10 @@ namespace Lina::Resources
         friend class EditorResourceLoader;
         friend class StandaloneResourceLoader;
 
-        void LoadPackage(const String& packageName, ResourceLoader* loader);
-        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, ResourceLoader* loader);
-        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader);
+        void LoadPackage(const String& packageName, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
+        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
+        void UnpackAndLoad(const String& filePath, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
+        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
         void PackageProject(const String& path, const Vector<String>& levelsToPackage, const HashMap<TypeID, Vector<String>>& resourceMap);
         void PackageFileset(Vector<String> files, const String& output);
     };

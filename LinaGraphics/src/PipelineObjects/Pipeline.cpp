@@ -90,22 +90,15 @@ namespace Lina::Graphics
 
         Vector<VkPipelineShaderStageCreateInfo> _shaderStages;
         Vector<VkShaderModule_T*>               addedModules;
-        VkShaderModule_T*                       vtxMod  = _shader->GetModule(ShaderStage::Vertex);
-        VkShaderModule_T*                       fragMod = _shader->GetModule(ShaderStage::Fragment);
-        addedModules.push_back(vtxMod);
-        addedModules.push_back(fragMod);
 
-        VkPipelineShaderStageCreateInfo vtxInfo  = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Vertex, vtxMod);
-        VkPipelineShaderStageCreateInfo fragInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Fragment, fragMod);
-        _shaderStages.push_back(vtxInfo);
-        _shaderStages.push_back(fragInfo);
+        const auto& modules = _shader->GetModules();
 
-        if (_shader->HasStage(ShaderStage::Geometry))
+        for (auto& [stage, mod] : modules)
         {
-            VkShaderModule_T* geoMod = _shader->GetModule(ShaderStage::Geometry);
-            addedModules.push_back(geoMod);
-            VkPipelineShaderStageCreateInfo geoInfo = VulkanUtility::CreatePipelineShaderStageCreateInfo(ShaderStage::Geometry, geoMod);
-            _shaderStages.push_back(geoInfo);
+            VkShaderModule_T* _mod = mod.ptr;
+            addedModules.push_back(_mod);
+            VkPipelineShaderStageCreateInfo info = VulkanUtility::CreatePipelineShaderStageCreateInfo(stage, _mod);
+            _shaderStages.push_back(info);
         }
 
         VkGraphicsPipelineCreateInfo pipelineInfo = VkGraphicsPipelineCreateInfo{

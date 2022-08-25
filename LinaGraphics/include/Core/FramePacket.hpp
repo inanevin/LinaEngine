@@ -42,10 +42,11 @@ namespace Lina::Graphics
     public:
         void Reset()
         {
+            PROFILER_FUNC(PROFILER_THREAD_MAIN);
             visibles.clear();
         }
 
-        HashSet<VisibilityData> visibles;
+        Vector<VisibilityData> visibles;
     };
 } // namespace Lina::Graphics
 

@@ -48,7 +48,7 @@ namespace Lina::Resources
 {
 #define RESOURCEPACKAGE_EXTENSION String(".linapackage")
 
-    void ResourcePackager::LoadPackage(const String& packageName, ResourceLoader* loader)
+    void ResourcePackager::LoadPackage(const String& packageName, ResourceLoader* loader, Memory::ResourceAllocator allocator)
     {
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
@@ -58,10 +58,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        UnpackAndLoad(fullBundlePath, loader);
+        UnpackAndLoad(fullBundlePath, loader, allocator);
     }
 
-    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader)
+    void ResourcePackager::LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator)
     {
         const String fullPath = "Packages/" + packageName + RESOURCEPACKAGE_EXTENSION;
         if (!Utility::FileExists(fullPath))
@@ -71,10 +71,10 @@ namespace Lina::Resources
         }
 
         String fullBundlePath = fullPath;
-        UnpackAndLoad(fullBundlePath, filesToLoad, loader);
+        UnpackAndLoad(fullBundlePath, filesToLoad, loader, allocator);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath, ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath, ResourceLoader* loader, Memory::ResourceAllocator allocator)
     {
         try
         {
@@ -123,14 +123,14 @@ namespace Lina::Resources
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
 
                 // Load async.
-                exec.silent_async([loader, filePathStr, &item]() {
+                exec.silent_async([loader, filePathStr, &item, allocator]() {
                     Vector<bit7z::byte_t> v;
                     v.reserve(item.second.size());
                     for (int i = 0; i < item.second.size(); i++)
                         v.push_back(item.second[i]);
 
                     Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = filePathStr});
-                    loader->LoadSingleResourceFromMemory(filePathStr, v);
+                    loader->LoadSingleResourceFromMemory(filePathStr, v, allocator);
                 });
 
                 delete[] filePath;
@@ -145,7 +145,7 @@ namespace Lina::Resources
         LINA_INFO("[Packager] -> Successfully unpacked package: {0}", filePath);
     }
 
-    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader)
+    void ResourcePackager::UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator)
     {
         Atomic<int> loadedFiles = 0;
 
@@ -209,7 +209,7 @@ namespace Lina::Resources
                 for (int i = 0; i < stdv.size(); i++)
                     v.push_back(stdv[i]);
 
-                loader->LoadSingleResourceFromMemory(str, v);
+                loader->LoadSingleResourceFromMemory(str, v, allocator);
 
                 loadedFiles++;
                 stdv.clear();

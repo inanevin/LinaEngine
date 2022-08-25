@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/CommonApplication.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/ResourceStorage.hpp"
+#include "Utility/ShaderUtility.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -43,31 +44,41 @@ namespace Lina::Graphics
 {
     Shader::~Shader()
     {
-        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrVtx, Backend::Get()->GetAllocator());
-        vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrFrag, Backend::Get()->GetAllocator());
-
-        if (m_assetData.geoShader)
-            vkDestroyShaderModule(Backend::Get()->GetDevice(), _ptrGeo, Backend::Get()->GetAllocator());
+        for (auto& [stage, mod] : m_modules)
+        {
+            if (mod.ptr != nullptr)
+                vkDestroyShaderModule(Backend::Get()->GetDevice(), mod.ptr, Backend::Get()->GetAllocator());
+        }
     }
 
     void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         IResource::SetSID(path);
+        m_text = String(reinterpret_cast<char*>(data), dataSize);
+
+        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
+        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
+        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
+        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
+        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
+        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
+
         LoadAssetData();
+
+        bool missing = false;
+        for (auto& [stage, mod] : m_modules)
+        {
+            if (mod.byteCode.empty())
+            {
+                missing = true;
+                break;
+            }
+        }
 
         // In standalone build we should already have loaded the byte code via asset data
         // So only re-generate if its missing.
-        if (m_assetData.vtxData.empty())
-        {
-            m_text       = String(reinterpret_cast<char*>(data), dataSize);
-            m_vertexText = GetShaderStageText(m_text, "#LINA_VS");
-            m_fragText   = GetShaderStageText(m_text, "#LINA_FS");
-
-            if (m_assetData.geoShader)
-                m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
-
+        if (missing)
             GenerateByteCode();
-        }
 
         if (!CreateShaderModules())
         {
@@ -76,10 +87,9 @@ namespace Lina::Graphics
         else
             GeneratePipeline();
 
-        // We do not need the byte code in standalone, clear it.
-        m_assetData.vtxData.clear();
-        m_assetData.fragData.clear();
-        m_assetData.geoData.clear();
+        // We do not need the byte code anymore.
+        for (auto& [stage, mod] : m_modules)
+            mod.byteCode.clear();
 
         return static_cast<void*>(this);
     }
@@ -87,9 +97,6 @@ namespace Lina::Graphics
     void* Shader::LoadFromFile(const String& path)
     {
         IResource::SetSID(path);
-        LoadAssetData();
-
-        // Always regenerate in editor.
 
         // Get the text from file.
         std::ifstream file;
@@ -99,12 +106,14 @@ namespace Lina::Graphics
         m_text = buffer.str().c_str();
         file.close();
 
-        m_vertexText = GetShaderStageText(m_text, "#LINA_VS");
-        m_fragText   = GetShaderStageText(m_text, "#LINA_FS");
+        LoadAssetData();
 
-        if (m_assetData.geoShader)
-            m_geoText = GetShaderStageText(m_text, "#LINA_GEO");
-
+        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
+        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
+        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
+        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
+        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
+        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
         GenerateByteCode();
 
         if (!CreateShaderModules())
@@ -114,7 +123,23 @@ namespace Lina::Graphics
         else
             GeneratePipeline();
 
+        // We do not need the byte code anymore.
+        for (auto& [stage, mod] : m_modules)
+            mod.byteCode.clear();
+
         return static_cast<void*>(this);
+    }
+
+    void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)
+    {
+        ShaderModule mod;
+        mod.moduleText = ShaderUtility::GetShaderStageText(m_text, define);
+
+        if (mod.moduleText.compare("") != 0)
+        {
+            mod.moduleName   = name;
+            m_modules[stage] = mod;
+        }
     }
 
     void Shader::LoadAssetData()
@@ -123,10 +148,8 @@ namespace Lina::Graphics
         if (!dm->Exists(m_sid))
             SaveAssetData();
 
-        m_assetData.geoShader = dm->GetValue<bool>(m_sid, "GeoShader");
-        m_assetData.vtxData   = dm->GetValue<Vector<unsigned int>>(m_sid, "VtxData");
-        m_assetData.fragData  = dm->GetValue<Vector<unsigned int>>(m_sid, "FragData");
-        m_assetData.geoData   = dm->GetValue<Vector<unsigned int>>(m_sid, "GeoData");
+        for (auto& [stage, mod] : m_modules)
+            mod.byteCode = dm->GetValue<Vector<unsigned int>>(m_sid, mod.moduleName);
     }
 
     void Shader::SaveAssetData()
@@ -134,10 +157,10 @@ namespace Lina::Graphics
         auto* dm = Resources::ResourceDataManager::Get();
 
         dm->CleanSlate(m_sid);
-        dm->SetValue<bool>(m_sid, "GeoShader", false);
-        dm->SetValue<Vector<unsigned int>>(m_sid, "VtxData", m_assetData.vtxData);
-        dm->SetValue<Vector<unsigned int>>(m_sid, "FragData", m_assetData.fragData);
-        dm->SetValue<Vector<unsigned int>>(m_sid, "GeoData", m_assetData.geoData);
+
+        for (auto& [stage, mod] : m_modules)
+            dm->SetValue<Vector<unsigned int>>(m_sid, mod.moduleName, mod.byteCode);
+
         dm->Save();
     }
 
@@ -147,76 +170,15 @@ namespace Lina::Graphics
         Resources::ResourceStorage::Get()->Unload<Shader>(m_sid);
     }
 
-    bool Shader::HasStage(ShaderStage stage)
-    {
-        switch (stage)
-        {
-        case ShaderStage::Fragment:
-        case ShaderStage::Vertex:
-            return true;
-        case ShaderStage::Geometry:
-            return m_assetData.geoShader;
-        default:
-            return false;
-        }
-    }
-
-    VkShaderModule_T* Shader::GetModule(ShaderStage stage)
-    {
-        switch (stage)
-        {
-        case ShaderStage::Vertex:
-            return _ptrVtx;
-        case ShaderStage::Fragment:
-            return _ptrFrag;
-        case ShaderStage::Geometry:
-            return _ptrGeo;
-        default:
-            return _ptrVtx;
-        }
-    }
-
-    String Shader::GetShaderStageText(const String& shader, const String& defineStart)
-    {
-        std::istringstream f(shader.c_str());
-        std::string        line;
-        bool               append = false;
-        String             out    = "";
-        while (std::getline(f, line))
-        {
-            if (!line.empty() && *line.rbegin() == '\r')
-                line.erase(line.end() - 1);
-
-            if (append && line.compare("#LINA_END") == 0)
-                break;
-
-            if (append)
-            {
-                out.append(line.c_str());
-                out.append("\n");
-            }
-
-            if (line.compare(defineStart.c_str()) == 0)
-                append = true;
-        }
-        return out;
-    }
-
     void Shader::GenerateByteCode()
     {
         if (!RenderEngine::Get()->IsInitialized())
             return;
 
-        m_assetData.vtxData.clear();
-        m_assetData.fragData.clear();
-
-        SPIRVUtility::GLSLToSPV(ShaderStage::Vertex, m_vertexText.c_str(), m_assetData.vtxData);
-        SPIRVUtility::GLSLToSPV(ShaderStage::Fragment, m_fragText.c_str(), m_assetData.fragData);
-
-        if (m_assetData.geoShader)
+        for (auto& [stage, mod] : m_modules)
         {
-            m_assetData.geoData.clear();
-            SPIRVUtility::GLSLToSPV(ShaderStage::Geometry, m_geoText.c_str(), m_assetData.geoData);
+            mod.byteCode.clear();
+            SPIRVUtility::GLSLToSPV(stage, mod.moduleText.c_str(), mod.byteCode);
         }
 
         if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
@@ -231,51 +193,19 @@ namespace Lina::Graphics
             return false;
         }
 
-        // Vtx shader
-        VkShaderModuleCreateInfo vtxCreateInfo = {
-            .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .pNext    = nullptr,
-            .codeSize = m_assetData.vtxData.size() * sizeof(uint32_t),
-            .pCode    = m_assetData.vtxData.data(),
-        };
-
-        VkResult res = vkCreateShaderModule(Backend::Get()->GetDevice(), &vtxCreateInfo, nullptr, &_ptrVtx);
-        if (res != VK_SUCCESS)
+        for (auto& [stage, mod] : m_modules)
         {
-            LINA_ERR("[Shader] -> Could not create Vertex shader module!");
-            return false;
-        }
-
-        // Frag shader
-        VkShaderModuleCreateInfo fragCreateInfo = {
-            .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .pNext    = nullptr,
-            .codeSize = m_assetData.fragData.size() * sizeof(uint32_t),
-            .pCode    = m_assetData.fragData.data(),
-        };
-
-        res = vkCreateShaderModule(Backend::Get()->GetDevice(), &fragCreateInfo, nullptr, &_ptrFrag);
-
-        if (res != VK_SUCCESS)
-        {
-            LINA_ERR("[Shader] -> Could not create Fragment shader module!");
-            return false;
-        }
-
-        if (m_assetData.geoShader)
-        {
-            // Geo shader
-            VkShaderModuleCreateInfo geoCreateInfo = {
+            VkShaderModuleCreateInfo vtxCreateInfo = {
                 .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
                 .pNext    = nullptr,
-                .codeSize = m_assetData.geoData.size() * sizeof(uint32_t),
-                .pCode    = m_assetData.geoData.data(),
+                .codeSize = mod.byteCode.size() * sizeof(uint32_t),
+                .pCode    = mod.byteCode.data(),
             };
 
-            res = vkCreateShaderModule(Backend::Get()->GetDevice(), &geoCreateInfo, nullptr, &_ptrGeo);
+            VkResult res = vkCreateShaderModule(Backend::Get()->GetDevice(), &vtxCreateInfo, nullptr, &mod.ptr);
             if (res != VK_SUCCESS)
             {
-                LINA_ERR("[Shader] -> Could not create Geometry shader module!");
+                LINA_ERR("[Shader] -> Could not create Vertex shader module!");
                 return false;
             }
         }
@@ -288,14 +218,25 @@ namespace Lina::Graphics
         if (!RenderEngine::Get()->IsInitialized())
             return;
 
-        PushConstantRange r = PushConstantRange{
-            .offset     = 0,
-            .size       = sizeof(MeshPushConstants),
-            .stageFlags = GetShaderStage(ShaderStage::Vertex),
-        };
-
         m_pipelineLayout = PipelineLayout{};
-        m_pipelineLayout.AddPushConstant(r).Create();
+
+        for (auto& [stage, mod] : m_modules)
+        {
+            Vector<PushConstantRange> pcrs = ShaderUtility::CheckForPushConstants(stage, mod.moduleText);
+
+            for (auto& pcr : pcrs)
+                m_pipelineLayout.AddPushConstant(pcr);
+
+            m_setLayouts = ShaderUtility::CheckForDescriptorSets(stage, mod.moduleText);
+
+            for (auto& dsl : m_setLayouts)
+            {
+                dsl.Create();
+                m_pipelineLayout.AddDescriptorSetLayout(dsl);
+            }
+        }
+
+        m_pipelineLayout.Create();
 
         m_pipeline = Pipeline{
             .depthTestEnabled  = true,

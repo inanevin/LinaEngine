@@ -28,26 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
+#ifndef CommonMemory_HPP
+#define CommonMemory_HPP
 
 // Headers here.
-#include "ResourceLoader.hpp"
 
-namespace Lina::Resources
+namespace Lina::Memory
 {
-    class EditorResourceLoader : public ResourceLoader
+    enum class ResourceAllocator
     {
-
-    public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
-
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
+        None,
+        Static
     };
-} // namespace Lina::Resources
+} // namespace Lina::Memory
 
 #endif

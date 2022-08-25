@@ -49,36 +49,31 @@ namespace Lina::Graphics
     class CommandBuffer;
     class FramePacket;
 
-    typedef std::function<void(World::EntityWorld* world)>  WorldFunction;
-    typedef std::function<void(FramePacket& fp)>            FPFunction;
-    typedef std::function<void(View* v)>                    ViewFunction;
-    typedef std::function<void(CommandBuffer& cb)>          CBFunction;
-    typedef std::function<void(CommandBuffer& cb, View* v)> CBViewFunction;
-    typedef std::function<void()>                           DefFunction;
+    typedef std::function<void(World::EntityWorld* w)>          WorldFunction;
+    typedef std::function<void(World::EntityWorld* w, View* v)> WorldViewFunction;
+    typedef std::function<void(View* v)>                        ViewFunction;
+    typedef std::function<void(CommandBuffer& cb, View* v)>     CBFunction;
+    typedef std::function<void()>                               DefFunction;
 
     class CommandBuffer;
 
     class FeatureRendererManager
     {
     public:
-        Vector<WorldFunction>  onFetchVisibility;
-        Vector<FPFunction>     onAssignVisibility;
-        Vector<FPFunction>     onExtract;
-        Vector<ViewFunction>   onExtractPerView;
-        Vector<ViewFunction>   onExtractPerViewEnd;
-        Vector<FPFunction>     onExtractEnd;
-        Vector<DefFunction>    onPrepare;
-        Vector<ViewFunction>   onPreparePerView;
-        Vector<ViewFunction>   onPreparePerViewEnd;
-        Vector<DefFunction>    onPrepareEnd;
-        Vector<CBFunction>     onSubmit;
-        Vector<CBViewFunction> onSubmitPerView;
+        Vector<WorldFunction>     onExtract;
+        Vector<WorldViewFunction> onExtractPerView;
+        Vector<WorldViewFunction> onExtractPerViewEnd;
+        Vector<WorldFunction>     onExtractEnd;
+        Vector<DefFunction>       onPrepare;
+        Vector<ViewFunction>      onPreparePerView;
+        Vector<ViewFunction>      onPreparePerViewEnd;
+        Vector<DefFunction>       onPrepareEnd;
+        Vector<CBFunction>        onSubmit;
 
     private:
         friend class Renderer;
 
-        void FetchVisibility(World::EntityWorld* world, FramePacket& fp);
-        void ExtractGameState(World::EntityWorld* world, FramePacket& fp);
+        void ExtractGameState(World::EntityWorld* world);
         void PrepareRenderData();
         void Submit(CommandBuffer& buf);
 

@@ -65,36 +65,22 @@ namespace Lina::Graphics
             Mesh*  mesh      = nullptr;
         };
 
-        struct Data
+        struct ExtractedData
         {
-            HashSet<VisibilityData>                m_visibleObjects;
-            HashSet<ModelNodeComponent*>           m_visibleNodeComponents;
-            HashMap<Material*, Vector<RenderPair>> m_gpuData;
+            Vector<ModelNodeComponent*> nodeComponents;
         };
 
         void Initialize(FeatureRendererManager& manager);
         void Shutdown();
 
-        void OnFetchVisibility(World::EntityWorld* world);
-        void OnAssignVisibility(FramePacket& fp);
-        void OnExtractPerView(View* v);
+        void OnExtractPerView(World::EntityWorld* world, View* v);
         void OnPrepare();
-        void OnSubmitPerView(CommandBuffer& buffer, View* v);
-
-        Data& GetDataToWrite()
-        {
-            return m_renderData[m_dataToWrite];
-        }
-
-        Data& GetDataToRead()
-        {
-            return m_renderData[m_dataToRead];
-        }
+        void OnSubmit(CommandBuffer& buffer, View* v);
 
     private:
-        Data m_renderData[2];
-        int  m_dataToWrite = 0;
-        int  m_dataToRead  = 1;
+        Mutex                                               m_mtx;
+        Queue<ExtractedData>                                m_extractQueue;
+        ParallelHashMapMutex<Material*, Vector<RenderPair>> m_gpuData;
     };
 } // namespace Lina::Graphics
 

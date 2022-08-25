@@ -55,12 +55,16 @@ namespace Lina
 namespace Lina::Resources
 {
     typedef std::variant<int, float, double, bool, String, Vector<unsigned int>> DataVariant;
-    typedef ParallelHashMapMutex<StringID, DataVariant> DataMap;
-
+    typedef ParallelHashMapMutex<StringID, DataVariant>                          DataMap;
 
     struct ResourceData
     {
         DataMap data;
+
+        bool Exists(StringID sid)
+        {
+            return data.find(sid) != data.end();
+        }
 
         template <class Archive>
         void serialize(Archive& archive, std::uint32_t const version)
@@ -98,6 +102,11 @@ namespace Lina::Resources
         bool Exists(StringID sid)
         {
             return m_resourceData.find(sid) != m_resourceData.end();
+        }
+
+        bool DataExists(StringID resourceSID, const String& dataName)
+        {
+            return m_resourceData[resourceSID].Exists(HashedString(dataName.c_str()).value());
         }
 
         void Remove(StringID sid)

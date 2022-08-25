@@ -28,26 +28,29 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
+#ifndef DescriptorPool_HPP
+#define DescriptorPool_HPP
 
-// Headers here.
-#include "ResourceLoader.hpp"
+#include "Core/GraphicsCommon.hpp"
 
-namespace Lina::Resources
+struct VkDescriptorPool_T;
+
+namespace Lina::Graphics
 {
-    class EditorResourceLoader : public ResourceLoader
+    class DescriptorPool
     {
-
     public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
+        void            Create();
+        DescriptorPool& AddPoolSize(DescriptorType type, uint32 count);
 
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
+        // Description
+        uint32                               maxSets = 0;
+        DescriptorPoolCreateFlags            flags   = DescriptorPoolCreateFlags::None;
+        Vector<Pair<DescriptorType, uint32>> _poolSizes;
+
+        // Runtime
+        VkDescriptorPool_T* _ptr = nullptr;
     };
-} // namespace Lina::Resources
+} // namespace Lina::Graphics
 
 #endif

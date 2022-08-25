@@ -28,26 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
+#ifndef DescriptorSetLayout_HPP
+#define DescriptorSetLayout_HPP
 
-// Headers here.
-#include "ResourceLoader.hpp"
+#include "Core/GraphicsCommon.hpp"
 
-namespace Lina::Resources
+struct VkDescriptorSetLayout_T;
+
+namespace Lina::Graphics
 {
-    class EditorResourceLoader : public ResourceLoader
+    class DescriptorSetLayout
     {
-
     public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
+        void                 Create();
+        DescriptorSetLayout& AddBinding(DescriptorSetLayoutBinding binding);
 
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
+        // Description
+        DescriptorSetCreateFlags           flags = DescriptorSetCreateFlags::None;
+        Vector<DescriptorSetLayoutBinding> bindings;
+
+        // Runtime
+        VkDescriptorSetLayout_T* _ptr = nullptr;
     };
-} // namespace Lina::Resources
+} // namespace Lina::Graphics
 
 #endif

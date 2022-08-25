@@ -45,14 +45,16 @@ namespace Lina::Input
         if (key.action == InputAction::Pressed)
         {
             if (key.key == m_positiveKey)
-                m_value = 1.0f;
+                m_positiveValue = 1.0f;
             else if (key.key == m_negativeKey)
-                m_value = -1.0f;
+                m_negativeValue = -1.0f;
         }
         else if (key.action == InputAction::Released)
         {
-            if (key.key == m_positiveKey || key.key == m_negativeKey)
-                m_value = 0.0f;
+            if (key.key == m_positiveKey)
+                m_positiveValue = 0.0f;
+            else if (key.key == m_negativeKey)
+                m_negativeValue = 0.0f;
         }
     }
 } // namespace Lina::Input

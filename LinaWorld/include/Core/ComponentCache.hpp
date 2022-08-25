@@ -62,7 +62,7 @@ namespace Lina::World
     typedef std::function<void(cereal::PortableBinaryOutputArchive&)> CacheSaveFunction;
     typedef std::function<void(cereal::PortableBinaryInputArchive&)>  CacheLoadFunction;
 
-#define MAX_COMP_COUNT 5
+#define COMPONENT_VEC_SIZE_CHUNK 2000
 
     class Component;
     class ComponentCacheBase
@@ -80,6 +80,21 @@ namespace Lina::World
     template <typename T>
     class ComponentCache : public ComponentCacheBase
     {
+    public:
+        ComponentCache()
+        {
+            if (!Memory::MemoryManager::Get()->PoolBlockExists<T>())
+            {
+                const String& title        = Reflection::Resolve(GetTypeID<T>()).GetProperty("Title"_hs);
+                const String& chunkSizeStr = Reflection::Resolve(GetTypeID<T>()).GetProperty("MemChunkSize"_hs);
+                const uint32  chunkSize    = static_cast<uint32>(std::stoi(chunkSizeStr.c_str()));
+                Memory::MemoryManager::Get()->CreatePoolBlock<T>(chunkSize, title);
+            }
+
+            if (m_components.empty())
+                m_components.resize(COMPONENT_VEC_SIZE_CHUNK, nullptr);
+        }
+
     protected:
         virtual ComponentCacheBase* CopyCreate() override
         {
@@ -87,9 +102,11 @@ namespace Lina::World
 
             for (uint32 i = 0; i < m_nextID; i++)
             {
-                if (m_components[i] != nullptr)
+                T* comp = m_components[i];
+                if (comp != nullptr)
                 {
-                    T* newComp = new T(*m_components[i]);
+                    T* newComp = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
+                    *newComp   = *comp;
                     newComp->OnComponentCreated();
                     newCache->m_components[i] = newComp;
                 }
@@ -100,7 +117,7 @@ namespace Lina::World
 
         inline T* AddComponent(Entity* e)
         {
-            T* comp          = new T();
+            T* comp          = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
             comp->m_entityID = e->GetID();
             comp->m_entity   = e;
             comp->OnComponentCreated();
@@ -109,32 +126,14 @@ namespace Lina::World
 
             if (!m_availableIDs.empty())
             {
-                id = m_availableIDs.back();
+                id = m_availableIDs.front();
                 m_availableIDs.pop();
             }
             else
                 id = m_nextID++;
 
-            m_components[id] = comp;
-            return comp;
-        }
-
-        inline T* AddComponent(Entity* e, const T& t)
-        {
-            T* comp          = new T(t);
-            comp->m_entityID = e->GetID();
-            comp->m_entity   = e;
-            comp->OnComponentCreated();
-
-            uint32 id = 0;
-
-            if (!m_availableIDs.empty())
-            {
-                id = m_availableIDs.back();
-                m_availableIDs.pop();
-            }
-            else
-                id = m_nextID++;
+            if (m_components.size() <= id)
+                m_components.resize(m_components.size() + COMPONENT_VEC_SIZE_CHUNK, nullptr);
 
             m_components[id] = comp;
             return comp;
@@ -162,8 +161,11 @@ namespace Lina::World
                 {
                     if (m_components[i]->m_entityID == e->GetID())
                     {
-                        T* comp = m_components[i];
+                        T*           comp  = m_components[i];
+                        const uint32 index = comp->m_allocPoolIndex;
                         comp->OnComponentDestroyed();
+                        comp->~T();
+                        Memory::MemoryManager::Get()->FreeFromPoolBlock<T>(comp, index);
                         m_availableIDs.push(i);
                         m_components[i] = nullptr;
                         break;
@@ -183,19 +185,27 @@ namespace Lina::World
             {
                 if (m_components[i] != nullptr)
                 {
-                    delete m_components[i];
+                    T*           comp  = m_components[i];
+                    const uint32 index = comp->m_allocPoolIndex;
+                    comp->OnComponentDestroyed();
+                    comp->~T();
+                    Memory::MemoryManager::Get()->FreeFromPoolBlock<T>(comp, index);
                     m_components[i] = nullptr;
                 }
             }
 
             m_availableIDs = Queue<uint32>();
             m_nextID       = 0;
+            m_components.clear();
         }
 
         virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
+            const uint32 compsSize = static_cast<uint32>(m_components.size());
             oarchive(m_availableIDs);
             oarchive(m_nextID);
+            oarchive(compsSize);
+
             HashMap<uint32, uint32> compEntityIDs;
 
             for (uint32 i = 0; i < m_nextID; i++)
@@ -214,15 +224,19 @@ namespace Lina::World
 
         virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive, Entity** entities) override
         {
+            uint32 compsSize = 0;
             iarchive(m_availableIDs);
             iarchive(m_nextID);
+            iarchive(compsSize);
+            m_components.clear();
+            m_components.resize(compsSize, nullptr);
 
             HashMap<uint32, uint32> compEntityIDs;
             iarchive(compEntityIDs);
 
             for (auto [compID, entityID] : compEntityIDs)
             {
-                T* comp = new T();
+                T* comp = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
                 comp->LoadFromArchive(iarchive);
                 comp->OnComponentCreated();
                 comp->m_entityID     = entityID;
@@ -234,8 +248,8 @@ namespace Lina::World
     private:
         friend class EntityWorld;
 
-        T*            m_components[MAX_COMP_COUNT] = {nullptr};
-        uint32        m_nextID                     = 0;
+        Vector<T*>    m_components;
+        uint32        m_nextID = 0;
         Queue<uint32> m_availableIDs;
     };
 

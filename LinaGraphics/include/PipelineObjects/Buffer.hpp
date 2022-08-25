@@ -28,26 +28,32 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
+#ifndef Buffer_HPP
+#define Buffer_HPP
 
-// Headers here.
-#include "ResourceLoader.hpp"
+#include "Core/GraphicsCommon.hpp"
 
-namespace Lina::Resources
+struct VkBuffer_T;
+struct VmaAllocation_T;
+
+namespace Lina::Graphics
 {
-    class EditorResourceLoader : public ResourceLoader
+    class Buffer
     {
-
     public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
+        void Create();
+        void Destroy();
+        void CopyInto(const void* src, uint32 size);
 
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
+        // Description
+        size_t           size        = 0;
+        BufferUsageFlags bufferUsage = BufferUsageFlags::VertexBuffer;
+        MemoryUsageFlags memoryUsage = MemoryUsageFlags::CpuToGpu;
+
+        // Runtime
+        VkBuffer_T*      _ptr        = nullptr;
+        VmaAllocation_T* _allocation = nullptr;
     };
-} // namespace Lina::Resources
+} // namespace Lina::Graphics
 
 #endif

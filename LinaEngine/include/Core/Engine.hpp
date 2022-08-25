@@ -41,6 +41,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "Memory/MemoryManager.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
 #include "Core/Editor.hpp"
@@ -161,6 +162,7 @@ namespace Lina
         World::LevelManager             m_levelManager;
         Graphics::RenderEngine          m_renderEngine;
         Resources::ResourceDataManager* m_resourceDataManager;
+        Memory::MemoryManager           m_memoryManager;
         JobSystem                       m_jobSystem;
         bool                            m_running           = false;
         bool                            m_canRender         = true;

@@ -34,34 +34,13 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    void FeatureRendererManager::FetchVisibility(World::EntityWorld* world, FramePacket& fp)
+    void FeatureRendererManager::ExtractGameState(World::EntityWorld* w)
     {
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        Taskflow tf;
-
-        // Fetch visibility, each feature renderer will check for their own components & acquire a list of visible entities.
-        tf.for_each(onFetchVisibility.begin(), onFetchVisibility.end(), [&](auto&& f) { f(world); });
-        JobSystem::Get()->Run(tf).wait();
-        tf.clear();
-
-        // Single thread, each feature renderer registered will add their own visibility data to this combined list.
-        for (auto&& f : onAssignVisibility)
-            f(fp);
-
-        // Calculate visibility for each view.
-        const Vector<View*>& views = m_renderer->GetViews();
-        tf.for_each(views.begin(), views.end(), [&](View* v) { v->CalculateVisibility(fp); });
-        JobSystem::Get()->Run(tf).wait();
-        tf.clear();
-    }
-
-    void FeatureRendererManager::ExtractGameState(World::EntityWorld* world, FramePacket& fp)
-    {
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        PROFILER_FUNC(PROFILER_THREAD_MAIN);
         Taskflow tf;
 
         // Extract
-        tf.for_each(onExtract.begin(), onExtract.end(), [&](auto&& f) { f(fp); });
+        tf.for_each(onExtract.begin(), onExtract.end(), [&](auto&& f) { f(w); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
 
@@ -70,18 +49,18 @@ namespace Lina::Graphics
         for (auto v : views)
         {
             // Extract per view
-            tf.for_each(onExtractPerView.begin(), onExtractPerView.end(), [v](auto&& f) { f(v); });
+            tf.for_each(onExtractPerView.begin(), onExtractPerView.end(), [w, v](auto&& f) { f(w, v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
 
             // Extract per view end.
-            tf.for_each(onExtractPerViewEnd.begin(), onExtractPerViewEnd.end(), [v](auto&& f) { f(v); });
+            tf.for_each(onExtractPerViewEnd.begin(), onExtractPerViewEnd.end(), [w, v](auto&& f) { f(w, v); });
             JobSystem::Get()->Run(tf).wait();
             tf.clear();
         }
 
         // Extract end.
-        tf.for_each(onExtractEnd.begin(), onExtractEnd.end(), [&](auto&& f) { f(fp); });
+        tf.for_each(onExtractEnd.begin(), onExtractEnd.end(), [&](auto&& f) { f(w); });
         JobSystem::Get()->Run(tf).wait();
         tf.clear();
     }
@@ -122,15 +101,10 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
         Taskflow tf;
 
-        // Submit.
-        linatl::for_each(onSubmit.begin(), onSubmit.end(), [&cb](auto&& f) { f(cb); });
-        // JobSystem::Get()->Run(tf).wait();
-        // tf.clear();
-
-         // Per view
+        // Submit per view.
         const Vector<View*>& views = m_renderer->GetViews();
         for (auto v : views)
-            linatl::for_each(onSubmitPerView.begin(), onSubmitPerView.end(), [&](auto&& f) { f(cb, v); });
+            linatl::for_each(onSubmit.begin(), onSubmit.end(), [&](auto&& f) { f(cb, v); });
     }
 
 } // namespace Lina::Graphics

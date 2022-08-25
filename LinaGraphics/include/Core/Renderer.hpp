@@ -44,9 +44,11 @@ SOFTWARE.
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/Image.hpp"
+#include "PipelineObjects/Buffer.hpp"
+#include "PipelineObjects/DescriptorSet.hpp"
+#include "PipelineObjects/DescriptorPool.hpp"
 #include "FeatureRenderers/FeatureRendererManager.hpp"
 #include "FeatureRenderers/StaticMeshRenderer.hpp"
-#include "FramePacket.hpp"
 #include "CameraSystem.hpp"
 #include "Core/View.hpp"
 
@@ -58,10 +60,35 @@ namespace Lina
     {
         class EntityWorld;
     }
+
+    namespace Event
+    {
+        struct ELevelUninstalled;
+    }
 } // namespace Lina
 namespace Lina::Graphics
 {
     class Backend;
+    class RenderableComponent;
+    constexpr unsigned int FRAME_OVERLAP = 2;
+
+    struct GPUCameraData
+    {
+        Matrix view;
+        Matrix proj;
+        Matrix viewProj;
+    };
+
+    struct Frame
+    {
+        Fence         renderFence;
+        Semaphore     renderSemaphore;
+        CommandPool   pool;
+        CommandBuffer commandBuffer;
+        Semaphore     presentSemaphore;
+        Buffer        cameraBuffer;
+        DescriptorSet globalDescriptor;
+    };
 
     class Renderer
     {
@@ -89,36 +116,47 @@ namespace Lina::Graphics
             return m_views;
         }
 
+        inline DescriptorSet& GetGlobalSet()
+        {
+            return GetCurrentFrame().globalDescriptor;
+        }
+
+        void AddRenderable(RenderableComponent* comp);
+        void RemoveRenderable(RenderableComponent* comp);
+
     private:
         friend class RenderEngine;
 
-        void Initialize();
-        void Tick();
-        void Render();
-        void Join();
-        void Shutdown();
-        void FetchAndExtract(World::EntityWorld* world);
+        void   Initialize();
+        void   Tick();
+        void   Render();
+        void   Join();
+        void   Shutdown();
+        void   FetchAndExtract(World::EntityWorld* world);
+        void   OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        Frame& GetCurrentFrame();
 
     private:
-        static Renderer*       s_instance;
-        FeatureRendererManager m_featureRendererManager;
-        FramePacket            m_framePacket;
-        StaticMeshRenderer     m_meshRenderer;
-        Vector<View*>          m_views;
-        View                   m_playerView;
+        static Renderer*             s_instance;
+        FeatureRendererManager       m_featureRendererManager;
+        StaticMeshRenderer           m_meshRenderer;
+        Vector<View*>                m_views;
+        View                         m_playerView;
+        Vector<RenderableComponent*> m_renderables;
+        Queue<uint32>                m_availableRenderableIDs;
+        uint32                       m_nextRenderableID = 0;
+        CameraSystem                 m_cameraSystem;
+        RQueue                       m_graphicsQueue;
+        RenderPass                   m_renderPass;
+        SubPass                      m_subpass;
+        DescriptorPool               m_descriptorPool;
+        DescriptorSetLayout          m_globalSetLayout;
+        Vector<Framebuffer>          m_framebuffers;
+        Image                        m_depthImage;
 
-        CameraSystem        m_cameraSystem;
-        Backend*            m_backend = nullptr;
-        RQueue              m_graphicsQueue;
-        CommandPool         m_pool;
-        CommandBuffer       m_commandBuffer;
-        RenderPass          m_renderPass;
-        SubPass             m_subpass;
-        Vector<Framebuffer> m_framebuffers;
-        Fence               m_renderFence;
-        Semaphore           m_renderSemaphore;
-        Semaphore           m_presentSemaphore;
-        Image               m_depthImage;
+        uint32   m_frameNumber = 0;
+        Frame    m_frames[FRAME_OVERLAP];
+        Backend* m_backend = nullptr;
     };
 
 } // namespace Lina::Graphics

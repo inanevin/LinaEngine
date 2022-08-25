@@ -48,14 +48,19 @@ namespace Lina::Graphics
             ranges.push_back(p);
         }
 
+        Vector<VkDescriptorSetLayout> setLayouts;
+
+        for (auto& sl : _setLayoutPtrs)
+            setLayouts.push_back(sl);
+
         VkPipelineLayoutCreateInfo info{
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .pNext = nullptr,
 
             // empty defaults
             .flags                  = 0,
-            .setLayoutCount         = 0,
-            .pSetLayouts            = nullptr,
+            .setLayoutCount         = static_cast<uint32>(setLayouts.size()),
+            .pSetLayouts            = setLayouts.data(),
             .pushConstantRangeCount = static_cast<uint32>(ranges.size()),
             .pPushConstantRanges    = ranges.data(),
         };
@@ -67,11 +72,20 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
+
+        pushConstantRanges.clear();
+        _setLayoutPtrs.clear();
     }
 
     PipelineLayout& PipelineLayout::AddPushConstant(const PushConstantRange& r)
     {
         pushConstantRanges.push_back(r);
+        return *this;
+    }
+
+    PipelineLayout& PipelineLayout::AddDescriptorSetLayout(const DescriptorSetLayout& l)
+    {
+        _setLayoutPtrs.push_back(l._ptr);
         return *this;
     }
 

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/World.hpp"
 #include "Resource/Model.hpp"
 #include "Core/ResourceStorage.hpp"
+#include "Components/ModelNodeComponent.hpp"
 
 using namespace Lina;
 
@@ -46,23 +47,35 @@ void GameManager::Initialize()
 
 void GameManager::OnGameStarted(const Lina::Event::EStartGame& ev)
 {
-   
 }
+
+struct VisibilityData2
+{
+    Lina::Graphics::RenderableComponent* renderable = nullptr;
+};
+Lina::World::Entity* ent;
+float                angle = 0.0f;
 
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
+    angle += ev.deltaTime * 0.26f;
+    float r = 5.0f;
+    float x = r * Math::Sin(angle);
+    float y = r * Math::Cos(angle);
+    ent->SetPosition(Vector3(x, y, 0));
 }
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
-    World::EntityWorld* w = World::EntityWorld::Get();
+    World::EntityWorld*    w = World::EntityWorld::Get();
     Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/BlenderMonkey.obj");
-   
-    //for (int i = 0; i < 48000; i++)
-    //{
-    //    World::Entity* e = m->AddToWorld(w);
-    //    e->SetPosition(Vector3(Math::RandF(-10.0f, 10.0f), Math::RandF(-10.0f, 10.0f), Math::RandF(-10.0f, 10.0f)));
-    //    e->SetName("Test" + i);
-    //}
-   
+
+    for (int i = 0; i < 200; i++)
+    {
+        World::Entity* e = m->AddToWorld(w);
+        e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
+
+        if (i == 0)
+            ent = e;
+    }
 }

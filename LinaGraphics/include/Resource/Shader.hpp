@@ -35,13 +35,23 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
+
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
+#include "PipelineObjects/DescriptorSetLayout.hpp"
 
 struct VkShaderModule_T;
 
 namespace Lina::Graphics
 {
+    struct ShaderModule
+    {
+        String               moduleName = "";
+        VkShaderModule_T*    ptr        = nullptr;
+        String               moduleText = "";
+        Vector<unsigned int> byteCode;
+    };
+
     class Shader : public Resources::IResource
     {
     public:
@@ -55,8 +65,10 @@ namespace Lina::Graphics
 
         void UploadedToPipeline();
 
-        bool              HasStage(ShaderStage stage);
-        VkShaderModule_T* GetModule(ShaderStage stage);
+        inline const HashMap<ShaderStage, ShaderModule>& GetModules()
+        {
+            return m_modules;
+        }
 
         inline SurfaceType GetSurfaceType()
         {
@@ -68,15 +80,8 @@ namespace Lina::Graphics
             return m_pipeline;
         }
 
-        /// <summary>
-        /// Returns a shader block from a full linashader text.
-        /// </summary>
-        /// <param name="shader">Full text.</param>
-        /// <param name="defineStart">Define string, e.g. #LINA_VS or #LINA_FRAG </param>
-        /// <returns></returns>
-        static String GetShaderStageText(const String& shader, const String& defineStart);
-
     private:
+        void CheckIfModuleExists(const String& name, ShaderStage stage, const String& define);
         void GenerateByteCode();
         bool CreateShaderModules();
         void GeneratePipeline();
@@ -84,26 +89,21 @@ namespace Lina::Graphics
     private:
         struct AssetData
         {
-            bool                 geoShader = false;
-            Vector<unsigned int> vtxData;
-            Vector<unsigned int> fragData;
-            Vector<unsigned int> geoData;
         };
 
     private:
-        Pipeline       m_pipeline;
-        PipelineLayout m_pipelineLayout;
-        SurfaceType    m_surface = SurfaceType::Opaque;
-        AssetData      m_assetData;
-        String         m_text       = "";
-        String         m_vertexText = "";
-        String         m_fragText   = "";
-        String         m_geoText    = "";
+        Pipeline                    m_pipeline;
+        PipelineLayout              m_pipelineLayout;
+        SurfaceType                 m_surface = SurfaceType::Opaque;
+        AssetData                   m_assetData;
+        String                      m_text       = "";
+        String                      m_vertexText = "";
+        String                      m_fragText   = "";
+        String                      m_geoText    = "";
+        Vector<DescriptorSetLayout> m_setLayouts;
 
     private:
-        VkShaderModule_T* _ptrVtx  = nullptr;
-        VkShaderModule_T* _ptrFrag = nullptr;
-        VkShaderModule_T* _ptrGeo  = nullptr;
+        HashMap<ShaderStage, ShaderModule> m_modules;
     };
 
 } // namespace Lina::Graphics

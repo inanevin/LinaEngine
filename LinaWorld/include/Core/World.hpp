@@ -55,13 +55,6 @@ namespace Lina::World
     class Entity;
     class Component;
 
-#define ENTITY_STACK_SIZE 10000
-
-    struct EntityStack
-    {
-        Entity* ptr = nullptr;
-    };
-
     // Actual game state
     class EntityWorld
     {
@@ -97,11 +90,11 @@ namespace Lina::World
         }
 
         template <typename T>
-        T** View(uint32* size)
+        T** View(uint32* maxSize)
         {
             auto* cache = Cache<T>();
-            *size       = cache->m_nextID;
-            return cache->m_components;
+            *maxSize    = cache->m_nextID;
+            return cache->m_components.data();
         }
 
         template <typename T>
@@ -113,7 +106,9 @@ namespace Lina::World
         template <typename T>
         T* AddComponent(Entity* e, const T& t)
         {
-            return Cache<T>()->AddComponent(e, t);
+            T* comp = Cache<T>()->AddComponent(e, t);
+            *comp   = t;
+            return comp;
         }
 
         template <typename T>
@@ -141,11 +136,9 @@ namespace Lina::World
     private:
         bool                                 m_initialized = false;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
-        Entity*                              m_entities[MAX_ENTITY_COUNT] = {nullptr};
-
-        uint32              m_nextID = 0;
-        Queue<uint32>       m_availableIDs;
-        Vector<EntityStack> m_stacks;
+        Vector<Entity*>                      m_entities;
+        uint32                               m_nextID = 0;
+        Queue<uint32>                        m_availableIDs;
     };
 
 } // namespace Lina::World

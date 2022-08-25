@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Data/String.hpp"
 #include "Data/Mutex.hpp"
+#include "Memory/MemoryManager.hpp"
 #include <functional>
 #include <fstream>
 
@@ -149,9 +150,12 @@ namespace Lina::Resources
 
     protected:
         friend class ResourceStorage;
+        friend class ResourceLoader;
+        friend struct ResourceCache;
 
-        StringID m_sid  = 0;
-        String   m_path = "";
+        Memory::ResourceAllocator m_usedAllocator = Memory::ResourceAllocator::None;
+        StringID                  m_sid           = 0;
+        String                    m_path          = "";
     };
 
     template <typename T>
@@ -161,14 +165,35 @@ namespace Lina::Resources
     }
 
     template <typename T>
-    void DeleteResource(void* ptr)
+    IResource* CreateResourceFromAllocator(Memory::ResourceAllocator alloc)
     {
-        T* typePtr = static_cast<T*>(ptr);
-        delete typePtr;
+        switch (alloc)
+        {
+        case Memory::ResourceAllocator::Static:
+            return (IResource*)(Memory::MemoryManager::Get()->GetFromStaticBlock<T>(sizeof(T)));
+        default:
+            LINA_ASSERT(false, "Not implemented!");
+            return nullptr;
+        }
     }
 
-    typedef std::function<IResource*()>    ResourceCreateFunc;
-    typedef std::function<void(void* ptr)> ResourceDeleteFunc;
+    template <typename T>
+    void DeleteResourceFromAllocator(void* ptr, Memory::ResourceAllocator alloc)
+    {
+        switch (alloc)
+        {
+        case Memory::ResourceAllocator::None:
+            break;
+        case Memory::ResourceAllocator::Static:
+            break;
+        default:
+            LINA_ASSERT(false, "Not implemented!");
+        }
+    }
+
+    typedef std::function<IResource*()>                                     ResourceCreateFunc;
+    typedef std::function<IResource*(Memory::ResourceAllocator alloc)>      ResourceCreateFromAllocFunc;
+    typedef std::function<void(void* ptr, Memory::ResourceAllocator alloc)> ResourceDeleteFromAllocFunc;
 
 } // namespace Lina::Resources
 

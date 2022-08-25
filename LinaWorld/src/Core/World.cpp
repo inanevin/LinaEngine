@@ -34,24 +34,25 @@ SOFTWARE.
 #include "Data/Serialization/QueueSerialization.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include "Memory/Memory.hpp"
+#include "Memory/MemoryManager.hpp"
 
 namespace Lina::World
 {
+#define ENTITY_VEC_SIZE_CHUNK 2000
+
     void EntityWorld::Initialize()
     {
-
         if (m_initialized)
             return;
+
         m_initialized = true;
 
-        int stackCount = Math::FloorToInt(static_cast<float>(m_nextID) / static_cast<float>(ENTITY_STACK_SIZE)) + 1;
-
-        for (int i = 0; i < stackCount; i++)
+        if (m_entities.empty())
         {
-            EntityStack stack;
-            stack.ptr = new Entity[ENTITY_STACK_SIZE];
-            m_stacks.push_back(stack);
+            m_entities.resize(ENTITY_VEC_SIZE_CHUNK, nullptr);
+
+            if (!Memory::MemoryManager::Get()->PoolBlockExists<World::Entity>())
+                Memory::MemoryManager::Get()->CreatePoolBlock<World::Entity>(ENTITY_CHUNK_COUNT, "Entity");
         }
     }
 
@@ -72,22 +73,24 @@ namespace Lina::World
 
     void EntityWorld::DestroyWorld()
     {
-        for (auto& stack : m_stacks)
-            delete[] stack.ptr;
-       // for (uint32 i = 0; i < m_nextID; i++)
-       // {
-       //     if (m_entities[i] != nullptr)
-       //         delete m_entities[i];
-       // 
-       //     m_entities[i] = nullptr;
-       // }
-       // 
-       // for (auto& [tid, cache] : m_componentCaches)
-       //     cache->Destroy();
-       // 
-       // m_componentCaches.clear();
-       // m_nextID       = 0;
-       // m_availableIDs = Queue<uint32>();
+        for (uint32 i = 0; i < m_nextID; i++)
+        {
+            Entity* e = m_entities[i];
+            if (e != nullptr)
+            {
+                const uint32 index = e->m_allocPoolIndex;
+                e->~Entity();
+                Memory::MemoryManager::Get()->FreeFromPoolBlock<World::Entity>(e, index);
+            }
+        }
+
+        for (auto& [tid, cache] : m_componentCaches)
+            cache->Destroy();
+
+        m_entities.clear();
+        m_componentCaches.clear();
+        m_nextID       = 0;
+        m_availableIDs = Queue<uint32>();
     }
 
     Entity* EntityWorld::GetEntity(uint32 id)
@@ -99,10 +102,11 @@ namespace Lina::World
     {
         for (uint32 i = 0; i < m_nextID; i++)
         {
-            if (m_entities[i] != nullptr)
+            Entity* e = m_entities[i];
+            if (e != nullptr)
             {
-                if (m_entities[i]->m_name.compare(name) == 0)
-                    return m_entities[i];
+                if (e->m_name.compare(name) == 0)
+                    return e;
             }
         }
 
@@ -112,11 +116,14 @@ namespace Lina::World
     void EntityWorld::CopyFrom(EntityWorld& world)
     {
         DestroyWorld();
+        m_entities.resize(world.m_entities.size(), nullptr);
+
         for (uint32 i = 0; i < world.m_nextID; i++)
         {
             if (world.m_entities[i] != nullptr)
             {
-                Entity* e     = new Entity(*world.m_entities[i]);
+                Entity* e     = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
+                *e            = *world.m_entities[i];
                 m_entities[i] = e;
             }
         }
@@ -133,30 +140,42 @@ namespace Lina::World
 
     Entity* EntityWorld::CreateEntity(const String& name)
     {
-        Entity* e  = new Entity();
-        e->m_world = this;
-        e->m_name  = name;
+        Entity* e = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
 
         uint32 id = 0;
-
         if (!m_availableIDs.empty())
         {
-            id = m_availableIDs.back();
+            const uint32 popped = m_availableIDs.front();
+            id                  = popped;
             m_availableIDs.pop();
         }
         else
-            id = m_nextID++;
+        {
+            id = m_nextID;
+            m_nextID++;
+        }
+
+        if (id == ENTITY_MAX)
+        {
+            LINA_ERR("Reached maximum number of entities!");
+            LINA_ASSERT(false, "");
+            return nullptr;
+        }
+
+        if (m_entities.size() <= id)
+            m_entities.resize(m_entities.size() + ENTITY_VEC_SIZE_CHUNK, nullptr);
 
         m_entities[id] = e;
-        e->m_id        = id;
 
+        e->m_id   = id;
+        e->m_name = name;
         return e;
     }
 
     void EntityWorld::DestroyEntity(Entity* e)
     {
-        if (e->m_parent != ENTITY_NULL)
-            m_entities[e->m_parent]->RemoveChild(e);
+        if (e->m_parentID != ENTITY_NULL)
+            e->m_parent->RemoveChild(e);
 
         DestroyEntityData(e);
     }
@@ -164,30 +183,36 @@ namespace Lina::World
     void EntityWorld::DestroyEntityData(Entity* e)
     {
         for (auto child : e->m_children)
-            DestroyEntityData(m_entities[child]);
+            DestroyEntityData(child);
 
         for (auto& [tid, cache] : m_componentCaches)
             cache->OnEntityDestroyed(e);
 
-        const uint32 id = e->m_id;
-        delete m_entities[id];
+        const uint32 id    = e->m_id;
+        const uint32 index = e->m_allocPoolIndex;
+        m_entities[id]     = nullptr;
         m_availableIDs.push(id);
-        m_entities[id] = nullptr;
+        e->~Entity();
+        Memory::MemoryManager::Get()->FreeFromPoolBlock<World::Entity>(e, index);
     }
 
     void EntityWorld::SaveToArchive(cereal::PortableBinaryOutputArchive& archive)
     {
+        const uint32 entitiesSize = static_cast<uint32>(m_entities.size());
         archive(m_nextID);
         archive(m_availableIDs);
+        archive(entitiesSize);
 
         Vector<Entity> entities;
         for (uint32 i = 0; i < m_nextID; i++)
         {
-            if (m_entities[i] != nullptr)
-                entities.push_back(*m_entities[i]);
+            Entity* e = m_entities[i];
+            if (e != nullptr)
+                entities.push_back(*e);
         }
 
         archive(entities);
+        entities.clear();
 
         Vector<TypeID> tids;
         for (auto& [tid, cache] : m_componentCaches)
@@ -201,18 +226,43 @@ namespace Lina::World
 
     void EntityWorld::LoadFromArchive(cereal::PortableBinaryInputArchive& archive)
     {
-        Initialize();
+
+        uint32 entitiesSize = 0;
         archive(m_nextID);
         archive(m_availableIDs);
+        archive(entitiesSize);
+        m_entities.resize(entitiesSize, nullptr);
 
         Vector<Entity> entities;
         archive(entities);
 
+        if (!entities.empty())
+        {
+            if (!Memory::MemoryManager::Get()->PoolBlockExists<World::Entity>())
+                Memory::MemoryManager::Get()->CreatePoolBlock<World::Entity>(ENTITY_CHUNK_COUNT, "Entity");
+        }
+
         for (int i = 0; i < entities.size(); i++)
         {
-            Entity* e           = new Entity(entities[i]);
-            e->m_world          = this;
-            m_entities[e->m_id] = e;
+            const uint32 id = entities[i].m_id;
+            Entity*      e  = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
+            *e              = entities[i];
+            e->m_id         = id;
+            m_entities[id]  = e;
+        }
+
+        for (auto e : m_entities)
+        {
+            if (e != nullptr)
+            {
+                auto& childrenIDs = e->m_childrenID;
+
+                for (auto& childID : childrenIDs)
+                    e->m_children.insert(m_entities[childID]);
+
+                if (e->m_parentID != ENTITY_NULL)
+                    e->m_parent = m_entities[e->m_parentID];
+            }
         }
 
         entities.clear();
@@ -226,7 +276,7 @@ namespace Lina::World
             if (type.createCompCacheFunc)
             {
                 ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(type.createCompCacheFunc());
-                cache->LoadFromArchive(archive, m_entities);
+                cache->LoadFromArchive(archive, m_entities.data());
                 m_componentCaches[tids[i]] = cache;
             }
             else

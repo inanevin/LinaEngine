@@ -57,6 +57,8 @@ enum VkVertexInputRate;
 enum VkImageUsageFlagBits;
 enum VkImageTiling;
 enum VkImageAspectFlagBits;
+enum VmaMemoryUsage;
+enum VkDescriptorType;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -294,11 +296,65 @@ namespace Lina::Graphics
 
     extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
 
+    enum class BufferUsageFlags
+    {
+        VertexBuffer,
+        UniformBuffer
+    };
+
+    extern uint32 GetBufferUsageFlags(BufferUsageFlags flags);
+
+    enum class MemoryUsageFlags
+    {
+        CpuOnly,
+        GpuOnly,
+        CpuToGpu,
+        GpuToCpu,
+    };
+
+    extern VmaMemoryUsage GetMemoryUsageFlags(MemoryUsageFlags flags);
+
+    enum class DescriptorSetCreateFlags
+    {
+        None,
+        UpdateAfterBind,
+        Push
+    };
+
+    extern uint32 GetDescriptorSetCreateFlags(DescriptorSetCreateFlags flags);
+
+    enum class DescriptorPoolCreateFlags
+    {
+        None,
+        FreeDescriptorSet,
+        UpdateAfterBind,
+        HostOnly,
+    };
+
+    extern uint32 GetDescriptorPoolCreateFlags(DescriptorPoolCreateFlags flags);
+
+    enum class DescriptorType
+    {
+        UniformBuffer,
+        CombinedImageSampler,
+        StorageBuffer,
+    };
+
+    extern VkDescriptorType GetDescriptorType(DescriptorType type);
+
     enum class SurfaceType
     {
         Opaque,
         Transparent,
         Glass
+    };
+
+    struct DescriptorSetLayoutBinding
+    {
+        uint32         binding         = 0;
+        uint32         descriptorCount = 0;
+        ShaderStage    stage           = ShaderStage::Vertex;
+        DescriptorType type            = DescriptorType::UniformBuffer;
     };
 
     struct ClearValue

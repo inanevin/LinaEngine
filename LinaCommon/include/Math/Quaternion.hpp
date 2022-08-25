@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Quaternion_HPP
@@ -42,10 +40,14 @@ namespace Lina
     {
 
     public:
-        Quaternion() : glm::quat(1, 0, 0, 0){};
-        Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z){};
-        Quaternion(float x, float y, float z, float w) : glm::quat(w, x, y, z){};
-        Quaternion(glm::quat q) : glm::quat(q){};
+        Quaternion()
+            : glm::quat(1, 0, 0, 0){};
+        Quaternion(const Vector4& v)
+            : glm::quat(v.w, v.x, v.y, v.z){};
+        Quaternion(float x, float y, float z, float w)
+            : glm::quat(w, x, y, z){};
+        Quaternion(glm::quat q)
+            : glm::quat(q){};
         Quaternion(const Vector3& axis, float angle);
 
         Quaternion operator+(const Quaternion& other) const
@@ -141,7 +143,8 @@ namespace Lina
         String ToStringEuler() const
         {
             std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y << "   Z:" << z;
+            Vector3           eul = GetEuler();
+            ss << "X:" << eul.x << "   Y:" << eul.y << "   Z:" << eul.z;
             return ss.str().c_str();
         }
 
@@ -152,9 +155,10 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void serialize(Archive& archive)
         {
-            archive(x, y, z, w); // serialize things by passing them to the archive
+            archive(x, y, z, w);
         }
     };
 

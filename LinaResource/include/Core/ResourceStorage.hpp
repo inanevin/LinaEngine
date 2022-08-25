@@ -69,13 +69,14 @@ namespace Lina::Resources
 
     struct ResourceTypeData
     {
-        TypeID             tid          = 0;
-        uint32             loadPriority = 0;
-        PackageType        packageType  = PackageType::Custom;
-        ResourceCreateFunc createFunc;
-        ResourceDeleteFunc deleteFunc;
-        Vector<String>     associatedExtensions;
-        Color              debugColor = Color::White;
+        TypeID                      tid          = 0;
+        uint32                      loadPriority = 0;
+        PackageType                 packageType  = PackageType::Custom;
+        ResourceCreateFunc          createFunc;
+        ResourceCreateFromAllocFunc createFromAllocFunc;
+        ResourceDeleteFromAllocFunc deleteFromAllocFunc;
+        Vector<String>              associatedExtensions;
+        Color                       debugColor = Color::White;
     };
 
     struct ResourceCache

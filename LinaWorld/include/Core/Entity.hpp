@@ -41,8 +41,12 @@ SOFTWARE.
 
 namespace Lina::World
 {
-#define MAX_ENTITY_COUNT 5
-#define ENTITY_NULL      MAX_ENTITY_COUNT + 1
+
+#define ENTITY_MAX         ((uint32_t)-2)
+#define ENTITY_NULL        ((uint32_t)-1)
+#define ENTITY_CHUNK_COUNT 25000
+#define ENTITY_VEC_SIZE    2000
+
     // Actual game state
     class Entity
     {
@@ -136,15 +140,18 @@ namespace Lina::World
 
     private:
         friend class EntityWorld;
+        friend class Memory::MemoryManager;
         friend struct EntitySerializer;
 
-        EntityWorld*    m_world  = nullptr;
-        uint32          m_id     = 0;
-        uint32          m_stack  = 0;
-        String          m_name   = "";
-        uint32          m_parent = ENTITY_NULL;
-        HashSet<uint32> m_children;
-        Transformation  m_transform;
+        EntityWorld*     m_world          = nullptr;
+        uint32           m_id             = 0;
+        uint32           m_allocPoolIndex = 0;
+        String           m_name           = "";
+        Entity*          m_parent         = nullptr;
+        HashSet<Entity*> m_children;
+        uint32           m_parentID = ENTITY_NULL;
+        HashSet<uint32>  m_childrenID;
+        Transformation   m_transform;
 
     private:
         friend class cereal::access;
@@ -152,7 +159,7 @@ namespace Lina::World
         template <class Archive>
         void serialize(Archive& archive)
         {
-            archive(m_id, m_name, m_parent, m_children, m_transform);
+            archive(m_id, m_name, m_parentID, m_childrenID, m_transform);
         }
     };
 

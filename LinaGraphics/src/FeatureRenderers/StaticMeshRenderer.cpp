@@ -39,87 +39,75 @@ namespace Lina::Graphics
 {
     void StaticMeshRenderer::Initialize(FeatureRendererManager& manager)
     {
-        manager.onFetchVisibility.push_back(std::bind(&StaticMeshRenderer::OnFetchVisibility, this, std::placeholders::_1));
-        manager.onAssignVisibility.push_back(std::bind(&StaticMeshRenderer::OnAssignVisibility, this, std::placeholders::_1));
-        manager.onExtractPerView.push_back(std::bind(&StaticMeshRenderer::OnExtractPerView, this, std::placeholders::_1));
+        manager.onExtractPerView.push_back(std::bind(&StaticMeshRenderer::OnExtractPerView, this, std::placeholders::_1, std::placeholders::_2));
         manager.onPrepare.push_back(std::bind(&StaticMeshRenderer::OnPrepare, this));
-        manager.onSubmitPerView.push_back(std::bind(&StaticMeshRenderer::OnSubmitPerView, this, std::placeholders::_1, std::placeholders::_2));
-        m_renderData[0].m_visibleObjects.reserve(1000);
+        manager.onSubmit.push_back(std::bind(&StaticMeshRenderer::OnSubmit, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     void StaticMeshRenderer::Shutdown()
     {
     }
 
-    void StaticMeshRenderer::OnFetchVisibility(World::EntityWorld* world)
+    void StaticMeshRenderer::OnExtractPerView(World::EntityWorld* world, View* v)
     {
-        PROFILER_FUNC("Static Mesh Renderer");
-        uint32      compSize = 0;
-        const auto& comps    = world->View<ModelNodeComponent>(&compSize);
-
-        Model*     placeholderModel = RenderEngine::Get()->GetPlaceholderModel();
-        ModelNode* placeholderNode  = RenderEngine::Get()->GetPlaceholderModelNode();
-
-         for (uint32 i = 0; i < compSize; i++)
-         {
-             ModelNodeComponent* comp = comps[i];
-             if (!comp->IsVisible())
-                 continue;
-        
-             // if (comp)
-             // {
-             //     Model*     model = comp->m_modelHandle.IsValid() ? comp->m_modelHandle.value : placeholderModel;
-             //     ModelNode* node  = comp->m_modelHandle.IsValid() ? model->GetNodes()[comp->m_nodeIndex] : placeholderNode;
-             // 
-             //     VisibilityData visdata;
-             //     visdata.position   = comp->GetEntity()->GetPosition();
-             //     visdata.renderable = comp;
-             //     visdata.aabb       = node->GetAABB();
-             // 
-             //     // GetDataToWrite().m_visibleObjects.insert(visdata);
-             // }
-         }
-    }
-
-    void StaticMeshRenderer::OnAssignVisibility(FramePacket& fp)
-    {
-        return;
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
-        linatl::for_each(GetDataToWrite().m_visibleObjects.begin(), GetDataToWrite().m_visibleObjects.end(), [&](const VisibilityData& vd) { fp.visibles.insert(vd); });
-    }
-
-    void StaticMeshRenderer::OnExtractPerView(View* v)
-    {
-        return;
         if (v->GetType() != ViewType::Player)
             return;
 
+        PROFILER_FUNC(PROFILER_THREAD_MAIN);
+        ExtractedData extData;
+        uint32        modelNodeCompsSize = 0;
+        const auto&   modelNodes         = world->View<ModelNodeComponent>(&modelNodeCompsSize);
+
         const auto& visibles     = v->GetVisibleObjects();
-        auto&       myVisibles   = GetDataToWrite().m_visibleObjects;
-        auto&       visibleNodes = GetDataToWrite().m_visibleNodeComponents;
+        auto&       visibleNodes = extData.nodeComponents;
 
-        for (auto& vis : myVisibles)
-        {
-            // Skip if this object is not visible by this view.
-            // if (!v->IsVisibleByView(vis.renderable))
-            //     continue;
+        visibleNodes.resize(modelNodeCompsSize, nullptr);
 
-            visibleNodes.insert(static_cast<ModelNodeComponent*>(vis.renderable));
-        }
+        Taskflow tf;
+        tf.for_each_index(0, static_cast<int>(modelNodeCompsSize), 1, [&](int i) {
+            ModelNodeComponent* comp = modelNodes[i];
+            if (comp == nullptr)
+                return;
 
-        myVisibles.clear();
-        m_dataToWrite = m_dataToWrite == 0 ? 1 : 0;
+            if (visibles[comp->GetRenderableID()] == nullptr)
+                return;
+
+            visibleNodes[i] = comp;
+        });
+        JobSystem::Get()->RunAndWait(tf);
+
+        m_mtx.lock();
+        m_extractQueue.push(extData);
+        m_mtx.unlock();
+
+        // // Don't allow shit.
+        // if (m_extractQueue.size() > 2)
+        //     m_extractQueue.pop();
     }
 
     void StaticMeshRenderer::OnPrepare()
     {
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto data = GetDataToRead().m_visibleNodeComponents;
+        if (m_extractQueue.empty())
+            return;
 
-        return;
+        m_mtx.lock();
+        ExtractedData extData        = m_extractQueue.front();
+        m_extractQueue.pop();
+        m_mtx.unlock();
 
-        for (auto comp : data)
-        {
+        const auto&    nodeComponents = extData.nodeComponents;
+        const uint32   size           = static_cast<uint32>(nodeComponents.size());
+
+        Taskflow tf;
+        Mutex    mtx;
+        tf.for_each_index(0, static_cast<int>(size), 1, [&](int i) {
+            auto* comp = nodeComponents[i];
+
+            if (comp == nullptr)
+                return;
+
             Model*     model = comp->m_modelHandle.IsValid() ? comp->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
             ModelNode* node  = comp->m_modelHandle.IsValid() ? model->GetNodes()[comp->m_nodeIndex] : RenderEngine::Get()->GetPlaceholderModelNode();
 
@@ -134,62 +122,44 @@ namespace Lina::Graphics
                     .mesh      = m,
                 };
 
-                GetDataToRead().m_gpuData[mat].push_back(pair);
+                mtx.lock();
+                m_gpuData[mat].push_back(pair);
+                mtx.unlock();
             }
-        }
+        });
 
-        GetDataToRead().m_visibleNodeComponents.clear();
+        JobSystem::Get()->RunAndWait(tf);
     }
 
-    void StaticMeshRenderer::OnSubmitPerView(CommandBuffer& buffer, View* v)
+    void StaticMeshRenderer::OnSubmit(CommandBuffer& buffer, View* v)
     {
-        return;
         if (v->GetType() != ViewType::Player)
             return;
 
-        static float _frameNumber = 0.0f;
-        _frameNumber += 0.1f;
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        Material* mat  = Resources::ResourceStorage::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
-        Model*    mod  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/BlenderMonkey.obj");
-        Mesh*     mesh = mod->GetRootNode()->GetMeshes()[0];
-        mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
-        uint64 offset = 0;
-        buffer.BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer().buffer, &offset);
-
-        for (int i = -6000; i < 6000; i++)
+        for (auto [mat, pair] : m_gpuData)
         {
-            Matrix    t          = Matrix::Translate(Vector3(i * 2, 0, 0));
-            glm::mat4 meshMatrix = v->GetProj() * v->GetView() * t;
+            auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
+            pipeline.Bind(buffer, PipelineBindPoint::Graphics);
 
-            Graphics::MeshPushConstants constants;
-            constants.renderMatrix = meshMatrix;
-            buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+            DescriptorSet& descSet = RenderEngine::Get()->GetLevelRenderer().GetGlobalSet();
 
-            buffer.Draw(static_cast<uint32>(mesh->GetVertices().size()), 1, 0, 0);
+            buffer.BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet);
+            
+            for (auto& rp : pair)
+            {
+                Graphics::MeshPushConstants constants;
+                constants.renderMatrix = rp.transform;
+                buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+
+                uint64 offset = 0;
+                buffer.BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer()._ptr, &offset);
+                buffer.Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, 0);
+            }
         }
-        // for (auto [mat, pair] : GetDataToRead().m_gpuData)
-        // {
-        //     mat->GetShaderHandle().value->GetPipeline().Bind(buffer, PipelineBindPoint::Graphics);
-        //
-        //     for (auto& rp : pair)
-        //     {
-        //         Matrix t = rp.transform ;
-        //         glm::mat4 meshMatrix = v->GetProj()  * v->GetView() * t;
-        //
-        //         Graphics::MeshPushConstants constants;
-        //         constants.renderMatrix = meshMatrix;
-        //         buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
-        //
-        //         uint64 offset = 0;
-        //         buffer.BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer().buffer, &offset);
-        //
-        //         buffer.Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, 0);
-        //     }
-        // }
 
-        GetDataToRead().m_gpuData.clear();
-        m_dataToRead = m_dataToRead == 1 ? 0 : 1;
+        m_gpuData.clear();
     }
 
 } // namespace Lina::Graphics

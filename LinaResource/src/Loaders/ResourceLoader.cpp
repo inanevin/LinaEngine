@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    bool ResourceLoader::LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data)
+    bool ResourceLoader::LoadSingleResourceFromMemory(const String& path, Vector<unsigned char>& data, Memory::ResourceAllocator alloc)
     {
         auto*        storage   = Resources::ResourceStorage::Get();
         const String extension = Utility::GetFileExtension(Utility::GetFileNameOnly(path));
@@ -44,11 +44,19 @@ namespace Lina::Resources
 
         if (!storage->Exists(tid, sid))
         {
-            auto&      typeData       = storage->GetTypeData(tid);
-            IResource* res            = typeData.createFunc();
-            void*      loadedResource = res->LoadFromMemory(path, &data[0], data.size());
+            auto&      typeData = storage->GetTypeData(tid);
+            IResource* res      = nullptr;
+
+            if (alloc != Memory::ResourceAllocator::None)
+                res = typeData.createFromAllocFunc(alloc);
+            else
+                res = typeData.createFunc();
+
+            void* loadedResource = res->LoadFromMemory(path, &data[0], data.size());
             if (loadedResource == nullptr)
                 return false;
+
+            res->m_usedAllocator = alloc;
 
             storage->Add(loadedResource, tid, sid);
             Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{tid, sid});
@@ -58,16 +66,23 @@ namespace Lina::Resources
         return true;
     }
 
-    bool ResourceLoader::LoadSingleResourceFromFile(TypeID tid, const String& path)
+    bool ResourceLoader::LoadSingleResourceFromFile(TypeID tid, const String& path, Memory::ResourceAllocator alloc)
     {
         auto*    storage = ResourceStorage::Get();
         StringID sid     = HashedString(path.c_str()).value();
 
         if (!storage->Exists(tid, sid))
         {
-            auto&      typeData       = storage->GetTypeData(tid);
-            IResource* res            = typeData.createFunc();
-            void*      loadedResource = res->LoadFromFile(path);
+            auto&      typeData = storage->GetTypeData(tid);
+            IResource* res      = nullptr;
+
+            if (alloc != Memory::ResourceAllocator::None)
+                res = typeData.createFromAllocFunc(alloc);
+            else
+                res = typeData.createFunc();
+
+            void* loadedResource = res->LoadFromFile(path);
+            res->m_usedAllocator = alloc;
 
             if (loadedResource == nullptr)
                 return false;
@@ -94,7 +109,7 @@ namespace Lina::Resources
             if (typeData.packageType == PackageType::Static || typeData.packageType == PackageType::Level)
                 continue;
 
-            const auto&            engineRes = g_defaultResources.GetEngineResources();
+            const auto&      engineRes = g_defaultResources.GetEngineResources();
             Vector<StringID> toRemove;
             toRemove.reserve(cache.m_resources.size() / 2);
 
@@ -108,7 +123,7 @@ namespace Lina::Resources
                 {
                     const auto& it = linatl::find_if(set.begin(), set.end(), [sid](const String& str) {
                         return HashedString(str.c_str()).value() == sid;
-                        });
+                    });
 
                     // If we're going to remove this resource, make sure it's not an engine resource.
                     if (it == set.end() && !g_defaultResources.IsEngineResource(tid, sid))
@@ -124,8 +139,7 @@ namespace Lina::Resources
                         toRemove.push_back(sid);
                 }
             }
-         
-           
+
             for (StringID sid : toRemove)
                 cache.Unload(sid);
         }

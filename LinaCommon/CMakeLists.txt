@@ -46,6 +46,7 @@ set (LINACOMMON_SOURCES
 	
 	# Memory
 	src/Memory/Memory.cpp
+	src/Memory/MemoryManager.cpp
 
 	# Profiling
 	src/Profiling/Profiler.cpp
@@ -75,6 +76,7 @@ set(LINACOMMON_HEADERS
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
 	include/Core/CommonEngine.hpp
+	include/Core/CommonMemory.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
@@ -130,6 +132,7 @@ set(LINACOMMON_HEADERS
 
 	# Memory
 	include/Memory/Memory.hpp
+	include/Memory/MemoryManager.hpp
 	
 	# Log
 	include/Log/Log.hpp
@@ -186,6 +189,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Core/CommonUtility.hpp
 	include/Core/CommonReflection.hpp
 	include/Core/CommonEngine.hpp
+	include/Core/CommonMemory.hpp
 	include/JobSystem/JobSystem.hpp
 	include/Profiling/Profiler.hpp
 	include/Log/Log.hpp
@@ -217,6 +221,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/Serialization/MapSerialization.hpp
 	include/Data/Serialization/HashMapSerialization.hpp
 	include/Reflection/ReflectionSystem.hpp
+	include/Memory/MemoryManager.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions

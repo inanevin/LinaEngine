@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/Vertex.hpp"
 #include "Math/AABB.hpp"
-#include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/Buffer.hpp"
 
 namespace Lina
 {
@@ -58,7 +58,7 @@ namespace Lina::Graphics
             return m_vertices;
         }
 
-        inline const AllocatedBuffer& GetGPUVtxBuffer()
+        inline const Buffer& GetGPUVtxBuffer()
         {
             return m_gpuVtxBuffer;
         }
@@ -79,7 +79,7 @@ namespace Lina::Graphics
         friend class ModelLoader;
         friend struct ECS::ModelComponent;
 
-        AllocatedBuffer   m_gpuVtxBuffer;
+        Buffer            m_gpuVtxBuffer;
         Vector<Vector3ui> m_indices;
         Vector<Vertex>    m_vertices;
         Vector3           m_vertexCenter = Vector3::Zero;

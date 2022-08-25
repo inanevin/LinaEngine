@@ -183,7 +183,6 @@ namespace Lina
 #define PROFILER_VRAMFREE(PTR)                      Profiler::Get()->OnVRAMFree(PTR)
 #define PROFILER_DUMP_FRAME_ANALYSIS(PATH)          Profiler::Get()->DumpFrameAnalysis(PATH)
 #define PROFILER_THREAD_RENDER                      "Render"
-#define PROFILER_THREAD_SIMULATION                  "Simulation"
 #define PROFILER_THREAD_MAIN                        "Main"
 
 } // namespace Lina
@@ -203,7 +202,7 @@ namespace Lina
 #define PROFILER_DUMP_FRAME_ANALYSIS(PATH)
 #define PROFILER_THREAD_RENDER
 #define PROFILER_THREAD_INPUT
-#define PROFILER_THREAD_SIMULATION
+#define PROFILER_THREAD_MAIN
 #define PROFILER_THREAD_MAIN
 #endif
 

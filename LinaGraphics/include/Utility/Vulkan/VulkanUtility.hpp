@@ -63,6 +63,9 @@ namespace Lina::Graphics
 
         // Pass
         static VkSubpassDependency GetSubpassDependency(SubPassDependency& dependency);
+    
+        // Descriptor
+        static VkDescriptorSetLayoutBinding GetDescriptorSetLayoutBinding(DescriptorSetLayoutBinding binding);
     };
 
 } // namespace Lina::Graphics

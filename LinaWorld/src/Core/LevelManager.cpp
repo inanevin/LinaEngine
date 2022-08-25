@@ -57,8 +57,8 @@ namespace Lina::World
         if (m_currentLevel != nullptr)
         {
             // Uninstall current level.
-            Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
             m_currentLevel->Uninstall();
+            Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
             Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
         }
 
@@ -78,7 +78,7 @@ namespace Lina::World
         };
 
         if (loadAsync)
-            JobSystem::Get()->RunAsync(load);
+            JobSystem::Get()->SilentAsync(load);
         else
             load();
 
@@ -97,8 +97,8 @@ namespace Lina::World
         }
 
         // Uninstall current level.
-        Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
         m_currentLevel->Uninstall();
+        Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
 
         // Unload resources
         auto& resMap  = m_currentLevel->GetResources();

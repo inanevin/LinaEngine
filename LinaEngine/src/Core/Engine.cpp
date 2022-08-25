@@ -101,8 +101,10 @@ namespace Lina
         World::LevelManager::s_instance         = &m_levelManager;
         Graphics::RenderEngine::s_instance      = &m_renderEngine;
         JobSystem::s_instance                   = &m_jobSystem;
+        Memory::MemoryManager::s_instance       = &m_memoryManager;
 
         RegisterResourceTypes();
+        m_memoryManager.Initialize();
         m_eventSystem.Initialize();
         m_jobSystem.Initialize();
         m_resourceStorage.Initialize();
@@ -271,22 +273,6 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        // First the inputs are polled.
-        // Then the previous frame is rendered in parallel to calculating the current frame.
-        // Then once the current frame is calculated, render data for the next frame is synced, not tied to rendering process of previous frame.
-
-        Taskflow gameLoop;
-        auto [_RunSimulation, _RenderPreviousFrame] = gameLoop.emplace(
-            [&]() {
-                RunSimulation((float)m_rawDeltaTime);
-                m_renderEngine.GameSimCompleted();
-                updates++;
-            },
-            [&]() {
-                m_renderEngine.Render();
-                frames++;
-            });
-
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
 
@@ -305,6 +291,7 @@ namespace Lina
         //  SetFrameLimit(60);
 
         const String initialTitle = m_renderEngine.m_window.GetTitle();
+
         // double nextTime = 0.0;
         while (m_running)
         {
@@ -346,20 +333,25 @@ namespace Lina
             // m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
             //  previousFrameTime = currentFrameTime;
 
+            // Input
             m_inputEngine.Tick();
-            // RunSimulation((float)m_rawDeltaTime);
-            // m_renderEngine.GameSimCompleted();
-            // updates++;
+
+            // Render
+            Future<void> renderJob = m_jobSystem.Async([&]() {
+                m_renderEngine.Render();
+                frames++;
+            });
+
+            // Game sim, physics + update etc.
+            RunSimulation((float)m_rawDeltaTime);
+            m_renderEngine.GameSimCompleted();
+            updates++;
             // m_renderEngine.Render();
             // frames++;
-            m_jobSystem.Run(gameLoop).wait();
+            renderJob.wait();
 
-        
+            PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 
-            PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_SIMULATION);
-
-
-     
             // Calculate FPS, UPS.
             if (currentFrameTime - totalFPSTime >= 1.0)
             {
@@ -371,16 +363,17 @@ namespace Lina
                 updates = 0;
             }
 
-            m_renderEngine.m_window.SetTitle(initialTitle + " " + TO_STRING(m_currentFPS) + " FPS");
+            m_renderEngine.m_window.SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
 
             if (m_firstRun)
                 m_firstRun = false;
 
-            PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
         }
 
+        m_memoryManager.PrintStaticBlockInfo();
+
         m_jobSystem.WaitForAll();
-        gameLoop.clear();
         m_renderEngine.Join();
         m_levelManager.UninstallCurrent();
         Reflection::Clear();
@@ -403,6 +396,7 @@ namespace Lina
         m_resourceStorage.Shutdown();
         m_jobSystem.Shutdown();
         m_eventSystem.Shutdown();
+        m_memoryManager.Shutdown();
     }
 
     void Engine::RunSimulation(float deltaTime)
@@ -412,9 +406,9 @@ namespace Lina
             return;
         m_shouldSkipFrame = false;
 
-        PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
         m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
         m_physicsAccumulator += deltaTime;
@@ -424,31 +418,31 @@ namespace Lina
         {
             m_physicsAccumulator -= physicsStep;
 
-            PROFILER_SCOPE_START("Event: Pre Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_START("Event: Pre Physics", PROFILER_THREAD_MAIN);
             m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-            PROFILER_SCOPE_END("Event: Pre Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Event: Pre Physics", PROFILER_THREAD_MAIN);
 
-            PROFILER_SCOPE_START("Physics Simulation", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_START("Physics Simulation", PROFILER_THREAD_MAIN);
             m_physicsEngine.Tick(physicsStep);
-            PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_MAIN);
 
-            PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_MAIN);
             m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
-            PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_SIMULATION);
+            PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_MAIN);
         }
 
         // Other main systems (engine or game)
-        PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
         m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
-        PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
         m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
-        PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
-        PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);
         m_renderEngine.Tick();
-        PROFILER_SCOPE_END("Render Engine Tick", PROFILER_THREAD_SIMULATION);
+        PROFILER_SCOPE_END("Render Engine Tick", PROFILER_THREAD_MAIN);
     }
 
     void Engine::RemoveOutliers(bool biggest)
@@ -500,7 +494,8 @@ namespace Lina
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<EngineSettings>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<EngineSettings>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<EngineSettings>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -512,7 +507,8 @@ namespace Lina
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<RenderSettings>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<RenderSettings>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<RenderSettings>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<RenderSettings>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -524,7 +520,8 @@ namespace Lina
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<Resources::ResourceDataManager>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<Resources::ResourceDataManager>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Resources::ResourceDataManager>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Resources::ResourceDataManager>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -536,7 +533,8 @@ namespace Lina
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Level,
                 .createFunc           = std::bind(Resources::CreateResource<World::Level>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<World::Level>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<World::Level>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<World::Level>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -549,7 +547,8 @@ namespace Lina
             .loadPriority         = 0,
             .packageType          = Resources::PackageType::Audio,
             .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
-            .deleteFunc           = std::bind(Resources::DeleteResource<Audio::Audio>, std::placeholders::_1),
+            .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Audio::Audio>, std::placeholders::_1),
+            .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Audio::Audio>, std::placeholders::_1, std::placeholders::_2),
             .associatedExtensions = extensions,
             .debugColor           = Color(255, 235, 170, 255),
         });
@@ -560,7 +559,8 @@ namespace Lina
             .loadPriority         = 0,
             .packageType          = Resources::PackageType::Physics,
             .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
-            .deleteFunc           = std::bind(Resources::DeleteResource<Physics::PhysicsMaterial>, std::placeholders::_1),
+            .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Physics::PhysicsMaterial>, std::placeholders::_1),
+            .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Physics::PhysicsMaterial>, std::placeholders::_1, std::placeholders::_2),
             .associatedExtensions = extensions,
             .debugColor           = Color(17, 120, 255, 255),
         });
@@ -572,7 +572,8 @@ namespace Lina
                 .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Shader>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Shader>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Shader>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Shader>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -584,7 +585,8 @@ namespace Lina
                 .loadPriority         = 1,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Material>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Material>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Material>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Material>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -597,7 +599,8 @@ namespace Lina
                 .loadPriority         = 2,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Model>),
-                .deleteFunc           = std::bind(Resources::DeleteResource<Graphics::Model>, std::placeholders::_1),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Model>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Model>, std::placeholders::_1, std::placeholders::_2),
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });

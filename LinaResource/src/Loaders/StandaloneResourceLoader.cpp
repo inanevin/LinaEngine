@@ -37,7 +37,7 @@ namespace Lina::Resources
     {
         const int totalFiles = static_cast<int>(g_defaultResources.GetStaticResources().size());
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading static packages", .totalFiles = totalFiles});
-        m_packager.LoadPackage(PACKAGE_STATIC, this);
+        m_packager.LoadPackage(PACKAGE_STATIC, this, Memory::ResourceAllocator::Static);
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
@@ -45,11 +45,11 @@ namespace Lina::Resources
     {
         const int totalFiles = static_cast<int>(g_defaultResources.GetEngineResources().size());
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading engine resources", .totalFiles = totalFiles});
-        m_packager.LoadPackage(PACKAGE_ENGINERES, this);
+        m_packager.LoadPackage(PACKAGE_ENGINERES, this, Memory::ResourceAllocator::Static);
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }
 
-    void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
+    void StandaloneResourceLoader::LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
@@ -65,7 +65,7 @@ namespace Lina::Resources
         };
 
         if (async)
-            JobSystem::Get()->RunAsync(loadRes);
+            JobSystem::Get()->SilentAsync(loadRes);
         else
             loadRes();
     }

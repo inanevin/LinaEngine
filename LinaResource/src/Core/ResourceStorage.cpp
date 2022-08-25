@@ -61,8 +61,16 @@ namespace Lina::Resources
         LINA_TRACE("[Resource Storage] -> Unloading resource: {0}", ResourceStorage::Get()->GetPathFromSID(sid));
         Event::EventSystem::Get()->Trigger<Event::EResourceUnloaded>(Event::EResourceUnloaded{sid, m_typeData.tid});
 
-        auto* ptr = GetResource(sid);
-        m_typeData.deleteFunc(ptr);
+        auto*      ptr    = GetResource(sid);
+        IResource* resPtr = static_cast<IResource*>(ptr);
+
+        if (resPtr->m_usedAllocator == Memory::ResourceAllocator::None)
+            delete resPtr;
+        else
+        {
+            resPtr->~IResource();
+            m_typeData.deleteFromAllocFunc(ptr, resPtr->m_usedAllocator);
+        }
 
         if (removeFromMap)
             Remove(sid);

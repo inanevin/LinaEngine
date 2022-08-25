@@ -40,6 +40,8 @@ struct VkPipelineLayout_T;
 
 namespace Lina::Graphics
 {
+    class DescriptorSet;
+
     class CommandBuffer
     {
     public:
@@ -48,6 +50,7 @@ namespace Lina::Graphics
         void Reset(bool releaseResources = false);
         void Begin(uint32 flags);
         void BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset);
+        void BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets);
         void PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants);
         void Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
         void End();

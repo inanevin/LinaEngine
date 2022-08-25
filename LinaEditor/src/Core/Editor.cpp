@@ -70,10 +70,11 @@ namespace Lina::Editor
     void EditorManager::CreateEditorCamera()
     {
         World::Entity* e = World::EntityWorld::Get()->CreateEntity("Editor Camera");
-        e->SetPosition(Vector3(0, 0, 10));
+        e->SetPosition(Vector3(0, 0, 18));
         e->SetRotationAngles(Vector3(0, 180, 0));
         Graphics::CameraComponent*      cam      = World::EntityWorld::Get()->AddComponent<Graphics::CameraComponent>(e);
         World::EditorFreeLookComponent* freeLook = World::EntityWorld::Get()->AddComponent<World::EditorFreeLookComponent>(e);
+        freeLook->rotationPower = 3.0f;
         Graphics::RenderEngine::Get()->GetLevelRenderer().GetCameraSystem().SetActiveCamera(cam);
     }
 

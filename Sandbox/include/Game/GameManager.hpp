@@ -37,6 +37,7 @@ namespace Lina
     {
         struct EStartGame;
         struct ETick;
+        struct ELevelInstalled;
     } // namespace Event
 } // namespace Lina
 
@@ -54,3 +55,22 @@ private:
     void OnLevelInstalled(const Lina::Event::ELevelInstalled& ev);
 };
 #endif
+
+#include "Core/Component.hpp"
+
+namespace Game
+{
+    LINA_COMPONENT("My Test Comp", "Default")
+    struct MyTestComponent : public Lina::World::Component
+    {
+        virtual Lina::TypeID GetTID() override
+        {
+            return Lina::GetTypeID<MyTestComponent>();
+        }
+
+        virtual Lina::Bitmask GetComponentMask() override
+        {
+            return Lina::World::ComponentMask::ReceiveOnTick | Lina::World::ComponentMask::ReceiveOnPostPhysicsTick;
+        }
+    };
+} // namespace Game

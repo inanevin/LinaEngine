@@ -49,7 +49,7 @@ namespace Lina
             return s_instance;
         }
 
-        inline tf::Future<void> Run(Taskflow& flow)
+        inline Future<void> Run(Taskflow& flow)
         {
             return m_executor.run(flow);
         }
@@ -60,13 +60,19 @@ namespace Lina
         }
 
         template <typename F, typename... ArgsT>
-        void RunAsync(F&& f, ArgsT&&... args)
+        inline Future<void> Async(F&& f, ArgsT&&... args)
+        {
+            return m_executor.async(f, args...);
+        }
+
+        template <typename F, typename... ArgsT>
+        void SilentAsync(F&& f, ArgsT&&... args)
         {
             m_executor.silent_async(f, args...);
         }
 
         template <typename F, typename... ArgsT>
-        void RunAsync(const String& name, F&& f, ArgsT&&... args)
+        void SilentAsync(const String& name, F&& f, ArgsT&&... args)
         {
             m_executor.named_silent_async(name.c_str(), f, args...);
         }

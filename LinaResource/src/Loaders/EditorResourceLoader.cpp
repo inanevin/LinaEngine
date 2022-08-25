@@ -46,7 +46,7 @@ namespace Lina::Resources
         {
             for (auto& str : vec)
                 exec.silent_async([tid, str, this]() {
-                    LoadResource(tid, str, false);
+                    LoadResource(tid, str, false, Memory::ResourceAllocator::Static);
                 });
         }
         exec.wait_for_all();
@@ -61,27 +61,27 @@ namespace Lina::Resources
         {
             for (auto& str : vec)
                 exec.silent_async([tid, str, this]() {
-                    LoadResource(tid, str, false);
+                    LoadResource(tid, str, false, Memory::ResourceAllocator::Static);
                 });
         }
         exec.wait_for_all();
     }
 
-    void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
+    void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc)
     {
         if (ResourceStorage::Get()->Exists(tid, HashedString(path.c_str()).value()))
             return;
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading File", .totalFiles = 1});
 
-        const auto& loadRes = [this, tid, path]() {
-            LoadSingleResourceFromFile(tid, path);
+        const auto& loadRes = [this, tid, path, alloc]() {
+            LoadSingleResourceFromFile(tid, path, alloc);
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
         };
 
         if (async)
-            JobSystem::Get()->RunAsync(loadRes);
+            JobSystem::Get()->SilentAsync(loadRes);
         else
             loadRes();
     }

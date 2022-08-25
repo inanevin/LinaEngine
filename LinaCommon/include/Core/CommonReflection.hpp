@@ -41,7 +41,13 @@ namespace Lina
 // Title
 #define LINA_CLASS(Title)
 
-// Title, Category, optionals = IsAbstract
+// IsAbstract is used to exclude certain reflection functions from registering to the type, such as creation & deletion.
+// Mark your abstract classes w/ "True" for the reflection to work w/o compiler errors.
+// 
+// ChunkSize is used to know how much memory pool chunk will be allocated for the component. Empty will default to default value.
+// Keep it the size of components you expect to be alive in a single world instance.
+
+// Title, Category, optionals = IsAbstract, ChunkSize
 #define LINA_COMPONENT(Title, Category, ...)
 
 // Title, Type, Tooltip, Dependency, Category

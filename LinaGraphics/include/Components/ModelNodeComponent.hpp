@@ -58,6 +58,8 @@ namespace Lina::Graphics
             return GetTypeID<ModelNodeComponent>();
         }
 
+        virtual AABB& GetAABB() override;
+
         virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
             RenderableComponent::SaveToArchive(oarchive);

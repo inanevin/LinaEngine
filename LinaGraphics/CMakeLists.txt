@@ -35,8 +35,13 @@ set (LINAGRAPHICS_SOURCES
 
 	# Components
 	src/Components/RenderableComponent.cpp
+	src/Components/ModelNodeComponent.cpp
 
 	# Vulkan
+	src/PipelineObjects/Buffer.cpp
+	src/PipelineObjects/DescriptorSet.cpp
+	src/PipelineObjects/DescriptorSetLayout.cpp
+	src/PipelineObjects/DescriptorPool.cpp
 	src/PipelineObjects/Framebuffer.cpp
 	src/PipelineObjects/SwapChain.cpp
 	src/PipelineObjects/RQueue.cpp
@@ -74,6 +79,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Utility/Vulkan/VulkanUtility.cpp
 	src/Utility/DeletionQueue.cpp
 	src/Utility/ModelLoader.cpp
+	src/Utility/ShaderUtility.cpp
 )
 
 #--------------------------------------------------------------------
@@ -106,6 +112,10 @@ set(LINAGRAPHICS_HEADERS
 	include/Components/CameraComponent.hpp
 
 	# Vulkan
+	include/PipelineObjects/Buffer.hpp
+	include/PipelineObjects/DescriptorSet.hpp
+	include/PipelineObjects/DescriptorSetLayout.hpp
+	include/PipelineObjects/DescriptorPool.hpp
 	include/PipelineObjects/Framebuffer.hpp
 	include/PipelineObjects/Swapchain.hpp
 	include/PipelineObjects/RQueue.hpp
@@ -147,6 +157,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/Vulkan/vk_mem_alloc.h
 	include/Utility/DeletionQueue.hpp
 	include/Utility/ModelLoader.hpp
+	include/Utility/ShaderUtility.hpp
 )
 
 

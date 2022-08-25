@@ -42,7 +42,6 @@ SOFTWARE.
 /// *****************************************************************************
 /// </summary>
 
-
 //INC_BEGIN - !! DO NOT MODIFY THIS LINE !!
 #include "Components/EditorFreeLookComponent.hpp"
 #include "Components/SkyComponent.hpp"
@@ -56,6 +55,7 @@ SOFTWARE.
 #include "Components/ParticleComponent.hpp"
 #include "Components/RenderableComponent.hpp"
 #include "Components/SpriteComponent.hpp"
+#include "Game/GameManager.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
@@ -63,6 +63,9 @@ SOFTWARE.
 
 namespace Lina
 {
+
+#define DEFAULT_COMP_CHUNK_SIZE 512
+
     bool g_reflectedTypesRegistered;
 
     template <typename T>
@@ -85,9 +88,6 @@ namespace Lina
         T* t = static_cast<T*>(ptr);
         delete t;
     }
-    struct Test
-    {
-    };
 
     void RegisterReflectedTypes()
     {
@@ -96,6 +96,7 @@ namespace Lina
 //REGFUNC_BEGIN - !! DO NOT MODIFY THIS LINE !!
 Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Title"_hs,"Editor Free Look");
 Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Category"_hs,"");
+Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<World::EditorFreeLookComponent>().AddField<&World::EditorFreeLookComponent::movementSpeed, World::EditorFreeLookComponent>("movementSpeed"_hs);
 Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Title"_hs,"Movement Speed");
 Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Type"_hs,"Float");
@@ -113,26 +114,31 @@ Reflection::Meta<World::EditorFreeLookComponent>().createFunc = std::bind(&REF_C
 Reflection::Meta<World::EditorFreeLookComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<World::EditorFreeLookComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::SkyComponent>().AddProperty("Title"_hs,"Sky Component");
 Reflection::Meta<Graphics::SkyComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::SkyComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::SkyComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SkyComponent>);
 Reflection::Meta<Graphics::SkyComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SkyComponent>);
 Reflection::Meta<Graphics::SkyComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SkyComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::ModelNodeComponent>().AddProperty("Title"_hs,"Model Node");
 Reflection::Meta<Graphics::ModelNodeComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::ModelNodeComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::ModelNodeComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::ModelNodeComponent>);
 Reflection::Meta<Graphics::ModelNodeComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::ModelNodeComponent>);
 Reflection::Meta<Graphics::ModelNodeComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::ModelNodeComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::CameraComponent>().AddProperty("Title"_hs,"Camera Component");
 Reflection::Meta<Graphics::CameraComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::CameraComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::CameraComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::CameraComponent>);
 Reflection::Meta<Graphics::CameraComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::CameraComponent>);
 Reflection::Meta<Graphics::CameraComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::CameraComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::DecalComponent>().AddProperty("Title"_hs,"Decal Component");
 Reflection::Meta<Graphics::DecalComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::DecalComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::DecalComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::DecalComponent>);
 Reflection::Meta<Graphics::DecalComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::DecalComponent>);
 Reflection::Meta<Graphics::DecalComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::DecalComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::SpotLightComponent>().AddProperty("Title"_hs,"Spot Light Component");
 Reflection::Meta<Graphics::SpotLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::SpotLightComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::SpotLightComponent>().AddField<&Graphics::SpotLightComponent::distance, Graphics::SpotLightComponent>("distance"_hs);
 Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Title"_hs,"Distance");
 Reflection::Meta<Graphics::SpotLightComponent>().GetField("distance"_hs)->AddProperty("Type"_hs,"Float");
@@ -156,6 +162,7 @@ Reflection::Meta<Graphics::SpotLightComponent>().createFunc = std::bind(&REF_Cre
 Reflection::Meta<Graphics::SpotLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SpotLightComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::LightComponent>().AddProperty("Title"_hs,"Light Component");
 Reflection::Meta<Graphics::LightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::LightComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::LightComponent>().AddField<&Graphics::LightComponent::color, Graphics::LightComponent>("color"_hs);
 Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Title"_hs,"Color");
 Reflection::Meta<Graphics::LightComponent>().GetField("color"_hs)->AddProperty("Type"_hs,"Color");
@@ -170,6 +177,7 @@ Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProper
 Reflection::Meta<Graphics::LightComponent>().GetField("intensity"_hs)->AddProperty("Category"_hs,"");
 Reflection::Meta<Graphics::PointLightComponent>().AddProperty("Title"_hs,"Point Light Component");
 Reflection::Meta<Graphics::PointLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::PointLightComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::PointLightComponent>().AddField<&Graphics::PointLightComponent::distance, Graphics::PointLightComponent>("distance"_hs);
 Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Title"_hs,"Distance");
 Reflection::Meta<Graphics::PointLightComponent>().GetField("distance"_hs)->AddProperty("Type"_hs,"Float");
@@ -181,21 +189,31 @@ Reflection::Meta<Graphics::PointLightComponent>().createFunc = std::bind(&REF_Cr
 Reflection::Meta<Graphics::PointLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::PointLightComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::DirectionalLightComponent>().AddProperty("Title"_hs,"Directional Light Component");
 Reflection::Meta<Graphics::DirectionalLightComponent>().AddProperty("Category"_hs,"Lights");
+Reflection::Meta<Graphics::DirectionalLightComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::DirectionalLightComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::DirectionalLightComponent>);
 Reflection::Meta<Graphics::DirectionalLightComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::DirectionalLightComponent>);
 Reflection::Meta<Graphics::DirectionalLightComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::DirectionalLightComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::ParticleComponent>().AddProperty("Title"_hs,"Particle Component");
 Reflection::Meta<Graphics::ParticleComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::ParticleComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::ParticleComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::ParticleComponent>);
 Reflection::Meta<Graphics::ParticleComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::ParticleComponent>);
 Reflection::Meta<Graphics::ParticleComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::ParticleComponent>, std::placeholders::_1);
 Reflection::Meta<Graphics::RenderableComponent>().AddProperty("Title"_hs,"Renderable");
 Reflection::Meta<Graphics::RenderableComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::RenderableComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::SpriteComponent>().AddProperty("Title"_hs,"Sprite Component");
 Reflection::Meta<Graphics::SpriteComponent>().AddProperty("Category"_hs,"Graphics");
+Reflection::Meta<Graphics::SpriteComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
 Reflection::Meta<Graphics::SpriteComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SpriteComponent>);
 Reflection::Meta<Graphics::SpriteComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SpriteComponent>);
 Reflection::Meta<Graphics::SpriteComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SpriteComponent>, std::placeholders::_1);
+Reflection::Meta<Game::MyTestComponent>().AddProperty("Title"_hs,"My Test Comp");
+Reflection::Meta<Game::MyTestComponent>().AddProperty("Category"_hs,"Default");
+Reflection::Meta<Game::MyTestComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
+Reflection::Meta<Game::MyTestComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Game::MyTestComponent>);
+Reflection::Meta<Game::MyTestComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Game::MyTestComponent>);
+Reflection::Meta<Game::MyTestComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Game::MyTestComponent>, std::placeholders::_1);
 Reflection::Meta<Editor::EditorSettings>().AddProperty("Title"_hs,"Editor Settings");
 Reflection::Meta<Editor::EditorSettings>().AddField<&Editor::EditorSettings::m_textEditorPath, Editor::EditorSettings>("m_textEditorPath"_hs);
 Reflection::Meta<Editor::EditorSettings>().GetField("m_textEditorPath"_hs)->AddProperty("Title"_hs,"Text Editor");

@@ -30,61 +30,68 @@ SOFTWARE.
 #include "Core/InputEngine.hpp"
 #include "Core/Entity.hpp"
 #include "Core/World.hpp"
-#include <GLFW/glfw3.h>
 
 namespace Lina::World
 {
+    void EditorFreeLookComponent::OnComponentCreated()
+    {
+        Component::OnComponentCreated();
+        m_targetEuler = m_entity->GetRotationAngles();
+    }
+
     void EditorFreeLookComponent::OnTick(const Event::ETick& ev)
     {
         if (ev.isInPlayMode)
             return;
 
-       // Entity* e = World::EntityWorld::Get()->GetEntity("Test");
-       // static float sa = 0.0f;
-       // sa += 0.01f;
-       // e->SetPosition(Vector3(Math::Sin(sa) * 5, 0, 0));
-       // return;
-        auto*         inputEngine            = Input::InputEngine::Get();
-        const Vector2 mouseAxis              = inputEngine->GetMouseAxis();
-        bool          middleMouseControlsPos = false;
+        auto*         inputEngine = Input::InputEngine::Get();
+        const Vector2 mouseAxis   = inputEngine->GetMouseAxis();
+
+        if (inputEngine->GetMouseButtonDown(LINA_MOUSE_RIGHT))
+        {
+            inputEngine->SetCursorMode(Input::CursorMode::Disabled);
+            inputEngine->SetRawMotion(true);
+        }
+        if (inputEngine->GetMouseButtonUp(LINA_MOUSE_RIGHT))
+        {
+            inputEngine->SetCursorMode(Input::CursorMode::Visible);
+            inputEngine->SetRawMotion(true);
+        }
 
         if (inputEngine->GetMouseButton(LINA_MOUSE_RIGHT))
         {
-            m_angles.y += mouseAxis.y * rotationPower;
-            m_angles.x += mouseAxis.x * rotationPower;
-
-            Quaternion qX       = Quaternion::AxisAngle(Vector3::Up, m_angles.x);
-            Quaternion qY       = Quaternion::AxisAngle(Vector3::Right, m_angles.y);
-            Quaternion localRot = m_entity->GetLocalRotation();
-            Quaternion target   = Quaternion::Slerp(localRot, qX * qY, ev.deltaTime * 25);
-            m_entity->SetLocalRotation(target);
-        }
-        else if (inputEngine->GetMouseButton(LINA_MOUSE_MIDDLE))
-        {
-            middleMouseControlsPos = true;
-            const Vector2 delta    = inputEngine->GetMousePosition() - m_lastMousePos;
-
-            m_entity->AddPosition(-m_entity->GetRotation().GetRight() * delta.x * ev.deltaTime * 5);
-            m_entity->AddPosition(m_entity->GetRotation().GetUp() * delta.y * ev.deltaTime * 5);
+            m_targetEuler.x += mouseAxis.y * rotationPower;
+            m_targetEuler.y += mouseAxis.x * rotationPower;
         }
 
-        m_lastMousePos = inputEngine->GetMousePosition();
-
-        const Vector2 scroll = inputEngine->GetMouseScroll();
-        m_entity->AddPosition(m_entity->GetRotation().GetForward() * scroll.y * ev.deltaTime * 250);
+        Quaternion currentRot = m_entity->GetRotation();
+        currentRot            = Quaternion::Slerp(currentRot, Quaternion::Euler(m_targetEuler), ev.deltaTime * 25);
+        m_entity->SetRotation(currentRot);
 
         // Handle movement.
-        float      horizontalKey    = inputEngine->GetHorizontalAxisValue();
-        float      verticalKey      = inputEngine->GetVerticalAxisValue();
-        float      sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
-        Quaternion rotation         = m_entity->GetRotation();
-        Vector3    fw               = rotation.GetForward();
-        Vector3    up               = rotation.GetUp();
-        Vector3    rg               = rotation.GetRight();
+        float         horizontalKey    = inputEngine->GetHorizontalAxisValue();
+        float         verticalKey      = inputEngine->GetVerticalAxisValue();
+        float         sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
+        Quaternion    rotation         = m_entity->GetRotation();
+        Vector3       fw               = rotation.GetForward().Normalized();
+        Vector3       rg               = rotation.GetRight().Normalized();
+        Vector3       up               = rotation.GetUp().Normalized();
+        const Vector2 scroll           = inputEngine->GetMouseScroll();
 
-        m_entity->AddPosition(verticalKey * ev.deltaTime * movementSpeed * sprintMultiplier * fw.Normalized());
-        m_entity->AddPosition(horizontalKey * ev.deltaTime * movementSpeed * sprintMultiplier * rg.Normalized());
+        m_targetPosition += fw * verticalKey * sprintMultiplier;
+        m_targetPosition += rg * horizontalKey * sprintMultiplier;
+        m_targetPosition += fw * scroll.y * 2.0f;
 
-        // LINA_TRACE("{0}", m_entity->GetPosition().ToString());
+        if (inputEngine->GetMouseButton(LINA_MOUSE_MIDDLE))
+        {
+            const Vector2 delta = inputEngine->GetMousePosition() - m_lastMousePos;
+            m_targetPosition += -rg * delta.x * 0.5f;
+            m_targetPosition += up * delta.x * 0.5f;
+        }
+
+        const Vector3 currentPos = m_entity->GetPosition();
+        m_targetPosition         = Vector3::Lerp(currentPos, m_targetPosition, ev.deltaTime * movementSpeed);
+        m_entity->SetPosition(m_targetPosition);
+        m_lastMousePos = inputEngine->GetMousePosition();
     }
 } // namespace Lina::World

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef InputAxis_HPP
@@ -46,22 +44,23 @@ namespace Lina::Input
     {
 
     public:
-        InputAxis() = default;
+        InputAxis()  = default;
         ~InputAxis() = default;
 
         void  BindAxis(int positiveKey, int negativeKey);
         float GetValue()
         {
-            return m_value;
+            return m_positiveValue + m_negativeValue;
         }
 
     private:
         void OnKey(const Event::EKeyCallback& key);
 
     private:
-        int   m_positiveKey = 0;
-        int   m_negativeKey = 0;
-        float m_value       = 0.0f;
+        int   m_positiveKey   = 0;
+        int   m_negativeKey   = 0;
+        float m_positiveValue = 0.0f;
+        float m_negativeValue = 0.0f;
     };
 } // namespace Lina::Input
 

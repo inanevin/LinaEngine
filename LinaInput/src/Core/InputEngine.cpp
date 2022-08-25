@@ -39,8 +39,7 @@ SOFTWARE.
 
 namespace Lina::Input
 {
-#define AXIS_SENSITIVITY  0.1f
-#define MOUSE_SENSITIVITY 5.0f
+#define MOUSE_SENSITIVITY 15.0f
     GLFWwindow*  glfwWindow                 = nullptr;
     InputEngine* InputEngine::s_inputEngine = nullptr;
 
@@ -51,6 +50,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
+
     }
 
     void InputEngine::Shutdown()
@@ -65,6 +65,7 @@ namespace Lina::Input
     void InputEngine::OnWindowContextCreated(const Event::EWindowContextCreated& e)
     {
         glfwWindow = static_cast<GLFWwindow*>(e.window);
+        m_rawMotionSupported = glfwRawMouseMotionSupported() == GLFW_TRUE ? true : false;
     }
 
     void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
@@ -113,7 +114,7 @@ namespace Lina::Input
         return flag;
     }
 
-    Vector2 InputEngine::GetRawMouseAxis()
+    Vector2 InputEngine::GetMouseAxisDefinite()
     {
         // Get the cursor position.
         double posX, posY;
@@ -196,9 +197,20 @@ namespace Lina::Input
         glfwSetCursorPos(glfwWindow, v.x, v.y);
     }
 
+    void InputEngine::SetRawMotion(bool enabled)
+    {
+        if (!m_rawMotionSupported)
+        {
+            LINA_ERR("[Input Engine] -> Raw motion is not supported on this hardware.");
+            return;
+        }
+
+        glfwSetInputMode(glfwWindow, GLFW_RAW_MOUSE_MOTION, enabled ? GLFW_TRUE : GLFW_FALSE);
+    }
+
     void InputEngine::Tick()
     {
-        PROFILER_FUNC(PROFILER_THREAD_SIMULATION);
+        PROFILER_FUNC(PROFILER_THREAD_MAIN);
 
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)

@@ -41,6 +41,13 @@ namespace Lina::Graphics
     class SpriteComponent : public RenderableComponent
     {
     public:
+
+        virtual AABB& GetAABB()
+        {
+            AABB a;
+            return a;
+        }
+
         virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
         {
             RenderableComponent::SaveToArchive(oarchive);

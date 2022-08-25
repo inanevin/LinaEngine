@@ -264,4 +264,16 @@ namespace Lina::Graphics
         return dep;
     }
 
+    VkDescriptorSetLayoutBinding VulkanUtility::GetDescriptorSetLayoutBinding(DescriptorSetLayoutBinding binding)
+    {
+        VkDescriptorSetLayoutBinding _binding = VkDescriptorSetLayoutBinding{
+            .binding         = binding.binding,
+            .descriptorType  = GetDescriptorType(binding.type),
+            .descriptorCount = binding.descriptorCount,
+            .stageFlags      = GetShaderStage(binding.stage),
+        };
+
+        return _binding;
+    }
+
 } // namespace Lina::Graphics

@@ -28,40 +28,42 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DecalComponent_HPP
-#define DecalComponent_HPP
+#ifndef ShaderUtility_HPP
+#define ShaderUtility_HPP
 
-// Headers here.
-#include "RenderableComponent.hpp"
-#include "Core/CommonReflection.hpp"
+#include "Data/String.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/DescriptorSetLayout.hpp"
 
 namespace Lina::Graphics
 {
-    LINA_COMPONENT("Decal Component", "Graphics")
-    class DecalComponent : public RenderableComponent
+
+    class ShaderUtility
     {
     public:
+        /// <summary>
+        /// Returns a shader block from a full linashader text.
+        /// </summary>
+        /// <param name="shader">Full text.</param>
+        /// <param name="defineStart">Define string, e.g. #LINA_VS or #LINA_FRAG </param>
+        /// <returns></returns>
+        static String GetShaderStageText(const String& shader, const String& defineStart);
 
-        virtual AABB& GetAABB()
-        {
-            AABB a;
-            return a;
-        }
+        /// <summary>
+        /// Scans & returns the push constants in the shader text.
+        /// </summary>
+        /// <param name="moduleText"></param>
+        /// <param name="offset"></param>
+        /// <param name="size"></param>
+        static Vector<PushConstantRange> CheckForPushConstants(ShaderStage stage, const String& moduleText);
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
-        {
-            RenderableComponent::SaveToArchive(oarchive);
-        };
-
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
-        {
-            RenderableComponent::LoadFromArchive(iarchive);
-        };
-
-        virtual TypeID GetTID() override
-        {
-            return GetTypeID<DecalComponent>();
-        }
+        /// <summary>
+        /// Scans & returns the descriptor sets in the shader text.
+        /// </summary>
+        /// <param name="moduleText"></param>
+        /// <param name="offset"></param>
+        /// <param name="size"></param>
+        static Vector<DescriptorSetLayout> CheckForDescriptorSets(ShaderStage stage, const String& moduleText);
     };
 } // namespace Lina::Graphics
 
