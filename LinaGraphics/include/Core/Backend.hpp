@@ -100,6 +100,21 @@ namespace Lina::Graphics
             return m_vmaAllocator;
         }
 
+        inline uint64 GetMinUniformBufferOffsetAlignment()
+        {
+            return m_minUniformBufferOffsetAlignment;
+        }
+
+        inline uint32 GetTransferQueueFamily()
+        {
+            return m_transferQueueFamily;
+        }
+
+        inline uint32 GetComputeQueueFamily()
+        {
+            return m_computeQueueFamily;
+        }
+
     private:
         friend class RenderEngine;
         friend class Renderer;
@@ -125,6 +140,9 @@ namespace Lina::Graphics
         VmaAllocator_T*             m_vmaAllocator   = nullptr;
         Swapchain                   m_swapchain;
         Vector<QueueFamily>         m_queueFamilies;
+        uint64                      m_minUniformBufferOffsetAlignment = 0;
+        uint32                      m_transferQueueFamily             = 0;
+        uint32                      m_computeQueueFamily              = 0;
     };
 } // namespace Lina::Graphics
 

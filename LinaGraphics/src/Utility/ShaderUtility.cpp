@@ -106,17 +106,15 @@ namespace Lina::Graphics
 
         return v;
     }
-    Vector<DescriptorSetLayout> ShaderUtility::CheckForDescriptorSets(ShaderStage stage, const String& moduleText)
+    Vector<ShaderDescriptorSetInfo> ShaderUtility::CheckForDescriptorSets(uint32 stageFlags, const String& moduleText)
     {
-        Vector<DescriptorSetLayout> v;
+        Vector<ShaderDescriptorSetInfo> v;
 
         std::istringstream f(moduleText.c_str());
         std::string        line = "";
 
-        HashMap<uint32, DescriptorSetLayout> map;
-        DescriptorSetLayoutBinding           lastBinding;
-        uint32                               lastSetIndex   = 0;
-        bool                                 parsingBinding = false;
+        ShaderDescriptorSetInfo lastSetInfo;
+        bool                    parsingBinding = false;
 
         while (std::getline(f, line))
         {
@@ -139,20 +137,19 @@ namespace Lina::Graphics
                 size_t      paranth         = line.find(")");
                 std::string bindingIndexStr = line.substr(binding + 8, paranth - binding - 8);
 
-                uint32 setIndex             = static_cast<uint32>(std::stoi(setIndexStr));
-                uint32 bindingIndex         = static_cast<uint32>(std::stoi(bindingIndexStr));
-                lastBinding.binding         = bindingIndex;
-                lastBinding.stage           = stage;
-                lastBinding.descriptorCount = 1; // TODO
+                uint32 setIndex          = static_cast<uint32>(std::stoi(setIndexStr));
+                uint32 bindingIndex      = static_cast<uint32>(std::stoi(bindingIndexStr));
+                lastSetInfo.bindingIndex = bindingIndex;
+                lastSetInfo.stageFlags   = stageFlags;
+                lastSetInfo.setIndex     = setIndex;
 
                 if (line.find("sampler2D") != std::string::npos)
-                    lastBinding.type = DescriptorType::CombinedImageSampler;
+                    lastSetInfo.type = DescriptorType::CombinedImageSampler;
                 else if (line.find("readonly buffer") != std::string::npos)
-                    lastBinding.type = DescriptorType::StorageBuffer;
+                    lastSetInfo.type = DescriptorType::StorageBuffer;
                 else
-                    lastBinding.type = DescriptorType::UniformBuffer;
+                    lastSetInfo.type = DescriptorType::UniformBuffer;
 
-                lastSetIndex   = setIndex;
                 parsingBinding = true;
             }
 
@@ -160,14 +157,11 @@ namespace Lina::Graphics
             {
                 if (line.find("}") != std::string::npos)
                 {
-                    map[lastSetIndex].AddBinding(lastBinding);
+                    v.push_back(lastSetInfo);
                     parsingBinding = false;
                 }
             }
         }
-
-        for (auto [index, sl] : map)
-            v.push_back(sl);
 
         return v;
     }

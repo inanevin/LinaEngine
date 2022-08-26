@@ -40,9 +40,10 @@ namespace Lina::Graphics
     class Fence
     {
     public:
-        void Create();
+        void Create(bool destroyAuto = true);
         void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
         void Reset();
+        void Destroy();
 
         // Description
         uint32 flags = 0;

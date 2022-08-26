@@ -43,11 +43,13 @@ namespace Lina::Graphics
     public:
         void Create();
         void Destroy();
-        void CopyInto(const void* src, uint32 size);
+        void CopyInto(const void* src, size_t size);
+        void CopyInto(unsigned char* src, size_t size);
+        void CopyIntoPadded(const void* src, size_t size, size_t padding);
 
         // Description
         size_t           size        = 0;
-        BufferUsageFlags bufferUsage = BufferUsageFlags::VertexBuffer;
+        uint32           bufferUsage = 0;
         MemoryUsageFlags memoryUsage = MemoryUsageFlags::CpuToGpu;
 
         // Runtime

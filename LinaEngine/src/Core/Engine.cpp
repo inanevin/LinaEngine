@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Resource/Shader.hpp"
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
+#include "Resource/Texture.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Components/RenderableComponent.hpp"
@@ -142,6 +143,7 @@ namespace Lina
 
         // Engine resources.
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/DefaultTextured.linashader");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/BlenderMonkey.obj");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/LinaLogo.fbx");
@@ -151,6 +153,7 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
         m_resourceStorage.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
     }
@@ -373,8 +376,13 @@ namespace Lina
 
         m_memoryManager.PrintStaticBlockInfo();
 
+        LINA_TRACE("[Engine] -> Waiting for all jobs.");
         m_jobSystem.WaitForAll();
+        LINA_TRACE("[Engine] -> All jobs finished.");
+        LINA_TRACE("[Engine] -> Waiting for render thread.");
         m_renderEngine.Join();
+        LINA_TRACE("[Engine] -> Render thread finished.");
+        
         m_levelManager.UninstallCurrent();
         Reflection::Clear();
 
@@ -491,7 +499,6 @@ namespace Lina
         extensions.push_back("enginesettings");
         m_resourceStorage.RegisterResourceType<EngineSettings>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<EngineSettings>, std::placeholders::_1),
@@ -504,7 +511,6 @@ namespace Lina
         extensions.push_back("rendersettings");
         m_resourceStorage.RegisterResourceType<RenderSettings>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<RenderSettings>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<RenderSettings>, std::placeholders::_1),
@@ -517,7 +523,6 @@ namespace Lina
         extensions.push_back("resourcedata");
         m_resourceStorage.RegisterResourceType<Resources::ResourceDataManager>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Static,
                 .createFunc           = std::bind(Resources::CreateResource<Resources::ResourceDataManager>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Resources::ResourceDataManager>, std::placeholders::_1),
@@ -530,7 +535,6 @@ namespace Lina
         extensions.push_back("linalevel");
         m_resourceStorage.RegisterResourceType<World::Level>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Level,
                 .createFunc           = std::bind(Resources::CreateResource<World::Level>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<World::Level>, std::placeholders::_1),
@@ -544,7 +548,6 @@ namespace Lina
         extensions.push_back("wav");
         extensions.push_back("ogg");
         m_resourceStorage.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
-            .loadPriority         = 0,
             .packageType          = Resources::PackageType::Audio,
             .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
             .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Audio::Audio>, std::placeholders::_1),
@@ -556,7 +559,6 @@ namespace Lina
         extensions.clear();
         extensions.push_back("linaphymat");
         m_resourceStorage.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
-            .loadPriority         = 0,
             .packageType          = Resources::PackageType::Physics,
             .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
             .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Physics::PhysicsMaterial>, std::placeholders::_1),
@@ -569,7 +571,6 @@ namespace Lina
         extensions.push_back("linashader");
         m_resourceStorage.RegisterResourceType<Graphics::Shader>(
             Resources::ResourceTypeData{
-                .loadPriority         = 0,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Shader>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Shader>, std::placeholders::_1),
@@ -582,7 +583,6 @@ namespace Lina
         extensions.push_back("linamat");
         m_resourceStorage.RegisterResourceType<Graphics::Material>(
             Resources::ResourceTypeData{
-                .loadPriority         = 1,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Material>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Material>, std::placeholders::_1),
@@ -596,7 +596,6 @@ namespace Lina
         extensions.push_back("obj");
         m_resourceStorage.RegisterResourceType<Graphics::Model>(
             Resources::ResourceTypeData{
-                .loadPriority         = 2,
                 .packageType          = Resources::PackageType::Graphics,
                 .createFunc           = std::bind(Resources::CreateResource<Graphics::Model>),
                 .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Model>, std::placeholders::_1),
@@ -605,6 +604,19 @@ namespace Lina
                 .debugColor           = Color::White,
             });
 
+        extensions.clear();
+        extensions.push_back("png");
+        extensions.push_back("jpg");
+        extensions.push_back("jpeg");
+        m_resourceStorage.RegisterResourceType<Graphics::Texture>(
+            Resources::ResourceTypeData{
+                .packageType          = Resources::PackageType::Graphics,
+                .createFunc           = std::bind(Resources::CreateResource<Graphics::Texture>),
+                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Texture>, std::placeholders::_1),
+                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Texture>, std::placeholders::_1, std::placeholders::_2),
+                .associatedExtensions = extensions,
+                .debugColor           = Color::White,
+            });
         // TODO: Font class.
     }
 

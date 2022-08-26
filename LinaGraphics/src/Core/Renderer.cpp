@@ -27,10 +27,15 @@ SOFTWARE.
 */
 
 #include "Core/Renderer.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Core/Window.hpp"
 #include "Core/Backend.hpp"
+#include "PipelineObjects/RQueue.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Utility/Vulkan/vk_mem_alloc.h"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -45,19 +50,20 @@ namespace Lina::Graphics
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
 
-        m_graphicsQueue.Get(m_backend->GetQueueFamilyIndex(QueueFamilies::Graphics));
-
         Extent3D ext = Extent3D{.width  = static_cast<unsigned int>(size.x),
                                 .height = static_cast<unsigned int>(size.y),
                                 .depth  = 1};
 
         m_depthImage = Image{
-            .format          = Format::D32_SFLOAT,
-            .tiling          = ImageTiling::Optimal,
-            .extent          = ext,
-            .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
-            .imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment)};
-        m_depthImage.Create();
+            .format              = Format::D32_SFLOAT,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .aspectFlags         = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+        };
+        m_depthImage.Create(true);
 
         Attachment att          = Attachment{.format = m_backend->m_swapchain.format, .loadOp = LoadOp::Clear};
         Attachment depthStencil = Attachment{
@@ -125,27 +131,41 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
-        m_descriptorPool = DescriptorPool{
-            .maxSets = 10,
-            .flags   = DescriptorPoolCreateFlags::None,
+        m_scenePropertiesBuffer = Buffer{
+            .size        = FRAME_OVERLAP * VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)),
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+            .memoryUsage = MemoryUsageFlags::CpuToGpu,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).Create();
 
-        DescriptorSetLayoutBinding binding = DescriptorSetLayoutBinding{
+        m_scenePropertiesBuffer.Create();
+
+        m_globalDescriptor = DescriptorSet{
+            .setCount = 1,
+            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+        };
+
+        m_globalDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(0)._ptr);
+        m_globalDescriptor.Create();
+
+        WriteDescriptorSet sceneWrite = WriteDescriptorSet{
+            .buffer          = m_scenePropertiesBuffer._ptr,
+            .offset          = 0,
+            .range           = sizeof(GPUSceneData),
+            .set             = m_globalDescriptor._ptr,
             .binding         = 0,
             .descriptorCount = 1,
-            .stage           = ShaderStage::Vertex,
-            .type            = DescriptorType::UniformBuffer,
-        };
+            .descriptorType  = DescriptorType::UniformBufferDynamic};
 
-        m_globalSetLayout.AddBinding(binding).Create();
+        Vector<WriteDescriptorSet> vv0;
+        vv0.push_back(sceneWrite);
+        DescriptorSet::UpdateDescriptorSets(vv0);
 
         for (int i = 0; i < FRAME_OVERLAP; i++)
         {
             Frame& f = m_frames[i];
 
             // Commands
-            f.pool = CommandPool{.familyIndex = m_graphicsQueue._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
+            f.pool = CommandPool{.familyIndex = RenderEngine::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
             f.pool.Create();
             f.commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
             f.commandBuffer.Create(f.pool._ptr);
@@ -156,23 +176,33 @@ namespace Lina::Graphics
             f.renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
             f.renderFence.Create();
 
-            // Descriptor
-            f.cameraBuffer = Buffer{
-                .size        = sizeof(GPUCameraData),
-                .bufferUsage = BufferUsageFlags::UniformBuffer,
+            f.objDataBuffer = Buffer{
+                .size        = sizeof(GPUObjectData) * 5,
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
-            f.cameraBuffer.Create();
+            f.objDataBuffer.Create();
 
-            f.globalDescriptor = DescriptorSet{
+            f.objDataDescriptor = DescriptorSet{
                 .setCount = 1,
-                .pool     = m_descriptorPool._ptr,
+                .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.globalDescriptor.AddSetLayout(m_globalSetLayout._ptr);
-            f.globalDescriptor.Create();
+            f.objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(1)._ptr);
+            f.objDataDescriptor.Create();
 
-            f.globalDescriptor.UpdateSingle(0, DescriptorType::UniformBuffer, &f.cameraBuffer, 0, sizeof(GPUCameraData));
+            WriteDescriptorSet objDataWrite = WriteDescriptorSet{
+                .buffer          = f.objDataBuffer._ptr,
+                .offset          = 0,
+                .range           = sizeof(GPUObjectData) * 5,
+                .set             = f.objDataDescriptor._ptr,
+                .binding         = 0,
+                .descriptorCount = 1,
+                .descriptorType  = DescriptorType::StorageBuffer};
+
+            Vector<WriteDescriptorSet> vv;
+            vv.push_back(objDataWrite);
+            DescriptorSet::UpdateDescriptorSets(vv);
         }
 
         // Views
@@ -189,13 +219,6 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
         m_cameraSystem.Tick();
         m_playerView.CalculateFrustum(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
-
-        GPUCameraData camData;
-        camData.proj     = m_cameraSystem.GetProj();
-        camData.view     = m_cameraSystem.GetView();
-        camData.viewProj = camData.proj * camData.view;
-
-        GetCurrentFrame().cameraBuffer.CopyInto(&camData, sizeof(GPUCameraData));
     }
 
     void Renderer::FetchAndExtract(World::EntityWorld* world)
@@ -245,6 +268,25 @@ namespace Lina::Graphics
 
         m_renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
 
+        GPUSceneData sceneData;
+        sceneData.proj     = m_cameraSystem.GetProj();
+        sceneData.view     = m_cameraSystem.GetView();
+        sceneData.viewProj = sceneData.proj * sceneData.view;
+
+        uint32 frameIndex      = m_frameNumber % FRAME_OVERLAP;
+        sceneData.ambientColor = Vector4(Math::Sin((Time::GetCPUTime() * 5) + 1) * 0.5f, 0, 0, 1);
+        m_scenePropertiesBuffer.CopyIntoPadded(&sceneData, sizeof(GPUSceneData), VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * frameIndex);
+
+        Vector<GPUObjectData> objDatas;
+        for (int i = 0; i < 5; i++)
+        {
+            GPUObjectData data;
+            data.modelMatrix = Matrix::Translate(Vector3(i, 0, 0));
+
+            objDatas.push_back(data);
+        }
+        GetCurrentFrame().objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
+
         // Render commands.
         m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
 
@@ -254,8 +296,8 @@ namespace Lina::Graphics
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
-        m_graphicsQueue.Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
-        m_graphicsQueue.Present(GetCurrentFrame().renderSemaphore, &imageIndex);
+        RenderEngine::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
+        RenderEngine::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
         m_frameNumber++;
@@ -276,8 +318,10 @@ namespace Lina::Graphics
 
         for (int i = 0; i < FRAME_OVERLAP; i++)
         {
-            m_frames[i].cameraBuffer.Destroy();
+            m_frames[i].objDataBuffer.Destroy();
         }
+
+        m_scenePropertiesBuffer.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();

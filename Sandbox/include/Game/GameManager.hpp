@@ -38,6 +38,7 @@ namespace Lina
         struct EStartGame;
         struct ETick;
         struct ELevelInstalled;
+        struct EResourceLoaded;
     } // namespace Event
 } // namespace Lina
 

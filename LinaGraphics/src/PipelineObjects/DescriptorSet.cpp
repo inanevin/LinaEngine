@@ -58,23 +58,35 @@ namespace Lina::Graphics
         return *this;
     }
 
-    void DescriptorSet::UpdateSingle(uint32 binding, DescriptorType type, Buffer* buf, uint32 offset, size_t range)
+    void DescriptorSet::UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v)
     {
-        VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{
-            .buffer = buf->_ptr,
-            .offset = offset,
-            .range  = range};
+        Vector<VkWriteDescriptorSet>   _setWrites;
+        Vector<VkDescriptorBufferInfo> _bufInfos;
 
-        VkWriteDescriptorSet setWrite = VkWriteDescriptorSet{
-            .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext           = nullptr,
-            .dstSet          = _ptr,
-            .dstBinding      = binding,
-            .descriptorCount = 1,
-            .descriptorType  = GetDescriptorType(type),
-            .pBufferInfo     = &binfo,
-        };
+        _bufInfos.reserve(v.size());
 
-        vkUpdateDescriptorSets(Backend::Get()->GetDevice(), 1, &setWrite, 0, nullptr);
+        for (auto& write : v)
+        {
+            VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{
+                .buffer = write.buffer,
+                .offset = write.offset,
+                .range  = write.range};
+
+            _bufInfos.push_back(binfo);
+
+            VkWriteDescriptorSet setWrite = VkWriteDescriptorSet{
+                .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                .pNext           = nullptr,
+                .dstSet          = write.set,
+                .dstBinding      = write.binding,
+                .descriptorCount = write.descriptorCount,
+                .descriptorType  = GetDescriptorType(write.descriptorType),
+                .pBufferInfo     = &_bufInfos[_bufInfos.size() - 1],
+            };
+
+            _setWrites.push_back(setWrite);
+        }
+
+        vkUpdateDescriptorSets(Backend::Get()->GetDevice(), static_cast<uint32>(_setWrites.size()), _setWrites.data(), 0, nullptr);
     }
 } // namespace Lina::Graphics

@@ -42,6 +42,7 @@ namespace Lina::Graphics
     {
         _family = family;
         vkGetDeviceQueue(Backend::Get()->GetDevice(), _family, s_queueCounterPerFamily[_family], &_ptr);
+        s_queueCounterPerFamily[_family]++;
         LINA_ASSERT(_ptr, "[Render Queue] -> Could not get device queue.");
     }
 
@@ -64,6 +65,24 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
     }
 
+    void RQueue::Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount)
+    {
+        VkSubmitInfo info = VkSubmitInfo{
+            .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext                = nullptr,
+            .waitSemaphoreCount   = 0,
+            .pWaitSemaphores      = nullptr,
+            .pWaitDstStageMask    = nullptr,
+            .commandBufferCount   = 1,
+            .pCommandBuffers      = &cmd._ptr,
+            .signalSemaphoreCount = 0,
+            .pSignalSemaphores    = nullptr,
+        };
+        VkResult result = vkQueueSubmit(_ptr, submitCount, &info, fence._ptr);
+
+        LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
+    }
+
     void RQueue::Present(const Semaphore& waitSemaphore, uint32* swapchainImageIndex)
     {
         VkPresentInfoKHR info = VkPresentInfoKHR{
@@ -73,7 +92,7 @@ namespace Lina::Graphics
             .pWaitSemaphores    = &waitSemaphore._ptr,
             .swapchainCount     = 1,
             .pSwapchains        = &Backend::Get()->GetSwapchain()._ptr,
-            .pImageIndices = swapchainImageIndex,
+            .pImageIndices      = swapchainImageIndex,
         };
         VkResult result = vkQueuePresentKHR(_ptr, &info);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");

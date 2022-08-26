@@ -35,21 +35,24 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void Image::Create()
+    void Image::Create(bool createImageView, bool autoDestroy)
     {
         VkImageCreateInfo imgInfo = VulkanUtility::GetImageCreateInfo(format, imageUsageFlags, tiling, extent);
 
         VmaAllocationCreateInfo allocinfo = VmaAllocationCreateInfo{
-            .usage         = VMA_MEMORY_USAGE_GPU_ONLY,
-            .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+            .usage         = GetMemoryUsageFlags(memoryUsageFlags),
+            .requiredFlags = VkMemoryPropertyFlags(GetMemoryPropertyFlags(memoryPropertyFlags)),
         };
 
         VkResult res = vmaCreateImage(Backend::Get()->GetVMA(), &imgInfo, &allocinfo, &_allocatedImg.image, &_allocatedImg.allocation, nullptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Image] -> Could not create image!");
 
-        VkImageViewCreateInfo viewInfo = VulkanUtility::GetImageViewCreateInfo(_allocatedImg.image, format, aspectFlags);
-        res                            = vkCreateImageView(Backend::Get()->GetDevice(), &viewInfo, Backend::Get()->GetAllocator(), &_ptrImgView);
-        LINA_ASSERT(res == VK_SUCCESS, "[Image] -> Could not create image view!");
+        if (createImageView)
+        {
+            VkImageViewCreateInfo viewInfo = VulkanUtility::GetImageViewCreateInfo(_allocatedImg.image, format, aspectFlags);
+            res                            = vkCreateImageView(Backend::Get()->GetDevice(), &viewInfo, Backend::Get()->GetAllocator(), &_ptrImgView);
+            LINA_ASSERT(res == VK_SUCCESS, "[Image] -> Could not create image view!");
+        }
 
         VkImageView   ptrImageView = _ptrImgView;
         VkImage       ptrImg       = _allocatedImg.image;
@@ -58,13 +61,19 @@ namespace Lina::Graphics
         if (autoDestroy)
         {
             RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptrImageView, ptrImg, allocation]() {
-                vkDestroyImageView(Backend::Get()->GetDevice(), ptrImageView, nullptr);
                 vmaDestroyImage(Backend::Get()->GetVMA(), ptrImg, allocation);
+
+                if (ptrImageView)
+                    vkDestroyImageView(Backend::Get()->GetDevice(), ptrImageView, nullptr);
             }));
         }
     }
 
     void Image::Destroy()
     {
+        if (_ptrImgView != nullptr)
+            vkDestroyImageView(Backend::Get()->GetDevice(), _ptrImgView, nullptr);
+
+        vmaDestroyImage(Backend::Get()->GetVMA(), _allocatedImg.image, _allocatedImg.allocation);
     }
 } // namespace Lina::Graphics

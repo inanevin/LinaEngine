@@ -12,10 +12,14 @@ namespace Lina::Graphics
             return VK_FORMAT_B8G8R8A8_SRGB;
         case Format::R32G32B32_SFLOAT:
             return VK_FORMAT_R32G32B32_SFLOAT;
+        case Format::R32G32_SFLOAT:
+            return VK_FORMAT_R32G32_SFLOAT;
         case Format::D32_SFLOAT:
             return VK_FORMAT_D32_SFLOAT;
         case Format::R8G8B8A8_UNORM:
             return VK_FORMAT_R8G8B8A8_UNORM;
+        case Format::R8G8B8A8_SRGB:
+            return VK_FORMAT_R8G8B8A8_SRGB;
         default:
             return VK_FORMAT_B8G8R8A8_SRGB;
         }
@@ -112,6 +116,12 @@ namespace Lina::Graphics
             return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
         case ImageLayout::PresentSurface:
             return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        case ImageLayout::TransferSrcOptimal:
+            return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        case ImageLayout::TransferDstOptimal:
+            return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        case ImageLayout::ShaderReadOnlyOptimal:
+            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         default:
             return VK_IMAGE_LAYOUT_UNDEFINED;
         }
@@ -166,6 +176,8 @@ namespace Lina::Graphics
     {
         switch (f)
         {
+        case FenceFlags::None:
+            return 0;
         case FenceFlags::Signaled:
             return VK_FENCE_CREATE_SIGNALED_BIT;
         default:
@@ -375,6 +387,12 @@ namespace Lina::Graphics
             return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
         case AccessFlags::DepthStencilAttachmentWrite:
             return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        case AccessFlags::TransferWrite:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+        case AccessFlags::TransferRead:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+        case AccessFlags::ShaderRead:
+            return VK_ACCESS_SHADER_READ_BIT;
         default:
             return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         }
@@ -384,12 +402,20 @@ namespace Lina::Graphics
     {
         switch (flags)
         {
+        case PipelineStageFlags::TopOfPipe:
+            return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         case PipelineStageFlags::ColorAttachmentOutput:
             return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         case PipelineStageFlags::EarlyFragmentTests:
             return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         case PipelineStageFlags::LateFragmentTests:
             return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        case PipelineStageFlags::Transfer:
+            return VK_PIPELINE_STAGE_TRANSFER_BIT;
+        case PipelineStageFlags::BottomOfPipe:
+            return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        case PipelineStageFlags::FragmentShader:
+            return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         default:
             return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         }
@@ -403,6 +429,12 @@ namespace Lina::Graphics
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
         case BufferUsageFlags::UniformBuffer:
             return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        case BufferUsageFlags::StorageBuffer:
+            return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        case BufferUsageFlags::TransferSrc:
+            return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        case BufferUsageFlags::TransferDst:
+            return VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         default:
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
         }
@@ -422,6 +454,25 @@ namespace Lina::Graphics
             return VMA_MEMORY_USAGE_GPU_TO_CPU;
         default:
             return VMA_MEMORY_USAGE_CPU_ONLY;
+        }
+    }
+
+    uint32 GetMemoryPropertyFlags(MemoryPropertyFlags flags)
+    {
+        switch (flags)
+        {
+        case MemoryPropertyFlags::None:
+            return 0;
+        case MemoryPropertyFlags::DeviceLocal:
+            return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        case MemoryPropertyFlags::HostVisible:
+            return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        case MemoryPropertyFlags::HostCoherent:
+            return VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        case MemoryPropertyFlags::HostCached:
+            return VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+        default:
+            return 0;
         }
     }
 
@@ -462,8 +513,9 @@ namespace Lina::Graphics
         switch (type)
         {
         case DescriptorType::UniformBuffer:
-
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case DescriptorType::UniformBufferDynamic:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         case DescriptorType::StorageBuffer:
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         case DescriptorType::CombinedImageSampler:

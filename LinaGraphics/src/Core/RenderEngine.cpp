@@ -72,6 +72,9 @@ namespace Lina::Graphics
         }
         const Vector2i size = m_window.GetSize();
 
+        m_graphicsQueue.Get(m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
+        m_transferQueue.Get(m_backend.GetTransferQueueFamily());
+
         m_viewport = Viewport{
             .x        = 0.0f,
             .y        = 0.0f,
@@ -85,57 +88,40 @@ namespace Lina::Graphics
             .pos  = Vector2(0.0f, 0.0f),
             .size = size,
         };
+        m_descriptorPool = DescriptorPool{
+            .maxSets = 10,
+            .flags   = DescriptorPoolCreateFlags::None,
+        };
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10)
+            .AddPoolSize(DescriptorType::UniformBufferDynamic, 10)
+            .AddPoolSize(DescriptorType::StorageBuffer, 10)
+            .Create();
+
+        DescriptorSetLayoutBinding sceneBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Fragment) | GetShaderStage(ShaderStage::Vertex),
+            .type            = DescriptorType::UniformBufferDynamic,
+        };
+
+        m_globalSetLayout.AddBinding(sceneBinding).Create();
+
+        DescriptorSetLayoutBinding objDataBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Vertex),
+            .type            = DescriptorType::StorageBuffer,
+        };
+
+        m_objectDataLayout.AddBinding(objDataBinding).Create();
+
+        m_descriptorLayouts[0] = &m_globalSetLayout;
+        m_descriptorLayouts[1] = &m_objectDataLayout;
 
         m_levelRenderer.Initialize();
+
+        m_gpuUploader.Create();
     }
-
-    //  void RenderEngine::OnPreStartGame(const Event::EPreStartGame& ev)
-    //  {
-
-    //  RETURN_NOTINITED;
-    //  const Vector2i size = m_window.GetSize();
-    //
-    //  Shader* defaultShader = Resources::ResourceStorage::Get()->GetResource<Shader>("Resources/Engine/Shaders/default.linashader");
-    //  cube                  = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/BlenderMonkey.obj");
-    //
-    //  PushConstantRange r = PushConstantRange{
-    //      .offset     = 0,
-    //      .size       = sizeof(MeshPushConstants),
-    //      .stageFlags = GetShaderStage(ShaderStage::Vertex),
-    //  };
-    //
-    //  m_pipelineLayout = PipelineLayout{};
-    //  m_pipelineLayout.AddPushConstant(r).Create();
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //  m_pipeline = Pipeline{
-    //      .depthTestEnabled  = true,
-    //      .depthWriteEnabled = true,
-    //      .depthCompareOp    = CompareOp::LEqual,
-    //      .viewport          = vp,
-    //      .scissor           = scissors,
-    //      .topology          = Topology::TriangleList,
-    //      .polygonMode       = PolygonMode::Fill,
-    //      .cullMode          = CullMode::None,
-    //  };
-    //
-    //  m_pipeline.SetShader(defaultShader)
-    //      .SetLayout(m_pipelineLayout)
-    //      .SetRenderPass(m_renderPass)
-    //      .Create();
-    //  }
 
     void RenderEngine::Clear()
     {
@@ -176,6 +162,7 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
+        m_gpuUploader.Destroy();
         m_mainDeletionQueue.Flush();
 
         m_levelRenderer.Shutdown();

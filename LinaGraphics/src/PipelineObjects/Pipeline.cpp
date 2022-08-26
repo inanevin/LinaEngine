@@ -124,7 +124,6 @@ namespace Lina::Graphics
 
         // We don't need the modules anymore
         _shaderStages.clear();
-        _shader->UploadedToPipeline();
 
         VkPipeline_T* ptr = _ptr;
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {

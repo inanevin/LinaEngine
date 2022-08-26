@@ -63,9 +63,24 @@ namespace Lina::Graphics
 
         // Pass
         static VkSubpassDependency GetSubpassDependency(SubPassDependency& dependency);
-    
+
         // Descriptor
-        static VkDescriptorSetLayoutBinding GetDescriptorSetLayoutBinding(DescriptorSetLayoutBinding binding);
+        static VkDescriptorSetLayoutBinding GetDescriptorSetLayoutBinding(const DescriptorSetLayoutBinding& binding);
+
+        // Buffers
+        static VkBufferCopy             GetBufferCopy(const BufferCopy& copy);
+        static VkBufferImageCopy        GetBufferImageCopy(const BufferImageCopy& copy);
+        static VkImageSubresourceLayers GetImageSubresourceLayers(const ImageSubresourceLayers& r);
+
+        // Barriers
+        static VkMemoryBarrier       GetMemoryBarrier(const DefaultMemoryBarrier& bar);
+        static VkBufferMemoryBarrier GetBufferMemoryBarrier(const BufferMemoryBarrier& bar);
+        static VkImageMemoryBarrier  GetImageMemoryBarrier(const ImageMemoryBarrier& bar);
+
+        // Others
+        static VkExtent3D GetExtent3D(Extent3D e);
+        static VkOffset3D GetOffset3D(Offset3D e);
+        static size_t     PadUniformBufferSize(size_t originalSize);
     };
 
 } // namespace Lina::Graphics

@@ -70,7 +70,7 @@ namespace Lina::Graphics
 
     protected:
     private:
-        void AddVertex(const Vector3& pos, const Vector3& normal);
+        void AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv);
         void AddIndices(uint32 i1, uint32 i2, uint32 i3);
         void GenerateBuffers();
 

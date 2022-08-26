@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void CommandPool::Create()
+    void CommandPool::Create(bool destroyAuto)
     {
         VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -45,10 +45,23 @@ namespace Lina::Graphics
         VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
 
-        VkCommandPool_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-            vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        }));
+        if (destroyAuto)
+        {
+            VkCommandPool_T* ptr = _ptr;
+            RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
+                vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+            }));
+        }
+    }
+
+    void CommandPool::Destroy()
+    {
+        vkDestroyCommandPool(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+    }
+
+    void CommandPool::Reset()
+    {
+        vkResetCommandPool(Backend::Get()->GetDevice(), _ptr, 0);
     }
 
 } // namespace Lina::Graphics

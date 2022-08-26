@@ -32,6 +32,8 @@ SOFTWARE.
 #define Texture_HPP
 
 #include "Core/IResource.hpp"
+#include "Core/GraphicsCommon.hpp"
+#include "PipelineObjects/Image.hpp"
 
 namespace Lina::Graphics
 {
@@ -39,7 +41,7 @@ namespace Lina::Graphics
     {
         struct AssetData
         {
-            int dummy = 0;
+            Format m_format;
         };
 
     public:
@@ -52,7 +54,15 @@ namespace Lina::Graphics
         virtual void  SaveAssetData() override;
 
     private:
+        void GenerateBuffers(unsigned char* pixels);
+
+    private:
         AssetData m_assetData;
+        Image     m_gpuImage;
+        Extent3D  m_extent;
+        uint32    m_width    = 0;
+        uint32    m_height   = 0;
+        uint32    m_channels = 0;
     };
 } // namespace Lina::Graphics
 

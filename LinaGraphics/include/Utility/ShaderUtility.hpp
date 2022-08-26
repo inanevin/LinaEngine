@@ -63,7 +63,7 @@ namespace Lina::Graphics
         /// <param name="moduleText"></param>
         /// <param name="offset"></param>
         /// <param name="size"></param>
-        static Vector<DescriptorSetLayout> CheckForDescriptorSets(ShaderStage stage, const String& moduleText);
+        static Vector<ShaderDescriptorSetInfo> CheckForDescriptorSets(uint32 stageFlags, const String& moduleText);
     };
 } // namespace Lina::Graphics
 

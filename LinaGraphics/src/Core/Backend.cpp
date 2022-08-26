@@ -152,16 +152,98 @@ namespace Lina::Graphics
                                                  .value();
 
         // create the final Vulkan device
-        vkb::DeviceBuilder deviceBuilder{physicalDevice};
-        vkb::Device        vkbDevice = deviceBuilder.build().value();
-        m_device                     = vkbDevice.device;
-        m_gpu                        = physicalDevice.physical_device;
+        vkb::DeviceBuilder                           deviceBuilder{physicalDevice};
+        VkPhysicalDeviceShaderDrawParametersFeatures shaderDrawParamsFeature = VkPhysicalDeviceShaderDrawParametersFeatures{
+            .sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
+            .pNext                = nullptr,
+            .shaderDrawParameters = VK_TRUE,
+        };
+        deviceBuilder.add_pNext(&shaderDrawParamsFeature);
+
+        bool hasDedicatedTransferQueue = physicalDevice.has_dedicated_transfer_queue();
+        bool hasDedicatedComputeQueue  = physicalDevice.has_dedicated_compute_queue();
+
+        auto queue_families = physicalDevice.get_queue_families();
+
+        // if (!hasDedicatedTransferQueue)
+        // {
+        //     // We don't have a dedicated transfer queue.
+        //     // Find the queue family that supports transfer bit.
+        //     for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
+        //     {
+        //         if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+        //         {
+        //             m_transferQueueFamily = i;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // if (!hasDedicatedComputeQueue)
+        // {
+        //     // We don't have a dedicated transfer queue.
+        //     // Find the queue family that supports transfer bit.
+        //     for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
+        //     {
+        //         if (queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
+        //         {
+        //             m_computeQueueFamily = i;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // 2 queues supporting graphics & transfer
+        // 1 queue rest.
+        std::vector<vkb::CustomQueueDescription> queue_descriptions;
+        for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
+        {
+            uint32 count = 1;
+
+            // if (!hasDedicatedTransferQueue && i == m_transferQueueFamily)
+            //     count++;
+            //
+            // if (!hasDedicatedComputeQueue && i == m_computeQueueFamily)
+            //     count++;
+
+            if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                m_transferQueueFamily = i;
+                count++;
+            }
+
+            if (queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
+                m_computeQueueFamily = i;
+
+            queue_descriptions.push_back(vkb::CustomQueueDescription(i, count, std::vector<float>(count, 1.0f)));
+        }
+
+        deviceBuilder.custom_queue_setup(queue_descriptions);
+
+        // deviceBuilder.custom_queue_setup(desc);
+        vkb::Device vkbDevice = deviceBuilder.build().value();
+        m_device              = vkbDevice.device;
+        m_gpu                 = physicalDevice.physical_device;
+
+        // if (hasDedicatedTransferQueue)
+        // {
+        //     auto res              = vkbDevice.get_dedicated_queue_index(vkb::QueueType::transfer);
+        //     m_transferQueueFamily = res.value();
+        // }
+        //
+        // if (hasDedicatedComputeQueue)
+        // {
+        //     auto res             = vkbDevice.get_dedicated_queue_index(vkb::QueueType::compute);
+        //     m_computeQueueFamily = res.value();
+        // }
 
         VkPhysicalDeviceProperties gpuProps;
         vkGetPhysicalDeviceProperties(m_gpu, &gpuProps);
 
         VkPhysicalDeviceMemoryProperties gpuMemProps;
         vkGetPhysicalDeviceMemoryProperties(m_gpu, &gpuMemProps);
+
+        m_minUniformBufferOffsetAlignment = gpuProps.limits.minUniformBufferOffsetAlignment;
 
 #ifdef LINA_ENABLE_PROFILING
         DeviceGPUInfo profilerInfo;

@@ -32,6 +32,7 @@ SOFTWARE.
 #define DeletionQueue_HPP
 
 #include "Data/Deque.hpp"
+#include "Data/Mutex.hpp"
 #include <functional>
 
 namespace Lina::Graphics
@@ -43,6 +44,7 @@ namespace Lina::Graphics
         void Flush();
 
     private:
+        Mutex                        m_mtx;
         Deque<std::function<void()>> m_queue;
     };
 } // namespace Lina::Graphics

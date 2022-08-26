@@ -49,6 +49,7 @@ set (LINAGRAPHICS_SOURCES
 	src/PipelineObjects/CommandBuffer.cpp
 	src/PipelineObjects/RenderPass.cpp
 	src/PipelineObjects/Fence.cpp
+	src/PipelineObjects/UploadContext.cpp
 	src/PipelineObjects/Semaphore.cpp
 	src/PipelineObjects/Pipeline.cpp
 	src/PipelineObjects/PipelineLayout.cpp
@@ -123,6 +124,7 @@ set(LINAGRAPHICS_HEADERS
 	include/PipelineObjects/CommandBuffer.hpp
 	include/PipelineObjects/RenderPass.hpp
 	include/PipelineObjects/Fence.hpp
+	include/PipelineObjects/UploadContext.hpp
 	include/PipelineObjects/Semaphore.hpp
 	include/PipelineObjects/Pipeline.hpp
 	include/PipelineObjects/PipelineLayout.hpp

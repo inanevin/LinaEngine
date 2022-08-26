@@ -54,8 +54,8 @@ namespace Lina
 
 namespace Lina::Resources
 {
-    typedef std::variant<int, float, double, bool, String, Vector<unsigned int>> DataVariant;
-    typedef ParallelHashMapMutex<StringID, DataVariant>                          DataMap;
+    typedef std::variant<int, float, double, bool, String, Vector<unsigned int>, uint8> DataVariant;
+    typedef ParallelHashMapMutex<StringID, DataVariant>                                 DataMap;
 
     struct ResourceData
     {

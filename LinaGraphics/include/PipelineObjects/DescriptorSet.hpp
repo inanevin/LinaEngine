@@ -49,7 +49,7 @@ namespace Lina::Graphics
         void           Create();
         DescriptorSet& AddSetLayout(VkDescriptorSetLayout_T* layout);
 
-        void UpdateSingle(uint32 binding, DescriptorType type, Buffer* buf, uint32 offset, size_t range);
+        static void UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v);
 
         // Description
         uint32                           setCount = 0;

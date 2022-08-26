@@ -28,19 +28,29 @@ SOFTWARE.
 
 #include "Resource/Texture.hpp"
 #include "Core/ResourceDataManager.hpp"
+#include "PipelineObjects/Buffer.hpp"
+#include "PipelineObjects/UploadContext.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/stb/stb_image.h"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
     Texture::~Texture()
     {
+        m_gpuImage.Destroy();
     }
 
     void* Texture::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
     {
         IResource::SetSID(path);
         LoadAssetData();
-
+        int      texWidth, texHeight, texChannels;
+        stbi_uc* pixels = stbi_load_from_memory(data, static_cast<int>(dataSize), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        m_width         = static_cast<uint32>(texWidth);
+        m_height        = static_cast<uint32>(texHeight);
+        m_channels      = static_cast<uint32>(texChannels);
+        GenerateBuffers(pixels);
         return static_cast<void*>(this);
     }
 
@@ -49,28 +59,124 @@ namespace Lina::Graphics
         IResource::SetSID(path);
         LoadAssetData();
 
+        int      texWidth, texHeight, texChannels;
+        stbi_uc* pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        m_width         = static_cast<uint32>(texWidth);
+        m_height        = static_cast<uint32>(texHeight);
+        m_channels      = static_cast<uint32>(texChannels);
+
+        if (!pixels)
+        {
+            LINA_ERR("[Texture Loader]-> Could not load the texture from file! {0}", path);
+            return nullptr;
+        }
+
+        GenerateBuffers(pixels);
         return static_cast<void*>(this);
     }
 
     void Texture::LoadAssetData()
     {
-        return;
-
         auto dm = Resources::ResourceDataManager::Get();
         if (!dm->Exists(m_sid))
+        {
+            m_assetData.m_format = Format::R8G8B8A8_SRGB;
             SaveAssetData();
+        }
 
-        m_assetData.dummy = dm->GetValue<bool>(m_sid, "dummy");
+        m_assetData.m_format = static_cast<Format>(dm->GetValue<uint8>(m_sid, "format"));
     }
 
     void Texture::SaveAssetData()
     {
-        return;
-
         auto dm = Resources::ResourceDataManager::Get();
         dm->CleanSlate(m_sid);
-        dm->SetValue<bool>(m_sid, "dummy", m_assetData.dummy);
+        dm->SetValue<uint8>(m_sid, "format", static_cast<uint8>(m_assetData.m_format));
         dm->Save();
+    }
+
+    void Texture::GenerateBuffers(unsigned char* pixels)
+    {
+        const size_t bufferSize = m_width * m_height * 4;
+        return;
+        Buffer cpuBuffer = Buffer{
+            .size = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        cpuBuffer.Create();
+        cpuBuffer.CopyInto(pixels, bufferSize);
+        stbi_image_free(pixels);
+
+        m_extent = Extent3D{
+            .width  = m_width,
+            .height = m_height,
+            .depth  = 1};
+
+        m_gpuImage = Image{
+            .format          = m_assetData.m_format,
+            .tiling          = ImageTiling::Optimal,
+            .extent          = m_extent,
+            .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
+        };
+
+        m_gpuImage.Create(true, false);
+
+        UploadContext uploader;
+        uploader.Create();
+        uploader.SubmitImmediate([=](CommandBuffer& cmd) {
+            ImageSubresourceRange range = ImageSubresourceRange{
+                .aspectMask     = ImageAspectFlags::AspectColor,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
+                .srcAccessMask    = 0,
+                .dstAccessMask    = GetAccessFlags(AccessFlags::TransferWrite),
+                .oldLayout        = ImageLayout::Undefined,
+                .newLayout        = ImageLayout::TransferDstOptimal,
+                .img              = m_gpuImage._allocatedImg.image,
+                .subresourceRange = range,
+            };
+
+            Vector<ImageMemoryBarrier> imageBarriers;
+            imageBarriers.push_back(imageBarrierToTransfer);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
+
+            ImageSubresourceLayers copySubres = ImageSubresourceLayers{
+                .aspectMask     = ImageAspectFlags::AspectColor,
+                .mipLevel       = 0,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            BufferImageCopy copyRegion = BufferImageCopy{
+                .bufferOffset      = 0,
+                .bufferRowLength   = 0,
+                .bufferImageHeight = 0,
+                .imageSubresource  = copySubres,
+                .imageExtent       = m_extent,
+            };
+
+            // copy the buffer into the image
+            cmd.CMD_CopyBufferToImage(cpuBuffer._ptr, m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
+
+            ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
+            barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
+            barrierToReadable.newLayout          = ImageLayout::ShaderReadOnlyOptimal;
+            barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
+            barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
+        });
+        uploader.Destroy();
+        cpuBuffer.Destroy();
     }
 
 } // namespace Lina::Graphics

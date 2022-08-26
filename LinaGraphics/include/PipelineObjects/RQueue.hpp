@@ -53,6 +53,7 @@ namespace Lina::Graphics
     public:
         void Get(uint32 family);
         void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
+        void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
         void Present(const Semaphore& waitSemaphore, uint32* swapchainImageIndex);
 
         // Runtime
@@ -60,6 +61,8 @@ namespace Lina::Graphics
         uint32     _family = 0;
 
         static HashMap<uint32, uint32> s_queueCounterPerFamily;
+
+    private:
     };
 } // namespace Lina::Graphics
 

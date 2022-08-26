@@ -63,8 +63,6 @@ namespace Lina::Graphics
         virtual void  LoadAssetData() override;
         virtual void  SaveAssetData() override;
 
-        void UploadedToPipeline();
-
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()
         {
             return m_modules;

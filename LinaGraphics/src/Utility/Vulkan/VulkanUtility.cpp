@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Utility/Vulkan/VulkanUtility.hpp"
-#include "Core/GraphicsCommon.hpp"
 #include "Data/Vertex.hpp"
 #include "Core/Backend.hpp"
 
@@ -179,9 +178,17 @@ namespace Lina::Graphics
             .offset   = offsetof(Vertex, color),
         };
 
+        VertexInputAttribute uvAtt = VertexInputAttribute{
+            .binding  = 0,
+            .location = 3,
+            .format   = Format::R32G32_SFLOAT,
+            .offset   = offsetof(Vertex, uv),
+        };
+
         description.attributes.push_back(positionAtt);
         description.attributes.push_back(normalAtt);
         description.attributes.push_back(colorAtt);
+        description.attributes.push_back(uvAtt);
 
         return description;
     }
@@ -264,16 +271,136 @@ namespace Lina::Graphics
         return dep;
     }
 
-    VkDescriptorSetLayoutBinding VulkanUtility::GetDescriptorSetLayoutBinding(DescriptorSetLayoutBinding binding)
+    VkBufferCopy VulkanUtility::GetBufferCopy(const BufferCopy& copy)
+    {
+        VkBufferCopy c = VkBufferCopy{
+            .srcOffset = copy.sourceOffset,
+            .dstOffset = copy.destinationOffset,
+            .size      = copy.size,
+        };
+
+        return c;
+    }
+
+    VkBufferImageCopy VulkanUtility::GetBufferImageCopy(const BufferImageCopy& copy)
+    {
+        VkBufferImageCopy c = VkBufferImageCopy{
+            .bufferOffset      = copy.bufferOffset,
+            .bufferRowLength   = copy.bufferRowLength,
+            .bufferImageHeight = copy.bufferImageHeight,
+            .imageSubresource  = GetImageSubresourceLayers(copy.imageSubresource),
+            .imageOffset       = GetOffset3D(copy.imageOffset),
+            .imageExtent       = GetExtent3D(copy.imageExtent),
+        };
+        return c;
+    }
+
+    VkImageSubresourceLayers VulkanUtility::GetImageSubresourceLayers(const ImageSubresourceLayers& r)
+    {
+        VkImageSubresourceLayers srl = VkImageSubresourceLayers{
+            .aspectMask     = GetImageAspectFlags(r.aspectMask),
+            .mipLevel       = r.mipLevel,
+            .baseArrayLayer = r.baseArrayLayer,
+            .layerCount     = r.layerCount,
+        };
+        return srl;
+    }
+
+    VkDescriptorSetLayoutBinding VulkanUtility::GetDescriptorSetLayoutBinding(const DescriptorSetLayoutBinding& binding)
     {
         VkDescriptorSetLayoutBinding _binding = VkDescriptorSetLayoutBinding{
             .binding         = binding.binding,
             .descriptorType  = GetDescriptorType(binding.type),
             .descriptorCount = binding.descriptorCount,
-            .stageFlags      = GetShaderStage(binding.stage),
+            .stageFlags      = binding.stageFlags,
         };
 
         return _binding;
+    }
+
+    VkMemoryBarrier VulkanUtility::GetMemoryBarrier(const DefaultMemoryBarrier& bar)
+    {
+        VkMemoryBarrier b = VkMemoryBarrier{
+            .sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+            .pNext         = nullptr,
+            .srcAccessMask = bar.srcAccessMask,
+            .dstAccessMask = bar.dstAccessMask,
+        };
+        return b;
+    }
+
+    VkBufferMemoryBarrier VulkanUtility::GetBufferMemoryBarrier(const BufferMemoryBarrier& bar)
+    {
+        VkBufferMemoryBarrier b = VkBufferMemoryBarrier{
+            .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .pNext               = nullptr,
+            .srcAccessMask       = bar.srcAccessMask,
+            .dstAccessMask       = bar.dstAccessMask,
+            .srcQueueFamilyIndex = bar.srcQueueFamilyIndex,
+            .dstQueueFamilyIndex = bar.dstQueueFamilyIndex,
+            .buffer              = bar.buffer,
+            .offset              = bar.offset,
+            .size                = bar.size};
+
+        return b;
+    }
+
+    VkImageMemoryBarrier VulkanUtility::GetImageMemoryBarrier(const ImageMemoryBarrier& bar)
+    {
+        VkImageSubresourceRange subresRange = VkImageSubresourceRange{
+            .aspectMask     = GetImageAspectFlags(bar.subresourceRange.aspectMask),
+            .baseMipLevel   = bar.subresourceRange.baseMipLevel,
+            .levelCount     = bar.subresourceRange.levelCount,
+            .baseArrayLayer = bar.subresourceRange.baseArrayLayer,
+            .layerCount     = bar.subresourceRange.layerCount,
+        };
+
+        VkImageMemoryBarrier b = VkImageMemoryBarrier{
+
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext               = nullptr,
+            .srcAccessMask       = bar.srcAccessMask,
+            .dstAccessMask       = bar.dstAccessMask,
+            .oldLayout           = GetImageLayout(bar.oldLayout),
+            .newLayout           = GetImageLayout(bar.newLayout),
+            .srcQueueFamilyIndex = bar.srcQueueFamilyIndex,
+            .dstQueueFamilyIndex = bar.dstQueueFamilyIndex,
+            .image               = bar.img,
+            .subresourceRange    = subresRange,
+        };
+        return b;
+    }
+
+    VkExtent3D VulkanUtility::GetExtent3D(Extent3D e)
+    {
+        VkExtent3D ex = VkExtent3D{
+            .width  = e.width,
+            .height = e.height,
+            .depth  = e.depth,
+        };
+
+        return ex;
+    }
+
+    VkOffset3D VulkanUtility::GetOffset3D(Offset3D o)
+    {
+        VkOffset3D off = VkOffset3D{
+            .x = o.x,
+            .y = o.y,
+            .z = o.z,
+        };
+        return off;
+    }
+
+    size_t VulkanUtility::PadUniformBufferSize(size_t originalSize)
+    {
+        size_t minUboAlignment = static_cast<size_t>(Backend::Get()->GetMinUniformBufferOffsetAlignment());
+        size_t alignedSize     = originalSize;
+        if (minUboAlignment > 0)
+        {
+            alignedSize = (alignedSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
+        }
+        return alignedSize;
     }
 
 } // namespace Lina::Graphics

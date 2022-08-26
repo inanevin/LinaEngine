@@ -30,11 +30,13 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/World.hpp"
 #include "Resource/Model.hpp"
 #include "Core/ResourceStorage.hpp"
 #include "Components/ModelNodeComponent.hpp"
+#include "Core/RenderEngine.hpp"
 
 using namespace Lina;
 
@@ -53,11 +55,35 @@ struct VisibilityData2
 {
     Lina::Graphics::RenderableComponent* renderable = nullptr;
 };
+
 Lina::World::Entity* ent;
-float                angle = 0.0f;
+float                angle  = 0.0f;
+bool                 loaded = false;
 
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
+    bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
+
+    if (!exists)
+        return;
+
+    if (!loaded)
+    {
+        World::EntityWorld*    w = World::EntityWorld::Get();
+        Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
+
+        for (int i = 0; i < 1; i++)
+        {
+            World::Entity* e = m->AddToWorld(w);
+            e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
+
+            if (i == 0)
+                ent = e;
+        }
+
+        loaded = true;
+    }
+
     angle += ev.deltaTime * 0.26f;
     float r = 5.0f;
     float x = r * Math::Sin(angle);
@@ -67,15 +93,5 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
-    World::EntityWorld*    w = World::EntityWorld::Get();
-    Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/BlenderMonkey.obj");
-
-    for (int i = 0; i < 200; i++)
-    {
-        World::Entity* e = m->AddToWorld(w);
-        e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
-
-        if (i == 0)
-            ent = e;
-    }
+    Lina::Resources::ResourceStorage::Get()->Load(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj", true);
 }

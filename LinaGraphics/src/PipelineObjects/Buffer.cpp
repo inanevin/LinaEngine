@@ -40,7 +40,7 @@ namespace Lina::Graphics
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
             .pNext = nullptr,
             .size  = size,
-            .usage = GetBufferUsageFlags(bufferUsage),
+            .usage = bufferUsage,
         };
 
         VmaAllocationCreateInfo vmaallocInfo = {
@@ -54,12 +54,31 @@ namespace Lina::Graphics
     void Buffer::Destroy()
     {
         vmaDestroyBuffer(Backend::Get()->GetVMA(), _ptr, _allocation);
+        _ptr        = nullptr;
+        _allocation = nullptr;
     }
 
-    void Buffer::CopyInto(const void* src, uint32 size)
+    void Buffer::CopyInto(const void* src, size_t size)
     {
         void* data;
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
+        MEMCPY(data, src, size);
+        vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+    }
+
+    void Buffer::CopyInto(unsigned char* src, size_t size)
+    {
+        void* data;
+        vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
+        MEMCPY(data, src, size);
+        vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+    }
+
+    void Buffer::CopyIntoPadded(const void* src, size_t size, size_t padding)
+    {
+        char* data;
+        vmaMapMemory(Backend::Get()->GetVMA(), _allocation, (void**)&data);
+        data += padding;
         MEMCPY(data, src, size);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
     }

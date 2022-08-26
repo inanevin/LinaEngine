@@ -30,6 +30,7 @@ SOFTWARE.
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "Core/Backend.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -67,29 +68,77 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed to begin!");
     }
 
-    void CommandBuffer::BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset)
+    void CommandBuffer::CMD_BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset)
     {
         vkCmdBindVertexBuffers(_ptr, firstBinding, bindingCount, &buffer, offset);
     }
 
-    void CommandBuffer::BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets)
+    void CommandBuffer::CMD_BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets, uint32 dynamicOffsetCount, uint32* dynamicOffsets)
     {
         Vector<VkDescriptorSet> _sets;
+        _sets.reserve(setCount);
 
         for (uint32 i = 0; i < setCount; i++)
             _sets.push_back(sets[i]._ptr);
 
-        vkCmdBindDescriptorSets(_ptr, GetPipelineBindPoint(bindPoint), pLayout, firstSet, setCount, _sets.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(_ptr, GetPipelineBindPoint(bindPoint), pLayout, firstSet, setCount, _sets.data(), dynamicOffsetCount, dynamicOffsets);
     }
 
-    void CommandBuffer::PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants)
+    void CommandBuffer::CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants)
     {
         vkCmdPushConstants(_ptr, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), constants);
     }
 
-    void CommandBuffer::Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
+    void CommandBuffer::CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
     {
         vkCmdDraw(_ptr, vtxCount, instCount, firstVtx, firstInst);
+    }
+
+    void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags srcStageFlags, PipelineStageFlags dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers)
+    {
+        Vector<VkMemoryBarrier>       _barriers;
+        Vector<VkBufferMemoryBarrier> _bufferBarriers;
+        Vector<VkImageMemoryBarrier>  _imageBarriers;
+        const uint32                  barriersSize       = static_cast<uint32>(barriers.size());
+        const uint32                  bufferBarriersSize = static_cast<uint32>(bufferBarriers.size());
+        const uint32                  imageBarriersSize  = static_cast<uint32>(imageBarriers.size());
+        _barriers.reserve(barriersSize);
+        _bufferBarriers.reserve(bufferBarriersSize);
+        _imageBarriers.reserve(imageBarriersSize);
+
+        for (auto& b : barriers)
+            _barriers.push_back(VulkanUtility::GetMemoryBarrier(b));
+
+        for (auto& b : bufferBarriers)
+            _bufferBarriers.push_back(VulkanUtility::GetBufferMemoryBarrier(b));
+
+        for (auto& b : imageBarriers)
+            _imageBarriers.push_back(VulkanUtility::GetImageMemoryBarrier(b));
+
+        vkCmdPipelineBarrier(_ptr, GetPipelineStageFlags(srcStageFlags), GetPipelineStageFlags(dstStageFlags), dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(), imageBarriersSize, _imageBarriers.data());
+    }
+
+    void CommandBuffer::CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions)
+    {
+
+        Vector<VkBufferCopy> _regions;
+
+        for (auto& bc : regions)
+            _regions.push_back(VulkanUtility::GetBufferCopy(bc));
+
+        vkCmdCopyBuffer(_ptr, src, dst, static_cast<uint32>(regions.size()), _regions.data());
+    }
+
+    void CommandBuffer::CMD_CopyBufferToImage(VkBuffer_T* src, VkImage_T* dst, ImageLayout layout, const Vector<BufferImageCopy>& copy)
+    {
+        Vector<VkBufferImageCopy> _copy;
+        const uint32              size = static_cast<uint32>(copy.size());
+        _copy.reserve(size);
+
+        for (auto& c : copy)
+            _copy.push_back(VulkanUtility::GetBufferImageCopy(c));
+
+        vkCmdCopyBufferToImage(_ptr, src, dst, GetImageLayout(layout), size, _copy.data());
     }
 
     void CommandBuffer::End()

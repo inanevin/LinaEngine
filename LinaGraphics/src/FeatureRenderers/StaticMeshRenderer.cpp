@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Resource/Material.hpp"
 #include "Resource/ModelNode.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/World.hpp"
 
 namespace Lina::Graphics
@@ -93,12 +94,12 @@ namespace Lina::Graphics
             return;
 
         m_mtx.lock();
-        ExtractedData extData        = m_extractQueue.front();
+        ExtractedData extData = m_extractQueue.front();
         m_extractQueue.pop();
         m_mtx.unlock();
 
-        const auto&    nodeComponents = extData.nodeComponents;
-        const uint32   size           = static_cast<uint32>(nodeComponents.size());
+        const auto&  nodeComponents = extData.nodeComponents;
+        const uint32 size           = static_cast<uint32>(nodeComponents.size());
 
         Taskflow tf;
         Mutex    mtx;
@@ -143,19 +144,26 @@ namespace Lina::Graphics
             auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
             pipeline.Bind(buffer, PipelineBindPoint::Graphics);
 
-            DescriptorSet& descSet = RenderEngine::Get()->GetLevelRenderer().GetGlobalSet();
+            auto&          renderer       = RenderEngine::Get()->GetLevelRenderer();
+            DescriptorSet& descSet        = renderer.GetGlobalSet();
+            DescriptorSet& objSet = renderer.GetObjectSet();;
+            uint32_t       uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
 
-            buffer.BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet);
-            
+            buffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+
+            buffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+
+            int i = 0;
             for (auto& rp : pair)
             {
                 Graphics::MeshPushConstants constants;
                 constants.renderMatrix = rp.transform;
-                buffer.PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+                buffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
 
                 uint64 offset = 0;
-                buffer.BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer()._ptr, &offset);
-                buffer.Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, 0);
+                buffer.CMD_BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer()._ptr, &offset);
+                buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+                i++;
             }
         }
 

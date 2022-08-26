@@ -37,9 +37,6 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/ResourceUtility.hpp"
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include <windows.h>
-#endif
 
 namespace Lina
 {
@@ -61,8 +58,6 @@ namespace Lina
         // Setup static references.
         s_application     = this;
         m_engine.s_engine = &m_engine;
-        entt::sink logSink{Log::s_onLog};
-        logSink.connect<&Application::OnLog>(this);
     }
 
     void Application::Initialize(const InitInfo& initInfo)
@@ -110,43 +105,7 @@ namespace Lina
         m_ranOnce = true;
         m_engine.Run();
 
-        entt::sink logSink{Log::s_onLog};
-        logSink.disconnect(this);
-    }
 
-    void Application::OnLog(const Event::ELog& dump)
-    {
-        m_lock.lock();
-
-        String msg = "[" + LogLevelAsString(dump.level) + "] " + dump.message;
-
-#ifdef LINA_PLATFORM_WINDOWS
-        HANDLE hConsole;
-        int    color = 15;
-
-        if ((dump.level == LogLevel::Trace) || (dump.level == LogLevel::Debug))
-            color = 3;
-        else if ((dump.level == LogLevel::Info) || (dump.level == LogLevel::None))
-            color = 15;
-        else if ((dump.level == LogLevel::Warn))
-            color = 6;
-        else if ((dump.level == LogLevel::Error) || (dump.level == LogLevel::Critical))
-            color = 4;
-
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hConsole, color);
-
-#elif LINA_LINUX
-        if (dump.level == LogLevel::Error)
-            msg = "\033{1;31m" + dump.m_message + "\033[0m";
-        else if (dump.level == LogLevel::Warn)
-            msg = "\033{1;33m" + dump.m_message + "\033[0m";
-
-#endif
-        std::cout << msg.c_str() << std::endl;
-
-        m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
-        m_lock.unlock();
     }
 
     bool Application::OnWindowClose(const Event::EWindowClosed& ev)
@@ -172,6 +131,7 @@ namespace Lina
 
     void Application::OnResourceProgressStarted(const Event::EResourceProgressStarted& ev)
     {
+        LOCK_GUARD(m_infoLock);
         m_resourceProgressCurrentTotalFiles = ev.totalFiles;
         m_resourceProgressCurrentTitle      = ev.title;
     }

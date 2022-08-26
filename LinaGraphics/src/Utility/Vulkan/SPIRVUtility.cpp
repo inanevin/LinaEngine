@@ -174,7 +174,7 @@ namespace Lina::Graphics
         const char*       shaderStrings[1];
         TBuiltInResource  Resources = {};
         InitResources(Resources);
-
+       
         // Enable SPIR-V and Vulkan rules when parsing GLSL
         EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
 
@@ -213,4 +213,5 @@ namespace Lina::Graphics
 
         return true;
     }
+
 } // namespace Lina::Graphics

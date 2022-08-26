@@ -37,6 +37,9 @@ SOFTWARE.
 #include "Data/FixedVector.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Utility/DeletionQueue.hpp"
+#include "PipelineObjects/DescriptorSetLayout.hpp"
+#include "PipelineObjects/UploadContext.hpp"
+#include "PipelineObjects/RQueue.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
 #include <functional>
@@ -106,6 +109,31 @@ namespace Lina::Graphics
             return m_viewport;
         }
 
+        inline DescriptorSetLayout& GetLayout(uint32 setIndex)
+        {
+            return *m_descriptorLayouts[setIndex];
+        }
+
+        inline DescriptorPool& GetDescriptorPool()
+        {
+            return m_descriptorPool;
+        }
+
+        inline UploadContext& GetGPUUploader()
+        {
+            return m_gpuUploader;
+        }
+
+        inline RQueue& GetGraphicsQueue()
+        {
+            return m_graphicsQueue;
+        }
+
+        inline RQueue& GetTransferQueue()
+        {
+            return m_transferQueue;
+        }
+
     private:
         void Initialize(const InitInfo& initInfo);
         void Clear();
@@ -121,19 +149,26 @@ namespace Lina::Graphics
         friend class Engine;
 
         static RenderEngine* s_instance;
-  
-        Model*               m_placeholderModel     = nullptr;
-        ModelNode*           m_placeholderModelNode = nullptr;
-        Material*            m_placeholderMaterial  = nullptr;
-        DeletionQueue        m_mainDeletionQueue;
-        InitInfo             m_appInfo;
-        Window               m_window;
-        Backend              m_backend;
-        bool                 m_initedSuccessfully = false;
 
-        Viewport m_viewport;
-        Recti    m_scissor;
-        Renderer m_levelRenderer;
+        Model*        m_placeholderModel     = nullptr;
+        ModelNode*    m_placeholderModelNode = nullptr;
+        Material*     m_placeholderMaterial  = nullptr;
+        DeletionQueue m_mainDeletionQueue;
+        InitInfo      m_appInfo;
+        Window        m_window;
+        Backend       m_backend;
+        bool          m_initedSuccessfully = false;
+
+        RQueue                                m_graphicsQueue;
+        RQueue                                m_transferQueue;
+        UploadContext                         m_gpuUploader;
+        DescriptorPool                        m_descriptorPool;
+        DescriptorSetLayout                   m_globalSetLayout;
+        DescriptorSetLayout                   m_objectDataLayout;
+        HashMap<uint32, DescriptorSetLayout*> m_descriptorLayouts;
+        Viewport                              m_viewport;
+        Recti                                 m_scissor;
+        Renderer                              m_levelRenderer;
     };
 } // namespace Lina::Graphics
 

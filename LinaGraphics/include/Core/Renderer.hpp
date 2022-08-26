@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Math/Matrix.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include "PipelineObjects/RQueue.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 #include "PipelineObjects/CommandPool.hpp"
 #include "PipelineObjects/RenderPass.hpp"
@@ -72,11 +71,20 @@ namespace Lina::Graphics
     class RenderableComponent;
     constexpr unsigned int FRAME_OVERLAP = 2;
 
-    struct GPUCameraData
+    struct GPUSceneData
     {
-        Matrix view;
-        Matrix proj;
-        Matrix viewProj;
+        Matrix  view;
+        Matrix  proj;
+        Matrix  viewProj;
+        Vector4 fogColor;     // w is for exponent
+        Vector4 fogDistances; // x for min, y for max, zw unused.
+        Vector4 ambientColor;
+        Vector4 sunlightDirection; // w for sun power
+        Vector4 sunlightColor;
+    };
+    struct GPUObjectData
+    {
+        Matrix modelMatrix = Matrix::Identity();
     };
 
     struct Frame
@@ -86,8 +94,8 @@ namespace Lina::Graphics
         CommandPool   pool;
         CommandBuffer commandBuffer;
         Semaphore     presentSemaphore;
-        Buffer        cameraBuffer;
-        DescriptorSet globalDescriptor;
+        Buffer        objDataBuffer;
+        DescriptorSet objDataDescriptor;
     };
 
     class Renderer
@@ -118,7 +126,17 @@ namespace Lina::Graphics
 
         inline DescriptorSet& GetGlobalSet()
         {
-            return GetCurrentFrame().globalDescriptor;
+            return m_globalDescriptor;
+        }
+
+        inline DescriptorSet& GetObjectSet()
+        {
+            return GetCurrentFrame().objDataDescriptor;
+        }
+
+        inline uint32 GetFrameIndex()
+        {
+            return m_frameNumber % FRAME_OVERLAP;
         }
 
         void AddRenderable(RenderableComponent* comp);
@@ -146,13 +164,12 @@ namespace Lina::Graphics
         Queue<uint32>                m_availableRenderableIDs;
         uint32                       m_nextRenderableID = 0;
         CameraSystem                 m_cameraSystem;
-        RQueue                       m_graphicsQueue;
         RenderPass                   m_renderPass;
         SubPass                      m_subpass;
-        DescriptorPool               m_descriptorPool;
-        DescriptorSetLayout          m_globalSetLayout;
         Vector<Framebuffer>          m_framebuffers;
         Image                        m_depthImage;
+        Buffer                       m_scenePropertiesBuffer;
+        DescriptorSet                m_globalDescriptor;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAME_OVERLAP];

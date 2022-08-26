@@ -43,10 +43,11 @@ namespace Lina::Graphics
         m_indices.clear();
     }
 
-    void Mesh::AddVertex(const Vector3& pos, const Vector3& normal)
+    void Mesh::AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv)
     {
-        m_vertices.emplace_back(Vertex{pos, normal, Color(normal.r, normal.g, normal.b, 1)});
+        m_vertices.emplace_back(Vertex{pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, 1.0f - uv.y)});
     }
+
     void Mesh::AddIndices(uint32 i1, uint32 i2, uint32 i3)
     {
         m_indices.push_back(Vector3ui(i1, i2, i3));
@@ -60,14 +61,39 @@ namespace Lina::Graphics
             return;
         }
 
-        m_gpuVtxBuffer = Buffer{
-            .size        = m_vertices.size() * sizeof(Vertex),
-            .bufferUsage = BufferUsageFlags::VertexBuffer,
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        const size_t bufferSize = m_vertices.size() * sizeof(Vertex);
+
+        Buffer cpuBuffer = Buffer{
+            .size        = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
         };
 
         // Transfer the data from cpu to gpu
+        cpuBuffer.Create();
+        cpuBuffer.CopyInto(m_vertices.data(), bufferSize);
+
+        m_gpuVtxBuffer = Buffer{
+            .size        = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+            .memoryUsage = MemoryUsageFlags::GpuOnly,
+        };
         m_gpuVtxBuffer.Create();
-        m_gpuVtxBuffer.CopyInto(m_vertices.data(), static_cast<uint32>(m_vertices.size() * sizeof(Vertex)));
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(
+            [=](CommandBuffer& cmd) {
+                BufferCopy copy = BufferCopy{
+                    .destinationOffset = 0,
+                    .sourceOffset      = 0,
+                    .size              = bufferSize,
+                };
+
+                Vector<BufferCopy> regions;
+                regions.push_back(copy);
+
+                cmd.CMD_CopyBuffer(cpuBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
+            });
+
+        cpuBuffer.Destroy();
     }
 } // namespace Lina::Graphics

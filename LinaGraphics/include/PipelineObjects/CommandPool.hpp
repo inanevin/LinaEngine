@@ -40,7 +40,9 @@ namespace Lina::Graphics
     class CommandPool
     {
     public:
-        void Create();
+        void Create(bool destroyAuto = true);
+        void Reset();
+        void Destroy();
 
         // Description
         uint32 familyIndex = 0;

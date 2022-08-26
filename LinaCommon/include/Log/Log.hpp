@@ -80,21 +80,23 @@ SOFTWARE.
 
 #define FMT_HEADER_ONLY
 
+#include "Data/Mutex.hpp"
 namespace Lina
 {
     class Log
     {
     public:
+        static void LogImpl(LogLevel level, const String& msg);
+
         template <typename... Args>
         static void LogMessage(LogLevel level, const Args&... args)
         {
-            s_onLog.publish(Event::ELog(level, fmt::format(args...).c_str()));
+            LogImpl(level, fmt::format(args...).c_str());
         }
 
     private:
         friend class Application;
-
-        static Event::Signal<void(const Event::ELog&)> s_onLog;
+        static Mutex s_logMtx;
     };
 } // namespace Lina
 

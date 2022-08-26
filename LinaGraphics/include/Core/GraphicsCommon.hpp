@@ -1,4 +1,5 @@
 /*
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -63,6 +64,7 @@ enum VkDescriptorType;
 struct VmaAllocation_T;
 struct VkBuffer_T;
 struct VkImage_T;
+struct VkDescriptorSet_T;
 
 namespace Lina::Graphics
 {
@@ -70,8 +72,10 @@ namespace Lina::Graphics
     {
         B8G8R8A8_SRGB,
         R32G32B32_SFLOAT,
+        R32G32_SFLOAT,
         D32_SFLOAT,
         R8G8B8A8_UNORM,
+        R8G8B8A8_SRGB,
     };
 
     extern VkFormat GetFormat(Format f);
@@ -129,6 +133,9 @@ namespace Lina::Graphics
         DepthStencilOptimal,
         DepthStencilReadOnlyOptimal,
         PresentSurface,
+        TransferSrcOptimal,
+        TransferDstOptimal,
+        ShaderReadOnlyOptimal,
     };
 
     extern VkImageLayout GetImageLayout(ImageLayout l);
@@ -176,6 +183,7 @@ namespace Lina::Graphics
 
     enum class FenceFlags
     {
+        None,
         Signaled,
     };
 
@@ -283,15 +291,22 @@ namespace Lina::Graphics
         ColorAttachmentWrite,
         DepthStencilAttachmentRead,
         DepthStencilAttachmentWrite,
+        TransferRead,
+        TransferWrite,
+        ShaderRead,
     };
 
     extern uint32 GetAccessFlags(AccessFlags flags);
 
     enum class PipelineStageFlags
     {
+        TopOfPipe,
         ColorAttachmentOutput,
         EarlyFragmentTests,
         LateFragmentTests,
+        Transfer,
+        BottomOfPipe,
+        FragmentShader,
     };
 
     extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
@@ -299,7 +314,10 @@ namespace Lina::Graphics
     enum class BufferUsageFlags
     {
         VertexBuffer,
-        UniformBuffer
+        UniformBuffer,
+        StorageBuffer,
+        TransferSrc,
+        TransferDst,
     };
 
     extern uint32 GetBufferUsageFlags(BufferUsageFlags flags);
@@ -313,6 +331,17 @@ namespace Lina::Graphics
     };
 
     extern VmaMemoryUsage GetMemoryUsageFlags(MemoryUsageFlags flags);
+
+    enum class MemoryPropertyFlags
+    {
+        None,
+        DeviceLocal,
+        HostVisible,
+        HostCoherent,
+        HostCached,
+    };
+
+    extern uint32 GetMemoryPropertyFlags(MemoryPropertyFlags flags);
 
     enum class DescriptorSetCreateFlags
     {
@@ -336,6 +365,7 @@ namespace Lina::Graphics
     enum class DescriptorType
     {
         UniformBuffer,
+        UniformBufferDynamic,
         CombinedImageSampler,
         StorageBuffer,
     };
@@ -349,11 +379,87 @@ namespace Lina::Graphics
         Glass
     };
 
+    struct Offset3D
+    {
+        int32 x = 0;
+        int32 y = 0;
+        int32 z = 0;
+    };
+
+    struct Extent3D
+    {
+        uint32 width  = 0;
+        uint32 height = 0;
+        uint32 depth  = 0;
+    };
+
+    struct BufferCopy
+    {
+        uint64 destinationOffset = 0;
+        uint64 sourceOffset      = 0;
+        uint64 size              = 0;
+    };
+
+    struct ImageSubresourceLayers
+    {
+        ImageAspectFlags aspectMask     = ImageAspectFlags::AspectColor;
+        uint32           mipLevel       = 0;
+        uint32           baseArrayLayer = 0;
+        uint32           layerCount     = 0;
+    };
+    struct BufferImageCopy
+    {
+        uint64                 bufferOffset      = 0;
+        uint32                 bufferRowLength   = 0;
+        uint32                 bufferImageHeight = 0;
+        ImageSubresourceLayers imageSubresource;
+        Offset3D               imageOffset;
+        Extent3D               imageExtent;
+    };
+
+    struct DefaultMemoryBarrier
+    {
+        uint32 srcAccessMask = 0;
+        uint32 dstAccessMask = 0;
+    };
+
+    struct BufferMemoryBarrier
+    {
+        uint32      srcAccessMask       = 0;
+        uint32      dstAccessMask       = 0;
+        uint32      srcQueueFamilyIndex = 0;
+        uint32      dstQueueFamilyIndex = 0;
+        VkBuffer_T* buffer              = nullptr;
+        uint64      offset              = 0;
+        uint64      size                = 0;
+    };
+
+    struct ImageSubresourceRange
+    {
+        ImageAspectFlags aspectMask;
+        uint32           baseMipLevel   = 0;
+        uint32           levelCount     = 0;
+        uint32           baseArrayLayer = 0;
+        uint32           layerCount     = 0;
+    };
+
+    struct ImageMemoryBarrier
+    {
+        uint32                srcAccessMask       = 0;
+        uint32                dstAccessMask       = 0;
+        ImageLayout           oldLayout           = ImageLayout::Undefined;
+        ImageLayout           newLayout           = ImageLayout::Undefined;
+        uint32                srcQueueFamilyIndex = 0;
+        uint32                dstQueueFamilyIndex = 0;
+        VkImage_T*            img                 = nullptr;
+        ImageSubresourceRange subresourceRange;
+    };
+
     struct DescriptorSetLayoutBinding
     {
         uint32         binding         = 0;
         uint32         descriptorCount = 0;
-        ShaderStage    stage           = ShaderStage::Vertex;
+        uint32         stageFlags      = 0;
         DescriptorType type            = DescriptorType::UniformBuffer;
     };
 
@@ -441,13 +547,6 @@ namespace Lina::Graphics
         Matrix  renderMatrix = Matrix::Identity();
     };
 
-    struct Extent3D
-    {
-        uint32 width  = 0;
-        uint32 height = 0;
-        uint32 depth  = 0;
-    };
-
     struct SubPassDependency
     {
         uint32 dstSubpass    = 0;
@@ -455,6 +554,25 @@ namespace Lina::Graphics
         uint32 srcAccessMask = 0;
         uint32 dstStageMask  = 0;
         uint32 dstAccessMask = 0;
+    };
+
+    struct WriteDescriptorSet
+    {
+        VkBuffer_T*        buffer          = nullptr;
+        uint64             offset          = 0;
+        uint64             range           = 0;
+        VkDescriptorSet_T* set             = nullptr;
+        uint32             binding         = 0;
+        uint32             descriptorCount = 1;
+        DescriptorType     descriptorType  = DescriptorType::UniformBuffer;
+    };
+
+    struct ShaderDescriptorSetInfo
+    {
+        uint32         setIndex     = 0;
+        uint32         bindingIndex = 0;
+        uint32         stageFlags   = 0;
+        DescriptorType type         = DescriptorType::UniformBuffer;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

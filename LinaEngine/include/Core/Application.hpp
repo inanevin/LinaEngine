@@ -65,7 +65,6 @@ namespace Lina
 
     private:
         // Callbacks.
-        void OnLog(const Event::ELog& dump);
         bool OnWindowClose(const Event::EWindowClosed& ev);
         void OnWindowResize(const Event::EWindowResized& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);
@@ -78,13 +77,13 @@ namespace Lina
         Engine              m_engine;
         Profiler*           m_profiler = nullptr;
 
-        String     m_resourceProgressCurrentTitle      = "";
-        int        m_resourceProgressCurrentTotalFiles = 0;
-        int        m_resourceProgressCurrentProcessed  = 0;
-        bool       m_activeLevelExists                 = false;
-        bool       m_initialized                       = false;
-        bool       m_ranOnce                           = false;
-        std::mutex m_lock;
+        String m_resourceProgressCurrentTitle      = "";
+        int    m_resourceProgressCurrentTotalFiles = 0;
+        int    m_resourceProgressCurrentProcessed  = 0;
+        bool   m_activeLevelExists                 = false;
+        bool   m_initialized                       = false;
+        bool   m_ranOnce                           = false;
+        Mutex  m_infoLock;
     };
 
 }; // namespace Lina

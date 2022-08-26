@@ -40,12 +40,12 @@ namespace Lina::Graphics
     class Vertex
     {
     public:
-
         Vector3 pos;
         Vector3 normal;
         Color   color;
+        Vector2 uv;
     };
 
-} // namespace Lina
+} // namespace Lina::Graphics
 
 #endif

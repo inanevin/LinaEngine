@@ -164,12 +164,6 @@ namespace Lina::Graphics
         dm->Save();
     }
 
-    void Shader::UploadedToPipeline()
-    {
-        // We're not needed anymore.
-        Resources::ResourceStorage::Get()->Unload<Shader>(m_sid);
-    }
-
     void Shader::GenerateByteCode()
     {
         if (!RenderEngine::Get()->IsInitialized())
@@ -219,6 +213,7 @@ namespace Lina::Graphics
             return;
 
         m_pipelineLayout = PipelineLayout{};
+        HashSet<uint32> sets;
 
         for (auto& [stage, mod] : m_modules)
         {
@@ -227,13 +222,16 @@ namespace Lina::Graphics
             for (auto& pcr : pcrs)
                 m_pipelineLayout.AddPushConstant(pcr);
 
-            m_setLayouts = ShaderUtility::CheckForDescriptorSets(stage, mod.moduleText);
+            Vector<ShaderDescriptorSetInfo> infos = ShaderUtility::CheckForDescriptorSets(GetShaderStage(stage), mod.moduleText);
 
-            for (auto& dsl : m_setLayouts)
-            {
-                dsl.Create();
-                m_pipelineLayout.AddDescriptorSetLayout(dsl);
-            }
+            for (auto& i : infos)
+                sets.insert(i.setIndex);
+        }
+
+        for (auto setIndex : sets)
+        {
+            DescriptorSetLayout& l = RenderEngine::Get()->GetLayout(setIndex);
+            m_pipelineLayout.AddDescriptorSetLayout(l);
         }
 
         m_pipelineLayout.Create();
