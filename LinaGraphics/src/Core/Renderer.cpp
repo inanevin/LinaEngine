@@ -35,12 +35,13 @@ SOFTWARE.
 #include "EventSystem/LevelEvents.hpp"
 #include "Resource/Texture.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Core/LevelManager.hpp"
+#include "Core/Level.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    Renderer* Renderer::s_instance = nullptr;
 
 #define RENDERABLES_STACK_SIZE 1000
 
@@ -236,7 +237,7 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
         if (world == nullptr)
             return;
-
+        return;
         // Determine views.
 
         // Determine views.
@@ -269,6 +270,17 @@ namespace Lina::Graphics
         Vector<WriteDescriptorSet> vv0;
         vv0.push_back(textureWrite);
         DescriptorSet::UpdateDescriptorSets(vv0);
+
+        auto w = World::LevelManager::Get()->GetCurrentLevel()->GetWorld();
+
+        uint32      maxSize;
+        const auto& v = w.View<ModelNodeComponent>(&maxSize);
+
+        for (uint32 i = 0; i < maxSize; i++)
+        {
+            if (v[i] != nullptr)
+                AddRenderable(v[i]);
+        }
     }
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
@@ -284,7 +296,7 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        m_featureRendererManager.PrepareRenderData();
+        // m_featureRendererManager.PrepareRenderData();
 
         GetCurrentFrame().renderFence.Wait(true, 1.0f);
         GetCurrentFrame().renderFence.Reset();
@@ -316,7 +328,9 @@ namespace Lina::Graphics
         GetCurrentFrame().objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
 
         // Render commands.
-        m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
+        // m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
+
+        
 
         m_renderPass.End(GetCurrentFrame().commandBuffer);
         GetCurrentFrame().commandBuffer.End();

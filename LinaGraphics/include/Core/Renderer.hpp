@@ -105,11 +105,6 @@ namespace Lina::Graphics
         Renderer()  = default;
         ~Renderer() = default;
 
-        static Renderer* Get()
-        {
-            return s_instance;
-        }
-
         inline RenderPass& GetRP()
         {
             return m_renderPass;
@@ -162,7 +157,6 @@ namespace Lina::Graphics
         Frame& GetCurrentFrame();
 
     private:
-        static Renderer*             s_instance;
         FeatureRendererManager       m_featureRendererManager;
         StaticMeshRenderer           m_meshRenderer;
         Vector<View*>                m_views;

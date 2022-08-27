@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/World.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/ComponentEvents.hpp"
 
 namespace Lina::World
 {
@@ -43,43 +44,51 @@ namespace Lina::World
     }
     void Component::OnComponentCreated()
     {
+        auto* es = Event::EventSystem::Get();
+
+        es->Trigger<Event::EComponentCreated>({this, GetTID()});
+
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
-            Event::EventSystem::Get()->Connect<Event::EEndGame, &Component::OnEndGame>(this);
+            es->Connect<Event::EEndGame, &Component::OnEndGame>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameStart))
-            Event::EventSystem::Get()->Connect<Event::EStartGame, &Component::OnStartGame>(this);
+            es->Connect<Event::EStartGame, &Component::OnStartGame>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostPhysicsTick))
-            Event::EventSystem::Get()->Connect<Event::EPostPhysicsTick, &Component::OnPostPhysicsTick>(this);
+            es->Connect<Event::EPostPhysicsTick, &Component::OnPostPhysicsTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostTick))
-            Event::EventSystem::Get()->Connect<Event::EPostTick, &Component::OnPostTick>(this);
+            es->Connect<Event::EPostTick, &Component::OnPostTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPreTick))
-            Event::EventSystem::Get()->Connect<Event::EPreTick, &Component::OnPreTick>(this);
+            es->Connect<Event::EPreTick, &Component::OnPreTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnTick))
-            Event::EventSystem::Get()->Connect<Event::ETick, &Component::OnTick>(this);
+            es->Connect<Event::ETick, &Component::OnTick>(this);
     }
 
     void Component::OnComponentDestroyed()
     {
+        auto* es = Event::EventSystem::Get();
+
+        es->Trigger<Event::EComponentDestroyed>({this, GetTID()});
+
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
-            Event::EventSystem::Get()->Disconnect<Event::EEndGame>(this);
+            es->Disconnect<Event::EEndGame>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameStart))
-            Event::EventSystem::Get()->Disconnect<Event::EStartGame>(this);
+            es->Disconnect<Event::EStartGame>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostPhysicsTick))
-            Event::EventSystem::Get()->Disconnect<Event::EPostPhysicsTick>(this);
+            es->Disconnect<Event::EPostPhysicsTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPostTick))
-            Event::EventSystem::Get()->Disconnect<Event::EPostTick>(this);
+            es->Disconnect<Event::EPostTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnPreTick))
-            Event::EventSystem::Get()->Disconnect<Event::EPreTick>(this);
+            es->Disconnect<Event::EPreTick>(this);
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnTick))
-            Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
+            es->Disconnect<Event::ETick>(this);
     }
 } // namespace Lina::World

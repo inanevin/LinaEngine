@@ -181,7 +181,7 @@ namespace Lina::Graphics
             {
                 graphicsQueueFamily = i;
 
-                if (!hasDedicatedTransferQueue && queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+                if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
                 {
                     transferQueueFamily = i;
 
@@ -211,12 +211,12 @@ namespace Lina::Graphics
         m_device              = vkbDevice.device;
         m_gpu                 = physicalDevice.physical_device;
 
-        if (hasDedicatedTransferQueue)
-        {
-            auto res            = vkbDevice.get_dedicated_queue_index(vkb::QueueType::transfer);
-            transferQueueFamily = res.value();
-            transferQueueIndex  = 0;
-        }
+        // if (hasDedicatedTransferQueue)
+        // {
+        //     auto res            = vkbDevice.get_dedicated_queue_index(vkb::QueueType::transfer);
+        //     transferQueueFamily = res.value();
+        //     transferQueueIndex  = 0;
+        // }
 
         if (hasDedicatedComputeQueue)
         {

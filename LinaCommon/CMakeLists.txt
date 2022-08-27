@@ -103,6 +103,7 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp
 	include/EventSystem/EventSystem.hpp
+	include/EventSystem/ComponentEvents.hpp
 
 	# Data
 	include/Data/Vector.hpp
@@ -226,6 +227,16 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/Serialization/HashMapSerialization.hpp
 	include/Reflection/ReflectionSystem.hpp
 	include/Memory/MemoryManager.hpp
+	include/EventSystem/EventCommon.hpp
+	include/EventSystem/WindowEvents.hpp
+	include/EventSystem/InputEvents.hpp
+	include/EventSystem/LevelEvents.hpp
+	include/EventSystem/GraphicsEvents.hpp
+	include/EventSystem/MainLoopEvents.hpp
+	include/EventSystem/ApplicationEvents.hpp
+	include/EventSystem/ResourceEvents.hpp
+	include/EventSystem/EventSystem.hpp
+	include/EventSystem/ComponentEvents.hpp
 )
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions

@@ -48,15 +48,20 @@ namespace Lina::World
 
     class LevelManager
     {
-
-    private:
-        LevelManager()          = default;
-        virtual ~LevelManager() = default;
-
+    public:
         static LevelManager* Get()
         {
             return s_instance;
         }
+
+        inline Level* GetCurrentLevel()
+        {
+            return m_currentLevel;
+        }
+
+    private:
+        LevelManager()          = default;
+        virtual ~LevelManager() = default;
 
         void Initialize();
         void Shutdown();
@@ -77,11 +82,6 @@ namespace Lina::World
         /// </summary>
         /// <param name="path"></param>
         void CreateLevel(const String& path);
-
-        inline Level* GetCurrentLevel()
-        {
-            return m_currentLevel;
-        }
 
         friend class Engine;
         friend class EntityWorld;

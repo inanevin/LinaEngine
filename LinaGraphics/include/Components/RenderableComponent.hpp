@@ -40,9 +40,6 @@ namespace Lina::Graphics
     class RenderableComponent : public World::Component
     {
     public:
-        virtual void OnComponentCreated() override;
-        virtual void OnComponentDestroyed() override;
-
         virtual AABB& GetAABB() = 0;
 
         virtual bool IsVisible()

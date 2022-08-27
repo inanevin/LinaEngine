@@ -26,9 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Components/RenderableComponent.hpp"
+#pragma once
 
-namespace Lina::Graphics
+#ifndef ComponentEvents_HPP
+#define ComponentEvents_HPP
+
+#include "Utility/StringId.hpp"
+
+namespace Lina
 {
-  
-} // namespace Lina::Graphics
+    namespace World
+    {
+        class Component;
+    }
+} // namespace Lina
+
+namespace Lina::Event
+{
+    struct EComponentCreated
+    {
+        World::Component* ptr = nullptr;
+        TypeID            tid = 0;
+    };
+
+    struct EComponentDestroyed
+    {
+        World::Component* ptr = nullptr;
+        TypeID            tid = 0;
+    };
+} // namespace Lina::Event
+
+#endif

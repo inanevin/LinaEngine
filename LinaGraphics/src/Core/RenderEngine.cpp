@@ -57,7 +57,6 @@ namespace Lina::Graphics
 
         Window::s_instance   = &m_window;
         Backend::s_instance  = &m_backend;
-        Renderer::s_instance = &m_levelRenderer;
 
         m_initedSuccessfully = m_window.Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);

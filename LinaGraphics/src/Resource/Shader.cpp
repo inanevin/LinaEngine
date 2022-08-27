@@ -260,7 +260,7 @@ namespace Lina::Graphics
 
         m_pipeline.SetShader(this)
             .SetLayout(m_pipelineLayout)
-            .SetRenderPass(Renderer::Get()->GetRP())
+            .SetRenderPass(RenderEngine::Get()->GetLevelRenderer().GetRP())
             .Create();
     }
 } // namespace Lina::Graphics
