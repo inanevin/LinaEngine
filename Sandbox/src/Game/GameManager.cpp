@@ -93,5 +93,6 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
+    return;
     Lina::Resources::ResourceStorage::Get()->Load(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj", true);
 }

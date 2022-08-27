@@ -39,7 +39,8 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
-
+#include "Resource/ModelNode.hpp"
+#include "Resource/Mesh.hpp"
 namespace Lina::Graphics
 {
 
@@ -221,8 +222,6 @@ namespace Lina::Graphics
         m_views.push_back(&m_playerView);
 
         // Feature renderers.
-        m_featureRendererManager.m_renderer = this;
-        m_meshRenderer.Initialize(m_featureRendererManager);
     }
 
     void Renderer::Tick()
@@ -234,23 +233,22 @@ namespace Lina::Graphics
 
     void Renderer::FetchAndExtract(World::EntityWorld* world)
     {
+        return;
+
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
         if (world == nullptr)
             return;
-        return;
         // Determine views.
 
         // Determine views.
 
         // Calculate visible renderables for each view.
-        Taskflow tf;
-        tf.for_each(m_views.begin(), m_views.end(), [&](View* v) {
-            v->CalculateVisibility(m_renderables.data(), m_nextRenderableID);
-        });
-        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
+       //Taskflow tf;
+       //tf.for_each(m_views.begin(), m_views.end(), [&](View* v) {
+       //    v->CalculateVisibility(m_renderables.data(), m_nextRenderableID);
+       //});
+       //JobSystem::Get()->GetMainExecutor().Run(tf).wait();
 
-        // Start extracting game state.
-        m_featureRendererManager.ExtractGameState(world);
     }
 
     void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
@@ -318,7 +316,7 @@ namespace Lina::Graphics
         m_scenePropertiesBuffer.CopyIntoPadded(&sceneData, sizeof(GPUSceneData), VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * frameIndex);
 
         Vector<GPUObjectData> objDatas;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 1; i++)
         {
             GPUObjectData data;
             data.modelMatrix = Matrix::Translate(Vector3(i, 0, 0));
@@ -327,10 +325,59 @@ namespace Lina::Graphics
         }
         GetCurrentFrame().objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
 
+
+        for (int i = 0; i < 1; i++)
+        {
+            Material * mat = RenderEngine::Get()->GetPlaceholderMaterial();
+            auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
+            pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
+
+            auto& renderer = RenderEngine::Get()->GetLevelRenderer();
+            DescriptorSet& descSet = renderer.GetGlobalSet();
+            DescriptorSet& objSet = renderer.GetObjectSet();
+            DescriptorSet& txtSet = renderer.GetTextureSet();
+
+            uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+
+            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+
+            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+
+            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+
+
+            for (auto mr : m_renderables)
+            {
+                Graphics::MeshPushConstants constants;
+                constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
+                GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+
+                Model* m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
+                ModelNode* n = mr->m_modelHandle.IsValid() ?  RenderEngine::Get()->GetPlaceholderModelNode() :m->GetNodes()[mr->m_nodeIndex];
+                
+                auto& meshes = n->GetMeshes();
+                int k = 0;
+
+                for (auto mesh : meshes)
+                {
+                    uint64 offset = 0;
+                    GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
+                    GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+                    // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+                    GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
+                    k++;
+                }
+               
+              
+            }
+           // for (auto& rp : pair)
+           // {
+           //     
+           // }
+        }
+
         // Render commands.
         // m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
-
-        
 
         m_renderPass.End(GetCurrentFrame().commandBuffer);
         GetCurrentFrame().commandBuffer.End();
@@ -369,7 +416,7 @@ namespace Lina::Graphics
             m_framebuffers[i].Destroy();
     }
 
-    void Renderer::AddRenderable(RenderableComponent* comp)
+    void Renderer::AddRenderable(ModelNodeComponent* comp)
     {
         uint32 id = 0;
 
@@ -391,7 +438,7 @@ namespace Lina::Graphics
         m_renderables[id]    = comp;
     }
 
-    void Renderer::RemoveRenderable(RenderableComponent* comp)
+    void Renderer::RemoveRenderable(ModelNodeComponent* comp)
     {
         m_renderables[comp->m_renderableID] = nullptr;
         m_availableRenderableIDs.push(comp->m_renderableID);

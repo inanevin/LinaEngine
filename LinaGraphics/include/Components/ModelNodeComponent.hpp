@@ -80,6 +80,7 @@ namespace Lina::Graphics
     private:
         friend class Graphics::StaticMeshRenderer;
         friend class Model;
+        friend class Renderer;
 
         Resources::ResourceHandle<Model>                     m_modelHandle;
         HashMap<uint32, Resources::ResourceHandle<Material>> m_materials; // Index - material pair

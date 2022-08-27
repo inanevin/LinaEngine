@@ -345,7 +345,7 @@ namespace Lina::Resources
             // Create a vector of unicode file paths.
             Vector<std::wstring> wfiles;
             for (auto& file : files)
-            {
+            {   
                 const size_t size = strlen(file.c_str()) + 1;
                 std::wstring wfile(size, L'#');
                 size_t       numConverted;

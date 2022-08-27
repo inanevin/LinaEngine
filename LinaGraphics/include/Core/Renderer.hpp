@@ -69,7 +69,7 @@ namespace Lina
 namespace Lina::Graphics
 {
     class Backend;
-    class RenderableComponent;
+    class ModelNodeComponent;
     constexpr unsigned int FRAME_OVERLAP = 2;
 
     struct GPUSceneData
@@ -140,8 +140,8 @@ namespace Lina::Graphics
             return m_frameNumber % FRAME_OVERLAP;
         }
 
-        void AddRenderable(RenderableComponent* comp);
-        void RemoveRenderable(RenderableComponent* comp);
+        void AddRenderable(ModelNodeComponent* comp);
+        void RemoveRenderable(ModelNodeComponent* comp);
 
     private:
         friend class RenderEngine;
@@ -157,21 +157,20 @@ namespace Lina::Graphics
         Frame& GetCurrentFrame();
 
     private:
-        FeatureRendererManager       m_featureRendererManager;
-        StaticMeshRenderer           m_meshRenderer;
-        Vector<View*>                m_views;
-        View                         m_playerView;
-        Vector<RenderableComponent*> m_renderables;
-        Queue<uint32>                m_availableRenderableIDs;
-        uint32                       m_nextRenderableID = 0;
-        CameraSystem                 m_cameraSystem;
-        RenderPass                   m_renderPass;
-        SubPass                      m_subpass;
-        Vector<Framebuffer>          m_framebuffers;
-        Image                        m_depthImage;
-        Buffer                       m_scenePropertiesBuffer;
-        DescriptorSet                m_globalDescriptor;
-        DescriptorSet                m_textureDescriptor;
+        StaticMeshRenderer          m_meshRenderer;
+        Vector<View*>               m_views;
+        View                        m_playerView;
+        Vector<ModelNodeComponent*> m_renderables;
+        Queue<uint32>               m_availableRenderableIDs;
+        uint32                      m_nextRenderableID = 0;
+        CameraSystem                m_cameraSystem;
+        RenderPass                  m_renderPass;
+        SubPass                     m_subpass;
+        Vector<Framebuffer>         m_framebuffers;
+        Image                       m_depthImage;
+        Buffer                      m_scenePropertiesBuffer;
+        DescriptorSet               m_globalDescriptor;
+        DescriptorSet               m_textureDescriptor;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAME_OVERLAP];

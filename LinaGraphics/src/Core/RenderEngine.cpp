@@ -55,8 +55,8 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
 
-        Window::s_instance   = &m_window;
-        Backend::s_instance  = &m_backend;
+        Window::s_instance  = &m_window;
+        Backend::s_instance = &m_backend;
 
         m_initedSuccessfully = m_window.Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
@@ -153,6 +153,7 @@ namespace Lina::Graphics
 
         if (m_window.IsMinimized())
             return;
+        return;
 
         m_gpuUploader.Poll();
         m_levelRenderer.Render();

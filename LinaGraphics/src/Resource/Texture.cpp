@@ -184,7 +184,6 @@ namespace Lina::Graphics
         cmd.OnSubmitted = [this]() {
             m_gpuImage._ready = true;
             m_cpuBuffer.Destroy();
-            LINA_TRACE("[Texture] -> Buffer transferred to VRAM. {0}", m_path);
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
