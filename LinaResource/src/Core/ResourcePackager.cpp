@@ -113,7 +113,6 @@ namespace Lina::Resources
             std::map<std::wstring, std::vector<bit7z::byte_t>> map;
             extractor.extract(wdir, map);
 
-            Executor exec;
             // Sort the resources into their respective packages in the loader.
             for (auto& item : map)
             {
@@ -123,7 +122,7 @@ namespace Lina::Resources
                 std::replace(filePathStr.begin(), filePathStr.end(), '\\', '/');
 
                 // Load async.
-                exec.silent_async([loader, filePathStr, &item, allocator]() {
+                JobSystem::Get()->GetResourceExecutor().SilentAsync([loader, filePathStr, &item, allocator]() {
                     Vector<bit7z::byte_t> v;
                     v.reserve(item.second.size());
                     for (int i = 0; i < item.second.size(); i++)
@@ -135,7 +134,7 @@ namespace Lina::Resources
 
                 delete[] filePath;
             }
-            exec.wait_for_all();
+            JobSystem::Get()->GetResourceExecutor().Wait();
         }
         catch (const bit7z::BitException& ex)
         {
@@ -217,14 +216,13 @@ namespace Lina::Resources
             };
 
             // Load async.
-            Executor exec;
             Taskflow tf;
             tf.for_each(itemIndices.begin(), itemIndices.end(), [&](const auto& pair) {
                 const uint32 index = pair.first;
                 const String path  = pair.second;
                 load(index, path);
             });
-            exec.run(tf).wait();
+            JobSystem::Get()->GetResourceExecutor().Run(tf).wait();
         }
         catch (const bit7z::BitException& ex)
         {

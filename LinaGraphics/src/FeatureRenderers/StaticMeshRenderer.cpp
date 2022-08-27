@@ -75,7 +75,7 @@ namespace Lina::Graphics
 
             visibleNodes[i] = comp;
         });
-        JobSystem::Get()->RunAndWait(tf);
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
 
         m_mtx.lock();
         m_extractQueue.push(extData);
@@ -129,7 +129,7 @@ namespace Lina::Graphics
             }
         });
 
-        JobSystem::Get()->RunAndWait(tf);
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
     }
 
     void StaticMeshRenderer::OnSubmit(CommandBuffer& buffer, View* v)
@@ -144,14 +144,19 @@ namespace Lina::Graphics
             auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
             pipeline.Bind(buffer, PipelineBindPoint::Graphics);
 
-            auto&          renderer       = RenderEngine::Get()->GetLevelRenderer();
-            DescriptorSet& descSet        = renderer.GetGlobalSet();
-            DescriptorSet& objSet = renderer.GetObjectSet();;
-            uint32_t       uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+            auto&          renderer = RenderEngine::Get()->GetLevelRenderer();
+            DescriptorSet& descSet  = renderer.GetGlobalSet();
+            DescriptorSet& objSet = renderer.GetObjectSet();
+            DescriptorSet& txtSet   = renderer.GetTextureSet();
+            
+            uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
 
             buffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
 
             buffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+
+            buffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+
 
             int i = 0;
             for (auto& rp : pair)
@@ -162,7 +167,9 @@ namespace Lina::Graphics
 
                 uint64 offset = 0;
                 buffer.CMD_BindVertexBuffers(0, 1, rp.mesh->GetGPUVtxBuffer()._ptr, &offset);
-                buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+                buffer.CMD_BindIndexBuffers(rp.mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+                // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+                buffer.CMD_DrawIndexed(static_cast<uint32>(rp.mesh->GetIndexSize()), 1, 0, 0, 0);
                 i++;
             }
         }

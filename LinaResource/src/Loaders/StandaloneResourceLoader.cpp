@@ -65,7 +65,7 @@ namespace Lina::Resources
         };
 
         if (async)
-            JobSystem::Get()->SilentAsync(loadRes);
+            JobSystem::Get()->GetResourceExecutor().SilentAsync(loadRes);
         else
             loadRes();
     }

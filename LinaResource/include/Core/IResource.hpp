@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Mutex.hpp"
 #include "Memory/MemoryManager.hpp"
-#include <functional>
+#include "Functional/Functional.hpp"
 #include <fstream>
 
 //#define USE_JSON
@@ -191,9 +191,9 @@ namespace Lina::Resources
         }
     }
 
-    typedef std::function<IResource*()>                                     ResourceCreateFunc;
-    typedef std::function<IResource*(Memory::ResourceAllocator alloc)>      ResourceCreateFromAllocFunc;
-    typedef std::function<void(void* ptr, Memory::ResourceAllocator alloc)> ResourceDeleteFromAllocFunc;
+    typedef Delegate<IResource*()>                                     ResourceCreateFunc;
+    typedef Delegate<IResource*(Memory::ResourceAllocator alloc)>      ResourceCreateFromAllocFunc;
+    typedef Delegate<void(void* ptr, Memory::ResourceAllocator alloc)> ResourceDeleteFromAllocFunc;
 
 } // namespace Lina::Resources
 

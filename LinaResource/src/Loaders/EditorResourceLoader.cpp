@@ -45,26 +45,25 @@ namespace Lina::Resources
         for (auto& [tid, vec] : staticResources)
         {
             for (auto& str : vec)
-                exec.silent_async([tid, str, this]() {
+                JobSystem::Get()->GetResourceExecutor().SilentAsync([tid, str, this]() {
                     LoadResource(tid, str, false, Memory::ResourceAllocator::Static);
                 });
         }
-        exec.wait_for_all();
+        JobSystem::Get()->GetResourceExecutor().Wait();
     }
 
     void EditorResourceLoader::LoadEngineResources()
     {
         const auto& engineResources = g_defaultResources.GetEngineResources();
-        Executor    exec;
 
         for (auto& [tid, vec] : engineResources)
         {
             for (auto& str : vec)
-                exec.silent_async([tid, str, this]() {
+                JobSystem::Get()->GetResourceExecutor().SilentAsync([tid, str, this]() {
                     LoadResource(tid, str, false, Memory::ResourceAllocator::Static);
                 });
         }
-        exec.wait_for_all();
+        JobSystem::Get()->GetResourceExecutor().Wait();
     }
 
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc)
@@ -81,7 +80,7 @@ namespace Lina::Resources
         };
 
         if (async)
-            JobSystem::Get()->SilentAsync(loadRes);
+            JobSystem::Get()->GetResourceExecutor().SilentAsync(loadRes);
         else
             loadRes();
     }
@@ -124,12 +123,11 @@ namespace Lina::Resources
         }
 
         Taskflow taskflow;
-        Executor exec;
         taskflow.for_each(toLoadVec.begin(), toLoadVec.end(), [&](const Pair<TypeID, String>& p) {
             LoadSingleResourceFromFile(p.first, p.second);
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = p.second});
         });
-        exec.run(taskflow).wait();
+        JobSystem::Get()->GetResourceExecutor().Run(taskflow).wait();
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
     }

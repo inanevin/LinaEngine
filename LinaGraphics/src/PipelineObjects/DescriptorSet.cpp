@@ -62,27 +62,47 @@ namespace Lina::Graphics
     {
         Vector<VkWriteDescriptorSet>   _setWrites;
         Vector<VkDescriptorBufferInfo> _bufInfos;
+        Vector<VkDescriptorImageInfo>  _imgInfos;
 
         _bufInfos.reserve(v.size());
 
         for (auto& write : v)
         {
-            VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{
-                .buffer = write.buffer,
-                .offset = write.offset,
-                .range  = write.range};
+            if (write.buffer != nullptr)
+            {
+                VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{
+                    .buffer = write.buffer,
+                    .offset = write.offset,
+                    .range  = write.range};
 
-            _bufInfos.push_back(binfo);
+                _bufInfos.push_back(binfo);
+            }
+
+            if (write.imageView != nullptr)
+            {
+                VkDescriptorImageInfo iInfo = VkDescriptorImageInfo{
+                    .sampler     = write.sampler,
+                    .imageView   = write.imageView,
+                    .imageLayout = GetImageLayout(write.imageLayout),
+                };
+
+                _imgInfos.push_back(iInfo);
+            }
 
             VkWriteDescriptorSet setWrite = VkWriteDescriptorSet{
                 .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
                 .pNext           = nullptr,
-                .dstSet          = write.set,
-                .dstBinding      = write.binding,
+                .dstSet          = write.dstSet,
+                .dstBinding      = write.dstBinding,
                 .descriptorCount = write.descriptorCount,
                 .descriptorType  = GetDescriptorType(write.descriptorType),
-                .pBufferInfo     = &_bufInfos[_bufInfos.size() - 1],
             };
+
+            if (write.buffer != nullptr)
+                setWrite.pBufferInfo = &_bufInfos[_bufInfos.size() - 1];
+
+            if (write.imageView != nullptr)
+                setWrite.pImageInfo = &_imgInfos[_imgInfos.size() - 1];
 
             _setWrites.push_back(setWrite);
         }

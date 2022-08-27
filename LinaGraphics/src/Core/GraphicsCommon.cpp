@@ -25,6 +25,40 @@ namespace Lina::Graphics
         }
     }
 
+    VkFilter GetFilter(Filter f)
+    {
+        switch (f)
+        {
+        case Filter::Linear:
+            return VK_FILTER_LINEAR;
+        case Filter::Nearest:
+            return VK_FILTER_NEAREST;
+        case Filter::CubicImg:
+            return VK_FILTER_CUBIC_IMG;
+        default:
+            return VK_FILTER_LINEAR;
+        }
+    }
+
+    VkSamplerAddressMode GetSamplerAddressMode(SamplerAddressMode m)
+    {
+        switch (m)
+        {
+        case SamplerAddressMode::Repeat:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        case SamplerAddressMode::MirroredRepeat:
+            return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+        case SamplerAddressMode::ClampToEdge:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        case SamplerAddressMode::ClampToBorder:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        case SamplerAddressMode::MirrorClampToEdge:
+            return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+        default:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        }
+    }
+
     VkColorSpaceKHR GetColorSpace(ColorSpace f)
     {
         switch (f)
@@ -427,6 +461,8 @@ namespace Lina::Graphics
         {
         case BufferUsageFlags::VertexBuffer:
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        case BufferUsageFlags::IndexBuffer:
+            return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         case BufferUsageFlags::UniformBuffer:
             return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         case BufferUsageFlags::StorageBuffer:
@@ -522,6 +558,23 @@ namespace Lina::Graphics
             return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         default:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        }
+    }
+
+    VkIndexType GetIndexType(IndexType type)
+    {
+        switch (type)
+        {
+        case IndexType::Uint16:
+            return VK_INDEX_TYPE_UINT16;
+        case IndexType::Uint32:
+            return VK_INDEX_TYPE_UINT32;
+        case IndexType::None:
+            return VK_INDEX_TYPE_NONE_KHR;
+        case IndexType::Uint8_Ext:
+            return VK_INDEX_TYPE_UINT8_EXT;
+        default:
+            return VK_INDEX_TYPE_UINT32;
         }
     }
 

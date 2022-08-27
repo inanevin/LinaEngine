@@ -26,42 +26,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef GraphicsQueue_HPP
-#define GraphicsQueue_HPP
-
-#include "Core/GraphicsCommon.hpp"
-#include "Data/HashMap.hpp"
-
-struct VkQueue_T;
+#include "PipelineObjects/Sampler.hpp"
+#include "Core/Backend.hpp"
+#include "Core/RenderEngine.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-
-    class Fence;
-    class Semaphore;
-    class CommandBuffer;
-
-    struct QueueFamilyIndices
+    void Sampler::Create(bool autoDestroy)
     {
-        uint32 graphicsFamily;
-    };
+        VkSamplerCreateInfo i = VkSamplerCreateInfo{
+            .sType        = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .pNext        = nullptr,
+            .magFilter    = GetFilter(magFilter),
+            .minFilter    = GetFilter(minFilter),
+            .addressModeU = GetSamplerAddressMode(u),
+            .addressModeV = GetSamplerAddressMode(v),
+            .addressModeW = GetSamplerAddressMode(w),
+        };
 
-    class RQueue
+        VkResult res = vkCreateSampler(Backend::Get()->GetDevice(), &i, Backend::Get()->GetAllocator(), &_ptr);
+        LINA_ASSERT(res == VK_SUCCESS, "[Sampler] -> Could not create sampler!");
+
+        if (autoDestroy)
+        {
+            VkSampler_T* ptr = _ptr;
+            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
+                vkDestroySampler(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
+            });
+        }
+    }
+
+    void Sampler::Destroy()
     {
-    public:
-        void Get(uint32 family, uint32 index);
-        void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
-        void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
-        void Present(const Semaphore& waitSemaphore, uint32* swapchainImageIndex);
-
-        // Runtime
-        VkQueue_T* _ptr    = nullptr;
-        uint32     _family = 0;
-
-    private:
-    };
+        vkDestroySampler(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+    }
 } // namespace Lina::Graphics
-
-#endif

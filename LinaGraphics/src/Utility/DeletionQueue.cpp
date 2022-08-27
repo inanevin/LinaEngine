@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void DeletionQueue::Push(std::function<void()>&& f)
+    void DeletionQueue::Push(Delegate<void()>&& f)
     {
         LOCK_GUARD(m_mtx);
         m_queue.push_back(f);

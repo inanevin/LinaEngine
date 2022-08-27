@@ -31,26 +31,28 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include <vulkan/vulkan.h>
+#include "Utility/Command.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
     Mesh::~Mesh()
     {
         m_gpuVtxBuffer.Destroy();
+        m_gpuIndexBuffer.Destroy();
         m_vertices.clear();
         m_indices.clear();
     }
 
     void Mesh::AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv)
     {
-        m_vertices.emplace_back(Vertex{pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, 1.0f - uv.y)});
+        m_vertices.emplace_back(Vertex{pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, uv.y)});
     }
 
-    void Mesh::AddIndices(uint32 i1, uint32 i2, uint32 i3)
+    void Mesh::AddIndices(uint32 i1)
     {
-        m_indices.push_back(Vector3ui(i1, i2, i3));
+        m_indices.push_back(i1);
     }
 
     void Mesh::GenerateBuffers()
@@ -60,40 +62,91 @@ namespace Lina::Graphics
             LINA_ERR("[Mesh] -> Could not create mesh, render engine is not initialized!");
             return;
         }
+        const size_t vtxBufferSize = m_vertices.size() * sizeof(Vertex);
 
-        const size_t bufferSize = m_vertices.size() * sizeof(Vertex);
-
-        Buffer cpuBuffer = Buffer{
-            .size        = bufferSize,
+        m_cpuVtxBuffer = Buffer{
+            .size        = vtxBufferSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
             .memoryUsage = MemoryUsageFlags::CpuOnly,
         };
 
         // Transfer the data from cpu to gpu
-        cpuBuffer.Create();
-        cpuBuffer.CopyInto(m_vertices.data(), bufferSize);
+        m_cpuVtxBuffer.Create();
+        m_cpuVtxBuffer.CopyInto(m_vertices.data(), vtxBufferSize);
 
         m_gpuVtxBuffer = Buffer{
-            .size        = bufferSize,
+            .size        = vtxBufferSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
         m_gpuVtxBuffer.Create();
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(
-            [=](CommandBuffer& cmd) {
-                BufferCopy copy = BufferCopy{
-                    .destinationOffset = 0,
-                    .sourceOffset      = 0,
-                    .size              = bufferSize,
-                };
+        Command vtxCmd;
+        vtxCmd.Record = [vtxBufferSize, this](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = vtxBufferSize,
+            };
 
-                Vector<BufferCopy> regions;
-                regions.push_back(copy);
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
 
-                cmd.CMD_CopyBuffer(cpuBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
-            });
+            cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
+            int xd = 5;
+        };
 
-        cpuBuffer.Destroy();
+        vtxCmd.OnSubmitted = [this]() {
+            m_gpuVtxBuffer._ready = true;
+            m_cpuVtxBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
+
+        // Index buffer
+        const size_t indexBufferSize = m_indices.size() * sizeof(uint32);
+
+        m_cpuIndexBuffer = Buffer{
+            .size        = indexBufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        // Transfer the data from cpu to gpu
+        m_cpuIndexBuffer.Create();
+        m_cpuIndexBuffer.CopyInto(m_indices.data(), indexBufferSize);
+
+        m_gpuIndexBuffer = Buffer{
+            .size        = indexBufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+            .memoryUsage = MemoryUsageFlags::GpuOnly,
+        };
+        m_gpuIndexBuffer.Create();
+
+        Command indexCmd;
+        indexCmd.Record = [indexBufferSize, this](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = indexBufferSize,
+            };
+
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
+
+            cmd.CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regions);
+        };
+
+        indexCmd.OnSubmitted = [this] {
+            m_gpuIndexBuffer._ready = true;
+            m_cpuIndexBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+
+        m_vtxSize   = m_vertices.size();
+        m_indexSize = m_indices.size();
+        m_vertices.clear();
+        m_indices.clear();
     }
 } // namespace Lina::Graphics

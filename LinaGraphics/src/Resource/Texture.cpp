@@ -28,10 +28,12 @@ SOFTWARE.
 
 #include "Resource/Texture.hpp"
 #include "Core/ResourceDataManager.hpp"
+#include "Core/RenderEngine.hpp"
 #include "PipelineObjects/Buffer.hpp"
 #include "PipelineObjects/UploadContext.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/stb/stb_image.h"
+#include "Utility/Command.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -39,6 +41,7 @@ namespace Lina::Graphics
     Texture::~Texture()
     {
         m_gpuImage.Destroy();
+        m_sampler.Destroy();
     }
 
     void* Texture::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
@@ -79,12 +82,12 @@ namespace Lina::Graphics
     {
         auto dm = Resources::ResourceDataManager::Get();
         if (!dm->Exists(m_sid))
-        {
-            m_assetData.m_format = Format::R8G8B8A8_SRGB;
             SaveAssetData();
-        }
 
-        m_assetData.m_format = static_cast<Format>(dm->GetValue<uint8>(m_sid, "format"));
+        m_assetData.m_format    = static_cast<Format>(dm->GetValue<uint8>(m_sid, "format"));
+        m_assetData.m_minFilter = static_cast<Filter>(dm->GetValue<uint8>(m_sid, "min"));
+        m_assetData.m_magFilter = static_cast<Filter>(dm->GetValue<uint8>(m_sid, "mag"));
+        m_assetData.m_mode      = static_cast<SamplerAddressMode>(dm->GetValue<uint8>(m_sid, "mode"));
     }
 
     void Texture::SaveAssetData()
@@ -92,21 +95,24 @@ namespace Lina::Graphics
         auto dm = Resources::ResourceDataManager::Get();
         dm->CleanSlate(m_sid);
         dm->SetValue<uint8>(m_sid, "format", static_cast<uint8>(m_assetData.m_format));
+        dm->SetValue<uint8>(m_sid, "min", static_cast<uint8>(m_assetData.m_minFilter));
+        dm->SetValue<uint8>(m_sid, "mag", static_cast<uint8>(m_assetData.m_magFilter));
+        dm->SetValue<uint8>(m_sid, "mode", static_cast<uint8>(m_assetData.m_mode));
         dm->Save();
     }
 
     void Texture::GenerateBuffers(unsigned char* pixels)
     {
         const size_t bufferSize = m_width * m_height * 4;
-        return;
-        Buffer cpuBuffer = Buffer{
-            .size = bufferSize,
+
+        m_cpuBuffer = Buffer{
+            .size        = bufferSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
             .memoryUsage = MemoryUsageFlags::CpuOnly,
         };
 
-        cpuBuffer.Create();
-        cpuBuffer.CopyInto(pixels, bufferSize);
+        m_cpuBuffer.Create();
+        m_cpuBuffer.CopyInto(pixels, bufferSize);
         stbi_image_free(pixels);
 
         m_extent = Extent3D{
@@ -124,9 +130,8 @@ namespace Lina::Graphics
 
         m_gpuImage.Create(true, false);
 
-        UploadContext uploader;
-        uploader.Create();
-        uploader.SubmitImmediate([=](CommandBuffer& cmd) {
+        Command cmd;
+        cmd.Record = [this](CommandBuffer& cmd) {
             ImageSubresourceRange range = ImageSubresourceRange{
                 .aspectMask     = ImageAspectFlags::AspectColor,
                 .baseMipLevel   = 0,
@@ -165,7 +170,7 @@ namespace Lina::Graphics
             };
 
             // copy the buffer into the image
-            cmd.CMD_CopyBufferToImage(cpuBuffer._ptr, m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
+            cmd.CMD_CopyBufferToImage(m_cpuBuffer._ptr, m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
 
             ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
             barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
@@ -174,9 +179,25 @@ namespace Lina::Graphics
             barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
 
             cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
-        });
-        uploader.Destroy();
-        cpuBuffer.Destroy();
+        };
+
+        cmd.OnSubmitted = [this]() {
+            m_gpuImage._ready = true;
+            m_cpuBuffer.Destroy();
+            LINA_TRACE("[Texture] -> Buffer transferred to VRAM. {0}", m_path);
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+
+        m_sampler = Sampler{
+            .minFilter = m_assetData.m_minFilter,
+            .magFilter = m_assetData.m_magFilter,
+            .u         = m_assetData.m_mode,
+            .v         = m_assetData.m_mode,
+            .w         = m_assetData.m_mode,
+        };
+
+        m_sampler.Create(false);
     }
 
 } // namespace Lina::Graphics

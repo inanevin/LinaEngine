@@ -73,6 +73,11 @@ namespace Lina::Graphics
         vkCmdBindVertexBuffers(_ptr, firstBinding, bindingCount, &buffer, offset);
     }
 
+    void CommandBuffer::CMD_BindIndexBuffers(VkBuffer_T* buffer, uint64 offset, IndexType indexType)
+    {
+        vkCmdBindIndexBuffer(_ptr, buffer, offset, GetIndexType(indexType));
+    }
+
     void CommandBuffer::CMD_BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets, uint32 dynamicOffsetCount, uint32* dynamicOffsets)
     {
         Vector<VkDescriptorSet> _sets;
@@ -92,6 +97,11 @@ namespace Lina::Graphics
     void CommandBuffer::CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
     {
         vkCmdDraw(_ptr, vtxCount, instCount, firstVtx, firstInst);
+    }
+
+    void CommandBuffer::CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance)
+    {
+        vkCmdDrawIndexed(_ptr, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
     void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags srcStageFlags, PipelineStageFlags dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers)

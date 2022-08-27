@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/IResource.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/Image.hpp"
+#include "PipelineObjects/Sampler.hpp"
 
 namespace Lina::Graphics
 {
@@ -41,7 +42,10 @@ namespace Lina::Graphics
     {
         struct AssetData
         {
-            Format m_format;
+            Format             m_format    = Format::R8G8B8A8_SRGB;
+            Filter             m_minFilter = Filter::Nearest;
+            Filter             m_magFilter = Filter::Nearest;
+            SamplerAddressMode m_mode      = SamplerAddressMode::Repeat;
         };
 
     public:
@@ -53,16 +57,28 @@ namespace Lina::Graphics
         virtual void  LoadAssetData() override;
         virtual void  SaveAssetData() override;
 
+        inline Image& GetImage()
+        {
+            return m_gpuImage;
+        }
+
+        inline Sampler& GetSampler()
+        {
+            return m_sampler;
+        }
+
     private:
         void GenerateBuffers(unsigned char* pixels);
 
     private:
         AssetData m_assetData;
         Image     m_gpuImage;
+        Sampler   m_sampler;
         Extent3D  m_extent;
         uint32    m_width    = 0;
         uint32    m_height   = 0;
         uint32    m_channels = 0;
+        Buffer    m_cpuBuffer;
     };
 } // namespace Lina::Graphics
 

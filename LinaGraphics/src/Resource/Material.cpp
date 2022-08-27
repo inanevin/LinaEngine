@@ -76,4 +76,10 @@ namespace Lina::Graphics
         }
     }
 
+    void Material::SetShader(Shader* shader)
+    {
+        m_shader.sid   = shader->GetSID();
+        m_shader.value = shader;
+    }
+
 } // namespace Lina::Graphics

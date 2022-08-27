@@ -34,6 +34,7 @@ SOFTWARE.
 
 // Headers here.
 #include "EventSystem/MainLoopEvents.hpp"
+#include "Functional/Functional.hpp"
 #include <filesystem>
 
 namespace Lina
@@ -56,7 +57,7 @@ namespace Lina
         void Initialize(const String& directory, float interval, FileWatchStatus targetStatus);
 
     public:
-        std::function<void(FileWatchStatus status, const String& fullPath)> m_changeCallback;
+        Delegate<void(FileWatchStatus status, const String& fullPath)> m_changeCallback;
 
     private:
         void OnTick(const Event::ETick&);

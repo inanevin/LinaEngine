@@ -106,15 +106,26 @@ namespace Lina::Graphics
         m_text = buffer.str().c_str();
         file.close();
 
-        LoadAssetData();
-
         CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
         CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
         CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
         CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
         CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
         CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
-        GenerateByteCode();
+        LoadAssetData();
+
+        bool missing = false;
+        for (auto& [stage, mod] : m_modules)
+        {
+            if (mod.byteCode.empty())
+            {
+                missing = true;
+                break;
+            }
+        }
+
+        if (missing)
+            GenerateByteCode();
 
         if (!CreateShaderModules())
         {
@@ -244,7 +255,7 @@ namespace Lina::Graphics
             .scissor           = RenderEngine::Get()->GetScissor(),
             .topology          = Topology::TriangleList,
             .polygonMode       = PolygonMode::Fill,
-            .cullMode          = CullMode::None,
+            .cullMode          = CullMode::Back,
         };
 
         m_pipeline.SetShader(this)

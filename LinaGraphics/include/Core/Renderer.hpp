@@ -63,7 +63,8 @@ namespace Lina
     namespace Event
     {
         struct ELevelUninstalled;
-    }
+        struct ELevelInstalled;
+    } // namespace Event
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -134,6 +135,11 @@ namespace Lina::Graphics
             return GetCurrentFrame().objDataDescriptor;
         }
 
+        inline DescriptorSet& GetTextureSet()
+        {
+            return m_textureDescriptor;
+        }
+
         inline uint32 GetFrameIndex()
         {
             return m_frameNumber % FRAME_OVERLAP;
@@ -151,6 +157,7 @@ namespace Lina::Graphics
         void   Join();
         void   Shutdown();
         void   FetchAndExtract(World::EntityWorld* world);
+        void   OnLevelInstalled(const Event::ELevelInstalled& ev);
         void   OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         Frame& GetCurrentFrame();
 
@@ -170,6 +177,7 @@ namespace Lina::Graphics
         Image                        m_depthImage;
         Buffer                       m_scenePropertiesBuffer;
         DescriptorSet                m_globalDescriptor;
+        DescriptorSet                m_textureDescriptor;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAME_OVERLAP];

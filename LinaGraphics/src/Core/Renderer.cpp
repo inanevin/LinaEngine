@@ -33,6 +33,7 @@ SOFTWARE.
 #include "PipelineObjects/RQueue.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "Resource/Texture.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
@@ -46,6 +47,7 @@ namespace Lina::Graphics
     void Renderer::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Renderer::OnLevelInstalled>(this);
 
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
@@ -147,12 +149,20 @@ namespace Lina::Graphics
         m_globalDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(0)._ptr);
         m_globalDescriptor.Create();
 
+        m_textureDescriptor = DescriptorSet{
+            .setCount = 1,
+            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+        };
+
+        m_textureDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(2)._ptr);
+        m_textureDescriptor.Create();
+
         WriteDescriptorSet sceneWrite = WriteDescriptorSet{
             .buffer          = m_scenePropertiesBuffer._ptr,
             .offset          = 0,
             .range           = sizeof(GPUSceneData),
-            .set             = m_globalDescriptor._ptr,
-            .binding         = 0,
+            .dstSet          = m_globalDescriptor._ptr,
+            .dstBinding      = 0,
             .descriptorCount = 1,
             .descriptorType  = DescriptorType::UniformBufferDynamic};
 
@@ -165,7 +175,7 @@ namespace Lina::Graphics
             Frame& f = m_frames[i];
 
             // Commands
-            f.pool = CommandPool{.familyIndex = RenderEngine::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
+            f.pool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
             f.pool.Create();
             f.commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
             f.commandBuffer.Create(f.pool._ptr);
@@ -195,8 +205,8 @@ namespace Lina::Graphics
                 .buffer          = f.objDataBuffer._ptr,
                 .offset          = 0,
                 .range           = sizeof(GPUObjectData) * 5,
-                .set             = f.objDataDescriptor._ptr,
-                .binding         = 0,
+                .dstSet          = f.objDataDescriptor._ptr,
+                .dstBinding      = 0,
                 .descriptorCount = 1,
                 .descriptorType  = DescriptorType::StorageBuffer};
 
@@ -236,12 +246,30 @@ namespace Lina::Graphics
         tf.for_each(m_views.begin(), m_views.end(), [&](View* v) {
             v->CalculateVisibility(m_renderables.data(), m_nextRenderableID);
         });
-        JobSystem::Get()->Run(tf).wait();
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
 
         // Start extracting game state.
         m_featureRendererManager.ExtractGameState(world);
     }
 
+    void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        Texture* txt = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
+
+        WriteDescriptorSet textureWrite = WriteDescriptorSet{
+            .dstSet          = m_textureDescriptor._ptr,
+            .dstBinding      = 0,
+            .descriptorCount = 1,
+            .descriptorType  = DescriptorType::CombinedImageSampler,
+            .imageView       = txt->GetImage()._ptrImgView,
+            .imageLayout     = ImageLayout::ShaderReadOnlyOptimal,
+            .sampler         = txt->GetSampler()._ptr,
+        };
+
+        Vector<WriteDescriptorSet> vv0;
+        vv0.push_back(textureWrite);
+        DescriptorSet::UpdateDescriptorSets(vv0);
+    }
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
         m_renderables.clear();
@@ -258,7 +286,7 @@ namespace Lina::Graphics
 
         m_featureRendererManager.PrepareRenderData();
 
-        GetCurrentFrame().renderFence.Wait(true, 1.0);
+        GetCurrentFrame().renderFence.Wait(true, 1.0f);
         GetCurrentFrame().renderFence.Reset();
 
         uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
@@ -296,8 +324,8 @@ namespace Lina::Graphics
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
-        RenderEngine::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
-        RenderEngine::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
+        Backend::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
+        Backend::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
         m_frameNumber++;

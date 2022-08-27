@@ -35,12 +35,51 @@ SOFTWARE.
 
 namespace Lina
 {
-    typedef tf::Executor Executor;
     typedef tf::Taskflow Taskflow;
 
     template <typename T>
     using Future = tf::Future<T>;
 
+    class Executor
+    {
+    public:
+
+        inline Future<void> Run(Taskflow& flow)
+        {
+            return m_ex.run(flow);
+        }
+
+        inline void RunAndWait(Taskflow& flow)
+        {
+            m_ex.run_and_wait(flow);
+        }
+
+        template <typename F, typename... ArgsT>
+        inline Future<void> Async(F&& f, ArgsT&&... args)
+        {
+            return m_ex.async(f, args...);
+        }
+
+        template <typename F, typename... ArgsT>
+        void SilentAsync(F&& f, ArgsT&&... args)
+        {
+            m_ex.silent_async(f, args...);
+        }
+
+        template <typename F, typename... ArgsT>
+        void SilentAsync(const String& name, F&& f, ArgsT&&... args)
+        {
+            m_ex.named_silent_async(name.c_str(), f, args...);
+        }
+
+        void Wait()
+        {
+            m_ex.wait_for_all();
+        }
+
+    private:
+        tf::Executor m_ex;
+    };
     class JobSystem
     {
     public:
@@ -49,37 +88,20 @@ namespace Lina
             return s_instance;
         }
 
-        inline Future<void> Run(Taskflow& flow)
+        inline Executor& GetMainExecutor()
         {
-            return m_executor.run(flow);
+            return m_executor;
         }
 
-        inline void RunAndWait(Taskflow& flow)
+        inline Executor& GetResourceExecutor()
         {
-            m_executor.run_and_wait(flow);
-        }
-
-        template <typename F, typename... ArgsT>
-        inline Future<void> Async(F&& f, ArgsT&&... args)
-        {
-            return m_executor.async(f, args...);
-        }
-
-        template <typename F, typename... ArgsT>
-        void SilentAsync(F&& f, ArgsT&&... args)
-        {
-            m_executor.silent_async(f, args...);
-        }
-
-        template <typename F, typename... ArgsT>
-        void SilentAsync(const String& name, F&& f, ArgsT&&... args)
-        {
-            m_executor.named_silent_async(name.c_str(), f, args...);
+            return m_resourceExecutor;
         }
 
         inline void WaitForAll()
         {
-            m_executor.wait_for_all();
+            m_executor.Wait();
+            m_resourceExecutor.Wait();
         }
 
     private:
@@ -93,6 +115,7 @@ namespace Lina
     private:
         static JobSystem* s_instance;
         Executor          m_executor;
+        Executor          m_resourceExecutor;
     };
 
 } // namespace Lina

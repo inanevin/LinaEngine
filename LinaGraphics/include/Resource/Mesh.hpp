@@ -53,14 +53,24 @@ namespace Lina::Graphics
         Mesh() = default;
         virtual ~Mesh();
 
-        inline const Vector<Vertex>& GetVertices()
+        inline uint32 GetVertexSize()
         {
-            return m_vertices;
+            return m_vtxSize;
+        }
+
+        inline uint32 GetIndexSize()
+        {
+            return m_indexSize;
         }
 
         inline const Buffer& GetGPUVtxBuffer()
         {
             return m_gpuVtxBuffer;
+        }
+
+        inline const Buffer& GetGPUIndexBuffer()
+        {
+            return m_gpuIndexBuffer;
         }
 
         inline int GetMaterialSlot()
@@ -71,7 +81,7 @@ namespace Lina::Graphics
     protected:
     private:
         void AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv);
-        void AddIndices(uint32 i1, uint32 i2, uint32 i3);
+        void AddIndices(uint32 i1);
         void GenerateBuffers();
 
     private:
@@ -79,13 +89,18 @@ namespace Lina::Graphics
         friend class ModelLoader;
         friend struct ECS::ModelComponent;
 
-        Buffer            m_gpuVtxBuffer;
-        Vector<Vector3ui> m_indices;
-        Vector<Vertex>    m_vertices;
-        Vector3           m_vertexCenter = Vector3::Zero;
-        AABB              m_aabb;
-        int               m_materialSlot = 0;
-        String            m_name         = "";
+        Buffer         m_gpuVtxBuffer;
+        Buffer         m_gpuIndexBuffer;
+        Buffer         m_cpuVtxBuffer;
+        Buffer         m_cpuIndexBuffer;
+        Vector<uint32> m_indices;
+        Vector<Vertex> m_vertices;
+        Vector3        m_vertexCenter = Vector3::Zero;
+        AABB           m_aabb;
+        int            m_materialSlot = 0;
+        String         m_name         = "";
+        uint32         m_vtxSize      = 0;
+        uint32         m_indexSize    = 0;
     };
 
 } // namespace Lina::Graphics

@@ -28,40 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GraphicsQueue_HPP
-#define GraphicsQueue_HPP
+#ifndef Functional_HPP
+#define Functional_HPP
 
-#include "Core/GraphicsCommon.hpp"
-#include "Data/HashMap.hpp"
+#include <functional>
 
-struct VkQueue_T;
-
-namespace Lina::Graphics
-{
-
-    class Fence;
-    class Semaphore;
-    class CommandBuffer;
-
-    struct QueueFamilyIndices
-    {
-        uint32 graphicsFamily;
-    };
-
-    class RQueue
-    {
-    public:
-        void Get(uint32 family, uint32 index);
-        void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
-        void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
-        void Present(const Semaphore& waitSemaphore, uint32* swapchainImageIndex);
-
-        // Runtime
-        VkQueue_T* _ptr    = nullptr;
-        uint32     _family = 0;
-
-    private:
-    };
-} // namespace Lina::Graphics
+template<typename T>
+using Delegate = std::function<T>;
 
 #endif

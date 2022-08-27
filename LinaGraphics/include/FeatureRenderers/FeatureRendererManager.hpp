@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
-#include <functional>
+#include "Functional/Functional.hpp"
 
 namespace Lina
 {
@@ -49,11 +49,11 @@ namespace Lina::Graphics
     class CommandBuffer;
     class FramePacket;
 
-    typedef std::function<void(World::EntityWorld* w)>          WorldFunction;
-    typedef std::function<void(World::EntityWorld* w, View* v)> WorldViewFunction;
-    typedef std::function<void(View* v)>                        ViewFunction;
-    typedef std::function<void(CommandBuffer& cb, View* v)>     CBFunction;
-    typedef std::function<void()>                               DefFunction;
+    typedef Delegate<void(World::EntityWorld* w)>          WorldFunction;
+    typedef Delegate<void(World::EntityWorld* w, View* v)> WorldViewFunction;
+    typedef Delegate<void(View* v)>                        ViewFunction;
+    typedef Delegate<void(CommandBuffer& cb, View* v)>     CBFunction;
+    typedef Delegate<void()>                               DefFunction;
 
     class CommandBuffer;
 

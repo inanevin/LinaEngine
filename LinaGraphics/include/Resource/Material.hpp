@@ -62,6 +62,8 @@ namespace Lina::Graphics
             return m_shader;
         }
 
+        void SetShader(Shader* shader);
+
     private:
     
         void FindShader();

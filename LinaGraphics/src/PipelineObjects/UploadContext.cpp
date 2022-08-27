@@ -29,6 +29,7 @@ SOFTWARE.
 #include "PipelineObjects/UploadContext.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Utility/Command.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -41,7 +42,7 @@ namespace Lina::Graphics
         };
         m_fence.Create(false);
 
-        m_pool = CommandPool{.familyIndex = Backend::Get()->GetTransferQueueFamily()};
+        m_pool = CommandPool{.familyIndex = Backend::Get()->GetTransferQueue()._family};
         m_pool.Create(false);
 
         m_buffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
@@ -54,15 +55,53 @@ namespace Lina::Graphics
         m_pool.Destroy();
     }
 
-    void UploadContext::SubmitImmediate(std::function<void(CommandBuffer& buf)>&& function)
+    void UploadContext::SubmitImmediate(Command& cmd)
     {
         LOCK_GUARD(m_mtx);
+
+        // If we don't have a dedicated queue for transfer
+        // We're gonna be using the main graphics queue
+        // So push it down the list & wait for render engine to query.
+        if (!Backend::Get()->SupportsAsyncTransferQueue())
+        {
+            m_waitingUploads.push(cmd);
+            return;
+        }
+
+        // If we have a dedicated transfer queue transfer immediately
+        Transfer(cmd);
+    }
+
+    void UploadContext::Poll()
+    {
+        if (m_waitingUploads.empty())
+            return;
+
+        LOCK_GUARD(m_mtx);
+        while (!m_waitingUploads.empty())
+        {
+            auto& cmd = m_waitingUploads.front();
+            Transfer(cmd);
+            m_waitingUploads.pop();
+        }
+    }
+
+    void UploadContext::Transfer(Command& cmd)
+    {
         m_buffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-        function(m_buffer);
+        cmd.Record(m_buffer);
         m_buffer.End();
-        RenderEngine::Get()->GetTransferQueue().Submit(m_fence, m_buffer, 1);
-        m_fence.Wait(true, 9999999999);
+
+        if (cmd.OnRecorded)
+            cmd.OnRecorded();
+
+        Backend::Get()->GetTransferQueue().Submit(m_fence, m_buffer, 1);
+
+        m_fence.Wait(true, 10.0f);
         m_fence.Reset();
         m_pool.Reset();
+
+        if (cmd.OnSubmitted)
+            cmd.OnSubmitted();
     }
 } // namespace Lina::Graphics

@@ -80,6 +80,9 @@ set(LINACOMMON_HEADERS
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
+
+	# Functional
+	include/Functional/Functional.hpp
 	
 	# Job System
 	include/JobSystem/JobSystem.hpp
@@ -168,6 +171,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BU
 
 target_precompile_headers(${PROJECT_NAME}
   PUBLIC
+	include/Functional/Functional.hpp
   	include/Math/Color.hpp
 	include/Math/Math.hpp
 	include/Math/Matrix.hpp

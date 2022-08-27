@@ -49,7 +49,7 @@ namespace Lina::Graphics
             m_visibleRenderables[i] = rend;
         });
 
-        JobSystem::Get()->RunAndWait(tf);
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
     }
 
     void View::CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj)

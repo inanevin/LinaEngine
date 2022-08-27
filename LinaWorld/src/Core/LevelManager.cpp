@@ -78,7 +78,7 @@ namespace Lina::World
         };
 
         if (loadAsync)
-            JobSystem::Get()->SilentAsync(load);
+            JobSystem::Get()->GetResourceExecutor().SilentAsync(load);
         else
             load();
 

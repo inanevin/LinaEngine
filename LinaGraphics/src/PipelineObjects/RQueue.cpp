@@ -36,13 +36,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    HashMap<uint32, uint32> RQueue::s_queueCounterPerFamily;
-
-    void RQueue::Get(uint32 family)
+    void RQueue::Get(uint32 family, uint32 index)
     {
         _family = family;
-        vkGetDeviceQueue(Backend::Get()->GetDevice(), _family, s_queueCounterPerFamily[_family], &_ptr);
-        s_queueCounterPerFamily[_family]++;
+        vkGetDeviceQueue(Backend::Get()->GetDevice(), _family, index, &_ptr);
         LINA_ASSERT(_ptr, "[Render Queue] -> Could not get device queue.");
     }
 

@@ -55,6 +55,7 @@ namespace Lina::Graphics
         // Runtime
         AllocatedImage _allocatedImg;
         VkImageView_T* _ptrImgView = nullptr;
+        bool           _ready      = false;
     };
 } // namespace Lina::Graphics
 

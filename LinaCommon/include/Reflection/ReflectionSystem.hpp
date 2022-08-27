@@ -34,14 +34,14 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"
-#include <functional>
+#include "Functional/Functional.hpp"
 #include <type_traits>
 
 namespace Lina::Reflection
 {
 
-    typedef std::function<void*()>         CreateFunc;
-    typedef std::function<void(void* obj)> DestroyFunc;
+    typedef Delegate<void*()>         CreateFunc;
+    typedef Delegate<void(void* obj)> DestroyFunc;
 
     class FieldValue
     {

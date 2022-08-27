@@ -55,6 +55,7 @@ namespace Lina::Graphics
         // Runtime
         VkBuffer_T*      _ptr        = nullptr;
         VmaAllocation_T* _allocation = nullptr;
+        bool             _ready      = false;
     };
 } // namespace Lina::Graphics
 

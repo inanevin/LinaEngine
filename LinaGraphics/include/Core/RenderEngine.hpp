@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Utility/DeletionQueue.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
-#include "PipelineObjects/RQueue.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
 #include <functional>
@@ -124,22 +123,13 @@ namespace Lina::Graphics
             return m_gpuUploader;
         }
 
-        inline RQueue& GetGraphicsQueue()
-        {
-            return m_graphicsQueue;
-        }
-
-        inline RQueue& GetTransferQueue()
-        {
-            return m_transferQueue;
-        }
+        void Join();
 
     private:
         void Initialize(const InitInfo& initInfo);
         void Clear();
         void Tick();
         void Render();
-        void Join();
         void Shutdown();
         void GameSimCompleted();
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
@@ -159,12 +149,11 @@ namespace Lina::Graphics
         Backend       m_backend;
         bool          m_initedSuccessfully = false;
 
-        RQueue                                m_graphicsQueue;
-        RQueue                                m_transferQueue;
         UploadContext                         m_gpuUploader;
         DescriptorPool                        m_descriptorPool;
         DescriptorSetLayout                   m_globalSetLayout;
         DescriptorSetLayout                   m_objectDataLayout;
+        DescriptorSetLayout                   m_textureDataLayout;
         HashMap<uint32, DescriptorSetLayout*> m_descriptorLayouts;
         Viewport                              m_viewport;
         Recti                                 m_scissor;

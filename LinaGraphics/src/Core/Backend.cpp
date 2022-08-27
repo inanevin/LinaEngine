@@ -165,55 +165,41 @@ namespace Lina::Graphics
 
         auto queue_families = physicalDevice.get_queue_families();
 
-        // if (!hasDedicatedTransferQueue)
-        // {
-        //     // We don't have a dedicated transfer queue.
-        //     // Find the queue family that supports transfer bit.
-        //     for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
-        //     {
-        //         if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
-        //         {
-        //             m_transferQueueFamily = i;
-        //             break;
-        //         }
-        //     }
-        // }
+        uint32 transferQueueFamily = 0;
+        uint32 transferQueueIndex  = 0;
+        uint32 graphicsQueueFamily = 0;
+        uint32 graphicsQueueIndex  = 0;
+        uint32 computeQueueFamily  = 0;
+        uint32 computeQueueIndex   = 0;
 
-        // if (!hasDedicatedComputeQueue)
-        // {
-        //     // We don't have a dedicated transfer queue.
-        //     // Find the queue family that supports transfer bit.
-        //     for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
-        //     {
-        //         if (queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
-        //         {
-        //             m_computeQueueFamily = i;
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // 2 queues supporting graphics & transfer
-        // 1 queue rest.
         std::vector<vkb::CustomQueueDescription> queue_descriptions;
         for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families.size()); i++)
         {
             uint32 count = 1;
 
-            // if (!hasDedicatedTransferQueue && i == m_transferQueueFamily)
-            //     count++;
-            //
-            // if (!hasDedicatedComputeQueue && i == m_computeQueueFamily)
-            //     count++;
-
-            if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
-                m_transferQueueFamily = i;
-                count++;
-            }
+                graphicsQueueFamily = i;
 
-            if (queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
-                m_computeQueueFamily = i;
+                if (!hasDedicatedTransferQueue && queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+                {
+                    transferQueueFamily = i;
+
+                    if (queue_families[i].queueCount > count + 1)
+                        count++;
+
+                    transferQueueIndex = count-1;
+                }
+
+                if (!hasDedicatedComputeQueue && queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
+                {
+                    computeQueueFamily = i;
+
+                    if (queue_families[i].queueCount > count + 1)
+                        count++;
+                    computeQueueIndex = count-1;
+                }
+            }
 
             queue_descriptions.push_back(vkb::CustomQueueDescription(i, count, std::vector<float>(count, 1.0f)));
         }
@@ -225,17 +211,23 @@ namespace Lina::Graphics
         m_device              = vkbDevice.device;
         m_gpu                 = physicalDevice.physical_device;
 
-        // if (hasDedicatedTransferQueue)
-        // {
-        //     auto res              = vkbDevice.get_dedicated_queue_index(vkb::QueueType::transfer);
-        //     m_transferQueueFamily = res.value();
-        // }
-        //
-        // if (hasDedicatedComputeQueue)
-        // {
-        //     auto res             = vkbDevice.get_dedicated_queue_index(vkb::QueueType::compute);
-        //     m_computeQueueFamily = res.value();
-        // }
+        if (hasDedicatedTransferQueue)
+        {
+            auto res            = vkbDevice.get_dedicated_queue_index(vkb::QueueType::transfer);
+            transferQueueFamily = res.value();
+            transferQueueIndex  = 0;
+        }
+
+        if (hasDedicatedComputeQueue)
+        {
+            auto res           = vkbDevice.get_dedicated_queue_index(vkb::QueueType::compute);
+            computeQueueFamily = res.value();
+            computeQueueIndex  = 0;
+        }
+
+        m_graphicsQueueIndices = linatl::make_pair(graphicsQueueFamily, graphicsQueueIndex);
+        m_transferQueueIndices = linatl::make_pair(transferQueueFamily, transferQueueIndex);
+        m_computeQueueIndices  = linatl::make_pair(computeQueueFamily, computeQueueIndex);
 
         VkPhysicalDeviceProperties gpuProps;
         vkGetPhysicalDeviceProperties(m_gpu, &gpuProps);
@@ -289,6 +281,24 @@ namespace Lina::Graphics
         allocatorInfo.instance               = m_vkInstance;
         vmaCreateAllocator(&allocatorInfo, &m_vmaAllocator);
 
+        m_graphicsQueue.Get(m_graphicsQueueIndices.first, m_graphicsQueueIndices.second);
+        m_transferQueue.Get(m_transferQueueIndices.first, m_transferQueueIndices.second);
+        m_computeQueue.Get(m_computeQueueIndices.first, m_computeQueueIndices.second);
+
+        if (m_transferQueueIndices.first != m_graphicsQueueIndices.first)
+            m_supportsAsyncTransferQueue = true;
+        else if (m_transferQueueIndices.second != m_graphicsQueueIndices.second)
+            m_supportsAsyncTransferQueue = true;
+        else
+            m_supportsAsyncTransferQueue = false;
+
+        if (m_computeQueueIndices.first != m_graphicsQueueIndices.first)
+            m_supportsAsyncComputeQueue = true;
+        else if (m_computeQueueIndices.second != m_graphicsQueueIndices.second)
+            m_supportsAsyncComputeQueue = true;
+        else
+            m_supportsAsyncComputeQueue = false;
+
         return true;
     }
 
@@ -337,20 +347,6 @@ namespace Lina::Graphics
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);
         vkDestroyInstance(m_vkInstance, m_allocator);
-    }
-
-    uint32 Backend::GetQueueFamilyIndex(QueueFamilies family)
-    {
-        uint32 index = 0;
-        for (auto& f : m_queueFamilies)
-        {
-            if (f.flags & GetQueueFamilyBit(family))
-                return index;
-            index++;
-        }
-
-        LINA_ASSERT(false, "Requested queue family does not exists in the device! {0}", static_cast<uint32>(family));
-        return 0;
     }
 
 } // namespace Lina::Graphics

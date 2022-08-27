@@ -175,8 +175,11 @@ namespace Lina::Graphics
         for (uint32 i = 0; i < aiMesh->mNumFaces; i++)
         {
             const aiFace& face = aiMesh->mFaces[i];
-            LINA_ASSERT(face.mNumIndices == 3, "Number of indices need to be 3!");
-            linaMesh->AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
+
+            for (unsigned int j = 0; j < face.mNumIndices; j++)
+            {
+                linaMesh->AddIndices(face.mIndices[j]);
+            }
         }
 
         // Size calc.
@@ -303,8 +306,7 @@ namespace Lina::Graphics
         if (assetData.smoothNormals)
             importFlags |= aiProcess_GenSmoothNormals;
 
-        if (assetData.flipUVs)
-            importFlags |= aiProcess_FlipUVs;
+        importFlags |= aiProcess_FlipUVs;
 
         if (assetData.flipWinding)
             importFlags |= aiProcess_FlipWindingOrder;

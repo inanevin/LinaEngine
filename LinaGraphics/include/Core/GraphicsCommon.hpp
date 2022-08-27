@@ -60,10 +60,15 @@ enum VkImageTiling;
 enum VkImageAspectFlagBits;
 enum VmaMemoryUsage;
 enum VkDescriptorType;
+enum VkIndexType;
+enum VkFilter;
+enum VkSamplerAddressMode;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
 struct VkImage_T;
+struct VkImageView_T;
+struct VkSampler_T;
 struct VkDescriptorSet_T;
 
 namespace Lina::Graphics
@@ -79,6 +84,26 @@ namespace Lina::Graphics
     };
 
     extern VkFormat GetFormat(Format f);
+
+    enum class Filter
+    {
+        Nearest,
+        Linear,
+        CubicImg,
+    };
+
+    extern VkFilter GetFilter(Filter f);
+
+    enum class SamplerAddressMode
+    {
+        Repeat,
+        MirroredRepeat,
+        ClampToEdge,
+        ClampToBorder,
+        MirrorClampToEdge
+    };
+
+    extern VkSamplerAddressMode GetSamplerAddressMode(SamplerAddressMode m);
 
     enum class ColorSpace
     {
@@ -314,6 +339,7 @@ namespace Lina::Graphics
     enum class BufferUsageFlags
     {
         VertexBuffer,
+        IndexBuffer,
         UniformBuffer,
         StorageBuffer,
         TransferSrc,
@@ -371,6 +397,16 @@ namespace Lina::Graphics
     };
 
     extern VkDescriptorType GetDescriptorType(DescriptorType type);
+
+    enum class IndexType
+    {
+        Uint16,
+        Uint32,
+        Uint8_Ext,
+        None,
+    };
+
+    extern VkIndexType GetIndexType(IndexType type);
 
     enum class SurfaceType
     {
@@ -561,10 +597,13 @@ namespace Lina::Graphics
         VkBuffer_T*        buffer          = nullptr;
         uint64             offset          = 0;
         uint64             range           = 0;
-        VkDescriptorSet_T* set             = nullptr;
-        uint32             binding         = 0;
+        VkDescriptorSet_T* dstSet          = nullptr;
+        uint32             dstBinding      = 0;
         uint32             descriptorCount = 1;
         DescriptorType     descriptorType  = DescriptorType::UniformBuffer;
+        VkImageView_T*     imageView       = nullptr;
+        ImageLayout        imageLayout     = ImageLayout::ColorOptimal;
+        VkSampler_T*       sampler         = nullptr;
     };
 
     struct ShaderDescriptorSetInfo

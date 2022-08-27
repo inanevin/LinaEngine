@@ -54,6 +54,7 @@ set (LINAGRAPHICS_SOURCES
 	src/PipelineObjects/Pipeline.cpp
 	src/PipelineObjects/PipelineLayout.cpp
 	src/PipelineObjects/Image.cpp
+	src/PipelineObjects/Sampler.cpp
 
 	# Resource
 	src/Resource/Shader.cpp
@@ -79,6 +80,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Utility/Vulkan/SPIRVUtility.cpp
 	src/Utility/Vulkan/VulkanUtility.cpp
 	src/Utility/DeletionQueue.cpp
+	src/Utility/Command.cpp
 	src/Utility/ModelLoader.cpp
 	src/Utility/ShaderUtility.cpp
 )
@@ -129,6 +131,7 @@ set(LINAGRAPHICS_HEADERS
 	include/PipelineObjects/Pipeline.hpp
 	include/PipelineObjects/PipelineLayout.hpp
 	include/PipelineObjects/Image.hpp
+	include/PipelineObjects/Sampler.hpp
 
 	# Resource
 	include/Resource/Shader.hpp
@@ -158,6 +161,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/Vulkan/VulkanUtility.hpp
 	include/Utility/Vulkan/vk_mem_alloc.h
 	include/Utility/DeletionQueue.hpp
+	include/Utility/Command.hpp
 	include/Utility/ModelLoader.hpp
 	include/Utility/ShaderUtility.hpp
 )

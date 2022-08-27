@@ -72,9 +72,6 @@ namespace Lina::Graphics
         }
         const Vector2i size = m_window.GetSize();
 
-        m_graphicsQueue.Get(m_backend.GetQueueFamilyIndex(QueueFamilies::Graphics));
-        m_transferQueue.Get(m_backend.GetTransferQueueFamily());
-
         m_viewport = Viewport{
             .x        = 0.0f,
             .y        = 0.0f,
@@ -95,6 +92,7 @@ namespace Lina::Graphics
         m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10)
             .AddPoolSize(DescriptorType::UniformBufferDynamic, 10)
             .AddPoolSize(DescriptorType::StorageBuffer, 10)
+            .AddPoolSize(DescriptorType::CombinedImageSampler, 10)
             .Create();
 
         DescriptorSetLayoutBinding sceneBinding = DescriptorSetLayoutBinding{
@@ -115,8 +113,18 @@ namespace Lina::Graphics
 
         m_objectDataLayout.AddBinding(objDataBinding).Create();
 
+        DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
+            .type            = DescriptorType::CombinedImageSampler,
+        };
+
+        m_textureDataLayout.AddBinding(txtDataBinding).Create();
+
         m_descriptorLayouts[0] = &m_globalSetLayout;
         m_descriptorLayouts[1] = &m_objectDataLayout;
+        m_descriptorLayouts[2] = &m_textureDataLayout;
 
         m_levelRenderer.Initialize();
 
@@ -147,6 +155,7 @@ namespace Lina::Graphics
         if (m_window.IsMinimized())
             return;
 
+        m_gpuUploader.Poll();
         m_levelRenderer.Render();
     }
 

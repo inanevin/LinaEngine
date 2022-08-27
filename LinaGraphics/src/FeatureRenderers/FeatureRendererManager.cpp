@@ -41,7 +41,7 @@ namespace Lina::Graphics
 
         // Extract
         tf.for_each(onExtract.begin(), onExtract.end(), [&](auto&& f) { f(w); });
-        JobSystem::Get()->Run(tf).wait();
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
         tf.clear();
 
         // Per view
@@ -50,18 +50,18 @@ namespace Lina::Graphics
         {
             // Extract per view
             tf.for_each(onExtractPerView.begin(), onExtractPerView.end(), [w, v](auto&& f) { f(w, v); });
-            JobSystem::Get()->Run(tf).wait();
+            JobSystem::Get()->GetMainExecutor().Run(tf).wait();
             tf.clear();
 
             // Extract per view end.
             tf.for_each(onExtractPerViewEnd.begin(), onExtractPerViewEnd.end(), [w, v](auto&& f) { f(w, v); });
-            JobSystem::Get()->Run(tf).wait();
+            JobSystem::Get()->GetMainExecutor().Run(tf).wait();
             tf.clear();
         }
 
         // Extract end.
         tf.for_each(onExtractEnd.begin(), onExtractEnd.end(), [&](auto&& f) { f(w); });
-        JobSystem::Get()->Run(tf).wait();
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
         tf.clear();
     }
 
@@ -72,7 +72,7 @@ namespace Lina::Graphics
 
         // Prepare
         tf.for_each(onPrepare.begin(), onPrepare.end(), [](auto&& f) { f(); });
-        JobSystem::Get()->Run(tf).wait();
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
         tf.clear();
 
         // Per view
@@ -81,18 +81,18 @@ namespace Lina::Graphics
         {
             // Prepare per view
             tf.for_each(onPreparePerView.begin(), onPreparePerView.end(), [v](auto&& f) { f(v); });
-            JobSystem::Get()->Run(tf).wait();
+            JobSystem::Get()->GetMainExecutor().Run(tf).wait();
             tf.clear();
 
             // Prepare per view end.
             tf.for_each(onPreparePerViewEnd.begin(), onPreparePerViewEnd.end(), [v](auto&& f) { f(v); });
-            JobSystem::Get()->Run(tf).wait();
+            JobSystem::Get()->GetMainExecutor().Run(tf).wait();
             tf.clear();
         }
 
         // Prepare end.
         tf.for_each(onPrepareEnd.begin(), onPrepareEnd.end(), [](auto&& f) { f(); });
-        JobSystem::Get()->Run(tf).wait();
+        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
         tf.clear();
     }
 

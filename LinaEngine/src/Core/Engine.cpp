@@ -154,8 +154,13 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
         m_resourceStorage.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
+
+        // Temp
+        Graphics::Shader* shader = m_resourceStorage.GetResource<Graphics::Shader>("Resources/Engine/Shaders/DefaultTextured.linashader");
+        m_resourceStorage.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
     }
 
     void Engine::PackageProject(const String& path)
@@ -340,18 +345,18 @@ namespace Lina
             m_inputEngine.Tick();
 
             // Render
-            Future<void> renderJob = m_jobSystem.Async([&]() {
-                m_renderEngine.Render();
-                frames++;
-            });
+           // Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+           //     m_renderEngine.Render();
+           //     frames++;
+           // });
 
             // Game sim, physics + update etc.
             RunSimulation((float)m_rawDeltaTime);
             m_renderEngine.GameSimCompleted();
             updates++;
-            // m_renderEngine.Render();
-            // frames++;
-            renderJob.wait();
+            m_renderEngine.Render();
+            frames++;
+            //renderJob.wait();
 
             PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 

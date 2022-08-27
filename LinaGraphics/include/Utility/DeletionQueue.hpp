@@ -33,14 +33,14 @@ SOFTWARE.
 
 #include "Data/Deque.hpp"
 #include "Data/Mutex.hpp"
-#include <functional>
+#include "Functional/Functional.hpp"
 
 namespace Lina::Graphics
 {
     class DeletionQueue
     {
     public:
-        void Push(std::function<void()>&& f);
+        void Push(Delegate<void()>&& f);
         void Flush();
 
     private:

@@ -257,6 +257,7 @@ namespace Lina::Graphics
         return info;
     }
 
+
     VkSubpassDependency VulkanUtility::GetSubpassDependency(SubPassDependency& dependency)
     {
         VkSubpassDependency dep = VkSubpassDependency{

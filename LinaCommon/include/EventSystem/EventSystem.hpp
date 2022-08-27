@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Mutex.hpp"
+#include "Functional/Functional.hpp"
 
 namespace Lina
 {
@@ -46,7 +47,7 @@ namespace Lina::Event
     class EventSink
     {
     public:
-        typedef std::function<void(const T& t)> FuncTemplate;
+        typedef Delegate<void(const T& t)> FuncTemplate;
 
         template <auto DATA, typename Type>
         void Connect(Type* obj)
@@ -77,7 +78,7 @@ namespace Lina::Event
                 functions.erase(it);
         }
 
-        HashMap<void*, FuncTemplate> functions;
+        ParallelHashMapMutex<void*, FuncTemplate> functions;
     };
 
     template <typename T>
@@ -88,7 +89,7 @@ namespace Lina::Event
         delete sinkPtr;
     }
 
-    typedef std::function<void(void* sink)> DisconnectFunc;
+    typedef Delegate<void(void* sink)> DisconnectFunc;
 
     class EventSystem
     {

@@ -32,28 +32,36 @@ SOFTWARE.
 #define UploadContext_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Data/Queue.hpp"
 #include "Data/Mutex.hpp"
 #include "CommandPool.hpp"
 #include "CommandBuffer.hpp"
 #include "Fence.hpp"
+#include "Utility/Command.hpp"
 #include <functional>
 
 namespace Lina::Graphics
 {
     class RQueue;
+    class Command;
 
     class UploadContext
     {
     public:
         void Create();
         void Destroy();
-        void SubmitImmediate(std::function<void(CommandBuffer& buf)>&& function);
+        void SubmitImmediate(Command& cmd);
+        void Poll();
 
     private:
-        Mutex         m_mtx;
-        Fence         m_fence;
-        CommandPool   m_pool;
-        CommandBuffer m_buffer;
+        void Transfer(Command& cmd);
+
+    private:
+        Mutex          m_mtx;
+        Fence          m_fence;
+        CommandPool    m_pool;
+        CommandBuffer  m_buffer;
+        Queue<Command> m_waitingUploads;
     };
 } // namespace Lina::Graphics
 

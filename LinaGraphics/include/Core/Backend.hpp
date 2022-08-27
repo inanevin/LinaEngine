@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Core/CommonApplication.hpp"
+#include "PipelineObjects/RQueue.hpp"
 #include "PipelineObjects/Swapchain.hpp"
 
 struct VkDevice_T;
@@ -105,14 +106,29 @@ namespace Lina::Graphics
             return m_minUniformBufferOffsetAlignment;
         }
 
-        inline uint32 GetTransferQueueFamily()
+        inline bool SupportsAsyncTransferQueue()
         {
-            return m_transferQueueFamily;
+            return m_supportsAsyncTransferQueue;
         }
 
-        inline uint32 GetComputeQueueFamily()
+        inline bool SupportsAsyncComputeQueue()
         {
-            return m_computeQueueFamily;
+            return m_supportsAsyncComputeQueue;
+        }
+
+        inline RQueue& GetGraphicsQueue()
+        {
+            return m_graphicsQueue;
+        }
+
+        inline RQueue& GetTransferQueue()
+        {
+            return m_transferQueue;
+        }
+
+        inline RQueue& GetComputeQueue()
+        {
+            return m_computeQueue;
         }
 
     private:
@@ -124,7 +140,6 @@ namespace Lina::Graphics
 
         bool        Initialize(const InitInfo& appInfo);
         void        Shutdown();
-        uint32      GetQueueFamilyIndex(QueueFamilies family);
         void        OnWindowResized(const Event::EWindowResized& ev);
         void        OnVsyncModeChanged(const Event::EVsyncModeChanged& ev);
         PresentMode VsyncToPresentMode(VsyncMode mode);
@@ -141,8 +156,14 @@ namespace Lina::Graphics
         Swapchain                   m_swapchain;
         Vector<QueueFamily>         m_queueFamilies;
         uint64                      m_minUniformBufferOffsetAlignment = 0;
-        uint32                      m_transferQueueFamily             = 0;
-        uint32                      m_computeQueueFamily              = 0;
+        Pair<uint32, uint32>        m_graphicsQueueIndices;
+        Pair<uint32, uint32>        m_transferQueueIndices;
+        Pair<uint32, uint32>        m_computeQueueIndices;
+        RQueue                      m_graphicsQueue;
+        RQueue                      m_transferQueue;
+        RQueue                      m_computeQueue;
+        bool                        m_supportsAsyncTransferQueue = false;
+        bool                        m_supportsAsyncComputeQueue  = false;
     };
 } // namespace Lina::Graphics
 

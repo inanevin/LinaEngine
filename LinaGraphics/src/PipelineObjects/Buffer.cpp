@@ -64,6 +64,7 @@ namespace Lina::Graphics
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
         MEMCPY(data, src, size);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+        _ready = true;
     }
 
     void Buffer::CopyInto(unsigned char* src, size_t size)
@@ -72,6 +73,7 @@ namespace Lina::Graphics
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
         MEMCPY(data, src, size);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+        _ready = true;
     }
 
     void Buffer::CopyIntoPadded(const void* src, size_t size, size_t padding)
@@ -81,6 +83,7 @@ namespace Lina::Graphics
         data += padding;
         MEMCPY(data, src, size);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+        _ready = true;
     }
 
 } // namespace Lina::Graphics
