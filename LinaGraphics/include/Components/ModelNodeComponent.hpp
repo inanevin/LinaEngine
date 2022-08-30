@@ -60,13 +60,13 @@ namespace Lina::Graphics
 
         virtual AABB& GetAABB() override;
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             RenderableComponent::SaveToArchive(oarchive);
             oarchive(m_modelHandle, m_nodeIndex, m_materials);
         };
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             RenderableComponent::LoadFromArchive(iarchive);
             iarchive(m_modelHandle, m_nodeIndex, m_materials);

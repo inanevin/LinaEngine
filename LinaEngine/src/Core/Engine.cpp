@@ -42,9 +42,7 @@ SOFTWARE.
 #include "Settings/RenderSettings.hpp"
 #include "Data/HashSet.hpp"
 #include "Core/Level.hpp"
-#include "Loaders/ResourceLoader.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Core/ResourceDataManager.hpp"
 #include "Resource/Shader.hpp"
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
@@ -52,6 +50,8 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Components/RenderableComponent.hpp"
+#include "Core/ResourceLoader.hpp"
+
 namespace Lina
 {
     Engine* Engine::s_engine = nullptr;
@@ -98,7 +98,7 @@ namespace Lina
         Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
         Input::InputEngine::s_inputEngine       = &m_inputEngine;
         Audio::AudioEngine::s_audioEngine       = &m_audioEngine;
-        Resources::ResourceStorage::s_instance  = &m_resourceStorage;
+        Resources::ResourceManager::s_instance  = &m_resourceManager;
         World::LevelManager::s_instance         = &m_levelManager;
         Graphics::RenderEngine::s_instance      = &m_renderEngine;
         JobSystem::s_instance                   = &m_jobSystem;
@@ -108,7 +108,7 @@ namespace Lina
         m_memoryManager.Initialize();
         m_eventSystem.Initialize();
         m_jobSystem.Initialize();
-        m_resourceStorage.Initialize();
+        m_resourceManager.Initialize();
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
         m_physicsEngine.Initialize();
@@ -131,128 +131,123 @@ namespace Lina
 #endif
 
         // Static resources
-        g_defaultResources.m_staticResources[GetTypeID<EngineSettings>()].push_back("Resources/lina.enginesettings");
-        g_defaultResources.m_staticResources[GetTypeID<RenderSettings>()].push_back("Resources/lina.rendersettings");
-        g_defaultResources.m_staticResources[GetTypeID<Resources::ResourceDataManager>()].push_back("Resources/lina.resourcedata");
-        m_resourceStorage.GetLoader()->LoadStaticResources();
-        m_engineSettings      = m_resourceStorage.GetResource<EngineSettings>("Resources/lina.enginesettings");
-        m_renderSettings      = m_resourceStorage.GetResource<RenderSettings>("Resources/lina.rendersettings");
-        m_resourceDataManager = m_resourceStorage.GetResource<Resources::ResourceDataManager>("Resources/lina.resourcedata");
-        m_resourceDataManager->Initialize();
-        Resources::ResourceDataManager::s_instance = m_resourceDataManager;
-
-        // Engine resources.
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/DefaultTextured.linashader");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
+        g_defaultResources.m_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
+        g_defaultResources.m_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/DefaultTextured.linashader");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/BlenderMonkey.obj");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/LinaLogo.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Capsule.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
-        m_resourceStorage.GetLoader()->LoadEngineResources();
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/LinaLogo.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Capsule.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
+        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
+        m_resourceManager.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
+        m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/lina.enginesettings");
+        m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/lina.rendersettings");
+
         // Temp
-        Graphics::Shader* shader = m_resourceStorage.GetResource<Graphics::Shader>("Resources/Engine/Shaders/DefaultTextured.linashader");
-        m_resourceStorage.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
+        // Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/DefaultTextured.linashader");
+        // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
     }
 
     void Engine::PackageProject(const String& path)
     {
-        if (g_appInfo.GetAppMode() != ApplicationMode::Editor)
-        {
-            LINA_ERR("You can only package the project in editor mode!");
-            return;
-        }
-
-        // Vector - Allow duplicates
-        HashMap<TypeID, Vector<String>> resourceMap;
-
-        // Iterate all levels to be packed.
-        // If the level is currently loaded, retrieve the resources right away.
-        // If not, load the level from file.
-        // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
-        // Retrieve resource info & dump it.
-        const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
-
-        if (packagedLevels.empty())
-        {
-            LINA_ERR("Packaging failed, no levels to pack!");
-            return;
-        }
-        for (const String& str : packagedLevels)
-        {
-            // If the level is the currently loaded one, retrieve the resource map right away.
-            if (m_levelManager.GetCurrentLevel() != nullptr && str.compare(m_levelManager.GetCurrentLevel()->GetPath()) == 0)
-            {
-                const HashMap<TypeID, HashSet<String>>& resources = m_levelManager.GetCurrentLevel()->GetResources();
-
-                // Add all resources used by the level to the resource table
-                for (const auto& pair : resources)
-                {
-                    for (auto resStr : pair.second)
-                    {
-                        if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
-                            resourceMap[pair.first].push_back(resStr);
-                    }
-                }
-            }
-            else
-            {
-                // If the level is not loaded, load it & retrieve the resource map.
-                // Note, we use Resources::LoadArchieve, as the LoadFromFile function inside a level is used for constructed & installed levels.
-                World::Level                            lvl       = Resources::LoadArchiveFromFile<World::Level>(str);
-                const HashMap<TypeID, HashSet<String>>& resources = lvl.GetResources();
-
-                // Add all resources used by the level to the resource table
-                for (const auto& pair : resources)
-                {
-                    for (auto resStr : pair.second)
-                    {
-                        if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
-                            resourceMap[pair.first].push_back(resStr);
-                    }
-                }
-            }
-        }
-
-        // Iterate all resource meta-data
-        // If the resource does not exists in any of the packed level resources, discard it.
-        Vector<StringID> resourceMetadataToRemove;
-
-        for (auto& [sid, resData] : m_resourceDataManager->m_resourceData)
-        {
-            bool found = false;
-            for (auto& [tid, sidVec] : resourceMap)
-            {
-                for (auto& resourceStr : sidVec)
-                {
-                    const StringID resourceSid = HashedString(resourceStr.c_str()).value();
-                    if (resourceSid == sid)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                    break;
-            }
-
-            if (!found)
-                resourceMetadataToRemove.push_back(sid);
-        }
-
-        for (auto sid : resourceMetadataToRemove)
-            m_resourceDataManager->Remove(sid);
-
-        m_resourceStorage.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
+        //   if (g_appInfo.GetAppMode() != ApplicationMode::Editor)
+        //   {
+        //       LINA_ERR("You can only package the project in editor mode!");
+        //       return;
+        //   }
+        //
+        //   // Vector - Allow duplicates
+        //   HashMap<TypeID, Vector<String>> resourceMap;
+        //
+        //   // Iterate all levels to be packed.
+        //   // If the level is currently loaded, retrieve the resources right away.
+        //   // If not, load the level from file.
+        //   // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
+        //   // Retrieve resource info & dump it.
+        //   const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
+        //
+        //   if (packagedLevels.empty())
+        //   {
+        //       LINA_ERR("Packaging failed, no levels to pack!");
+        //       return;
+        //   }
+        //   for (const String& str : packagedLevels)
+        //   {
+        //       // If the level is the currently loaded one, retrieve the resource map right away.
+        //       if (m_levelManager.GetCurrentLevel() != nullptr && str.compare(m_levelManager.GetCurrentLevel()->GetPath()) == 0)
+        //       {
+        //           const HashMap<TypeID, HashSet<String>>& resources = m_levelManager.GetCurrentLevel()->GetResources();
+        //
+        //           // Add all resources used by the level to the resource table
+        //           for (const auto& pair : resources)
+        //           {
+        //               for (auto resStr : pair.second)
+        //               {
+        //                   if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
+        //                       resourceMap[pair.first].push_back(resStr);
+        //               }
+        //           }
+        //       }
+        //       else
+        //       {
+        //           // If the level is not loaded, load it & retrieve the resource map.
+        //           // Note, we use Resources::LoadArchieve, as the LoadFromFile function inside a level is used for constructed & installed levels.
+        //           World::Level lvl;
+        //           lvl.LoadFromFile(str);
+        //           const HashMap<TypeID, HashSet<String>>& resources = lvl.GetResources();
+        //
+        //           // Add all resources used by the level to the resource table
+        //           for (const auto& pair : resources)
+        //           {
+        //               for (auto resStr : pair.second)
+        //               {
+        //                   if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
+        //                       resourceMap[pair.first].push_back(resStr);
+        //               }
+        //           }
+        //       }
+        //   }
+        //
+        //   // Iterate all resource meta-data
+        //   // If the resource does not exists in any of the packed level resources, discard it.
+        //   Vector<StringID> resourceMetadataToRemove;
+        //
+        //   for (auto& [sid, resData] : m_resourceDataManager->m_resourceData)
+        //   {
+        //       bool found = false;
+        //       for (auto& [tid, sidVec] : resourceMap)
+        //       {
+        //           for (auto& resourceStr : sidVec)
+        //           {
+        //               const StringID resourceSid = HashedString(resourceStr.c_str()).value();
+        //               if (resourceSid == sid)
+        //               {
+        //                   found = true;
+        //                   break;
+        //               }
+        //           }
+        //
+        //           if (found)
+        //               break;
+        //       }
+        //
+        //       if (!found)
+        //           resourceMetadataToRemove.push_back(sid);
+        //   }
+        //
+        //   for (auto sid : resourceMetadataToRemove)
+        //       m_resourceDataManager->Remove(sid);
+        //
+        //   // m_resourceManager.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
     struct Test
@@ -281,8 +276,8 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -293,7 +288,7 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
         // m_levelManager.SaveCurrentLevel();
 
         //  SetFrameLimit(60);
@@ -345,10 +340,10 @@ namespace Lina
             m_inputEngine.Tick();
 
             // Render
-           // Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
-           //     m_renderEngine.Render();
-           //     frames++;
-           // });
+            // Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+            //     m_renderEngine.Render();
+            //     frames++;
+            // });
 
             // Game sim, physics + update etc.
             RunSimulation((float)m_rawDeltaTime);
@@ -356,7 +351,7 @@ namespace Lina
             updates++;
             m_renderEngine.Render();
             frames++;
-            //renderJob.wait();
+            // renderJob.wait();
 
             PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 
@@ -387,7 +382,7 @@ namespace Lina
         LINA_TRACE("[Engine] -> Waiting for render thread.");
         m_renderEngine.Join();
         LINA_TRACE("[Engine] -> Render thread finished.");
-        
+
         m_levelManager.UninstallCurrent();
         Reflection::Clear();
 
@@ -399,14 +394,13 @@ namespace Lina
         PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
         // Shutting down.
-        m_resourceStorage.UnloadAll();
+        m_resourceManager.Shutdown();
         m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
         m_renderEngine.Shutdown();
         m_levelManager.Shutdown();
         m_audioEngine.Shutdown();
         m_physicsEngine.Shutdown();
         m_inputEngine.Shutdown();
-        m_resourceStorage.Shutdown();
         m_jobSystem.Shutdown();
         m_eventSystem.Shutdown();
         m_memoryManager.Shutdown();
@@ -497,53 +491,36 @@ namespace Lina
 
     void Engine::RegisterResourceTypes()
     {
-        m_resourceStorage.m_caches.clear();
-
         Vector<String> extensions;
 
         extensions.push_back("enginesettings");
-        m_resourceStorage.RegisterResourceType<EngineSettings>(
+        m_resourceManager.RegisterResourceType<EngineSettings>(
             Resources::ResourceTypeData{
                 .packageType          = Resources::PackageType::Static,
-                .createFunc           = std::bind(Resources::CreateResource<EngineSettings>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<EngineSettings>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<EngineSettings>, std::placeholders::_1, std::placeholders::_2),
+                .typeName             = "Engine Settings",
+                .memChunkCount        = 1,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
 
         extensions.clear();
         extensions.push_back("rendersettings");
-        m_resourceStorage.RegisterResourceType<RenderSettings>(
+        m_resourceManager.RegisterResourceType<RenderSettings>(
             Resources::ResourceTypeData{
                 .packageType          = Resources::PackageType::Static,
-                .createFunc           = std::bind(Resources::CreateResource<RenderSettings>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<RenderSettings>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<RenderSettings>, std::placeholders::_1, std::placeholders::_2),
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
-
-        extensions.clear();
-        extensions.push_back("resourcedata");
-        m_resourceStorage.RegisterResourceType<Resources::ResourceDataManager>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Static,
-                .createFunc           = std::bind(Resources::CreateResource<Resources::ResourceDataManager>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Resources::ResourceDataManager>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Resources::ResourceDataManager>, std::placeholders::_1, std::placeholders::_2),
+                .typeName             = "Render Settings",
+                .memChunkCount        = 1,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
 
         extensions.clear();
         extensions.push_back("linalevel");
-        m_resourceStorage.RegisterResourceType<World::Level>(
+        m_resourceManager.RegisterResourceType<World::Level>(
             Resources::ResourceTypeData{
                 .packageType          = Resources::PackageType::Level,
-                .createFunc           = std::bind(Resources::CreateResource<World::Level>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<World::Level>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<World::Level>, std::placeholders::_1, std::placeholders::_2),
+                .typeName             = "Level",
+                .memChunkCount        = 20,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -552,46 +529,42 @@ namespace Lina
         extensions.push_back("mp3");
         extensions.push_back("wav");
         extensions.push_back("ogg");
-        m_resourceStorage.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
+        m_resourceManager.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
             .packageType          = Resources::PackageType::Audio,
-            .createFunc           = std::bind(Resources::CreateResource<Audio::Audio>),
-            .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Audio::Audio>, std::placeholders::_1),
-            .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Audio::Audio>, std::placeholders::_1, std::placeholders::_2),
+            .typeName             = "Audio",
+            .memChunkCount        = 100,
             .associatedExtensions = extensions,
-            .debugColor           = Color(255, 235, 170, 255),
+            .debugColor           = Color::White,
         });
 
         extensions.clear();
         extensions.push_back("linaphymat");
-        m_resourceStorage.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
+        m_resourceManager.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
             .packageType          = Resources::PackageType::Physics,
-            .createFunc           = std::bind(Resources::CreateResource<Physics::PhysicsMaterial>),
-            .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Physics::PhysicsMaterial>, std::placeholders::_1),
-            .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Physics::PhysicsMaterial>, std::placeholders::_1, std::placeholders::_2),
+            .typeName             = "Physics Material",
+            .memChunkCount        = 30,
             .associatedExtensions = extensions,
-            .debugColor           = Color(17, 120, 255, 255),
+            .debugColor           = Color::White,
         });
 
         extensions.clear();
         extensions.push_back("linashader");
-        m_resourceStorage.RegisterResourceType<Graphics::Shader>(
+        m_resourceManager.RegisterResourceType<Graphics::Shader>(
             Resources::ResourceTypeData{
                 .packageType          = Resources::PackageType::Graphics,
-                .createFunc           = std::bind(Resources::CreateResource<Graphics::Shader>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Shader>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Shader>, std::placeholders::_1, std::placeholders::_2),
+                .typeName             = "Graphics",
+                .memChunkCount        = 20,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
 
         extensions.clear();
         extensions.push_back("linamat");
-        m_resourceStorage.RegisterResourceType<Graphics::Material>(
+        m_resourceManager.RegisterResourceType<Graphics::Material>(
             Resources::ResourceTypeData{
                 .packageType          = Resources::PackageType::Graphics,
-                .createFunc           = std::bind(Resources::CreateResource<Graphics::Material>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Material>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Material>, std::placeholders::_1, std::placeholders::_2),
+                .typeName             = "Material",
+                .memChunkCount        = 50,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -599,12 +572,11 @@ namespace Lina
         extensions.clear();
         extensions.push_back("fbx");
         extensions.push_back("obj");
-        m_resourceStorage.RegisterResourceType<Graphics::Model>(
+        m_resourceManager.RegisterResourceType<Graphics::Model>(
             Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Graphics,
-                .createFunc           = std::bind(Resources::CreateResource<Graphics::Model>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Model>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Model>, std::placeholders::_1, std::placeholders::_2),
+                .packageType          = Resources::PackageType::Models,
+                .typeName             = "Model",
+                .memChunkCount        = 100,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });
@@ -613,12 +585,11 @@ namespace Lina
         extensions.push_back("png");
         extensions.push_back("jpg");
         extensions.push_back("jpeg");
-        m_resourceStorage.RegisterResourceType<Graphics::Texture>(
+        m_resourceManager.RegisterResourceType<Graphics::Texture>(
             Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Graphics,
-                .createFunc           = std::bind(Resources::CreateResource<Graphics::Texture>),
-                .createFromAllocFunc  = std::bind(Resources::CreateResourceFromAllocator<Graphics::Texture>, std::placeholders::_1),
-                .deleteFromAllocFunc  = std::bind(Resources::DeleteResourceFromAllocator<Graphics::Texture>, std::placeholders::_1, std::placeholders::_2),
+                .packageType          = Resources::PackageType::Textures,
+                .typeName             = "Texture",
+                .memChunkCount        = 200,
                 .associatedExtensions = extensions,
                 .debugColor           = Color::White,
             });

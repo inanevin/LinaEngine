@@ -14,8 +14,6 @@ Timestamp: 12/24/2021 10:20:14 PM
 // Headers here.
 #include "ECS/Component.hpp"
 #include "Rendering/Model.hpp"
-
-#include <cereal/access.hpp>
 #include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina
@@ -41,14 +39,12 @@ namespace Lina::ECS
         Resources::ResourceHandle<Graphics::Model> m_model;
         bool                                       m_culled = false;
 
-    private:
-        friend class cereal::access;
-
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_materials, m_nodeIndex, m_model, m_isEnabled);
         }
+
     };
 
 } // namespace Lina::ECS

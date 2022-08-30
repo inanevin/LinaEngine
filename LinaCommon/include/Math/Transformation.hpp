@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Matrix.hpp"
 #include "Quaternion.hpp"
-
 #include "Data/Set.hpp"
 
 namespace Lina
@@ -94,7 +93,7 @@ namespace Lina
         Vector3    m_localRotationAngles = Vector3::Zero;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_position, m_rotation, m_scale, m_localPosition, m_localRotation, m_localScale, m_localRotationAngles, m_rotationAngles);
         }

@@ -47,13 +47,13 @@ namespace Lina::Graphics
             return enabled && isVisible;
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             Component::SaveToArchive(oarchive);
             oarchive(dummy, dummy2);
         };
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             Component::LoadFromArchive(iarchive);
             iarchive(dummy, dummy2);

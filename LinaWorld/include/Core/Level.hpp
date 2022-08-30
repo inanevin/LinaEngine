@@ -32,33 +32,39 @@ SOFTWARE.
 #define Level_HPP
 
 #include "World.hpp"
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Utility/StringId.hpp"
 #include "Math/Color.hpp"
 #include "Core/CommonReflection.hpp"
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/HashSet.hpp"
-#include "Data/Serialization/SetSerialization.hpp"
+#include "Serialization/CommonTypesSerialization.hpp"
 
 namespace Lina::World
 {
     class Application;
 
-    class Level : public Resources::IResource
+    class Level : public Resources::Resource
     {
     public:
         Level(){};
         virtual ~Level(){};
-
         Level(const Level&);
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-        void          SaveToFile(const String& path);
-        void          ResourcesLoaded();
+        template <class Archive>
+        void Serialize(Archive& archive)
+        {
+           archive(m_usedResources);
+        }
 
-        const HashMap<TypeID, HashSet<String>>& GetResources()
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        void              SaveToFile(const String& path);
+        void              LoadWithoutWorld(const String& path);
+        void              ResourcesLoaded();
+
+        const Vector<Pair<TypeID, String>>& GetResources()
         {
             return m_usedResources;
         }
@@ -83,16 +89,9 @@ namespace Lina::World
 
     private:
         friend class LevelManager;
-        friend class cereal::access;
 
-        HashMap<TypeID, HashSet<String>> m_usedResources;
+        Vector<Pair<TypeID, String>> m_usedResources;
 
-        // This is only used to load level resources.
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_usedResources);
-        }
     };
 } // namespace Lina::World
 

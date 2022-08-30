@@ -39,7 +39,7 @@ namespace Lina::ECS
         Graphics::Texture m_cubemap;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_isLocal, m_halfExtents, m_isDynamic, m_resolution, m_isEnabled); // serialize things by passing them to the archive
         }

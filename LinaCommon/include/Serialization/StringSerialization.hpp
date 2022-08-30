@@ -28,26 +28,44 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorResourceLoader_HPP
-#define EditorResourceLoader_HPP
+#ifndef StringSerialization_HPP
+#define StringSerialization_HPP
 
-// Headers here.
-#include "ResourceLoader.hpp"
+#include "Data/String.hpp"
+#include "Archive.hpp"
+#include <cereal/types/string.hpp>
 
-namespace Lina::Resources
+namespace Lina::Serialization
 {
-    class EditorResourceLoader : public ResourceLoader
+    template<>
+    struct Serialize_NonTrivial<Archive<OStream>, String>
     {
-
-    public:
-        EditorResourceLoader()          = default;
-        virtual ~EditorResourceLoader() = default;
-
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
+        template<typename Ar>
+        void Serialize(Ar& ar, String& str)
+        {
+            const uint32 size = static_cast<uint32>(str.size());
+            ar.m_stream << size;
+            ar.m_stream.Write(str.data(), size);
+        }
     };
-} // namespace Lina::Resources
 
+    template<>
+    struct Serialize_NonTrivial<Archive<IStream>, String>
+    {
+        template<typename Ar>
+        void Serialize(Ar& ar, String& str)
+        {
+            uint32 size = 0;
+            ar.m_stream >> size;
+            str = String(&ar.m_stream.m_data[ar.m_stream.m_index], size);
+            ar.m_stream.SkipBy(size);
+        }
+    };
+
+} // namespace Lina::Serialization
+
+namespace cereal
+{
+
+}
 #endif

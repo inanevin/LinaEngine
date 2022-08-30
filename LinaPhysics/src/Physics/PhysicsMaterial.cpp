@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -29,43 +29,43 @@ SOFTWARE.
 #include "Physics/PhysicsMaterial.hpp"
 #include "Core/ResourceCommon.hpp"
 #include "Log/Log.hpp"
-#include "Core/ResourceStorage.hpp"
 #include <fstream>
 
 namespace Lina::Physics
 {
     PhysicsMaterial* PhysicsMaterial::CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution)
     {
-        auto* storage = Resources::ResourceStorage::Get();
-
-        if (storage->Exists<PhysicsMaterial>(savePath))
-        {
-            LINA_WARN("Physics Material already exists with the given path. {0}", savePath);
-            return storage->GetResource<PhysicsMaterial>(savePath);
-        }
-
-        PhysicsMaterial* mat = new PhysicsMaterial();
-        mat->SetSID(savePath);
-        mat->m_staticFriction = staticFriction;
-        mat->m_dynamicFriction = dynamicFriction;
-        mat->m_restitution = restitution;
-        storage->Add(static_cast<void*>(mat), GetTypeID<PhysicsMaterial>(), mat->m_sid);
-        Resources::SaveArchiveToFile<PhysicsMaterial>(savePath, *mat);
-        return mat;
+        // auto* storage = Resources::ResourceStorage::Get();
+        //
+        // if (storage->Exists<PhysicsMaterial>(savePath))
+        // {
+        //     LINA_WARN("Physics Material already exists with the given path. {0}", savePath);
+        //     return storage->GetResource<PhysicsMaterial>(savePath);
+        // }
+        //
+        // PhysicsMaterial* mat = new PhysicsMaterial();
+        // mat->SetSID(savePath);
+        // mat->m_staticFriction = staticFriction;
+        // mat->m_dynamicFriction = dynamicFriction;
+        // mat->m_restitution = restitution;
+        // storage->Add(static_cast<void*>(mat), GetTypeID<PhysicsMaterial>(), mat->m_sid);
+        // Resources::SaveArchiveToFile<PhysicsMaterial>(savePath, *mat);
+        // return mat;
+        return nullptr;
     }
-    void* PhysicsMaterial::LoadFromFile(const String& path)
+    Resources::Resource* PhysicsMaterial::LoadFromFile(const String& path)
     {
-        LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);
-        *this = Resources::LoadArchiveFromFile<PhysicsMaterial>(path);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        //LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);
+        //*this = Resources::LoadArchiveFromFile<PhysicsMaterial>(path);
+        //IResource::SetSID(path);
+        return this;
     }
 
-    void* PhysicsMaterial::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* PhysicsMaterial::LoadFromMemory(const IStream& stream)
     {
-        LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);
-        *this = Resources::LoadArchiveFromMemory<PhysicsMaterial>(path, data, dataSize);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        // LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);
+        //*this = Resources::LoadArchiveFromMemory<PhysicsMaterial>(path, data, dataSize);
+        // IResource::SetSID(path);
+        return this;
     }
 } // namespace Lina::Physics

@@ -27,12 +27,11 @@ SOFTWARE.
 */
 
 #include "Resource/Shader.hpp"
-#include "Core/ResourceDataManager.hpp"
 #include "Core/Backend.hpp"
 #include "Utility/Vulkan/SPIRVUtility.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Core/RenderEngine.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "Utility/ShaderUtility.hpp"
 
 #include <sstream>
@@ -51,10 +50,10 @@ namespace Lina::Graphics
         }
     }
 
-    void* Shader::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* Shader::LoadFromMemory(const IStream& stream)
     {
-        IResource::SetSID(path);
-        m_text = String(reinterpret_cast<char*>(data), dataSize);
+       // IResource::SetSID(path);
+       // m_text = String(reinterpret_cast<char*>(data), dataSize);
 
         CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
         CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
@@ -82,7 +81,7 @@ namespace Lina::Graphics
 
         if (!CreateShaderModules())
         {
-            LINA_ERR("[Shader Loader - Memory] -> Could not load shader! {0}", path);
+            LINA_ERR("[Shader Loader - Memory] -> Could not load shader! {0}", m_path);
         }
         else
             GeneratePipeline();
@@ -91,12 +90,12 @@ namespace Lina::Graphics
         for (auto& [stage, mod] : m_modules)
             mod.byteCode.clear();
 
-        return static_cast<void*>(this);
+        return this;
     }
 
-    void* Shader::LoadFromFile(const String& path)
+    Resources::Resource* Shader::LoadFromFile(const String& path)
     {
-        IResource::SetSID(path);
+        // IResource::SetSID(path);
 
         // Get the text from file.
         std::ifstream file;
@@ -138,7 +137,7 @@ namespace Lina::Graphics
         for (auto& [stage, mod] : m_modules)
             mod.byteCode.clear();
 
-        return static_cast<void*>(this);
+        return this;
     }
 
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)
@@ -155,24 +154,24 @@ namespace Lina::Graphics
 
     void Shader::LoadAssetData()
     {
-        auto dm = Resources::ResourceDataManager::Get();
-        if (!dm->Exists(m_sid))
-            SaveAssetData();
-
-        for (auto& [stage, mod] : m_modules)
-            mod.byteCode = dm->GetValue<Vector<unsigned int>>(m_sid, mod.moduleName);
+        //auto dm = Resources::ResourceDataManager::Get();
+        //if (!dm->Exists(m_sid))
+        //    SaveAssetData();
+        //
+        //for (auto& [stage, mod] : m_modules)
+        //    mod.byteCode = dm->GetValue<Vector<unsigned int>>(m_sid, mod.moduleName);
     }
 
     void Shader::SaveAssetData()
     {
-        auto* dm = Resources::ResourceDataManager::Get();
-
-        dm->CleanSlate(m_sid);
-
-        for (auto& [stage, mod] : m_modules)
-            dm->SetValue<Vector<unsigned int>>(m_sid, mod.moduleName, mod.byteCode);
-
-        dm->Save();
+       // auto* dm = Resources::ResourceDataManager::Get();
+       // 
+       // dm->CleanSlate(m_sid);
+       // 
+       // for (auto& [stage, mod] : m_modules)
+       //     dm->SetValue<Vector<unsigned int>>(m_sid, mod.moduleName, mod.byteCode);
+       // 
+       // dm->Save();
     }
 
     void Shader::GenerateByteCode()

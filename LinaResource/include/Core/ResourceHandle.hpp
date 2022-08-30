@@ -32,11 +32,10 @@ SOFTWARE.
 #define ResourceHandle_HPP
 
 // Headers here.
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Set.hpp"
-#include <cereal/access.hpp>
 
 namespace Lina::Resources
 {
@@ -72,14 +71,14 @@ namespace Lina::Resources
         }
         virtual ~ResourceHandle()
         {
-            Resources::ResourceStorage::Get()->RemoveResourceHandle(this, tid);
+            Resources::ResourceManager::Get()->GetCache(tid)->RemoveResourceHandle(this);
         }
 
         virtual void OnResourceLoaded() override
         {
             if (value != nullptr)
                 return;
-            value = ResourceStorage::Get()->GetResource<T>(sid);
+            value = Resources::ResourceManager::Get()->GetResource<T>(sid);
         }
 
         virtual void OnResourceUnloaded() override
@@ -95,29 +94,27 @@ namespace Lina::Resources
         }
 
     private:
-        friend class cereal::access;
 
         template <class Archive>
-        void save(Archive& archive) const
+        void Serialize(Archive& archive)
         {
-            archive(sid);
-        }
-
-        template <class Archive>
-        void load(Archive& archive)
-        {
-            archive(sid);
-            tid = GetTypeID<T>();
-
-            if (sid != 0)
+            if (archive.m_isSave)
+                archive(sid);
+            else
             {
-                auto* storage = Resources::ResourceStorage::Get();
-                storage->AddResourceHandle(this, tid);
+                archive(sid);
+                tid = GetTypeID<T>();
 
-                if (storage->Exists<T>(sid))
-                    value = storage->GetResource<T>(sid);
-                else
-                    value = nullptr;
+                if (sid != 0)
+                {
+                    auto* manager = Resources::ResourceManager::Get();
+                    manager->GetCache(tid)->AddResourceHandle(this);
+
+                    if (manager->Exists<T>(sid))
+                        value = manager->GetResource<T>(sid);
+                    else
+                        value = nullptr;
+                }
             }
         }
     };

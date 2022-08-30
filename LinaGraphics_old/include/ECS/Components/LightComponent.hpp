@@ -34,7 +34,7 @@ namespace Lina::ECS
         bool m_castsShadows = false;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_color, m_isEnabled); // serialize things by passing them to the archive
         }
@@ -56,7 +56,7 @@ namespace Lina::ECS
         float m_shadowFar = 25.0f;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_distance, m_intensity, m_shadowNear, m_shadowFar, m_bias, m_color, m_drawDebug, m_isEnabled, m_castsShadows); // serialize things by passing them to the archive
         }
@@ -75,7 +75,7 @@ namespace Lina::ECS
         float m_outerCutoff = Math::Cos(Math::ToRadians(17.5f));
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_color, m_castsShadows, m_intensity, m_drawDebug, m_distance, m_cutoff, m_outerCutoff, m_isEnabled); // serialize things by passing them to the archive
         }
@@ -94,7 +94,7 @@ namespace Lina::ECS
         float m_shadowZFar = 15.0f;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_shadowOrthoProjection, m_castsShadows, m_intensity, m_drawDebug, m_shadowZNear, m_shadowZFar, m_color, m_isEnabled); // serialize things by passing them to the archive
         }

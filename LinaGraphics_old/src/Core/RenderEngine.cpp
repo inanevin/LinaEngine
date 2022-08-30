@@ -69,7 +69,7 @@ namespace Lina::Graphics
         // Set references.
         m_appWindow      = Window::Get();
         m_appMode        = appMode;
-        m_storage        = Resources::ResourceStorage::Get();
+        m_storage        = Resources::ResourceManager::Get();
         m_renderSettings = renderSettings;
 
         // Initialize the render device.

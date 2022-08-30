@@ -17,8 +17,6 @@ Timestamp: 12/24/2021 9:00:02 PM
 #include "Resources/ResourceHandle.hpp"
 #include "Rendering/Material.hpp"
 #include "Math/AABB.hpp"
-#include <cereal/access.hpp>
-#include <cereal/types/memory.hpp>
 #include <memory>
 #include "Data/Vector.hpp"
 

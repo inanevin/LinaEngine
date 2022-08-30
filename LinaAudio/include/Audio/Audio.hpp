@@ -33,13 +33,13 @@ SOFTWARE.
 
 // Headers here.
 #include "Utility/StringId.hpp"
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Data/Map.hpp"
 #include <Data/String.hpp>
 
 namespace Lina::Audio
 {
-    class Audio : public Resources::IResource
+    class Audio : public Resources::Resource
     {
         struct AssetData
         {
@@ -50,10 +50,10 @@ namespace Lina::Audio
         Audio() = default;
         virtual ~Audio();
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-        virtual void  LoadAssetData() override;
-        virtual void  SaveAssetData() override;
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      LoadAssetData() override;
+        virtual void      SaveAssetData() override;
 
         unsigned int GetBuffer()
         {

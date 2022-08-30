@@ -34,10 +34,8 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Data/String.hpp"
 #include "Data/HashSet.hpp"
-#include "Data/Serialization/SetSerialization.hpp"
+#include "Serialization/SetSerialization.hpp"
 #include "Math/Transformation.hpp"
-
-#include <cereal/access.hpp>
 
 namespace Lina::World
 {
@@ -53,6 +51,12 @@ namespace Lina::World
     public:
         Entity()  = default;
         ~Entity() = default;
+
+        template <class Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(m_id, m_name, m_parentID, m_childrenID, m_transform);
+        }
 
         inline uint32 GetID()
         {
@@ -154,13 +158,7 @@ namespace Lina::World
         Transformation   m_transform;
 
     private:
-        friend class cereal::access;
 
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_id, m_name, m_parentID, m_childrenID, m_transform);
-        }
     };
 
 } // namespace Lina::World

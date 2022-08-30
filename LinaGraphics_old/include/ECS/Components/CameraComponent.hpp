@@ -38,7 +38,7 @@ namespace Lina::ECS
         Frustum m_viewFrustum;
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isActive, m_isEnabled); // serialize things by passing them to the archive
         }

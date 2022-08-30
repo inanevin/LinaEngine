@@ -144,8 +144,8 @@ namespace Lina::Graphics
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
 
-        m_vtxSize   = m_vertices.size();
-        m_indexSize = m_indices.size();
+        m_vtxSize   = static_cast<uint32>(m_vertices.size());
+        m_indexSize = static_cast<uint32>(m_indices.size());
         m_vertices.clear();
         m_indices.clear();
     }

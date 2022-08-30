@@ -26,45 +26,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/ResourceDataManager.hpp"
-#include "Utility/UtilityFunctions.hpp"
+#include "Data/Streams.hpp"
 
-namespace Lina::Resources
+namespace Lina
 {
-    ResourceDataManager* ResourceDataManager::s_instance = nullptr;
-
-    void ResourceDataManager::Initialize()
+    void IStream::Create(size_t size)
     {
-        m_isEditor = g_appInfo.GetAppMode() == ApplicationMode::Editor;
+        m_data  = new char[size];
+        m_index = 0;
+        m_size  = size;
     }
 
-    void ResourceDataManager::Save()
+    void IStream::Create(const char* data, size_t size)
     {
-        if (m_isEditor)
+        m_data = new char[size];
+        MEMCPY(m_data, data, size);
+        m_index = 0;
+        m_size  = size;
+    }
+
+    void IStream::Destroy()
+    {
+        delete[] m_data;
+        m_index = 0;
+        m_size  = 0;
+        m_data  = nullptr;
+    }
+
+    void OStream::CreateReserve(size_t size)
+    {
+        m_data        = new char[size];
+        m_totalSize   = size;
+        m_currentSize = 0;
+    }
+
+    void OStream::Destroy()
+    {
+        delete[] m_data;
+        m_currentSize = 0;
+        m_totalSize   = 0;
+        m_data        = nullptr;
+    }
+
+    void OStream::Write(const char* ptr, size_t size)
+    {
+        CheckGrow(size);
+        MEMCPY(&m_data[m_currentSize], ptr, size);
+        m_currentSize += size;
+    }
+
+    void OStream::CheckGrow(size_t sz)
+    {
+        if (m_currentSize + sz > m_totalSize)
         {
-            const String path = "Resources/lina.resourcedata";
-            IResource::SetSID(path);
-            SaveArchiveToFile<ResourceDataManager>(path, *this);
+            m_totalSize *= 2;
+            char* newData = new char[m_totalSize];
+            MEMCPY(newData, m_data, m_currentSize);
+            delete[] m_data;
+            m_data = newData;
         }
     }
-
-    void* ResourceDataManager::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
-    {
-        *this = Resources::LoadArchiveFromMemory<ResourceDataManager>(path, data, dataSize);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
-    }
-
-    void* ResourceDataManager::LoadFromFile(const String& path)
-    {
-        *this = Resources::LoadArchiveFromFile<ResourceDataManager>(path);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
-    }
-
-    void ResourceDataManager::CleanSlate(StringID sid)
-    {
-        m_resourceData[sid].data.clear();
-    }
-
-} // namespace Lina::Resources
+} // namespace Lina

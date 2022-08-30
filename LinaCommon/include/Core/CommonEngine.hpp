@@ -47,18 +47,12 @@ namespace Lina
             return m_engineResources;
         }
 
-        inline const HashMap<TypeID, Vector<String>>& GetStaticResources()
-        {
-            return m_staticResources;
-        }
-
         bool IsEngineResource(TypeID tid, StringID sid);
 
     private:
         friend class Engine;
 
         HashMap<TypeID, Vector<String>> m_engineResources;
-        HashMap<TypeID, Vector<String>> m_staticResources;
     };
 
     extern DefaultResources g_defaultResources;

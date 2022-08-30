@@ -30,11 +30,10 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresMapSerialization_HPP
-#define DataStructuresMapSerialization_HPP
+#ifndef MapSerialization_HPP
+#define MapSerialization_HPP
 
-#include "cereal/types/concepts/pair_associative_container.hpp"
-#include <parallel_hashmap/phmap.h>
+#include "HashMapSerialization.hpp"
 
 
 #endif

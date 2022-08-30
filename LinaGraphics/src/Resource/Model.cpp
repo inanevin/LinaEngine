@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
 #include "Components/ModelNodeComponent.hpp"
-#include "Core/ResourceDataManager.hpp"
 #include "Utility/ModelLoader.hpp"
 #include "Core/World.hpp"
 #include "Core/Backend.hpp"
@@ -45,47 +44,46 @@ namespace Lina::Graphics
             delete m_rootNode;
     }
 
-    void* Model::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* Model::LoadFromMemory(const IStream& stream)
     {
-        IResource::SetSID(path);
-        LoadAssetData();
-        ModelLoader::LoadModel(data, dataSize, this);
-        return static_cast<void*>(this);
+        // IResource::SetSID(path);
+        // LoadAssetData();
+        // ModelLoader::LoadModel(data, dataSize, this);
+        return this;
     }
 
-    void* Model::LoadFromFile(const String& path)
+    Resources::Resource* Model::LoadFromFile(const String& path)
     {
-        IResource::SetSID(path);
         LoadAssetData();
         ModelLoader::LoadModel(path, this);
-        return static_cast<void*>(this);
+        return this;
     }
 
     void Model::LoadAssetData()
     {
-        auto dm = Resources::ResourceDataManager::Get();
-        if (!dm->Exists(m_sid))
+        auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
+        if (metacache.IsEmpty())
             SaveAssetData();
 
-        m_assetData.calculateTangent = dm->GetValue<bool>(m_sid, "CalcTang");
-        m_assetData.smoothNormals    = dm->GetValue<bool>(m_sid, "SmoothNorm");
-        m_assetData.flipUVs          = dm->GetValue<bool>(m_sid, "flipUV");
-        m_assetData.flipWinding      = dm->GetValue<bool>(m_sid, "flipWinding");
-        m_assetData.triangulate      = dm->GetValue<bool>(m_sid, "tri");
-        m_assetData.globalScale      = dm->GetValue<float>(m_sid, "scale");
+        m_assetData.calculateTangent = metacache.GetMetadata<bool>("CalcTang");
+        m_assetData.smoothNormals    = metacache.GetMetadata<bool>("SmoothNorm");
+        m_assetData.flipUVs          = metacache.GetMetadata<bool>("flipUV");
+        m_assetData.flipWinding      = metacache.GetMetadata<bool>("flipWinding");
+        m_assetData.triangulate      = metacache.GetMetadata<bool>("tri");
+        m_assetData.globalScale      = metacache.GetMetadata<float>("scale");
     }
 
     void Model::SaveAssetData()
     {
-        auto dm = Resources::ResourceDataManager::Get();
-        dm->CleanSlate(m_sid);
-        dm->SetValue<bool>(m_sid, "CalcTang", m_assetData.calculateTangent);
-        dm->SetValue<bool>(m_sid, "SmoothNorm", m_assetData.smoothNormals);
-        dm->SetValue<bool>(m_sid, "flipUV", m_assetData.flipUVs);
-        dm->SetValue<bool>(m_sid, "flipWinding", m_assetData.flipWinding);
-        dm->SetValue<bool>(m_sid, "tri", m_assetData.triangulate);
-        dm->SetValue<float>(m_sid, "scale", m_assetData.globalScale);
-        dm->Save();
+        auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
+        metacache.Destroy();
+        metacache.SaveMetadata<bool>("CalcTang", m_assetData.calculateTangent);
+        metacache.SaveMetadata<bool>("SmoothNorm", m_assetData.smoothNormals);
+        metacache.SaveMetadata<bool>("flipUV", m_assetData.flipUVs);
+        metacache.SaveMetadata<bool>("flipWinding", m_assetData.flipWinding);
+        metacache.SaveMetadata<bool>("tri", m_assetData.triangulate);
+        metacache.SaveMetadata<float>("scale", m_assetData.globalScale);
+        Resources::ResourceManager::Get()->SaveAllMetadata();
     }
 
     World::Entity* Model::AddToWorld(World::EntityWorld* w)

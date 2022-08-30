@@ -34,11 +34,11 @@ SOFTWARE.
 
 namespace Lina::World
 {
-    void Component::SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive)
+    void Component::SaveToArchive(Serialization::Archive<OStream>& oarchive)
     {
         oarchive(m_entityID);
     }
-    void Component::LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive)
+    void Component::LoadFromArchive(Serialization::Archive<IStream>& iarchive)
     {
         iarchive(m_entityID);
     }

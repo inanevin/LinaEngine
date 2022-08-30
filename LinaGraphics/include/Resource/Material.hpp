@@ -31,12 +31,10 @@ SOFTWARE.
 #ifndef Material_HPP
 #define Material_HPP
 
-#define VERSION_MATERIAL 1
-
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Core/ResourceHandle.hpp"
 #include "Shader.hpp"
-#include <cereal/access.hpp>
+#include "Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -44,18 +42,24 @@ namespace Lina
     {
         struct EResourceLoaded;
     }
-}
+} // namespace Lina
 
 namespace Lina::Graphics
 {
-    class Material : public Resources::IResource
+    class Material : public Resources::Resource
     {
     public:
         Material() = default;
         virtual ~Material();
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        template <class Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(m_shader);
+        }
+
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {
@@ -65,31 +69,16 @@ namespace Lina::Graphics
         void SetShader(Shader* shader);
 
     private:
-    
         void FindShader();
         void OnResourceLoaded(const Event::EResourceLoaded& ev);
 
     private:
-
         Resources::ResourceHandle<Shader> m_shader;
 
-        friend class cereal::access;
-
-        template <class Archive>
-        void serialize(Archive& archive, std::uint32_t const version)
-        {
-            if (version == VERSION_MATERIAL)
-                archive(m_shader);
-            else
-            {
-                // Previous version
-                // archive(m_dummy);
-            }
-        }
+       
     };
 
 } // namespace Lina::Graphics
 
-CEREAL_CLASS_VERSION(Lina::Graphics::Material, VERSION_MATERIAL);
 
 #endif

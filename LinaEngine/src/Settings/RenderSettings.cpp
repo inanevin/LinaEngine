@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,16 +30,17 @@ SOFTWARE.
 
 namespace Lina
 {
-    void* RenderSettings::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* RenderSettings::LoadFromMemory(const IStream& stream)
     {
-        *this = Resources::LoadArchiveFromMemory<RenderSettings>(path, data, dataSize);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        //*this = Resources::LoadArchiveFromMemory<RenderSettings>(path, data, dataSize);
+        // IResource::SetSID(path);
+        // return static_cast<void*>(this);
+        return this;
     }
-    void* RenderSettings::LoadFromFile(const String& path)
+
+    Resources::Resource* RenderSettings::LoadFromFile(const String& path)
     {
-        *this = Resources::LoadArchiveFromFile<RenderSettings>(path);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        Serialization::LoadFromFile<RenderSettings>(path, *this);
+        return this;
     }
-}
+} // namespace Lina

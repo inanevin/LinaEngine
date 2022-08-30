@@ -20,12 +20,11 @@ project(LinaResource)
 #--------------------------------------------------------------------
 set (LINARESOURCE_SOURCES
 	
-	src/Core/ResourceStorage.cpp
-	src/Core/ResourcePackager.cpp
-	src/Core/ResourceDataManager.cpp
-	src/Loaders/ResourceLoader.cpp
-	src/Loaders/EditorResourceLoader.cpp
-	src/Loaders/StandaloneResourceLoader.cpp
+	src/Core/ResourceManager.cpp
+	src/Core/Resource.cpp
+	src/Core/ResourceCommon.cpp
+	src/Core/ResourceLoader.cpp
+	src/Core/ResourceCache.cpp
 	src/Utility/ResourceUtility.cpp
 )
 
@@ -35,14 +34,11 @@ set (LINARESOURCE_SOURCES
 set(LINARESOURCE_HEADERS
 
 	include/Core/ResourceCommon.hpp
+	include/Core/ResourceManager.hpp
+	include/Core/Resource.hpp
+	include/Core/ResourceLoader.hpp
 	include/Core/ResourceHandle.hpp
-	include/Core/ResourceStorage.hpp
-	include/Core/ResourcePackager.hpp
-	include/Core/ResourceDataManager.hpp
-	include/Core/IResource.hpp
-	include/Loaders/ResourceLoader.hpp
-	include/Loaders/EditorResourceLoader.hpp
-	include/Loaders/StandaloneResourceLoader.hpp
+	include/Core/ResourceCache.hpp
 	include/Utility/ResourceUtility.hpp
 )
 
@@ -75,7 +71,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_link_libraries(${PROJECT_NAME} PUBLIC user32.lib PRIVATE Lina::Common)
 
 include(../_Dependencies/bit7z/link.cmake)
+include(../_Dependencies/lz4/link.cmake)
 link_bit7z()
+link_lz4()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

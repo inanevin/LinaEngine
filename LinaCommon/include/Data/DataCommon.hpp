@@ -40,6 +40,12 @@ namespace Lina
 
 	namespace linatl = eastl;
 
+	template<class F, class...Args>
+	F ForEachArg(F f, Args&&...args) {
+		(f(std::forward<Args>(args)), ...);
+		return f;
+	}
+
 } // namespace Lina
 
 #endif

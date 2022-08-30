@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,30 +26,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
+
 #pragma once
 
-#ifndef StandaloneResourceLoader_HPP
-#define StandaloneResourceLoader_HPP
+#ifndef CommonTypesSerialization_HPP
+#define CommonTypesSerialization_HPP
 
-// Headers here.
-#include "ResourceLoader.hpp"
+#include "Archive.hpp"
+#include "Data/DataCommon.hpp"
+#include <variant>
 
-namespace Lina::Resources
+#include <cereal/types/variant.hpp>
+
+namespace Lina::Serialization
 {
-    class StandaloneResourceLoader : public ResourceLoader
+    template<typename A, typename B>
+    struct Serialize_NonTrivial<Archive<OStream>, Pair<A, B>>
     {
-
-    public:
-        StandaloneResourceLoader()          = default;
-        virtual ~StandaloneResourceLoader() = default;
-
-        virtual void LoadResource(TypeID tid, const String& path, bool async, Memory::ResourceAllocator alloc = Memory::ResourceAllocator::None) override;
-        virtual void LoadLevelResources(const HashMap<TypeID, HashSet<String>>& resourceMap) override;
-        virtual void LoadStaticResources() override;
-        virtual void LoadEngineResources() override;
-
-    private:
+        template<typename Ar>
+        void Serialize(Ar& ar, Pair<A, B>& p)
+        {
+            ar(p.first);
+            ar(p.second);
+        }
     };
-} // namespace Lina::Resources
+
+    template<typename A, typename B>
+    struct Serialize_NonTrivial<Archive<IStream>, Pair<A, B>>
+    {
+        template<typename Ar>
+        void Serialize(Ar& ar, Pair<A, B>& p)
+        {
+           A first = A();
+           B second = B();
+           ar(first);
+           ar(second);
+           p.first = first;
+           p.second = second;
+        }
+    };
+
+}
+
 
 #endif

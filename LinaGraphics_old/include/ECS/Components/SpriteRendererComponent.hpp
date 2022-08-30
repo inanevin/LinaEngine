@@ -17,14 +17,15 @@ namespace Lina::ECS
     LINA_COMPONENT("Sprite Component", "ICON_FA_EYE", "Rendering", "true", "true")
     struct SpriteRendererComponent : public Component
     {
-        int         m_materialID    = -1;
+        int    m_materialID    = -1;
         String m_materialPaths = "";
 
         // Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
-        int         m_selectedMatID   = -1;
+        int    m_selectedMatID   = -1;
         String m_selectedMatPath = "";
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void Serialize(Archive& archive)
         {
             archive(m_materialPaths, m_isEnabled); // serialize things by passing them to the archive
         }

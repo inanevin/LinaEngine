@@ -49,13 +49,13 @@ namespace Lina::Graphics
         LINA_FIELD("Intensity", "Float", "", "")
         float intensity = 1.0f;
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             World::Component::SaveToArchive(oarchive);
             oarchive(color, intensity);
         }
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             World::Component::LoadFromArchive(iarchive);
             iarchive(color, intensity);
@@ -74,13 +74,13 @@ namespace Lina::Graphics
             return GetTypeID<PointLightComponent>();
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             LightComponent::SaveToArchive(oarchive);
             oarchive(distance);
         }
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             LightComponent::LoadFromArchive(iarchive);
             iarchive(distance);
@@ -105,13 +105,13 @@ namespace Lina::Graphics
             return GetTypeID<SpotLightComponent>();
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             LightComponent::SaveToArchive(oarchive);
             oarchive(distance, cutoff, outerCutoff);
         }
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             LightComponent::LoadFromArchive(iarchive);
             iarchive(distance, cutoff, outerCutoff);
@@ -127,12 +127,12 @@ namespace Lina::Graphics
             return GetTypeID<DirectionalLightComponent>();
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             LightComponent::SaveToArchive(oarchive);
         }
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             LightComponent::LoadFromArchive(iarchive);
         }

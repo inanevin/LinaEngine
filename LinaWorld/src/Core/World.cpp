@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Core/Entity.hpp"
 #include "Core/Component.hpp"
-#include "Data/Serialization/QueueSerialization.hpp"
+#include "Serialization/QueueSerialization.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Memory/MemoryManager.hpp"
@@ -196,7 +196,7 @@ namespace Lina::World
         Memory::MemoryManager::Get()->FreeFromPoolBlock<World::Entity>(e, index);
     }
 
-    void EntityWorld::SaveToArchive(cereal::PortableBinaryOutputArchive& archive)
+    void EntityWorld::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         const uint32 entitiesSize = static_cast<uint32>(m_entities.size());
         archive(m_nextID);
@@ -224,7 +224,7 @@ namespace Lina::World
             cache->SaveToArchive(archive);
     }
 
-    void EntityWorld::LoadFromArchive(cereal::PortableBinaryInputArchive& archive)
+    void EntityWorld::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
 
         uint32 entitiesSize = 0;

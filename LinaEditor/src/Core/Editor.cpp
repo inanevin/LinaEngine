@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Settings/EngineSettings.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/RenderSettings.hpp"
-#include "Core/ResourceDataManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "Core/LevelManager.hpp"
@@ -38,6 +37,9 @@ SOFTWARE.
 #include "Components/CameraComponent.hpp"
 #include "Components/EditorFreeLookComponent.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Resource/EditorResourceLoader.hpp"
+#include "Utility/UtilityFunctions.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -45,26 +47,26 @@ namespace Lina::Editor
     void EditorManager::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorManager::OnLevelInstalled>(this);
+        m_resLoader = new Resources::EditorResourceLoader();
+        Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
     }
 
     void EditorManager::VerifyStaticResources()
     {
         // Make sure the static resources needed are initialized.
-        if (!Utility::FileExists("Resources/lina.enginesettings"))
+        if (!Utility::FileExists("Resources/engine.linasettings"))
         {
             EngineSettings s;
-            Resources::SaveArchiveToFile<EngineSettings>("Resources/lina.enginesettings", s);
+            Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings", s);
         }
-        if (!Utility::FileExists("Resources/lina.rendersettings"))
+
+        if (!Utility::FileExists("Resources/render.linasettings"))
         {
             RenderSettings s;
-            Resources::SaveArchiveToFile<RenderSettings>("Resources/lina.rendersettings", s);
+            Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings", s);
         }
-        if (!Utility::FileExists("Resources/lina.resourcedata"))
-        {
-            Resources::ResourceDataManager s;
-            Resources::SaveArchiveToFile<Resources::ResourceDataManager>("Resources/lina.resourcedata", s);
-        }
+
+        Resources::ResourceManager::Get()->LoadAllMetadata();
     }
 
     void EditorManager::CreateEditorCamera()
@@ -74,7 +76,7 @@ namespace Lina::Editor
         e->SetRotationAngles(Vector3(0, 180, 0));
         Graphics::CameraComponent*      cam      = World::EntityWorld::Get()->AddComponent<Graphics::CameraComponent>(e);
         World::EditorFreeLookComponent* freeLook = World::EntityWorld::Get()->AddComponent<World::EditorFreeLookComponent>(e);
-        freeLook->rotationPower = 3.0f;
+        freeLook->rotationPower                  = 3.0f;
         Graphics::RenderEngine::Get()->GetLevelRenderer().GetCameraSystem().SetActiveCamera(cam);
     }
 

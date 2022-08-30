@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,16 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef PhysicsMaterial_HPP
 #define PhysicsMaterial_HPP
 
 #include "Utility/StringId.hpp"
-#include "Core/IResource.hpp"
-#include "Data/Serialization/StringSerialization.hpp"
+#include "Core/Resource.hpp"
+#include "Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -46,16 +44,22 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Physics
 {
-    class PhysicsMaterial : public Resources::IResource
+    class PhysicsMaterial : public Resources::Resource
     {
 
     public:
         PhysicsMaterial()  = default;
         ~PhysicsMaterial() = default;
 
+        template <class Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(m_staticFriction, m_dynamicFriction, m_restitution);
+        }
+
         static PhysicsMaterial* CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution);
-        virtual void*           LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void*           LoadFromFile(const String& path) override;
+        virtual Resource*       LoadFromMemory(const IStream& stream) override;
+        virtual Resource*       LoadFromFile(const String& path) override;
 
         float GetStaticFriction()
         {
@@ -71,7 +75,6 @@ namespace Lina::Physics
         }
 
     private:
-        friend class cereal::access;
         friend class World::Level;
         friend class PhysicsEngine;
 
@@ -79,11 +82,7 @@ namespace Lina::Physics
         float m_dynamicFriction = 0.5f;
         float m_restitution     = 0.5f;
 
-        template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_staticFriction, m_dynamicFriction, m_restitution);
-        }
+       
     };
 } // namespace Lina::Physics
 

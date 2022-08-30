@@ -30,6 +30,9 @@ set (LINACOMMON_SOURCES
 	# Log
 	src/Log/Log.cpp
 	
+	# Data
+	src/Data/Streams.cpp
+
 	# Events
 	src/EventSystem/EventSystem.cpp
 	
@@ -43,6 +46,9 @@ set (LINACOMMON_SOURCES
 	src/Math/Frustum.cpp
 	src/Math/AABB.cpp
 	src/Math/Plane.cpp
+
+	# Serialization
+	src/Serialization/Serialization.cpp
 	
 	# Memory
 	src/Memory/Memory.cpp
@@ -127,12 +133,7 @@ set(LINACOMMON_HEADERS
 	include/Data/DataCommon.hpp
 	include/Data/Bitmask.hpp
 	include/Data/Mutex.hpp
-	include/Data/Serialization/VectorSerialization.hpp
-	include/Data/Serialization/SetSerialization.hpp
-	include/Data/Serialization/StringSerialization.hpp
-	include/Data/Serialization/HashMapSerialization.hpp
-	include/Data/Serialization/MapSerialization.hpp
-	include/Data/Serialization/QueueSerialization.hpp
+	include/Data/Streams.hpp
 
 	# Memory
 	include/Memory/Memory.hpp
@@ -143,6 +144,17 @@ set(LINACOMMON_HEADERS
 	
 	# Utility
 	include/Utility/UtilityFunctions.hpp
+
+	# Serialization
+	include/Serialization/Archive.hpp
+	include/Serialization/Serialization.hpp
+	include/Serialization/VectorSerialization.hpp
+	include/Serialization/SetSerialization.hpp
+	include/Serialization/StringSerialization.hpp
+	include/Serialization/HashMapSerialization.hpp
+	include/Serialization/MapSerialization.hpp
+	include/Serialization/QueueSerialization.hpp
+	include/Serialization/CommonTypesSerialization.hpp
 
 	# Math
 	include/Math/Color.hpp
@@ -219,13 +231,17 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/String.hpp
 	include/Data/DataCommon.hpp
 	include/Data/Mutex.hpp
-	include/Data/Serialization/VectorSerialization.hpp
-	include/Data/Serialization/QueueSerialization.hpp
-	include/Data/Serialization/StringSerialization.hpp
-	include/Data/Serialization/SetSerialization.hpp
-	include/Data/Serialization/MapSerialization.hpp
-	include/Data/Serialization/HashMapSerialization.hpp
+	include/Data/Streams.hpp
 	include/Reflection/ReflectionSystem.hpp
+	include/Serialization/Archive.hpp
+	include/Serialization/Serialization.hpp
+	include/Serialization/VectorSerialization.hpp
+	include/Serialization/SetSerialization.hpp
+	include/Serialization/StringSerialization.hpp
+	include/Serialization/HashMapSerialization.hpp
+	include/Serialization/MapSerialization.hpp
+	include/Serialization/QueueSerialization.hpp
+	include/Serialization/CommonTypesSerialization.hpp
 	include/Memory/MemoryManager.hpp
 	include/EventSystem/EventCommon.hpp
 	include/EventSystem/WindowEvents.hpp

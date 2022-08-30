@@ -27,11 +27,12 @@ SOFTWARE.
 */
 
 #include "Core/Level.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "Core/ResourceHandle.hpp"
 #include "Core/World.hpp"
 #include "EventSystem/LevelEvents.hpp"
-#include <cereal/archives/portable_binary.hpp>
+#include "Utility/UtilityFunctions.hpp"
+#include "Serialization/Serialization.hpp"
 #include <fstream>
 #include <stdio.h>
 
@@ -48,33 +49,24 @@ namespace Lina::World
         m_usedResources = lvl.m_usedResources;
     }
 
-    void* Level::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* Level::LoadFromMemory(const IStream& stream)
     {
-        std::string        dataStr((char*)data, dataSize);
-        std::istringstream stream(dataStr, std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(*this);
-            m_world.LoadFromArchive(iarchive);
-        }
-
-        stream.clear();
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        // std::string        dataStr((char*)data, dataSize);
+        // std::istringstream stream(dataStr, std::ios::binary);
+        // {
+        //     cereal::PortableBinaryInputArchive iarchive(stream);
+        //     iarchive(*this);
+        //     m_world.LoadFromArchive(iarchive);
+        // }
+        //
+        // stream.clear();
+        // IResource::SetSID(path);
+        return this;
     }
 
-    void* Level::LoadFromFile(const String& path)
+    Resources::Resource* Level::LoadFromFile(const String& path)
     {
-        std::ifstream stream(path.c_str(), std::ios::binary);
-        {
-            cereal::PortableBinaryInputArchive iarchive(stream);
-            iarchive(*this);
-            m_world.LoadFromArchive(iarchive);
-        }
-
-        stream.close();
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        return this;
     }
 
     void Level::Uninstall()
@@ -86,30 +78,29 @@ namespace Lina::World
     void Level::SaveToFile(const String& path)
     {
         // Find the resources used by this level by adding all currently active resource handles.
-        auto*       storage = Resources::ResourceStorage::Get();
+        auto*       storage = Resources::ResourceManager::Get();
         const auto& caches  = storage->GetCaches();
         for (const auto& [tid, cache] : caches)
         {
-            const auto& handles = cache.GetResourceHandles();
+            const auto& handles = cache->GetResourceHandles();
             for (auto handle : handles)
             {
                 const StringID sid = handle->sid;
-                IResource*     res = static_cast<IResource*>(storage->GetResource(tid, sid));
-                m_usedResources[tid].insert(res->GetPath());
+                Resource*      res = static_cast<Resource*>(storage->GetResource(tid, sid));
+                m_usedResources.push_back(linatl::make_pair(handle->tid, res->GetPath()));
             }
         }
 
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        std::ofstream stream(path.c_str(), std::ios::binary);
-        {
-            cereal::PortableBinaryOutputArchive oarchive(stream);
-            oarchive(*this);
-            m_world.SaveToArchive(oarchive);
-        }
+        Serialization::SaveToFile<Level>(path);
+    }
 
-        stream.close();
+
+    void Level::LoadWithoutWorld(const String& path)
+    {
+       
     }
 
     void Level::ResourcesLoaded()

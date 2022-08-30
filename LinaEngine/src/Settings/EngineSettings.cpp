@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,19 +27,20 @@ SOFTWARE.
 */
 
 #include "Settings/EngineSettings.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina
 {
-    void* EngineSettings::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* EngineSettings::LoadFromMemory(const IStream& stream)
     {
-        *this = Resources::LoadArchiveFromMemory<EngineSettings>(path, data, dataSize);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        // *this = Resources::LoadArchiveFromMemory<EngineSettings>(path, data, dataSize);
+        // IResource::SetSID(path);
+        return this;
     }
-    void* EngineSettings::LoadFromFile(const String& path)
+
+    Resources::Resource* EngineSettings::LoadFromFile(const String& path)
     {
-        *this = Resources::LoadArchiveFromFile<EngineSettings>(path);
-        IResource::SetSID(path);
-        return static_cast<void*>(this);
+        Serialization::LoadFromFile<EngineSettings>(path, *this);
+        return this;
     }
-}
+} // namespace Lina

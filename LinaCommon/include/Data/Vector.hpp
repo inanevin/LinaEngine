@@ -33,11 +33,23 @@ SOFTWARE.
 #define DataStructuresVector_HPP
 
 #include <EASTL/vector.h>
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
     template <typename T>
     using Vector = eastl::vector<T>;
+
+
+    template<typename T>
+    void Serialize(OStream& stream, Vector<T>& vec)
+    {
+        const uint32 size = vec.size();
+        stream << size;
+        
+        for(auto& t : vec)
+            stream << t;
+    }
 
 } // namespace Lina
 

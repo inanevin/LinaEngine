@@ -36,6 +36,7 @@ SOFTWARE.
 // Headers here.
 #include <Data/String.hpp>
 #include "Core/CommonReflection.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -48,11 +49,10 @@ namespace Lina::Editor
 		EditorSettings() {};
 		~EditorSettings() {};
 
-		template <class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(m_textEditorPath);
-        }
+		void Save(OStream& stream)
+		{
+			// stream << m_textEditorPath;
+		}
 	
 		LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
 		String m_textEditorPath = "";

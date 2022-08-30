@@ -48,12 +48,12 @@ namespace Lina::Graphics
             return a;
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             RenderableComponent::SaveToArchive(oarchive);
         };
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
         {
             RenderableComponent::LoadFromArchive(iarchive);
         };

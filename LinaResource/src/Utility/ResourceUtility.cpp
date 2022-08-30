@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Utility/ResourceUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Core/CommonUtility.hpp"
@@ -62,7 +62,7 @@ namespace Lina::Resources
                         {
                             const StringID sid = HashedString(replacedFullPath.c_str()).value();
                             const TypeID       tid = outItem->typeID;
-                            Resources::ResourceStorage::Get()->Unload(tid, sid);
+                            Resources::ResourceManager::Get()->Unload(tid, sid);
                             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                         }
                         continue;
@@ -77,7 +77,7 @@ namespace Lina::Resources
                 else
                 {
                     const StringID sid = HashedString(replacedFullPath.c_str()).value();
-                    const TypeID       tid = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
+                    const TypeID       tid = Resources::ResourceManager::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
                     Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                 }
             }
@@ -93,7 +93,7 @@ namespace Lina::Resources
                 file->extension        = file->fullName.substr(file->fullName.find(".") + 1);
                 file->name             = Utility::GetFileWithoutExtension(file->fullName);
                 file->parent           = root;
-                file->typeID           = Resources::ResourceStorage::Get()->GetTypeIDFromExtension(file->extension);
+                file->typeID           = Resources::ResourceManager::Get()->GetTypeIDFromExtension(file->extension);
                 file->lastWriteTime    = std::filesystem::last_write_time(file->fullPath.c_str());
                 const StringID sid = HashedString(file->fullPath.c_str()).value();
                 file->sid              = sid;
@@ -122,7 +122,7 @@ namespace Lina::Resources
     void ResourceUtility::DeleteResourceFile(Utility::File* file)
     {
         if (file->typeID != -1)
-            Resources::ResourceStorage::Get()->Unload(file->typeID, file->fullPath);
+            Resources::ResourceManager::Get()->Unload(file->typeID, file->fullPath);
 
         for (Vector<Utility::File*>::iterator it = file->parent->files.begin(); it < file->parent->files.end(); it++)
         {
@@ -198,7 +198,7 @@ namespace Lina::Resources
             return "levels";
         case PackageType::Graphics:
             return "graphics";
-        case PackageType::Meshes:
+        case PackageType::Models:
             return "meshes";
         case PackageType::Physics:
             return "physics";

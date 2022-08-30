@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Resource/ModelNode.hpp"
 #include "Resource/StaticMesh.hpp"
 #include "Resource/SkinnedMesh.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/metadata.h>
 #include <assimp/postprocess.h>

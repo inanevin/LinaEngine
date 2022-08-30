@@ -28,36 +28,35 @@ SOFTWARE.
 
 #include "Resource/Material.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "Core/ResourceStorage.hpp"
-
+#include "Core/ResourceManager.hpp"
 namespace Lina::Graphics
 {
     Material::~Material()
     {
     }
 
-    void* Material::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* Material::LoadFromMemory(const IStream& stream)
     {
-        *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
-        IResource::SetSID(path);
-        FindShader();
-        return static_cast<void*>(this);
+       // *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+       // IResource::SetSID(path);
+       // FindShader();
+        return this;
     }
 
-    void* Material::LoadFromFile(const String& path)
+    Resources::Resource* Material::LoadFromFile(const String& path)
     {
-        *this = Resources::LoadArchiveFromFile<Material>(path);
-        IResource::SetSID(path);
-        FindShader();
-        return static_cast<void*>(this);
+       // *this = Resources::LoadArchiveFromFile<Material>(path);
+       // IResource::SetSID(path);
+       // FindShader();
+        return this;
     }
 
     void Material::FindShader()
     {
-        auto* storage = Resources::ResourceStorage::Get();
+        auto* manager = Resources::ResourceManager::Get();
 
-        if (storage->Exists(m_shader.tid, m_shader.sid))
-            m_shader.value = storage->GetResource<Shader>(m_shader.sid);
+        if (manager->Exists<Shader>(m_shader.sid))
+            m_shader.value = manager->GetResource<Shader>(m_shader.sid);
         else
             Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &Material::OnResourceLoaded>(this);
     }
@@ -67,10 +66,10 @@ namespace Lina::Graphics
         // Assign our shader if it's not loaded yet.
         if (ev.tid == GetTypeID<Shader>())
         {
-            auto* storage = Resources::ResourceStorage::Get();
+            auto* manager = Resources::ResourceManager::Get();
             if (ev.sid == m_shader.sid)
             {
-                m_shader.value = storage->GetResource<Shader>(m_shader.sid);
+                m_shader.value = manager->GetResource<Shader>(m_shader.sid);
                 Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
             }
         }

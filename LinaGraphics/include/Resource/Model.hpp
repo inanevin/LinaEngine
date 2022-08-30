@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Model_HPP
 #define Model_HPP
 
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Vertex.hpp"
 #include "Data/String.hpp"
@@ -48,7 +48,7 @@ namespace Lina::Graphics
 {
     class ModelNode;
 
-    class Model : public Resources::IResource
+    class Model : public Resources::Resource
     {
     public:
         struct AssetData
@@ -64,10 +64,10 @@ namespace Lina::Graphics
         Model() = default;
         virtual ~Model();
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-        virtual void  LoadAssetData() override;
-        virtual void  SaveAssetData() override;
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      LoadAssetData() override;
+        virtual void      SaveAssetData() override;
 
         World::Entity* AddToWorld(World::EntityWorld* w);
 

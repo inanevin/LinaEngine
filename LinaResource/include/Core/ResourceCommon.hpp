@@ -32,11 +32,12 @@ SOFTWARE.
 #define ResourceCommon_HPP
 
 // Headers here.
+#include "Functional/Functional.hpp"
+#include "Core/CommonMemory.hpp"
 #include "Data/String.hpp"
 
 namespace Lina::Resources
 {
-
     enum class ResourceProgressState
     {
         None,
@@ -52,9 +53,24 @@ namespace Lina::Resources
         Audio,
         Physics,
         Textures,
-        Meshes,
+        Models,
         Graphics,
     };
+
+    extern String GetPackageTypeName(PackageType type);
+    extern uint32 GetPackageVersion(PackageType type);
+
+    struct ResourceTypeData
+    {
+        PackageType    packageType   = PackageType::Static;
+        String         typeName      = "";
+        uint32         memChunkCount = 50;
+        Vector<String> associatedExtensions;
+        Color          debugColor;
+    };
+
+    class Resource;
+    typedef Delegate<Resource*(Memory::ResourceAllocator alloc)> ResourceAllocateFunc;
 
 #define PACKAGE_STATIC    "static"
 #define PACKAGE_ENGINERES "engineres"

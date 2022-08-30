@@ -76,7 +76,7 @@ namespace Lina
         }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -110,7 +110,7 @@ namespace Lina
         }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -239,7 +239,7 @@ namespace Lina
         }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -444,7 +444,7 @@ namespace Lina
         }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(x, y, z);
         }
@@ -669,7 +669,7 @@ namespace Lina
         }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(x, y, z, w);
         }

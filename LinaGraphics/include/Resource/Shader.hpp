@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Shader_HPP
 #define Shader_HPP
 
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
@@ -52,16 +52,16 @@ namespace Lina::Graphics
         Vector<unsigned int> byteCode;
     };
 
-    class Shader : public Resources::IResource
+    class Shader : public Resources::Resource
     {
     public:
         Shader() = default;
         virtual ~Shader();
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-        virtual void  LoadAssetData() override;
-        virtual void  SaveAssetData() override;
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      LoadAssetData() override;
+        virtual void      SaveAssetData() override;
 
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()
         {

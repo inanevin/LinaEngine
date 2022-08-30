@@ -41,6 +41,7 @@ SOFTWARE.
 #include <vulkan/vulkan.h>
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
+
 namespace Lina::Graphics
 {
 
@@ -253,7 +254,7 @@ namespace Lina::Graphics
 
     void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
-        Texture* txt = Resources::ResourceStorage::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
+        Texture* txt = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
 
         WriteDescriptorSet textureWrite = WriteDescriptorSet{
             .dstSet          = m_textureDescriptor._ptr,

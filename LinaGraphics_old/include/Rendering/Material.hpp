@@ -18,7 +18,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Core/CommonReflection.hpp"
 #include "Shader.hpp"
 #include "Data/Map.hpp"
-#include "Data/Serialization/MapSerialization.hpp"
+#include "Serialization/MapSerialization.hpp"
 
 
 namespace Lina::Graphics

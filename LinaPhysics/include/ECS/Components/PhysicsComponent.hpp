@@ -89,7 +89,6 @@ namespace Lina::Physics
         StringID m_attachedModelID = 0;
 
     private:
-        friend class cereal::access;
         friend class World::Level;
         friend class ECS::Registry;
         friend class Physics::PhysicsEngine;

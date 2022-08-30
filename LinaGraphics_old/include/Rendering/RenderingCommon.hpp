@@ -15,7 +15,6 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 
-#include <cereal/types/map.hpp>
 #include <Data/Serialization/VectorSerialization.hpp>
 #include <Data/Map.hpp>
 #include <Data/String.hpp>

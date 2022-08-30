@@ -32,31 +32,37 @@ SOFTWARE.
 #define EngineSettings_HPP
 
 // Headers here.
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Data/Vector.hpp"
-#include "Data/Serialization/VectorSerialization.hpp"
 #include "Data/String.hpp"
-
-#define VERSION_ENGINE_SETTINGS 2
-
-// History
-// 2: Packaged levels are added
+#include "Serialization/VectorSerialization.hpp"
+#include "Serialization/Serialization.hpp"
+#include "Serialization/QueueSerialization.hpp"
+#include "Serialization/CommonTypesSerialization.hpp"
+#include <variant>
 
 namespace Lina
 {
+
+
     class Engine;
 
     LINA_CLASS("Engine Settings")
-    class EngineSettings : public Resources::IResource
+    class EngineSettings : public Resources::Resource
     {
 
     public:
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
-        // Inherited via IResource
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+
+        template <typename Archive>
+        void Serialize(Archive& ar)
+        {
+            ar(m_packagedLevels);
+        }
 
         inline const Vector<String>& GetPackagedLevels()
         {
@@ -65,28 +71,13 @@ namespace Lina
 
     private:
         friend class Engine;
-        friend class cereal::access;
 
         // These are the sid accessors for the levels cooked with the game packages.
         // Level manager uses the first one to load
         Vector<String> m_packagedLevels;
-
-        template <class Archive>
-        void serialize(Archive& archive, std::uint32_t const version)
-        {
-            if (version == VERSION_ENGINE_SETTINGS)
-                archive(m_packagedLevels);
-            else
-            {
-                archive(m_dummy);
-            }
-        }
-
-        int m_dummy = 0;
     };
 
 } // namespace Lina
 
-CEREAL_CLASS_VERSION(Lina::EngineSettings, VERSION_ENGINE_SETTINGS);
 
 #endif

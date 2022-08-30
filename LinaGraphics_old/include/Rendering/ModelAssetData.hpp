@@ -16,7 +16,7 @@ Timestamp: 12/31/2021 8:18:10 PM
 #include "Core/CommonReflection.hpp"
 #include "Data/Map.hpp"
 #include "Data/Vector.hpp"
-#include "Data/Serialization/MapSerialization.hpp"
+#include "Serialization/MapSerialization.hpp"
 
 namespace Lina::Graphics
 {

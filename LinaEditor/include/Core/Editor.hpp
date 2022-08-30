@@ -42,6 +42,11 @@ namespace Lina
     {
         class Entity;
     }
+
+    namespace Resources
+    {
+        class EditorResourceLoader;
+    }
 } // namespace Lina
 
 namespace Lina::Editor
@@ -60,7 +65,8 @@ namespace Lina::Editor
         void SaveCurrentLevel();
 
     private:
-        World::Entity* m_editorCamera = nullptr;
+        Resources::EditorResourceLoader* m_resLoader;
+        World::Entity*                   m_editorCamera = nullptr;
     };
 } // namespace Lina::Editor
 

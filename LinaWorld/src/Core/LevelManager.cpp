@@ -28,10 +28,10 @@ SOFTWARE.
 
 #include "Core/LevelManager.hpp"
 #include "Core/Level.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/LevelEvents.hpp"
-#include "Loaders/ResourceLoader.hpp"
+#include "Core/ResourceLoader.hpp"
 
 namespace Lina::World
 {
@@ -59,11 +59,11 @@ namespace Lina::World
             // Uninstall current level.
             m_currentLevel->Uninstall();
             Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
-            Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
+            Resources::ResourceManager::Get()->Unload<Level>(m_currentLevel->GetSID());
         }
 
         // Load level file itself.
-        Resources::ResourceStorage* storage = Resources::ResourceStorage::Get();
+        Resources::ResourceManager* storage = Resources::ResourceManager::Get();
         storage->GetLoader()->LoadResource(GetTypeID<Level>(), path, false);
         m_currentLevel = storage->GetResource<Level>(path);
 
@@ -102,14 +102,14 @@ namespace Lina::World
 
         // Unload resources
         auto& resMap  = m_currentLevel->GetResources();
-        auto* storage = Resources::ResourceStorage::Get();
+        auto* storage = Resources::ResourceManager::Get();
         for (const auto& [tid, set] : resMap)
         {
             for (auto sid : set)
                 storage->Unload(tid, sid);
         }
 
-        Resources::ResourceStorage::Get()->Unload<Level>(m_currentLevel->GetSID());
+        Resources::ResourceManager::Get()->Unload<Level>(m_currentLevel->GetSID());
         m_currentLevel = nullptr;
     }
 
@@ -129,9 +129,9 @@ namespace Lina::World
 
     void LevelManager::CreateLevel(const String& path)
     {
-        Level lvl;
-        lvl.SaveToFile(path);
-        lvl.SetSID(path);
+       // Level lvl;
+       // lvl.SaveToFile(path);
+       // lvl.SetSID(path);
     }
 
 } // namespace Lina::World

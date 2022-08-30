@@ -158,20 +158,23 @@ namespace Lina::Memory
             block.allocated -= sizeof(T);
         }
 
+        PoolBlock* CreatePoolBlock(TypeID tid, uint32 chunkSize, uint32 chunkCount, const String& blockName)
+        {
+            PoolBlock    block;
+            const size_t totalSize = static_cast<size_t>(chunkSize * chunkCount);
+            block.allocator = new PoolAllocator(totalSize, chunkSize);
+            block.allocator->Init();
+            block.maxSize = totalSize;
+            block.chunkCount = chunkCount;
+            block.name = blockName;
+            m_poolBlocks[tid].push_back(block);
+            return &m_poolBlocks[tid][m_poolBlocks[tid].size() - 1];
+        }
+
         template <typename T>
         PoolBlock* CreatePoolBlock(uint32 chunkCount, const String& blockName)
         {
-            PoolBlock    block;
-            const uint32 chunkSize = sizeof(T);
-            const TypeID tid       = GetTypeID<T>();
-            const size_t totalSize = static_cast<size_t>(chunkSize * chunkCount);
-            block.allocator        = new PoolAllocator(totalSize, chunkSize);
-            block.allocator->Init();
-            block.maxSize    = totalSize;
-            block.chunkCount = chunkCount;
-            block.name       = blockName;
-            m_poolBlocks[tid].push_back(block);
-            return &m_poolBlocks[tid][m_poolBlocks[tid].size() - 1];
+            return CreatePoolBlock(GetTypeID<T>(), sizeof(T), chunkCount, blockName);
         }
 
         template <typename T>

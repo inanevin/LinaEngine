@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Core/PhysicsEngine.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/LevelManager.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
@@ -51,10 +51,6 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace Resources
-    {
-        class ResourceDataManager;
-    }
     class Application;
     class EngineSettings;
     class RenderSettings;
@@ -154,14 +150,13 @@ namespace Lina
 
     private:
         static Engine*                  s_engine;
-        Resources::ResourceStorage      m_resourceStorage;
+        Resources::ResourceManager      m_resourceManager;
         Physics::PhysicsEngine          m_physicsEngine;
         Audio::AudioEngine              m_audioEngine;
         Input::InputEngine              m_inputEngine;
         Event::EventSystem              m_eventSystem;
         World::LevelManager             m_levelManager;
         Graphics::RenderEngine          m_renderEngine;
-        Resources::ResourceDataManager* m_resourceDataManager;
         Memory::MemoryManager           m_memoryManager;
         JobSystem                       m_jobSystem;
         bool                            m_running           = false;

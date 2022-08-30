@@ -28,41 +28,41 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourcePackager_HPP
-#define ResourcePackager_HPP
+#ifndef DefaultResourceLoader_HPP
+#define DefaultResourceLoader_HPP
 
 // Headers here.
-#include "ResourceCommon.hpp"
+#include "Data/Vector.hpp"
 #include "Data/String.hpp"
 #include "Utility/StringId.hpp"
-#include "Data/HashSet.hpp"
-#include "Data/HashMap.hpp"
-#include "Core/CommonMemory.hpp"
 
 namespace Lina
 {
-    namespace Resources
-    {
-        class ResourceLoader;
-    }
-} // namespace Lina
+    class IStream;
+}
+
 namespace Lina::Resources
 {
-    class ResourcePackager
+    struct TidSid
     {
-    private:
-        friend class Engine;
-        friend class EditorResourceLoader;
-        friend class StandaloneResourceLoader;
-
-        void LoadPackage(const String& packageName, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
-        void LoadFilesFromPackage(const String& packageName, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
-        void UnpackAndLoad(const String& filePath, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
-        void UnpackAndLoad(const String& filePath, const HashSet<StringID>& filesToLoad, ResourceLoader* loader, Memory::ResourceAllocator allocator = Memory::ResourceAllocator::None);
-        void PackageProject(const String& path, const Vector<String>& levelsToPackage, const HashMap<TypeID, Vector<String>>& resourceMap);
-        void PackageFileset(Vector<String> files, const String& output);
+        TypeID   tid = 0;
+        StringID sid = 0;
     };
 
-}; // namespace Lina::Resources
+    class ResourceLoader
+    {
+    public:
+        ResourceLoader()          = default;
+        virtual ~ResourceLoader() = default;
+
+        virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources);
+        virtual void LoadEngineResources();
+        virtual void LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async);
+        virtual void LoadResource(TypeID tid, const String& path, bool async);
+
+    protected:
+        void CreateResource(TidSid tidSid, const IStream& stream, bool async);
+    };
+} // namespace Lina::Resources
 
 #endif

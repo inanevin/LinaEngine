@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,16 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef RenderSettings_HPP
 #define RenderSettings_HPP
 
 // Headers here.
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Data/Vector.hpp"
-#include "Data/Serialization/VectorSerialization.hpp"
+#include "Serialization/VectorSerialization.hpp"
 #include "Data/String.hpp"
 
 namespace Lina
@@ -43,26 +42,25 @@ namespace Lina
     class Engine;
 
     LINA_CLASS("Render Settings")
-    class RenderSettings : public Resources::IResource
+    class RenderSettings : public Resources::Resource
     {
 
     public:
-       RenderSettings()  = default;
+        RenderSettings()  = default;
         ~RenderSettings() = default;
 
-        // Inherited via IResource
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-
-    private:
-        friend class Engine;
-        friend class cereal::access;
-
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
             archive(m_dummy);
         }
+
+        // Inherited via IResource
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+
+    private:
+        friend class Engine;
 
         int m_dummy = 0;
     };

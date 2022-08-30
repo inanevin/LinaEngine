@@ -36,11 +36,11 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Data/Queue.hpp"
 #include "Data/HashMap.hpp"
-#include "Data/Serialization/HashMapSerialization.hpp"
-#include "Data/Serialization/QueueSerialization.hpp"
+#include "Serialization/HashMapSerialization.hpp"
+#include "Serialization/QueueSerialization.hpp"
+#include "Serialization/Archive.hpp"
 
 #include <functional>
-#include <cereal/archives/portable_binary.hpp>
 
 namespace Lina
 {
@@ -59,8 +59,6 @@ namespace Lina::World
 {
     typedef std::function<void()>                                     CacheDestroyFunction;
     typedef std::function<void*()>                                    CacheCreateFunction;
-    typedef std::function<void(cereal::PortableBinaryOutputArchive&)> CacheSaveFunction;
-    typedef std::function<void(cereal::PortableBinaryInputArchive&)>  CacheLoadFunction;
 
 #define COMPONENT_VEC_SIZE_CHUNK 2000
 
@@ -73,8 +71,8 @@ namespace Lina::World
         virtual ComponentCacheBase* CopyCreate()                                                                     = 0;
         virtual void                OnEntityDestroyed(Entity* e)                                                     = 0;
         virtual void                Destroy()                                                                        = 0;
-        virtual void                SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive)                     = 0;
-        virtual void                LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive, Entity** entities) = 0;
+        virtual void                SaveToArchive(Serialization::Archive<OStream>& oarchive)                     = 0;
+        virtual void                LoadFromArchive(Serialization::Archive<IStream>& iarchive, Entity** entities) = 0;
     };
 
     template <typename T>
@@ -199,7 +197,7 @@ namespace Lina::World
             m_components.clear();
         }
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive) override
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
             const uint32 compsSize = static_cast<uint32>(m_components.size());
             oarchive(m_availableIDs);
@@ -222,7 +220,7 @@ namespace Lina::World
             }
         }
 
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive, Entity** entities) override
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive, Entity** entities) override
         {
             uint32 compsSize = 0;
             iarchive(m_availableIDs);

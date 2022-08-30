@@ -35,6 +35,7 @@ SOFTWARE.
 #include "ComponentCache.hpp"
 #include "Data/Queue.hpp"
 #include "Reflection/ReflectionSystem.hpp"
+#include "Serialization/Archive.hpp"
 #include "Data/FixedList.hpp"
 
 namespace Lina
@@ -123,8 +124,8 @@ namespace Lina::World
             Cache<T>()->DestroyComponent(e);
         }
 
-        void SaveToArchive(cereal::PortableBinaryOutputArchive& archive);
-        void LoadFromArchive(cereal::PortableBinaryInputArchive& archive);
+        void SaveToArchive(Serialization::Archive<OStream>& archive);
+        void LoadFromArchive(Serialization::Archive<IStream>& archive);
 
     private:
         void DestroyEntityData(Entity* e);

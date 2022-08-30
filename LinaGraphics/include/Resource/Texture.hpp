@@ -31,14 +31,14 @@ SOFTWARE.
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "Core/IResource.hpp"
+#include "Core/Resource.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/Image.hpp"
 #include "PipelineObjects/Sampler.hpp"
 
 namespace Lina::Graphics
 {
-    class Texture : public Resources::IResource
+    class Texture : public Resources::Resource
     {
         struct AssetData
         {
@@ -52,10 +52,10 @@ namespace Lina::Graphics
         Texture() = default;
         ~Texture();
 
-        virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
-        virtual void  LoadAssetData() override;
-        virtual void  SaveAssetData() override;
+        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      LoadAssetData() override;
+        virtual void      SaveAssetData() override;
 
         inline Image& GetImage()
         {

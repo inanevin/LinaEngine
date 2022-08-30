@@ -35,7 +35,7 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "Core/ResourceStorage.hpp"
+#include "Core/ResourceManager.hpp"
 
 #include "Resource/Model.hpp"
 #include "Resource/ModelNode.hpp"
@@ -203,8 +203,9 @@ namespace Lina::Graphics
 
     void RenderEngine::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
-        m_placeholderMaterial  = Resources::ResourceStorage::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
-        m_placeholderModel     = Resources::ResourceStorage::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx");
+    return;
+        m_placeholderMaterial  = Resources::ResourceManager::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
+        m_placeholderModel     = Resources::ResourceManager::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx");
         m_placeholderModelNode = m_placeholderModel->GetRootNode();
     }
 

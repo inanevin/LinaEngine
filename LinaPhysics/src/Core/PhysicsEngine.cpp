@@ -34,7 +34,6 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
-#include "Core/ResourceStorage.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Physics/Raycast.hpp"
 #include <PxPhysicsAPI.h>

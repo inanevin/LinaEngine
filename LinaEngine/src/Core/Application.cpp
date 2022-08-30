@@ -37,11 +37,10 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/ResourceUtility.hpp"
 
-
 namespace Lina
 {
 
-    Application*    Application::s_application = nullptr;
+    Application* Application::s_application = nullptr;
 
     void Application::Cleanup()
     {
@@ -104,8 +103,6 @@ namespace Lina
 
         m_ranOnce = true;
         m_engine.Run();
-
-
     }
 
     bool Application::OnWindowClose(const Event::EWindowClosed& ev)
@@ -124,14 +121,16 @@ namespace Lina
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {
+#ifndef LINA_PRODUCTION_BUILD
+        LOCK_GUARD(m_infoLock);
         const int   processed = ++m_resourceProgressCurrentProcessed;
         const float perc      = static_cast<float>(processed) / static_cast<float>(m_resourceProgressCurrentTotalFiles);
         LINA_INFO("{0} - [{1}] - [{2}] - [{3}%]", m_resourceProgressCurrentTitle, HashedString(ev.currentResource.c_str()).value(), ev.currentResource, perc * 100.0f);
+#endif
     }
 
     void Application::OnResourceProgressStarted(const Event::EResourceProgressStarted& ev)
     {
-        LOCK_GUARD(m_infoLock);
         m_resourceProgressCurrentTotalFiles = ev.totalFiles;
         m_resourceProgressCurrentTitle      = ev.title;
     }

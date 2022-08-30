@@ -79,7 +79,8 @@ namespace Lina
         static Color Brown;
         static Color Gray;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive>
+        void Serialize(Archive& archive)
         {
             archive(r, g, b, a);
         }

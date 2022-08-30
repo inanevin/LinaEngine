@@ -85,7 +85,7 @@ namespace Lina
         String ToString();
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void Serialize(Archive& archive)
         {
 
             archive((*this)[0][0], (*this)[0][1], (*this)[0][2], (*this)[0][3], (*this)[1][0], (*this)[1][1], (*this)[1][2], (*this)[1][3], (*this)[2][0], (*this)[2][1], (*this)[2][2], (*this)[2][3], (*this)[3][0], (*this)[3][1], (*this)[3][2], (*this)[3][3]);

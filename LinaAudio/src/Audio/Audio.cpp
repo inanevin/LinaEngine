@@ -27,10 +27,8 @@ SOFTWARE.
 */
 
 #include "Audio/Audio.hpp"
-#include "Core/ResourceStorage.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Core/ResourceDataManager.hpp"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -44,76 +42,69 @@ namespace Lina::Audio
         alDeleteBuffers(1, &m_buffer);
     }
 
-    void* Audio::LoadFromMemory(const String& path, unsigned char* data, size_t dataSize)
+    Resources::Resource* Audio::LoadFromMemory(const IStream& stream)
     {
-        ALsizei size;
-        ALfloat freq;
-        ALenum  format;
-        ALvoid* aldata = alutLoadMemoryFromFileImage(data, (ALsizei)dataSize, &format, &size, &freq);
-
-        ALenum err = alutGetError();
-        LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
-
-        m_data   = aldata;
-        m_format = format;
-        m_size   = size;
-        m_freq   = freq;
-
-        LoadAssetData();
-        alGenBuffers((ALuint)1, &m_buffer);
-        alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
-        free(aldata);
+        //   ALsizei size;
+        //   ALfloat freq;
+        //   ALenum  format;
+        //   ALvoid* aldata = alutLoadMemoryFromFileImage(data, (ALsizei)dataSize, &format, &size, &freq);
+        //
+        //   ALenum err = alutGetError();
+        //   LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
+        //
+        //   m_data   = aldata;
+        //   m_format = format;
+        //   m_size   = size;
+        //   m_freq   = freq;
+        //
+        //   LoadAssetData();
+        //   alGenBuffers((ALuint)1, &m_buffer);
+        //   alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
+        //   free(aldata);
 
 #ifdef LINA_DEBUG
         CheckForError();
 #endif
 
-        return static_cast<void*>(this);
+        return this;
     }
 
-    void* Audio::LoadFromFile(const String& path)
+    Resources::Resource* Audio::LoadFromFile(const String& path)
     {
-        IResource::SetSID(path);
-        ALsizei size;
-        ALfloat freq;
-        ALenum  format;
-        ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
-
-        ALenum err = alutGetError();
-        LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
-
-        m_data   = data;
-        m_format = format;
-        m_size   = size;
-        m_freq   = freq;
-
-        LoadAssetData();
-        alGenBuffers((ALuint)1, &m_buffer);
-        alBufferData(m_buffer, format, data, size, (ALsizei)freq);
-        free(data);
+        //  IResource::SetSID(path);
+        //  ALsizei size;
+        //  ALfloat freq;
+        //  ALenum  format;
+        //  ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
+        //
+        //  ALenum err = alutGetError();
+        //  LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
+        //
+        //  m_data   = data;
+        //  m_format = format;
+        //  m_size   = size;
+        //  m_freq   = freq;
+        //
+        //  LoadAssetData();
+        //  alGenBuffers((ALuint)1, &m_buffer);
+        //  alBufferData(m_buffer, format, data, size, (ALsizei)freq);
+        //  free(data);
 
 #ifdef LINA_DEBUG
         CheckForError();
 #endif
 
-        return static_cast<void*>(this);
+        return this;
     }
 
     void Audio::LoadAssetData()
     {
-        auto dm = Resources::ResourceDataManager::Get();
-        if (!dm->Exists(m_sid))
-            SaveAssetData();
-
-        m_assetData.dummy = Resources::ResourceDataManager::Get()->GetValue<int>(m_sid, "Dummy");
+        
     }
 
     void Audio::SaveAssetData()
     {
-        auto* dm = Resources::ResourceDataManager::Get();
-        dm->CleanSlate(m_sid);
-        dm->SetValue<int>(m_sid, "Dummy", 0);
-        dm->Save();
+      
     }
 
     void Audio::CheckForError()

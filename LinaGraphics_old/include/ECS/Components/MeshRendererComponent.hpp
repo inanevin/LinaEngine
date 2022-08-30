@@ -12,7 +12,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 
-#include "Data/Serialization/StringSerialization.hpp"
+#include "Serialization/StringSerialization.hpp"
 #include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina::ECS
@@ -31,7 +31,8 @@ namespace Lina::ECS
         int              m_nodeID              = -1;
         bool             m_excludeFromDrawList = false;
 
-        template <class Archive> void serialize(Archive& archive)
+        template <class Archive> 
+        void Serialize(Archive& archive)
         {
             archive(m_excludeFromDrawList, m_isEnabled, m_modelPath, m_materialPath, m_totalVertexCenter, m_totalBoundsMin, m_totalBoundsMax, m_totalHalfBounds);
         }

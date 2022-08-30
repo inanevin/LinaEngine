@@ -17,7 +17,7 @@ Timestamp: 12/8/2021 12:27:21 PM
 #include "Math/Matrix.hpp"
 #include "Utility/StringId.hpp"
 
-#include "Data/Serialization/StringSerialization.hpp"
+#include "Serialization/StringSerialization.hpp"
 #include <Data/Serialization/VectorSerialization.hpp>
 
 namespace Lina
@@ -47,6 +47,12 @@ namespace Lina::ECS
     struct ModelRendererComponent : public Component
     {
 
+        template <class Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(m_modelPath, m_modelParamsPath, m_materialCount, m_materialPaths, m_isEnabled, m_generateMeshPivots);
+        }
+
         void SetModel(ECS::Entity parent, Graphics::Model& model);
         void RemoveModel(ECS::Entity parent);
         void SetMaterial(ECS::Entity parent, int materialIndex, const Graphics::Material& material);
@@ -55,7 +61,7 @@ namespace Lina::ECS
         {
             return m_generateMeshPivots;
         }
-        void         RefreshHierarchy(ECS::Entity parent);
+        void     RefreshHierarchy(ECS::Entity parent);
         StringID GetModelID()
         {
             return m_modelID;
@@ -79,17 +85,12 @@ namespace Lina::ECS
         friend class World::Level;
         friend class Editor::ComponentDrawer;
 
-        StringID             m_modelID         = 0;
-        String              m_modelPath       = "";
-        String              m_modelParamsPath = "";
+        StringID       m_modelID         = 0;
+        String         m_modelPath       = "";
+        String         m_modelParamsPath = "";
         Vector<String> m_materialPaths;
-        int                      m_materialCount      = -1;
-        bool                     m_generateMeshPivots = false;
-
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(m_modelPath, m_modelParamsPath, m_materialCount, m_materialPaths, m_isEnabled, m_generateMeshPivots);
-        }
+        int            m_materialCount      = -1;
+        bool           m_generateMeshPivots = false;
     };
 } // namespace Lina::ECS
 

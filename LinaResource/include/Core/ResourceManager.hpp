@@ -28,185 +28,117 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourceStorage_HPP
-#define ResourceStorage_HPP
+#ifndef ResourceManager_HPP
+#define ResourceManager_HPP
 
 // Headers here.
-#include "Core/ResourcePackager.hpp"
-#include "Core/ResourceCommon.hpp"
-#include "Utility/StringId.hpp"
-#include "Log/Log.hpp"
-#include "EventSystem/ResourceEvents.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "Math/Color.hpp"
-#include "Data/Vector.hpp"
+#include "ResourceCache.hpp"
 #include "Data/HashMap.hpp"
-#include "Data/Set.hpp"
-#include "Core/IResource.hpp"
-#include "Core/PlatformMacros.hpp"
 
 namespace Lina
 {
-    class Engine;
-
-    namespace Event
+    namespace Editor
     {
-        struct EResourcePathUpdated;
-        struct EResourceReloaded;
-        struct EResourceUnloaded;
-        struct EResourceLoaded;
-    } // namespace Event
+        class EditorManager;
+    }
 } // namespace Lina
 
 namespace Lina::Resources
 {
-
     class ResourceLoader;
-    class ResourceHandleBase;
-    struct ResourceCache;
-    typedef ParallelHashMapMutex<StringID, void*>       ResourceMap;
-    typedef ParallelHashMapMutex<TypeID, ResourceCache> CacheMap;
 
-    struct ResourceTypeData
-    {
-        TypeID                      tid          = 0;
-        PackageType                 packageType  = PackageType::Custom;
-        ResourceCreateFunc          createFunc;
-        ResourceCreateFromAllocFunc createFromAllocFunc;
-        ResourceDeleteFromAllocFunc deleteFromAllocFunc;
-        Vector<String>              associatedExtensions;
-        Color                       debugColor = Color::White;
-    };
-
-    struct ResourceCache
+    class ResourceManager
     {
     public:
-        inline const ResourceTypeData& GetTypeData() const
-        {
-            return m_typeData;
-        }
-
-        inline const HashSet<ResourceHandleBase*>& GetResourceHandles() const
-        {
-            return m_handles;
-        }
-
-    private:
-        friend class ResourceStorage;
-        friend class ResourceLoader;
-        friend class ResourcePackager;
-
-        void  Add(StringID sid, void* ptr);
-        void  Remove(StringID sid);
-        bool  Exists(StringID sid);
-        void  Unload(StringID sid, bool removeFromMap = true);
-        void  UnloadAll();
-        void* GetResource(StringID sid);
-        void  AddResourceHandle(ResourceHandleBase* handle);
-        void  RemoveResourceHandle(ResourceHandleBase* handle);
-
-    private:
-        ResourceTypeData             m_typeData;
-        HashSet<ResourceHandleBase*> m_handles;
-        ResourceMap                  m_resources;
-    };
-
-    class ResourceStorage
-    {
-
-    public:
-        static ResourceStorage* Get()
+        inline static ResourceManager* Get()
         {
             return s_instance;
         }
 
-        void Add(void* ptr, TypeID tid, StringID sid)
+        void   InjectResourceLoader(ResourceLoader* loader);
+        TypeID GetTypeIDFromExtension(const String& ext);
+
+        template <typename T>
+        void RegisterResourceType(const ResourceTypeData& typeData)
         {
-            m_caches[tid].Add(sid, ptr);
+            const TypeID tid = GetTypeID<T>();
+            const auto&  it  = m_caches.find(tid);
+
+            if (it == m_caches.end())
+            {
+                m_caches[tid] = new ResourceCache<T>();
+                m_caches[tid]->Initialize(typeData);
+            }
+        }
+
+        inline ResourceCacheBase* GetCache(TypeID tid)
+        {
+            return m_caches[tid];
+        }
+
+        template <typename T>
+        ResourceCache<T>* GetCache()
+        {
+            auto* c = m_caches[GetTypeID<T>()];
+            return static_cast<ResourceCache<T>*>(c);
         }
 
         template <typename T>
         bool Exists(StringID sid)
         {
-            return m_caches[GetTypeID<T>()].Exists(sid);
-        }
-
-        template <typename T>
-        bool Exists(const String& path)
-        {
-            return m_caches[GetTypeID<T>()].Exists(HashedString(path.c_str()).value());
+            const TypeID      tid   = GetTypeID<T>();
+            ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+            return cache->Exists(sid);
         }
 
         bool Exists(TypeID tid, StringID sid)
         {
-            return m_caches[tid].Exists(sid);
-        }
-
-        template <typename T>
-        T* GetResource(StringID sid)
-        {
-            return static_cast<T*>(m_caches[GetTypeID<T>()].GetResource(sid));
+            return m_caches[tid]->Exists(sid);
         }
 
         template <typename T>
         T* GetResource(const String& path)
         {
-            return static_cast<T*>(m_caches[GetTypeID<T>()].GetResource(HashedString(path.c_str()).value()));
-        }
-
-        void* GetResource(TypeID tid, StringID sid)
-        {
-            return m_caches[tid].GetResource(sid);
-        }
-
-        void Unload(TypeID tid, const StringID sid)
-        {
-            m_caches[tid].Unload(sid);
+            const StringID    sid   = HashedString(path.c_str());
+            const TypeID      tid   = GetTypeID<T>();
+            ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+            return cache->GetResource(sid);
         }
 
         template <typename T>
-        void Unload(const String& path)
+        T* GetResource(const StringID sid)
         {
-            m_caches[GetTypeID<T>()].Unload(HashedString(path.c_str()).value());
+            const TypeID      tid   = GetTypeID<T>();
+            ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+            return cache->GetResource(sid);
         }
 
         template <typename T>
         void Unload(StringID sid)
         {
-            m_caches[GetTypeID<T>()].Unload(sid);
+            const TypeID      tid   = GetTypeID<T>();
+            ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+            cache->Unload(sid);
         }
 
-        inline void Unload(TypeID tid, const String& path)
+        void Unload(TypeID tid, StringID sid)
         {
-            m_caches[tid].Unload(HashedString(path.c_str()).value());
+            m_caches[tid]->UnloadBase(sid);
         }
 
-        inline void UnloadAllPerType(TypeID tid)
+        void Unload(TypeID tid, const String& path)
         {
-            m_caches[tid].UnloadAll();
+            m_caches[tid]->UnloadBase(HashedString(path.c_str()).value());
         }
 
-        template <typename T>
-        void RegisterResourceType(const ResourceTypeData& data)
+        Resource* GetResource(TypeID tid, StringID sid)
         {
-            TypeID tid                   = GetTypeID<T>();
-            m_caches[tid].m_typeData     = data;
-            m_caches[tid].m_typeData.tid = tid;
+            return m_caches[tid]->GetResourceBase(sid);
         }
 
-        inline void AddResourceHandle(ResourceHandleBase* handle, TypeID tid)
+        inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches()
         {
-            m_caches[tid].AddResourceHandle(handle);
-        }
-
-        inline void RemoveResourceHandle(ResourceHandleBase* handle, TypeID tid)
-        {
-            m_caches[tid].RemoveResourceHandle(handle);
-        }
-
-        inline const ResourceTypeData& GetTypeData(TypeID tid)
-        {
-            return m_caches[tid].m_typeData;
+            return m_caches;
         }
 
         inline ResourceLoader* GetLoader()
@@ -214,35 +146,24 @@ namespace Lina::Resources
             return m_loader;
         }
 
-        inline const CacheMap& GetCaches()
-        {
-            return m_caches;
-        }
-
-        void   UnloadAll();
-        void   Load(TypeID tid, const String& path, bool loadAsync);
-        String GetPathFromSID(StringID sid);
-        TypeID GetTypeIDFromExtension(const String& extension);
+        void SaveAllMetadata();
 
     private:
         friend class Engine;
-        friend class ResourceLoader;
-        friend class ResourcePackager;
+        friend class Editor::EditorManager;
+        friend class ResourceCacheBase;
 
-        ResourceStorage()  = default;
-        ~ResourceStorage() = default;
-
+        ResourceManager()  = default;
+        ~ResourceManager() = default;
         void Initialize();
         void Shutdown();
-        void OnResourceLoaded(const Event::EResourceLoaded& ev);
-        void OnResourcePathUpdated(const Event::EResourcePathUpdated& ev);
-        void OnResourceReloaded(const Event::EResourceReloaded& ev);
-        void OnResourceUnloaded(const Event::EResourceUnloaded& ev);
+        void LoadEngineResources();
+        void LoadAllMetadata();
 
     private:
-        static ResourceStorage* s_instance;
-        CacheMap                m_caches;
-        ResourceLoader*         m_loader = nullptr;
+        static ResourceManager*             s_instance;
+        ResourceLoader*                     m_loader = nullptr;
+        HashMap<TypeID, ResourceCacheBase*> m_caches;
     };
 } // namespace Lina::Resources
 

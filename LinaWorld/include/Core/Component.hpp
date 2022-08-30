@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/StringId.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include <cereal/archives/portable_binary.hpp>
+#include "Serialization/Archive.hpp"
 
 namespace Lina::World
 {
@@ -49,8 +49,8 @@ namespace Lina::World
 
         virtual TypeID GetTID() = 0;
 
-        virtual void SaveToArchive(cereal::PortableBinaryOutputArchive& oarchive);
-        virtual void LoadFromArchive(cereal::PortableBinaryInputArchive& iarchive);
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive);
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive);
         virtual void OnComponentCreated();
         virtual void OnComponentDestroyed();
 
