@@ -39,7 +39,7 @@ namespace Lina::Serialization
     void WriteSet(Archive<OStream>& ar, T& set)
     {
         const uint32 size = static_cast<uint32>(set.size());
-        ar.m_stream << size;
+        ar(size);
 
         for (auto& i : set)
             ar(i);
@@ -49,8 +49,7 @@ namespace Lina::Serialization
     void ReadSet(Archive<IStream>& ar, T& set)
     {
         uint32 size = 0;
-        ar.m_stream >> size;
-
+        ar(size);
         set.clear();
 
         for (uint32 i = 0; i < size; i++)

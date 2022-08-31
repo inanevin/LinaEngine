@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef QueueSerialization_HPP
@@ -38,14 +37,14 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-    template<typename T>
+    template <typename T>
     struct Serialize_NonTrivial<Archive<OStream>, Queue<T>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, Queue<T>& q)
         {
             const uint32 size = static_cast<uint32>(q.size());
-            ar.m_stream << size;
+            ar(size);
 
             Queue<T> rep = q;
 
@@ -58,14 +57,14 @@ namespace Lina::Serialization
         }
     };
 
-    template<typename T>
+    template <typename T>
     struct Serialize_NonTrivial<Archive<IStream>, Queue<T>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, Queue<T>& q)
         {
             uint32 size = 0;
-            ar.m_stream >> size;
+            ar(size);
 
             q = Queue<T>();
 
@@ -78,14 +77,14 @@ namespace Lina::Serialization
         }
     };
 
-    template<typename T, typename Container, typename Compare>
+    template <typename T, typename Container, typename Compare>
     struct Serialize_NonTrivial<Archive<OStream>, PriorityQueue<T, Container, Compare>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, PriorityQueue<T, Container, Compare>& q)
         {
             const uint32 size = static_cast<uint32>(q.size());
-            ar.m_stream << size;
+            ar(size);
 
             Queue<T, Container> rep = q;
 
@@ -98,14 +97,14 @@ namespace Lina::Serialization
         }
     };
 
-    template<typename T, typename Container, typename Compare>
+    template <typename T, typename Container, typename Compare>
     struct Serialize_NonTrivial<Archive<IStream>, PriorityQueue<T, Container, Compare>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, PriorityQueue<T, Container, Compare>& q)
         {
             uint32 size = 0;
-            ar.m_stream >> size;
+            ar(size);
 
             q = Queue<T, Container>();
 
@@ -117,6 +116,6 @@ namespace Lina::Serialization
             }
         }
     };
-}
+} // namespace Lina::Serialization
 
 #endif

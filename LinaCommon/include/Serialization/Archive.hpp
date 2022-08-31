@@ -37,10 +37,6 @@ SOFTWARE.
 namespace Lina::Serialization
 {
     // https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature
-    // Primary template with a static assertion
-    // for a meaningful error message
-    // if it ever gets instantiated.
-    // We could leave it undefined if we didn't care.
     template <typename, typename T>
     struct HasSerialize
     {
@@ -105,8 +101,6 @@ namespace Lina::Serialization
         static constexpr bool value = type::value;
     };
 
-    
-
     // Specialize this template to serialize types such as vectors, maps and other external data structures.
     template <class Ar, typename T>
     struct Serialize_NonTrivial
@@ -125,6 +119,18 @@ namespace Lina::Serialization
         {
             LINA_ERR("You are missing a serialize complex function! {0}", typeid(T).name());
         }
+    };
+
+    template <typename T>
+    inline void Serialize_BasicType(OStream& stream, T& u)
+    {
+        stream << u;
+    };
+
+    template <typename T>
+    inline void Serialize_BasicType(IStream& stream, T& u)
+    {
+        stream >> u;
     };
 
     // If the type has Serialize() func.
@@ -154,37 +160,35 @@ namespace Lina::Serialization
         a.Serialize(archive, obj);
     }
 
+    template <typename T, typename U>
+    typename std::enable_if<std::is_class<T>::value>::type
+    SerializeType(T& obj, U& archive)
+    {
+        SerializeComplex(obj, archive);
+    }
+
+    template <typename T, typename U>
+    typename std::enable_if<!std::is_class<T>::value>::type
+    SerializeType(T& obj, U& archive)
+    {
+        Serialize_BasicType(archive.GetStream(), obj);
+    }
+
     template <typename StreamType>
     class Archive
     {
     public:
-        void Destroy()
+        uint32 Version = 0;
+
+        inline StreamType& GetStream()
         {
-            m_stream.Destroy();
+            return m_stream;
         }
-
-        template <typename T>
-        inline void Serialize_BasicType(OStream& stream, T& u)
-        {
-            stream << u;
-        };
-
-        template <typename T>
-        inline void Serialize_BasicType(IStream& stream, T& u)
-        {
-            stream >> u;
-        };
 
         template <typename T>
         void Serialize_Impl(T& arg)
         {
-            if (std::is_class<T>::value)
-            {
-                SerializeComplex(arg, *this);
-                return;
-            }
-
-            Serialize_BasicType(m_stream, arg);
+            SerializeType(arg, *this);
         }
 
         template <class... Types>
@@ -194,8 +198,8 @@ namespace Lina::Serialization
             return *this;
         }
 
+    private:
         StreamType m_stream;
-        uint32     m_version = 0;
     };
 
     template <typename T>

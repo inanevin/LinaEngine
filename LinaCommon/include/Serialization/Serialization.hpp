@@ -48,7 +48,6 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-
     template <typename T>
     uint32 GetClassVersion()
     {
@@ -68,14 +67,20 @@ namespace Lina::Serialization
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
+        // Create
         Archive<OStream> arch;
-        arch.m_stream.CreateReserve(sizeof(T));
-        const uint32 classVersion = GetClassVersion<T>();
-        arch.m_version            = classVersion;
-        arch(classVersion);
+        arch.GetStream().CreateReserve(sizeof(T));
+
+        // Header
+        // const uint32 classVersion = GetClassVersion<T>();
+        // arch.Version              = classVersion;
+        // arch(classVersion);
+
+        // Write obj
         arch(obj);
 
-        wf.write((char*)arch.m_stream.m_data, arch.m_stream.m_currentSize);
+        // Copy to ofstream & write file.
+        arch.GetStream().WriteToStream(wf);
         wf.close();
 
         if (!wf.good())
@@ -84,7 +89,7 @@ namespace Lina::Serialization
             return;
         }
 
-        arch.m_stream.Destroy();
+        arch.GetStream().Destroy();
     }
 
     extern void SaveArchiveToFile(const String& path, Archive<OStream>& archive);
@@ -92,7 +97,7 @@ namespace Lina::Serialization
     template <typename T>
     void SaveToFile(const String& path)
     {
-        T obj;
+        T obj = T();
         SaveToFile<T>(path, obj);
     }
 
@@ -109,32 +114,37 @@ namespace Lina::Serialization
 
         auto size = std::filesystem::file_size(path.c_str());
 
+        // Create
         Archive<IStream> arch;
-        arch.m_stream.Create(size);
-        rf.read(arch.m_stream.m_data, size);
+        arch.GetStream().Create(size);
+
+        // Read from ifstream
+        arch.GetStream().ReadFromStream(rf);
         rf.close();
 
         if (!rf.good())
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
-        uint32 version;
-        arch(version);
-        arch.m_version = version;
+        // Header
+       // uint32 version;
+       // arch(version);
+       // arch.Version = version;
 
-        if (version != GetClassVersion<T>())
-        {
-            LINA_WARN("[Serialization] -> Class versions do not match, loading default class.");
-            return;
-        }
+       // if (version != GetClassVersion<T>())
+       // {
+       //     LINA_WARN("[Serialization] -> Class versions do not match, loading default class.");
+       //     return;
+       // }
 
+        // Read objects.
         arch(obj);
-        arch.m_stream.Destroy();
+        arch.GetStream().Destroy();
     }
 
     template <typename T>
     T LoadFromFile(const String& path)
     {
-        T obj;
+        T obj = T();
         LoadFromFile<T>(path, obj);
         return obj;
     }

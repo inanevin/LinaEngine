@@ -34,7 +34,7 @@ namespace Lina::Serialization
     void SaveArchiveToFile(const String& path, Archive<OStream>& archive)
     {
         std::ofstream wf(path.c_str(), std::ios::out | std::ios::binary);
-        
+
         if (!wf)
         {
             LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
@@ -44,7 +44,8 @@ namespace Lina::Serialization
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        wf.write((char*)archive.m_stream.m_data, archive.m_stream.m_currentSize);
+        // Copy data to ofstream & write file
+        archive.GetStream().WriteToStream(wf);
         wf.close();
 
         if (!wf.good())
@@ -53,7 +54,7 @@ namespace Lina::Serialization
             return;
         }
 
-        archive.Destroy();
+        archive.GetStream().Destroy();
     }
 
     Archive<IStream> LoadArchiveFromFile(const String& path)
@@ -68,9 +69,12 @@ namespace Lina::Serialization
 
         auto size = std::filesystem::file_size(path.c_str());
 
+        // Create
         Archive<IStream> arch;
-        arch.m_stream.Create(size);
-        rf.read(arch.m_stream.m_data, size);
+        arch.GetStream().Create(size);
+
+        // Copy from file.
+        arch.GetStream().ReadFromStream(rf);
         rf.close();
 
         if (!rf.good())

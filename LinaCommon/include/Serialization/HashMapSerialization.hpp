@@ -37,11 +37,11 @@ SOFTWARE.
 namespace Lina::Serialization
 {
 
-    template<typename T>
+    template <typename T>
     void WriteMap(Archive<OStream>& ar, T& map)
     {
         const uint32 size = static_cast<uint32>(map.size());
-        ar.m_stream << size;
+        ar(size);
 
         for (auto& [key, val] : map)
         {
@@ -50,11 +50,11 @@ namespace Lina::Serialization
         }
     }
 
-    template<typename T, typename U, typename V>
+    template <typename T, typename U, typename V>
     void ReadMap(Archive<IStream>& ar, T& map)
     {
         uint32 size = 0;
-        ar.m_stream >> size;
+        ar(size);
         map.clear();
 
         for (uint32 i = 0; i < size; i++)
@@ -67,64 +67,64 @@ namespace Lina::Serialization
         }
     }
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<OStream>, HashMap<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, HashMap<A, B>& map)
         {
-            WriteMap<HashMap<A,B>>(ar, map);
+            WriteMap<HashMap<A, B>>(ar, map);
         }
     };
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<IStream>, HashMap<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, HashMap<A, B>& map)
         {
             ReadMap<HashMap<A, B>, A, B>(ar, map);
         }
     };
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<OStream>, ParallelHashMap<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, ParallelHashMap<A, B>& map)
         {
             WriteMap<ParallelHashMap<A, B>>(ar, map);
         }
     };
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<IStream>, ParallelHashMap<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, ParallelHashMap<A, B>& map)
         {
             ReadMap<ParallelHashMap<A, B>, A, B>(ar, map);
         }
     };
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<OStream>, ParallelHashMapMutex<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, ParallelHashMapMutex<A, B>& map)
         {
             WriteMap<ParallelHashMapMutex<A, B>>(ar, map);
         }
     };
 
-    template<typename A, typename B>
+    template <typename A, typename B>
     struct Serialize_NonTrivial<Archive<IStream>, ParallelHashMapMutex<A, B>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, ParallelHashMapMutex<A, B>& map)
         {
             ReadMap<ParallelHashMapMutex<A, B>, A, B>(ar, map);
         }
     };
-}
+} // namespace Lina::Serialization
 #endif

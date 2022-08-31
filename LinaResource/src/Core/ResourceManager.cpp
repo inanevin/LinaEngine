@@ -80,7 +80,7 @@ namespace Lina::Resources
             Utility::DeleteFileInPath("Resources/lina.metadata");
 
         Serialization::Archive<OStream> archive;
-        archive.m_stream.CreateReserve(100);
+        archive.GetStream().CreateReserve(100000);
 
         for (auto [tid, cache] : m_caches)
             cache->SaveMetadataToArchive(archive);
@@ -98,6 +98,6 @@ namespace Lina::Resources
         for (auto [tid, cache] : m_caches)
             cache->LoadMetadataFromArchive(archive);
 
-        archive.m_stream.Destroy();
+        archive.GetStream().Destroy();
     }
 } // namespace Lina::Resources

@@ -31,6 +31,8 @@ SOFTWARE.
 #ifndef Stream_HPP
 #define Stream_HPP
 
+#include "Core/SizeDefinitions.hpp"
+#include "Serialization/Endianness.hpp"
 #include "Memory/Memory.hpp"
 #include "Data/DataCommon.hpp"
 #include <type_traits>
@@ -43,19 +45,16 @@ namespace Lina
         void Create(size_t size);
         void Create(const char* data, size_t size);
         void Destroy();
+        void ReadFromStream(std::ifstream& stream);
 
         template <typename T>
         void Read(T& t)
         {
-            MEMCPY(reinterpret_cast<void*>(&t), &m_data[m_index], sizeof(T));
+            MEMCPY(reinterpret_cast<uint8*>(&t), &m_data[m_index], sizeof(T));
             m_index += sizeof(T);
         }
 
-        void Read(void* ptr, uint32 size)
-        {
-            MEMCPY(ptr, &m_data[m_index], size);
-            m_index += size;
-        }
+        void ReadEndianSafe(void* ptr, size_t size);
 
         inline void SkipBy(size_t size)
         {
@@ -72,7 +71,8 @@ namespace Lina
             return m_index >= m_size;
         }
 
-        char*  m_data  = nullptr;
+    private:
+        uint8* m_data  = nullptr;
         size_t m_index = 0;
         size_t m_size  = 0;
     };
@@ -81,6 +81,10 @@ namespace Lina
     IStream& operator>>(IStream& istm, T& val)
     {
         istm.Read(val);
+
+        if (Serialization::ShouldSwap())
+            Serialization::SwapEndian(val);
+
         return istm;
     }
 
@@ -91,10 +95,23 @@ namespace Lina
     public:
         void CreateReserve(size_t size);
         void Destroy();
-        void Write(const char* ptr, size_t size);
+        void WriteEndianSafe(const uint8* ptr, size_t size);
         void CheckGrow(size_t sz);
+        void WriteToStream(std::ofstream& stream);
 
-        char*  m_data        = nullptr;
+        template <typename T>
+        void Write(T& t)
+        {
+            uint8*       ptr  = (uint8*)&t;
+            const size_t size = sizeof(T);
+
+            CheckGrow(size);
+            MEMCPY(&m_data[m_currentSize], ptr, size);
+            m_currentSize += size;
+        }
+
+    private:
+        uint8* m_data        = nullptr;
         size_t m_currentSize = 0;
         size_t m_totalSize   = 0;
     };
@@ -102,7 +119,11 @@ namespace Lina
     template <typename T>
     OStream& operator<<(OStream& stream, T& val)
     {
-        stream.Write((const char*)&val, sizeof(T));
+        auto copy = const_cast<typename std::remove_const<T>::type&>(val);
+        if (Serialization::ShouldSwap())
+            Serialization::SwapEndian(copy);
+
+        stream.Write<T>(copy);
         return stream;
     }
 

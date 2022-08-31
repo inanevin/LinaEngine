@@ -61,7 +61,8 @@ namespace Lina
         template <typename Archive>
         void Serialize(Archive& ar)
         {
-            ar(m_packagedLevels);
+            uint32 a = 287454020;
+            ar(a);
         }
 
         inline const Vector<String>& GetPackagedLevels()

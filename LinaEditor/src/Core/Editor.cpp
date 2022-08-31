@@ -55,16 +55,10 @@ namespace Lina::Editor
     {
         // Make sure the static resources needed are initialized.
         if (!Utility::FileExists("Resources/engine.linasettings"))
-        {
-            EngineSettings s;
-            Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings", s);
-        }
+            Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
 
         if (!Utility::FileExists("Resources/render.linasettings"))
-        {
-            RenderSettings s;
-            Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings", s);
-        }
+            Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings");
 
         Resources::ResourceManager::Get()->LoadAllMetadata();
     }

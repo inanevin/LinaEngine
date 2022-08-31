@@ -36,28 +36,28 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-    template<typename A>
+    template <typename A>
     struct Serialize_NonTrivial<Archive<OStream>, Vector<A>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, Vector<A>& vec)
         {
             const uint32 size = static_cast<uint32>(vec.size());
-            ar.m_stream << size;
+            ar(size);
 
             for (uint32 i = 0; i < size; i++)
-               ar(vec[i]);
+                ar(vec[i]);
         }
     };
 
-    template<typename A>
+    template <typename A>
     struct Serialize_NonTrivial<Archive<IStream>, Vector<A>>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, Vector<A>& vec)
         {
             uint32 size = 0;
-            ar.m_stream >> size;
+            ar(size);
 
             vec.clear();
             vec.resize(size);

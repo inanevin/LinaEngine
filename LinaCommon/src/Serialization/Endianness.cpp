@@ -30,5 +30,8 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-
+    bool ShouldSwap()
+    {
+        return std::endian::native == std::endian::big;
+    }
 } // namespace Lina::Serialization

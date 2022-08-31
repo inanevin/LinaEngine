@@ -37,28 +37,31 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-    template<>
+    template <>
     struct Serialize_NonTrivial<Archive<OStream>, String>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, String& str)
         {
             const uint32 size = static_cast<uint32>(str.size());
-            ar.m_stream << size;
-            ar.m_stream.Write(str.data(), size);
+            ar(size);
+            ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
         }
     };
 
-    template<>
+    template <>
     struct Serialize_NonTrivial<Archive<IStream>, String>
     {
-        template<typename Ar>
+        template <typename Ar>
         void Serialize(Ar& ar, String& str)
         {
             uint32 size = 0;
-            ar.m_stream >> size;
-            str = String(&ar.m_stream.m_data[ar.m_stream.m_index], size);
-            ar.m_stream.SkipBy(size);
+            ar(size);
+            void* d = MALLOC(size);
+            ar.GetStream().ReadEndianSafe(d, size);
+            String s((char*)d, size);
+            str = s;
+            FREE(d);
         }
     };
 

@@ -64,7 +64,7 @@ namespace Lina::Resources
                 const uint32 varSize = static_cast<uint32>(var.size);
                 archive(variableSid);
                 archive(varSize);
-                archive.m_stream.Write((char*)var.ptr, var.size);
+                archive.GetStream().WriteEndianSafe((uint8*)var.ptr, var.size);
             }
         }
     }
@@ -90,7 +90,7 @@ namespace Lina::Resources
                 archive(variableSid);
                 archive(varSize);
                 void* data = MALLOC(varSize);
-                archive.m_stream.Read(data, varSize);
+                archive.GetStream().ReadEndianSafe(data, varSize);
                 MetaVariable metaVar                      = MetaVariable{.size = varSize, .ptr = data};
                 m_metaCache[sid].m_variables[variableSid] = metaVar;
             }

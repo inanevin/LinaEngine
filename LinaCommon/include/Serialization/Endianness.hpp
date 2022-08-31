@@ -34,8 +34,9 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
+
     template <typename T>
-    T SwapEndian(T& val)
+    void SwapEndian(T& val, typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type = nullptr)
     {
         union U {
             T                                   val;
@@ -44,16 +45,10 @@ namespace Lina::Serialization
 
         src.val = val;
         std::reverse_copy(src.raw.begin(), src.raw.end(), dst.raw.begin());
-        return dst.val;
+        val = dst.val;
     }
 
-    constexpr bool ShouldSwap()
-    {
-        if constexpr (std::endian::native == std::endian::big)
-            return true;
-        else
-            return false;
-    }
+    bool ShouldSwap();
 
 } // namespace Lina::Serialization
 
