@@ -49,6 +49,7 @@ set (LINACOMMON_SOURCES
 
 	# Serialization
 	src/Serialization/Serialization.cpp
+	src/Serialization/Endianness.cpp
 	
 	# Memory
 	src/Memory/Memory.cpp
@@ -147,6 +148,7 @@ set(LINACOMMON_HEADERS
 
 	# Serialization
 	include/Serialization/Archive.hpp
+	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
 	include/Serialization/VectorSerialization.hpp
 	include/Serialization/SetSerialization.hpp
@@ -234,6 +236,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/Streams.hpp
 	include/Reflection/ReflectionSystem.hpp
 	include/Serialization/Archive.hpp
+	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
 	include/Serialization/VectorSerialization.hpp
 	include/Serialization/SetSerialization.hpp

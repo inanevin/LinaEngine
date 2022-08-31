@@ -60,8 +60,8 @@ namespace Lina::Graphics
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
-        virtual void      LoadAssetData() override;
-        virtual void      SaveAssetData() override;
+        virtual void      LoadAssetData();
+        virtual void      SaveAssetData();
 
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()
         {
@@ -85,15 +85,9 @@ namespace Lina::Graphics
         void GeneratePipeline();
 
     private:
-        struct AssetData
-        {
-        };
-
-    private:
         Pipeline                    m_pipeline;
         PipelineLayout              m_pipelineLayout;
         SurfaceType                 m_surface = SurfaceType::Opaque;
-        AssetData                   m_assetData;
         String                      m_text       = "";
         String                      m_vertexText = "";
         String                      m_fragText   = "";

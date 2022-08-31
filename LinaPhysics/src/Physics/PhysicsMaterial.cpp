@@ -55,9 +55,7 @@ namespace Lina::Physics
     }
     Resources::Resource* PhysicsMaterial::LoadFromFile(const String& path)
     {
-        //LINA_TRACE("Physics Loader - File] -> Loading: {0}", path);
-        //*this = Resources::LoadArchiveFromFile<PhysicsMaterial>(path);
-        //IResource::SetSID(path);
+        Serialization::LoadFromFile<PhysicsMaterial>(path, *this);
         return this;
     }
 

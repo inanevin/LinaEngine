@@ -45,9 +45,8 @@ namespace Lina::Graphics
 
     Resources::Resource* Material::LoadFromFile(const String& path)
     {
-       // *this = Resources::LoadArchiveFromFile<Material>(path);
-       // IResource::SetSID(path);
-       // FindShader();
+        Serialization::LoadFromFile<Material>(path, *this);
+        FindShader();
         return this;
     }
 

@@ -78,7 +78,8 @@ namespace Lina::Event
                 functions.erase(it);
         }
 
-        ParallelHashMapMutex<void*, FuncTemplate> functions;
+        Mutex                        m_mtx;
+        HashMap<void*, FuncTemplate> functions;
     };
 
     template <typename T>
@@ -110,26 +111,24 @@ namespace Lina::Event
 
             if (m_eventSinks.find(tid) == m_eventSinks.end())
             {
-                sink              = new EventSink<T>();
-                m_eventSinks[tid] = static_cast<void*>(sink);
-
+                sink                       = new EventSink<T>();
+                m_eventSinks[tid]          = static_cast<void*>(sink);
                 m_disconnectFunctions[tid] = std::bind(DestroySink<T>, std::placeholders::_1);
             }
             else
                 sink = static_cast<EventSink<T>*>(m_eventSinks[tid]);
             return sink;
         }
+
         template <typename T, auto Candidate, typename Type>
         void Connect(Type* inst)
         {
-            LOCK_GUARD(m_mtx);
             GetSink<T>()->Connect<Candidate>(inst);
         }
 
         template <typename T, typename Type>
         void Disconnect(Type* inst)
         {
-            LOCK_GUARD(m_mtx);
             GetSink<T>()->Disconnect(inst);
         }
 
@@ -158,9 +157,9 @@ namespace Lina::Event
 
     private:
         static EventSystem*             s_eventSystem;
-        Mutex                           m_mtx;
         HashMap<TypeID, void*>          m_eventSinks;
         HashMap<TypeID, DisconnectFunc> m_disconnectFunctions;
+        Mutex                           m_mtx;
     };
 } // namespace Lina::Event
 

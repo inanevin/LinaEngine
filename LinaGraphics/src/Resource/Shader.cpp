@@ -52,51 +52,11 @@ namespace Lina::Graphics
 
     Resources::Resource* Shader::LoadFromMemory(const IStream& stream)
     {
-       // IResource::SetSID(path);
-       // m_text = String(reinterpret_cast<char*>(data), dataSize);
-
-        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
-        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
-        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
-        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
-        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
-        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
-
-        LoadAssetData();
-
-        bool missing = false;
-        for (auto& [stage, mod] : m_modules)
-        {
-            if (mod.byteCode.empty())
-            {
-                missing = true;
-                break;
-            }
-        }
-
-        // In standalone build we should already have loaded the byte code via asset data
-        // So only re-generate if its missing.
-        if (missing)
-            GenerateByteCode();
-
-        if (!CreateShaderModules())
-        {
-            LINA_ERR("[Shader Loader - Memory] -> Could not load shader! {0}", m_path);
-        }
-        else
-            GeneratePipeline();
-
-        // We do not need the byte code anymore.
-        for (auto& [stage, mod] : m_modules)
-            mod.byteCode.clear();
-
         return this;
     }
 
     Resources::Resource* Shader::LoadFromFile(const String& path)
     {
-        // IResource::SetSID(path);
-
         // Get the text from file.
         std::ifstream file;
         file.open(path.c_str());
@@ -104,7 +64,6 @@ namespace Lina::Graphics
         buffer << file.rdbuf();
         m_text = buffer.str().c_str();
         file.close();
-
         CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
         CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
         CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -140,6 +99,44 @@ namespace Lina::Graphics
         return this;
     }
 
+    void Shader::LoadAssetData()
+    {
+        auto& metacache = Resources::ResourceManager::Get()->GetCache<Shader>()->GetMetaCache(m_sid);
+
+        if (metacache.IsEmpty())
+            return;
+
+        int i = 0;
+        for (auto& [stage, mod] : m_modules)
+        {
+            const uint32 byteCodeSize = metacache.GetMetadata<uint32>("modCodeSize" + TO_STRING(i));
+            void*        ptr          = metacache.GetMetadata<void*>("modCode" + TO_STRING(i));
+            mod.byteCode.resize(byteCodeSize);
+            MEMCPY(mod.byteCode.data(), ptr, byteCodeSize * sizeof(unsigned int));
+            i++;
+        }
+    }
+
+    void Shader::SaveAssetData()
+    {
+        auto& metacache = Resources::ResourceManager::Get()->GetCache<Shader>()->GetMetaCache(m_sid);
+        metacache.Destroy();
+
+        const uint32 moduleSize = static_cast<uint32>(m_modules.size());
+        metacache.SaveMetadata<uint32>("moduleSize", moduleSize);
+
+        uint32 i = 0;
+        for (auto& [stage, mod] : m_modules)
+        {
+            const uint32 byteCodeSize = static_cast<uint32>(mod.byteCode.size());
+            metacache.SaveMetadata<uint32>("modCodeSize" + TO_STRING(i), byteCodeSize);
+            metacache.SaveMetadata("modCode" + TO_STRING(i), mod.byteCode.data(), byteCodeSize * sizeof(unsigned int));
+            i++;
+        }
+
+        Resources::ResourceManager::Get()->SaveAllMetadata();
+    }
+
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)
     {
         ShaderModule mod;
@@ -150,28 +147,6 @@ namespace Lina::Graphics
             mod.moduleName   = name;
             m_modules[stage] = mod;
         }
-    }
-
-    void Shader::LoadAssetData()
-    {
-        //auto dm = Resources::ResourceDataManager::Get();
-        //if (!dm->Exists(m_sid))
-        //    SaveAssetData();
-        //
-        //for (auto& [stage, mod] : m_modules)
-        //    mod.byteCode = dm->GetValue<Vector<unsigned int>>(m_sid, mod.moduleName);
-    }
-
-    void Shader::SaveAssetData()
-    {
-       // auto* dm = Resources::ResourceDataManager::Get();
-       // 
-       // dm->CleanSlate(m_sid);
-       // 
-       // for (auto& [stage, mod] : m_modules)
-       //     dm->SetValue<Vector<unsigned int>>(m_sid, mod.moduleName, mod.byteCode);
-       // 
-       // dm->Save();
     }
 
     void Shader::GenerateByteCode()

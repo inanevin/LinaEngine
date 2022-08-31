@@ -59,89 +59,89 @@ namespace Lina::Resources
     void ResourceLoader::LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async)
     {
         // Categorize per packageType
-        HashMap<PackageType, Vector<StringID>> resourcesPerTID;
-        for (auto& pair : resources)
-        {
-            auto& typeData = ResourceManager::Get()->GetCache(pair.first)->GetTypeData();
-            resourcesPerTID[typeData.packageType].push_back(HashedString(pair.second.c_str()).value());
-        }
-
-        for (auto& [pkgType, vec] : resourcesPerTID)
-        {
-            const String& packagePath    = "Packages" + GetPackageTypeName(pkgType);
-            const uint32  packageVersion = GetPackageVersion(pkgType);
-
-            auto          size = std::filesystem::file_size(packagePath.c_str());
-            std::ifstream rf(packagePath.c_str(), std::ios::out | std::ios::binary);
-
-            if (!rf)
-            {
-                LINA_ERR("[Resource Loader]-> Could not open package! {0}", packagePath);
-                return;
-            }
-
-            IStream istream;
-            istream.Create(size);
-            rf.read(istream.m_data, size);
-            rf.close();
-
-            uint32 version = 0;
-            istream >> version;
-
-            if (version != packageVersion)
-            {
-                LINA_ERR("[Resource Loader] -> Package versions does not match! Current: {0} - File: {1}", packageVersion, version);
-                LINA_ASSERT(false, "");
-                return;
-            }
-
-            auto exists = [&](StringID sid) {
-                for (auto s : vec)
-                {
-                    if (s == sid)
-                        return true;
-                }
-                return false;
-            };
-
-            Vector<Pair<TidSid, IStream>> resourcesToLoad;
-
-            while (!istream.IsCompleted())
-            {
-                TypeID   typeID = 0;
-                StringID sid    = 0;
-                uint32   size   = 0;
-                istream >> typeID;
-                istream >> sid;
-                istream >> size;
-
-                // found the target resource.
-                if (exists(sid))
-                {
-                    IStream newStream;
-                    newStream.Create(&istream.m_data[istream.m_index], size);
-                    TidSid tidSid = {typeID, sid};
-
-                    if (!async)
-                        CreateResource(tidSid, newStream, false);
-                    else
-                        resourcesToLoad.push_back(linatl::make_pair(tidSid, newStream));
-                }
-
-                istream.SkipBy(size);
-            }
-
-            if (async)
-            {
-                Taskflow tf;
-                tf.for_each(resourcesToLoad.begin(), resourcesToLoad.end(), [this](auto& pair) {
-                    CreateResource(pair.first, pair.second, false);
-                });
-                JobSystem::Get()->GetResourceExecutor().Run(tf).wait();
-            }
-
-            istream.Destroy();
-        }
+      // HashMap<PackageType, Vector<StringID>> resourcesPerTID;
+      // for (auto& pair : resources)
+      // {
+      //     auto& typeData = ResourceManager::Get()->GetCache(pair.first)->GetTypeData();
+      //     resourcesPerTID[typeData.packageType].push_back(HashedString(pair.second.c_str()).value());
+      // }
+      // 
+      // for (auto& [pkgType, vec] : resourcesPerTID)
+      // {
+      //     const String& packagePath    = "Packages" + GetPackageTypeName(pkgType);
+      //     const uint32  packageVersion = GetPackageVersion(pkgType);
+      // 
+      //     auto          size = std::filesystem::file_size(packagePath.c_str());
+      //     std::ifstream rf(packagePath.c_str(), std::ios::out | std::ios::binary);
+      // 
+      //     if (!rf)
+      //     {
+      //         LINA_ERR("[Resource Loader]-> Could not open package! {0}", packagePath);
+      //         return;
+      //     }
+      // 
+      //     IStream istream;
+      //     istream.Create(size);
+      //     rf.read(istream.m_data, size);
+      //     rf.close();
+      // 
+      //     uint32 version = 0;
+      //     istream >> version;
+      // 
+      //     if (version != packageVersion)
+      //     {
+      //         LINA_ERR("[Resource Loader] -> Package versions does not match! Current: {0} - File: {1}", packageVersion, version);
+      //         LINA_ASSERT(false, "");
+      //         return;
+      //     }
+      // 
+      //     auto exists = [&](StringID sid) {
+      //         for (auto s : vec)
+      //         {
+      //             if (s == sid)
+      //                 return true;
+      //         }
+      //         return false;
+      //     };
+      // 
+      //     Vector<Pair<TidSid, IStream>> resourcesToLoad;
+      // 
+      //     while (!istream.IsCompleted())
+      //     {
+      //         TypeID   typeID = 0;
+      //         StringID sid    = 0;
+      //         uint32   size   = 0;
+      //         istream >> typeID;
+      //         istream >> sid;
+      //         istream >> size;
+      // 
+      //         // found the target resource.
+      //         if (exists(sid))
+      //         {
+      //             IStream newStream;
+      //             newStream.Create(&istream.m_data[istream.m_index], size);
+      //             TidSid tidSid = {typeID, sid};
+      // 
+      //             if (!async)
+      //                 CreateResource(tidSid, newStream, false);
+      //             else
+      //                 resourcesToLoad.push_back(linatl::make_pair(tidSid, newStream));
+      //         }
+      // 
+      //         istream.SkipBy(size);
+      //     }
+      // 
+      //     if (async)
+      //     {
+      //         Taskflow tf;
+      //         tf.for_each(resourcesToLoad.begin(), resourcesToLoad.end(), [this](auto& pair) {
+      //             CreateResource(pair.first, pair.second, false);
+      //         });
+      //         JobSystem::Get()->GetResourceExecutor().Run(tf).wait();
+      //     }
+      // 
+      //     istream.Destroy();
+      // }
     }
 
     void ResourceLoader::LoadResource(TypeID tid, const String& path, bool async)

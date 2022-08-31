@@ -34,6 +34,7 @@ namespace Lina::Serialization
     void SaveArchiveToFile(const String& path, Archive<OStream>& archive)
     {
         std::ofstream wf(path.c_str(), std::ios::out | std::ios::binary);
+        
         if (!wf)
         {
             LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
@@ -52,7 +53,7 @@ namespace Lina::Serialization
             return;
         }
 
-        archive.m_stream.Destroy();
+        archive.Destroy();
     }
 
     Archive<IStream> LoadArchiveFromFile(const String& path)

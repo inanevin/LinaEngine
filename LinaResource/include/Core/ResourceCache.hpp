@@ -54,19 +54,57 @@ namespace Lina::Resources
     {
     public:
         template <typename T>
-        void SaveMetadata(const String& name, T& data)
+        void SaveMetadata(const String& name, const T& data)
         {
-            const StringID sid = HashedString(name.c_str()).value();
+            const StringID sid  = HashedString(name.c_str()).value();
+            const size_t   size = sizeof(T);
+
             if (m_variables.contains(sid))
             {
-                MEMCPY(m_variables[sid].ptr, &data, sizeof(T));
+                MEMCPY(m_variables[sid].ptr, &data, size);
                 return;
             }
 
-            const size_t size = sizeof(T);
-            void*        ptr  = MALLOC(size);
-            MEMCPY(ptr, &data, size);
-            m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
+            void* ptr = MALLOC(size);
+
+            if (ptr)
+            {
+                MEMCPY(ptr, &data, size);
+                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
+            }
+        }
+
+        template <>
+        void SaveMetadata<String>(const String& name, const String& data)
+        {
+            const StringID sid  = HashedString(name.c_str()).value();
+            const size_t   size = data.size();
+
+            void* ptr = MALLOC(size);
+
+            if (ptr)
+            {
+                if (m_variables.contains(sid))
+                    FREE(m_variables[sid].ptr);
+
+                MEMCPY(ptr, data.data(), size);
+                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
+            }
+        }
+
+        void SaveMetadata(const String& name, const void* data, size_t size)
+        {
+            const StringID sid = HashedString(name.c_str()).value();
+            void*          ptr = MALLOC(size);
+
+            if (ptr)
+            {
+                if (m_variables.contains(sid))
+                    FREE(m_variables[sid].ptr);
+
+                MEMCPY(ptr, data, size);
+                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
+            }
         }
 
         template <typename T>
@@ -74,6 +112,24 @@ namespace Lina::Resources
         {
             const StringID sid = HashedString(name.c_str()).value();
             return *(static_cast<T*>(m_variables[sid].ptr));
+        }
+
+        template <>
+        void* GetMetadata(const String& name)
+        {
+            const StringID sid = HashedString(name.c_str()).value();
+            return m_variables[sid].ptr;
+        }
+
+        template <>
+        String GetMetadata<String>(const String& name)
+        {
+            const StringID sid  = HashedString(name.c_str()).value();
+            String         str  = "";
+            const size_t   size = m_variables[sid].size;
+            str.resize(size);
+            MEMCPY(&str[0], m_variables[sid].ptr, size);
+            return str;
         }
 
         inline bool IsEmpty()
@@ -86,7 +142,7 @@ namespace Lina::Resources
     private:
         friend class ResourceCacheBase;
 
-        ParallelHashMapMutex<StringID, MetaVariable> m_variables;
+        HashMap<StringID, MetaVariable> m_variables;
     };
 
     class ResourceCacheBase

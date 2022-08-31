@@ -40,7 +40,6 @@ namespace Lina
     class IStream
     {
     public:
-
         void Create(size_t size);
         void Create(const char* data, size_t size);
         void Destroy();
@@ -58,13 +57,12 @@ namespace Lina
             m_index += size;
         }
 
-
-        void SkipBy(size_t size)
+        inline void SkipBy(size_t size)
         {
             m_index += size;
         }
 
-        void Seek(size_t ind)
+        inline void Seek(size_t ind)
         {
             m_index = ind;
         }
@@ -88,16 +86,12 @@ namespace Lina
 
     class OStream;
 
-
     class OStream
     {
     public:
-
         void CreateReserve(size_t size);
         void Destroy();
-
         void Write(const char* ptr, size_t size);
-
         void CheckGrow(size_t sz);
 
         char*  m_data        = nullptr;
@@ -105,11 +99,10 @@ namespace Lina
         size_t m_totalSize   = 0;
     };
 
-
     template <typename T>
     OStream& operator<<(OStream& stream, T& val)
     {
-        stream.Write((char*)&val, sizeof(T));
+        stream.Write((const char*)&val, sizeof(T));
         return stream;
     }
 

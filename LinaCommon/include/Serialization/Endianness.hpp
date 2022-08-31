@@ -28,60 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Material_HPP
-#define Material_HPP
+#ifndef Endianness_HPP
+#define Endianness_HPP
+#include <bit>
 
-#include "Core/Resource.hpp"
-#include "Core/ResourceHandle.hpp"
-#include "Shader.hpp"
-#include "Serialization/Serialization.hpp"
-
-namespace Lina
+namespace Lina::Serialization
 {
-    namespace Event
+    template <typename T>
+    T SwapEndian(T& val)
     {
-        struct EResourceLoaded;
+        union U {
+            T                                   val;
+            std::array<std::uint8_t, sizeof(T)> raw;
+        } src, dst;
+
+        src.val = val;
+        std::reverse_copy(src.raw.begin(), src.raw.end(), dst.raw.begin());
+        return dst.val;
     }
-} // namespace Lina
 
-namespace Lina::Graphics
-{
-    class Material : public Resources::Resource
+    constexpr bool ShouldSwap()
     {
-    public:
-        Material() = default;
-        virtual ~Material();
+        if constexpr (std::endian::native == std::endian::big)
+            return true;
+        else
+            return false;
+    }
 
-        template <class Archive>
-        void Save(Archive& archive)
-        {
-            m_shader.Save(archive);
-        }
-
-        template <class Archive>
-        void Load(Archive& archive)
-        {
-            m_shader.Load(archive);
-        }
-
-        virtual Resource* LoadFromMemory(const IStream& stream) override;
-        virtual Resource* LoadFromFile(const String& path) override;
-
-        inline Resources::ResourceHandle<Shader>& GetShaderHandle()
-        {
-            return m_shader;
-        }
-
-        void SetShader(Shader* shader);
-
-    private:
-        void FindShader();
-        void OnResourceLoaded(const Event::EResourceLoaded& ev);
-
-    private:
-        Resources::ResourceHandle<Shader> m_shader;
-    };
-
-} // namespace Lina::Graphics
+} // namespace Lina::Serialization
 
 #endif

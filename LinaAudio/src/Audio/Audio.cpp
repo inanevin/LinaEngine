@@ -71,24 +71,23 @@ namespace Lina::Audio
 
     Resources::Resource* Audio::LoadFromFile(const String& path)
     {
-        //  IResource::SetSID(path);
-        //  ALsizei size;
-        //  ALfloat freq;
-        //  ALenum  format;
-        //  ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
-        //
-        //  ALenum err = alutGetError();
-        //  LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
-        //
-        //  m_data   = data;
-        //  m_format = format;
-        //  m_size   = size;
-        //  m_freq   = freq;
-        //
-        //  LoadAssetData();
-        //  alGenBuffers((ALuint)1, &m_buffer);
-        //  alBufferData(m_buffer, format, data, size, (ALsizei)freq);
-        //  free(data);
+        ALsizei size;
+        ALfloat freq;
+        ALenum  format;
+        ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
+
+        ALenum err = alutGetError();
+        LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
+
+        m_data   = data;
+        m_format = format;
+        m_size   = size;
+        m_freq   = freq;
+
+        LoadAssetData();
+        alGenBuffers((ALuint)1, &m_buffer);
+        alBufferData(m_buffer, format, data, size, (ALsizei)freq);
+        free(data);
 
 #ifdef LINA_DEBUG
         CheckForError();
@@ -99,12 +98,10 @@ namespace Lina::Audio
 
     void Audio::LoadAssetData()
     {
-        
     }
 
     void Audio::SaveAssetData()
     {
-      
     }
 
     void Audio::CheckForError()

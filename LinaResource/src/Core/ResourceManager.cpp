@@ -76,20 +76,24 @@ namespace Lina::Resources
 
     void ResourceManager::SaveAllMetadata()
     {
+        if (Utility::FileExists("Resources/lina.metadata"))
+            Utility::DeleteFileInPath("Resources/lina.metadata");
+
         Serialization::Archive<OStream> archive;
+        archive.m_stream.CreateReserve(100);
 
         for (auto [tid, cache] : m_caches)
             cache->SaveMetadataToArchive(archive);
 
-        Serialization::SaveArchiveToFile("lina.metadata", archive);
+        Serialization::SaveArchiveToFile("Resources/lina.metadata", archive);
     }
 
     void ResourceManager::LoadAllMetadata()
     {
-        if (!Utility::FileExists("lina.metadata"))
+        if (!Utility::FileExists("Resources/lina.metadata"))
             return;
 
-        Serialization::Archive<IStream> archive = Serialization::LoadArchiveFromFile("lina.metadata");
+        Serialization::Archive<IStream> archive = Serialization::LoadArchiveFromFile("Resources/lina.metadata");
 
         for (auto [tid, cache] : m_caches)
             cache->LoadMetadataFromArchive(archive);

@@ -55,34 +55,6 @@ namespace Lina::Serialization
         return 0;
     }
 
-    template <typename T, typename U>
-    typename std::enable_if<HasSave<T, void(U& u)>::value>::type
-    SaveFunc(T& obj, U& archive)
-    {
-        obj.Save(archive);
-    }
-
-    template <typename T, typename U>
-    typename std::enable_if<!HasSave<T, void(U& u)>::value>::type
-    SaveFunc(T& obj, U& archive)
-    {
-        obj.Serialize(archive);
-    }
-
-    template <typename T, typename U>
-    typename std::enable_if<HasLoad<T, void(U& u)>::value>::type
-    LoadFunc(T& obj, U& archive)
-    {
-        obj.Load(archive);
-    }
-
-    template <typename T, typename U>
-    typename std::enable_if<!HasLoad<T, void(U& u)>::value>::type
-    LoadFunc(T& obj, U& archive)
-    {
-        obj.Serialize(archive);
-    }
-
     template <typename T>
     void SaveToFile(const String& path, T& obj)
     {
@@ -99,11 +71,9 @@ namespace Lina::Serialization
         Archive<OStream> arch;
         arch.m_stream.CreateReserve(sizeof(T));
         const uint32 classVersion = GetClassVersion<T>();
-        arch.m_stream << classVersion;
-
-        arch.m_version = classVersion;
-
-        SaveFunc<T>(obj, arch);
+        arch.m_version            = classVersion;
+        arch(classVersion);
+        arch(obj);
 
         wf.write((char*)arch.m_stream.m_data, arch.m_stream.m_currentSize);
         wf.close();
@@ -148,7 +118,7 @@ namespace Lina::Serialization
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
         uint32 version;
-        arch.m_stream >> version;
+        arch(version);
         arch.m_version = version;
 
         if (version != GetClassVersion<T>())
@@ -157,7 +127,7 @@ namespace Lina::Serialization
             return;
         }
 
-        LoadFunc<T>(obj, arch);
+        arch(obj);
         arch.m_stream.Destroy();
     }
 

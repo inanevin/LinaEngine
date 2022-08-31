@@ -36,28 +36,6 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-
-    template <typename T>
-    inline void Serialize_BasicType(OStream& stream, T& u)
-    {
-        stream << u;
-    };
-
-    template <typename T>
-    inline void Serialize_BasicType(IStream& stream, T& u)
-    {
-        stream >> u;
-    };
-
-    template <class Ar, typename T>
-    struct Serialize_NonTrivial
-    {
-        void Serialize(Ar& ar, T& obj)
-        {
-            LINA_ERR("You are missing a serialize specialization function! {0}", typeid(T).name());
-        }
-    };
-
     // https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature
     // Primary template with a static assertion
     // for a meaningful error message
@@ -127,6 +105,29 @@ namespace Lina::Serialization
         static constexpr bool value = type::value;
     };
 
+    
+
+    // Specialize this template to serialize types such as vectors, maps and other external data structures.
+    template <class Ar, typename T>
+    struct Serialize_NonTrivial
+    {
+        void Serialize(Ar& ar, T& obj)
+        {
+            LINA_ERR("You are missing a serialize specialization function! {0}", typeid(T).name());
+        }
+    };
+
+    // Specialization below, for separate Save & Load functions.
+    template <class Archive, typename T>
+    struct SaveLoad_Complex
+    {
+        void Serialize(Archive& archive, T& obj)
+        {
+            LINA_ERR("You are missing a serialize complex function! {0}", typeid(T).name());
+        }
+    };
+
+    // If the type has Serialize() func.
     template <typename T, typename U>
     typename std::enable_if<HasSerialize<T, void(U& u)>::value>::type
     SerializeComplex(T& obj, U& archive)
@@ -134,8 +135,19 @@ namespace Lina::Serialization
         obj.Serialize(archive);
     }
 
+    // If the type has separate Save & Load func.
     template <typename T, typename U>
-    typename std::enable_if<!HasSerialize<T, void(U& u)>::value>::type
+    typename std::enable_if<!HasSerialize<T, void(U& u)>::value && HasLoad<T, void(U& u)>::value && HasSave<T, void(U& u)>::value>::type
+    SerializeComplex(T& obj, U& archive)
+    {
+        SaveLoad_Complex<U, T> s;
+        s.Serialize(archive, obj);
+    }
+
+    // If the type doesn't have Serialize, Save or Load, then
+    // use external.
+    template <typename T, typename U>
+    typename std::enable_if<!HasSerialize<T, void(U& u)>::value && !HasLoad<T, void(U& u)>::value && !HasSave<T, void(U& u)>::value>::type
     SerializeComplex(T& obj, U& archive)
     {
         Serialize_NonTrivial<U, T> a;
@@ -146,6 +158,22 @@ namespace Lina::Serialization
     class Archive
     {
     public:
+        void Destroy()
+        {
+            m_stream.Destroy();
+        }
+
+        template <typename T>
+        inline void Serialize_BasicType(OStream& stream, T& u)
+        {
+            stream << u;
+        };
+
+        template <typename T>
+        inline void Serialize_BasicType(IStream& stream, T& u)
+        {
+            stream >> u;
+        };
 
         template <typename T>
         void Serialize_Impl(T& arg)
@@ -160,20 +188,32 @@ namespace Lina::Serialization
         }
 
         template <class... Types>
-        void Serialize_T(Types&&... args)
-        {
-            (Serialize_Impl(args), ...);
-        }
-
-        template <class... Types>
         inline Archive& operator()(Types&&... args)
         {
-            Serialize_T(std::forward<Types>(args)...);
+            (Serialize_Impl(std::forward<Types>(args)), ...);
             return *this;
         }
 
         StreamType m_stream;
         uint32     m_version = 0;
+    };
+
+    template <typename T>
+    struct SaveLoad_Complex<Archive<IStream>, T>
+    {
+        void Serialize(Archive<IStream>& archive, T& obj)
+        {
+            obj.Load(archive);
+        }
+    };
+
+    template <typename T>
+    struct SaveLoad_Complex<Archive<OStream>, T>
+    {
+        void Serialize(Archive<OStream>& archive, T& obj)
+        {
+            obj.Save(archive);
+        }
     };
 
 } // namespace Lina::Serialization

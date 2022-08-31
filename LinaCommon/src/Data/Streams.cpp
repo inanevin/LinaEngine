@@ -79,7 +79,7 @@ namespace Lina
     {
         if (m_currentSize + sz > m_totalSize)
         {
-            m_totalSize *= 2;
+            m_totalSize   = static_cast<size_t>((static_cast<float>(m_currentSize + sz) * 1.5f));
             char* newData = new char[m_totalSize];
             MEMCPY(newData, m_data, m_currentSize);
             delete[] m_data;

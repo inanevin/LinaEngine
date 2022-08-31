@@ -105,6 +105,8 @@ namespace Lina::Memory
         template <typename T>
         T* GetFromPoolBlock()
         {
+            LOCK_GUARD(m_mutex);
+
             const TypeID tid       = GetTypeID<T>();
             PoolBlock*   block     = nullptr;
             uint32       poolIndex = (uint32)0;

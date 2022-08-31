@@ -38,18 +38,24 @@ namespace Lina::Resources
 
     void EditorResourceLoader::LoadEngineResources()
     {
-        auto&     engineRes  = g_defaultResources.GetEngineResources();
-        const int totalFiles = static_cast<int>(engineRes.size());
+        auto& engineRes  = g_defaultResources.GetEngineResources();
+        int   totalFiles = 0;
+        for (auto& [tid, vec] : engineRes)
+            totalFiles += static_cast<int>(vec.size());
+
+        const double time = Time::GetCPUTime();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading engine resources", .totalFiles = totalFiles});
 
         for (auto& [tid, vec] : engineRes)
         {
             for (auto& path : vec)
-                LoadResource(tid, path, true);
+                LoadResource(tid, path, false);
         }
 
         JobSystem::Get()->GetResourceExecutor().Wait();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+        const double diff = Time::GetCPUTime() - time;
+        LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
     }
 
     void EditorResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
@@ -75,6 +81,7 @@ namespace Lina::Resources
             res->m_path     = path;
             res->m_tid      = tid;
             res->LoadFromFile(path);
+            Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
         };
 

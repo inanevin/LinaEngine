@@ -74,6 +74,30 @@ namespace Lina::Resources
             Resources::ResourceManager::Get()->GetCache(tid)->RemoveResourceHandle(this);
         }
 
+        template <class Archive>
+        void Save(Archive& archive)
+        {
+            archive(sid);
+        }
+
+        template <class Archive>
+        void Load(Archive& archive)
+        {
+            archive(sid);
+            tid = GetTypeID<T>();
+
+            if (sid != 0)
+            {
+                auto* manager = Resources::ResourceManager::Get();
+                manager->GetCache(tid)->AddResourceHandle(this);
+
+                if (manager->Exists<T>(sid))
+                    value = manager->GetResource<T>(sid);
+                else
+                    value = nullptr;
+            }
+        }
+
         virtual void OnResourceLoaded() override
         {
             if (value != nullptr)
@@ -94,29 +118,6 @@ namespace Lina::Resources
         }
 
     private:
-
-        template <class Archive>
-        void Serialize(Archive& archive)
-        {
-            if (archive.m_isSave)
-                archive(sid);
-            else
-            {
-                archive(sid);
-                tid = GetTypeID<T>();
-
-                if (sid != 0)
-                {
-                    auto* manager = Resources::ResourceManager::Get();
-                    manager->GetCache(tid)->AddResourceHandle(this);
-
-                    if (manager->Exists<T>(sid))
-                        value = manager->GetResource<T>(sid);
-                    else
-                        value = nullptr;
-                }
-            }
-        }
     };
 
 } // namespace Lina::Resources
