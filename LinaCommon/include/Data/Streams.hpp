@@ -71,6 +71,21 @@ namespace Lina
             return m_index >= m_size;
         }
 
+        inline size_t GetSize() const
+        {
+            return m_size;
+        }
+
+        inline uint8* GetDataRaw()
+        {
+            return m_data;
+        }
+
+        inline void Shrink(size_t size)
+        {
+            m_size = size;
+        }
+
     private:
         uint8* m_data  = nullptr;
         size_t m_index = 0;
@@ -108,6 +123,21 @@ namespace Lina
             CheckGrow(size);
             MEMCPY(&m_data[m_currentSize], ptr, size);
             m_currentSize += size;
+        }
+
+        inline size_t GetCurrentSize() const
+        {
+            return m_currentSize;
+        }
+
+        inline uint8* GetDataRaw() const
+        {
+            return m_data;
+        }
+
+        inline void Shrink(size_t size)
+        {
+            m_currentSize = size;
         }
 
     private:

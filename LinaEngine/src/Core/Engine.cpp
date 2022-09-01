@@ -144,8 +144,14 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
-        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
-        // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
+        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
+       // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_1.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_2.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_3.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_4.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_5.png");
+       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_6.png");
         m_resourceManager.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
@@ -250,7 +256,6 @@ namespace Lina
         //   // m_resourceManager.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
     }
 
-
     void Engine::Run()
     {
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
@@ -270,8 +275,8 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");

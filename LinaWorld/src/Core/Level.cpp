@@ -66,6 +66,7 @@ namespace Lina::World
 
     Resources::Resource* Level::LoadFromFile(const String& path)
     {
+        Serialization::LoadFromFile<Level>(path, *this);
         return this;
     }
 
@@ -77,6 +78,10 @@ namespace Lina::World
 
     void Level::SaveToFile(const String& path)
     {
+        m_sid  = HashedString(path.c_str());
+        m_path = path;
+        m_tid  = GetTypeID<Level>();
+
         // Find the resources used by this level by adding all currently active resource handles.
         auto*       storage = Resources::ResourceManager::Get();
         const auto& caches  = storage->GetCaches();
@@ -85,6 +90,9 @@ namespace Lina::World
             const auto& handles = cache->GetResourceHandles();
             for (auto handle : handles)
             {
+                if (g_defaultResources.IsEngineResource(tid, handle->sid))
+                    continue;
+
                 const StringID sid = handle->sid;
                 Resource*      res = static_cast<Resource*>(storage->GetResource(tid, sid));
                 m_usedResources.push_back(linatl::make_pair(handle->tid, res->GetPath()));
@@ -94,13 +102,11 @@ namespace Lina::World
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        Serialization::SaveToFile<Level>(path);
+        Serialization::SaveToFile<Level>(path, *this);
     }
-
 
     void Level::LoadWithoutWorld(const String& path)
     {
-       
     }
 
     void Level::ResourcesLoaded()

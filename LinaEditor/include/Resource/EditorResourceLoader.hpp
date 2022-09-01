@@ -47,7 +47,7 @@ namespace Lina::Resources
         virtual void LoadResource(TypeID tid, const String& path, bool async) override;
 
     private:
-        
+        Mutex m_mtx;
     };
 } // namespace Lina::Resources
 

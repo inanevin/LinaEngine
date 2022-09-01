@@ -111,8 +111,13 @@ namespace Lina::Graphics
         {
             const uint32 byteCodeSize = metacache.GetMetadata<uint32>("modCodeSize" + TO_STRING(i));
             void*        ptr          = metacache.GetMetadata<void*>("modCode" + TO_STRING(i));
-            mod.byteCode.resize(byteCodeSize);
-            MEMCPY(mod.byteCode.data(), ptr, byteCodeSize * sizeof(unsigned int));
+
+            if (byteCodeSize > 0)
+            {
+                mod.byteCode.resize(byteCodeSize);
+                MEMCPY(mod.byteCode.data(), ptr, byteCodeSize * sizeof(unsigned int));
+            }
+
             i++;
         }
     }

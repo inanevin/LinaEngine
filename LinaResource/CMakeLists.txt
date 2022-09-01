@@ -71,9 +71,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_link_libraries(${PROJECT_NAME} PUBLIC user32.lib PRIVATE Lina::Common)
 
 include(../_Dependencies/bit7z/link.cmake)
-include(../_Dependencies/lz4/link.cmake)
 link_bit7z()
-link_lz4()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

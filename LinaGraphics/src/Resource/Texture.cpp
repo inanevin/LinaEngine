@@ -58,51 +58,87 @@ namespace Lina::Graphics
 
     Resources::Resource* Texture::LoadFromFile(const String& path)
     {
-        // IResource::SetSID(path);
         LoadAssetData();
 
-        int      texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        m_width         = static_cast<uint32>(texWidth);
-        m_height        = static_cast<uint32>(texHeight);
-        m_channels      = static_cast<uint32>(texChannels);
-
-        if (!pixels)
+        if (m_pixels == nullptr)
         {
-            LINA_ERR("[Texture Loader]-> Could not load the texture from file! {0}", path);
-            return nullptr;
+            int texWidth, texHeight, texChannels;
+            m_pixels             = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_assetData.width    = static_cast<uint32>(texWidth);
+            m_assetData.height   = static_cast<uint32>(texHeight);
+            m_assetData.channels = static_cast<uint32>(texChannels);
+
+            if (!m_pixels)
+            {
+                LINA_ERR("[Texture Loader]-> Could not load the texture from file! {0}", path);
+                return nullptr;
+            }
+
+            SaveAssetData();
         }
 
-        GenerateBuffers(pixels);
+        GenerateBuffers(m_pixels);
+
+        // const size_t size = texWidth * texHeight * 4;
+        // m_assetData.pixels.resize(size);
+        // linatl::copy(pixels, pixels + (size), m_assetData.pixels.begin());
+        //
+        // SaveAssetData();
+
         return this;
     }
 
     void Texture::LoadAssetData()
     {
-       // auto dm = Resources::ResourceDataManager::Get();
-       // if (!dm->Exists(m_sid))
-       //     SaveAssetData();
-       //
-       // m_assetData.m_format    = static_cast<Format>(dm->GetValue<uint8>(m_sid, "format"));
-       // m_assetData.m_minFilter = static_cast<Filter>(dm->GetValue<uint8>(m_sid, "min"));
-       // m_assetData.m_magFilter = static_cast<Filter>(dm->GetValue<uint8>(m_sid, "mag"));
-       // m_assetData.m_mode      = static_cast<SamplerAddressMode>(dm->GetValue<uint8>(m_sid, "mode"));
+        auto*       rm        = Resources::ResourceManager::Get();
+        const auto& metacache = rm->GetCache<Texture>()->GetMetaCache(m_sid);
+
+        if (metacache.IsEmpty())
+            SaveAssetData();
+
+        m_assetData.format      = static_cast<Format>(metacache.GetMetadata<uint8>("format"));
+        m_assetData.minFilter   = static_cast<Filter>(metacache.GetMetadata<uint8>("min"));
+        m_assetData.magFilter   = static_cast<Filter>(metacache.GetMetadata<uint8>("mag"));
+        m_assetData.mode        = static_cast<SamplerAddressMode>(metacache.GetMetadata<uint8>("mode"));
+        m_assetData.width       = metacache.GetMetadata<uint32>("w");
+        m_assetData.height      = metacache.GetMetadata<uint32>("h");
+        m_assetData.channels    = metacache.GetMetadata<uint32>("cn");
+        const uint32 pixelsSize = metacache.GetMetadata<uint32>("pixelsSize");
+
+        if (pixelsSize != 0)
+        {
+            void* ptr = metacache.GetMetadata<void*>("pixels");
+            m_pixels  = new unsigned char[pixelsSize];
+            MEMCPY(m_pixels, ptr, pixelsSize);
+        }
     }
 
     void Texture::SaveAssetData()
     {
-       // auto dm = Resources::ResourceDataManager::Get();
-       // dm->CleanSlate(m_sid);
-       // dm->SetValue<uint8>(m_sid, "format", static_cast<uint8>(m_assetData.m_format));
-       // dm->SetValue<uint8>(m_sid, "min", static_cast<uint8>(m_assetData.m_minFilter));
-       // dm->SetValue<uint8>(m_sid, "mag", static_cast<uint8>(m_assetData.m_magFilter));
-       // dm->SetValue<uint8>(m_sid, "mode", static_cast<uint8>(m_assetData.m_mode));
-       // dm->Save();
+        auto* rm        = Resources::ResourceManager::Get();
+        auto& metacache = rm->GetCache<Texture>()->GetMetaCache(m_sid);
+
+        metacache.Destroy();
+        metacache.SaveMetadata<uint8>("format", static_cast<uint8>(m_assetData.format));
+        metacache.SaveMetadata<uint8>("min", static_cast<uint8>(m_assetData.minFilter));
+        metacache.SaveMetadata<uint8>("mag", static_cast<uint8>(m_assetData.magFilter));
+        metacache.SaveMetadata<uint8>("mode", static_cast<uint8>(m_assetData.mode));
+        metacache.SaveMetadata<uint32>("w", m_assetData.width);
+        metacache.SaveMetadata<uint32>("h", m_assetData.height);
+        metacache.SaveMetadata<uint32>("cn", m_assetData.channels);
+
+        const size_t size = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
+        metacache.SaveMetadata<uint32>("pixelsSize", static_cast<uint32>(size));
+
+        if (size != 0)
+            metacache.SaveMetadata("pixels", m_pixels, size);
+
+        rm->SaveAllMetadata();
     }
 
     void Texture::GenerateBuffers(unsigned char* pixels)
     {
-        const size_t bufferSize = m_width * m_height * 4;
+        const size_t bufferSize = m_assetData.width * m_assetData.height * 4;
 
         m_cpuBuffer = Buffer{
             .size        = bufferSize,
@@ -112,15 +148,15 @@ namespace Lina::Graphics
 
         m_cpuBuffer.Create();
         m_cpuBuffer.CopyInto(pixels, bufferSize);
-        stbi_image_free(pixels);
+        stbi_image_free(m_pixels);
 
         m_extent = Extent3D{
-            .width  = m_width,
-            .height = m_height,
+            .width  = m_assetData.width,
+            .height = m_assetData.height,
             .depth  = 1};
 
         m_gpuImage = Image{
-            .format          = m_assetData.m_format,
+            .format          = m_assetData.format,
             .tiling          = ImageTiling::Optimal,
             .extent          = m_extent,
             .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -188,11 +224,11 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
 
         m_sampler = Sampler{
-            .minFilter = m_assetData.m_minFilter,
-            .magFilter = m_assetData.m_magFilter,
-            .u         = m_assetData.m_mode,
-            .v         = m_assetData.m_mode,
-            .w         = m_assetData.m_mode,
+            .minFilter = m_assetData.minFilter,
+            .magFilter = m_assetData.magFilter,
+            .u         = m_assetData.mode,
+            .v         = m_assetData.mode,
+            .w         = m_assetData.mode,
         };
 
         m_sampler.Create(false);

@@ -26,44 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef DefaultResourceLoader_HPP
-#define DefaultResourceLoader_HPP
-
-// Headers here.
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
-#include "Data/Mutex.hpp"
-#include "Utility/StringId.hpp"
+#ifndef Compressor_HPP
+#define Compressor_HPP
 
 namespace Lina
 {
+    class OStream;
     class IStream;
-}
+} // namespace Lina
 
-namespace Lina::Resources
+namespace Lina::Serialization
 {
-    struct TidSid
-    {
-        TypeID   tid = 0;
-        StringID sid = 0;
-    };
-
-    class ResourceLoader
+    class Compressor
     {
     public:
-        ResourceLoader()          = default;
-        virtual ~ResourceLoader() = default;
-
-        virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources);
-        virtual void LoadEngineResources();
-        virtual void LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async);
-        virtual void LoadResource(TypeID tid, const String& path, bool async);
-
-    protected:
-        void CreateResource(TidSid tidSid, const IStream& stream, bool async);
+        static OStream Compress(const OStream& stream);
+        static IStream Decompress(IStream& stream);
     };
-} // namespace Lina::Resources
+}; // namespace Lina::Serialization
 
 #endif

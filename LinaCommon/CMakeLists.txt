@@ -50,6 +50,7 @@ set (LINACOMMON_SOURCES
 	# Serialization
 	src/Serialization/Serialization.cpp
 	src/Serialization/Endianness.cpp
+	src/Serialization/Compressor.cpp
 	
 	# Memory
 	src/Memory/Memory.cpp
@@ -148,6 +149,7 @@ set(LINACOMMON_HEADERS
 
 	# Serialization
 	include/Serialization/Archive.hpp
+	include/Serialization/Compressor.hpp
 	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
 	include/Serialization/VectorSerialization.hpp
@@ -281,6 +283,7 @@ include(../_Dependencies/eastl/link.cmake)
 include(../_Dependencies/phmap/link.cmake)
 include(../_Dependencies/taskflow/link.cmake)
 include(../_Dependencies/memallocators/link.cmake)
+include(../_Dependencies/lz4/link.cmake)
 link_glm()
 link_fmt()
 link_glfw()
@@ -290,6 +293,7 @@ link_eastl()
 link_phmap()
 link_taskflow()
 link_memallocators()
+link_lz4()
 
 
 #--------------------------------------------------------------------

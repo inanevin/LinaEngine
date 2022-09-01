@@ -32,7 +32,6 @@ SOFTWARE.
 
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
-#include "Data/Mutex.hpp"
 #include "Functional/Functional.hpp"
 
 namespace Lina
@@ -57,13 +56,13 @@ namespace Lina::Event
             };
         }
 
-        void Trigger(const T& t)
+        void Trigger(const T& t) const
         {
             for (auto& [ptr, func] : functions)
                 func(t);
         }
 
-        void Trigger()
+        void Trigger() const
         {
             for (auto& [ptr, func] : functions)
                 func(T());
@@ -78,7 +77,6 @@ namespace Lina::Event
                 functions.erase(it);
         }
 
-        Mutex                        m_mtx;
         HashMap<void*, FuncTemplate> functions;
     };
 
@@ -116,7 +114,7 @@ namespace Lina::Event
                 m_disconnectFunctions[tid] = std::bind(DestroySink<T>, std::placeholders::_1);
             }
             else
-                sink = static_cast<EventSink<T>*>(m_eventSinks[tid]);
+                sink = static_cast<EventSink<T>*>(m_eventSinks.at(tid));
             return sink;
         }
 
@@ -133,7 +131,7 @@ namespace Lina::Event
         }
 
         template <typename T>
-        void Trigger(const T& args)
+        void Trigger(const T& args) 
         {
             GetSink<T>()->Trigger(args);
         }
@@ -159,7 +157,6 @@ namespace Lina::Event
         static EventSystem*             s_eventSystem;
         HashMap<TypeID, void*>          m_eventSinks;
         HashMap<TypeID, DisconnectFunc> m_disconnectFunctions;
-        Mutex                           m_mtx;
     };
 } // namespace Lina::Event
 

@@ -153,7 +153,6 @@ namespace Lina::Graphics
 
         if (m_window.IsMinimized())
             return;
-        return;
 
         m_gpuUploader.Poll();
         m_levelRenderer.Render();

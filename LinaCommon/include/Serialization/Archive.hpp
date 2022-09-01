@@ -185,6 +185,11 @@ namespace Lina::Serialization
             return m_stream;
         }
 
+        inline void SetStream(StreamType& stream)
+        {
+            m_stream = stream;
+        }
+
         template <typename T>
         void Serialize_Impl(T& arg)
         {

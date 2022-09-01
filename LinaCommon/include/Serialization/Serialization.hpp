@@ -32,6 +32,7 @@ SOFTWARE.
 #define Serialization_HPP
 
 #include "Archive.hpp"
+#include "Compressor.hpp"
 #include "Data/Streams.hpp"
 #include "Data/String.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -72,9 +73,9 @@ namespace Lina::Serialization
         arch.GetStream().CreateReserve(sizeof(T));
 
         // Header
-        // const uint32 classVersion = GetClassVersion<T>();
-        // arch.Version              = classVersion;
-        // arch(classVersion);
+        const uint32 classVersion = GetClassVersion<T>();
+        arch.Version              = classVersion;
+        arch(classVersion);
 
         // Write obj
         arch(obj);
@@ -126,15 +127,15 @@ namespace Lina::Serialization
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
         // Header
-       // uint32 version;
-       // arch(version);
-       // arch.Version = version;
+        uint32 version;
+        arch(version);
+        arch.Version = version;
 
-       // if (version != GetClassVersion<T>())
-       // {
-       //     LINA_WARN("[Serialization] -> Class versions do not match, loading default class.");
-       //     return;
-       // }
+        if (version != GetClassVersion<T>())
+        {
+            LINA_WARN("[Serialization] -> Class versions do not match, loading default class. {0}", typeid(T).name());
+            return;
+        }
 
         // Read objects.
         arch(obj);

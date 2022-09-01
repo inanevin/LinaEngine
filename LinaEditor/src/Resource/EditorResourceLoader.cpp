@@ -49,7 +49,7 @@ namespace Lina::Resources
         for (auto& [tid, vec] : engineRes)
         {
             for (auto& path : vec)
-                LoadResource(tid, path, false);
+                LoadResource(tid, path, true);
         }
 
         JobSystem::Get()->GetResourceExecutor().Wait();
@@ -74,15 +74,18 @@ namespace Lina::Resources
         if (rm->Exists(tid, sid))
             return;
 
-        const auto& load = [rm, tid, sid, path]() {
+        const auto& load = [rm, tid, sid, path, this]() {
             auto*     cache = rm->GetCache(tid);
             Resource* res   = cache->Create(sid);
             res->m_sid      = sid;
             res->m_path     = path;
             res->m_tid      = tid;
             res->LoadFromFile(path);
+
+            m_mtx.lock();
             Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
+            m_mtx.unlock();
         };
 
         if (async)

@@ -63,7 +63,7 @@ namespace Lina
     {
         if (Serialization::ShouldSwap())
         {
-            uint8* data = &m_data[m_index];
+            uint8*        data = &m_data[m_index];
             Vector<uint8> v;
             v.insert(v.end(), data, data + size);
 
@@ -135,4 +135,5 @@ namespace Lina
     {
         stream.write((char*)m_data, m_currentSize);
     }
+
 } // namespace Lina

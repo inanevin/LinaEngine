@@ -61,7 +61,7 @@ namespace Lina::Graphics
 
     void Model::LoadAssetData()
     {
-        auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
+        const auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
         if (metacache.IsEmpty())
             SaveAssetData();
 

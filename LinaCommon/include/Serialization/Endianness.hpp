@@ -48,7 +48,7 @@ namespace Lina::Serialization
         val = dst.val;
     }
 
-    bool ShouldSwap();
+    extern bool ShouldSwap();
 
 } // namespace Lina::Serialization
 

@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Serialization/Serialization.hpp"
-
 namespace Lina::Serialization
 {
 
@@ -44,8 +43,11 @@ namespace Lina::Serialization
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
+        OStream compressed = Compressor::Compress(archive.GetStream());
+        archive.GetStream().Destroy();
+
         // Copy data to ofstream & write file
-        archive.GetStream().WriteToStream(wf);
+        compressed.WriteToStream(wf);
         wf.close();
 
         if (!wf.good())
@@ -53,8 +55,6 @@ namespace Lina::Serialization
             LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
             return;
         }
-
-        archive.GetStream().Destroy();
     }
 
     Archive<IStream> LoadArchiveFromFile(const String& path)
@@ -70,16 +70,18 @@ namespace Lina::Serialization
         auto size = std::filesystem::file_size(path.c_str());
 
         // Create
-        Archive<IStream> arch;
-        arch.GetStream().Create(size);
-
-        // Copy from file.
-        arch.GetStream().ReadFromStream(rf);
+        IStream readStream;
+        readStream.Create(size);
+        readStream.ReadFromStream(rf);
         rf.close();
 
         if (!rf.good())
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
+        IStream          decompressedStream = Compressor::Decompress(readStream);
+        Archive<IStream> arch;
+        arch.SetStream(decompressedStream);
+        readStream.Destroy();
         return arch;
     }
 

@@ -108,31 +108,31 @@ namespace Lina::Resources
         }
 
         template <typename T>
-        T GetMetadata(const String& name)
+        T GetMetadata(const String& name) const
         {
             const StringID sid = HashedString(name.c_str()).value();
-            return *(static_cast<T*>(m_variables[sid].ptr));
+            return *(static_cast<T*>(m_variables.at(sid).ptr));
         }
 
         template <>
-        void* GetMetadata(const String& name)
+        void* GetMetadata(const String& name) const
         {
             const StringID sid = HashedString(name.c_str()).value();
-            return m_variables[sid].ptr;
+            return m_variables.at(sid).ptr;
         }
 
         template <>
-        String GetMetadata<String>(const String& name)
+        String GetMetadata<String>(const String& name) const
         {
             const StringID sid  = HashedString(name.c_str()).value();
             String         str  = "";
-            const size_t   size = m_variables[sid].size;
+            const size_t   size = m_variables.at(sid).size;
             str.resize(size);
-            MEMCPY(&str[0], m_variables[sid].ptr, size);
+            MEMCPY(&str[0], m_variables.at(sid).ptr, size);
             return str;
         }
 
-        inline bool IsEmpty()
+        inline bool IsEmpty() const
         {
             return m_variables.empty();
         }
@@ -229,6 +229,7 @@ namespace Lina::Resources
 
         void Unload(T* resource)
         {
+            LINA_TRACE("[Resource Cache] -> Unloading resource: {0}", resource->GetPath());
             const auto& it = m_resources.find(resource->GetSID());
             m_resources.erase(it);
             Memory::MemoryManager::Get()->FreeFromPoolBlock<T>(resource, resource->m_allocPoolIndex);
@@ -253,6 +254,9 @@ namespace Lina::Resources
             {
                 if (!res)
                     continue;
+
+                LINA_TRACE("[Resource Cache] -> Unloading resource: {0}", res->GetPath());
+
                 Memory::MemoryManager::Get()->FreeFromPoolBlock<T>(res, res->m_allocPoolIndex);
                 res->~T();
             }

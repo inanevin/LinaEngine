@@ -254,6 +254,7 @@ namespace Lina::Graphics
 
     void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
+        return;
         Texture* txt = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
 
         WriteDescriptorSet textureWrite = WriteDescriptorSet{
@@ -325,57 +326,56 @@ namespace Lina::Graphics
             objDatas.push_back(data);
         }
         GetCurrentFrame().objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
-
-
-        for (int i = 0; i < 1; i++)
-        {
-            Material * mat = RenderEngine::Get()->GetPlaceholderMaterial();
-            auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
-            pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
-
-            auto& renderer = RenderEngine::Get()->GetLevelRenderer();
-            DescriptorSet& descSet = renderer.GetGlobalSet();
-            DescriptorSet& objSet = renderer.GetObjectSet();
-            DescriptorSet& txtSet = renderer.GetTextureSet();
-
-            uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-
-            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
-
-            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
-
-            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
-
-
-            for (auto mr : m_renderables)
-            {
-                Graphics::MeshPushConstants constants;
-                constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
-                GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
-
-                Model* m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
-                ModelNode* n = mr->m_modelHandle.IsValid() ?  RenderEngine::Get()->GetPlaceholderModelNode() :m->GetNodes()[mr->m_nodeIndex];
-                
-                auto& meshes = n->GetMeshes();
-                int k = 0;
-
-                for (auto mesh : meshes)
-                {
-                    uint64 offset = 0;
-                    GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
-                    GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-                    // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
-                    GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
-                    k++;
-                }
-               
-              
-            }
-           // for (auto& rp : pair)
-           // {
-           //     
-           // }
-        }
+//
+//   for (int i = 0; i < 1; i++)
+//   {
+//       Material * mat = RenderEngine::Get()->GetPlaceholderMaterial();
+//       auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
+//       pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
+//
+//       auto& renderer = RenderEngine::Get()->GetLevelRenderer();
+//       DescriptorSet& descSet = renderer.GetGlobalSet();
+//       DescriptorSet& objSet = renderer.GetObjectSet();
+//       DescriptorSet& txtSet = renderer.GetTextureSet();
+//
+//       uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+//
+//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+//
+//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+//
+//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+//
+//
+//       for (auto mr : m_renderables)
+//       {
+//           Graphics::MeshPushConstants constants;
+//           constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
+//           GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+//
+//           Model* m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
+//           ModelNode* n = mr->m_modelHandle.IsValid() ?  RenderEngine::Get()->GetPlaceholderModelNode() :m->GetNodes()[mr->m_nodeIndex];
+//           
+//           auto& meshes = n->GetMeshes();
+//           int k = 0;
+//
+//           for (auto mesh : meshes)
+//           {
+//               uint64 offset = 0;
+//               GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
+//               GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+//               // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+//               GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
+//               k++;
+//           }
+//          
+//         
+//       }
+//      // for (auto& rp : pair)
+//      // {
+//      //     
+//      // }
+//   }
 
         // Render commands.
         // m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);

@@ -101,13 +101,10 @@ namespace Lina::World
         Event::EventSystem::Get()->Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
 
         // Unload resources
-        auto& resMap  = m_currentLevel->GetResources();
-        auto* storage = Resources::ResourceManager::Get();
-        for (const auto& [tid, set] : resMap)
-        {
-            for (auto sid : set)
-                storage->Unload(tid, sid);
-        }
+        auto& resources = m_currentLevel->GetResources();
+        auto* storage   = Resources::ResourceManager::Get();
+        for (const auto& pair : resources)
+            storage->Unload(pair.first, pair.second);
 
         Resources::ResourceManager::Get()->Unload<Level>(m_currentLevel->GetSID());
         m_currentLevel = nullptr;
@@ -129,9 +126,8 @@ namespace Lina::World
 
     void LevelManager::CreateLevel(const String& path)
     {
-       // Level lvl;
-       // lvl.SaveToFile(path);
-       // lvl.SetSID(path);
+        Level lvl;
+        lvl.SaveToFile(path);
     }
 
 } // namespace Lina::World
