@@ -149,24 +149,24 @@ namespace Lina
         double SmoothDeltaTime(double dt);
 
     private:
-        static Engine*                  s_engine;
-        Resources::ResourceManager      m_resourceManager;
-        Physics::PhysicsEngine          m_physicsEngine;
-        Audio::AudioEngine              m_audioEngine;
-        Input::InputEngine              m_inputEngine;
-        Event::EventSystem              m_eventSystem;
-        World::LevelManager             m_levelManager;
-        Graphics::RenderEngine          m_renderEngine;
-        Memory::MemoryManager           m_memoryManager;
-        JobSystem                       m_jobSystem;
-        bool                            m_running           = false;
-        bool                            m_canRender         = true;
-        bool                            m_firstRun          = true;
-        bool                            m_isInPlayMode      = false;
-        bool                            m_paused            = false;
-        bool                            m_shouldSkipFrame   = false;
-        int                             m_frameLimit        = 0;
-        double                          m_frameLimitSeconds = 0;
+        static Engine*                 s_engine;
+        Resources::ResourceManager     m_resourceManager;
+        Physics::PhysicsEngine         m_physicsEngine;
+        Audio::AudioEngine             m_audioEngine;
+        Input::InputEngine             m_inputEngine;
+        Event::EventSystem             m_eventSystem;
+        World::LevelManager            m_levelManager;
+        Graphics::RenderEngine         m_renderEngine;
+        Memory::MemoryManager          m_memoryManager;
+        JobSystem                      m_jobSystem;
+        bool                           m_running           = false;
+        bool                           m_canRender         = true;
+        bool                           m_firstRun          = true;
+        bool                           m_isInPlayMode      = false;
+        bool                           m_paused            = false;
+        bool                           m_shouldSkipFrame   = false;
+        int                            m_frameLimit        = 0;
+        double                         m_frameLimitSeconds = 0;
         // Performance & variable stepping
         int                                    m_currentFPS = 0;
         int                                    m_currentUPS = 0;

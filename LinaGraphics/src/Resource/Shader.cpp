@@ -99,47 +99,46 @@ namespace Lina::Graphics
         return this;
     }
 
-    void Shader::LoadAssetData()
+    void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
-        auto& metacache = Resources::ResourceManager::Get()->GetCache<Shader>()->GetMetaCache(m_sid);
+        const uint32 moduleSize = static_cast<uint32>(m_modules.size());
+        archive(moduleSize);
 
-        if (metacache.IsEmpty())
-            return;
-
-        int i = 0;
+        uint32 i = 0;
         for (auto& [stage, mod] : m_modules)
         {
-            const uint32 byteCodeSize = metacache.GetMetadata<uint32>("modCodeSize" + TO_STRING(i));
-            void*        ptr          = metacache.GetMetadata<void*>("modCode" + TO_STRING(i));
+            const uint32 byteCodeSize = static_cast<uint32>(mod.byteCode.size());
+            archive(byteCodeSize);
 
             if (byteCodeSize > 0)
             {
-                mod.byteCode.resize(byteCodeSize);
-                MEMCPY(mod.byteCode.data(), ptr, byteCodeSize * sizeof(unsigned int));
+                uint8* ptr = (uint8*)&mod.byteCode[0];
+                archive.GetStream().WriteEndianSafe(ptr, byteCodeSize * sizeof(unsigned int));
             }
 
             i++;
         }
     }
 
-    void Shader::SaveAssetData()
+    void Shader::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
-        auto& metacache = Resources::ResourceManager::Get()->GetCache<Shader>()->GetMetaCache(m_sid);
-        metacache.Destroy();
+        uint32 moduleSize = 0;
+        archive(moduleSize);
 
-        const uint32 moduleSize = static_cast<uint32>(m_modules.size());
-        metacache.SaveMetadata<uint32>("moduleSize", moduleSize);
-
-        uint32 i = 0;
+        int i = 0;
         for (auto& [stage, mod] : m_modules)
         {
-            const uint32 byteCodeSize = static_cast<uint32>(mod.byteCode.size());
-            metacache.SaveMetadata<uint32>("modCodeSize" + TO_STRING(i), byteCodeSize);
-            metacache.SaveMetadata("modCode" + TO_STRING(i), mod.byteCode.data(), byteCodeSize * sizeof(unsigned int));
+            uint32 byteCodeSize = 0;
+            archive(byteCodeSize);
+
+            if (byteCodeSize > 0)
+            {
+                mod.byteCode.resize(byteCodeSize);
+                archive.GetStream().ReadEndianSafe(&mod.byteCode[0], byteCodeSize * sizeof(unsigned int));
+            }
+
             i++;
         }
-
-        Resources::ResourceManager::Get()->SaveAllMetadata();
     }
 
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)

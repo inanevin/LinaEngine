@@ -79,61 +79,44 @@ namespace Lina::Graphics
 
         GenerateBuffers(m_pixels);
 
-        // const size_t size = texWidth * texHeight * 4;
-        // m_assetData.pixels.resize(size);
-        // linatl::copy(pixels, pixels + (size), m_assetData.pixels.begin());
-        //
-        // SaveAssetData();
-
         return this;
     }
 
-    void Texture::LoadAssetData()
+    void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
-        auto*       rm        = Resources::ResourceManager::Get();
-        const auto& metacache = rm->GetCache<Texture>()->GetMetaCache(m_sid);
+        const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
+        const uint8  format = static_cast<uint8>(m_assetData.format);
+        const uint8  min    = static_cast<uint8>(m_assetData.minFilter);
+        const uint8  mag    = static_cast<uint8>(m_assetData.magFilter);
+        const uint8  mode   = static_cast<uint8>(m_assetData.mode);
+        archive(format, min, mag, mode);
+        archive(m_assetData.width, m_assetData.height, m_assetData.channels);
+        archive(size);
 
-        if (metacache.IsEmpty())
-            SaveAssetData();
+        if (size != 0)
+            archive.GetStream().WriteEndianSafe(m_pixels, size);
+    }
 
-        m_assetData.format      = static_cast<Format>(metacache.GetMetadata<uint8>("format"));
-        m_assetData.minFilter   = static_cast<Filter>(metacache.GetMetadata<uint8>("min"));
-        m_assetData.magFilter   = static_cast<Filter>(metacache.GetMetadata<uint8>("mag"));
-        m_assetData.mode        = static_cast<SamplerAddressMode>(metacache.GetMetadata<uint8>("mode"));
-        m_assetData.width       = metacache.GetMetadata<uint32>("w");
-        m_assetData.height      = metacache.GetMetadata<uint32>("h");
-        m_assetData.channels    = metacache.GetMetadata<uint32>("cn");
-        const uint32 pixelsSize = metacache.GetMetadata<uint32>("pixelsSize");
+    void Texture::LoadFromArchive(Serialization::Archive<IStream>& archive)
+    {
+        uint8  format = 0, min = 0, mag = 0, mode = 0;
+        uint32 w = 0, h = 0, chn = 0, pixelsSize = 0;
+        archive(format, min, mag, mode);
+        archive(w, h, chn, pixelsSize);
+
+        m_assetData.format    = static_cast<Format>(format);
+        m_assetData.minFilter = static_cast<Filter>(min);
+        m_assetData.magFilter = static_cast<Filter>(mag);
+        m_assetData.mode      = static_cast<SamplerAddressMode>(mode);
+        m_assetData.width     = w;
+        m_assetData.height    = h;
+        m_assetData.channels  = chn;
 
         if (pixelsSize != 0)
         {
-            void* ptr = metacache.GetMetadata<void*>("pixels");
-            m_pixels  = new unsigned char[pixelsSize];
-            MEMCPY(m_pixels, ptr, pixelsSize);
+            m_pixels = new unsigned char[pixelsSize];
+            archive.GetStream().ReadEndianSafe(m_pixels, pixelsSize);
         }
-    }
-
-    void Texture::SaveAssetData()
-    {
-        auto* rm        = Resources::ResourceManager::Get();
-        auto& metacache = rm->GetCache<Texture>()->GetMetaCache(m_sid);
-
-        metacache.Destroy();
-        metacache.SaveMetadata<uint8>("format", static_cast<uint8>(m_assetData.format));
-        metacache.SaveMetadata<uint8>("min", static_cast<uint8>(m_assetData.minFilter));
-        metacache.SaveMetadata<uint8>("mag", static_cast<uint8>(m_assetData.magFilter));
-        metacache.SaveMetadata<uint8>("mode", static_cast<uint8>(m_assetData.mode));
-        metacache.SaveMetadata<uint32>("w", m_assetData.width);
-        metacache.SaveMetadata<uint32>("h", m_assetData.height);
-        metacache.SaveMetadata<uint32>("cn", m_assetData.channels);
-
-        const size_t size = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
-        metacache.SaveMetadata<uint32>("pixelsSize", static_cast<uint32>(size));
-
-        if (size != 0)
-            metacache.SaveMetadata("pixels", m_pixels, size);
-
-        rm->SaveAllMetadata();
     }
 
     void Texture::GenerateBuffers(unsigned char* pixels)

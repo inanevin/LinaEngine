@@ -121,17 +121,19 @@ namespace Lina::Event
         template <typename T, auto Candidate, typename Type>
         void Connect(Type* inst)
         {
+            LOCK_GUARD(m_mtx);
             GetSink<T>()->Connect<Candidate>(inst);
         }
 
         template <typename T, typename Type>
         void Disconnect(Type* inst)
         {
+            LOCK_GUARD(m_mtx);
             GetSink<T>()->Disconnect(inst);
         }
 
         template <typename T>
-        void Trigger(const T& args) 
+        void Trigger(const T& args)
         {
             GetSink<T>()->Trigger(args);
         }
@@ -157,6 +159,7 @@ namespace Lina::Event
         static EventSystem*             s_eventSystem;
         HashMap<TypeID, void*>          m_eventSinks;
         HashMap<TypeID, DisconnectFunc> m_disconnectFunctions;
+        Mutex                           m_mtx;
     };
 } // namespace Lina::Event
 

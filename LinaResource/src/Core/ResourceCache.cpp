@@ -30,14 +30,6 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    void MetadataCache::Destroy()
-    {
-        for (auto& [sid, var] : m_variables)
-            FREE(var.ptr);
-
-        m_variables.clear();
-    }
-
     void ResourceCacheBase::AddResourceHandle(ResourceHandleBase* handle)
     {
         m_handles.insert(handle);
@@ -47,59 +39,4 @@ namespace Lina::Resources
         m_handles.erase(handle);
     }
 
-    void ResourceCacheBase::SaveMetadataToArchive(Serialization::Archive<OStream>& archive)
-    {
-        const uint32 size = static_cast<uint32>(m_metaCache.size());
-        archive(size);
-
-        for (auto& [sid, metaCache] : m_metaCache)
-        {
-            const auto&  variables     = metaCache.m_variables;
-            const uint32 variablesSize = static_cast<uint32>(variables.size());
-            archive(sid);
-            archive(variablesSize);
-
-            for (auto& [variableSid, var] : variables)
-            {
-                const uint32 varSize = static_cast<uint32>(var.size);
-                archive(variableSid);
-                archive(varSize);
-                archive.GetStream().WriteEndianSafe((uint8*)var.ptr, var.size);
-            }
-        }
-    }
-
-    void ResourceCacheBase::LoadMetadataFromArchive(Serialization::Archive<IStream>& archive)
-    {
-        uint32 size = 0;
-        archive(size);
-
-        for (uint32 i = 0; i < size; i++)
-        {
-            uint32 variablesSize = 0;
-            uint32 sid           = 0;
-            archive(sid);
-            archive(variablesSize);
-
-            m_metaCache[sid] = MetadataCache();
-
-            for (uint32 k = 0; k < variablesSize; k++)
-            {
-                StringID variableSid = 0;
-                uint32   varSize     = 0;
-                archive(variableSid);
-                archive(varSize);
-                void* data = MALLOC(varSize);
-                archive.GetStream().ReadEndianSafe(data, varSize);
-                MetaVariable metaVar                      = MetaVariable{.size = varSize, .ptr = data};
-                m_metaCache[sid].m_variables[variableSid] = metaVar;
-            }
-        }
-    }
-
-    void ResourceCacheBase::Shutdown()
-    {
-        for (auto& [sid, cache] : m_metaCache)
-            cache.Destroy();
-    }
 } // namespace Lina::Resources

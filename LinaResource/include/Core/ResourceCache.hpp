@@ -44,107 +44,6 @@ namespace Lina::Resources
     class Resource;
     class ResourceHandleBase;
 
-    struct MetaVariable
-    {
-        size_t size = 0;
-        void*  ptr  = nullptr;
-    };
-
-    class MetadataCache
-    {
-    public:
-        template <typename T>
-        void SaveMetadata(const String& name, const T& data)
-        {
-            const StringID sid  = HashedString(name.c_str()).value();
-            const size_t   size = sizeof(T);
-
-            if (m_variables.contains(sid))
-            {
-                MEMCPY(m_variables[sid].ptr, &data, size);
-                return;
-            }
-
-            void* ptr = MALLOC(size);
-
-            if (ptr)
-            {
-                MEMCPY(ptr, &data, size);
-                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
-            }
-        }
-
-        template <>
-        void SaveMetadata<String>(const String& name, const String& data)
-        {
-            const StringID sid  = HashedString(name.c_str()).value();
-            const size_t   size = data.size();
-
-            void* ptr = MALLOC(size);
-
-            if (ptr)
-            {
-                if (m_variables.contains(sid))
-                    FREE(m_variables[sid].ptr);
-
-                MEMCPY(ptr, data.data(), size);
-                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
-            }
-        }
-
-        void SaveMetadata(const String& name, const void* data, size_t size)
-        {
-            const StringID sid = HashedString(name.c_str()).value();
-            void*          ptr = MALLOC(size);
-
-            if (ptr)
-            {
-                if (m_variables.contains(sid))
-                    FREE(m_variables[sid].ptr);
-
-                MEMCPY(ptr, data, size);
-                m_variables[sid] = MetaVariable{.size = size, .ptr = ptr};
-            }
-        }
-
-        template <typename T>
-        T GetMetadata(const String& name) const
-        {
-            const StringID sid = HashedString(name.c_str()).value();
-            return *(static_cast<T*>(m_variables.at(sid).ptr));
-        }
-
-        template <>
-        void* GetMetadata(const String& name) const
-        {
-            const StringID sid = HashedString(name.c_str()).value();
-            return m_variables.at(sid).ptr;
-        }
-
-        template <>
-        String GetMetadata<String>(const String& name) const
-        {
-            const StringID sid  = HashedString(name.c_str()).value();
-            String         str  = "";
-            const size_t   size = m_variables.at(sid).size;
-            str.resize(size);
-            MEMCPY(&str[0], m_variables.at(sid).ptr, size);
-            return str;
-        }
-
-        inline bool IsEmpty() const
-        {
-            return m_variables.empty();
-        }
-
-        void Destroy();
-
-    private:
-        friend class ResourceCacheBase;
-
-        HashMap<StringID, MetaVariable> m_variables;
-    };
-
     class ResourceCacheBase
     {
     public:
@@ -160,28 +59,20 @@ namespace Lina::Resources
             return m_handles;
         }
 
-        inline MetadataCache& GetMetaCache(StringID sid)
-        {
-            return m_metaCache[sid];
-        }
-
     protected:
         friend class ResourceManager;
         friend class DefaultResourceLoader;
         friend class EditorResourceLoader;
 
-        void              SaveMetadataToArchive(Serialization::Archive<OStream>& archive);
-        void              LoadMetadataFromArchive(Serialization::Archive<IStream>& archive);
         virtual void      Initialize(const ResourceTypeData& typeData) = 0;
-        virtual void      Shutdown();
-        virtual Resource* Create(StringID sid) = 0;
+        virtual void      Shutdown()                                   = 0;
+        virtual Resource* Create(StringID sid)                         = 0;
 
     protected:
         friend class ResourceLoader;
         friend class EditorResourceLoader;
 
-        HashSet<ResourceHandleBase*>                  m_handles;
-        ParallelHashMapMutex<StringID, MetadataCache> m_metaCache;
+        HashSet<ResourceHandleBase*> m_handles;
     };
 
     template <typename T>
@@ -248,8 +139,6 @@ namespace Lina::Resources
 
         virtual void Shutdown() override
         {
-            ResourceCacheBase::Shutdown();
-
             for (auto& [sid, res] : m_resources)
             {
                 if (!res)

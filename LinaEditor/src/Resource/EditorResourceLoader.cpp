@@ -82,10 +82,9 @@ namespace Lina::Resources
             res->m_tid      = tid;
             res->LoadFromFile(path);
 
-            m_mtx.lock();
+            LOCK_GUARD(m_mtx);
             Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
-            m_mtx.unlock();
         };
 
         if (async)

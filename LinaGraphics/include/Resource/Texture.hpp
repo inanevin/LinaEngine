@@ -48,9 +48,9 @@ namespace Lina::Graphics
             SamplerAddressMode mode      = SamplerAddressMode::Repeat;
 
             // Runtime
-            uint32                width    = 0;
-            uint32                height   = 0;
-            uint32                channels = 0;
+            uint32 width    = 0;
+            uint32 height   = 0;
+            uint32 channels = 0;
         };
 
     public:
@@ -59,8 +59,6 @@ namespace Lina::Graphics
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
-        virtual void      LoadAssetData() override;
-        virtual void      SaveAssetData() override;
 
         inline Image& GetImage()
         {
@@ -71,6 +69,10 @@ namespace Lina::Graphics
         {
             return m_sampler;
         }
+
+    protected:
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         void GenerateBuffers(unsigned char* pixels);

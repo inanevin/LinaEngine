@@ -59,8 +59,6 @@ namespace Lina::Editor
 
         if (!Utility::FileExists("Resources/render.linasettings"))
             Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings");
-
-        Resources::ResourceManager::Get()->LoadAllMetadata();
     }
 
     void EditorManager::CreateEditorCamera()

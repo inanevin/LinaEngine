@@ -36,7 +36,8 @@ namespace Lina::Serialization
 {
     size_t EstimateDecompressSize(size_t compressedSize)
     {
-        return (compressedSize << 8) - compressedSize - 2526;
+        // return (compressedSize << 8) - compressedSize - 2526;
+        return 255 * compressedSize + 24;
     }
 
     OStream Compressor::Compress(const OStream& stream)
@@ -48,7 +49,7 @@ namespace Lina::Serialization
         OStream compressedStream;
         compressedStream.CreateReserve(compressBound);
         char* dest = (char*)compressedStream.GetDataRaw();
-
+        
         char* data         = (char*)stream.GetDataRaw();
         int   bytesWritten = LZ4_compress_default(data, dest, size, compressBound);
         compressedStream.Shrink(static_cast<size_t>(bytesWritten));
@@ -64,7 +65,7 @@ namespace Lina::Serialization
         decompressedStream.Create(decompressedEst);
         void*     src              = stream.GetDataRaw();
         void*     ptr              = decompressedStream.GetDataRaw();
-        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, size, decompressedEst);
+        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedEst));
         decompressedStream.Shrink(static_cast<size_t>(decompressedSize));
         return decompressedStream;
     }

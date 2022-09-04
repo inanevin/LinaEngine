@@ -43,7 +43,10 @@ namespace Lina::Audio
     {
         struct AssetData
         {
-            int dummy = 0;
+            int    size   = 0;
+            int    format = 0;
+            float  freq   = 0.0f;
+            uint8* data   = nullptr;
         };
 
     public:
@@ -52,24 +55,23 @@ namespace Lina::Audio
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
-        virtual void      LoadAssetData() override;
-        virtual void      SaveAssetData() override;
 
         unsigned int GetBuffer()
         {
             return m_buffer;
         }
 
+    protected:
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+
     private:
         static void CheckForError();
 
     private:
-        AssetData    m_assetData;
-        int          m_size   = 0;
-        int          m_format = 0;
+        AssetData m_assetData;
+
         unsigned int m_buffer = 0;
-        float        m_freq   = 0.0f;
-        void*        m_data   = nullptr;
     };
 } // namespace Lina::Audio
 

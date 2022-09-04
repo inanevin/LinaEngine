@@ -144,14 +144,8 @@ namespace Lina
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
+        g_defaultResources.m_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
         g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
-       // g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_1.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_2.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_3.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_4.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_5.png");
-       //g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Tests/empire_diffuse_6.png");
         m_resourceManager.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
@@ -159,8 +153,12 @@ namespace Lina
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/lina.rendersettings");
 
         // Temp
-        // Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/DefaultTextured.linashader");
+        Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/Default.linashader");
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
+
+        // Graphics::Material mat;
+        // mat.SetShader(shader);
+        // Serialization::SaveToFile<Graphics::Material>("Resources/Default.linamat", mat);
     }
 
     void Engine::PackageProject(const String& path)

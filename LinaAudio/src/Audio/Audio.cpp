@@ -71,23 +71,29 @@ namespace Lina::Audio
 
     Resources::Resource* Audio::LoadFromFile(const String& path)
     {
+        LoadAssetData();
+
         ALsizei size;
         ALfloat freq;
         ALenum  format;
-        ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
 
-        ALenum err = alutGetError();
-        LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
+        if (m_assetData.data == nullptr)
+        {
+            ALvoid* data = alutLoadMemoryFromFile(path.c_str(), &format, &size, &freq);
+            ALenum  err  = alutGetError();
+            LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", path, alutGetErrorString(err));
 
-        m_data   = data;
-        m_format = format;
-        m_size   = size;
-        m_freq   = freq;
+            m_assetData.data   = (uint8*)data;
+            m_assetData.format = format;
+            m_assetData.size   = size;
+            m_assetData.freq   = freq;
+            SaveAssetData();
+        }
 
-        LoadAssetData();
         alGenBuffers((ALuint)1, &m_buffer);
-        alBufferData(m_buffer, format, data, size, (ALsizei)freq);
-        free(data);
+        alBufferData(m_buffer, (ALenum)m_assetData.format, (ALvoid*)m_assetData.data, (ALsizei)m_assetData.size, (ALsizei)m_assetData.freq);
+        free(m_assetData.data);
+        m_assetData.data = nullptr;
 
 #ifdef LINA_DEBUG
         CheckForError();
@@ -96,12 +102,27 @@ namespace Lina::Audio
         return this;
     }
 
-    void Audio::LoadAssetData()
+    void Audio::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
+        archive(m_assetData.format);
+        archive(m_assetData.freq);
+        archive(m_assetData.size);
+
+        if (m_assetData.size > 0)
+            archive.GetStream().WriteEndianSafe(m_assetData.data, m_assetData.size);
     }
 
-    void Audio::SaveAssetData()
+    void Audio::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
+        archive(m_assetData.format);
+        archive(m_assetData.freq);
+        archive(m_assetData.size);
+
+        if (m_assetData.size > 0)
+        {
+            m_assetData.data = new uint8[m_assetData.size];
+            archive.GetStream().ReadEndianSafe(m_assetData.data, m_assetData.size);
+        }
     }
 
     void Audio::CheckForError()

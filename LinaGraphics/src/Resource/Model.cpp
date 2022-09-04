@@ -59,33 +59,25 @@ namespace Lina::Graphics
         return this;
     }
 
-    void Model::LoadAssetData()
+    void Model::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
-        const auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
-        if (metacache.IsEmpty())
-            SaveAssetData();
-
-        m_assetData.calculateTangent = metacache.GetMetadata<bool>("CalcTang");
-        m_assetData.smoothNormals    = metacache.GetMetadata<bool>("SmoothNorm");
-        m_assetData.flipUVs          = metacache.GetMetadata<bool>("flipUV");
-        m_assetData.flipWinding      = metacache.GetMetadata<bool>("flipWinding");
-        m_assetData.triangulate      = metacache.GetMetadata<bool>("tri");
-        m_assetData.globalScale      = metacache.GetMetadata<float>("scale");
+        archive(m_assetData.calculateTangent);
+        archive(m_assetData.smoothNormals);
+        archive(m_assetData.flipUVs);
+        archive(m_assetData.flipWinding);
+        archive(m_assetData.triangulate);
+        archive(m_assetData.globalScale);
     }
 
-    void Model::SaveAssetData()
+    void Model::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
-        auto& metacache = Resources::ResourceManager::Get()->GetCache<Model>()->GetMetaCache(m_sid);
-        metacache.Destroy();
-        metacache.SaveMetadata<bool>("CalcTang", m_assetData.calculateTangent);
-        metacache.SaveMetadata<bool>("SmoothNorm", m_assetData.smoothNormals);
-        metacache.SaveMetadata<bool>("flipUV", m_assetData.flipUVs);
-        metacache.SaveMetadata<bool>("flipWinding", m_assetData.flipWinding);
-        metacache.SaveMetadata<bool>("tri", m_assetData.triangulate);
-        metacache.SaveMetadata<float>("scale", m_assetData.globalScale);
-        Resources::ResourceManager::Get()->SaveAllMetadata();
+        archive(m_assetData.calculateTangent);
+        archive(m_assetData.smoothNormals);
+        archive(m_assetData.flipUVs);
+        archive(m_assetData.flipWinding);
+        archive(m_assetData.triangulate);
+        archive(m_assetData.globalScale);
     }
-
     World::Entity* Model::AddToWorld(World::EntityWorld* w)
     {
         return CreateEntityForNode(nullptr, w, m_rootNode);
@@ -122,4 +114,5 @@ namespace Lina::Graphics
 
         return e;
     }
+
 } // namespace Lina::Graphics

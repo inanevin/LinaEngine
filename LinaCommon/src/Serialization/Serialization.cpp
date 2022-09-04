@@ -49,6 +49,7 @@ namespace Lina::Serialization
         // Copy data to ofstream & write file
         compressed.WriteToStream(wf);
         wf.close();
+        compressed.Destroy();
 
         if (!wf.good())
         {

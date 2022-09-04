@@ -43,7 +43,7 @@ namespace Lina::Graphics
             .usage         = GetMemoryUsageFlags(memoryUsageFlags),
             .requiredFlags = VkMemoryPropertyFlags(GetMemoryPropertyFlags(memoryPropertyFlags)),
         };
-
+     
         VkResult res = vmaCreateImage(Backend::Get()->GetVMA(), &imgInfo, &allocinfo, &_allocatedImg.image, &_allocatedImg.allocation, nullptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Image] -> Could not create image!");
 

@@ -146,8 +146,6 @@ namespace Lina::Resources
             return m_loader;
         }
 
-        void SaveAllMetadata();
-
     private:
         friend class Engine;
         friend class Editor::EditorManager;
@@ -158,7 +156,6 @@ namespace Lina::Resources
         void Initialize();
         void Shutdown();
         void LoadEngineResources();
-        void LoadAllMetadata();
 
     private:
         static ResourceManager*             s_instance;

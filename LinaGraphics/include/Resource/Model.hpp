@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/Vertex.hpp"
 #include "Data/String.hpp"
-
 namespace Lina
 {
     namespace World
@@ -43,6 +42,7 @@ namespace Lina
         class EntityWorld;
         class Entity;
     } // namespace World
+
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -66,8 +66,6 @@ namespace Lina::Graphics
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
-        virtual void      LoadAssetData() override;
-        virtual void      SaveAssetData() override;
 
         World::Entity* AddToWorld(World::EntityWorld* w);
 
@@ -85,6 +83,10 @@ namespace Lina::Graphics
         {
             return m_nodes;
         }
+
+    protected:
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         World::Entity* CreateEntityForNode(World::Entity* parent, World::EntityWorld* w, ModelNode* n);

@@ -35,10 +35,11 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Streams.hpp"
 #include "Utility/StringId.hpp"
+#include "Serialization/Archive.hpp"
 
 namespace Lina
 {
-   
+
     namespace Memory
     {
         class MemoryManager;
@@ -56,8 +57,6 @@ namespace Lina::Resources
 
         virtual Resource* LoadFromFile(const String& path)      = 0;
         virtual Resource* LoadFromMemory(const IStream& stream) = 0;
-        virtual void      LoadAssetData(){};
-        virtual void      SaveAssetData(){};
 
         inline TypeID GetTID()
         {
@@ -73,6 +72,16 @@ namespace Lina::Resources
         {
             return m_path;
         }
+
+    protected:
+        virtual void SaveAssetData();
+        virtual void LoadAssetData();
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive){};
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive){};
+
+        Serialization::Archive<IStream> GetMetaArchive();
+        void                            SaveMetaArchive(Serialization::Archive<OStream>& arch);
+        bool                            MetaArchiveExists();
 
     protected:
         template <typename U>

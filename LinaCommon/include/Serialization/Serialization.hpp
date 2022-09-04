@@ -49,6 +49,9 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
+
+#define COMPRESS_MIN_LIMIT 1000
+
     template <typename T>
     uint32 GetClassVersion()
     {
@@ -81,25 +84,17 @@ namespace Lina::Serialization
         arch(obj);
 
         // Copy to ofstream & write file.
-        arch.GetStream().WriteToStream(wf);
+        OStream compressed = Compressor::Compress(arch.GetStream());
+        compressed.WriteToStream(wf);
         wf.close();
+        arch.GetStream().Destroy();
+        compressed.Destroy();
 
         if (!wf.good())
         {
             LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
             return;
         }
-
-        arch.GetStream().Destroy();
-    }
-
-    extern void SaveArchiveToFile(const String& path, Archive<OStream>& archive);
-
-    template <typename T>
-    void SaveToFile(const String& path)
-    {
-        T obj = T();
-        SaveToFile<T>(path, obj);
     }
 
     template <typename T>
@@ -123,6 +118,10 @@ namespace Lina::Serialization
         arch.GetStream().ReadFromStream(rf);
         rf.close();
 
+        IStream decompressed = Compressor::Decompress(arch.GetStream());
+        arch.GetStream().Destroy();
+        arch.SetStream(decompressed);
+
         if (!rf.good())
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
@@ -132,10 +131,7 @@ namespace Lina::Serialization
         arch.Version = version;
 
         if (version != GetClassVersion<T>())
-        {
-            LINA_WARN("[Serialization] -> Class versions do not match, loading default class. {0}", typeid(T).name());
-            return;
-        }
+            LINA_WARN("[Serialization] -> Class versions do not match! {0}", typeid(T).name());
 
         // Read objects.
         arch(obj);
@@ -143,13 +139,20 @@ namespace Lina::Serialization
     }
 
     template <typename T>
+    void SaveToFile(const String& path)
+    {
+        T obj = T();
+        SaveToFile(path, obj);
+    }
+
+    template <typename T>
     T LoadFromFile(const String& path)
     {
         T obj = T();
-        LoadFromFile<T>(path, obj);
+        LoadFromFile(path, obj);
         return obj;
     }
-
+    extern void             SaveArchiveToFile(const String& path, Archive<OStream>& archive);
     extern Archive<IStream> LoadArchiveFromFile(const String& path);
 
 } // namespace Lina::Serialization

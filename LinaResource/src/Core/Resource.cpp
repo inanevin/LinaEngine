@@ -27,8 +27,55 @@ SOFTWARE.
 */
 
 #include "Core/Resource.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina::Resources
 {
+    String GetFilename(const String& path)
+    {
+        const String basePath  = "Resources/Editor/Metacache/";
+        const String ext       = ".linameta";
+        const String name      = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
+        const String sidStr    = TO_STRING(HashedString(path.c_str()).value());
+        const String finalName = basePath + name + "-" + sidStr + ext;
+        return finalName;
+    }
 
+    Serialization::Archive<IStream> Resource::GetMetaArchive()
+    {
+        const String path = GetFilename(m_path);
+        if (!Utility::FileExists(path))
+            return Serialization::Archive<IStream>();
+
+        return Serialization::LoadArchiveFromFile(path);
+    }
+
+    void Resource::SaveMetaArchive(Serialization::Archive<OStream>& arch)
+    {
+        const String path = GetFilename(m_path);
+        Serialization::SaveArchiveToFile(path, arch);
+    }
+    bool Resource::MetaArchiveExists()
+    {
+        const String path = GetFilename(m_path);
+        return Utility::FileExists(path);
+    }
+
+    void Resource::LoadAssetData()
+    {
+        if (!MetaArchiveExists())
+            SaveAssetData();
+
+        auto archive = GetMetaArchive();
+        LoadFromArchive(archive);
+        archive.GetStream().Destroy();
+    }
+
+    void Resource::SaveAssetData()
+    {
+        Serialization::Archive<OStream> archive;
+        archive.GetStream().CreateReserve(200);
+        SaveToArchive(archive);
+        SaveMetaArchive(archive);
+    }
 } // namespace Lina::Resources
