@@ -44,6 +44,12 @@ namespace Lina::Graphics
         Vector3 normal;
         Color   color;
         Vector2 uv;
+
+        template<typename Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(pos, normal, color, uv);
+        }
     };
 
 } // namespace Lina::Graphics

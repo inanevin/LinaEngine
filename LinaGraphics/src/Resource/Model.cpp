@@ -55,7 +55,13 @@ namespace Lina::Graphics
     Resources::Resource* Model::LoadFromFile(const String& path)
     {
         LoadAssetData();
-        ModelLoader::LoadModel(path, this);
+
+        if (m_rootNode == nullptr)
+        {
+            ModelLoader::LoadModel(path, this);
+            SaveAssetData();
+        }
+
         return this;
     }
 
@@ -67,6 +73,13 @@ namespace Lina::Graphics
         archive(m_assetData.flipWinding);
         archive(m_assetData.triangulate);
         archive(m_assetData.globalScale);
+        archive(m_numMaterials, m_numAnims, m_numMeshes, m_numBones, m_numVertices);
+
+        const uint32 nodeSize = static_cast<uint32>(m_nodes.size());
+        archive(nodeSize);
+
+        for (uint32 i = 0; i < nodeSize; i++)
+            archive(*m_nodes[i]);
     }
 
     void Model::LoadFromArchive(Serialization::Archive<IStream>& archive)
@@ -77,7 +90,37 @@ namespace Lina::Graphics
         archive(m_assetData.flipWinding);
         archive(m_assetData.triangulate);
         archive(m_assetData.globalScale);
+        archive(m_numMaterials, m_numAnims, m_numMeshes, m_numBones, m_numVertices);
+
+        uint32 nodeSize = 0;
+        archive(nodeSize);
+
+        for (uint32 i = 0; i < nodeSize; i++)
+        {
+            ModelNode* node = new ModelNode();
+            archive(*node);
+            m_nodes.push_back(node);
+        }
+
+        if (nodeSize == 0)
+            return;
+
+        m_rootNode = m_nodes[0];
+
+        // Assign childrens & generate gpu buffers.
+        for (auto* node : m_nodes)
+        {
+            for (auto& childrenIndex : node->m_childrenIndices)
+                node->m_children.push_back(m_nodes[childrenIndex]);
+
+            for (auto* mesh : node->m_meshes)
+            {
+                mesh->GenerateBuffers();
+                mesh->ClearInitialBuffers();
+            }
+        }
     }
+
     World::Entity* Model::AddToWorld(World::EntityWorld* w)
     {
         return CreateEntityForNode(nullptr, w, m_rootNode);

@@ -47,6 +47,12 @@ namespace Lina
 
 namespace Lina::Graphics
 {
+    enum class MeshType
+    {
+        StaticMesh,
+        SkinnedMesh
+    };
+
     class Mesh
     {
     public:
@@ -78,15 +84,39 @@ namespace Lina::Graphics
             return m_materialSlot;
         }
 
+        virtual MeshType GetMeshType() = 0;
+
+        template <typename Archive>
+        void Save(Archive& archive)
+        {
+            archive(m_vertexCenter, m_aabb, m_materialSlot, m_name);
+            archive(m_indices, m_vertices);
+            SaveToArchive(archive);
+        }
+
+        template <typename Archive>
+        void Load(Archive& archive)
+        {
+            archive(m_vertexCenter, m_aabb, m_materialSlot, m_name);
+            archive(m_indices, m_vertices);
+            LoadFromArchive(archive);
+        }
+
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive){};
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive){};
+
     protected:
     private:
         void AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv);
         void AddIndices(uint32 i1);
         void GenerateBuffers();
+        void ClearInitialBuffers();
 
     private:
     protected:
         friend class ModelLoader;
+        friend class ModelNode;
+        friend class Model;
         friend struct ECS::ModelComponent;
 
         Buffer         m_gpuVtxBuffer;

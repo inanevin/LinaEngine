@@ -51,6 +51,12 @@ namespace Lina
         }
         ~AABB() = default;
 
+        template <typename Archive>
+        void Serialize(Archive& archive)
+        {
+            archive(boundsHalfExtents, boundsMin, boundsMax, positions);
+        }
+
         /// <summary>
         /// Returns true if this box is inside the given plane, given an arbitrary position.
         /// </summary>

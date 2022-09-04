@@ -40,6 +40,11 @@ namespace Lina::Graphics
     public:
         StaticMesh()          = default;
         virtual ~StaticMesh() = default;
+
+        virtual MeshType GetMeshType() override
+        {
+            return MeshType::StaticMesh;
+        };
     };
 
 } // namespace Lina::Graphics
