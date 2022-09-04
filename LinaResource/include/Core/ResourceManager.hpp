@@ -91,9 +91,9 @@ namespace Lina::Resources
             return cache->Exists(sid);
         }
 
-        bool Exists(TypeID tid, StringID sid)
+        bool Exists(TypeID tid, StringID sid) const
         {
-            return m_caches[tid]->Exists(sid);
+            return m_caches.at(tid)->Exists(sid);
         }
 
         template <typename T>

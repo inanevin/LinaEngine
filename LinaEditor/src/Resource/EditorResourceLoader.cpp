@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Core/Level.hpp"
 #include <iostream>
 #include <fstream>
 namespace Lina::Resources
@@ -60,6 +61,39 @@ namespace Lina::Resources
 
     void EditorResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
     {
+        auto* rm = Resources::ResourceManager::Get();
+
+        // Remove the currently loaded resources if they are not used by the next level.
+
+        const auto& caches = rm->GetCaches();
+
+        const TypeID levelTid = GetTypeID<World::Level>();
+        for (auto [tid, cache] : caches)
+        {
+            if (tid != levelTid)
+                cache->UnloadUnusedLevelResources(resources);
+        }
+
+        // Add the ones that are not currently loaded.
+        Vector<Pair<TypeID, String>> toLoad;
+        for (auto& pair : resources)
+        {
+            const StringID sid = TO_SID(pair.second);
+            if (!rm->Exists(pair.first, sid))
+                toLoad.push_back(linatl::make_pair(pair.first, pair.second));
+        }
+
+        const int    totalFiles = static_cast<int>(toLoad.size());
+        const double time       = Time::GetCPUTime();
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading level resources", .totalFiles = totalFiles});
+
+        for (auto& pair : toLoad)
+            LoadResource(pair.first, pair.second, true);
+
+        JobSystem::Get()->GetResourceExecutor().Wait();
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+        const double diff = Time::GetCPUTime() - time;
+        LINA_TRACE("[Resource Loader] -> Loading level resources took {0} seconds.", diff);
     }
 
     void EditorResourceLoader::LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async)

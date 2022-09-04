@@ -89,6 +89,7 @@ namespace Lina::World
 
     private:
         friend class LevelManager;
+        friend class Engine;
 
         Vector<Pair<TypeID, String>> m_usedResources;
 

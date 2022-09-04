@@ -64,7 +64,9 @@ namespace Lina::World
 
         // Load level file itself.
         Resources::ResourceManager* storage = Resources::ResourceManager::Get();
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading level file.", .totalFiles = 1});
         storage->GetLoader()->LoadResource(GetTypeID<Level>(), path, false);
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>();
         m_currentLevel = storage->GetResource<Level>(path);
 
         // Notify that we are starting to load the resources for this level.
@@ -104,7 +106,11 @@ namespace Lina::World
         auto& resources = m_currentLevel->GetResources();
         auto* storage   = Resources::ResourceManager::Get();
         for (const auto& pair : resources)
-            storage->Unload(pair.first, pair.second);
+        {
+            const StringID sid = TO_SID(pair.second);
+            if (!g_defaultResources.IsEngineResource(pair.first, sid) && storage->Exists(pair.first, sid))
+                storage->Unload(pair.first, pair.second);
+        }
 
         Resources::ResourceManager::Get()->Unload<Level>(m_currentLevel->GetSID());
         m_currentLevel = nullptr;

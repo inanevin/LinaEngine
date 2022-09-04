@@ -50,9 +50,10 @@ namespace Lina::Resources
         virtual const ResourceTypeData& GetTypeData() = 0;
         void                            AddResourceHandle(ResourceHandleBase* handle);
         void                            RemoveResourceHandle(ResourceHandleBase* handle);
-        virtual Resource*               GetResourceBase(StringID sid) = 0;
-        virtual void                    UnloadBase(StringID sid)      = 0;
-        virtual bool                    Exists(StringID sid)          = 0;
+        virtual Resource*               GetResourceBase(StringID sid)                                                  = 0;
+        virtual void                    UnloadBase(StringID sid)                                                       = 0;
+        virtual bool                    Exists(StringID sid) const                                                     = 0;
+        virtual void                    UnloadUnusedLevelResources(const Vector<Pair<TypeID, String>>& levelResources) = 0;
 
         HashSet<ResourceHandleBase*>& GetResourceHandles()
         {
@@ -98,22 +99,26 @@ namespace Lina::Resources
 
         virtual Resource* Create(StringID sid)
         {
-            T* ptr           = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
+            T* ptr = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
+
+            m_mtx.lock();
             m_resources[sid] = ptr;
+            m_mtx.unlock();
+
             return static_cast<Resource*>(ptr);
         }
 
         T* GetResource(StringID sid)
         {
-            return m_resources[sid];
+            return m_resources.at(sid);
         }
 
         inline virtual Resource* GetResourceBase(StringID sid) override
         {
-            return static_cast<Resource*>(m_resources[sid]);
+            return static_cast<Resource*>(m_resources.at(sid));
         }
 
-        virtual bool Exists(StringID sid) override
+        virtual bool Exists(StringID sid) const override
         {
             return m_resources.find(sid) != m_resources.end();
         }
@@ -129,7 +134,7 @@ namespace Lina::Resources
 
         void Unload(StringID sid)
         {
-            Unload(m_resources[sid]);
+            Unload(m_resources.at(sid));
         }
 
         inline virtual void UnloadBase(StringID sid) override
@@ -151,9 +156,45 @@ namespace Lina::Resources
             }
         }
 
+        virtual void UnloadUnusedLevelResources(const Vector<Pair<TypeID, String>>& levelResources) override
+        {
+            const TypeID     tid = GetTypeID<T>();
+            Vector<StringID> toUnload;
+            toUnload.reserve(m_resources.size());
+
+            auto n = typeid(T).name();
+            for (auto& [sid, res] : m_resources)
+            {
+                bool found = false;
+
+                if (g_defaultResources.IsEngineResource(tid, sid))
+                    continue;
+
+                for (auto& pair : levelResources)
+                {
+                    if (pair.first != tid)
+                        continue;
+
+                    const StringID levelResSid = HashedString(pair.second.c_str()).value();
+                    if (sid == levelResSid)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    toUnload.push_back(sid);
+            }
+
+            for (auto sid : toUnload)
+                UnloadBase(sid);
+        };
+
     private:
-        ParallelHashMapMutex<StringID, T*> m_resources;
-        ResourceTypeData                   m_typeData;
+        Mutex                 m_mtx;
+        HashMap<StringID, T*> m_resources;
+        ResourceTypeData      m_typeData;
     };
 } // namespace Lina::Resources
 

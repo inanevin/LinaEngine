@@ -45,9 +45,12 @@ namespace Lina
         return entt::type_hash<T>::value();
     }
 
-    constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept {
+    constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept
+    {
         return HashedString(str).value();
     }
+
+#define TO_SID(X) HashedString(X.c_str()).value()
 } // namespace Lina
 
 #endif

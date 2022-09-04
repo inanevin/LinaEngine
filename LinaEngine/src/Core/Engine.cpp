@@ -149,11 +149,11 @@ namespace Lina
         m_resourceManager.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
-        m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/lina.enginesettings");
-        m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/lina.rendersettings");
+        m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/engine.linasettings");
+        m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
         // Temp
-        Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/Default.linashader");
+        // Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/Default.linashader");
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
 
         // Graphics::Material mat;
@@ -273,8 +273,12 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
+        auto* c = m_resourceManager.GetCache<EngineSettings>();
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
+        m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
+        m_levelManager.SaveCurrentLevel();
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
