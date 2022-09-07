@@ -60,6 +60,7 @@ namespace Lina::Physics
         static PhysicsMaterial* CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution);
         virtual Resource*       LoadFromMemory(const IStream& stream) override;
         virtual Resource*       LoadFromFile(const String& path) override;
+        virtual void            WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         float GetStaticFriction()
         {
@@ -81,8 +82,6 @@ namespace Lina::Physics
         float m_staticFriction  = 0.5f;
         float m_dynamicFriction = 0.5f;
         float m_restitution     = 0.5f;
-
-       
     };
 } // namespace Lina::Physics
 

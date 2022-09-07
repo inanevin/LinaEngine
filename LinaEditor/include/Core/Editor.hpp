@@ -63,7 +63,8 @@ namespace Lina::Editor
         void CreateEditorCamera();
         void DeleteEditorCamera();
         void SaveCurrentLevel();
-
+        void PackageProject();
+        
     private:
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;

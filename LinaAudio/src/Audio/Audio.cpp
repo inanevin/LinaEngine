@@ -102,6 +102,33 @@ namespace Lina::Audio
         return this;
     }
 
+    void Audio::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        LoadAssetData();
+
+        ALsizei size;
+        ALfloat freq;
+        ALenum  format;
+
+        if (m_assetData.data == nullptr)
+        {
+            ALvoid* data = alutLoadMemoryFromFile(m_path.c_str(), &format, &size, &freq);
+            ALenum  err = alutGetError();
+            LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file: {0} {1}", m_path, alutGetErrorString(err));
+
+            m_assetData.data = (uint8*)data;
+            m_assetData.format = format;
+            m_assetData.size = size;
+            m_assetData.freq = freq;
+        }
+
+        // Write to archive.
+        SaveToArchive(archive);
+
+        free(m_assetData.data);
+        m_assetData.data = nullptr;
+    }
+
     void Audio::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         archive(m_assetData.format);

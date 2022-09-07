@@ -43,4 +43,10 @@ namespace Lina
         Serialization::LoadFromFile<RenderSettings>(path, *this);
         return this;
     }
+
+    void RenderSettings::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<RenderSettings>(m_path, *this);
+        Serialize(archive);
+    }
 } // namespace Lina

@@ -242,8 +242,6 @@ namespace Lina::Graphics
                 currentMinBounds.z = meshBoundsMin.z;
             if (meshBoundsMax.z > currentMaxBounds.z)
                 currentMaxBounds.z = meshBoundsMax.z;
-
-            addedMesh->GenerateBuffers();
         }
 
         // Take the average of total bounds if we have any meshes for this node.

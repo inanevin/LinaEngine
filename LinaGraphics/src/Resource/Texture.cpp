@@ -82,6 +82,23 @@ namespace Lina::Graphics
         return this;
     }
 
+    void Texture::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        LoadAssetData();
+
+        if (m_pixels == nullptr)
+        {
+            int texWidth, texHeight, texChannels;
+            m_pixels = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_assetData.width = static_cast<uint32>(texWidth);
+            m_assetData.height = static_cast<uint32>(texHeight);
+            m_assetData.channels = static_cast<uint32>(texChannels);
+        }
+
+        SaveToArchive(archive);
+        stbi_image_free(m_pixels);
+    }
+
     void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);

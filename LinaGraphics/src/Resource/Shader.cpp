@@ -99,6 +99,39 @@ namespace Lina::Graphics
         return this;
     }
 
+    void Shader::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        std::ifstream file;
+        file.open(m_path.c_str());
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        m_text = buffer.str().c_str();
+        file.close();
+        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
+        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
+        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
+        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
+        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
+        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
+
+        LoadAssetData();
+
+        bool missing = false;
+        for (auto& [stage, mod] : m_modules)
+        {
+            if (mod.byteCode.empty())
+            {
+                missing = true;
+                break;
+            }
+        }
+
+        if (missing)
+            GenerateByteCode();
+
+        SaveToArchive(archive);
+    }
+
     void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         const uint32 moduleSize = static_cast<uint32>(m_modules.size());

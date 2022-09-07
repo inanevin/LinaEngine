@@ -40,6 +40,9 @@ SOFTWARE.
 #include "Resource/EditorResourceLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Serialization/Serialization.hpp"
+#include "Core/ResourcePackager.hpp"
+#include "Core/Engine.hpp"
+#include "Core/Level.hpp"
 
 namespace Lina::Editor
 {
@@ -82,6 +85,88 @@ namespace Lina::Editor
         DeleteEditorCamera();
         World::LevelManager::Get()->SaveCurrentLevel();
         CreateEditorCamera();
+    }
+
+    void EditorManager::PackageProject()
+    {
+
+        auto* rm = Resources::ResourceManager::Get();
+
+        // Fill engine resources.
+        const auto&                  engineRes = g_defaultResources.GetEngineResources();
+        Vector<Pair<TypeID, String>> engineResToPack;
+
+        for (auto& [tid, vec] : engineRes)
+        {
+            for (auto& s : vec)
+                engineResToPack.push_back(linatl::make_pair(tid, s));
+        }
+
+        // Fill level files.
+        Vector<Pair<TypeID, String>> levelFiles;
+        const auto&                  levels = Engine::Get()->GetEngineSettings()->GetPackagedLevels();
+
+        const TypeID levelsTID = GetTypeID<World::Level>();
+        for (auto& lvl : levels)
+            levelFiles.push_back(linatl::make_pair(levelsTID, lvl));
+
+        // Then fill all resources w/ their respective package types.
+        HashMap<Resources::PackageType, Vector<Pair<TypeID, String>>> resourcesPerPackage;
+
+        // For every level collect the resources used by the level into a map by the package type.
+        for (auto& pair : levelFiles)
+        {
+            // Load level file & get the resources.
+            const String levelPath = pair.second;
+            World::Level lvl;
+            lvl.LoadWithoutWorld(levelPath);
+            const auto& levelResources = lvl.GetResources();
+
+            for (auto& resPair : levelResources)
+            {
+                const auto& td  = rm->GetCache(resPair.first)->GetTypeData();
+                auto&       vec = resourcesPerPackage[td.packageType];
+
+                // If the pair already doesn't exist.
+                bool found = false;
+                for (auto& pairInVec : vec)
+                {
+                    if (pairInVec.first == resPair.first && pairInVec.second.compare(resPair.second) == 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    resourcesPerPackage[td.packageType].push_back(linatl::make_pair(resPair.first, resPair.second));
+            }
+        }
+
+        // Calculate file count.
+        int totalFileCount = static_cast<int>(engineResToPack.size() + levelFiles.size());
+        for (auto& [packageType, resVec] : resourcesPerPackage)
+            totalFileCount += static_cast<int>(resVec.size());
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Packaging project", .totalFiles = totalFileCount });
+
+        // Engine resources.
+        Resources::ResourcePackager::PackageFiles(Resources::PackageType::Static, engineResToPack);
+
+        // Level files
+        Resources::ResourcePackager::PackageFiles(Resources::PackageType::Level, levelFiles);
+
+        // Finally, package all types.
+        auto package = [](Resources::PackageType packageType, Vector<Pair<TypeID, String>>& resources) {
+            Resources::ResourcePackager::PackageFiles(packageType, resources);
+        };
+
+        for (auto& [packageType, resVec] : resourcesPerPackage)
+            JobSystem::Get()->GetResourceExecutor().Async(package, packageType, resVec);
+
+        JobSystem::Get()->GetResourceExecutor().Wait();
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
     }
 
     void EditorManager::OnLevelInstalled(const Event::ELevelInstalled& ev)

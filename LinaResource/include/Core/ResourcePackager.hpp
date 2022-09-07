@@ -28,55 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EngineSettings_HPP
-#define EngineSettings_HPP
+#ifndef ResourcePackager_HPP
+#define ResourcePackager_HPP
 
 // Headers here.
-#include "Core/Resource.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
-#include "Serialization/VectorSerialization.hpp"
-#include "Serialization/Serialization.hpp"
-#include "Serialization/QueueSerialization.hpp"
-#include "Serialization/CommonTypesSerialization.hpp"
-#include <variant>
+#include "Core/ResourceCommon.hpp"
+#include "Data/Mutex.hpp"
 
-namespace Lina
+namespace Lina::Resources
 {
-
-    class Engine;
-
-    LINA_CLASS("Engine Settings")
-    class EngineSettings : public Resources::Resource
+    class ResourcePackager
     {
-
     public:
-        EngineSettings()  = default;
-        ~EngineSettings() = default;
-
-        virtual Resource* LoadFromFile(const String& path) override;
-        virtual Resource* LoadFromMemory(const IStream& stream) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
-        template <typename Archive>
-        void Serialize(Archive& ar)
-        {
-            ar(m_packagedLevels);
-        }
-
-        inline const Vector<String>& GetPackagedLevels()
-        {
-            return m_packagedLevels;
-        }
+        static void PackageFiles(PackageType type, const Vector<Pair<TypeID, String>>& resources);
 
     private:
-        friend class Engine;
-
-        // These are the sid accessors for the levels cooked with the game packages.
-        // Level manager uses the first one to load
-        Vector<String> m_packagedLevels;
+        static Mutex m_mtx;
     };
-
-} // namespace Lina
+} // namespace Lina::Resources
 
 #endif

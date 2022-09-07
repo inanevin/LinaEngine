@@ -57,8 +57,8 @@ namespace Lina::Resources
         Graphics,
     };
 
-    extern String GetPackageTypeName(PackageType type);
-    extern uint32 GetPackageVersion(PackageType type);
+    extern const char* GetPackageTypeName(PackageType type);
+    extern uint32      GetPackageVersion(PackageType type);
 
     struct ResourceTypeData
     {

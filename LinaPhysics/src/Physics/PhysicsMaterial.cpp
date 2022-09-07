@@ -59,6 +59,12 @@ namespace Lina::Physics
         return this;
     }
 
+    void PhysicsMaterial::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<PhysicsMaterial>(m_path, *this);
+        Serialize(archive);
+    }
+
     Resources::Resource* PhysicsMaterial::LoadFromMemory(const IStream& stream)
     {
         // LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);

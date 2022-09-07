@@ -51,6 +51,7 @@ namespace Lina::Resources
         void                            AddResourceHandle(ResourceHandleBase* handle);
         void                            RemoveResourceHandle(ResourceHandleBase* handle);
         virtual Resource*               GetResourceBase(StringID sid)                                                  = 0;
+        virtual Resource*               CreateMockResource()                                                           = 0;
         virtual void                    UnloadBase(StringID sid)                                                       = 0;
         virtual bool                    Exists(StringID sid) const                                                     = 0;
         virtual void                    UnloadUnusedLevelResources(const Vector<Pair<TypeID, String>>& levelResources) = 0;
@@ -106,6 +107,13 @@ namespace Lina::Resources
             m_mtx.unlock();
 
             return static_cast<Resource*>(ptr);
+        }
+
+        // For packaging.
+        virtual Resource* CreateMockResource()
+        {
+            T* res = new T();
+            return static_cast<Resource*>(res);
         }
 
         T* GetResource(StringID sid)

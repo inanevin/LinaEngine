@@ -62,7 +62,28 @@ namespace Lina::Graphics
             SaveAssetData();
         }
 
+        for (auto* n : m_nodes)
+        {
+            auto& meshes = n->GetMeshes();
+
+            for (auto* m : meshes)
+            {
+                m->GenerateBuffers();
+                m->ClearInitialBuffers();
+            }
+        }
+
         return this;
+    }
+
+    void Model::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        LoadAssetData();
+
+        if (m_rootNode == nullptr)
+            ModelLoader::LoadModel(m_path, this);
+
+        SaveToArchive(archive);
     }
 
     void Model::SaveToArchive(Serialization::Archive<OStream>& archive)
@@ -112,12 +133,6 @@ namespace Lina::Graphics
         {
             for (auto& childrenIndex : node->m_childrenIndices)
                 node->m_children.push_back(m_nodes[childrenIndex]);
-
-            for (auto* mesh : node->m_meshes)
-            {
-                mesh->GenerateBuffers();
-                mesh->ClearInitialBuffers();
-            }
         }
     }
 

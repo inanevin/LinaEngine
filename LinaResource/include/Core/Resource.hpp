@@ -55,8 +55,9 @@ namespace Lina::Resources
         Resource()          = default;
         virtual ~Resource() = default;
 
-        virtual Resource* LoadFromFile(const String& path)      = 0;
-        virtual Resource* LoadFromMemory(const IStream& stream) = 0;
+        virtual Resource* LoadFromFile(const String& path)                         = 0;
+        virtual Resource* LoadFromMemory(const IStream& stream)                    = 0;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
 
         inline TypeID GetTID()
         {
@@ -89,6 +90,7 @@ namespace Lina::Resources
         friend class Memory::MemoryManager;
         friend class EditorResourceLoader;
         friend class ResourceLoader;
+        friend class ResourcePackager;
 
         uint32   m_allocPoolIndex = 0;
         TypeID   m_tid            = 0;

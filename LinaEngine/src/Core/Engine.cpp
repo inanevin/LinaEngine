@@ -375,6 +375,7 @@ namespace Lina
             PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
         }
 
+        m_editor.PackageProject();
         m_memoryManager.PrintStaticBlockInfo();
 
         LINA_TRACE("[Engine] -> Waiting for all jobs.");

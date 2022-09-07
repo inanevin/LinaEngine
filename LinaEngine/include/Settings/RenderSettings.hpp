@@ -58,6 +58,7 @@ namespace Lina
         // Inherited via IResource
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
     private:
         friend class Engine;

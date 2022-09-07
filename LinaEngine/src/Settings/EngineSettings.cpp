@@ -43,4 +43,11 @@ namespace Lina
         Serialization::LoadFromFile<EngineSettings>(path, *this);
         return this;
     }
+
+    void EngineSettings::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<EngineSettings>(m_path, *this);
+        Serialize(archive);
+    }
+
 } // namespace Lina

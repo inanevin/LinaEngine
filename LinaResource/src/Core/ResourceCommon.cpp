@@ -30,30 +30,29 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    String GetPackageTypeName(PackageType type)
+    const char* GetPackageTypeName(PackageType type)
     {
         switch (type)
         {
         case PackageType::Static:
-            return "static.linapkg";
+            return "static";
         case PackageType::Audio:
-            return "audio.linapkg";
+            return "audio";
         case PackageType::Graphics:
-            return "graphics.linapkg";
+            return "graphics";
         case PackageType::Level:
-            return "level.linapkg";
+            return "level";
         case PackageType::Models:
-            return "meshes.linapkg";
+            return "meshes";
         case PackageType::Textures:
-            return "textures.linapkg";
+            return "textures";
         case PackageType::Physics:
-            return "physics.linapkg";
+            return "physics";
         default:
             "none";
         }
-
-        return "none";
     }
+
     uint32 GetPackageVersion(PackageType type)
     {
         switch (type)

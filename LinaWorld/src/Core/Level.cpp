@@ -70,6 +70,12 @@ namespace Lina::World
         return this;
     }
 
+    void Level::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<Level>(m_path, *this);
+        Serialize(archive);
+    }
+
     void Level::Uninstall()
     {
         m_world.Shutdown();
@@ -107,6 +113,7 @@ namespace Lina::World
 
     void Level::LoadWithoutWorld(const String& path)
     {
+        Serialization::LoadFromFile<Level>(path, *this);
     }
 
     void Level::ResourcesLoaded()

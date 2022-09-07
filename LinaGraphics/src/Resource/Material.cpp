@@ -37,9 +37,9 @@ namespace Lina::Graphics
 
     Resources::Resource* Material::LoadFromMemory(const IStream& stream)
     {
-       // *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
-       // IResource::SetSID(path);
-       // FindShader();
+        // *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
+        // IResource::SetSID(path);
+        // FindShader();
         return this;
     }
 
@@ -48,6 +48,12 @@ namespace Lina::Graphics
         Serialization::LoadFromFile<Material>(path, *this);
         FindShader();
         return this;
+    }
+
+    void Material::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<Material>(m_path, *this);
+        Save(archive);
     }
 
     void Material::FindShader()

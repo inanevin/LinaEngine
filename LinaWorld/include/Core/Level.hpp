@@ -55,14 +55,16 @@ namespace Lina::World
         template <class Archive>
         void Serialize(Archive& archive)
         {
-           archive(m_usedResources);
+            archive(m_usedResources);
         }
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
-        void              SaveToFile(const String& path);
-        void              LoadWithoutWorld(const String& path);
-        void              ResourcesLoaded();
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
+
+        void SaveToFile(const String& path);
+        void LoadWithoutWorld(const String& path);
+        void ResourcesLoaded();
 
         const Vector<Pair<TypeID, String>>& GetResources()
         {
@@ -92,7 +94,6 @@ namespace Lina::World
         friend class Engine;
 
         Vector<Pair<TypeID, String>> m_usedResources;
-
     };
 } // namespace Lina::World
 

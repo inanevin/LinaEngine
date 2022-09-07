@@ -60,6 +60,7 @@ namespace Lina::Graphics
 
         virtual Resource* LoadFromMemory(const IStream& stream) override;
         virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()
         {
@@ -89,11 +90,8 @@ namespace Lina::Graphics
     private:
         Pipeline                    m_pipeline;
         PipelineLayout              m_pipelineLayout;
-        SurfaceType                 m_surface    = SurfaceType::Opaque;
-        String                      m_text       = "";
-        String                      m_vertexText = "";
-        String                      m_fragText   = "";
-        String                      m_geoText    = "";
+        SurfaceType                 m_surface = SurfaceType::Opaque;
+        String                      m_text    = "";
         Vector<DescriptorSetLayout> m_setLayouts;
 
     private:

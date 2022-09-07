@@ -25,6 +25,7 @@ set (LINARESOURCE_SOURCES
 	src/Core/ResourceCommon.cpp
 	src/Core/ResourceLoader.cpp
 	src/Core/ResourceCache.cpp
+	src/Core/ResourcePackager.cpp
 	src/Utility/ResourceUtility.cpp
 )
 
@@ -39,6 +40,7 @@ set(LINARESOURCE_HEADERS
 	include/Core/ResourceLoader.hpp
 	include/Core/ResourceHandle.hpp
 	include/Core/ResourceCache.hpp
+	include/Core/ResourcePackager.hpp
 	include/Utility/ResourceUtility.hpp
 )
 
