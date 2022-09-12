@@ -161,99 +161,6 @@ namespace Lina
         // Serialization::SaveToFile<Graphics::Material>("Resources/Default.linamat", mat);
     }
 
-    void Engine::PackageProject(const String& path)
-    {
-        //   if (g_appInfo.GetAppMode() != ApplicationMode::Editor)
-        //   {
-        //       LINA_ERR("You can only package the project in editor mode!");
-        //       return;
-        //   }
-        //
-        //   // Vector - Allow duplicates
-        //   HashMap<TypeID, Vector<String>> resourceMap;
-        //
-        //   // Iterate all levels to be packed.
-        //   // If the level is currently loaded, retrieve the resources right away.
-        //   // If not, load the level from file.
-        //   // We do not load the level into the resource storage, nor keep it in the memory, we simply load the serialized level file,
-        //   // Retrieve resource info & dump it.
-        //   const Vector<String>& packagedLevels = m_engineSettings->GetPackagedLevels();
-        //
-        //   if (packagedLevels.empty())
-        //   {
-        //       LINA_ERR("Packaging failed, no levels to pack!");
-        //       return;
-        //   }
-        //   for (const String& str : packagedLevels)
-        //   {
-        //       // If the level is the currently loaded one, retrieve the resource map right away.
-        //       if (m_levelManager.GetCurrentLevel() != nullptr && str.compare(m_levelManager.GetCurrentLevel()->GetPath()) == 0)
-        //       {
-        //           const HashMap<TypeID, HashSet<String>>& resources = m_levelManager.GetCurrentLevel()->GetResources();
-        //
-        //           // Add all resources used by the level to the resource table
-        //           for (const auto& pair : resources)
-        //           {
-        //               for (auto resStr : pair.second)
-        //               {
-        //                   if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
-        //                       resourceMap[pair.first].push_back(resStr);
-        //               }
-        //           }
-        //       }
-        //       else
-        //       {
-        //           // If the level is not loaded, load it & retrieve the resource map.
-        //           // Note, we use Resources::LoadArchieve, as the LoadFromFile function inside a level is used for constructed & installed levels.
-        //           World::Level lvl;
-        //           lvl.LoadFromFile(str);
-        //           const HashMap<TypeID, HashSet<String>>& resources = lvl.GetResources();
-        //
-        //           // Add all resources used by the level to the resource table
-        //           for (const auto& pair : resources)
-        //           {
-        //               for (auto resStr : pair.second)
-        //               {
-        //                   if (!g_defaultResources.IsEngineResource(pair.first, HashedString(resStr.c_str()).value()))
-        //                       resourceMap[pair.first].push_back(resStr);
-        //               }
-        //           }
-        //       }
-        //   }
-        //
-        //   // Iterate all resource meta-data
-        //   // If the resource does not exists in any of the packed level resources, discard it.
-        //   Vector<StringID> resourceMetadataToRemove;
-        //
-        //   for (auto& [sid, resData] : m_resourceDataManager->m_resourceData)
-        //   {
-        //       bool found = false;
-        //       for (auto& [tid, sidVec] : resourceMap)
-        //       {
-        //           for (auto& resourceStr : sidVec)
-        //           {
-        //               const StringID resourceSid = HashedString(resourceStr.c_str()).value();
-        //               if (resourceSid == sid)
-        //               {
-        //                   found = true;
-        //                   break;
-        //               }
-        //           }
-        //
-        //           if (found)
-        //               break;
-        //       }
-        //
-        //       if (!found)
-        //           resourceMetadataToRemove.push_back(sid);
-        //   }
-        //
-        //   for (auto sid : resourceMetadataToRemove)
-        //       m_resourceDataManager->Remove(sid);
-        //
-        //   // m_resourceManager.GetLoader()->GetPackager().PackageProject(path, packagedLevels, resourceMap);
-    }
-
     void Engine::Run()
     {
         m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
@@ -274,11 +181,11 @@ namespace Lina
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
         auto* c = m_resourceManager.GetCache<EngineSettings>();
-        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-        m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
-        m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
-        m_levelManager.SaveCurrentLevel();
+       // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
+        //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
+        //m_levelManager.SaveCurrentLevel();
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -289,7 +196,10 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
+        //m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
+
+        // Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
+        // 
         // m_levelManager.SaveCurrentLevel();
 
         //  SetFrameLimit(60);
@@ -387,8 +297,6 @@ namespace Lina
 
         m_levelManager.UninstallCurrent();
         Reflection::Clear();
-
-        PackageProject("");
 
         // Ending game.
         m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});

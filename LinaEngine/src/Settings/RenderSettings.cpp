@@ -30,11 +30,9 @@ SOFTWARE.
 
 namespace Lina
 {
-    Resources::Resource* RenderSettings::LoadFromMemory(const IStream& stream)
+    Resources::Resource* RenderSettings::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        //*this = Resources::LoadArchiveFromMemory<RenderSettings>(path, data, dataSize);
-        // IResource::SetSID(path);
-        // return static_cast<void*>(this);
+        Serialize(archive);
         return this;
     }
 

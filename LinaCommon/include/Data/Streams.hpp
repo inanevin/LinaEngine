@@ -43,7 +43,7 @@ namespace Lina
     {
     public:
         void Create(size_t size);
-        void Create(const char* data, size_t size);
+        void Create(uint8* data, size_t size);
         void Destroy();
         void ReadFromStream(std::ifstream& stream);
 
@@ -55,6 +55,7 @@ namespace Lina
         }
 
         void ReadEndianSafe(void* ptr, size_t size);
+        void ReadIntoRaw(void* ptr, size_t size);
 
         inline void SkipBy(size_t size)
         {
@@ -79,6 +80,11 @@ namespace Lina
         inline uint8* GetDataRaw()
         {
             return m_data;
+        }
+
+        inline uint8* GetDataCurrent()
+        {
+            return &m_data[m_index];
         }
 
         inline void Shrink(size_t size)
@@ -110,9 +116,10 @@ namespace Lina
     public:
         void CreateReserve(size_t size);
         void Destroy();
-        void WriteEndianSafe(const uint8* ptr, size_t size);
         void CheckGrow(size_t sz);
         void WriteToStream(std::ofstream& stream);
+        void WriteEndianSafe(const uint8* ptr, size_t size);
+        void WriteRaw(const uint8* ptr, size_t size);
 
         template <typename T>
         void Write(T& t)

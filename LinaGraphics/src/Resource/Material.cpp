@@ -35,11 +35,10 @@ namespace Lina::Graphics
     {
     }
 
-    Resources::Resource* Material::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        // *this = Resources::LoadArchiveFromMemory<Material>(path, data, dataSize);
-        // IResource::SetSID(path);
-        // FindShader();
+        LoadFromArchive(archive);
+        FindShader();
         return this;
     }
 

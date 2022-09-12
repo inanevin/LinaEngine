@@ -42,10 +42,17 @@ namespace Lina::Resources
     void ResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
     {
     }
+
     void ResourceLoader::LoadEngineResources()
     {
         Vector<Pair<TypeID, String>> engineResources;
-        auto&                        engineRes = g_defaultResources.GetEngineResources();
+        auto&                        engineRes  = g_defaultResources.GetEngineResources();
+        int                          totalFiles = 0;
+        for (auto& [tid, vec] : engineRes)
+            totalFiles += static_cast<int>(vec.size());
+
+        const double time = Time::GetCPUTime();
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading engine resources", .totalFiles = totalFiles});
 
         for (auto& pair : engineRes)
         {
@@ -53,109 +60,109 @@ namespace Lina::Resources
                 engineResources.push_back(linatl::make_pair(pair.first, res));
         }
 
-        LoadResources(engineResources, false);
-    }
+        LoadResources(PackageType::Static, engineResources, true);
 
-    void ResourceLoader::LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async)
-    {
-        // Categorize per packageType
-        // HashMap<PackageType, Vector<StringID>> resourcesPerTID;
-        // for (auto& pair : resources)
-        // {
-        //     auto& typeData = ResourceManager::Get()->GetCache(pair.first)->GetTypeData();
-        //     resourcesPerTID[typeData.packageType].push_back(HashedString(pair.second.c_str()).value());
-        // }
-        //
-        // for (auto& [pkgType, vec] : resourcesPerTID)
-        // {
-        //     const String& packagePath    = "Packages" + GetPackageTypeName(pkgType);
-        //     const uint32  packageVersion = GetPackageVersion(pkgType);
-        //
-        //     auto          size = std::filesystem::file_size(packagePath.c_str());
-        //     std::ifstream rf(packagePath.c_str(), std::ios::out | std::ios::binary);
-        //
-        //     if (!rf)
-        //     {
-        //         LINA_ERR("[Resource Loader]-> Could not open package! {0}", packagePath);
-        //         return;
-        //     }
-        //
-        //     IStream istream;
-        //     istream.Create(size);
-        //     rf.read(istream.m_data, size);
-        //     rf.close();
-        //
-        //     uint32 version = 0;
-        //     istream >> version;
-        //
-        //     if (version != packageVersion)
-        //     {
-        //         LINA_ERR("[Resource Loader] -> Package versions does not match! Current: {0} - File: {1}", packageVersion, version);
-        //         LINA_ASSERT(false, "");
-        //         return;
-        //     }
-        //
-        //     auto exists = [&](StringID sid) {
-        //         for (auto s : vec)
-        //         {
-        //             if (s == sid)
-        //                 return true;
-        //         }
-        //         return false;
-        //     };
-        //
-        //     Vector<Pair<TidSid, IStream>> resourcesToLoad;
-        //
-        //     while (!istream.IsCompleted())
-        //     {
-        //         TypeID   typeID = 0;
-        //         StringID sid    = 0;
-        //         uint32   size   = 0;
-        //         istream >> typeID;
-        //         istream >> sid;
-        //         istream >> size;
-        //
-        //         // found the target resource.
-        //         if (exists(sid))
-        //         {
-        //             IStream newStream;
-        //             newStream.Create(&istream.m_data[istream.m_index], size);
-        //             TidSid tidSid = {typeID, sid};
-        //
-        //             if (!async)
-        //                 CreateResource(tidSid, newStream, false);
-        //             else
-        //                 resourcesToLoad.push_back(linatl::make_pair(tidSid, newStream));
-        //         }
-        //
-        //         istream.SkipBy(size);
-        //     }
-        //
-        //     if (async)
-        //     {
-        //         Taskflow tf;
-        //         tf.for_each(resourcesToLoad.begin(), resourcesToLoad.end(), [this](auto& pair) {
-        //             CreateResource(pair.first, pair.second, false);
-        //         });
-        //         JobSystem::Get()->GetResourceExecutor().Run(tf).wait();
-        //     }
-        //
-        //     istream.Destroy();
-        // }
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+        const double diff = Time::GetCPUTime() - time;
+        LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
     }
 
     void ResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
-        LoadResources({linatl::make_pair(tid, path)}, async);
+        const ResourceTypeData& td                = ResourceManager::Get()->GetCache(tid)->GetTypeData();
+        const String            packageName       = GetPackageTypeName(td.packageType);
+        const String            packagePath       = "Packages/" + packageName + ".linapckg";
+        const uint32            totalResourceSize = 1;
+
+        Serialization::Archive<IStream> archive = Serialization::LoadArchiveFromFile(packagePath);
+
+        TypeID         resTid    = 0;
+        StringID       resSid    = 0;
+        uint32         resSize   = 0;
+        const StringID targetSid = TO_SID(path);
+
+        while (!archive.GetStream().IsCompleted())
+        {
+            archive(resTid);
+            archive(resSid);
+            archive(resSize);
+
+            if (tid == resTid && resSid == targetSid)
+            {
+                LoadResource(tid, path, archive, resSize, async);
+                break;
+            }
+        }
+
+        if (async)
+            JobSystem::Get()->GetResourceExecutor().Wait();
+
+        archive.GetStream().Destroy();
     }
 
-    void ResourceLoader::CreateResource(TidSid tidSid, const IStream& stream, bool async)
+    void ResourceLoader::LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async)
     {
-        // Capt by val.
-        auto load = [tidSid, stream] {
-            ResourceTypeData typeData = Resources::ResourceManager::Get()->GetCache(tidSid.tid)->GetTypeData();
-            Resource*        res      = Resources::ResourceManager::Get()->GetCache(tidSid.tid)->Create(tidSid.sid);
-            res->LoadFromMemory(stream);
+        const String packageName       = GetPackageTypeName(packageType);
+        const String packagePath       = "Packages/" + packageName + ".linapckg";
+        const uint32 totalResourceSize = static_cast<uint32>(resources.size());
+        uint32       loadedResources   = 0;
+
+        Serialization::Archive<IStream> archive = Serialization::LoadArchiveFromFile(packagePath);
+
+        TypeID   tid  = 0;
+        StringID sid  = 0;
+        uint32   size = 0;
+
+        while (loadedResources < totalResourceSize && !archive.GetStream().IsCompleted())
+        {
+            archive(tid);
+            archive(sid);
+            archive(size);
+
+            for (auto& pair : resources)
+            {
+                const StringID resSid = TO_SID(pair.second);
+                if (tid == pair.first && sid == resSid)
+                {
+                    LoadResource(tid, pair.second, archive, size, async);
+                    archive.GetStream().SkipBy(size);
+                    loadedResources++;
+                }
+            }
+        }
+
+        if (async)
+            JobSystem::Get()->GetResourceExecutor().Wait();
+
+        archive.GetStream().Destroy();
+    }
+
+    void ResourceLoader::LoadResource(TypeID tid, const String& path, Serialization::Archive<IStream>& archive, uint32 size, bool async)
+    {
+        const StringID sid = HashedString(path.c_str()).value();
+        auto*          rm  = ResourceManager::Get();
+
+        if (rm->Exists(tid, sid))
+            return;
+
+        Serialization::Archive<IStream> copyArchive;
+        copyArchive.GetStream().Create(archive.GetStream().GetDataCurrent(), size);
+        copyArchive.GetStream().Seek(0);
+
+        const auto& load = [rm, tid, sid, path, size, copyArchive, this]() {
+            auto*     cache = rm->GetCache(tid);
+            Resource* res   = cache->Create(sid);
+            res->m_sid      = sid;
+            res->m_path     = path;
+            res->m_tid      = tid;
+
+            Serialization::Archive<IStream> finalArchive = copyArchive;
+            res->LoadFromMemory(finalArchive);
+            finalArchive.GetStream().Destroy();
+
+            LOCK_GUARD(m_mtx);
+            Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
         };
 
         if (async)
@@ -163,4 +170,5 @@ namespace Lina::Resources
         else
             load();
     }
+
 } // namespace Lina::Resources

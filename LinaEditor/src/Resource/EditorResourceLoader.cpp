@@ -96,10 +96,6 @@ namespace Lina::Resources
         LINA_TRACE("[Resource Loader] -> Loading level resources took {0} seconds.", diff);
     }
 
-    void EditorResourceLoader::LoadResources(const Vector<Pair<TypeID, String>>& resources, bool async)
-    {
-    }
-
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
     {
         const StringID sid = HashedString(path.c_str()).value();

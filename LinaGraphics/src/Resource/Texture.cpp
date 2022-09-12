@@ -43,16 +43,10 @@ namespace Lina::Graphics
         m_sampler.Destroy();
     }
 
-    Resources::Resource* Texture::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Texture::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        // IResource::SetSID(path);
-        // LoadAssetData();
-        // int      texWidth, texHeight, texChannels;
-        // stbi_uc* pixels = stbi_load_from_memory(data, static_cast<int>(dataSize), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        // m_width         = static_cast<uint32>(texWidth);
-        // m_height        = static_cast<uint32>(texHeight);
-        // m_channels      = static_cast<uint32>(texChannels);
-        // GenerateBuffers(pixels);
+        LoadFromArchive(archive);
+        GenerateBuffers(m_pixels);
         return this;
     }
 
@@ -89,9 +83,9 @@ namespace Lina::Graphics
         if (m_pixels == nullptr)
         {
             int texWidth, texHeight, texChannels;
-            m_pixels = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-            m_assetData.width = static_cast<uint32>(texWidth);
-            m_assetData.height = static_cast<uint32>(texHeight);
+            m_pixels             = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_assetData.width    = static_cast<uint32>(texWidth);
+            m_assetData.height   = static_cast<uint32>(texHeight);
             m_assetData.channels = static_cast<uint32>(texChannels);
         }
 

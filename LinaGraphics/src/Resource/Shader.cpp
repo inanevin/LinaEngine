@@ -50,40 +50,45 @@ namespace Lina::Graphics
         }
     }
 
-    Resources::Resource* Shader::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Shader::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
+        LoadFromArchive(archive);
+
+        if (!CreateShaderModules())
+        {
+            LINA_ERR("[Shader Loader - File] -> Could not load shader! {0}", m_path);
+        }
+        else
+            GeneratePipeline();
+
         return this;
     }
 
     Resources::Resource* Shader::LoadFromFile(const String& path)
     {
-        // Get the text from file.
-        std::ifstream file;
-        file.open(path.c_str());
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        m_text = buffer.str().c_str();
-        file.close();
-        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
-        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
-        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
-        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
-        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
-        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
         LoadAssetData();
 
-        bool missing = false;
-        for (auto& [stage, mod] : m_modules)
+        if (m_modules.empty())
         {
-            if (mod.byteCode.empty())
-            {
-                missing = true;
-                break;
-            }
-        }
+            // Get the text from file.
+            std::ifstream file;
+            file.open(path.c_str());
+            std::stringstream buffer;
+            buffer << file.rdbuf();
+            m_text = buffer.str().c_str();
+            file.close();
+            CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
+            CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
+            CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
+            CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
+            CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
+            CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
 
-        if (missing)
             GenerateByteCode();
+
+            if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+                SaveAssetData();
+        }
 
         if (!CreateShaderModules())
         {
@@ -101,33 +106,24 @@ namespace Lina::Graphics
 
     void Shader::WriteToPackage(Serialization::Archive<OStream>& archive)
     {
-        std::ifstream file;
-        file.open(m_path.c_str());
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        m_text = buffer.str().c_str();
-        file.close();
-        CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
-        CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
-        CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
-        CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
-        CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
-        CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
-
         LoadAssetData();
 
-        bool missing = false;
-        for (auto& [stage, mod] : m_modules)
+        if (m_modules.empty())
         {
-            if (mod.byteCode.empty())
-            {
-                missing = true;
-                break;
-            }
-        }
-
-        if (missing)
+            std::ifstream file;
+            file.open(m_path.c_str());
+            std::stringstream buffer;
+            buffer << file.rdbuf();
+            m_text = buffer.str().c_str();
+            file.close();
+            CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
+            CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
+            CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
+            CheckIfModuleExists("Tesc", ShaderStage::TesellationControl, "#LINA_TESC");
+            CheckIfModuleExists("Tese", ShaderStage::TesellationEval, "#LINA_TESE");
+            CheckIfModuleExists("Comp", ShaderStage::Compute, "#LINA_COMP");
             GenerateByteCode();
+        }
 
         SaveToArchive(archive);
     }
@@ -140,6 +136,11 @@ namespace Lina::Graphics
         uint32 i = 0;
         for (auto& [stage, mod] : m_modules)
         {
+            const uint8 stageInt = static_cast<uint8>(stage);
+            archive(stageInt);
+            archive(mod.moduleName);
+            archive(mod.moduleText);
+
             const uint32 byteCodeSize = static_cast<uint32>(mod.byteCode.size());
             archive(byteCodeSize);
 
@@ -158,9 +159,14 @@ namespace Lina::Graphics
         uint32 moduleSize = 0;
         archive(moduleSize);
 
-        int i = 0;
-        for (auto& [stage, mod] : m_modules)
+        for (uint32 i = 0; i < moduleSize; i++)
         {
+            ShaderModule mod;
+            uint8        stageInt = 0;
+            archive(stageInt);
+            archive(mod.moduleName);
+            archive(mod.moduleText);
+
             uint32 byteCodeSize = 0;
             archive(byteCodeSize);
 
@@ -170,7 +176,8 @@ namespace Lina::Graphics
                 archive.GetStream().ReadEndianSafe(&mod.byteCode[0], byteCodeSize * sizeof(unsigned int));
             }
 
-            i++;
+            const ShaderStage stage = static_cast<ShaderStage>(stageInt);
+            m_modules[stage]        = mod;
         }
     }
 
@@ -196,9 +203,6 @@ namespace Lina::Graphics
             mod.byteCode.clear();
             SPIRVUtility::GLSLToSPV(stage, mod.moduleText.c_str(), mod.byteCode);
         }
-
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
-            SaveAssetData();
     }
 
     bool Shader::CreateShaderModules()

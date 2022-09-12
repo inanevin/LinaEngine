@@ -42,30 +42,18 @@ namespace Lina::Audio
         alDeleteBuffers(1, &m_buffer);
     }
 
-    Resources::Resource* Audio::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Audio::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        //   ALsizei size;
-        //   ALfloat freq;
-        //   ALenum  format;
-        //   ALvoid* aldata = alutLoadMemoryFromFileImage(data, (ALsizei)dataSize, &format, &size, &freq);
-        //
-        //   ALenum err = alutGetError();
-        //   LINA_ASSERT(err == ALUT_ERROR_NO_ERROR, "[Audio Loader] -> Failed loading audio from file memory: {0} {1}", path, alutGetErrorString(err));
-        //
-        //   m_data   = aldata;
-        //   m_format = format;
-        //   m_size   = size;
-        //   m_freq   = freq;
-        //
-        //   LoadAssetData();
-        //   alGenBuffers((ALuint)1, &m_buffer);
-        //   alBufferData(m_buffer, format, aldata, size, (ALsizei)freq);
-        //   free(aldata);
+        LoadFromArchive(archive);
+
+        alGenBuffers((ALuint)1, &m_buffer);
+        alBufferData(m_buffer, (ALenum)m_assetData.format, (ALvoid*)m_assetData.data, (ALsizei)m_assetData.size, (ALsizei)m_assetData.freq);
+        free(m_assetData.data);
+        m_assetData.data = nullptr;
 
 #ifdef LINA_DEBUG
         CheckForError();
 #endif
-
         return this;
     }
 

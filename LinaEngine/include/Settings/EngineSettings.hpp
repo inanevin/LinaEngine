@@ -55,7 +55,7 @@ namespace Lina
         ~EngineSettings() = default;
 
         virtual Resource* LoadFromFile(const String& path) override;
-        virtual Resource* LoadFromMemory(const IStream& stream) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         template <typename Archive>

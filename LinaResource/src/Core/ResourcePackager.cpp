@@ -48,6 +48,7 @@ namespace Lina::Resources
         auto*        rm          = Resources::ResourceManager::Get();
 
         Serialization::Archive<OStream> archive;
+        archive.GetStream().CreateReserve(1000);
 
         for (auto& pair : resources)
         {
@@ -58,12 +59,19 @@ namespace Lina::Resources
             archive(tid);
             archive(sid);
 
-            Resource* res = rm->GetCache(tid)->CreateMockResource();
-            res->m_path   = path;
-            res->m_sid    = sid;
-            res->m_tid    = tid;
-            res->WriteToPackage(archive);
+            Serialization::Archive<OStream> tempArchive;
+            Resource*                       res = rm->GetCache(tid)->CreateMockResource();
+            res->m_path                         = path;
+            res->m_sid                          = sid;
+            res->m_tid                          = tid;
+            res->WriteToPackage(tempArchive);
             delete res;
+
+            const uint32 resSize = static_cast<uint32>(tempArchive.GetStream().GetCurrentSize());
+            archive(resSize);
+
+            archive.GetStream().WriteRaw(tempArchive.GetStream().GetDataRaw(), tempArchive.GetStream().GetCurrentSize());
+            tempArchive.GetStream().Destroy();
 
             LOCK_GUARD(m_mtx);
             Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});

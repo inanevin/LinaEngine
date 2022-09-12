@@ -41,9 +41,9 @@ namespace Lina::Resources
         case PackageType::Graphics:
             return "graphics";
         case PackageType::Level:
-            return "level";
+            return "levels";
         case PackageType::Models:
-            return "meshes";
+            return "models";
         case PackageType::Textures:
             return "textures";
         case PackageType::Physics:

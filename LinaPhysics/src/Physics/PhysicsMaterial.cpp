@@ -65,11 +65,9 @@ namespace Lina::Physics
         Serialize(archive);
     }
 
-    Resources::Resource* PhysicsMaterial::LoadFromMemory(const IStream& stream)
+    Resources::Resource* PhysicsMaterial::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        // LINA_TRACE("[Physics Loader - Memory] -> Loading: {0}", path);
-        //*this = Resources::LoadArchiveFromMemory<PhysicsMaterial>(path, data, dataSize);
-        // IResource::SetSID(path);
+        Serialize(archive);
         return this;
     }
 } // namespace Lina::Physics

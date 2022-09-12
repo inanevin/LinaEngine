@@ -64,7 +64,6 @@ namespace Lina
             return s_engine;
         }
 
-        void   PackageProject(const String& path);
         double GetElapsedTime();
         void   SetPlayMode(bool enabled);
         void   SetIsPaused(bool paused);

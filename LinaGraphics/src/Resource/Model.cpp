@@ -44,11 +44,21 @@ namespace Lina::Graphics
             delete m_rootNode;
     }
 
-    Resources::Resource* Model::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Model::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        // IResource::SetSID(path);
-        // LoadAssetData();
-        // ModelLoader::LoadModel(data, dataSize, this);
+        LoadFromArchive(archive);
+
+        for (auto* n : m_nodes)
+        {
+            auto& meshes = n->GetMeshes();
+
+            for (auto* m : meshes)
+            {
+                m->GenerateBuffers();
+                m->ClearInitialBuffers();
+            }
+        }
+
         return this;
     }
 
@@ -128,7 +138,7 @@ namespace Lina::Graphics
 
         m_rootNode = m_nodes[0];
 
-        // Assign childrens & generate gpu buffers.
+        // Assign childrens
         for (auto* node : m_nodes)
         {
             for (auto& childrenIndex : node->m_childrenIndices)

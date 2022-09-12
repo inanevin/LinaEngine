@@ -49,7 +49,7 @@ namespace Lina::World
         m_usedResources = lvl.m_usedResources;
     }
 
-    Resources::Resource* Level::LoadFromMemory(const IStream& stream)
+    Resources::Resource* Level::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
         // std::string        dataStr((char*)data, dataSize);
         // std::istringstream stream(dataStr, std::ios::binary);

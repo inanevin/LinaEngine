@@ -38,7 +38,7 @@ namespace Lina
         m_size  = size;
     }
 
-    void IStream::Create(const char* data, size_t size)
+    void IStream::Create(uint8* data, size_t size)
     {
         m_data = new uint8[size];
         MEMCPY(m_data, data, size);
@@ -82,6 +82,12 @@ namespace Lina
         m_index += size;
     }
 
+    void IStream::ReadIntoRaw(void* ptr, size_t size)
+    {
+        MEMCPY(&m_data[m_index], ptr, size);
+        m_index += size;
+    }
+
     void OStream::CreateReserve(size_t size)
     {
         m_data        = new uint8[size];
@@ -117,6 +123,13 @@ namespace Lina
         else
             MEMCPY(&m_data[m_currentSize], ptr, size);
 
+        m_currentSize += size;
+    }
+
+    void OStream::WriteRaw(const uint8* ptr, size_t size)
+    {
+        CheckGrow(size);
+        MEMCPY(&m_data[m_currentSize], ptr, size);
         m_currentSize += size;
     }
 
