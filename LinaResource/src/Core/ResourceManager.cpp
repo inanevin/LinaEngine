@@ -56,6 +56,12 @@ namespace Lina::Resources
         return 0;
     }
 
+    void ResourceManager::LoadReferences()
+    {
+        for (auto& c : m_caches)
+            c.second->LoadReferences();
+    }
+
     void ResourceManager::Initialize()
     {
         m_loader = new ResourceLoader();

@@ -57,6 +57,8 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
+
+        ResourceManager::Get()->LoadReferences();
     }
 
     void EditorResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
@@ -64,7 +66,6 @@ namespace Lina::Resources
         auto* rm = Resources::ResourceManager::Get();
 
         // Remove the currently loaded resources if they are not used by the next level.
-
         const auto& caches = rm->GetCaches();
 
         const TypeID levelTid = GetTypeID<World::Level>();
@@ -94,6 +95,8 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading level resources took {0} seconds.", diff);
+
+        ResourceManager::Get()->LoadReferences();
     }
 
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)

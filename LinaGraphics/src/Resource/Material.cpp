@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Resource/Material.hpp"
-#include "EventSystem/ResourceEvents.hpp"
 #include "Core/ResourceManager.hpp"
+
 namespace Lina::Graphics
 {
     Material::~Material()
@@ -38,14 +38,12 @@ namespace Lina::Graphics
     Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
         LoadFromArchive(archive);
-        FindShader();
         return this;
     }
 
     Resources::Resource* Material::LoadFromFile(const String& path)
     {
         Serialization::LoadFromFile<Material>(path, *this);
-        FindShader();
         return this;
     }
 
@@ -55,28 +53,20 @@ namespace Lina::Graphics
         Save(archive);
     }
 
+    void Material::LoadReferences()
+    {
+        if (m_shader.value != nullptr)
+            return;
+
+        FindShader();
+    }
+
     void Material::FindShader()
     {
         auto* manager = Resources::ResourceManager::Get();
 
         if (manager->Exists<Shader>(m_shader.sid))
             m_shader.value = manager->GetResource<Shader>(m_shader.sid);
-        else
-            Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &Material::OnResourceLoaded>(this);
-    }
-
-    void Material::OnResourceLoaded(const Event::EResourceLoaded& ev)
-    {
-        // Assign our shader if it's not loaded yet.
-        if (ev.tid == GetTypeID<Shader>())
-        {
-            auto* manager = Resources::ResourceManager::Get();
-            if (ev.sid == m_shader.sid)
-            {
-                m_shader.value = manager->GetResource<Shader>(m_shader.sid);
-                Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
-            }
-        }
     }
 
     void Material::SetShader(Shader* shader)

@@ -56,8 +56,9 @@ namespace Lina::Resources
         virtual ~Resource() = default;
 
         virtual Resource* LoadFromFile(const String& path)                         = 0;
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive)                    = 0;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) = 0;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
+        virtual void      LoadReferences(){};
 
         inline TypeID GetTID()
         {

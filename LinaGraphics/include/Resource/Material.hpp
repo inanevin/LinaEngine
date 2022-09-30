@@ -36,14 +36,6 @@ SOFTWARE.
 #include "Shader.hpp"
 #include "Serialization/Serialization.hpp"
 
-namespace Lina
-{
-    namespace Event
-    {
-        struct EResourceLoaded;
-    }
-} // namespace Lina
-
 namespace Lina::Graphics
 {
     class Material : public Resources::Resource
@@ -67,6 +59,7 @@ namespace Lina::Graphics
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const String& path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadReferences() override;
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {
@@ -77,7 +70,6 @@ namespace Lina::Graphics
 
     private:
         void FindShader();
-        void OnResourceLoaded(const Event::EResourceLoaded& ev);
 
     private:
         Resources::ResourceHandle<Shader> m_shader;

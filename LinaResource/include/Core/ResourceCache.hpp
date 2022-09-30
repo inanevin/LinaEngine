@@ -55,6 +55,7 @@ namespace Lina::Resources
         virtual void                    UnloadBase(StringID sid)                                                       = 0;
         virtual bool                    Exists(StringID sid) const                                                     = 0;
         virtual void                    UnloadUnusedLevelResources(const Vector<Pair<TypeID, String>>& levelResources) = 0;
+        virtual void                    LoadReferences()                                                               = 0;
 
         HashSet<ResourceHandleBase*>& GetResourceHandles()
         {
@@ -198,6 +199,12 @@ namespace Lina::Resources
             for (auto sid : toUnload)
                 UnloadBase(sid);
         };
+
+        virtual void LoadReferences() override
+        {
+            for (auto& r : m_resources)
+                r.second->LoadReferences();
+        }
 
     private:
         Mutex                 m_mtx;

@@ -41,6 +41,48 @@ namespace Lina::Resources
 {
     void ResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
     {
+        auto* rm = Resources::ResourceManager::Get();
+
+        // Remove the currently loaded resources if they are not used by the next level.
+        const auto& caches = rm->GetCaches();
+
+        const TypeID levelTid = g_levelTypeID;
+        for (auto [tid, cache] : caches)
+        {
+            if (tid != levelTid)
+                cache->UnloadUnusedLevelResources(resources);
+        }
+
+        // Add the ones that are not currently loaded.
+        HashMap<PackageType, Vector<Pair<TypeID, String>>> toLoad;
+        for (auto& pair : resources)
+        {
+            const StringID sid = TO_SID(pair.second);
+            if (!rm->Exists(pair.first, sid))
+            {
+                const PackageType pt = rm->GetCache(pair.first)->GetTypeData().packageType;
+                toLoad[pt].push_back(linatl::make_pair(pair.first, pair.second));
+            }
+        }
+
+        int totalFiles = 0;
+
+        for (auto& pair : toLoad)
+            totalFiles += static_cast<int>(pair.second.size());
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading level resources", .totalFiles = totalFiles});
+
+        const double time = Time::GetCPUTime();
+
+        for (auto& pair : toLoad)
+            LoadResources(pair.first, pair.second, true);
+
+        const double diff = Time::GetCPUTime() - time;
+        LINA_TRACE("[Resource Loader] -> Loading level resources took {0} seconds.", diff);
+
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+
+        ResourceManager::Get()->LoadReferences();
     }
 
     void ResourceLoader::LoadEngineResources()
@@ -65,6 +107,8 @@ namespace Lina::Resources
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
+
+        ResourceManager::Get()->LoadReferences();
     }
 
     void ResourceLoader::LoadResource(TypeID tid, const String& path, bool async)

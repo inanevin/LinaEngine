@@ -55,6 +55,7 @@ namespace Lina
         HashMap<TypeID, Vector<String>> m_engineResources;
     };
 
+    extern TypeID           g_levelTypeID;
     extern DefaultResources g_defaultResources;
 } // namespace Lina
 

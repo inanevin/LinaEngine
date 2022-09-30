@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     Lina::InitInfo appInfo = Lina::InitInfo{
         .appName          = "Lina Sandbox Game",
         .packagePass      = L"1234",
-        .appMode          = Lina::ApplicationMode::Standalone,
+        .appMode          = Lina::ApplicationMode::Editor,
         .windowProperties = windowProps,
         .preferredGPU     = Lina::PreferredGPUType::Discrete,
     };

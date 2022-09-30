@@ -57,6 +57,7 @@ namespace Lina::Resources
 
         void   InjectResourceLoader(ResourceLoader* loader);
         TypeID GetTypeIDFromExtension(const String& ext);
+        void   LoadReferences();
 
         template <typename T>
         void RegisterResourceType(const ResourceTypeData& typeData)

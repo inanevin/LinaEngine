@@ -51,16 +51,7 @@ namespace Lina::World
 
     Resources::Resource* Level::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        // std::string        dataStr((char*)data, dataSize);
-        // std::istringstream stream(dataStr, std::ios::binary);
-        // {
-        //     cereal::PortableBinaryInputArchive iarchive(stream);
-        //     iarchive(*this);
-        //     m_world.LoadFromArchive(iarchive);
-        // }
-        //
-        // stream.clear();
-        // IResource::SetSID(path);
+        Serialize(archive);
         return this;
     }
 

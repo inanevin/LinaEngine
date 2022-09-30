@@ -115,6 +115,8 @@ namespace Lina
         m_levelManager.Initialize();
         m_renderEngine.Initialize(initInfo);
 
+        g_levelTypeID = GetTypeID<World::Level>();
+
 #ifndef LINA_PRODUCTION_BUILD
         if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
             m_editor.Initialize();
@@ -181,11 +183,12 @@ namespace Lina
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
         auto* c = m_resourceManager.GetCache<EngineSettings>();
-       // m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-        //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
+       //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+      //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
+      //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj"));
         //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
-        //m_levelManager.SaveCurrentLevel();
+       // m_levelManager.SaveCurrentLevel();
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -196,11 +199,11 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        //m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
+      // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
         // Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
         // 
-        // m_levelManager.SaveCurrentLevel();
+        //m_levelManager.SaveCurrentLevel();
 
         //  SetFrameLimit(60);
 
