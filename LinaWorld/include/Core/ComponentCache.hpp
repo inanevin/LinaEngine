@@ -236,9 +236,9 @@ namespace Lina::World
             {
                 T* comp = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
                 comp->LoadFromArchive(iarchive);
-                comp->OnComponentCreated();
                 comp->m_entityID     = entityID;
                 comp->m_entity       = entities[entityID];
+                comp->OnComponentCreated();
                 m_components[compID] = comp;
             }
         }

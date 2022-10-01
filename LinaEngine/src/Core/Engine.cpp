@@ -183,7 +183,7 @@ namespace Lina
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
         auto* c = m_resourceManager.GetCache<EngineSettings>();
-        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
         //World::EntityWorld::Get()->CreateEntity("My Entity 1");
        // World::Entity* e = World::EntityWorld::Get()->GetEntity("My Entity 1");
@@ -191,7 +191,7 @@ namespace Lina
        // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
        // ce->a             = 118;
        // ce->x             = 12.0f;
-        m_levelManager.SaveCurrentLevel();
+        //m_levelManager.SaveCurrentLevel();
 
         // 
         // World::EntityWorld::Get()->CreateEntity("MY Entity 2");
