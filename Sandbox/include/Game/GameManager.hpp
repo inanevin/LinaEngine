@@ -69,7 +69,7 @@ namespace Game
             return Lina::GetTypeID<MyTestComponent>();
         }
 
-        virtual Lina::Bitmask GetComponentMask() override
+        virtual Lina::Bitmask8 GetComponentMask() override
         {
             return Lina::World::ComponentMask::ReceiveOnTick | Lina::World::ComponentMask::ReceiveOnPostPhysicsTick;
         }

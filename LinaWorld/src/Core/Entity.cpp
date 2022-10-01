@@ -327,4 +327,20 @@ namespace Lina::World
         }
     }
 
+    void Entity::SetHidden(bool hidden)
+    {
+        if (hidden)
+        {
+            m_mask.Set(EntityMask::Hidden);
+
+            for (auto c : m_children)
+                c->m_mask.Set(EntityMask::Hidden);
+        }
+        else
+        {
+            m_mask.Remove(EntityMask::Hidden);
+            for (auto c : m_children)
+                c->m_mask.Remove(EntityMask::Hidden);
+        }
+    }
 } // namespace Lina::World

@@ -32,34 +32,45 @@ SOFTWARE.
 #define DataStructuresBitmask_HPP
 
 #include "Core/SizeDefinitions.hpp"
+#include "Serialization/Archive.hpp"
 
 namespace Lina
 {
+    template <typename T>
     class Bitmask
     {
     public:
         Bitmask()  = default;
         ~Bitmask() = default;
-        Bitmask(int m)
+        Bitmask(T m)
             : m_mask(m){};
-        inline bool IsSet(uint8 m)
+        inline bool IsSet(T m)
         {
-            return m_mask & m;
+            return (m_mask & m) != 0;
         }
 
-        inline void Set(uint8 m)
+        inline void Set(T m)
         {
             m_mask |= m;
         }
 
-        inline void Remove(uint8 m)
+        inline void Remove(T m)
         {
             m_mask &= ~m;
         }
 
+        template <typename T>
+        void Serialize(Serialization::Archive<T>& ar)
+        {
+            ar(m_mask);
+        }
+
     private:
-        uint8 m_mask = 0;
+        T m_mask = 0;
     };
+
+    typedef Bitmask<uint8>  Bitmask8;
+    typedef Bitmask<uint16> Bitmask16;
 } // namespace Lina
 
 #endif

@@ -55,7 +55,7 @@ namespace Lina::World
         template <class Archive>
         void Serialize(Archive& archive)
         {
-            archive(m_usedResources);
+            archive(m_usedResources, m_world);
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;

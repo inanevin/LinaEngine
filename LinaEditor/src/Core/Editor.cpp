@@ -66,12 +66,26 @@ namespace Lina::Editor
 
     void EditorManager::CreateEditorCamera()
     {
-        World::Entity* e = World::EntityWorld::Get()->CreateEntity("Editor Camera");
-        e->SetPosition(Vector3(0, 0, 18));
-        e->SetRotationAngles(Vector3(0, 180, 0));
-        Graphics::CameraComponent*      cam      = World::EntityWorld::Get()->AddComponent<Graphics::CameraComponent>(e);
-        World::EditorFreeLookComponent* freeLook = World::EntityWorld::Get()->AddComponent<World::EditorFreeLookComponent>(e);
-        freeLook->rotationPower                  = 3.0f;
+        World::EntityWorld*             world    = World::EntityWorld::Get();
+        Graphics::CameraComponent*      cam      = nullptr;
+        World::EditorFreeLookComponent* freeLook = nullptr;
+        m_editorCamera                           = world->GetEntity(LINA_EDITOR_CAMERA_NAME);
+
+        if (m_editorCamera == nullptr)
+        {
+            m_editorCamera = world->CreateEntity(LINA_EDITOR_CAMERA_NAME);
+            cam            = world->AddComponent<Graphics::CameraComponent>(m_editorCamera);
+            freeLook       = world->AddComponent<World::EditorFreeLookComponent>(m_editorCamera);
+        }
+        else
+        {
+            cam      = world->GetComponent<Graphics::CameraComponent>(m_editorCamera);
+            freeLook = world->GetComponent<World::EditorFreeLookComponent>(m_editorCamera);
+        }
+
+        m_editorCamera->SetPosition(Vector3(0, 0, 18));
+        m_editorCamera->SetRotationAngles(Vector3(0, 180, 0));
+        freeLook->rotationPower = 3.0f;
         Graphics::RenderEngine::Get()->GetLevelRenderer().GetCameraSystem().SetActiveCamera(cam);
     }
 
@@ -148,7 +162,7 @@ namespace Lina::Editor
         for (auto& [packageType, resVec] : resourcesPerPackage)
             totalFileCount += static_cast<int>(resVec.size());
 
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{ .title = "Packaging project", .totalFiles = totalFileCount });
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Packaging project", .totalFiles = totalFileCount});
 
         // Engine resources.
         Resources::ResourcePackager::PackageFiles(Resources::PackageType::Static, engineResToPack);

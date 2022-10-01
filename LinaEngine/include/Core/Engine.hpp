@@ -31,6 +31,8 @@ SOFTWARE.
 #ifndef Engine_HPP
 #define Engine_HPP
 
+
+
 // Headers here.
 #include "Core/AudioEngine.hpp"
 #include "Core/InputEngine.hpp"
@@ -54,6 +56,55 @@ namespace Lina
     class Application;
     class EngineSettings;
     class RenderSettings;
+
+
+    LINA_COMPONENT("Test Component", "")
+        struct TestComponent : public World::Component
+    {
+        int a = 0;
+        float x = 2.0f;
+
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive)
+        {
+            World::Component::SaveToArchive(oarchive);
+            oarchive(a, x);
+        }
+
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
+        {
+            World::Component::LoadFromArchive(iarchive);
+            iarchive(a, x);
+
+        }
+        // Inherited via Component
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<TestComponent>();
+        }
+    };
+
+    LINA_COMPONENT("Test Component 2", "")
+        struct TestComponent2 : public World::Component
+    {
+        String myStr = "sea";
+
+        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive)
+        {
+            World::Component::SaveToArchive(oarchive);
+            oarchive(myStr);
+        }
+
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
+        {
+            World::Component::LoadFromArchive(iarchive);
+            iarchive(myStr);
+        }
+        // Inherited via Component
+        virtual TypeID GetTID() override
+        {
+            return GetTypeID<TestComponent2>();
+        }
+    };
 
     class Engine
     {

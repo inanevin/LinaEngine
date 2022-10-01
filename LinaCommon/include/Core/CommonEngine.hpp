@@ -57,6 +57,8 @@ namespace Lina
 
     extern TypeID           g_levelTypeID;
     extern DefaultResources g_defaultResources;
+
+#define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina
 
 #endif

@@ -45,6 +45,17 @@ namespace Lina::World
 #define ENTITY_CHUNK_COUNT 25000
 #define ENTITY_VEC_SIZE    2000
 
+    enum EntityMask
+    {
+        Hidden    = 1 << 0,
+        Reserved1 = 1 << 1,
+        Reserved2 = 1 << 2,
+        Reserved3 = 1 << 3,
+        Reserved4 = 1 << 4,
+        Reserved5 = 1 << 5,
+        Reserved6 = 1 << 6,
+    };
+
     // Actual game state
     class Entity
     {
@@ -55,7 +66,7 @@ namespace Lina::World
         template <class Archive>
         void Serialize(Archive& archive)
         {
-            archive(m_id, m_name, m_parentID, m_childrenID, m_transform);
+            archive(m_id, m_name, m_parentID, m_childrenID, m_transform, m_mask);
         }
 
         inline uint32 GetID()
@@ -90,6 +101,12 @@ namespace Lina::World
         void           SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
         void           SetLocalScale(const Vector3& scale, bool isThisPivot = true);
         void           SetScale(const Vector3& scale, bool isThisPivot = true);
+        void           SetHidden(bool hidden);
+
+        inline bool IsHidden()
+        {
+            return m_mask.IsSet(EntityMask::Hidden);
+        }
 
         const Vector3& GetLocalRotationAngles()
         {
@@ -134,6 +151,11 @@ namespace Lina::World
             m_name = name;
         }
 
+        inline Bitmask16& GetMask()
+        {
+            return m_mask;
+        }
+
     private:
         void UpdateGlobalPosition();
         void UpdateLocalPosition();
@@ -156,9 +178,9 @@ namespace Lina::World
         uint32           m_parentID = ENTITY_NULL;
         HashSet<uint32>  m_childrenID;
         Transformation   m_transform;
+        Bitmask16        m_mask;
 
     private:
-
     };
 
 } // namespace Lina::World

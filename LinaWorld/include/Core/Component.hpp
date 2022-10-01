@@ -66,7 +66,7 @@ namespace Lina::World
             return m_entity;
         }
 
-        virtual Bitmask GetComponentMask()
+        virtual Bitmask8 GetComponentMask()
         {
             return 0;
         }

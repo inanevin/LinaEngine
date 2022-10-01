@@ -69,7 +69,6 @@ namespace Lina
 
         g_appInfo.m_appMode     = initInfo.appMode;
         g_appInfo.m_appName     = initInfo.appName;
-        g_appInfo.m_packagePass = initInfo.packagePass;
 
 // Editor will be compiled out, force standalone.
 #ifdef LINA_PRODUCTION_BUILD

@@ -183,12 +183,26 @@ namespace Lina
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
         auto* c = m_resourceManager.GetCache<EngineSettings>();
-       //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
-         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-      //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
-      //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj"));
-        //m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
-       // m_levelManager.SaveCurrentLevel();
+        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
+        //World::EntityWorld::Get()->CreateEntity("My Entity 1");
+       // World::Entity* e = World::EntityWorld::Get()->GetEntity("My Entity 1");
+       // 
+       // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
+       // ce->a             = 118;
+       // ce->x             = 12.0f;
+        m_levelManager.SaveCurrentLevel();
+
+        // 
+        // World::EntityWorld::Get()->CreateEntity("MY Entity 2");
+        // World::EntityWorld::Get()->CreateEntity("MY Entity 3");
+        // World::EntityWorld::Get()->CreateEntity("MY Entity 4");
+        // m_levelManager.SaveCurrentLevel();
+
+        // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
+        // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj"));
+        // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
+        // m_levelManager.SaveCurrentLevel();
 
         // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
         // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
@@ -199,11 +213,11 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-      // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
         // Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
-        // 
-        //m_levelManager.SaveCurrentLevel();
+        //
+        // m_levelManager.SaveCurrentLevel();
 
         //  SetFrameLimit(60);
 

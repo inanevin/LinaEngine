@@ -98,7 +98,6 @@ namespace Lina
     {
         // App Info
         const char*    appName     = "Lina Engine";
-        const wchar_t* packagePass = nullptr;
 
         ApplicationMode  appMode          = ApplicationMode::Editor;
         WindowProperties windowProperties = WindowProperties();
