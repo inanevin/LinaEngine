@@ -41,6 +41,9 @@ SOFTWARE.
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
 
+#include "Core/GUIBackend.hpp"
+#include <LinaVG/LinaVG.hpp>
+
 namespace Lina::Graphics
 {
     RenderEngine* RenderEngine::s_instance = nullptr;
@@ -126,8 +129,51 @@ namespace Lina::Graphics
         m_descriptorLayouts[2] = &m_textureDataLayout;
 
         m_levelRenderer.Initialize();
-
         m_gpuUploader.Create();
+
+        // Init GUI Backend, LinaVG
+        LinaVG::Config.displayPosX   = 0;
+        LinaVG::Config.displayPosY   = 0;
+        LinaVG::Config.displayWidth  = size.x;
+        LinaVG::Config.displayHeight = size.y;
+        LinaVG::Config.clipPosX = LinaVG::Config.clipPosY = 0;
+        LinaVG::Config.clipSizeX                          = size.x;
+        LinaVG::Config.clipSizeY                          = size.y;
+        LinaVG::Config.flipTextureUVs                     = false;
+        LinaVG::Config.framebufferScale.x                 = g_appInfo.GetContentScaleWidth();
+        LinaVG::Config.framebufferScale.y                 = g_appInfo.GetContentScaleHeight();
+        LinaVG::Config.aaMultiplier                       = 1.5f;
+
+        LinaVG::Config.errorCallback = [](const std::string& err) {
+            LINA_ERR(err.c_str());
+        };
+
+        LinaVG::Config.logCallback = [](const std::string& log) {
+            LINA_TRACE(log.c_str());
+        };
+
+        m_guiBackend = new LinaVG::Backend::GUIBackend();
+        LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
+        LinaVG::Initialize();
+
+        // Engine materials
+        m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
+        // m_engineShaderNames[EngineShaderType::StandardUnlit] = "DefaultUnlit";
+        m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
+        // m_engineShaderNames[EngineShaderType::GUIText]       = "GUIText";
+
+        // Engine models
+        m_enginePrimitiveNames[EnginePrimitiveType::Capsule]  = "Capsule";
+        m_enginePrimitiveNames[EnginePrimitiveType::Cube]     = "Cube";
+        m_enginePrimitiveNames[EnginePrimitiveType::Cylinder] = "Cylinder";
+        m_enginePrimitiveNames[EnginePrimitiveType::LinaLogo] = "LinaLogo";
+        m_enginePrimitiveNames[EnginePrimitiveType::Plane]    = "Plane";
+        m_enginePrimitiveNames[EnginePrimitiveType::Quad]     = "Quad";
+        m_enginePrimitiveNames[EnginePrimitiveType::Sphere]   = "Sphere";
+        m_enginePrimitiveNames[EnginePrimitiveType::Suzanne]  = "Suzanne";
+
+        // Engine textures
+        m_engineTextureNames[EngineTextureType::Grid512] = "Grid512";
     }
 
     void RenderEngine::Clear()
@@ -140,12 +186,6 @@ namespace Lina::Graphics
         m_levelRenderer.Tick();
     }
 
-    void RenderEngine::GameSimCompleted()
-    {
-        auto* world = World::EntityWorld::Get();
-        m_levelRenderer.FetchAndExtract(world);
-    }
-
     void RenderEngine::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
@@ -156,6 +196,12 @@ namespace Lina::Graphics
 
         m_gpuUploader.Poll();
         m_levelRenderer.Render();
+
+        // GUI
+        LinaVG::StartFrame();
+        Event::EventSystem::Get()->Trigger<Event::EOnGUIDraw>();
+        LinaVG::Render();
+        LinaVG::EndFrame();
     }
 
     void RenderEngine::Join()
@@ -167,6 +213,8 @@ namespace Lina::Graphics
     void RenderEngine::Shutdown()
     {
         RETURN_NOTINITED;
+
+        LinaVG::Terminate();
 
         LINA_TRACE("[Shutdown] -> Render Engine ({0})", typeid(*this).name());
 
@@ -202,10 +250,84 @@ namespace Lina::Graphics
 
     void RenderEngine::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
-    return;
-        m_placeholderMaterial  = Resources::ResourceManager::Get()->GetResource<Material>("Resources/Engine/Materials/Default.linamat");
-        m_placeholderModel     = Resources::ResourceManager::Get()->GetResource<Model>("Resources/Engine/Meshes/Primitives/Cube.fbx");
+        auto* rm               = Resources::ResourceManager::Get();
+        m_placeholderMaterial  = rm->GetResource<Material>("Resources/Engine/Materials/LitStandard.linamat");
+        m_placeholderModel     = rm->GetResource<Model>("Resources/Engine/Models/Cube.fbx");
         m_placeholderModelNode = m_placeholderModel->GetRootNode();
+
+        for (auto& p : m_engineShaderNames)
+        {
+            const String shaderPath    = "Resources/Engine/Shaders/" + p.second + ".linashader";
+            const String materialPath  = "Resources/Engine/Materials/" + p.second + ".linamat";
+            Shader*      shader        = rm->GetResource<Shader>(shaderPath);
+            Material*    material      = rm->GetResource<Material>(materialPath);
+            m_engineShaders[p.first]   = shader;
+            m_engineMaterials[p.first] = material;
+        }
+
+        for (auto& p : m_enginePrimitiveNames)
+        {
+            const String modelPath  = "Resources/Engine/Models/" + p.second + ".fbx";
+            Model*       model      = rm->GetResource<Model>(modelPath);
+            m_engineModels[p.first] = model;
+        }
+    }
+
+    Vector<String> RenderEngine::GetEngineShaderPaths()
+    {
+        Vector<String> paths;
+
+        for (auto& p : m_engineShaderNames)
+        {
+            const String path = "Resources/Engine/Shaders/" + p.second + ".linashader";
+            paths.push_back(path);
+        }
+
+        return paths;
+    }
+
+    Vector<String> RenderEngine::GetEngineMaterialPaths()
+    {
+        Vector<String> paths;
+
+        for (auto& p : m_engineShaderNames)
+        {
+            const String path = "Resources/Engine/Materials/" + p.second + ".linamat";
+            paths.push_back(path);
+        }
+
+        return paths;
+    }
+
+    Vector<String> RenderEngine::GetEnginePrimitivePaths()
+    {
+        Vector<String> paths;
+
+        for (auto& p : m_enginePrimitiveNames)
+        {
+            const String path = "Resources/Engine/Models/" + p.second + ".fbx";
+            paths.push_back(path);
+        }
+
+        return paths;
+    }
+
+    Vector<String> RenderEngine::GetEngineTexturePaths()
+    {
+        Vector<String> paths;
+
+        for (auto& p : m_engineTextureNames)
+        {
+            const String path = "Resources/Engine/Textures/" + p.second + ".png";
+            paths.push_back(path);
+        }
+
+        return paths;
+    }
+
+    Mesh* RenderEngine::GetPlaceholderMesh()
+    {
+        return GetPlaceholderModelNode()->GetMeshes()[0];
     }
 
 } // namespace Lina::Graphics

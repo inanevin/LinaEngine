@@ -32,10 +32,14 @@ SOFTWARE.
 #define RenderData_HPP
 
 #include "Math/AABB.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Set.hpp"
 
 namespace Lina::Graphics
 {
     class RenderableComponent;
+    class Mesh;
+    class Material;
 
     struct VisibilityData
     {
@@ -43,6 +47,23 @@ namespace Lina::Graphics
         Vector3              position   = Vector3::Zero;
         AABB                 aabb       = AABB();
         bool                 valid      = false;
+    };
+
+    struct GPUObjectData
+    {
+        Matrix modelMatrix = Matrix::Identity();
+    };
+
+    struct MeshMaterialPair
+    {
+        Mesh*     mesh     = nullptr;
+        Material* material = nullptr;
+    };
+
+    struct RenderBatch
+    {
+        MeshMaterialPair pair;
+        Set<uint32>      renderableIDs;
     };
 
 } // namespace Lina::Graphics

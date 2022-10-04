@@ -51,6 +51,8 @@ namespace Lina::Resources
         default:
             "none";
         }
+
+        return "none";
     }
 
     uint32 GetPackageVersion(PackageType type)

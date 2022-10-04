@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina::Graphics
 {
@@ -50,7 +51,7 @@ namespace Lina::Graphics
         static String GetShaderStageText(const String& shader, const String& defineStart);
 
         /// <summary>
-        /// Scans & returns the push constants in the shader text.
+        /// Scans and returns the push constants in the shader text.
         /// </summary>
         /// <param name="moduleText"></param>
         /// <param name="offset"></param>
@@ -58,12 +59,17 @@ namespace Lina::Graphics
         static Vector<PushConstantRange> CheckForPushConstants(ShaderStage stage, const String& moduleText);
 
         /// <summary>
-        /// Scans & returns the descriptor sets in the shader text.
+        /// Scans and returns the descriptor sets in the shader text.
         /// </summary>
         /// <param name="moduleText"></param>
         /// <param name="offset"></param>
         /// <param name="size"></param>
         static Vector<ShaderDescriptorSetInfo> CheckForDescriptorSets(uint32 stageFlags, const String& moduleText);
+
+        /// <summary>
+        /// Scans and returns the draw passes the shader should be registered to.
+        /// </summary>
+        static Bitmask16 GetPassMask(const String& text);
     };
 } // namespace Lina::Graphics
 

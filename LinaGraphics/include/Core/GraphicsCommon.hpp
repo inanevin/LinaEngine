@@ -415,6 +415,48 @@ namespace Lina::Graphics
         Glass
     };
 
+    enum class EngineShaderType
+    {
+        LitStandard = 0,
+        UnlitStandard,
+        GUIStandard,
+        GUIText,
+    };
+
+    enum class EnginePrimitiveType
+    {
+        Cube = 0,
+        Capsule,
+        Cylinder,
+        Sphere,
+        Plane,
+        Quad,
+        Suzanne,
+        LinaLogo,
+    };
+
+    enum DrawPassMask
+    {
+        Opaque      = 1 << 0,
+        Transparent = 1 << 1,
+        Shadow      = 1 << 2,
+    };
+
+    enum class EngineTextureType
+    {
+        Grid512,
+    };
+
+    enum RenderableType
+    {
+        RenderableSprite      = 1 << 0,
+        RenderableDecal       = 1 << 1,
+        RenderableSky         = 1 << 2,
+        RenderableSkinnedMesh = 1 << 3,
+        RenderableStaticMesh  = 1 << 4,
+        RenderableParticle    = 1 << 5,
+    };
+
     struct Offset3D
     {
         int32 x = 0;

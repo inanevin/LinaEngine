@@ -74,7 +74,7 @@ namespace Lina::Resources
 
         inline ResourceCacheBase* GetCache(TypeID tid)
         {
-            return m_caches[tid];
+            return m_caches.at(tid);
         }
 
         template <typename T>

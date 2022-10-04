@@ -36,8 +36,10 @@ SOFTWARE.
 #include "Shader.hpp"
 #include "Serialization/Serialization.hpp"
 
+
 namespace Lina::Graphics
 {
+
     class Material : public Resources::Resource
     {
     public:

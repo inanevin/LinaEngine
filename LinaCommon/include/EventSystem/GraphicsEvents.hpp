@@ -37,6 +37,11 @@ SOFTWARE.
 
 namespace Lina::Event
 {
+    struct EOnGUIDraw
+    {
+
+    };
+
     struct EDrawLine
     {
         Vector3 from      = Vector3();

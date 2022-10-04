@@ -74,21 +74,26 @@ namespace Lina
             return m_appName;
         }
 
-        inline const wchar_t* GetPackagePass()
-        {
-            return m_packagePass;
-        }
-
         inline ApplicationMode GetAppMode()
         {
             return m_appMode;
         }
 
+        inline float GetContentScaleWidth()
+        {
+            return m_contentScaleWidth;
+        }
+
+        inline float GetContentScaleHeight()
+        {
+            return m_contentScaleHeight;
+        }
+
     private:
         friend class Application;
         friend class Graphics::Window;
+
         const char*     m_appName            = "Lina Engine";
-        const wchar_t*  m_packagePass        = nullptr;
         float           m_contentScaleWidth  = 1.0f;
         float           m_contentScaleHeight = 1.0f;
         ApplicationMode m_appMode            = ApplicationMode::Editor;
@@ -97,7 +102,7 @@ namespace Lina
     struct InitInfo
     {
         // App Info
-        const char*    appName     = "Lina Engine";
+        const char* appName = "Lina Engine";
 
         ApplicationMode  appMode          = ApplicationMode::Editor;
         WindowProperties windowProperties = WindowProperties();

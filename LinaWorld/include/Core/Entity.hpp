@@ -36,25 +36,10 @@ SOFTWARE.
 #include "Data/HashSet.hpp"
 #include "Serialization/SetSerialization.hpp"
 #include "Math/Transformation.hpp"
+#include "WorldCommon.hpp"
 
 namespace Lina::World
 {
-
-#define ENTITY_MAX         ((uint32_t)-2)
-#define ENTITY_NULL        ((uint32_t)-1)
-#define ENTITY_CHUNK_COUNT 25000
-#define ENTITY_VEC_SIZE    2000
-
-    enum EntityMask
-    {
-        Hidden    = 1 << 0,
-        Reserved1 = 1 << 1,
-        Reserved2 = 1 << 2,
-        Reserved3 = 1 << 3,
-        Reserved4 = 1 << 4,
-        Reserved5 = 1 << 5,
-        Reserved6 = 1 << 6,
-    };
 
     // Actual game state
     class Entity
@@ -101,11 +86,17 @@ namespace Lina::World
         void           SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
         void           SetLocalScale(const Vector3& scale, bool isThisPivot = true);
         void           SetScale(const Vector3& scale, bool isThisPivot = true);
-        void           SetHidden(bool hidden);
+        void           SetVisible(bool visible);
+        void           SetStatic(bool isStatic);
 
-        inline bool IsHidden()
+        inline bool IsVisible()
         {
-            return m_mask.IsSet(EntityMask::Hidden);
+            return m_mask.IsSet(EntityMask::Visible);
+        }
+
+        inline bool IsStatic()
+        {
+            return m_mask.IsSet(EntityMask::Static);
         }
 
         const Vector3& GetLocalRotationAngles()
@@ -151,9 +142,9 @@ namespace Lina::World
             m_name = name;
         }
 
-        inline Bitmask16& GetMask()
+        inline bool IsMaskSet(uint16 mask)
         {
-            return m_mask;
+            return m_mask.IsSet(mask);
         }
 
     private:

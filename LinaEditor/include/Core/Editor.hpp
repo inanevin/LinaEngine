@@ -36,7 +36,8 @@ namespace Lina
     namespace Event
     {
         struct ELevelInstalled;
-    }
+        struct EOnGUIDraw;
+    } // namespace Event
 
     namespace World
     {
@@ -58,13 +59,18 @@ namespace Lina::Editor
         virtual ~EditorManager() = default;
 
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnGUIDraw(const Event::EOnGUIDraw& ev);
         void Initialize();
+        void Shutdown();
         void VerifyStaticResources();
         void CreateEditorCamera();
         void DeleteEditorCamera();
         void SaveCurrentLevel();
         void PackageProject();
-        
+        void SetPlayMode(bool enabled);
+        void SetIsPaused(bool paused);
+        void SkipNextFrame();
+
     private:
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;

@@ -68,7 +68,7 @@ namespace Lina::World
 
         virtual void OnTick(const Event::ETick& ev) override;
 
-        virtual Bitmask8 GetComponentMask() override
+        virtual Bitmask16 GetComponentMask() override
         {
             return ComponentMask::ReceiveOnTick;
         }

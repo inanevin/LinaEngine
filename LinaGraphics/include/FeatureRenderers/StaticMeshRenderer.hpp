@@ -31,56 +31,19 @@ SOFTWARE.
 #ifndef StaticMeshRenderer_HPP
 #define StaticMeshRenderer_HPP
 
-#include "Data/HashSet.hpp"
-#include "Data/Vector.hpp"
-#include "Components/ModelNodeComponent.hpp"
-#include "Core/RenderData.hpp"
-#include "Data/DataCommon.hpp"
-
-namespace Lina
-{
-    namespace World
-    {
-        class EntityWorld;
-        class Entity;
-    } // namespace World
-} // namespace Lina
+#include "FeatureRenderer.hpp"
 
 namespace Lina::Graphics
 {
-    class View;
-    class Material;
-    class ModelNode;
-    class Mesh;
-    class FramePacket;
-    class ModelNodeComponent;
-    class FeatureRendererManager;
 
-    class StaticMeshRenderer
+    class StaticMeshRenderer : public FeatureRenderer
     {
     public:
-        struct RenderPair
-        {
-            Matrix transform = Matrix::Identity();
-            Mesh*  mesh      = nullptr;
-        };
-
-        struct ExtractedData
-        {
-            Vector<ModelNodeComponent*> nodeComponents;
-        };
-
-        void Initialize(FeatureRendererManager& manager);
-        void Shutdown();
-
-        void OnExtractPerView(World::EntityWorld* world, View* v);
-        void OnPrepare();
-        void OnSubmit(CommandBuffer& buffer, View* v);
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        virtual void BatchRenderables(const Vector<RenderableComponent*>& renderables) override;
 
     private:
-        Mutex                                               m_mtx;
-        Queue<ExtractedData>                                m_extractQueue;
-        ParallelHashMapMutex<Material*, Vector<RenderPair>> m_gpuData;
     };
 } // namespace Lina::Graphics
 

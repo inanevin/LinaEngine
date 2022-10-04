@@ -31,56 +31,33 @@ SOFTWARE.
 #ifndef FeatureRendererManager_HPP
 #define FeatureRendererManager_HPP
 
-#include "Data/HashMap.hpp"
+#include "DecalRenderer.hpp"
+#include "ParticleRenderer.hpp"
+#include "SkinnedMeshRenderer.hpp"
+#include "SkyRenderer.hpp"
+#include "SpriteRenderer.hpp"
+#include "StaticMeshRenderer.hpp"
 #include "Data/Vector.hpp"
-#include "Functional/Functional.hpp"
-
-namespace Lina
-{
-    namespace World
-    {
-        class EntityWorld;
-    }
-} // namespace Lina
 
 namespace Lina::Graphics
 {
-    class View;
-    class CommandBuffer;
-    class FramePacket;
-
-    typedef Delegate<void(World::EntityWorld* w)>          WorldFunction;
-    typedef Delegate<void(World::EntityWorld* w, View* v)> WorldViewFunction;
-    typedef Delegate<void(View* v)>                        ViewFunction;
-    typedef Delegate<void(CommandBuffer& cb, View* v)>     CBFunction;
-    typedef Delegate<void()>                               DefFunction;
-
-    class CommandBuffer;
 
     class FeatureRendererManager
     {
     public:
-        Vector<WorldFunction>     onExtract;
-        Vector<WorldViewFunction> onExtractPerView;
-        Vector<WorldViewFunction> onExtractPerViewEnd;
-        Vector<WorldFunction>     onExtractEnd;
-        Vector<DefFunction>       onPrepare;
-        Vector<ViewFunction>      onPreparePerView;
-        Vector<ViewFunction>      onPreparePerViewEnd;
-        Vector<DefFunction>       onPrepareEnd;
-        Vector<CBFunction>        onSubmit;
+        void Initialize();
+        void Shutdown();
+        void BatchRenderables(const Vector<RenderableComponent*>& renderables);
 
     private:
-        friend class Renderer;
-
-        void ExtractGameState(World::EntityWorld* world);
-        void PrepareRenderData();
-        void Submit(CommandBuffer& buf);
-
-    private:
-        Renderer* m_renderer = nullptr;
+        Vector<FeatureRenderer*> m_renderers;
+        DecalRenderer            m_decalRenderer;
+        ParticleRenderer         m_particleRenderer;
+        SkinnedMeshRenderer      m_skinnedMeshRenderer;
+        SkyRenderer              m_skyRenderer;
+        SpriteRenderer           m_spriteRenderer;
+        StaticMeshRenderer       m_staticMeshRenderer;
     };
 }; // namespace Lina::Graphics
-   // namespace Lina::Graphics
 
 #endif

@@ -32,15 +32,20 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "PipelineObjects/RQueue.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/EntityEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "Resource/Texture.hpp"
-#include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/Level.hpp"
-#include "Utility/Vulkan/vk_mem_alloc.h"
-#include <vulkan/vulkan.h>
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
+#include "Core/ResourceManager.hpp"
+#include "Core/Component.hpp"
+#include "Components/RenderableComponent.hpp"
+#include "Resource/Material.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Utility/Vulkan/vk_mem_alloc.h"
+#include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
@@ -51,6 +56,8 @@ namespace Lina::Graphics
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Renderer::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
 
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
@@ -219,10 +226,33 @@ namespace Lina::Graphics
         }
 
         // Views
-        m_playerView.m_viewType = ViewType::Player;
+        m_playerView.Initialize(ViewType::Player);
         m_views.push_back(&m_playerView);
 
+        // Draw passes.
+        m_opaquePass.Initialize(DrawPassMask::Opaque, &m_playerView, 1000.0f);
+
         // Feature renderers.
+        m_featureRendererManager.Initialize();
+    }
+
+    void Renderer::Shutdown()
+    {
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
+        m_featureRendererManager.Shutdown();
+
+        for (int i = 0; i < FRAME_OVERLAP; i++)
+        {
+            m_frames[i].objDataBuffer.Destroy();
+        }
+
+        m_scenePropertiesBuffer.Destroy();
+
+        for (int i = 0; i < m_framebuffers.size(); i++)
+            m_framebuffers[i].Destroy();
     }
 
     void Renderer::Tick()
@@ -232,28 +262,9 @@ namespace Lina::Graphics
         m_playerView.CalculateFrustum(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
     }
 
-    void Renderer::FetchAndExtract(World::EntityWorld* world)
-    {
-        return;
-
-        PROFILER_FUNC(PROFILER_THREAD_MAIN);
-        if (world == nullptr)
-            return;
-        // Determine views.
-
-        // Determine views.
-
-        // Calculate visible renderables for each view.
-       //Taskflow tf;
-       //tf.for_each(m_views.begin(), m_views.end(), [&](View* v) {
-       //    v->CalculateVisibility(m_renderables.data(), m_nextRenderableID);
-       //});
-       //JobSystem::Get()->GetMainExecutor().Run(tf).wait();
-
-    }
-
     void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
+        m_hasLevelInstalled = true;
         return;
         Texture* txt = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
 
@@ -273,18 +284,32 @@ namespace Lina::Graphics
 
         auto w = World::LevelManager::Get()->GetCurrentLevel()->GetWorld();
 
-        uint32      maxSize;
-        const auto& v = w.View<ModelNodeComponent>(&maxSize);
-
-        for (uint32 i = 0; i < maxSize; i++)
-        {
-            if (v[i] != nullptr)
-                AddRenderable(v[i]);
-        }
+        // uint32      maxSize;
+        // const auto& v = w.View<ModelNodeComponent>(&maxSize);
+        //
+        // for (uint32 i = 0; i < maxSize; i++)
+        // {
+        //     if (v[i] != nullptr)
+        //         AddRenderable(v[i]);
+        // }
     }
+
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
-        m_renderables.clear();
+        m_hasLevelInstalled = false;
+        m_allRenderables.Reset();
+    }
+
+    void Renderer::OnComponentCreated(const Event::EComponentCreated& ev)
+    {
+        if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
+            m_allRenderables.AddRenderable(static_cast<RenderableComponent*>(ev.ptr));
+    }
+
+    void Renderer::OnComponentDestroyed(const Event::EComponentDestroyed& ev)
+    {
+        if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
+            m_allRenderables.RemoveRenderable(static_cast<RenderableComponent*>(ev.ptr));
     }
 
     Frame& Renderer::GetCurrentFrame()
@@ -295,6 +320,9 @@ namespace Lina::Graphics
     void Renderer::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
+        m_opaquePass.ExtractVisibleRenderables(m_allRenderables);
+        m_featureRendererManager.BatchRenderables(m_opaquePass.GetVisibleRenderables());
 
         // m_featureRendererManager.PrepareRenderData();
 
@@ -321,61 +349,58 @@ namespace Lina::Graphics
         for (int i = 0; i < 1; i++)
         {
             GPUObjectData data;
-            data.modelMatrix = Matrix::Translate(Vector3(i, 0, 0));
+            data.modelMatrix = Matrix::Translate(Vector3(0, 0, 0));
 
             objDatas.push_back(data);
         }
         GetCurrentFrame().objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
-//
-//   for (int i = 0; i < 1; i++)
-//   {
-//       Material * mat = RenderEngine::Get()->GetPlaceholderMaterial();
-//       auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
-//       pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
-//
-//       auto& renderer = RenderEngine::Get()->GetLevelRenderer();
-//       DescriptorSet& descSet = renderer.GetGlobalSet();
-//       DescriptorSet& objSet = renderer.GetObjectSet();
-//       DescriptorSet& txtSet = renderer.GetTextureSet();
-//
-//       uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-//
-//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
-//
-//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
-//
-//       GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
-//
-//
-//       for (auto mr : m_renderables)
-//       {
-//           Graphics::MeshPushConstants constants;
-//           constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
-//           GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
-//
-//           Model* m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
-//           ModelNode* n = mr->m_modelHandle.IsValid() ?  RenderEngine::Get()->GetPlaceholderModelNode() :m->GetNodes()[mr->m_nodeIndex];
-//           
-//           auto& meshes = n->GetMeshes();
-//           int k = 0;
-//
-//           for (auto mesh : meshes)
-//           {
-//               uint64 offset = 0;
-//               GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
-//               GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-//               // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
-//               GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
-//               k++;
-//           }
-//          
-//         
-//       }
-//      // for (auto& rp : pair)
-//      // {
-//      //     
-//      // }
-//   }
+
+        for (int i = 0; i < 1; i++)
+        {
+            Material* mat      = RenderEngine::Get()->GetPlaceholderMaterial();
+            auto&     pipeline = mat->GetShaderHandle().value->GetPipeline();
+            pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
+
+            auto&          renderer = RenderEngine::Get()->GetLevelRenderer();
+            DescriptorSet& descSet  = renderer.GetGlobalSet();
+            DescriptorSet& objSet   = renderer.GetObjectSet();
+            DescriptorSet& txtSet   = renderer.GetTextureSet();
+
+            uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+
+            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+
+            GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+
+            // GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+
+            // for (auto mr : m_renderables)
+            // {
+            //     Graphics::MeshPushConstants constants;
+            //     constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
+            //     GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
+            //
+            //     Model*     m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
+            //     ModelNode* n = mr->m_modelHandle.IsValid() ? RenderEngine::Get()->GetPlaceholderModelNode() : m->GetNodes()[mr->m_nodeIndex];
+            //
+            //     auto& meshes = n->GetMeshes();
+            //     int   k      = 0;
+            //
+            //     for (auto mesh : meshes)
+            //     {
+            //         uint64 offset = 0;
+            //         GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
+            //         GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+            //         // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
+            //         GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
+            //         k++;
+            //     }
+            // }
+            // for (auto& rp : pair)
+            // {
+            //
+            // }
+        }
 
         // Render commands.
         // m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
@@ -397,52 +422,6 @@ namespace Lina::Graphics
     {
         for (int i = 0; i < FRAME_OVERLAP; i++)
             m_frames[i].renderFence.Wait();
-    }
-
-    void Renderer::Shutdown()
-    {
-        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
-
-        m_meshRenderer.Shutdown();
-
-        for (int i = 0; i < FRAME_OVERLAP; i++)
-        {
-            m_frames[i].objDataBuffer.Destroy();
-        }
-
-        m_scenePropertiesBuffer.Destroy();
-
-        for (int i = 0; i < m_framebuffers.size(); i++)
-            m_framebuffers[i].Destroy();
-    }
-
-    void Renderer::AddRenderable(ModelNodeComponent* comp)
-    {
-        uint32 id = 0;
-
-        if (!m_availableRenderableIDs.empty())
-        {
-            id = m_availableRenderableIDs.front();
-            m_availableRenderableIDs.pop();
-        }
-        else
-        {
-            id = m_nextRenderableID++;
-
-            const uint32 size = static_cast<uint32>(m_renderables.size());
-            if (m_nextRenderableID > size)
-                m_renderables.resize(size + RENDERABLES_STACK_SIZE);
-        }
-
-        comp->m_renderableID = id;
-        m_renderables[id]    = comp;
-    }
-
-    void Renderer::RemoveRenderable(ModelNodeComponent* comp)
-    {
-        m_renderables[comp->m_renderableID] = nullptr;
-        m_availableRenderableIDs.push(comp->m_renderableID);
     }
 
 } // namespace Lina::Graphics

@@ -61,31 +61,6 @@ namespace Lina
         return Time::GetCPUTime() - m_startTime;
     }
 
-    void Engine::SetPlayMode(bool enabled)
-    {
-        m_isInPlayMode = enabled;
-        m_eventSystem.Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{enabled});
-
-        if (!m_isInPlayMode && m_paused)
-            SetIsPaused(false);
-    }
-
-    void Engine::SetIsPaused(bool paused)
-    {
-        if (paused && !m_isInPlayMode)
-            return;
-        m_paused = paused;
-        m_eventSystem.Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{m_paused});
-    }
-
-    void Engine::SkipNextFrame()
-    {
-        if (!m_isInPlayMode)
-            return;
-
-        m_shouldSkipFrame = true;
-    }
-
     void Engine::InstallLevel(const String& path, bool async)
     {
         m_renderEngine.Join();
@@ -133,21 +108,27 @@ namespace Lina
 #endif
 
         // Static resources
+        const Vector<String> defaultShaders   = m_renderEngine.GetEngineShaderPaths();
+        const Vector<String> defaultMaterials = m_renderEngine.GetEngineMaterialPaths();
+        const Vector<String> defaultModels    = m_renderEngine.GetEnginePrimitivePaths();
+        const Vector<String> defaultTextures  = m_renderEngine.GetEngineTexturePaths();
+
+        for (auto& s : defaultShaders)
+            g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back(s);
+
+        for (auto& s : defaultMaterials)
+            g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back(s);
+
+        for (auto& s : defaultModels)
+            g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back(s);
+
+        for (auto& s : defaultTextures)
+            g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
+
         g_defaultResources.m_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
         g_defaultResources.m_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/Default.linashader");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back("Resources/Engine/Shaders/DefaultTextured.linashader");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back("Resources/Engine/Materials/Default.linamat");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/BlenderMonkey.obj");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/LinaLogo.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Capsule.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cube.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Cylinder.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Plane.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Quad.fbx");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Meshes/Primitives/Sphere.fbx");
         g_defaultResources.m_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
-        g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Engine/Textures/Grid.png");
+
         m_resourceManager.GetLoader()->LoadEngineResources();
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
@@ -155,12 +136,15 @@ namespace Lina
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
         // Temp
-        // Graphics::Shader* shader = m_resourceManager.GetResource<Graphics::Shader>("Resources/Engine/Shaders/Default.linashader");
+        // Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::LitStandard);
+        // m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard)->SetShader(shader);
+        // auto * mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard);
+        //     Serialization::SaveToFile<Graphics::Material>(mat->GetPath(), *mat);
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
 
         // Graphics::Material mat;
         // mat.SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/Default.linamat", mat);
+        // Serialization::SaveToFile<Graphics::Material>("Resources/GUIStandard.linamat", mat);
     }
 
     void Engine::Run()
@@ -179,21 +163,25 @@ namespace Lina
         double previousFrameTime;
         double currentFrameTime = 0.0f;
 
+        g_runtimeInfo.m_paused          = false;
+        g_runtimeInfo.m_shouldSkipFrame = false;
+        g_runtimeInfo.m_isInPlayMode    = g_appInfo.GetAppMode() != ApplicationMode::Editor;
+
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        auto* c = m_resourceManager.GetCache<EngineSettings>();
-        //m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
+        // auto* c = m_resourceManager.GetCache<EngineSettings>();
+        m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-        //World::EntityWorld::Get()->CreateEntity("My Entity 1");
-       // World::Entity* e = World::EntityWorld::Get()->GetEntity("My Entity 1");
-       // 
-       // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
-       // ce->a             = 118;
-       // ce->x             = 12.0f;
-        //m_levelManager.SaveCurrentLevel();
+        // World::EntityWorld::Get()->CreateEntity("My Entity 1");
+        // World::Entity* e = World::EntityWorld::Get()->GetEntity("My Entity 1");
+        //
+        // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
+        // ce->a             = 118;
+        // ce->x             = 12.0f;
+        // m_levelManager.SaveCurrentLevel();
 
-        // 
+        //
         // World::EntityWorld::Get()->CreateEntity("MY Entity 2");
         // World::EntityWorld::Get()->CreateEntity("MY Entity 3");
         // World::EntityWorld::Get()->CreateEntity("MY Entity 4");
@@ -268,18 +256,17 @@ namespace Lina
             m_inputEngine.Tick();
 
             // Render
-            // Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
-            //     m_renderEngine.Render();
-            //     frames++;
-            // });
+            Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+                m_renderEngine.Render();
+                frames++;
+            });
 
             // Game sim, physics + update etc.
             RunSimulation((float)m_rawDeltaTime);
-            m_renderEngine.GameSimCompleted();
             updates++;
-            m_renderEngine.Render();
-            frames++;
-            // renderJob.wait();
+            // m_renderEngine.Render();
+            // frames++;
+            renderJob.wait();
 
             PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 
@@ -302,6 +289,10 @@ namespace Lina
             PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
         }
 
+#ifndef LINA_PRODUCTION_BUILD
+        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+            m_editor.Shutdown();
+#endif
         m_editor.PackageProject();
         m_memoryManager.PrintStaticBlockInfo();
 
@@ -336,12 +327,12 @@ namespace Lina
     void Engine::RunSimulation(float deltaTime)
     {
         // Pause & skip frame controls.
-        if (m_paused && !m_shouldSkipFrame)
+        if (g_runtimeInfo.m_paused && !g_runtimeInfo.m_shouldSkipFrame)
             return;
-        m_shouldSkipFrame = false;
+        g_runtimeInfo.m_shouldSkipFrame = false;
 
         PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
@@ -361,17 +352,17 @@ namespace Lina
             PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_MAIN);
 
             PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_MAIN);
-            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
+            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, g_runtimeInfo.m_isInPlayMode});
             PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_MAIN);
         }
 
         // Other main systems (engine or game)
         PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, m_isInPlayMode});
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, m_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);

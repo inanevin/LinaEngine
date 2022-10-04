@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
+#include "Data/Bitmask.hpp"
 
 #include "PipelineObjects/Pipeline.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
@@ -77,11 +78,17 @@ namespace Lina::Graphics
             return m_pipeline;
         }
 
+        inline Bitmask16 GetDrawPassMask()
+        {
+            return m_drawPassMask;
+        }
+
     protected:
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
+        void CheckMasks();
         void CheckIfModuleExists(const String& name, ShaderStage stage, const String& define);
         void GenerateByteCode();
         bool CreateShaderModules();
@@ -96,6 +103,7 @@ namespace Lina::Graphics
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;
+        Bitmask16                          m_drawPassMask;
     };
 
 } // namespace Lina::Graphics

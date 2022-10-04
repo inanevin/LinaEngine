@@ -31,8 +31,6 @@ SOFTWARE.
 #ifndef Engine_HPP
 #define Engine_HPP
 
-
-
 // Headers here.
 #include "Core/AudioEngine.hpp"
 #include "Core/InputEngine.hpp"
@@ -57,55 +55,6 @@ namespace Lina
     class EngineSettings;
     class RenderSettings;
 
-
-    LINA_COMPONENT("Test Component", "")
-        struct TestComponent : public World::Component
-    {
-        int a = 0;
-        float x = 2.0f;
-
-        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive)
-        {
-            World::Component::SaveToArchive(oarchive);
-            oarchive(a, x);
-        }
-
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
-        {
-            World::Component::LoadFromArchive(iarchive);
-            iarchive(a, x);
-
-        }
-        // Inherited via Component
-        virtual TypeID GetTID() override
-        {
-            return GetTypeID<TestComponent>();
-        }
-    };
-
-    LINA_COMPONENT("Test Component 2", "")
-        struct TestComponent2 : public World::Component
-    {
-        String myStr = "sea";
-
-        virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive)
-        {
-            World::Component::SaveToArchive(oarchive);
-            oarchive(myStr);
-        }
-
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& iarchive) override
-        {
-            World::Component::LoadFromArchive(iarchive);
-            iarchive(myStr);
-        }
-        // Inherited via Component
-        virtual TypeID GetTID() override
-        {
-            return GetTypeID<TestComponent2>();
-        }
-    };
-
     class Engine
     {
 
@@ -116,9 +65,7 @@ namespace Lina
         }
 
         double GetElapsedTime();
-        void   SetPlayMode(bool enabled);
-        void   SetIsPaused(bool paused);
-        void   SkipNextFrame();
+
         void   InstallLevel(const String& path, bool async);
 
         /// <summary>
@@ -171,18 +118,6 @@ namespace Lina
         {
             return m_updateTime;
         }
-        inline bool GetPlayMode()
-        {
-            return m_isInPlayMode;
-        }
-        inline bool GetIsPaused()
-        {
-            return m_paused;
-        }
-        inline bool GetPauseMode()
-        {
-            return m_paused;
-        }
 
     private:
         friend class Application;
@@ -199,24 +134,21 @@ namespace Lina
         double SmoothDeltaTime(double dt);
 
     private:
-        static Engine*                 s_engine;
-        Resources::ResourceManager     m_resourceManager;
-        Physics::PhysicsEngine         m_physicsEngine;
-        Audio::AudioEngine             m_audioEngine;
-        Input::InputEngine             m_inputEngine;
-        Event::EventSystem             m_eventSystem;
-        World::LevelManager            m_levelManager;
-        Graphics::RenderEngine         m_renderEngine;
-        Memory::MemoryManager          m_memoryManager;
-        JobSystem                      m_jobSystem;
-        bool                           m_running           = false;
-        bool                           m_canRender         = true;
-        bool                           m_firstRun          = true;
-        bool                           m_isInPlayMode      = false;
-        bool                           m_paused            = false;
-        bool                           m_shouldSkipFrame   = false;
-        int                            m_frameLimit        = 0;
-        double                         m_frameLimitSeconds = 0;
+        static Engine*             s_engine;
+        Resources::ResourceManager m_resourceManager;
+        Physics::PhysicsEngine     m_physicsEngine;
+        Audio::AudioEngine         m_audioEngine;
+        Input::InputEngine         m_inputEngine;
+        Event::EventSystem         m_eventSystem;
+        World::LevelManager        m_levelManager;
+        Graphics::RenderEngine     m_renderEngine;
+        Memory::MemoryManager      m_memoryManager;
+        JobSystem                  m_jobSystem;
+        bool                       m_running           = false;
+        bool                       m_canRender         = true;
+        bool                       m_firstRun          = true;
+        int                        m_frameLimit        = 0;
+        double                     m_frameLimitSeconds = 0;
         // Performance & variable stepping
         int                                    m_currentFPS = 0;
         int                                    m_currentUPS = 0;

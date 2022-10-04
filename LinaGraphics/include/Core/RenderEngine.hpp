@@ -52,9 +52,20 @@ namespace Lina
     } // namespace Event
 } // namespace Lina
 
+namespace LinaVG
+{
+    namespace Backend
+    {
+        class GUIBackend;
+    }
+} // namespace LinaVG
+
 namespace Lina::Graphics
 {
     class Model;
+    class Texture;
+    class ModelNode;
+    class Material;
 
     class RenderEngine
     {
@@ -123,7 +134,32 @@ namespace Lina::Graphics
             return m_gpuUploader;
         }
 
-        void Join();
+        inline Material* GetEngineMaterial(EngineShaderType shader)
+        {
+            return m_engineMaterials[shader];
+        }
+
+        inline Model* GetEngineModel(EnginePrimitiveType primitive)
+        {
+            return m_engineModels[primitive];
+        }
+
+        inline Texture* GetEngineTexture(EngineTextureType texture)
+        {
+            return m_engineTextures[texture];
+        }
+
+        inline Shader* GetEngineShader(EngineShaderType sh)
+        {
+            return m_engineShaders[sh];
+        }
+
+        void           Join();
+        Vector<String> GetEngineShaderPaths();
+        Vector<String> GetEngineMaterialPaths();
+        Vector<String> GetEnginePrimitivePaths();
+        Vector<String> GetEngineTexturePaths();
+        Mesh*          GetPlaceholderMesh();
 
     private:
         void Initialize(const InitInfo& initInfo);
@@ -131,7 +167,6 @@ namespace Lina::Graphics
         void Tick();
         void Render();
         void Shutdown();
-        void GameSimCompleted();
         void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
@@ -158,6 +193,16 @@ namespace Lina::Graphics
         Viewport                              m_viewport;
         Recti                                 m_scissor;
         Renderer                              m_levelRenderer;
+        LinaVG::Backend::GUIBackend*          m_guiBackend;
+
+        // Resources
+        HashMap<EngineShaderType, String>    m_engineShaderNames;
+        HashMap<EnginePrimitiveType, String> m_enginePrimitiveNames;
+        HashMap<EngineTextureType, String>   m_engineTextureNames;
+        HashMap<EngineShaderType, Shader*>   m_engineShaders;
+        HashMap<EngineShaderType, Material*> m_engineMaterials;
+        HashMap<EnginePrimitiveType, Model*> m_engineModels;
+        HashMap<EngineTextureType, Texture*> m_engineTextures;
     };
 } // namespace Lina::Graphics
 

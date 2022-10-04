@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Settings/RenderSettings.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/World.hpp"
 #include "Components/CameraComponent.hpp"
@@ -44,14 +45,26 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "Core/Level.hpp"
 
+#include <LinaVG/LinaVG.hpp>
+
 namespace Lina::Editor
 {
 
     void EditorManager::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorManager::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::EOnGUIDraw, &EditorManager::OnGUIDraw>(this);
         m_resLoader = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
+
+        if(!Utility::FileExists("Resources/Editor/Metacache/"))
+            Utility::CreateFolderInPath("Resources/Editor/Metacache/");
+    }
+
+    void EditorManager::Shutdown()
+    {
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EOnGUIDraw>(this);
     }
 
     void EditorManager::VerifyStaticResources()
@@ -186,6 +199,38 @@ namespace Lina::Editor
     void EditorManager::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         CreateEditorCamera();
+    }
+
+    void EditorManager::OnGUIDraw(const Event::EOnGUIDraw& ev)
+    {
+        LinaVG::StyleOptions style;
+        style.isFilled = true;
+        LinaVG::DrawRect(LinaVG::Vec2(0, 0), LinaVG::Vec2(100, 100), style);
+    }
+
+    void EditorManager::SetPlayMode(bool enabled)
+    {
+        g_runtimeInfo.m_isInPlayMode = enabled;
+        Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
+
+        if (!g_runtimeInfo.m_isInPlayMode && g_runtimeInfo.m_paused)
+            SetIsPaused(false);
+    }
+
+    void EditorManager::SetIsPaused(bool paused)
+    {
+        if (paused && !g_runtimeInfo.m_isInPlayMode)
+            return;
+        g_runtimeInfo.m_paused = paused;
+        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{ g_runtimeInfo.m_paused });
+    }
+
+    void EditorManager::SkipNextFrame()
+    {
+        if (!g_runtimeInfo.m_isInPlayMode)
+            return;
+
+        g_runtimeInfo.m_shouldSkipFrame = true;
     }
 
 } // namespace Lina::Editor

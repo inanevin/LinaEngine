@@ -32,10 +32,12 @@ namespace Lina::Resources
 {
     void ResourceCacheBase::AddResourceHandle(ResourceHandleBase* handle)
     {
+        LOCK_GUARD(m_resHandleMtx);
         m_handles.insert(handle);
     }
     void ResourceCacheBase::RemoveResourceHandle(ResourceHandleBase* handle)
     {
+        LOCK_GUARD(m_resHandleMtx);
         m_handles.erase(handle);
     }
 

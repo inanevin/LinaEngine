@@ -41,11 +41,9 @@ namespace Lina::Graphics
     class SpriteComponent : public RenderableComponent
     {
     public:
-
         virtual AABB& GetAABB()
         {
-            AABB a;
-            return a;
+            return m_aabb;
         }
 
         virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
@@ -62,6 +60,25 @@ namespace Lina::Graphics
         {
             return GetTypeID<SpriteComponent>();
         }
+
+        virtual Bitmask16 GetDrawPasses() override
+        {
+            return 0;
+        }
+
+        virtual Vector<MeshMaterialPair> GetMeshMaterialPairs() override
+        {
+            return Vector<MeshMaterialPair>();
+        }
+
+        virtual RenderableType GetType() override
+        {
+            return RenderableType::RenderableSprite;
+        }
+
+    private:
+        AABB m_aabb;
+
     };
 } // namespace Lina::Graphics
 

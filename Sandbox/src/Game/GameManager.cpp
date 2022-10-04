@@ -37,6 +37,8 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "Components/ModelNodeComponent.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Core/InputEngine.hpp"
+#include "Core/ResourceLoader.hpp"
 
 using namespace Lina;
 
@@ -62,6 +64,10 @@ bool                 loaded = false;
 
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
+    if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
+    {
+
+    }
    // bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
    // 
    // if (!exists)
@@ -93,6 +99,5 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
-   // return;
-   // Lina::Resources::ResourceStorage::Get()->Load(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj", true);
+   Lina::Resources::ResourceManager::Get()->GetLoader()->LoadResource(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Models/Tests/lost_empire.obj", true);
 }

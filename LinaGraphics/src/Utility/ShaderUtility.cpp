@@ -165,4 +165,30 @@ namespace Lina::Graphics
 
         return v;
     }
+
+    Bitmask16 ShaderUtility::GetPassMask(const String& text)
+    {
+        Bitmask16 mask;
+
+        std::istringstream f(text.c_str());
+        std::string        line = "";
+
+        while (std::getline(f, line))
+        {
+            if (line.find("//") != std::string::npos)
+                continue;
+
+            if (!line.empty() && *line.rbegin() == '\r')
+                line.erase(line.end() - 1);
+
+            if (line.compare("#LINA_PASS_OPAQUE") == 0)
+                mask.Set(DrawPassMask::Opaque);
+            else if (line.compare("#LINA_PASS_TRANSPARENT") == 0)
+                mask.Set(DrawPassMask::Transparent);
+            else if (line.compare("#LINA_PASS_SHADOWS") == 0)
+                mask.Set(DrawPassMask::Shadow);
+        }
+
+        return mask;
+    }
 } // namespace Lina::Graphics

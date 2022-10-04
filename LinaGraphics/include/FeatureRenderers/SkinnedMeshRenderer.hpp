@@ -31,17 +31,17 @@ SOFTWARE.
 #ifndef SkinnedMeshRenderer_HPP
 #define SkinnedMeshRenderer_HPP
 
+#include "FeatureRenderer.hpp"
 
 namespace Lina::Graphics
 {
-    class SkinnedMeshRenderer 
+    class SkinnedMeshRenderer : public FeatureRenderer
     {
     public:
     private:
         friend class RenderEngine;
-
-        void Initialize();
-        void Shutdown();
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Graphics
 

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Mutex.hpp"
 #include "Utility/StringId.hpp"
+#include "ResourceCommon.hpp"
 
 namespace Lina
 {
@@ -58,11 +59,12 @@ namespace Lina::Resources
 
         virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources);
         virtual void LoadEngineResources();
-        virtual void LoadResource(TypeID tid, const String& path, bool async);
+        virtual void LoadSingleResource(TypeID tid, const String& path, bool async);
 
     protected:
-        void LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async);
-        void LoadResource(TypeID tid, const String& path, Serialization::Archive<IStream>& archive, uint32 size, bool async);
+        virtual void LoadResource(TypeID tid, const String& path, bool async);
+        void         LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async);
+        void         LoadResource(TypeID tid, const String& path, Serialization::Archive<IStream>& archive, uint32 size, bool async);
 
     private:
         Mutex m_mtx;

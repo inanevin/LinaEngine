@@ -45,7 +45,7 @@ namespace Lina::Resources
             totalFiles += static_cast<int>(vec.size());
 
         const double time = Time::GetCPUTime();
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading engine resources", .totalFiles = totalFiles});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Engine resource loaded", .totalFiles = totalFiles});
 
         for (auto& [tid, vec] : engineRes)
         {
@@ -86,7 +86,7 @@ namespace Lina::Resources
 
         const int    totalFiles = static_cast<int>(toLoad.size());
         const double time       = Time::GetCPUTime();
-        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Loading level resources", .totalFiles = totalFiles});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Level resource loaded", .totalFiles = totalFiles});
 
         for (auto& pair : toLoad)
             LoadResource(pair.first, pair.second, true);

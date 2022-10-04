@@ -59,12 +59,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEngine/include)
 
 include(../CMake/ProjectSettings.cmake)
-include(../_Dependencies/iconfontheaders/link.cmake)
-include(../_Dependencies/freetype/link.cmake)
-include(../_Dependencies/linavg/link.cmake)
-link_iconfontheaders()
-link_freetype()
-link_linavg()
 
 #--------------------------------------------------------------------
 # Links

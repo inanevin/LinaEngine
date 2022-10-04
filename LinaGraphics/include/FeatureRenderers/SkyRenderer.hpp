@@ -31,15 +31,17 @@ SOFTWARE.
 #ifndef SkyRenderer_HPP
 #define SkyRenderer_HPP
 
+#include "FeatureRenderer.hpp"
+
+
 namespace Lina::Graphics
 {
-    class SkyRenderer 
+    class SkyRenderer : public FeatureRenderer
     {
     private:
         friend class RenderEngine;
-        
-        void Initialize();
-        void Shutdown();
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Graphics
 

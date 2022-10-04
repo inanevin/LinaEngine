@@ -23,11 +23,14 @@ set (LINAGRAPHICS_SOURCES
 	# Core
 	src/Core/RenderEngine.cpp
 	src/Core/Backend.cpp
+	src/Core/GUIBackend.cpp
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
 	src/Core/Renderer.cpp
+	src/Core/RenderableList.cpp
 	src/Core/FramePacket.cpp
 	src/Core/View.cpp
+	src/Core/DrawPass.cpp
 	src/Core/CameraSystem.cpp
 
 	# Data
@@ -94,11 +97,14 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/GraphicsCommon.hpp
 	include/Core/RenderEngine.hpp
 	include/Core/Backend.hpp
+	include/Core/GUIBackend.hpp
 	include/Core/Window.hpp
 	include/Core/Renderer.hpp
+	include/Core/RenderableList.hpp
 	include/Core/RenderData.hpp
 	include/Core/FramePacket.hpp
 	include/Core/View.hpp
+	include/Core/DrawPass.hpp
 	include/Core/CameraSystem.hpp
 
 	# Data
@@ -151,6 +157,7 @@ set(LINAGRAPHICS_HEADERS
 	include/FeatureRenderers/DecalRenderer.hpp
 	include/FeatureRenderers/SpriteRenderer.hpp
 	include/FeatureRenderers/ParticleRenderer.hpp
+	include/FeatureRenderers/FeatureRenderer.hpp
 
 	# Utility
 	include/Utility/stb/stb_image.h
@@ -208,10 +215,14 @@ include(../_Dependencies/glad/link.cmake)
 include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/assimp/link.cmake)
 include(../_Dependencies/glslang/link.cmake)
+include(../_Dependencies/freetype/link.cmake)
+include(../_Dependencies/linavg/link.cmake)
 link_glad()
 link_glfw()
 link_assimp()
 link_glslang()
+link_freetype()
+link_linavg()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

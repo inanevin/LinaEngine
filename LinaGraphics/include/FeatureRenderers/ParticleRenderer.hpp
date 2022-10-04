@@ -31,15 +31,16 @@ SOFTWARE.
 #ifndef ParticleRenderer_HPP
 #define ParticleRenderer_HPP
 
+#include "FeatureRenderer.hpp"
+
 namespace Lina::Graphics
 {
-    class ParticleRenderer
+    class ParticleRenderer : public FeatureRenderer
     {
     private:
         friend class RenderEngine;
-
-        void Initialize();
-        void Shutdown();
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Graphics
 

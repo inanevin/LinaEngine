@@ -39,6 +39,11 @@ SOFTWARE.
 
 namespace Lina
 {
+    namespace Editor
+    {
+        class EditorManager;
+    }
+
     class DefaultResources
     {
     public:
@@ -55,8 +60,26 @@ namespace Lina
         HashMap<TypeID, Vector<String>> m_engineResources;
     };
 
+    class RuntimeInfo
+    {
+    public:
+        inline bool GetIsInPlayMode()
+        {
+            return m_isInPlayMode;
+        }
+
+    private:
+        friend class Engine;
+        friend class Editor::EditorManager;
+
+        bool m_isInPlayMode    = false;
+        bool m_paused          = false;
+        bool m_shouldSkipFrame = false;
+    };
+
     extern TypeID           g_levelTypeID;
     extern DefaultResources g_defaultResources;
+    extern RuntimeInfo      g_runtimeInfo;
 
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina

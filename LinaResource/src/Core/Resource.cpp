@@ -38,6 +38,10 @@ namespace Lina::Resources
         const String name      = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
         const String sidStr    = TO_STRING(HashedString(path.c_str()).value());
         const String finalName = basePath + name + "-" + sidStr + ext;
+
+        if (!Utility::FileExists(basePath))
+            Utility::CreateFolderInPath(basePath);
+
         return finalName;
     }
 

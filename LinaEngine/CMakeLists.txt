@@ -77,10 +77,6 @@ if(NOT LINA_PRODUCTION_BUILD)
 	target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
 endif()
 
-include(../_Dependencies/iconfontheaders/link.cmake)
-link_iconfontheaders()
-
-
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------

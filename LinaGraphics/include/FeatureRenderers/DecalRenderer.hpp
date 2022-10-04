@@ -31,15 +31,17 @@ SOFTWARE.
 #ifndef DecalRenderer_HPP
 #define DecalRenderer_HPP
 
+#include "FeatureRenderer.hpp"
+
 namespace Lina::Graphics
 {
-    class DecalRenderer
+    class DecalRenderer : public FeatureRenderer
     {
     private:
         friend class RenderEngine;
 
-        void Initialize();
-        void Shutdown();
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Graphics
 

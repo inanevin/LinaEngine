@@ -46,11 +46,11 @@ namespace Lina::Graphics
             return m_glfwWindow;
         }
 
-        void SetSize(const Vector2i& newSize);
-        void SetPos(const Vector2i& newPos);
-        void SetPosCentered(const Vector2i& newPos);
-        void SetVsync(VsyncMode mode);
-        void SetTitle(const String& title);
+        void  SetSize(const Vector2i& newSize);
+        void  SetPos(const Vector2i& newPos);
+        void  SetPosCentered(const Vector2i& newPos);
+        void  SetVsync(VsyncMode mode);
+        void  SetTitle(const String& title);
 
         inline const Vector2i& GetSize()
         {

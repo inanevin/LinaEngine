@@ -68,8 +68,24 @@ namespace Lina::Graphics
     {
         LoadAssetData();
 
-        if (m_modules.empty())
+        bool shouldRegen = m_modules.empty();
+
+        if (!shouldRegen)
         {
+            for (auto& p : m_modules)
+            {
+                if (p.second.byteCode.empty())
+                {
+                    shouldRegen = true;
+                    break;
+                }
+            }
+        }
+
+        if (shouldRegen)
+        {
+            m_modules.clear();
+
             // Get the text from file.
             std::ifstream file;
             file.open(path.c_str());
@@ -77,6 +93,8 @@ namespace Lina::Graphics
             buffer << file.rdbuf();
             m_text = buffer.str().c_str();
             file.close();
+
+            CheckMasks();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -108,14 +126,32 @@ namespace Lina::Graphics
     {
         LoadAssetData();
 
-        if (m_modules.empty())
+        bool shouldRegen = m_modules.empty();
+
+        if (!shouldRegen)
         {
+            for (auto& p : m_modules)
+            {
+                if (p.second.byteCode.empty())
+                {
+                    shouldRegen = true;
+                    break;
+                }
+            }
+        }
+
+        if (shouldRegen)
+        {
+            m_modules.clear();
+
             std::ifstream file;
             file.open(m_path.c_str());
             std::stringstream buffer;
             buffer << file.rdbuf();
             m_text = buffer.str().c_str();
             file.close();
+
+            CheckMasks();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -130,6 +166,8 @@ namespace Lina::Graphics
 
     void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
+        archive(m_drawPassMask);
+
         const uint32 moduleSize = static_cast<uint32>(m_modules.size());
         archive(moduleSize);
 
@@ -156,6 +194,8 @@ namespace Lina::Graphics
 
     void Shader::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
+        archive(m_drawPassMask);
+
         uint32 moduleSize = 0;
         archive(moduleSize);
 
@@ -179,6 +219,12 @@ namespace Lina::Graphics
             const ShaderStage stage = static_cast<ShaderStage>(stageInt);
             m_modules[stage]        = mod;
         }
+    }
+
+    void Shader::CheckMasks()
+    {
+        m_drawPassMask = 0;
+        m_drawPassMask = ShaderUtility::GetPassMask(m_text);
     }
 
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)

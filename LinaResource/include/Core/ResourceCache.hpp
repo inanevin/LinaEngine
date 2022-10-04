@@ -75,6 +75,7 @@ namespace Lina::Resources
         friend class ResourceLoader;
         friend class EditorResourceLoader;
 
+        Mutex                        m_resHandleMtx;
         HashSet<ResourceHandleBase*> m_handles;
     };
 

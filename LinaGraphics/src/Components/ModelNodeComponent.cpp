@@ -41,4 +41,45 @@ namespace Lina::Graphics
         return node->GetAABB();
     }
 
+    Bitmask16 ModelNodeComponent::GetDrawPasses()
+    {
+        Bitmask16 mask;
+
+        for (auto& m : m_materials)
+        {
+            if (m.second.IsValid() && m.second.value->GetShaderHandle().IsValid())
+                mask.Set(m.second.value->GetShaderHandle().value->GetDrawPassMask().GetValue());
+        }
+
+        return mask;
+    }
+
+    Vector<MeshMaterialPair> ModelNodeComponent::GetMeshMaterialPairs()
+    {
+        Vector<MeshMaterialPair> pairs;
+
+        // Only return single placeholder mesh material pair if not valid yet.
+        if (!m_modelHandle.IsValid())
+        {
+            MeshMaterialPair p;
+            p.mesh     = RenderEngine::Get()->GetPlaceholderMesh();
+            p.material = RenderEngine::Get()->GetPlaceholderMaterial();
+            pairs.push_back(p);
+            return pairs;
+        }
+
+        const auto& meshes = m_modelHandle.value->GetNodes()[m_nodeIndex]->GetMeshes();
+
+        uint32 index = 0;
+        for (auto m : meshes)
+        {
+            MeshMaterialPair p;
+            p.mesh     = m;
+            p.material = m_materials[index].IsValid() ? m_materials[index].value : RenderEngine::Get()->GetPlaceholderMaterial();
+            pairs.push_back(p);
+            index++;
+        }
+
+        return pairs;
+    }
 } // namespace Lina::Graphics

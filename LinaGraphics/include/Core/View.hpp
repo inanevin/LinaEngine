@@ -49,7 +49,7 @@ namespace Lina::Graphics
     class View
     {
     public:
-        void CalculateVisibility(RenderableComponent** renderables, uint32 size);
+        bool IsVisible(RenderableComponent* renderable);
 
         inline ViewType GetType()
         {
@@ -75,11 +75,16 @@ namespace Lina::Graphics
             return m_proj;
         }
 
+        void CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj);
+
     private:
         friend class RenderEngine;
         friend class Renderer;
 
-        void CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj);
+        inline void Initialize(ViewType type)
+        {
+            m_viewType = type;
+        }
 
     private:
         Vector<RenderableComponent*> m_visibleRenderables;

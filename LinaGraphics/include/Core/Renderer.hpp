@@ -47,9 +47,10 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "PipelineObjects/DescriptorPool.hpp"
 #include "FeatureRenderers/FeatureRendererManager.hpp"
-#include "FeatureRenderers/StaticMeshRenderer.hpp"
 #include "CameraSystem.hpp"
-#include "Core/View.hpp"
+#include "View.hpp"
+#include "RenderableList.hpp"
+#include "DrawPass.hpp"
 
 #include <functional>
 
@@ -64,7 +65,11 @@ namespace Lina
     {
         struct ELevelUninstalled;
         struct ELevelInstalled;
+        struct EComponentCreated;
+        struct EComponentDestroyed;
+        struct EEntityMaskStaticChanged;
     } // namespace Event
+
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -82,10 +87,6 @@ namespace Lina::Graphics
         Vector4 ambientColor;
         Vector4 sunlightDirection; // w for sun power
         Vector4 sunlightColor;
-    };
-    struct GPUObjectData
-    {
-        Matrix modelMatrix = Matrix::Identity();
     };
 
     struct Frame
@@ -140,9 +141,6 @@ namespace Lina::Graphics
             return m_frameNumber % FRAME_OVERLAP;
         }
 
-        void AddRenderable(ModelNodeComponent* comp);
-        void RemoveRenderable(ModelNodeComponent* comp);
-
     private:
         friend class RenderEngine;
 
@@ -151,30 +149,31 @@ namespace Lina::Graphics
         void   Render();
         void   Join();
         void   Shutdown();
-        void   FetchAndExtract(World::EntityWorld* world);
         void   OnLevelInstalled(const Event::ELevelInstalled& ev);
         void   OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void   OnComponentCreated(const Event::EComponentCreated& ev);
+        void   OnComponentDestroyed(const Event::EComponentDestroyed& ev);
         Frame& GetCurrentFrame();
 
     private:
-        StaticMeshRenderer          m_meshRenderer;
-        Vector<View*>               m_views;
-        View                        m_playerView;
-        Vector<ModelNodeComponent*> m_renderables;
-        Queue<uint32>               m_availableRenderableIDs;
-        uint32                      m_nextRenderableID = 0;
-        CameraSystem                m_cameraSystem;
-        RenderPass                  m_renderPass;
-        SubPass                     m_subpass;
-        Vector<Framebuffer>         m_framebuffers;
-        Image                       m_depthImage;
-        Buffer                      m_scenePropertiesBuffer;
-        DescriptorSet               m_globalDescriptor;
-        DescriptorSet               m_textureDescriptor;
+        FeatureRendererManager m_featureRendererManager;
+        Vector<View*>          m_views;
+        View                   m_playerView;
+        CameraSystem           m_cameraSystem;
+        RenderPass             m_renderPass;
+        SubPass                m_subpass;
+        Vector<Framebuffer>    m_framebuffers;
+        Image                  m_depthImage;
+        Buffer                 m_scenePropertiesBuffer;
+        DescriptorSet          m_globalDescriptor;
+        DescriptorSet          m_textureDescriptor;
+        RenderableList         m_allRenderables;
+        DrawPass               m_opaquePass;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAME_OVERLAP];
-        Backend* m_backend = nullptr;
+        Backend* m_backend           = nullptr;
+        bool     m_hasLevelInstalled = false;
     };
 
 } // namespace Lina::Graphics

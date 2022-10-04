@@ -69,6 +69,7 @@ namespace Lina
 {
     DefaultResources g_defaultResources;
     ApplicationInfo  g_appInfo;
+    RuntimeInfo      g_runtimeInfo;
     TypeID           g_levelTypeID;
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)

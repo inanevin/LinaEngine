@@ -44,7 +44,7 @@ namespace Lina
         ~Bitmask() = default;
         Bitmask(T m)
             : m_mask(m){};
-        inline bool IsSet(T m)
+        inline bool IsSet(T m) const
         {
             return (m_mask & m) != 0;
         }
@@ -57,6 +57,11 @@ namespace Lina
         inline void Remove(T m)
         {
             m_mask &= ~m;
+        }
+
+        inline T GetValue()
+        {
+            return m_mask;
         }
 
         template <typename T>

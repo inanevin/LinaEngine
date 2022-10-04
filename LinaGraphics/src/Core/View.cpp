@@ -31,25 +31,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void View::CalculateVisibility(RenderableComponent** renderables, uint32 size)
+    bool View::IsVisible(RenderableComponent* renderable)
     {
-        PROFILER_FUNC("Render View");
-        m_visibleRenderables.clear();
-        m_visibleRenderables.resize(size, nullptr);
-
-        Taskflow tf;
-        tf.for_each_index(0, static_cast<int>(size), 1, [&](int i) {
-            RenderableComponent* rend = renderables[i];
-            if (rend == nullptr)
-                return;
-            FrustumTest test = m_frustum.TestIntersection(rend->GetAABB());
-
-            // if visible for this view.
-            // if (test != FrustumTest::Outside)
-            m_visibleRenderables[i] = rend;
-        });
-
-        JobSystem::Get()->GetMainExecutor().Run(tf).wait();
+        FrustumTest test = m_frustum.TestIntersection(renderable->GetAABB());
+        return test != FrustumTest::Outside;
     }
 
     void View::CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj)

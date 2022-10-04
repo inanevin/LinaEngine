@@ -77,6 +77,14 @@ namespace Lina::Graphics
             return m_nodeIndex;
         }
 
+        virtual Bitmask16                GetDrawPasses() override;
+        virtual Vector<MeshMaterialPair> GetMeshMaterialPairs() override;
+
+        virtual RenderableType GetType() override
+        {
+            return RenderableType::RenderableStaticMesh;
+        }
+
     private:
         friend class Graphics::StaticMeshRenderer;
         friend class Model;

@@ -31,13 +31,16 @@ SOFTWARE.
 #ifndef SpriteRenderer_HPP
 #define SpriteRenderer_HPP
 
+#include "FeatureRenderer.hpp"
+
+
 namespace Lina::Graphics
 {
-    class SpriteRenderer 
+    class SpriteRenderer : public FeatureRenderer
     {
     public:
-        void Initialize();
-        void Shutdown();
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Graphics
 

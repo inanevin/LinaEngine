@@ -108,6 +108,7 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/LevelEvents.hpp
 	include/EventSystem/GraphicsEvents.hpp
 	include/EventSystem/MainLoopEvents.hpp
+	include/EventSystem/EntityEvents.hpp
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp
 	include/EventSystem/EventSystem.hpp
@@ -253,6 +254,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/EventSystem/InputEvents.hpp
 	include/EventSystem/LevelEvents.hpp
 	include/EventSystem/GraphicsEvents.hpp
+	include/EventSystem/EntityEvents.hpp
 	include/EventSystem/MainLoopEvents.hpp
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp

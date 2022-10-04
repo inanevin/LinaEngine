@@ -29,6 +29,8 @@ SOFTWARE.
 #include "Core/Entity.hpp"
 #include "Core/Component.hpp"
 #include "Core/World.hpp"
+#include "EventSystem/EntityEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
 
 namespace Lina::World
 {
@@ -327,20 +329,39 @@ namespace Lina::World
         }
     }
 
-    void Entity::SetHidden(bool hidden)
+    void Entity::SetVisible(bool visible)
     {
-        if (hidden)
-        {
-            m_mask.Set(EntityMask::Hidden);
+        Event::EEntityMaskVisibilityChanged ev;
+        ev.entity     = this;
+        ev.wasVisible = IsVisible();
 
-            for (auto c : m_children)
-                c->m_mask.Set(EntityMask::Hidden);
-        }
+        if (visible)
+            m_mask.Set(EntityMask::Visible);
         else
-        {
-            m_mask.Remove(EntityMask::Hidden);
-            for (auto c : m_children)
-                c->m_mask.Remove(EntityMask::Hidden);
-        }
+            m_mask.Remove(EntityMask::Visible);
+
+        for (auto c : m_children)
+            c->SetVisible(visible);
+
+        ev.isVisible = IsVisible();
+        Event::EventSystem::Get()->Trigger<Event::EEntityMaskVisibilityChanged>(ev);
+    }
+
+    void Entity::SetStatic(bool isStatic)
+    {
+        Event::EEntityMaskStaticChanged ev;
+        ev.entity    = this;
+        ev.wasStatic = IsStatic();
+
+        if (isStatic)
+            m_mask.Set(EntityMask::Static);
+        else
+            m_mask.Remove(EntityMask::Static);
+
+        for (auto c : m_children)
+            c->SetStatic(isStatic);
+
+        ev.isStatic = IsStatic();
+        Event::EventSystem::Get()->Trigger<Event::EEntityMaskStaticChanged>(ev);
     }
 } // namespace Lina::World

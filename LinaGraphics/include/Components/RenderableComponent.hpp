@@ -33,19 +33,20 @@ SOFTWARE.
 
 #include "Core/Component.hpp"
 #include "Core/CommonReflection.hpp"
+#include "Data/Vector.hpp"
+#include "Core/RenderData.hpp"
 
 namespace Lina::Graphics
 {
+    class RenderList;
+    class Mesh;
+    class Material;
+
     LINA_COMPONENT("Renderable", "Graphics", "True")
     class RenderableComponent : public World::Component
     {
     public:
         virtual AABB& GetAABB() = 0;
-
-        virtual bool IsVisible()
-        {
-            return enabled && isVisible;
-        }
 
         virtual void SaveToArchive(Serialization::Archive<OStream>& oarchive) override
         {
@@ -64,12 +65,21 @@ namespace Lina::Graphics
             return m_renderableID;
         }
 
-        bool isVisible = true;
-        int  dummy     = 0;
-        int  dummy2    = 0;
+        virtual Bitmask16 GetComponentMask() override
+        {
+            return World::ComponentMask::Renderable;
+        }
+
+        virtual Vector<MeshMaterialPair> GetMeshMaterialPairs() = 0;
+        virtual Bitmask16                GetDrawPasses()        = 0;
+        virtual RenderableType           GetType()              = 0;
+
+
+        int dummy  = 0;
+        int dummy2 = 0;
 
     private:
-        friend class Renderer;
+        friend class RenderableList;
         uint32 m_renderableID = 0;
     };
 } // namespace Lina::Graphics
