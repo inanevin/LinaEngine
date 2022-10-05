@@ -51,7 +51,7 @@ namespace Lina
 
         inline void RunAndWait(Taskflow& flow)
         {
-            m_ex.run_and_wait(flow);
+            m_ex.run(flow).wait();
         }
 
         template <typename F, typename... ArgsT>

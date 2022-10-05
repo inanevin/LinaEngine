@@ -121,7 +121,6 @@ namespace Lina::World
     }
     void Entity::SetPosition(const Vector3& loc)
     {
-
         m_transform.m_previousPosition = m_transform.m_position;
         m_transform.m_position         = loc;
         UpdateLocalPosition();

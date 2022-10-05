@@ -63,6 +63,7 @@ namespace Lina::Graphics
                 m_renderables.push_back(rend);
             }
         });
+        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
     }
 
 } // namespace Lina::Graphics

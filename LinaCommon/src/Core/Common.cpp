@@ -67,15 +67,21 @@ namespace EA
 
 namespace Lina
 {
-    DefaultResources g_defaultResources;
-    ApplicationInfo  g_appInfo;
-    RuntimeInfo      g_runtimeInfo;
-    TypeID           g_levelTypeID;
+    TypeID                          g_levelTypeID;
+    const char*                     ApplicationInfo::s_appName            = "Lina Engine";
+    float                           ApplicationInfo::s_contentScaleWidth  = 1.0f;
+    float                           ApplicationInfo::s_contentScaleHeight = 1.0f;
+    ApplicationMode                 ApplicationInfo::s_appMode            = ApplicationMode::Editor;
+    HashMap<TypeID, Vector<String>> DefaultResources::s_engineResources;
+    double                          RuntimeInfo::s_startTime       = 0.0;
+    bool                            RuntimeInfo::s_isInPlayMode    = false;
+    bool                            RuntimeInfo::s_paused          = false;
+    bool                            RuntimeInfo::s_shouldSkipFrame = false;
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
     {
-        const auto& it = m_engineResources.find(tid);
-        if (it != m_engineResources.end())
+        const auto& it = s_engineResources.find(tid);
+        if (it != s_engineResources.end())
         {
             bool found = false;
             for (auto& str : it->second)

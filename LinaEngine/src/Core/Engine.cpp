@@ -56,11 +56,6 @@ namespace Lina
 {
     Engine* Engine::s_engine = nullptr;
 
-    double Engine::GetElapsedTime()
-    {
-        return Time::GetCPUTime() - m_startTime;
-    }
-
     void Engine::InstallLevel(const String& path, bool async)
     {
         m_renderEngine.Join();
@@ -93,7 +88,7 @@ namespace Lina
         g_levelTypeID = GetTypeID<World::Level>();
 
 #ifndef LINA_PRODUCTION_BUILD
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Initialize();
 #endif
 
@@ -103,7 +98,7 @@ namespace Lina
     void Engine::LoadEngineResources()
     {
 #ifndef LINA_PRODUCTION_BUILD
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.VerifyStaticResources();
 #endif
 
@@ -114,22 +109,23 @@ namespace Lina
         const Vector<String> defaultTextures  = m_renderEngine.GetEngineTexturePaths();
 
         for (auto& s : defaultShaders)
-            g_defaultResources.m_engineResources[GetTypeID<Graphics::Shader>()].push_back(s);
+            DefaultResources::s_engineResources[GetTypeID<Graphics::Shader>()].push_back(s);
 
         for (auto& s : defaultMaterials)
-            g_defaultResources.m_engineResources[GetTypeID<Graphics::Material>()].push_back(s);
+            DefaultResources::s_engineResources[GetTypeID<Graphics::Material>()].push_back(s);
 
         for (auto& s : defaultModels)
-            g_defaultResources.m_engineResources[GetTypeID<Graphics::Model>()].push_back(s);
+            DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back(s);
 
         for (auto& s : defaultTextures)
-            g_defaultResources.m_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
+            DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
 
-        g_defaultResources.m_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
-        g_defaultResources.m_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
-        g_defaultResources.m_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
+        DefaultResources::s_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
+        DefaultResources::s_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
+        DefaultResources::s_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
 
         m_resourceManager.GetLoader()->LoadEngineResources();
+
         m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
 
         m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/engine.linasettings");
@@ -153,9 +149,9 @@ namespace Lina
 
         m_deltaTimeArray.fill(-1.0);
 
-        m_running            = true;
-        m_startTime          = Time::GetCPUTime();
-        m_physicsAccumulator = 0.0f;
+        m_running                = true;
+        RuntimeInfo::s_startTime = Time::GetCPUTime();
+        m_physicsAccumulator     = 0.0f;
 
         int    frames       = 0;
         int    updates      = 0;
@@ -163,9 +159,9 @@ namespace Lina
         double previousFrameTime;
         double currentFrameTime = 0.0f;
 
-        g_runtimeInfo.m_paused          = false;
-        g_runtimeInfo.m_shouldSkipFrame = false;
-        g_runtimeInfo.m_isInPlayMode    = g_appInfo.GetAppMode() != ApplicationMode::Editor;
+        RuntimeInfo::s_paused          = false;
+        RuntimeInfo::s_shouldSkipFrame = false;
+        RuntimeInfo::s_isInPlayMode    = ApplicationInfo::GetAppMode() != ApplicationMode::Editor;
 
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
@@ -179,7 +175,8 @@ namespace Lina
         // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
         // ce->a             = 118;
         // ce->x             = 12.0f;
-        // m_levelManager.SaveCurrentLevel();
+        m_levelManager.SaveCurrentLevel();
+        m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
         //
         // World::EntityWorld::Get()->CreateEntity("MY Entity 2");
@@ -201,7 +198,6 @@ namespace Lina
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
         ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
         //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
         // Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
         //
@@ -232,7 +228,7 @@ namespace Lina
             //     }
 
             previousFrameTime = currentFrameTime;
-            currentFrameTime  = GetElapsedTime();
+            currentFrameTime  = RuntimeInfo::GetElapsedTime();
 
             //  if (m_frameLimit > 0 && !m_firstRun)
             //  {
@@ -290,7 +286,7 @@ namespace Lina
         }
 
 #ifndef LINA_PRODUCTION_BUILD
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Shutdown();
 #endif
         m_editor.PackageProject();
@@ -327,12 +323,12 @@ namespace Lina
     void Engine::RunSimulation(float deltaTime)
     {
         // Pause & skip frame controls.
-        if (g_runtimeInfo.m_paused && !g_runtimeInfo.m_shouldSkipFrame)
+        if (RuntimeInfo::s_paused && !RuntimeInfo::s_shouldSkipFrame)
             return;
-        g_runtimeInfo.m_shouldSkipFrame = false;
+        RuntimeInfo::s_shouldSkipFrame = false;
 
         PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
@@ -352,17 +348,17 @@ namespace Lina
             PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_MAIN);
 
             PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_MAIN);
-            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, g_runtimeInfo.m_isInPlayMode});
+            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, RuntimeInfo::s_isInPlayMode});
             PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_MAIN);
         }
 
         // Other main systems (engine or game)
         PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, g_runtimeInfo.m_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);

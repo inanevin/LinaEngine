@@ -37,7 +37,7 @@ namespace Lina::Graphics
 
     Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        LoadFromArchive(archive);
+        Load(archive);
         return this;
     }
 

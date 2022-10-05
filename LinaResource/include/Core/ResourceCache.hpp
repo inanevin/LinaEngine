@@ -177,7 +177,7 @@ namespace Lina::Resources
             {
                 bool found = false;
 
-                if (g_defaultResources.IsEngineResource(tid, sid))
+                if (DefaultResources::IsEngineResource(tid, sid))
                     continue;
 
                 for (auto& pair : levelResources)

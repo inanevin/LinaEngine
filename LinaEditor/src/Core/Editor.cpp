@@ -96,8 +96,8 @@ namespace Lina::Editor
             freeLook = world->GetComponent<World::EditorFreeLookComponent>(m_editorCamera);
         }
 
-        m_editorCamera->SetPosition(Vector3(0, 0, 18));
-        m_editorCamera->SetRotationAngles(Vector3(0, 180, 0));
+        m_editorCamera->SetPosition(Vector3(0, 0, -10.0f));
+        m_editorCamera->SetRotationAngles(Vector3(0, 0.0f, 0));
         freeLook->rotationPower = 3.0f;
         Graphics::RenderEngine::Get()->GetLevelRenderer().GetCameraSystem().SetActiveCamera(cam);
     }
@@ -120,7 +120,7 @@ namespace Lina::Editor
         auto* rm = Resources::ResourceManager::Get();
 
         // Fill engine resources.
-        const auto&                  engineRes = g_defaultResources.GetEngineResources();
+        const auto&                  engineRes = DefaultResources::GetEngineResources();
         Vector<Pair<TypeID, String>> engineResToPack;
 
         for (auto& [tid, vec] : engineRes)
@@ -210,27 +210,27 @@ namespace Lina::Editor
 
     void EditorManager::SetPlayMode(bool enabled)
     {
-        g_runtimeInfo.m_isInPlayMode = enabled;
+        RuntimeInfo::s_isInPlayMode = enabled;
         Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
 
-        if (!g_runtimeInfo.m_isInPlayMode && g_runtimeInfo.m_paused)
+        if (!RuntimeInfo::s_isInPlayMode && RuntimeInfo::s_paused)
             SetIsPaused(false);
     }
 
     void EditorManager::SetIsPaused(bool paused)
     {
-        if (paused && !g_runtimeInfo.m_isInPlayMode)
+        if (paused && !RuntimeInfo::s_isInPlayMode)
             return;
-        g_runtimeInfo.m_paused = paused;
-        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{ g_runtimeInfo.m_paused });
+        RuntimeInfo::s_paused = paused;
+        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{ RuntimeInfo::s_paused });
     }
 
     void EditorManager::SkipNextFrame()
     {
-        if (!g_runtimeInfo.m_isInPlayMode)
+        if (!RuntimeInfo::s_isInPlayMode)
             return;
 
-        g_runtimeInfo.m_shouldSkipFrame = true;
+        RuntimeInfo::s_shouldSkipFrame = true;
     }
 
 } // namespace Lina::Editor

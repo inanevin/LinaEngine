@@ -64,7 +64,7 @@ namespace Lina::Graphics
         }
 
         m_glfwWindow = (glfwCreateWindow(width, height, props.title.c_str(), props.fullscreen ? primaryMonitor : NULL, NULL));
-        glfwGetMonitorContentScale(primaryMonitor, &(g_appInfo.m_contentScaleWidth), &(g_appInfo.m_contentScaleHeight));
+        glfwGetMonitorContentScale(primaryMonitor, &(ApplicationInfo::s_contentScaleWidth), &(ApplicationInfo::s_contentScaleHeight));
 
         m_title       = props.title;
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
@@ -82,7 +82,7 @@ namespace Lina::Graphics
         glfwSetErrorCallback(GLFWErrorCallback);
 
         // Set working area width, exclude taskbar.
-        if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
             int xpos, ypos, width, height;
             glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);

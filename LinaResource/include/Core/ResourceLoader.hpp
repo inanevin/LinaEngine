@@ -62,9 +62,8 @@ namespace Lina::Resources
         virtual void LoadSingleResource(TypeID tid, const String& path, bool async);
 
     protected:
-        virtual void LoadResource(TypeID tid, const String& path, bool async);
-        void         LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async);
-        void         LoadResource(TypeID tid, const String& path, Serialization::Archive<IStream>& archive, uint32 size, bool async);
+        void LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async);
+        void LoadResourceFromMemory(TypeID tid, const String& path, uint8* data, uint32 size);
 
     private:
         Mutex m_mtx;

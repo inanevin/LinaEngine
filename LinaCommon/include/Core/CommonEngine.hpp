@@ -47,39 +47,44 @@ namespace Lina
     class DefaultResources
     {
     public:
-        inline const HashMap<TypeID, Vector<String>>& GetEngineResources()
+
+        static inline const HashMap<TypeID, Vector<String>>& GetEngineResources()
         {
-            return m_engineResources;
+            return s_engineResources;
         }
 
-        bool IsEngineResource(TypeID tid, StringID sid);
+        static bool IsEngineResource(TypeID tid, StringID sid);
 
     private:
         friend class Engine;
 
-        HashMap<TypeID, Vector<String>> m_engineResources;
+        static HashMap<TypeID, Vector<String>> s_engineResources;
     };
 
     class RuntimeInfo
     {
     public:
-        inline bool GetIsInPlayMode()
+        static inline bool GetIsInPlayMode()
         {
-            return m_isInPlayMode;
+            return s_isInPlayMode;
+        }
+
+        static inline double GetElapsedTime()
+        {
+            return Time::GetCPUTime() - s_startTime;
         }
 
     private:
         friend class Engine;
         friend class Editor::EditorManager;
 
-        bool m_isInPlayMode    = false;
-        bool m_paused          = false;
-        bool m_shouldSkipFrame = false;
+        static double s_startTime;
+        static bool   s_isInPlayMode;
+        static bool   s_paused;
+        static bool   s_shouldSkipFrame;
     };
 
     extern TypeID           g_levelTypeID;
-    extern DefaultResources g_defaultResources;
-    extern RuntimeInfo      g_runtimeInfo;
 
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina

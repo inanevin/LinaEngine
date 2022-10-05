@@ -87,7 +87,7 @@ namespace Lina::World
             const auto& handles = cache->GetResourceHandles();
             for (auto handle : handles)
             {
-                if (g_defaultResources.IsEngineResource(tid, handle->sid))
+                if (DefaultResources::IsEngineResource(tid, handle->sid))
                     continue;
 
                 const StringID sid = handle->sid;

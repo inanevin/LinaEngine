@@ -88,7 +88,7 @@ namespace Lina::Resources
     void ResourceLoader::LoadEngineResources()
     {
         Vector<Pair<TypeID, String>> engineResources;
-        auto&                        engineRes  = g_defaultResources.GetEngineResources();
+        auto&                        engineRes  = DefaultResources::GetEngineResources();
         int                          totalFiles = 0;
         for (auto& [tid, vec] : engineRes)
             totalFiles += static_cast<int>(vec.size());
@@ -105,13 +105,14 @@ namespace Lina::Resources
         LoadResources(PackageType::Static, engineResources, true);
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
 
         ResourceManager::Get()->LoadReferences();
     }
 
-    void ResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
+    void ResourceLoader::LoadSingleResource(TypeID tid, const String& path, bool async)
     {
         const ResourceTypeData& td                = ResourceManager::Get()->GetCache(tid)->GetTypeData();
         const String            packageName       = GetPackageTypeName(td.packageType);
@@ -125,6 +126,8 @@ namespace Lina::Resources
         uint32         resSize   = 0;
         const StringID targetSid = TO_SID(path);
 
+        Future<void> ft;
+
         while (!archive.GetStream().IsCompleted())
         {
             archive(resTid);
@@ -133,13 +136,24 @@ namespace Lina::Resources
 
             if (tid == resTid && resSid == targetSid)
             {
-                LoadResource(tid, path, archive, resSize, async);
+                Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Resource loaded", .totalFiles = 1});
+
+                if (async)
+                {
+                    uint8*       ptr = archive.GetStream().GetDataCurrent();
+                    ft   = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path, ptr, resSize]() {
+                        LoadResourceFromMemory(tid, path, ptr, resSize);
+                    });
+                }
+                else
+                    LoadResourceFromMemory(tid, path, archive.GetStream().GetDataCurrent(), resSize);
+
                 break;
             }
         }
 
         if (async)
-            JobSystem::Get()->GetResourceExecutor().Wait();
+            ft.get();
 
         archive.GetStream().Destroy();
     }
@@ -157,6 +171,9 @@ namespace Lina::Resources
         StringID sid  = 0;
         uint32   size = 0;
 
+        Vector<Future<void>> futures;
+        futures.reserve(resources.size());
+
         while (loadedResources < totalResourceSize && !archive.GetStream().IsCompleted())
         {
             archive(tid);
@@ -168,20 +185,35 @@ namespace Lina::Resources
                 const StringID resSid = TO_SID(pair.second);
                 if (tid == pair.first && sid == resSid)
                 {
-                    LoadResource(tid, pair.second, archive, size, async);
+                    if (async)
+                    {
+                        uint8* ptr = archive.GetStream().GetDataCurrent();
+                        futures.push_back(Future<void>());
+
+                        futures[futures.size() - 1] = JobSystem::Get()->GetResourceExecutor().Async([this, tid, pair, ptr, size]() {
+                            LoadResourceFromMemory(tid, pair.second, ptr, size);
+                        });
+                    }
+                    else
+                        LoadResourceFromMemory(tid, pair.second, archive.GetStream().GetDataCurrent(), size);
+
                     archive.GetStream().SkipBy(size);
                     loadedResources++;
+                    break;
                 }
             }
         }
 
         if (async)
-            JobSystem::Get()->GetResourceExecutor().Wait();
+        {
+            for (uint32 i = 0; i < futures.size(); i++)
+                futures[i].get();
+        }
 
         archive.GetStream().Destroy();
     }
 
-    void ResourceLoader::LoadResource(TypeID tid, const String& path, Serialization::Archive<IStream>& archive, uint32 size, bool async)
+    void ResourceLoader::LoadResourceFromMemory(TypeID tid, const String& path, uint8* data, uint32 size)
     {
         const StringID sid = HashedString(path.c_str()).value();
         auto*          rm  = ResourceManager::Get();
@@ -190,29 +222,22 @@ namespace Lina::Resources
             return;
 
         Serialization::Archive<IStream> copyArchive;
-        copyArchive.GetStream().Create(archive.GetStream().GetDataCurrent(), size);
+        copyArchive.GetStream().Create(data, size);
         copyArchive.GetStream().Seek(0);
 
-        const auto& load = [rm, tid, sid, path, size, copyArchive, this]() {
-            auto*     cache = rm->GetCache(tid);
-            Resource* res   = cache->Create(sid);
-            res->m_sid      = sid;
-            res->m_path     = path;
-            res->m_tid      = tid;
+        auto*     cache = rm->GetCache(tid);
+        Resource* res   = cache->Create(sid);
+        res->m_sid      = sid;
+        res->m_path     = path;
+        res->m_tid      = tid;
 
-            Serialization::Archive<IStream> finalArchive = copyArchive;
-            res->LoadFromMemory(finalArchive);
-            finalArchive.GetStream().Destroy();
+        Serialization::Archive<IStream> finalArchive = copyArchive;
+        res->LoadFromMemory(finalArchive);
+        finalArchive.GetStream().Destroy();
 
-            LOCK_GUARD(m_mtx);
-            Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
-        };
-
-        if (async)
-            JobSystem::Get()->GetResourceExecutor().SilentAsync(load);
-        else
-            load();
+        LOCK_GUARD(m_mtx);
+        Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
     }
 
 } // namespace Lina::Resources

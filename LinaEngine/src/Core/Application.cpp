@@ -67,8 +67,8 @@ namespace Lina
             return;
         }
 
-        g_appInfo.m_appMode     = initInfo.appMode;
-        g_appInfo.m_appName     = initInfo.appName;
+        ApplicationInfo::s_appMode = initInfo.appMode;
+        ApplicationInfo::s_appName = initInfo.appName;
 
 // Editor will be compiled out, force standalone.
 #ifdef LINA_PRODUCTION_BUILD

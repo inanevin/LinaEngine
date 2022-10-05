@@ -33,6 +33,7 @@ namespace Lina::Graphics
 {
     bool View::IsVisible(RenderableComponent* renderable)
     {
+        return true;
         FrustumTest test = m_frustum.TestIntersection(renderable->GetAABB());
         return test != FrustumTest::Outside;
     }

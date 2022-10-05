@@ -69,34 +69,34 @@ namespace Lina
     {
 
     public:
-        inline const char* GetAppName()
+        static inline const char* GetAppName()
         {
-            return m_appName;
+            return s_appName;
         }
 
-        inline ApplicationMode GetAppMode()
+        static inline ApplicationMode GetAppMode()
         {
-            return m_appMode;
+            return s_appMode;
         }
 
-        inline float GetContentScaleWidth()
+        static inline float GetContentScaleWidth()
         {
-            return m_contentScaleWidth;
+            return s_contentScaleWidth;
         }
 
-        inline float GetContentScaleHeight()
+        static inline float GetContentScaleHeight()
         {
-            return m_contentScaleHeight;
+            return s_contentScaleHeight;
         }
 
     private:
         friend class Application;
         friend class Graphics::Window;
 
-        const char*     m_appName            = "Lina Engine";
-        float           m_contentScaleWidth  = 1.0f;
-        float           m_contentScaleHeight = 1.0f;
-        ApplicationMode m_appMode            = ApplicationMode::Editor;
+        static const char*     s_appName;
+        static float           s_contentScaleWidth;
+        static float           s_contentScaleHeight;
+        static ApplicationMode s_appMode;
     };
 
     struct InitInfo
@@ -108,8 +108,6 @@ namespace Lina
         WindowProperties windowProperties = WindowProperties();
         PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;
     };
-
-    extern ApplicationInfo g_appInfo;
 
     extern String LogLevelAsString(LogLevel level);
 

@@ -135,7 +135,9 @@ namespace Lina::Graphics
         {
             VkClearValue clearValue;
             if (cv.isColor)
-                clearValue.color = {{cv.clearColor.r, cv.clearColor.g, cv.clearColor.b, cv.clearColor.a}};
+            {
+                clearValue.color = { {cv.clearColor.r, cv.clearColor.g, cv.clearColor.b, cv.clearColor.a}};
+            }
             else
             {
                 clearValue.depthStencil.depth   = cv.depth;

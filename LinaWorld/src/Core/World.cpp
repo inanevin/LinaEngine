@@ -141,6 +141,8 @@ namespace Lina::World
     Entity* EntityWorld::CreateEntity(const String& name)
     {
         Entity* e = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
+        e->SetVisible(true);
+        e->SetStatic(true);
 
         uint32 id = 0;
         if (!m_availableIDs.empty())
@@ -195,6 +197,5 @@ namespace Lina::World
         e->~Entity();
         Memory::MemoryManager::Get()->FreeFromPoolBlock<World::Entity>(e, index);
     }
-
 
 } // namespace Lina::World

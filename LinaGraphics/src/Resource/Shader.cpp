@@ -104,7 +104,7 @@ namespace Lina::Graphics
 
             GenerateByteCode();
 
-            if (g_appInfo.GetAppMode() == ApplicationMode::Editor)
+            if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
                 SaveAssetData();
         }
 

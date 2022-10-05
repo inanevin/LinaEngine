@@ -96,8 +96,6 @@ namespace Lina::Graphics
         CommandPool   pool;
         CommandBuffer commandBuffer;
         Semaphore     presentSemaphore;
-        Buffer        objDataBuffer;
-        DescriptorSet objDataDescriptor;
     };
 
     class Renderer
@@ -128,7 +126,7 @@ namespace Lina::Graphics
 
         inline DescriptorSet& GetObjectSet()
         {
-            return GetCurrentFrame().objDataDescriptor;
+            return m_objDataDescriptor;
         }
 
         inline DescriptorSet& GetTextureSet()
@@ -165,6 +163,8 @@ namespace Lina::Graphics
         Vector<Framebuffer>    m_framebuffers;
         Image                  m_depthImage;
         Buffer                 m_scenePropertiesBuffer;
+        Buffer                 m_objDataBuffer;
+        DescriptorSet          m_objDataDescriptor;
         DescriptorSet          m_globalDescriptor;
         DescriptorSet          m_textureDescriptor;
         RenderableList         m_allRenderables;

@@ -54,6 +54,7 @@ private:
     void OnGameStarted(const Lina::Event::EStartGame& ev);
     void OnTick(const Lina::Event::ETick& ev);
     void OnLevelInstalled(const Lina::Event::ELevelInstalled& ev);
+    void OnResourceLoaded(const Lina::Event::EResourceLoaded& ev);
 };
 #endif
 

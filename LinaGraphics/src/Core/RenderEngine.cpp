@@ -128,7 +128,7 @@ namespace Lina::Graphics
         m_descriptorLayouts[1] = &m_objectDataLayout;
         m_descriptorLayouts[2] = &m_textureDataLayout;
 
-        m_levelRenderer.Initialize();
+        m_renderer.Initialize();
         m_gpuUploader.Create();
 
         // Init GUI Backend, LinaVG
@@ -140,8 +140,8 @@ namespace Lina::Graphics
         LinaVG::Config.clipSizeX                          = size.x;
         LinaVG::Config.clipSizeY                          = size.y;
         LinaVG::Config.flipTextureUVs                     = false;
-        LinaVG::Config.framebufferScale.x                 = g_appInfo.GetContentScaleWidth();
-        LinaVG::Config.framebufferScale.y                 = g_appInfo.GetContentScaleHeight();
+        LinaVG::Config.framebufferScale.x                 = ApplicationInfo::GetContentScaleWidth();
+        LinaVG::Config.framebufferScale.y                 = ApplicationInfo::GetContentScaleHeight();
         LinaVG::Config.aaMultiplier                       = 1.5f;
 
         LinaVG::Config.errorCallback = [](const std::string& err) {
@@ -183,7 +183,7 @@ namespace Lina::Graphics
 
     void RenderEngine::Tick()
     {
-        m_levelRenderer.Tick();
+        m_renderer.Tick();
     }
 
     void RenderEngine::Render()
@@ -195,7 +195,7 @@ namespace Lina::Graphics
             return;
 
         m_gpuUploader.Poll();
-        m_levelRenderer.Render();
+        m_renderer.Render();
 
         // GUI
         LinaVG::StartFrame();
@@ -207,7 +207,7 @@ namespace Lina::Graphics
     void RenderEngine::Join()
     {
         RETURN_NOTINITED;
-        m_levelRenderer.Join();
+        m_renderer.Join();
     }
 
     void RenderEngine::Shutdown()
@@ -221,7 +221,7 @@ namespace Lina::Graphics
         m_gpuUploader.Destroy();
         m_mainDeletionQueue.Flush();
 
-        m_levelRenderer.Shutdown();
+        m_renderer.Shutdown();
         m_window.Shutdown();
         m_backend.Shutdown();
     }

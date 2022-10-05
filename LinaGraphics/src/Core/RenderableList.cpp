@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-#define LIST_STEP 500
+#define LIST_STEP 250
 
     void RenderableList::Create()
     {

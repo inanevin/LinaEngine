@@ -64,8 +64,6 @@ namespace Lina
             return s_engine;
         }
 
-        double GetElapsedTime();
-
         void   InstallLevel(const String& path, bool async);
 
         /// <summary>
@@ -162,7 +160,6 @@ namespace Lina
         uint8                                  m_deltaTimeArrOffset = 0;
         int                                    m_deltaFirstFill     = 0;
         bool                                   m_deltaFilled        = false;
-        double                                 m_startTime          = 0.0;
         float                                  m_physicsAccumulator = 0.0f;
         EngineSettings*                        m_engineSettings     = nullptr;
         RenderSettings*                        m_renderSettings     = nullptr;

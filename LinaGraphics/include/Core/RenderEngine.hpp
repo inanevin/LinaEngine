@@ -96,7 +96,7 @@ namespace Lina::Graphics
 
         inline Renderer& GetLevelRenderer()
         {
-            return m_levelRenderer;
+            return m_renderer;
         }
 
         inline DeletionQueue& GetMainDeletionQueue()
@@ -192,7 +192,7 @@ namespace Lina::Graphics
         HashMap<uint32, DescriptorSetLayout*> m_descriptorLayouts;
         Viewport                              m_viewport;
         Recti                                 m_scissor;
-        Renderer                              m_levelRenderer;
+        Renderer                              m_renderer;
         LinaVG::Backend::GUIBackend*          m_guiBackend;
 
         // Resources

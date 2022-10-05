@@ -41,6 +41,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    class CommandBuffer;
 
     class FeatureRendererManager
     {
@@ -48,6 +49,7 @@ namespace Lina::Graphics
         void Initialize();
         void Shutdown();
         void BatchRenderables(const Vector<RenderableComponent*>& renderables);
+        void RecordDrawCommands(CommandBuffer& cmd);
 
     private:
         Vector<FeatureRenderer*> m_renderers;

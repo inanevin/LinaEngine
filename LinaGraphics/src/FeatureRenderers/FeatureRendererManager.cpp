@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-
     void FeatureRendererManager::Initialize()
     {
         m_renderers.push_back(&m_decalRenderer);
@@ -55,7 +54,16 @@ namespace Lina::Graphics
 
     void FeatureRendererManager::BatchRenderables(const Vector<RenderableComponent*>& renderables)
     {
-        for (auto& r : m_renderers)
+        Taskflow tf;
+        tf.for_each(m_renderers.begin(), m_renderers.end(), [renderables](FeatureRenderer* r) {
             r->BatchRenderables(renderables);
+        });
+        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
+    } 
+
+    void FeatureRendererManager::RecordDrawCommands(CommandBuffer& cmd)
+    {
+        for(auto r : m_renderers)
+            r->RecordDrawCommands(cmd);
     }
 } // namespace Lina::Graphics

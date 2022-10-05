@@ -47,57 +47,71 @@ void GameManager::Initialize()
     Event::EventSystem::Get()->Connect<Event::EStartGame, &GameManager::OnGameStarted>(this);
     Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
     Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GameManager::OnLevelInstalled>(this);
+    Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &GameManager::OnResourceLoaded>(this);
 }
 
 void GameManager::OnGameStarted(const Lina::Event::EStartGame& ev)
 {
 }
 
-struct VisibilityData2
+Lina::Graphics::Model* m;
+Lina::StringID         sid;
+Lina::World::Entity*   e;
+void                   GameManager::OnTick(const Lina::Event::ETick& ev)
 {
-    Lina::Graphics::RenderableComponent* renderable = nullptr;
-};
 
-Lina::World::Entity* ent;
-float                angle  = 0.0f;
-bool                 loaded = false;
-
-void GameManager::OnTick(const Lina::Event::ETick& ev)
-{
     if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
     {
-
+        if (m)
+        {
+            e = m->AddToWorld(Lina::World::EntityWorld::Get());
+            LINA_TRACE("Added to world");
+        }
     }
-   // bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
-   // 
-   // if (!exists)
-   //     return;
-   // 
-   // if (!loaded)
-   // {
-   //     World::EntityWorld*    w = World::EntityWorld::Get();
-   //     Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
-   // 
-   //     for (int i = 0; i < 1; i++)
-   //     {
-   //         World::Entity* e = m->AddToWorld(w);
-   //         e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
-   // 
-   //         if (i == 0)
-   //             ent = e;
-   //     }
-   // 
-   //     loaded = true;
-   // }
-   // 
-   // angle += ev.deltaTime * 0.26f;
-   // float r = 5.0f;
-   // float x = r * Math::Sin(angle);
-   // float y = r * Math::Cos(angle);
-   // ent->SetPosition(Vector3(x, y, 0));
+
+    if (e)
+    {
+        e->SetPosition(Vector3(Lina::Math::Sin(RuntimeInfo::GetElapsedTime()) * 1.0f, 0, 0));
+    }
+    // bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
+    //
+    // if (!exists)
+    //     return;
+    //
+    // if (!loaded)
+    // {
+    //     World::EntityWorld*    w = World::EntityWorld::Get();
+    //     Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
+    //
+    //     for (int i = 0; i < 1; i++)
+    //     {
+    //         World::Entity* e = m->AddToWorld(w);
+    //         e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
+    //
+    //         if (i == 0)
+    //             ent = e;
+    //     }
+    //
+    //     loaded = true;
+    // }
+    //
+    // angle += ev.deltaTime * 0.26f;
+    // float r = 5.0f;
+    // float x = r * Math::Sin(angle);
+    // float y = r * Math::Cos(angle);
+    // ent->SetPosition(Vector3(x, y, 0));
 }
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
-   Lina::Resources::ResourceManager::Get()->GetLoader()->LoadResource(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Models/Tests/lost_empire.obj", true);
+    sid = TO_SID(Lina::String("Resources/Engine/Models/Cube.fbx"));
+    m   = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(sid);
+
+    // Lina::Resources::ResourceManager::Get()->GetLoader()->LoadSingleResource(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Models/Tests/lost_empire.obj", true);
+}
+
+void GameManager::OnResourceLoaded(const Lina::Event::EResourceLoaded& ev)
+{
+    if (ev.sid == sid)
+        m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(sid);
 }

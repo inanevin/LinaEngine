@@ -39,7 +39,7 @@ namespace Lina::Resources
 
     void EditorResourceLoader::LoadEngineResources()
     {
-        auto& engineRes  = g_defaultResources.GetEngineResources();
+        auto& engineRes  = DefaultResources::GetEngineResources();
         int   totalFiles = 0;
         for (auto& [tid, vec] : engineRes)
             totalFiles += static_cast<int>(vec.size());
@@ -47,18 +47,40 @@ namespace Lina::Resources
         const double time = Time::GetCPUTime();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Engine resource loaded", .totalFiles = totalFiles});
 
+        Taskflow tf;
+
         for (auto& [tid, vec] : engineRes)
         {
             for (auto& path : vec)
-                LoadResource(tid, path, true);
+                tf.emplace([this, tid, path]() { LoadResource(tid, path); });
         }
 
-        JobSystem::Get()->GetResourceExecutor().Wait();
+        JobSystem::Get()->GetResourceExecutor().RunAndWait(tf);
+
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
 
         ResourceManager::Get()->LoadReferences();
+    }
+
+    void EditorResourceLoader::LoadSingleResource(TypeID tid, const String& path, bool async)
+    {
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Resource loaded", .totalFiles = 1});
+
+        if (async)
+        {
+            Future<void> f = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path]() {
+                LoadResource(tid, path);
+            });
+
+            f.get();
+        }
+        else
+            LoadResource(tid, path);
+
+        if (!async)
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
     }
 
     void EditorResourceLoader::LoadLevelResources(const Vector<Pair<TypeID, String>>& resources)
@@ -88,10 +110,13 @@ namespace Lina::Resources
         const double time       = Time::GetCPUTime();
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Level resource loaded", .totalFiles = totalFiles});
 
-        for (auto& pair : toLoad)
-            LoadResource(pair.first, pair.second, true);
+        Taskflow tf;
 
-        JobSystem::Get()->GetResourceExecutor().Wait();
+        for (auto& pair : toLoad)
+            tf.emplace([this, pair]() { LoadResource(pair.first, pair.second); });
+
+        JobSystem::Get()->GetResourceExecutor().RunAndWait(tf);
+
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading level resources took {0} seconds.", diff);
@@ -99,7 +124,7 @@ namespace Lina::Resources
         ResourceManager::Get()->LoadReferences();
     }
 
-    void EditorResourceLoader::LoadResource(TypeID tid, const String& path, bool async)
+    void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
         const StringID sid = HashedString(path.c_str()).value();
         auto*          rm  = ResourceManager::Get();
@@ -107,22 +132,15 @@ namespace Lina::Resources
         if (rm->Exists(tid, sid))
             return;
 
-        const auto& load = [rm, tid, sid, path, this]() {
-            auto*     cache = rm->GetCache(tid);
-            Resource* res   = cache->Create(sid);
-            res->m_sid      = sid;
-            res->m_path     = path;
-            res->m_tid      = tid;
-            res->LoadFromFile(path);
+        auto*     cache = rm->GetCache(tid);
+        Resource* res   = cache->Create(sid);
+        res->m_sid      = sid;
+        res->m_path     = path;
+        res->m_tid      = tid;
+        res->LoadFromFile(path);
 
-            LOCK_GUARD(m_mtx);
-            Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
-        };
-
-        if (async)
-            JobSystem::Get()->GetResourceExecutor().SilentAsync(load);
-        else
-            load();
+        LOCK_GUARD(m_mtx);
+        Event::EventSystem::Get()->Trigger<Event::EResourceLoaded>(Event::EResourceLoaded{.tid = tid, .sid = sid});
+        Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
     }
 } // namespace Lina::Resources

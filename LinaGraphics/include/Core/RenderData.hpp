@@ -60,10 +60,10 @@ namespace Lina::Graphics
         Material* material = nullptr;
     };
 
-    struct RenderBatch
+    struct IndirectBatch
     {
-        MeshMaterialPair pair;
-        Set<uint32>      renderableIDs;
+        MeshMaterialPair meshAndMaterial;
+        Vector<uint32>   entityIDs;
     };
 
 } // namespace Lina::Graphics
