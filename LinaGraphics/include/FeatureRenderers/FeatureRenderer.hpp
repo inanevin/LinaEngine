@@ -32,6 +32,7 @@ SOFTWARE.
 #define FeatureRenderer_HPP
 
 #include "Data/Vector.hpp"
+#include "Core/RenderData.hpp"
 
 namespace Lina::Graphics
 {
@@ -44,7 +45,7 @@ namespace Lina::Graphics
         virtual void Initialize() = 0;
         virtual void Shutdown()   = 0;
 
-        virtual void BatchRenderables(const Vector<RenderableComponent*>& renderables){};
+        virtual void BatchRenderables(const Vector<RenderableData>& renderables){};
         virtual void RecordDrawCommands(CommandBuffer& cmd) {};
 
     private:

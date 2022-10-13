@@ -36,10 +36,8 @@ SOFTWARE.
 #include "Shader.hpp"
 #include "Serialization/Serialization.hpp"
 
-
 namespace Lina::Graphics
 {
-
     class Material : public Resources::Resource
     {
     public:
@@ -49,31 +47,40 @@ namespace Lina::Graphics
         template <class Archive>
         void Save(Archive& archive)
         {
+            m_isInstanced = false;
             m_shader.Save(archive);
+            archive(m_isInstanced);
         }
 
         template <class Archive>
         void Load(Archive& archive)
         {
             m_shader.Load(archive);
+            archive(m_isInstanced);
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const String& path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         virtual void      LoadReferences() override;
+        virtual void      SaveToFile() override;
+        void              SetShader(Shader* shader);
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {
             return m_shader;
         }
 
-        void SetShader(Shader* shader);
+        inline bool GetIsInstanced()
+        {
+            return m_isInstanced;
+        }
 
     private:
         void FindShader();
 
     private:
+        bool                              m_isInstanced = false;
         Resources::ResourceHandle<Shader> m_shader;
     };
 

@@ -147,6 +147,11 @@ namespace Lina::World
             return m_mask.IsSet(mask);
         }
 
+        inline Bitmask16 GetEntityMask()
+        {
+            return m_mask;
+        }
+
     private:
         void UpdateGlobalPosition();
         void UpdateLocalPosition();

@@ -154,6 +154,11 @@ namespace Lina::Graphics
             return m_engineShaders[sh];
         }
 
+        inline void SyncData()
+        {
+            m_renderer.SyncData();
+        }
+
         void           Join();
         Vector<String> GetEngineShaderPaths();
         Vector<String> GetEngineMaterialPaths();

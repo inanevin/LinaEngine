@@ -48,7 +48,7 @@ namespace Lina::Graphics
     public:
         void Initialize();
         void Shutdown();
-        void BatchRenderables(const Vector<RenderableComponent*>& renderables);
+        void BatchRenderables(const Vector<RenderableData>& renderables);
         void RecordDrawCommands(CommandBuffer& cmd);
 
     private:

@@ -27,7 +27,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
 	src/Core/Renderer.cpp
-	src/Core/RenderableList.cpp
 	src/Core/FramePacket.cpp
 	src/Core/View.cpp
 	src/Core/DrawPass.cpp
@@ -100,7 +99,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/GUIBackend.hpp
 	include/Core/Window.hpp
 	include/Core/Renderer.hpp
-	include/Core/RenderableList.hpp
 	include/Core/RenderData.hpp
 	include/Core/FramePacket.hpp
 	include/Core/View.hpp

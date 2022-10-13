@@ -188,7 +188,7 @@ namespace Lina::Graphics
                     if (queue_families[i].queueCount > count + 1)
                         count++;
 
-                    transferQueueIndex = count-1;
+                    transferQueueIndex = count - 1;
                 }
 
                 if (!hasDedicatedComputeQueue && queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
@@ -197,7 +197,7 @@ namespace Lina::Graphics
 
                     if (queue_families[i].queueCount > count + 1)
                         count++;
-                    computeQueueIndex = count-1;
+                    computeQueueIndex = count - 1;
                 }
             }
 

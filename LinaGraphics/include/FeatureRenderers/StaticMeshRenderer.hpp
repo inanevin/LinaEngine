@@ -41,14 +41,7 @@ namespace Lina::Graphics
     public:
         virtual void Initialize() override;
         virtual void Shutdown() override;
-        virtual void BatchRenderables(const Vector<RenderableComponent*>& renderables) override;
-        virtual void RecordDrawCommands(CommandBuffer& cmd) override;
 
-    private:
-        IndirectBatch* FindInBatches(const MeshMaterialPair& pair);
-
-    private:
-        Vector<IndirectBatch> m_batches;
     };
 } // namespace Lina::Graphics
 

@@ -104,6 +104,11 @@ namespace Lina::Graphics
         vkCmdDrawIndexed(_ptr, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
+    void CommandBuffer::CMD_DrawIndexedIndirect(VkBuffer_T* buffer, uint64 offset, uint32 drawCount, uint32 stride)
+    {
+        vkCmdDrawIndexedIndirect(_ptr, buffer, offset, drawCount, stride);
+    }
+
     void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags srcStageFlags, PipelineStageFlags dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers)
     {
         Vector<VkMemoryBarrier>       _barriers;

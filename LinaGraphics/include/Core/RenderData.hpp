@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Math/AABB.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Set.hpp"
+#include "Data/Bitmask.hpp"
+#include "Math/AABB.hpp"
 
 namespace Lina::Graphics
 {
@@ -59,11 +61,25 @@ namespace Lina::Graphics
         Mesh*     mesh     = nullptr;
         Material* material = nullptr;
     };
-
-    struct IndirectBatch
+    struct InstancedBatch
     {
         MeshMaterialPair meshAndMaterial;
-        Vector<uint32>   entityIDs;
+        Vector<uint32>   renderableIndices;
+        uint32           firstInstance = 0;
+        uint32           count         = 0;
+    };
+
+    struct RenderableData
+    {
+        RenderableType           type        = RenderableType::RenderableDecal;
+        Bitmask16                passMask    = DrawPassMask::Opaque;
+        Matrix                   modelMatrix = Matrix::Identity();
+        Vector3                  position    = Vector3();
+        AABB                     aabb        = AABB();
+        uint32                   entityID    = 0;
+        uint32                   batchID     = 0;
+        Bitmask16                entityMask;
+        Vector<MeshMaterialPair> meshMaterialPairs;
     };
 
 } // namespace Lina::Graphics

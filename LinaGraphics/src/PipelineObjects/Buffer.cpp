@@ -58,32 +58,59 @@ namespace Lina::Graphics
         _allocation = nullptr;
     }
 
-    void Buffer::CopyInto(const void* src, size_t size)
+    void Buffer::CopyInto(const void* src, size_t sz)
     {
+        if (sz > size)
+            Recreate(size + sz);
+
         void* data;
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
-        MEMCPY(data, src, size);
+        MEMCPY(data, src, sz);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
         _ready = true;
     }
 
-    void Buffer::CopyInto(unsigned char* src, size_t size)
+    void Buffer::CopyInto(unsigned char* src, size_t sz)
     {
+        if (sz > size)
+            Recreate(size + sz);
+
         void* data;
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
-        MEMCPY(data, src, size);
+        MEMCPY(data, src, sz);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
         _ready = true;
     }
 
-    void Buffer::CopyIntoPadded(const void* src, size_t size, size_t padding)
+    void Buffer::CopyIntoPadded(const void* src, size_t sz, size_t padding)
     {
+        LINA_ASSERT(sz < size, "Size needs to be smaller than total size!");
+
         char* data;
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, (void**)&data);
         data += padding;
-        MEMCPY(data, src, size);
+        MEMCPY(data, src, sz);
         vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
         _ready = true;
+    }
+
+    void* Buffer::MapBuffer()
+    {
+        void* data;
+        vmaMapMemory(Backend::Get()->GetVMA(), _allocation, &data);
+        return data;
+    }
+
+    void Buffer::UnmapBuffer()
+    {
+        vmaUnmapMemory(Backend::Get()->GetVMA(), _allocation);
+    }
+
+    void Buffer::Recreate(size_t sz)
+    {
+        Destroy();
+        size = sz;
+        Create();
     }
 
 } // namespace Lina::Graphics

@@ -49,7 +49,7 @@ namespace Lina::Graphics
 
     void Material::WriteToPackage(Serialization::Archive<OStream>& archive)
     {
-        Serialization::LoadFromFile<Material>(m_path, *this);
+        LoadFromFile(m_path);
         Save(archive);
     }
 
@@ -75,4 +75,14 @@ namespace Lina::Graphics
         m_shader.value = shader;
     }
 
+    void Material::SaveToFile()
+    {
+        if (ApplicationInfo::GetAppMode() != ApplicationMode::Editor)
+            return;
+
+        if (Utility::FileExists(m_path))
+            Utility::DeleteFileInPath(m_path);
+
+        Serialization::SaveToFile<Material>(m_path, *this);
+    }
 } // namespace Lina::Graphics

@@ -31,14 +31,14 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    bool View::IsVisible(RenderableComponent* renderable)
+    bool View::IsVisible(const AABB& aabb)
     {
         return true;
-        FrustumTest test = m_frustum.TestIntersection(renderable->GetAABB());
+        FrustumTest test = m_frustum.TestIntersection(aabb);
         return test != FrustumTest::Outside;
     }
 
-    void View::CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj)
+    void View::Tick(const Vector3& pos, const Matrix& view, const Matrix& proj)
     {
         m_pos  = pos;
         m_view = view;

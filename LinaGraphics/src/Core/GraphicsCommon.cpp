@@ -471,6 +471,8 @@ namespace Lina::Graphics
             return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         case BufferUsageFlags::TransferDst:
             return VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        case BufferUsageFlags::IndirectBuffer:
+            return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
         default:
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
         }

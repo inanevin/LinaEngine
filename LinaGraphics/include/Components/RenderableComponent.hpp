@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    class RenderList;
+    class Renderer;
     class Mesh;
     class Material;
 
@@ -79,7 +79,7 @@ namespace Lina::Graphics
         int dummy2 = 0;
 
     private:
-        friend class RenderableList;
+        friend class Renderer;
         uint32 m_renderableID = 0;
     };
 } // namespace Lina::Graphics

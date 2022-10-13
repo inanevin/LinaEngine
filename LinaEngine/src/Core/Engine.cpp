@@ -138,6 +138,8 @@ namespace Lina
         //     Serialization::SaveToFile<Graphics::Material>(mat->GetPath(), *mat);
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
 
+        m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/LitStandard.linamat")->SaveToFile();
+        m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/GUIStandard.linamat")->SaveToFile();
         // Graphics::Material mat;
         // mat.SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/GUIStandard.linamat", mat);
@@ -246,7 +248,7 @@ namespace Lina
 
             m_rawDeltaTime = (currentFrameTime - previousFrameTime);
             // m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
-            //  previousFrameTime = currentFrameTime;
+            // previousFrameTime = currentFrameTime;
 
             // Input
             m_inputEngine.Tick();
@@ -260,9 +262,12 @@ namespace Lina
             // Game sim, physics + update etc.
             RunSimulation((float)m_rawDeltaTime);
             updates++;
-            // m_renderEngine.Render();
-            // frames++;
-            renderJob.wait();
+
+            // Wait for all.
+            renderJob.get();
+
+            // Sync previous frame.
+            m_renderEngine.SyncData();
 
             PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 

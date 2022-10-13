@@ -47,9 +47,9 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "PipelineObjects/DescriptorPool.hpp"
 #include "FeatureRenderers/FeatureRendererManager.hpp"
+#include "Data/IDList.hpp"
 #include "CameraSystem.hpp"
 #include "View.hpp"
-#include "RenderableList.hpp"
 #include "DrawPass.hpp"
 
 #include <functional>
@@ -67,7 +67,6 @@ namespace Lina
         struct ELevelInstalled;
         struct EComponentCreated;
         struct EComponentDestroyed;
-        struct EEntityMaskStaticChanged;
     } // namespace Event
 
 } // namespace Lina
@@ -75,7 +74,7 @@ namespace Lina::Graphics
 {
     class Backend;
     class ModelNodeComponent;
-    constexpr unsigned int FRAME_OVERLAP = 2;
+    constexpr uint32 FRAMES_IN_FLIGHT = 2;
 
     struct GPUSceneData
     {
@@ -96,6 +95,8 @@ namespace Lina::Graphics
         CommandPool   pool;
         CommandBuffer commandBuffer;
         Semaphore     presentSemaphore;
+        Buffer        objDataBuffer;
+        DescriptorSet objDataDescriptor;
     };
 
     class Renderer
@@ -126,7 +127,7 @@ namespace Lina::Graphics
 
         inline DescriptorSet& GetObjectSet()
         {
-            return m_objDataDescriptor;
+            return GetCurrentFrame().objDataDescriptor;
         }
 
         inline DescriptorSet& GetTextureSet()
@@ -136,42 +137,63 @@ namespace Lina::Graphics
 
         inline uint32 GetFrameIndex()
         {
-            return m_frameNumber % FRAME_OVERLAP;
+            return m_frameNumber % FRAMES_IN_FLIGHT;
+        }
+
+        inline Buffer& GetObjectDataBuffer()
+        {
+            return GetCurrentFrame().objDataBuffer;
+        }
+
+        inline Buffer& GetScenePropertiesBuffer()
+        {
+            return m_scenePropertiesBuffer;
+        }
+
+        inline GPUSceneData& GetSceneData()
+        {
+            return m_sceneData;
+        }
+
+        Frame& GetCurrentFrame()
+        {
+            return m_frames[m_frameNumber % FRAMES_IN_FLIGHT];
         }
 
     private:
         friend class RenderEngine;
 
         void   Initialize();
+        void   Shutdown();
         void   Tick();
         void   Render();
         void   Join();
-        void   Shutdown();
+        void   SyncData();
         void   OnLevelInstalled(const Event::ELevelInstalled& ev);
         void   OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         void   OnComponentCreated(const Event::EComponentCreated& ev);
         void   OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        Frame& GetCurrentFrame();
+   
 
     private:
-        FeatureRendererManager m_featureRendererManager;
-        Vector<View*>          m_views;
-        View                   m_playerView;
-        CameraSystem           m_cameraSystem;
-        RenderPass             m_renderPass;
-        SubPass                m_subpass;
-        Vector<Framebuffer>    m_framebuffers;
-        Image                  m_depthImage;
-        Buffer                 m_scenePropertiesBuffer;
-        Buffer                 m_objDataBuffer;
-        DescriptorSet          m_objDataDescriptor;
-        DescriptorSet          m_globalDescriptor;
-        DescriptorSet          m_textureDescriptor;
-        RenderableList         m_allRenderables;
-        DrawPass               m_opaquePass;
+        FeatureRendererManager       m_featureRendererManager;
+        Vector<View*>                m_views;
+        View                         m_playerView;
+        CameraSystem                 m_cameraSystem;
+        RenderPass                   m_renderPass;
+        SubPass                      m_subpass;
+        Vector<Framebuffer>          m_framebuffers;
+        Image                        m_depthImage;
+        Buffer                       m_scenePropertiesBuffer;
+        DescriptorSet                m_globalDescriptor;
+        DescriptorSet                m_textureDescriptor;
+        IDList<RenderableComponent*> m_allRenderables;
+        Vector<GPUObjectData>        m_gpuObjectData;
+        DrawPass                     m_opaquePass;
+        GPUSceneData                 m_sceneData;
 
         uint32   m_frameNumber = 0;
-        Frame    m_frames[FRAME_OVERLAP];
+        Frame    m_frames[FRAMES_IN_FLIGHT];
         Backend* m_backend           = nullptr;
         bool     m_hasLevelInstalled = false;
     };

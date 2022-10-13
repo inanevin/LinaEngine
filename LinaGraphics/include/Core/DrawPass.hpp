@@ -48,13 +48,22 @@ namespace Lina::Graphics
     class View;
     class RenderableComponent;
     class RenderableList;
+    class CommandBuffer;
 
     class DrawPass
     {
     public:
-        void ExtractVisibleRenderables(const RenderableList& drawList);
 
-        Vector<RenderableComponent*>& GetVisibleRenderables()
+        void PrepareRenderData(Vector<RenderableData>& drawList);
+        void RecordDrawCommands(CommandBuffer& cmd);
+
+    private:
+
+        void ExtractVisibleRenderables(Vector<RenderableData>& drawList);
+        void BatchVisibleRenderables();
+        void PrepareBuffers();
+
+        Vector<RenderableData>& GetVisibleRenderables()
         {
             return m_renderables;
         }
@@ -67,14 +76,17 @@ namespace Lina::Graphics
             m_view         = view;
         }
 
+        int32 FindInBatches(const MeshMaterialPair& pair);
+
     private:
         friend class Renderer;
 
-        Mutex                        m_mtx;
-        Vector<RenderableComponent*> m_renderables;
-        DrawPassMask                 m_passMask     = DrawPassMask::Opaque;
-        float                        m_drawDistance = 0.0f;
-        View*                        m_view         = nullptr;
+        Mutex                  m_mtx;
+        Vector<RenderableData> m_renderables;
+        Vector<InstancedBatch> m_batches;
+        DrawPassMask           m_passMask     = DrawPassMask::Opaque;
+        float                  m_drawDistance = 0.0f;
+        View*                  m_view         = nullptr;
     };
 } // namespace Lina::Graphics
 

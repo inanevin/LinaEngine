@@ -344,6 +344,7 @@ namespace Lina::Graphics
         StorageBuffer,
         TransferSrc,
         TransferDst,
+        IndirectBuffer,
     };
 
     extern uint32 GetBufferUsageFlags(BufferUsageFlags flags);
@@ -655,6 +656,7 @@ namespace Lina::Graphics
         uint32         stageFlags   = 0;
         DescriptorType type         = DescriptorType::UniformBuffer;
     };
+
 
 #define TO_FLAGS(X) static_cast<uint32>(X)
 

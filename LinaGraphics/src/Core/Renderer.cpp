@@ -50,7 +50,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-#define RENDERABLES_STACK_SIZE 1000
+#define OBJ_BUFFER_MAX 15
 
     void Renderer::Initialize()
     {
@@ -144,7 +144,7 @@ namespace Lina::Graphics
         }
 
         m_scenePropertiesBuffer = Buffer{
-            .size        = FRAME_OVERLAP * VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)),
+            .size        = FRAMES_IN_FLIGHT * VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)),
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
             .memoryUsage = MemoryUsageFlags::CpuToGpu,
         };
@@ -180,35 +180,7 @@ namespace Lina::Graphics
         vv0.push_back(sceneWrite);
         DescriptorSet::UpdateDescriptorSets(vv0);
 
-        m_objDataBuffer = Buffer{
-            .size        = sizeof(GPUObjectData) * 5,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
-        };
-        m_objDataBuffer.Create();
-
-        m_objDataDescriptor = DescriptorSet{
-            .setCount = 1,
-            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
-        };
-
-        m_objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(1)._ptr);
-        m_objDataDescriptor.Create();
-
-        WriteDescriptorSet objDataWrite = WriteDescriptorSet{
-            .buffer          = m_objDataBuffer._ptr,
-            .offset          = 0,
-            .range           = sizeof(GPUObjectData) * 5,
-            .dstSet          = m_objDataDescriptor._ptr,
-            .dstBinding      = 0,
-            .descriptorCount = 1,
-            .descriptorType  = DescriptorType::StorageBuffer};
-
-        Vector<WriteDescriptorSet> vv;
-        vv.push_back(objDataWrite);
-        DescriptorSet::UpdateDescriptorSets(vv);
-
-        for (int i = 0; i < FRAME_OVERLAP; i++)
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             Frame& f = m_frames[i];
 
@@ -223,6 +195,41 @@ namespace Lina::Graphics
             f.renderSemaphore.Create();
             f.renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
             f.renderFence.Create();
+
+            f.objDataBuffer = Buffer{
+                .size        = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.objDataBuffer.Create();
+
+            f.objDataDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+            };
+
+            f.objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(1)._ptr);
+            f.objDataDescriptor.Create();
+
+            WriteDescriptorSet objDataWrite = WriteDescriptorSet{
+                .buffer          = f.objDataBuffer._ptr,
+                .offset          = 0,
+                .range           = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
+                .dstSet          = f.objDataDescriptor._ptr,
+                .dstBinding      = 0,
+                .descriptorCount = 1,
+                .descriptorType  = DescriptorType::StorageBuffer};
+
+            Vector<WriteDescriptorSet> vv;
+            vv.push_back(objDataWrite);
+            DescriptorSet::UpdateDescriptorSets(vv);
+
+            // f.indirectDrawBuffer = Buffer{
+            //     .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+            //     .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+            //     .memoryUsage = MemoryUsageFlags::CpuToGpu};
+            //
+            // f.indirectDrawBuffer.Create();
         }
 
         // Views
@@ -234,6 +241,9 @@ namespace Lina::Graphics
 
         // Feature renderers.
         m_featureRendererManager.Initialize();
+
+        // IDlists
+        m_allRenderables.Initialize(250, nullptr);
     }
 
     void Renderer::Shutdown()
@@ -244,7 +254,11 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
         m_featureRendererManager.Shutdown();
 
-        m_objDataBuffer.Destroy();
+        for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            m_frames[i].objDataBuffer.Destroy();
+        }
+
         m_scenePropertiesBuffer.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
@@ -255,7 +269,72 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
         m_cameraSystem.Tick();
-        m_playerView.CalculateFrustum(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
+        m_playerView.Tick(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
+    }
+
+    void Renderer::Join()
+    {
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+            m_frames[i].renderFence.Wait();
+    }
+
+    void Renderer::SyncData()
+    {
+        PROFILER_FUNC(PROFILER_THREAD_MAIN);
+
+        Vector<RenderableData> extractedRenderables;
+        const auto& renderables = m_allRenderables.GetItems();
+
+        for (auto r : renderables)
+        {
+            if (r == nullptr)
+                continue;
+
+            if (!r->GetEntity()->GetEntityMask().IsSet(World::EntityMask::Visible))
+                continue;
+
+            RenderableData data;
+            data.entityID          = r->GetEntity()->GetID();
+            data.modelMatrix       = r->GetEntity()->ToMatrix();
+            data.entityMask        = r->GetEntity()->GetEntityMask();
+            data.position          = r->GetEntity()->GetPosition();
+            data.aabb              = r->GetAABB();
+            data.passMask          = r->GetDrawPasses();
+            data.type              = r->GetType();
+            data.meshMaterialPairs = r->GetMeshMaterialPairs();
+            extractedRenderables.push_back(data);
+        }
+
+        m_opaquePass.PrepareRenderData(extractedRenderables);
+    }
+
+    void Renderer::Render()
+    {
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
+        GetCurrentFrame().renderFence.Wait(true, 1.0f);
+        GetCurrentFrame().renderFence.Reset();
+
+        uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
+
+        GetCurrentFrame().commandBuffer.Reset();
+        GetCurrentFrame().commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+
+        m_renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
+
+        m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer);
+
+        m_renderPass.End(GetCurrentFrame().commandBuffer);
+        GetCurrentFrame().commandBuffer.End();
+
+        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
+        // Then submits command, and signals render semaphore when its submitted.
+        PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
+        Backend::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
+        Backend::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
+        PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
+
+        m_frameNumber++;
     }
 
     void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
@@ -277,17 +356,6 @@ namespace Lina::Graphics
         Vector<WriteDescriptorSet> vv0;
         vv0.push_back(textureWrite);
         DescriptorSet::UpdateDescriptorSets(vv0);
-
-        auto w = World::LevelManager::Get()->GetCurrentLevel()->GetWorld();
-
-        // uint32      maxSize;
-        // const auto& v = w.View<ModelNodeComponent>(&maxSize);
-        //
-        // for (uint32 i = 0; i < maxSize; i++)
-        // {
-        //     if (v[i] != nullptr)
-        //         AddRenderable(v[i]);
-        // }
     }
 
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
@@ -299,127 +367,16 @@ namespace Lina::Graphics
     void Renderer::OnComponentCreated(const Event::EComponentCreated& ev)
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
-            m_allRenderables.AddRenderable(static_cast<RenderableComponent*>(ev.ptr));
+        {
+            auto renderable            = static_cast<RenderableComponent*>(ev.ptr);
+            renderable->m_renderableID = m_allRenderables.AddItem(renderable);
+        }
     }
 
     void Renderer::OnComponentDestroyed(const Event::EComponentDestroyed& ev)
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
-            m_allRenderables.RemoveRenderable(static_cast<RenderableComponent*>(ev.ptr));
-    }
-
-    Frame& Renderer::GetCurrentFrame()
-    {
-        return m_frames[m_frameNumber % FRAME_OVERLAP];
-    }
-
-    void Renderer::Render()
-    {
-        PROFILER_FUNC(PROFILER_THREAD_RENDER);
-
-        m_opaquePass.ExtractVisibleRenderables(m_allRenderables);
-
-        const auto& visibleRenderables = m_opaquePass.GetVisibleRenderables();
-
-        Vector<GPUObjectData> objDatas;
-        for (auto r : visibleRenderables)
-        {
-            GPUObjectData data;
-            data.modelMatrix = r->GetEntity()->ToMatrix();
-            objDatas.push_back(data);
-        }
-        m_objDataBuffer.CopyInto(objDatas.data(), sizeof(GPUObjectData) * objDatas.size());
-        m_featureRendererManager.BatchRenderables(m_opaquePass.GetVisibleRenderables());
-
-        GetCurrentFrame().renderFence.Wait(true, 1.0f);
-        GetCurrentFrame().renderFence.Reset();
-
-        uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
-
-        GetCurrentFrame().commandBuffer.Reset();
-        GetCurrentFrame().commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-
-        m_renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
-
-        GPUSceneData sceneData;
-        sceneData.proj     = m_cameraSystem.GetProj();
-        sceneData.view     = m_cameraSystem.GetView();
-        sceneData.viewProj = sceneData.proj * sceneData.view;
-
-        uint32 frameIndex      = m_frameNumber % FRAME_OVERLAP;
-        sceneData.ambientColor = Vector4(Math::Sin((Time::GetCPUTime() * 5) + 1) * 0.5f, 0, 0, 1);
-        m_scenePropertiesBuffer.CopyIntoPadded(&sceneData, sizeof(GPUSceneData), VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * frameIndex);
-
-
-        m_featureRendererManager.RecordDrawCommands(GetCurrentFrame().commandBuffer);
-
-        // for (int i = 0; i < 1; i++)
-        // {
-        //     Material* mat      = RenderEngine::Get()->GetPlaceholderMaterial();
-        //     auto&     pipeline = mat->GetShaderHandle().value->GetPipeline();
-        //     pipeline.Bind(GetCurrentFrame().commandBuffer, PipelineBindPoint::Graphics);
-        //
-        //     auto&          renderer = RenderEngine::Get()->GetLevelRenderer();
-        //     DescriptorSet& descSet  = renderer.GetGlobalSet();
-        //     DescriptorSet& objSet   = renderer.GetObjectSet();
-        //     DescriptorSet& txtSet   = renderer.GetTextureSet();
-        //
-        //     uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-        //
-        //     GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
-        //
-        //     GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
-        //
-        //     // GetCurrentFrame().commandBuffer.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
-        //
-        //     // for (auto mr : m_renderables)
-        //     // {
-        //     //     Graphics::MeshPushConstants constants;
-        //     //     constants.renderMatrix = Matrix::Translate(Vector3(0, 0, 0));
-        //     //     GetCurrentFrame().commandBuffer.CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(Graphics::MeshPushConstants), &constants);
-        //     //
-        //     //     Model*     m = mr->m_modelHandle.IsValid() ? mr->m_modelHandle.value : RenderEngine::Get()->GetPlaceholderModel();
-        //     //     ModelNode* n = mr->m_modelHandle.IsValid() ? RenderEngine::Get()->GetPlaceholderModelNode() : m->GetNodes()[mr->m_nodeIndex];
-        //     //
-        //     //     auto& meshes = n->GetMeshes();
-        //     //     int   k      = 0;
-        //     //
-        //     //     for (auto mesh : meshes)
-        //     //     {
-        //     //         uint64 offset = 0;
-        //     //         GetCurrentFrame().commandBuffer.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
-        //     //         GetCurrentFrame().commandBuffer.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-        //     //         // buffer.CMD_Draw(static_cast<uint32>(rp.mesh->GetVertices().size()), 1, 0, i);
-        //     //         GetCurrentFrame().commandBuffer.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), 1, 0, 0, 0);
-        //     //         k++;
-        //     //     }
-        //     // }
-        //     // for (auto& rp : pair)
-        //     // {
-        //     //
-        //     // }
-        // }
-
-        // Render commands.
-        // m_featureRendererManager.Submit(GetCurrentFrame().commandBuffer);
-
-        m_renderPass.End(GetCurrentFrame().commandBuffer);
-        GetCurrentFrame().commandBuffer.End();
-
-        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
-        // Then submits command, and signals render semaphore when its submitted.
-        PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
-        Backend::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
-        Backend::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
-        PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
-
-        m_frameNumber++;
-    }
-
-    void Renderer::Join()
-    {
-        for (int i = 0; i < FRAME_OVERLAP; i++)
-            m_frames[i].renderFence.Wait();
+            m_allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
     }
 
 } // namespace Lina::Graphics

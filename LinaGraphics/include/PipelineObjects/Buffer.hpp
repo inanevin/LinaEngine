@@ -41,11 +41,14 @@ namespace Lina::Graphics
     class Buffer
     {
     public:
-        void Create();
-        void Destroy();
-        void CopyInto(const void* src, size_t size);
-        void CopyInto(unsigned char* src, size_t size);
-        void CopyIntoPadded(const void* src, size_t size, size_t padding);
+        void  Create();
+        void  Destroy();
+        void  CopyInto(const void* src, size_t sz);
+        void  CopyInto(unsigned char* src, size_t sz);
+        void  CopyIntoPadded(const void* src, size_t sz, size_t padding);
+        void* MapBuffer();
+        void  UnmapBuffer();
+        void  Recreate(size_t size);
 
         // Description
         size_t           size        = 0;

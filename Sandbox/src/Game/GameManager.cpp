@@ -56,23 +56,39 @@ void GameManager::OnGameStarted(const Lina::Event::EStartGame& ev)
 
 Lina::Graphics::Model* m;
 Lina::StringID         sid;
-Lina::World::Entity*   e;
-void                   GameManager::OnTick(const Lina::Event::ETick& ev)
+
+Vector<Lina::World::Entity*> entities;
+Vector<Vector3>              initialPositions;
+Vector<float>                speeds;
+Vector<float>                amounts;
+
+void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
 
     if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
     {
         if (m)
         {
-            e = m->AddToWorld(Lina::World::EntityWorld::Get());
-            LINA_TRACE("Added to world");
+            for (int i = 0; i < 1; i++)
+            {
+                Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
+                e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
+                entities.push_back(e);
+                initialPositions.push_back(e->GetPosition());
+                speeds.push_back(Math::RandF(0.5f, 1.5f));
+                amounts.push_back(Math::RandF(-2, 2));
+                LINA_TRACE("Added to world");
+            }
         }
     }
 
-    if (e)
+    uint32 i = 0;
+    for (auto e : entities)
     {
-        e->SetPosition(Vector3(Lina::Math::Sin(RuntimeInfo::GetElapsedTime()) * 1.0f, 0, 0));
+        e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
+        i++;
     }
+
     // bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
     //
     // if (!exists)

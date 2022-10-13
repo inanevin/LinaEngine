@@ -49,7 +49,7 @@ namespace Lina::Graphics
     class View
     {
     public:
-        bool IsVisible(RenderableComponent* renderable);
+        bool IsVisible(const AABB& aabb);
 
         inline ViewType GetType()
         {
@@ -75,7 +75,7 @@ namespace Lina::Graphics
             return m_proj;
         }
 
-        void CalculateFrustum(const Vector3& pos, const Matrix& view, const Matrix& proj);
+        void Tick(const Vector3& pos, const Matrix& view, const Matrix& proj);
 
     private:
         friend class RenderEngine;

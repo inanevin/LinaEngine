@@ -119,6 +119,7 @@ set(LINACOMMON_HEADERS
 	include/Data/IntrusiveList.hpp
 	include/Data/Map.hpp
 	include/Data/List.hpp
+	include/Data/IDList.hpp
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp
 	include/Data/Set.hpp
@@ -219,6 +220,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/Vector.hpp
 	include/Data/Map.hpp
 	include/Data/Bitmask.hpp
+	include/Data/IDList.hpp
 	include/Data/List.hpp
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp
