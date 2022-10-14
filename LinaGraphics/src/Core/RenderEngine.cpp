@@ -124,9 +124,9 @@ namespace Lina::Graphics
 
         m_textureDataLayout.AddBinding(txtDataBinding).Create();
 
-        m_descriptorLayouts[0] = &m_globalSetLayout;
-        m_descriptorLayouts[1] = &m_objectDataLayout;
-        m_descriptorLayouts[2] = &m_textureDataLayout;
+        m_descriptorLayouts[SetLayouts::GlobalLayout]     = &m_globalSetLayout;
+        m_descriptorLayouts[SetLayouts::ObjectDataLayout] = &m_objectDataLayout;
+        m_descriptorLayouts[SetLayouts::TextureLayout]    = &m_textureDataLayout;
 
         m_renderer.Initialize();
         m_gpuUploader.Create();

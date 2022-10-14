@@ -123,6 +123,9 @@ namespace Lina
         DefaultResources::s_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
         DefaultResources::s_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
         DefaultResources::s_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
+       
+       // Debug
+       DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Models/Tests/Test.fbx");
 
         m_resourceManager.GetLoader()->LoadEngineResources();
 

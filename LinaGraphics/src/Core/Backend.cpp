@@ -90,7 +90,7 @@ namespace Lina::Graphics
 
         // Instance builder
         vkb::InstanceBuilder builder;
-        builder = builder.set_app_name(initInfo.windowProperties.title.c_str()).request_validation_layers(true).require_api_version(1, 1, 0);
+        builder = builder.set_app_name(initInfo.windowProperties.title.c_str()).request_validation_layers(true).require_api_version(1, 2, 0);
 
         // Extensions
         for (auto ext : requiredExtensions)
@@ -142,12 +142,18 @@ namespace Lina::Graphics
             targetDeviceType = vkb::PreferredDeviceType::integrated;
 
         // Physical device
+        VkPhysicalDeviceFeatures features{};
+        features.multiDrawIndirect         = true;
+        features.drawIndirectFirstInstance = true;
+        features.samplerAnisotropy         = true;
+
         vkb::PhysicalDeviceSelector selector{inst};
         vkb::PhysicalDevice         physicalDevice = selector
                                                  .set_minimum_version(1, 1)
                                                  .set_surface(m_surface)
                                                  .prefer_gpu_device_type(targetDeviceType)
                                                  .allow_any_gpu_device_type(false)
+                                                 .set_required_features(features)
                                                  .select(vkb::DeviceSelectionMode::partially_and_fully_suitable)
                                                  .value();
 

@@ -71,13 +71,14 @@ namespace Lina::Graphics
 
     struct RenderableData
     {
-        RenderableType           type        = RenderableType::RenderableDecal;
-        Bitmask16                passMask    = DrawPassMask::Opaque;
-        Matrix                   modelMatrix = Matrix::Identity();
-        Vector3                  position    = Vector3();
-        AABB                     aabb        = AABB();
-        uint32                   entityID    = 0;
-        uint32                   batchID     = 0;
+        RenderableType           type         = RenderableType::RenderableDecal;
+        Bitmask16                passMask     = DrawPassMask::Opaque;
+        Matrix                   modelMatrix  = Matrix::Identity();
+        Vector3                  position     = Vector3();
+        AABB                     aabb         = AABB();
+        uint32                   entityID     = 0;
+        uint32                   batchID      = 0;
+        uint32                   objDataIndex = 0;
         Bitmask16                entityMask;
         Vector<MeshMaterialPair> meshMaterialPairs;
     };

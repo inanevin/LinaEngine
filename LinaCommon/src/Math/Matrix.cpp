@@ -135,7 +135,7 @@ namespace Lina
         return *this;
     }
 
-    void Matrix::Decompose(Vector3& position, Quaternion rotation, Vector3 scale)
+    void Matrix::Decompose(Vector3& position, Quaternion& rotation, Vector3& scale)
     {
         glm::vec4 perspective;
         glm::vec3 skew;

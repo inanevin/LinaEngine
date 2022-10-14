@@ -156,7 +156,7 @@ namespace Lina::Graphics
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-        m_globalDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(0)._ptr);
+        m_globalDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout)._ptr);
         m_globalDescriptor.Create();
 
         m_textureDescriptor = DescriptorSet{
@@ -164,7 +164,7 @@ namespace Lina::Graphics
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-        m_textureDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(2)._ptr);
+        m_textureDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::TextureLayout)._ptr);
         m_textureDescriptor.Create();
 
         WriteDescriptorSet sceneWrite = WriteDescriptorSet{
@@ -202,34 +202,24 @@ namespace Lina::Graphics
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
             f.objDataBuffer.Create();
+            f.objDataBuffer.boundSet = &f.objDataDescriptor;
 
             f.objDataDescriptor = DescriptorSet{
                 .setCount = 1,
+                .type     = DescriptorType::StorageBuffer,
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(1)._ptr);
+            f.objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::ObjectDataLayout)._ptr);
             f.objDataDescriptor.Create();
+            f.objDataBuffer.UpdateDescriptor();
 
-            WriteDescriptorSet objDataWrite = WriteDescriptorSet{
-                .buffer          = f.objDataBuffer._ptr,
-                .offset          = 0,
-                .range           = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
-                .dstSet          = f.objDataDescriptor._ptr,
-                .dstBinding      = 0,
-                .descriptorCount = 1,
-                .descriptorType  = DescriptorType::StorageBuffer};
+            f.indirectBuffer = Buffer{
+                .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
-            Vector<WriteDescriptorSet> vv;
-            vv.push_back(objDataWrite);
-            DescriptorSet::UpdateDescriptorSets(vv);
-
-            // f.indirectDrawBuffer = Buffer{
-            //     .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-            //     .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-            //     .memoryUsage = MemoryUsageFlags::CpuToGpu};
-            //
-            // f.indirectDrawBuffer.Create();
+            f.indirectBuffer.Create();
         }
 
         // Views
@@ -282,9 +272,10 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
 
-        Vector<RenderableData> extractedRenderables;
+        m_extractedRenderables.clear();
         const auto& renderables = m_allRenderables.GetItems();
 
+        uint32 i = 0;
         for (auto r : renderables)
         {
             if (r == nullptr)
@@ -302,10 +293,11 @@ namespace Lina::Graphics
             data.passMask          = r->GetDrawPasses();
             data.type              = r->GetType();
             data.meshMaterialPairs = r->GetMeshMaterialPairs();
-            extractedRenderables.push_back(data);
+            data.objDataIndex      = i++;
+            m_extractedRenderables.push_back(data);
         }
 
-        m_opaquePass.PrepareRenderData(extractedRenderables);
+        m_opaquePass.PrepareRenderData(m_extractedRenderables);
     }
 
     void Renderer::Render()
@@ -314,6 +306,19 @@ namespace Lina::Graphics
 
         GetCurrentFrame().renderFence.Wait(true, 1.0f);
         GetCurrentFrame().renderFence.Reset();
+
+        // Obj data buffer.
+        Vector<GPUObjectData> gpuObjectData;
+
+        for (auto& r : m_extractedRenderables)
+        {
+            // Object data.
+            GPUObjectData objData;
+            objData.modelMatrix = r.modelMatrix;
+            gpuObjectData.push_back(objData);
+        }
+
+        GetObjectDataBuffer().CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
         uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
 

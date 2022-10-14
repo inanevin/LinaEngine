@@ -61,9 +61,17 @@ Vector<Lina::World::Entity*> entities;
 Vector<Vector3>              initialPositions;
 Vector<float>                speeds;
 Vector<float>                amounts;
+Vector<String>               modelPaths;
+int ctr = 0;
 
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
+    modelPaths.clear();
+    modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
+    modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
+    modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
+    modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
+    modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
 
     if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
     {
@@ -71,6 +79,7 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
         {
             for (int i = 0; i < 1; i++)
             {
+            
                 Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
                 e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
                 entities.push_back(e);
@@ -78,6 +87,8 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
                 speeds.push_back(Math::RandF(0.5f, 1.5f));
                 amounts.push_back(Math::RandF(-2, 2));
                 LINA_TRACE("Added to world");
+                m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
+                ctr++;
             }
         }
     }
@@ -85,7 +96,7 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
     uint32 i = 0;
     for (auto e : entities)
     {
-        e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
+          e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
         i++;
     }
 
@@ -120,9 +131,8 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)
 {
-    sid = TO_SID(Lina::String("Resources/Engine/Models/Cube.fbx"));
+    sid = TO_SID(Lina::String("Resources/Engine/Models/Tests/Test.fbx"));
     m   = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(sid);
-
     // Lina::Resources::ResourceManager::Get()->GetLoader()->LoadSingleResource(GetTypeID<Lina::Graphics::Model>(), "Resources/Engine/Models/Tests/lost_empire.obj", true);
 }
 

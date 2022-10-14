@@ -119,9 +119,9 @@ namespace Lina::Graphics
             return m_viewport;
         }
 
-        inline DescriptorSetLayout& GetLayout(uint32 setIndex)
+        inline DescriptorSetLayout& GetLayout(SetLayouts layout)
         {
-            return *m_descriptorLayouts[setIndex];
+            return *m_descriptorLayouts[layout];
         }
 
         inline DescriptorPool& GetDescriptorPool()
@@ -189,16 +189,16 @@ namespace Lina::Graphics
         Backend       m_backend;
         bool          m_initedSuccessfully = false;
 
-        UploadContext                         m_gpuUploader;
-        DescriptorPool                        m_descriptorPool;
-        DescriptorSetLayout                   m_globalSetLayout;
-        DescriptorSetLayout                   m_objectDataLayout;
-        DescriptorSetLayout                   m_textureDataLayout;
-        HashMap<uint32, DescriptorSetLayout*> m_descriptorLayouts;
-        Viewport                              m_viewport;
-        Recti                                 m_scissor;
-        Renderer                              m_renderer;
-        LinaVG::Backend::GUIBackend*          m_guiBackend;
+        UploadContext                             m_gpuUploader;
+        DescriptorPool                            m_descriptorPool;
+        DescriptorSetLayout                       m_globalSetLayout;
+        DescriptorSetLayout                       m_objectDataLayout;
+        DescriptorSetLayout                       m_textureDataLayout;
+        HashMap<SetLayouts, DescriptorSetLayout*> m_descriptorLayouts;
+        Viewport                                  m_viewport;
+        Recti                                     m_scissor;
+        Renderer                                  m_renderer;
+        LinaVG::Backend::GUIBackend*              m_guiBackend;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

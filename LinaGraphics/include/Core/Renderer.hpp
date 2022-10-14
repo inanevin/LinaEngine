@@ -74,7 +74,7 @@ namespace Lina::Graphics
 {
     class Backend;
     class ModelNodeComponent;
-    constexpr uint32 FRAMES_IN_FLIGHT = 2;
+    constexpr uint32 FRAMES_IN_FLIGHT = 1;
 
     struct GPUSceneData
     {
@@ -97,6 +97,7 @@ namespace Lina::Graphics
         Semaphore     presentSemaphore;
         Buffer        objDataBuffer;
         DescriptorSet objDataDescriptor;
+        Buffer        indirectBuffer;
     };
 
     class Renderer
@@ -150,6 +151,11 @@ namespace Lina::Graphics
             return m_scenePropertiesBuffer;
         }
 
+        inline Buffer& GetIndirectBuffer()
+        {
+            return GetCurrentFrame().indirectBuffer;
+        }
+
         inline GPUSceneData& GetSceneData()
         {
             return m_sceneData;
@@ -163,17 +169,16 @@ namespace Lina::Graphics
     private:
         friend class RenderEngine;
 
-        void   Initialize();
-        void   Shutdown();
-        void   Tick();
-        void   Render();
-        void   Join();
-        void   SyncData();
-        void   OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void   OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        void   OnComponentCreated(const Event::EComponentCreated& ev);
-        void   OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-   
+        void Initialize();
+        void Shutdown();
+        void Tick();
+        void Render();
+        void Join();
+        void SyncData();
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void OnComponentCreated(const Event::EComponentCreated& ev);
+        void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
 
     private:
         FeatureRendererManager       m_featureRendererManager;
@@ -183,6 +188,7 @@ namespace Lina::Graphics
         RenderPass                   m_renderPass;
         SubPass                      m_subpass;
         Vector<Framebuffer>          m_framebuffers;
+        Vector<RenderableData>       m_extractedRenderables;
         Image                        m_depthImage;
         Buffer                       m_scenePropertiesBuffer;
         DescriptorSet                m_globalDescriptor;

@@ -40,13 +40,17 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
+    float lastReportTime = 0.0f;
+    int   drawCalls      = 0;
+    int   batches        = 0;
+
     void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList)
     {
-        ExtractVisibleRenderables(drawList);
-        BatchVisibleRenderables();
+        ExtractPassRenderables(drawList);
+        BatchPassRenderables();
     }
 
-    void DrawPass::ExtractVisibleRenderables(Vector<RenderableData>& drawList)
+    void DrawPass::ExtractPassRenderables(Vector<RenderableData>& drawList)
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
@@ -58,7 +62,7 @@ namespace Lina::Graphics
 
             // Cull by distance
             if (m_view->GetPos().Distance(data.position) > m_drawDistance)
-                return;
+               return;
 
             // Cull by pass mask.
             if (!data.passMask.IsSet(m_passMask))
@@ -75,7 +79,7 @@ namespace Lina::Graphics
         JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
     }
 
-    void DrawPass::BatchVisibleRenderables()
+    void DrawPass::BatchPassRenderables()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
@@ -110,6 +114,8 @@ namespace Lina::Graphics
                 }
             }
         }
+
+        batches = m_batches.size();
     }
 
     void DrawPass::PrepareBuffers()
@@ -118,23 +124,6 @@ namespace Lina::Graphics
 
         auto&        renderer   = RenderEngine::Get()->GetLevelRenderer();
         const uint32 frameIndex = renderer.GetFrameIndex();
-
-        // Obj data buffer.
-        Vector<GPUObjectData> gpuObjectData;
-        for (auto& b : m_batches)
-        {
-            const uint32 count = static_cast<uint32>(b.renderableIndices.size());
-
-            for (uint32 i = 0; i < count; i++)
-            {
-                // Object data.
-                GPUObjectData objData;
-                objData.modelMatrix = m_renderables[b.renderableIndices[i]].modelMatrix;
-                gpuObjectData.push_back(objData);
-            }
-        }
-
-        renderer.GetObjectDataBuffer().CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
         // Scene properties buffer.
         GPUSceneData sceneData = RenderEngine::Get()->GetLevelRenderer().GetSceneData();
@@ -146,11 +135,34 @@ namespace Lina::Graphics
 
     void DrawPass::RecordDrawCommands(CommandBuffer& cmd)
     {
+        drawCalls = 0;
+
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
+        auto& renderer = RenderEngine::Get()->GetLevelRenderer();
 
         PrepareBuffers();
 
-        const uint32 batchesSize = static_cast<uint32>(m_batches.size());
+        Vector<VkDrawIndexedIndirectCommand> commands;
+        uint32                               i = 0;
+        for (auto b : m_batches)
+        {
+            for (auto ri : b.renderableIndices)
+            {
+                VkDrawIndexedIndirectCommand c;
+                c.indexCount    = b.meshAndMaterial.mesh->GetIndexSize();
+                c.instanceCount = 1;
+                c.vertexOffset  = 0;
+                c.firstIndex    = 0;
+                c.firstInstance = m_renderables[ri].objDataIndex;
+                commands.push_back(c);
+            }
+        }
+
+        renderer.GetIndirectBuffer().CopyInto(commands.data(), commands.size() * sizeof(VkDrawIndexedIndirectCommand));
+
+        const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
+        uint32       firstInstance = 0;
         for (uint32 i = 0; i < batchesSize; i++)
         {
             InstancedBatch& batch = m_batches[i];
@@ -160,10 +172,9 @@ namespace Lina::Graphics
             auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
             pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
-            auto&          renderer = RenderEngine::Get()->GetLevelRenderer();
-            DescriptorSet& descSet  = renderer.GetGlobalSet();
-            DescriptorSet& objSet   = renderer.GetObjectSet();
-            DescriptorSet& txtSet   = renderer.GetTextureSet();
+            DescriptorSet& descSet = renderer.GetGlobalSet();
+            DescriptorSet& objSet  = renderer.GetObjectSet();
+            DescriptorSet& txtSet  = renderer.GetTextureSet();
 
             uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
 
@@ -174,7 +185,19 @@ namespace Lina::Graphics
             uint64 offset = 0;
             cmd.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
             cmd.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-            cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
+            // cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
+
+            const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
+            cmd.CMD_DrawIndexedIndirect(renderer.GetIndirectBuffer()._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
+            firstInstance += batch.count;
+
+            drawCalls++;
+        }
+
+        if (Time::GetCPUTime() > lastReportTime + 1.0f)
+        {
+            lastReportTime = Time::GetCPUTime();
+            LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
         }
     }
 

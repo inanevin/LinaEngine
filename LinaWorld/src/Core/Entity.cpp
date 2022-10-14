@@ -121,6 +121,8 @@ namespace Lina::World
     }
     void Entity::SetPosition(const Vector3& loc)
     {
+        m_mask.Set(EntityMask::NeedsVisualUpdate);
+
         m_transform.m_previousPosition = m_transform.m_position;
         m_transform.m_position         = loc;
         UpdateLocalPosition();
@@ -162,6 +164,8 @@ namespace Lina::World
 
     void Entity::SetRotation(const Quaternion& rot, bool isThisPivot)
     {
+        m_mask.Set(EntityMask::NeedsVisualUpdate);
+
         m_transform.m_previousAngles = m_transform.m_rotationAngles;
         m_transform.m_rotation       = rot;
         m_transform.m_rotationAngles = rot.GetEuler();
@@ -208,6 +212,8 @@ namespace Lina::World
 
     void Entity::SetScale(const Vector3& scale, bool isThisPivot)
     {
+        m_mask.Set(EntityMask::NeedsVisualUpdate);
+
         m_transform.m_previousScale = m_transform.m_scale;
         m_transform.m_scale         = scale;
         UpdateLocalScale();

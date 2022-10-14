@@ -53,14 +53,12 @@ namespace Lina::Graphics
     class DrawPass
     {
     public:
-
         void PrepareRenderData(Vector<RenderableData>& drawList);
         void RecordDrawCommands(CommandBuffer& cmd);
 
     private:
-
-        void ExtractVisibleRenderables(Vector<RenderableData>& drawList);
-        void BatchVisibleRenderables();
+        void ExtractPassRenderables(Vector<RenderableData>& drawList);
+        void BatchPassRenderables();
         void PrepareBuffers();
 
         Vector<RenderableData>& GetVisibleRenderables()

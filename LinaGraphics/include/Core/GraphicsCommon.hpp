@@ -458,6 +458,13 @@ namespace Lina::Graphics
         RenderableParticle    = 1 << 5,
     };
 
+    enum SetLayouts
+    {
+        GlobalLayout     = 0,
+        ObjectDataLayout = 1,
+        TextureLayout    = 2,
+    };
+
     struct Offset3D
     {
         int32 x = 0;
@@ -656,7 +663,6 @@ namespace Lina::Graphics
         uint32         stageFlags   = 0;
         DescriptorType type         = DescriptorType::UniformBuffer;
     };
-
 
 #define TO_FLAGS(X) static_cast<uint32>(X)
 

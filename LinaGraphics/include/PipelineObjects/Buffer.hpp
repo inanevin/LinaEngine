@@ -38,6 +38,8 @@ struct VmaAllocation_T;
 
 namespace Lina::Graphics
 {
+    class DescriptorSet;
+
     class Buffer
     {
     public:
@@ -49,11 +51,13 @@ namespace Lina::Graphics
         void* MapBuffer();
         void  UnmapBuffer();
         void  Recreate(size_t size);
+        void  UpdateDescriptor();
 
         // Description
         size_t           size        = 0;
         uint32           bufferUsage = 0;
         MemoryUsageFlags memoryUsage = MemoryUsageFlags::CpuToGpu;
+        DescriptorSet*   boundSet    = nullptr;
 
         // Runtime
         VkBuffer_T*      _ptr        = nullptr;

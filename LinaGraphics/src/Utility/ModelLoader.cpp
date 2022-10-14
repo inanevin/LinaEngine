@@ -78,7 +78,7 @@ namespace Lina::Graphics
         Assimp::Importer importer;
         uint32           importFlags = GetImportFlags(model);
 
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale);
 
         const String   ext   = "." + Utility::GetFileExtension(model->GetPath());
         const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
@@ -93,7 +93,7 @@ namespace Lina::Graphics
         Assimp::Importer importer;
         uint32           importFlags = GetImportFlags(model);
 
-        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale * 100.0f);
+        importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetAssetData().globalScale);
 
         const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
         const char*    err   = importer.GetErrorString();
@@ -271,7 +271,7 @@ namespace Lina::Graphics
             newNode->m_index   = static_cast<uint32>(parentModel->m_nodes.size());
             parentModel->m_nodes.push_back(newNode);
             n->m_children.push_back(newNode);
-            FillNodeHierarchy(ainode->mChildren[i], scene, parentModel, n);
+            FillNodeHierarchy(ainode->mChildren[i], scene, parentModel, newNode);
         }
     }
 

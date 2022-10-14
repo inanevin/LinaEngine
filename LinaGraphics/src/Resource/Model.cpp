@@ -160,21 +160,24 @@ namespace Lina::Graphics
             e->SetLocalTransformation(node->GetLocalTransform());
         }
 
-        ModelNodeComponent* comp = world->AddComponent<ModelNodeComponent>(e);
-
-        comp->m_modelHandle.sid   = GetSID();
-        comp->m_modelHandle.value = this;
-        comp->m_nodeIndex         = node->GetNodeIndex();
-
-        for (auto mesh : node->GetMeshes())
+        if (!node->GetMeshes().empty())
         {
-            const uint32 slot = static_cast<uint32>(mesh->GetMaterialSlot());
+            ModelNodeComponent* comp = world->AddComponent<ModelNodeComponent>(e);
 
-            // Assign default material for now.
-            Resources::ResourceHandle<Material> handle;
-            handle.value            = RenderEngine::Get()->GetPlaceholderMaterial();
-            handle.sid              = handle.value->GetSID();
-            comp->m_materials[slot] = handle;
+            comp->m_modelHandle.sid = GetSID();
+            comp->m_modelHandle.value = this;
+            comp->m_nodeIndex = node->GetNodeIndex();
+
+            for (auto mesh : node->GetMeshes())
+            {
+                const uint32 slot = static_cast<uint32>(mesh->GetMaterialSlot());
+
+                // Assign default material for now.
+                Resources::ResourceHandle<Material> handle;
+                handle.value = RenderEngine::Get()->GetPlaceholderMaterial();
+                handle.sid = handle.value->GetSID();
+                comp->m_materials[slot] = handle;
+            }
         }
 
         for (auto c : node->GetChildren())

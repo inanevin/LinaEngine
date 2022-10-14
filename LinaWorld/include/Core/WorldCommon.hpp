@@ -43,13 +43,13 @@ namespace Lina::World
 
     enum EntityMask
     {
-        Visible   = 1 << 0,
-        Static    = 1 << 1,
-        Reserved2 = 1 << 2,
-        Reserved3 = 1 << 3,
-        Reserved4 = 1 << 4,
-        Reserved5 = 1 << 5,
-        Reserved6 = 1 << 6,
+        Visible           = 1 << 0,
+        Static            = 1 << 1,
+        NeedsVisualUpdate = 1 << 2,
+        Reserved3         = 1 << 3,
+        Reserved4         = 1 << 4,
+        Reserved5         = 1 << 5,
+        Reserved6         = 1 << 6,
     };
 
     enum ComponentMask

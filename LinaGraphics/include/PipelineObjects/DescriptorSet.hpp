@@ -53,6 +53,7 @@ namespace Lina::Graphics
 
         // Description
         uint32                           setCount = 0;
+        DescriptorType                   type     = DescriptorType::StorageBuffer;
         VkDescriptorPool_T*              pool     = nullptr;
         Vector<VkDescriptorSetLayout_T*> _layouts;
 
