@@ -94,7 +94,7 @@ namespace Lina::Graphics
             return m_placeholderMaterial;
         }
 
-        inline Renderer& GetLevelRenderer()
+        inline Renderer& GetRenderer()
         {
             return m_renderer;
         }

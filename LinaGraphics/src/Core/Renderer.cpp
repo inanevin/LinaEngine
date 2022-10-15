@@ -299,12 +299,18 @@ namespace Lina::Graphics
         m_opaquePass.PrepareRenderData(m_extractedRenderables);
     }
 
+
     void Renderer::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         GetCurrentFrame().renderFence.Wait(true, 1.0f);
         GetCurrentFrame().renderFence.Reset();
+
+        uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
+
+        GetCurrentFrame().commandBuffer.Reset();
+        GetCurrentFrame().commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
         // Obj data buffer.
         Vector<GPUObjectData> gpuObjectData;
@@ -319,15 +325,8 @@ namespace Lina::Graphics
 
         GetObjectDataBuffer().CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
-        uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
-
-        GetCurrentFrame().commandBuffer.Reset();
-        GetCurrentFrame().commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-
         m_renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
-
         m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer);
-
         m_renderPass.End(GetCurrentFrame().commandBuffer);
 
 

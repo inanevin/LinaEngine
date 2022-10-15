@@ -31,6 +31,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/View.cpp
 	src/Core/DrawPass.cpp
 	src/Core/CameraSystem.cpp
+	src/Core/WorldRenderer.cpp
 
 	# Data
 	src/Data/Vertex.cpp
@@ -105,6 +106,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/View.hpp
 	include/Core/DrawPass.hpp
 	include/Core/CameraSystem.hpp
+	include/Core/WorldRenderer.hpp
 
 	# Data
 	include/Data/Vertex.hpp
