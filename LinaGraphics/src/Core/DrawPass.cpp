@@ -130,7 +130,7 @@ namespace Lina::Graphics
         sceneData.proj         = m_view->GetProj();
         sceneData.view         = m_view->GetView();
         sceneData.viewProj     = sceneData.proj * sceneData.view;
-        renderer.GetScenePropertiesBuffer().CopyIntoPadded(&sceneData, sizeof(GPUSceneData), VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * frameIndex);
+        renderer.GetScenePropertiesBuffer().CopyInto(&sceneData, sizeof(GPUSceneData));
     }
 
     void DrawPass::RecordDrawCommands(CommandBuffer& cmd)
@@ -179,7 +179,7 @@ namespace Lina::Graphics
             DescriptorSet& txtSet  = renderer.GetTextureSet();
 
             uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 0, nullptr);
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
             // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
 

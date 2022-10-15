@@ -74,7 +74,7 @@ namespace Lina::Graphics
 {
     class Backend;
     class ModelNodeComponent;
-    constexpr uint32 FRAMES_IN_FLIGHT = 1;
+    constexpr uint32 FRAMES_IN_FLIGHT = 2;
 
     struct GPUSceneData
     {
@@ -98,6 +98,8 @@ namespace Lina::Graphics
         Buffer        objDataBuffer;
         Buffer        indirectBuffer;
         DescriptorSet objDataDescriptor;
+        Buffer        scenePropertiesBuffer;
+        DescriptorSet globalDescriptor;
     };
 
     class Renderer
@@ -123,7 +125,7 @@ namespace Lina::Graphics
 
         inline DescriptorSet& GetGlobalSet()
         {
-            return m_globalDescriptor;
+            return GetCurrentFrame().globalDescriptor;
         }
 
         inline DescriptorSet& GetObjectSet()
@@ -148,7 +150,7 @@ namespace Lina::Graphics
 
         inline Buffer& GetScenePropertiesBuffer()
         {
-            return m_scenePropertiesBuffer;
+            return GetCurrentFrame().scenePropertiesBuffer;
         }
 
         inline Buffer& GetIndirectBuffer()
@@ -181,17 +183,16 @@ namespace Lina::Graphics
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
 
     private:
-        FeatureRendererManager       m_featureRendererManager;
-        Vector<View*>                m_views;
-        View                         m_playerView;
-        CameraSystem                 m_cameraSystem;
-        RenderPass                   m_renderPass;
-        SubPass                      m_subpass;
-        Vector<Framebuffer>          m_framebuffers;
-        Vector<RenderableData>       m_extractedRenderables;
-        Image                        m_depthImage;
-        Buffer                       m_scenePropertiesBuffer;
-        DescriptorSet                m_globalDescriptor;
+        FeatureRendererManager m_featureRendererManager;
+        Vector<View*>          m_views;
+        View                   m_playerView;
+        CameraSystem           m_cameraSystem;
+        RenderPass             m_renderPass;
+        SubPass                m_subpass;
+        Vector<Framebuffer>    m_framebuffers;
+        Vector<RenderableData> m_extractedRenderables;
+        Image                  m_depthImage;
+
         DescriptorSet                m_textureDescriptor;
         IDList<RenderableComponent*> m_allRenderables;
         Vector<GPUObjectData>        m_gpuObjectData;

@@ -101,7 +101,7 @@ namespace Lina::Graphics
             .binding         = 0,
             .descriptorCount = 1,
             .stageFlags      = GetShaderStage(ShaderStage::Fragment) | GetShaderStage(ShaderStage::Vertex),
-            .type            = DescriptorType::UniformBufferDynamic,
+            .type            = DescriptorType::UniformBuffer,
         };
 
         m_globalSetLayout.AddBinding(sceneBinding).Create();

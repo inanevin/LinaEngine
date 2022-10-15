@@ -143,24 +143,6 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
-        m_scenePropertiesBuffer = Buffer{
-            .size        = FRAMES_IN_FLIGHT * VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)),
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
-        };
-
-        m_scenePropertiesBuffer.Create();
-
-        m_globalDescriptor = DescriptorSet{
-            .setCount = 1,
-            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
-        };
-
-        m_globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout));
-        m_globalDescriptor.AddBuffer(m_scenePropertiesBuffer);
-        m_globalDescriptor.Create();
-        m_globalDescriptor.Update();
-
         m_textureDescriptor = DescriptorSet{
             .setCount = 1,
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
@@ -217,6 +199,24 @@ namespace Lina::Graphics
                 .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
             f.indirectBuffer.Create();
+
+            f.scenePropertiesBuffer = Buffer{
+                .size        = sizeof(GPUSceneData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+
+            f.scenePropertiesBuffer.Create();
+
+            f.globalDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+            };
+
+            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout));
+            f.globalDescriptor.AddBuffer(f.scenePropertiesBuffer);
+            f.globalDescriptor.Create();
+            f.globalDescriptor.Update();
         }
 
         // Views
@@ -244,9 +244,8 @@ namespace Lina::Graphics
         for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             m_frames[i].objDataBuffer.Destroy();
+            m_frames[i].scenePropertiesBuffer.Destroy();
         }
-
-        m_scenePropertiesBuffer.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
