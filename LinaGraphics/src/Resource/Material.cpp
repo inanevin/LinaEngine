@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Resource/Material.hpp"
+#include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 
@@ -78,18 +79,17 @@ namespace Lina::Graphics
 
     void Material::BindPipelineAndDescriptors(CommandBuffer& cmd)
     {
+        auto& renderer = RenderEngine::Get()->GetLevelRenderer();
+
         auto& pipeline = m_shader.value->GetPipeline();
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
-       // DescriptorSet& descSet = renderer.GetGlobalSet();
-       // DescriptorSet& objSet = renderer.GetObjectSet();
-       // DescriptorSet& txtSet = renderer.GetTextureSet();
-       //
-       // uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-       // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
-       // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
-
-        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+        for (auto& set : m_shader.value->GetUsedSets())
+        {
+            const uint32 setIndex = static_cast<uint32>(set);
+            auto& ds= renderer.GetDescriptorSet(set);
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, setIndex, 1, &ds, 0, nullptr);
+        }
     }
 
     void Material::SaveToFile()

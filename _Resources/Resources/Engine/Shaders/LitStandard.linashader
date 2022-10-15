@@ -57,20 +57,16 @@ struct ObjectData{
 	mat4 model;
 };
 
-
 //all object matrices
 layout(std140,set = 1, binding = 0) readonly buffer ObjectBuffer{
 
 	ObjectData objects[];
 } objectBuffer;
 
-
-//push constants block
-layout( push_constant ) uniform constants
+layout(set = 2, binding = 0) uniform MaterialData
 {
-	vec4 data;
-	mat4 renderMatrix;
-} PushConstants;
+	float dummy;
+} material;
 
 void main()
 {

@@ -143,13 +143,13 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
-        m_textureDescriptor = DescriptorSet{
+        m_materialDescriptor = DescriptorSet{
             .setCount = 1,
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-        m_textureDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::TextureLayout));
-        m_textureDescriptor.Create();
+        m_materialDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
+        m_materialDescriptor.Create();
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -173,7 +173,7 @@ namespace Lina::Graphics
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
             f.objDataBuffer.Create();
-            f.objDataBuffer.boundSet = &f.objDataDescriptor;
+            f.objDataBuffer.boundSet = &f.passDescriptor;
 
             // f.testBuffer = Buffer{
             //     .size        = sizeof(TestData) * OBJ_BUFFER_MAX,
@@ -183,15 +183,15 @@ namespace Lina::Graphics
             // f.testBuffer.Create();
             // f.testBuffer.boundSet = &f.objDataDescriptor;
 
-            f.objDataDescriptor = DescriptorSet{
+            f.passDescriptor = DescriptorSet{
                 .setCount = 1,
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.objDataDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::ObjectDataLayout));
-            f.objDataDescriptor.AddBuffer(f.objDataBuffer);
-            f.objDataDescriptor.Create();
-            f.objDataDescriptor.Update();
+            f.passDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+            f.passDescriptor.AddBuffer(f.objDataBuffer);
+            f.passDescriptor.Create();
+            f.passDescriptor.Update();
 
             f.indirectBuffer = Buffer{
                 .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
@@ -213,7 +213,7 @@ namespace Lina::Graphics
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout));
+            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
             f.globalDescriptor.AddBuffer(f.scenePropertiesBuffer);
             f.globalDescriptor.Create();
             f.globalDescriptor.Update();
@@ -345,7 +345,7 @@ namespace Lina::Graphics
         Texture* txt = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
 
         WriteDescriptorSet textureWrite = WriteDescriptorSet{
-            .dstSet          = m_textureDescriptor._ptr,
+            .dstSet          = m_materialDescriptor._ptr,
             .dstBinding      = 0,
             .descriptorCount = 1,
             .descriptorType  = DescriptorType::CombinedImageSampler,
@@ -378,6 +378,25 @@ namespace Lina::Graphics
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
             m_allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
+    }
+
+    DescriptorSet& Renderer::GetDescriptorSet(DescriptorSetType type)
+    {
+        switch (type)
+        {
+        case DescriptorSetType::GlobalSet:
+            return GetCurrentFrame().globalDescriptor;
+        case DescriptorSetType::PassSet:
+            return GetCurrentFrame().passDescriptor;
+        case DescriptorSetType::MaterialSet:
+            return m_materialDescriptor;
+        case DescriptorSetType::ObjectSet:
+            return m_materialDescriptor;
+        default:
+            LINA_ASSERT(false, "Set type not found!");
+        }
+
+        return m_materialDescriptor;
     }
 
 } // namespace Lina::Graphics

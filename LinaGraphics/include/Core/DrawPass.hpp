@@ -49,6 +49,8 @@ namespace Lina::Graphics
     class RenderableComponent;
     class RenderableList;
     class CommandBuffer;
+    class Material;
+    class Mesh;
 
     class DrawPass
     {

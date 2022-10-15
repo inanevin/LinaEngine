@@ -113,22 +113,31 @@ namespace Lina::Graphics
             .type            = DescriptorType::StorageBuffer,
         };
 
-        
-        m_objectDataLayout.AddBinding(objDataBinding).Create();
+        m_passLayout.AddBinding(objDataBinding).Create();
 
-        DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
-            .binding         = 0,
+        DescriptorSetLayoutBinding materialDataBinding = DescriptorSetLayoutBinding{
+            .binding = 0,
             .descriptorCount = 1,
-            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
-            .type            = DescriptorType::CombinedImageSampler,
+            .stageFlags = GetShaderStage(ShaderStage::Vertex) | GetShaderStage(ShaderStage::Fragment),
+            .type = DescriptorType::UniformBuffer,
         };
 
-        m_textureDataLayout.AddBinding(txtDataBinding).Create();
-       
+        m_materialLayout.AddBinding(materialDataBinding).Create();
 
-        m_descriptorLayouts[SetLayouts::GlobalLayout]     = &m_globalSetLayout;
-        m_descriptorLayouts[SetLayouts::ObjectDataLayout] = &m_objectDataLayout;
-        m_descriptorLayouts[SetLayouts::TextureLayout]    = &m_textureDataLayout;
+
+        // DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
+        //     .binding         = 1,
+        //     .descriptorCount = 1,
+        //     .stageFlags      = GetShaderStage(ShaderStage::Fragment),
+        //     .type            = DescriptorType::CombinedImageSampler,
+        // };
+        // 
+       // m_materialLayout.AddBinding(txtDataBinding).Create();
+
+        m_descriptorLayouts[DescriptorSetType::GlobalSet]   = &m_globalSetLayout;
+        m_descriptorLayouts[DescriptorSetType::PassSet]     = &m_passLayout;
+        m_descriptorLayouts[DescriptorSetType::MaterialSet] = &m_materialLayout;
+        m_descriptorLayouts[DescriptorSetType::ObjectSet]   = &m_objectLayout;
 
         m_renderer.Initialize();
         m_gpuUploader.Create();

@@ -97,8 +97,9 @@ namespace Lina::Graphics
         Semaphore     presentSemaphore;
         Buffer        objDataBuffer;
         Buffer        indirectBuffer;
-        DescriptorSet objDataDescriptor;
         Buffer        scenePropertiesBuffer;
+
+        DescriptorSet passDescriptor;
         DescriptorSet globalDescriptor;
     };
 
@@ -123,19 +124,19 @@ namespace Lina::Graphics
             return m_views;
         }
 
-        inline DescriptorSet& GetGlobalSet()
+        inline DescriptorSet& GetGlobalDescriptorSet()
         {
             return GetCurrentFrame().globalDescriptor;
         }
 
-        inline DescriptorSet& GetObjectSet()
+        inline DescriptorSet& GetPassDescriptorSet()
         {
-            return GetCurrentFrame().objDataDescriptor;
+            return GetCurrentFrame().passDescriptor;
         }
 
-        inline DescriptorSet& GetTextureSet()
+        inline DescriptorSet& GetMaterialDescriptorSet()
         {
-            return m_textureDescriptor;
+            return m_materialDescriptor;
         }
 
         inline uint32 GetFrameIndex()
@@ -168,6 +169,8 @@ namespace Lina::Graphics
             return m_frames[m_frameNumber % FRAMES_IN_FLIGHT];
         }
 
+        DescriptorSet& GetDescriptorSet(DescriptorSetType type);
+
     private:
         friend class RenderEngine;
 
@@ -193,7 +196,7 @@ namespace Lina::Graphics
         Vector<RenderableData> m_extractedRenderables;
         Image                  m_depthImage;
 
-        DescriptorSet                m_textureDescriptor;
+        DescriptorSet                m_materialDescriptor;
         IDList<RenderableComponent*> m_allRenderables;
         Vector<GPUObjectData>        m_gpuObjectData;
         DrawPass                     m_opaquePass;

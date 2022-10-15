@@ -83,6 +83,11 @@ namespace Lina::Graphics
             return m_drawPassMask;
         }
 
+        inline Vector<DescriptorSetType>& GetUsedSets()
+        {
+            return m_usedSets;
+        }
+
     protected:
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
@@ -100,6 +105,7 @@ namespace Lina::Graphics
         SurfaceType                 m_surface = SurfaceType::Opaque;
         String                      m_text    = "";
         Vector<DescriptorSetLayout> m_setLayouts;
+        Vector<DescriptorSetType>   m_usedSets;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

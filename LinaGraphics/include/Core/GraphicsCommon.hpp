@@ -458,11 +458,12 @@ namespace Lina::Graphics
         RenderableParticle    = 1 << 5,
     };
 
-    enum SetLayouts
+    enum class DescriptorSetType
     {
-        GlobalLayout     = 0,
-        ObjectDataLayout = 1,
-        TextureLayout    = 2,
+        GlobalSet   = 0,
+        PassSet     = 1,
+        MaterialSet = 2,
+        ObjectSet   = 3,
     };
 
     struct Offset3D

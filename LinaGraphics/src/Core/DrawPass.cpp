@@ -164,35 +164,33 @@ namespace Lina::Graphics
         const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
         uint32       firstInstance = 0;
 
+        Material* lastBoundMat  = nullptr;
+        Mesh*     lastBoundMesh = nullptr;
+
         for (uint32 i = 0; i < batchesSize; i++)
         {
             InstancedBatch& batch = m_batches[i];
             Material*       mat   = batch.meshAndMaterial.material;
             Mesh*           mesh  = batch.meshAndMaterial.mesh;
 
+            if (mat != lastBoundMat)
+            {
+                mat->BindPipelineAndDescriptors(cmd);
+                lastBoundMat = mat;
+            }
 
-            auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
-            pipeline.Bind(cmd, PipelineBindPoint::Graphics);
-
-            DescriptorSet& descSet = renderer.GetGlobalSet();
-            DescriptorSet& objSet  = renderer.GetObjectSet();
-            DescriptorSet& txtSet  = renderer.GetTextureSet();
-
-            uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 0, nullptr);
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
-            // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
-
-            // mat->BindPipelineAndDescriptors(cmd);
-
-            uint64 offset = 0;
-            cmd.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
-            cmd.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-            // cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
+            if (mesh != lastBoundMesh)
+            {
+                uint64 offset = 0;
+                cmd.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
+                cmd.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+                lastBoundMesh = mesh;
+            }
 
             const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
             cmd.CMD_DrawIndexedIndirect(renderer.GetIndirectBuffer()._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
             firstInstance += batch.count;
+            // cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
 
             drawCalls++;
         }
