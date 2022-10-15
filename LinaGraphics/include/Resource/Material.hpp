@@ -38,6 +38,8 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    class CommandBuffer;
+
     class Material : public Resources::Resource
     {
     public:
@@ -65,6 +67,7 @@ namespace Lina::Graphics
         virtual void      LoadReferences() override;
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
+        void              BindPipelineAndDescriptors(CommandBuffer& cmd);
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {

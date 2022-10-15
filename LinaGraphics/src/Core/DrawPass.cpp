@@ -170,30 +170,20 @@ namespace Lina::Graphics
             Material*       mat   = batch.meshAndMaterial.material;
             Mesh*           mesh  = batch.meshAndMaterial.mesh;
 
+
             auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
             pipeline.Bind(cmd, PipelineBindPoint::Graphics);
-
-          // Vector<TestData> tt;
-          // for (auto r : batch.renderableIndices)
-          // {
-          //     TestData t;
-          //     t.id = r;
-          //     tt.push_back(t);
-          // }
-          //
-          // renderer.GetTestBuffer().CopyInto(tt.data(), sizeof(TestData) * tt.size());
 
             DescriptorSet& descSet = renderer.GetGlobalSet();
             DescriptorSet& objSet  = renderer.GetObjectSet();
             DescriptorSet& txtSet  = renderer.GetTextureSet();
 
             uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
-
-            Vector<DescriptorSet> sets;
-
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
             // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
+
+            // mat->BindPipelineAndDescriptors(cmd);
 
             uint64 offset = 0;
             cmd.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);

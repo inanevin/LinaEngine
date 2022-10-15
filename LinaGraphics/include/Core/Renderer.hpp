@@ -96,9 +96,8 @@ namespace Lina::Graphics
         CommandBuffer commandBuffer;
         Semaphore     presentSemaphore;
         Buffer        objDataBuffer;
-        DescriptorSet objDataDescriptor;
         Buffer        indirectBuffer;
-      //  Buffer        testBuffer;
+        DescriptorSet objDataDescriptor;
     };
 
     class Renderer

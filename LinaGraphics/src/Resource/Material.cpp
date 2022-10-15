@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Resource/Material.hpp"
 #include "Core/ResourceManager.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
 
 namespace Lina::Graphics
 {
@@ -73,6 +74,22 @@ namespace Lina::Graphics
     {
         m_shader.sid   = shader->GetSID();
         m_shader.value = shader;
+    }
+
+    void Material::BindPipelineAndDescriptors(CommandBuffer& cmd)
+    {
+        auto& pipeline = m_shader.value->GetPipeline();
+        pipeline.Bind(cmd, PipelineBindPoint::Graphics);
+
+       // DescriptorSet& descSet = renderer.GetGlobalSet();
+       // DescriptorSet& objSet = renderer.GetObjectSet();
+       // DescriptorSet& txtSet = renderer.GetTextureSet();
+       //
+       // uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+       // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
+       // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);
+
+        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &txtSet, 0, nullptr);
     }
 
     void Material::SaveToFile()
