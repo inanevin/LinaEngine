@@ -32,6 +32,7 @@ SOFTWARE.
 #define ShaderUtility_HPP
 
 #include "Data/String.hpp"
+#include "Data/HashMap.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
 #include "Data/Bitmask.hpp"
@@ -70,6 +71,12 @@ namespace Lina::Graphics
         /// Scans and returns the draw passes the shader should be registered to.
         /// </summary>
         static Bitmask16 GetPassMask(const String& text);
+
+        /// <summary>
+        /// Fills in the given map by checking material uniforms in the shader text.
+        /// </summary>
+        /// <param name="text"></param>
+        static void FillMaterialProperties(const String& text, HashMap<uint32, Vector<String>>& map);
     };
 } // namespace Lina::Graphics
 

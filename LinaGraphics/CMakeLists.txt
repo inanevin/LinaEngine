@@ -67,6 +67,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/StaticMesh.cpp
 	src/Resource/Texture.cpp
 	src/Resource/Material.cpp
+	src/Resource/MaterialProperty.cpp
 
 	# Features
 	src/FeatureRenderers/FeatureRendererManager.cpp
@@ -146,6 +147,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/StaticMesh.hpp
 	include/Resource/Texture.hpp
 	include/Resource/Material.hpp
+	include/Resource/MaterialProperty.hpp
 	
 	# Features
 	include/FeatureRenderers/FeatureRendererManager.hpp

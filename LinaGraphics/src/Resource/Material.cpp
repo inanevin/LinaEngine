@@ -30,11 +30,16 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
+#include "Resource/MaterialProperty.hpp"
 
 namespace Lina::Graphics
 {
     Material::~Material()
     {
+        for (auto p : m_properties)
+            delete p;
+
+        m_properties.clear();
     }
 
     Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
@@ -58,7 +63,10 @@ namespace Lina::Graphics
     void Material::LoadReferences()
     {
         if (m_shader.value != nullptr)
+        {
+            SetupProperties();
             return;
+        }
 
         FindShader();
     }
@@ -68,13 +76,70 @@ namespace Lina::Graphics
         auto* manager = Resources::ResourceManager::Get();
 
         if (manager->Exists<Shader>(m_shader.sid))
-            m_shader.value = manager->GetResource<Shader>(m_shader.sid);
+            SetShader(manager->GetResource<Shader>(m_shader.sid));
     }
 
     void Material::SetShader(Shader* shader)
     {
         m_shader.sid   = shader->GetSID();
         m_shader.value = shader;
+        SetupProperties();
+    }
+
+    void Material::SetupProperties()
+    {
+        if (m_shader.value == nullptr)
+            return;
+
+        for (auto p : m_properties)
+            delete p;
+
+        m_properties.clear();
+
+        const auto& map = m_shader.value->GetMaterialProperties();
+
+        for (auto pair : map)
+        {
+            for (auto& prop : pair.second)
+            {
+                const MaterialPropertyType type = static_cast<MaterialPropertyType>(pair.first);
+                switch (type)
+                {
+                case MaterialPropertyType::Float: {
+                    MaterialProperty<float>* p = new MaterialProperty<float>();
+                    p->m_name                  = prop;
+                    m_properties.push_back(p);
+                    break;
+                }
+                case MaterialPropertyType::Int: {
+                    MaterialProperty<int>* p = new MaterialProperty<int>();
+                    p->m_name                = prop;
+                    m_properties.push_back(p);
+                    break;
+                }
+                case MaterialPropertyType::Bool: {
+                    MaterialProperty<bool>* p = new MaterialProperty<bool>();
+                    p->m_name                 = prop;
+                    m_properties.push_back(p);
+                    break;
+                }
+                case MaterialPropertyType::Vector2: {
+                    MaterialProperty<Vector2>* p = new MaterialProperty<Vector2>();
+                    p->m_name                    = prop;
+                    m_properties.push_back(p);
+                    break;
+                }
+                case MaterialPropertyType::Vector4: {
+                    MaterialProperty<Vector3>* p = new MaterialProperty<Vector3>();
+                    p->m_name                    = prop;
+                    m_properties.push_back(p);
+                    break;
+                }
+                default:
+                    LINA_ASSERT(false, "Type not found!");
+                }
+            }
+        }
     }
 
     void Material::BindPipelineAndDescriptors(CommandBuffer& cmd)
@@ -87,9 +152,30 @@ namespace Lina::Graphics
         for (auto& set : m_shader.value->GetUsedSets())
         {
             const uint32 setIndex = static_cast<uint32>(set);
-            auto& ds= renderer.GetDescriptorSet(set);
+            auto&        ds       = renderer.GetDescriptorSet(set);
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, setIndex, 1, &ds, 0, nullptr);
         }
+
+        // Find total size & create data
+        size_t totalSize = 0;
+        for (auto& p : m_properties)
+            totalSize += p->GetTypeSize();
+
+        uint8* data  = new uint8[totalSize];
+        size_t index = 0;
+
+        // Copy each prop
+        for (auto& p : m_properties)
+        {
+            const size_t typeSize = p->GetTypeSize();
+            void*        src      = p->GetData();
+            MEMCPY(data + index, src, typeSize);
+            index += typeSize;
+        }
+
+        // Update buffer.
+        auto& materialSet = renderer.GetMaterialDescriptorSet();
+        renderer.GetMaterialBuffer().CopyInto(data, totalSize);
     }
 
     void Material::SaveToFile()

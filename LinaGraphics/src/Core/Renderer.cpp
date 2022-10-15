@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
+#include <LinaVG/LinaVG.hpp>
 
 namespace Lina::Graphics
 {
@@ -143,13 +144,23 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
+        m_materialBuffer = Buffer{
+            .size        = sizeof(float) * 1,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        };
+        m_materialBuffer.Create();
+        m_materialBuffer.boundSet = &m_materialDescriptor;
+
         m_materialDescriptor = DescriptorSet{
             .setCount = 1,
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
         m_materialDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
+        m_materialDescriptor.AddBuffer(m_materialBuffer);
         m_materialDescriptor.Create();
+        m_materialDescriptor.Update();
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -174,14 +185,6 @@ namespace Lina::Graphics
             };
             f.objDataBuffer.Create();
             f.objDataBuffer.boundSet = &f.passDescriptor;
-
-            // f.testBuffer = Buffer{
-            //     .size        = sizeof(TestData) * OBJ_BUFFER_MAX,
-            //     .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
-            //     .memoryUsage = MemoryUsageFlags::CpuToGpu,
-            // };
-            // f.testBuffer.Create();
-            // f.testBuffer.boundSet = &f.objDataDescriptor;
 
             f.passDescriptor = DescriptorSet{
                 .setCount = 1,
@@ -326,6 +329,8 @@ namespace Lina::Graphics
         m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer);
 
         m_renderPass.End(GetCurrentFrame().commandBuffer);
+
+
         GetCurrentFrame().commandBuffer.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.

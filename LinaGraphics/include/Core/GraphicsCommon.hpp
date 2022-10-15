@@ -466,6 +466,15 @@ namespace Lina::Graphics
         ObjectSet   = 3,
     };
 
+    enum class MaterialPropertyType
+    {
+        Float   = 0,
+        Int     = 1,
+        Bool    = 2,
+        Vector2 = 3,
+        Vector4 = 4,
+    };
+
     struct Offset3D
     {
         int32 x = 0;

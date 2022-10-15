@@ -124,7 +124,6 @@ namespace Lina::Graphics
 
         m_materialLayout.AddBinding(materialDataBinding).Create();
 
-
         // DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
         //     .binding         = 1,
         //     .descriptorCount = 1,

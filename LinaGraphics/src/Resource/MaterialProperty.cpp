@@ -26,46 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_VS
+#include "Resource/MaterialProperty.hpp"
 
-#version 460
-
-layout (location = 0) in vec2 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
-
-layout (location = 0) out vec4 fCol;
-layout (location = 1) out vec2 fUV;
-
-// uniform mat4 proj; 
-
-layout(set = 2, binding = 0) uniform MaterialData
+namespace Lina::Graphics
 {
-	float dummy; 
-} material;
 
-void main()
-{
-   fCol = col;
-   fUV = uv;
-   //gl_Position = proj * vec4(pos.x, pos.y, 0.0f, 1.0);
-   gl_Position = vec4(pos.x, pos.y, 0.0f, 1.0);
-}
-
-#LINA_END
-
-#LINA_FS
-
-#version 460
-
-layout (location = 0) in vec4 fCol;
-layout (location = 1) in vec2 fUV;
-
-layout (location = 0) out vec4 fragColor;
-
-void main()
-{
-   fragColor = fCol;
-}
-
-#LINA_END
+} // namespace Lina::Graphics

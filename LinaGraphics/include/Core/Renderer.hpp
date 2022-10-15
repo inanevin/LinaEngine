@@ -138,6 +138,10 @@ namespace Lina::Graphics
         {
             return m_materialDescriptor;
         }
+        inline Buffer& GetMaterialBuffer()
+        {
+            return m_materialBuffer;
+        }
 
         inline uint32 GetFrameIndex()
         {
@@ -196,7 +200,9 @@ namespace Lina::Graphics
         Vector<RenderableData> m_extractedRenderables;
         Image                  m_depthImage;
 
-        DescriptorSet                m_materialDescriptor;
+        DescriptorSet m_materialDescriptor;
+        Buffer        m_materialBuffer;
+
         IDList<RenderableComponent*> m_allRenderables;
         Vector<GPUObjectData>        m_gpuObjectData;
         DrawPass                     m_opaquePass;

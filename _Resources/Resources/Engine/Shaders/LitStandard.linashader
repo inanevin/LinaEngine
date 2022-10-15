@@ -65,7 +65,7 @@ layout(std140,set = 1, binding = 0) readonly buffer ObjectBuffer{
 
 layout(set = 2, binding = 0) uniform MaterialData
 {
-	float dummy;
+	float dummy; 
 } material;
 
 void main()
@@ -102,7 +102,7 @@ layout(set = 0, binding = 0) uniform SceneData{
 void main()
 {
 	//return red
-	// outFragColor = vec4(inColor * sceneData.ambientColor.xyz,1.0f);
+	// outFragColor = vec4(inColor, 1.0f);
 	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
 }
 

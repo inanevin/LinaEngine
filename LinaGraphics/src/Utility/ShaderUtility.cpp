@@ -191,4 +191,60 @@ namespace Lina::Graphics
 
         return mask;
     }
+
+    void ShaderUtility::FillMaterialProperties(const String& text, HashMap<uint32, Vector<String>>& map)
+    {
+
+        std::istringstream f(text.c_str());
+        std::string        line            = "";
+        bool               readingMaterial = false;
+
+        std::vector<std::string> types;
+        types.push_back("float");
+        types.push_back("int");
+        types.push_back("bool");
+        types.push_back("vec2");
+        types.push_back("vec4");
+
+        const int typesSize = static_cast<uint32>(types.size());
+        while (std::getline(f, line))
+        {
+            if (line.find("//") != std::string::npos)
+                continue;
+
+            if (!line.empty() && *line.rbegin() == '\r')
+                line.erase(line.end() - 1);
+
+            if (line.find("uniform MaterialData") != std::string::npos)
+                readingMaterial = true;
+
+            if (readingMaterial)
+            {
+                if (line.find("{") != std::string::npos)
+                    continue;
+
+                size_t type = std::string::npos;
+                uint32 i    = 0;
+
+                while (type == std::string::npos && i < typesSize)
+                {
+                    type = line.find(types[i]);
+
+                    if (type != std::string::npos)
+                    {
+                        const size_t varNameStart = type + types[i].size() + 1;
+                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 1).c_str();
+                        map[i].push_back(varName);
+                    }
+
+                    i++;
+                }
+            }
+
+            if (readingMaterial && line.find("}") != std::string::npos)
+            {
+                break;
+            }
+        }
+    }
 } // namespace Lina::Graphics

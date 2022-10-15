@@ -88,6 +88,11 @@ namespace Lina::Graphics
             return m_usedSets;
         }
 
+        inline const HashMap<uint32, Vector<String>>& GetMaterialProperties() const
+        {
+            return m_materialProperties;
+        }
+
     protected:
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
@@ -95,17 +100,19 @@ namespace Lina::Graphics
     private:
         void CheckMasks();
         void CheckIfModuleExists(const String& name, ShaderStage stage, const String& define);
+        void CheckMaterialProperties();
         void GenerateByteCode();
         bool CreateShaderModules();
         void GeneratePipeline();
 
     private:
-        Pipeline                    m_pipeline;
-        PipelineLayout              m_pipelineLayout;
-        SurfaceType                 m_surface = SurfaceType::Opaque;
-        String                      m_text    = "";
-        Vector<DescriptorSetLayout> m_setLayouts;
-        Vector<DescriptorSetType>   m_usedSets;
+        Pipeline                        m_pipeline;
+        PipelineLayout                  m_pipelineLayout;
+        SurfaceType                     m_surface = SurfaceType::Opaque;
+        String                          m_text    = "";
+        Vector<DescriptorSetLayout>     m_setLayouts;
+        Vector<DescriptorSetType>       m_usedSets;
+        HashMap<uint32, Vector<String>> m_materialProperties;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

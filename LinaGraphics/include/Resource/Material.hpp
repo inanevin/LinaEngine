@@ -39,6 +39,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     class CommandBuffer;
+    class MaterialPropertyBase;
 
     class Material : public Resources::Resource
     {
@@ -49,7 +50,6 @@ namespace Lina::Graphics
         template <class Archive>
         void Save(Archive& archive)
         {
-            m_isInstanced = false;
             m_shader.Save(archive);
             archive(m_isInstanced);
         }
@@ -59,6 +59,7 @@ namespace Lina::Graphics
         {
             m_shader.Load(archive);
             archive(m_isInstanced);
+            SetupProperties();
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
@@ -81,10 +82,12 @@ namespace Lina::Graphics
 
     private:
         void FindShader();
+        void SetupProperties();
 
     private:
         bool                              m_isInstanced = false;
         Resources::ResourceHandle<Shader> m_shader;
+        Vector<MaterialPropertyBase*>     m_properties;
     };
 
 } // namespace Lina::Graphics
