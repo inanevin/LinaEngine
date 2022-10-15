@@ -63,9 +63,7 @@ namespace Lina::Graphics
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
 
-        Extent3D ext = Extent3D{.width  = static_cast<unsigned int>(size.x),
-                                .height = static_cast<unsigned int>(size.y),
-                                .depth  = 1};
+        Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
         m_depthImage = Image{
             .format              = Format::D32_SFLOAT,
@@ -79,19 +77,13 @@ namespace Lina::Graphics
         m_depthImage.Create(true);
 
         Attachment att          = Attachment{.format = m_backend->m_swapchain.format, .loadOp = LoadOp::Clear};
-        Attachment depthStencil = Attachment{
-            .format         = Format::D32_SFLOAT,
-            .loadOp         = LoadOp::Clear,
-            .storeOp        = StoreOp::Store,
-            .stencilLoadOp  = LoadOp::Clear,
-            .stencilStoreOp = StoreOp::DontCare,
-            .initialLayout  = ImageLayout::Undefined,
-            .finalLayout    = ImageLayout::DepthStencilOptimal};
-
-        SubPass sp = SubPass{.bindPoint = PipelineBindPoint::Graphics};
-        sp.AddColorAttachmentRef(0, ImageLayout::ColorOptimal)
-            .SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal)
-            .Create();
+        Attachment depthStencil = Attachment{.format         = Format::D32_SFLOAT,
+                                             .loadOp         = LoadOp::Clear,
+                                             .storeOp        = StoreOp::Store,
+                                             .stencilLoadOp  = LoadOp::Clear,
+                                             .stencilStoreOp = StoreOp::DontCare,
+                                             .initialLayout  = ImageLayout::Undefined,
+                                             .finalLayout    = ImageLayout::DepthStencilOptimal};
 
         SubPassDependency dep = SubPassDependency{
             .dstSubpass    = 0,
@@ -121,17 +113,74 @@ namespace Lina::Graphics
             .depth   = 1.0f,
         };
 
-        m_renderPass = RenderPass{};
-        m_renderPass.AddAttachment(att)
+        m_passes[RenderPassType::Main]  = Pass();
+        m_passes[RenderPassType::Final] = Pass();
+
+        auto& mainPass  = m_passes[RenderPassType::Main];
+        auto& finalPass = m_passes[RenderPassType::Final];
+
+        // Subpasses
+        mainPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        mainPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+
+        finalPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        finalPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+
+        // Renderpasses
+        mainPass.renderPass = RenderPass{};
+        mainPass.renderPass.AddAttachment(att)
             .AddAttachment(depthStencil)
-            .AddSubpass(sp)
+            .AddSubpass(mainPass.subPass)
             .AddSubPassDependency(dep)
             .AddSubPassDependency(depDepth)
             .AddClearValue(clrCol)
             .AddClearValue(clrDepth)
             .Create();
-        m_framebuffers.reserve(m_backend->m_swapchain._imageViews.size());
 
+        finalPass.renderPass = RenderPass{};
+        finalPass.renderPass.AddAttachment(att)
+            .AddAttachment(depthStencil)
+            .AddSubpass(finalPass.subPass)
+            .AddSubPassDependency(dep)
+            .AddSubPassDependency(depDepth)
+            .AddClearValue(clrCol)
+            .AddClearValue(clrDepth)
+            .Create();
+
+        // Images
+        mainPass.m_colImg = Image{
+            .format              = m_backend->m_swapchain.format,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .aspectFlags         = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+        };
+        mainPass.m_colImg.Create(true);
+
+        mainPass.m_depthImg = Image{
+            .format              = Format::D32_SFLOAT,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .aspectFlags         = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+        };
+        mainPass.m_depthImg.Create(true);
+
+        // Framebuffers
+        mainPass.frameBuffer = Framebuffer{
+            .width  = static_cast<uint32>(size.x),
+            .height = static_cast<uint32>(size.y),
+            .layers = 1,
+        };
+
+        mainPass.frameBuffer.AttachRenderPass(mainPass.renderPass);
+        mainPass.frameBuffer.AddImageView(mainPass.m_colImg._ptrImgView).AddImageView(mainPass.m_depthImg._ptrImgView).Create();
+
+        // Final pass uses swapchain images.
         for (auto iv : m_backend->m_swapchain._imageViews)
         {
             Framebuffer fb = Framebuffer{
@@ -140,7 +189,7 @@ namespace Lina::Graphics
                 .layers = 1,
             };
 
-            fb.AttachRenderPass(m_renderPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
+            fb.AttachRenderPass(finalPass.renderPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
             m_framebuffers.push_back(fb);
         }
 
@@ -196,10 +245,10 @@ namespace Lina::Graphics
             f.passDescriptor.Create();
             f.passDescriptor.Update();
 
-            f.indirectBuffer = Buffer{
-                .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-                .memoryUsage = MemoryUsageFlags::CpuToGpu};
+            f.indirectBuffer =
+                Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                       .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                       .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
             f.indirectBuffer.Create();
 
@@ -299,7 +348,6 @@ namespace Lina::Graphics
         m_opaquePass.PrepareRenderData(m_extractedRenderables);
     }
 
-
     void Renderer::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
@@ -325,10 +373,15 @@ namespace Lina::Graphics
 
         GetObjectDataBuffer().CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
-        m_renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
-        m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer);
-        m_renderPass.End(GetCurrentFrame().commandBuffer);
+        auto& mainPass  = m_passes[RenderPassType::Main];
+        auto& finalPass = m_passes[RenderPassType::Final];
 
+         mainPass.renderPass.Begin(mainPass.frameBuffer, GetCurrentFrame().commandBuffer);
+         m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer, RenderPassType::Main);
+         mainPass.renderPass.End(GetCurrentFrame().commandBuffer);
+
+        finalPass.renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
+        finalPass.renderPass.End(GetCurrentFrame().commandBuffer);
 
         GetCurrentFrame().commandBuffer.End();
 

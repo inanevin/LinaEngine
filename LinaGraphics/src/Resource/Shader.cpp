@@ -96,6 +96,7 @@ namespace Lina::Graphics
 
             CheckMasks();
             CheckMaterialProperties();
+            CheckRenderPasses();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -154,6 +155,7 @@ namespace Lina::Graphics
 
             CheckMasks();
             CheckMaterialProperties();
+            CheckRenderPasses();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -168,6 +170,7 @@ namespace Lina::Graphics
 
     void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
+        archive(m_renderPasses);
         archive(m_materialProperties);
         archive(m_drawPassMask);
 
@@ -197,6 +200,7 @@ namespace Lina::Graphics
 
     void Shader::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
+        archive(m_renderPasses);
         archive(m_materialProperties);
         archive(m_drawPassMask);
 
@@ -246,6 +250,11 @@ namespace Lina::Graphics
     void Shader::CheckMaterialProperties()
     {
         ShaderUtility::FillMaterialProperties(m_text, m_materialProperties);
+    }
+
+    void Shader::CheckRenderPasses()
+    {
+        ShaderUtility::FillRenderPasses(m_text, m_renderPasses);
     }
 
     void Shader::GenerateByteCode()
@@ -320,20 +329,25 @@ namespace Lina::Graphics
 
         m_pipelineLayout.Create();
 
-        m_pipeline = Pipeline{
-            .depthTestEnabled  = true,
-            .depthWriteEnabled = true,
-            .depthCompareOp    = CompareOp::LEqual,
-            .viewport          = RenderEngine::Get()->GetViewport(),
-            .scissor           = RenderEngine::Get()->GetScissor(),
-            .topology          = Topology::TriangleList,
-            .polygonMode       = PolygonMode::Fill,
-            .cullMode          = CullMode::Back,
-        };
+        for (auto rpi : m_renderPasses)
+        {
+            const RenderPassType rp = static_cast<RenderPassType>(rpi);
+            m_pipelines[rp]         = Pipeline{
+                        .depthTestEnabled  = true,
+                        .depthWriteEnabled = true,
+                        .depthCompareOp    = CompareOp::LEqual,
+                        .viewport          = RenderEngine::Get()->GetViewport(),
+                        .scissor           = RenderEngine::Get()->GetScissor(),
+                        .topology          = Topology::TriangleList,
+                        .polygonMode       = PolygonMode::Fill,
+                        .cullMode          = CullMode::Back,
+            };
 
-        m_pipeline.SetShader(this)
-            .SetLayout(m_pipelineLayout)
-            .SetRenderPass(RenderEngine::Get()->GetLevelRenderer().GetRP())
-            .Create();
+            m_pipelines[rp].SetShader(this)
+                .SetLayout(m_pipelineLayout)
+                .SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp))
+                .Create();
+        }
+
     }
 } // namespace Lina::Graphics

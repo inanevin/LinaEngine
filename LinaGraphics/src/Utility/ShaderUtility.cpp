@@ -192,7 +192,7 @@ namespace Lina::Graphics
         return mask;
     }
 
-    void ShaderUtility::FillMaterialProperties(const String& text, HashMap<uint32, Vector<String>>& map)
+    void ShaderUtility::FillMaterialProperties(const String& text, HashMap<uint8, Vector<String>>& map)
     {
 
         std::istringstream f(text.c_str());
@@ -224,7 +224,7 @@ namespace Lina::Graphics
                     continue;
 
                 size_t type = std::string::npos;
-                uint32 i    = 0;
+                uint8 i    = 0;
 
                 while (type == std::string::npos && i < typesSize)
                 {
@@ -244,6 +244,37 @@ namespace Lina::Graphics
             if (readingMaterial && line.find("}") != std::string::npos)
             {
                 break;
+            }
+        }
+    }
+
+    void ShaderUtility::FillRenderPasses(const String& text, Vector<uint8>& vec)
+    {
+        std::istringstream f(text.c_str());
+        std::string        line = "";
+
+        while (std::getline(f, line))
+        {
+            if (line.find("//") != std::string::npos)
+                continue;
+
+            if (!line.empty() && *line.rbegin() == '\r')
+                line.erase(line.end() - 1);
+
+            if (line.find("#LINA_RP_MAIN") != std::string::npos)
+            {
+                vec.push_back(static_cast<uint8>(RenderPassType::Main));
+                continue;
+            }
+            else if (line.find("#LINA_RP_PP") != std::string::npos)
+            {
+                vec.push_back(static_cast<uint8>(RenderPassType::PostProcess));
+                continue;
+            }
+            else if (line.find("#LINA_RP_FINAL") != std::string::npos)
+            {
+                vec.push_back(static_cast<uint8>(RenderPassType::Final));
+                continue;
             }
         }
     }

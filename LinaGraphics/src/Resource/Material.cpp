@@ -142,11 +142,11 @@ namespace Lina::Graphics
         }
     }
 
-    void Material::BindPipelineAndDescriptors(CommandBuffer& cmd)
+    void Material::BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType)
     {
-        auto& renderer = RenderEngine::Get()->GetLevelRenderer();
+        auto& renderer = RenderEngine::Get()->GetRenderer();
 
-        auto& pipeline = m_shader.value->GetPipeline();
+        auto& pipeline = m_shader.value->GetPipeline(rpType);
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
         for (auto& set : m_shader.value->GetUsedSets())

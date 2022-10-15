@@ -122,24 +122,24 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto&        renderer   = RenderEngine::Get()->GetLevelRenderer();
+        auto&        renderer   = RenderEngine::Get()->GetRenderer();
         const uint32 frameIndex = renderer.GetFrameIndex();
 
         // Scene properties buffer.
-        GPUSceneData sceneData = RenderEngine::Get()->GetLevelRenderer().GetSceneData();
+        GPUSceneData sceneData = RenderEngine::Get()->GetRenderer().GetSceneData();
         sceneData.proj         = m_view->GetProj();
         sceneData.view         = m_view->GetView();
         sceneData.viewProj     = sceneData.proj * sceneData.view;
         renderer.GetScenePropertiesBuffer().CopyInto(&sceneData, sizeof(GPUSceneData));
     }
 
-    void DrawPass::RecordDrawCommands(CommandBuffer& cmd)
+    void DrawPass::RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType)
     {
         drawCalls = 0;
 
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto& renderer = RenderEngine::Get()->GetLevelRenderer();
+        auto& renderer = RenderEngine::Get()->GetRenderer();
 
         PrepareBuffers();
 
@@ -175,7 +175,7 @@ namespace Lina::Graphics
 
             if (mat != lastBoundMat)
             {
-                mat->BindPipelineAndDescriptors(cmd);
+                mat->BindPipelineAndDescriptors(cmd, rpType);
                 lastBoundMat = mat;
             }
 
@@ -191,7 +191,6 @@ namespace Lina::Graphics
             cmd.CMD_DrawIndexedIndirect(renderer.GetIndirectBuffer()._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
             firstInstance += batch.count;
             // cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
-
             drawCalls++;
         }
 

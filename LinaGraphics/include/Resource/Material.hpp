@@ -68,7 +68,7 @@ namespace Lina::Graphics
         virtual void      LoadReferences() override;
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
-        void              BindPipelineAndDescriptors(CommandBuffer& cmd);
+        void              BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType);
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
         {

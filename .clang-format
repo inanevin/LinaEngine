@@ -6,7 +6,7 @@ AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
 AlignConsecutiveDeclarations: 'true'
 BinPackParameters: 'false'
-ColumnLimit: '0'
+ColumnLimit: '200'
 Language: Cpp
 NamespaceIndentation: All
 PointerAlignment: Left

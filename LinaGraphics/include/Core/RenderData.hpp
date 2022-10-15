@@ -88,6 +88,20 @@ namespace Lina::Graphics
         Vector<MeshMaterialPair> meshMaterialPairs;
     };
 
+    constexpr uint32 FRAMES_IN_FLIGHT = 2;
+
+    struct GPUSceneData
+    {
+        Matrix  view;
+        Matrix  proj;
+        Matrix  viewProj;
+        Vector4 fogColor;     // w is for exponent
+        Vector4 fogDistances; // x for min, y for max, zw unused.
+        Vector4 ambientColor;
+        Vector4 sunlightDirection; // w for sun power
+        Vector4 sunlightColor;
+    };
+
 } // namespace Lina::Graphics
 
 #endif

@@ -73,9 +73,9 @@ namespace Lina::Graphics
             return m_surface;
         }
 
-        inline Pipeline& GetPipeline()
+        inline Pipeline& GetPipeline(RenderPassType rpType)
         {
-            return m_pipeline;
+            return m_pipelines[rpType];
         }
 
         inline Bitmask16 GetDrawPassMask()
@@ -88,9 +88,14 @@ namespace Lina::Graphics
             return m_usedSets;
         }
 
-        inline const HashMap<uint32, Vector<String>>& GetMaterialProperties() const
+        inline const HashMap<uint8, Vector<String>>& GetMaterialProperties() const
         {
             return m_materialProperties;
+        }
+
+        inline const Vector<uint8>& GetRenderPasses() const
+        {
+            return m_renderPasses;
         }
 
     protected:
@@ -101,18 +106,20 @@ namespace Lina::Graphics
         void CheckMasks();
         void CheckIfModuleExists(const String& name, ShaderStage stage, const String& define);
         void CheckMaterialProperties();
+        void CheckRenderPasses();
         void GenerateByteCode();
         bool CreateShaderModules();
         void GeneratePipeline();
 
     private:
-        Pipeline                        m_pipeline;
-        PipelineLayout                  m_pipelineLayout;
-        SurfaceType                     m_surface = SurfaceType::Opaque;
-        String                          m_text    = "";
-        Vector<DescriptorSetLayout>     m_setLayouts;
-        Vector<DescriptorSetType>       m_usedSets;
-        HashMap<uint32, Vector<String>> m_materialProperties;
+        HashMap<RenderPassType, Pipeline> m_pipelines;
+        PipelineLayout                    m_pipelineLayout;
+        SurfaceType                       m_surface = SurfaceType::Opaque;
+        String                            m_text    = "";
+        Vector<DescriptorSetLayout>       m_setLayouts;
+        Vector<DescriptorSetType>         m_usedSets;
+        HashMap<uint8, Vector<String>>    m_materialProperties;
+        Vector<uint8>                     m_renderPasses;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

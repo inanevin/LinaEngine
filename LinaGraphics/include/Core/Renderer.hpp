@@ -74,45 +74,38 @@ namespace Lina::Graphics
 {
     class Backend;
     class ModelNodeComponent;
-    constexpr uint32 FRAMES_IN_FLIGHT = 2;
-
-    struct GPUSceneData
-    {
-        Matrix  view;
-        Matrix  proj;
-        Matrix  viewProj;
-        Vector4 fogColor;     // w is for exponent
-        Vector4 fogDistances; // x for min, y for max, zw unused.
-        Vector4 ambientColor;
-        Vector4 sunlightDirection; // w for sun power
-        Vector4 sunlightColor;
-    };
-
-    struct Frame
-    {
-        Fence         renderFence;
-        Semaphore     renderSemaphore;
-        CommandPool   pool;
-        CommandBuffer commandBuffer;
-        Semaphore     presentSemaphore;
-        Buffer        objDataBuffer;
-        Buffer        indirectBuffer;
-        Buffer        scenePropertiesBuffer;
-
-        DescriptorSet passDescriptor;
-        DescriptorSet globalDescriptor;
-    };
 
     class Renderer
     {
+
+    private:
+        struct Frame
+        {
+            Fence         renderFence;
+            Semaphore     renderSemaphore;
+            CommandPool   pool;
+            CommandBuffer commandBuffer;
+            Semaphore     presentSemaphore;
+            Buffer        objDataBuffer;
+            Buffer        indirectBuffer;
+            Buffer        scenePropertiesBuffer;
+
+            DescriptorSet passDescriptor;
+            DescriptorSet globalDescriptor;
+        };
+
+        struct Pass
+        {
+            RenderPass  renderPass;
+            SubPass     subPass;
+            Framebuffer frameBuffer;
+            Image       m_colImg;
+            Image       m_depthImg;
+        };
+
     public:
         Renderer()  = default;
         ~Renderer() = default;
-
-        inline RenderPass& GetRP()
-        {
-            return m_renderPass;
-        }
 
         inline CameraSystem& GetCameraSystem()
         {
@@ -173,6 +166,11 @@ namespace Lina::Graphics
             return m_frames[m_frameNumber % FRAMES_IN_FLIGHT];
         }
 
+        inline RenderPass& GetRenderPass(RenderPassType type)
+        {
+            return m_passes[type].renderPass;
+        }
+
         DescriptorSet& GetDescriptorSet(DescriptorSetType type);
 
     private:
@@ -190,15 +188,14 @@ namespace Lina::Graphics
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
 
     private:
-        FeatureRendererManager m_featureRendererManager;
-        Vector<View*>          m_views;
-        View                   m_playerView;
-        CameraSystem           m_cameraSystem;
-        RenderPass             m_renderPass;
-        SubPass                m_subpass;
-        Vector<Framebuffer>    m_framebuffers;
-        Vector<RenderableData> m_extractedRenderables;
-        Image                  m_depthImage;
+        FeatureRendererManager        m_featureRendererManager;
+        Vector<View*>                 m_views;
+        View                          m_playerView;
+        CameraSystem                  m_cameraSystem;
+        Vector<Framebuffer>           m_framebuffers;
+        Vector<RenderableData>        m_extractedRenderables;
+        Image                         m_depthImage;
+        HashMap<RenderPassType, Pass> m_passes;
 
         DescriptorSet m_materialDescriptor;
         Buffer        m_materialBuffer;

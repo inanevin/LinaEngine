@@ -475,6 +475,13 @@ namespace Lina::Graphics
         Vector4 = 4,
     };
 
+    enum class RenderPassType
+    {
+        Main        = 0,
+        PostProcess = 1,
+        Final       = 2,
+    };
+
     struct Offset3D
     {
         int32 x = 0;
