@@ -112,26 +112,10 @@ namespace Lina::Graphics
         Destroy();
         size = sz;
         Create();
-        UpdateDescriptor();
+
+        if(boundSet != nullptr)
+        boundSet->Update();
     }
 
-    void Buffer::UpdateDescriptor()
-    {
-        if (boundSet != nullptr)
-        {
-            WriteDescriptorSet write = WriteDescriptorSet{
-                .buffer          = _ptr,
-                .offset          = 0,
-                .range           = size,
-                .dstSet          = boundSet->_ptr,
-                .dstBinding      = 0,
-                .descriptorCount = 1,
-                .descriptorType  = boundSet->type};
-
-            Vector<WriteDescriptorSet> vv;
-            vv.push_back(write);
-            DescriptorSet::UpdateDescriptorSets(vv);
-        }
-    }
 
 } // namespace Lina::Graphics

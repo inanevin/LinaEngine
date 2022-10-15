@@ -38,26 +38,55 @@ namespace Lina::Graphics
 {
     void DescriptorSet::Create()
     {
-
         // allocate one descriptor set for each frame
         VkDescriptorSetAllocateInfo allocInfo = {
             .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             .pNext              = nullptr,
             .descriptorPool     = pool,
             .descriptorSetCount = setCount,
-            .pSetLayouts        = _layouts.data(),
+            .pSetLayouts        = &layout->_ptr,
         };
 
         VkResult res = vkAllocateDescriptorSets(Backend::Get()->GetDevice(), &allocInfo, &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Set] -> Could not allocate descriptor set!");
     }
 
-    DescriptorSet& DescriptorSet::AddSetLayout(VkDescriptorSetLayout_T* layout)
+    DescriptorSet& DescriptorSet::AddLayout(DescriptorSetLayout* layout)
     {
-        _layouts.push_back(layout);
+        this->layout = layout;
         return *this;
     }
 
+    DescriptorSet& DescriptorSet::AddBuffer(Buffer& buffer)
+    {
+        buffers.push_back(&buffer);
+        return *this;
+    }
+
+    void DescriptorSet::Update()
+    {
+        Vector<WriteDescriptorSet> vv0;
+
+        LINA_ASSERT(layout->bindings.size() == buffers.size(), "Buffer size must be the same as layout binding size!");
+
+        uint32 i = 0;
+        for (auto& b : buffers)
+        {
+            WriteDescriptorSet write = WriteDescriptorSet{
+                .buffer          = b->_ptr,
+                .offset          = 0,
+                .range           = b->size,
+                .dstSet          = _ptr,
+                .dstBinding      = layout->bindings[i].binding,
+                .descriptorCount = 1,
+                .descriptorType  = layout->bindings[i].type};
+
+            vv0.push_back(write);
+            i++;
+        }
+
+        DescriptorSet::UpdateDescriptorSets(vv0);
+    }
     void DescriptorSet::UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v)
     {
         Vector<VkWriteDescriptorSet>   _setWrites;

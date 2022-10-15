@@ -47,15 +47,17 @@ namespace Lina::Graphics
     {
     public:
         void           Create();
-        DescriptorSet& AddSetLayout(VkDescriptorSetLayout_T* layout);
+        DescriptorSet& AddLayout(DescriptorSetLayout* layout);
+        DescriptorSet& AddBuffer(Buffer& buf);
+        void           Update();
 
         static void UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v);
 
         // Description
-        uint32                           setCount = 0;
-        DescriptorType                   type     = DescriptorType::StorageBuffer;
-        VkDescriptorPool_T*              pool     = nullptr;
-        Vector<VkDescriptorSetLayout_T*> _layouts;
+        uint32               setCount = 0;
+        VkDescriptorPool_T*  pool     = nullptr;
+        DescriptorSetLayout* layout;
+        Vector<Buffer*>      buffers;
 
         // Runtime
         VkDescriptorSet_T* _ptr = nullptr;

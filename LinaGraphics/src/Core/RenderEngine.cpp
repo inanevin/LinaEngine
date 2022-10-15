@@ -113,6 +113,7 @@ namespace Lina::Graphics
             .type            = DescriptorType::StorageBuffer,
         };
 
+        
         m_objectDataLayout.AddBinding(objDataBinding).Create();
 
         DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
@@ -123,6 +124,7 @@ namespace Lina::Graphics
         };
 
         m_textureDataLayout.AddBinding(txtDataBinding).Create();
+       
 
         m_descriptorLayouts[SetLayouts::GlobalLayout]     = &m_globalSetLayout;
         m_descriptorLayouts[SetLayouts::ObjectDataLayout] = &m_objectDataLayout;

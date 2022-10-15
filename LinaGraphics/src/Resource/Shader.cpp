@@ -302,7 +302,7 @@ namespace Lina::Graphics
 
         for (auto setIndex : sets)
         {
-            DescriptorSetLayout& l = RenderEngine::Get()->GetLayout(static_cast<SetLayouts>(setIndex));
+            DescriptorSetLayout& l = *RenderEngine::Get()->GetLayout(static_cast<SetLayouts>(setIndex));
             m_pipelineLayout.AddDescriptorSetLayout(l);
         }
 

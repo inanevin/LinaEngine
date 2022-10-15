@@ -59,8 +59,6 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
             vkDestroyDescriptorSetLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
-
-        bindings.clear();
     }
 
     DescriptorSetLayout& DescriptorSetLayout::AddBinding(DescriptorSetLayoutBinding binding)

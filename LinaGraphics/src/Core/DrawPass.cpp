@@ -62,7 +62,7 @@ namespace Lina::Graphics
 
             // Cull by distance
             if (m_view->GetPos().Distance(data.position) > m_drawDistance)
-               return;
+                return;
 
             // Cull by pass mask.
             if (!data.passMask.IsSet(m_passMask))
@@ -163,6 +163,7 @@ namespace Lina::Graphics
 
         const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
         uint32       firstInstance = 0;
+
         for (uint32 i = 0; i < batchesSize; i++)
         {
             InstancedBatch& batch = m_batches[i];
@@ -172,11 +173,23 @@ namespace Lina::Graphics
             auto& pipeline = mat->GetShaderHandle().value->GetPipeline();
             pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
+          // Vector<TestData> tt;
+          // for (auto r : batch.renderableIndices)
+          // {
+          //     TestData t;
+          //     t.id = r;
+          //     tt.push_back(t);
+          // }
+          //
+          // renderer.GetTestBuffer().CopyInto(tt.data(), sizeof(TestData) * tt.size());
+
             DescriptorSet& descSet = renderer.GetGlobalSet();
             DescriptorSet& objSet  = renderer.GetObjectSet();
             DescriptorSet& txtSet  = renderer.GetTextureSet();
 
             uint32_t uniformOffset = VulkanUtility::PadUniformBufferSize(sizeof(GPUSceneData)) * renderer.GetFrameIndex();
+
+            Vector<DescriptorSet> sets;
 
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &descSet, 1, &uniformOffset);
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &objSet, 0, nullptr);

@@ -56,6 +56,11 @@ namespace Lina::Graphics
         Matrix modelMatrix = Matrix::Identity();
     };
 
+    struct TestData
+    {
+        uint32 id = 0;
+    };
+
     struct MeshMaterialPair
     {
         Mesh*     mesh     = nullptr;

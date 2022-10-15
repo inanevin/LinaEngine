@@ -156,29 +156,18 @@ namespace Lina::Graphics
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-        m_globalDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout)._ptr);
+        m_globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::GlobalLayout));
+        m_globalDescriptor.AddBuffer(m_scenePropertiesBuffer);
         m_globalDescriptor.Create();
+        m_globalDescriptor.Update();
 
         m_textureDescriptor = DescriptorSet{
             .setCount = 1,
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-        m_textureDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::TextureLayout)._ptr);
+        m_textureDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::TextureLayout));
         m_textureDescriptor.Create();
-
-        WriteDescriptorSet sceneWrite = WriteDescriptorSet{
-            .buffer          = m_scenePropertiesBuffer._ptr,
-            .offset          = 0,
-            .range           = sizeof(GPUSceneData),
-            .dstSet          = m_globalDescriptor._ptr,
-            .dstBinding      = 0,
-            .descriptorCount = 1,
-            .descriptorType  = DescriptorType::UniformBufferDynamic};
-
-        Vector<WriteDescriptorSet> vv0;
-        vv0.push_back(sceneWrite);
-        DescriptorSet::UpdateDescriptorSets(vv0);
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -204,15 +193,23 @@ namespace Lina::Graphics
             f.objDataBuffer.Create();
             f.objDataBuffer.boundSet = &f.objDataDescriptor;
 
+            // f.testBuffer = Buffer{
+            //     .size        = sizeof(TestData) * OBJ_BUFFER_MAX,
+            //     .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
+            //     .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            // };
+            // f.testBuffer.Create();
+            // f.testBuffer.boundSet = &f.objDataDescriptor;
+
             f.objDataDescriptor = DescriptorSet{
                 .setCount = 1,
-                .type     = DescriptorType::StorageBuffer,
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.objDataDescriptor.AddSetLayout(RenderEngine::Get()->GetLayout(SetLayouts::ObjectDataLayout)._ptr);
+            f.objDataDescriptor.AddLayout(RenderEngine::Get()->GetLayout(SetLayouts::ObjectDataLayout));
+            f.objDataDescriptor.AddBuffer(f.objDataBuffer);
             f.objDataDescriptor.Create();
-            f.objDataBuffer.UpdateDescriptor();
+            f.objDataDescriptor.Update();
 
             f.indirectBuffer = Buffer{
                 .size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),

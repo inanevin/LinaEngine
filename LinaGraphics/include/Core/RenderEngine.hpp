@@ -119,9 +119,9 @@ namespace Lina::Graphics
             return m_viewport;
         }
 
-        inline DescriptorSetLayout& GetLayout(SetLayouts layout)
+        inline DescriptorSetLayout* GetLayout(SetLayouts layout)
         {
-            return *m_descriptorLayouts[layout];
+            return m_descriptorLayouts[layout];
         }
 
         inline DescriptorPool& GetDescriptorPool()
