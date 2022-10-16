@@ -32,6 +32,7 @@ SOFTWARE.
 #define MaterialProperty_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Serialization/Archive.hpp"
 
 namespace Lina::Graphics
 {
@@ -40,10 +41,12 @@ namespace Lina::Graphics
     class MaterialPropertyBase
     {
     public:
-        MaterialPropertyBase()          = default;
-        virtual ~MaterialPropertyBase() = default;
-        virtual size_t GetTypeSize()    = 0;
-        virtual void*  GetData()      = 0;
+        MaterialPropertyBase()                                               = default;
+        virtual ~MaterialPropertyBase()                                      = default;
+        virtual size_t GetTypeSize()                                         = 0;
+        virtual void*  GetData()                                             = 0;
+        virtual void   SaveToArchive(Serialization::Archive<OStream>& arc)   = 0;
+        virtual void   LoadFromArchive(Serialization::Archive<IStream>& arc) = 0;
 
         inline MaterialPropertyType GetType()
         {
@@ -67,12 +70,22 @@ namespace Lina::Graphics
         MaterialPropertyType m_type = MaterialPropertyType::Float;
     };
 
-    template <typename T>
-    class MaterialProperty : public MaterialPropertyBase
+    template <typename T> class MaterialProperty : public MaterialPropertyBase
     {
     public:
         MaterialProperty()          = default;
         virtual ~MaterialProperty() = default;
+
+        virtual void SaveToArchive(Serialization::Archive<OStream>& ar) override
+        {
+            ar(m_value);
+        }
+
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& ar) override
+        {
+            ar(m_value);
+        }
+
         virtual size_t GetTypeSize() override
         {
             return sizeof(T);
@@ -84,7 +97,7 @@ namespace Lina::Graphics
         }
 
     private:
-        T m_value;
+        T m_value = T();
     };
 
 } // namespace Lina::Graphics

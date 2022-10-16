@@ -34,9 +34,11 @@ SOFTWARE.
 #include "Core/Resource.hpp"
 #include "Core/ResourceHandle.hpp"
 #include "Shader.hpp"
-#include "Serialization/Serialization.hpp"
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "PipelineObjects/Buffer.hpp"
+#include "Core/ResourceHandle.hpp"
+#include "Resource/MaterialProperty.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina::Graphics
 {
@@ -53,13 +55,41 @@ namespace Lina::Graphics
         {
             m_shader.Save(archive);
             archive(m_isInstanced);
+
+            const uint32 propSize = static_cast<uint32>(m_properties.size());
+
+            archive(propSize);
+
+            for (auto& p : m_properties)
+            {
+                const String name = p->GetName();
+                const uint8  type = static_cast<uint8>(p->GetType());
+                archive(type);
+                archive(name);
+                p->SaveToArchive(archive);
+            }
         }
 
         template <class Archive> void Load(Archive& archive)
         {
             m_shader.Load(archive);
             archive(m_isInstanced);
-            SetupProperties();
+
+            uint32 propSize = 0;
+
+            archive(propSize);
+
+            for (uint32 i = 0; i < propSize; i++)
+            {
+                uint8  typeInt = 0;
+                String name    = "";
+                archive(typeInt);
+                archive(name);
+
+                const MaterialPropertyType type = static_cast<MaterialPropertyType>(typeInt);
+                auto                       prop = AddProperty(type, name);
+                prop->LoadFromArchive(archive);
+            }
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
@@ -81,9 +111,10 @@ namespace Lina::Graphics
         }
 
     private:
-        void   FindShader();
-        void   SetupProperties();
-        void   CheckDescriptorAndBuffer();
+        void                  FindShader();
+        void                  SetupProperties();
+        void                  CheckDescriptorAndBuffer();
+        MaterialPropertyBase* AddProperty(MaterialPropertyType type, const String& name);
 
     private:
         bool                              m_isInstanced = false;

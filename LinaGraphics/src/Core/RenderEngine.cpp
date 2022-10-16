@@ -157,7 +157,7 @@ namespace Lina::Graphics
         // Engine materials
         m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
         m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
-        // m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
+        m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
 
         // Engine models
         m_enginePrimitiveNames[EnginePrimitiveType::Capsule]  = "Capsule";

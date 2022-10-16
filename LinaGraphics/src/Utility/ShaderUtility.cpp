@@ -234,7 +234,7 @@ namespace Lina::Graphics
                     if (type != std::string::npos)
                     {
                         const size_t varNameStart = type + types[i].size() + 1;
-                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 1).c_str();
+                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 2).c_str();
                         map[i].push_back(varName);
                     }
 

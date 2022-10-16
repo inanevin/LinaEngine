@@ -52,7 +52,7 @@ layout(set = 2, binding = 0) uniform MaterialData
 	float dummy; 
 } material;
 
-// layout(set = 2, binding = 1) uniform sampler2D t;
+layout(set = 2, binding = 1) uniform sampler2D t;
 
 void main()
 {
@@ -74,7 +74,7 @@ layout (location = 1) in vec2 inTexCoords;
 //output write
 layout (location = 0) out vec4 outFragColor;
 
-// layout(set = 2, binding = 1) uniform sampler2D t;
+layout(set = 2, binding = 1) uniform sampler2D t;
 
 void main()
 {
