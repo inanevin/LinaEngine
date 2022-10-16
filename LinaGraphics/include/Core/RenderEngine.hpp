@@ -125,6 +125,11 @@ namespace Lina::Graphics
             return m_descriptorLayouts[set];
         }
 
+        inline PipelineLayout& GetGlobalAndPassLayouts()
+        {
+            return m_globalAndPassLayout;
+        }
+
         inline DescriptorPool& GetDescriptorPool()
         {
             return m_descriptorPool;
@@ -193,11 +198,11 @@ namespace Lina::Graphics
         UploadContext                                   m_gpuUploader;
         DescriptorPool                                  m_descriptorPool;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
-        HashMap<DescriptorSetType, PipelineLayout>      m_pipelineLayouts;
-        Viewport                                        m_viewport;
-        Recti                                           m_scissor;
-        Renderer                                        m_renderer;
-        LinaVG::Backend::GUIBackend*                    m_guiBackend;
+        PipelineLayout                                  m_globalAndPassLayout;
+        Viewport                     m_viewport;
+        Recti                        m_scissor;
+        Renderer                     m_renderer;
+        LinaVG::Backend::GUIBackend* m_guiBackend;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

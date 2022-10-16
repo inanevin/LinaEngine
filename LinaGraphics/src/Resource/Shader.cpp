@@ -301,6 +301,8 @@ namespace Lina::Graphics
         m_pipelineLayout = PipelineLayout{};
         HashSet<uint32> sets;
 
+        HashMap<uint32, Vector<ShaderDescriptorSetInfo>> setInfos;
+
         for (auto& [stage, mod] : m_modules)
         {
             Vector<PushConstantRange> pcrs = ShaderUtility::CheckForPushConstants(stage, mod.moduleText);
@@ -311,13 +313,37 @@ namespace Lina::Graphics
             Vector<ShaderDescriptorSetInfo> infos = ShaderUtility::CheckForDescriptorSets(GetShaderStage(stage), mod.moduleText);
 
             for (auto& i : infos)
-                sets.insert(i.setIndex);
+                setInfos[i.setIndex].push_back(i);
         }
 
-        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
-        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
-        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
-        // m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::ObjectSet));
+        // Only care about material set.
+        auto&                                       set = setInfos[2];
+        HashMap<uint32, DescriptorSetLayoutBinding> bindings;
+
+        for (auto& i : set)
+        {
+            if (bindings.contains(i.bindingIndex))
+                bindings[i.bindingIndex].stageFlags |= i.stageFlags;
+            else
+            {
+                bindings[i.bindingIndex] = DescriptorSetLayoutBinding{
+                    .binding         = i.bindingIndex,
+                    .descriptorCount = i.descriptorCount,
+                    .stageFlags      = i.stageFlags,
+                    .type            = i.type,
+                };
+            }
+        }
+
+        for (auto& b : bindings)
+            m_materialLayout.AddBinding(b.second);
+
+
+        m_materialLayout.Create();
+
+        m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
+        m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+        m_pipelineLayout.AddDescriptorSetLayout(m_materialLayout);
 
         m_pipelineLayout.Create();
 
@@ -337,5 +363,7 @@ namespace Lina::Graphics
 
             m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();
         }
+
+    
     }
 } // namespace Lina::Graphics

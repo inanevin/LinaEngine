@@ -93,6 +93,11 @@ namespace Lina::Graphics
             return m_renderPasses;
         }
 
+        inline DescriptorSetLayout& GetMaterialSetLayout()
+        {
+            return m_materialLayout;
+        }
+
     protected:
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
@@ -107,9 +112,9 @@ namespace Lina::Graphics
     private:
         HashMap<RenderPassType, Pipeline> m_pipelines;
         PipelineLayout                    m_pipelineLayout;
+        DescriptorSetLayout               m_materialLayout;
         SurfaceType                       m_surface = SurfaceType::Opaque;
         String                            m_text    = "";
-        Vector<DescriptorSetLayout>       m_setLayouts;
         HashMap<uint8, Vector<String>>    m_materialProperties;
         Vector<uint8>                     m_renderPasses;
 

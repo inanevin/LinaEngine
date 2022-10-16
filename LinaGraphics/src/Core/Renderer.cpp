@@ -54,7 +54,6 @@ namespace Lina::Graphics
     void Renderer::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Renderer::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
 
@@ -191,24 +190,6 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
-        m_materialBuffer = Buffer{
-            .size        = sizeof(float) * 1,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
-        };
-        m_materialBuffer.Create();
-        m_materialBuffer.boundSet = &m_materialDescriptor;
-
-        m_materialDescriptor = DescriptorSet{
-            .setCount = 1,
-            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
-        };
-
-        m_materialDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
-        m_materialDescriptor.AddBuffer(m_materialBuffer);
-        m_materialDescriptor.Create();
-        m_materialDescriptor.Update();
-
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             Frame& f = m_frames[i];
@@ -253,11 +234,12 @@ namespace Lina::Graphics
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-
-            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
-            f.globalDescriptor.AddBuffer(f.sceneDataBuffer).AddBuffer(f.lightDataBuffer);
+            f.globalDescriptor.AddLayout(&RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
             f.globalDescriptor.Create();
-            f.globalDescriptor.Update();
+            f.globalDescriptor.BeginUpdate();
+            f.globalDescriptor.AddBufferUpdate(f.sceneDataBuffer, f.sceneDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            f.globalDescriptor.AddBufferUpdate(f.lightDataBuffer, f.lightDataBuffer.size, 1, DescriptorType::UniformBuffer);
+            f.globalDescriptor.SendUpdate();
 
             // Pass descriptor
 
@@ -274,17 +256,21 @@ namespace Lina::Graphics
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
             f.objDataBuffer.Create();
-            f.objDataBuffer.boundSet = &f.passDescriptor;
+            f.objDataBuffer.boundSet     = &f.passDescriptor;
+            f.objDataBuffer.boundBinding = 1;
+            f.objDataBuffer.boundType    = DescriptorType::StorageBuffer;
 
             f.passDescriptor = DescriptorSet{
                 .setCount = 1,
                 .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
             };
 
-            f.passDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
-            f.passDescriptor.AddBuffer(f.viewDataBuffer).AddBuffer(f.objDataBuffer);
+            f.passDescriptor.AddLayout(&RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
             f.passDescriptor.Create();
-            f.passDescriptor.Update();
+            f.passDescriptor.BeginUpdate();
+            f.passDescriptor.AddBufferUpdate(f.viewDataBuffer, f.viewDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            f.passDescriptor.AddBufferUpdate(f.objDataBuffer, f.objDataBuffer.size, 1, DescriptorType::StorageBuffer);
+            f.passDescriptor.SendUpdate();
         }
 
         // Views
@@ -300,7 +286,6 @@ namespace Lina::Graphics
 
     void Renderer::Shutdown()
     {
-        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
@@ -381,11 +366,17 @@ namespace Lina::Graphics
         cmd.Reset();
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
+        // Global set.
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &GetCurrentFrame().globalDescriptor, 0, nullptr);
+
         // Global - scene data.
         GetSceneDataBuffer().CopyInto(&m_sceneData, sizeof(GPUSceneData));
 
         // Global - light data.
         GetLightDataBuffer().CopyInto(&m_lightData, sizeof(GPULightData));
+
+        // Pass set.
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &GetCurrentFrame().passDescriptor, 0, nullptr);
 
         // Per render pass - obj data.
         Vector<GPUObjectData> gpuObjectData;
@@ -405,7 +396,6 @@ namespace Lina::Graphics
 
         mainPass.renderPass.Begin(mainPass.frameBuffer, cmd);
 
-       
         mainPass.renderPass.End(cmd);
 
         finalPass.renderPass.Begin(m_framebuffers[imageIndex], cmd);
@@ -427,30 +417,8 @@ namespace Lina::Graphics
         m_frameNumber++;
     }
 
-    void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
-    {
-        m_hasLevelInstalled = true;
-        return;
-        Texture* txt = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/Tests/empire_diffuse.png");
-
-        WriteDescriptorSet textureWrite = WriteDescriptorSet{
-            .dstSet          = m_materialDescriptor._ptr,
-            .dstBinding      = 0,
-            .descriptorCount = 1,
-            .descriptorType  = DescriptorType::CombinedImageSampler,
-            .imageView       = txt->GetImage()._ptrImgView,
-            .imageLayout     = ImageLayout::ShaderReadOnlyOptimal,
-            .sampler         = txt->GetSampler()._ptr,
-        };
-
-        Vector<WriteDescriptorSet> vv0;
-        vv0.push_back(textureWrite);
-        DescriptorSet::UpdateDescriptorSets(vv0);
-    }
-
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
-        m_hasLevelInstalled = false;
         m_allRenderables.Reset();
     }
 
@@ -467,25 +435,6 @@ namespace Lina::Graphics
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
             m_allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
-    }
-
-    DescriptorSet& Renderer::GetDescriptorSet(DescriptorSetType type)
-    {
-        switch (type)
-        {
-        case DescriptorSetType::GlobalSet:
-            return GetCurrentFrame().globalDescriptor;
-        case DescriptorSetType::PassSet:
-            return GetCurrentFrame().passDescriptor;
-        case DescriptorSetType::MaterialSet:
-            return m_materialDescriptor;
-        case DescriptorSetType::ObjectSet:
-            return m_materialDescriptor;
-        default:
-            LINA_ASSERT(false, "Set type not found!");
-        }
-
-        return m_materialDescriptor;
     }
 
 } // namespace Lina::Graphics

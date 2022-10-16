@@ -47,12 +47,12 @@ layout (location = 1) out vec2 outTexCoords;
 #LINA_INCLUDE ViewData
 #LINA_INCLUDE ObjectBuffer
 
-layout(set 2, binding = 0) uniform sampler2D textures[5];
-
-layout(set = 2, binding = 1) uniform MaterialData
+layout(set = 2, binding = 0) uniform MaterialData
 {
 	float dummy; 
 } material;
+
+// layout(set = 2, binding = 1) uniform sampler2D t;
 
 void main()
 {
@@ -73,6 +73,8 @@ layout (location = 1) in vec2 inTexCoords;
 
 //output write
 layout (location = 0) out vec4 outFragColor;
+
+// layout(set = 2, binding = 1) uniform sampler2D t;
 
 void main()
 {

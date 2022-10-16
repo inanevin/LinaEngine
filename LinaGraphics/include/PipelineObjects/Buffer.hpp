@@ -53,10 +53,12 @@ namespace Lina::Graphics
         void  Recreate(size_t size);
 
         // Description
-        size_t           size        = 0;
-        uint32           bufferUsage = 0;
-        MemoryUsageFlags memoryUsage = MemoryUsageFlags::CpuToGpu;
-        DescriptorSet*   boundSet    = nullptr;
+        size_t           size         = 0;
+        uint32           bufferUsage  = 0;
+        MemoryUsageFlags memoryUsage  = MemoryUsageFlags::CpuToGpu;
+        DescriptorSet*   boundSet     = nullptr;
+        uint32           boundBinding = 0;
+        DescriptorType   boundType    = DescriptorType::UniformBuffer;
 
         // Runtime
         VkBuffer_T*      _ptr        = nullptr;

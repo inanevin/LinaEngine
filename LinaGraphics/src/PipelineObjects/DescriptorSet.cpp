@@ -29,6 +29,7 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Resource/Texture.hpp"
 #include "PipelineObjects/DescriptorPool.hpp"
 #include "PipelineObjects/Buffer.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
@@ -57,34 +58,47 @@ namespace Lina::Graphics
         return *this;
     }
 
-    DescriptorSet& DescriptorSet::AddBuffer(Buffer& buffer)
+    void DescriptorSet::BeginUpdate()
     {
-        buffers.push_back(&buffer);
-        return *this;
+        _writes.clear();
     }
 
-    void DescriptorSet::Update()
+    void DescriptorSet::AddBufferUpdate(Buffer& buffer, size_t range, uint32 binding, DescriptorType type)
     {
-        Vector<WriteDescriptorSet> vv0;
+        WriteDescriptorSet write = WriteDescriptorSet{
+            .buffer          = buffer._ptr,
+            .offset          = 0,
+            .range           = range,
+            .dstSet          = _ptr,
+            .dstBinding      = binding,
+            .descriptorCount = 1,
+            .descriptorType  = type,
+        };
 
-        uint32 i = 0;
-        for (auto& b : buffers)
-        {
-            WriteDescriptorSet write = WriteDescriptorSet{
-                .buffer          = b->_ptr,
-                .offset          = 0,
-                .range           = b->size,
-                .dstSet          = _ptr,
-                .dstBinding      = layout->bindings[i].binding,
-                .descriptorCount = 1,
-                .descriptorType  = layout->bindings[i].type};
-
-            vv0.push_back(write);
-            i++;
-        }
-
-        DescriptorSet::UpdateDescriptorSets(vv0);
+        _writes.push_back(write);
     }
+
+    void DescriptorSet::AddTextureUpdate(uint32 binding, Texture* txt)
+    {
+        WriteDescriptorSet textureWrite = WriteDescriptorSet{
+            .dstSet          = _ptr,
+            .dstBinding      = binding,
+            .descriptorCount = 1,
+            .descriptorType  = DescriptorType::CombinedImageSampler,
+            .imageView       = txt->GetImage()._ptrImgView,
+            .imageLayout     = ImageLayout::ShaderReadOnlyOptimal,
+            .sampler         = txt->GetSampler()._ptr,
+        };
+
+        _writes.push_back(textureWrite);
+    }
+
+    void DescriptorSet::SendUpdate()
+    {
+        DescriptorSet::UpdateDescriptorSets(_writes);
+        _writes.clear();
+    }
+
     void DescriptorSet::UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v)
     {
         Vector<VkWriteDescriptorSet>   _setWrites;
@@ -97,10 +111,7 @@ namespace Lina::Graphics
         {
             if (write.buffer != nullptr)
             {
-                VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{
-                    .buffer = write.buffer,
-                    .offset = write.offset,
-                    .range  = write.range};
+                VkDescriptorBufferInfo binfo = VkDescriptorBufferInfo{.buffer = write.buffer, .offset = write.offset, .range = write.range};
 
                 _bufInfos.push_back(binfo);
             }

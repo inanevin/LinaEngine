@@ -127,16 +127,6 @@ namespace Lina::Graphics
         {
             return GetCurrentFrame().passDescriptor;
         }
-
-        inline DescriptorSet& GetMaterialDescriptorSet()
-        {
-            return m_materialDescriptor;
-        }
-        inline Buffer& GetMaterialBuffer()
-        {
-            return m_materialBuffer;
-        }
-
         inline uint32 GetFrameIndex()
         {
             return m_frameNumber % FRAMES_IN_FLIGHT;
@@ -182,8 +172,6 @@ namespace Lina::Graphics
             return m_passes[type].renderPass;
         }
 
-        DescriptorSet& GetDescriptorSet(DescriptorSetType type);
-
     private:
         friend class RenderEngine;
 
@@ -193,7 +181,6 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void SyncData();
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
@@ -207,9 +194,6 @@ namespace Lina::Graphics
         Image                         m_depthImage;
         HashMap<RenderPassType, Pass> m_passes;
 
-        DescriptorSet m_materialDescriptor;
-        Buffer        m_materialBuffer;
-
         IDList<RenderableComponent*> m_allRenderables;
         Vector<GPUObjectData>        m_gpuObjectData;
         DrawPass                     m_opaquePass;
@@ -220,7 +204,6 @@ namespace Lina::Graphics
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];
         Backend* m_backend           = nullptr;
-        bool     m_hasLevelInstalled = false;
     };
 
 } // namespace Lina::Graphics

@@ -144,6 +144,13 @@ namespace Lina::Graphics
                 else
                     lastSetInfo.type = DescriptorType::UniformBuffer;
 
+                if (line.find("[") != std::string::npos)
+                {
+                    const size_t st             = line.find("[");
+                    const size_t end            = line.find("]");
+                    std::string  arrCount       = line.substr(st+1, end-st-1);
+                    lastSetInfo.descriptorCount = std::stoi(arrCount);
+                }
                 parsingBinding = true;
             }
 
@@ -302,7 +309,7 @@ namespace Lina::Graphics
                 if (endOfComments != std::string::npos)
                     contents = contents.substr(endOfComments + 2, contents.size() - endOfComments - 2);
 
-                finalText += contents.c_str() ;
+                finalText += contents.c_str();
             }
             else
                 finalText += line + "\n";

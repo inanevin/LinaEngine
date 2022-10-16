@@ -461,8 +461,8 @@ namespace Lina::Graphics
 
     enum class DescriptorSetType
     {
-        GlobalSet   = 0,
-        PassSet     = 1,
+        GlobalSet = 0,
+        PassSet   = 1,
     };
 
     enum class MaterialPropertyType
@@ -674,10 +674,11 @@ namespace Lina::Graphics
 
     struct ShaderDescriptorSetInfo
     {
-        uint32         setIndex     = 0;
-        uint32         bindingIndex = 0;
-        uint32         stageFlags   = 0;
-        DescriptorType type         = DescriptorType::UniformBuffer;
+        uint32         setIndex        = 0;
+        uint32         bindingIndex    = 0;
+        uint32         stageFlags      = 0;
+        DescriptorType type            = DescriptorType::UniformBuffer;
+        uint32         descriptorCount = 1;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

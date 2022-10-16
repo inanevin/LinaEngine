@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Core/ResourceHandle.hpp"
 #include "Shader.hpp"
 #include "Serialization/Serialization.hpp"
+#include "PipelineObjects/DescriptorSet.hpp"
+#include "PipelineObjects/Buffer.hpp"
 
 namespace Lina::Graphics
 {
@@ -47,15 +49,13 @@ namespace Lina::Graphics
         Material() = default;
         virtual ~Material();
 
-        template <class Archive>
-        void Save(Archive& archive)
+        template <class Archive> void Save(Archive& archive)
         {
             m_shader.Save(archive);
             archive(m_isInstanced);
         }
 
-        template <class Archive>
-        void Load(Archive& archive)
+        template <class Archive> void Load(Archive& archive)
         {
             m_shader.Load(archive);
             archive(m_isInstanced);
@@ -81,13 +81,17 @@ namespace Lina::Graphics
         }
 
     private:
-        void FindShader();
-        void SetupProperties();
+        void   FindShader();
+        void   SetupProperties();
+        void   CheckDescriptorAndBuffer();
 
     private:
         bool                              m_isInstanced = false;
         Resources::ResourceHandle<Shader> m_shader;
         Vector<MaterialPropertyBase*>     m_properties;
+        uint32                            m_totalPropertySize = 0;
+        DescriptorSet                     m_descriptor;
+        Buffer                            m_dataBuffer;
     };
 
 } // namespace Lina::Graphics

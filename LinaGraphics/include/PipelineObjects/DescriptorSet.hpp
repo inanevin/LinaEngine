@@ -42,14 +42,18 @@ namespace Lina::Graphics
     class DescriptorPool;
     class DescriptorSetLayout;
     class Buffer;
+    class Texture;
 
     class DescriptorSet
     {
     public:
         void           Create();
         DescriptorSet& AddLayout(DescriptorSetLayout* layout);
-        DescriptorSet& AddBuffer(Buffer& buf);
-        void           Update();
+
+        void BeginUpdate();
+        void AddBufferUpdate(Buffer& buffer, size_t range, uint32 binding, DescriptorType type);
+        void AddTextureUpdate(uint32 binding, Texture* txt);
+        void SendUpdate();
 
         static void UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v);
 
@@ -57,10 +61,10 @@ namespace Lina::Graphics
         uint32               setCount = 0;
         VkDescriptorPool_T*  pool     = nullptr;
         DescriptorSetLayout* layout;
-        Vector<Buffer*>      buffers;
 
         // Runtime
-        VkDescriptorSet_T* _ptr = nullptr;
+        VkDescriptorSet_T*         _ptr = nullptr;
+        Vector<WriteDescriptorSet> _writes;
     };
 } // namespace Lina::Graphics
 

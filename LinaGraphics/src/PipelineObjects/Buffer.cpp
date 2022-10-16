@@ -114,7 +114,11 @@ namespace Lina::Graphics
         Create();
 
         if (boundSet != nullptr)
-            boundSet->Update();
+        {
+            boundSet->BeginUpdate();
+            boundSet->AddBufferUpdate(*this, size, boundBinding, boundType);
+            boundSet->SendUpdate();
+        }
     }
 
 } // namespace Lina::Graphics

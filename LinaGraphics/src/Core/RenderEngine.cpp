@@ -111,7 +111,7 @@ namespace Lina::Graphics
             .type            = DescriptorType::UniformBuffer,
         };
 
-        m_globalSetLayout.AddBinding(sceneBinding).AddBinding(lightDataBinding).Create();
+        m_descriptorLayouts[DescriptorSetType::GlobalSet].AddBinding(sceneBinding).AddBinding(lightDataBinding).Create();
 
         DescriptorSetLayoutBinding viewDataBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -127,28 +127,9 @@ namespace Lina::Graphics
             .type            = DescriptorType::StorageBuffer,
         };
 
-        m_passLayout.AddBinding(viewDataBinding).AddBinding(objDataBinding).Create();
+        m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(viewDataBinding).AddBinding(objDataBinding).Create();
 
-        DescriptorSetLayoutBinding texturesBinding = DescriptorSetLayoutBinding{
-            .binding         = 0,
-            .descriptorCount = 5,
-            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
-            .type            = DescriptorType::CombinedImageSampler,
-        };
-
-        DescriptorSetLayoutBinding materialDataBinding = DescriptorSetLayoutBinding{
-            .binding         = 0,
-            .descriptorCount = 1,
-            .stageFlags      = GetShaderStage(ShaderStage::Vertex) | GetShaderStage(ShaderStage::Fragment),
-            .type            = DescriptorType::UniformBuffer,
-        };
-
-        m_materialLayout.AddBinding(texturesBinding).AddBinding(materialDataBinding).Create();
-
-        m_descriptorLayouts[DescriptorSetType::GlobalSet]   = &m_globalSetLayout;
-        m_descriptorLayouts[DescriptorSetType::PassSet]     = &m_passLayout;
-        m_descriptorLayouts[DescriptorSetType::MaterialSet] = &m_materialLayout;
-        m_descriptorLayouts[DescriptorSetType::ObjectSet]   = &m_objectLayout;
+        m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create();
 
         m_renderer.Initialize();
         m_gpuUploader.Create();

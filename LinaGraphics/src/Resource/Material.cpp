@@ -40,17 +40,22 @@ namespace Lina::Graphics
             delete p;
 
         m_properties.clear();
+        m_dataBuffer.Destroy();
     }
 
     Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
         Load(archive);
+        SetupProperties();
+        CheckDescriptorAndBuffer();
         return this;
     }
 
     Resources::Resource* Material::LoadFromFile(const String& path)
     {
         Serialization::LoadFromFile<Material>(path, *this);
+        SetupProperties();
+        CheckDescriptorAndBuffer();
         return this;
     }
 
@@ -65,6 +70,7 @@ namespace Lina::Graphics
         if (m_shader.value != nullptr)
         {
             SetupProperties();
+            CheckDescriptorAndBuffer();
             return;
         }
 
@@ -81,9 +87,50 @@ namespace Lina::Graphics
 
     void Material::SetShader(Shader* shader)
     {
+        bool different = false;
+
+        if (m_shader.value != shader)
+            different = true;
+
         m_shader.sid   = shader->GetSID();
         m_shader.value = shader;
-        SetupProperties();
+
+        if (different)
+        {
+            SetupProperties();
+            CheckDescriptorAndBuffer();
+        }
+    }
+
+    void Material::CheckDescriptorAndBuffer()
+    {
+
+        if (m_totalPropertySize == 0)
+            return;
+
+        m_dataBuffer = Buffer{
+            .size        = m_totalPropertySize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        };
+        m_dataBuffer.Create();
+        m_dataBuffer.boundSet     = &m_descriptor;
+        m_dataBuffer.boundBinding = 0;
+        m_dataBuffer.boundType    = DescriptorType::UniformBuffer;
+
+        if (m_shader.value == nullptr)
+            return;
+
+        m_descriptor = DescriptorSet{
+            .setCount = 1,
+            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+        };
+
+        m_descriptor.AddLayout(&m_shader.value->GetMaterialSetLayout());
+        m_descriptor.Create();
+        m_descriptor.BeginUpdate();
+        m_descriptor.AddBufferUpdate(m_dataBuffer, m_dataBuffer.size, 0, DescriptorType::UniformBuffer);
+        m_descriptor.SendUpdate();
     }
 
     void Material::SetupProperties()
@@ -140,6 +187,10 @@ namespace Lina::Graphics
                 }
             }
         }
+
+        m_totalPropertySize = 0;
+        for (auto p : m_properties)
+            m_totalPropertySize += p->GetTypeSize();
     }
 
     void Material::BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType)
@@ -149,30 +200,26 @@ namespace Lina::Graphics
         auto& pipeline = m_shader.value->GetPipeline(rpType);
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &renderer.GetDescriptorSet(DescriptorSetType::GlobalSet), 0, nullptr);
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &renderer.GetDescriptorSet(DescriptorSetType::PassSet), 0, nullptr);
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &renderer.GetDescriptorSet(DescriptorSetType::MaterialSet), 0, nullptr);
-
-        // Find total size & create data
-        size_t totalSize = 0;
-        for (auto& p : m_properties)
-            totalSize += p->GetTypeSize();
-
-        uint8* data  = new uint8[totalSize];
-        size_t index = 0;
-
-        // Copy each prop
-        for (auto& p : m_properties)
+        if (m_totalPropertySize != 0)
         {
-            const size_t typeSize = p->GetTypeSize();
-            void*        src      = p->GetData();
-            MEMCPY(data + index, src, typeSize);
-            index += typeSize;
-        }
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
+            
+            uint8* data = new uint8[m_totalPropertySize];
+            size_t index = 0;
 
-        // Update buffer.
-        auto& materialSet = renderer.GetMaterialDescriptorSet();
-        renderer.GetMaterialBuffer().CopyInto(data, totalSize);
+            // Copy each prop
+            for (auto& p : m_properties)
+            {
+                const size_t typeSize = p->GetTypeSize();
+                void* src = p->GetData();
+                MEMCPY(data + index, src, typeSize);
+                index += typeSize;
+            }
+
+            // Update buffer.
+            m_dataBuffer.CopyInto(data, m_totalPropertySize);
+        }
+       
     }
 
     void Material::SaveToFile()
