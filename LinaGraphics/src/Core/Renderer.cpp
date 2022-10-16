@@ -206,6 +206,7 @@ namespace Lina::Graphics
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
+
         m_materialDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
         m_materialDescriptor.AddBuffer(m_materialBuffer);
         m_materialDescriptor.Create();
@@ -278,9 +279,6 @@ namespace Lina::Graphics
         // Draw passes.
         m_opaquePass.Initialize(DrawPassMask::Opaque, &m_playerView, 1000.0f);
 
-        // Feature renderers.
-        m_featureRendererManager.Initialize();
-
         // IDlists
         m_allRenderables.Initialize(250, nullptr);
     }
@@ -291,12 +289,16 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
-        m_featureRendererManager.Shutdown();
 
         for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             m_frames[i].objDataBuffer.Destroy();
             m_frames[i].scenePropertiesBuffer.Destroy();
+        }
+
+        for (auto& p : m_passes)
+        {
+            p.second.frameBuffer.Destroy();
         }
 
         for (int i = 0; i < m_framebuffers.size(); i++)
@@ -376,9 +378,9 @@ namespace Lina::Graphics
         auto& mainPass  = m_passes[RenderPassType::Main];
         auto& finalPass = m_passes[RenderPassType::Final];
 
-         mainPass.renderPass.Begin(mainPass.frameBuffer, GetCurrentFrame().commandBuffer);
-         m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer, RenderPassType::Main);
-         mainPass.renderPass.End(GetCurrentFrame().commandBuffer);
+        mainPass.renderPass.Begin(mainPass.frameBuffer, GetCurrentFrame().commandBuffer);
+        m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer, RenderPassType::Main);
+        mainPass.renderPass.End(GetCurrentFrame().commandBuffer);
 
         finalPass.renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
         finalPass.renderPass.End(GetCurrentFrame().commandBuffer);

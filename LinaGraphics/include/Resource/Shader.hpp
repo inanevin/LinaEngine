@@ -117,7 +117,6 @@ namespace Lina::Graphics
         SurfaceType                       m_surface = SurfaceType::Opaque;
         String                            m_text    = "";
         Vector<DescriptorSetLayout>       m_setLayouts;
-        Vector<DescriptorSetType>         m_usedSets;
         HashMap<uint8, Vector<String>>    m_materialProperties;
         Vector<uint8>                     m_renderPasses;
 

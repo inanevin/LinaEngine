@@ -50,8 +50,8 @@ namespace Lina::Graphics
 
     Model* cube = nullptr;
 
-#define RETURN_NOTINITED       \
-    if (!m_initedSuccessfully) \
+#define RETURN_NOTINITED                                                                                                                                                                               \
+    if (!m_initedSuccessfully)                                                                                                                                                                         \
     return
 
     void RenderEngine::Initialize(const InitInfo& initInfo)
@@ -116,22 +116,21 @@ namespace Lina::Graphics
         m_passLayout.AddBinding(objDataBinding).Create();
 
         DescriptorSetLayoutBinding materialDataBinding = DescriptorSetLayoutBinding{
-            .binding = 0,
+            .binding         = 0,
             .descriptorCount = 1,
-            .stageFlags = GetShaderStage(ShaderStage::Vertex) | GetShaderStage(ShaderStage::Fragment),
-            .type = DescriptorType::UniformBuffer,
+            .stageFlags      = GetShaderStage(ShaderStage::Vertex) | GetShaderStage(ShaderStage::Fragment),
+            .type            = DescriptorType::UniformBuffer,
         };
 
-        m_materialLayout.AddBinding(materialDataBinding).Create();
+        DescriptorSetLayoutBinding texture1Binding = DescriptorSetLayoutBinding{
+            .binding         = 1,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
+            .type            = DescriptorType::CombinedImageSampler,
+        };
 
-        // DescriptorSetLayoutBinding txtDataBinding = DescriptorSetLayoutBinding{
-        //     .binding         = 1,
-        //     .descriptorCount = 1,
-        //     .stageFlags      = GetShaderStage(ShaderStage::Fragment),
-        //     .type            = DescriptorType::CombinedImageSampler,
-        // };
-        // 
-       // m_materialLayout.AddBinding(txtDataBinding).Create();
+
+        m_materialLayout.AddBinding(materialDataBinding).AddBinding(texture1Binding).Create();
 
         m_descriptorLayouts[DescriptorSetType::GlobalSet]   = &m_globalSetLayout;
         m_descriptorLayouts[DescriptorSetType::PassSet]     = &m_passLayout;
@@ -154,23 +153,17 @@ namespace Lina::Graphics
         LinaVG::Config.framebufferScale.y                 = ApplicationInfo::GetContentScaleHeight();
         LinaVG::Config.aaMultiplier                       = 1.5f;
 
-        LinaVG::Config.errorCallback = [](const std::string& err) {
-            LINA_ERR(err.c_str());
-        };
+        LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 
-        LinaVG::Config.logCallback = [](const std::string& log) {
-            LINA_TRACE(log.c_str());
-        };
+        LinaVG::Config.logCallback = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 
         m_guiBackend = new LinaVG::Backend::GUIBackend();
         LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
-        LinaVG::Initialize();
 
         // Engine materials
-        m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
-        // m_engineShaderNames[EngineShaderType::StandardUnlit] = "DefaultUnlit";
-        m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
-        // m_engineShaderNames[EngineShaderType::GUIText]       = "GUIText";
+        // m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
+        // m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
+        m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
 
         // Engine models
         m_enginePrimitiveNames[EnginePrimitiveType::Capsule]  = "Capsule";

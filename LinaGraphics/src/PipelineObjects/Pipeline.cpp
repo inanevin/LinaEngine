@@ -119,6 +119,7 @@ namespace Lina::Graphics
             .basePipelineHandle  = VK_NULL_HANDLE,
         };
 
+
         VkResult res = vkCreateGraphicsPipelines(Backend::Get()->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Pipeline] -> Could not create VK pipeline!");
 

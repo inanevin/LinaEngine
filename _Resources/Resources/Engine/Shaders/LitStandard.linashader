@@ -53,7 +53,6 @@ layout(set = 0, binding = 0) uniform SceneData{
 	vec4 sunlightColor;
 } sceneData;
 
-
 struct ObjectData{
 	mat4 model;
 };
@@ -68,6 +67,7 @@ layout(set = 2, binding = 0) uniform MaterialData
 {
 	float dummy; 
 } material;
+
 
 void main()
 {
@@ -100,10 +100,10 @@ layout(set = 0, binding = 0) uniform SceneData{
 	vec4 sunlightColor;
 } sceneData;
 
+
 void main()
 {
 	//return red
-	// outFragColor = vec4(inColor, 1.0f);
 	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
 }
 

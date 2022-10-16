@@ -73,8 +73,8 @@ namespace Lina::Graphics
             vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
         });
 
-        pushConstantRanges.clear();
-        _setLayoutPtrs.clear();
+       // pushConstantRanges.clear();
+       // _setLayoutPtrs.clear();
     }
 
     PipelineLayout& PipelineLayout::AddPushConstant(const PushConstantRange& r)

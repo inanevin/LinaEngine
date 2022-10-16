@@ -123,9 +123,9 @@ namespace Lina
         DefaultResources::s_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
         DefaultResources::s_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
         DefaultResources::s_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
-       
-       // Debug
-       DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Models/Tests/Test.fbx");
+
+        // Debug
+        DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Models/Tests/Test.fbx");
 
         m_resourceManager.GetLoader()->LoadEngineResources();
 
@@ -135,17 +135,19 @@ namespace Lina
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
         // Temp
-        // Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::LitStandard);
-        // m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard)->SetShader(shader);
-        // auto * mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard);
-        //     Serialization::SaveToFile<Graphics::Material>(mat->GetPath(), *mat);
+        Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
+       // m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal)->SetShader(shader);
+        //auto* mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal);
+        //Serialization::SaveToFile<Graphics::Material>(mat->GetPath(), *mat);
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
 
         m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/LitStandard.linamat")->SaveToFile();
         m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/GUIStandard.linamat")->SaveToFile();
-        // Graphics::Material mat;
-        // mat.SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/GUIStandard.linamat", mat);
+        Graphics::Material mat;
+        mat.SetShader(shader);
+        Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", mat);
+
+
     }
 
     void Engine::Run()
@@ -416,36 +418,33 @@ namespace Lina
         Vector<String> extensions;
 
         extensions.push_back("enginesettings");
-        m_resourceManager.RegisterResourceType<EngineSettings>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Static,
-                .typeName             = "Engine Settings",
-                .memChunkCount        = 1,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<EngineSettings>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Static,
+            .typeName             = "Engine Settings",
+            .memChunkCount        = 1,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("rendersettings");
-        m_resourceManager.RegisterResourceType<RenderSettings>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Static,
-                .typeName             = "Render Settings",
-                .memChunkCount        = 1,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<RenderSettings>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Static,
+            .typeName             = "Render Settings",
+            .memChunkCount        = 1,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("linalevel");
-        m_resourceManager.RegisterResourceType<World::Level>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Level,
-                .typeName             = "Level",
-                .memChunkCount        = 20,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<World::Level>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Level,
+            .typeName             = "Level",
+            .memChunkCount        = 20,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("mp3");
@@ -471,50 +470,46 @@ namespace Lina
 
         extensions.clear();
         extensions.push_back("linashader");
-        m_resourceManager.RegisterResourceType<Graphics::Shader>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Graphics,
-                .typeName             = "Graphics",
-                .memChunkCount        = 20,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<Graphics::Shader>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Graphics,
+            .typeName             = "Graphics",
+            .memChunkCount        = 20,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("linamat");
-        m_resourceManager.RegisterResourceType<Graphics::Material>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Graphics,
-                .typeName             = "Material",
-                .memChunkCount        = 50,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<Graphics::Material>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Graphics,
+            .typeName             = "Material",
+            .memChunkCount        = 50,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("fbx");
         extensions.push_back("obj");
-        m_resourceManager.RegisterResourceType<Graphics::Model>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Models,
-                .typeName             = "Model",
-                .memChunkCount        = 100,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<Graphics::Model>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Models,
+            .typeName             = "Model",
+            .memChunkCount        = 100,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
 
         extensions.clear();
         extensions.push_back("png");
         extensions.push_back("jpg");
         extensions.push_back("jpeg");
-        m_resourceManager.RegisterResourceType<Graphics::Texture>(
-            Resources::ResourceTypeData{
-                .packageType          = Resources::PackageType::Textures,
-                .typeName             = "Texture",
-                .memChunkCount        = 200,
-                .associatedExtensions = extensions,
-                .debugColor           = Color::White,
-            });
+        m_resourceManager.RegisterResourceType<Graphics::Texture>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Textures,
+            .typeName             = "Texture",
+            .memChunkCount        = 200,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
         // TODO: Font class.
     }
 

@@ -422,6 +422,7 @@ namespace Lina::Graphics
         UnlitStandard,
         GUIStandard,
         GUIText,
+        SQFinal,
     };
 
     enum class EnginePrimitiveType

@@ -67,8 +67,6 @@ namespace Lina::Graphics
     {
         Vector<WriteDescriptorSet> vv0;
 
-        LINA_ASSERT(layout->bindings.size() == buffers.size(), "Buffer size must be the same as layout binding size!");
-
         uint32 i = 0;
         for (auto& b : buffers)
         {

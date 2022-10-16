@@ -46,7 +46,6 @@ SOFTWARE.
 #include "PipelineObjects/Buffer.hpp"
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "PipelineObjects/DescriptorPool.hpp"
-#include "FeatureRenderers/FeatureRendererManager.hpp"
 #include "Data/IDList.hpp"
 #include "CameraSystem.hpp"
 #include "View.hpp"
@@ -188,7 +187,6 @@ namespace Lina::Graphics
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
 
     private:
-        FeatureRendererManager        m_featureRendererManager;
         Vector<View*>                 m_views;
         View                          m_playerView;
         CameraSystem                  m_cameraSystem;

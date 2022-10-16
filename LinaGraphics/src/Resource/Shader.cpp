@@ -321,11 +321,11 @@ namespace Lina::Graphics
         for (auto setIndex : sets)
         {
             const DescriptorSetType setType = static_cast<DescriptorSetType>(setIndex);
-            m_usedSets.push_back(setType);
 
-            DescriptorSetLayout& l = *RenderEngine::Get()->GetLayout(setType);
-            m_pipelineLayout.AddDescriptorSetLayout(l);
+            
         }
+        DescriptorSetLayout& l = *RenderEngine::Get()->GetLayout(setType);
+        m_pipelineLayout.AddDescriptorSetLayout(l);
 
         m_pipelineLayout.Create();
 
@@ -348,6 +348,7 @@ namespace Lina::Graphics
                 .SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp))
                 .Create();
         }
+
 
     }
 } // namespace Lina::Graphics
