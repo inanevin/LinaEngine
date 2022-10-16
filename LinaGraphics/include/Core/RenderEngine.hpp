@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/CommonApplication.hpp"
 #include "Utility/DeletionQueue.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
+#include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
@@ -119,7 +120,7 @@ namespace Lina::Graphics
             return m_viewport;
         }
 
-        inline DescriptorSetLayout* GetLayout(DescriptorSetType set)
+        inline DescriptorSetLayout& GetLayout(DescriptorSetType set)
         {
             return m_descriptorLayouts[set];
         }
@@ -189,17 +190,14 @@ namespace Lina::Graphics
         Backend       m_backend;
         bool          m_initedSuccessfully = false;
 
-        UploadContext                                    m_gpuUploader;
-        DescriptorPool                                   m_descriptorPool;
-        DescriptorSetLayout                              m_globalSetLayout;
-        DescriptorSetLayout                              m_passLayout;
-        DescriptorSetLayout                              m_materialLayout;
-        DescriptorSetLayout                              m_objectLayout;
-        HashMap<DescriptorSetType, DescriptorSetLayout*> m_descriptorLayouts;
-        Viewport                                         m_viewport;
-        Recti                                            m_scissor;
-        Renderer                                         m_renderer;
-        LinaVG::Backend::GUIBackend*                     m_guiBackend;
+        UploadContext                                   m_gpuUploader;
+        DescriptorPool                                  m_descriptorPool;
+        HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
+        HashMap<DescriptorSetType, PipelineLayout>      m_pipelineLayouts;
+        Viewport                                        m_viewport;
+        Recti                                           m_scissor;
+        Renderer                                        m_renderer;
+        LinaVG::Backend::GUIBackend*                    m_guiBackend;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

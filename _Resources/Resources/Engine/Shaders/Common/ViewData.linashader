@@ -26,58 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_PASS_OPAQUE
-#LINA_PASS_SHADOWS
-#LINA_RP_MAIN
-
-#LINA_VS
-
-#version 460
-layout (location = 0) in vec3 vPosition;
-layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec3 vColor;
-layout (location = 3) in vec2 vTexCoords;
-
-// out
-layout (location = 0) out vec3 outColor;
-layout (location = 1) out vec2 outTexCoords;
-
-#LINA_INCLUDE SceneData
-#LINA_INCLUDE LightData
-#LINA_INCLUDE ViewData
-#LINA_INCLUDE ObjectBuffer
-
-layout(set 2, binding = 0) uniform sampler2D textures[5];
-
-layout(set = 2, binding = 1) uniform MaterialData
+layout(set = 1, binding = 0) uniform ViewData
 {
-	float dummy; 
-} material;
-
-void main()
-{
-	mat4 modelMatrix = objectBuffer.objects[gl_InstanceIndex].model;
-	mat4 transformMatrix = (viewData.viewProj * modelMatrix);
-	gl_Position = transformMatrix * vec4(vPosition, 1.0f);
-	outColor = vColor;
-	outTexCoords = vTexCoords;
-}
-
-#LINA_END
-
-#LINA_FS
-
-#version 450
-layout (location = 0) in vec3 inColor;
-layout (location = 1) in vec2 inTexCoords;
-
-//output write
-layout (location = 0) out vec4 outFragColor;
-
-void main()
-{
-	//return red
-	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
-}
-
-#LINA_END
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+} viewData;

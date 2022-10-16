@@ -43,6 +43,10 @@ namespace Lina::Graphics
     class Mesh;
     class Material;
 
+#define OBJ_BUFFER_MAX   15
+#define MAX_LIGHTS       10
+#define FRAMES_IN_FLIGHT 2
+
     struct VisibilityData
     {
         RenderableComponent* renderable = nullptr;
@@ -88,18 +92,30 @@ namespace Lina::Graphics
         Vector<MeshMaterialPair> meshMaterialPairs;
     };
 
-    constexpr uint32 FRAMES_IN_FLIGHT = 2;
-
     struct GPUSceneData
     {
-        Matrix  view;
-        Matrix  proj;
-        Matrix  viewProj;
         Vector4 fogColor;     // w is for exponent
         Vector4 fogDistances; // x for min, y for max, zw unused.
         Vector4 ambientColor;
         Vector4 sunlightDirection; // w for sun power
         Vector4 sunlightColor;
+    };
+
+    struct GPUViewData
+    {
+        Matrix view;
+        Matrix proj;
+        Matrix viewProj;
+    };
+
+    struct LightData
+    {
+        Vector4 position;
+    };
+
+    struct GPULightData
+    {
+        LightData lights[MAX_LIGHTS];
     };
 
 } // namespace Lina::Graphics

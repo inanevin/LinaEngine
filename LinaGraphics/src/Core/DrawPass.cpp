@@ -118,19 +118,13 @@ namespace Lina::Graphics
         batches = m_batches.size();
     }
 
-    void DrawPass::PrepareBuffers()
+    void DrawPass::UpdateViewData(Buffer& viewDataBuffer)
     {
-        PROFILER_FUNC(PROFILER_THREAD_RENDER);
-
-        auto&        renderer   = RenderEngine::Get()->GetRenderer();
-        const uint32 frameIndex = renderer.GetFrameIndex();
-
-        // Scene properties buffer.
-        GPUSceneData sceneData = RenderEngine::Get()->GetRenderer().GetSceneData();
-        sceneData.proj         = m_view->GetProj();
-        sceneData.view         = m_view->GetView();
-        sceneData.viewProj     = sceneData.proj * sceneData.view;
-        renderer.GetScenePropertiesBuffer().CopyInto(&sceneData, sizeof(GPUSceneData));
+        GPUViewData data;
+        data.view     = m_view->GetView();
+        data.proj     = m_view->GetProj();
+        data.viewProj = data.proj * data.view;
+        viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
     }
 
     void DrawPass::RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType)
@@ -140,8 +134,6 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         auto& renderer = RenderEngine::Get()->GetRenderer();
-
-        PrepareBuffers();
 
         Vector<VkDrawIndexedIndirectCommand> commands;
         uint32                               i = 0;

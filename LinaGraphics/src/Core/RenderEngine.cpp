@@ -104,16 +104,37 @@ namespace Lina::Graphics
             .type            = DescriptorType::UniformBuffer,
         };
 
-        m_globalSetLayout.AddBinding(sceneBinding).Create();
+        DescriptorSetLayoutBinding lightDataBinding = DescriptorSetLayoutBinding{
+            .binding         = 1,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Vertex),
+            .type            = DescriptorType::UniformBuffer,
+        };
+
+        m_globalSetLayout.AddBinding(sceneBinding).AddBinding(lightDataBinding).Create();
+
+        DescriptorSetLayoutBinding viewDataBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Vertex),
+            .type            = DescriptorType::UniformBuffer,
+        };
 
         DescriptorSetLayoutBinding objDataBinding = DescriptorSetLayoutBinding{
-            .binding         = 0,
+            .binding         = 1,
             .descriptorCount = 1,
             .stageFlags      = GetShaderStage(ShaderStage::Vertex),
             .type            = DescriptorType::StorageBuffer,
         };
 
-        m_passLayout.AddBinding(objDataBinding).Create();
+        m_passLayout.AddBinding(viewDataBinding).AddBinding(objDataBinding).Create();
+
+        DescriptorSetLayoutBinding texturesBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 5,
+            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
+            .type            = DescriptorType::CombinedImageSampler,
+        };
 
         DescriptorSetLayoutBinding materialDataBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -122,15 +143,7 @@ namespace Lina::Graphics
             .type            = DescriptorType::UniformBuffer,
         };
 
-        DescriptorSetLayoutBinding texture1Binding = DescriptorSetLayoutBinding{
-            .binding         = 1,
-            .descriptorCount = 1,
-            .stageFlags      = GetShaderStage(ShaderStage::Fragment),
-            .type            = DescriptorType::CombinedImageSampler,
-        };
-
-
-        m_materialLayout.AddBinding(materialDataBinding).AddBinding(texture1Binding).Create();
+        m_materialLayout.AddBinding(texturesBinding).AddBinding(materialDataBinding).Create();
 
         m_descriptorLayouts[DescriptorSetType::GlobalSet]   = &m_globalSetLayout;
         m_descriptorLayouts[DescriptorSetType::PassSet]     = &m_passLayout;
@@ -161,9 +174,9 @@ namespace Lina::Graphics
         LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
 
         // Engine materials
-        // m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
-        // m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
-        m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
+        m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
+        m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
+        // m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
 
         // Engine models
         m_enginePrimitiveNames[EnginePrimitiveType::Capsule]  = "Capsule";

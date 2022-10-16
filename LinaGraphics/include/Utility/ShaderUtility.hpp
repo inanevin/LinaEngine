@@ -83,6 +83,13 @@ namespace Lina::Graphics
         /// </summary>
         /// <param name="text"></param>
         static void FillRenderPasses(const String& text, Vector<uint8>& vec);
+
+        /// <summary>
+        /// Finds include preprocessor & adds the files from Shaders/Common.
+        /// </summary>
+        /// <param name="text"></param>
+        static void AddIncludes(String& text);
+
     };
 } // namespace Lina::Graphics
 

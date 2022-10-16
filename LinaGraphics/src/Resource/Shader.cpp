@@ -94,9 +94,7 @@ namespace Lina::Graphics
             m_text = buffer.str().c_str();
             file.close();
 
-            CheckMasks();
-            CheckMaterialProperties();
-            CheckRenderPasses();
+            CheckShaderProperties();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -153,9 +151,7 @@ namespace Lina::Graphics
             m_text = buffer.str().c_str();
             file.close();
 
-            CheckMasks();
-            CheckMaterialProperties();
-            CheckRenderPasses();
+            CheckShaderProperties();
             CheckIfModuleExists("Vtx", ShaderStage::Vertex, "#LINA_VS");
             CheckIfModuleExists("Fs", ShaderStage::Fragment, "#LINA_FS");
             CheckIfModuleExists("Geo", ShaderStage::Geometry, "#LINA_GEO");
@@ -229,10 +225,20 @@ namespace Lina::Graphics
         }
     }
 
-    void Shader::CheckMasks()
+    void Shader::CheckShaderProperties()
     {
+        // Add includes first
+        ShaderUtility::AddIncludes(m_text);
+
+        // draw passes
         m_drawPassMask = 0;
         m_drawPassMask = ShaderUtility::GetPassMask(m_text);
+
+        // render passes
+        ShaderUtility::FillRenderPasses(m_text, m_renderPasses);
+
+        // material props
+        ShaderUtility::FillMaterialProperties(m_text, m_materialProperties);
     }
 
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)
@@ -245,16 +251,6 @@ namespace Lina::Graphics
             mod.moduleName   = name;
             m_modules[stage] = mod;
         }
-    }
-
-    void Shader::CheckMaterialProperties()
-    {
-        ShaderUtility::FillMaterialProperties(m_text, m_materialProperties);
-    }
-
-    void Shader::CheckRenderPasses()
-    {
-        ShaderUtility::FillRenderPasses(m_text, m_renderPasses);
     }
 
     void Shader::GenerateByteCode()
@@ -318,14 +314,10 @@ namespace Lina::Graphics
                 sets.insert(i.setIndex);
         }
 
-        for (auto setIndex : sets)
-        {
-            const DescriptorSetType setType = static_cast<DescriptorSetType>(setIndex);
-
-            
-        }
-        DescriptorSetLayout& l = *RenderEngine::Get()->GetLayout(setType);
-        m_pipelineLayout.AddDescriptorSetLayout(l);
+        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
+        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+        m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
+        // m_pipelineLayout.AddDescriptorSetLayout(*RenderEngine::Get()->GetLayout(DescriptorSetType::ObjectSet));
 
         m_pipelineLayout.Create();
 
@@ -343,12 +335,7 @@ namespace Lina::Graphics
                         .cullMode          = CullMode::Back,
             };
 
-            m_pipelines[rp].SetShader(this)
-                .SetLayout(m_pipelineLayout)
-                .SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp))
-                .Create();
+            m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();
         }
-
-
     }
 } // namespace Lina::Graphics

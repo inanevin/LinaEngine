@@ -51,8 +51,6 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-#define OBJ_BUFFER_MAX 15
-
     void Renderer::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
@@ -206,7 +204,6 @@ namespace Lina::Graphics
             .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
         };
 
-
         m_materialDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::MaterialSet));
         m_materialDescriptor.AddBuffer(m_materialBuffer);
         m_materialDescriptor.Create();
@@ -228,6 +225,49 @@ namespace Lina::Graphics
             f.renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
             f.renderFence.Create();
 
+            f.indirectBuffer =
+                Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                       .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                       .memoryUsage = MemoryUsageFlags::CpuToGpu};
+
+            f.indirectBuffer.Create();
+
+            // Scene data - set 0 b 0
+            f.sceneDataBuffer = Buffer{
+                .size        = sizeof(GPUSceneData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.sceneDataBuffer.Create();
+
+            // Light data - set 0 b 1
+            f.lightDataBuffer = Buffer{
+                .size        = sizeof(GPULightData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.lightDataBuffer.Create();
+
+            f.globalDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
+            };
+
+
+            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
+            f.globalDescriptor.AddBuffer(f.sceneDataBuffer).AddBuffer(f.lightDataBuffer);
+            f.globalDescriptor.Create();
+            f.globalDescriptor.Update();
+
+            // Pass descriptor
+
+            f.viewDataBuffer = Buffer{
+                .size        = sizeof(GPUViewData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.viewDataBuffer.Create();
+
             f.objDataBuffer = Buffer{
                 .size        = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
@@ -242,34 +282,9 @@ namespace Lina::Graphics
             };
 
             f.passDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
-            f.passDescriptor.AddBuffer(f.objDataBuffer);
+            f.passDescriptor.AddBuffer(f.viewDataBuffer).AddBuffer(f.objDataBuffer);
             f.passDescriptor.Create();
             f.passDescriptor.Update();
-
-            f.indirectBuffer =
-                Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-                       .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-                       .memoryUsage = MemoryUsageFlags::CpuToGpu};
-
-            f.indirectBuffer.Create();
-
-            f.scenePropertiesBuffer = Buffer{
-                .size        = sizeof(GPUSceneData),
-                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-                .memoryUsage = MemoryUsageFlags::CpuToGpu,
-            };
-
-            f.scenePropertiesBuffer.Create();
-
-            f.globalDescriptor = DescriptorSet{
-                .setCount = 1,
-                .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
-            };
-
-            f.globalDescriptor.AddLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
-            f.globalDescriptor.AddBuffer(f.scenePropertiesBuffer);
-            f.globalDescriptor.Create();
-            f.globalDescriptor.Update();
         }
 
         // Views
@@ -293,7 +308,9 @@ namespace Lina::Graphics
         for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             m_frames[i].objDataBuffer.Destroy();
-            m_frames[i].scenePropertiesBuffer.Destroy();
+            m_frames[i].sceneDataBuffer.Destroy();
+            m_frames[i].viewDataBuffer.Destroy();
+            m_frames[i].lightDataBuffer.Destroy();
         }
 
         for (auto& p : m_passes)
@@ -359,10 +376,18 @@ namespace Lina::Graphics
 
         uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
 
-        GetCurrentFrame().commandBuffer.Reset();
-        GetCurrentFrame().commandBuffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+        auto& cmd = GetCurrentFrame().commandBuffer;
 
-        // Obj data buffer.
+        cmd.Reset();
+        cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+
+        // Global - scene data.
+        GetSceneDataBuffer().CopyInto(&m_sceneData, sizeof(GPUSceneData));
+
+        // Global - light data.
+        GetLightDataBuffer().CopyInto(&m_lightData, sizeof(GPULightData));
+
+        // Per render pass - obj data.
         Vector<GPUObjectData> gpuObjectData;
 
         for (auto& r : m_extractedRenderables)
@@ -378,14 +403,19 @@ namespace Lina::Graphics
         auto& mainPass  = m_passes[RenderPassType::Main];
         auto& finalPass = m_passes[RenderPassType::Final];
 
-        mainPass.renderPass.Begin(mainPass.frameBuffer, GetCurrentFrame().commandBuffer);
-        m_opaquePass.RecordDrawCommands(GetCurrentFrame().commandBuffer, RenderPassType::Main);
-        mainPass.renderPass.End(GetCurrentFrame().commandBuffer);
+        mainPass.renderPass.Begin(mainPass.frameBuffer, cmd);
 
-        finalPass.renderPass.Begin(m_framebuffers[imageIndex], GetCurrentFrame().commandBuffer);
-        finalPass.renderPass.End(GetCurrentFrame().commandBuffer);
+       
+        mainPass.renderPass.End(cmd);
 
-        GetCurrentFrame().commandBuffer.End();
+        finalPass.renderPass.Begin(m_framebuffers[imageIndex], cmd);
+
+        m_opaquePass.UpdateViewData(GetViewDataBuffer());
+        m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main);
+
+        finalPass.renderPass.End(cmd);
+
+        cmd.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.

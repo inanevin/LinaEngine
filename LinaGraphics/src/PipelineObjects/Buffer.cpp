@@ -113,9 +113,8 @@ namespace Lina::Graphics
         size = sz;
         Create();
 
-        if(boundSet != nullptr)
-        boundSet->Update();
+        if (boundSet != nullptr)
+            boundSet->Update();
     }
-
 
 } // namespace Lina::Graphics

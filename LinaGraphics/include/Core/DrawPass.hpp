@@ -56,12 +56,12 @@ namespace Lina::Graphics
     {
     public:
         void PrepareRenderData(Vector<RenderableData>& drawList);
+        void UpdateViewData(Buffer& viewDataBuffer);
         void RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType);
 
     private:
         void ExtractPassRenderables(Vector<RenderableData>& drawList);
         void BatchPassRenderables();
-        void PrepareBuffers();
 
         Vector<RenderableData>& GetVisibleRenderables()
         {

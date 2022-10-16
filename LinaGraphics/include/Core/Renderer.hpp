@@ -87,7 +87,9 @@ namespace Lina::Graphics
             Semaphore     presentSemaphore;
             Buffer        objDataBuffer;
             Buffer        indirectBuffer;
-            Buffer        scenePropertiesBuffer;
+            Buffer        sceneDataBuffer;
+            Buffer        viewDataBuffer;
+            Buffer        lightDataBuffer;
 
             DescriptorSet passDescriptor;
             DescriptorSet globalDescriptor;
@@ -145,9 +147,19 @@ namespace Lina::Graphics
             return GetCurrentFrame().objDataBuffer;
         }
 
-        inline Buffer& GetScenePropertiesBuffer()
+        inline Buffer& GetSceneDataBuffer()
         {
-            return GetCurrentFrame().scenePropertiesBuffer;
+            return GetCurrentFrame().sceneDataBuffer;
+        }
+
+        inline Buffer& GetViewDataBuffer()
+        {
+            return GetCurrentFrame().viewDataBuffer;
+        }
+
+        inline Buffer& GetLightDataBuffer()
+        {
+            return GetCurrentFrame().lightDataBuffer;
         }
 
         inline Buffer& GetIndirectBuffer()
@@ -155,9 +167,9 @@ namespace Lina::Graphics
             return GetCurrentFrame().indirectBuffer;
         }
 
-        inline GPUSceneData& GetSceneData()
+        inline GPUViewData& GetViewData()
         {
-            return m_sceneData;
+            return m_viewData;
         }
 
         Frame& GetCurrentFrame()
@@ -202,6 +214,8 @@ namespace Lina::Graphics
         Vector<GPUObjectData>        m_gpuObjectData;
         DrawPass                     m_opaquePass;
         GPUSceneData                 m_sceneData;
+        GPUViewData                  m_viewData;
+        GPULightData                 m_lightData;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];

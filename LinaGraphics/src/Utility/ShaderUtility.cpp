@@ -35,13 +35,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     Vector<Pair<String, size_t>> DataTypes = {
-        {"vec2", sizeof(float) * 2},
-        {"vec3", sizeof(float) * 3},
-        {"vec4", sizeof(float) * 4},
-        {"float", sizeof(float)},
-        {"double", sizeof(double)},
-        {"int", sizeof(int)},
-        {"mat4", sizeof(Matrix)},
+        {"vec2", sizeof(float) * 2}, {"vec3", sizeof(float) * 3}, {"vec4", sizeof(float) * 4}, {"float", sizeof(float)}, {"double", sizeof(double)}, {"int", sizeof(int)}, {"mat4", sizeof(Matrix)},
     };
 
     String ShaderUtility::GetShaderStageText(const String& shader, const String& defineStart)
@@ -224,7 +218,7 @@ namespace Lina::Graphics
                     continue;
 
                 size_t type = std::string::npos;
-                uint8 i    = 0;
+                uint8  i    = 0;
 
                 while (type == std::string::npos && i < typesSize)
                 {
@@ -277,5 +271,43 @@ namespace Lina::Graphics
                 continue;
             }
         }
+    }
+
+    void ShaderUtility::AddIncludes(String& text)
+    {
+        std::istringstream f(text.c_str());
+        std::string        line        = "";
+        std::string        includeText = "#LINA_INCLUDE";
+        std::string        finalText   = "";
+
+        while (std::getline(f, line))
+        {
+            if (line.find("//") != std::string::npos)
+                continue;
+
+            if (!line.empty() && *line.rbegin() == '\r')
+                line.erase(line.end() - 1);
+
+            const size_t include = line.find(includeText);
+
+            if (include != std::string::npos)
+            {
+                std::string includeFile = line.substr(include + includeText.size() + 1, line.size() - include - includeText.size() - 1);
+
+                const String str           = String("Resources/Engine/Shaders/Common/") + includeFile.c_str() + ".linashader";
+                String       contents      = Utility::GetFileContents(str);
+                const size_t endOfComments = contents.find("*/");
+
+                // Remove comments if exists.
+                if (endOfComments != std::string::npos)
+                    contents = contents.substr(endOfComments + 2, contents.size() - endOfComments - 2);
+
+                finalText += contents.c_str() ;
+            }
+            else
+                finalText += line + "\n";
+        }
+
+        text = finalText.c_str();
     }
 } // namespace Lina::Graphics

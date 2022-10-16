@@ -99,7 +99,7 @@ layout(set = 0, binding = 0) uniform SceneData{
 	vec4 sunlightColor;
 } sceneData;
 
-layout(set = 2, binding = 0) uniform sampler2D tex1;
+layout(set = 2, binding = 0) uniform sampler2D textures[5];
 
 void main()
 {

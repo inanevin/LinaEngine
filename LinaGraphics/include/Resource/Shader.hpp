@@ -83,11 +83,6 @@ namespace Lina::Graphics
             return m_drawPassMask;
         }
 
-        inline Vector<DescriptorSetType>& GetUsedSets()
-        {
-            return m_usedSets;
-        }
-
         inline const HashMap<uint8, Vector<String>>& GetMaterialProperties() const
         {
             return m_materialProperties;
@@ -103,10 +98,8 @@ namespace Lina::Graphics
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
-        void CheckMasks();
+        void CheckShaderProperties();
         void CheckIfModuleExists(const String& name, ShaderStage stage, const String& define);
-        void CheckMaterialProperties();
-        void CheckRenderPasses();
         void GenerateByteCode();
         bool CreateShaderModules();
         void GeneratePipeline();

@@ -135,17 +135,17 @@ namespace Lina
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
         // Temp
-        Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
+       // Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
        // m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal)->SetShader(shader);
         //auto* mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal);
         //Serialization::SaveToFile<Graphics::Material>(mat->GetPath(), *mat);
         // m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/Default.linamat")->SetShader(shader);
 
-        m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/LitStandard.linamat")->SaveToFile();
-        m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/GUIStandard.linamat")->SaveToFile();
-        Graphics::Material mat;
-        mat.SetShader(shader);
-        Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", mat);
+       //m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/LitStandard.linamat")->SaveToFile();
+       //m_resourceManager.GetResource<Graphics::Material>("Resources/Engine/Materials/GUIStandard.linamat")->SaveToFile();
+       //Graphics::Material mat;
+       //mat.SetShader(shader);
+       //Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", mat);
 
 
     }

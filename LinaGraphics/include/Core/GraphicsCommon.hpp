@@ -463,8 +463,6 @@ namespace Lina::Graphics
     {
         GlobalSet   = 0,
         PassSet     = 1,
-        MaterialSet = 2,
-        ObjectSet   = 3,
     };
 
     enum class MaterialPropertyType

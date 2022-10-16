@@ -149,12 +149,9 @@ namespace Lina::Graphics
         auto& pipeline = m_shader.value->GetPipeline(rpType);
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
-        for (auto& set : m_shader.value->GetUsedSets())
-        {
-            const uint32 setIndex = static_cast<uint32>(set);
-            auto&        ds       = renderer.GetDescriptorSet(set);
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, setIndex, 1, &ds, 0, nullptr);
-        }
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 0, 1, &renderer.GetDescriptorSet(DescriptorSetType::GlobalSet), 0, nullptr);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 1, 1, &renderer.GetDescriptorSet(DescriptorSetType::PassSet), 0, nullptr);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &renderer.GetDescriptorSet(DescriptorSetType::MaterialSet), 0, nullptr);
 
         // Find total size & create data
         size_t totalSize = 0;
