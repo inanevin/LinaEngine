@@ -47,7 +47,6 @@ namespace Lina
     class DefaultResources
     {
     public:
-
         static inline const HashMap<TypeID, Vector<String>>& GetEngineResources()
         {
             return s_engineResources;
@@ -73,6 +72,16 @@ namespace Lina
         {
             return Time::GetCPUTime() - s_startTime;
         }
+        
+        static inline float GetDeltaTime()
+        {
+            return s_deltaTime;
+        }
+
+        static inline float GetSmoothDeltaTime()
+        {
+            return s_smoothDeltaTime;
+        }
 
     private:
         friend class Engine;
@@ -82,9 +91,11 @@ namespace Lina
         static bool   s_isInPlayMode;
         static bool   s_paused;
         static bool   s_shouldSkipFrame;
+        static float  s_deltaTime;
+        static float  s_smoothDeltaTime;
     };
 
-    extern TypeID           g_levelTypeID;
+    extern TypeID g_levelTypeID;
 
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina

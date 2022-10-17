@@ -26,49 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#LINA_RP_PP
+#LINA_PIPELINE_NOVERTEX
 
-#ifndef DescriptorSet_HPP
-#define DescriptorSet_HPP
+#LINA_VS
 
-#include "Core/GraphicsCommon.hpp"
+#version 450
+layout (location = 0) out vec2 outUV;
 
-struct VkDescriptorSet_T;
-struct VkDescriptorPool_T;
-struct VkDescriptorSetLayout_T;
-
-namespace Lina::Graphics
+void main()
 {
-    class DescriptorPool;
-    class DescriptorSetLayout;
-    class Buffer;
-    class Texture;
-    class Image;
-    class Sampler;
+	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+    gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+}
 
-    class DescriptorSet
-    {
-    public:
-        void           Create();
-        DescriptorSet& AddLayout(DescriptorSetLayout* layout);
+#LINA_END
 
-        void BeginUpdate();
-        void AddBufferUpdate(Buffer& buffer, size_t range, uint32 binding, DescriptorType type);
-        void AddTextureUpdate(uint32 binding, Texture* txt);
-        void AddTextureUpdate(uint32 binding, Image* img, Sampler* sampler);
-        void SendUpdate();
+#LINA_FS
 
-        static void UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v);
+#version 450
+layout (location = 0) in vec2 inUV;
 
-        // Description
-        uint32               setCount = 0;
-        VkDescriptorPool_T*  pool     = nullptr;
-        DescriptorSetLayout* layout;
+//output write
+layout (location = 0) out vec4 outFragColor;
 
-        // Runtime
-        VkDescriptorSet_T*         _ptr = nullptr;
-        Vector<WriteDescriptorSet> _writes;
-    };
-} // namespace Lina::Graphics
+layout(set = 2, binding = 0) uniform sampler2D quad;
 
-#endif
+void main()
+{
+	vec4 color = vec4(texture(quad,inUV).xyz, 1.0f);
+	outFragColor = color;
+}
+
+#LINA_END

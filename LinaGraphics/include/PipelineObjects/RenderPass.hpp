@@ -40,6 +40,7 @@ namespace Lina::Graphics
 {
     class Framebuffer;
     class CommandBuffer;
+    class Texture;
 
     class SubPass
     {
@@ -68,6 +69,7 @@ namespace Lina::Graphics
         RenderPass& AddClearValue(const ClearValue& clear);
         void        Begin(const Framebuffer& fb, const CommandBuffer& cmd);
         void        End(const CommandBuffer& cmd);
+        void        DestroyFramebufferAndTextures();
 
         // Description
         Vector<ClearValue>        clearValues;
@@ -76,7 +78,10 @@ namespace Lina::Graphics
         Vector<SubPassDependency> dependencies;
 
         // Runtime
-        VkRenderPass_T* _ptr = nullptr;
+        VkRenderPass_T* _ptr          = nullptr;
+        Framebuffer*    _framebuffer  = nullptr;
+        Texture*        _colorTexture = nullptr;
+        Texture*        _depthTexture = nullptr;
     };
 } // namespace Lina::Graphics
 

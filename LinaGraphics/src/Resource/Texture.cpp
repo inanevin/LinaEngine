@@ -93,6 +93,14 @@ namespace Lina::Graphics
         stbi_image_free(m_pixels);
     }
 
+    void Texture::CreateFromRuntime(Image img, Sampler sampler)
+    {
+        m_gpuImage = img;
+        m_gpuImage.Create(true, false);
+        m_sampler = sampler;
+        m_sampler.Create();
+    }
+
     void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
@@ -144,17 +152,17 @@ namespace Lina::Graphics
         m_cpuBuffer.CopyInto(pixels, bufferSize);
         stbi_image_free(m_pixels);
 
-        m_extent = Extent3D{
-            .width  = m_assetData.width,
-            .height = m_assetData.height,
-            .depth  = 1};
+        m_extent = Extent3D{.width = m_assetData.width, .height = m_assetData.height, .depth = 1};
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
 
         m_gpuImage = Image{
             .format          = m_assetData.format,
             .tiling          = ImageTiling::Optimal,
             .extent          = m_extent,
-            .aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectColor),
             .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
+            .subresRange     = range,
         };
 
         m_gpuImage.Create(true, false);
@@ -162,7 +170,7 @@ namespace Lina::Graphics
         Command cmd;
         cmd.Record = [this](CommandBuffer& cmd) {
             ImageSubresourceRange range = ImageSubresourceRange{
-                .aspectMask     = ImageAspectFlags::AspectColor,
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
                 .baseMipLevel   = 0,
                 .levelCount     = 1,
                 .baseArrayLayer = 0,
@@ -183,9 +191,9 @@ namespace Lina::Graphics
 
             cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
 
-            ImageSubresourceLayers copySubres = ImageSubresourceLayers{
-                .aspectMask     = ImageAspectFlags::AspectColor,
-                .mipLevel       = 0,
+            ImageSubresourceRange copySubres = ImageSubresourceRange{
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
                 .baseArrayLayer = 0,
                 .layerCount     = 1,
             };

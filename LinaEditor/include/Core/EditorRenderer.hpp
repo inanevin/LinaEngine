@@ -28,47 +28,53 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DescriptorSet_HPP
-#define DescriptorSet_HPP
+#ifndef LinaEditor_HPP
+#define LinaEditor_HPP
 
-#include "Core/GraphicsCommon.hpp"
-
-struct VkDescriptorSet_T;
-struct VkDescriptorPool_T;
-struct VkDescriptorSetLayout_T;
-
-namespace Lina::Graphics
+namespace Lina
 {
-    class DescriptorPool;
-    class DescriptorSetLayout;
-    class Buffer;
-    class Texture;
-    class Image;
-    class Sampler;
+    namespace Event
+    {
+        struct ELevelInstalled;
+        struct EOnGUIDraw;
+    } // namespace Event
 
-    class DescriptorSet
+    namespace World
+    {
+        class Entity;
+    }
+
+    namespace Resources
+    {
+        class EditorResourceLoader;
+    }
+} // namespace Lina
+
+namespace Lina::Editor
+{
+    class EditorManager
     {
     public:
-        void           Create();
-        DescriptorSet& AddLayout(DescriptorSetLayout* layout);
+        EditorManager()          = default;
+        virtual ~EditorManager() = default;
 
-        void BeginUpdate();
-        void AddBufferUpdate(Buffer& buffer, size_t range, uint32 binding, DescriptorType type);
-        void AddTextureUpdate(uint32 binding, Texture* txt);
-        void AddTextureUpdate(uint32 binding, Image* img, Sampler* sampler);
-        void SendUpdate();
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnGUIDraw(const Event::EOnGUIDraw& ev);
+        void Initialize();
+        void Shutdown();
+        void VerifyStaticResources();
+        void CreateEditorCamera();
+        void DeleteEditorCamera();
+        void SaveCurrentLevel();
+        void PackageProject();
+        void SetPlayMode(bool enabled);
+        void SetIsPaused(bool paused);
+        void SkipNextFrame();
 
-        static void UpdateDescriptorSets(const Vector<WriteDescriptorSet>& v);
-
-        // Description
-        uint32               setCount = 0;
-        VkDescriptorPool_T*  pool     = nullptr;
-        DescriptorSetLayout* layout;
-
-        // Runtime
-        VkDescriptorSet_T*         _ptr = nullptr;
-        Vector<WriteDescriptorSet> _writes;
+    private:
+        Resources::EditorResourceLoader* m_resLoader;
+        World::Entity*                   m_editorCamera = nullptr;
     };
-} // namespace Lina::Graphics
+} // namespace Lina::Editor
 
 #endif

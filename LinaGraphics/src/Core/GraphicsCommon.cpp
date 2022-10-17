@@ -339,6 +339,18 @@ namespace Lina::Graphics
         }
     }
 
+    VkFrontFace GetFrontFace(FrontFace face)
+    {
+        switch (face)
+        {
+        case FrontFace::ClockWise:
+            return VK_FRONT_FACE_CLOCKWISE;
+        case FrontFace::AntiClockWise:
+            return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        default:
+            return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        }
+    }
     VkVertexInputRate GetVertexInputRate(VertexInputRate rate)
     {
         switch (rate)
@@ -427,6 +439,8 @@ namespace Lina::Graphics
             return VK_ACCESS_TRANSFER_READ_BIT;
         case AccessFlags::ShaderRead:
             return VK_ACCESS_SHADER_READ_BIT;
+        case AccessFlags::MemoryRead:
+            return VK_ACCESS_MEMORY_READ_BIT;
         default:
             return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         }
@@ -580,4 +594,31 @@ namespace Lina::Graphics
         }
     }
 
+    VkBorderColor GetBorderColor(BorderColor col)
+    {
+        switch (col)
+        {
+        case BorderColor::FloatTransparentBlack:
+            return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+        case BorderColor::FloatOpaqueWhite:
+            return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        case BorderColor::FloatOpaqueBlack:
+            return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+        default:
+            return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        }
+    }
+
+    uint32 GetDependencyFlags(DependencyFlag flag)
+    {
+        switch (flag)
+        {
+        case DependencyFlag::ByRegion:
+            return VK_DEPENDENCY_BY_REGION_BIT;
+        case DependencyFlag::DeviceGroup:
+            return VK_DEPENDENCY_DEVICE_GROUP_BIT;
+        default:
+            return VK_DEPENDENCY_BY_REGION_BIT;
+        }
+    }
 } // namespace Lina::Graphics

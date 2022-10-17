@@ -129,13 +129,11 @@ namespace Lina
 
         m_resourceManager.GetLoader()->LoadEngineResources();
 
-        m_eventSystem.Trigger<Event::EEngineResourcesLoaded>();
-
         m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/engine.linasettings");
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
         // Temp
-       //  Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
+        //  Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
         // Graphics::Material mat;
         // mat.SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/LitStandard.linamat", mat);
@@ -148,10 +146,22 @@ namespace Lina
         // mat.SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", mat);
 
-        //
-        // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal);
+        // Graphics::Material mat;
+        // Serialization::SaveToFile<Graphics::Material>("Resources/Empty.linamat", mat);
+
         // mat->SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", *mat);
+
+        // const auto& paths = m_renderEngine.GetEngineMaterialPaths();
+        // for (auto& p : paths)
+        // {
+        //     auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
+        //     mat->SaveToFile();
+        // }
+        // 
+        // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess);
+        // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));
+        // mat->SaveToFile();
     }
 
     void Engine::Run()
@@ -177,15 +187,9 @@ namespace Lina
         // Starting game.
         m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
-        // auto* c = m_resourceManager.GetCache<EngineSettings>();
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-        // World::EntityWorld::Get()->CreateEntity("My Entity 1");
-        // World::Entity* e = World::EntityWorld::Get()->GetEntity("My Entity 1");
-        //
-        // TestComponent* ce = World::EntityWorld::Get()->AddComponent<TestComponent>(e);
-        // ce->a             = 118;
-        // ce->x             = 12.0f;
+
         m_levelManager.SaveCurrentLevel();
         m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
@@ -214,50 +218,33 @@ namespace Lina
         //
         // m_levelManager.SaveCurrentLevel();
 
-        //  SetFrameLimit(60);
+        // SetFrameLimit(30);
 
         const String initialTitle = m_renderEngine.m_window.GetTitle();
 
-        // double nextTime = 0.0;
         while (m_running)
         {
             PROFILER_FRAME_START();
 
-            //     if (m_frameLimit > 0)
-            //     {
-            //         while (GetElapsedTime() < nextTime)
-            //         {
-            //
-            //         }
-            //     }
-            //
-            //     currentFrameTime = GetElapsedTime();
-            //
-            //     if (m_frameLimit > 0)
-            //     {
-            //         nextTime = currentFrameTime + m_frameLimitSeconds;
-            //     }
-
             previousFrameTime = currentFrameTime;
             currentFrameTime  = RuntimeInfo::GetElapsedTime();
 
-            //  if (m_frameLimit > 0 && !m_firstRun)
-            //  {
-            //      const double diff = currentFrameTime - previousFrameTime;
-            //
-            //      if (diff < m_frameLimitSeconds)
-            //      {
-            //          const double wa = (m_frameLimitSeconds - diff);
-            //          PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
-            //          Time::Sleep(wa);
-            //          PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
-            //          currentFrameTime += wa;
-            //      }
-            //  }
+            if (m_frameLimit > 0 && !m_firstRun)
+            {
+                const double diff = currentFrameTime - previousFrameTime;
 
-            m_rawDeltaTime = (currentFrameTime - previousFrameTime);
-            // m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
-            // previousFrameTime = currentFrameTime;
+                if (diff < m_frameLimitSeconds)
+                {
+                    const double wa = (m_frameLimitSeconds - diff);
+                    PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
+                    Time::Sleep(wa);
+                    PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
+                    currentFrameTime += wa;
+                }
+            }
+
+            RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
+            RuntimeInfo::s_smoothDeltaTime = SmoothDeltaTime(RuntimeInfo::s_deltaTime);
 
             // Input
             m_inputEngine.Tick();
@@ -269,7 +256,7 @@ namespace Lina
             });
 
             // Game sim, physics + update etc.
-            RunSimulation((float)m_rawDeltaTime);
+            RunSimulation((float)RuntimeInfo::s_deltaTime);
             updates++;
 
             // Wait for all.
@@ -283,7 +270,7 @@ namespace Lina
             // Calculate FPS, UPS.
             if (currentFrameTime - totalFPSTime >= 1.0)
             {
-                m_frameTime  = m_rawDeltaTime * 1000;
+                m_frameTime  = RuntimeInfo::s_deltaTime * 1000;
                 m_currentFPS = frames;
                 m_currentUPS = updates;
                 totalFPSTime += 1.0f;
@@ -342,7 +329,7 @@ namespace Lina
         RuntimeInfo::s_shouldSkipFrame = false;
 
         PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
@@ -368,11 +355,11 @@ namespace Lina
 
         // Other main systems (engine or game)
         PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)m_rawDeltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
         PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);

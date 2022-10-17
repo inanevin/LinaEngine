@@ -27,20 +27,17 @@ SOFTWARE.
 */
 
 #LINA_RP_FINAL
+#LINA_PIPELINE_NOVERTEX
 
 #LINA_VS
 
 #version 450
-layout (location = 0) in vec3 vPosition;
-layout (location = 1) in vec2 vTexCoords;
-
-// out
-layout (location = 0) out vec2 outTexCoords;
+layout (location = 0) out vec2 outUV;
 
 void main()
 {
-	gl_Position = vec4(vPosition.x, vPosition.y, 0.0, 1.0);
-	outTexCoords = vTexCoords;
+	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+    gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
 }
 
 #LINA_END
@@ -48,15 +45,17 @@ void main()
 #LINA_FS
 
 #version 450
-layout (location = 0) in vec2 inTexCoords;
+layout (location = 0) in vec2 inUV;
 
 //output write
 layout (location = 0) out vec4 outFragColor;
 
+layout(set = 2, binding = 0) uniform sampler2D quad;
+
 void main()
 {
-	//outFragColor = vec4(texture(tex1,inTexCoords).xyz, 1.0f);
-	 outFragColor = vec4(1, 1, 1, 1.0f);
+	vec4 color = vec4(texture(quad,inUV).xyz, 1.0f);
+	outFragColor = color;
 }
 
 #LINA_END

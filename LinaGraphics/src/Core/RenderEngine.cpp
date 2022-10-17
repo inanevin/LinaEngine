@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Resource/Model.hpp"
 #include "Resource/ModelNode.hpp"
 #include "Resource/Mesh.hpp"
+#include "Resource/Material.hpp"
 
 #include "Core/GUIBackend.hpp"
 #include <LinaVG/LinaVG.hpp>
@@ -155,9 +156,10 @@ namespace Lina::Graphics
         LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
 
         // Engine materials
-        m_engineShaderNames[EngineShaderType::LitStandard] = "LitStandard";
-        m_engineShaderNames[EngineShaderType::GUIStandard] = "GUIStandard";
-        m_engineShaderNames[EngineShaderType::SQFinal]     = "ScreenQuads/SQFinal";
+        m_engineShaderNames[EngineShaderType::LitStandard]   = "LitStandard";
+        m_engineShaderNames[EngineShaderType::GUIStandard]   = "GUIStandard";
+        m_engineShaderNames[EngineShaderType::SQFinal]       = "ScreenQuads/SQFinal";
+        m_engineShaderNames[EngineShaderType::SQPostProcess] = "ScreenQuads/SQPostProcess";
 
         // Engine models
         m_enginePrimitiveNames[EnginePrimitiveType::Capsule]  = "Capsule";
@@ -170,7 +172,8 @@ namespace Lina::Graphics
         m_enginePrimitiveNames[EnginePrimitiveType::Suzanne]  = "Suzanne";
 
         // Engine textures
-        m_engineTextureNames[EngineTextureType::Grid512] = "Grid512";
+        m_engineTextureNames[EngineTextureType::DefaultLina] = "DefaultLina";
+        m_engineTextureNames[EngineTextureType::Grid512]     = "Grid512";
     }
 
     void RenderEngine::Clear()
@@ -252,12 +255,28 @@ namespace Lina::Graphics
         m_placeholderModel     = rm->GetResource<Model>("Resources/Engine/Models/Cube.fbx");
         m_placeholderModelNode = m_placeholderModel->GetRootNode();
 
+        for (auto& p : m_engineTextureNames)
+        {
+            const String txtPath      = "Resources/Engine/Textures/" + p.second + ".png";
+            Texture*     texture      = rm->GetResource<Texture>(txtPath);
+            m_engineTextures[p.first] = texture;
+        }
+
         for (auto& p : m_engineShaderNames)
         {
-            const String shaderPath    = "Resources/Engine/Shaders/" + p.second + ".linashader";
-            const String materialPath  = "Resources/Engine/Materials/" + p.second + ".linamat";
-            Shader*      shader        = rm->GetResource<Shader>(shaderPath);
-            Material*    material      = rm->GetResource<Material>(materialPath);
+            const String shaderPath   = "Resources/Engine/Shaders/" + p.second + ".linashader";
+            const String materialPath = "Resources/Engine/Materials/" + p.second + ".linamat";
+            Shader*      shader       = rm->GetResource<Shader>(shaderPath);
+            Material*    material     = rm->GetResource<Material>(materialPath);
+
+            if (material->GetShaderHandle().sid == 0 && ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
+            {
+                material->m_path = materialPath;
+                material->m_sid  = TO_SID(materialPath);
+                material->SetShader(shader);
+                material->SaveToFile();
+            }
+
             m_engineShaders[p.first]   = shader;
             m_engineMaterials[p.first] = material;
         }
@@ -268,6 +287,8 @@ namespace Lina::Graphics
             Model*       model      = rm->GetResource<Model>(modelPath);
             m_engineModels[p.first] = model;
         }
+
+        m_renderer.OnEngineResourcesLoaded();
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

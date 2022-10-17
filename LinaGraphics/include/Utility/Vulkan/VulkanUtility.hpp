@@ -38,6 +38,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     struct Attachment;
+    class RenderPass;
 
     class VulkanUtility
     {
@@ -46,20 +47,26 @@ namespace Lina::Graphics
 
         // Pipeline
         static VkPipelineShaderStageCreateInfo        CreatePipelineShaderStageCreateInfo(ShaderStage stage, VkShaderModule shaderModule);
-        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs);
+        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>&   bindingDescs,
+                                                                                               const Vector<VkVertexInputAttributeDescription>& attDescs);
         static VkPipelineInputAssemblyStateCreateInfo CreatePipelineInputAssemblyCreateInfo(Topology top, bool primitiveRestart = false);
-        static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode = CullMode::None);
+        static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode, FrontFace frontFace);
         static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
         static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState();
         static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
+        // Render Pass
+        static void SetupMainRenderPass(RenderPass& pass);
+        static void SetupFinalRenderPass(RenderPass& pass);
+
         // InputDesc
         static VertexInputDescription GetVertexDescription();
-        static void                   GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
+        static VertexInputDescription GetEmptyVertexDescription();
+        static void GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
 
         // Image
         static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent);
-        static VkImageViewCreateInfo GetImageViewCreateInfo(VkImage img, Format format, uint32 aspectFlags);
+        static VkImageViewCreateInfo GetImageViewCreateInfo(VkImage img, Format format, ImageSubresourceRange subres);
 
         // Pass
         static VkSubpassDependency GetSubpassDependency(SubPassDependency& dependency);
@@ -70,7 +77,7 @@ namespace Lina::Graphics
         // Buffers
         static VkBufferCopy             GetBufferCopy(const BufferCopy& copy);
         static VkBufferImageCopy        GetBufferImageCopy(const BufferImageCopy& copy);
-        static VkImageSubresourceLayers GetImageSubresourceLayers(const ImageSubresourceLayers& r);
+        static VkImageSubresourceLayers GetImageSubresourceLayers(const ImageSubresourceRange& r);
 
         // Barriers
         static VkMemoryBarrier       GetMemoryBarrier(const DefaultMemoryBarrier& bar);

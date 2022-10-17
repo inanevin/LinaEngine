@@ -36,13 +36,18 @@ namespace Lina::Graphics
     void Sampler::Create(bool autoDestroy)
     {
         VkSamplerCreateInfo i = VkSamplerCreateInfo{
-            .sType        = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-            .pNext        = nullptr,
-            .magFilter    = GetFilter(magFilter),
-            .minFilter    = GetFilter(minFilter),
-            .addressModeU = GetSamplerAddressMode(u),
-            .addressModeV = GetSamplerAddressMode(v),
-            .addressModeW = GetSamplerAddressMode(w),
+            .sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .pNext         = nullptr,
+            .magFilter     = GetFilter(magFilter),
+            .minFilter     = GetFilter(minFilter),
+            .addressModeU  = GetSamplerAddressMode(u),
+            .addressModeV  = GetSamplerAddressMode(v),
+            .addressModeW  = GetSamplerAddressMode(w),
+            .mipLodBias    = mipLodBias,
+            .maxAnisotropy = maxAnisotropy,
+            .minLod        = 0.0f,
+            .maxLod        = 1.0f,
+            .borderColor   = GetBorderColor(borderColor),
         };
 
         VkResult res = vkCreateSampler(Backend::Get()->GetDevice(), &i, Backend::Get()->GetAllocator(), &_ptr);
@@ -51,14 +56,15 @@ namespace Lina::Graphics
         if (autoDestroy)
         {
             VkSampler_T* ptr = _ptr;
-            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-                vkDestroySampler(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-            });
+            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroySampler(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
         }
     }
 
     void Sampler::Destroy()
     {
+        if (_ptr == nullptr)
+            return;
+
         vkDestroySampler(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 } // namespace Lina::Graphics

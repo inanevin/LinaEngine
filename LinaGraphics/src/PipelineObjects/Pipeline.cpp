@@ -77,12 +77,12 @@ namespace Lina::Graphics
 
         VkPipelineInputAssemblyStateCreateInfo _inputAssembly = VulkanUtility::CreatePipelineInputAssemblyCreateInfo(topology);
         VkPipelineMultisampleStateCreateInfo   _msaa          = VulkanUtility::CreatePipelineMSAACreateInfo();
-        VkPipelineRasterizationStateCreateInfo _raster        = VulkanUtility::CreatePipelineRasterStateCreateInfo(polygonMode, cullMode);
+        VkPipelineRasterizationStateCreateInfo _raster        = VulkanUtility::CreatePipelineRasterStateCreateInfo(polygonMode, cullMode, frontFace);
         VkPipelineDepthStencilStateCreateInfo  _depthStencil  = VulkanUtility::CreatePipelineDepthStencilStateCreateInfo(depthTestEnabled, depthWriteEnabled, depthCompareOp);
         // First get vertex input description
         // Then fill binding & description VULKAN structs with this data
         // Use the structs to get input state create info
-        const VertexInputDescription              _vertexInputDesc = VulkanUtility::GetVertexDescription();
+        const VertexInputDescription              _vertexInputDesc = emptyVertexPipeline ? VulkanUtility::GetEmptyVertexDescription() : VulkanUtility::GetVertexDescription();
         Vector<VkVertexInputBindingDescription>   _bindingDescs;
         Vector<VkVertexInputAttributeDescription> _attDescs;
         VulkanUtility::GetDescriptionStructs(_vertexInputDesc, _bindingDescs, _attDescs);
@@ -119,7 +119,6 @@ namespace Lina::Graphics
             .basePipelineHandle  = VK_NULL_HANDLE,
         };
 
-
         VkResult res = vkCreateGraphicsPipelines(Backend::Get()->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Pipeline] -> Could not create VK pipeline!");
 
@@ -127,9 +126,7 @@ namespace Lina::Graphics
         _shaderStages.clear();
 
         VkPipeline_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
 
     Pipeline& Pipeline::SetShader(Shader* shader)

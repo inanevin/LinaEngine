@@ -52,8 +52,6 @@ layout(set = 2, binding = 0) uniform MaterialData
 	float dummy; 
 } material;
 
-layout(set = 2, binding = 1) uniform sampler2D t;
-
 void main()
 {
 	mat4 modelMatrix = objectBuffer.objects[gl_InstanceIndex].model;
@@ -79,7 +77,8 @@ layout(set = 2, binding = 1) uniform sampler2D t;
 void main()
 {
 	//return red
-	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
+	//outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
+	outFragColor = texture(t, inTexCoords);
 }
 
 #LINA_END

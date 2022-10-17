@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/Image.hpp"
 #include "PipelineObjects/Sampler.hpp"
+#include "PipelineObjects/Buffer.hpp"
 
 namespace Lina::Graphics
 {
@@ -60,6 +61,7 @@ namespace Lina::Graphics
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const String& path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        void              CreateFromRuntime(Image img, Sampler sampler);
 
         inline Image& GetImage()
         {

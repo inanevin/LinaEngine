@@ -105,6 +105,7 @@ namespace Lina::Resources
         LoadResources(PackageType::Static, engineResources, true);
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+        Event::EventSystem::Get()->Trigger<Event::EEngineResourcesLoaded>({});
 
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);

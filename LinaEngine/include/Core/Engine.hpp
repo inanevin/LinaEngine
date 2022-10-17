@@ -64,7 +64,7 @@ namespace Lina
             return s_engine;
         }
 
-        void   InstallLevel(const String& path, bool async);
+        void InstallLevel(const String& path, bool async);
 
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
@@ -95,14 +95,6 @@ namespace Lina
         inline int GetCurrentUPS()
         {
             return m_currentUPS;
-        }
-        inline double GetRawDelta()
-        {
-            return m_rawDeltaTime;
-        }
-        inline double GetSmoothDelta()
-        {
-            return m_smoothDeltaTime;
         }
         inline double GetFrameTime()
         {
@@ -153,8 +145,6 @@ namespace Lina
         double                                 m_updateTime = 0;
         double                                 m_renderTime = 0;
         double                                 m_frameTime  = 0;
-        double                                 m_smoothDeltaTime;
-        double                                 m_rawDeltaTime;
         std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
         uint8                                  m_deltaTimeArrIndex  = 0;
         uint8                                  m_deltaTimeArrOffset = 0;

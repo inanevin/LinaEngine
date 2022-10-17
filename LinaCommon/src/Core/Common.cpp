@@ -77,6 +77,8 @@ namespace Lina
     bool                            RuntimeInfo::s_isInPlayMode    = false;
     bool                            RuntimeInfo::s_paused          = false;
     bool                            RuntimeInfo::s_shouldSkipFrame = false;
+    float                           RuntimeInfo::s_smoothDeltaTime = 0.0f;
+    float                           RuntimeInfo::s_deltaTime       = 0.0f;
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
     {

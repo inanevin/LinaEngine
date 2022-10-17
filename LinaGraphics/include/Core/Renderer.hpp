@@ -45,6 +45,7 @@ SOFTWARE.
 #include "PipelineObjects/Image.hpp"
 #include "PipelineObjects/Buffer.hpp"
 #include "PipelineObjects/DescriptorSet.hpp"
+#include "PipelineObjects/Sampler.hpp"
 #include "PipelineObjects/DescriptorPool.hpp"
 #include "Data/IDList.hpp"
 #include "CameraSystem.hpp"
@@ -84,6 +85,7 @@ namespace Lina::Graphics
             Semaphore     renderSemaphore;
             CommandPool   pool;
             CommandBuffer commandBuffer;
+            CommandBuffer finalPassCmd;
             Semaphore     presentSemaphore;
             Buffer        objDataBuffer;
             Buffer        indirectBuffer;
@@ -93,15 +95,6 @@ namespace Lina::Graphics
 
             DescriptorSet passDescriptor;
             DescriptorSet globalDescriptor;
-        };
-
-        struct Pass
-        {
-            RenderPass  renderPass;
-            SubPass     subPass;
-            Framebuffer frameBuffer;
-            Image       m_colImg;
-            Image       m_depthImg;
         };
 
     public:
@@ -169,7 +162,7 @@ namespace Lina::Graphics
 
         inline RenderPass& GetRenderPass(RenderPassType type)
         {
-            return m_passes[type].renderPass;
+            return m_renderPasses[type];
         }
 
     private:
@@ -184,15 +177,16 @@ namespace Lina::Graphics
         void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
+        void OnEngineResourcesLoaded();
 
     private:
-        Vector<View*>                 m_views;
-        View                          m_playerView;
-        CameraSystem                  m_cameraSystem;
-        Vector<Framebuffer>           m_framebuffers;
-        Vector<RenderableData>        m_extractedRenderables;
-        Image                         m_depthImage;
-        HashMap<RenderPassType, Pass> m_passes;
+        Vector<View*>                       m_views;
+        View                                m_playerView;
+        CameraSystem                        m_cameraSystem;
+        Vector<Framebuffer>                 m_framebuffers;
+        Vector<RenderableData>              m_extractedRenderables;
+        Image                               m_depthImage;
+        HashMap<RenderPassType, RenderPass> m_renderPasses;
 
         IDList<RenderableComponent*> m_allRenderables;
         Vector<GPUObjectData>        m_gpuObjectData;
@@ -203,7 +197,7 @@ namespace Lina::Graphics
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];
-        Backend* m_backend           = nullptr;
+        Backend* m_backend = nullptr;
     };
 
 } // namespace Lina::Graphics

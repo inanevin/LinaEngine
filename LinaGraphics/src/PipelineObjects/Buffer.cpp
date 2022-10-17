@@ -35,6 +35,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     void Buffer::Create()
     {
         VkBufferCreateInfo bufferInfo = VkBufferCreateInfo{
@@ -50,13 +51,19 @@ namespace Lina::Graphics
 
         VkResult result = vmaCreateBuffer(Backend::Get()->GetVMA(), &bufferInfo, &vmaallocInfo, &_ptr, &_allocation, nullptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Buffer] -> Could not create Buffer!");
+
     }
 
     void Buffer::Destroy()
     {
+        if (_ptr == nullptr)
+            return;
+
         vmaDestroyBuffer(Backend::Get()->GetVMA(), _ptr, _allocation);
+
         _ptr        = nullptr;
         _allocation = nullptr;
+
     }
 
     void Buffer::CopyInto(const void* src, size_t sz)

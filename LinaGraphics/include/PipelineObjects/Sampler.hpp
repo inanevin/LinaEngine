@@ -44,11 +44,16 @@ namespace Lina::Graphics
         void Destroy();
 
         // Description
-        Filter             minFilter = Filter::Linear;
-        Filter             magFilter = Filter::Linear;
-        SamplerAddressMode u         = SamplerAddressMode::Repeat;
-        SamplerAddressMode v         = SamplerAddressMode::Repeat;
-        SamplerAddressMode w         = SamplerAddressMode::Repeat;
+        Filter             minFilter     = Filter::Linear;
+        Filter             magFilter     = Filter::Linear;
+        SamplerAddressMode u             = SamplerAddressMode::Repeat;
+        SamplerAddressMode v             = SamplerAddressMode::Repeat;
+        SamplerAddressMode w             = SamplerAddressMode::Repeat;
+        float              mipLodBias    = 0.0f;
+        float              maxAnisotropy = 0.0f;
+        float              minLod        = 0.0f;
+        float              maxLod        = 0.0f;
+        BorderColor        borderColor   = BorderColor::FloatTransparentBlack;
 
         // Runtime
         VkSampler_T* _ptr = nullptr;

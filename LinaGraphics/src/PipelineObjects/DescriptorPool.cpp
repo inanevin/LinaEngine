@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void DescriptorPool::Create()
+    void DescriptorPool::Create(bool autoDestroy)
     {
         std::vector<VkDescriptorPoolSize> _sizes;
 
@@ -58,11 +58,17 @@ namespace Lina::Graphics
         VkResult res = vkCreateDescriptorPool(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Pool] -> Could not create descriptor pool!");
 
-        VkDescriptorPool_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyDescriptorPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
+        if (autoDestroy)
+        {
+            VkDescriptorPool_T* ptr = _ptr;
+            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyDescriptorPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
+        }
+    }
 
+    void DescriptorPool::Destroy()
+    {
+        if (_ptr != nullptr)
+            vkDestroyDescriptorPool(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
     DescriptorPool& DescriptorPool::AddPoolSize(DescriptorType type, uint32 count)

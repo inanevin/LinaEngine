@@ -44,13 +44,13 @@ namespace Lina::Graphics
         void Create(bool createImageView, bool autoDestroy = true);
         void Destroy();
 
-        Format              format              = Format::R32G32B32_SFLOAT;
-        ImageTiling         tiling              = ImageTiling::Optimal;
-        Extent3D            extent              = Extent3D();
-        uint32              aspectFlags         = 0;
-        uint32              imageUsageFlags     = 0;
-        MemoryUsageFlags    memoryUsageFlags    = MemoryUsageFlags::GpuOnly;
-        MemoryPropertyFlags memoryPropertyFlags = MemoryPropertyFlags::None;
+        Format                format              = Format::R32G32B32_SFLOAT;
+        ImageTiling           tiling              = ImageTiling::Optimal;
+        Extent3D              extent              = Extent3D();
+        uint32                imageUsageFlags     = 0;
+        MemoryUsageFlags      memoryUsageFlags    = MemoryUsageFlags::GpuOnly;
+        MemoryPropertyFlags   memoryPropertyFlags = MemoryPropertyFlags::None;
+        ImageSubresourceRange subresRange;
 
         // Runtime
         AllocatedImage _allocatedImg;

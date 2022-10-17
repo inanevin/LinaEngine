@@ -117,6 +117,7 @@ namespace Lina::Graphics
         String                            m_text    = "";
         HashMap<uint8, Vector<String>>    m_materialProperties;
         Vector<uint8>                     m_renderPasses;
+        bool                              m_emptyVertexPipeline = false;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

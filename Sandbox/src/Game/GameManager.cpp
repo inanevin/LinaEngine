@@ -96,7 +96,7 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
     uint32 i = 0;
     for (auto e : entities)
     {
-          e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
+         // e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
         i++;
     }
 

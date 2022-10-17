@@ -35,6 +35,7 @@ SOFTWARE.
 #include "PipelineObjects/Framebuffer.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Resource/Texture.hpp"
 
 namespace Lina::Graphics
 {
@@ -60,7 +61,8 @@ namespace Lina::Graphics
             VkSubpassDescription d = VkSubpassDescription{
                 .pipelineBindPoint    = GetPipelineBindPoint(sp.bindPoint),
                 .colorAttachmentCount = addedSize,
-                .pColorAttachments    = &colorAttachments[colorAttIndex]};
+                .pColorAttachments    = &colorAttachments[colorAttIndex],
+            };
 
             if (sp._depthStencilAttachmentSet)
             {
@@ -95,9 +97,7 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Pass] -> Could not create Vulkan render pass!");
 
         VkRenderPass_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyRenderPass(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyRenderPass(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
 
     RenderPass& RenderPass::AddSubpass(SubPass sp)
@@ -136,7 +136,7 @@ namespace Lina::Graphics
             VkClearValue clearValue;
             if (cv.isColor)
             {
-                clearValue.color = { {cv.clearColor.r, cv.clearColor.g, cv.clearColor.b, cv.clearColor.a}};
+                clearValue.color = {{cv.clearColor.r, cv.clearColor.g, cv.clearColor.b, cv.clearColor.a}};
             }
             else
             {
@@ -168,6 +168,17 @@ namespace Lina::Graphics
     void RenderPass::End(const CommandBuffer& cmd)
     {
         vkCmdEndRenderPass(cmd._ptr);
+    }
+
+    void RenderPass::DestroyFramebufferAndTextures()
+    {
+        _framebuffer->Destroy();
+
+        if (_colorTexture != nullptr)
+            delete _colorTexture;
+
+        if (_depthTexture != nullptr)
+            delete _depthTexture;
     }
 
     void SubPass::Create()

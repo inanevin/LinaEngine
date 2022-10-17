@@ -90,7 +90,7 @@ namespace Lina::World
         }
 
         const Vector3 currentPos = m_entity->GetPosition();
-        m_targetPosition         = Vector3::Lerp(currentPos, m_targetPosition, ev.deltaTime * movementSpeed);
+        m_targetPosition         = Vector3::Lerp(currentPos, m_targetPosition, RuntimeInfo::GetDeltaTime() * movementSpeed);
         m_entity->SetPosition(m_targetPosition);
         m_lastMousePos = inputEngine->GetMousePosition();
     }

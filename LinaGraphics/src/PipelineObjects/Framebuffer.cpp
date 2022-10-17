@@ -65,7 +65,8 @@ namespace Lina::Graphics
 
     void Framebuffer::Destroy()
     {
-        vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+        if (_ptr != nullptr)
+            vkDestroyFramebuffer(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
 } // namespace Lina::Graphics

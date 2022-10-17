@@ -40,8 +40,9 @@ namespace Lina::Graphics
     class DescriptorPool
     {
     public:
-        void            Create();
+        void            Create(bool autoDestroy = true);
         DescriptorPool& AddPoolSize(DescriptorType type, uint32 count);
+        void            Destroy();
 
         // Description
         uint32                               maxSets = 0;

@@ -82,7 +82,7 @@ namespace Lina::Graphics
         /// Fills in the given vec by the render pass definitions in the shader text.
         /// </summary>
         /// <param name="text"></param>
-        static void FillRenderPasses(const String& text, Vector<uint8>& vec);
+        static void FillRenderPasses(const String& text, Vector<uint8>& vec, bool* emptyVertexPipeline);
 
         /// <summary>
         /// Finds include preprocessor & adds the files from Shaders/Common.

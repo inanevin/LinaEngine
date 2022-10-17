@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Serialization/Archive.hpp"
+#include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Graphics
 {
@@ -94,6 +95,11 @@ namespace Lina::Graphics
         virtual void* GetData() override
         {
             return static_cast<void*>(&m_value);
+        }
+
+        void SetValue(T val)
+        {
+            m_value = val;
         }
 
     private:

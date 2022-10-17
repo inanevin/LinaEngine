@@ -56,14 +56,16 @@ namespace Lina::Graphics
         void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
 
         // Desc
-        bool        depthTestEnabled  = true;
-        bool        depthWriteEnabled = true;
-        CompareOp   depthCompareOp    = CompareOp::LEqual;
-        Viewport    viewport          = Viewport();
-        Recti       scissor           = Recti();
-        Topology    topology          = Topology::TriangleFan;
-        PolygonMode polygonMode       = PolygonMode::Fill;
-        CullMode    cullMode          = CullMode::None;
+        bool        emptyVertexPipeline = false;
+        bool        depthTestEnabled    = true;
+        bool        depthWriteEnabled   = true;
+        CompareOp   depthCompareOp      = CompareOp::LEqual;
+        Viewport    viewport            = Viewport();
+        Recti       scissor             = Recti();
+        Topology    topology            = Topology::TriangleFan;
+        PolygonMode polygonMode         = PolygonMode::Fill;
+        CullMode    cullMode            = CullMode::None;
+        FrontFace   frontFace           = FrontFace::ClockWise;
 
         // Runtime
         Shader*             _shader     = nullptr;

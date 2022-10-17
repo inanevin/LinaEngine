@@ -148,7 +148,7 @@ namespace Lina::Graphics
                 {
                     const size_t st             = line.find("[");
                     const size_t end            = line.find("]");
-                    std::string  arrCount       = line.substr(st+1, end-st-1);
+                    std::string  arrCount       = line.substr(st + 1, end - st - 1);
                     lastSetInfo.descriptorCount = std::stoi(arrCount);
                 }
                 parsingBinding = true;
@@ -249,7 +249,7 @@ namespace Lina::Graphics
         }
     }
 
-    void ShaderUtility::FillRenderPasses(const String& text, Vector<uint8>& vec)
+    void ShaderUtility::FillRenderPasses(const String& text, Vector<uint8>& vec, bool* emptyVertexPipeline)
     {
         std::istringstream f(text.c_str());
         std::string        line = "";
@@ -262,6 +262,11 @@ namespace Lina::Graphics
             if (!line.empty() && *line.rbegin() == '\r')
                 line.erase(line.end() - 1);
 
+            if (line.find("#LINA_PIPELINE_NOVERTEX") != std::string::npos)
+            {
+                *emptyVertexPipeline = true;
+                continue;
+            }
             if (line.find("#LINA_RP_MAIN") != std::string::npos)
             {
                 vec.push_back(static_cast<uint8>(RenderPassType::Main));

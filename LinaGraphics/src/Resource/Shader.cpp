@@ -167,6 +167,7 @@ namespace Lina::Graphics
     void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         archive(m_renderPasses);
+        archive(m_emptyVertexPipeline);
         archive(m_materialProperties);
         archive(m_drawPassMask);
 
@@ -197,6 +198,7 @@ namespace Lina::Graphics
     void Shader::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
         archive(m_renderPasses);
+        archive(m_emptyVertexPipeline);
         archive(m_materialProperties);
         archive(m_drawPassMask);
 
@@ -235,7 +237,7 @@ namespace Lina::Graphics
         m_drawPassMask = ShaderUtility::GetPassMask(m_text);
 
         // render passes
-        ShaderUtility::FillRenderPasses(m_text, m_renderPasses);
+        ShaderUtility::FillRenderPasses(m_text, m_renderPasses, &m_emptyVertexPipeline);
 
         // material props
         ShaderUtility::FillMaterialProperties(m_text, m_materialProperties);
@@ -338,7 +340,6 @@ namespace Lina::Graphics
         for (auto& b : bindings)
             m_materialLayout.AddBinding(b.second);
 
-
         m_materialLayout.Create();
 
         m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
@@ -351,19 +352,19 @@ namespace Lina::Graphics
         {
             const RenderPassType rp = static_cast<RenderPassType>(rpi);
             m_pipelines[rp]         = Pipeline{
-                        .depthTestEnabled  = true,
-                        .depthWriteEnabled = true,
-                        .depthCompareOp    = CompareOp::LEqual,
-                        .viewport          = RenderEngine::Get()->GetViewport(),
-                        .scissor           = RenderEngine::Get()->GetScissor(),
-                        .topology          = Topology::TriangleList,
-                        .polygonMode       = PolygonMode::Fill,
-                        .cullMode          = CullMode::Back,
+                        .emptyVertexPipeline = m_emptyVertexPipeline,
+                        .depthTestEnabled    = true,
+                        .depthWriteEnabled   = true,
+                        .depthCompareOp      = CompareOp::LEqual,
+                        .viewport            = RenderEngine::Get()->GetViewport(),
+                        .scissor             = RenderEngine::Get()->GetScissor(),
+                        .topology            = Topology::TriangleList,
+                        .polygonMode         = PolygonMode::Fill,
+                        .cullMode            = m_emptyVertexPipeline ? CullMode::Front : CullMode::Back,
+                        .frontFace           = m_emptyVertexPipeline ? FrontFace::AntiClockWise : FrontFace::ClockWise,
             };
 
             m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();
         }
-
-    
     }
 } // namespace Lina::Graphics

@@ -63,6 +63,8 @@ enum VkDescriptorType;
 enum VkIndexType;
 enum VkFilter;
 enum VkSamplerAddressMode;
+enum VkFrontFace;
+enum VkBorderColor;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -269,6 +271,14 @@ namespace Lina::Graphics
 
     extern uint32 GetCullMode(CullMode cm);
 
+    enum class FrontFace
+    {
+        ClockWise,
+        AntiClockWise
+    };
+
+    extern VkFrontFace GetFrontFace(FrontFace face);
+
     enum class VertexInputRate
     {
         Vertex,
@@ -319,6 +329,7 @@ namespace Lina::Graphics
         TransferRead,
         TransferWrite,
         ShaderRead,
+        MemoryRead,
     };
 
     extern uint32 GetAccessFlags(AccessFlags flags);
@@ -409,6 +420,23 @@ namespace Lina::Graphics
 
     extern VkIndexType GetIndexType(IndexType type);
 
+    enum class BorderColor
+    {
+        FloatTransparentBlack,
+        FloatOpaqueWhite,
+        FloatOpaqueBlack,
+    };
+
+    extern VkBorderColor GetBorderColor(BorderColor col);
+
+    enum class DependencyFlag
+    {
+        ByRegion,
+        DeviceGroup,
+    };
+
+    uint32 GetDependencyFlags(DependencyFlag flag);
+
     enum class SurfaceType
     {
         Opaque,
@@ -423,6 +451,7 @@ namespace Lina::Graphics
         GUIStandard,
         GUIText,
         SQFinal,
+        SQPostProcess,
     };
 
     enum class EnginePrimitiveType
@@ -446,6 +475,7 @@ namespace Lina::Graphics
 
     enum class EngineTextureType
     {
+        DefaultLina,
         Grid512,
     };
 
@@ -502,21 +532,23 @@ namespace Lina::Graphics
         uint64 size              = 0;
     };
 
-    struct ImageSubresourceLayers
+    struct ImageSubresourceRange
     {
-        ImageAspectFlags aspectMask     = ImageAspectFlags::AspectColor;
-        uint32           mipLevel       = 0;
-        uint32           baseArrayLayer = 0;
-        uint32           layerCount     = 0;
+        uint32 aspectFlags    = 0;
+        uint32 baseMipLevel   = 0;
+        uint32 levelCount     = 1;
+        uint32 baseArrayLayer = 0;
+        uint32 layerCount     = 1;
     };
+
     struct BufferImageCopy
     {
-        uint64                 bufferOffset      = 0;
-        uint32                 bufferRowLength   = 0;
-        uint32                 bufferImageHeight = 0;
-        ImageSubresourceLayers imageSubresource;
-        Offset3D               imageOffset;
-        Extent3D               imageExtent;
+        uint64                bufferOffset      = 0;
+        uint32                bufferRowLength   = 0;
+        uint32                bufferImageHeight = 0;
+        ImageSubresourceRange imageSubresource;
+        Offset3D              imageOffset;
+        Extent3D              imageExtent;
     };
 
     struct DefaultMemoryBarrier
@@ -534,15 +566,6 @@ namespace Lina::Graphics
         VkBuffer_T* buffer              = nullptr;
         uint64      offset              = 0;
         uint64      size                = 0;
-    };
-
-    struct ImageSubresourceRange
-    {
-        ImageAspectFlags aspectMask;
-        uint32           baseMipLevel   = 0;
-        uint32           levelCount     = 0;
-        uint32           baseArrayLayer = 0;
-        uint32           layerCount     = 0;
     };
 
     struct ImageMemoryBarrier
@@ -651,11 +674,13 @@ namespace Lina::Graphics
 
     struct SubPassDependency
     {
-        uint32 dstSubpass    = 0;
-        uint32 srcStageMask  = 0;
-        uint32 srcAccessMask = 0;
-        uint32 dstStageMask  = 0;
-        uint32 dstAccessMask = 0;
+        uint32 srcSubpass      = 0;
+        uint32 dstSubpass      = 0;
+        uint32 srcStageMask    = 0;
+        uint32 dstStageMask    = 0;
+        uint32 srcAccessMask   = 0;
+        uint32 dstAccessMask   = 0;
+        uint32 dependencyFlags = 0;
     };
 
     struct WriteDescriptorSet

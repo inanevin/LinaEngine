@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 
+#define DEBUG_RELOAD_PROPERTIES
+
 namespace Lina::Graphics
 {
     Material::~Material()
@@ -38,6 +40,7 @@ namespace Lina::Graphics
         for (auto p : m_properties)
             delete p;
 
+        m_descriptorPool.Destroy();
         m_properties.clear();
         m_dataBuffer.Destroy();
     }
@@ -45,94 +48,112 @@ namespace Lina::Graphics
     Resources::Resource* Material::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
         Load(archive);
-        CheckDescriptorAndBuffer();
+        CreateBuffer();
         return this;
     }
 
     Resources::Resource* Material::LoadFromFile(const String& path)
     {
         Serialization::LoadFromFile<Material>(path, *this);
-        CheckDescriptorAndBuffer();
+        CreateBuffer();
         return this;
     }
 
     void Material::WriteToPackage(Serialization::Archive<OStream>& archive)
     {
-        LoadFromFile(m_path);
+        Serialization::LoadFromFile<Material>(m_path, *this);
         Save(archive);
     }
 
     void Material::LoadReferences()
     {
-        FindShader();
-    }
-
-    void Material::FindShader()
-    {
-        auto* manager = Resources::ResourceManager::Get();
-
-        if (m_shader.value != nullptr)
+        if (m_shader.value == nullptr)
         {
-            SetupProperties();
-            CheckDescriptorAndBuffer();
+            auto* manager = Resources::ResourceManager::Get();
+
+            if (manager->Exists<Shader>(m_shader.sid))
+                SetShader(manager->GetResource<Shader>(m_shader.sid));
+            else
+                SetShader(RenderEngine::Get()->GetEngineShader(EngineShaderType::LitStandard));
         }
-        else if (manager->Exists<Shader>(m_shader.sid))
-            SetShader(manager->GetResource<Shader>(m_shader.sid));
+        else
+        {
+            if (m_properties.empty())
+            {
+                SetupProperties();
+                ChangedShader();
+            }
+        }
+
+#ifdef DEBUG_RELOAD_PROPERTIES
+        SetupProperties();
+        ChangedShader();
+#endif
     }
 
     void Material::SetShader(Shader* shader)
     {
-        bool different = false;
-
-        if (m_shader.value != shader)
-            different = true;
+        if (shader == m_shader.value)
+            return;
 
         m_shader.sid   = shader->GetSID();
         m_shader.value = shader;
 
-        if (different)
+        SetupProperties();
+        ChangedShader();
+    }
+
+    void Material::CreateBuffer()
+    {
+        if (m_dataBuffer._ptr == nullptr)
         {
-            SetupProperties();
-            CheckDescriptorAndBuffer();
+            m_dataBuffer = Buffer{
+                .size        = m_totalPropertySize == 0 ? sizeof(float) * 4 : m_totalPropertySize,
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+
+            m_dataBuffer.Create();
+            m_dataBuffer.boundSet     = &m_descriptor;
+            m_dataBuffer.boundBinding = 0;
+            m_dataBuffer.boundType    = DescriptorType::UniformBuffer;
         }
     }
 
-    void Material::CheckDescriptorAndBuffer()
+    void Material::ChangedShader()
     {
+        if (m_descriptorPool._ptr != nullptr)
+            m_descriptorPool.Destroy();
 
-        if (m_totalPropertySize == 0)
-            return;
-
-        m_dataBuffer = Buffer{
-            .size        = m_totalPropertySize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        m_descriptorPool = DescriptorPool{
+            .maxSets = 10,
+            .flags   = DescriptorPoolCreateFlags::None,
         };
-        m_dataBuffer.Create();
-        m_dataBuffer.boundSet     = &m_descriptor;
-        m_dataBuffer.boundBinding = 0;
-        m_dataBuffer.boundType    = DescriptorType::UniformBuffer;
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 2).AddPoolSize(DescriptorType::CombinedImageSampler, 2).Create(false);
 
-        if (m_shader.value == nullptr)
-            return;
+        if (!m_shader.value->GetMaterialSetLayout().bindings.empty())
+        {
+            m_descriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = m_descriptorPool._ptr,
+            };
+            m_descriptor.AddLayout(&m_shader.value->GetMaterialSetLayout());
+            m_descriptor.Create();
 
-        m_descriptor = DescriptorSet{
-            .setCount = 1,
-            .pool     = RenderEngine::Get()->GetDescriptorPool()._ptr,
-        };
+            m_descriptor.BeginUpdate();
 
-        m_descriptor.AddLayout(&m_shader.value->GetMaterialSetLayout());
-        m_descriptor.Create();
-        m_descriptor.BeginUpdate();
-        m_descriptor.AddBufferUpdate(m_dataBuffer, m_dataBuffer.size, 0, DescriptorType::UniformBuffer);
-        m_descriptor.SendUpdate();
+            if (m_shader.value->GetMaterialSetLayout().bindings[0].type == DescriptorType::UniformBuffer)
+                m_descriptor.AddBufferUpdate(m_dataBuffer, m_dataBuffer.size, 0, DescriptorType::UniformBuffer);
+
+            for (auto& pair : m_textures)
+                m_descriptor.AddTextureUpdate(pair.first, pair.second.value);
+
+            m_descriptor.SendUpdate();
+        }
     }
 
     void Material::SetupProperties()
     {
-        if (m_shader.value == nullptr)
-            return;
-
         for (auto p : m_properties)
             delete p;
 
@@ -152,34 +173,87 @@ namespace Lina::Graphics
         m_totalPropertySize = 0;
         for (auto p : m_properties)
             m_totalPropertySize += static_cast<uint8>(p->GetTypeSize());
+
+        m_textures.clear();
+
+        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::DefaultLina);
+
+        for (auto& b : m_shader.value->GetMaterialSetLayout().bindings)
+        {
+            if (b.type == DescriptorType::CombinedImageSampler)
+            {
+                m_textures[b.binding].sid   = defaultLina->GetSID();
+                m_textures[b.binding].tid   = GetTypeID<Texture>();
+                m_textures[b.binding].value = defaultLina;
+            }
+        }
+
+        if (m_descriptor._ptr != nullptr)
+        {
+            m_descriptor.BeginUpdate();
+
+            for (auto& pair : m_textures)
+                m_descriptor.AddTextureUpdate(pair.first, pair.second.value);
+            m_descriptor.SendUpdate();
+        }
     }
 
     void Material::BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType)
     {
         auto& renderer = RenderEngine::Get()->GetRenderer();
-
         auto& pipeline = m_shader.value->GetPipeline(rpType);
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
 
-        if (m_totalPropertySize != 0)
+        if (m_totalPropertySize != 0 || !m_textures.empty())
         {
             cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
 
-            uint8* data  = new uint8[m_totalPropertySize];
-            size_t index = 0;
-
-            // Copy each prop
-            for (auto& p : m_properties)
+            if (m_totalPropertySize != 0 && m_propertiesDirty)
             {
-                const size_t typeSize = p->GetTypeSize();
-                void*        src      = p->GetData();
-                MEMCPY(data + index, src, typeSize);
-                index += typeSize;
+                uint8* data  = new uint8[m_totalPropertySize];
+                size_t index = 0;
+
+                // Copy each prop
+                for (auto& p : m_properties)
+                {
+                    const size_t typeSize = p->GetTypeSize();
+                    void*        src      = p->GetData();
+                    MEMCPY(data + index, src, typeSize);
+                    index += typeSize;
+                }
+
+                // Update buffer.
+                m_dataBuffer.CopyInto(data, m_totalPropertySize);
+                m_propertiesDirty = false;
             }
 
-            // Update buffer.
-            m_dataBuffer.CopyInto(data, m_totalPropertySize);
+            if (!m_runtimeDirtyTextures.empty())
+            {
+                m_descriptor.BeginUpdate();
+
+                for (auto& pair : m_runtimeDirtyTextures)
+                {
+                    m_descriptor.AddTextureUpdate(pair.first, pair.second);
+                    m_textures[pair.first].sid   = pair.second->GetSID();
+                    m_textures[pair.first].value = pair.second;
+                }
+
+                m_descriptor.SendUpdate();
+
+                m_runtimeDirtyTextures.clear();
+            }
         }
+    }
+
+    void Material::SetTexture(uint32 binding, Texture* txt)
+    {
+        if (!m_textures.contains(binding))
+        {
+            LINA_ERR("[Material] -> Can't set the texture because the binding doesn't exists: {0} {1}", binding, m_path.c_str());
+            return;
+        }
+
+        m_runtimeDirtyTextures[binding] = txt;
     }
 
     void Material::SaveToFile()

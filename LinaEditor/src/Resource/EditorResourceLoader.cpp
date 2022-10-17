@@ -58,6 +58,8 @@ namespace Lina::Resources
         JobSystem::Get()->GetResourceExecutor().RunAndWait(tf);
 
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
+        Event::EventSystem::Get()->Trigger<Event::EEngineResourcesLoaded>({});
+
         const double diff = Time::GetCPUTime() - time;
         LINA_TRACE("[Resource Loader] -> Loading engine resources took {0} seconds.", diff);
 
@@ -70,9 +72,7 @@ namespace Lina::Resources
 
         if (async)
         {
-            Future<void> f = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path]() {
-                LoadResource(tid, path);
-            });
+            Future<void> f = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path]() { LoadResource(tid, path); });
 
             f.get();
         }
@@ -130,7 +130,10 @@ namespace Lina::Resources
         auto*          rm  = ResourceManager::Get();
 
         if (rm->Exists(tid, sid))
+        {
+            LINA_WARN("Resource already exists! {0}", path);
             return;
+        }
 
         auto*     cache = rm->GetCache(tid);
         Resource* res   = cache->Create(sid);

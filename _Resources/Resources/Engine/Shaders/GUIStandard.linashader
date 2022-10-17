@@ -30,9 +30,10 @@ SOFTWARE.
 
 #version 460
 
-layout (location = 0) in vec2 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
+layout (location = 0) in vec3 vPosition;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec3 vColor;
+layout (location = 3) in vec2 vTexCoords;
 
 layout (location = 0) out vec4 fCol;
 layout (location = 1) out vec2 fUV;
@@ -41,10 +42,10 @@ layout (location = 1) out vec2 fUV;
 
 void main()
 {
-   fCol = col;
-   fUV = uv;
+   fCol = vec4(vColor.xyz, 1.0f);
+   fUV = vTexCoords;
    //gl_Position = proj * vec4(pos.x, pos.y, 0.0f, 1.0);
-   gl_Position = vec4(pos.x, pos.y, 0.0f, 1.0);
+   gl_Position = vec4(vPosition.x, vPosition.y, 0.0f, 1.0);
 }
 
 #LINA_END

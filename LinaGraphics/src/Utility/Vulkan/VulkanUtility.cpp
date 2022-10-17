@@ -29,6 +29,10 @@ SOFTWARE.
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Data/Vertex.hpp"
 #include "Core/Backend.hpp"
+#include "Core/Window.hpp"
+#include "PipelineObjects/RenderPass.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
+#include "Resource/Texture.hpp"
 
 namespace Lina::Graphics
 {
@@ -58,7 +62,8 @@ namespace Lina::Graphics
 
         return info;
     }
-    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs)
+    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>&   bindingDescs,
+                                                                                                 const Vector<VkVertexInputAttributeDescription>& attDescs)
     {
         VkPipelineVertexInputStateCreateInfo info = VkPipelineVertexInputStateCreateInfo{
             .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -83,7 +88,7 @@ namespace Lina::Graphics
         return info;
     }
 
-    VkPipelineRasterizationStateCreateInfo VulkanUtility::CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode cm)
+    VkPipelineRasterizationStateCreateInfo VulkanUtility::CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode cm, FrontFace frontFace)
     {
         VkPipelineRasterizationStateCreateInfo info = VkPipelineRasterizationStateCreateInfo{
             .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -92,7 +97,7 @@ namespace Lina::Graphics
             .rasterizerDiscardEnable = VK_FALSE,
             .polygonMode             = GetPolygonMode(pm),
             .cullMode                = GetCullMode(cm),
-            .frontFace               = VK_FRONT_FACE_CLOCKWISE,
+            .frontFace               = GetFrontFace(frontFace),
             .depthBiasEnable         = VK_FALSE,
             .depthBiasConstantFactor = 0.0f,
             .depthBiasClamp          = 0.0f,
@@ -122,8 +127,7 @@ namespace Lina::Graphics
     {
         VkPipelineColorBlendAttachmentState info = VkPipelineColorBlendAttachmentState{
             .blendEnable    = VK_FALSE,
-            .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+            .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
         };
         return info;
     }
@@ -143,6 +147,202 @@ namespace Lina::Graphics
         };
 
         return info;
+    }
+
+    VertexInputDescription VulkanUtility::GetEmptyVertexDescription()
+    {
+        VertexInputDescription description;
+        return description;
+    }
+
+    void VulkanUtility::SetupMainRenderPass(RenderPass& pass)
+    {
+        const Vector2i size = Window::Get()->GetSize();
+
+        Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
+
+        ClearValue clrCol = ClearValue{
+            .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
+            .isColor    = true,
+        };
+
+        ClearValue clrDepth = ClearValue{
+            .isColor = false,
+            .depth   = 1.0f,
+        };
+
+        Attachment colorAttachment = Attachment{
+            .format         = Backend::Get()->GetSwapchain().format,
+            .loadOp         = LoadOp::Clear,
+            .storeOp        = StoreOp::Store,
+            .stencilLoadOp  = LoadOp::DontCare,
+            .stencilStoreOp = StoreOp::DontCare,
+            .initialLayout  = ImageLayout::Undefined,
+            .finalLayout    = ImageLayout::ShaderReadOnlyOptimal,
+        };
+
+        Attachment depthAttachment = Attachment{
+            .format         = Format::D32_SFLOAT,
+            .loadOp         = LoadOp::Clear,
+            .storeOp        = StoreOp::DontCare,
+            .stencilLoadOp  = LoadOp::DontCare,
+            .stencilStoreOp = StoreOp::DontCare,
+            .initialLayout  = ImageLayout::Undefined,
+            .finalLayout    = ImageLayout::DepthStencilOptimal,
+        };
+
+        SubPass subpass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        subpass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+
+        SubPassDependency dep1 = SubPassDependency{
+            .srcSubpass      = VK_SUBPASS_EXTERNAL,
+            .dstSubpass      = 0,
+            .srcStageMask    = GetPipelineStageFlags(PipelineStageFlags::FragmentShader),
+            .dstStageMask    = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+            .srcAccessMask   = GetAccessFlags(AccessFlags::ShaderRead),
+            .dstAccessMask   = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .dependencyFlags = GetDependencyFlags(DependencyFlag::ByRegion),
+        };
+
+        SubPassDependency dep2 = SubPassDependency{
+            .srcSubpass      = 0,
+            .dstSubpass      = VK_SUBPASS_EXTERNAL,
+            .srcStageMask    = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+            .dstStageMask    = GetPipelineStageFlags(PipelineStageFlags::FragmentShader),
+            .srcAccessMask   = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .dstAccessMask   = GetAccessFlags(AccessFlags::ShaderRead),
+            .dependencyFlags = GetDependencyFlags(DependencyFlag::ByRegion),
+        };
+
+        // Create the actual pass.
+        pass.AddAttachment(colorAttachment)
+            .AddAttachment(depthAttachment)
+            .AddSubpass(subpass)
+            .AddSubPassDependency(dep1)
+            .AddSubPassDependency(dep2)
+            .AddClearValue(clrCol)
+            .AddClearValue(clrDepth)
+            .Create();
+
+        // Pass textures.
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+
+        Image image = Image{
+            .format              = Backend::Get()->GetSwapchain().format,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+            .subresRange         = range,
+        };
+
+        Sampler sampler = Sampler{
+            .minFilter     = Filter::Linear,
+            .magFilter     = Filter::Linear,
+            .u             = SamplerAddressMode::ClampToEdge,
+            .v             = SamplerAddressMode::ClampToEdge,
+            .w             = SamplerAddressMode::ClampToEdge,
+            .mipLodBias    = 0.0f,
+            .maxAnisotropy = 1.0f,
+            .minLod        = 0.0f,
+            .maxLod        = 1.0f,
+            .borderColor   = BorderColor::FloatOpaqueWhite,
+        };
+
+        // Color texture
+        pass._colorTexture = new Texture();
+        pass._colorTexture->CreateFromRuntime(image, sampler);
+
+        // Depth texture
+        image.format          = Format::D32_SFLOAT;
+        image.imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment);
+        range.aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth), // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
+        image.subresRange     = range;
+        pass._depthTexture    = new Texture();
+        pass._depthTexture->CreateFromRuntime(image, sampler);
+
+        // Frame buffer for pass.
+        pass._framebuffer = new Framebuffer{
+            .width  = static_cast<uint32>(size.x),
+            .height = static_cast<uint32>(size.y),
+            .layers = 1,
+        };
+
+        pass._framebuffer->AttachRenderPass(pass);
+        pass._framebuffer->AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
+        pass._framebuffer->Create();
+    }
+
+    void VulkanUtility::SetupFinalRenderPass(RenderPass& pass)
+    {
+        const Vector2i size = Window::Get()->GetSize();
+
+        Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
+
+        ClearValue clrCol = ClearValue{
+            .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
+            .isColor    = true,
+        };
+
+        ClearValue clrDepth = ClearValue{
+            .isColor = false,
+            .depth   = 1.0f,
+        };
+
+        Attachment colorAttachment = Attachment{
+            .format         = Backend::Get()->GetSwapchain().format,
+            .loadOp         = LoadOp::Clear,
+            .storeOp        = StoreOp::Store,
+            .stencilLoadOp  = LoadOp::DontCare,
+            .stencilStoreOp = StoreOp::DontCare,
+            .initialLayout  = ImageLayout::Undefined,
+            .finalLayout    = ImageLayout::PresentSurface,
+        };
+
+        Attachment depthAttachment = Attachment{
+            .format         = Format::D32_SFLOAT,
+            .loadOp         = LoadOp::Clear,
+            .storeOp        = StoreOp::Store,
+            .stencilLoadOp  = LoadOp::Clear,
+            .stencilStoreOp = StoreOp::DontCare,
+            .initialLayout  = ImageLayout::Undefined,
+            .finalLayout    = ImageLayout::DepthStencilOptimal,
+        };
+
+        SubPass subpass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        subpass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+
+        SubPassDependency dep1 = SubPassDependency{
+            .srcSubpass      = VK_SUBPASS_EXTERNAL,
+            .dstSubpass      = 0,
+            .srcStageMask    = GetPipelineStageFlags(PipelineStageFlags::BottomOfPipe),
+            .dstStageMask    = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+            .srcAccessMask   = GetAccessFlags(AccessFlags::MemoryRead),
+            .dstAccessMask   = GetAccessFlags(AccessFlags::ColorAttachmentRead) | GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .dependencyFlags = GetDependencyFlags(DependencyFlag::ByRegion),
+        };
+
+        SubPassDependency dep2 = SubPassDependency{
+            .srcSubpass      = 0,
+            .dstSubpass      = VK_SUBPASS_EXTERNAL,
+            .srcStageMask    = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+            .dstStageMask    = GetPipelineStageFlags(PipelineStageFlags::BottomOfPipe),
+            .srcAccessMask   = GetAccessFlags(AccessFlags::ColorAttachmentRead) | GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .dstAccessMask   = GetAccessFlags(AccessFlags::MemoryRead),
+            .dependencyFlags = GetDependencyFlags(DependencyFlag::ByRegion),
+        };
+
+        // Create the actual pass.
+        pass.AddAttachment(colorAttachment)
+            .AddAttachment(depthAttachment)
+            .AddSubpass(subpass)
+            .AddSubPassDependency(dep1)
+            .AddSubPassDependency(dep2)
+            .AddClearValue(clrCol)
+            .AddClearValue(clrDepth)
+            .Create();
     }
 
     VertexInputDescription VulkanUtility::GetVertexDescription()
@@ -235,14 +435,14 @@ namespace Lina::Graphics
         return info;
     }
 
-    VkImageViewCreateInfo VulkanUtility::GetImageViewCreateInfo(VkImage img, Format format, uint32 aspectFlags)
+    VkImageViewCreateInfo VulkanUtility::GetImageViewCreateInfo(VkImage img, Format format, ImageSubresourceRange subres)
     {
         VkImageSubresourceRange subResRange = VkImageSubresourceRange{
-            .aspectMask     = aspectFlags,
-            .baseMipLevel   = 0,
-            .levelCount     = 1,
-            .baseArrayLayer = 0,
-            .layerCount     = 1,
+            .aspectMask     = subres.aspectFlags,
+            .baseMipLevel   = subres.baseMipLevel,
+            .levelCount     = subres.levelCount,
+            .baseArrayLayer = subres.baseArrayLayer,
+            .layerCount     = subres.layerCount,
         };
 
         VkImageViewCreateInfo info = VkImageViewCreateInfo{
@@ -257,16 +457,16 @@ namespace Lina::Graphics
         return info;
     }
 
-
     VkSubpassDependency VulkanUtility::GetSubpassDependency(SubPassDependency& dependency)
     {
         VkSubpassDependency dep = VkSubpassDependency{
-            .srcSubpass    = VK_SUBPASS_EXTERNAL,
-            .dstSubpass    = dependency.dstSubpass,
-            .srcStageMask  = dependency.srcStageMask,
-            .dstStageMask  = dependency.dstStageMask,
-            .srcAccessMask = dependency.srcAccessMask,
-            .dstAccessMask = dependency.dstAccessMask,
+            .srcSubpass      = dependency.srcSubpass,
+            .dstSubpass      = dependency.dstSubpass,
+            .srcStageMask    = dependency.srcStageMask,
+            .dstStageMask    = dependency.dstStageMask,
+            .srcAccessMask   = dependency.srcAccessMask,
+            .dstAccessMask   = dependency.dstAccessMask,
+            .dependencyFlags = dependency.dependencyFlags,
         };
 
         return dep;
@@ -296,11 +496,11 @@ namespace Lina::Graphics
         return c;
     }
 
-    VkImageSubresourceLayers VulkanUtility::GetImageSubresourceLayers(const ImageSubresourceLayers& r)
+    VkImageSubresourceLayers VulkanUtility::GetImageSubresourceLayers(const ImageSubresourceRange& r)
     {
         VkImageSubresourceLayers srl = VkImageSubresourceLayers{
-            .aspectMask     = GetImageAspectFlags(r.aspectMask),
-            .mipLevel       = r.mipLevel,
+            .aspectMask     = r.aspectFlags,
+            .mipLevel       = r.baseMipLevel,
             .baseArrayLayer = r.baseArrayLayer,
             .layerCount     = r.layerCount,
         };
@@ -332,16 +532,15 @@ namespace Lina::Graphics
 
     VkBufferMemoryBarrier VulkanUtility::GetBufferMemoryBarrier(const BufferMemoryBarrier& bar)
     {
-        VkBufferMemoryBarrier b = VkBufferMemoryBarrier{
-            .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-            .pNext               = nullptr,
-            .srcAccessMask       = bar.srcAccessMask,
-            .dstAccessMask       = bar.dstAccessMask,
-            .srcQueueFamilyIndex = bar.srcQueueFamilyIndex,
-            .dstQueueFamilyIndex = bar.dstQueueFamilyIndex,
-            .buffer              = bar.buffer,
-            .offset              = bar.offset,
-            .size                = bar.size};
+        VkBufferMemoryBarrier b = VkBufferMemoryBarrier{.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                        .pNext               = nullptr,
+                                                        .srcAccessMask       = bar.srcAccessMask,
+                                                        .dstAccessMask       = bar.dstAccessMask,
+                                                        .srcQueueFamilyIndex = bar.srcQueueFamilyIndex,
+                                                        .dstQueueFamilyIndex = bar.dstQueueFamilyIndex,
+                                                        .buffer              = bar.buffer,
+                                                        .offset              = bar.offset,
+                                                        .size                = bar.size};
 
         return b;
     }
@@ -349,7 +548,7 @@ namespace Lina::Graphics
     VkImageMemoryBarrier VulkanUtility::GetImageMemoryBarrier(const ImageMemoryBarrier& bar)
     {
         VkImageSubresourceRange subresRange = VkImageSubresourceRange{
-            .aspectMask     = GetImageAspectFlags(bar.subresourceRange.aspectMask),
+            .aspectMask     = bar.subresourceRange.aspectFlags,
             .baseMipLevel   = bar.subresourceRange.baseMipLevel,
             .levelCount     = bar.subresourceRange.levelCount,
             .baseArrayLayer = bar.subresourceRange.baseArrayLayer,
