@@ -53,20 +53,13 @@ namespace Lina
     } // namespace Event
 } // namespace Lina
 
-namespace LinaVG
-{
-    namespace Backend
-    {
-        class GUIBackend;
-    }
-} // namespace LinaVG
-
 namespace Lina::Graphics
 {
     class Model;
     class Texture;
     class ModelNode;
     class Material;
+    class GUIBackend;
 
     class RenderEngine
     {
@@ -199,10 +192,10 @@ namespace Lina::Graphics
         DescriptorPool                                  m_descriptorPool;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
-        Viewport                     m_viewport;
-        Recti                        m_scissor;
-        Renderer                     m_renderer;
-        LinaVG::Backend::GUIBackend* m_guiBackend;
+        Viewport                                        m_viewport;
+        Recti                                           m_scissor;
+        Renderer                                        m_renderer;
+        GUIBackend*                                     m_guiBackend;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

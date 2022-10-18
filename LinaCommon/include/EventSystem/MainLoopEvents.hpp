@@ -39,12 +39,16 @@ namespace Lina::Event
     struct EShutdown
     {
     };
-    struct EStartGame
-    {
-    };
-    struct EPreStartGame
+    struct EPreMainLoop
     {
 
+    };
+    struct EPostMainLoop
+    {
+
+    };
+    struct EStartGame
+    {
     };
     struct EEndGame
     {

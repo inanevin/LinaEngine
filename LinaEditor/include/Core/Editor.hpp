@@ -31,6 +31,8 @@ SOFTWARE.
 #ifndef LinaEditor_HPP
 #define LinaEditor_HPP
 
+#include "EditorRenderer.hpp"
+
 namespace Lina
 {
     namespace Event
@@ -74,6 +76,7 @@ namespace Lina::Editor
     private:
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
+        EditorRenderer                   m_renderer;
     };
 } // namespace Lina::Editor
 

@@ -35,11 +35,29 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Math/Quaternion.hpp"
 
+namespace Lina
+{
+    namespace Graphics
+    {
+        class CommandBuffer;
+    }
+} // namespace Lina
 namespace Lina::Event
 {
-    struct EOnGUIDraw
-    {
 
+    struct EOnEditorDraw
+    {
+        Lina::Graphics::CommandBuffer* cmd = nullptr;
+    };
+
+    struct EOnEditorDrawBegin
+    {
+        Lina::Graphics::CommandBuffer* cmd = nullptr;
+    };
+
+    struct EOnEditorDrawEnd
+    {
+        Lina::Graphics::CommandBuffer* cmd = nullptr;
     };
 
     struct EDrawLine

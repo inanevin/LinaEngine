@@ -98,7 +98,7 @@ namespace Lina::Graphics
         m_gpuImage = img;
         m_gpuImage.Create(true, false);
         m_sampler = sampler;
-        m_sampler.Create();
+        m_sampler.Create(false);
     }
 
     void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)

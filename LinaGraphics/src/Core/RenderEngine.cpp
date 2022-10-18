@@ -152,8 +152,9 @@ namespace Lina::Graphics
 
         LinaVG::Config.logCallback = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 
-        m_guiBackend = new LinaVG::Backend::GUIBackend();
+        m_guiBackend = new GUIBackend();
         LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
+        LinaVG::Initialize();
 
         // Engine materials
         m_engineShaderNames[EngineShaderType::LitStandard]   = "LitStandard";
@@ -196,12 +197,6 @@ namespace Lina::Graphics
 
         m_gpuUploader.Poll();
         m_renderer.Render();
-
-        // GUI
-        LinaVG::StartFrame();
-        Event::EventSystem::Get()->Trigger<Event::EOnGUIDraw>();
-        LinaVG::Render();
-        LinaVG::EndFrame();
     }
 
     void RenderEngine::Join()
@@ -287,8 +282,6 @@ namespace Lina::Graphics
             Model*       model      = rm->GetResource<Model>(modelPath);
             m_engineModels[p.first] = model;
         }
-
-        m_renderer.OnEngineResourcesLoaded();
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

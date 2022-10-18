@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 
-#define DEBUG_RELOAD_PROPERTIES
+// #define DEBUG_RELOAD_PROPERTIES
 
 namespace Lina::Graphics
 {
@@ -40,8 +40,14 @@ namespace Lina::Graphics
         for (auto p : m_properties)
             delete p;
 
+        for (auto p : m_savedProperties)
+            delete p;
+
         m_descriptorPool.Destroy();
         m_properties.clear();
+        m_savedProperties.clear();
+        m_textures.clear();
+        m_savedTextures.clear();
         m_dataBuffer.Destroy();
     }
 
@@ -76,19 +82,9 @@ namespace Lina::Graphics
             else
                 SetShader(RenderEngine::Get()->GetEngineShader(EngineShaderType::LitStandard));
         }
-        else
-        {
-            if (m_properties.empty())
-            {
-                SetupProperties();
-                ChangedShader();
-            }
-        }
 
-#ifdef DEBUG_RELOAD_PROPERTIES
         SetupProperties();
         ChangedShader();
-#endif
     }
 
     void Material::SetShader(Shader* shader)
@@ -146,7 +142,7 @@ namespace Lina::Graphics
                 m_descriptor.AddBufferUpdate(m_dataBuffer, m_dataBuffer.size, 0, DescriptorType::UniformBuffer);
 
             for (auto& pair : m_textures)
-                m_descriptor.AddTextureUpdate(pair.first, pair.second.value);
+                m_descriptor.AddTextureUpdate(pair.binding, pair.handle.value);
 
             m_descriptor.SendUpdate();
         }
@@ -158,15 +154,63 @@ namespace Lina::Graphics
             delete p;
 
         m_properties.clear();
+        m_textures.clear();
+        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::DefaultLina);
 
-        const auto& map = m_shader.value->GetMaterialProperties();
+        const auto& vec = m_shader.value->GetReflectedProperties();
 
-        for (auto pair : map)
+        for (const auto& reflectedProperty : vec)
         {
-            for (auto& prop : pair.second)
+            if (reflectedProperty.descriptorType == DescriptorType::UniformBuffer)
             {
-                const MaterialPropertyType type = static_cast<MaterialPropertyType>(pair.first);
-                AddProperty(type, prop);
+                auto* p = CreateProperty(reflectedProperty.propertyType, reflectedProperty.name);
+                m_properties.push_back(p);
+
+                // If a property with this name & type was saved retrieve value
+                for (auto& saved : m_savedProperties)
+                {
+                    if (p->m_type == saved->m_type && p->m_name.compare(saved->m_name.c_str()) == 0)
+                    {
+                        p->CopyValueFrom(saved);
+                        break;
+                    }
+                }
+            }
+            else if (reflectedProperty.descriptorType == DescriptorType::CombinedImageSampler)
+            {
+                TextureProperty prop;
+                prop.binding      = reflectedProperty.descriptorBinding;
+                prop.name         = reflectedProperty.name;
+                prop.handle.sid   = defaultLina->GetSID();
+                prop.handle.tid   = GetTypeID<Texture>();
+                prop.handle.value = defaultLina;
+
+                // If a property with this name & type was saved retrieve value
+                for (auto& t : m_savedTextures)
+                {
+                    if (prop.binding == t.binding && prop.name.compare(t.name.c_str()) == 0)
+                    {
+                        // Only assign if textures available, else leave at default.
+                        if (t.handle.value != nullptr)
+                        {
+                            prop.handle.sid   = t.handle.sid;
+                            prop.handle.value = t.handle.value;
+                        }
+                        else
+                        {
+                            Texture* text = Resources::ResourceManager::Get()->GetResource<Texture>(t.handle.sid);
+                            if (text != nullptr)
+                            {
+                                prop.handle.sid   = t.handle.sid;
+                                prop.handle.value = text;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                m_textures.push_back(prop);
             }
         }
 
@@ -174,26 +218,12 @@ namespace Lina::Graphics
         for (auto p : m_properties)
             m_totalPropertySize += static_cast<uint8>(p->GetTypeSize());
 
-        m_textures.clear();
-
-        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::DefaultLina);
-
-        for (auto& b : m_shader.value->GetMaterialSetLayout().bindings)
-        {
-            if (b.type == DescriptorType::CombinedImageSampler)
-            {
-                m_textures[b.binding].sid   = defaultLina->GetSID();
-                m_textures[b.binding].tid   = GetTypeID<Texture>();
-                m_textures[b.binding].value = defaultLina;
-            }
-        }
-
         if (m_descriptor._ptr != nullptr)
         {
             m_descriptor.BeginUpdate();
 
             for (auto& pair : m_textures)
-                m_descriptor.AddTextureUpdate(pair.first, pair.second.value);
+                m_descriptor.AddTextureUpdate(pair.binding, pair.handle.value);
             m_descriptor.SendUpdate();
         }
     }
@@ -225,6 +255,7 @@ namespace Lina::Graphics
                 // Update buffer.
                 m_dataBuffer.CopyInto(data, m_totalPropertySize);
                 m_propertiesDirty = false;
+                delete data;
             }
 
             if (!m_runtimeDirtyTextures.empty())
@@ -233,9 +264,10 @@ namespace Lina::Graphics
 
                 for (auto& pair : m_runtimeDirtyTextures)
                 {
-                    m_descriptor.AddTextureUpdate(pair.first, pair.second);
-                    m_textures[pair.first].sid   = pair.second->GetSID();
-                    m_textures[pair.first].value = pair.second;
+                    auto& txt = m_textures[pair.first];
+                    m_descriptor.AddTextureUpdate(txt.binding, pair.second);
+                    txt.handle.sid   = pair.second->GetSID();
+                    txt.handle.value = pair.second;
                 }
 
                 m_descriptor.SendUpdate();
@@ -245,15 +277,38 @@ namespace Lina::Graphics
         }
     }
 
-    void Material::SetTexture(uint32 binding, Texture* txt)
+    void Material::SetTexture(const String& name, Texture* txt)
     {
-        if (!m_textures.contains(binding))
+        uint32 index = 0;
+        bool   found = false;
+        for (auto& t : m_textures)
         {
-            LINA_ERR("[Material] -> Can't set the texture because the binding doesn't exists: {0} {1}", binding, m_path.c_str());
+            if (t.name.compare(name.c_str()) == 0)
+            {
+                found = true;
+                break;
+            }
+            index++;
+        }
+
+        if (!found)
+        {
+            LINA_ERR("[Material] -> Can't set the texture because it doesn't exist! {0} {1}", name, m_path.c_str());
             return;
         }
 
-        m_runtimeDirtyTextures[binding] = txt;
+        m_runtimeDirtyTextures[index] = txt;
+    }
+
+    void Material::SetTexture(uint32 index, Texture* txt)
+    {
+        if (m_textures.size() <= index)
+        {
+            LINA_ERR("[Material] -> Can't set the texture because index is out of bounds! {0} {1}", index, m_path.c_str());
+            return;
+        }
+
+        m_runtimeDirtyTextures[index] = txt;
     }
 
     void Material::SaveToFile()
@@ -267,7 +322,7 @@ namespace Lina::Graphics
         Serialization::SaveToFile<Material>(m_path, *this);
     }
 
-    MaterialPropertyBase* Material::AddProperty(MaterialPropertyType type, const String& name)
+    MaterialPropertyBase* Material::CreateProperty(MaterialPropertyType type, const String& name)
     {
         MaterialPropertyBase* p = nullptr;
         switch (type)
@@ -292,13 +347,16 @@ namespace Lina::Graphics
             p = new MaterialProperty<Vector3>();
             break;
         }
+        case MaterialPropertyType::Mat4: {
+            p = new MaterialProperty<Matrix>();
+            break;
+        }
         default:
             LINA_ASSERT(false, "Type not found!");
         }
 
         p->m_name = name;
         p->m_type = type;
-        m_properties.push_back(p);
         return p;
     }
 } // namespace Lina::Graphics

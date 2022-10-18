@@ -28,52 +28,32 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
+#ifndef EditorRenderer_HPP
+#define EditorRenderer_HPP
 
 namespace Lina
 {
     namespace Event
     {
-        struct ELevelInstalled;
-        struct EOnGUIDraw;
+        struct EOnEditorDrawBegin;
+        struct EOnEditorDraw;
+        struct EOnEditorDrawEnd;
     } // namespace Event
 
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
 } // namespace Lina
 
 namespace Lina::Editor
 {
-    class EditorManager
+    class EditorRenderer
     {
     public:
-        EditorManager()          = default;
-        virtual ~EditorManager() = default;
-
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void OnGUIDraw(const Event::EOnGUIDraw& ev);
         void Initialize();
         void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
 
     private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
+        void OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev);
+        void OnEditorDraw(const Event::EOnEditorDraw& ev);
+        void OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev);
     };
 } // namespace Lina::Editor
 

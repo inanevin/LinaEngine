@@ -49,7 +49,7 @@ layout (location = 1) out vec2 outTexCoords;
 
 layout(set = 2, binding = 0) uniform MaterialData
 {
-	float dummy; 
+	float dummy;
 } material;
 
 void main()

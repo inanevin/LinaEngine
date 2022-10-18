@@ -83,9 +83,9 @@ namespace Lina::Graphics
             return m_drawPassMask;
         }
 
-        inline const HashMap<uint8, Vector<String>>& GetMaterialProperties() const
+        inline const Vector<ShaderReflectedProperty>& GetReflectedProperties() const
         {
-            return m_materialProperties;
+            return m_reflectedProperties;
         }
 
         inline const Vector<uint8>& GetRenderPasses() const
@@ -115,9 +115,9 @@ namespace Lina::Graphics
         DescriptorSetLayout               m_materialLayout;
         SurfaceType                       m_surface = SurfaceType::Opaque;
         String                            m_text    = "";
-        HashMap<uint8, Vector<String>>    m_materialProperties;
+        Vector<ShaderReflectedProperty>   m_reflectedProperties;
         Vector<uint8>                     m_renderPasses;
-        bool                              m_emptyVertexPipeline = false;
+        PipelineType                      m_pipelineType = PipelineType::Default;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

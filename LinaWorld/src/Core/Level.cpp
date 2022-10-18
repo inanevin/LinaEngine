@@ -91,7 +91,12 @@ namespace Lina::World
                     continue;
 
                 const StringID sid = handle->sid;
-                Resource*      res = static_cast<Resource*>(storage->GetResource(tid, sid));
+
+                // Might be a temporary resource handle.
+                if (!storage->Exists(tid, sid))
+                    continue;
+
+                Resource* res = static_cast<Resource*>(storage->GetResource(tid, sid));
                 m_usedResources.push_back(linatl::make_pair(handle->tid, res->GetPath()));
             }
         }

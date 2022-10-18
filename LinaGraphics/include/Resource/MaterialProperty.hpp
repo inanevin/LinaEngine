@@ -48,6 +48,7 @@ namespace Lina::Graphics
         virtual void*  GetData()                                             = 0;
         virtual void   SaveToArchive(Serialization::Archive<OStream>& arc)   = 0;
         virtual void   LoadFromArchive(Serialization::Archive<IStream>& arc) = 0;
+        virtual void   CopyValueFrom(MaterialPropertyBase* base)             = 0;
 
         inline MaterialPropertyType GetType()
         {
@@ -100,6 +101,12 @@ namespace Lina::Graphics
         void SetValue(T val)
         {
             m_value = val;
+        }
+
+        virtual void CopyValueFrom(MaterialPropertyBase* base)
+        {
+            MaterialProperty<T>* derived = static_cast<MaterialProperty<T>*>(base);
+            m_value                      = derived->m_value;
         }
 
     private:

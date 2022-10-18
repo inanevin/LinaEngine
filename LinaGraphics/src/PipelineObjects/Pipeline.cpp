@@ -82,7 +82,24 @@ namespace Lina::Graphics
         // First get vertex input description
         // Then fill binding & description VULKAN structs with this data
         // Use the structs to get input state create info
-        const VertexInputDescription              _vertexInputDesc = emptyVertexPipeline ? VulkanUtility::GetEmptyVertexDescription() : VulkanUtility::GetVertexDescription();
+        VertexInputDescription _vertexInputDesc;
+
+        switch (pipelineType)
+        {
+        case PipelineType::Default:
+            _vertexInputDesc = VulkanUtility::GetVertexDescription();
+            break;
+        case PipelineType::NoVertex:
+            _vertexInputDesc = VulkanUtility::GetEmptyVertexDescription();
+            break;
+        case PipelineType::GUI:
+            _vertexInputDesc = VulkanUtility::GetGUIVertexDescription();
+            break;
+        default:
+            _vertexInputDesc = VulkanUtility::GetVertexDescription();
+            break;
+        }
+
         Vector<VkVertexInputBindingDescription>   _bindingDescs;
         Vector<VkVertexInputAttributeDescription> _attDescs;
         VulkanUtility::GetDescriptionStructs(_vertexInputDesc, _bindingDescs, _attDescs);

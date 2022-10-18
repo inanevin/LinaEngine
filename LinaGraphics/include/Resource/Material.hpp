@@ -51,6 +51,14 @@ namespace Lina::Graphics
     class Material : public Resources::Resource
     {
 
+    private:
+        struct TextureProperty
+        {
+            Resources::ResourceHandle<Texture> handle;
+            String                             name    = "";
+            uint32                             binding = 0;
+        };
+
     public:
         Material() = default;
         virtual ~Material();
@@ -75,10 +83,11 @@ namespace Lina::Graphics
             const uint32 texturesSize = static_cast<uint32>(m_textures.size());
             archive(texturesSize);
 
-            for (auto& pair : m_textures)
+            for (auto& txt : m_textures)
             {
-                archive(pair.first);
-                pair.second.Save(archive);
+                archive(txt.binding);
+                archive(txt.name);
+                txt.handle.Save(archive);
             }
         }
 
@@ -90,6 +99,7 @@ namespace Lina::Graphics
 
             archive(propSize);
 
+            m_savedProperties.clear();
             for (uint32 i = 0; i < propSize; i++)
             {
                 uint8  typeInt = 0;
@@ -98,8 +108,9 @@ namespace Lina::Graphics
                 archive(name);
 
                 const MaterialPropertyType type = static_cast<MaterialPropertyType>(typeInt);
-                auto                       prop = AddProperty(type, name);
+                auto                       prop = CreateProperty(type, name);
                 prop->LoadFromArchive(archive);
+                m_savedProperties.push_back(prop);
             }
 
             m_totalPropertySize = 0;
@@ -109,11 +120,14 @@ namespace Lina::Graphics
             uint32 texturesSize = 0;
             archive(texturesSize);
 
+            m_savedTextures.clear();
             for (uint32 i = 0; i < texturesSize; i++)
             {
-                uint32 index = 0;
-                archive(index);
-                m_textures[index].Load(archive);
+                TextureProperty prop;
+                archive(prop.binding);
+                archive(prop.name);
+                prop.handle.Load(archive);
+                m_savedTextures.push_back(prop);
             }
         }
 
@@ -124,7 +138,8 @@ namespace Lina::Graphics
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
         void              BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType);
-        void              SetTexture(uint32 binding, Texture* texture);
+        void              SetTexture(const String& name, Texture* texture);
+        void              SetTexture(uint32 index, Texture* texture);
 
         template <typename T> void SetProperty(uint32 index, T value)
         {
@@ -141,23 +156,25 @@ namespace Lina::Graphics
 
         template <typename T> void SetProperty(const String& name, T value)
         {
-            int32 index = -1;
+            int32 selected = -1;
+            int32 index    = 0;
             for (auto& p : m_properties)
             {
                 if (p->GetName().compare(name) == 0)
                 {
+                    selected = index;
                     break;
                 }
                 index++;
             }
 
-            if (index == -1)
+            if (selected == -1)
             {
                 LINA_WARN("[Material] -> Can't set property because name isn't found!");
                 return;
             }
 
-            SetProperty(static_cast<uint32>(index), value);
+            SetProperty(static_cast<uint32>(selected), value);
         }
 
         inline Resources::ResourceHandle<Shader>& GetShaderHandle()
@@ -170,19 +187,22 @@ namespace Lina::Graphics
 
         void                  SetupProperties();
         void                  CreateBuffer();
-        MaterialPropertyBase* AddProperty(MaterialPropertyType type, const String& name);
+        MaterialPropertyBase* CreateProperty(MaterialPropertyType type, const String& name);
         void                  ChangedShader();
 
     private:
-        Resources::ResourceHandle<Shader>                   m_shader;
-        Vector<MaterialPropertyBase*>                       m_properties;
-        HashMap<uint32, Resources::ResourceHandle<Texture>> m_textures;
-        HashMap<uint32, Texture*>                           m_runtimeDirtyTextures;
-        uint32                                              m_totalPropertySize = 0;
-        DescriptorSet                                       m_descriptor;
-        DescriptorPool                                      m_descriptorPool;
-        Buffer                                              m_dataBuffer;
-        bool                                                m_propertiesDirty = false;
+        Resources::ResourceHandle<Shader> m_shader;
+        Vector<MaterialPropertyBase*>     m_properties;
+        Vector<MaterialPropertyBase*>     m_savedProperties;
+        Vector<TextureProperty>           m_textures;
+        Vector<TextureProperty>           m_savedTextures;
+
+        HashMap<uint32, Texture*> m_runtimeDirtyTextures;
+        uint32                    m_totalPropertySize = 0;
+        DescriptorSet             m_descriptor;
+        DescriptorPool            m_descriptorPool;
+        Buffer                    m_dataBuffer;
+        bool                      m_propertiesDirty = false;
     };
 
 } // namespace Lina::Graphics

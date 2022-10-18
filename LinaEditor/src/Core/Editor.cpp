@@ -59,12 +59,16 @@ namespace Lina::Editor
 
         if(!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
+
+        m_renderer.Initialize();
     }
 
     void EditorManager::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnGUIDraw>(this);
+
+        m_renderer.Shutdown();
     }
 
     void EditorManager::VerifyStaticResources()

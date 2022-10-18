@@ -31,31 +31,72 @@ SOFTWARE.
 #ifndef LinaEditorBackend_HPP
 #define LinaEditorBackend_HPP
 
+#include "PipelineObjects/Buffer.hpp"
+#include "Data/Vector.hpp"
 #include <LinaVG/Backends/BaseBackend.hpp>
 
-namespace LinaVG::Backend
+namespace Lina
 {
-    class GUIBackend : public BaseBackend
+    namespace Editor
+    {
+        class EditorRenderer;
+    }
+
+    namespace Event
+    {
+        struct EPreMainLoop;
+    }
+} // namespace Lina
+
+namespace Lina::Graphics
+{
+    class CommandBuffer;
+
+    class GUIBackend : public LinaVG::Backend::BaseBackend
     {
     public:
-        virtual bool          Initialize() override;
-        virtual void          Terminate() override;
-        virtual void          StartFrame() override;
-        virtual void          DrawGradient(GradientDrawBuffer* buf) override;
-        virtual void          DrawTextured(TextureDrawBuffer* buf) override;
-        virtual void          DrawDefault(DrawBuffer* buf) override;
-        virtual void          DrawSimpleText(SimpleTextDrawBuffer* buf) override;
-        virtual void          DrawSDFText(SDFTextDrawBuffer* buf) override;
-        virtual void          EndFrame() override;
-        virtual void          BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
-        virtual void          BindFontTexture(BackendHandle texture) override;
-        virtual void          SaveAPIState() override;
-        virtual void          RestoreAPIState() override;
-        virtual BackendHandle CreateFontTexture(int width, int height) override;
+        virtual bool                  Initialize() override;
+        virtual void                  Terminate() override;
+        virtual void                  StartFrame() override;
+        virtual void                  DrawGradient(LinaVG::GradientDrawBuffer* buf) override;
+        virtual void                  DrawTextured(LinaVG::TextureDrawBuffer* buf) override;
+        virtual void                  DrawDefault(LinaVG::DrawBuffer* buf) override;
+        virtual void                  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf) override;
+        virtual void                  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf) override;
+        virtual void                  EndFrame() override;
+        virtual void                  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
+        virtual void                  BindFontTexture(LinaVG::BackendHandle texture) override;
+        virtual void                  SaveAPIState() override;
+        virtual void                  RestoreAPIState() override;
+        virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
+
+        static inline GUIBackend* Get()
+        {
+            return s_instance;
+        }
 
     private:
+        friend class Editor::EditorRenderer;
+        friend class Renderer;
+
+        inline void SetCmd(CommandBuffer* cmd)
+        {
+            m_cmd = cmd;
+        }
+
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
+
+    private:
+        Vector<LinaVG::Vertex> m_copyVertices;
+        Vector<LinaVG::Index>  m_copyIndices;
+        Buffer                 m_cpuVtxBuffer;
+        Buffer                 m_cpuIndexBuffer;
+        Buffer                 m_gpuVtxBuffer;
+        Buffer                 m_gpuIndexBuffer;
+        CommandBuffer*         m_cmd = nullptr;
+        static GUIBackend*     s_instance;
     };
 
-} // namespace LinaVG::Backend
+} // namespace Lina::Graphics
 
 #endif

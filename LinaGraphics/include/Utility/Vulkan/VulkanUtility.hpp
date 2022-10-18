@@ -62,6 +62,7 @@ namespace Lina::Graphics
         // InputDesc
         static VertexInputDescription GetVertexDescription();
         static VertexInputDescription GetEmptyVertexDescription();
+        static VertexInputDescription GetGUIVertexDescription();
         static void GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
 
         // Image

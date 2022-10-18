@@ -93,7 +93,6 @@ namespace Lina::Graphics
             regions.push_back(copy);
 
             cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
-            int xd = 5;
         };
 
         vtxCmd.OnSubmitted = [this]() {

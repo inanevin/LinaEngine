@@ -166,10 +166,24 @@ namespace Lina::Graphics
 
     void Shader::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
+        uint8 pipelineTypeInt = static_cast<uint8>(m_pipelineType);
+        archive(pipelineTypeInt);
+
         archive(m_renderPasses);
-        archive(m_emptyVertexPipeline);
-        archive(m_materialProperties);
         archive(m_drawPassMask);
+
+        const uint32 reflectedPropertyCount = static_cast<uint32>(m_reflectedProperties.size());
+        archive(reflectedPropertyCount);
+
+        for (auto& p : m_reflectedProperties)
+        {
+            const uint8 descTypeInt = static_cast<uint8>(p.descriptorType);
+            const uint8 propTypeInt = static_cast<uint8>(p.propertyType);
+            archive(descTypeInt);
+            archive(propTypeInt);
+            archive(p.descriptorBinding);
+            archive(p.name);
+        }
 
         const uint32 moduleSize = static_cast<uint32>(m_modules.size());
         archive(moduleSize);
@@ -197,10 +211,34 @@ namespace Lina::Graphics
 
     void Shader::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
+        uint8 pipelineTypeInt = 0;
+        archive(pipelineTypeInt);
+        m_pipelineType = static_cast<PipelineType>(pipelineTypeInt);
+
         archive(m_renderPasses);
-        archive(m_emptyVertexPipeline);
-        archive(m_materialProperties);
         archive(m_drawPassMask);
+
+        uint32 reflectedPropertyCount = 0;
+        archive(reflectedPropertyCount);
+
+        for (uint32 i = 0; i < reflectedPropertyCount; i++)
+        {
+            uint8  descTypeInt       = 0;
+            uint8  propTypeInt       = 0;
+            uint32 descriptorBinding = 0;
+            String name              = "";
+            archive(descTypeInt);
+            archive(propTypeInt);
+            archive(descriptorBinding);
+            archive(name);
+
+            ShaderReflectedProperty prop;
+            prop.descriptorType    = static_cast<DescriptorType>(descTypeInt);
+            prop.propertyType      = static_cast<MaterialPropertyType>(propTypeInt);
+            prop.descriptorBinding = descriptorBinding;
+            prop.name              = name;
+            m_reflectedProperties.push_back(prop);
+        }
 
         uint32 moduleSize = 0;
         archive(moduleSize);
@@ -237,10 +275,11 @@ namespace Lina::Graphics
         m_drawPassMask = ShaderUtility::GetPassMask(m_text);
 
         // render passes
-        ShaderUtility::FillRenderPasses(m_text, m_renderPasses, &m_emptyVertexPipeline);
+        ShaderUtility::FillRenderPasses(m_text, m_renderPasses, &m_pipelineType);
 
         // material props
-        ShaderUtility::FillMaterialProperties(m_text, m_materialProperties);
+        m_reflectedProperties.clear();
+        ShaderUtility::FillMaterialProperties(m_text, m_reflectedProperties);
     }
 
     void Shader::CheckIfModuleExists(const String& name, ShaderStage stage, const String& define)
@@ -352,16 +391,16 @@ namespace Lina::Graphics
         {
             const RenderPassType rp = static_cast<RenderPassType>(rpi);
             m_pipelines[rp]         = Pipeline{
-                        .emptyVertexPipeline = m_emptyVertexPipeline,
-                        .depthTestEnabled    = true,
-                        .depthWriteEnabled   = true,
-                        .depthCompareOp      = CompareOp::LEqual,
-                        .viewport            = RenderEngine::Get()->GetViewport(),
-                        .scissor             = RenderEngine::Get()->GetScissor(),
-                        .topology            = Topology::TriangleList,
-                        .polygonMode         = PolygonMode::Fill,
-                        .cullMode            = m_emptyVertexPipeline ? CullMode::Front : CullMode::Back,
-                        .frontFace           = m_emptyVertexPipeline ? FrontFace::AntiClockWise : FrontFace::ClockWise,
+                        .pipelineType      = m_pipelineType,
+                        .depthTestEnabled  = true,
+                        .depthWriteEnabled = true,
+                        .depthCompareOp    = CompareOp::LEqual,
+                        .viewport          = RenderEngine::Get()->GetViewport(),
+                        .scissor           = RenderEngine::Get()->GetScissor(),
+                        .topology          = Topology::TriangleList,
+                        .polygonMode       = PolygonMode::Fill,
+                        .cullMode          = (m_pipelineType != PipelineType::Default) ? CullMode::Front : CullMode::Back,
+                        .frontFace         = (m_pipelineType != PipelineType::Default) ? FrontFace::AntiClockWise : FrontFace::ClockWise,
             };
 
             m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();

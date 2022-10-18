@@ -33,6 +33,7 @@ SOFTWARE.
 #include "PipelineObjects/RenderPass.hpp"
 #include "PipelineObjects/Framebuffer.hpp"
 #include "Resource/Texture.hpp"
+#include <LinaVG/LinaVG.hpp>
 
 namespace Lina::Graphics
 {
@@ -149,11 +150,6 @@ namespace Lina::Graphics
         return info;
     }
 
-    VertexInputDescription VulkanUtility::GetEmptyVertexDescription()
-    {
-        VertexInputDescription description;
-        return description;
-    }
 
     void VulkanUtility::SetupMainRenderPass(RenderPass& pass)
     {
@@ -392,6 +388,53 @@ namespace Lina::Graphics
 
         return description;
     }
+
+
+    VertexInputDescription VulkanUtility::GetEmptyVertexDescription()
+    {
+        VertexInputDescription description;
+        return description;
+    }
+
+    VertexInputDescription VulkanUtility::GetGUIVertexDescription()
+    {
+        VertexInputDescription description;
+
+        VertexInputBinding mainBinding = VertexInputBinding{
+            .binding = 0,
+            .stride = sizeof(LinaVG::Vertex),
+            .inputRate = VertexInputRate::Vertex,
+        };
+
+        description.bindings.push_back(mainBinding);
+
+        VertexInputAttribute positionAtt = VertexInputAttribute{
+            .binding = 0,
+            .location = 0,
+            .format = Format::R32G32B32_SFLOAT,
+            .offset = offsetof(LinaVG::Vertex, pos),
+        };
+
+        VertexInputAttribute uvAtt = VertexInputAttribute{
+          .binding = 0,
+          .location = 1,
+          .format = Format::R32G32_SFLOAT,
+          .offset = offsetof(LinaVG::Vertex, uv),
+        };
+
+        VertexInputAttribute colorAtt = VertexInputAttribute{
+            .binding = 0,
+            .location = 2,
+            .format = Format::R32G32B32_SFLOAT,
+            .offset = offsetof(LinaVG::Vertex, col),
+        };
+      
+        description.attributes.push_back(positionAtt);
+        description.attributes.push_back(uvAtt);
+        description.attributes.push_back(colorAtt);
+        return description;
+    }
+
     void VulkanUtility::GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs)
     {
         for (const auto& d : desc.bindings)

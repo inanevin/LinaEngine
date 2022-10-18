@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/Window.hpp"
 #include "Core/Backend.hpp"
+#include "Core/GUIBackend.hpp"
 #include "PipelineObjects/RQueue.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/EntityEvents.hpp"
@@ -58,6 +59,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Renderer::OnPreMainLoop>(this);
 
         m_backend           = Backend::Get();
         const Vector2i size = Window::Get()->GetSize();
@@ -320,6 +322,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
 
         for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -333,6 +336,7 @@ namespace Lina::Graphics
         // Don't destroy the final pass, it's framebuffers & textures are coming from swapchain.
         // Depth image is also auto-destroyed.
         m_renderPasses[RenderPassType::Main].DestroyFramebufferAndTextures();
+        m_renderPasses[RenderPassType::PostProcess].DestroyFramebufferAndTextures();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
@@ -437,20 +441,27 @@ namespace Lina::Graphics
         cmd.CMD_Draw(3, 1, 0, 0);
         postPass.End(cmd);
 
+        const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor ;
+
+        if (drawEditor)
+            Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawBegin>(Event::EOnEditorDrawBegin{.cmd = &cmd});
+
         finalPass.Begin(m_framebuffers[imageIndex], cmd);
 
-        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-        {
-            
-        }
+        if (drawEditor)
+            Event::EventSystem::Get()->Trigger<Event::EOnEditorDraw>(Event::EOnEditorDraw{.cmd = &cmd});
         else
         {
             auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
             finalQuadMat->BindPipelineAndDescriptors(cmd, RenderPassType::Final);
             cmd.CMD_Draw(3, 1, 0, 0);
         }
-       
+
         finalPass.End(cmd);
+
+        if (drawEditor)
+            Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawEnd>(Event::EOnEditorDrawEnd{.cmd = &cmd});
+
         cmd.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
@@ -483,7 +494,7 @@ namespace Lina::Graphics
             m_allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
     }
 
-    void Renderer::OnEngineResourcesLoaded()
+    void Renderer::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
         auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);

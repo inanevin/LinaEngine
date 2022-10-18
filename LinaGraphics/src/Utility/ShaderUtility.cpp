@@ -193,12 +193,14 @@ namespace Lina::Graphics
         return mask;
     }
 
-    void ShaderUtility::FillMaterialProperties(const String& text, HashMap<uint8, Vector<String>>& map)
+    void ShaderUtility::FillMaterialProperties(const String& text, Vector<ShaderReflectedProperty>& vec)
     {
 
         std::istringstream f(text.c_str());
         std::string        line            = "";
         bool               readingMaterial = false;
+        std::string        textureIdent2D  = "uniformsampler2D";
+        const std::string  bindingIdent    = "binding=";
 
         std::vector<std::string> types;
         types.push_back("float");
@@ -206,8 +208,12 @@ namespace Lina::Graphics
         types.push_back("bool");
         types.push_back("vec2");
         types.push_back("vec4");
+        types.push_back("mat4");
 
         const int typesSize = static_cast<uint32>(types.size());
+
+        uint32 lastBindingIndex = 0;
+
         while (std::getline(f, line))
         {
             if (line.find("//") != std::string::npos)
@@ -216,8 +222,18 @@ namespace Lina::Graphics
             if (!line.empty() && *line.rbegin() == '\r')
                 line.erase(line.end() - 1);
 
-            if (line.find("uniform MaterialData") != std::string::npos)
+            std::string::iterator end_pos = std::remove(line.begin(), line.end(), ' ');
+            line.erase(end_pos, line.end());
+
+            if (line.find("uniformMaterialData") != std::string::npos)
+            {
                 readingMaterial = true;
+
+                const size_t bindingStart = line.find(bindingIdent);
+                const size_t paranthesis  = line.find(")");
+                std::string  bindingStr   = line.substr(bindingStart + bindingIdent.size(), paranthesis - bindingStart - bindingIdent.size());
+                lastBindingIndex          = static_cast<uint32>(std::stoi(bindingStr));
+            }
 
             if (readingMaterial)
             {
@@ -233,9 +249,29 @@ namespace Lina::Graphics
 
                     if (type != std::string::npos)
                     {
-                        const size_t varNameStart = type + types[i].size() + 1;
-                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 2).c_str();
-                        map[i].push_back(varName);
+                        const size_t varNameStart = type + types[i].size();
+                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 1).c_str();
+
+                        ShaderReflectedProperty prop;
+                        prop.descriptorBinding = lastBindingIndex;
+                        prop.descriptorType    = DescriptorType::UniformBuffer;
+                        prop.name              = varName;
+                        prop.propertyType      = static_cast<MaterialPropertyType>(i);
+
+                        // Same descriptor might exists in multiple stages
+                        bool exists = false;
+                        for (auto& p : vec)
+                        {
+                            if (p.descriptorBinding == prop.descriptorBinding && p.name.compare(prop.name) == 0)
+                            {
+                                exists = true;
+                                break;
+                            }
+                        }
+
+                        if (!exists)
+                            vec.push_back(prop);
+                        break;
                     }
 
                     i++;
@@ -244,12 +280,32 @@ namespace Lina::Graphics
 
             if (readingMaterial && line.find("}") != std::string::npos)
             {
-                break;
+                readingMaterial = false;
+            }
+
+            const size_t txt = line.find(textureIdent2D.c_str());
+            if (txt != std::string::npos)
+            {
+
+                const size_t bindingStart = line.find(bindingIdent);
+                const size_t paranthesis  = line.find(")");
+                std::string  bindingStr   = line.substr(bindingStart + bindingIdent.size(), paranthesis - bindingStart - bindingIdent.size());
+                lastBindingIndex          = static_cast<uint32>(std::stoi(bindingStr));
+
+                const size_t varNameStart = txt + textureIdent2D.size();
+                String       varName      = line.substr(varNameStart, line.size() - varNameStart - 1).c_str();
+
+                ShaderReflectedProperty prop;
+                prop.descriptorBinding = lastBindingIndex;
+                prop.descriptorType    = DescriptorType::CombinedImageSampler;
+                prop.name              = varName;
+                prop.propertyType      = MaterialPropertyType::Texture;
+                vec.push_back(prop);
             }
         }
     }
 
-    void ShaderUtility::FillRenderPasses(const String& text, Vector<uint8>& vec, bool* emptyVertexPipeline)
+    void ShaderUtility::FillRenderPasses(const String& text, Vector<uint8>& vec, PipelineType* pipelineType)
     {
         std::istringstream f(text.c_str());
         std::string        line = "";
@@ -264,7 +320,12 @@ namespace Lina::Graphics
 
             if (line.find("#LINA_PIPELINE_NOVERTEX") != std::string::npos)
             {
-                *emptyVertexPipeline = true;
+                *pipelineType = PipelineType::NoVertex;
+                continue;
+            }
+            if (line.find("#LINA_PIPELINE_GUI") != std::string::npos)
+            {
+                *pipelineType = PipelineType::GUI;
                 continue;
             }
             if (line.find("#LINA_RP_MAIN") != std::string::npos)

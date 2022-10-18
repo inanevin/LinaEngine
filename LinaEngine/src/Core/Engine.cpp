@@ -152,13 +152,13 @@ namespace Lina
         // mat->SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", *mat);
 
-        // const auto& paths = m_renderEngine.GetEngineMaterialPaths();
-        // for (auto& p : paths)
-        // {
-        //     auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
-        //     mat->SaveToFile();
-        // }
-        // 
+       // const auto& paths = m_renderEngine.GetEngineMaterialPaths();
+       // for (auto& p : paths)
+       // {
+       //     auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
+       //     mat->SaveToFile();
+       // }
+        //
         // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess);
         // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));
         // mat->SaveToFile();
@@ -166,7 +166,6 @@ namespace Lina
 
     void Engine::Run()
     {
-        m_eventSystem.Trigger<Event::EPreStartGame>(Event::EPreStartGame{});
 
         m_deltaTimeArray.fill(-1.0);
 
@@ -183,9 +182,6 @@ namespace Lina
         RuntimeInfo::s_paused          = false;
         RuntimeInfo::s_shouldSkipFrame = false;
         RuntimeInfo::s_isInPlayMode    = ApplicationInfo::GetAppMode() != ApplicationMode::Editor;
-
-        // Starting game.
-        m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
@@ -220,6 +216,7 @@ namespace Lina
 
         // SetFrameLimit(30);
 
+        m_eventSystem.Trigger<Event::EPreMainLoop>(Event::EPreMainLoop{});
         const String initialTitle = m_renderEngine.m_window.GetTitle();
 
         while (m_running)
@@ -285,6 +282,8 @@ namespace Lina
 
             PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
         }
+
+        m_eventSystem.Trigger<Event::EPostMainLoop>(Event::EPostMainLoop{});
 
 #ifndef LINA_PRODUCTION_BUILD
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)

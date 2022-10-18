@@ -76,20 +76,19 @@ namespace Lina::Graphics
         /// Fills in the given map by checking material uniforms in the shader text.
         /// </summary>
         /// <param name="text"></param>
-        static void FillMaterialProperties(const String& text, HashMap<uint8, Vector<String>>& map);
+        static void FillMaterialProperties(const String& text, Vector<ShaderReflectedProperty>& vec);
 
         /// <summary>
         /// Fills in the given vec by the render pass definitions in the shader text.
         /// </summary>
         /// <param name="text"></param>
-        static void FillRenderPasses(const String& text, Vector<uint8>& vec, bool* emptyVertexPipeline);
+        static void FillRenderPasses(const String& text, Vector<uint8>& vec, PipelineType* pipelineType);
 
         /// <summary>
         /// Finds include preprocessor & adds the files from Shaders/Common.
         /// </summary>
         /// <param name="text"></param>
         static void AddIncludes(String& text);
-
     };
 } // namespace Lina::Graphics
 

@@ -502,6 +502,8 @@ namespace Lina::Graphics
         Bool    = 2,
         Vector2 = 3,
         Vector4 = 4,
+        Mat4    = 5,
+        Texture = 6,
     };
 
     enum class RenderPassType
@@ -509,6 +511,13 @@ namespace Lina::Graphics
         Main        = 0,
         PostProcess = 1,
         Final       = 2,
+    };
+
+    enum class PipelineType
+    {
+        Default  = 0,
+        NoVertex = 1,
+        GUI      = 2,
     };
 
     struct Offset3D
@@ -704,6 +713,14 @@ namespace Lina::Graphics
         uint32         stageFlags      = 0;
         DescriptorType type            = DescriptorType::UniformBuffer;
         uint32         descriptorCount = 1;
+    };
+
+    struct ShaderReflectedProperty
+    {
+        uint32               descriptorBinding = 0;
+        DescriptorType       descriptorType    = DescriptorType::UniformBuffer;
+        String               name              = "";
+        MaterialPropertyType propertyType      = MaterialPropertyType::Float;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

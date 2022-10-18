@@ -91,6 +91,7 @@ namespace Lina
                 if (HashedString(str.c_str()).value() == sid)
                     return true;
             }
+
         }
 
         return false;

@@ -67,6 +67,7 @@ namespace Lina
         struct ELevelInstalled;
         struct EComponentCreated;
         struct EComponentDestroyed;
+        struct EPreMainLoop;
     } // namespace Event
 
 } // namespace Lina
@@ -177,7 +178,7 @@ namespace Lina::Graphics
         void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        void OnEngineResourcesLoaded();
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
 
     private:
         Vector<View*>                       m_views;
