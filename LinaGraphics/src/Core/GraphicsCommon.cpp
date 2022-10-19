@@ -12,6 +12,8 @@ namespace Lina::Graphics
             return VK_FORMAT_B8G8R8A8_SRGB;
         case Format::R32G32B32_SFLOAT:
             return VK_FORMAT_R32G32B32_SFLOAT;
+        case Format::R32G32B32A32_SFLOAT:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
         case Format::R32G32_SFLOAT:
             return VK_FORMAT_R32G32_SFLOAT;
         case Format::D32_SFLOAT:
@@ -619,6 +621,108 @@ namespace Lina::Graphics
             return VK_DEPENDENCY_DEVICE_GROUP_BIT;
         default:
             return VK_DEPENDENCY_BY_REGION_BIT;
+        }
+    }
+
+    VkBlendFactor GetBlendFactor(BlendFactor factor)
+    {
+        VK_BLEND_FACTOR_CONSTANT_ALPHA;
+        switch (factor)
+        {
+
+        case BlendFactor::Zero:
+            return VK_BLEND_FACTOR_ZERO;
+        case BlendFactor::One:
+            return VK_BLEND_FACTOR_ONE;
+        case BlendFactor::SrcColor:
+            return VK_BLEND_FACTOR_SRC_COLOR;
+        case BlendFactor::OneMinusSrcColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case BlendFactor::DstColor:
+            return VK_BLEND_FACTOR_DST_COLOR;
+        case BlendFactor::OneMinusDstColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case BlendFactor::SrcAlpha:
+            return VK_BLEND_FACTOR_SRC_ALPHA;
+        case BlendFactor::OneMinusSrcAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::DstAlpha:
+            return VK_BLEND_FACTOR_DST_ALPHA;
+        case BlendFactor::OneMinusDstAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        default:
+            return VK_BLEND_FACTOR_ZERO;
+        }
+    }
+
+    VkBlendOp GetBlendOp(BlendOp op)
+    {
+        switch (op)
+        {
+        case BlendOp::Add:
+            return VK_BLEND_OP_ADD;
+        case BlendOp::Subtract:
+            return VK_BLEND_OP_SUBTRACT;
+        case BlendOp::ReverseSubtract:
+            return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case BlendOp::Min:
+            return VK_BLEND_OP_MIN;
+        case BlendOp::Max:
+            return VK_BLEND_OP_MAX;
+        default:
+            return VK_BLEND_OP_ADD;
+        }
+    }
+
+    uint32 GetColorComponentFlags(ColorComponentFlags flags)
+    {
+        switch (flags)
+        {
+        case ColorComponentFlags::R:
+            return VK_COLOR_COMPONENT_R_BIT;
+        case ColorComponentFlags::G:
+            return VK_COLOR_COMPONENT_G_BIT;
+        case ColorComponentFlags::B:
+            return VK_COLOR_COMPONENT_B_BIT;
+        case ColorComponentFlags::A:
+            return VK_COLOR_COMPONENT_A_BIT;
+        case ColorComponentFlags::RG:
+            return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT;
+        case ColorComponentFlags::RGB:
+            return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
+        case ColorComponentFlags::RGBA:
+            return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        default:
+            return VK_COLOR_COMPONENT_R_BIT;
+        }
+    }
+
+    VkLogicOp GetLogicOp(LogicOp op)
+    {
+        switch (op)
+        {
+        case LogicOp::Clear:
+            return VK_LOGIC_OP_CLEAR;
+        case LogicOp::And:
+            return VK_LOGIC_OP_AND;
+        case LogicOp::AndReverse:
+            return VK_LOGIC_OP_AND_REVERSE;
+        case LogicOp::Copy:
+            return VK_LOGIC_OP_COPY;
+        case LogicOp::AndInverted:
+            return VK_LOGIC_OP_AND_INVERTED;
+        case LogicOp::NoOp:
+            return VK_LOGIC_OP_NO_OP;
+        case LogicOp::XOR:
+            return VK_LOGIC_OP_XOR;
+        case LogicOp::OR:
+            return VK_LOGIC_OP_OR;
+        case LogicOp::NOR:
+            return VK_LOGIC_OP_NOR;
+        case LogicOp::Equivalent:
+            return VK_LOGIC_OP_EQUIVALENT;
+        default:
+            return VK_LOGIC_OP_CLEAR;
         }
     }
 } // namespace Lina::Graphics

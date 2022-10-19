@@ -80,129 +80,12 @@ namespace Lina::Graphics
         };
         m_depthImage.Create(true);
 
-        // Attachment att = Attachment{
-        //     .format = m_backend->m_swapchain.format,
-        //     .loadOp = LoadOp::Clear,
-        // };
-        //
-        // Attachment depthStencil = Attachment{.format         = Format::D32_SFLOAT,
-        //                                      .loadOp         = LoadOp::Clear,
-        //                                      .storeOp        = StoreOp::Store,
-        //                                      .stencilLoadOp  = LoadOp::Clear,
-        //                                      .stencilStoreOp = StoreOp::DontCare,
-        //                                      .initialLayout  = ImageLayout::Undefined,
-        //                                      .finalLayout    = ImageLayout::DepthStencilOptimal};
-        //
-        // SubPassDependency dep = SubPassDependency{
-        //     .dstSubpass    = 0,
-        //     .srcStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
-        //     .srcAccessMask = 0,
-        //     .dstStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
-        //     .dstAccessMask = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
-        // };
-        //
-        // const uint32 depthFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
-        //
-        // SubPassDependency depDepth = SubPassDependency{
-        //     .dstSubpass    = 0,
-        //     .srcStageMask  = depthFlags,
-        //     .srcAccessMask = 0,
-        //     .dstStageMask  = depthFlags,
-        //     .dstAccessMask = GetAccessFlags(AccessFlags::DepthStencilAttachmentWrite),
-        // };
-        //
-        // ClearValue clrCol = ClearValue{
-        //     .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
-        //     .isColor    = true,
-        // };
-        //
-        // ClearValue clrDepth = ClearValue{
-        //     .isColor = false,
-        //     .depth   = 1.0f,
-        // };
-        //
-        // m_passes[RenderPassType::Main]  = Pass();
-        // m_passes[RenderPassType::Final] = Pass();
-        //
-        // auto& mainPass  = m_passes[RenderPassType::Main];
-        // auto& finalPass = m_passes[RenderPassType::Final];
-        //
-        // // Subpasses
-        // mainPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
-        // mainPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
-        //
-        // finalPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
-        // finalPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
-        //
-        // // Renderpasses
-        // mainPass.renderPass = RenderPass{};
-        // mainPass.renderPass.AddAttachment(att)
-        //     .AddAttachment(depthStencil)
-        //     .AddSubpass(mainPass.subPass)
-        //     .AddSubPassDependency(dep)
-        //     .AddSubPassDependency(depDepth)
-        //     .AddClearValue(clrCol)
-        //     .AddClearValue(clrDepth)
-        //     .Create();
-        //
-        // finalPass.renderPass = RenderPass{};
-        // finalPass.renderPass.AddAttachment(att)
-        //     .AddAttachment(depthStencil)
-        //     .AddSubpass(finalPass.subPass)
-        //     .AddSubPassDependency(dep)
-        //     .AddSubPassDependency(depDepth)
-        //     .AddClearValue(clrCol)
-        //     .AddClearValue(clrDepth)
-        //     .Create();
-        //
-        // // Images
-        // ImageSubresourceRange mainPassRange, mainPassDepthRange;
-        // mainPassRange.aspectFlags      = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-        // mainPassDepthRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth);
-        //
-        // Image mainPassColor = Image{
-        //     .format              = m_backend->m_swapchain.format,
-        //     .tiling              = ImageTiling::Optimal,
-        //     .extent              = ext,
-        //     .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment),
-        //     .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
-        //     .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
-        //     .subresRange         = mainPassRange,
-        // };
-        //
-        // Sampler mainPassSampler = Sampler{};
-        // mainPass.colorTexture   = new Texture();
-        // mainPass.colorTexture->CreateFromRuntime(mainPassColor, mainPassSampler);
-        //
-        // Image mainPassDepthImg = Image{
-        //     .format              = Format::D32_SFLOAT,
-        //     .tiling              = ImageTiling::Optimal,
-        //     .extent              = ext,
-        //     .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
-        //     .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
-        //     .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
-        //     .subresRange         = mainPassDepthRange,
-        // };
-        // mainPass.depthTexture = new Texture();
-        // mainPass.depthTexture->CreateFromRuntime(mainPassDepthImg, Sampler());
-        //
-        // // Framebuffers
-        // mainPass.frameBuffer = Framebuffer{
-        //     .width  = static_cast<uint32>(size.x),
-        //     .height = static_cast<uint32>(size.y),
-        //     .layers = 1,
-        // };
-        //
-        // mainPass.frameBuffer.AttachRenderPass(mainPass.renderPass);
-        // mainPass.frameBuffer.AddImageView(mainPass.colorTexture->GetImage()._ptrImgView).AddImageView(mainPass.depthTexture->GetImage()._ptrImgView).Create();
-
         m_renderPasses[RenderPassType::Main]        = RenderPass();
         m_renderPasses[RenderPassType::PostProcess] = RenderPass();
         m_renderPasses[RenderPassType::Final]       = RenderPass();
-
-        auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& postPass  = m_renderPasses[RenderPassType::PostProcess];
-        auto& finalPass = m_renderPasses[RenderPassType::Final];
+        auto& mainPass                              = m_renderPasses[RenderPassType::Main];
+        auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
+        auto& finalPass                             = m_renderPasses[RenderPassType::Final];
         VulkanUtility::SetupMainRenderPass(mainPass);
         VulkanUtility::SetupMainRenderPass(postPass);
         VulkanUtility::SetupFinalRenderPass(finalPass);
@@ -441,7 +324,7 @@ namespace Lina::Graphics
         cmd.CMD_Draw(3, 1, 0, 0);
         postPass.End(cmd);
 
-        const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor ;
+        const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor;
 
         if (drawEditor)
             Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawBegin>(Event::EOnEditorDrawBegin{.cmd = &cmd});

@@ -124,11 +124,17 @@ namespace Lina::Graphics
         return info;
     }
 
-    VkPipelineColorBlendAttachmentState VulkanUtility::CreatePipelineBlendAttachmentState()
+    VkPipelineColorBlendAttachmentState VulkanUtility::CreatePipelineBlendAttachmentState(ColorBlendAttachmentState blendAtt)
     {
         VkPipelineColorBlendAttachmentState info = VkPipelineColorBlendAttachmentState{
-            .blendEnable    = VK_FALSE,
-            .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+            .blendEnable         = blendAtt.blendEnable ? VK_TRUE : VK_FALSE,
+            .srcColorBlendFactor = GetBlendFactor(blendAtt.srcColorBlendFactor),
+            .dstColorBlendFactor = GetBlendFactor(blendAtt.dstColorBlendFactor),
+            .colorBlendOp        = GetBlendOp(blendAtt.colorBlendOp),
+            .srcAlphaBlendFactor = GetBlendFactor(blendAtt.srcAlphaBlendFactor),
+            .dstAlphaBlendFactor = GetBlendFactor(blendAtt.dstAlphaBlendFactor),
+            .alphaBlendOp        = GetBlendOp(blendAtt.alphaBlendOp),
+            .colorWriteMask      = GetColorComponentFlags(blendAtt.componentFlags),
         };
         return info;
     }
@@ -149,7 +155,6 @@ namespace Lina::Graphics
 
         return info;
     }
-
 
     void VulkanUtility::SetupMainRenderPass(RenderPass& pass)
     {
@@ -255,7 +260,7 @@ namespace Lina::Graphics
         image.format          = Format::D32_SFLOAT;
         image.imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment);
         range.aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth), // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
-        image.subresRange     = range;
+            image.subresRange = range;
         pass._depthTexture    = new Texture();
         pass._depthTexture->CreateFromRuntime(image, sampler);
 
@@ -341,6 +346,125 @@ namespace Lina::Graphics
             .Create();
     }
 
+    void VulkanUtility::SetupDefaultRenderPass(RenderPass& pass)
+    {
+        // Attachment att = Attachment{
+        //     .format = m_backend->m_swapchain.format,
+        //     .loadOp = LoadOp::Clear,
+        // };
+        //
+        // Attachment depthStencil = Attachment{.format         = Format::D32_SFLOAT,
+        //                                      .loadOp         = LoadOp::Clear,
+        //                                      .storeOp        = StoreOp::Store,
+        //                                      .stencilLoadOp  = LoadOp::Clear,
+        //                                      .stencilStoreOp = StoreOp::DontCare,
+        //                                      .initialLayout  = ImageLayout::Undefined,
+        //                                      .finalLayout    = ImageLayout::DepthStencilOptimal};
+        //
+        // SubPassDependency dep = SubPassDependency{
+        //     .dstSubpass    = 0,
+        //     .srcStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+        //     .srcAccessMask = 0,
+        //     .dstStageMask  = GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput),
+        //     .dstAccessMask = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+        // };
+        //
+        // const uint32 depthFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+        //
+        // SubPassDependency depDepth = SubPassDependency{
+        //     .dstSubpass    = 0,
+        //     .srcStageMask  = depthFlags,
+        //     .srcAccessMask = 0,
+        //     .dstStageMask  = depthFlags,
+        //     .dstAccessMask = GetAccessFlags(AccessFlags::DepthStencilAttachmentWrite),
+        // };
+        //
+        // ClearValue clrCol = ClearValue{
+        //     .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
+        //     .isColor    = true,
+        // };
+        //
+        // ClearValue clrDepth = ClearValue{
+        //     .isColor = false,
+        //     .depth   = 1.0f,
+        // };
+        //
+        // m_passes[RenderPassType::Main]  = Pass();
+        // m_passes[RenderPassType::Final] = Pass();
+        //
+        // auto& mainPass  = m_passes[RenderPassType::Main];
+        // auto& finalPass = m_passes[RenderPassType::Final];
+        //
+        // // Subpasses
+        // mainPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        // mainPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+        //
+        // finalPass.subPass = SubPass{.bindPoint = PipelineBindPoint::Graphics};
+        // finalPass.subPass.AddColorAttachmentRef(0, ImageLayout::ColorOptimal).SetDepthStencilAttachmentRef(1, ImageLayout::DepthStencilOptimal).Create();
+        //
+        // // Renderpasses
+        // mainPass.renderPass = RenderPass{};
+        // mainPass.renderPass.AddAttachment(att)
+        //     .AddAttachment(depthStencil)
+        //     .AddSubpass(mainPass.subPass)
+        //     .AddSubPassDependency(dep)
+        //     .AddSubPassDependency(depDepth)
+        //     .AddClearValue(clrCol)
+        //     .AddClearValue(clrDepth)
+        //     .Create();
+        //
+        // finalPass.renderPass = RenderPass{};
+        // finalPass.renderPass.AddAttachment(att)
+        //     .AddAttachment(depthStencil)
+        //     .AddSubpass(finalPass.subPass)
+        //     .AddSubPassDependency(dep)
+        //     .AddSubPassDependency(depDepth)
+        //     .AddClearValue(clrCol)
+        //     .AddClearValue(clrDepth)
+        //     .Create();
+        //
+        // // Images
+        // ImageSubresourceRange mainPassRange, mainPassDepthRange;
+        // mainPassRange.aspectFlags      = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+        // mainPassDepthRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth);
+        //
+        // Image mainPassColor = Image{
+        //     .format              = m_backend->m_swapchain.format,
+        //     .tiling              = ImageTiling::Optimal,
+        //     .extent              = ext,
+        //     .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment),
+        //     .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+        //     .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+        //     .subresRange         = mainPassRange,
+        // };
+        //
+        // Sampler mainPassSampler = Sampler{};
+        // mainPass.colorTexture   = new Texture();
+        // mainPass.colorTexture->CreateFromRuntime(mainPassColor, mainPassSampler);
+        //
+        // Image mainPassDepthImg = Image{
+        //     .format              = Format::D32_SFLOAT,
+        //     .tiling              = ImageTiling::Optimal,
+        //     .extent              = ext,
+        //     .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
+        //     .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+        //     .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+        //     .subresRange         = mainPassDepthRange,
+        // };
+        // mainPass.depthTexture = new Texture();
+        // mainPass.depthTexture->CreateFromRuntime(mainPassDepthImg, Sampler());
+        //
+        // // Framebuffers
+        // mainPass.frameBuffer = Framebuffer{
+        //     .width  = static_cast<uint32>(size.x),
+        //     .height = static_cast<uint32>(size.y),
+        //     .layers = 1,
+        // };
+        //
+        // mainPass.frameBuffer.AttachRenderPass(mainPass.renderPass);
+        // mainPass.frameBuffer.AddImageView(mainPass.colorTexture->GetImage()._ptrImgView).AddImageView(mainPass.depthTexture->GetImage()._ptrImgView).Create();
+    }
+
     VertexInputDescription VulkanUtility::GetVertexDescription()
     {
         VertexInputDescription description;
@@ -389,7 +513,6 @@ namespace Lina::Graphics
         return description;
     }
 
-
     VertexInputDescription VulkanUtility::GetEmptyVertexDescription()
     {
         VertexInputDescription description;
@@ -401,34 +524,34 @@ namespace Lina::Graphics
         VertexInputDescription description;
 
         VertexInputBinding mainBinding = VertexInputBinding{
-            .binding = 0,
-            .stride = sizeof(LinaVG::Vertex),
+            .binding   = 0,
+            .stride    = sizeof(LinaVG::Vertex),
             .inputRate = VertexInputRate::Vertex,
         };
 
         description.bindings.push_back(mainBinding);
 
         VertexInputAttribute positionAtt = VertexInputAttribute{
-            .binding = 0,
+            .binding  = 0,
             .location = 0,
-            .format = Format::R32G32B32_SFLOAT,
-            .offset = offsetof(LinaVG::Vertex, pos),
+            .format   = Format::R32G32B32_SFLOAT,
+            .offset   = offsetof(LinaVG::Vertex, pos),
         };
 
         VertexInputAttribute uvAtt = VertexInputAttribute{
-          .binding = 0,
-          .location = 1,
-          .format = Format::R32G32_SFLOAT,
-          .offset = offsetof(LinaVG::Vertex, uv),
+            .binding  = 0,
+            .location = 1,
+            .format   = Format::R32G32_SFLOAT,
+            .offset   = offsetof(LinaVG::Vertex, uv),
         };
 
         VertexInputAttribute colorAtt = VertexInputAttribute{
-            .binding = 0,
+            .binding  = 0,
             .location = 2,
-            .format = Format::R32G32B32_SFLOAT,
-            .offset = offsetof(LinaVG::Vertex, col),
+            .format   = Format::R32G32B32A32_SFLOAT,
+            .offset   = offsetof(LinaVG::Vertex, col),
         };
-      
+
         description.attributes.push_back(positionAtt);
         description.attributes.push_back(uvAtt);
         description.attributes.push_back(colorAtt);

@@ -114,8 +114,11 @@ namespace Lina::Graphics
             }
 
             m_totalPropertySize = 0;
+
             for (auto p : m_properties)
-                m_totalPropertySize += static_cast<uint8>(p->GetTypeSize());
+                m_totalPropertySize += p->GetTypeSize();
+
+            m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 
             uint32 texturesSize = 0;
             archive(texturesSize);
@@ -140,6 +143,8 @@ namespace Lina::Graphics
         void              BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType);
         void              SetTexture(const String& name, Texture* texture);
         void              SetTexture(uint32 index, Texture* texture);
+        uint32            GetPropertyTypeAlignment(MaterialPropertyType type);
+        uint32            GetPropertiesTotalAlignedSize();
 
         template <typename T> void SetProperty(uint32 index, T value)
         {
@@ -199,6 +204,7 @@ namespace Lina::Graphics
 
         HashMap<uint32, Texture*> m_runtimeDirtyTextures;
         uint32                    m_totalPropertySize = 0;
+        uint32                    m_totalAlignedSize  = 0;
         DescriptorSet             m_descriptor;
         DescriptorPool            m_descriptorPool;
         Buffer                    m_dataBuffer;

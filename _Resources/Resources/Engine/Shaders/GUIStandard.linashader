@@ -40,19 +40,16 @@ layout (location = 2) in vec4 col;
 layout (location = 0) out vec4 fCol;
 layout (location = 1) out vec2 fUV;
 
-
 layout(set = 2, binding = 0) uniform MaterialData
 {
-   float red;
-   vec4 sa;
-   float blue;
+   mat4 projection;
 } material;
 
 void main()
 {
    fCol = col;
    fUV = uv;
-   gl_Position = vec4(pos.x, pos.y, 0.0f, 1.0);
+   gl_Position = material.projection * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
 #LINA_END
@@ -66,16 +63,11 @@ layout (location = 1) in vec2 fUV;
 
 layout (location = 0) out vec4 fragColor;
 
-layout(set = 2, binding = 0) uniform MaterialData
-{
-   float red;
-   vec4 sa;
-   float blue;
-} material;
 
 void main()
 {
-   fragColor = vec4(material.red,material.blue, material.sa.y,  1);
+      //fragColor = material.test;
+    fragColor = fCol;
 }
 
 #LINA_END

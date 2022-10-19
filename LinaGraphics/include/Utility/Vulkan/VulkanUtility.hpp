@@ -52,12 +52,13 @@ namespace Lina::Graphics
         static VkPipelineInputAssemblyStateCreateInfo CreatePipelineInputAssemblyCreateInfo(Topology top, bool primitiveRestart = false);
         static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode, FrontFace frontFace);
         static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
-        static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState();
+        static VkPipelineColorBlendAttachmentState    CreatePipelineBlendAttachmentState(ColorBlendAttachmentState blendAtt);
         static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
         // Render Pass
         static void SetupMainRenderPass(RenderPass& pass);
         static void SetupFinalRenderPass(RenderPass& pass);
+        static void SetupDefaultRenderPass(RenderPass& pass);
 
         // InputDesc
         static VertexInputDescription GetVertexDescription();

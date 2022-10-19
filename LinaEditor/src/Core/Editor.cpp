@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Settings/RenderSettings.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/World.hpp"
@@ -53,7 +54,6 @@ namespace Lina::Editor
     void EditorManager::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorManager::OnLevelInstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::EOnGUIDraw, &EditorManager::OnGUIDraw>(this);
         m_resLoader = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
@@ -66,7 +66,6 @@ namespace Lina::Editor
     void EditorManager::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EOnGUIDraw>(this);
 
         m_renderer.Shutdown();
     }
@@ -205,12 +204,6 @@ namespace Lina::Editor
         CreateEditorCamera();
     }
 
-    void EditorManager::OnGUIDraw(const Event::EOnGUIDraw& ev)
-    {
-        LinaVG::StyleOptions style;
-        style.isFilled = true;
-        LinaVG::DrawRect(LinaVG::Vec2(0, 0), LinaVG::Vec2(100, 100), style);
-    }
 
     void EditorManager::SetPlayMode(bool enabled)
     {

@@ -46,12 +46,12 @@ namespace Lina::Graphics
         };
 
         VmaAllocationCreateInfo vmaallocInfo = {
-            .usage = GetMemoryUsageFlags(memoryUsage),
+            .usage         = GetMemoryUsageFlags(memoryUsage),
+            .requiredFlags = GetMemoryPropertyFlags(requiredFlags),
         };
 
         VkResult result = vmaCreateBuffer(Backend::Get()->GetVMA(), &bufferInfo, &vmaallocInfo, &_ptr, &_allocation, nullptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Buffer] -> Could not create Buffer!");
-
     }
 
     void Buffer::Destroy()
@@ -63,7 +63,6 @@ namespace Lina::Graphics
 
         _ptr        = nullptr;
         _allocation = nullptr;
-
     }
 
     void Buffer::CopyInto(const void* src, size_t sz)

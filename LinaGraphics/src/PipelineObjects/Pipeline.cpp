@@ -63,14 +63,14 @@ namespace Lina::Graphics
             .pScissors     = &_scissor,
         };
 
-        VkPipelineColorBlendAttachmentState _colorBlendAttachment = VulkanUtility::CreatePipelineBlendAttachmentState();
+        VkPipelineColorBlendAttachmentState _colorBlendAttachment = VulkanUtility::CreatePipelineBlendAttachmentState(blendAttachment);
 
         // Write to color attachment, no blending, dummy
         VkPipelineColorBlendStateCreateInfo _colorBlending = {
             .sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
             .pNext           = nullptr,
-            .logicOpEnable   = VK_FALSE,
-            .logicOp         = VK_LOGIC_OP_COPY,
+            .logicOpEnable   = colorBlendLogicOpEnabled ? VK_TRUE : VK_FALSE,
+            .logicOp         = GetLogicOp(colorBlendLogicOp),
             .attachmentCount = 1,
             .pAttachments    = &_colorBlendAttachment,
         };

@@ -104,7 +104,7 @@ namespace Lina::Graphics
         if (m_dataBuffer._ptr == nullptr)
         {
             m_dataBuffer = Buffer{
-                .size        = m_totalPropertySize == 0 ? sizeof(float) * 4 : m_totalPropertySize,
+                .size        = m_totalPropertySize == 0 ? sizeof(float) * 10 : m_totalPropertySize,
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
@@ -215,8 +215,11 @@ namespace Lina::Graphics
         }
 
         m_totalPropertySize = 0;
+
         for (auto p : m_properties)
-            m_totalPropertySize += static_cast<uint8>(p->GetTypeSize());
+            m_totalPropertySize += p->GetTypeSize();
+
+        m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 
         if (m_descriptor._ptr != nullptr)
         {
@@ -228,6 +231,44 @@ namespace Lina::Graphics
         }
     }
 
+    uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)
+    {
+        if (type == MaterialPropertyType::Vector4 || type == MaterialPropertyType::Mat4)
+            return static_cast<uint32>(16);
+        else if (type == MaterialPropertyType::Vector2)
+            return static_cast<uint32>(8);
+        return static_cast<uint32>(4);
+    }
+
+    uint32 Material::GetPropertiesTotalAlignedSize()
+    {
+        uint32 offset = 0;
+
+        for (auto& p : m_properties)
+        {
+            const uint32 typeSize  = p->GetTypeSize();
+            const uint32 alignment = GetPropertyTypeAlignment(p->GetType());
+            void*        src       = p->GetData();
+
+            if (offset != 0)
+            {
+                auto mod = offset % alignment;
+
+                if (mod != 0)
+                {
+                    if (offset < alignment)
+                        offset = alignment;
+                    else
+                        offset = static_cast<uint32>(Math::CeilToInt(static_cast<float>(offset) / static_cast<float>(alignment)) * alignment);
+                }
+            }
+
+            offset += typeSize;
+        }
+
+        return offset;
+    }
+
     void Material::BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType)
     {
         auto& renderer = RenderEngine::Get()->GetRenderer();
@@ -236,26 +277,39 @@ namespace Lina::Graphics
 
         if (m_totalPropertySize != 0 || !m_textures.empty())
         {
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
-
             if (m_totalPropertySize != 0 && m_propertiesDirty)
             {
-                uint8* data  = new uint8[m_totalPropertySize];
-                size_t index = 0;
+                uint8* data = new uint8[m_totalAlignedSize];
 
-                // Copy each prop
+                uint32 offset = 0;
+
                 for (auto& p : m_properties)
                 {
-                    const size_t typeSize = p->GetTypeSize();
-                    void*        src      = p->GetData();
-                    MEMCPY(data + index, src, typeSize);
-                    index += typeSize;
+                    const uint32 typeSize  = p->GetTypeSize();
+                    const uint32 alignment = GetPropertyTypeAlignment(p->GetType());
+                    void*        src       = p->GetData();
+
+                    if (offset != 0)
+                    {
+                        auto mod = offset % alignment;
+
+                        if (mod != 0)
+                        {
+                            if (offset < alignment)
+                                offset = alignment;
+                            else
+                                offset = static_cast<uint32>(Math::CeilToInt(static_cast<float>(offset) / static_cast<float>(alignment)) * alignment);
+                        }
+                    }
+
+                    MEMCPY(data + offset, src, typeSize);
+                    offset += typeSize;
                 }
 
+
                 // Update buffer.
-                m_dataBuffer.CopyInto(data, m_totalPropertySize);
+                m_dataBuffer.CopyInto(data, m_totalAlignedSize);
                 m_propertiesDirty = false;
-                delete data;
             }
 
             if (!m_runtimeDirtyTextures.empty())
@@ -274,6 +328,8 @@ namespace Lina::Graphics
 
                 m_runtimeDirtyTextures.clear();
             }
+
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
         }
     }
 
@@ -344,7 +400,7 @@ namespace Lina::Graphics
             break;
         }
         case MaterialPropertyType::Vector4: {
-            p = new MaterialProperty<Vector3>();
+            p = new MaterialProperty<Vector4>();
             break;
         }
         case MaterialPropertyType::Mat4: {

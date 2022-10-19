@@ -152,12 +152,12 @@ namespace Lina
         // mat->SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", *mat);
 
-       // const auto& paths = m_renderEngine.GetEngineMaterialPaths();
-       // for (auto& p : paths)
-       // {
-       //     auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
-       //     mat->SaveToFile();
-       // }
+        const auto& paths = m_renderEngine.GetEngineMaterialPaths();
+        for (auto& p : paths)
+        {
+            auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
+            mat->SaveToFile();
+        }
         //
         // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess);
         // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));

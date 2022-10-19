@@ -146,6 +146,7 @@ namespace Lina::Graphics
         features.multiDrawIndirect         = true;
         features.drawIndirectFirstInstance = true;
         features.samplerAnisotropy         = true;
+        features.fillModeNonSolid = true;
 
         vkb::PhysicalDeviceSelector selector{inst};
         vkb::PhysicalDevice         physicalDevice = selector

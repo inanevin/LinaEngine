@@ -65,6 +65,9 @@ enum VkFilter;
 enum VkSamplerAddressMode;
 enum VkFrontFace;
 enum VkBorderColor;
+enum VkBlendFactor;
+enum VkBlendOp;
+enum VkLogicOp;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -79,6 +82,7 @@ namespace Lina::Graphics
     {
         B8G8R8A8_SRGB,
         R32G32B32_SFLOAT,
+        R32G32B32A32_SFLOAT,
         R32G32_SFLOAT,
         D32_SFLOAT,
         R8G8B8A8_UNORM,
@@ -437,6 +441,62 @@ namespace Lina::Graphics
 
     uint32 GetDependencyFlags(DependencyFlag flag);
 
+    enum class BlendFactor
+    {
+        Zero,
+        One,
+        SrcColor,
+        OneMinusSrcColor,
+        DstColor,
+        OneMinusDstColor,
+        SrcAlpha,
+        OneMinusSrcAlpha,
+        DstAlpha,
+        OneMinusDstAlpha,
+    };
+
+    VkBlendFactor GetBlendFactor(BlendFactor factor);
+
+    enum class BlendOp
+    {
+        Add,
+        Subtract,
+        ReverseSubtract,
+        Min,
+        Max
+    };
+
+    VkBlendOp GetBlendOp(BlendOp blendOp);
+
+    enum class ColorComponentFlags
+    {
+        R,
+        G,
+        B,
+        A,
+        RG,
+        RGB,
+        RGBA
+    };
+
+    uint32 GetColorComponentFlags(ColorComponentFlags flags);
+
+    enum class LogicOp
+    {
+        Clear,
+        And,
+        AndReverse,
+        Copy,
+        AndInverted,
+        NoOp,
+        XOR,
+        OR,
+        NOR,
+        Equivalent
+    };
+
+    VkLogicOp GetLogicOp(LogicOp op);
+
     enum class SurfaceType
     {
         Opaque,
@@ -721,6 +781,18 @@ namespace Lina::Graphics
         DescriptorType       descriptorType    = DescriptorType::UniformBuffer;
         String               name              = "";
         MaterialPropertyType propertyType      = MaterialPropertyType::Float;
+    };
+
+    struct ColorBlendAttachmentState
+    {
+        bool                blendEnable         = false;
+        BlendFactor         srcColorBlendFactor = BlendFactor::Zero;
+        BlendFactor         dstColorBlendFactor = BlendFactor::Zero;
+        BlendOp             colorBlendOp        = BlendOp::Add;
+        BlendFactor         srcAlphaBlendFactor = BlendFactor::Zero;
+        BlendFactor         dstAlphaBlendFactor = BlendFactor::Zero;
+        BlendOp             alphaBlendOp        = BlendOp::Add;
+        ColorComponentFlags componentFlags      = ColorComponentFlags::RGBA;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

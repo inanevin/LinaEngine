@@ -44,7 +44,7 @@ namespace Lina::Graphics
     public:
         MaterialPropertyBase()                                               = default;
         virtual ~MaterialPropertyBase()                                      = default;
-        virtual size_t GetTypeSize()                                         = 0;
+        virtual uint32 GetTypeSize()                                         = 0;
         virtual void*  GetData()                                             = 0;
         virtual void   SaveToArchive(Serialization::Archive<OStream>& arc)   = 0;
         virtual void   LoadFromArchive(Serialization::Archive<IStream>& arc) = 0;
@@ -88,9 +88,9 @@ namespace Lina::Graphics
             ar(m_value);
         }
 
-        virtual size_t GetTypeSize() override
+        virtual uint32 GetTypeSize() override
         {
-            return sizeof(T);
+            return static_cast<uint32>(sizeof(T));
         }
 
         virtual void* GetData() override

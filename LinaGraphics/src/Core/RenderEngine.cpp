@@ -146,7 +146,8 @@ namespace Lina::Graphics
         LinaVG::Config.flipTextureUVs                     = false;
         LinaVG::Config.framebufferScale.x                 = ApplicationInfo::GetContentScaleWidth();
         LinaVG::Config.framebufferScale.y                 = ApplicationInfo::GetContentScaleHeight();
-        LinaVG::Config.aaMultiplier                       = 1.5f;
+        LinaVG::Config.aaMultiplier                       = ApplicationInfo::GetContentScaleWidth() * 2.5f,
+        LinaVG::Config.aaEnabled                          = true;
 
         LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 

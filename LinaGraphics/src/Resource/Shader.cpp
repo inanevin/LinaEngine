@@ -390,18 +390,47 @@ namespace Lina::Graphics
         for (auto rpi : m_renderPasses)
         {
             const RenderPassType rp = static_cast<RenderPassType>(rpi);
-            m_pipelines[rp]         = Pipeline{
-                        .pipelineType      = m_pipelineType,
-                        .depthTestEnabled  = true,
-                        .depthWriteEnabled = true,
-                        .depthCompareOp    = CompareOp::LEqual,
-                        .viewport          = RenderEngine::Get()->GetViewport(),
-                        .scissor           = RenderEngine::Get()->GetScissor(),
-                        .topology          = Topology::TriangleList,
-                        .polygonMode       = PolygonMode::Fill,
-                        .cullMode          = (m_pipelineType != PipelineType::Default) ? CullMode::Front : CullMode::Back,
-                        .frontFace         = (m_pipelineType != PipelineType::Default) ? FrontFace::AntiClockWise : FrontFace::ClockWise,
+
+            ColorBlendAttachmentState blendAttachment = ColorBlendAttachmentState{
+                .blendEnable         = true,
+                .srcColorBlendFactor = BlendFactor::SrcAlpha,
+                .dstColorBlendFactor = BlendFactor::OneMinusSrcAlpha,
+                .colorBlendOp        = BlendOp::Add,
+                .srcAlphaBlendFactor = BlendFactor::One,
+                .dstAlphaBlendFactor = BlendFactor::OneMinusSrcAlpha,
+                .alphaBlendOp        = BlendOp::Add,
+                .componentFlags      = ColorComponentFlags::RGBA,
             };
+
+            m_pipelines[rp] = Pipeline{
+                .pipelineType             = m_pipelineType,
+                .depthTestEnabled         = true,
+                .depthWriteEnabled        = true,
+                .depthCompareOp           = CompareOp::LEqual,
+                .viewport                 = RenderEngine::Get()->GetViewport(),
+                .scissor                  = RenderEngine::Get()->GetScissor(),
+                .topology                 = Topology::TriangleList,
+                .polygonMode              = PolygonMode::Line,
+                .blendAttachment          = blendAttachment,
+                .colorBlendLogicOpEnabled = false,
+                .colorBlendLogicOp        = LogicOp::Copy,
+            };
+
+            if (m_pipelineType == PipelineType::Default)
+            {
+                m_pipelines[rp].cullMode  = CullMode::Back;
+                m_pipelines[rp].frontFace = FrontFace::ClockWise;
+            }
+            else if (m_pipelineType == PipelineType::NoVertex)
+            {
+                m_pipelines[rp].cullMode  = CullMode::Front;
+                m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
+            }
+            else if (m_pipelineType == PipelineType::GUI)
+            {
+                m_pipelines[rp].cullMode  = CullMode::None;
+                m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
+            }
 
             m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();
         }

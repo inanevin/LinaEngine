@@ -54,6 +54,18 @@ namespace Lina::Graphics
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
+    private:
+        struct LinaVGDrawCategory
+        {
+            Buffer                     cpuVtxBuffer;
+            Buffer                     cpuIndexBuffer;
+            Buffer                     gpuVtxBuffer;
+            Buffer                     gpuIndexBuffer;
+            Vector<LinaVG::Vertex>     copyVertices;
+            Vector<LinaVG::Index>      copyIndices;
+            Vector<LinaVG::DrawBuffer> defaultBuffers;
+        };
+
     public:
         virtual bool                  Initialize() override;
         virtual void                  Terminate() override;
@@ -85,16 +97,13 @@ namespace Lina::Graphics
         }
 
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void RecordDrawCommands();
+        void InitializeCategory(LinaVGDrawCategory& cat);
 
     private:
-        Vector<LinaVG::Vertex> m_copyVertices;
-        Vector<LinaVG::Index>  m_copyIndices;
-        Buffer                 m_cpuVtxBuffer;
-        Buffer                 m_cpuIndexBuffer;
-        Buffer                 m_gpuVtxBuffer;
-        Buffer                 m_gpuIndexBuffer;
-        CommandBuffer*         m_cmd = nullptr;
-        static GUIBackend*     s_instance;
+        LinaVGDrawCategory m_catDefault;
+        CommandBuffer*     m_cmd = nullptr;
+        static GUIBackend* s_instance;
     };
 
 } // namespace Lina::Graphics

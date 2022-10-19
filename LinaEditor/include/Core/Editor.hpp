@@ -61,7 +61,6 @@ namespace Lina::Editor
         virtual ~EditorManager() = default;
 
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void OnGUIDraw(const Event::EOnGUIDraw& ev);
         void Initialize();
         void Shutdown();
         void VerifyStaticResources();
