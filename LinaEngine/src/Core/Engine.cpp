@@ -243,8 +243,7 @@ namespace Lina
             RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
             RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
 
-            // Input
-            m_inputEngine.Tick();
+         
 
             // Render
             Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
@@ -255,6 +254,8 @@ namespace Lina
             // Game sim, physics + update etc.
             RunSimulation((float)RuntimeInfo::s_deltaTime);
             updates++;
+            // Input
+            m_inputEngine.Tick();
 
             // Wait for all.
             renderJob.get();
