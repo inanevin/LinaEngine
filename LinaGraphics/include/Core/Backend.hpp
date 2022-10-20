@@ -140,7 +140,6 @@ namespace Lina::Graphics
         bool        Initialize(const InitInfo& appInfo);
         void        Shutdown();
         void        WaitIdle();
-        void        RecreateSwapchain(const Vector2i& size);
         void        OnVsyncModeChanged(const Event::EVsyncModeChanged& ev);
         PresentMode VsyncToPresentMode(VsyncMode mode);
 

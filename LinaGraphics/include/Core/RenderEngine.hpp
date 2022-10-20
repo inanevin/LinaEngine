@@ -188,9 +188,9 @@ namespace Lina::Graphics
         Material*     m_placeholderMaterial  = nullptr;
         DeletionQueue m_mainDeletionQueue;
         InitInfo      m_appInfo;
-        Window        m_window;
         Backend       m_backend;
         bool          m_initedSuccessfully = false;
+        Window*       m_window             = nullptr;
 
         UploadContext                                   m_gpuUploader;
         DescriptorPool                                  m_descriptorPool;

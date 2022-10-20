@@ -139,7 +139,7 @@ namespace Lina::Graphics
 
     void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd)
     {
-        const Vector2i windowSize = Window::Get()->GetSize();
+        const Vector2i windowSize = Backend::Get()->GetSwapchain().size;
         const Vector2i pos        = Window::Get()->GetPos();
 
         Vector<VkClearValue> _clearValues;

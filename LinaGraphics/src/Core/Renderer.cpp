@@ -61,10 +61,10 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Renderer::OnPreMainLoop>(this);
 
-        m_backend           = Backend::Get();
-        const Vector2i size = Window::Get()->GetSize();
+        m_backend = Backend::Get();
 
-        Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
+        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        Extent3D       ext  = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
         ImageSubresourceRange depthRange;
         depthRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth);
@@ -415,25 +415,30 @@ namespace Lina::Graphics
     void Renderer::HandleOutOfDateImage()
     {
         Backend::Get()->WaitIdle();
-        const Vector2i size = Window::Get()->GetSize();
+        Vector2i size = Window::Get()->GetSize();
+
+        if(size.x == 0 || size.y == 0)
+            return;
 
         // Framebuffers
         for (auto& fb : m_framebuffers)
             fb.Destroy();
         m_framebuffers.clear();
 
+        // Swapchain
+        auto& swapchain = Backend::Get()->GetSwapchain();
+        swapchain.Destroy();
+        swapchain.size = size;
+        swapchain.Create();
+
+        // Make sure we always match swapchain
+        size = swapchain.size;
+
         // Frame buffer depth
         m_depthImage.Destroy();
         m_depthImage.extent.width  = size.x;
         m_depthImage.extent.height = size.y;
         m_depthImage.Create(true, false);
-
-        // Swapchain
-        auto& swapchain = Backend::Get()->GetSwapchain();
-        swapchain.Destroy();
-        swapchain.width  = static_cast<uint32>(size.x);
-        swapchain.height = static_cast<uint32>(size.y);
-        swapchain.Create();
 
         // Only final render pass depends on swapchain, destroy it.
         auto& mainPass  = m_renderPasses[RenderPassType::Main];

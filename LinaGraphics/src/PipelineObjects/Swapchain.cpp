@@ -39,7 +39,7 @@ namespace Lina::Graphics
     {
         LINA_ASSERT(_ptr == nullptr, "[Swapchain] -> Can not re-create swapchain before it's destroyed!");
 
-        if (width == 0 || height == 0)
+        if (size.x == 0 || size.y == 0)
         {
             LINA_ERR("[Swapchain] -> Could not create swapchain, width or height is 0!");
             return;
@@ -49,7 +49,7 @@ namespace Lina::Graphics
         swapchainBuilder = swapchainBuilder
                                //.use_default_format_selection()
                                .set_desired_present_mode(GetPresentMode(presentMode))
-                               .set_desired_extent(width, height);
+                               .set_desired_extent(size.x, size.y);
 
         VkFormat        vkformat     = GetFormat(format);
         VkColorSpaceKHR vkcolorspace = GetColorSpace(colorSpace);
@@ -61,6 +61,9 @@ namespace Lina::Graphics
 
         std::vector<VkImage>     imgs  = vkbSwapchain.get_images().value();
         std::vector<VkImageView> views = vkbSwapchain.get_image_views().value();
+
+        size.x = vkbSwapchain.extent.width;
+        size.y = vkbSwapchain.extent.height;
 
         for (VkImage img : imgs)
             _images.push_back(img);

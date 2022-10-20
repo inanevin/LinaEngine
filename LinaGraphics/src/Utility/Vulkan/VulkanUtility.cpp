@@ -158,7 +158,7 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateMainRenderPass(RenderPass& pass)
     {
-        const Vector2i size = Window::Get()->GetSize();
+        const Vector2i size = Backend::Get()->GetSwapchain().size;
 
         Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
@@ -280,7 +280,7 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateFinalRenderPass(RenderPass& pass)
     {
-        const Vector2i size = Window::Get()->GetSize();
+        const Vector2i size = Backend::Get()->GetSwapchain().size;
 
         Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
@@ -352,6 +352,8 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateDefaultRenderPass(RenderPass& pass)
     {
+        // const Vector2i size = Vector2i(Backend::Get()->GetSwapchain().width, Backend::Get()->GetSwapchain().height);
+
         // Attachment att = Attachment{
         //     .format = m_backend->m_swapchain.format,
         //     .loadOp = LoadOp::Clear,

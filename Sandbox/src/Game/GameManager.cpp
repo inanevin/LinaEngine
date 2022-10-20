@@ -64,6 +64,9 @@ Vector<float>                amounts;
 Vector<String>               modelPaths;
 int ctr = 0;
 
+float timer = 0.0f;
+bool created = false;
+
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
     modelPaths.clear();
@@ -73,8 +76,11 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
     modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
     modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
 
-    if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
+    timer += ev.deltaTime;
+
+    if (timer >= 2.0f || Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
     {
+        timer = 0.0f;
         if (m)
         {
             for (int i = 0; i < 1; i++)
@@ -99,34 +105,6 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
          e->SetPosition(initialPositions[i] + Vector3(Math::Sin(RuntimeInfo::GetElapsedTime() * speeds[i]) * amounts[i], 0, 0));
         i++;
     }
-
-    // bool exists = Lina::Resources::ResourceStorage::Get()->Exists<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
-    //
-    // if (!exists)
-    //     return;
-    //
-    // if (!loaded)
-    // {
-    //     World::EntityWorld*    w = World::EntityWorld::Get();
-    //     Lina::Graphics::Model* m = Lina::Resources::ResourceStorage::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Meshes/Tests/lost_empire.obj");
-    //
-    //     for (int i = 0; i < 1; i++)
-    //     {
-    //         World::Entity* e = m->AddToWorld(w);
-    //         e->SetPosition(Vector3(Math::RandF(-2.0f, 2.0f), Math::RandF(-2.0f, 2.0f), 0));
-    //
-    //         if (i == 0)
-    //             ent = e;
-    //     }
-    //
-    //     loaded = true;
-    // }
-    //
-    // angle += ev.deltaTime * 0.26f;
-    // float r = 5.0f;
-    // float x = r * Math::Sin(angle);
-    // float y = r * Math::Cos(angle);
-    // ent->SetPosition(Vector3(x, y, 0));
 }
 
 void GameManager::OnLevelInstalled(const Lina::Event::ELevelInstalled& ev)

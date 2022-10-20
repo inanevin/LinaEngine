@@ -52,8 +52,7 @@ namespace Lina::Graphics
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence);
 
         // Desired
-        uint32      width       = 0;
-        uint32      height      = 0;
+        Vector2i    size        = Vector2i();
         Format      format      = Format::B8G8R8A8_SRGB;
         ColorSpace  colorSpace  = ColorSpace::SRGB_NONLINEAR;
         PresentMode presentMode = PresentMode::Immediate;

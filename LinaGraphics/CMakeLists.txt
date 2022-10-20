@@ -69,6 +69,9 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/Material.cpp
 	src/Resource/MaterialProperty.cpp
 
+	# Platform
+	src/Platform/Win32/Win32Window.cpp
+
 	# Features
 	src/FeatureRenderers/FeatureRendererManager.cpp
 	src/FeatureRenderers/SkyRenderer.cpp
@@ -148,6 +151,10 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/Texture.hpp
 	include/Resource/Material.hpp
 	include/Resource/MaterialProperty.hpp
+
+	# Platform
+	include/Platform/Win32/Win32Window.hpp
+
 	
 	# Features
 	include/FeatureRenderers/FeatureRendererManager.hpp

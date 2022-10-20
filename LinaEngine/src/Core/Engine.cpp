@@ -166,7 +166,6 @@ namespace Lina
 
     void Engine::Run()
     {
-
         m_deltaTimeArray.fill(-1.0);
 
         m_running                = true;
@@ -185,39 +184,15 @@ namespace Lina
 
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-
+       
         m_levelManager.SaveCurrentLevel();
-        m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
-
-        //
-        // World::EntityWorld::Get()->CreateEntity("MY Entity 2");
-        // World::EntityWorld::Get()->CreateEntity("MY Entity 3");
-        // World::EntityWorld::Get()->CreateEntity("MY Entity 4");
-        // m_levelManager.SaveCurrentLevel();
+        // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
         // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
-        // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Tests/lost_empire.obj"));
-        // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/Default.linashader"));
-        // m_levelManager.SaveCurrentLevel();
-
-        // m_levelManager.InstallLevel("Resources/Sandbox/Levels/level1.linalevel");
-        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Shader>(), "Resources/Engine/Shaders/default.linashader");
-        // m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Graphics::Model>(), "Resources/Engine/Meshes/Primitives/Cube.fbx");
-        //// m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio2.wav");
-        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio3.wav");
-        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio4.wav");
-        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio5.wav");
-        ////  m_levelManager.GetCurrentLevel()->AddResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/Test/audio6.wav");
-        //// m_levelManager.GetCurrentLevel()->RemoveResourceReference(GetTypeID<Audio::Audio>(), "Resources/Editor/Audio/LinaStartup.wav");
-
-        // Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
-        //
-        // m_levelManager.SaveCurrentLevel();
-
         // SetFrameLimit(30);
 
         m_eventSystem.Trigger<Event::EPreMainLoop>(Event::EPreMainLoop{});
-        const String initialTitle = m_renderEngine.m_window.GetTitle();
+        const String initialTitle = m_renderEngine.m_window->GetTitle();
 
         while (m_running)
         {
@@ -243,7 +218,11 @@ namespace Lina
             RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
             RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
 
-         
+            // Window poll
+            Graphics::Window::Get()->Tick();
+
+            // Input
+            m_inputEngine.Tick();
 
             // Render
             Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
@@ -254,8 +233,6 @@ namespace Lina
             // Game sim, physics + update etc.
             RunSimulation((float)RuntimeInfo::s_deltaTime);
             updates++;
-            // Input
-            m_inputEngine.Tick();
 
             // Wait for all.
             renderJob.get();
@@ -276,7 +253,7 @@ namespace Lina
                 updates = 0;
             }
 
-            m_renderEngine.m_window.SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
+            m_renderEngine.m_window->SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
             LINA_TRACE("FPS: {0}", m_currentFPS);
 
             if (m_firstRun)
@@ -291,7 +268,7 @@ namespace Lina
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Shutdown();
 #endif
-        m_editor.PackageProject();
+       // m_editor.PackageProject();
         m_memoryManager.PrintStaticBlockInfo();
 
         LINA_TRACE("[Engine] -> Waiting for all jobs.");

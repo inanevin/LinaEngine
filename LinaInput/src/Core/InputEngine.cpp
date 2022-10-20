@@ -76,12 +76,15 @@ namespace Lina::Input
 
     bool InputEngine::GetKey(int keycode)
     {
+        return false;
+
         int state = glfwGetKey(glfwWindow, keycode);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
     bool InputEngine::GetKeyDown(int keyCode)
     {
+        return false;
         int  newState                 = glfwGetKey(glfwWindow, keyCode);
         bool flag                     = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
         m_keyDownNewStateMap[keyCode] = newState;
@@ -89,6 +92,8 @@ namespace Lina::Input
     }
     bool InputEngine::GetKeyUp(int keyCode)
     {
+        return false;
+
         int  newState               = glfwGetKey(glfwWindow, keyCode);
         bool flag                   = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
         m_keyUpNewStateMap[keyCode] = newState;
@@ -96,11 +101,15 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButton(int button)
     {
+        return false;
+
         int state = glfwGetMouseButton(glfwWindow, button);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
     bool InputEngine::GetMouseButtonDown(int button)
     {
+        return false;
+
         int  newState                  = glfwGetMouseButton(glfwWindow, button);
         bool flag                      = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
         m_mouseDownNewStateMap[button] = newState;
@@ -108,6 +117,8 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButtonUp(int button)
     {
+        return false;
+
         int  newState                = glfwGetMouseButton(glfwWindow, button);
         bool flag                    = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
         m_mouseUpNewStateMap[button] = newState;
@@ -116,6 +127,8 @@ namespace Lina::Input
 
     Vector2 InputEngine::GetMouseAxisDefinite()
     {
+        return Vector2();
+
         // Get the cursor position.
         double posX, posY;
         glfwGetCursorPos(glfwWindow, &posX, &posY);
@@ -144,6 +157,7 @@ namespace Lina::Input
 
     Vector2 InputEngine::GetMouseAxis()
     {
+        return Vector2();
         double posX, posY;
         glfwGetCursorPos(glfwWindow, &posX, &posY);
 
@@ -164,6 +178,8 @@ namespace Lina::Input
 
     Vector2 InputEngine::GetMousePosition()
     {
+        return Vector2();
+
         double xpos, ypos;
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
         return Vector2((float)xpos, (float)ypos);

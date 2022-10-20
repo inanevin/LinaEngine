@@ -26,6 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef LINA_PLATFORM_WINDOWS
+#define VK_USE_PLATFORM_WIN32_KHR
+#include "Platform/Win32/Win32Window.hpp"
+#endif
+
 #include "Core/Backend.hpp"
 #include "Log/Log.hpp"
 #include "Utility/Vulkan/VkBootstrap.h"
@@ -34,8 +39,8 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "vulkan/vulkan.h"
-#include <GLFW/glfw3.h>
+
+#include <vulkan/vulkan.h>
 
 #define VMA_IMPLEMENTATION
 #include "Utility/Vulkan/vk_mem_alloc.h"
@@ -116,18 +121,29 @@ namespace Lina::Graphics
         m_vkInstance       = inst.instance;
         m_debugMessenger   = inst.debug_messenger;
 
-        VkResult glfwResult = glfwCreateWindowSurface(m_vkInstance, Window::Get()->GetGLFWWindow(), m_allocator, &m_surface);
+#ifdef LINA_PLATFORM_WINDOWS
 
-        if (glfwResult == VK_ERROR_INITIALIZATION_FAILED)
-        {
-            LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface!");
-            return false;
-        }
-        else if (glfwResult == VK_ERROR_EXTENSION_NOT_PRESENT)
-        {
-            LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface because the required GLFW extensions were not present!");
-            return false;
-        }
+        VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR{
+            .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+            .pNext     = nullptr,
+            .hinstance = Win32Window::GetWin32()->GetInstancePtr(),
+            .hwnd      = Win32Window::GetWin32()->GetWindowPtr(),
+        };
+        vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &m_surface);
+#endif
+
+        // VkResult glfwResult = glfwCreateWindowSurface(m_vkInstance, Window::Get()->GetGLFWWindow(), m_allocator, &m_surface);
+        //
+        // if (glfwResult == VK_ERROR_INITIALIZATION_FAILED)
+        // {
+        //     LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface!");
+        //     return false;
+        // }
+        // else if (glfwResult == VK_ERROR_EXTENSION_NOT_PRESENT)
+        // {
+        //     LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface because the required GLFW extensions were not present!");
+        //     return false;
+        // }
 
         LINA_TRACE("[Vulkan Backend] -> Created GLFW surface.");
 
@@ -252,14 +268,14 @@ namespace Lina::Graphics
         PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
 
         m_swapchain = Swapchain{
-            .width       = static_cast<uint32>(initInfo.windowProperties.width),
-            .height      = static_cast<uint32>(initInfo.windowProperties.height),
+            .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
             .format      = Format::B8G8R8A8_SRGB,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
             .presentMode = pMode,
         };
+
         m_swapchain.Create();
-        LINA_TRACE("[Swapchain] -> Swapchain created: {0}x{1}", m_swapchain.width, m_swapchain.height);
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0}", m_swapchain.size.ToString());
 
         // Query queue family indices.
         uint32_t queueFamilyCount = 0;
@@ -303,16 +319,6 @@ namespace Lina::Graphics
             m_supportsAsyncComputeQueue = false;
 
         return true;
-    }
-
-    void Backend::RecreateSwapchain(const Vector2i& size)
-    {
-        void* oldPtr = static_cast<void*>(m_swapchain._ptr);
-        m_swapchain.Destroy();
-        m_swapchain.width  = static_cast<uint32>(size.x);
-        m_swapchain.height = static_cast<uint32>(size.y);
-        m_swapchain.Create();
-        Event::EventSystem::Get()->Trigger<Event::ESwapchainRecreated>(Event::ESwapchainRecreated{.oldPtr = oldPtr, .newPtr = m_swapchain._ptr});
     }
 
     void Backend::OnVsyncModeChanged(const Event::EVsyncModeChanged& ev)

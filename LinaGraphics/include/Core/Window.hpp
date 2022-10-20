@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef Window_HPP
 #define Window_HPP
 
-#include "Core/CommonApplication.hpp"
 #include "Math/Vector.hpp"
 
 struct GLFWwindow;
@@ -41,16 +40,11 @@ namespace Lina::Graphics
     class Window
     {
     public:
-        GLFWwindow* GetGLFWWindow()
-        {
-            return m_glfwWindow;
-        }
-
-        void  SetSize(const Vector2i& newSize);
-        void  SetPos(const Vector2i& newPos);
-        void  SetPosCentered(const Vector2i& newPos);
-        void  SetVsync(VsyncMode mode);
-        void  SetTitle(const String& title);
+        virtual void SetSize(const Vector2i& newSize)       = 0;
+        virtual void SetPos(const Vector2i& newPos)         = 0;
+        virtual void SetPosCentered(const Vector2i& newPos) = 0;
+        virtual void SetVsync(VsyncMode mode)               = 0;
+        virtual void SetTitle(const String& title)          = 0;
 
         inline const Vector2i& GetSize()
         {
@@ -81,25 +75,26 @@ namespace Lina::Graphics
             return m_title;
         }
 
-    private:
+    protected:
         friend class RenderEngine;
+        friend class Engine;
 
-        Window()  = default;
-        ~Window() = default;
+        Window()                                               = default;
+        ~Window()                                              = default;
+        virtual bool Initialize(const WindowProperties& props) = 0;
+        virtual void Tick()                                    = 0;
+        virtual void Shutdown()                                = 0;
+        virtual void Close()                                   = 0;
 
-        bool Initialize(const WindowProperties& props);
-        void Shutdown();
-        void Close();
+        VsyncMode m_vsync       = VsyncMode::None;
+        Vector2i  m_size        = Vector2i(0, 0);
+        Vector2i  m_pos         = Vector2i(0, 0);
+        float     m_aspectRatio = 0.0f;
+        String    m_title       = "";
+        bool      m_minimized   = false;
 
-        VsyncMode      m_vsync       = VsyncMode::None;
-        Vector2i       m_size        = Vector2i(0, 0);
-        Vector2i       m_pos         = Vector2i(0, 0);
-        float          m_aspectRatio = 0.0f;
-        String         m_title       = "";
+    private:
         static Window* s_instance;
-        GLFWwindow*    m_glfwWindow = nullptr;
-        void*          m_userPtr    = nullptr;
-        bool           m_minimized  = false;
     };
 } // namespace Lina::Graphics
 
