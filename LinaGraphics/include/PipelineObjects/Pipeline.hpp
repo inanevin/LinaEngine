@@ -60,8 +60,6 @@ namespace Lina::Graphics
         bool                      depthTestEnabled  = true;
         bool                      depthWriteEnabled = true;
         CompareOp                 depthCompareOp    = CompareOp::LEqual;
-        Viewport                  viewport          = Viewport();
-        Recti                     scissor           = Recti();
         Topology                  topology          = Topology::TriangleFan;
         PolygonMode               polygonMode       = PolygonMode::Fill;
         CullMode                  cullMode          = CullMode::None;

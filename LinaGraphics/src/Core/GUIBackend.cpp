@@ -41,132 +41,93 @@ namespace Lina::Graphics
     {
         s_instance = this;
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
-        InitializeCategory(m_catDefault);
 
-        return true;
-    }
-
-    void GUIBackend::InitializeCategory(LinaVGDrawCategory& cat)
-    {
-
-        const size_t vtxSize = sizeof(LinaVG::Vertex) * 10000;
+        const size_t vtxSize   = sizeof(LinaVG::Vertex) * 10000;
         const size_t indexSize = sizeof(LinaVG::Index) * 4000;
 
-        cat.cpuVtxBuffer = Buffer{
-            .size = vtxSize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        m_cpuVtxBuffer = Buffer{
+            .size          = vtxSize,
+            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
             .requiredFlags = MemoryPropertyFlags::None,
         };
-        cat.cpuVtxBuffer.Create();
+        m_cpuVtxBuffer.Create();
 
-        cat.cpuIndexBuffer = Buffer{
-            .size = indexSize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuToGpu,
+        m_cpuIndexBuffer = Buffer{
+            .size          = indexSize,
+            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
             .requiredFlags = MemoryPropertyFlags::None,
         };
-        cat.cpuIndexBuffer.Create();
+        m_cpuIndexBuffer.Create();
 
-        cat.gpuVtxBuffer = Buffer{
-            .size = vtxSize,
+        m_gpuVtxBuffer = Buffer{
+            .size        = vtxSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
-        cat.gpuVtxBuffer.Create();
+        m_gpuVtxBuffer.Create();
 
-        cat.gpuIndexBuffer = Buffer{
-            .size = indexSize,
+        m_gpuIndexBuffer = Buffer{
+            .size        = indexSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
-        cat.gpuIndexBuffer.Create();
+        m_gpuIndexBuffer.Create();
 
         Command vtxCmd;
-        vtxCmd.Record = [vtxSize, &cat](CommandBuffer& cmd) {
+        vtxCmd.Record = [vtxSize, this](CommandBuffer& cmd) {
             BufferCopy copy = BufferCopy{
                 .destinationOffset = 0,
-                .sourceOffset = 0,
-                .size = vtxSize,
+                .sourceOffset      = 0,
+                .size              = vtxSize,
             };
 
             Vector<BufferCopy> regions;
             regions.push_back(copy);
-            cmd.CMD_CopyBuffer(cat.cpuVtxBuffer._ptr, cat.gpuVtxBuffer._ptr, regions);
+            cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
         };
 
-        vtxCmd.OnSubmitted = [&cat]() {
-            cat.gpuVtxBuffer._ready = true;
-            cat.cpuVtxBuffer.Destroy();
+        vtxCmd.OnSubmitted = [this]() {
+            m_gpuVtxBuffer._ready = true;
+            m_cpuVtxBuffer.Destroy();
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
 
         Command indexCmd;
-        indexCmd.Record = [indexSize, &cat](CommandBuffer& cmd) {
+        indexCmd.Record = [indexSize, this](CommandBuffer& cmd) {
             BufferCopy copy = BufferCopy{
                 .destinationOffset = 0,
-                .sourceOffset = 0,
-                .size = indexSize,
+                .sourceOffset      = 0,
+                .size              = indexSize,
             };
 
             Vector<BufferCopy> regions;
             regions.push_back(copy);
 
-            cmd.CMD_CopyBuffer(cat.cpuIndexBuffer._ptr, cat.gpuIndexBuffer._ptr, regions);
+            cmd.CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regions);
         };
 
-        indexCmd.OnSubmitted = [&cat] {
-            cat.gpuIndexBuffer._ready = true;
-            cat.cpuIndexBuffer.Destroy();
+        indexCmd.OnSubmitted = [this] {
+            m_gpuIndexBuffer._ready = true;
+            m_cpuIndexBuffer.Destroy();
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+
+        return true;
     }
 
     void GUIBackend::Terminate()
     {
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
+        m_gpuVtxBuffer.Destroy();
+        m_gpuIndexBuffer.Destroy();
     }
 
     void GUIBackend::StartFrame()
     {
-
-        if (!m_copyVertices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuVtxBuffer._ptr, 0, m_copyVertices.size() * sizeof(LinaVG::Vertex), m_copyVertices.data());
-
-        if (!m_copyIndices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuIndexBuffer._ptr, 0, m_copyIndices.size() * sizeof(LinaVG::Index), m_copyIndices.data());
-
-        m_copyVertices.clear();
-        m_copyIndices.clear();
-
-        return;
-
-        m_cpuVtxBuffer.CopyInto(m_copyVertices.data(), m_copyVertices.size());
-        m_cpuIndexBuffer.CopyInto(m_copyIndices.data(), m_copyIndices.size());
-
-        BufferCopy copyVtx = BufferCopy{
-            .destinationOffset = 0,
-            .sourceOffset      = 0,
-            .size              = m_copyVertices.size(),
-        };
-
-        BufferCopy copyIndex = BufferCopy{
-            .destinationOffset = 0,
-            .sourceOffset      = 0,
-            .size              = m_copyIndices.size(),
-        };
-
-        Vector<BufferCopy> regionsVtx, regionsIndex;
-        regionsVtx.push_back(copyVtx);
-        regionsIndex.push_back(copyIndex);
-
-        m_cmd->CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regionsVtx);
-        m_cmd->CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regionsIndex);
-
-        m_copyVertices.clear();
-        m_copyIndices.clear();
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
@@ -179,20 +140,29 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf)
     {
+        OrderedDrawRequest request;
+        request.firstIndex        = m_indexCounter;
+        request.vertexOffset      = m_vertexCounter;
+        request.type              = LinaVGDrawCategoryType::Default;
+        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
+        request.materialDataIndex = static_cast<uint32>(m_defaultMaterialData.size());
 
-        LinaVG::DrawBuffer copyBuf;
+        LinaVG::DrawBuffer b;
+        b.clipPosX  = buf->clipPosX;
+        b.clipPosY  = buf->clipPosY;
+        b.clipSizeX = buf->clipSizeX;
+        b.clipSizeY = buf->clipSizeY;
+        m_defaultMaterialData.push_back(b);
 
         for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
-        {
-            copyBuf.m_vertexBuffer.push_back(buf->m_vertexBuffer[i]);
-            // m_copyVertices.push_back(wat);
-        }
+            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
 
         for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
-        {
-            copyBuf.m_indexBuffer.push_back(buf->m_indexBuffer[i]);
-            // m_copyIndices.push_back(buf->m_indexBuffer[i]);
-        }
+            m_copyIndices.push_back(buf->m_indexBuffer[i]);
+
+        m_orderedDrawRequests.push_back(request);
+        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
+        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
     }
 
     void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
@@ -202,28 +172,60 @@ namespace Lina::Graphics
     {
     }
 
+    void GUIBackend::EndFrame()
+    {
+        if (!m_copyVertices.empty())
+            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuVtxBuffer._ptr, 0, m_copyVertices.size() * sizeof(LinaVG::Vertex), m_copyVertices.data());
+
+        if (!m_copyIndices.empty())
+            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuIndexBuffer._ptr, 0, m_copyIndices.size() * sizeof(LinaVG::Index), m_copyIndices.data());
+
+        m_copyVertices.clear();
+        m_copyIndices.clear();
+
+        m_indexCounter = m_vertexCounter = 0;
+    }
+
     void GUIBackend::RecordDrawCommands()
     {
-        auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-        mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
 
-        uint32 firstIndex   = 0;
-        uint32 vertexOffset = 0;
-        for (auto& b : m_defaultBuffers)
+        for (auto& r : m_orderedDrawRequests)
         {
-            m_cmd->CMD_DrawIndexed(b.m_indexBuffer.m_size, 1, firstIndex, vertexOffset, 0);
-            firstIndex += b.m_indexBuffer.m_size;
-            vertexOffset = sizeof(LinaVG::Vertex) * b.m_vertexBuffer.m_size;
+            if (r.type == LinaVGDrawCategoryType::Default)
+            {
+                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+            }
+            else if (r.type == LinaVGDrawCategoryType::Textured)
+            {
+                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+            }
+            else if (r.type == LinaVGDrawCategoryType::Gradient)
+            {
+                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+            }
+            else if (r.type == LinaVGDrawCategoryType::SDF)
+            {
+                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
+                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+            }
+            else if (r.type == LinaVGDrawCategoryType::SimpleText)
+            {
+                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
+                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+            }
+
+            m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
+
+        m_orderedDrawRequests.clear();
     }
 
-    void GUIBackend::EndFrame()
-    {
-    }
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
     {
     }

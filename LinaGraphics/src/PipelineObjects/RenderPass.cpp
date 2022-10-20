@@ -95,9 +95,22 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateRenderPass(Backend::Get()->GetDevice(), &rpInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Pass] -> Could not create Vulkan render pass!");
+    }
 
-        VkRenderPass_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyRenderPass(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
+    void RenderPass::Destroy()
+    {
+        vkDestroyRenderPass(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
+
+        if (!isSwapchainPass)
+        {
+            _framebuffer->Destroy();
+
+            if (_colorTexture != nullptr)
+                delete _colorTexture;
+
+            if (_depthTexture != nullptr)
+                delete _depthTexture;
+        }
     }
 
     RenderPass& RenderPass::AddSubpass(SubPass sp)
@@ -168,17 +181,6 @@ namespace Lina::Graphics
     void RenderPass::End(const CommandBuffer& cmd)
     {
         vkCmdEndRenderPass(cmd._ptr);
-    }
-
-    void RenderPass::DestroyFramebufferAndTextures()
-    {
-        _framebuffer->Destroy();
-
-        if (_colorTexture != nullptr)
-            delete _colorTexture;
-
-        if (_depthTexture != nullptr)
-            delete _depthTexture;
     }
 
     void SubPass::Create()

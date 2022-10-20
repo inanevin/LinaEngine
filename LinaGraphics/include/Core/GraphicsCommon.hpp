@@ -68,6 +68,7 @@ enum VkBorderColor;
 enum VkBlendFactor;
 enum VkBlendOp;
 enum VkLogicOp;
+enum VkResult;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -496,6 +497,16 @@ namespace Lina::Graphics
     };
 
     VkLogicOp GetLogicOp(LogicOp op);
+
+    enum class VulkanResult
+    {
+        OutOfDateKHR,
+        SuboptimalKHR,
+        Success,
+        Error
+    };
+
+    VulkanResult GetResult(int32 result);
 
     enum class SurfaceType
     {

@@ -88,12 +88,12 @@ namespace Lina::Graphics
         }
     }
 
-    uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore)
+    uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& res)
     {
         uint32   index;
         uint64   timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
         VkResult result  = vkAcquireNextImageKHR(Backend::Get()->GetDevice(), _ptr, timeout, semaphore._ptr, nullptr, &index);
-        LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
+        res              = GetResult(static_cast<int32>(result));
         return index;
     }
     uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence)

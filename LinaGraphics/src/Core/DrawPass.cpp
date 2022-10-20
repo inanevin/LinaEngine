@@ -40,9 +40,9 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-    float lastReportTime = 0.0f;
-    int   drawCalls      = 0;
-    int   batches        = 0;
+    float  lastReportTime = 0.0f;
+    int    drawCalls      = 0;
+    uint32 batches        = 0;
 
     void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList)
     {
@@ -115,7 +115,7 @@ namespace Lina::Graphics
             }
         }
 
-        batches = m_batches.size();
+        batches = static_cast<uint32>(m_batches.size());
     }
 
     void DrawPass::UpdateViewData(Buffer& viewDataBuffer)
@@ -188,8 +188,8 @@ namespace Lina::Graphics
 
         if (Time::GetCPUTime() > lastReportTime + 1.0f)
         {
-            lastReportTime = Time::GetCPUTime();
-            LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
+            lastReportTime = static_cast<float>(Time::GetCPUTime());
+           // LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
         }
     }
 

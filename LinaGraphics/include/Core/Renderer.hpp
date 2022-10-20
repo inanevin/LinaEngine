@@ -68,6 +68,7 @@ namespace Lina
         struct EComponentCreated;
         struct EComponentDestroyed;
         struct EPreMainLoop;
+        struct EWindowResized;
     } // namespace Event
 
 } // namespace Lina
@@ -179,6 +180,9 @@ namespace Lina::Graphics
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void OnWindowResized(const Vector2i& newSize);
+        void OnWindowPositioned(const Vector2i& newPos);
+        void HandleOutOfDateImage();
 
     private:
         Vector<View*>                       m_views;
@@ -198,7 +202,8 @@ namespace Lina::Graphics
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];
-        Backend* m_backend = nullptr;
+        Backend* m_backend           = nullptr;
+        bool     m_recreateSwapchain = false;
     };
 
 } // namespace Lina::Graphics

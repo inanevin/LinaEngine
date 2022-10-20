@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Utility/Vulkan/SPIRVUtility.hpp"
 #include "Core/Window.hpp"
 #include "Profiling/Profiler.hpp"
-#include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "vulkan/vulkan.h"
@@ -45,11 +44,10 @@ namespace Lina::Graphics
 {
     Backend* Backend::s_instance = nullptr;
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT             messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void*                                       pUserData)
+    static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                          VkDebugUtilsMessageTypeFlagsEXT             messageType,
+                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                          void*                                       pUserData)
     {
         switch (messageSeverity)
         {
@@ -70,7 +68,6 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
         m_allocator = nullptr;
-        Event::EventSystem::Get()->Connect<Event::EWindowResized, &Backend::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
 
         // Data for glfw extensions.
@@ -146,11 +143,10 @@ namespace Lina::Graphics
         features.multiDrawIndirect         = true;
         features.drawIndirectFirstInstance = true;
         features.samplerAnisotropy         = true;
-        features.fillModeNonSolid = true;
+        // features.fillModeNonSolid = true;
 
         vkb::PhysicalDeviceSelector selector{inst};
-        vkb::PhysicalDevice         physicalDevice = selector
-                                                 .set_minimum_version(1, 1)
+        vkb::PhysicalDevice         physicalDevice = selector.set_minimum_version(1, 1)
                                                  .set_surface(m_surface)
                                                  .prefer_gpu_device_type(targetDeviceType)
                                                  .allow_any_gpu_device_type(false)
@@ -309,12 +305,12 @@ namespace Lina::Graphics
         return true;
     }
 
-    void Backend::OnWindowResized(const Event::EWindowResized& ev)
+    void Backend::RecreateSwapchain(const Vector2i& size)
     {
         void* oldPtr = static_cast<void*>(m_swapchain._ptr);
         m_swapchain.Destroy();
-        m_swapchain.width  = static_cast<uint32>(ev.newSize.x);
-        m_swapchain.height = static_cast<uint32>(ev.newSize.y);
+        m_swapchain.width  = static_cast<uint32>(size.x);
+        m_swapchain.height = static_cast<uint32>(size.y);
         m_swapchain.Create();
         Event::EventSystem::Get()->Trigger<Event::ESwapchainRecreated>(Event::ESwapchainRecreated{.oldPtr = oldPtr, .newPtr = m_swapchain._ptr});
     }
@@ -347,6 +343,7 @@ namespace Lina::Graphics
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
 
         SPIRVUtility::Shutdown();
+        Event::EventSystem::Get()->Disconnect<Event::EVsyncModeChanged>(this);
 
         vmaDestroyAllocator(m_vmaAllocator);
         m_swapchain.Destroy();
@@ -354,6 +351,11 @@ namespace Lina::Graphics
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);
         vkDestroyInstance(m_vkInstance, m_allocator);
+    }
+
+    void Backend::WaitIdle()
+    {
+        vkDeviceWaitIdle(m_device);
     }
 
 } // namespace Lina::Graphics

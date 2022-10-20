@@ -725,4 +725,21 @@ namespace Lina::Graphics
             return VK_LOGIC_OP_CLEAR;
         }
     }
+
+    VulkanResult GetResult(int32 result)
+    {
+        VkResult vkRes = static_cast<VkResult>(result);
+
+        switch (vkRes)
+        {
+        case VK_SUCCESS:
+            return VulkanResult::Success;
+        case VK_ERROR_OUT_OF_DATE_KHR:
+            return VulkanResult::OutOfDateKHR;
+        case VK_SUBOPTIMAL_KHR:
+            return VulkanResult::SuboptimalKHR;
+        default:
+            return VulkanResult::Error;
+        }
+    }
 } // namespace Lina::Graphics

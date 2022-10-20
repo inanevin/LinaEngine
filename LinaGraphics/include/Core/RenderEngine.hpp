@@ -48,8 +48,10 @@ namespace Lina
 {
     namespace Event
     {
-        struct ESwapchainRecreated;
         struct EEngineResourcesLoaded;
+        struct EEWindowResized;
+        struct EEWindowPositioned;
+        struct EPreMainLoop;
     } // namespace Event
 } // namespace Lina
 
@@ -103,16 +105,6 @@ namespace Lina::Graphics
             return m_initedSuccessfully;
         }
 
-        inline Recti& GetScissor()
-        {
-            return m_scissor;
-        }
-
-        inline Viewport& GetViewport()
-        {
-            return m_viewport;
-        }
-
         inline DescriptorSetLayout& GetLayout(DescriptorSetType set)
         {
             return m_descriptorLayouts[set];
@@ -158,6 +150,16 @@ namespace Lina::Graphics
             m_renderer.SyncData();
         }
 
+        inline Viewport& GetViewport()
+        {
+            return m_viewport;
+        }
+
+        inline Recti& GetScissors()
+        {
+            return m_scissors;
+        }
+
         void           Join();
         Vector<String> GetEngineShaderPaths();
         Vector<String> GetEngineMaterialPaths();
@@ -171,8 +173,10 @@ namespace Lina::Graphics
         void Tick();
         void Render();
         void Shutdown();
-        void OnSwapchainRecreated(const Event::ESwapchainRecreated& ev);
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
+        void OnWindowResized(const Event::EWindowResized& ev);
+        void OnWindowPositioned(const Event::EWindowPositioned& ev);
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
 
     private:
         friend class Engine;
@@ -192,10 +196,10 @@ namespace Lina::Graphics
         DescriptorPool                                  m_descriptorPool;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
-        Viewport                                        m_viewport;
-        Recti                                           m_scissor;
         Renderer                                        m_renderer;
         GUIBackend*                                     m_guiBackend;
+        Viewport                                        m_viewport;
+        Recti                                           m_scissors;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

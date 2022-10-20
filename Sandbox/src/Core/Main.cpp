@@ -8,11 +8,11 @@ int main(int argc, char** argv)
 
     Lina::WindowProperties windowProps = Lina::WindowProperties{
         .title      = "Lina Engine - Demo Sandbox Project",
-        .width      = 2560,
-        .height     = 1440,
+        .width      = 3840,
+        .height     = 1980,
         .vsync      = Lina::VsyncMode::None,
-        .decorated  = true,
-        .resizable  = true,
+        .decorated  = false,
+        .resizable  = false,
         .fullscreen = false,
     };
 

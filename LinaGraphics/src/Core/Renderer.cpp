@@ -78,7 +78,7 @@ namespace Lina::Graphics
             .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
             .subresRange         = depthRange,
         };
-        m_depthImage.Create(true);
+        m_depthImage.Create(true, false);
 
         m_renderPasses[RenderPassType::Main]        = RenderPass();
         m_renderPasses[RenderPassType::PostProcess] = RenderPass();
@@ -86,9 +86,9 @@ namespace Lina::Graphics
         auto& mainPass                              = m_renderPasses[RenderPassType::Main];
         auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
         auto& finalPass                             = m_renderPasses[RenderPassType::Final];
-        VulkanUtility::SetupMainRenderPass(mainPass);
-        VulkanUtility::SetupMainRenderPass(postPass);
-        VulkanUtility::SetupFinalRenderPass(finalPass);
+        VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
+        VulkanUtility::SetupAndCreateMainRenderPass(postPass);
+        VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
 
         // Final pass uses swapchain images.
         for (auto iv : m_backend->m_swapchain._imageViews)
@@ -216,10 +216,11 @@ namespace Lina::Graphics
             m_frames[i].indirectBuffer.Destroy();
         }
 
-        // Don't destroy the final pass, it's framebuffers & textures are coming from swapchain.
-        // Depth image is also auto-destroyed.
-        m_renderPasses[RenderPassType::Main].DestroyFramebufferAndTextures();
-        m_renderPasses[RenderPassType::PostProcess].DestroyFramebufferAndTextures();
+        m_renderPasses[RenderPassType::Main].Destroy();
+        m_renderPasses[RenderPassType::PostProcess].Destroy();
+        m_renderPasses[RenderPassType::Final].Destroy();
+
+        m_depthImage.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
             m_framebuffers[i].Destroy();
@@ -275,14 +276,30 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         GetCurrentFrame().renderFence.Wait(true, 1.0f);
-        GetCurrentFrame().renderFence.Reset();
 
-        uint32 imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore);
+        VulkanResult res;
+        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore, res);
+
+        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        {
+            HandleOutOfDateImage();
+            return;
+        }
+        else if (res != VulkanResult::Success)
+            LINA_ASSERT(false, "Could not acquire next image!");
+
+        GetCurrentFrame().renderFence.Reset();
 
         auto& cmd = GetCurrentFrame().commandBuffer;
 
         cmd.Reset();
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+
+        VkViewport _viewport = VulkanUtility::GetViewport(RenderEngine::Get()->GetViewport());
+        VkRect2D   _scissors = VulkanUtility::GetRect(RenderEngine::Get()->GetScissors());
+
+        vkCmdSetViewport(cmd._ptr, 0, 1, &_viewport);
+        vkCmdSetScissor(cmd._ptr, 0, 1, &_scissors);
 
         // Global set.
         cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &GetCurrentFrame().globalDescriptor, 0, nullptr);
@@ -331,14 +348,12 @@ namespace Lina::Graphics
 
         finalPass.Begin(m_framebuffers[imageIndex], cmd);
 
+        auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
+        finalQuadMat->BindPipelineAndDescriptors(cmd, RenderPassType::Final);
+        cmd.CMD_Draw(3, 1, 0, 0);
+
         if (drawEditor)
             Event::EventSystem::Get()->Trigger<Event::EOnEditorDraw>(Event::EOnEditorDraw{.cmd = &cmd});
-        else
-        {
-            auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-            finalQuadMat->BindPipelineAndDescriptors(cmd, RenderPassType::Final);
-            cmd.CMD_Draw(3, 1, 0, 0);
-        }
 
         finalPass.End(cmd);
 
@@ -385,6 +400,73 @@ namespace Lina::Graphics
         auto& ppPass       = m_renderPasses[RenderPassType::PostProcess];
         finalQuadMat->SetTexture(0, ppPass._colorTexture);
         ppMat->SetTexture(0, mainPass._colorTexture);
+    }
+
+    void Renderer::OnWindowResized(const Vector2i& newSize)
+    {
+        m_recreateSwapchain = true;
+    }
+
+    void Renderer::OnWindowPositioned(const Vector2i& newPos)
+    {
+        m_recreateSwapchain = true;
+    }
+
+    void Renderer::HandleOutOfDateImage()
+    {
+        Backend::Get()->WaitIdle();
+        const Vector2i size = Window::Get()->GetSize();
+
+        // Framebuffers
+        for (auto& fb : m_framebuffers)
+            fb.Destroy();
+        m_framebuffers.clear();
+
+        // Frame buffer depth
+        m_depthImage.Destroy();
+        m_depthImage.extent.width  = size.x;
+        m_depthImage.extent.height = size.y;
+        m_depthImage.Create(true, false);
+
+        // Swapchain
+        auto& swapchain = Backend::Get()->GetSwapchain();
+        swapchain.Destroy();
+        swapchain.width  = static_cast<uint32>(size.x);
+        swapchain.height = static_cast<uint32>(size.y);
+        swapchain.Create();
+
+        // Only final render pass depends on swapchain, destroy it.
+        auto& mainPass  = m_renderPasses[RenderPassType::Main];
+        auto& ppPass    = m_renderPasses[RenderPassType::PostProcess];
+        auto& finalPass = m_renderPasses[RenderPassType::Final];
+        mainPass.Destroy();
+        ppPass.Destroy();
+        finalPass.Destroy();
+        mainPass  = RenderPass();
+        ppPass    = RenderPass();
+        finalPass = RenderPass();
+
+        VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
+        VulkanUtility::SetupAndCreateMainRenderPass(ppPass);
+        VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
+
+        // Re-assign target textures to render passes
+        OnPreMainLoop({});
+
+        // framebuffers
+        for (auto iv : m_backend->m_swapchain._imageViews)
+        {
+            Framebuffer fb = Framebuffer{
+                .width  = static_cast<uint32>(size.x),
+                .height = static_cast<uint32>(size.y),
+                .layers = 1,
+            };
+
+            fb.AttachRenderPass(finalPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
+            m_framebuffers.push_back(fb);
+        }
+
+        m_recreateSwapchain = false;
     }
 
 } // namespace Lina::Graphics

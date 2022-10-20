@@ -55,15 +55,22 @@ namespace Lina::Graphics
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
     private:
-        struct LinaVGDrawCategory
+        enum class LinaVGDrawCategoryType
         {
-            Buffer                     cpuVtxBuffer;
-            Buffer                     cpuIndexBuffer;
-            Buffer                     gpuVtxBuffer;
-            Buffer                     gpuIndexBuffer;
-            Vector<LinaVG::Vertex>     copyVertices;
-            Vector<LinaVG::Index>      copyIndices;
-            Vector<LinaVG::DrawBuffer> defaultBuffers;
+            Default,
+            Gradient,
+            Textured,
+            SimpleText,
+            SDF
+        };
+
+        struct OrderedDrawRequest
+        {
+            uint32                 vertexOffset      = 0;
+            uint32                 firstIndex        = 0;
+            uint32                 indexSize         = 0;
+            uint32                 materialDataIndex = 0;
+            LinaVGDrawCategoryType type              = LinaVGDrawCategoryType::Default;
         };
 
     public:
@@ -98,11 +105,25 @@ namespace Lina::Graphics
 
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void RecordDrawCommands();
-        void InitializeCategory(LinaVGDrawCategory& cat);
 
     private:
-        LinaVGDrawCategory m_catDefault;
-        CommandBuffer*     m_cmd = nullptr;
+        Buffer m_cpuVtxBuffer;
+        Buffer m_cpuIndexBuffer;
+        Buffer m_gpuVtxBuffer;
+        Buffer m_gpuIndexBuffer;
+
+        Vector<OrderedDrawRequest>           m_orderedDrawRequests;
+        Vector<LinaVG::DrawBuffer>           m_defaultMaterialData;
+        Vector<LinaVG::TextureDrawBuffer>    m_texturedMaterialData;
+        Vector<LinaVG::GradientDrawBuffer>   m_gradientMaterialData;
+        Vector<LinaVG::SimpleTextDrawBuffer> m_textMaterialData;
+        Vector<LinaVG::SDFTextDrawBuffer>    m_sdfTexttMaterialData;
+        Vector<LinaVG::Vertex>               m_copyVertices;
+        Vector<LinaVG::Index>                m_copyIndices;
+
+        uint32             m_indexCounter  = 0;
+        uint32             m_vertexCounter = 0;
+        CommandBuffer*     m_cmd           = nullptr;
         static GUIBackend* s_instance;
     };
 

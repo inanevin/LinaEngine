@@ -63,19 +63,20 @@ namespace Lina::Graphics
     {
     public:
         void        Create();
+        void        Destroy();
         RenderPass& AddSubpass(SubPass sp);
         RenderPass& AddAttachment(Attachment att);
         RenderPass& AddSubPassDependency(SubPassDependency& d);
         RenderPass& AddClearValue(const ClearValue& clear);
         void        Begin(const Framebuffer& fb, const CommandBuffer& cmd);
         void        End(const CommandBuffer& cmd);
-        void        DestroyFramebufferAndTextures();
 
         // Description
         Vector<ClearValue>        clearValues;
         Vector<Attachment>        attachments;
         Vector<SubPass>           subpasses;
         Vector<SubPassDependency> dependencies;
+        bool                      isSwapchainPass = false;
 
         // Runtime
         VkRenderPass_T* _ptr          = nullptr;

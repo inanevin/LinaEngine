@@ -66,8 +66,8 @@ namespace Lina::Graphics
         m_glfwWindow = (glfwCreateWindow(width, height, props.title.c_str(), props.fullscreen ? primaryMonitor : NULL, NULL));
         glfwGetMonitorContentScale(primaryMonitor, &(ApplicationInfo::s_contentScaleWidth), &(ApplicationInfo::s_contentScaleHeight));
 
-        m_title       = props.title;
-        m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        m_title = props.title;
+        SetSize(Vector2i(width, height));
 
         if (!m_glfwWindow)
         {
@@ -168,18 +168,20 @@ namespace Lina::Graphics
 
     void Window::SetSize(const Vector2i& size)
     {
+        const Vector2i oldSize = m_size;
         glfwSetWindowSize(m_glfwWindow, size.x, size.y);
-        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_userPtr, .newSize = size});
         m_size        = size;
         m_minimized   = size.x == 0 || size.y == 0;
-        m_aspectRatio = static_cast<float>(size.x) / static_cast<float>(size.y);
+        m_aspectRatio = m_minimized ? 0.0f : static_cast<float>(size.x) / static_cast<float>(size.y);
+        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_userPtr, .oldSize = oldSize, .newSize = size});
     }
 
     void Window::SetPos(const Vector2i& pos)
     {
+        const Vector2i oldPos = m_pos;
         glfwSetWindowPos(m_glfwWindow, pos.x, pos.y);
-        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_userPtr, .newPos = pos});
         m_pos = pos;
+        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_userPtr, .oldPos = oldPos, .newPos = pos});
     }
 
     void Window::SetPosCentered(const Vector2i& newPos)

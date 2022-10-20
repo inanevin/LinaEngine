@@ -407,10 +407,8 @@ namespace Lina::Graphics
                 .depthTestEnabled         = true,
                 .depthWriteEnabled        = true,
                 .depthCompareOp           = CompareOp::LEqual,
-                .viewport                 = RenderEngine::Get()->GetViewport(),
-                .scissor                  = RenderEngine::Get()->GetScissor(),
                 .topology                 = Topology::TriangleList,
-                .polygonMode              = PolygonMode::Line,
+                .polygonMode              = PolygonMode::Fill,
                 .blendAttachment          = blendAttachment,
                 .colorBlendLogicOpEnabled = false,
                 .colorBlendLogicOp        = LogicOp::Copy,
@@ -429,7 +427,7 @@ namespace Lina::Graphics
             else if (m_pipelineType == PipelineType::GUI)
             {
                 m_pipelines[rp].cullMode  = CullMode::None;
-                m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
+                m_pipelines[rp].frontFace = FrontFace::ClockWise;
             }
 
             m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();

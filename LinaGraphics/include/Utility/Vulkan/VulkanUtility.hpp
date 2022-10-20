@@ -56,9 +56,9 @@ namespace Lina::Graphics
         static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
         // Render Pass
-        static void SetupMainRenderPass(RenderPass& pass);
-        static void SetupFinalRenderPass(RenderPass& pass);
-        static void SetupDefaultRenderPass(RenderPass& pass);
+        static void SetupAndCreateMainRenderPass(RenderPass& pass);
+        static void SetupAndCreateFinalRenderPass(RenderPass& pass);
+        static void SetupAndCreateDefaultRenderPass(RenderPass& pass);
 
         // InputDesc
         static VertexInputDescription GetVertexDescription();
@@ -85,6 +85,10 @@ namespace Lina::Graphics
         static VkMemoryBarrier       GetMemoryBarrier(const DefaultMemoryBarrier& bar);
         static VkBufferMemoryBarrier GetBufferMemoryBarrier(const BufferMemoryBarrier& bar);
         static VkImageMemoryBarrier  GetImageMemoryBarrier(const ImageMemoryBarrier& bar);
+
+        // Viewport
+        static VkViewport GetViewport(Viewport& vp);
+        static VkRect2D   GetRect(Recti& rect);
 
         // Others
         static VkExtent3D GetExtent3D(Extent3D e);

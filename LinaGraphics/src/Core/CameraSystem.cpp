@@ -37,7 +37,11 @@ namespace Lina::Graphics
     {
         if (m_activeCamera != nullptr)
         {
-            const float      aspect = Window::Get()->GetAspect();
+            const float aspect = Window::Get()->GetAspect();
+
+            if (aspect == 0.0f)
+                return;
+
             World::Entity*   e      = m_activeCamera->GetEntity();
             const Vector3    camPos = e->GetPosition();
             const Quaternion camRot = e->GetRotation();
@@ -45,10 +49,7 @@ namespace Lina::Graphics
             m_view                  = Matrix::InitLookAt(camPos, camPos + camRot.GetForward(), camRot.GetUp());
             m_proj                  = Matrix::Perspective(m_activeCamera->fieldOfView / 2.0f, aspect, m_activeCamera->zNear, m_activeCamera->zFar);
 
-            const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
-                                 0.0f, -1.0f, 0.0f, 0.0f,
-                                 0.0f, 0.0f, 0.5f, 0.0f,
-                                 0.0f, 0.0f, 0.5f, 1.0f);
+            const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
             m_proj = clip * m_proj;
             // m_proj[1][1] *= -1;
         }

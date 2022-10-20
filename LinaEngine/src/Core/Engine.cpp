@@ -241,7 +241,7 @@ namespace Lina
             }
 
             RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
-            RuntimeInfo::s_smoothDeltaTime = SmoothDeltaTime(RuntimeInfo::s_deltaTime);
+            RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
 
             // Input
             m_inputEngine.Tick();
@@ -276,6 +276,7 @@ namespace Lina
             }
 
             m_renderEngine.m_window.SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
+            LINA_TRACE("FPS: {0}", m_currentFPS);
 
             if (m_firstRun)
                 m_firstRun = false;

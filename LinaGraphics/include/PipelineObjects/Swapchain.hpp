@@ -47,7 +47,7 @@ namespace Lina::Graphics
     public:
         void   Create();
         void   Destroy();
-        uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore);
+        uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& result);
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence);
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence);
 

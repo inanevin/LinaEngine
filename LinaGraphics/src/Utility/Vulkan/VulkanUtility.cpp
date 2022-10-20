@@ -156,7 +156,7 @@ namespace Lina::Graphics
         return info;
     }
 
-    void VulkanUtility::SetupMainRenderPass(RenderPass& pass)
+    void VulkanUtility::SetupAndCreateMainRenderPass(RenderPass& pass)
     {
         const Vector2i size = Window::Get()->GetSize();
 
@@ -274,9 +274,11 @@ namespace Lina::Graphics
         pass._framebuffer->AttachRenderPass(pass);
         pass._framebuffer->AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
         pass._framebuffer->Create();
+
+        pass.isSwapchainPass = false;
     }
 
-    void VulkanUtility::SetupFinalRenderPass(RenderPass& pass)
+    void VulkanUtility::SetupAndCreateFinalRenderPass(RenderPass& pass)
     {
         const Vector2i size = Window::Get()->GetSize();
 
@@ -344,9 +346,11 @@ namespace Lina::Graphics
             .AddClearValue(clrCol)
             .AddClearValue(clrDepth)
             .Create();
+
+        pass.isSwapchainPass = true;
     }
 
-    void VulkanUtility::SetupDefaultRenderPass(RenderPass& pass)
+    void VulkanUtility::SetupAndCreateDefaultRenderPass(RenderPass& pass)
     {
         // Attachment att = Attachment{
         //     .format = m_backend->m_swapchain.format,
@@ -735,6 +739,30 @@ namespace Lina::Graphics
             .subresourceRange    = subresRange,
         };
         return b;
+    }
+
+    VkViewport VulkanUtility::GetViewport(Viewport& vp)
+    {
+        VkViewport vkp = VkViewport{
+            .x        = vp.x,
+            .y        = vp.y,
+            .width    = vp.width,
+            .height   = vp.height,
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
+
+        return vkp;
+    }
+
+    VkRect2D VulkanUtility::GetRect(Recti& rect)
+    {
+        VkRect2D r;
+        r.offset.x      = rect.pos.x;
+        r.offset.y      = rect.pos.y;
+        r.extent.width  = rect.size.x;
+        r.extent.height = rect.size.y;
+        return r;
     }
 
     VkExtent3D VulkanUtility::GetExtent3D(Extent3D e)

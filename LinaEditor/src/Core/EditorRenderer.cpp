@@ -54,25 +54,28 @@ namespace Lina::Editor
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
        Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
+
        LinaVG::StartFrame();
+       StyleOptions opts;
+       opts.isFilled = true;
+       opts.color = Vec4(0.1f, 0, 0, 1);
+       DrawRect(Vec2(0, 0), Vec2(600, 600), opts, 70);
+
+       opts.color = Vec4(0.1f, 0.25f, 0, 1);
+       DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
+
+       LinaVG::Render();
+       LinaVG::EndFrame();
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
     {
-
-        StyleOptions opts;
-        opts.isFilled = true;
-        opts.color    = Vec4(0.1f, 0, 0, 1);
-        DrawRect(Vec2(0, 0), Vec2(600, 600), opts, 40);
-
-        LinaVG::Render();
-
         Graphics::GUIBackend::Get()->RecordDrawCommands();
     }
 
     void EditorRenderer::OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev)
     {
-        LinaVG::EndFrame();
+     
     }
 
 } // namespace Lina::Editor

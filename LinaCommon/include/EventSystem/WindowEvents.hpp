@@ -43,11 +43,13 @@ namespace Lina::Event
     struct EWindowResized
     {
         void*    window  = nullptr;
+        Vector2i oldSize = Vector2();
         Vector2i newSize = Vector2();
     };
     struct EWindowPositioned
     {
         void*    window = nullptr;
+        Vector2i oldPos = Vector2();
         Vector2i newPos = Vector2();
     };
     struct EWindowClosed

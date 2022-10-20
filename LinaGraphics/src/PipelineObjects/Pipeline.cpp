@@ -40,27 +40,13 @@ namespace Lina::Graphics
 {
     void Pipeline::Create()
     {
-        VkViewport _viewport = VkViewport{
-            .x        = viewport.x,
-            .y        = viewport.y,
-            .width    = viewport.width,
-            .height   = viewport.height,
-            .minDepth = viewport.minDepth,
-            .maxDepth = viewport.maxDepth,
-        };
-
-        VkRect2D _scissor = VkRect2D{
-            .offset = VkOffset2D(scissor.pos.x, scissor.pos.y),
-            .extent = VkExtent2D(scissor.size.x, scissor.size.y),
-        };
-
         VkPipelineViewportStateCreateInfo viewportState = {
             .sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
             .pNext         = nullptr,
             .viewportCount = 1,
-            .pViewports    = &_viewport,
+            .pViewports    = nullptr,
             .scissorCount  = 1,
-            .pScissors     = &_scissor,
+            .pScissors     = nullptr,
         };
 
         VkPipelineColorBlendAttachmentState _colorBlendAttachment = VulkanUtility::CreatePipelineBlendAttachmentState(blendAttachment);
@@ -118,6 +104,19 @@ namespace Lina::Graphics
             _shaderStages.push_back(info);
         }
 
+        Vector<VkDynamicState> dynamicStates;
+        dynamicStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+        dynamicStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+        // dynamicStates.push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
+
+        VkPipelineDynamicStateCreateInfo dynamicStateCreate = VkPipelineDynamicStateCreateInfo{
+            .sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+            .pNext             = nullptr,
+            .flags             = 0,
+            .dynamicStateCount = static_cast<uint32>(dynamicStates.size()),
+            .pDynamicStates    = dynamicStates.data(),
+        };
+
         VkGraphicsPipelineCreateInfo pipelineInfo = VkGraphicsPipelineCreateInfo{
             .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             .pNext               = nullptr,
@@ -130,6 +129,7 @@ namespace Lina::Graphics
             .pMultisampleState   = &_msaa,
             .pDepthStencilState  = &_depthStencil,
             .pColorBlendState    = &_colorBlending,
+            .pDynamicState       = &dynamicStateCreate,
             .layout              = _layout,
             .renderPass          = _renderPass,
             .subpass             = 0,
