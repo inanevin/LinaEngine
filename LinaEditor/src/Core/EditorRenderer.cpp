@@ -59,6 +59,7 @@ namespace Lina::Editor
 
         const Vector2 screen = Graphics::Screen::SizeF();
 
+        float aq = LinaVG::Config.displayWidth;
         LinaVG::StartFrame();
         StyleOptions opts;
         opts.isFilled = true;

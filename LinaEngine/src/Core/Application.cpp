@@ -84,7 +84,6 @@ namespace Lina
         LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
 
         m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
-        m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressUpdated, &Application::OnResourceProgressUpdated>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressStarted, &Application::OnResourceProgressStarted>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressEnded, &Application::OnResourceProgressEnded>(this);
@@ -110,13 +109,6 @@ namespace Lina
         return true;
     }
 
-    void Application::OnWindowResize(const Event::EWindowResized& ev)
-    {
-        if (ev.newSize.x == 0 || ev.newSize.y == 0)
-            m_engine.m_canRender = false;
-        else
-            m_engine.m_canRender = true;
-    }
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {

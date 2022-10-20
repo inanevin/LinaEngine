@@ -97,13 +97,14 @@ namespace Lina::Graphics
     private:
         friend class Editor::EditorRenderer;
         friend class Renderer;
+        friend class RenderEngine;
 
         inline void SetCmd(CommandBuffer* cmd)
         {
             m_cmd = cmd;
         }
 
-        void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void UpdateProjection();
         void RecordDrawCommands();
 
     private:

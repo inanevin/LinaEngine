@@ -45,12 +45,29 @@ namespace Lina::Graphics
         case WM_CLOSE: {
             Win32Window::GetWin32()->OnWin32Close();
         }
+        break;
         case WM_DPICHANGED: {
             // Find the button and resize it
             HWND hWndButton = FindWindowEx(window, NULL, NULL, NULL);
             if (hWndButton != NULL)
                 Win32Window::GetWin32()->UpdateButtonLayoutForDpi(hWndButton);
         }
+        break;
+        case WM_SIZE: {
+
+            if (wParam == SIZE_MINIMIZED)
+            {
+                Win32Window::GetWin32()->UpdateSize(Vector2i(0, 0));
+            }
+            else
+            {
+                RECT rect;
+                GetWindowRect(Win32Window::GetWin32()->GetWindowPtr(), &rect);
+                const Vector2i newSize = Vector2i(rect.right - rect.left, rect.bottom - rect.top);
+                Win32Window::GetWin32()->UpdateSize(newSize);
+            }
+        }
+        break;
         }
 
         return DefWindowProcA(window, msg, wParam, lParam);
@@ -123,11 +140,11 @@ namespace Lina::Graphics
 
         ShowWindow(m_window, SW_SHOW);
 
-        RECT rct = {};
+        RECT rct  = {};
         RECT crct = {};
         GetWindowRect(m_window, &rct);
         GetClientRect(m_window, &crct);
-        //SetSize(Vector2i(props.width, props.height));
+        // SetSize(Vector2i(props.width, props.height));
 
         return true;
     }
@@ -196,11 +213,7 @@ namespace Lina::Graphics
             return;
 
         SetWindowPos(m_window, 0, CW_USEDEFAULT, CW_USEDEFAULT, newSize.x, newSize.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-        const Vector2i oldSize = m_size;
-        m_size                 = newSize;
-        m_minimized            = m_size.x == 0 || m_size.y == 0;
-        m_aspectRatio          = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
-        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
+        UpdateSize(newSize);
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)
@@ -209,9 +222,28 @@ namespace Lina::Graphics
             return;
 
         SetWindowPos(m_window, 0, newPos.x, newPos.y, CW_USEDEFAULT, CW_USEDEFAULT, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        UpdatePos(newPos);
+    }
+
+    void Win32Window::UpdatePos(const Vector2i& pos)
+    {
         const Vector2i oldPos = m_pos;
-        m_pos                 = newPos;
+        m_pos                 = pos;
         Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = nullptr, .oldPos = oldPos, .newPos = m_pos});
+    }
+
+    void Win32Window::UpdateSize(const Vector2i& size)
+    {
+        if (size.x == 0 || size.y == 0)
+            m_minimized = true;
+        else
+            m_minimized = false;
+
+        const Vector2i oldSize = m_size;
+        m_size                 = size;
+        m_minimized            = m_size.x == 0 || m_size.y == 0;
+        m_aspectRatio          = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
+        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
     }
 
     void Win32Window::SetPosCentered(const Vector2i& newPos)

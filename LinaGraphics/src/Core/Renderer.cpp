@@ -60,6 +60,8 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Renderer::OnPreMainLoop>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &Renderer::OnWindowResized>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &Renderer::OnWindowPositioned>(this);
 
         m_backend = Backend::Get();
 
@@ -206,6 +208,8 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
 
         for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -402,12 +406,12 @@ namespace Lina::Graphics
         ppMat->SetTexture(0, mainPass._colorTexture);
     }
 
-    void Renderer::OnWindowResized(const Vector2i& newSize)
+    void Renderer::OnWindowResized(const Event::EWindowResized& newSize)
     {
         m_recreateSwapchain = true;
     }
 
-    void Renderer::OnWindowPositioned(const Vector2i& newPos)
+    void Renderer::OnWindowPositioned(const Event::EWindowPositioned& newPos)
     {
         m_recreateSwapchain = true;
     }
@@ -415,7 +419,10 @@ namespace Lina::Graphics
     void Renderer::HandleOutOfDateImage()
     {
         Backend::Get()->WaitIdle();
-        Vector2i size = Backend::Get()->GetSwapchain().size;
+        Vector2i size = Window::Get()->GetSize();
+
+        if (size.x == 0 || size.y == 0)
+            return;
 
         // Framebuffers
         for (auto& fb : m_framebuffers)
@@ -469,6 +476,7 @@ namespace Lina::Graphics
         }
 
         m_recreateSwapchain = false;
+        RenderEngine::Get()->SwapchainRecreated();
     }
 
 } // namespace Lina::Graphics

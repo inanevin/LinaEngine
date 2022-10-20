@@ -32,7 +32,6 @@ SOFTWARE.
 
 #include "Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Core/ResourceManager.hpp"
 
@@ -72,9 +71,7 @@ namespace Lina::Graphics
         m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
 
-        Event::EventSystem::Get()->Connect<Event::EWindowResized, &RenderEngine::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &RenderEngine::OnWindowPositioned>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
 
         if (!m_initedSuccessfully)
@@ -201,8 +198,6 @@ namespace Lina::Graphics
     {
         RETURN_NOTINITED;
 
-        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
 
@@ -259,48 +254,21 @@ namespace Lina::Graphics
         }
     }
 
-    void RenderEngine::OnWindowResized(const Event::EWindowResized& ev)
+    void RenderEngine::SwapchainRecreated()
     {
-        m_viewport.width             = static_cast<float>(ev.newSize.x);
-        m_viewport.height            = static_cast<float>(ev.newSize.y);
-        m_scissors.size              = ev.newSize;
+        const Vector2i size          = Backend::Get()->GetSwapchain().size;
+        m_viewport.width             = static_cast<float>(size.x);
+        m_viewport.height            = static_cast<float>(size.y);
+        m_scissors.size              = size;
         LinaVG::Config.displayWidth  = static_cast<unsigned int>(m_viewport.width);
         LinaVG::Config.displayHeight = static_cast<unsigned int>(m_viewport.height);
-        m_renderer.OnWindowResized(ev.newSize);
-    }
-
-    void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)
-    {
-        m_viewport.x               = static_cast<float>(ev.newPos.x);
-        m_viewport.y               = static_cast<float>(ev.newPos.y);
-        m_scissors.pos             = ev.newPos;
-        LinaVG::Config.displayPosX = static_cast<unsigned int>(m_viewport.x);
-        LinaVG::Config.displayPosY = static_cast<unsigned int>(m_viewport.y);
-        m_renderer.OnWindowPositioned(ev.newPos);
+        GUIBackend::Get()->UpdateProjection();
     }
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
-
-        m_viewport = Viewport{
-            .x        = 0.0f,
-            .y        = 0.0f,
-            .width    = static_cast<float>(size.x),
-            .height   = static_cast<float>(size.y),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f,
-        };
-
-        m_scissors = Recti{
-            .pos  = Vector2(m_viewport.x, m_viewport.y),
-            .size = size,
-        };
-
-        LinaVG::Config.displayPosX   = static_cast<unsigned int>(m_viewport.x);
-        LinaVG::Config.displayPosX   = static_cast<unsigned int>(m_viewport.y);
-        LinaVG::Config.displayWidth  = static_cast<unsigned int>(m_viewport.width);
-        LinaVG::Config.displayHeight = static_cast<unsigned int>(m_viewport.height);
+        // Update swapchain before we start.
+        SwapchainRecreated();
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

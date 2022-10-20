@@ -51,6 +51,7 @@ namespace Lina::Input
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
 
+
     }
 
     void InputEngine::Shutdown()

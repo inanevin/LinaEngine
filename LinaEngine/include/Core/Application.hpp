@@ -66,7 +66,6 @@ namespace Lina
     private:
         // Callbacks.
         bool OnWindowClose(const Event::EWindowClosed& ev);
-        void OnWindowResize(const Event::EWindowResized& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);
         void OnResourceProgressStarted(const Event::EResourceProgressStarted& ev);
         void OnResourceProgressEnded(const Event::EResourceProgressEnded& ev);

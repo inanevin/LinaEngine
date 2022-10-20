@@ -69,6 +69,7 @@ namespace Lina
         struct EComponentDestroyed;
         struct EPreMainLoop;
         struct EWindowResized;
+        struct EWindowPositioned;
     } // namespace Event
 
 } // namespace Lina
@@ -180,8 +181,8 @@ namespace Lina::Graphics
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void OnWindowResized(const Vector2i& newSize);
-        void OnWindowPositioned(const Vector2i& newPos);
+        void OnWindowResized(const Event::EWindowResized& ev);
+        void OnWindowPositioned(const Event::EWindowPositioned& newPos);
         void HandleOutOfDateImage();
 
     private:

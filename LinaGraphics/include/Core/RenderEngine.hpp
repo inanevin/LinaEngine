@@ -173,12 +173,12 @@ namespace Lina::Graphics
         void Tick();
         void Render();
         void Shutdown();
+        void SwapchainRecreated();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
-        void OnWindowResized(const Event::EWindowResized& ev);
-        void OnWindowPositioned(const Event::EWindowPositioned& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
 
     private:
+        friend class Renderer;
         friend class Engine;
 
         static RenderEngine* s_instance;

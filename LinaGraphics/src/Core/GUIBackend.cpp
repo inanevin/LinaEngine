@@ -40,7 +40,6 @@ namespace Lina::Graphics
     bool GUIBackend::Initialize()
     {
         s_instance = this;
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
 
         const size_t vtxSize   = sizeof(LinaVG::Vertex) * 10000;
         const size_t indexSize = sizeof(LinaVG::Index) * 4000;
@@ -121,7 +120,6 @@ namespace Lina::Graphics
 
     void GUIBackend::Terminate()
     {
-        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
         m_gpuVtxBuffer.Destroy();
         m_gpuIndexBuffer.Destroy();
     }
@@ -243,17 +241,17 @@ namespace Lina::Graphics
         return 0;
     }
 
-    void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
+    void GUIBackend::UpdateProjection()
     {
         const Vector2i size = Backend::Get()->GetSwapchain().size;
-        const Vector2i pos  = Vector2i();
+        const Vector2i pos = Vector2i();
 
         Matrix projectionMatrix;
 
-        float       L    = static_cast<float>(pos.x);
-        float       R    = static_cast<float>(pos.x + size.x);
-        float       T    = static_cast<float>(pos.y + size.y);
-        float       B    = static_cast<float>(pos.y);
+        float       L = static_cast<float>(pos.x);
+        float       R = static_cast<float>(pos.x + size.x);
+        float       T = static_cast<float>(pos.y + size.y);
+        float       B = static_cast<float>(pos.y);
         const float zoom = 1.0f;
 
         L *= zoom;
@@ -280,9 +278,6 @@ namespace Lina::Graphics
 
         auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
         mat->SetProperty("projection", projectionMatrix);
-        // mat->SetProperty("red", 0.22f);
-        // mat->SetProperty("aq", 0.7f);
-        // mat->SetProperty("sa", Vector4(0.0f, 0.6f, 0.2f, 1.0f));
     }
 
 } // namespace Lina::Graphics

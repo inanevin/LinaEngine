@@ -68,6 +68,8 @@ namespace Lina::Graphics
         }
 
         void UpdateButtonLayoutForDpi(HWND__* hwnd);
+        void UpdatePos(const Vector2i& pos);
+        void UpdateSize(const Vector2i& size);
 
     protected:
         virtual bool Initialize(const WindowProperties& props) override;
@@ -77,6 +79,7 @@ namespace Lina::Graphics
 
     private:
         void UpdateStyle();
+
         void SetToWorkingArea();
         void SetToFullscreen();
 

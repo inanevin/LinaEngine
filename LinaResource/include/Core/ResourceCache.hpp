@@ -34,6 +34,7 @@ SOFTWARE.
 // Headers here.
 #include "ResourceCommon.hpp"
 #include "Resource.hpp"
+#include "Data/Mutex.hpp"
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"
 #include "Memory/MemoryManager.hpp"
@@ -79,8 +80,7 @@ namespace Lina::Resources
         HashSet<ResourceHandleBase*> m_handles;
     };
 
-    template <typename T>
-    class ResourceCache : public ResourceCacheBase
+    template <typename T> class ResourceCache : public ResourceCacheBase
     {
     public:
         ResourceCache()          = default;
@@ -130,7 +130,9 @@ namespace Lina::Resources
 
         virtual bool Exists(StringID sid) const override
         {
-            return m_resources.find(sid) != m_resources.end();
+            LOCK_GUARD(m_mtx);
+            const auto& it = m_resources.find(sid);
+            return it != m_resources.end();
         }
 
         void Unload(T* resource)
@@ -208,7 +210,7 @@ namespace Lina::Resources
         }
 
     private:
-        Mutex                 m_mtx;
+        mutable Mutex         m_mtx;
         HashMap<StringID, T*> m_resources;
         ResourceTypeData      m_typeData;
     };
