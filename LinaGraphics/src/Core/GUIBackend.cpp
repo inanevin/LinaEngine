@@ -252,8 +252,8 @@ namespace Lina::Graphics
 
         float       L    = static_cast<float>(pos.x);
         float       R    = static_cast<float>(pos.x + size.x);
-        float       T    = static_cast<float>(pos.y);
-        float       B    = static_cast<float>(pos.y + size.y);
+        float       T    = static_cast<float>(pos.y + size.y);
+        float       B    = static_cast<float>(pos.y);
         const float zoom = 1.0f;
 
         L *= zoom;

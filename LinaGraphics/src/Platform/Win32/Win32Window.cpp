@@ -31,8 +31,6 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/InputEvents.hpp"
-#include "Core/Backend.hpp"
-#include "PipelineObjects/Swapchain.hpp"
 #include <Windows.h>
 
 namespace Lina::Graphics
@@ -64,7 +62,7 @@ namespace Lina::Graphics
 
         m_initialSize = Vector2i(props.width, props.height);
 
-       SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
         m_hinst = GetModuleHandle(0);
 
@@ -86,7 +84,7 @@ namespace Lina::Graphics
             flags = WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_OVERLAPPED;
         else
             flags = WS_POPUP;
-    
+
         m_window = CreateWindowExA(WS_EX_APPWINDOW, "Test", "Test", flags, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
 
         if (m_window == 0)
@@ -142,9 +140,6 @@ namespace Lina::Graphics
         m_minimized   = m_size.x == 0 || m_size.y == 0;
         m_aspectRatio = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
-
-        // Swapchain might have a smaller size.
-        m_size = Backend::Get()->GetSwapchain().size;
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)

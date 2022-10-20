@@ -417,9 +417,6 @@ namespace Lina::Graphics
         Backend::Get()->WaitIdle();
         Vector2i size = Window::Get()->GetSize();
 
-        if(size.x == 0 || size.y == 0)
-            return;
-
         // Framebuffers
         for (auto& fb : m_framebuffers)
             fb.Destroy();

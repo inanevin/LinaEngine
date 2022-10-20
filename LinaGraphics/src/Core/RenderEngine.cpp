@@ -66,8 +66,8 @@ namespace Lina::Graphics
 #else
         F_ASSERT(false, "Platform window implementation not found!");
 #endif
-        Window::s_instance  = m_window;
-        Backend::s_instance = &m_backend;
+            Window::s_instance = m_window;
+        Backend::s_instance    = &m_backend;
 
         m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
@@ -261,30 +261,27 @@ namespace Lina::Graphics
 
     void RenderEngine::OnWindowResized(const Event::EWindowResized& ev)
     {
-        m_renderer.OnWindowResized(ev.newSize);
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
-
-        m_viewport.width             = static_cast<float>(size.x);
-        m_viewport.height            = static_cast<float>(size.y);
-        m_scissors.size              = size;
+        m_viewport.width             = static_cast<float>(ev.newSize.x);
+        m_viewport.height            = static_cast<float>(ev.newSize.y);
+        m_scissors.size              = ev.newSize;
         LinaVG::Config.displayWidth  = static_cast<unsigned int>(m_viewport.width);
         LinaVG::Config.displayHeight = static_cast<unsigned int>(m_viewport.height);
+        m_renderer.OnWindowResized(ev.newSize);
     }
 
     void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)
     {
-        m_renderer.OnWindowPositioned(ev.newPos);
-
         m_viewport.x               = static_cast<float>(ev.newPos.x);
         m_viewport.y               = static_cast<float>(ev.newPos.y);
         m_scissors.pos             = ev.newPos;
         LinaVG::Config.displayPosX = static_cast<unsigned int>(m_viewport.x);
         LinaVG::Config.displayPosY = static_cast<unsigned int>(m_viewport.y);
+        m_renderer.OnWindowPositioned(ev.newPos);
     }
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i size = m_window->GetSize();
 
         m_viewport = Viewport{
             .x        = 0.0f,

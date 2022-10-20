@@ -59,10 +59,10 @@ namespace Lina::Editor
        StyleOptions opts;
        opts.isFilled = true;
        opts.color = Vec4(0.1f, 0, 0, 1);
-       DrawRect(Vec2(0, 0), Vec2(600, 600), opts, 70);
+       DrawRect(Vec2(5, 5), Vec2(1915, 600), opts, 0);
 
-       opts.color = Vec4(0.1f, 0.25f, 0, 1);
-       DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
+       //opts.color = Vec4(0.1f, 0.25f, 0, 1);
+       //DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
 
        LinaVG::Render();
        LinaVG::EndFrame();
