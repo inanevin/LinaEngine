@@ -66,8 +66,8 @@ namespace Lina::Graphics
 #else
         F_ASSERT(false, "Platform window implementation not found!");
 #endif
-            Window::s_instance = m_window;
-        Backend::s_instance    = &m_backend;
+        Window::s_instance  = m_window;
+        Backend::s_instance = &m_backend;
 
         m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
@@ -281,7 +281,7 @@ namespace Lina::Graphics
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        const Vector2i size = m_window->GetSize();
+        const Vector2i size = Backend::Get()->GetSwapchain().size;
 
         m_viewport = Viewport{
             .x        = 0.0f,

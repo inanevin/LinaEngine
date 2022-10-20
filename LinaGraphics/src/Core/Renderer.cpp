@@ -415,7 +415,7 @@ namespace Lina::Graphics
     void Renderer::HandleOutOfDateImage()
     {
         Backend::Get()->WaitIdle();
-        Vector2i size = Window::Get()->GetSize();
+        Vector2i size = Backend::Get()->GetSwapchain().size;
 
         // Framebuffers
         for (auto& fb : m_framebuffers)

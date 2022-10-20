@@ -78,14 +78,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        DWORD flags = 0;
-
-        if (props.decorated)
-            flags = WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_OVERLAPPED;
-        else
-            flags = WS_POPUP;
-
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Test", "Test", flags, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Test", "Test", 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
 
         if (m_window == 0)
         {
@@ -93,11 +86,48 @@ namespace Lina::Graphics
             return false;
         }
 
+        const bool launchOnEditor = false;
+
+        if (launchOnEditor)
+            SetToWorkingArea();
+        else
+        {
+            if (props.fullscreen)
+                SetToFullscreen();
+            else
+            {
+                if (props.decorated)
+                {
+                    m_style = WS_CAPTION | WS_SYSMENU | WS_OVERLAPPED;
+
+                    if (props.resizable)
+                        m_style |= WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
+                }
+                else
+                {
+                    m_style = WS_POPUP;
+                    if (props.resizable)
+                        m_style |= WS_THICKFRAME;
+                }
+
+                UpdateStyle();
+
+                int w = GetSystemMetrics(SM_CXSCREEN);
+                int h = GetSystemMetrics(SM_CYSCREEN);
+
+                SetPos(Vector2i(w / 2 - props.width / 2, h / 2 - props.height / 2));
+                SetSize(Vector2i(props.width, props.height));
+                m_maximized = true;
+            }
+        }
+
         ShowWindow(m_window, SW_SHOW);
 
         RECT rct = {};
+        RECT crct = {};
         GetWindowRect(m_window, &rct);
-        SetSize(Vector2i(props.width, props.height));
+        GetClientRect(m_window, &crct);
+        //SetSize(Vector2i(props.width, props.height));
 
         return true;
     }
@@ -122,6 +152,34 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Trigger<Event::EWindowClosed>();
     }
 
+    void Win32Window::UpdateStyle()
+    {
+        SetWindowLong(m_window, GWL_STYLE, m_style);
+    }
+
+    void Win32Window::SetToWorkingArea()
+    {
+        m_style = WS_POPUP;
+        UpdateStyle();
+
+        RECT r;
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0);
+        SetPos(Vector2i(0, 0));
+        SetSize(Vector2i(r.right, r.bottom));
+        m_maximized = true;
+    }
+
+    void Win32Window::SetToFullscreen()
+    {
+        m_style = WS_POPUP;
+        UpdateStyle();
+        int w = GetSystemMetrics(SM_CXSCREEN);
+        int h = GetSystemMetrics(SM_CYSCREEN);
+        SetPos(Vector2i(0, 0));
+        SetSize(Vector2i(w, h));
+        m_maximized = true;
+    }
+
     void Win32Window::UpdateButtonLayoutForDpi(HWND__* hwnd)
     {
         int iDpi            = GetDpiForWindow(m_window);
@@ -134,19 +192,25 @@ namespace Lina::Graphics
 
     void Win32Window::SetSize(const Vector2i& newSize)
     {
+        if (m_size == newSize)
+            return;
+
+        SetWindowPos(m_window, 0, CW_USEDEFAULT, CW_USEDEFAULT, newSize.x, newSize.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         const Vector2i oldSize = m_size;
-        // glfwSetWindowSize(m_glfwWindow, size.x, size.y);
-        m_size        = newSize;
-        m_minimized   = m_size.x == 0 || m_size.y == 0;
-        m_aspectRatio = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
+        m_size                 = newSize;
+        m_minimized            = m_size.x == 0 || m_size.y == 0;
+        m_aspectRatio          = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)
     {
+        if (m_pos == newPos)
+            return;
+
+        SetWindowPos(m_window, 0, newPos.x, newPos.y, CW_USEDEFAULT, CW_USEDEFAULT, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         const Vector2i oldPos = m_pos;
-        // glfwSetWindowPos(m_glfwWindow, pos.x, pos.y);
-        m_pos = newPos;
+        m_pos                 = newPos;
         Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = nullptr, .oldPos = oldPos, .newPos = m_pos});
     }
 
@@ -165,6 +229,14 @@ namespace Lina::Graphics
     void Win32Window::SetTitle(const String& title)
     {
         m_title = title;
+    }
+
+    void Win32Window::Minimize()
+    {
+    }
+
+    void Win32Window::Maximize()
+    {
     }
 
     void Win32Window::OnWin32Close()

@@ -45,7 +45,13 @@ namespace Lina::Graphics
         virtual void SetPosCentered(const Vector2i& newPos) = 0;
         virtual void SetVsync(VsyncMode mode)               = 0;
         virtual void SetTitle(const String& title)          = 0;
+        virtual void Minimize()                             = 0;
+        virtual void Maximize()                             = 0;
 
+        /// <summary>
+        /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
+        /// </summary>
+        /// <returns></returns>
         inline const Vector2i& GetSize()
         {
             return m_size;
@@ -55,6 +61,12 @@ namespace Lina::Graphics
         {
             return m_minimized;
         }
+
+        inline bool IsMaximized()
+        {
+            return m_maximized;
+        }
+
         inline const Vector2i& GetPos()
         {
             return m_pos;
@@ -92,6 +104,7 @@ namespace Lina::Graphics
         float     m_aspectRatio = 0.0f;
         String    m_title       = "";
         bool      m_minimized   = false;
+        bool      m_maximized   = false;
 
     private:
         static Window* s_instance;

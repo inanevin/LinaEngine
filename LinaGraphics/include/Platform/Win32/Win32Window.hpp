@@ -47,6 +47,8 @@ namespace Lina::Graphics
         virtual void SetPosCentered(const Vector2i& newPos) override;
         virtual void SetVsync(VsyncMode mode) override;
         virtual void SetTitle(const String& title) override;
+        virtual void Minimize() override;
+        virtual void Maximize() override;
 
         void OnWin32Close();
 
@@ -74,12 +76,18 @@ namespace Lina::Graphics
         virtual void Close() override;
 
     private:
+        void UpdateStyle();
+        void SetToWorkingArea();
+        void SetToFullscreen();
+
     private:
         static Win32Window* s_win32Window;
         HWND__*             m_window      = nullptr;
         HINSTANCE__*        m_hinst       = nullptr;
         Vector2i            m_initialPos  = Vector2i();
         Vector2i            m_initialSize = Vector2i();
+        Vector2i            m_previousSize;
+        unsigned long       m_style;
     };
 } // namespace Lina::Graphics
 

@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Data/Vertex.hpp"
 #include "Core/Backend.hpp"
-#include "Core/Window.hpp"
 #include "PipelineObjects/RenderPass.hpp"
 #include "PipelineObjects/Framebuffer.hpp"
 #include "Resource/Texture.hpp"

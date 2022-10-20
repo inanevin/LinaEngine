@@ -245,8 +245,8 @@ namespace Lina::Graphics
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        const Vector2i size = Window::Get()->GetSize();
-        const Vector2i pos  = Window::Get()->GetPos();
+        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i pos  = Vector2i();
 
         Matrix projectionMatrix;
 

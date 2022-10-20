@@ -30,6 +30,8 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "Core/GUIBackend.hpp"
+#include "Core/Screen.hpp"
+
 #include <LinaVG/LinaVG.hpp>
 
 using namespace LinaVG;
@@ -53,19 +55,21 @@ namespace Lina::Editor
 
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
-       Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
+        Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
 
-       LinaVG::StartFrame();
-       StyleOptions opts;
-       opts.isFilled = true;
-       opts.color = Vec4(0.1f, 0, 0, 1);
-       DrawRect(Vec2(5, 5), Vec2(1915, 600), opts, 0);
+        const Vector2 screen = Graphics::Screen::SizeF();
 
-       //opts.color = Vec4(0.1f, 0.25f, 0, 1);
-       //DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
+        LinaVG::StartFrame();
+        StyleOptions opts;
+        opts.isFilled = true;
+        opts.color    = Vec4(0.1f, 0, 0, 1);
+        DrawRect(Vec2(5, 5), Vec2(screen.x - 5, 100), opts, 0);
 
-       LinaVG::Render();
-       LinaVG::EndFrame();
+        // opts.color = Vec4(0.1f, 0.25f, 0, 1);
+        // DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
+
+        LinaVG::Render();
+        LinaVG::EndFrame();
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
@@ -75,7 +79,6 @@ namespace Lina::Editor
 
     void EditorRenderer::OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev)
     {
-     
     }
 
 } // namespace Lina::Editor

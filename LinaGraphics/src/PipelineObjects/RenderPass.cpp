@@ -139,8 +139,9 @@ namespace Lina::Graphics
 
     void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd)
     {
+        const auto&    vp         = RenderEngine::Get()->GetViewport();
         const Vector2i windowSize = Backend::Get()->GetSwapchain().size;
-        const Vector2i pos        = Window::Get()->GetPos();
+        const Vector2i pos        = Vector2i(vp.x, vp.y);
 
         Vector<VkClearValue> _clearValues;
 
