@@ -71,7 +71,7 @@ namespace Lina::World
         // Handle movement.
         float         horizontalKey    = inputEngine->GetHorizontalAxisValue();
         float         verticalKey      = inputEngine->GetVerticalAxisValue();
-        float         sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::LSHIFT) ? 3.0f : 1.0f;
+        float         sprintMultiplier = Input::InputEngine::Get()->GetKey(Input::InputCode::KeyLSHIFT) ? 3.0f : 1.0f;
         Quaternion    rotation         = m_entity->GetRotation();
         Vector3       fw               = rotation.GetForward().Normalized();
         Vector3       rg               = rotation.GetRight().Normalized();
@@ -86,7 +86,9 @@ namespace Lina::World
         {
             const Vector2 delta = inputEngine->GetMousePosition() - m_lastMousePos;
             m_targetPosition += -rg * delta.x * 0.5f;
-            m_targetPosition += up * delta.x * 0.5f;
+            m_targetPosition += up * delta.y * 0.5f;
+
+            LINA_TRACE("{0}", inputEngine->GetMousePosition().ToString());
         }
 
         const Vector3 currentPos = m_entity->GetPosition();

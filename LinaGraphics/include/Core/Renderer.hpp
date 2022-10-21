@@ -177,6 +177,7 @@ namespace Lina::Graphics
         void Render();
         void Join();
         void SyncData();
+        void Stop();
         void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
@@ -205,6 +206,8 @@ namespace Lina::Graphics
         Frame    m_frames[FRAMES_IN_FLIGHT];
         Backend* m_backend           = nullptr;
         bool     m_recreateSwapchain = false;
+
+        Atomic<bool> m_stopped = false;
     };
 
 } // namespace Lina::Graphics

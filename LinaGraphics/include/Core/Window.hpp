@@ -87,6 +87,16 @@ namespace Lina::Graphics
             return m_title;
         }
 
+        void SetIsActiveWindow(bool act)
+        {
+            m_isActive = act;
+        }
+
+        inline bool IsActiveWindow()
+        {
+            return m_isActive;
+        }
+
     protected:
         friend class RenderEngine;
         friend class Engine;
@@ -105,6 +115,7 @@ namespace Lina::Graphics
         String    m_title       = "";
         bool      m_minimized   = false;
         bool      m_maximized   = false;
+        bool      m_isActive    = false;
 
     private:
         static Window* s_instance;

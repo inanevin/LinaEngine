@@ -172,6 +172,7 @@ namespace Lina::Graphics
         void Clear();
         void Tick();
         void Render();
+        void Stop();
         void Shutdown();
         void SwapchainRecreated();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);

@@ -181,11 +181,16 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
         RETURN_NOTINITED;
 
-        if (m_window->IsMinimized())
+        if (m_window->IsMinimized() || !m_window->IsActiveWindow())
             return;
 
         m_gpuUploader.Poll();
         m_renderer.Render();
+    }
+
+    void RenderEngine::Stop()
+    {
+        m_renderer.Stop();
     }
 
     void RenderEngine::Join()

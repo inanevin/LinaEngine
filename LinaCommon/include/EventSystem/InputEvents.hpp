@@ -39,11 +39,11 @@ namespace Lina::Event
     struct EKeyCallback
     {
         void*              window   = nullptr;
-        int                key      = 0;
+        uint32             key      = 0;
         int                scancode = 0;
         Input::InputAction action   = Input::InputAction::Pressed;
-        int                mods     = 0;
     };
+
     struct EMouseButtonCallback
     {
         void*              window = nullptr;
@@ -57,12 +57,7 @@ namespace Lina::Event
         double xoff   = 0.0;
         double yoff   = 0.0;
     };
-    struct EMouseCursorCallback
-    {
-        void*  window = nullptr;
-        double xpos   = 0.0;
-        double ypos   = 0.0;
-    };
+
 } // namespace Lina::Event
 
 #endif

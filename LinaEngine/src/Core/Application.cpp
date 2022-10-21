@@ -105,7 +105,7 @@ namespace Lina
 
     bool Application::OnWindowClose(const Event::EWindowClosed& ev)
     {
-        m_engine.m_running = false;
+        m_engine.Stop();
         return true;
     }
 

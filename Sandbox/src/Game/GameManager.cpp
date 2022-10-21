@@ -64,8 +64,6 @@ Vector<float>                amounts;
 Vector<String>               modelPaths;
 int ctr = 0;
 
-float timer = 0.0f;
-bool created = false;
 
 void GameManager::OnTick(const Lina::Event::ETick& ev)
 {
@@ -76,11 +74,9 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
     modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
     modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
 
-    timer += ev.deltaTime;
 
-    if (timer >= 2.0f || Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
+    if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
     {
-        timer = 0.0f;
         if (m)
         {
             for (int i = 0; i < 1; i++)

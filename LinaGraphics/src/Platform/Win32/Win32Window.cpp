@@ -40,10 +40,12 @@ namespace Lina::Graphics
     // Window action
     LRESULT CALLBACK platform_window_callback(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     {
+
         switch (msg)
         {
         case WM_CLOSE: {
             Win32Window::GetWin32()->OnWin32Close();
+            DestroyWindow(Win32Window::GetWin32()->GetWindowPtr());
         }
         break;
         case WM_DPICHANGED: {
@@ -51,6 +53,11 @@ namespace Lina::Graphics
             HWND hWndButton = FindWindowEx(window, NULL, NULL, NULL);
             if (hWndButton != NULL)
                 Win32Window::GetWin32()->UpdateButtonLayoutForDpi(hWndButton);
+        }
+        break;
+        case WM_ACTIVATEAPP:
+        {
+           Win32Window::GetWin32()->SetIsActiveWindow(wParam == TRUE ? true : false);
         }
         break;
         case WM_SIZE: {
@@ -66,6 +73,100 @@ namespace Lina::Graphics
                 const Vector2i newSize = Vector2i(rect.right - rect.left, rect.bottom - rect.top);
                 Win32Window::GetWin32()->UpdateSize(newSize);
             }
+        }
+        break;
+        case WM_KEYDOWN: {
+            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
+            WORD keyFlags = HIWORD(lParam);
+            WORD scanCode = LOBYTE(keyFlags);
+            Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
+                .window   = static_cast<void*>(ptr),
+                .key      = static_cast<uint32>(wParam),
+                .scancode = static_cast<int>(scanCode),
+                .action   = Input::InputAction::Pressed,
+            });
+        }
+        break;
+        case WM_KEYUP: {
+            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
+            WORD keyFlags = HIWORD(lParam);
+            WORD scanCode = LOBYTE(keyFlags);
+            Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
+                .window   = static_cast<void*>(ptr),
+                .key      = static_cast<uint32>(wParam),
+                .scancode = static_cast<int>(scanCode),
+                .action   = Input::InputAction::Released,
+            });
+        }
+        break;
+        case WM_MOUSEWHEEL: {
+            HWND ptr   = Win32Window::GetWin32()->GetWindowPtr();
+            auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{
+                .window = static_cast<void*>(ptr),
+                .xoff   = 0.0f,
+                .yoff   = static_cast<float>(delta),
+            });
+        }
+        break;
+        case WM_LBUTTONDOWN: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 0,
+                .action = Input::InputAction::Pressed,
+            });
+        }
+        break;
+        case WM_RBUTTONDOWN: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 1,
+                .action = Input::InputAction::Pressed,
+            });
+        }
+        break;
+        case WM_MBUTTONDOWN: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 2,
+                .action = Input::InputAction::Pressed,
+            });
+        }
+        break;
+        case WM_LBUTTONUP: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 0,
+                .action = Input::InputAction::Released,
+            });
+        }
+        break;
+        case WM_RBUTTONUP: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 1,
+                .action = Input::InputAction::Released,
+            });
+        }
+        break;
+        case WM_MBUTTONUP: {
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = 2,
+                .action = Input::InputAction::Released,
+            });
         }
         break;
         }
@@ -86,7 +187,7 @@ namespace Lina::Graphics
         WNDCLASS wc      = {};
         wc.lpfnWndProc   = platform_window_callback;
         wc.hInstance     = m_hinst;
-        wc.lpszClassName = "Test";
+        wc.lpszClassName = "Lina Engine";
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 
         if (!RegisterClassA(&wc))
@@ -95,7 +196,8 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Test", "Test", 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title.c_str(), 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
+        m_title  = props.title;
 
         if (m_window == 0)
         {
@@ -103,7 +205,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        const bool launchOnEditor = false;
+        const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
 
         if (launchOnEditor)
             SetToWorkingArea();
@@ -139,12 +241,17 @@ namespace Lina::Graphics
         }
 
         ShowWindow(m_window, SW_SHOW);
+        Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = static_cast<void*>(m_window)});
 
-        RECT rct  = {};
-        RECT crct = {};
-        GetWindowRect(m_window, &rct);
-        GetClientRect(m_window, &crct);
-        // SetSize(Vector2i(props.width, props.height));
+
+         DWORD dwError, dwPriClass;
+         if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS))
+         {
+             dwError = GetLastError();
+             LINA_ERR("[Win32 Window] -> Failed setting priority: {0}", dwError);
+         }
+         
+         SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
 
         return true;
     }
@@ -261,14 +368,17 @@ namespace Lina::Graphics
     void Win32Window::SetTitle(const String& title)
     {
         m_title = title;
+        SetWindowTextA(m_window, title.c_str());
     }
 
     void Win32Window::Minimize()
     {
+        ShowWindow(m_window, SW_SHOWMINIMIZED);
     }
 
     void Win32Window::Maximize()
     {
+        ShowWindow(m_window, SW_SHOWMAXIMIZED);
     }
 
     void Win32Window::OnWin32Close()

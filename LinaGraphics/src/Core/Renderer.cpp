@@ -243,6 +243,11 @@ namespace Lina::Graphics
             m_frames[i].renderFence.Wait();
     }
 
+    void Renderer::Stop()
+    {
+        m_stopped.store(true);
+    }
+
     void Renderer::SyncData()
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
@@ -286,7 +291,8 @@ namespace Lina::Graphics
 
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
         {
-            HandleOutOfDateImage();
+            if (!m_stopped.load())
+                HandleOutOfDateImage();
             return;
         }
         else if (res != VulkanResult::Success)

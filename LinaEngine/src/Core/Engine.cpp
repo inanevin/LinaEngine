@@ -184,7 +184,7 @@ namespace Lina
 
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-       
+
         m_levelManager.SaveCurrentLevel();
         // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
 
@@ -218,14 +218,14 @@ namespace Lina
             RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
             RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
 
-            // Window poll
-            Graphics::Window::Get()->Tick();
-
             // Input
             m_inputEngine.Tick();
 
+            // Window poll
+            Graphics::Window::Get()->Tick();
+
             // Render
-            Future<void> renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+            m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
                 m_renderEngine.Render();
                 frames++;
             });
@@ -235,7 +235,7 @@ namespace Lina
             updates++;
 
             // Wait for all.
-            renderJob.get();
+            m_renderJob.get();
 
             // Sync previous frame.
             m_renderEngine.SyncData();
@@ -268,7 +268,7 @@ namespace Lina
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Shutdown();
 #endif
-       // m_editor.PackageProject();
+        // m_editor.PackageProject();
         m_memoryManager.PrintStaticBlockInfo();
 
         LINA_TRACE("[Engine] -> Waiting for all jobs.");
@@ -297,6 +297,18 @@ namespace Lina
         m_jobSystem.Shutdown();
         m_eventSystem.Shutdown();
         m_memoryManager.Shutdown();
+    }
+
+    void Engine::Stop()
+    {
+        m_renderJob.cancel();
+
+        if (m_renderJob.valid())
+            m_renderJob.get();
+
+        m_renderEngine.Stop();
+        m_running = false;
+        m_renderEngine.Join();
     }
 
     void Engine::RunSimulation(float deltaTime)
