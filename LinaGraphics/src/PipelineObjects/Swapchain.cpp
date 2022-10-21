@@ -52,7 +52,7 @@ namespace Lina::Graphics
                                .set_desired_extent(size.x, size.y);
 
         VkFormat        vkformat     = GetFormat(format);
-        VkColorSpaceKHR vkcolorspace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        VkColorSpaceKHR vkcolorspace = GetColorSpace(colorSpace);
         swapchainBuilder             = swapchainBuilder.set_desired_format({vkformat, vkcolorspace});
 
         vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();

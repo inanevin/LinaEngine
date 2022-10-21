@@ -73,6 +73,31 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
     {
+        OrderedDrawRequest request;
+        request.firstIndex        = m_indexCounter;
+        request.vertexOffset      = m_vertexCounter;
+        request.type              = LinaVGDrawCategoryType::Gradient;
+        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
+        request.materialDataIndex = static_cast<uint32>(m_gradientMaterialData.size());
+
+        LinaVG::GradientDrawBuffer b;
+        b.clipPosX     = buf->clipPosX;
+        b.clipPosY     = buf->clipPosY;
+        b.clipSizeX    = buf->clipSizeX;
+        b.clipSizeY    = buf->clipSizeY;
+        b.m_isAABuffer = buf->m_isAABuffer;
+        b.m_color      = buf->m_color;
+        m_gradientMaterialData.push_back(b);
+
+        for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
+            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
+
+        for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
+            m_copyIndices.push_back(buf->m_indexBuffer[i]);
+
+        m_orderedDrawRequests.push_back(request);
+        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
+        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
     }
 
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
@@ -138,6 +163,7 @@ namespace Lina::Graphics
             if (r.type == LinaVGDrawCategoryType::Default)
             {
                 auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+                mat->SetProperty("type", 0);
                 mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
             }
             else if (r.type == LinaVGDrawCategoryType::Textured)
@@ -148,6 +174,14 @@ namespace Lina::Graphics
             else if (r.type == LinaVGDrawCategoryType::Gradient)
             {
                 auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+
+                auto& matData = m_gradientMaterialData[r.materialDataIndex];
+                mat->SetProperty("type", 1);
+               // mat->SetProperty("gradientStart", matData.m_color.start);
+               // mat->SetProperty("gradientEnd", matData.m_color.end);
+               // mat->SetProperty("gradientType", static_cast<int>(matData.m_color.gradientType));
+               // mat->SetProperty("radialSize", matData.m_color.radialSize);
+               // mat->SetProperty("isAABuffer", matData.m_isAABuffer);
                 mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
             }
             else if (r.type == LinaVGDrawCategoryType::SDF)
@@ -187,14 +221,14 @@ namespace Lina::Graphics
     void GUIBackend::UpdateProjection()
     {
         const Vector2i size = Backend::Get()->GetSwapchain().size;
-        const Vector2i pos = Vector2i();
+        const Vector2i pos  = Vector2i();
 
         Matrix projectionMatrix;
 
-        float       L = static_cast<float>(pos.x);
-        float       R = static_cast<float>(pos.x + size.x);
-        float       T = static_cast<float>(pos.y + size.y);
-        float       B = static_cast<float>(pos.y);
+        float       L    = static_cast<float>(pos.x);
+        float       R    = static_cast<float>(pos.x + size.x);
+        float       T    = static_cast<float>(pos.y + size.y);
+        float       B    = static_cast<float>(pos.y);
         const float zoom = 1.0f;
 
         L *= zoom;

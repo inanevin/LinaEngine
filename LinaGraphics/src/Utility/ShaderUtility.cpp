@@ -250,7 +250,8 @@ namespace Lina::Graphics
                     if (type != std::string::npos)
                     {
                         const size_t varNameStart = type + types[i].size();
-                        String       varName      = line.substr(varNameStart, line.size() - varNameStart - 1).c_str();
+                        const size_t semicol = line.find(";");
+                        String       varName      = line.substr(varNameStart, semicol - varNameStart).c_str();
 
                         ShaderReflectedProperty prop;
                         prop.descriptorBinding = lastBindingIndex;

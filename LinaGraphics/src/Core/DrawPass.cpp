@@ -144,11 +144,12 @@ namespace Lina::Graphics
             uint32 i = 0;
             for (auto ri : b.renderableIndices)
             {
+                auto& merged = mergedMeshes[b.meshes[i]];
                 VkDrawIndexedIndirectCommand c;
-                c.indexCount    = mergedMeshes[b.meshes[i]].indexSize;
                 c.instanceCount = 1;
-                c.vertexOffset  = mergedMeshes[b.meshes[i]].vertexOffset;
-                c.firstIndex    = mergedMeshes[b.meshes[i]].firstIndex;
+                c.indexCount    = merged.indexSize;
+                c.vertexOffset  = merged.vertexOffset;
+                c.firstIndex    = merged.firstIndex;
                 c.firstInstance = m_renderables[ri].objDataIndex;
                 commands.push_back(c);
                 i++;
