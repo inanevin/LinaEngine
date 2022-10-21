@@ -51,6 +51,7 @@ namespace Lina
 namespace Lina::Graphics
 {
     class CommandBuffer;
+    class Material;
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
@@ -71,6 +72,7 @@ namespace Lina::Graphics
             uint32                 indexSize         = 0;
             uint32                 materialDataIndex = 0;
             LinaVGDrawCategoryType type              = LinaVGDrawCategoryType::Default;
+            Material*              transientMat      = nullptr;
         };
 
     public:
@@ -106,6 +108,7 @@ namespace Lina::Graphics
 
         void UpdateProjection();
         void RecordDrawCommands();
+        void SyncData();
 
     private:
         Buffer m_gpuVtxBuffer;
@@ -120,10 +123,13 @@ namespace Lina::Graphics
         Vector<LinaVG::Vertex>               m_copyVertices;
         Vector<LinaVG::Index>                m_copyIndices;
 
-        uint32             m_indexCounter  = 0;
-        uint32             m_vertexCounter = 0;
-        CommandBuffer*     m_cmd           = nullptr;
-        static GUIBackend* s_instance;
+        HashMap<uint32, Vector<Material*>> m_transientMaterials;
+        Matrix                             m_projection    = Matrix::Identity();
+        uint32                             m_indexCounter  = 0;
+        uint32                             m_vertexCounter = 0;
+        CommandBuffer*                     m_cmd           = nullptr;
+        static GUIBackend*                 s_instance;
+        Material*                          m_guiStandard = nullptr;
     };
 
 } // namespace Lina::Graphics

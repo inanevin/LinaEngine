@@ -317,6 +317,7 @@ namespace Lina::Graphics
         }
 
         m_opaquePass.PrepareRenderData(m_extractedRenderables);
+        
     }
 
     void Renderer::Render()
@@ -394,7 +395,7 @@ namespace Lina::Graphics
 
         postPass.Begin(*postPass._framebuffer, cmd);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-        ppMat->BindPipelineAndDescriptors(cmd, RenderPassType::PostProcess);
+        ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
 
         cmd.CMD_Draw(3, 1, 0, 0);
         postPass.End(cmd);
@@ -407,7 +408,7 @@ namespace Lina::Graphics
         finalPass.Begin(m_framebuffers[imageIndex], cmd);
 
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-        finalQuadMat->BindPipelineAndDescriptors(cmd, RenderPassType::Final);
+        finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
 
         if (drawEditor)

@@ -144,7 +144,7 @@ namespace Lina::Graphics
             uint32 i = 0;
             for (auto ri : b.renderableIndices)
             {
-                auto& merged = mergedMeshes[b.meshes[i]];
+                auto&                        merged = mergedMeshes[b.meshes[i]];
                 VkDrawIndexedIndirectCommand c;
                 c.instanceCount = 1;
                 c.indexCount    = merged.indexSize;
@@ -170,7 +170,7 @@ namespace Lina::Graphics
 
             if (mat != lastBoundMat)
             {
-                mat->BindPipelineAndDescriptors(cmd, rpType);
+                mat->Bind(cmd, rpType, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
                 lastBoundMat = mat;
             }
 

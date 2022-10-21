@@ -139,7 +139,7 @@ namespace Lina::Graphics
 
                 if (line.find("sampler2D") != std::string::npos)
                     lastSetInfo.type = DescriptorType::CombinedImageSampler;
-                else if (line.find("readonly buffer") != std::string::npos)
+                else if (line.find("readonlybuffer") != std::string::npos)
                     lastSetInfo.type = DescriptorType::StorageBuffer;
                 else
                     lastSetInfo.type = DescriptorType::UniformBuffer;

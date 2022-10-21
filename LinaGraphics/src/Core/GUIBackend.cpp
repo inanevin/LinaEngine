@@ -69,16 +69,36 @@ namespace Lina::Graphics
 
     void GUIBackend::StartFrame()
     {
+        if (m_guiStandard == nullptr)
+            m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+
+        const uint32 frame = (RenderEngine::Get()->GetRenderer().GetFrameIndex());
+
+        for (auto& m : m_transientMaterials[frame])
+            delete m;
+
+        m_transientMaterials[frame].clear();
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
     {
+
         OrderedDrawRequest request;
         request.firstIndex        = m_indexCounter;
         request.vertexOffset      = m_vertexCounter;
         request.type              = LinaVGDrawCategoryType::Gradient;
         request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.materialDataIndex = static_cast<uint32>(m_gradientMaterialData.size());
+
+        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+
+        request.transientMat = new Material();
+        request.transientMat->CreateBuffer();
+        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
+        request.transientMat->SetProperty("projection", m_projection);
+        request.transientMat->SetProperty("color", Vector4(1, 0, 1, 1));
+        request.transientMat->CheckUpdatePropertyBuffers();
+        m_transientMaterials[frame].push_back(request.transientMat);
 
         LinaVG::GradientDrawBuffer b;
         b.clipPosX     = buf->clipPosX;
@@ -112,6 +132,15 @@ namespace Lina::Graphics
         request.type              = LinaVGDrawCategoryType::Default;
         request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.materialDataIndex = static_cast<uint32>(m_defaultMaterialData.size());
+
+        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        request.transientMat = new Material();
+        request.transientMat->CreateBuffer();
+        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
+        request.transientMat->SetProperty("projection", m_projection);
+        request.transientMat->SetProperty("color", Vector4(1, 0, 0, 1));
+        request.transientMat->CheckUpdatePropertyBuffers();
+        m_transientMaterials[frame].push_back(request.transientMat);
 
         LinaVG::DrawBuffer b;
         b.clipPosX  = buf->clipPosX;
@@ -152,36 +181,25 @@ namespace Lina::Graphics
         m_indexCounter = m_vertexCounter = 0;
     }
 
-    struct PC
-    {
-        int type = 0;
-    };
-
     void GUIBackend::RecordDrawCommands()
     {
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
-
-
+        m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
 
         for (auto& r : m_orderedDrawRequests)
         {
+            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
+
             if (r.type == LinaVGDrawCategoryType::Default)
             {
-                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-                mat->CheckUpdatePropertyBuffers();
-               // mat->SetProperty("type", 0);
-               // mat->CheckUpdatePropertyBuffers();
+                // mat->SetProperty("type", 0);
+                // mat->CheckUpdatePropertyBuffers();
 
                 // m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetPipelineStageFlags(PipelineStageFlags::), )
                 // mat->SetProperty("type", 1);
                 // mat->CheckUpdatePropertyBuffers();
-
-                PC pc;
-                pc.type = 0;
-               // m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
             }
             else if (r.type == LinaVGDrawCategoryType::Textured)
             {
@@ -190,9 +208,6 @@ namespace Lina::Graphics
             }
             else if (r.type == LinaVGDrawCategoryType::Gradient)
             {
-                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-                mat->CheckUpdatePropertyBuffers();
 
                 // mat->SetProperty("type", 1);
                 // mat->CheckUpdatePropertyBuffers();
@@ -209,9 +224,7 @@ namespace Lina::Graphics
                 // mat->SetProperty("radialSize", matData.m_color.radialSize);
                 // mat->SetProperty("isAABuffer", matData.m_isAABuffer);
 
-                PC pc;
-                pc.type = 1;
-              //  m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
+                //  m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
             }
             else if (r.type == LinaVGDrawCategoryType::SDF)
             {
@@ -227,9 +240,16 @@ namespace Lina::Graphics
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
 
+        //  for (auto& r : m_orderedDrawRequests)
+        //      delete r.transientMat;
+
         m_orderedDrawRequests.clear();
         m_defaultMaterialData.clear();
         m_gradientMaterialData.clear();
+    }
+
+    void GUIBackend::SyncData()
+    {
     }
 
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
@@ -267,25 +287,26 @@ namespace Lina::Graphics
         T *= zoom;
         B *= zoom;
 
-        projectionMatrix[0][0] = 2.0f / (R - L);
-        projectionMatrix[0][1] = 0.0f;
-        projectionMatrix[0][2] = 0.0f;
-        projectionMatrix[0][3] = 0.0f;
-        projectionMatrix[1][0] = 0.0f;
-        projectionMatrix[1][1] = 2.0f / (T - B);
-        projectionMatrix[1][2] = 0.0f;
-        projectionMatrix[1][3] = 0.0f;
-        projectionMatrix[2][0] = 0.0f;
-        projectionMatrix[2][1] = 0.0f;
-        projectionMatrix[2][2] = -1.0f;
-        projectionMatrix[2][3] = 0.0f;
-        projectionMatrix[3][0] = (R + L) / (L - R);
-        projectionMatrix[3][1] = (T + B) / (B - T);
-        projectionMatrix[3][2] = 0.0f;
-        projectionMatrix[3][3] = 1.0f;
+        m_projection[0][0] = 2.0f / (R - L);
+        m_projection[0][1] = 0.0f;
+        m_projection[0][2] = 0.0f;
+        m_projection[0][3] = 0.0f;
+        m_projection[1][0] = 0.0f;
+        m_projection[1][1] = 2.0f / (T - B);
+        m_projection[1][2] = 0.0f;
+        m_projection[1][3] = 0.0f;
+        m_projection[2][0] = 0.0f;
+        m_projection[2][1] = 0.0f;
+        m_projection[2][2] = -1.0f;
+        m_projection[2][3] = 0.0f;
+        m_projection[3][0] = (R + L) / (L - R);
+        m_projection[3][1] = (T + B) / (B - T);
+        m_projection[3][2] = 0.0f;
+        m_projection[3][3] = 1.0f;
 
-        auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-        mat->SetProperty("projection", projectionMatrix);
+        // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+        // mat->SetProperty("projection", projectionMatrix);
+        // mat->CheckUpdatePropertyBuffers();
     }
 
 } // namespace Lina::Graphics

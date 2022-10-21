@@ -105,36 +105,36 @@ namespace Lina::Editor
 
         //*************************** ROW 3 ***************************/
 
-     //  // Radial
-     //  startPos.x = screenSize.x * 0.05f;
-     //  startPos.y += 200;
-     //  defaultStyle.color.start        = Vec4(0.2f, 0.2f, 0.9f, 1.0f);
-     //  defaultStyle.color.end          = Vec4(0.9f, 0.2f, 0.9f, 1.0f);
-     //  defaultStyle.color.gradientType = GradientType::Radial;
-     //  defaultStyle.color.radialSize   = 1.4f;
-     //  LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 0.0f, 360.0f, 1);
-     //
-     //  // Radial
-     //  startPos.x += 200;
-     //  defaultStyle.color.start        = Vec4(0.2f, 0.2f, 0.9f, 1.0f);
-     //  defaultStyle.color.end          = Vec4(0.9f, 0.2f, 0.9f, 1.0f);
-     //  defaultStyle.color.gradientType = GradientType::Radial;
-     //  defaultStyle.color.radialSize   = 1.4f;
-     //  LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 7, defaultStyle, m_rotateAngle, 1);
-     //
-     //  // Radial Corner
-     //  startPos.x += 200;
-     //  defaultStyle.color.start        = Vec4(0.2f, 0.2f, 1.0f, 1.0f);
-     //  defaultStyle.color.end          = Vec4(1.0f, 0.2f, 0.2f, 1.0f);
-     //  defaultStyle.color.gradientType = GradientType::RadialCorner;
-     //  LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
-     //
-     //  // Radial corner
-     //  startPos.x += 200;
-     //  defaultStyle.color.start        = Vec4(0.2f, 0.2f, 1.0f, 1.0f);
-     //  defaultStyle.color.end          = Vec4(1.0f, 0.2f, 0.2f, 1.0f);
-     //  defaultStyle.color.gradientType = GradientType::RadialCorner;
-     //  LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 7, defaultStyle, m_rotateAngle, 1);
+        //  // Radial
+        startPos.x = screenSize.x * 0.05f;
+        startPos.y += 200;
+        defaultStyle.color.start        = Vec4(0.2f, 0.2f, 0.9f, 1.0f);
+        defaultStyle.color.end          = Vec4(0.9f, 0.2f, 0.9f, 1.0f);
+        defaultStyle.color.gradientType = GradientType::Radial;
+        defaultStyle.color.radialSize   = 1.4f;
+        LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 0.0f, 360.0f, 1);
+
+        // Radial
+        startPos.x += 200;
+        defaultStyle.color.start        = Vec4(0.2f, 0.2f, 0.9f, 1.0f);
+        defaultStyle.color.end          = Vec4(0.9f, 0.2f, 0.9f, 1.0f);
+        defaultStyle.color.gradientType = GradientType::Radial;
+        defaultStyle.color.radialSize   = 1.4f;
+        LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 7, defaultStyle, m_rotateAngle, 1);
+
+        // Radial Corner
+        startPos.x += 200;
+        defaultStyle.color.start        = Vec4(0.2f, 0.2f, 1.0f, 1.0f);
+        defaultStyle.color.end          = Vec4(1.0f, 0.2f, 0.2f, 1.0f);
+        defaultStyle.color.gradientType = GradientType::RadialCorner;
+        LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        // Radial corner
+        startPos.x += 200;
+        defaultStyle.color.start        = Vec4(0.2f, 0.2f, 1.0f, 1.0f);
+        defaultStyle.color.end          = Vec4(1.0f, 0.2f, 0.2f, 1.0f);
+        defaultStyle.color.gradientType = GradientType::RadialCorner;
+        LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 7, defaultStyle, m_rotateAngle, 1);
 
         //*************************** ROW 4 ***************************/
 
@@ -181,7 +181,7 @@ namespace Lina::Editor
         const Vector2 screen = Graphics::Screen::SizeF();
 
         // float aq = LinaVG::Config.displayWidth;
-        // LinaVG::StartFrame();
+         LinaVG::StartFrame();
         // StyleOptions opts;
         // opts.isFilled = true;
         // opts.color    = Vec4(0.1f, 0, 0, 1);

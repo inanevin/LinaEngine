@@ -48,6 +48,12 @@ namespace Lina::Graphics
     class CommandBuffer;
     class MaterialPropertyBase;
 
+    enum MaterialBindFlag
+    {
+        BindPipeline   = 1 << 0,
+        BindDescriptor = 1 << 1,
+    };
+
     class Material : public Resources::Resource
     {
 
@@ -140,7 +146,7 @@ namespace Lina::Graphics
         virtual void      LoadReferences() override;
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
-        void              BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType);
+        void              Bind(CommandBuffer& cmd, RenderPassType rpType, uint32 bindFlags);
         void              CheckUpdatePropertyBuffers();
         void              SetTexture(const String& name, Texture* texture);
         void              SetTexture(uint32 index, Texture* texture);
@@ -188,8 +194,14 @@ namespace Lina::Graphics
             return m_shader;
         }
 
+        inline Buffer& GetUniformBuffer()
+        {
+            return m_uniformBuffer;
+        }
+
     private:
         friend class RenderEngine;
+        friend class GUIBackend;
 
         void                  SetupProperties();
         void                  CreateBuffer();
@@ -208,7 +220,7 @@ namespace Lina::Graphics
         uint32                    m_totalAlignedSize  = 0;
         DescriptorSet             m_descriptor;
         DescriptorPool            m_descriptorPool;
-        Buffer                    m_dataBuffer;
+        Buffer                    m_uniformBuffer;
         bool                      m_propertiesDirty = false;
     };
 
