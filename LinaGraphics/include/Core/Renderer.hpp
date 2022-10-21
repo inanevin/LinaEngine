@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Math/Matrix.hpp"
 #include "Data/Vector.hpp"
+#include "Data/Vertex.hpp"
 #include "Core/GraphicsCommon.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
 #include "PipelineObjects/CommandPool.hpp"
@@ -168,6 +169,11 @@ namespace Lina::Graphics
             return m_renderPasses[type];
         }
 
+        inline HashMap<Mesh*, MergedBufferMeshEntry>& GetMergedMeshEntries()
+        {
+            return m_meshEntries;
+        }
+
     private:
         friend class RenderEngine;
 
@@ -179,12 +185,14 @@ namespace Lina::Graphics
         void SyncData();
         void Stop();
         void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
         void OnWindowPositioned(const Event::EWindowPositioned& newPos);
         void HandleOutOfDateImage();
+        void MergeMeshes();
 
     private:
         Vector<View*>                       m_views;
@@ -195,12 +203,18 @@ namespace Lina::Graphics
         Image                               m_depthImage;
         HashMap<RenderPassType, RenderPass> m_renderPasses;
 
-        IDList<RenderableComponent*> m_allRenderables;
-        Vector<GPUObjectData>        m_gpuObjectData;
-        DrawPass                     m_opaquePass;
-        GPUSceneData                 m_sceneData;
-        GPUViewData                  m_viewData;
-        GPULightData                 m_lightData;
+        IDList<RenderableComponent*>          m_allRenderables;
+        Vector<GPUObjectData>                 m_gpuObjectData;
+        DrawPass                              m_opaquePass;
+        GPUSceneData                          m_sceneData;
+        GPUViewData                           m_viewData;
+        GPULightData                          m_lightData;
+        HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
+
+        Buffer m_cpuVtxBuffer;
+        Buffer m_cpuIndexBuffer;
+        Buffer m_gpuVtxBuffer;
+        Buffer m_gpuIndexBuffer;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];

@@ -55,10 +55,6 @@ namespace Lina::Graphics
             return m_type;
         }
 
-        inline const String& GetName() const
-        {
-            return m_name;
-        }
 
         inline String GetName()
         {

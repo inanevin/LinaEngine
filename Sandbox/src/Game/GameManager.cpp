@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/InputEngine.hpp"
 #include "Core/ResourceLoader.hpp"
+#include "Core/Window.hpp"
 
 using namespace Lina;
 
@@ -94,6 +95,7 @@ void GameManager::OnTick(const Lina::Event::ETick& ev)
             }
         }
     }
+
 
     uint32 i = 0;
     for (auto e : entities)

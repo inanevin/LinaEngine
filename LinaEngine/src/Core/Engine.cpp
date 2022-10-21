@@ -254,7 +254,7 @@ namespace Lina
             }
 
             m_renderEngine.m_window->SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
-            LINA_TRACE("FPS: {0}", m_currentFPS);
+            // LINA_TRACE("FPS: {0}", m_currentFPS);
 
             if (m_firstRun)
                 m_firstRun = false;

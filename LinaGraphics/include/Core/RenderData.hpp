@@ -72,10 +72,11 @@ namespace Lina::Graphics
     };
     struct InstancedBatch
     {
-        MeshMaterialPair meshAndMaterial;
-        Vector<uint32>   renderableIndices;
-        uint32           firstInstance = 0;
-        uint32           count         = 0;
+        Material*      mat = nullptr;
+        Vector<Mesh*>  meshes;
+        Vector<uint32> renderableIndices;
+        uint32         firstInstance = 0;
+        uint32         count         = 0;
     };
 
     struct RenderableData
@@ -116,6 +117,13 @@ namespace Lina::Graphics
     struct GPULightData
     {
         LightData lights[MAX_LIGHTS];
+    };
+
+    struct MergedBufferMeshEntry
+    {
+        uint32 vertexOffset = 0;
+        uint32 indexSize    = 0;
+        uint32 firstIndex   = 0;
     };
 
 } // namespace Lina::Graphics

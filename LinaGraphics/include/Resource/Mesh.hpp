@@ -84,18 +84,31 @@ namespace Lina::Graphics
             return m_materialSlot;
         }
 
+        inline const Vector<Vertex>& GetVertices() const
+        {
+            return m_vertices;
+        }
+
+        inline const Vector<uint32>& GetIndices() const
+        {
+            return m_indices;
+        }
+
+        inline const String& GetName() const
+        {
+            return m_name;
+        }
+
         virtual MeshType GetMeshType() = 0;
 
-        template <typename Archive>
-        void Save(Archive& archive)
+        template <typename Archive> void Save(Archive& archive)
         {
             archive(m_vertexCenter, m_aabb, m_materialSlot, m_name);
             archive(m_indices, m_vertices);
             SaveToArchive(archive);
         }
 
-        template <typename Archive>
-        void Load(Archive& archive)
+        template <typename Archive> void Load(Archive& archive)
         {
             archive(m_vertexCenter, m_aabb, m_materialSlot, m_name);
             archive(m_indices, m_vertices);

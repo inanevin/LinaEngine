@@ -108,8 +108,6 @@ namespace Lina::Graphics
         void RecordDrawCommands();
 
     private:
-        Buffer m_cpuVtxBuffer;
-        Buffer m_cpuIndexBuffer;
         Buffer m_gpuVtxBuffer;
         Buffer m_gpuIndexBuffer;
 

@@ -44,22 +44,6 @@ namespace Lina::Graphics
         const size_t vtxSize   = sizeof(LinaVG::Vertex) * 10000;
         const size_t indexSize = sizeof(LinaVG::Index) * 4000;
 
-        m_cpuVtxBuffer = Buffer{
-            .size          = vtxSize,
-            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
-            .requiredFlags = MemoryPropertyFlags::None,
-        };
-        m_cpuVtxBuffer.Create();
-
-        m_cpuIndexBuffer = Buffer{
-            .size          = indexSize,
-            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
-            .requiredFlags = MemoryPropertyFlags::None,
-        };
-        m_cpuIndexBuffer.Create();
-
         m_gpuVtxBuffer = Buffer{
             .size        = vtxSize,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
@@ -73,47 +57,6 @@ namespace Lina::Graphics
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
         m_gpuIndexBuffer.Create();
-
-        Command vtxCmd;
-        vtxCmd.Record = [vtxSize, this](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = vtxSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-            cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
-        };
-
-        vtxCmd.OnSubmitted = [this]() {
-            m_gpuVtxBuffer._ready = true;
-            m_cpuVtxBuffer.Destroy();
-        };
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
-
-        Command indexCmd;
-        indexCmd.Record = [indexSize, this](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = indexSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-
-            cmd.CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regions);
-        };
-
-        indexCmd.OnSubmitted = [this] {
-            m_gpuIndexBuffer._ready = true;
-            m_cpuIndexBuffer.Destroy();
-        };
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
 
         return true;
     }

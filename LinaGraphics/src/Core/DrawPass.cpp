@@ -101,13 +101,14 @@ namespace Lina::Graphics
                     InstancedBatch& batch = m_batches.at(index);
                     batch.renderableIndices.push_back(i);
                     batch.count++;
+                    batch.meshes.push_back(p.mesh);
                 }
                 else
                 {
                     InstancedBatch newBatch;
-                    newBatch.meshAndMaterial.material = p.material;
-                    newBatch.meshAndMaterial.mesh     = p.mesh;
-                    newBatch.firstInstance            = i;
+                    newBatch.mat = p.material;
+                    newBatch.meshes.push_back(p.mesh);
+                    newBatch.firstInstance = i;
                     newBatch.renderableIndices.push_back(i);
                     newBatch.count = 1;
                     m_batches.push_back(newBatch);
@@ -133,21 +134,24 @@ namespace Lina::Graphics
 
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto& renderer = RenderEngine::Get()->GetRenderer();
+        auto& renderer     = RenderEngine::Get()->GetRenderer();
+        auto& mergedMeshes = renderer.GetMergedMeshEntries();
 
         Vector<VkDrawIndexedIndirectCommand> commands;
         uint32                               i = 0;
         for (auto b : m_batches)
         {
+            uint32 i = 0;
             for (auto ri : b.renderableIndices)
             {
                 VkDrawIndexedIndirectCommand c;
-                c.indexCount    = b.meshAndMaterial.mesh->GetIndexSize();
+                c.indexCount    = mergedMeshes[b.meshes[i]].indexSize;
                 c.instanceCount = 1;
-                c.vertexOffset  = 0;
-                c.firstIndex    = 0;
+                c.vertexOffset  = mergedMeshes[b.meshes[i]].vertexOffset;
+                c.firstIndex    = mergedMeshes[b.meshes[i]].firstIndex;
                 c.firstInstance = m_renderables[ri].objDataIndex;
                 commands.push_back(c);
+                i++;
             }
         }
 
@@ -156,27 +160,17 @@ namespace Lina::Graphics
         const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
         uint32       firstInstance = 0;
 
-        Material* lastBoundMat  = nullptr;
-        Mesh*     lastBoundMesh = nullptr;
+        Material* lastBoundMat = nullptr;
 
         for (uint32 i = 0; i < batchesSize; i++)
         {
             InstancedBatch& batch = m_batches[i];
-            Material*       mat   = batch.meshAndMaterial.material;
-            Mesh*           mesh  = batch.meshAndMaterial.mesh;
+            Material*       mat   = batch.mat;
 
             if (mat != lastBoundMat)
             {
                 mat->BindPipelineAndDescriptors(cmd, rpType);
                 lastBoundMat = mat;
-            }
-
-            if (mesh != lastBoundMesh)
-            {
-                uint64 offset = 0;
-                cmd.CMD_BindVertexBuffers(0, 1, mesh->GetGPUVtxBuffer()._ptr, &offset);
-                cmd.CMD_BindIndexBuffers(mesh->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
-                lastBoundMesh = mesh;
             }
 
             const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
@@ -189,7 +183,7 @@ namespace Lina::Graphics
         if (Time::GetCPUTime() > lastReportTime + 1.0f)
         {
             lastReportTime = static_cast<float>(Time::GetCPUTime());
-           // LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
+            LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
         }
     }
 
@@ -200,7 +194,7 @@ namespace Lina::Graphics
         for (int32 i = 0; i < size; i++)
         {
             const auto& b = m_batches.at(i);
-            if (b.meshAndMaterial.mesh == pair.mesh && b.meshAndMaterial.material == pair.material)
+            if (b.mat == pair.material)
                 return i;
         }
 

@@ -91,6 +91,11 @@ namespace Lina::Resources
             return m_typeData;
         }
 
+        const HashMap<StringID, T*>& GetResources() const
+        {
+            return m_resources;
+        }
+
     protected:
         friend class ResourceManager;
 
@@ -110,6 +115,7 @@ namespace Lina::Resources
 
             return static_cast<Resource*>(ptr);
         }
+
 
         // For packaging.
         virtual Resource* CreateMockResource()

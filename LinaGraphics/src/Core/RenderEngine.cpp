@@ -136,6 +136,7 @@ namespace Lina::Graphics
         LinaVG::Config.framebufferScale.x = ApplicationInfo::GetContentScaleWidth();
         LinaVG::Config.framebufferScale.y = ApplicationInfo::GetContentScaleHeight();
         LinaVG::Config.aaMultiplier = ApplicationInfo::GetContentScaleWidth() * 2.5f, LinaVG::Config.aaEnabled = true;
+        LinaVG::Config.aaEnabled = true;
 
         LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 

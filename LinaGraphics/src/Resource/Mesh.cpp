@@ -151,6 +151,7 @@ namespace Lina::Graphics
 
     void Mesh::ClearInitialBuffers()
     {
+        return;
         m_vertices.clear();
         m_indices.clear();
     }

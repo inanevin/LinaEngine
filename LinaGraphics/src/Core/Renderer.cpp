@@ -54,9 +54,12 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
+#define DEF_VTXBUF_SIZE   sizeof(Vertex) * 2000
+#define DEF_INDEXBUF_SIZE sizeof(uint32) * 2000
     void Renderer::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Renderer::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Renderer::OnPreMainLoop>(this);
@@ -191,6 +194,36 @@ namespace Lina::Graphics
             f.passDescriptor.SendUpdate();
         }
 
+        // Merged buffers.
+        m_cpuVtxBuffer = Buffer{
+            .size        = DEF_VTXBUF_SIZE,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        m_cpuIndexBuffer = Buffer{
+            .size        = DEF_INDEXBUF_SIZE,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        m_gpuVtxBuffer = Buffer{
+            .size        = DEF_VTXBUF_SIZE,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+            .memoryUsage = MemoryUsageFlags::GpuOnly,
+        };
+
+        m_gpuIndexBuffer = Buffer{
+            .size        = DEF_INDEXBUF_SIZE,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+            .memoryUsage = MemoryUsageFlags::GpuOnly,
+        };
+
+        m_cpuVtxBuffer.Create();
+        m_cpuIndexBuffer.Create();
+        m_gpuVtxBuffer.Create();
+        m_gpuIndexBuffer.Create();
+
         // Views
         m_playerView.Initialize(ViewType::Player);
         m_views.push_back(&m_playerView);
@@ -204,6 +237,7 @@ namespace Lina::Graphics
 
     void Renderer::Shutdown()
     {
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
@@ -284,10 +318,12 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        GetCurrentFrame().renderFence.Wait(true, 1.0f);
+        auto& frame = GetCurrentFrame();
+
+        frame.renderFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, GetCurrentFrame().presentSemaphore, res);
+        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, frame.presentSemaphore, res);
 
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
         {
@@ -298,9 +334,9 @@ namespace Lina::Graphics
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
-        GetCurrentFrame().renderFence.Reset();
+        frame.renderFence.Reset();
 
-        auto& cmd = GetCurrentFrame().commandBuffer;
+        auto& cmd = frame.commandBuffer;
 
         cmd.Reset();
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
@@ -311,8 +347,13 @@ namespace Lina::Graphics
         vkCmdSetViewport(cmd._ptr, 0, 1, &_viewport);
         vkCmdSetScissor(cmd._ptr, 0, 1, &_scissors);
 
+        // Merged object buffer.
+        uint64 offset = 0;
+        cmd.CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
+        cmd.CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
+
         // Global set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &GetCurrentFrame().globalDescriptor, 0, nullptr);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
 
         // Global - scene data.
         GetSceneDataBuffer().CopyInto(&m_sceneData, sizeof(GPUSceneData));
@@ -321,7 +362,7 @@ namespace Lina::Graphics
         GetLightDataBuffer().CopyInto(&m_lightData, sizeof(GPULightData));
 
         // Pass set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &GetCurrentFrame().passDescriptor, 0, nullptr);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
 
         // Per render pass - obj data.
         Vector<GPUObjectData> gpuObjectData;
@@ -341,6 +382,7 @@ namespace Lina::Graphics
         auto& finalPass = m_renderPasses[RenderPassType::Final];
 
         mainPass.Begin(*mainPass._framebuffer, cmd);
+
         m_opaquePass.UpdateViewData(GetViewDataBuffer());
         m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main);
         mainPass.End(cmd);
@@ -375,8 +417,8 @@ namespace Lina::Graphics
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
-        Backend::Get()->GetGraphicsQueue().Submit(GetCurrentFrame().presentSemaphore, GetCurrentFrame().renderSemaphore, GetCurrentFrame().renderFence, GetCurrentFrame().commandBuffer, 1);
-        Backend::Get()->GetGraphicsQueue().Present(GetCurrentFrame().renderSemaphore, &imageIndex);
+        Backend::Get()->GetGraphicsQueue().Submit(frame.presentSemaphore, frame.renderSemaphore, frame.renderFence, frame.commandBuffer, 1);
+        Backend::Get()->GetGraphicsQueue().Present(frame.renderSemaphore, &imageIndex);
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
         m_frameNumber++;
@@ -385,6 +427,11 @@ namespace Lina::Graphics
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
         m_allRenderables.Reset();
+    }
+
+    void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        MergeMeshes();
     }
 
     void Renderer::OnComponentCreated(const Event::EComponentCreated& ev)
@@ -483,6 +530,113 @@ namespace Lina::Graphics
 
         m_recreateSwapchain = false;
         RenderEngine::Get()->SwapchainRecreated();
+    }
+
+    void Renderer::MergeMeshes()
+    {
+        auto  rm    = Resources::ResourceManager::Get();
+        auto  cache = rm->GetCache<Graphics::Model>();
+        auto& res   = cache->GetResources();
+        m_meshEntries.clear();
+
+        Vector<Vertex> mergedVertices;
+        Vector<uint32> mergedIndices;
+
+        uint32 vertexOffset = 0;
+        uint32 firstIndex   = 0;
+
+        for (auto& pair : res)
+        {
+            for (auto& node : pair.second->GetNodes())
+            {
+                for (auto& m : node->GetMeshes())
+                {
+                    const auto& vertices = m->GetVertices();
+                    const auto& indices  = m->GetIndices();
+
+                    MergedBufferMeshEntry entry;
+                    entry.vertexOffset = vertexOffset;
+                    entry.firstIndex   = firstIndex;
+                    entry.indexSize    = indices.size();
+
+                    const uint32 vtxSize   = static_cast<uint32>(vertices.size());
+                    const uint32 indexSize = static_cast<uint32>(indices.size());
+                    for (auto& v : vertices)
+                        mergedVertices.push_back(v);
+
+                    for (auto& i : indices)
+                        mergedIndices.push_back(i);
+
+                    vertexOffset += vtxSize;
+                    firstIndex += indexSize;
+
+                    m_meshEntries[m] = entry;
+                }
+            }
+        }
+
+        const uint32 vtxSize   = static_cast<uint32>(mergedVertices.size() * sizeof(Vertex));
+        const uint32 indexSize = static_cast<uint32>(mergedIndices.size() * sizeof(uint32));
+
+        m_cpuVtxBuffer.CopyInto(mergedVertices.data(), vtxSize);
+        m_cpuIndexBuffer.CopyInto(mergedIndices.data(), indexSize);
+
+        // Realloc if necessary.
+        if (m_gpuVtxBuffer.size < m_cpuVtxBuffer.size)
+        {
+            m_gpuVtxBuffer.Destroy();
+            m_gpuVtxBuffer.size = m_cpuVtxBuffer.size;
+            m_gpuVtxBuffer.Create();
+        }
+
+        if (m_gpuIndexBuffer.size < m_cpuIndexBuffer.size)
+        {
+            m_gpuIndexBuffer.Destroy();
+            m_gpuIndexBuffer.size = m_cpuIndexBuffer.size;
+            m_gpuIndexBuffer.Create();
+        }
+
+        Command vtxCmd;
+        vtxCmd.Record = [this, vtxSize](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = vtxSize,
+            };
+
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
+
+            cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
+        };
+
+        vtxCmd.OnSubmitted = [this]() {
+            m_gpuVtxBuffer._ready = true;
+            // f.cpuVtxBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
+
+        Command indexCmd;
+        indexCmd.Record = [this, indexSize](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = indexSize,
+            };
+
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
+
+            cmd.CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regions);
+        };
+
+        indexCmd.OnSubmitted = [this] {
+            m_gpuIndexBuffer._ready = true;
+            // f.cpuIndexBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
     }
 
 } // namespace Lina::Graphics
