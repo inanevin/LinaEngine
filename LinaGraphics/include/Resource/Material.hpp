@@ -141,6 +141,7 @@ namespace Lina::Graphics
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
         void              BindPipelineAndDescriptors(CommandBuffer& cmd, RenderPassType rpType);
+        void              CheckUpdatePropertyBuffers();
         void              SetTexture(const String& name, Texture* texture);
         void              SetTexture(uint32 index, Texture* texture);
         uint32            GetPropertyTypeAlignment(MaterialPropertyType type);

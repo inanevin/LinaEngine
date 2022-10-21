@@ -42,10 +42,12 @@ namespace Lina::Graphics
     public:
         void                 Create();
         DescriptorSetLayout& AddBinding(DescriptorSetLayoutBinding binding);
+        DescriptorSetLayout& AddBindingFlag(DescriptorSetLayoutBindingFlags flag);
 
         // Description
-        DescriptorSetCreateFlags           flags = DescriptorSetCreateFlags::None;
-        Vector<DescriptorSetLayoutBinding> bindings;
+        DescriptorSetCreateFlags                flags = DescriptorSetCreateFlags::None;
+        Vector<DescriptorSetLayoutBinding>      bindings;
+        Vector<DescriptorSetLayoutBindingFlags> bindingFlags;
 
         // Runtime
         VkDescriptorSetLayout_T* _ptr = nullptr;

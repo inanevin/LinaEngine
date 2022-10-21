@@ -152,53 +152,84 @@ namespace Lina::Graphics
         m_indexCounter = m_vertexCounter = 0;
     }
 
+    struct PC
+    {
+        int type = 0;
+    };
+
     void GUIBackend::RecordDrawCommands()
     {
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
 
+
+
         for (auto& r : m_orderedDrawRequests)
         {
             if (r.type == LinaVGDrawCategoryType::Default)
             {
                 auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-                mat->SetProperty("type", 0);
                 mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                mat->CheckUpdatePropertyBuffers();
+               // mat->SetProperty("type", 0);
+               // mat->CheckUpdatePropertyBuffers();
+
+                // m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetPipelineStageFlags(PipelineStageFlags::), )
+                // mat->SetProperty("type", 1);
+                // mat->CheckUpdatePropertyBuffers();
+
+                PC pc;
+                pc.type = 0;
+               // m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
             }
             else if (r.type == LinaVGDrawCategoryType::Textured)
             {
-                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
             }
             else if (r.type == LinaVGDrawCategoryType::Gradient)
             {
                 auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-
-                auto& matData = m_gradientMaterialData[r.materialDataIndex];
-                mat->SetProperty("type", 1);
-               // mat->SetProperty("gradientStart", matData.m_color.start);
-               // mat->SetProperty("gradientEnd", matData.m_color.end);
-               // mat->SetProperty("gradientType", static_cast<int>(matData.m_color.gradientType));
-               // mat->SetProperty("radialSize", matData.m_color.radialSize);
-               // mat->SetProperty("isAABuffer", matData.m_isAABuffer);
                 mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                mat->CheckUpdatePropertyBuffers();
+
+                // mat->SetProperty("type", 1);
+                // mat->CheckUpdatePropertyBuffers();
+
+                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+
+                // auto& matData = m_gradientMaterialData[r.materialDataIndex];
+                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                //  mat->SetProperty("type", 0);
+
+                // mat->SetProperty("gradientStart", matData.m_color.start);
+                // mat->SetProperty("gradientEnd", matData.m_color.end);
+                // mat->SetProperty("gradientType", static_cast<int>(matData.m_color.gradientType));
+                // mat->SetProperty("radialSize", matData.m_color.radialSize);
+                // mat->SetProperty("isAABuffer", matData.m_isAABuffer);
+
+                PC pc;
+                pc.type = 1;
+              //  m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
             }
             else if (r.type == LinaVGDrawCategoryType::SDF)
             {
-                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
-                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
+                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
             }
             else if (r.type == LinaVGDrawCategoryType::SimpleText)
             {
-                auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
-                mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
+                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
+                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
             }
 
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
 
         m_orderedDrawRequests.clear();
+        m_defaultMaterialData.clear();
+        m_gradientMaterialData.clear();
     }
 
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)

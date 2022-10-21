@@ -43,12 +43,7 @@ layout (location = 1) out vec2 fUV;
 layout(set = 2, binding = 0) uniform MaterialData
 {
    mat4 projection;
-   vec4 gradientStart;
-   vec4 gradientEnd;
-   float radialSize;
-   int type;  
-   int gradientType;
-   int isAABuffer;
+   int type; 
 } material;
 
 void main()
@@ -72,12 +67,7 @@ layout (location = 0) out vec4 fragColor;
 layout(set = 2, binding = 0) uniform MaterialData
 {
    mat4 projection;
-   vec4 gradientStart;
-   vec4 gradientEnd;
-   float radialSize;
    int type; 
-   int gradientType;
-   int isAABuffer;
 } material;
 
 void main()
@@ -85,32 +75,39 @@ void main()
    vec4 finalColor = fCol;
 
    // Gradient
-   if(material.type == 1)
-   {
-      if(material.gradientType == 0)
-      {
-         vec4 col = mix(material.gradientStart, material.gradientEnd, fUV.x);
-         finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
-      }
-      else if(material.gradientType == 1)
-      {
-         vec4 col = mix(material.gradientStart, material.gradientEnd, fUV.y);
-         finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
-      }
-      else if(material.gradientType == 2)
-      {
-         vec2 uv = fUV - vec2(0.5, 0.5);
-         float dist = length(uv * material.radialSize);
-         vec4 col = mix(material.gradientStart, material.gradientEnd, dist);
-         finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
-      }
-      else if(material.gradientType == 3)
-      {
-         float dist = length(fUV * material.radialSize);
-         vec4 col = mix(material.gradientStart, material.gradientEnd, dist);
-         finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a); 
-      }
-   }
+ // if(material.type == 1)
+ // {
+ //    if(material.gradientType == 0)
+ //    {
+ //       vec4 col = mix(material.gradientStart, material.gradientEnd, fUV.x);
+ //       finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
+ //    }
+ //    else if(material.gradientType == 1)
+ //    {
+ //       vec4 col = mix(material.gradientStart, material.gradientEnd, fUV.y);
+ //       finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
+ //    }
+ //    else if(material.gradientType == 2)
+ //    {
+ //       vec2 uv = fUV - vec2(0.5, 0.5);
+ //       float dist = length(uv * material.radialSize);
+ //       vec4 col = mix(material.gradientStart, material.gradientEnd, dist);
+ //       finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a);
+ //    }
+ //    else if(material.gradientType == 3)
+ //    {
+ //       float dist = length(fUV * material.radialSize);
+ //       vec4 col = mix(material.gradientStart, material.gradientEnd, dist);
+ //       finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a); 
+ //    }
+ // }
+
+ //if(PushConstants.type == 0)
+ //{
+ //  fragColor = vec4(1,0,0,1);
+ //}
+ //else
+ //  fragColor = vec4(0,0,1,1);
 
     fragColor = finalColor;
 }

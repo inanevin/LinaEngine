@@ -258,6 +258,11 @@ namespace Lina::Graphics
         m_renderPasses[RenderPassType::PostProcess].Destroy();
         m_renderPasses[RenderPassType::Final].Destroy();
 
+        m_gpuIndexBuffer.Destroy();
+        m_gpuVtxBuffer.Destroy();
+        m_cpuIndexBuffer.Destroy();
+        m_cpuVtxBuffer.Destroy();
+
         m_depthImage.Destroy();
 
         for (int i = 0; i < m_framebuffers.size(); i++)
@@ -390,6 +395,7 @@ namespace Lina::Graphics
         postPass.Begin(*postPass._framebuffer, cmd);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         ppMat->BindPipelineAndDescriptors(cmd, RenderPassType::PostProcess);
+
         cmd.CMD_Draw(3, 1, 0, 0);
         postPass.End(cmd);
 
@@ -456,7 +462,9 @@ namespace Lina::Graphics
         auto& mainPass     = m_renderPasses[RenderPassType::Main];
         auto& ppPass       = m_renderPasses[RenderPassType::PostProcess];
         finalQuadMat->SetTexture(0, ppPass._colorTexture);
+        finalQuadMat->CheckUpdatePropertyBuffers();
         ppMat->SetTexture(0, mainPass._colorTexture);
+        ppMat->CheckUpdatePropertyBuffers();
     }
 
     void Renderer::OnWindowResized(const Event::EWindowResized& newSize)

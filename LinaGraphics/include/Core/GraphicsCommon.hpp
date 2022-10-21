@@ -508,6 +508,16 @@ namespace Lina::Graphics
 
     VulkanResult GetResult(int32 result);
 
+    enum class DescriptorSetLayoutBindingFlags
+    {
+        None,
+        UpdateAfterBind,
+        UpdateUnusedWhilePending,
+        PartiallyBound
+    };
+
+    uint32 GetDescriptorLayoutBindingFlags(DescriptorSetLayoutBindingFlags flags);
+
     enum class SurfaceType
     {
         Opaque,

@@ -123,9 +123,9 @@ namespace Lina::Graphics
 
         m_descriptorPool = DescriptorPool{
             .maxSets = 10,
-            .flags   = DescriptorPoolCreateFlags::None,
+            .flags   = DescriptorPoolCreateFlags::UpdateAfterBind,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 2).AddPoolSize(DescriptorType::CombinedImageSampler, 2).Create(false);
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 2).AddPoolSize(DescriptorType::UniformBufferDynamic, 2).AddPoolSize(DescriptorType::CombinedImageSampler, 2).Create(false);
 
         if (!m_shader.value->GetMaterialSetLayout().bindings.empty())
         {
@@ -274,10 +274,14 @@ namespace Lina::Graphics
         auto& renderer = RenderEngine::Get()->GetRenderer();
         auto& pipeline = m_shader.value->GetPipeline(rpType);
         pipeline.Bind(cmd, PipelineBindPoint::Graphics);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
+    }
 
+    void Material::CheckUpdatePropertyBuffers()
+    {
         if (m_totalPropertySize != 0 || !m_textures.empty())
         {
-            if (m_totalPropertySize != 0 && m_propertiesDirty)
+            if (m_propertiesDirty)
             {
                 uint8* data = new uint8[m_totalAlignedSize];
 
@@ -306,10 +310,10 @@ namespace Lina::Graphics
                     offset += typeSize;
                 }
 
-
                 // Update buffer.
                 m_dataBuffer.CopyInto(data, m_totalAlignedSize);
                 m_propertiesDirty = false;
+                delete data;
             }
 
             if (!m_runtimeDirtyTextures.empty())
@@ -328,8 +332,6 @@ namespace Lina::Graphics
 
                 m_runtimeDirtyTextures.clear();
             }
-
-            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, &m_descriptor, 0, nullptr);
         }
     }
 

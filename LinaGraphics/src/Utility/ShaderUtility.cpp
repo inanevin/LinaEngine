@@ -35,7 +35,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     Vector<Pair<String, size_t>> DataTypes = {
-        {"vec2", sizeof(float) * 2}, {"vec3", sizeof(float) * 3}, {"vec4", sizeof(float) * 4}, {"float", sizeof(float)}, {"double", sizeof(double)}, {"int", sizeof(int)}, {"mat4", sizeof(Matrix)},
+        {"vec2", 8},  {"vec4", 16}, {"float", 4}, {"double", 4}, {"int", 4}, {"mat4", 64},
     };
 
     String ShaderUtility::GetShaderStageText(const String& shader, const String& defineStart)
@@ -71,7 +71,7 @@ namespace Lina::Graphics
         std::string               line      = "";
         bool                      parsingPC = false;
         PushConstantRange         lastRange = PushConstantRange{
-                    .stageFlags = GetShaderStage(ShaderStage::Vertex),
+                    .stageFlags = GetShaderStage(stage),
         };
 
         while (std::getline(f, line))

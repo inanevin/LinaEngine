@@ -46,24 +46,43 @@ namespace Lina::Graphics
 
         VkDescriptorSetLayoutCreateInfo setinfo = VkDescriptorSetLayoutCreateInfo{
             .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext        = nullptr,
             .flags        = GetDescriptorSetCreateFlags(flags),
             .bindingCount = static_cast<uint32>(_bindings.size()),
             .pBindings    = _bindings.data(),
         };
 
+        Vector<VkDescriptorBindingFlags> _bindingFlags;
+
+        for (auto& b : bindingFlags)
+            _bindingFlags.push_back(GetDescriptorLayoutBindingFlags(b));
+
+        VkDescriptorSetLayoutBindingFlagsCreateInfo bf = VkDescriptorSetLayoutBindingFlagsCreateInfo{
+            .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
+            .pNext         = nullptr,
+            .bindingCount  = static_cast<uint32>(_bindingFlags.size()),
+            .pBindingFlags = _bindingFlags.data(),
+        };
+
+        if (!bindingFlags.empty())
+            setinfo.pNext = &bf;
+        else
+            setinfo.pNext = nullptr;
+
         VkResult res = vkCreateDescriptorSetLayout(Backend::Get()->GetDevice(), &setinfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Set Layout] -> Could not create layout!");
 
         VkDescriptorSetLayout_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyDescriptorSetLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
+        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyDescriptorSetLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
 
     DescriptorSetLayout& DescriptorSetLayout::AddBinding(DescriptorSetLayoutBinding binding)
     {
         bindings.push_back(binding);
+        return *this;
+    }
+    DescriptorSetLayout& DescriptorSetLayout::AddBindingFlag(DescriptorSetLayoutBindingFlags flag)
+    {
+        bindingFlags.push_back(flag);
         return *this;
     }
 } // namespace Lina::Graphics

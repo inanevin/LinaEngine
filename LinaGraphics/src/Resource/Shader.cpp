@@ -377,8 +377,9 @@ namespace Lina::Graphics
         }
 
         for (auto& b : bindings)
-            m_materialLayout.AddBinding(b.second);
+            m_materialLayout.AddBinding(b.second).AddBindingFlag(DescriptorSetLayoutBindingFlags::UpdateAfterBind);
 
+        m_materialLayout.flags = DescriptorSetCreateFlags::UpdateAfterBind;
         m_materialLayout.Create();
 
         m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));

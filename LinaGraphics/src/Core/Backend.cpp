@@ -159,6 +159,7 @@ namespace Lina::Graphics
         features.multiDrawIndirect         = true;
         features.drawIndirectFirstInstance = true;
         features.samplerAnisotropy         = true;
+
         // features.fillModeNonSolid = true;
 
         vkb::PhysicalDeviceSelector selector{inst};
@@ -177,7 +178,17 @@ namespace Lina::Graphics
             .pNext                = nullptr,
             .shaderDrawParameters = VK_TRUE,
         };
+
+        // For using UPDATE_AFTER_BIND_BIT on material bindings
+        VkPhysicalDeviceDescriptorIndexingFeatures descFeatures = VkPhysicalDeviceDescriptorIndexingFeatures{
+            .sType                                         = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
+            .pNext                                         = nullptr,
+            .descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE,
+            .descriptorBindingSampledImageUpdateAfterBind  = VK_TRUE,
+        };
+
         deviceBuilder.add_pNext(&shaderDrawParamsFeature);
+        deviceBuilder.add_pNext(&descFeatures);
 
         bool hasDedicatedTransferQueue = physicalDevice.has_dedicated_transfer_queue();
         bool hasDedicatedComputeQueue  = physicalDevice.has_dedicated_compute_queue();

@@ -742,4 +742,21 @@ namespace Lina::Graphics
             return VulkanResult::Error;
         }
     }
+
+    uint32 GetDescriptorLayoutBindingFlags(DescriptorSetLayoutBindingFlags flags)
+    {
+        switch (flags)
+        {
+        case DescriptorSetLayoutBindingFlags::None:
+            return 0;
+        case DescriptorSetLayoutBindingFlags::UpdateAfterBind:
+            return VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        case DescriptorSetLayoutBindingFlags::UpdateUnusedWhilePending:
+            return VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
+        case DescriptorSetLayoutBindingFlags::PartiallyBound:
+            return VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT;
+        default:
+            return VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        }
+    }
 } // namespace Lina::Graphics
