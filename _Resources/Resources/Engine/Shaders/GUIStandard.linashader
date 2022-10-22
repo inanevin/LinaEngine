@@ -119,6 +119,7 @@ void main()
    }
    else if(material.type == 2)
    {
+      // Textured
       vec4 col = texture(diffuse, fUV * material.tiling + material.offset);
       finalColor = vec4(col.rgb, material.isAABuffer == 1 ? fCol.a : col.a); 
    }

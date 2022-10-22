@@ -26,6 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#LINA_RP_FINAL
+#LINA_PIPELINE_GUI
+
 #LINA_VS
 
 #version 460
@@ -33,15 +36,27 @@ SOFTWARE.
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 uv;
 layout (location = 2) in vec4 col;
-uniform mat4 proj; 
-out vec4 fCol;
-out vec2 fUV;
+
+layout (location = 0) out vec4 fCol;
+layout (location = 1) out vec2 fUV;
+
+layout(set = 2, binding = 0) uniform MaterialData
+{
+   mat4 projection;
+   vec4 outlineColor;
+   float outlineThickness;
+   float softness;
+   float thickness;
+   int flipAlpha;
+   int outlineEnabled;
+   int textType;
+} material;
 
 void main()
 {
    fCol = col;
    fUV = uv;
-   gl_Position = proj * vec4(pos.x, pos.y, 0.0f, 1.0);
+   gl_Position = material.projection * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
 #LINA_END
@@ -49,16 +64,51 @@ void main()
 #LINA_FS
 
 #version 460
-out vec4 fragColor;
-in vec2 fUV;
-in vec4 fCol;
-uniform sampler2D diffuse;
+
+layout (location = 0) in vec4 fCol;
+layout (location = 1) in vec2 fUV;
+
+layout (location = 0) out vec4 fragColor;
+
+layout(set = 2, binding = 0) uniform MaterialData
+{
+   mat4 projection;
+   vec4 outlineColor;
+   float outlineThickness;
+   float softness;
+   float thickness;
+   int flipAlpha;
+   int outlineEnabled;
+   int textType;
+} material;
+
+layout(set = 2, binding = 1) uniform sampler2D diffuse;
 
 void main()
 {
-   float a = texture(diffuse, fUV).r; 
-   fragColor = vec4(fCol.rgb, a * fCol.a); 
-}
+   vec4 finalColor = fCol;
 
+   // Simple text
+   if(material.textType == 0)
+   {
+      float a = texture(diffuse, fUV).r;
+      finalColor = vec4(fCol.rgb, a * fCol.a);
+   }
+   else if(material.textType == 1)
+   {
+      // SDF text
+      float d = texture(diffuse, fUV).r;
+      float alpha = smoothstep(material.thickness - material.softness, material.thickness + material.softness, d);
+      vec3 baseColor = fCol.rgb;
+      if(material.outlineEnabled == 1)
+      {
+         float border = smoothstep(material.thickness + material.outlineThickness - material.softness, material.thickness + material.outlineThickness + material.softness, d);
+         baseColor = mix(material.outlineColor, fCol, border).rgb;
+      }
+      finalColor = vec4(baseColor, material.flipAlpha == 1 ? 1.0f - alpha : alpha);
+   }
+
+   fragColor = finalColor;
+}
 
 #LINA_END

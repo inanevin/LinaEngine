@@ -164,8 +164,9 @@ namespace Lina::Graphics
         m_gpuImage.Create(true, false);
         m_sampler.Create(false);
 
+        Offset3D off = Offset3D{.x = 0, .y = 0, .z = 0};
         // Upload data
-        WriteToGPUImage(0, pixels, bufferSize, Offset3D{}, m_extent, true);
+        WriteToGPUImage(0, pixels, bufferSize, off, m_extent, true);
     }
 
     void Texture::CreateFromRuntime(Image img, Sampler sampler)
@@ -182,7 +183,7 @@ namespace Lina::Graphics
             m_cpuBuffer.CopyIntoPadded(data, dataSize, cpuBufferOffset);
 
         Command cmd;
-        cmd.Record = [this, &copyExtent, &gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
+        cmd.Record = [this, copyExtent, gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
             ImageSubresourceRange range = ImageSubresourceRange{
                 .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
                 .baseMipLevel   = 0,

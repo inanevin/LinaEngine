@@ -158,10 +158,11 @@ namespace Lina
             auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
             mat->SaveToFile();
         }
-        //
-        // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess);
-        // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));
+        
+        // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText);
+        // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
         // mat->SaveToFile();
+        // int xd = 5;
     }
 
     void Engine::Run()

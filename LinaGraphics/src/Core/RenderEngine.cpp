@@ -46,7 +46,6 @@ SOFTWARE.
 #include "Platform/Win32/Win32Window.hpp"
 #endif
 
-
 namespace Lina::Graphics
 {
     RenderEngine* RenderEngine::s_instance = nullptr;
@@ -150,6 +149,7 @@ namespace Lina::Graphics
         // Engine materials
         m_engineShaderNames[EngineShaderType::LitStandard]   = "LitStandard";
         m_engineShaderNames[EngineShaderType::GUIStandard]   = "GUIStandard";
+        m_engineShaderNames[EngineShaderType::GUIText]       = "GUIText";
         m_engineShaderNames[EngineShaderType::SQFinal]       = "ScreenQuads/SQFinal";
         m_engineShaderNames[EngineShaderType::SQPostProcess] = "ScreenQuads/SQPostProcess";
 

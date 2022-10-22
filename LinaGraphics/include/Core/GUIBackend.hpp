@@ -66,14 +66,22 @@ namespace Lina::Graphics
             SDF
         };
 
+        struct OrderedDrawRequestMeta
+        {
+            uint32 clipX = 0;
+            uint32 clipY = 0;
+            uint32 clipW = 0;
+            uint32 clipH = 0;
+        };
+
         struct OrderedDrawRequest
         {
-            uint32                 vertexOffset      = 0;
-            uint32                 firstIndex        = 0;
-            uint32                 indexSize         = 0;
-            uint32                 materialDataIndex = 0;
-            LinaVGDrawCategoryType type              = LinaVGDrawCategoryType::Default;
-            Material*              transientMat      = nullptr;
+            uint32                 vertexOffset = 0;
+            uint32                 firstIndex   = 0;
+            uint32                 indexSize    = 0;
+            Material*              transientMat = nullptr;
+            LinaVGDrawCategoryType type         = LinaVGDrawCategoryType::Default;
+            OrderedDrawRequestMeta meta;
         };
 
     public:
@@ -107,24 +115,18 @@ namespace Lina::Graphics
             m_cmd = cmd;
         }
 
-        void UpdateProjection();
-        void RecordDrawCommands();
-        void SyncData();
-        void UploadFontTexture(uint32 handle);
-        void RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset, int32 offsetX, int32 offsetY);
+        void      UpdateProjection();
+        void      RecordDrawCommands();
+        void      UploadFontTexture(uint32 handle);
+        Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
     private:
         Buffer m_gpuVtxBuffer;
         Buffer m_gpuIndexBuffer;
 
-        Vector<OrderedDrawRequest>           m_orderedDrawRequests;
-        Vector<LinaVG::DrawBuffer>           m_defaultMaterialData;
-        Vector<LinaVG::TextureDrawBuffer>    m_texturedMaterialData;
-        Vector<LinaVG::GradientDrawBuffer>   m_gradientMaterialData;
-        Vector<LinaVG::SimpleTextDrawBuffer> m_textMaterialData;
-        Vector<LinaVG::SDFTextDrawBuffer>    m_sdfTexttMaterialData;
-        Vector<LinaVG::Vertex>               m_copyVertices;
-        Vector<LinaVG::Index>                m_copyIndices;
+        Vector<OrderedDrawRequest> m_orderedDrawRequests;
+        Vector<LinaVG::Vertex>     m_copyVertices;
+        Vector<LinaVG::Index>      m_copyIndices;
 
         HashMap<uint32, Vector<Material*>> m_transientMaterials;
         Matrix                             m_projection    = Matrix::Identity();
@@ -133,6 +135,8 @@ namespace Lina::Graphics
         CommandBuffer*                     m_cmd           = nullptr;
         static GUIBackend*                 s_instance;
         Material*                          m_guiStandard = nullptr;
+        Material*                          m_guiText     = nullptr;
+        Material*                          m_lastBound   = nullptr;
         HashMap<uint32, Texture*>          m_fontTextures;
         uint32                             m_bufferingFontTexture = 0;
     };

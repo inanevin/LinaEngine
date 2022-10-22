@@ -87,7 +87,10 @@ namespace Lina::Graphics
     void GUIBackend::StartFrame()
     {
         if (m_guiStandard == nullptr)
+        {
             m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+            m_guiText     = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
+        }
 
         const uint32 frame = (RenderEngine::Get()->GetRenderer().GetFrameIndex());
 
@@ -99,112 +102,83 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
     {
-        OrderedDrawRequest request;
-        request.firstIndex        = m_indexCounter;
-        request.vertexOffset      = m_vertexCounter;
-        request.type              = LinaVGDrawCategoryType::Gradient;
-        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
-        request.materialDataIndex = static_cast<uint32>(m_gradientMaterialData.size());
-
-        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-        request.transientMat = new Material();
-        request.transientMat->CreateBuffer();
-        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
-        request.transientMat->SetProperty("projection", m_projection);
-        request.transientMat->SetProperty("type", 1);
-        request.transientMat->SetProperty("gradientStart", buf->m_color.start);
-        request.transientMat->SetProperty("gradientEnd", buf->m_color.end);
-        request.transientMat->SetProperty("gradientType", static_cast<int>(buf->m_color.gradientType));
-        request.transientMat->SetProperty("radialSize", buf->m_color.radialSize);
-        request.transientMat->SetProperty("isAABuffer", buf->m_isAABuffer);
-        request.transientMat->CheckUpdatePropertyBuffers();
-
-        m_transientMaterials[frame].push_back(request.transientMat);
-
-        LinaVG::GradientDrawBuffer b;
-        b.clipPosX     = buf->clipPosX;
-        b.clipPosY     = buf->clipPosY;
-        b.clipSizeX    = buf->clipSizeX;
-        b.clipSizeY    = buf->clipSizeY;
-        b.m_isAABuffer = buf->m_isAABuffer;
-        b.m_color      = buf->m_color;
-        m_gradientMaterialData.push_back(b);
-
-        for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
-            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
-
-        for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
-            m_copyIndices.push_back(buf->m_indexBuffer[i]);
-
-        m_orderedDrawRequests.push_back(request);
-        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
-        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Gradient);
+        mat->SetShader(m_guiStandard->GetShaderHandle().value);
+        mat->SetProperty("projection", m_projection);
+        mat->SetProperty("type", 1);
+        mat->SetProperty("gradientStart", buf->m_color.start);
+        mat->SetProperty("gradientEnd", buf->m_color.end);
+        mat->SetProperty("gradientType", static_cast<int>(buf->m_color.gradientType));
+        mat->SetProperty("radialSize", buf->m_color.radialSize);
+        mat->SetProperty("isAABuffer", buf->m_isAABuffer);
+        mat->CheckUpdatePropertyBuffers();
     }
 
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
     {
-        OrderedDrawRequest request;
-        request.firstIndex        = m_indexCounter;
-        request.vertexOffset      = m_vertexCounter;
-        request.type              = LinaVGDrawCategoryType::Default;
-        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
-        request.materialDataIndex = static_cast<uint32>(m_defaultMaterialData.size());
-
-        Texture*     txt     = Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
-        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-        request.transientMat = new Material();
-        request.transientMat->CreateBuffer();
-        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
-        request.transientMat->SetProperty("projection", m_projection);
-        request.transientMat->SetProperty("type", 2);
-        request.transientMat->SetProperty("tiling", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));
-        request.transientMat->SetProperty("offset", Vector2(buf->m_textureUVOffset.x, buf->m_textureUVOffset.y));
-        request.transientMat->SetTexture("diffuse", m_fontTextures[0]);
-        request.transientMat->CheckUpdatePropertyBuffers();
-        m_transientMaterials[frame].push_back(request.transientMat);
-
-        LinaVG::DrawBuffer b;
-        b.clipPosX  = buf->clipPosX;
-        b.clipPosY  = buf->clipPosY;
-        b.clipSizeX = buf->clipSizeX;
-        b.clipSizeY = buf->clipSizeY;
-        m_defaultMaterialData.push_back(b);
-
-        for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
-            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
-
-        for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
-            m_copyIndices.push_back(buf->m_indexBuffer[i]);
-
-        m_orderedDrawRequests.push_back(request);
-        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
-        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Textured);
+        Texture*  txt = Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
+        mat->SetShader(m_guiStandard->GetShaderHandle().value);
+        mat->SetProperty("projection", m_projection);
+        mat->SetProperty("type", 2);
+        mat->SetProperty("tiling", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));
+        mat->SetProperty("offset", Vector2(buf->m_textureUVOffset.x, buf->m_textureUVOffset.y));
+        mat->SetTexture("diffuse", txt);
+        mat->CheckUpdatePropertyBuffers();
     }
 
     void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf)
     {
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Default);
+        mat->SetShader(m_guiStandard->GetShaderHandle().value);
+        mat->SetProperty("projection", m_projection);
+        mat->SetProperty("type", 0);
+        mat->CheckUpdatePropertyBuffers();
+    }
+
+    void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
+    {
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SimpleText);
+        mat->SetShader(m_guiText->GetShaderHandle().value);
+        mat->SetProperty("projection", m_projection);
+        mat->SetProperty("textType", 0);
+        mat->SetTexture("diffuse", m_fontTextures[buf->m_textureHandle]);
+        mat->CheckUpdatePropertyBuffers();
+    }
+
+    void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
+    {
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SimpleText);
+        mat->SetShader(m_guiText->GetShaderHandle().value);
+        mat->SetProperty("projection", m_projection);
+        mat->SetProperty("textType", 1);
+        mat->SetProperty("outlineColor", buf->m_outlineColor);
+        mat->SetProperty("outlineThickness", buf->m_outlineThickness);
+        mat->SetProperty("softness", buf->m_softness);
+        mat->SetProperty("thickness", buf->m_thickness);
+        mat->SetProperty("flipAlpha", buf->m_flipAlpha);
+        mat->SetProperty("outlineEnabled", buf->m_outlineThickness != 0.0f ? 1 : 0);
+        mat->SetTexture("diffuse", m_fontTextures[buf->m_textureHandle]);
+        mat->CheckUpdatePropertyBuffers();
+    }
+
+    Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
+    {
         OrderedDrawRequest request;
-        request.firstIndex        = m_indexCounter;
-        request.vertexOffset      = m_vertexCounter;
-        request.type              = LinaVGDrawCategoryType::Default;
-        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
-        request.materialDataIndex = static_cast<uint32>(m_defaultMaterialData.size());
+        request.firstIndex   = m_indexCounter;
+        request.vertexOffset = m_vertexCounter;
+        request.type         = type;
+        request.indexSize    = static_cast<uint32>(buf->m_indexBuffer.m_size);
+        request.meta.clipX   = buf->clipPosX;
+        request.meta.clipY   = buf->clipPosY;
+        request.meta.clipW   = buf->clipSizeX;
+        request.meta.clipH   = buf->clipSizeY;
 
         const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
         request.transientMat = new Material();
         request.transientMat->CreateBuffer();
-        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
-        request.transientMat->SetProperty("projection", m_projection);
-        request.transientMat->SetProperty("type", 0);
-        request.transientMat->CheckUpdatePropertyBuffers();
         m_transientMaterials[frame].push_back(request.transientMat);
-
-        LinaVG::DrawBuffer b;
-        b.clipPosX  = buf->clipPosX;
-        b.clipPosY  = buf->clipPosY;
-        b.clipSizeX = buf->clipSizeX;
-        b.clipSizeY = buf->clipSizeY;
-        m_defaultMaterialData.push_back(b);
+        m_orderedDrawRequests.push_back(request);
 
         for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
             m_copyVertices.push_back(buf->m_vertexBuffer[i]);
@@ -212,16 +186,10 @@ namespace Lina::Graphics
         for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
             m_copyIndices.push_back(buf->m_indexBuffer[i]);
 
-        m_orderedDrawRequests.push_back(request);
         m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
-    }
 
-    void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
-    {
-    }
-    void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
-    {
+        return request.transientMat;
     }
 
     void GUIBackend::EndFrame()
@@ -243,37 +211,33 @@ namespace Lina::Graphics
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
-        m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
+
+        m_lastBound = nullptr;
 
         for (auto& r : m_orderedDrawRequests)
         {
-            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
+            if (r.type == LinaVGDrawCategoryType::SimpleText || r.type == LinaVGDrawCategoryType::SDF)
+            {
+                if (m_lastBound != m_guiText)
+                {
+                    m_guiText->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
+                    m_lastBound = m_guiText;
+                }
+            }
+            else
+            {
+                if (m_lastBound != m_guiStandard)
+                {
+                    m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
+                    m_lastBound = m_guiStandard;
+                }
+            }
 
+            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
 
         m_orderedDrawRequests.clear();
-        m_defaultMaterialData.clear();
-        m_gradientMaterialData.clear();
-    }
-
-    void GUIBackend::SyncData()
-    {
-    }
-
-    size_t                        bufSize = 0;
-    Vector<Vector<unsigned char>> pixels;
-
-    uint32 previousEnd  = 0;
-    uint32 previousEndX = 0;
-    uint32 previousEndY = 0;
-    uint32 prevSize     = 0;
-
-    Vector<Command> cmds;
-    static uint32   biggest = 0;
-
-    void GUIBackend::RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset, int32 offsetX, int32 offsetY)
-    {
     }
 
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
@@ -299,7 +263,6 @@ namespace Lina::Graphics
 
     void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
     {
-        m_bufferingFontTexture = texture;
     }
 
     void GUIBackend::SaveAPIState()
@@ -319,14 +282,8 @@ namespace Lina::Graphics
         };
 
         const uint32 bufferSize = ext.width * ext.height;
-        bufSize                 = bufferSize;
-        pixels.resize(ext.height);
-
-        for (auto& p : pixels)
-            p.resize(ext.width);
-
-        Texture* txt  = new Texture();
-        txt->m_extent = ext;
+        Texture*     txt        = new Texture();
+        txt->m_extent           = ext;
 
         // Cpu buf
         txt->m_cpuBuffer = Buffer{
@@ -367,8 +324,10 @@ namespace Lina::Graphics
         };
         txt->m_sampler.Create(false);
 
-        const uint32 handle    = static_cast<uint32>(m_fontTextures.size());
+        // Skipping 0 index
+        const uint32 handle    = static_cast<uint32>(m_fontTextures.size() + 1);
         m_fontTextures[handle] = txt;
+        m_bufferingFontTexture = handle;
         return handle;
     }
 
@@ -406,10 +365,6 @@ namespace Lina::Graphics
         m_projection[3][1] = (T + B) / (B - T);
         m_projection[3][2] = 0.0f;
         m_projection[3][3] = 1.0f;
-
-        // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-        // mat->SetProperty("projection", projectionMatrix);
-        // mat->CheckUpdatePropertyBuffers();
     }
 
 } // namespace Lina::Graphics
