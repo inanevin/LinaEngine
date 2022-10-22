@@ -39,39 +39,59 @@ namespace Lina::Graphics
 {
     GUIBackend* GUIBackend::s_instance = nullptr;
 
+#define BUFFER_LIMIT        64000
+#define MATERIAL_POOL_COUNT 30
+
     bool GUIBackend::Initialize()
     {
         s_instance = this;
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
+        return true;
+    }
 
-        const size_t vtxSize   = sizeof(LinaVG::Vertex) * 10000;
-        const size_t indexSize = sizeof(LinaVG::Index) * 4000;
+    void GUIBackend::CreateBufferCapsule()
+    {
 
-        m_gpuVtxBuffer = Buffer{
-            .size        = vtxSize,
+        m_bufferCapsules.push_back(BufferCapsule());
+        auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
+
+        caps.gpuVtxBuffer = Buffer{
+            .size        = BUFFER_LIMIT,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
-        m_gpuVtxBuffer.Create();
+        caps.gpuVtxBuffer.Create();
 
-        m_gpuIndexBuffer = Buffer{
-            .size        = indexSize,
+        caps.gpuIndexBuffer = Buffer{
+            .size        = BUFFER_LIMIT,
             .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
             .memoryUsage = MemoryUsageFlags::GpuOnly,
         };
-        m_gpuIndexBuffer.Create();
+        caps.gpuIndexBuffer.Create();
+    }
 
-        return true;
+    void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
+    {
+        if (m_guiStandard == nullptr)
+            m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
+
+        for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            auto& pool = m_materialPools[i];
+            pool.materials.resize(MATERIAL_POOL_COUNT, Material());
+            pool.index = 0;
+
+            for (auto& m : pool.materials)
+            {
+                m.CreateBuffer();
+                m.SetShader(m_guiStandard->GetShaderHandle().value);
+            }
+        }
     }
 
     void GUIBackend::Terminate()
     {
-        for (auto& pair : m_transientMaterials)
-        {
-            for (auto& m : pair.second)
-                delete m;
-
-            pair.second.clear();
-        }
+        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
 
         for (auto& t : m_fontTextures)
         {
@@ -79,37 +99,19 @@ namespace Lina::Graphics
             delete t.second;
         }
 
-        m_cpuCopyIndices.clear();
-        m_gpuCopyIndices.clear();
-        m_cpuCopyVertices.clear();
-        m_gpuCopyVertices.clear();
-        m_transientMaterials.clear();
-        m_gpuVtxBuffer.Destroy();
-        m_gpuIndexBuffer.Destroy();
+        for (auto& b : m_bufferCapsules)
+        {
+            b.copyIndices.clear();
+            b.copyVertices.clear();
+            b.gpuVtxBuffer.Destroy();
+            b.gpuIndexBuffer.Destroy();
+        }
     }
 
-    void GUIBackend::SyncData()
-    {
-        for (auto& v : m_cpuCopyVertices)
-            m_gpuCopyVertices.push_back(v);
-
-        for (auto& v : m_cpuCopyIndices)
-            m_gpuCopyIndices.push_back(v);
-
-        m_cpuCopyIndices.clear();
-        m_cpuCopyVertices.clear();
-    }
     void GUIBackend::StartFrame()
     {
-        if (m_guiStandard == nullptr)
-            m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-
-        const uint32 frame = (RenderEngine::Get()->GetRenderer().GetFrameIndex());
-
-        for (auto& m : m_transientMaterials[frame])
-            delete m;
-
-        m_transientMaterials[frame].clear();
+        const uint32 frame           = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        m_materialPools[frame].index = 0;
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
@@ -152,12 +154,15 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
     {
-        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SDF);
+        Material*   mat              = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SDF);
+        const float thickness        = 1.0f - Math::Clamp(buf->m_thickness, 0.0f, 1.0f);
+        const float softness         = Math::Clamp(buf->m_softness, 0.0f, 10.0f) * 0.1f;
+        const float outlineThickness = Math::Clamp(buf->m_outlineThickness, 0.0f, 1.0f);
         mat->SetProperty("intvar1", 4);
         mat->SetProperty("color1", buf->m_outlineColor);
-        mat->SetProperty("floatvar3", buf->m_outlineThickness);
-        mat->SetProperty("floatvar2", buf->m_softness);
-        mat->SetProperty("floatvar1", buf->m_thickness);
+        mat->SetProperty("floatvar3", outlineThickness);
+        mat->SetProperty("floatvar2", softness);
+        mat->SetProperty("floatvar1", thickness);
         mat->SetProperty("intvar3", buf->m_flipAlpha);
         mat->SetProperty("intvar2", buf->m_outlineThickness != 0.0f ? 1 : 0);
         mat->SetTexture("diffuse", m_fontTextures[buf->m_textureHandle]);
@@ -166,9 +171,32 @@ namespace Lina::Graphics
 
     Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
     {
+        int32 capsuleIndex = -1;
+
+        for (int32 i = 0; i < m_bufferCapsules.size(); i++)
+        {
+            const auto& b = m_bufferCapsules[i];
+            if ((b.copyVertices.size() + buf->m_vertexBuffer.m_size) * sizeof(LinaVG::Vertex) > BUFFER_LIMIT)
+                continue;
+
+            if ((b.copyIndices.size() + buf->m_indexBuffer.m_size) * sizeof(uint32) > BUFFER_LIMIT)
+                continue;
+
+            capsuleIndex = i;
+            break;
+        }
+
+        if (capsuleIndex == -1)
+        {
+            CreateBufferCapsule();
+            capsuleIndex = m_bufferCapsules.size() - 1;
+        }
+
+        auto& targetCapsule = m_bufferCapsules[capsuleIndex];
+
         OrderedDrawRequest request;
-        request.firstIndex   = m_indexCounter;
-        request.vertexOffset = m_vertexCounter;
+        request.firstIndex   = targetCapsule.indexCounter;
+        request.vertexOffset = targetCapsule.vertexCounter;
         request.type         = type;
         request.indexSize    = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.meta.clipX   = buf->clipPosX;
@@ -176,60 +204,80 @@ namespace Lina::Graphics
         request.meta.clipW   = buf->clipSizeX;
         request.meta.clipH   = buf->clipSizeY;
 
-        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-        request.transientMat = new Material();
-        request.transientMat->CreateBuffer();
-        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
+        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        auto&        pool  = m_materialPools[frame];
+
+        uint32 matId = pool.index;
+
+        if (matId >= pool.materials.size())
+        {
+            LINA_ASSERT(false, "[GUI Backend] -> Insufficient material pool size!");
+        }
+        else
+            pool.index++;
+
+        request.transientMat = &pool.materials[matId];
         request.transientMat->SetProperty("projection", m_projection);
 
-        m_transientMaterials[frame].push_back(request.transientMat);
-        m_orderedDrawRequests.push_back(request);
+        targetCapsule.orderedDrawRequests.push_back(request);
+        PROFILER_SCOPE_START("Copy", PROFILER_THREAD_RENDER);
 
-        for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
-            m_cpuCopyVertices.push_back(buf->m_vertexBuffer[i]);
+        targetCapsule.copyVertices.insert(targetCapsule.copyVertices.end(), buf->m_vertexBuffer.begin(), buf->m_vertexBuffer.end());
+        targetCapsule.copyIndices.insert(targetCapsule.copyIndices.end(), buf->m_indexBuffer.begin(), buf->m_indexBuffer.end());
 
-        for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
-            m_cpuCopyIndices.push_back(buf->m_indexBuffer[i]);
+        PROFILER_SCOPE_END("Copy", PROFILER_THREAD_RENDER);
 
-        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
-        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+        targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
+        targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 
         return request.transientMat;
     }
 
     void GUIBackend::EndFrame()
     {
-        if (!m_gpuCopyVertices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuVtxBuffer._ptr, 0, m_gpuCopyVertices.size() * sizeof(LinaVG::Vertex), m_gpuCopyVertices.data());
+        for (auto& b : m_bufferCapsules)
+        {
+            if (!b.copyVertices.empty())
+                vkCmdUpdateBuffer(m_cmd->_ptr, b.gpuVtxBuffer._ptr, 0, b.copyVertices.size() * sizeof(LinaVG::Vertex), b.copyVertices.data());
 
-        if (!m_gpuCopyIndices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuIndexBuffer._ptr, 0, m_gpuCopyIndices.size() * sizeof(LinaVG::Index), m_gpuCopyIndices.data());
+            if (!b.copyIndices.empty())
+                vkCmdUpdateBuffer(m_cmd->_ptr, b.gpuIndexBuffer._ptr, 0, b.copyIndices.size() * sizeof(LinaVG::Index), b.copyIndices.data());
 
-        m_gpuCopyVertices.clear();
-        m_gpuCopyIndices.clear();
-
-        m_indexCounter = m_vertexCounter = 0;
+            b.copyVertices.clear();
+            b.copyIndices.clear();
+            b.indexCounter = b.vertexCounter = 0;
+        }
     }
 
     void GUIBackend::RecordDrawCommands()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        if (m_orderedDrawRequests.empty())
-            return;
-
-        uint64 offset = 0;
-        m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
-        m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
+        Material* bound = nullptr;
         m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
 
-        for (auto& r : m_orderedDrawRequests)
+        for (auto& b : m_bufferCapsules)
         {
-            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
-            m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
-        }
+            if (b.orderedDrawRequests.empty())
+                continue;
 
-        m_orderedDrawRequests.clear();
+            uint64 offset = 0;
+            m_cmd->CMD_BindVertexBuffers(0, 1, b.gpuVtxBuffer._ptr, &offset);
+            m_cmd->CMD_BindIndexBuffers(b.gpuIndexBuffer._ptr, 0, IndexType::Uint32);
+
+            //  if (bound != m_guiStandard)
+            //  {
+            //      bound = m_guiStandard;
+            //  }
+
+            for (auto& r : b.orderedDrawRequests)
+            {
+                r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
+                m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
+            }
+
+            b.orderedDrawRequests.clear();
+        }
     }
 
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)

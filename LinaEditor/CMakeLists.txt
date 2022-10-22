@@ -24,9 +24,17 @@ set(LINAEDITOR_SOURCES
 # Core
 src/Core/Editor.cpp
 src/Core/EditorRenderer.cpp
+src/Core/EditorGUIManager.cpp
+
+# Components
 src/Components/EditorFreeLookComponent.cpp
+
+# Resource
 src/Resource/EditorResourceLoader.cpp
 
+# GUI
+src/GUI/Node.cpp
+src/GUI/Window.cpp
 )
 
 
@@ -35,8 +43,17 @@ set(LINAEDITOR_HEADERS
 # Core
 include/Core/Editor.hpp
 include/Core/EditorRenderer.hpp
+include/Core/EditorGUIManager.hpp
+
+# Components
 include/Components/EditorFreeLookComponent.hpp
+
+# Resource
 include/Resource/EditorResourceLoader.hpp
+
+# GUI
+include/GUI/Node.hpp
+include/GUI/Window.hpp
 
 )
 

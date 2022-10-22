@@ -33,15 +33,135 @@ SOFTWARE.
 #include "Core/Screen.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Resource/Texture.hpp"
+#include "Platform/LinaVGIncl.hpp"
+#include "Core/EditorGUIManager.hpp"
 
 #include "Platform/LinaVGIncl.hpp"
 #include <LinaVG/Utility/Utility.hpp>
-
 using namespace LinaVG;
 
 namespace Lina::Editor
 {
     float m_rotateAngle = 0.0f;
+
+    void aq()
+    {
+        const Vec2 screenSize = Vec2(static_cast<float>(LinaVG::Config.displayWidth), static_cast<float>(LinaVG::Config.displayHeight));
+
+        StyleOptions defaultStyle;
+        defaultStyle.isFilled = true;
+        Vec2 startPos         = Vec2(screenSize.x * 0.05f, screenSize.y * 0.05f);
+
+        //*************************** ROW 1 ***************************/
+
+        // Rect - filled
+        LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        // fRect - nonfilled
+        startPos.x += 200;
+        defaultStyle.thickness = 8;
+        defaultStyle.isFilled  = false;
+        LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        // Rect partially rounded - non filled
+        startPos.x += 200;
+        defaultStyle.isFilled  = false;
+        defaultStyle.thickness = 8;
+        defaultStyle.rounding  = 0.5f;
+        defaultStyle.onlyRoundTheseCorners.push_back(0);
+        defaultStyle.onlyRoundTheseCorners.push_back(3);
+        LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+        defaultStyle.onlyRoundTheseCorners.clear();
+
+        // Rect fully rounded - filled
+        startPos.x += 200;
+        defaultStyle.isFilled = true;
+        LinaVG::DrawRect(startPos, Vec2(startPos.x + 150, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        return;
+        //*************************** ROW 2 ***************************/
+
+        // Triangle filled
+        startPos.x = screenSize.x * 0.05f;
+        startPos.y += 200;
+        defaultStyle.isFilled = true;
+        defaultStyle.rounding = 0.0f;
+        LinaVG::DrawTriangle(Vec2(startPos.x + 75, startPos.y), Vec2(startPos.x + 150, startPos.y + 150), Vec2(startPos.x, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        // Triangle non filled
+        startPos.x += 200;
+        defaultStyle.isFilled  = false;
+        defaultStyle.thickness = 5.0f;
+        LinaVG::DrawTriangle(Vec2(startPos.x + 75, startPos.y), Vec2(startPos.x + 150, startPos.y + 150), Vec2(startPos.x, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        // Triangle non filled partially rounded
+        startPos.x += 200;
+        defaultStyle.rounding = 0.2f;
+        defaultStyle.onlyRoundTheseCorners.push_back(0);
+        LinaVG::DrawTriangle(Vec2(startPos.x + 75, startPos.y), Vec2(startPos.x + 150, startPos.y + 150), Vec2(startPos.x, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+        defaultStyle.onlyRoundTheseCorners.clear();
+
+        // Triangle filled & fully rounded
+        startPos.x += 200;
+        defaultStyle.rounding = 0.4f;
+        defaultStyle.isFilled = true;
+        LinaVG::DrawTriangle(Vec2(startPos.x + 75, startPos.y), Vec2(startPos.x + 150, startPos.y + 150), Vec2(startPos.x, startPos.y + 150), defaultStyle, m_rotateAngle, 1);
+
+        //*************************** ROW 3 ***************************/
+
+        // Full circle filled
+        startPos.x = screenSize.x * 0.05f;
+        startPos.y += 200;
+        LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 0.0f, 360.0f, 2);
+
+        // Half circle non filled
+        startPos.x += 200;
+        defaultStyle.isFilled = false;
+        LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 0.0f, 360.0f, 2);
+
+        // Arc filled
+        startPos.x += 200;
+        defaultStyle.isFilled = true;
+        LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 100.0f, 360.0f, 2);
+
+        // Arc
+        startPos.x += 200;
+        defaultStyle.isFilled = true;
+        LinaVG::DrawCircle(Vec2(startPos.x + 75, startPos.y + 75), 75, defaultStyle, 36, m_rotateAngle, 300.0f, 330.0f, 2);
+
+        //*************************** ROW 4 ***************************/
+
+        // Ngon - 6
+        startPos.x = screenSize.x * 0.05f;
+        startPos.y += 200;
+        LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 6, defaultStyle, m_rotateAngle, 2);
+
+        // Ngon - 8
+        startPos.x += 200;
+        defaultStyle.isFilled = false;
+        LinaVG::DrawNGon(Vec2(startPos.x + 75, startPos.y + 75), 75, 8, defaultStyle, m_rotateAngle, 2);
+
+        // Convex
+        startPos.x += 200;
+        defaultStyle.isFilled = true;
+        std::vector<Vec2> points;
+        points.push_back(startPos);
+        points.push_back(Vec2(startPos.x + 150, startPos.y));
+        points.push_back(Vec2(startPos.x - 50, startPos.y + 150));
+        points.push_back(Vec2(startPos.x + 100, startPos.y + 150));
+        LinaVG::DrawConvex(&points[0], 4, defaultStyle, m_rotateAngle, 2);
+
+        // Convex
+        startPos.x += 200;
+        defaultStyle.isFilled = false;
+        points.clear();
+        points.push_back(startPos);
+        points.push_back(Vec2(startPos.x + 150, startPos.y));
+        points.push_back(Vec2(startPos.x + 100, startPos.y + 150));
+        points.push_back(Vec2(startPos.x - 50, startPos.y + 150));
+        LinaVG::DrawConvex(&points[0], 4, defaultStyle, m_rotateAngle, 2);
+        points.clear();
+    }
 
     void ShowDemoScreen5_Texts()
     {
@@ -271,7 +391,6 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
-        Event::EventSystem::Get()->Connect<Event::ETick, &EditorRenderer::OnTick>(this);
         uint32 atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", false, 35);
         Graphics::GUIBackend::Get()->UploadFontTexture(atlas);
         atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", true, 35);
@@ -283,21 +402,25 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawEnd>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
     }
 
-    void EditorRenderer::OnTick(const Event::ETick& ev)
-    {
-        ShowDemoScreen2_Colors();
-
-    }
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
         LinaVG::StartFrame();
+        PROFILER_SCOPE_START("AQ", PROFILER_THREAD_RENDER);
+        aq();
+        ShowDemoScreen2_Colors();
         ShowDemoScreen5_Texts();
+        PROFILER_SCOPE_END("AQ", PROFILER_THREAD_RENDER);
+        PROFILER_SCOPE_START("AQ2", PROFILER_THREAD_RENDER);
         LinaVG::Render();
+        PROFILER_SCOPE_END("AQ2", PROFILER_THREAD_RENDER);
+        PROFILER_SCOPE_START("AQ3", PROFILER_THREAD_RENDER);
+
         LinaVG::EndFrame();
+        PROFILER_SCOPE_END("AQ3", PROFILER_THREAD_RENDER);
+
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)

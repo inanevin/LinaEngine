@@ -26,58 +26,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
-
-#include "EditorRenderer.hpp"
-#include "EditorGUIManager.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    } // namespace Event
-
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
-} // namespace Lina
+#include "GUI/Node.hpp"
 
 namespace Lina::Editor
 {
-    class Editor
+    Node::~Node()
     {
-    public:
-        Editor()          = default;
-        virtual ~Editor() = default;
+        for (auto& n : m_children)
+            delete n;
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        m_children.clear();
+    }
 
-    private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
-        EditorGUIManager                 m_guiManager;
-    };
+    void Node::Draw(float dt)
+    {
+        for (auto& c : m_children)
+            c->Draw(dt);
+    }
+
+    void Node::AddChildren(Node* node)
+    {
+        node->m_drawOrder = m_drawOrder + 1;
+        m_children.push_back(node);
+    }
+
+    void Node::RemoveChildren(Node* node)
+    {
+        Vector<Node*>::iterator it = m_children.begin();
+
+        for (; it < m_children.end(); it++)
+        {
+            if (*it == node)
+                m_children.erase(it);
+        }
+    }
 } // namespace Lina::Editor
-
-#endif

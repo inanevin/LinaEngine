@@ -38,7 +38,7 @@ namespace Lina
 {
     namespace Editor
     {
-        class EditorManager;
+        class Editor;
     }
 } // namespace Lina
 
@@ -85,7 +85,7 @@ namespace Lina::World
 
         friend class Engine;
         friend class EntityWorld;
-        friend class Editor::EditorManager;
+        friend class Editor::Editor;
 
         static LevelManager* s_instance;
         Level*               m_currentLevel = nullptr;

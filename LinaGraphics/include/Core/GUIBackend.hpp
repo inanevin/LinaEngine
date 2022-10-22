@@ -84,6 +84,23 @@ namespace Lina::Graphics
             OrderedDrawRequestMeta meta;
         };
 
+        struct BufferCapsule
+        {
+            Buffer                     gpuVtxBuffer;
+            Buffer                     gpuIndexBuffer;
+            Vector<OrderedDrawRequest> orderedDrawRequests;
+            Vector<LinaVG::Vertex>     copyVertices;
+            Vector<LinaVG::Index>      copyIndices;
+            uint32                     indexCounter  = 0;
+            uint32                     vertexCounter = 0;
+        };
+
+        struct MaterialPool
+        {
+            uint32           index = 0;
+            Vector<Material> materials;
+        };
+
     public:
         virtual bool                  Initialize() override;
         virtual void                  Terminate() override;
@@ -115,31 +132,24 @@ namespace Lina::Graphics
             m_cmd = cmd;
         }
 
+        void      OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void      CreateBufferCapsule();
         void      UpdateProjection();
         void      RecordDrawCommands();
         void      UploadFontTexture(uint32 handle);
-        void      SyncData();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
     private:
-        Buffer m_gpuVtxBuffer;
-        Buffer m_gpuIndexBuffer;
+        Vector<BufferCapsule>     m_bufferCapsules;
+        Matrix                    m_projection = Matrix::Identity();
+        CommandBuffer*            m_cmd        = nullptr;
+        static GUIBackend*        s_instance;
+        Material*                 m_guiStandard = nullptr;
+        HashMap<uint32, Texture*> m_fontTextures;
+        uint32                    m_bufferingFontTexture = 0;
 
-        Vector<OrderedDrawRequest> m_orderedDrawRequests;
-        Vector<LinaVG::Vertex>     m_cpuCopyVertices;
-        Vector<LinaVG::Index>      m_cpuCopyIndices;
-        Vector<LinaVG::Vertex>     m_gpuCopyVertices;
-        Vector<LinaVG::Index>      m_gpuCopyIndices;
-
-        HashMap<uint32, Vector<Material*>> m_transientMaterials;
-        Matrix                             m_projection    = Matrix::Identity();
-        uint32                             m_indexCounter  = 0;
-        uint32                             m_vertexCounter = 0;
-        CommandBuffer*                     m_cmd           = nullptr;
-        static GUIBackend*                 s_instance;
-        Material*                          m_guiStandard = nullptr;
-        HashMap<uint32, Texture*>          m_fontTextures;
-        uint32                             m_bufferingFontTexture = 0;
+        // Pool per frame-in-flight
+        HashMap<uint32, MaterialPool> m_materialPools;
     };
 
 } // namespace Lina::Graphics

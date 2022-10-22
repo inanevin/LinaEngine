@@ -41,7 +41,7 @@ namespace Lina
 {
     namespace Editor
     {
-        class EditorManager;
+        class Editor;
     }
 
     class DefaultResources
@@ -85,7 +85,7 @@ namespace Lina
 
     private:
         friend class Engine;
-        friend class Editor::EditorManager;
+        friend class Editor::Editor;
 
         static double s_startTime;
         static bool   s_isInPlayMode;

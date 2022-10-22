@@ -28,55 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
+#ifndef EditorWindow_HPP
+#define EditorWindow_HPP
 
-#include "EditorRenderer.hpp"
-#include "EditorGUIManager.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    } // namespace Event
-
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
-} // namespace Lina
+#include "Node.hpp"
+#include "Math/Color.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina::Editor
 {
-    class Editor
+    enum WindowMask
+    {
+        Fullscreen = 1,
+    };
+
+    class Window : public Node
     {
     public:
-        Editor()          = default;
-        virtual ~Editor() = default;
+        virtual void Draw(float dt) override;
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        inline Bitmask16& GetMask()
+        {
+            return m_bitmask;
+        }
 
-    private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
-        EditorGUIManager                 m_guiManager;
+    protected:
+        Color     m_bgColor = Color::White;
+        Bitmask16 m_bitmask;
     };
 } // namespace Lina::Editor
 

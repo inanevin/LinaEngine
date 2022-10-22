@@ -26,58 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
-
-#include "EditorRenderer.hpp"
-#include "EditorGUIManager.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    } // namespace Event
-
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
-} // namespace Lina
+#include "GUI/Window.hpp"
+#include "Core/Screen.hpp"
 
 namespace Lina::Editor
 {
-    class Editor
+    void Window::Draw(float dt)
     {
-    public:
-        Editor()          = default;
-        virtual ~Editor() = default;
+        const Vector2 screen = Graphics::Screen::SizeF();
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        if (m_bitmask.IsSet(WindowMask::Fullscreen))
+        {
+            m_min      = Vector2(0, 0);
+            m_max      = screen;
+            m_position = (m_max + m_min) / 2.0f;
+        }
 
-    private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
-        EditorGUIManager                 m_guiManager;
-    };
+        LinaVG::DrawRect(LinaVG::Vec2(0,0), LinaVG::Vec2(500,500), m_style, m_drawOrder);
+
+        // Children
+        Node::Draw(dt);
+    }
 } // namespace Lina::Editor
-
-#endif

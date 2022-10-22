@@ -26,58 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
-
-#include "EditorRenderer.hpp"
-#include "EditorGUIManager.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    } // namespace Event
-
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
-} // namespace Lina
+#include "Core/EditorGUIManager.hpp"
+#include "GUI/Window.hpp"
 
 namespace Lina::Editor
 {
-    class Editor
+    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
+
+    void EditorGUIManager::Initialize()
     {
-    public:
-        Editor()          = default;
-        virtual ~Editor() = default;
+        s_instance = this;
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        Window* background = new Window();
+        background->GetMask().Set(WindowMask::Fullscreen);
+        m_rootNode.AddChildren(background);
+    }
 
-    private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
-        EditorGUIManager                 m_guiManager;
-    };
+    void EditorGUIManager::Shutdown()
+    {
+    }
+
+    void EditorGUIManager::Draw()
+    {
+        // m_rootNode.Draw(RuntimeInfo::GetDeltaTime());
+    }
+
 } // namespace Lina::Editor
-
-#endif

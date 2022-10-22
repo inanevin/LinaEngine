@@ -39,7 +39,7 @@ namespace Lina
 {
     namespace Editor
     {
-        class EditorManager;
+        class Editor;
     }
 } // namespace Lina
 
@@ -149,7 +149,7 @@ namespace Lina::Resources
 
     private:
         friend class Engine;
-        friend class Editor::EditorManager;
+        friend class Editor::Editor;
         friend class ResourceCacheBase;
 
         ResourceManager()  = default;

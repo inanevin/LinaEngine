@@ -157,7 +157,7 @@ namespace Lina
         Future<void>                           m_renderJob;
 
 #ifndef LINA_PRODUCTION_BUILD
-        Editor::EditorManager m_editor;
+        Editor::Editor m_editor;
 #endif
     };
 } // namespace Lina

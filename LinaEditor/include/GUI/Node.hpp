@@ -28,55 +28,36 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaEditor_HPP
-#define LinaEditor_HPP
+#ifndef Node_HPP
+#define Node_HPP
 
-#include "EditorRenderer.hpp"
-#include "EditorGUIManager.hpp"
-
-namespace Lina
-{
-    namespace Event
-    {
-        struct ELevelInstalled;
-    } // namespace Event
-
-    namespace World
-    {
-        class Entity;
-    }
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-    }
-} // namespace Lina
+#include "Data/Vector.hpp"
+#include "Data/String.hpp"
+#include "Math/Vector.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-    class Editor
+    class Node
     {
     public:
-        Editor()          = default;
-        virtual ~Editor() = default;
+        Node() = default;
+        virtual ~Node();
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        void         AddChildren(Node* node);
+        void         RemoveChildren(Node* node);
+        virtual void Draw(float dt);
 
-    private:
-        Resources::EditorResourceLoader* m_resLoader;
-        World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
-        EditorGUIManager                 m_guiManager;
+    protected:
+        Vector2 m_bounds   = Vector2::Zero;
+        Vector2 m_position = Vector2::Zero;
+        Vector2 m_min      = Vector2::Zero;
+        Vector2 m_max      = Vector2::Zero;
+
+        LinaVG::StyleOptions m_style;
+        uint32               m_drawOrder = 0;
+        String               m_name      = "";
+        Vector<Node*>        m_children;
     };
 } // namespace Lina::Editor
 

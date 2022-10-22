@@ -47,30 +47,29 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
-
 namespace Lina::Editor
 {
-
-    void EditorManager::Initialize()
+    void Editor::Initialize()
     {
-        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorManager::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         m_resLoader = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
-        if(!Utility::FileExists("Resources/Editor/Metacache/"))
+        if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         m_renderer.Initialize();
+        m_guiManager.Initialize();
     }
 
-    void EditorManager::Shutdown()
+    void Editor::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-
+        m_guiManager.Shutdown();
         m_renderer.Shutdown();
     }
 
-    void EditorManager::VerifyStaticResources()
+    void Editor::VerifyStaticResources()
     {
         // Make sure the static resources needed are initialized.
         if (!Utility::FileExists("Resources/engine.linasettings"))
@@ -80,7 +79,7 @@ namespace Lina::Editor
             Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings");
     }
 
-    void EditorManager::CreateEditorCamera()
+    void Editor::CreateEditorCamera()
     {
         World::EntityWorld*             world    = World::EntityWorld::Get();
         Graphics::CameraComponent*      cam      = nullptr;
@@ -105,21 +104,20 @@ namespace Lina::Editor
         Graphics::RenderEngine::Get()->GetRenderer().GetCameraSystem().SetActiveCamera(cam);
     }
 
-    void EditorManager::DeleteEditorCamera()
+    void Editor::DeleteEditorCamera()
     {
         World::EntityWorld::Get()->DestroyEntity(m_editorCamera);
     }
 
-    void EditorManager::SaveCurrentLevel()
+    void Editor::SaveCurrentLevel()
     {
         DeleteEditorCamera();
         World::LevelManager::Get()->SaveCurrentLevel();
         CreateEditorCamera();
     }
 
-    void EditorManager::PackageProject()
+    void Editor::PackageProject()
     {
-
         auto* rm = Resources::ResourceManager::Get();
 
         // Fill engine resources.
@@ -187,9 +185,7 @@ namespace Lina::Editor
         Resources::ResourcePackager::PackageFiles(Resources::PackageType::Level, levelFiles);
 
         // Finally, package all types.
-        auto package = [](Resources::PackageType packageType, Vector<Pair<TypeID, String>>& resources) {
-            Resources::ResourcePackager::PackageFiles(packageType, resources);
-        };
+        auto package = [](Resources::PackageType packageType, Vector<Pair<TypeID, String>>& resources) { Resources::ResourcePackager::PackageFiles(packageType, resources); };
 
         for (auto& [packageType, resVec] : resourcesPerPackage)
             JobSystem::Get()->GetResourceExecutor().Async(package, packageType, resVec);
@@ -199,30 +195,29 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressEnded>(Event::EResourceProgressEnded{});
     }
 
-    void EditorManager::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    void Editor::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         CreateEditorCamera();
     }
 
-
-    void EditorManager::SetPlayMode(bool enabled)
+    void Editor::SetPlayMode(bool enabled)
     {
         RuntimeInfo::s_isInPlayMode = enabled;
-        Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
+        Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{enabled});
 
         if (!RuntimeInfo::s_isInPlayMode && RuntimeInfo::s_paused)
             SetIsPaused(false);
     }
 
-    void EditorManager::SetIsPaused(bool paused)
+    void Editor::SetIsPaused(bool paused)
     {
         if (paused && !RuntimeInfo::s_isInPlayMode)
             return;
         RuntimeInfo::s_paused = paused;
-        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{ RuntimeInfo::s_paused });
+        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{RuntimeInfo::s_paused});
     }
 
-    void EditorManager::SkipNextFrame()
+    void Editor::SkipNextFrame()
     {
         if (!RuntimeInfo::s_isInPlayMode)
             return;
