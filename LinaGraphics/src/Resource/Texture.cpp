@@ -101,6 +101,72 @@ namespace Lina::Graphics
         m_sampler.Create(false);
     }
 
+    void Texture::WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
+    {
+        m_cpuBuffer.CopyIntoPadded(data, dataSize, cpuBufferOffset);
+
+        Command cmd;
+        cmd.Record = [this, &copyExtent, &gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
+            ImageSubresourceRange range = ImageSubresourceRange{
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
+                .srcAccessMask    = 0,
+                .dstAccessMask    = GetAccessFlags(AccessFlags::TransferWrite),
+                .oldLayout        = ImageLayout::Undefined,
+                .newLayout        = ImageLayout::TransferDstOptimal,
+                .img              = m_gpuImage._allocatedImg.image,
+                .subresourceRange = range,
+            };
+
+            Vector<ImageMemoryBarrier> imageBarriers;
+            imageBarriers.push_back(imageBarrierToTransfer);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
+
+            ImageSubresourceRange copySubres = ImageSubresourceRange{
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            BufferImageCopy copyRegion = BufferImageCopy{
+                .bufferOffset      = cpuBufferOffset,
+                .bufferRowLength   = 0,
+                .bufferImageHeight = 0,
+                .imageSubresource  = copySubres,
+                .imageOffset       = gpuImgOffset,
+                .imageExtent       = copyExtent,
+            };
+
+            // copy the buffer into the image
+            cmd.CMD_CopyBufferToImage(m_cpuBuffer._ptr, m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
+
+            ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
+            barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
+            barrierToReadable.newLayout          = ImageLayout::ShaderReadOnlyOptimal;
+            barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
+            barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
+        };
+
+        cmd.OnSubmitted = [this, destroyCPUBufferAfter]() {
+            m_gpuImage._ready = true;
+
+            if (destroyCPUBufferAfter)
+                m_cpuBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+    }
+
     void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
         const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);

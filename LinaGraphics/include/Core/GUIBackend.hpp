@@ -111,7 +111,7 @@ namespace Lina::Graphics
         void RecordDrawCommands();
         void SyncData();
         void LastFontLoaded();
-        void RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset);
+        void RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset, int32 offsetX, int32 offsetY);
 
     private:
         Buffer m_gpuVtxBuffer;

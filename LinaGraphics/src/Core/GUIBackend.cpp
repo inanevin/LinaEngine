@@ -272,24 +272,24 @@ namespace Lina::Graphics
     Vector<Command> cmds;
     static uint32   biggest = 0;
 
-    void GUIBackend::RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset)
+    void GUIBackend::RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset, int32 offsetX, int32 offsetY)
     {
         Command cmd;
-        cmd.Record = [txt, width, height, offset](CommandBuffer& cmd) {
+        cmd.Record = [txt, width, height, offset, offsetX, offsetY](CommandBuffer& cmd) {
             ImageSubresourceRange range = ImageSubresourceRange{
-                .aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-                .baseMipLevel = 0,
-                .levelCount = 1,
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
                 .baseArrayLayer = 0,
-                .layerCount = 1,
+                .layerCount     = 1,
             };
 
             ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
-                .srcAccessMask = 0,
-                .dstAccessMask = GetAccessFlags(AccessFlags::TransferWrite),
-                .oldLayout = ImageLayout::Undefined,
-                .newLayout = ImageLayout::TransferDstOptimal,
-                .img = txt->m_gpuImage._allocatedImg.image,
+                .srcAccessMask    = 0,
+                .dstAccessMask    = GetAccessFlags(AccessFlags::TransferWrite),
+                .oldLayout        = ImageLayout::Undefined,
+                .newLayout        = ImageLayout::TransferDstOptimal,
+                .img              = txt->m_gpuImage._allocatedImg.image,
                 .subresourceRange = range,
             };
 
@@ -299,41 +299,49 @@ namespace Lina::Graphics
             cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
 
             ImageSubresourceRange copySubres = ImageSubresourceRange{
-                .aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-                .baseMipLevel = 0,
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
                 .baseArrayLayer = 0,
-                .layerCount = 1,
+                .layerCount     = 1,
             };
 
             Extent3D ext = Extent3D{
-                .width = static_cast<uint32>(width),
+                .width  = static_cast<uint32>(width),
                 .height = static_cast<uint32>(height),
-                .depth = 1,
+                .depth  = 1,
+            };
+
+            Offset3D imgOffset = Offset3D{
+                .x = offsetX,
+                .y = offsetY,
+                .z = 0,
             };
             BufferImageCopy copyRegion = BufferImageCopy{
-                .bufferOffset = offset,
-                .bufferRowLength = 0,
+                .bufferOffset      = offset,
+                .bufferRowLength   = 0,
                 .bufferImageHeight = 0,
-                .imageSubresource = copySubres,
-                .imageExtent = ext,
+                .imageSubresource  = copySubres,
+                .imageOffset       = imgOffset,
+                .imageExtent       = ext,
             };
 
             // copy the buffer into the image
-            cmd.CMD_CopyBufferToImage(txt->m_cpuBuffer._ptr, txt->m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, { copyRegion });
+            cmd.CMD_CopyBufferToImage(txt->m_cpuBuffer._ptr, txt->m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
 
             ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
-            barrierToReadable.oldLayout = ImageLayout::TransferDstOptimal;
-            barrierToReadable.newLayout = ImageLayout::ShaderReadOnlyOptimal;
-            barrierToReadable.srcAccessMask = GetAccessFlags(AccessFlags::TransferWrite);
-            barrierToReadable.dstAccessMask = GetAccessFlags(AccessFlags::ShaderRead);
+            barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
+            barrierToReadable.newLayout          = ImageLayout::ShaderReadOnlyOptimal;
+            barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
+            barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
 
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, { barrierToReadable });
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
         };
 
         cmd.OnSubmitted = [this]() {
             // m_gpuImage._ready = true;
             // m_cpuBuffer.Destroy();
         };
+
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
     }
 
@@ -350,21 +358,24 @@ namespace Lina::Graphics
         {
             const uint32 size = width;
             txt->m_cpuBuffer.CopyIntoPadded(&data[width * i], size, startOffset);
+            RecordCopyCommand(txt, width, 1, startOffset, offsetX, offsetY + i);
             startOffset += txt->m_extent.width;
         }
 
-   
+        // RecordCopyCommand(txt, width, height, startOffset);
     }
 
     void GUIBackend::LastFontLoaded()
     {
-        Texture* txt = m_fontTextures[m_currentlyBoundFontTexture];
-        RecordCopyCommand(txt, txt->m_extent.width, txt->m_extent.height, 0);
 
-       // for (auto& cmd : cmds)
-       //     RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
         return;
 
+        Texture* txt = m_fontTextures[m_currentlyBoundFontTexture];
+        // s   RecordCopyCommand(txt, txt->m_extent.width, txt->m_extent.height, 0);
+
+        //
+        //
+        return;
 
         txt->m_cpuBuffer.CopyInto(pixels.data(), pixels.size() * txt->m_extent.width);
 
