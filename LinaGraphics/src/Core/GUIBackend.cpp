@@ -46,12 +46,12 @@ namespace Lina::Graphics
     {
         s_instance = this;
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
+        CreateBufferCapsule();
         return true;
     }
 
     void GUIBackend::CreateBufferCapsule()
     {
-
         m_bufferCapsules.push_back(BufferCapsule());
         auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
 
@@ -220,13 +220,8 @@ namespace Lina::Graphics
         request.transientMat->SetProperty("projection", m_projection);
 
         targetCapsule.orderedDrawRequests.push_back(request);
-        PROFILER_SCOPE_START("Copy", PROFILER_THREAD_RENDER);
-
         targetCapsule.copyVertices.insert(targetCapsule.copyVertices.end(), buf->m_vertexBuffer.begin(), buf->m_vertexBuffer.end());
         targetCapsule.copyIndices.insert(targetCapsule.copyIndices.end(), buf->m_indexBuffer.begin(), buf->m_indexBuffer.end());
-
-        PROFILER_SCOPE_END("Copy", PROFILER_THREAD_RENDER);
-
         targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 
@@ -237,6 +232,7 @@ namespace Lina::Graphics
     {
         for (auto& b : m_bufferCapsules)
         {
+
             if (!b.copyVertices.empty())
                 vkCmdUpdateBuffer(m_cmd->_ptr, b.gpuVtxBuffer._ptr, 0, b.copyVertices.size() * sizeof(LinaVG::Vertex), b.copyVertices.data());
 
