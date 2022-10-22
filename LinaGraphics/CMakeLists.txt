@@ -156,6 +156,7 @@ set(LINAGRAPHICS_HEADERS
 
 	# Platform
 	include/Platform/Win32/Win32Window.hpp
+	include/Platform/LinaVGIncl.hpp
 
 	
 	# Features

@@ -170,9 +170,10 @@ namespace Lina::Graphics
 
             if (mat != lastBoundMat)
             {
-                mat->Bind(cmd, rpType, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+                mat->Bind(cmd, rpType, MaterialBindFlag::BindPipeline);
                 lastBoundMat = mat;
             }
+            mat->Bind(cmd, rpType, MaterialBindFlag::BindDescriptor);
 
             const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
             cmd.CMD_DrawIndexedIndirect(renderer.GetIndirectBuffer()._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));

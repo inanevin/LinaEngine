@@ -67,7 +67,7 @@ namespace Lina::Graphics
         static void GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
 
         // Image
-        static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent);
+        static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent, ImageLayout initialLayout, SharingMode sharingMode);
         static VkImageViewCreateInfo GetImageViewCreateInfo(VkImage img, Format format, ImageSubresourceRange subres);
 
         // Pass

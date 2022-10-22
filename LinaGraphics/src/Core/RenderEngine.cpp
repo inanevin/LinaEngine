@@ -40,11 +40,12 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Resource/Material.hpp"
 #include "Core/GUIBackend.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Platform/Win32/Win32Window.hpp"
 #endif
-#include <LinaVG/LinaVG.hpp>
+
 
 namespace Lina::Graphics
 {

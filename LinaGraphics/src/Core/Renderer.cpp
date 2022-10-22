@@ -48,8 +48,8 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
+#include "Platform/LinaVGIncl.hpp"
 #include <vulkan/vulkan.h>
-#include <LinaVG/LinaVG.hpp>
 
 namespace Lina::Graphics
 {

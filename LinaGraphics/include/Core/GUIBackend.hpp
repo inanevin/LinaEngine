@@ -52,6 +52,7 @@ namespace Lina::Graphics
 {
     class CommandBuffer;
     class Material;
+    class Texture;
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
@@ -109,6 +110,8 @@ namespace Lina::Graphics
         void UpdateProjection();
         void RecordDrawCommands();
         void SyncData();
+        void LastFontLoaded();
+        void RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset);
 
     private:
         Buffer m_gpuVtxBuffer;
@@ -130,6 +133,8 @@ namespace Lina::Graphics
         CommandBuffer*                     m_cmd           = nullptr;
         static GUIBackend*                 s_instance;
         Material*                          m_guiStandard = nullptr;
+        HashMap<uint32, Texture*>          m_fontTextures;
+        uint32                             m_currentlyBoundFontTexture = 0;
     };
 
 } // namespace Lina::Graphics

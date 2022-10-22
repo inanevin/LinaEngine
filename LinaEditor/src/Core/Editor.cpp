@@ -45,8 +45,8 @@ SOFTWARE.
 #include "Core/ResourcePackager.hpp"
 #include "Core/Engine.hpp"
 #include "Core/Level.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
-#include <LinaVG/LinaVG.hpp>
 
 namespace Lina::Editor
 {

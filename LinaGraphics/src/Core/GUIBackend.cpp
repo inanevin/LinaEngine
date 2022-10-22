@@ -30,7 +30,9 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Resource/Material.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include <LinaVG/LinaVG.hpp>
+#include "Platform/LinaVGIncl.hpp"
+#include "Resource/Texture.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -63,6 +65,21 @@ namespace Lina::Graphics
 
     void GUIBackend::Terminate()
     {
+        for (auto& pair : m_transientMaterials)
+        {
+            for (auto& m : pair.second)
+                delete m;
+
+            pair.second.clear();
+        }
+
+        for (auto& t : m_fontTextures)
+        {
+            t.second->m_cpuBuffer.Destroy();
+            delete t.second;
+        }
+
+        m_transientMaterials.clear();
         m_gpuVtxBuffer.Destroy();
         m_gpuIndexBuffer.Destroy();
     }
@@ -82,7 +99,6 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
     {
-
         OrderedDrawRequest request;
         request.firstIndex        = m_indexCounter;
         request.vertexOffset      = m_vertexCounter;
@@ -90,14 +106,19 @@ namespace Lina::Graphics
         request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.materialDataIndex = static_cast<uint32>(m_gradientMaterialData.size());
 
-        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-
+        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
         request.transientMat = new Material();
         request.transientMat->CreateBuffer();
         request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
         request.transientMat->SetProperty("projection", m_projection);
-        request.transientMat->SetProperty("color", Vector4(1, 0, 1, 1));
+        request.transientMat->SetProperty("type", 1);
+        request.transientMat->SetProperty("gradientStart", buf->m_color.start);
+        request.transientMat->SetProperty("gradientEnd", buf->m_color.end);
+        request.transientMat->SetProperty("gradientType", static_cast<int>(buf->m_color.gradientType));
+        request.transientMat->SetProperty("radialSize", buf->m_color.radialSize);
+        request.transientMat->SetProperty("isAABuffer", buf->m_isAABuffer);
         request.transientMat->CheckUpdatePropertyBuffers();
+
         m_transientMaterials[frame].push_back(request.transientMat);
 
         LinaVG::GradientDrawBuffer b;
@@ -122,6 +143,42 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
     {
+        OrderedDrawRequest request;
+        request.firstIndex        = m_indexCounter;
+        request.vertexOffset      = m_vertexCounter;
+        request.type              = LinaVGDrawCategoryType::Default;
+        request.indexSize         = static_cast<uint32>(buf->m_indexBuffer.m_size);
+        request.materialDataIndex = static_cast<uint32>(m_defaultMaterialData.size());
+
+        Texture*     txt     = Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
+        const uint32 frame   = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        request.transientMat = new Material();
+        request.transientMat->CreateBuffer();
+        request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
+        request.transientMat->SetProperty("projection", m_projection);
+        request.transientMat->SetProperty("type", 2);
+        request.transientMat->SetProperty("tiling", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));
+        request.transientMat->SetProperty("offset", Vector2(buf->m_textureUVOffset.x, buf->m_textureUVOffset.y));
+        request.transientMat->SetTexture("diffuse", m_fontTextures[0]);
+        request.transientMat->CheckUpdatePropertyBuffers();
+        m_transientMaterials[frame].push_back(request.transientMat);
+
+        LinaVG::DrawBuffer b;
+        b.clipPosX  = buf->clipPosX;
+        b.clipPosY  = buf->clipPosY;
+        b.clipSizeX = buf->clipSizeX;
+        b.clipSizeY = buf->clipSizeY;
+        m_defaultMaterialData.push_back(b);
+
+        for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
+            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
+
+        for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
+            m_copyIndices.push_back(buf->m_indexBuffer[i]);
+
+        m_orderedDrawRequests.push_back(request);
+        m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
+        m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
     }
 
     void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf)
@@ -138,7 +195,7 @@ namespace Lina::Graphics
         request.transientMat->CreateBuffer();
         request.transientMat->SetShader(m_guiStandard->GetShaderHandle().value);
         request.transientMat->SetProperty("projection", m_projection);
-        request.transientMat->SetProperty("color", Vector4(1, 0, 0, 1));
+        request.transientMat->SetProperty("type", 0);
         request.transientMat->CheckUpdatePropertyBuffers();
         m_transientMaterials[frame].push_back(request.transientMat);
 
@@ -192,56 +249,8 @@ namespace Lina::Graphics
         {
             r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
 
-            if (r.type == LinaVGDrawCategoryType::Default)
-            {
-                // mat->SetProperty("type", 0);
-                // mat->CheckUpdatePropertyBuffers();
-
-                // m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline()._layout, GetPipelineStageFlags(PipelineStageFlags::), )
-                // mat->SetProperty("type", 1);
-                // mat->CheckUpdatePropertyBuffers();
-            }
-            else if (r.type == LinaVGDrawCategoryType::Textured)
-            {
-                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-            }
-            else if (r.type == LinaVGDrawCategoryType::Gradient)
-            {
-
-                // mat->SetProperty("type", 1);
-                // mat->CheckUpdatePropertyBuffers();
-
-                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
-
-                // auto& matData = m_gradientMaterialData[r.materialDataIndex];
-                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-                //  mat->SetProperty("type", 0);
-
-                // mat->SetProperty("gradientStart", matData.m_color.start);
-                // mat->SetProperty("gradientEnd", matData.m_color.end);
-                // mat->SetProperty("gradientType", static_cast<int>(matData.m_color.gradientType));
-                // mat->SetProperty("radialSize", matData.m_color.radialSize);
-                // mat->SetProperty("isAABuffer", matData.m_isAABuffer);
-
-                //  m_cmd->CMD_PushConstants(mat->GetShaderHandle().value->GetPipeline(RenderPassType::Final)._layout, GetShaderStage(ShaderStage::Fragment), 0, sizeof(pc), &pc);
-            }
-            else if (r.type == LinaVGDrawCategoryType::SDF)
-            {
-                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
-                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-            }
-            else if (r.type == LinaVGDrawCategoryType::SimpleText)
-            {
-                // auto* mat = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIText);
-                // mat->BindPipelineAndDescriptors(*m_cmd, RenderPassType::Final);
-            }
-
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
-
-        //  for (auto& r : m_orderedDrawRequests)
-        //      delete r.transientMat;
 
         m_orderedDrawRequests.clear();
         m_defaultMaterialData.clear();
@@ -252,21 +261,251 @@ namespace Lina::Graphics
     {
     }
 
+    size_t                        bufSize = 0;
+    Vector<Vector<unsigned char>> pixels;
+
+    uint32 previousEnd  = 0;
+    uint32 previousEndX = 0;
+    uint32 previousEndY = 0;
+    uint32 prevSize     = 0;
+
+    Vector<Command> cmds;
+    static uint32   biggest = 0;
+
+    void GUIBackend::RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset)
+    {
+        Command cmd;
+        cmd.Record = [txt, width, height, offset](CommandBuffer& cmd) {
+            ImageSubresourceRange range = ImageSubresourceRange{
+                .aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1,
+            };
+
+            ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
+                .srcAccessMask = 0,
+                .dstAccessMask = GetAccessFlags(AccessFlags::TransferWrite),
+                .oldLayout = ImageLayout::Undefined,
+                .newLayout = ImageLayout::TransferDstOptimal,
+                .img = txt->m_gpuImage._allocatedImg.image,
+                .subresourceRange = range,
+            };
+
+            Vector<ImageMemoryBarrier> imageBarriers;
+            imageBarriers.push_back(imageBarrierToTransfer);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
+
+            ImageSubresourceRange copySubres = ImageSubresourceRange{
+                .aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel = 0,
+                .baseArrayLayer = 0,
+                .layerCount = 1,
+            };
+
+            Extent3D ext = Extent3D{
+                .width = static_cast<uint32>(width),
+                .height = static_cast<uint32>(height),
+                .depth = 1,
+            };
+            BufferImageCopy copyRegion = BufferImageCopy{
+                .bufferOffset = offset,
+                .bufferRowLength = 0,
+                .bufferImageHeight = 0,
+                .imageSubresource = copySubres,
+                .imageExtent = ext,
+            };
+
+            // copy the buffer into the image
+            cmd.CMD_CopyBufferToImage(txt->m_cpuBuffer._ptr, txt->m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, { copyRegion });
+
+            ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
+            barrierToReadable.oldLayout = ImageLayout::TransferDstOptimal;
+            barrierToReadable.newLayout = ImageLayout::ShaderReadOnlyOptimal;
+            barrierToReadable.srcAccessMask = GetAccessFlags(AccessFlags::TransferWrite);
+            barrierToReadable.dstAccessMask = GetAccessFlags(AccessFlags::ShaderRead);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, { barrierToReadable });
+        };
+
+        cmd.OnSubmitted = [this]() {
+            // m_gpuImage._ready = true;
+            // m_cpuBuffer.Destroy();
+        };
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+    }
+
     void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
     {
+        Texture*     txt       = m_fontTextures[m_currentlyBoundFontTexture];
+        const uint32 txtWidth  = txt->m_extent.width;
+        const uint32 txtHeight = txt->m_extent.height;
+        const uint32 bufSize   = width * height;
+
+        uint32 startOffset = offsetY * txt->m_extent.width + offsetX;
+
+        for (int i = 0; i < height; i++)
+        {
+            const uint32 size = width;
+            txt->m_cpuBuffer.CopyIntoPadded(&data[startOffset], size, startOffset);
+            startOffset += txt->m_extent.width;
+        }
+
+   
     }
+
+    void GUIBackend::LastFontLoaded()
+    {
+        Texture* txt = m_fontTextures[m_currentlyBoundFontTexture];
+        RecordCopyCommand(txt, txt->m_extent.width, txt->m_extent.height, 0);
+
+       // for (auto& cmd : cmds)
+       //     RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+        return;
+
+
+        txt->m_cpuBuffer.CopyInto(pixels.data(), pixels.size() * txt->m_extent.width);
+
+        Command cmd;
+        cmd.Record = [txt](CommandBuffer& cmd) {
+            ImageSubresourceRange range = ImageSubresourceRange{
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
+                .srcAccessMask    = 0,
+                .dstAccessMask    = GetAccessFlags(AccessFlags::TransferWrite),
+                .oldLayout        = ImageLayout::Undefined,
+                .newLayout        = ImageLayout::TransferDstOptimal,
+                .img              = txt->m_gpuImage._allocatedImg.image,
+                .subresourceRange = range,
+            };
+
+            Vector<ImageMemoryBarrier> imageBarriers;
+            imageBarriers.push_back(imageBarrierToTransfer);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
+
+            ImageSubresourceRange copySubres = ImageSubresourceRange{
+                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+                .baseMipLevel   = 0,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
+            };
+
+            Extent3D ext = Extent3D{
+                .width  = static_cast<uint32>(txt->m_extent.width),
+                .height = static_cast<uint32>(txt->m_extent.height),
+                .depth  = 1,
+            };
+
+            BufferImageCopy copyRegion = BufferImageCopy{
+                .bufferOffset      = 0,
+                .bufferRowLength   = 0,
+                .bufferImageHeight = 0,
+                .imageSubresource  = copySubres,
+                .imageExtent       = ext,
+            };
+
+            // copy the buffer into the image
+            cmd.CMD_CopyBufferToImage(txt->m_cpuBuffer._ptr, txt->m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
+
+            ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
+            barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
+            barrierToReadable.newLayout          = ImageLayout::ShaderReadOnlyOptimal;
+            barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
+            barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
+
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
+        };
+
+        cmd.OnSubmitted = [this]() {
+            // m_gpuImage._ready = true;
+            // m_cpuBuffer.Destroy();
+        };
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+    }
+
     void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
     {
+        m_currentlyBoundFontTexture = texture;
     }
+
     void GUIBackend::SaveAPIState()
     {
     }
+
     void GUIBackend::RestoreAPIState()
     {
     }
+
     LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
     {
-        return 0;
+        Extent3D ext = Extent3D{
+            .width  = static_cast<uint32>(width),
+            .height = static_cast<uint32>(height),
+            .depth  = 1,
+        };
+
+        const uint32 bufferSize = ext.width * ext.height;
+        bufSize                 = bufferSize;
+        pixels.resize(ext.height);
+
+        for (auto& p : pixels)
+            p.resize(ext.width);
+
+        Texture* txt  = new Texture();
+        txt->m_extent = ext;
+
+        // Cpu buf
+        txt->m_cpuBuffer = Buffer{
+            .size        = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        txt->m_cpuBuffer.Create();
+
+        ImageSubresourceRange range;
+        range.aspectFlags   = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+        const Format format = Format::R8_UNORM;
+
+        // Gpu buf
+        txt->m_gpuImage = Image{
+            .format          = format,
+            .tiling          = ImageTiling::Linear,
+            .extent          = ext,
+            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
+            .subresRange     = range,
+        };
+
+        txt->m_gpuImage.Create(true, false);
+
+        // Sampler
+        txt->m_sampler = Sampler{
+            .minFilter     = Filter::Linear,
+            .magFilter     = Filter::Linear,
+            .u             = SamplerAddressMode::ClampToEdge,
+            .v             = SamplerAddressMode::ClampToEdge,
+            .w             = SamplerAddressMode::ClampToEdge,
+            .mipLodBias    = 0.0f,
+            .maxAnisotropy = 1.0f,
+            .minLod        = 0.0f,
+            .maxLod        = 1.0f,
+            .borderColor   = BorderColor::FloatOpaqueWhite,
+        };
+        txt->m_sampler.Create(false);
+
+        const uint32 handle    = static_cast<uint32>(m_fontTextures.size());
+        m_fontTextures[handle] = txt;
+        return handle;
     }
 
     void GUIBackend::UpdateProjection()

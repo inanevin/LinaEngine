@@ -28,37 +28,10 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Image_HPP
-#define Image_HPP
+#ifndef LinaVGInc_HPP
+#define LinaVGInc_HPP
 
-#include "Core/GraphicsCommon.hpp"
-
-struct VkImageView_T;
-struct VkImage_T;
-
-namespace Lina::Graphics
-{
-    class Image
-    {
-    public:
-        void Create(bool createImageView, bool autoDestroy = true);
-        void Destroy();
-
-        Format                format              = Format::R32G32B32_SFLOAT;
-        ImageTiling           tiling              = ImageTiling::Optimal;
-        Extent3D              extent              = Extent3D();
-        uint32                imageUsageFlags     = 0;
-        MemoryUsageFlags      memoryUsageFlags    = MemoryUsageFlags::GpuOnly;
-        MemoryPropertyFlags   memoryPropertyFlags = MemoryPropertyFlags::None;
-        ImageLayout           initialLayout       = ImageLayout::Undefined;
-        SharingMode           sharingMode         = SharingMode::Exclusive;
-        ImageSubresourceRange subresRange;
-
-        // Runtime
-        AllocatedImage _allocatedImg;
-        VkImageView_T* _ptrImgView = nullptr;
-        bool           _ready      = false;
-    };
-} // namespace Lina::Graphics
+#define LINAVG_TEXT_SUPPORT
+#include <LinaVG/LinaVG.hpp>
 
 #endif

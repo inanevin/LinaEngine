@@ -121,7 +121,7 @@ namespace Lina::Graphics
             if (!line.empty() && *line.rbegin() == '\r')
                 line.erase(line.end() - 1);
 
-            if (!parsingBinding && line.find("set") != std::string::npos)
+            if (!parsingBinding && line.find("layout(set") != std::string::npos)
             {
                 size_t      set         = line.find("set=");
                 size_t      firstComma  = line.find(",");

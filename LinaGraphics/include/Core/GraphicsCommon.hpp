@@ -69,6 +69,7 @@ enum VkBlendFactor;
 enum VkBlendOp;
 enum VkLogicOp;
 enum VkResult;
+enum VkSharingMode;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -88,6 +89,12 @@ namespace Lina::Graphics
         D32_SFLOAT,
         R8G8B8A8_UNORM,
         R8G8B8A8_SRGB,
+        R8_UNORM,
+        R8_UINT,
+        R16_SFLOAT,
+        R16_SINT,
+        R32_SFLOAT,
+        R32_SINT,
     };
 
     extern VkFormat GetFormat(Format f);
@@ -517,6 +524,14 @@ namespace Lina::Graphics
     };
 
     uint32 GetDescriptorLayoutBindingFlags(DescriptorSetLayoutBindingFlags flags);
+
+    enum class SharingMode
+    {
+        Exclusive,
+        Concurrent,
+    };
+
+    VkSharingMode GetSharingMode(SharingMode m);
 
     enum class SurfaceType
     {

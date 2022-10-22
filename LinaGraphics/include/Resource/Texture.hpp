@@ -81,6 +81,8 @@ namespace Lina::Graphics
         void GenerateBuffers(unsigned char* pixels);
 
     private:
+        friend class GUIBackend;
+
         AssetData      m_assetData;
         Image          m_gpuImage;
         Sampler        m_sampler;

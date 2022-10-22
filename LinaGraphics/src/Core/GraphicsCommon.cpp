@@ -22,6 +22,18 @@ namespace Lina::Graphics
             return VK_FORMAT_R8G8B8A8_UNORM;
         case Format::R8G8B8A8_SRGB:
             return VK_FORMAT_R8G8B8A8_SRGB;
+        case Format::R16_SFLOAT:
+            return VK_FORMAT_R16_SFLOAT;
+        case Format::R16_SINT:
+            return VK_FORMAT_R16_SINT;
+        case Format::R32_SFLOAT:
+            return VK_FORMAT_R32_SFLOAT;
+        case Format::R32_SINT:
+            return VK_FORMAT_R32_SINT;
+        case Format::R8_UNORM:
+            return VK_FORMAT_R8_UNORM;
+        case Format::R8_UINT:
+            return VK_FORMAT_R8_UINT;
         default:
             return VK_FORMAT_B8G8R8A8_SRGB;
         }
@@ -757,6 +769,18 @@ namespace Lina::Graphics
             return VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT;
         default:
             return VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        }
+    }
+    VkSharingMode GetSharingMode(SharingMode m)
+    {
+        switch (m)
+        {
+        case SharingMode::Exclusive:
+            return VK_SHARING_MODE_EXCLUSIVE;
+        case SharingMode::Concurrent:
+            return VK_SHARING_MODE_CONCURRENT;
+        default:
+            return VK_SHARING_MODE_EXCLUSIVE;
         }
     }
 } // namespace Lina::Graphics

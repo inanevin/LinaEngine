@@ -32,7 +32,7 @@ SOFTWARE.
 #include "PipelineObjects/RenderPass.hpp"
 #include "PipelineObjects/Framebuffer.hpp"
 #include "Resource/Texture.hpp"
-#include <LinaVG/LinaVG.hpp>
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Graphics
 {
@@ -589,19 +589,21 @@ namespace Lina::Graphics
         }
     }
 
-    VkImageCreateInfo VulkanUtility::GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent)
+    VkImageCreateInfo VulkanUtility::GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent, ImageLayout initialLayout, SharingMode sharingMode)
     {
         VkImageCreateInfo info = VkImageCreateInfo{
-            .sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-            .pNext       = nullptr,
-            .imageType   = VK_IMAGE_TYPE_2D,
-            .format      = GetFormat(format),
-            .extent      = VkExtent3D{extent.width, extent.height, extent.depth},
-            .mipLevels   = 1,
-            .arrayLayers = 1,
-            .samples     = VK_SAMPLE_COUNT_1_BIT,
-            .tiling      = GetImageTiling(tiling),
-            .usage       = usageFlags,
+            .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .pNext         = nullptr,
+            .imageType     = VK_IMAGE_TYPE_2D,
+            .format        = GetFormat(format),
+            .extent        = VkExtent3D{extent.width, extent.height, extent.depth},
+            .mipLevels     = 1,
+            .arrayLayers   = 1,
+            .samples       = VK_SAMPLE_COUNT_1_BIT,
+            .tiling        = GetImageTiling(tiling),
+            .usage         = usageFlags,
+            .sharingMode   = GetSharingMode(sharingMode),
+            .initialLayout = GetImageLayout(initialLayout),
         };
         return info;
     }
