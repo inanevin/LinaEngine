@@ -91,7 +91,8 @@ namespace Lina::Graphics
 
     void Buffer::CopyIntoPadded(const void* src, size_t sz, size_t padding)
     {
-        LINA_ASSERT(sz < size, "Size needs to be smaller than total size!");
+        if (sz > size)
+            Recreate(size + sz);
 
         char* data;
         vmaMapMemory(Backend::Get()->GetVMA(), _allocation, (void**)&data);

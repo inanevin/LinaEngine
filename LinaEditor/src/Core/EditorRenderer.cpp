@@ -169,8 +169,8 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
-        LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", false, 18);
-        Graphics::GUIBackend::Get()->LastFontLoaded();
+        uint32 atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", true, 35);
+        Graphics::GUIBackend::Get()->UploadFontTexture(atlas - 1);
     }
 
     void EditorRenderer::Shutdown()

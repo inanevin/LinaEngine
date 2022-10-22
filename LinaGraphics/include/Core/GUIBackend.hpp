@@ -110,7 +110,7 @@ namespace Lina::Graphics
         void UpdateProjection();
         void RecordDrawCommands();
         void SyncData();
-        void LastFontLoaded();
+        void UploadFontTexture(uint32 handle);
         void RecordCopyCommand(Texture* txt, uint32 width, uint32 height, uint32 offset, int32 offsetX, int32 offsetY);
 
     private:
@@ -134,7 +134,7 @@ namespace Lina::Graphics
         static GUIBackend*                 s_instance;
         Material*                          m_guiStandard = nullptr;
         HashMap<uint32, Texture*>          m_fontTextures;
-        uint32                             m_currentlyBoundFontTexture = 0;
+        uint32                             m_bufferingFontTexture = 0;
     };
 
 } // namespace Lina::Graphics

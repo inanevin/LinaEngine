@@ -93,6 +93,81 @@ namespace Lina::Graphics
         stbi_image_free(m_pixels);
     }
 
+    void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
+    {
+        const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
+        const uint8  format = static_cast<uint8>(m_assetData.format);
+        const uint8  min    = static_cast<uint8>(m_assetData.minFilter);
+        const uint8  mag    = static_cast<uint8>(m_assetData.magFilter);
+        const uint8  mode   = static_cast<uint8>(m_assetData.mode);
+        archive(format, min, mag, mode);
+        archive(m_assetData.width, m_assetData.height, m_assetData.channels);
+        archive(size);
+
+        if (size != 0)
+            archive.GetStream().WriteEndianSafe(m_pixels, size);
+    }
+
+    void Texture::LoadFromArchive(Serialization::Archive<IStream>& archive)
+    {
+        uint8  format = 0, min = 0, mag = 0, mode = 0;
+        uint32 w = 0, h = 0, chn = 0, pixelsSize = 0;
+        archive(format, min, mag, mode);
+        archive(w, h, chn, pixelsSize);
+
+        m_assetData.format    = static_cast<Format>(format);
+        m_assetData.minFilter = static_cast<Filter>(min);
+        m_assetData.magFilter = static_cast<Filter>(mag);
+        m_assetData.mode      = static_cast<SamplerAddressMode>(mode);
+        m_assetData.width     = w;
+        m_assetData.height    = h;
+        m_assetData.channels  = chn;
+
+        if (pixelsSize != 0)
+        {
+            m_pixels = new unsigned char[pixelsSize];
+            archive.GetStream().ReadEndianSafe(m_pixels, pixelsSize);
+        }
+    }
+
+    void Texture::GenerateBuffers(unsigned char* pixels)
+    {
+        const size_t          bufferSize = m_assetData.width * m_assetData.height * 4;
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+        m_extent          = Extent3D{.width = m_assetData.width, .height = m_assetData.height, .depth = 1};
+
+        // Buffers & sampler
+        m_cpuBuffer = Buffer{
+            .size        = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        m_gpuImage = Image{
+            .format          = m_assetData.format,
+            .tiling          = ImageTiling::Optimal,
+            .extent          = m_extent,
+            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
+            .subresRange     = range,
+        };
+
+        m_sampler = Sampler{
+            .minFilter = m_assetData.minFilter,
+            .magFilter = m_assetData.magFilter,
+            .u         = m_assetData.mode,
+            .v         = m_assetData.mode,
+            .w         = m_assetData.mode,
+        };
+
+        m_cpuBuffer.Create();
+        m_gpuImage.Create(true, false);
+        m_sampler.Create(false);
+
+        // Upload data
+        WriteToGPUImage(0, pixels, bufferSize, Offset3D{}, m_extent, true);
+    }
+
     void Texture::CreateFromRuntime(Image img, Sampler sampler)
     {
         m_gpuImage = img;
@@ -103,7 +178,8 @@ namespace Lina::Graphics
 
     void Texture::WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
     {
-        m_cpuBuffer.CopyIntoPadded(data, dataSize, cpuBufferOffset);
+        if (data != nullptr)
+            m_cpuBuffer.CopyIntoPadded(data, dataSize, cpuBufferOffset);
 
         Command cmd;
         cmd.Record = [this, &copyExtent, &gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
@@ -165,141 +241,6 @@ namespace Lina::Graphics
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
-    }
-
-    void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
-    {
-        const size_t size   = static_cast<size_t>(m_assetData.width * m_assetData.height * 4);
-        const uint8  format = static_cast<uint8>(m_assetData.format);
-        const uint8  min    = static_cast<uint8>(m_assetData.minFilter);
-        const uint8  mag    = static_cast<uint8>(m_assetData.magFilter);
-        const uint8  mode   = static_cast<uint8>(m_assetData.mode);
-        archive(format, min, mag, mode);
-        archive(m_assetData.width, m_assetData.height, m_assetData.channels);
-        archive(size);
-
-        if (size != 0)
-            archive.GetStream().WriteEndianSafe(m_pixels, size);
-    }
-
-    void Texture::LoadFromArchive(Serialization::Archive<IStream>& archive)
-    {
-        uint8  format = 0, min = 0, mag = 0, mode = 0;
-        uint32 w = 0, h = 0, chn = 0, pixelsSize = 0;
-        archive(format, min, mag, mode);
-        archive(w, h, chn, pixelsSize);
-
-        m_assetData.format    = static_cast<Format>(format);
-        m_assetData.minFilter = static_cast<Filter>(min);
-        m_assetData.magFilter = static_cast<Filter>(mag);
-        m_assetData.mode      = static_cast<SamplerAddressMode>(mode);
-        m_assetData.width     = w;
-        m_assetData.height    = h;
-        m_assetData.channels  = chn;
-
-        if (pixelsSize != 0)
-        {
-            m_pixels = new unsigned char[pixelsSize];
-            archive.GetStream().ReadEndianSafe(m_pixels, pixelsSize);
-        }
-    }
-
-    void Texture::GenerateBuffers(unsigned char* pixels)
-    {
-        const size_t bufferSize = m_assetData.width * m_assetData.height * 4;
-
-        m_cpuBuffer = Buffer{
-            .size        = bufferSize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuOnly,
-        };
-
-        m_cpuBuffer.Create();
-        m_cpuBuffer.CopyInto(pixels, bufferSize);
-        stbi_image_free(m_pixels);
-
-        m_extent = Extent3D{.width = m_assetData.width, .height = m_assetData.height, .depth = 1};
-
-        ImageSubresourceRange range;
-        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-
-        m_gpuImage = Image{
-            .format          = m_assetData.format,
-            .tiling          = ImageTiling::Optimal,
-            .extent          = m_extent,
-            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
-            .subresRange     = range,
-        };
-
-        m_gpuImage.Create(true, false);
-
-        Command cmd;
-        cmd.Record = [this](CommandBuffer& cmd) {
-            ImageSubresourceRange range = ImageSubresourceRange{
-                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-                .baseMipLevel   = 0,
-                .levelCount     = 1,
-                .baseArrayLayer = 0,
-                .layerCount     = 1,
-            };
-
-            ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
-                .srcAccessMask    = 0,
-                .dstAccessMask    = GetAccessFlags(AccessFlags::TransferWrite),
-                .oldLayout        = ImageLayout::Undefined,
-                .newLayout        = ImageLayout::TransferDstOptimal,
-                .img              = m_gpuImage._allocatedImg.image,
-                .subresourceRange = range,
-            };
-
-            Vector<ImageMemoryBarrier> imageBarriers;
-            imageBarriers.push_back(imageBarrierToTransfer);
-
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
-
-            ImageSubresourceRange copySubres = ImageSubresourceRange{
-                .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-                .baseMipLevel   = 0,
-                .baseArrayLayer = 0,
-                .layerCount     = 1,
-            };
-
-            BufferImageCopy copyRegion = BufferImageCopy{
-                .bufferOffset      = 0,
-                .bufferRowLength   = 0,
-                .bufferImageHeight = 0,
-                .imageSubresource  = copySubres,
-                .imageExtent       = m_extent,
-            };
-
-            // copy the buffer into the image
-            cmd.CMD_CopyBufferToImage(m_cpuBuffer._ptr, m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, {copyRegion});
-
-            ImageMemoryBarrier barrierToReadable = imageBarrierToTransfer;
-            barrierToReadable.oldLayout          = ImageLayout::TransferDstOptimal;
-            barrierToReadable.newLayout          = ImageLayout::ShaderReadOnlyOptimal;
-            barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
-            barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
-
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
-        };
-
-        cmd.OnSubmitted = [this]() {
-            m_gpuImage._ready = true;
-            m_cpuBuffer.Destroy();
-        };
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
-
-        m_sampler = Sampler{
-            .minFilter = m_assetData.minFilter,
-            .magFilter = m_assetData.magFilter,
-            .u         = m_assetData.mode,
-            .v         = m_assetData.mode,
-            .w         = m_assetData.mode,
-        };
-
-        m_sampler.Create(false);
     }
 
 } // namespace Lina::Graphics
