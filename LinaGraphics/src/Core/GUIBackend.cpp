@@ -349,7 +349,7 @@ namespace Lina::Graphics
         for (int i = 0; i < height; i++)
         {
             const uint32 size = width;
-            txt->m_cpuBuffer.CopyIntoPadded(&data[startOffset], size, startOffset);
+            txt->m_cpuBuffer.CopyIntoPadded(&data[width * i], size, startOffset);
             startOffset += txt->m_extent.width;
         }
 
