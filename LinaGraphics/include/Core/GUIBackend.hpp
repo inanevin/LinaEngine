@@ -135,8 +135,6 @@ namespace Lina::Graphics
         CommandBuffer*                     m_cmd           = nullptr;
         static GUIBackend*                 s_instance;
         Material*                          m_guiStandard = nullptr;
-        Material*                          m_guiText     = nullptr;
-        Material*                          m_lastBound   = nullptr;
         HashMap<uint32, Texture*>          m_fontTextures;
         uint32                             m_bufferingFontTexture = 0;
     };
