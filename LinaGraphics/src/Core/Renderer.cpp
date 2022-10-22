@@ -317,7 +317,6 @@ namespace Lina::Graphics
         }
 
         m_opaquePass.PrepareRenderData(m_extractedRenderables);
-        
     }
 
     void Renderer::Render()
@@ -387,21 +386,27 @@ namespace Lina::Graphics
         auto& postPass  = m_renderPasses[RenderPassType::PostProcess];
         auto& finalPass = m_renderPasses[RenderPassType::Final];
 
+        // ****** MAIN PASS ******
+        PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
         mainPass.Begin(*mainPass._framebuffer, cmd);
-
         m_opaquePass.UpdateViewData(GetViewDataBuffer());
         m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main);
         mainPass.End(cmd);
+        PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
 
+        // ****** POST PROCESS PASS ******
+        PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
         postPass.Begin(*postPass._framebuffer, cmd);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-
         cmd.CMD_Draw(3, 1, 0, 0);
         postPass.End(cmd);
+        PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
+
+        // ****** FINAL PASS ******
+        PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
 
         const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor;
-
         if (drawEditor)
             Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawBegin>(Event::EOnEditorDrawBegin{.cmd = &cmd});
 
@@ -418,6 +423,8 @@ namespace Lina::Graphics
 
         if (drawEditor)
             Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawEnd>(Event::EOnEditorDrawEnd{.cmd = &cmd});
+
+        PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
 
         cmd.End();
 

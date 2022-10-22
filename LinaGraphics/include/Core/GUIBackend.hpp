@@ -118,6 +118,7 @@ namespace Lina::Graphics
         void      UpdateProjection();
         void      RecordDrawCommands();
         void      UploadFontTexture(uint32 handle);
+        void      SyncData();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
     private:
@@ -125,8 +126,10 @@ namespace Lina::Graphics
         Buffer m_gpuIndexBuffer;
 
         Vector<OrderedDrawRequest> m_orderedDrawRequests;
-        Vector<LinaVG::Vertex>     m_copyVertices;
-        Vector<LinaVG::Index>      m_copyIndices;
+        Vector<LinaVG::Vertex>     m_cpuCopyVertices;
+        Vector<LinaVG::Index>      m_cpuCopyIndices;
+        Vector<LinaVG::Vertex>     m_gpuCopyVertices;
+        Vector<LinaVG::Index>      m_gpuCopyIndices;
 
         HashMap<uint32, Vector<Material*>> m_transientMaterials;
         Matrix                             m_projection    = Matrix::Identity();

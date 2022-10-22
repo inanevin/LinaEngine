@@ -158,7 +158,7 @@ namespace Lina
             auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
             mat->SaveToFile();
         }
-        
+
         // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText);
         // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
         // mat->SaveToFile();
@@ -240,6 +240,7 @@ namespace Lina
 
             // Sync previous frame.
             m_renderEngine.SyncData();
+            m_eventSystem.Trigger<Event::ESyncThreads>({});
 
             PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 

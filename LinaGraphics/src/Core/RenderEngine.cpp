@@ -201,6 +201,12 @@ namespace Lina::Graphics
         m_renderer.Join();
     }
 
+    void RenderEngine::SyncData()
+    {
+        m_renderer.SyncData();
+        GUIBackend::Get()->SyncData();
+    }
+
     void RenderEngine::Shutdown()
     {
         RETURN_NOTINITED;

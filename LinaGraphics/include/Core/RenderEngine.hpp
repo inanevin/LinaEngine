@@ -145,11 +145,6 @@ namespace Lina::Graphics
             return m_engineShaders[sh];
         }
 
-        inline void SyncData()
-        {
-            m_renderer.SyncData();
-        }
-
         inline Viewport& GetViewport()
         {
             return m_viewport;
@@ -171,6 +166,7 @@ namespace Lina::Graphics
         void Initialize(const InitInfo& initInfo);
         void Clear();
         void Tick();
+        void SyncData();
         void Render();
         void Stop();
         void Shutdown();

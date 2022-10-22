@@ -38,6 +38,7 @@ namespace Lina
         struct EOnEditorDrawBegin;
         struct EOnEditorDraw;
         struct EOnEditorDrawEnd;
+        struct ETick;
     } // namespace Event
 
 } // namespace Lina
@@ -54,6 +55,7 @@ namespace Lina::Editor
         void OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev);
         void OnEditorDraw(const Event::EOnEditorDraw& ev);
         void OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev);
+        void OnTick(const Event::ETick& ev);
     };
 } // namespace Lina::Editor
 

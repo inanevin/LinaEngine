@@ -41,11 +41,9 @@ namespace Lina::Event
     };
     struct EPreMainLoop
     {
-
     };
     struct EPostMainLoop
     {
-
     };
     struct EStartGame
     {
@@ -68,6 +66,11 @@ namespace Lina::Event
         float deltaTime    = 0.0f;
         bool  isInPlayMode = false;
     };
+
+    struct ESyncThreads
+    {
+    };
+
     struct EPlayModeChanged
     {
         bool playMode = false;
@@ -79,12 +82,12 @@ namespace Lina::Event
 
     struct EPrePhysicsTick
     {
-        float fixedDelta = 0.0f;
+        float fixedDelta   = 0.0f;
         bool  isInPlayMode = false;
     };
     struct EPostPhysicsTick
     {
-        float fixedDelta = 0.0f;
+        float fixedDelta   = 0.0f;
         bool  isInPlayMode = false;
     };
 } // namespace Lina::Event

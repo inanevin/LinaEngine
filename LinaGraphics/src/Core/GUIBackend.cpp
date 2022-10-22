@@ -79,11 +79,26 @@ namespace Lina::Graphics
             delete t.second;
         }
 
+        m_cpuCopyIndices.clear();
+        m_gpuCopyIndices.clear();
+        m_cpuCopyVertices.clear();
+        m_gpuCopyVertices.clear();
         m_transientMaterials.clear();
         m_gpuVtxBuffer.Destroy();
         m_gpuIndexBuffer.Destroy();
     }
 
+    void GUIBackend::SyncData()
+    {
+        for (auto& v : m_cpuCopyVertices)
+            m_gpuCopyVertices.push_back(v);
+
+        for (auto& v : m_cpuCopyIndices)
+            m_gpuCopyIndices.push_back(v);
+
+        m_cpuCopyIndices.clear();
+        m_cpuCopyVertices.clear();
+    }
     void GUIBackend::StartFrame()
     {
         if (m_guiStandard == nullptr)
@@ -137,7 +152,7 @@ namespace Lina::Graphics
 
     void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
     {
-        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SimpleText);
+        Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SDF);
         mat->SetProperty("intvar1", 4);
         mat->SetProperty("color1", buf->m_outlineColor);
         mat->SetProperty("floatvar3", buf->m_outlineThickness);
@@ -171,10 +186,10 @@ namespace Lina::Graphics
         m_orderedDrawRequests.push_back(request);
 
         for (int i = 0; i < buf->m_vertexBuffer.m_size; i++)
-            m_copyVertices.push_back(buf->m_vertexBuffer[i]);
+            m_cpuCopyVertices.push_back(buf->m_vertexBuffer[i]);
 
         for (int i = 0; i < buf->m_indexBuffer.m_size; i++)
-            m_copyIndices.push_back(buf->m_indexBuffer[i]);
+            m_cpuCopyIndices.push_back(buf->m_indexBuffer[i]);
 
         m_indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         m_vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
@@ -184,20 +199,25 @@ namespace Lina::Graphics
 
     void GUIBackend::EndFrame()
     {
-        if (!m_copyVertices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuVtxBuffer._ptr, 0, m_copyVertices.size() * sizeof(LinaVG::Vertex), m_copyVertices.data());
+        if (!m_gpuCopyVertices.empty())
+            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuVtxBuffer._ptr, 0, m_gpuCopyVertices.size() * sizeof(LinaVG::Vertex), m_gpuCopyVertices.data());
 
-        if (!m_copyIndices.empty())
-            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuIndexBuffer._ptr, 0, m_copyIndices.size() * sizeof(LinaVG::Index), m_copyIndices.data());
+        if (!m_gpuCopyIndices.empty())
+            vkCmdUpdateBuffer(m_cmd->_ptr, m_gpuIndexBuffer._ptr, 0, m_gpuCopyIndices.size() * sizeof(LinaVG::Index), m_gpuCopyIndices.data());
 
-        m_copyVertices.clear();
-        m_copyIndices.clear();
+        m_gpuCopyVertices.clear();
+        m_gpuCopyIndices.clear();
 
         m_indexCounter = m_vertexCounter = 0;
     }
 
     void GUIBackend::RecordDrawCommands()
     {
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
+        if (m_orderedDrawRequests.empty())
+            return;
+
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
@@ -208,7 +228,6 @@ namespace Lina::Graphics
             r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
-
 
         m_orderedDrawRequests.clear();
     }

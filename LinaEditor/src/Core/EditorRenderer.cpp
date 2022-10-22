@@ -93,57 +93,57 @@ namespace Lina::Editor
         textOpts.color     = Vec4(1, 1, 1, 1);
         LinaVG::DrawTextNormal("And this is a normal text with higher spacing.", startPos, textOpts, m_rotateAngle, 1);
 
- //  startPos.y += 70;
- //  startPos.x                       = screenSize.x * 0.05f;
- //  const float    beforeSDFStartPos = startPos.y;
- //  SDFTextOptions sdfOpts;
- //  sdfOpts.font         = 2;
- //  sdfOpts.sdfThickness = 0.55f;
- //  LinaVG::DrawTextSDF("An SDF text.", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y += 50;
- //  sdfOpts.sdfThickness = 0.6f;
- //  sdfOpts.color.start  = Vec4(1, 0, 0, 1);
- //  sdfOpts.color.end    = Vec4(0, 0, 1, 1);
- //  LinaVG::DrawTextSDF("Thicker SDF text", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y += 50;
- //  sdfOpts.sdfThickness = 0.7f;
- //  sdfOpts.sdfSoftness  = 2.0f;
- //  sdfOpts.color        = Vec4(0.1f, 0.8f, 0.1f, 1.0f);
- //  LinaVG::DrawTextSDF("Smoother text", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y += 50;
- //  sdfOpts.color               = Vec4(1, 1, 1, 1);
- //  sdfOpts.sdfThickness        = 0.6f;
- //  sdfOpts.sdfSoftness         = 0.5f;
- //  sdfOpts.sdfOutlineThickness = 0.1f;
- //  sdfOpts.sdfOutlineColor     = Vec4(0, 0, 0, 1);
- //  LinaVG::DrawTextSDF("Outlined SDF text", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y += 50;
- //  sdfOpts.sdfThickness        = 0.8f;
- //  sdfOpts.sdfSoftness         = 0.5f;
- //  sdfOpts.sdfOutlineThickness = 0.3f;
- //  sdfOpts.sdfOutlineColor     = Vec4(0, 0, 0, 1);
- //  LinaVG::DrawTextSDF("Thicker outline.", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y += 50;
- //  sdfOpts.sdfDropShadowThickness = 0.6f;
- //  sdfOpts.dropShadowOffset       = Vec2(5, 5);
- //  sdfOpts.sdfOutlineThickness    = 0.0f;
- //  sdfOpts.sdfThickness           = 0.6f;
- //  LinaVG::DrawTextSDF("Drop shadow.", startPos, sdfOpts, m_rotateAngle, 1);
- //
- //  startPos.y = beforeSDFStartPos;
- //  startPos.x += 930;
- //  sdfOpts.sdfDropShadowThickness = 0.0f;
- //  sdfOpts.sdfOutlineThickness    = 0.0f;
- //  sdfOpts.sdfThickness           = 0.6f;
- //  sdfOpts.wrapWidth              = 450;
- //  sdfOpts.newLineSpacing         = 10.0f;
- //  sdfOpts.alignment              = TextAlignment::Right;
- //  LinaVG::DrawTextSDF("This is an SDF, wrapped and right aligned text, with higher line spacing.", startPos, sdfOpts, m_rotateAngle, 1);
+        startPos.y += 70;
+        startPos.x                       = screenSize.x * 0.05f;
+        const float    beforeSDFStartPos = startPos.y;
+        SDFTextOptions sdfOpts;
+        sdfOpts.font         = 2;
+        sdfOpts.sdfThickness = 0.55f;
+        LinaVG::DrawTextSDF("An SDF text.", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y += 50;
+        sdfOpts.sdfThickness = 0.6f;
+        sdfOpts.color.start  = Vec4(1, 0, 0, 1);
+        sdfOpts.color.end    = Vec4(0, 0, 1, 1);
+        LinaVG::DrawTextSDF("Thicker SDF text", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y += 50;
+        sdfOpts.sdfThickness = 0.7f;
+        sdfOpts.sdfSoftness  = 2.0f;
+        sdfOpts.color        = Vec4(0.1f, 0.8f, 0.1f, 1.0f);
+        LinaVG::DrawTextSDF("Smoother text", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y += 50;
+        sdfOpts.color               = Vec4(1, 1, 1, 1);
+        sdfOpts.sdfThickness        = 0.6f;
+        sdfOpts.sdfSoftness         = 0.5f;
+        sdfOpts.sdfOutlineThickness = 0.1f;
+        sdfOpts.sdfOutlineColor     = Vec4(0, 0, 0, 1);
+        LinaVG::DrawTextSDF("Outlined SDF text", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y += 50;
+        sdfOpts.sdfThickness        = 0.8f;
+        sdfOpts.sdfSoftness         = 0.5f;
+        sdfOpts.sdfOutlineThickness = 0.3f;
+        sdfOpts.sdfOutlineColor     = Vec4(0, 0, 0, 1);
+        LinaVG::DrawTextSDF("Thicker outline.", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y += 50;
+        sdfOpts.sdfDropShadowThickness = 0.6f;
+        sdfOpts.dropShadowOffset       = Vec2(5, 5);
+        sdfOpts.sdfOutlineThickness    = 0.0f;
+        sdfOpts.sdfThickness           = 0.6f;
+        LinaVG::DrawTextSDF("Drop shadow.", startPos, sdfOpts, m_rotateAngle, 1);
+
+        startPos.y = beforeSDFStartPos;
+        startPos.x += 930;
+        sdfOpts.sdfDropShadowThickness = 0.0f;
+        sdfOpts.sdfOutlineThickness    = 0.0f;
+        sdfOpts.sdfThickness           = 0.6f;
+        sdfOpts.wrapWidth              = 450;
+        sdfOpts.newLineSpacing         = 10.0f;
+        sdfOpts.alignment              = TextAlignment::Right;
+        LinaVG::DrawTextSDF("This is an SDF, wrapped and right aligned text, with higher line spacing.", startPos, sdfOpts, m_rotateAngle, 1);
     }
 
     void ShowDemoScreen2_Colors()
@@ -271,6 +271,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
+        Event::EventSystem::Get()->Connect<Event::ETick, &EditorRenderer::OnTick>(this);
         uint32 atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", false, 35);
         Graphics::GUIBackend::Get()->UploadFontTexture(atlas);
         atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", true, 35);
@@ -282,28 +283,19 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawEnd>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
     }
 
+    void EditorRenderer::OnTick(const Event::ETick& ev)
+    {
+        ShowDemoScreen2_Colors();
+
+    }
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
-
-        const Vector2 screen = Graphics::Screen::SizeF();
-
-        // float aq = LinaVG::Config.displayWidth;
         LinaVG::StartFrame();
-        // StyleOptions opts;
-        // opts.isFilled = true;
-        // opts.color    = Vec4(0.1f, 0, 0, 1);
-        // DrawRect(Vec2(5, 5), Vec2(screen.x - 5, 100), opts, 0);
-        //
-        // opts.color = Vec4(0.1f, 1, 0, 1);
-        // DrawRect(Vec2(5, 125), Vec2(screen.x - 5, 200), opts, 0, 1);
-        ShowDemoScreen2_Colors();
         ShowDemoScreen5_Texts();
-        // opts.color = Vec4(0.1f, 0.25f, 0, 1);
-        // DrawRect(Vec2(800, 800), Vec2(1000, 1000), opts, 40);
-
         LinaVG::Render();
         LinaVG::EndFrame();
     }
