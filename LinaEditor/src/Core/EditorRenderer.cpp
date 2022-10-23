@@ -170,7 +170,6 @@ namespace Lina::Editor
         TextOptions textOpts;
         textOpts.font = 1;
 
-        return;
 
         for (int i = 0; i < 200; i++)
         {

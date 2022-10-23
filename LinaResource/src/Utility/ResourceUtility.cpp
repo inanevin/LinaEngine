@@ -35,9 +35,9 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    Utility::Folder*     ResourceUtility::s_rootFolder               = nullptr;
-    String               ResourceUtility::s_workingDirectory         = "";
-    String               ResourceUtility::s_workingDirectoryReplaced = "";
+    Utility::Folder* ResourceUtility::s_rootFolder               = nullptr;
+    String           ResourceUtility::s_workingDirectory         = "";
+    String           ResourceUtility::s_workingDirectoryReplaced = "";
 
     void ResourceUtility::ScanFolder(Utility::Folder* root, bool recursive, int* totalFiles, bool isRescan)
     {
@@ -60,8 +60,8 @@ namespace Lina::Resources
 
                         if (outItem != nullptr && lastTime != outItem->lastWriteTime)
                         {
-                            const StringID sid = HashedString(replacedFullPath.c_str()).value();
-                            const TypeID       tid = outItem->typeID;
+                            const StringID sid = TO_SID(replacedFullPath);
+                            const TypeID   tid = outItem->typeID;
                             Resources::ResourceManager::Get()->Unload(tid, sid);
                             Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                         }
@@ -76,8 +76,8 @@ namespace Lina::Resources
                 }
                 else
                 {
-                    const StringID sid = HashedString(replacedFullPath.c_str()).value();
-                    const TypeID       tid = Resources::ResourceManager::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
+                    const StringID sid = TO_SID(replacedFullPath);
+                    const TypeID   tid = Resources::ResourceManager::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
                     Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
                 }
             }
@@ -87,16 +87,16 @@ namespace Lina::Resources
                 Utility::File* file = new Utility::File();
                 root->files.push_back(file);
 
-                file->fullName         = entry.path().filename().string().c_str();
-                file->folderPath       = (entry.path().parent_path().string() + "/").c_str();
-                file->fullPath         = replacedFullPath;
-                file->extension        = file->fullName.substr(file->fullName.find(".") + 1);
-                file->name             = Utility::GetFileWithoutExtension(file->fullName);
-                file->parent           = root;
-                file->typeID           = Resources::ResourceManager::Get()->GetTypeIDFromExtension(file->extension);
-                file->lastWriteTime    = std::filesystem::last_write_time(file->fullPath.c_str());
-                const StringID sid = HashedString(file->fullPath.c_str()).value();
-                file->sid              = sid;
+                file->fullName      = entry.path().filename().string().c_str();
+                file->folderPath    = (entry.path().parent_path().string() + "/").c_str();
+                file->fullPath      = replacedFullPath;
+                file->extension     = file->fullName.substr(file->fullName.find(".") + 1);
+                file->name          = Utility::GetFileWithoutExtension(file->fullName);
+                file->parent        = root;
+                file->typeID        = Resources::ResourceManager::Get()->GetTypeIDFromExtension(file->extension);
+                file->lastWriteTime = std::filesystem::last_write_time(file->fullPath.c_str());
+                const StringID sid  = TO_SID(file->fullPath);
+                file->sid           = sid;
 
                 if (totalFiles != nullptr)
                     (*totalFiles) = (*totalFiles) + 1;
@@ -105,13 +105,13 @@ namespace Lina::Resources
             {
                 Utility::Folder* folder = new Utility::Folder();
                 root->folders.push_back(folder);
-                folder->name           = entry.path().filename().string().c_str();
-                folder->fullPath       = replacedFullPath;
-                folder->parent         = root;
-                folder->typeID         = 0;
-                folder->lastWriteTime  = std::filesystem::last_write_time(folder->fullPath.c_str());
-                const StringID sid = HashedString(folder->fullPath.c_str()).value();
-                folder->sid            = sid;
+                folder->name          = entry.path().filename().string().c_str();
+                folder->fullPath      = replacedFullPath;
+                folder->parent        = root;
+                folder->typeID        = 0;
+                folder->lastWriteTime = std::filesystem::last_write_time(folder->fullPath.c_str());
+                const StringID sid    = TO_SID(folder->fullPath);
+                folder->sid           = sid;
 
                 if (recursive)
                     ScanFolder(folder, recursive, totalFiles);
@@ -173,7 +173,7 @@ namespace Lina::Resources
         s_rootFolder           = new Utility::Folder();
         s_rootFolder->fullPath = "Resources/";
         s_rootFolder->name     = "Resources";
-        int totalFiles = 0;
+        int totalFiles         = 0;
         ResourceUtility::ScanFolder(s_rootFolder, true, &totalFiles);
     }
 

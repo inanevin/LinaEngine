@@ -126,7 +126,7 @@ namespace Lina::Resources
 
     void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
     {
-        const StringID sid = HashedString(path.c_str()).value();
+        const StringID sid = TO_SID(path);
         auto*          rm  = ResourceManager::Get();
 
         if (rm->Exists(tid, sid))

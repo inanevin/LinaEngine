@@ -36,7 +36,7 @@ namespace Lina::Resources
         const String basePath  = "Resources/Editor/Metacache/";
         const String ext       = ".linameta";
         const String name      = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
-        const String sidStr    = TO_STRING(HashedString(path.c_str()).value());
+        const String sidStr    = TO_STRING(TO_SID(path));
         const String finalName = basePath + name + "-" + sidStr + ext;
 
         if (!Utility::FileExists(basePath))

@@ -75,7 +75,7 @@ namespace Lina::World
 
     void Level::SaveToFile(const String& path)
     {
-        m_sid  = HashedString(path.c_str());
+        m_sid  = TO_SID(path);
         m_path = path;
         m_tid  = GetTypeID<Level>();
 

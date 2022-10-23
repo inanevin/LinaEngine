@@ -88,7 +88,7 @@ namespace Lina
             bool found = false;
             for (auto& str : it->second)
             {
-                if (HashedString(str.c_str()).value() == sid)
+                if (TO_SID(str) == sid)
                     return true;
             }
 

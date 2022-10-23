@@ -100,7 +100,7 @@ namespace Lina::Resources
         template <typename T>
         T* GetResource(const String& path)
         {
-            const StringID    sid   = HashedString(path.c_str());
+            const StringID    sid   = TO_SID(path);
             const TypeID      tid   = GetTypeID<T>();
             ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
             return cache->GetResource(sid);
@@ -129,7 +129,7 @@ namespace Lina::Resources
 
         void Unload(TypeID tid, const String& path)
         {
-            m_caches[tid]->UnloadBase(HashedString(path.c_str()).value());
+            m_caches[tid]->UnloadBase(TO_SID(path));
         }
 
         Resource* GetResource(TypeID tid, StringID sid)

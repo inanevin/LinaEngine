@@ -216,7 +216,7 @@ namespace Lina::Resources
 
     void ResourceLoader::LoadResourceFromMemory(TypeID tid, const String& path, uint8* data, uint32 size)
     {
-        const StringID sid = HashedString(path.c_str()).value();
+        const StringID sid = TO_SID(path);
         auto*          rm  = ResourceManager::Get();
 
         if (rm->Exists(tid, sid))

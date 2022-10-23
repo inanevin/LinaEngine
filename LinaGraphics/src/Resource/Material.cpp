@@ -118,6 +118,7 @@ namespace Lina::Graphics
 
     void Material::ChangedShader()
     {
+
         if (m_descriptorPool._ptr != nullptr)
             m_descriptorPool.Destroy();
 
@@ -198,11 +199,14 @@ namespace Lina::Graphics
                         }
                         else
                         {
-                            Texture* text = Resources::ResourceManager::Get()->GetResource<Texture>(t.handle.sid);
-                            if (text != nullptr)
+                            if (Resources::ResourceManager::Get()->Exists<Texture>(t.handle.sid))
                             {
-                                prop.handle.sid   = t.handle.sid;
-                                prop.handle.value = text;
+                                Texture* text = Resources::ResourceManager::Get()->GetResource<Texture>(t.handle.sid);
+                                if (text != nullptr)
+                                {
+                                    prop.handle.sid   = t.handle.sid;
+                                    prop.handle.value = text;
+                                }
                             }
                         }
 
@@ -221,14 +225,6 @@ namespace Lina::Graphics
 
         m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 
-        if (m_descriptor._ptr != nullptr)
-        {
-            m_descriptor.BeginUpdate();
-
-            for (auto& pair : m_textures)
-                m_descriptor.AddTextureUpdate(pair.binding, pair.handle.value);
-            m_descriptor.SendUpdate();
-        }
     }
 
     uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)

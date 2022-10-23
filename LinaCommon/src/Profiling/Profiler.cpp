@@ -187,7 +187,7 @@ namespace Lina
         s->threadName = thread;
         s->startTime  = cpuTimeNow;
         s->parent     = branch.lastScope;
-        s->threadID   = HashedString(thread.c_str()).value();
+        s->threadID   = TO_SID(thread);
 
         if (branch.lastScope == nullptr)
             branch.scopes.push_back(s);

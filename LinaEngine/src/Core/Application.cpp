@@ -116,7 +116,7 @@ namespace Lina
         LOCK_GUARD(m_infoLock);
         const int   processed = ++m_resourceProgressCurrentProcessed;
         const float perc      = static_cast<float>(processed) / static_cast<float>(m_resourceProgressCurrentTotalFiles);
-        LINA_INFO("{0} - [{1}] - [{2}] - [{3}%]", m_resourceProgressCurrentTitle, HashedString(ev.currentResource.c_str()).value(), ev.currentResource, perc * 100.0f);
+        LINA_INFO("{0} - [{1}] - [{2}] - [{3}%]", m_resourceProgressCurrentTitle, TO_SID(ev.currentResource), ev.currentResource, perc * 100.0f);
 #endif
     }
 

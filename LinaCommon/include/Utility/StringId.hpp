@@ -35,22 +35,66 @@ SOFTWARE.
 #include <entt/entt.hpp>
 namespace Lina
 {
-    typedef entt::hashed_string::hash_type StringID;
-    typedef entt::hashed_string            HashedString;
-    typedef entt::id_type                  TypeID;
+    typedef uint32 StringID;
+    typedef uint32 TypeID;
 
-    template <typename T>
-    TypeID GetTypeID()
+    // https://gist.github.com/hwei/1950649d523afd03285c
+    class FnvHash
     {
-        return entt::type_hash<T>::value();
+        static const unsigned int                               FNV_PRIME    = 16777619u;
+        static const unsigned int                               OFFSET_BASIS = 2166136261u;
+        template <unsigned int N> static constexpr unsigned int fnvHashConst(const char (&str)[N], unsigned int I = N)
+        {
+            return I == 1 ? (OFFSET_BASIS ^ str[0]) * FNV_PRIME : (fnvHashConst(str, I - 1) ^ str[I - 1]) * FNV_PRIME;
+        }
+        static uint32 fnvHash(const char* str)
+        {
+            const size_t length = strlen(str) + 1;
+            uint32       hash   = OFFSET_BASIS;
+            for (size_t i = 0; i < length; ++i)
+            {
+                hash ^= *str++;
+                hash *= FNV_PRIME;
+            }
+            return hash;
+        }
+        struct Wrapper
+        {
+            Wrapper(const char* str) : str(str)
+            {
+            }
+            const char* str;
+        };
+        unsigned int hash_value;
+
+    public:
+        // calulate in run-time
+        FnvHash(Wrapper wrapper) : hash_value(fnvHash(wrapper.str))
+        {
+        }
+        // calulate in compile-time
+        template <unsigned int N> constexpr FnvHash(const char (&str)[N]) : hash_value(fnvHashConst(str))
+        {
+        }
+        // output result
+        constexpr operator unsigned int() const
+        {
+            return this->hash_value;
+        }
+    };
+
+    template <typename T> TypeID GetTypeID()
+    {
+        return FnvHash(typeid(T).name());
     }
 
     constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept
     {
-        return HashedString(str).value();
+        return FnvHash(str);
     }
 
-#define TO_SID(X) HashedString(X.c_str()).value()
+#define TO_SID(X) FnvHash(X.c_str())
+
 } // namespace Lina
 
 #endif

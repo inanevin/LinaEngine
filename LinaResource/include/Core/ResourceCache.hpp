@@ -193,7 +193,7 @@ namespace Lina::Resources
                     if (pair.first != tid)
                         continue;
 
-                    const StringID levelResSid = HashedString(pair.second.c_str()).value();
+                    const StringID levelResSid = TO_SID(pair.second);
                     if (sid == levelResSid)
                     {
                         found = true;

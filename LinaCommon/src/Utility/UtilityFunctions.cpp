@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -115,10 +115,10 @@ namespace Lina
 
         String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension)
         {
-            static int  uniqueNameCounter = 0;
-            String newName           = prefix + "_" + TO_STRING(uniqueNameCounter).c_str();
-            bool        newNameExists     = true;
-            int         timeOutCounter    = 0;
+            static int uniqueNameCounter = 0;
+            String     newName           = prefix + "_" + TO_STRING(uniqueNameCounter).c_str();
+            bool       newNameExists     = true;
+            int        timeOutCounter    = 0;
 
             // Loop through the sub-folders and make sure no folder with the same name exists.
             while (newNameExists && timeOutCounter < 1000)
@@ -168,7 +168,7 @@ namespace Lina
         {
             const String newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
-            Folder* folder     = new Folder();
+            Folder* folder   = new Folder();
             folder->parent   = parent;
             folder->name     = newFolderName;
             folder->fullPath = parent->fullPath + "/" + folder->name;
@@ -196,7 +196,6 @@ namespace Lina
             folder = nullptr;
         }
 
-       
         bool CreateFolderInPath(const String& path)
         {
             bool success = std::filesystem::create_directory(path.c_str());
@@ -225,7 +224,7 @@ namespace Lina
         void ParentPathUpdated(Folder* folder)
         {
             const String oldPath = folder->fullPath;
-            folder->fullPath        = folder->parent->fullPath + "/" + folder->name;
+            folder->fullPath     = folder->parent->fullPath + "/" + folder->name;
 
             for (auto* subfolder : folder->folders)
                 ParentPathUpdated(subfolder);
@@ -236,19 +235,19 @@ namespace Lina
 
         void ParentPathUpdated(File* file)
         {
-            const StringID sidBefore = HashedString(file->fullPath.c_str()).value();
-            const String oldPath = file->fullPath;
-            file->fullPath             = file->parent->fullPath + "/" + file->fullName;
-            const StringID sidNow    = HashedString(file->fullPath.c_str()).value();
-            file->sid                  = sidNow;
+            const StringID sidBefore = TO_SID(file->fullPath);
+            const String   oldPath   = file->fullPath;
+            file->fullPath           = file->parent->fullPath + "/" + file->fullName;
+            const StringID sidNow    = TO_SID(file->fullPath);
+            file->sid                = sidNow;
             Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{file->typeID, sidBefore, sidNow, oldPath, file->fullPath});
         }
 
         void ChangeFileName(File* file, const String& newName)
         {
             const String oldPath = file->fullPath;
-            file->name              = newName;
-            file->fullName          = newName + "." + file->extension;
+            file->name           = newName;
+            file->fullName       = newName + "." + file->extension;
             ParentPathUpdated(file);
             ChangeDirectoryName(oldPath, file->fullPath);
         }
@@ -256,8 +255,8 @@ namespace Lina
         void ChangeFolderName(Folder* folder, const String& newName)
         {
             const String oldPath = folder->fullPath;
-            folder->fullPath        = folder->parent->fullPath + "/" + newName;
-            folder->name            = newName;
+            folder->fullPath     = folder->parent->fullPath + "/" + newName;
+            folder->name         = newName;
 
             for (auto* subfolder : folder->folders)
                 ParentPathUpdated(subfolder);
@@ -373,7 +372,7 @@ namespace Lina
         {
             const String filterLowercase = Utility::ToLower(filter);
             const String folderLower     = Utility::ToLower(folder->name);
-            const bool        folderContains  = folderLower.find(filterLowercase) != String::npos;
+            const bool   folderContains  = folderLower.find(filterLowercase) != String::npos;
             return folderContains;
         }
 
@@ -421,9 +420,9 @@ namespace Lina
         String GetFileContents(const String& filePath)
         {
             std::ifstream ifs(filePath.c_str());
-            auto a = std::istreambuf_iterator<char>(ifs);
-            auto b = (std::istreambuf_iterator<char>());
-            std::string   content(a,b);
+            auto          a = std::istreambuf_iterator<char>(ifs);
+            auto          b = (std::istreambuf_iterator<char>());
+            std::string   content(a, b);
             return content.c_str();
         }
 

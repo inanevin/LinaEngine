@@ -49,7 +49,7 @@ namespace Lina::World
 
     void LevelManager::InstallLevel(const String& path, bool loadAsync)
     {
-        const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == HashedString(path.c_str()).value() : false;
+        const bool sameLevel = m_currentLevel != nullptr ? m_currentLevel->GetSID() == TO_SID(path) : false;
 
         // Uninstall current level if exists.
         // We don't use UninstallCurrent() here as it'll uninstall all resources that level contains.

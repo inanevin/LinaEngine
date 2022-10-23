@@ -152,6 +152,15 @@ namespace Lina
         // mat->SetShader(shader);
         // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", *mat);
 
+        auto val1 = entt::hashed_string("Engine/Resources/Anan/Shader.txt").value();
+        uint32 val2 = TO_SID(String("Engine/Resources/Anan/Shader.txt"));
+
+        m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIStandard));
+        m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
+        m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::LitStandard));
+        m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal));
+        m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));
+
         const auto& paths = m_renderEngine.GetEngineMaterialPaths();
         for (auto& p : paths)
         {
