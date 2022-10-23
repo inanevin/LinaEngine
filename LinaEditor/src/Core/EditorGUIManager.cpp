@@ -48,7 +48,7 @@ namespace Lina::Editor
 
     void EditorGUIManager::Draw()
     {
-        // m_rootNode.Draw(RuntimeInfo::GetDeltaTime());
+        m_rootNode.Draw(RuntimeInfo::GetDeltaTime());
     }
 
 } // namespace Lina::Editor

@@ -128,4 +128,10 @@ namespace Lina::Graphics
         }
     }
 
+    void Buffer::ResetIfNecessary(size_t newSize)
+    {
+       // if(newSize > size)
+       // Recreate(
+    }
+
 } // namespace Lina::Graphics

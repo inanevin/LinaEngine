@@ -170,52 +170,14 @@ namespace Lina::Editor
         TextOptions textOpts;
         textOpts.font = 1;
 
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
+        return;
 
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-        LinaVG::DrawTextNormal("This is a normal text.", startPos, textOpts, m_rotateAngle, 1);
-
+        for (int i = 0; i < 200; i++)
+        {
+            String str = "This is a " + TO_STRING(i);
+            LinaVG::DrawTextNormal(str.c_str(), startPos, textOpts, m_rotateAngle, 1);
+        }
+       
 
         return;
 
@@ -456,13 +418,11 @@ namespace Lina::Editor
     {
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
         LinaVG::StartFrame();
-        aq();
-        ShowDemoScreen2_Colors();
-       ShowDemoScreen5_Texts();
-
+       // ShowDemoScreen2_Colors();
+        ShowDemoScreen5_Texts();
+     //   aq();
         LinaVG::Render();
         LinaVG::EndFrame();
-
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)

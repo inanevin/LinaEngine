@@ -33,19 +33,21 @@ SOFTWARE.
 #include "Platform/LinaVGIncl.hpp"
 #include "Resource/Texture.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
     GUIBackend* GUIBackend::s_instance = nullptr;
 
-#define BUFFER_LIMIT        64000
+#define BUFFER_LIMIT        50000
 #define MATERIAL_POOL_COUNT 30
 
     bool GUIBackend::Initialize()
     {
         s_instance = this;
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
+        CreateBufferCapsule();
         CreateBufferCapsule();
         return true;
     }
@@ -55,19 +57,56 @@ namespace Lina::Graphics
         m_bufferCapsules.push_back(BufferCapsule());
         auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
 
-        caps.gpuVtxBuffer = Buffer{
-            .size        = BUFFER_LIMIT,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-            .memoryUsage = MemoryUsageFlags::GpuOnly,
-        };
-        caps.gpuVtxBuffer.Create();
+        //  caps.cpuVtxBuffer = Buffer{
+        //      .size        = BUFFER_LIMIT,
+        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+        //      .memoryUsage = MemoryUsageFlags::CpuOnly,
+        //  };
+        //
+        //  caps.cpuIndexBuffer = Buffer{
+        //      .size        = BUFFER_LIMIT,
+        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+        //      .memoryUsage = MemoryUsageFlags::CpuOnly,
+        //  };
+        //
+        //  caps.gpuVtxBuffer = Buffer{
+        //      .size        = BUFFER_LIMIT,
+        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+        //      .memoryUsage = MemoryUsageFlags::GpuOnly,
+        //  };
+        //
+        //  caps.gpuIndexBuffer = Buffer{
+        //      .size        = BUFFER_LIMIT,
+        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
+        //      .memoryUsage = MemoryUsageFlags::GpuOnly,
+        //  };
+        //
+        //  caps.cpuIndexBuffer.Create();
+        //  caps.cpuVtxBuffer.Create();
+        //  caps.gpuVtxBuffer.Create();
+        //  caps.gpuIndexBuffer.Create();
 
-        caps.gpuIndexBuffer = Buffer{
-            .size        = BUFFER_LIMIT,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-            .memoryUsage = MemoryUsageFlags::GpuOnly,
+        caps.testVtxBuffer = Buffer{
+            .size          = BUFFER_LIMIT,
+            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer),
+            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
+            .requiredFlags = MemoryPropertyFlags::HostVisible,
         };
-        caps.gpuIndexBuffer.Create();
+
+        caps.testIndexBuffer = Buffer{
+            .size          = BUFFER_LIMIT,
+            .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer),
+            .memoryUsage   = MemoryUsageFlags::CpuToGpu,
+            .requiredFlags = MemoryPropertyFlags::HostVisible,
+        };
+
+
+
+        caps.testIndexBuffer.Create();
+        caps.testVtxBuffer.Create();
+
+        //  caps.indexPtr = caps.testIndexBuffer.MapBuffer();
+        //  caps.vtxPtr   = caps.testVtxBuffer.MapBuffer();
     }
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -81,6 +120,7 @@ namespace Lina::Graphics
             pool.materials.resize(MATERIAL_POOL_COUNT, Material());
             pool.index = 0;
 
+            int a = 0;
             for (auto& m : pool.materials)
             {
                 m.CreateBuffer();
@@ -101,10 +141,12 @@ namespace Lina::Graphics
 
         for (auto& b : m_bufferCapsules)
         {
-            b.copyIndices.clear();
-            b.copyVertices.clear();
+            b.cpuIndexBuffer.Destroy();
+            b.cpuVtxBuffer.Destroy();
             b.gpuVtxBuffer.Destroy();
             b.gpuIndexBuffer.Destroy();
+            // b.testIndexBuffer.UnmapBuffer();
+            // b.testVtxBuffer.UnmapBuffer();
         }
     }
 
@@ -124,6 +166,8 @@ namespace Lina::Graphics
         mat->SetProperty("floatvar1", buf->m_color.radialSize);
         mat->SetProperty("intvar3", buf->m_isAABuffer);
         mat->CheckUpdatePropertyBuffers();
+
+        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
     }
 
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
@@ -171,28 +215,8 @@ namespace Lina::Graphics
 
     Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
     {
-        int32 capsuleIndex = -1;
-
-        for (int32 i = 0; i < m_bufferCapsules.size(); i++)
-        {
-            const auto& b = m_bufferCapsules[i];
-            if ((b.copyVertices.size() + buf->m_vertexBuffer.m_size) * sizeof(LinaVG::Vertex) > BUFFER_LIMIT)
-                continue;
-
-            if ((b.copyIndices.size() + buf->m_indexBuffer.m_size) * sizeof(uint32) > BUFFER_LIMIT)
-                continue;
-
-            capsuleIndex = i;
-            break;
-        }
-
-        if (capsuleIndex == -1)
-        {
-            CreateBufferCapsule();
-            capsuleIndex = m_bufferCapsules.size() - 1;
-        }
-
-        auto& targetCapsule = m_bufferCapsules[capsuleIndex];
+        const uint32 frame         = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        auto&        targetCapsule = m_bufferCapsules[frame];
 
         OrderedDrawRequest request;
         request.firstIndex   = targetCapsule.indexCounter;
@@ -204,8 +228,7 @@ namespace Lina::Graphics
         request.meta.clipW   = buf->clipSizeX;
         request.meta.clipH   = buf->clipSizeY;
 
-        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-        auto&        pool  = m_materialPools[frame];
+        auto& pool = m_materialPools[frame];
 
         uint32 matId = pool.index;
 
@@ -220,93 +243,103 @@ namespace Lina::Graphics
         request.transientMat->SetProperty("projection", m_projection);
 
         targetCapsule.orderedDrawRequests.push_back(request);
-        targetCapsule.copyVertices.insert(targetCapsule.copyVertices.end(), buf->m_vertexBuffer.begin(), buf->m_vertexBuffer.end());
-        targetCapsule.copyIndices.insert(targetCapsule.copyIndices.end(), buf->m_indexBuffer.begin(), buf->m_indexBuffer.end());
+
+        // targetCapsule.cpuVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
+        // targetCapsule.cpuIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
+         targetCapsule.testVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
+         targetCapsule.testIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
+     
         targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
-
         return request.transientMat;
     }
 
+    int  counter = 0;
     void GUIBackend::EndFrame()
     {
-        for (auto& b : m_bufferCapsules)
+        const uint32 frame         = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        auto&        b             = m_bufferCapsules[frame];
+        const size_t vtxBufferSize = b.cpuVtxBuffer.size;
+        b.indexCounter = b.vertexCounter = 0;
+
+        return;
+
+        counter++;
+        if (b.gpuVtxBuffer.size < vtxBufferSize)
         {
-
-            if (!b.copyVertices.empty())
-                vkCmdUpdateBuffer(m_cmd->_ptr, b.gpuVtxBuffer._ptr, 0, b.copyVertices.size() * sizeof(LinaVG::Vertex), b.copyVertices.data());
-
-            if (!b.copyIndices.empty())
-                vkCmdUpdateBuffer(m_cmd->_ptr, b.gpuIndexBuffer._ptr, 0, b.copyIndices.size() * sizeof(LinaVG::Index), b.copyIndices.data());
-
-            b.copyVertices.clear();
-            b.copyIndices.clear();
-            b.indexCounter = b.vertexCounter = 0;
+            b.gpuVtxBuffer.Destroy();
+            b.gpuVtxBuffer.size = vtxBufferSize;
+            b.gpuVtxBuffer.Create();
         }
+
+        Command vtxCmd;
+        vtxCmd.Record = [vtxBufferSize, this, &b](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = vtxBufferSize,
+            };
+
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
+
+            cmd.CMD_CopyBuffer(b.cpuVtxBuffer._ptr, b.gpuVtxBuffer._ptr, regions);
+        };
+
+        vtxCmd.OnSubmitted = [this]() {};
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
+
+        // Index buffer
+        const size_t indexBufferSize = b.cpuIndexBuffer.size;
+
+        if (b.gpuIndexBuffer.size < indexBufferSize)
+        {
+            b.gpuIndexBuffer.Destroy();
+            b.gpuIndexBuffer.size = indexBufferSize;
+            b.gpuIndexBuffer.Create();
+        }
+        Command indexCmd;
+        indexCmd.Record = [indexBufferSize, this, &b](CommandBuffer& cmd) {
+            BufferCopy copy = BufferCopy{
+                .destinationOffset = 0,
+                .sourceOffset      = 0,
+                .size              = indexBufferSize,
+            };
+
+            Vector<BufferCopy> regions;
+            regions.push_back(copy);
+
+            cmd.CMD_CopyBuffer(b.cpuIndexBuffer._ptr, b.gpuIndexBuffer._ptr, regions);
+        };
+        indexCmd.OnSubmitted = [this] {};
+
+        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
     }
 
     void GUIBackend::RecordDrawCommands()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        Material* bound = nullptr;
+        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+
+        auto& b = m_bufferCapsules[frame];
+
+        if (b.orderedDrawRequests.empty())
+            return;
+
+        uint64 offset = 0;
+        m_cmd->CMD_BindVertexBuffers(0, 1, b.testVtxBuffer._ptr, &offset);
+        m_cmd->CMD_BindIndexBuffers(b.testIndexBuffer._ptr, 0, IndexType::Uint32);
         m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
 
-        for (auto& b : m_bufferCapsules)
+        for (auto& r : b.orderedDrawRequests)
         {
-            if (b.orderedDrawRequests.empty())
-                continue;
-
-            uint64 offset = 0;
-            m_cmd->CMD_BindVertexBuffers(0, 1, b.gpuVtxBuffer._ptr, &offset);
-            m_cmd->CMD_BindIndexBuffers(b.gpuIndexBuffer._ptr, 0, IndexType::Uint32);
-
-            //  if (bound != m_guiStandard)
-            //  {
-            //      bound = m_guiStandard;
-            //  }
-
-            for (auto& r : b.orderedDrawRequests)
-            {
-                r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
-                m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
-            }
-
-            b.orderedDrawRequests.clear();
+            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
+            m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
-    }
 
-    void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
-    {
-        Texture*     txt         = m_fontTextures[m_bufferingFontTexture];
-        const uint32 bufSize     = width * height;
-        uint32       startOffset = offsetY * txt->m_extent.width + offsetX;
-
-        for (int i = 0; i < height; i++)
-        {
-            const uint32 size = width;
-            txt->m_cpuBuffer.CopyIntoPadded(&data[width * i], size, startOffset);
-            startOffset += txt->m_extent.width;
-        }
-    }
-
-    void GUIBackend::UploadFontTexture(uint32 handle)
-    {
-        Texture* txt       = m_fontTextures[handle];
-        Offset3D imgOffset = Offset3D{.x = 0, .y = 0, .z = 0};
-        txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, false);
-    }
-
-    void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
-    {
-    }
-
-    void GUIBackend::SaveAPIState()
-    {
-    }
-
-    void GUIBackend::RestoreAPIState()
-    {
+        b.orderedDrawRequests.clear();
     }
 
     LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
@@ -365,6 +398,39 @@ namespace Lina::Graphics
         m_fontTextures[handle] = txt;
         m_bufferingFontTexture = handle;
         return handle;
+    }
+
+    void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
+    {
+        Texture*     txt         = m_fontTextures[m_bufferingFontTexture];
+        const uint32 bufSize     = width * height;
+        uint32       startOffset = offsetY * txt->m_extent.width + offsetX;
+
+        for (int i = 0; i < height; i++)
+        {
+            const uint32 size = width;
+            txt->m_cpuBuffer.CopyIntoPadded(&data[width * i], size, startOffset);
+            startOffset += txt->m_extent.width;
+        }
+    }
+
+    void GUIBackend::UploadFontTexture(uint32 handle)
+    {
+        Texture* txt       = m_fontTextures[handle];
+        Offset3D imgOffset = Offset3D{.x = 0, .y = 0, .z = 0};
+        txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, false);
+    }
+
+    void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
+    {
+    }
+
+    void GUIBackend::SaveAPIState()
+    {
+    }
+
+    void GUIBackend::RestoreAPIState()
+    {
     }
 
     void GUIBackend::UpdateProjection()

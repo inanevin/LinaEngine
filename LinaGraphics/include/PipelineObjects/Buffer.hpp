@@ -51,6 +51,7 @@ namespace Lina::Graphics
         void* MapBuffer();
         void  UnmapBuffer();
         void  Recreate(size_t size);
+        void  ResetIfNecessary(size_t newSize);
 
         // Description
         size_t              size          = 0;

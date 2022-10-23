@@ -37,12 +37,12 @@ namespace Lina::Editor
 
         if (m_bitmask.IsSet(WindowMask::Fullscreen))
         {
-            m_min      = Vector2(0, 0);
+            m_min      = Vector2(0,0);
             m_max      = screen;
             m_position = (m_max + m_min) / 2.0f;
         }
 
-        LinaVG::DrawRect(LinaVG::Vec2(0,0), LinaVG::Vec2(500,500), m_style, m_drawOrder);
+        LinaVG::DrawRect(LinaVG::Vec2(0,0), LinaVG::Vec2(500,500), m_style, 0, m_drawOrder);
 
         // Children
         Node::Draw(dt);
