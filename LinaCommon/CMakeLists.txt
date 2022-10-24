@@ -35,6 +35,9 @@ set (LINACOMMON_SOURCES
 
 	# Events
 	src/EventSystem/EventSystem.cpp
+
+	# Messaging
+	src/Messaging/MessageBus.cpp
 	
 	#Math
 	src/Math/Matrix.cpp
@@ -94,6 +97,10 @@ set(LINACOMMON_HEADERS
 	
 	# Job System
 	include/JobSystem/JobSystem.hpp
+
+	# Messaging
+	include/Messaging/EngineMessages.hpp
+	include/Messaging/MessageBus.hpp
 
 	# Profiler
 	include/Profiling/Profiler.hpp

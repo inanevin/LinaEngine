@@ -28,65 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
+#ifndef MessageBus_HPP
+#define MessageBus_HPP
 
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
-namespace Lina::Event
+namespace Lina
 {
-    struct EShutdown
+    class Engine;
+
+    class MessageBus
     {
-    };
-    struct EPreMainLoop
-    {
-    };
-    struct EPostMainLoop
-    {
-    };
-    struct EStartGame
-    {
-    };
-    struct EEndGame
-    {
-    };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
+    public:
+
+    private:
+
+        friend class Engine;
 
 
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
 
-    struct EPrePhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
+        static MessageBus* s_instance;
     };
-    struct EPostPhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
-    };
-} // namespace Lina::Event
+} // namespace Lina
 
 #endif

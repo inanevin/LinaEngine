@@ -240,7 +240,7 @@ namespace Lina
             file->fullPath           = file->parent->fullPath + "/" + file->fullName;
             const StringID sidNow    = TO_SID(file->fullPath);
             file->sid                = sidNow;
-            Event::EventSystem::Get()->Trigger<Event::EResourcePathUpdated>(Event::EResourcePathUpdated{file->typeID, sidBefore, sidNow, oldPath, file->fullPath});
+            // Resource path updated event.
         }
 
         void ChangeFileName(File* file, const String& newName)

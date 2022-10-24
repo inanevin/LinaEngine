@@ -126,6 +126,11 @@ namespace Lina
             return;
         }
 
+        m_engine.m_eventSystem.Disconnect<Event::EWindowClosed>(this);
+        m_engine.m_eventSystem.Disconnect<Event::EResourceProgressUpdated>(this);
+        m_engine.m_eventSystem.Disconnect<Event::EResourceProgressStarted>(this);
+        m_engine.m_eventSystem.Disconnect<Event::EResourceProgressEnded>(this);
+
         m_engine.Shutdown();
     }
 

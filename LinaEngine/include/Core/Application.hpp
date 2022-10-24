@@ -67,6 +67,7 @@ namespace Lina
         static void Cleanup(Application* runningInstance);
 
     private:
+        
         // Callbacks.
         void OnWindowClosed(const Event::EWindowClosed& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);

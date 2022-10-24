@@ -37,23 +37,48 @@ SOFTWARE.
 namespace Lina
 {
     class Engine;
-}
+    class FileWatcher;
+
+    namespace Editor
+    {
+        class Editor;
+    } // namespace Editor
+
+    namespace World
+    {
+        class Entity;
+        class LevelManager;
+        class Component;
+    } // namespace World
+
+    namespace Resources
+    {
+        class EditorResourceLoader;
+        class ResourceLoader;
+        class ResourcePackager;
+        class ResourceUtility;
+    } // namespace Resources
+
+    namespace Graphics
+    {
+        class Renderer;
+        class RenderEngine;
+        class Win32Window;
+    } // namespace Graphics
+
+} // namespace Lina
 
 namespace Lina::Event
 {
 
-    template <typename T>
-    class EventSink
+    template <typename T> class EventSink
     {
     public:
         typedef Delegate<void(const T& t)> FuncTemplate;
 
-        template <auto DATA, typename Type>
-        void Connect(Type* obj)
+        template <auto DATA, typename Type> void Connect(Type* obj)
         {
-            functions[static_cast<void*>(obj)] = [obj](const T& ev) {
-                (obj->*DATA)(ev);
-            };
+            functions[static_cast<void*>(obj)] = [obj](const T& ev) { (obj->*DATA)(ev); };
         }
 
         void Trigger(const T& t) const
@@ -68,8 +93,7 @@ namespace Lina::Event
                 func(T());
         }
 
-        template <typename T>
-        void Disconnect(T* inst)
+        template <typename T> void Disconnect(T* inst)
         {
             void*       ptr = static_cast<void*>(inst);
             const auto& it  = functions.find(ptr);
@@ -80,8 +104,7 @@ namespace Lina::Event
         HashMap<void*, FuncTemplate> functions;
     };
 
-    template <typename T>
-    void DestroySink(void* sink)
+    template <typename T> void DestroySink(void* sink)
     {
         EventSink<T>* sinkPtr = static_cast<EventSink<T>*>(sink);
         sinkPtr->functions.clear();
@@ -101,8 +124,8 @@ namespace Lina::Event
             return s_eventSystem;
         }
 
-        template <typename T>
-        EventSink<T>* GetSink()
+    private:
+        template <typename T> EventSink<T>* GetSink()
         {
             const TypeID  tid  = GetTypeID<T>();
             EventSink<T>* sink = nullptr;
@@ -118,40 +141,50 @@ namespace Lina::Event
             return sink;
         }
 
-        template <typename T, auto Candidate, typename Type>
-        void Connect(Type* inst)
+    public:
+        template <typename T, auto Candidate, typename Type> void Connect(Type* inst)
         {
             LOCK_GUARD(m_mtx);
             GetSink<T>()->Connect<Candidate>(inst);
         }
 
-        template <typename T, typename Type>
-        void Disconnect(Type* inst)
+        template <typename T, typename Type> void Disconnect(Type* inst)
         {
             LOCK_GUARD(m_mtx);
             GetSink<T>()->Disconnect(inst);
         }
 
-        template <typename T>
-        void Trigger(const T& args)
+    private:
+        template <typename T> void Trigger(const T& args)
         {
             GetSink<T>()->Trigger(args);
         }
 
-        template <typename T>
-        void Trigger(T&& args)
+        template <typename T> void Trigger(T&& args)
         {
             GetSink<T>()->Trigger(args);
         }
 
-        template <typename T>
-        void Trigger()
+        template <typename T> void Trigger()
         {
             GetSink<T>()->Trigger();
         }
 
     private:
+
         friend class Engine;
+        friend class Log;
+        friend class Editor::Editor;
+        friend class Resources::EditorResourceLoader;
+        friend class Graphics::Renderer;
+        friend class Graphics::Win32Window;
+        friend class Resources::ResourceLoader;
+        friend class Resources::ResourceUtility;
+        friend class Resources::ResourcePackager;
+        friend class World::Entity;
+        friend class World::LevelManager;
+        friend class World::Component;
+
         void Initialize();
         void Shutdown();
 

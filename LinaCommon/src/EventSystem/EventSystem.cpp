@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Event
 {
-    EventSystem* EventSystem::s_eventSystem = nullptr;
+    EventSystem* EventSystem::s_eventSystem   = nullptr;
 
     void EventSystem::Initialize()
     {

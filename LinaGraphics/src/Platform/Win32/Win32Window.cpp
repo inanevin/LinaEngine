@@ -38,8 +38,7 @@ namespace Lina::Graphics
 {
     Win32Window* Win32Window::s_win32Window = nullptr;
 
-    // Window action
-    LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
+    LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
     {
 
         switch (msg)
@@ -51,7 +50,7 @@ namespace Lina::Graphics
         }
         break;
         case WM_PAINT: {
-            // 
+            //
         }
         break;
         case WM_DPICHANGED: {
@@ -189,7 +188,6 @@ namespace Lina::Graphics
 
         m_hinst = GetModuleHandle(0);
 
-
         WNDCLASS wc      = {};
         wc.lpfnWndProc   = WndProc;
         wc.hInstance     = m_hinst;
@@ -201,7 +199,6 @@ namespace Lina::Graphics
             LINA_ERR("[Win32 Window] -> Filed registering window class!");
             return false;
         }
-
 
         m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title.c_str(), 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
         m_title  = props.title;
@@ -264,7 +261,6 @@ namespace Lina::Graphics
         }
 
         SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
-
 
         return true;
     }

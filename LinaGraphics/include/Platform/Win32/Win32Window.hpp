@@ -71,6 +71,8 @@ namespace Lina::Graphics
         void UpdatePos(const Vector2i& pos);
         void UpdateSize(const Vector2i& size);
 
+        static __int64 __stdcall WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam);
+
     protected:
         virtual bool Initialize(const WindowProperties& props) override;
         virtual void Shutdown() override;
