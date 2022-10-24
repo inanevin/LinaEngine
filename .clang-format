@@ -5,8 +5,8 @@ AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
 AlignConsecutiveDeclarations: 'true'
+ColumnLimit: '220'
 BinPackParameters: 'false'
-ColumnLimit: '200'
 Language: Cpp
 NamespaceIndentation: All
 PointerAlignment: Left

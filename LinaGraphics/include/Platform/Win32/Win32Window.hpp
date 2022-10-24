@@ -70,6 +70,7 @@ namespace Lina::Graphics
         void UpdateButtonLayoutForDpi(HWND__* hwnd);
         void UpdatePos(const Vector2i& pos);
         void UpdateSize(const Vector2i& size);
+        void UpdateCursor();
 
         static __int64 __stdcall WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam);
 

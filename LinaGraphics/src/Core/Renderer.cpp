@@ -131,10 +131,9 @@ namespace Lina::Graphics
             f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
             f.graphicsFence.Create();
 
-            f.indirectBuffer =
-                Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-                       .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-                       .memoryUsage = MemoryUsageFlags::CpuToGpu};
+            f.indirectBuffer = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                                      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                                      .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
             f.indirectBuffer.Create();
 
@@ -350,12 +349,9 @@ namespace Lina::Graphics
         cmd.Reset(true);
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
-        VkViewport _viewport = VulkanUtility::GetViewport(RenderEngine::Get()->GetViewport());
-        VkRect2D   _scissors = VulkanUtility::GetRect(RenderEngine::Get()->GetScissors());
-
-        vkCmdSetViewport(cmd._ptr, 0, 1, &_viewport);
-        vkCmdSetScissor(cmd._ptr, 0, 1, &_scissors);
-
+        cmd.CMD_SetViewport(RenderEngine::Get()->GetViewport());
+        cmd.CMD_SetScissors(RenderEngine::Get()->GetScissors());
+      
         // Merged object buffer.
         uint64 offset = 0;
         cmd.CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);

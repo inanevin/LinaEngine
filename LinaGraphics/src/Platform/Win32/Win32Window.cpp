@@ -319,6 +319,7 @@ namespace Lina::Graphics
 
         SetWindowPos(m_window, 0, CW_USEDEFAULT, CW_USEDEFAULT, newSize.x, newSize.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         UpdateSize(newSize);
+        UpdateCursor();
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)
@@ -328,6 +329,7 @@ namespace Lina::Graphics
 
         SetWindowPos(m_window, 0, newPos.x, newPos.y, CW_USEDEFAULT, CW_USEDEFAULT, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         UpdatePos(newPos);
+        UpdateCursor();
     }
 
     void Win32Window::UpdatePos(const Vector2i& pos)
@@ -349,6 +351,16 @@ namespace Lina::Graphics
         m_minimized            = m_size.x == 0 || m_size.y == 0;
         m_aspectRatio          = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
         Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
+    }
+
+    void Win32Window::UpdateCursor()
+    {
+        RECT r   = {};
+        r.left   = m_pos.x;
+        r.right  = m_pos.x + m_size.x;
+        r.top    = m_pos.y;
+        r.bottom = m_pos.y + m_size.y;
+        ClipCursor(&r);
     }
 
     void Win32Window::SetPosCentered(const Vector2i& newPos)

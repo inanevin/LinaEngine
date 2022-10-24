@@ -156,6 +156,18 @@ namespace Lina::Graphics
         vkCmdCopyBufferToImage(_ptr, src, dst, GetImageLayout(layout), size, _copy.data());
     }
 
+    void CommandBuffer::CMD_SetViewport(Viewport& vp)
+    {
+        VkViewport _vp = VulkanUtility::GetViewport(vp);
+        vkCmdSetViewport(_ptr, 0, 1, &_vp);
+    }
+
+    void CommandBuffer::CMD_SetScissors(Recti& rect)
+    {
+        VkRect2D   _scissors = VulkanUtility::GetRect(rect);
+        vkCmdSetScissor(_ptr, 0, 1, &_scissors);
+    }
+
     void CommandBuffer::End()
     {
         VkResult result = vkEndCommandBuffer(_ptr);
