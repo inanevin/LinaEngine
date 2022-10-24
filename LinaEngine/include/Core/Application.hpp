@@ -34,7 +34,6 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Profiler;
 
     namespace Event
     {
@@ -46,43 +45,47 @@ namespace Lina
         struct EResourceProgressEnded;
     } // namespace Event
 
+    class GameManager;
+    class Profiler;
+
     class Application
     {
     public:
-#define DELTA_TIME_HISTORY 11
-
         Application();
         virtual ~Application() = default;
 
-        static Application* Get()
+        void Initialize(const InitInfo& initInfo, GameManager* gm);
+        void Start();
+        void Tick();
+        void Shutdown();
+
+        inline bool IsRunning()
         {
-            return s_application;
+            return m_isRunning;
         }
 
-        static void Cleanup();
-        void        Initialize(const InitInfo& initInfo);
-        void        Run();
+        static void Cleanup(Application* runningInstance);
 
     private:
         // Callbacks.
-        bool OnWindowClose(const Event::EWindowClosed& ev);
+        void OnWindowClosed(const Event::EWindowClosed& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);
         void OnResourceProgressStarted(const Event::EResourceProgressStarted& ev);
         void OnResourceProgressEnded(const Event::EResourceProgressEnded& ev);
 
     private:
-        // Active engines running in the application.
-        static Application* s_application;
-        Engine              m_engine;
-        Profiler*           m_profiler = nullptr;
+        Engine    m_engine;
+        Profiler* m_profiler = nullptr;
 
+        Mutex  m_infoLock;
         String m_resourceProgressCurrentTitle      = "";
         int    m_resourceProgressCurrentTotalFiles = 0;
         int    m_resourceProgressCurrentProcessed  = 0;
-        bool   m_activeLevelExists                 = false;
-        bool   m_initialized                       = false;
-        bool   m_ranOnce                           = false;
-        Mutex  m_infoLock;
+        bool   m_isRunning                         = false;
+
+        static bool         s_initialized;
+        static Application* s_runningInstance;
+        bool                m_dirty = false;
     };
 
 }; // namespace Lina

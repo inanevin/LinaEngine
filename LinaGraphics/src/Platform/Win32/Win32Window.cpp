@@ -32,13 +32,14 @@ SOFTWARE.
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include <Windows.h>
+#include <shellscalingapi.h>
 
 namespace Lina::Graphics
 {
     Win32Window* Win32Window::s_win32Window = nullptr;
 
     // Window action
-    LRESULT CALLBACK platform_window_callback(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
+    LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     {
 
         switch (msg)
@@ -46,6 +47,11 @@ namespace Lina::Graphics
         case WM_CLOSE: {
             Win32Window::GetWin32()->OnWin32Close();
             DestroyWindow(Win32Window::GetWin32()->GetWindowPtr());
+            PostQuitMessage(0);
+        }
+        break;
+        case WM_PAINT: {
+            // 
         }
         break;
         case WM_DPICHANGED: {
@@ -55,9 +61,8 @@ namespace Lina::Graphics
                 Win32Window::GetWin32()->UpdateButtonLayoutForDpi(hWndButton);
         }
         break;
-        case WM_ACTIVATEAPP:
-        {
-           Win32Window::GetWin32()->SetIsActiveWindow(wParam == TRUE ? true : false);
+        case WM_ACTIVATEAPP: {
+            Win32Window::GetWin32()->SetIsActiveWindow(wParam == TRUE ? true : false);
         }
         break;
         case WM_SIZE: {
@@ -184,8 +189,9 @@ namespace Lina::Graphics
 
         m_hinst = GetModuleHandle(0);
 
+
         WNDCLASS wc      = {};
-        wc.lpfnWndProc   = platform_window_callback;
+        wc.lpfnWndProc   = WndProc;
         wc.hInstance     = m_hinst;
         wc.lpszClassName = "Lina Engine";
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -196,6 +202,7 @@ namespace Lina::Graphics
             return false;
         }
 
+
         m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title.c_str(), 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
         m_title  = props.title;
 
@@ -204,6 +211,12 @@ namespace Lina::Graphics
             LINA_ERR("[Win32 Window] -> Failed creating window!");
             return false;
         }
+
+        HMONITOR mon = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
+        UINT     dpiX, dpiY;
+        HRESULT  temp2                        = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+        ApplicationInfo::s_contentScaleWidth  = static_cast<float>(dpiY) / 96.0f;
+        ApplicationInfo::s_contentScaleHeight = static_cast<float>(dpiY) / 96.0f;
 
         const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
 
@@ -243,28 +256,17 @@ namespace Lina::Graphics
         ShowWindow(m_window, SW_SHOW);
         Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = static_cast<void*>(m_window)});
 
+        DWORD dwError;
+        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+        {
+            dwError = GetLastError();
+            LINA_ERR("[Win32 Window] -> Failed setting priority: {0}", dwError);
+        }
 
-         DWORD dwError, dwPriClass;
-         if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS))
-         {
-             dwError = GetLastError();
-             LINA_ERR("[Win32 Window] -> Failed setting priority: {0}", dwError);
-         }
-         
-         SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
+        SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
+
 
         return true;
-    }
-
-    void Win32Window::Tick()
-    {
-        MSG msg;
-
-        while (PeekMessageA(&msg, m_window, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
-        }
     }
 
     void Win32Window::Shutdown()
@@ -355,8 +357,6 @@ namespace Lina::Graphics
 
     void Win32Window::SetPosCentered(const Vector2i& newPos)
     {
-        // const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        // SetPos(Vector2i((int)((float)mode->width / 2.0f + (float)newPos.x), (int)((float)mode->height / 2.0f + (float)newPos.y)));
     }
 
     void Win32Window::SetVsync(VsyncMode mode)

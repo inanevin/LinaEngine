@@ -23,20 +23,26 @@ set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc")
 
 set(SANDBOX_SOURCES 
 
-src/Core/Main.cpp
-src/Game/GameManager.cpp
+src/SandboxEntry.cpp
+src/Game/SandboxGameManager.cpp
 src/Lina/ReflectionRegistry.cpp
 )
 
 set(SANDBOX_HEADERS
-include/Game/GameManager.hpp
+include/Game/SandboxGameManager.hpp
 include/Lina/ReflectionRegistry.hpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
+
+if(WIN32)
+add_executable(${PROJECT_NAME} WIN32 ${SANDBOX_SOURCES} ${SANDBOX_HEADERS} ${APP_ICON_RESOURCE_WINDOWS})
+else()
 add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS} ${APP_ICON_RESOURCE_WINDOWS})
+endif()
+
 add_executable(Lina::Sandbox ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaSandbox")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
@@ -62,9 +68,6 @@ PUBLIC Lina::Engine
 if(WIN32 AND LINA_ENABLE_PROFILING)
   target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
 endif()
-
-include(../_Dependencies/glfw/link.cmake)
-link_glfw()
 
 # Always generate PDB files 
 # if(MSVC)

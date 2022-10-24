@@ -73,7 +73,6 @@ namespace Lina::Graphics
 
     protected:
         virtual bool Initialize(const WindowProperties& props) override;
-        virtual void Tick() override;
         virtual void Shutdown() override;
         virtual void Close() override;
 

@@ -64,7 +64,7 @@ namespace Lina
             ar(m_packagedLevels);
         }
 
-        inline const Vector<String>& GetPackagedLevels()
+        inline const Vector<String>& GetPackagedLevels() const
         {
             return m_packagedLevels;
         }

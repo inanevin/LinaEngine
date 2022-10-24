@@ -40,7 +40,6 @@ SOFTWARE.
 #include <GLFW/glfw3.h>
 
 #endif
-#include <GLFW/glfw3.h>
 
 namespace Lina::Input
 {
@@ -294,8 +293,6 @@ namespace Lina::Input
 
     void InputEngine::Tick()
     {
-        PROFILER_FUNC(PROFILER_THREAD_MAIN);
-
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)
             m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];

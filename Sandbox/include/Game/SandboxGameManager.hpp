@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,17 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Lina
-Timestamp: 12/30/2018 5:29:20 PM
-*/
-
 #pragma once
 
-#ifndef LINA_HPP
-#define LINA_HPP
+#ifndef SandboxGameManager_HPP
+#define SandboxGameManager_HPP
 
-#include "EntryPoint.hpp"
-#include "Core/Application.hpp"
+#include "Game/GameManager.hpp"
+
+namespace Lina
+{
+    namespace Event
+    {
+        struct ETick;
+    } // namespace Event
+} // namespace Lina
+
+namespace Sandbox
+{
+    class SandboxGameManager : public Lina::GameManager
+    {
+    public:
+        SandboxGameManager()          = default;
+        virtual ~SandboxGameManager() = default;
+
+        virtual void OnGameInitialized() override;
+        virtual void OnGameShutdown() override;
+
+    private:
+        void OnTick(const Lina::Event::ETick& ev);
+    };
+} // namespace Sandbox
 
 #endif

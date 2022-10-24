@@ -38,7 +38,7 @@ namespace Lina
 {
     namespace Graphics
     {
-        class Window;
+        class Win32Window;
     }
 
     enum class LogLevel
@@ -64,6 +64,7 @@ namespace Lina
         Integrated,
         CPU
     };
+
 
     class ApplicationInfo
     {
@@ -91,7 +92,7 @@ namespace Lina
 
     private:
         friend class Application;
-        friend class Graphics::Window;
+        friend class Graphics::Win32Window;
 
         static const char*     s_appName;
         static float           s_contentScaleWidth;

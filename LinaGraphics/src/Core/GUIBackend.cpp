@@ -57,35 +57,6 @@ namespace Lina::Graphics
         m_bufferCapsules.push_back(BufferCapsule());
         auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
 
-        //  caps.cpuVtxBuffer = Buffer{
-        //      .size        = BUFFER_LIMIT,
-        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-        //      .memoryUsage = MemoryUsageFlags::CpuOnly,
-        //  };
-        //
-        //  caps.cpuIndexBuffer = Buffer{
-        //      .size        = BUFFER_LIMIT,
-        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-        //      .memoryUsage = MemoryUsageFlags::CpuOnly,
-        //  };
-        //
-        //  caps.gpuVtxBuffer = Buffer{
-        //      .size        = BUFFER_LIMIT,
-        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-        //      .memoryUsage = MemoryUsageFlags::GpuOnly,
-        //  };
-        //
-        //  caps.gpuIndexBuffer = Buffer{
-        //      .size        = BUFFER_LIMIT,
-        //      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-        //      .memoryUsage = MemoryUsageFlags::GpuOnly,
-        //  };
-        //
-        //  caps.cpuIndexBuffer.Create();
-        //  caps.cpuVtxBuffer.Create();
-        //  caps.gpuVtxBuffer.Create();
-        //  caps.gpuIndexBuffer.Create();
-
         caps.testVtxBuffer = Buffer{
             .size          = BUFFER_LIMIT,
             .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer),
@@ -100,13 +71,8 @@ namespace Lina::Graphics
             .requiredFlags = MemoryPropertyFlags::HostVisible,
         };
 
-
-
         caps.testIndexBuffer.Create();
         caps.testVtxBuffer.Create();
-
-        //  caps.indexPtr = caps.testIndexBuffer.MapBuffer();
-        //  caps.vtxPtr   = caps.testVtxBuffer.MapBuffer();
     }
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -141,12 +107,8 @@ namespace Lina::Graphics
 
         for (auto& b : m_bufferCapsules)
         {
-            b.cpuIndexBuffer.Destroy();
-            b.cpuVtxBuffer.Destroy();
-            b.gpuVtxBuffer.Destroy();
-            b.gpuIndexBuffer.Destroy();
-            // b.testIndexBuffer.UnmapBuffer();
-            // b.testVtxBuffer.UnmapBuffer();
+            b.testIndexBuffer.Destroy();
+            b.testVtxBuffer.Destroy();
         }
     }
 
@@ -243,82 +205,24 @@ namespace Lina::Graphics
         request.transientMat->SetProperty("projection", m_projection);
 
         targetCapsule.orderedDrawRequests.push_back(request);
+        targetCapsule.testVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
+        targetCapsule.testIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
 
-        // targetCapsule.cpuVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
-        // targetCapsule.cpuIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
-         targetCapsule.testVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
-         targetCapsule.testIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
-     
         targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
         return request.transientMat;
     }
 
-    int  counter = 0;
     void GUIBackend::EndFrame()
     {
-        const uint32 frame         = RenderEngine::Get()->GetRenderer().GetFrameIndex();
-        auto&        b             = m_bufferCapsules[frame];
-        const size_t vtxBufferSize = b.cpuVtxBuffer.size;
+        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        auto&        b     = m_bufferCapsules[frame];
         b.indexCounter = b.vertexCounter = 0;
-
-        return;
-
-        counter++;
-        if (b.gpuVtxBuffer.size < vtxBufferSize)
-        {
-            b.gpuVtxBuffer.Destroy();
-            b.gpuVtxBuffer.size = vtxBufferSize;
-            b.gpuVtxBuffer.Create();
-        }
-
-        Command vtxCmd;
-        vtxCmd.Record = [vtxBufferSize, this, &b](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = vtxBufferSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-
-            cmd.CMD_CopyBuffer(b.cpuVtxBuffer._ptr, b.gpuVtxBuffer._ptr, regions);
-        };
-
-        vtxCmd.OnSubmitted = [this]() {};
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
-
-        // Index buffer
-        const size_t indexBufferSize = b.cpuIndexBuffer.size;
-
-        if (b.gpuIndexBuffer.size < indexBufferSize)
-        {
-            b.gpuIndexBuffer.Destroy();
-            b.gpuIndexBuffer.size = indexBufferSize;
-            b.gpuIndexBuffer.Create();
-        }
-        Command indexCmd;
-        indexCmd.Record = [indexBufferSize, this, &b](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = indexBufferSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-
-            cmd.CMD_CopyBuffer(b.cpuIndexBuffer._ptr, b.gpuIndexBuffer._ptr, regions);
-        };
-        indexCmd.OnSubmitted = [this] {};
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
     }
 
     void GUIBackend::RecordDrawCommands()
     {
+        return;
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();

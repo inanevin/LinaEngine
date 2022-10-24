@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,17 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Lina
-Timestamp: 12/30/2018 5:29:20 PM
-*/
+#include "Game/GameManager.hpp"
 
-#pragma once
+namespace Lina
+{
 
-#ifndef LINA_HPP
-#define LINA_HPP
-
-#include "EntryPoint.hpp"
-#include "Core/Application.hpp"
-
-#endif
+}

@@ -43,7 +43,7 @@ namespace Lina
     {
         LOCK_GUARD(s_logMtx);
 
-        String msgStr = "[" + LogLevelAsString(level) + "] " + msg;
+        String msgStr = "[" + LogLevelAsString(level) + "] " + msg + "\n";
 
 #ifdef LINA_PLATFORM_WINDOWS
         HANDLE hConsole;
@@ -61,14 +61,16 @@ namespace Lina
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, color);
 
+        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), msgStr.c_str(), static_cast<DWORD>(strlen(msgStr.c_str())), NULL, NULL);
+
 #elif LINA_LINUX
         if (dump.level == LogLevel::Error)
             msg = "\033{1;31m" + dump.m_message + "\033[0m";
         else if (dump.level == LogLevel::Warn)
             msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
-#endif
         std::cout << msgStr.c_str() << std::endl;
+#endif
 
         Event::ELog log;
         log.level   = level;

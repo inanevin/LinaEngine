@@ -108,24 +108,28 @@ namespace Lina::Graphics
             m_framebuffers.push_back(fb);
         }
 
+        // Commands
+        m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
+        m_cmdPool.Create();
+
+        const uint32 imageSize = static_cast<uint32>(m_backend->GetSwapchain()._images.size());
+
+        for (uint32 i = 0; i < imageSize; i++)
+        {
+            CommandBuffer buf = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
+            m_cmds.push_back(buf);
+            m_cmds[i].Create(m_cmdPool._ptr);
+        }
+
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             Frame& f = m_frames[i];
 
-            // Commands
-            f.pool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
-            f.pool.Create();
-            f.commandBuffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
-            f.commandBuffer.Create(f.pool._ptr);
-
-            f.finalPassCmd = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
-            f.finalPassCmd.Create(f.pool._ptr);
-
             // Sync
+            f.graphicsSemaphore.Create();
             f.presentSemaphore.Create();
-            f.renderSemaphore.Create();
-            f.renderFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
-            f.renderFence.Create();
+            f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
+            f.graphicsFence.Create();
 
             f.indirectBuffer =
                 Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
@@ -279,7 +283,7 @@ namespace Lina::Graphics
     void Renderer::Join()
     {
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-            m_frames[i].renderFence.Wait();
+            m_frames[i].graphicsFence.Wait();
     }
 
     void Renderer::Stop()
@@ -325,10 +329,10 @@ namespace Lina::Graphics
 
         auto& frame = GetCurrentFrame();
 
-        frame.renderFence.Wait(true, 1.0f);
+        frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, frame.presentSemaphore, res);
+        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, frame.graphicsSemaphore, res);
 
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
         {
@@ -339,11 +343,11 @@ namespace Lina::Graphics
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
-        frame.renderFence.Reset();
+        frame.graphicsFence.Reset();
 
-        auto& cmd = frame.commandBuffer;
+        auto& cmd = m_cmds[imageIndex];
 
-        cmd.Reset();
+        cmd.Reset(true);
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
         VkViewport _viewport = VulkanUtility::GetViewport(RenderEngine::Get()->GetViewport());
@@ -388,7 +392,7 @@ namespace Lina::Graphics
 
         // ****** MAIN PASS ******
         PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
-        mainPass.Begin(*mainPass._framebuffer, cmd);
+        mainPass.Begin(mainPass.framebuffers[imageIndex], cmd);
         m_opaquePass.UpdateViewData(GetViewDataBuffer());
         m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main);
         mainPass.End(cmd);
@@ -396,7 +400,7 @@ namespace Lina::Graphics
 
         // ****** POST PROCESS PASS ******
         PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
-        postPass.Begin(*postPass._framebuffer, cmd);
+        postPass.Begin(postPass.framebuffers[imageIndex], cmd);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
@@ -431,8 +435,9 @@ namespace Lina::Graphics
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
-        Backend::Get()->GetGraphicsQueue().Submit(frame.presentSemaphore, frame.renderSemaphore, frame.renderFence, frame.commandBuffer, 1);
-        Backend::Get()->GetGraphicsQueue().Present(frame.renderSemaphore, &imageIndex);
+        Backend::Get()->GetGraphicsQueue().Submit(frame.graphicsSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
+        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, &imageIndex);
+        // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
         m_frameNumber++;

@@ -161,10 +161,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_link_libraries(${PROJECT_NAME} PRIVATE Lina::Common)
 	
 include(../_Dependencies/glad/link.cmake)
-include(../_Dependencies/glfw/link.cmake)
 include(../_Dependencies/assimp/link.cmake)
 link_glad()
-link_glfw()
 link_assimp()
 
 #--------------------------------------------------------------------

@@ -55,7 +55,6 @@ SOFTWARE.
 #include "Components/ParticleComponent.hpp"
 #include "Components/RenderableComponent.hpp"
 #include "Components/SpriteComponent.hpp"
-#include "Game/GameManager.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
@@ -208,12 +207,6 @@ Reflection::Meta<Graphics::SpriteComponent>().AddProperty("MemChunkSize"_hs,TO_S
 Reflection::Meta<Graphics::SpriteComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Graphics::SpriteComponent>);
 Reflection::Meta<Graphics::SpriteComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Graphics::SpriteComponent>);
 Reflection::Meta<Graphics::SpriteComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Graphics::SpriteComponent>, std::placeholders::_1);
-Reflection::Meta<Game::MyTestComponent>().AddProperty("Title"_hs,"My Test Comp");
-Reflection::Meta<Game::MyTestComponent>().AddProperty("Category"_hs,"Default");
-Reflection::Meta<Game::MyTestComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
-Reflection::Meta<Game::MyTestComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<Game::MyTestComponent>);
-Reflection::Meta<Game::MyTestComponent>().createFunc = std::bind(&REF_CreateComponentFunc<Game::MyTestComponent>);
-Reflection::Meta<Game::MyTestComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<Game::MyTestComponent>, std::placeholders::_1);
 Reflection::Meta<Editor::EditorSettings>().AddProperty("Title"_hs,"Editor Settings");
 Reflection::Meta<Editor::EditorSettings>().AddField<&Editor::EditorSettings::m_textEditorPath, Editor::EditorSettings>("m_textEditorPath"_hs);
 Reflection::Meta<Editor::EditorSettings>().GetField("m_textEditorPath"_hs)->AddProperty("Title"_hs,"Text Editor");

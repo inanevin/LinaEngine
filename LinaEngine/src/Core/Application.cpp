@@ -39,34 +39,44 @@ SOFTWARE.
 
 namespace Lina
 {
+    bool         Application::s_initialized     = false;
+    Application* Application::s_runningInstance = nullptr;
 
-    Application* Application::s_application = nullptr;
-
-    void Application::Cleanup()
+    void Application::Cleanup(Application* runningInstance)
     {
+        if (s_runningInstance != runningInstance)
+        {
+            LINA_ERR("[Application] -> Cleanup should never be called in client code!");
+            return;
+        }
+
         PROFILER_DUMP_LEAKS("lina_memleaks.txt");
 #ifdef LINA_ENABLE_PROFILING
         delete Profiler::s_instance;
         Profiler::s_instance = nullptr;
 #endif
     }
+
     Application::Application()
     {
-        LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
-
-        // Setup static references.
-        s_application     = this;
-        m_engine.s_engine = &m_engine;
-    }
-
-    void Application::Initialize(const InitInfo& initInfo)
-    {
-        if (m_initialized)
+        if (s_initialized)
         {
-            LINA_ERR("Lina application already initialized!");
+            LINA_ERR("[Application] -> Application already exists!");
+            m_dirty = true;
             return;
         }
 
+        LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
+        s_runningInstance = this;
+        m_engine.s_engine = &m_engine;
+    }
+
+    void Application::Initialize(const InitInfo& initInfo, GameManager* gm)
+    {
+        if (m_dirty)
+            return;
+
+        s_initialized              = true;
         ApplicationInfo::s_appMode = initInfo.appMode;
         ApplicationInfo::s_appName = initInfo.appName;
 
@@ -82,33 +92,47 @@ namespace Lina
 #endif
 
         LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
-
-        m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
+        m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClosed>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressUpdated, &Application::OnResourceProgressUpdated>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressStarted, &Application::OnResourceProgressStarted>(this);
         m_engine.m_eventSystem.Connect<Event::EResourceProgressEnded, &Application::OnResourceProgressEnded>(this);
-        m_engine.Initialize(initInfo);
-        m_initialized = true;
+        m_engine.Initialize(initInfo, gm);
     }
 
-    void Application::Run()
+    void Application::Start()
     {
-        if (m_ranOnce)
+        if (m_dirty)
+            return;
+
+        m_engine.Start();
+        m_isRunning = true;
+    }
+
+    void Application::Tick()
+    {
+        if (m_dirty)
+            return;
+
+        m_engine.Tick();
+    }
+    void Application::Shutdown()
+    {
+        if (m_dirty)
+            return;
+
+        if (m_isRunning)
         {
-            LINA_ERR("Application already running!");
+            LINA_ERR("Can't shutdown, application is running!");
             return;
         }
 
-        m_ranOnce = true;
-        m_engine.Run();
+        m_engine.Shutdown();
     }
 
-    bool Application::OnWindowClose(const Event::EWindowClosed& ev)
+    void Application::OnWindowClosed(const Event::EWindowClosed& ev)
     {
-        m_engine.Stop();
-        return true;
+        m_isRunning = false;
     }
-
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {

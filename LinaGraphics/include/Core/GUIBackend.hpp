@@ -86,10 +86,6 @@ namespace Lina::Graphics
 
         struct BufferCapsule
         {
-            Buffer                     cpuVtxBuffer;
-            Buffer                     cpuIndexBuffer;
-            Buffer                     gpuVtxBuffer;
-            Buffer                     gpuIndexBuffer;
             Vector<OrderedDrawRequest> orderedDrawRequests;
             uint32                     indexCounter  = 0;
             uint32                     vertexCounter = 0;

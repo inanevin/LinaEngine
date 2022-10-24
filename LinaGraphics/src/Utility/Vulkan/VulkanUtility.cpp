@@ -263,16 +263,22 @@ namespace Lina::Graphics
         pass._depthTexture    = new Texture();
         pass._depthTexture->CreateFromRuntime(image, sampler);
 
-        // Frame buffer for pass.
-        pass._framebuffer = new Framebuffer{
-            .width  = static_cast<uint32>(size.x),
-            .height = static_cast<uint32>(size.y),
-            .layers = 1,
-        };
+        const uint32 imgSize = static_cast<uint32>(Backend::Get()->GetSwapchain()._images.size());
 
-        pass._framebuffer->AttachRenderPass(pass);
-        pass._framebuffer->AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
-        pass._framebuffer->Create();
+        for (uint32 i = 0; i < imgSize; i++)
+        {
+            pass.framebuffers.push_back(Framebuffer());
+            auto& fb = pass.framebuffers[i];
+            fb       = Framebuffer{
+                      .width  = static_cast<uint32>(size.x),
+                      .height = static_cast<uint32>(size.y),
+                      .layers = 1,
+            };
+
+            fb.AttachRenderPass(pass);
+            fb.AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
+            fb.Create();
+        }
 
         pass.isSwapchainPass = false;
     }

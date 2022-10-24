@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Engine.hpp"
-
 #include "Audio/Audio.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
@@ -51,6 +50,7 @@ SOFTWARE.
 #include "Reflection/ReflectionSystem.hpp"
 #include "Components/RenderableComponent.hpp"
 #include "Core/ResourceLoader.hpp"
+#include "Game/GameManager.hpp"
 
 namespace Lina
 {
@@ -62,39 +62,6 @@ namespace Lina
         m_levelManager.InstallLevel(path, async);
     }
 
-    void Engine::Initialize(const InitInfo& initInfo)
-    {
-        Event::EventSystem::s_eventSystem       = &m_eventSystem;
-        Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
-        Input::InputEngine::s_inputEngine       = &m_inputEngine;
-        Audio::AudioEngine::s_audioEngine       = &m_audioEngine;
-        Resources::ResourceManager::s_instance  = &m_resourceManager;
-        World::LevelManager::s_instance         = &m_levelManager;
-        Graphics::RenderEngine::s_instance      = &m_renderEngine;
-        JobSystem::s_instance                   = &m_jobSystem;
-        Memory::MemoryManager::s_instance       = &m_memoryManager;
-
-        RegisterResourceTypes();
-        m_memoryManager.Initialize();
-        m_eventSystem.Initialize();
-        m_jobSystem.Initialize();
-        m_resourceManager.Initialize();
-        m_inputEngine.Initialize();
-        m_audioEngine.Initialize();
-        m_physicsEngine.Initialize();
-        m_levelManager.Initialize();
-        m_renderEngine.Initialize(initInfo);
-
-        g_levelTypeID = GetTypeID<World::Level>();
-
-#ifndef LINA_PRODUCTION_BUILD
-        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            m_editor.Initialize();
-#endif
-
-        LoadEngineResources();
-    }
-
     void Engine::LoadEngineResources()
     {
 #ifndef LINA_PRODUCTION_BUILD
@@ -103,10 +70,10 @@ namespace Lina
 #endif
 
         // Static resources
-        const Vector<String> defaultShaders   = m_renderEngine.GetEngineShaderPaths();
+        const Vector<String> defaultShaders = m_renderEngine.GetEngineShaderPaths();
         const Vector<String> defaultMaterials = m_renderEngine.GetEngineMaterialPaths();
-        const Vector<String> defaultModels    = m_renderEngine.GetEnginePrimitivePaths();
-        const Vector<String> defaultTextures  = m_renderEngine.GetEngineTexturePaths();
+        const Vector<String> defaultModels = m_renderEngine.GetEnginePrimitivePaths();
+        const Vector<String> defaultTextures = m_renderEngine.GetEngineTexturePaths();
 
         for (auto& s : defaultShaders)
             DefaultResources::s_engineResources[GetTypeID<Graphics::Shader>()].push_back(s);
@@ -132,29 +99,6 @@ namespace Lina
         m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/engine.linasettings");
         m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
 
-        // Temp
-        //  Graphics::Shader* shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
-        // Graphics::Material mat;
-        // mat.SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/LitStandard.linamat", mat);
-        //
-        // shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIStandard);
-        // mat.SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/GUIStandard.linamat", mat);
-
-        // shader = m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal);
-        // mat.SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", mat);
-
-        // Graphics::Material mat;
-        // Serialization::SaveToFile<Graphics::Material>("Resources/Empty.linamat", mat);
-
-        // mat->SetShader(shader);
-        // Serialization::SaveToFile<Graphics::Material>("Resources/SQFinal.linamat", *mat);
-
-        auto val1 = entt::hashed_string("Engine/Resources/Anan/Shader.txt").value();
-        uint32 val2 = TO_SID(String("Engine/Resources/Anan/Shader.txt"));
-
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIStandard));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::LitStandard));
@@ -167,137 +111,172 @@ namespace Lina
             auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
             mat->SaveToFile();
         }
-
-        // auto mat = m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText);
-        // mat->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
-        // mat->SaveToFile();
-        // int xd = 5;
     }
 
-    void Engine::Run()
+    void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
     {
+        // Assign
+        Event::EventSystem::s_eventSystem = &m_eventSystem;
+        Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
+        Input::InputEngine::s_inputEngine = &m_inputEngine;
+        Audio::AudioEngine::s_audioEngine = &m_audioEngine;
+        Resources::ResourceManager::s_instance = &m_resourceManager;
+        World::LevelManager::s_instance = &m_levelManager;
+        Graphics::RenderEngine::s_instance = &m_renderEngine;
+        JobSystem::s_instance = &m_jobSystem;
+        Memory::MemoryManager::s_instance = &m_memoryManager;
+
+        // Res init
+        RegisterResourceTypes();
+        g_levelTypeID = GetTypeID<World::Level>();
+
+        // System init
+        m_memoryManager.Initialize();
+        m_eventSystem.Initialize();
+        m_jobSystem.Initialize();
+        m_resourceManager.Initialize();
+        m_inputEngine.Initialize();
+        m_audioEngine.Initialize();
+        m_physicsEngine.Initialize();
+        m_levelManager.Initialize();
+        m_renderEngine.Initialize(initInfo);
+
+        // Editor if used
+#ifndef LINA_PRODUCTION_BUILD
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
+            m_editor.Initialize();
+#endif
+
+        // Runtime info setup
+        m_physicsAccumulator = 0.0f;
         m_deltaTimeArray.fill(-1.0);
-
-        m_running                = true;
+        m_initialTitle = m_renderEngine.m_window->GetTitle();
         RuntimeInfo::s_startTime = Time::GetCPUTime();
-        m_physicsAccumulator     = 0.0f;
-
-        int    frames       = 0;
-        int    updates      = 0;
-        double totalFPSTime = 0.0f;
-        double previousFrameTime;
-        double currentFrameTime = 0.0f;
-
-        RuntimeInfo::s_paused          = false;
+        RuntimeInfo::s_paused = false;
         RuntimeInfo::s_shouldSkipFrame = false;
-        RuntimeInfo::s_isInPlayMode    = ApplicationInfo::GetAppMode() != ApplicationMode::Editor;
+        RuntimeInfo::s_isInPlayMode = ApplicationInfo::GetAppMode() != ApplicationMode::Editor;
+
+        // Engine resources
+        LoadEngineResources();
+
+        // Init user game.
+        m_gameManager = gm;
+    }
+
+    void Engine::Start()
+    {
+        // Init user game.
+        m_gameManager->OnGameInitialized();
 
         m_levelManager.CreateLevel("Resources/Sandbox/Levels/level2.linalevel");
         m_levelManager.InstallLevel("Resources/Sandbox/Levels/level2.linalevel", false);
-
         m_levelManager.SaveCurrentLevel();
         // m_engineSettings->m_packagedLevels.push_back("Resources/Sandbox/Levels/level2.linalevel");
-
         // m_levelManager.GetCurrentLevel()->m_usedResources.push_back(linatl::make_pair(GetTypeID<Graphics::Texture>(), "Resources/Engine/Textures/Tests/empire_diffuse.png"));
         // SetFrameLimit(30);
 
+        // Notify
         m_eventSystem.Trigger<Event::EPreMainLoop>(Event::EPreMainLoop{});
-        const String initialTitle = m_renderEngine.m_window->GetTitle();
 
-        while (m_running)
+    }
+    void Engine::Tick()
+    {
+        PROFILER_FRAME_START();
+
+        m_previousFrameTime = m_currentFrameTime;
+        m_currentFrameTime = RuntimeInfo::GetElapsedTime();
+
+        if (m_frameLimit > 0 && !m_firstRun)
         {
-            PROFILER_FRAME_START();
+            const double diff = m_currentFrameTime - m_previousFrameTime;
 
-            previousFrameTime = currentFrameTime;
-            currentFrameTime  = RuntimeInfo::GetElapsedTime();
-
-            if (m_frameLimit > 0 && !m_firstRun)
+            if (diff < m_frameLimitSeconds)
             {
-                const double diff = currentFrameTime - previousFrameTime;
-
-                if (diff < m_frameLimitSeconds)
-                {
-                    const double wa = (m_frameLimitSeconds - diff);
-                    PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
-                    Time::Sleep(wa);
-                    PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
-                    currentFrameTime += wa;
-                }
+                const double wa = (m_frameLimitSeconds - diff);
+                PROFILER_SCOPE_START("Sleep", PROFILER_THREAD_MAIN);
+                Time::Sleep(wa);
+                PROFILER_SCOPE_END("Sleep", PROFILER_THREAD_MAIN);
+                m_currentFrameTime += wa;
             }
-
-            RuntimeInfo::s_deltaTime       = (float)(currentFrameTime - previousFrameTime);
-            RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
-
-            // Input
-            m_inputEngine.Tick();
-
-            // Window poll
-            Graphics::Window::Get()->Tick();
-
-            // Render
-            m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
-                m_renderEngine.Render();
-                frames++;
-            });
-
-            // Game sim, physics + update etc.
-            RunSimulation((float)RuntimeInfo::s_deltaTime);
-            updates++;
-
-            // Wait for all.
-            m_renderJob.get();
-
-            // Sync previous frame.
-            m_renderEngine.SyncData();
-            m_eventSystem.Trigger<Event::ESyncThreads>({});
-
-            PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
-
-            // Calculate FPS, UPS.
-            if (currentFrameTime - totalFPSTime >= 1.0)
-            {
-                m_frameTime  = RuntimeInfo::s_deltaTime * 1000;
-                m_currentFPS = frames;
-                m_currentUPS = updates;
-                totalFPSTime += 1.0f;
-                frames  = 0;
-                updates = 0;
-            }
-
-            m_renderEngine.m_window->SetTitle(initialTitle + " FPS: " + TO_STRING(m_currentFPS));
-            // LINA_TRACE("FPS: {0}", m_currentFPS);
-
-            if (m_firstRun)
-                m_firstRun = false;
-
-            PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
         }
 
-        m_eventSystem.Trigger<Event::EPostMainLoop>(Event::EPostMainLoop{});
+        RuntimeInfo::s_deltaTime = (float)(m_currentFrameTime - m_previousFrameTime);
+        RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
+
+        // Input
+        m_inputEngine.Tick();
+
+        // Render
+        m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+            m_renderEngine.Render();
+            m_frames++;
+            });
+
+        // Game sim, physics + update etc.
+        RunSimulation((float)RuntimeInfo::s_deltaTime);
+        m_updates++;
+
+        // Wait for all.
+        m_renderJob.get();
+
+        // Sync previous frame.
+        m_renderEngine.SyncData();
+        m_eventSystem.Trigger<Event::ESyncThreads>({});
+
+        PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
+
+        // Calculate FPS, UPS.
+        if (m_currentFrameTime - m_totalFPSTime >= 1.0)
+        {
+            m_frameTime = RuntimeInfo::s_deltaTime * 1000;
+            m_currentFPS = m_frames;
+            m_currentUPS = m_updates;
+            m_totalFPSTime += 1.0f;
+            m_frames = 0;
+            m_updates = 0;
+        }
+
+        m_renderEngine.m_window->SetTitle(m_initialTitle + " FPS: " + TO_STRING(m_currentFPS));
+        // LINA_TRACE("FPS: {0}", m_currentFPS);
+
+        if (m_firstRun)
+            m_firstRun = false;
+
+        PROFILER_SCOPE_END("Core Loop Finalize", PROFILER_THREAD_MAIN);
+    }
+
+    void Engine::Shutdown()
+    {
+        // Wait for sync.
+        m_renderJob.cancel();
+
+        if (m_renderJob.valid())
+            m_renderJob.get();
+
+        m_renderEngine.Stop();
+        m_renderEngine.Join();
+        m_jobSystem.WaitForAll();
+
+        // Level stuff
+        m_levelManager.UninstallCurrent();
+
+        // Shutdown game
+        m_gameManager->OnGameShutdown();
 
 #ifndef LINA_PRODUCTION_BUILD
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Shutdown();
 #endif
+
+        // Clear
         // m_editor.PackageProject();
         m_memoryManager.PrintStaticBlockInfo();
-
-        LINA_TRACE("[Engine] -> Waiting for all jobs.");
-        m_jobSystem.WaitForAll();
-        LINA_TRACE("[Engine] -> All jobs finished.");
-        LINA_TRACE("[Engine] -> Waiting for render thread.");
-        m_renderEngine.Join();
-        LINA_TRACE("[Engine] -> Render thread finished.");
-
-        m_levelManager.UninstallCurrent();
         Reflection::Clear();
 
-        // Ending game.
-        m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
-
+        // Dump info
         PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
-        // Shutting down.
+        // Shut down systems.
         m_resourceManager.Shutdown();
         m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
         m_renderEngine.Shutdown();
@@ -310,27 +289,16 @@ namespace Lina
         m_memoryManager.Shutdown();
     }
 
-    void Engine::Stop()
-    {
-        m_renderJob.cancel();
-
-        if (m_renderJob.valid())
-            m_renderJob.get();
-
-        m_renderEngine.Stop();
-        m_running = false;
-        m_renderEngine.Join();
-    }
-
     void Engine::RunSimulation(float deltaTime)
     {
         // Pause & skip frame controls.
         if (RuntimeInfo::s_paused && !RuntimeInfo::s_shouldSkipFrame)
             return;
+
         RuntimeInfo::s_shouldSkipFrame = false;
 
         PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode });
         PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
@@ -350,17 +318,17 @@ namespace Lina
             PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_MAIN);
 
             PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_MAIN);
-            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, RuntimeInfo::s_isInPlayMode});
+            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{ physicsStep, RuntimeInfo::s_isInPlayMode });
             PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_MAIN);
         }
 
         // Other main systems (engine or game)
         PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode });
         PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode });
         PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);
@@ -370,7 +338,7 @@ namespace Lina
 
     void Engine::RemoveOutliers(bool biggest)
     {
-        double outlier      = biggest ? 0 : 10;
+        double outlier = biggest ? 0 : 10;
         int    outlierIndex = -1;
         int    indexCounter = 0;
         for (double d : m_deltaTimeArray)
@@ -386,7 +354,7 @@ namespace Lina
                 if (d > outlier)
                 {
                     outlierIndex = indexCounter;
-                    outlier      = d;
+                    outlier = d;
                 }
             }
             else
@@ -394,7 +362,7 @@ namespace Lina
                 if (d < outlier)
                 {
                     outlierIndex = indexCounter;
-                    outlier      = d;
+                    outlier = d;
                 }
             }
 
@@ -411,97 +379,97 @@ namespace Lina
 
         extensions.push_back("enginesettings");
         m_resourceManager.RegisterResourceType<EngineSettings>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Static,
-            .typeName             = "Engine Settings",
-            .memChunkCount        = 1,
+            .packageType = Resources::PackageType::Static,
+            .typeName = "Engine Settings",
+            .memChunkCount = 1,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("rendersettings");
         m_resourceManager.RegisterResourceType<RenderSettings>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Static,
-            .typeName             = "Render Settings",
-            .memChunkCount        = 1,
+            .packageType = Resources::PackageType::Static,
+            .typeName = "Render Settings",
+            .memChunkCount = 1,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("linalevel");
         m_resourceManager.RegisterResourceType<World::Level>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Level,
-            .typeName             = "Level",
-            .memChunkCount        = 20,
+            .packageType = Resources::PackageType::Level,
+            .typeName = "Level",
+            .memChunkCount = 20,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("mp3");
         extensions.push_back("wav");
         extensions.push_back("ogg");
         m_resourceManager.RegisterResourceType<Audio::Audio>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Audio,
-            .typeName             = "Audio",
-            .memChunkCount        = 100,
+            .packageType = Resources::PackageType::Audio,
+            .typeName = "Audio",
+            .memChunkCount = 100,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("linaphymat");
         m_resourceManager.RegisterResourceType<Physics::PhysicsMaterial>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Physics,
-            .typeName             = "Physics Material",
-            .memChunkCount        = 30,
+            .packageType = Resources::PackageType::Physics,
+            .typeName = "Physics Material",
+            .memChunkCount = 30,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("linashader");
         m_resourceManager.RegisterResourceType<Graphics::Shader>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Graphics,
-            .typeName             = "Graphics",
-            .memChunkCount        = 20,
+            .packageType = Resources::PackageType::Graphics,
+            .typeName = "Graphics",
+            .memChunkCount = 20,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("linamat");
         m_resourceManager.RegisterResourceType<Graphics::Material>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Graphics,
-            .typeName             = "Material",
-            .memChunkCount        = 50,
+            .packageType = Resources::PackageType::Graphics,
+            .typeName = "Material",
+            .memChunkCount = 50,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("fbx");
         extensions.push_back("obj");
         m_resourceManager.RegisterResourceType<Graphics::Model>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Models,
-            .typeName             = "Model",
-            .memChunkCount        = 100,
+            .packageType = Resources::PackageType::Models,
+            .typeName = "Model",
+            .memChunkCount = 100,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
 
         extensions.clear();
         extensions.push_back("png");
         extensions.push_back("jpg");
         extensions.push_back("jpeg");
         m_resourceManager.RegisterResourceType<Graphics::Texture>(Resources::ResourceTypeData{
-            .packageType          = Resources::PackageType::Textures,
-            .typeName             = "Texture",
-            .memChunkCount        = 200,
+            .packageType = Resources::PackageType::Textures,
+            .typeName = "Texture",
+            .memChunkCount = 200,
             .associatedExtensions = extensions,
-            .debugColor           = Color::White,
-        });
+            .debugColor = Color::White,
+            });
         // TODO: Font class.
     }
 
@@ -530,7 +498,7 @@ namespace Lina
         RemoveOutliers(false);
         RemoveOutliers(false);
 
-        double avg   = 0.0;
+        double avg = 0.0;
         int    index = 0;
         for (double d : m_deltaTimeArray)
         {

@@ -23,8 +23,15 @@ set (LINAENGINE_SOURCES
 	# CORE
     src/Core/Application.cpp
 	src/Core/Engine.cpp
+
+	# Settings
 	src/Settings/EngineSettings.cpp
 	src/Settings/RenderSettings.cpp
+
+	# Game
+	src/Game/GameManager.cpp
+
+	src/EntryPoint.cpp
 )
 
 #--------------------------------------------------------------------
@@ -41,6 +48,10 @@ set(LINAENGINE_HEADERS
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
 	
+	# Game
+	include/Game/GameManager.hpp
+	
+	include/EntryPoint.hpp
 	include/Lina.hpp
 )
 

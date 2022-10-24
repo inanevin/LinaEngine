@@ -51,9 +51,11 @@ SOFTWARE.
 
 namespace Lina
 {
+
     class Application;
     class EngineSettings;
     class RenderSettings;
+    class GameManager;
 
     class Engine
     {
@@ -79,34 +81,14 @@ namespace Lina
             m_frameLimitSeconds = 1.0 / static_cast<double>(m_frameLimit);
         }
 
-        inline EngineSettings* GetEngineSettings()
+        inline const EngineSettings& GetEngineSettings()
         {
-            return m_engineSettings;
+            return *m_engineSettings;
         }
 
-        inline RenderSettings* GetRenderSettings()
+        inline const RenderSettings& GetRenderSettings()
         {
-            return m_renderSettings;
-        }
-        inline int GetCurrentFPS()
-        {
-            return m_currentFPS;
-        }
-        inline int GetCurrentUPS()
-        {
-            return m_currentUPS;
-        }
-        inline double GetFrameTime()
-        {
-            return m_frameTime;
-        }
-        inline double GetRenderTime()
-        {
-            return m_renderTime;
-        }
-        inline double GetUpdateTime()
-        {
-            return m_updateTime;
+            return *m_renderSettings;
         }
 
     private:
@@ -115,10 +97,11 @@ namespace Lina
         Engine()  = default;
         ~Engine() = default;
 
-        void   Initialize(const InitInfo& initInfo);
+        void   Initialize(const InitInfo& initInfo, GameManager* gm);
         void   LoadEngineResources();
-        void   Run();
-        void   Stop();
+        void   Start();
+        void   Tick();
+        void   Shutdown();
         void   RunSimulation(float deltaTime);
         void   RemoveOutliers(bool biggest);
         void   RegisterResourceTypes();
@@ -135,18 +118,24 @@ namespace Lina
         Graphics::RenderEngine     m_renderEngine;
         Memory::MemoryManager      m_memoryManager;
         JobSystem                  m_jobSystem;
-        bool                       m_running           = false;
+        GameManager*               m_gameManager       = nullptr;
         bool                       m_canRender         = true;
         bool                       m_firstRun          = true;
         int                        m_frameLimit        = 0;
         double                     m_frameLimitSeconds = 0;
+        String                     m_initialTitle      = "";
+
         // Performance & variable stepping
-        int                                    m_currentFPS = 0;
-        int                                    m_currentUPS = 0;
-        double                                 m_updateTime = 0;
-        double                                 m_renderTime = 0;
-        double                                 m_frameTime  = 0;
-        std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
+        int                                    m_currentFPS         = 0;
+        int                                    m_currentUPS         = 0;
+        double                                 m_updateTime         = 0;
+        double                                 m_renderTime         = 0;
+        double                                 m_frameTime          = 0;
+        int                                    m_frames             = 0;
+        int                                    m_updates            = 0;
+        double                                 m_totalFPSTime       = 0.0;
+        double                                 m_previousFrameTime  = 0.0;
+        double                                 m_currentFrameTime   = 0.0;
         uint8                                  m_deltaTimeArrIndex  = 0;
         uint8                                  m_deltaTimeArrOffset = 0;
         int                                    m_deltaFirstFill     = 0;
@@ -155,6 +144,7 @@ namespace Lina
         EngineSettings*                        m_engineSettings     = nullptr;
         RenderSettings*                        m_renderSettings     = nullptr;
         Future<void>                           m_renderJob;
+        std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
 
 #ifndef LINA_PRODUCTION_BUILD
         Editor::Editor m_editor;

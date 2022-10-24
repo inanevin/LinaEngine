@@ -69,8 +69,6 @@ target_link_libraries(${PROJECT_NAME}
 PRIVATE Lina::World
 PRIVATE Lina::Common)
 
-include(../_Dependencies/glfw/link.cmake)
-link_glfw()
 
 #--------------------------------------------------------------------
 # Packages

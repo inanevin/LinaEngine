@@ -48,7 +48,7 @@ namespace Lina::Graphics
     {
         auto*       renderEngine = RenderEngine::Get();
         const auto& vp           = renderEngine->GetViewport();
-        return Vector2i(vp.x, vp.y);
+        return Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
     }
 
     Vector2 Screen::GetViewportPosF()

@@ -85,17 +85,14 @@ namespace Lina::Graphics
     private:
         struct Frame
         {
-            Fence         renderFence;
-            Semaphore     renderSemaphore;
-            CommandPool   pool;
-            CommandBuffer commandBuffer;
-            CommandBuffer finalPassCmd;
-            Semaphore     presentSemaphore;
-            Buffer        objDataBuffer;
-            Buffer        indirectBuffer;
-            Buffer        sceneDataBuffer;
-            Buffer        viewDataBuffer;
-            Buffer        lightDataBuffer;
+            Fence     graphicsFence;
+            Semaphore presentSemaphore;
+            Semaphore graphicsSemaphore;
+            Buffer    objDataBuffer;
+            Buffer    indirectBuffer;
+            Buffer    sceneDataBuffer;
+            Buffer    viewDataBuffer;
+            Buffer    lightDataBuffer;
 
             DescriptorSet passDescriptor;
             DescriptorSet globalDescriptor;
@@ -211,10 +208,12 @@ namespace Lina::Graphics
         GPULightData                          m_lightData;
         HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
 
-        Buffer m_cpuVtxBuffer;
-        Buffer m_cpuIndexBuffer;
-        Buffer m_gpuVtxBuffer;
-        Buffer m_gpuIndexBuffer;
+        CommandPool           m_cmdPool;
+        Vector<CommandBuffer> m_cmds;
+        Buffer                m_cpuVtxBuffer;
+        Buffer                m_cpuIndexBuffer;
+        Buffer                m_gpuVtxBuffer;
+        Buffer                m_gpuIndexBuffer;
 
         uint32   m_frameNumber = 0;
         Frame    m_frames[FRAMES_IN_FLIGHT];

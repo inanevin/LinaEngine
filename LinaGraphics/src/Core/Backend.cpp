@@ -75,12 +75,6 @@ namespace Lina::Graphics
         m_allocator = nullptr;
         Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
 
-        // Data for glfw extensions.
-        // No need to query unless extension is desired, it'll only return VK_KHR_surface
-        // uint32_t     glfwExtensionCount = 0;
-        // const char** glfwExtensions;
-        // glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
         // Total extensions
         Vector<const char*> requiredExtensions;
         requiredExtensions.push_back("VK_KHR_surface");
@@ -132,20 +126,7 @@ namespace Lina::Graphics
         vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &m_surface);
 #endif
 
-        // VkResult glfwResult = glfwCreateWindowSurface(m_vkInstance, Window::Get()->GetGLFWWindow(), m_allocator, &m_surface);
-        //
-        // if (glfwResult == VK_ERROR_INITIALIZATION_FAILED)
-        // {
-        //     LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface!");
-        //     return false;
-        // }
-        // else if (glfwResult == VK_ERROR_EXTENSION_NOT_PRESENT)
-        // {
-        //     LINA_ERR("[Vulkan Backend] -> Could not create a Vulkan surface because the required GLFW extensions were not present!");
-        //     return false;
-        // }
-
-        LINA_TRACE("[Vulkan Backend] -> Created GLFW surface.");
+        LINA_TRACE("[Vulkan Backend] -> Created surface.");
 
         vkb::PreferredDeviceType targetDeviceType = vkb::PreferredDeviceType::discrete;
 
@@ -276,12 +257,11 @@ namespace Lina::Graphics
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
         PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
-
-        m_swapchain = Swapchain{
-            .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
-            .format      = Format::B8G8R8A8_SRGB,
-            .colorSpace  = ColorSpace::SRGB_NONLINEAR,
-            .presentMode = pMode,
+        m_swapchain       = Swapchain{
+                  .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
+                  .format      = Format::B8G8R8A8_SRGB,
+                  .colorSpace  = ColorSpace::SRGB_NONLINEAR,
+                  .presentMode = pMode,
         };
 
         m_swapchain.Create();
@@ -343,8 +323,6 @@ namespace Lina::Graphics
         PresentMode pMode = PresentMode::Immediate;
 
         if (mode == VsyncMode::StrongVsync)
-            pMode = PresentMode::Immediate;
-        else if (mode == VsyncMode::StrongVsync)
             pMode = PresentMode::FIFO;
         else if (mode == VsyncMode::Adaptive)
             pMode = PresentMode::FIFORelaxed;

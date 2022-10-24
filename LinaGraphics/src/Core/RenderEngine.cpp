@@ -128,15 +128,17 @@ namespace Lina::Graphics
         m_gpuUploader.Create();
 
         // Init GUI Backend, LinaVG
-        LinaVG::Config.displayPosX        = 0;
-        LinaVG::Config.displayPosY        = 0;
-        LinaVG::Config.displayWidth       = 0;
-        LinaVG::Config.displayHeight      = 0;
-        LinaVG::Config.flipTextureUVs     = false;
-        LinaVG::Config.framebufferScale.x = ApplicationInfo::GetContentScaleWidth();
-        LinaVG::Config.framebufferScale.y = ApplicationInfo::GetContentScaleHeight();
-        LinaVG::Config.aaMultiplier = ApplicationInfo::GetContentScaleWidth() * 2.5f;
-        LinaVG::Config.aaEnabled = true;
+        LinaVG::Config.displayPosX           = 0;
+        LinaVG::Config.displayPosY           = 0;
+        LinaVG::Config.displayWidth          = 0;
+        LinaVG::Config.displayHeight         = 0;
+        LinaVG::Config.flipTextureUVs        = false;
+        LinaVG::Config.framebufferScale.x    = ApplicationInfo::GetContentScaleWidth();
+        LinaVG::Config.framebufferScale.y    = ApplicationInfo::GetContentScaleHeight();
+        LinaVG::Config.aaMultiplier          = ApplicationInfo::GetContentScaleWidth() * 1.2f;
+        LinaVG::Config.aaEnabled             = true;
+        LinaVG::Config.textCachingEnabled    = true;
+        LinaVG::Config.textCachingSDFEnabled = true;
 
         LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 

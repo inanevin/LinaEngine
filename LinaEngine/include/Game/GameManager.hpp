@@ -26,53 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+Class: Lina
+Timestamp: 12/30/2018 5:29:20 PM
+*/
+
 #pragma once
 
-#ifndef GameManager_HPP
-#define GameManager_HPP
+#ifndef LinaGameManager_HPP
+#define LinaGameManager_HPP
 
 namespace Lina
 {
-    namespace Event
+    class Engine;
+
+    class GameManager
     {
-        struct EStartGame;
-        struct ETick;
-        struct ELevelInstalled;
-        struct EResourceLoaded;
-    } // namespace Event
+    public:
+        GameManager()          = default;
+        virtual ~GameManager() = default;
+
+    protected:
+        friend class Engine;
+
+        virtual void OnGameInitialized() = 0;
+        virtual void OnGameShutdown()    = 0;
+
+    private:
+    };
 } // namespace Lina
 
-class GameManager
-{
-public:
-    GameManager()  = default;
-    ~GameManager() = default;
-
-    void Initialize();
-
-private:
-    void OnGameStarted(const Lina::Event::EStartGame& ev);
-    void OnTick(const Lina::Event::ETick& ev);
-    void OnLevelInstalled(const Lina::Event::ELevelInstalled& ev);
-    void OnResourceLoaded(const Lina::Event::EResourceLoaded& ev);
-};
 #endif
-
-#include "Core/Component.hpp"
-
-namespace Game
-{
-    LINA_COMPONENT("My Test Comp", "Default")
-    struct MyTestComponent : public Lina::World::Component
-    {
-        virtual Lina::TypeID GetTID() override
-        {
-            return Lina::GetTypeID<MyTestComponent>();
-        }
-
-        virtual Lina::Bitmask16 GetComponentMask() override
-        {
-            return Lina::World::ComponentMask::ReceiveOnTick | Lina::World::ComponentMask::ReceiveOnPostPhysicsTick;
-        }
-    };
-} // namespace Game

@@ -36,6 +36,7 @@ SOFTWARE.
 
 namespace Lina::Event
 {
+
     struct EWindowContextCreated
     {
         void* window = nullptr;

@@ -103,7 +103,8 @@ namespace Lina::Graphics
 
         if (!isSwapchainPass)
         {
-            _framebuffer->Destroy();
+            for (auto& fb : framebuffers)
+                fb.Destroy();
 
             if (_colorTexture != nullptr)
                 delete _colorTexture;
@@ -141,7 +142,7 @@ namespace Lina::Graphics
     {
         const auto&    vp         = RenderEngine::Get()->GetViewport();
         const Vector2i windowSize = Backend::Get()->GetSwapchain().size;
-        const Vector2i pos        = Vector2i(vp.x, vp.y);
+        const Vector2i pos        = Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
 
         Vector<VkClearValue> _clearValues;
 

@@ -77,10 +77,10 @@ namespace Lina::Graphics
         Vector<SubPass>           subpasses;
         Vector<SubPassDependency> dependencies;
         bool                      isSwapchainPass = false;
+        Vector<Framebuffer>       framebuffers;
 
         // Runtime
         VkRenderPass_T* _ptr          = nullptr;
-        Framebuffer*    _framebuffer  = nullptr;
         Texture*        _colorTexture = nullptr;
         Texture*        _depthTexture = nullptr;
     };

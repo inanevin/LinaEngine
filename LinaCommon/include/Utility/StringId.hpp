@@ -32,7 +32,6 @@ SOFTWARE.
 #define StringId_HPP
 
 // Headers here.
-#include <entt/entt.hpp>
 namespace Lina
 {
     typedef uint32 StringID;

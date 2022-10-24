@@ -215,20 +215,25 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
+if(WIN32)
+target_link_libraries(${PROJECT_NAME} 
+PRIVATE Lina::Common
+PRIVATE Lina::Resource 
+PRIVATE Lina::World 
+Shcore.lib
+Vulkan::Vulkan)
+else()
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Common
 PRIVATE Lina::Resource 
 PRIVATE Lina::World 
 Vulkan::Vulkan)
-	
-include(../_Dependencies/glad/link.cmake)
-include(../_Dependencies/glfw/link.cmake)
+endif()
+
 include(../_Dependencies/assimp/link.cmake)
 include(../_Dependencies/glslang/link.cmake)
 include(../_Dependencies/freetype/link.cmake)
 include(../_Dependencies/linavg/link.cmake)
-link_glad()
-link_glfw()
 link_assimp()
 link_glslang()
 link_freetype()

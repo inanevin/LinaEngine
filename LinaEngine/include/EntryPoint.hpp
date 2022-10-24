@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -33,10 +33,16 @@ Timestamp: 12/30/2018 5:29:20 PM
 
 #pragma once
 
-#ifndef LINA_HPP
-#define LINA_HPP
+#ifndef ENTRYPOINT_HPP
+#define ENTRYPOINT_HPP
 
-#include "EntryPoint.hpp"
-#include "Core/Application.hpp"
+#include "Core/CommonApplication.hpp"
+
+namespace Lina
+{
+    class GameManager;
+
+    extern void Sandbox_PrepareLinaInit(InitInfo& initInfo, GameManager*& gm);
+} // namespace Lina
 
 #endif

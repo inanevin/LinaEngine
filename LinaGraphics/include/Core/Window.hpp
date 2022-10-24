@@ -104,7 +104,6 @@ namespace Lina::Graphics
         Window()                                               = default;
         ~Window()                                              = default;
         virtual bool Initialize(const WindowProperties& props) = 0;
-        virtual void Tick()                                    = 0;
         virtual void Shutdown()                                = 0;
         virtual void Close()                                   = 0;
 

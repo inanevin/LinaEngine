@@ -95,4 +95,8 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
     }
 
+    void RQueue::WaitIdle()
+    {
+        vkQueueWaitIdle(_ptr);
+    }
 } // namespace Lina::Graphics

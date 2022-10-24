@@ -132,7 +132,7 @@ namespace Lina::Editor
 
         // Fill level files.
         Vector<Pair<TypeID, String>> levelFiles;
-        const auto&                  levels = Engine::Get()->GetEngineSettings()->GetPackagedLevels();
+        const auto&                  levels = Engine::Get()->GetEngineSettings().GetPackagedLevels();
 
         const TypeID levelsTID = GetTypeID<World::Level>();
         for (auto& lvl : levels)
