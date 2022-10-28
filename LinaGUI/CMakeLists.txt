@@ -20,8 +20,14 @@ project(LinaGUI CXX)
 #--------------------------------------------------------------------
 set (LINAGUI_SOURCES
 	
-	# Input
+	# Core
 	src/Core/GNode.cpp
+
+	# Primitives
+	src/Primitives/GRect.cpp
+	src/Primitives/GCircle.cpp
+	src/Primitives/GNgon.cpp
+	src/Primitives/GConvex.cpp
 )
 
 #--------------------------------------------------------------------
@@ -29,16 +35,21 @@ set (LINAGUI_SOURCES
 #--------------------------------------------------------------------
 set(LINAGUI_HEADERS
 
-	#Input
+	# Core
 	include/Core/GNode.hpp
 
+	# Primitives
+	include/Primitives/GRect.hpp
+	include/Primitives/GCircle.hpp
+	include/Primitives/GNgon.hpp
+	include/Primitives/GConvex.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAGUI_SOURCES} ${LINAGUI_HEADERS})
-add_library(Lina::Input ALIAS ${PROJECT_NAME}) 
+add_library(Lina::GUI ALIAS ${PROJECT_NAME}) 
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaGUI")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 

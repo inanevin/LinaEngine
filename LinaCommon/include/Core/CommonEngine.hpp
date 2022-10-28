@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/String.hpp"
+#include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 #include "Data/DataCommon.hpp"
 
@@ -42,6 +43,11 @@ namespace Lina
     namespace Editor
     {
         class Editor;
+    }
+
+    namespace Graphics
+    {
+        class Swapchain;
     }
 
     class DefaultResources
@@ -72,7 +78,7 @@ namespace Lina
         {
             return Time::GetCPUTime() - s_startTime;
         }
-        
+
         static inline float GetDeltaTime()
         {
             return s_deltaTime;
@@ -83,16 +89,28 @@ namespace Lina
             return s_smoothDeltaTime;
         }
 
+        static Vector2i GetScreenSize()
+        {
+            return s_screenSize;
+        }
+
+        static Vector2 GetScreenSizeF()
+        {
+            return Vector2(static_cast<float>(s_screenSize.x), static_cast<float>(s_screenSize.y));
+        }
+
     private:
         friend class Engine;
         friend class Editor::Editor;
+        friend class Graphics::Swapchain;
 
-        static double s_startTime;
-        static bool   s_isInPlayMode;
-        static bool   s_paused;
-        static bool   s_shouldSkipFrame;
-        static float  s_deltaTime;
-        static float  s_smoothDeltaTime;
+        static double   s_startTime;
+        static bool     s_isInPlayMode;
+        static bool     s_paused;
+        static bool     s_shouldSkipFrame;
+        static float    s_deltaTime;
+        static float    s_smoothDeltaTime;
+        static Vector2i s_screenSize;
     };
 
     extern TypeID g_levelTypeID;

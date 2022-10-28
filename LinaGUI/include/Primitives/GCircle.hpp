@@ -26,20 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/GWindow.hpp"
-#include "Core/Screen.hpp"
+#pragma once
 
-namespace Lina::Editor
+#ifndef GCircle_HPP
+#define GCircle_HPP
+
+#include "Core/GNode.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+namespace Lina::GUI
 {
-    void GWindow::Draw(float dt)
+    class GCircle : public GNode
     {
-        const Vector2 screen = Graphics::Screen::SizeF();
+    public:
+        GCircle()          = default;
+        virtual ~GCircle() = default;
 
-        const Vector2 pos  = GetAbsPosition();
-        const Vector2 size = GetAbsSize();
-        LinaVG::DrawRect(LV2(pos), LV2((pos + size)), style, 0, _drawOrder);
+        virtual void Draw() override;
 
-        // Children
-        GNode::Draw(dt);
-    }
-} // namespace Lina::Editor
+        float                startAngle = 0.0f;
+        float                endAngle   = 360.0f;
+        int                  segments   = 36;
+        LinaVG::StyleOptions style;
+    };
+} // namespace Lina::GUI
+
+#endif

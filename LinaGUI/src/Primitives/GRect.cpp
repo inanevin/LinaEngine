@@ -26,51 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/GShape.hpp"
-#include "Core/Screen.hpp"
-#include "Utility/GUIParseUtility.hpp"
+#include "Primitives/GRect.hpp"
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
-    void GShape::ParseFromJSON(json& data)
-    {
-        const String shape = data.value("Shape", "Rect").c_str();
-
-        if (shape.compare("Rect") == 0)
-            m_shapeType = ShapeType::Rect;
-        else if (shape.compare("Circle") == 0)
-            m_shapeType = ShapeType::Circle;
-        else if (shape.compare("Convex") == 0)
-            m_shapeType = ShapeType::Convex;
-
-        json convexPoints = data.value("Points", json());
-
-        for (auto& e : convexPoints)
-            m_convexPoints.push_back(Vector2(e.value("X", 0.0f), e.value("Y", 0.0f)));
-
-        GNode::ParseFromJSON(data);
-    }
-
-    void GShape::Draw(float dt)
+    void GRect::Draw()
     {
         const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = aaEnabled;
-
-        if (m_shapeType == ShapeType::Rect)
-            LinaVG::DrawRect(LV2(_min), LV2((_max)), style, 0, _drawOrder);
-        else
-        {
-            Vector<LinaVG::Vec2> points;
-
-            for (auto v : m_convexPoints)
-                points.push_back(LV2((parent->_absPosition + parent->_absSize * v)));
-
-            LinaVG::DrawConvex(points.data(), points.size(), style, 0.0f, _drawOrder);
-        }
-
+        LinaVG::Config.aaEnabled = enableAA;
+        LinaVG::DrawRect(LV2(_min), LV2(_max), style, rotateAngle, drawOrder);
         LinaVG::Config.aaEnabled = aa;
 
-        GNode::Draw(dt);
+        GNode::Draw();
     }
-
-} // namespace Lina::Editor
+} // namespace Lina::GUI

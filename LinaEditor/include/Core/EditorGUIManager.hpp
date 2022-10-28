@@ -42,7 +42,6 @@ namespace Lina
 
 namespace Lina::Editor
 {
-    class GNode;
     struct EShortcut;
 
     class EditorGUIManager
@@ -64,7 +63,6 @@ namespace Lina::Editor
 
     private:
         static EditorGUIManager* s_instance;
-        GNode*                   m_rootNode = nullptr;
     };
 } // namespace Lina::Editor
 

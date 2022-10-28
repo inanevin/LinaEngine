@@ -26,32 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorGUIManager.hpp"
-#include "Core/EditorCommon.hpp"
+#include "Primitives/GNgon.hpp"
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
-    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
-
-    void EditorGUIManager::Initialize()
+    void GNgon::Draw()
     {
-        s_instance = this;
-        LoadRoot();
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = enableAA;
+        LinaVG::DrawNGon(LV2(_absPosition), _absSize.x, count, style, rotateAngle, drawOrder);
+        LinaVG::Config.aaEnabled = aa;
     }
-
-    void EditorGUIManager::LoadRoot()
-    {
-
-    }
-
-    void EditorGUIManager::Shutdown()
-    {
-        
-    }
-
-    void EditorGUIManager::Draw()
-    {
-      
-    }
-
-} // namespace Lina::Editor
+} // namespace Lina::GUI

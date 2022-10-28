@@ -79,6 +79,7 @@ namespace Lina
     bool                            RuntimeInfo::s_shouldSkipFrame = false;
     float                           RuntimeInfo::s_smoothDeltaTime = 0.0f;
     float                           RuntimeInfo::s_deltaTime       = 0.0f;
+    Vector2i                        RuntimeInfo::s_screenSize      = Vector2();
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
     {
@@ -91,7 +92,6 @@ namespace Lina
                 if (TO_SID(str) == sid)
                     return true;
             }
-
         }
 
         return false;

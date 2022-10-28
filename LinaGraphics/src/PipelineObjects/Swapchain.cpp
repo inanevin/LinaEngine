@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "PipelineObjects/Semaphore.hpp"
 #include "PipelineObjects/Fence.hpp"
+#include "Core/CommonEngine.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -64,6 +65,7 @@ namespace Lina::Graphics
 
         size.x = vkbSwapchain.extent.width;
         size.y = vkbSwapchain.extent.height;
+        RuntimeInfo::s_screenSize = size;
 
         for (VkImage img : imgs)
             _images.push_back(img);

@@ -146,6 +146,9 @@ set(LINACOMMON_HEADERS
 	# Log
 	include/Log/Log.hpp
 	
+	# Platform
+	include/Platform/LinaVGIncl.hpp
+
 	# Utility
 	include/Utility/UtilityFunctions.hpp
 
@@ -239,6 +242,7 @@ target_precompile_headers(${PROJECT_NAME}
 	include/Data/DataCommon.hpp
 	include/Data/Mutex.hpp
 	include/Data/Streams.hpp
+	include/Platform/LinaVGIncl.hpp
 	include/Reflection/ReflectionSystem.hpp
 	include/Serialization/Archive.hpp
 	include/Serialization/Endianness.hpp

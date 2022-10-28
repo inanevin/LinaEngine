@@ -26,23 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/GText.hpp"
-#include "Core/Screen.hpp"
+#pragma once
 
-namespace Lina::Editor
+#ifndef GConvex_HPP
+#define GConvex_HPP
+
+#include "Core/GNode.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+namespace Lina::GUI
 {
-    void GText::ParseFromJSON(json& data)
+    class GConvex : public GNode
     {
-    }
-    void GText::Draw(float dt)
-    {
-        const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = aaEnabled;
-        const Vector2 screen     = Graphics::Screen::SizeF();
-        const Vector2 pos        = GetAbsPosition();
-        const Vector2 size       = GetAbsSize();
-        LinaVG::DrawRect(LV2(pos), LV2((pos + size)), style, 0, _drawOrder);
-        LinaVG::Config.aaEnabled = aa;
-    }
+    public:
+        GConvex()          = default;
+        virtual ~GConvex() = default;
 
-} // namespace Lina::Editor
+        virtual void Draw() override;
+
+        LinaVG::StyleOptions style;
+        Vector<Vector2>      pointPositions;
+    };
+} // namespace Lina::GUI
+
+#endif

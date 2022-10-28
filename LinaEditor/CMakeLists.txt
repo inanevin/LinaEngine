@@ -34,19 +34,6 @@ src/Components/EditorFreeLookComponent.cpp
 # Resource
 src/Resource/EditorResourceLoader.cpp
 
-# GUI
-src/GUI/GNode.cpp
-src/GUI/GWindow.cpp
-src/GUI/GShape.cpp
-src/GUI/GText.cpp
-src/GUI/GImage.cpp
-
-# Surfaces
-src/Surfaces/STopSection.cpp
-src/Surfaces/SBottomSection.cpp
-
-# Utility
-src/Utility/GUIParseUtility.cpp
 )
 
 
@@ -66,19 +53,6 @@ include/Components/EditorFreeLookComponent.hpp
 # Resource
 include/Resource/EditorResourceLoader.hpp
 
-# GUI
-include/GUI/GNode.hpp
-include/GUI/GWindow.hpp
-include/GUI/GShape.hpp
-include/GUI/GText.hpp
-include/GUI/GImage.hpp
-
-# Surfaces
-include/Surfaces/STopSection.hpp
-include/Surfaces/SBottomSection.hpp
-
-# Utility
-include/Utility/GUIParseUtility.hpp
 )
 
 #--------------------------------------------------------------------

@@ -26,32 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorGUIManager.hpp"
-#include "Core/EditorCommon.hpp"
+#include "Primitives/GConvex.hpp"
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
-    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
-
-    void EditorGUIManager::Initialize()
+    void GConvex::Draw()
     {
-        s_instance = this;
-        LoadRoot();
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = enableAA;
+        Vector<LinaVG::Vec2> _points;
+
+        for (auto& pp : pointPositions)
+        {
+            if (parent != nullptr)
+                _points.push_back(LV2((parent->_absPosition + parent->_absSize * pp)));
+            else
+                _points.push_back(LV2((RuntimeInfo::GetScreenSizeF() * pp)));
+        }
+
+        LinaVG::DrawConvex(_points.data(), _points.size(), style, rotateAngle, drawOrder);
+        _points.clear();
+        LinaVG::Config.aaEnabled = aa;
     }
-
-    void EditorGUIManager::LoadRoot()
-    {
-
-    }
-
-    void EditorGUIManager::Shutdown()
-    {
-        
-    }
-
-    void EditorGUIManager::Draw()
-    {
-      
-    }
-
-} // namespace Lina::Editor
+} // namespace Lina::GUI

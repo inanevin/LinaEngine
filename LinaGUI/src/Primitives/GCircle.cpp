@@ -26,29 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Surfaces/SBottomSection.hpp"
-#include "Core/Screen.hpp"
+#include "Primitives/GCircle.hpp"
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
- //  void SBottomSection::Setup()
- //  {
- //      drawOrder   = 0;
- //      posPerc     = Vector2(0.0f, 0.15f);
- //      sizePerc    = Vector2(1.0f, 0.85f);
- //      style.color = LV4(TC_DARK);
- //      aaEnabled   = false;
- //  }
-
-    void SBottomSection::Draw(float dt)
+    void GCircle::Draw()
     {
-        LinaVG::Config.aaEnabled = false;
-        const Vector2 screen = Graphics::Screen::SizeF();
-        const Vector2 pos = GetAbsPosition();
-        const Vector2 size = GetAbsSize();
-        LinaVG::DrawRect(LV2(pos), LV2((pos + size)), style, 0, _drawOrder);
-        LinaVG::Config.aaEnabled = true;
-
-        GNode::Draw(dt);
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = enableAA;
+        LinaVG::DrawCircle(LV2(_absPosition), _absHalfSize.x, style, segments, rotateAngle, startAngle, endAngle, drawOrder);
+        LinaVG::Config.aaEnabled = aa;
     }
-} // namespace Lina::Editor
+} // namespace Lina::GUI

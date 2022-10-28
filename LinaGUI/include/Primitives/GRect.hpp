@@ -26,29 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/GImage.hpp"
-#include "Core/Screen.hpp"
+#pragma once
 
-namespace Lina::Editor
+#ifndef GRect_HPP
+#define GRect_HPP
+
+#include "Core/GNode.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+namespace Lina::GUI
 {
-    void GImage::ParseFromJSON(json& data)
+    class GRect : public GNode
     {
-        const String texture = data.value("Texture", "Resources/Engine/Textures/DefaultLina.png").c_str();
-        textureHandle        = TO_SID(texture);
+    public:
+        GRect()          = default;
+        virtual ~GRect() = default;
 
-        GNode::ParseFromJSON(data);
-    }
+        virtual void Draw() override;
 
-    void GImage::Draw(float dt)
-    {
-        const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = aaEnabled;
+        LinaVG::StyleOptions style;
+    };
+} // namespace Lina::GUI
 
-        LinaVG::DrawImage(textureHandle, LV2(_min), LV2(_max), 0.0f, _drawOrder);
-
-        LinaVG::Config.aaEnabled = aa;
-
-        GNode::Draw(dt);
-    }
-
-} // namespace Lina::Editor
+#endif

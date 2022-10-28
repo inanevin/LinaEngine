@@ -26,32 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorGUIManager.hpp"
-#include "Core/EditorCommon.hpp"
+#pragma once
 
-namespace Lina::Editor
+#ifndef GNgon_HPP
+#define GNgon_HPP
+
+#include "Core/GNode.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+namespace Lina::GUI
 {
-    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
-
-    void EditorGUIManager::Initialize()
+    class GNgon : public GNode
     {
-        s_instance = this;
-        LoadRoot();
-    }
+    public:
+        GNgon()          = default;
+        virtual ~GNgon() = default;
 
-    void EditorGUIManager::LoadRoot()
-    {
+        virtual void Draw() override;
 
-    }
+        int                  count = 6;
+        LinaVG::StyleOptions style;
+    };
+} // namespace Lina::GUI
 
-    void EditorGUIManager::Shutdown()
-    {
-        
-    }
-
-    void EditorGUIManager::Draw()
-    {
-      
-    }
-
-} // namespace Lina::Editor
+#endif

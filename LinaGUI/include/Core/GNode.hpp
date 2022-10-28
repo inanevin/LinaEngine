@@ -35,54 +35,36 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Math/Vector.hpp"
 #include "Platform/LinaVGIncl.hpp"
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
     class GNode
     {
     public:
-        GNode() : name(""){};
-        GNode(const String& name) : name(name){};
+        GNode() = default;
         virtual ~GNode();
 
-        virtual void Setup(){};
-        virtual void ParseFromJSON(json& json);
-        void         AddChild(GNode* node);
-        void         RemoveChild(GNode* node);
+        void         AddChild(GNode* child);
+        void         RemoveChild(GNode* child);
         Vector2      GetAbsPosition();
         Vector2      GetAbsSize();
-        uint32       GetDrawOrder();
-        virtual void Calc();
-        virtual void Draw(float dt);
+        virtual void Calculate();
+        virtual void Draw();
 
-        // Description
-        Vector2              posPerc    = Vector2::Zero;
-        Vector2              sizePerc   = Vector2::Zero;
-        Vector2              minAbsSize = Vector2::Zero;
-        Vector2              maxAbsSize = Vector2::Zero;
-        Vector2              anchor     = Vector2::Zero;
-        LinaVG::StyleOptions style;
-        Vector<GNode*>       children;
-        GNode*               parent    = nullptr;
-        String               name      = "";
-        bool                 aaEnabled = false;
-
-        // Runtime
-        Vector2 _absPosition = Vector2();
-        Vector2 _absSize     = Vector2();
-        Vector2 _absHalfSize = Vector2();
-        Vector2 _min         = Vector2();
-        Vector2 _max         = Vector2();
-        Vector2 _topMid      = Vector2();
-        Vector2 _botMid      = Vector2();
-        Vector2 _mid         = Vector2();
-        uint32  _drawOrder   = 0;
-
-    protected:
-        uint32 m_drawOrder = 0;
+        GNode*         parent = nullptr;
+        Vector<GNode*> children;
+        String         name         = "";
+        uint32         drawOrder    = 0;
+        bool           enableAA     = true;
+        float          rotateAngle  = 0.0f;
+        Vector2        position     = Vector2();
+        Vector2        size         = Vector2();
+        Vector2        _absPosition = Vector2();
+        Vector2        _absSize     = Vector2();
+        Vector2        _absHalfSize = Vector2();
+        Vector2        _min         = Vector2();
+        Vector2        _max         = Vector2();
     };
-} // namespace Lina::Editor
+} // namespace Lina::GUI
 
 #endif
