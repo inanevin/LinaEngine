@@ -103,6 +103,7 @@ add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaWorld)
+add_subdirectory(LinaGUI)
 add_subdirectory(LinaResource)
 add_subdirectory(Sandbox)
 

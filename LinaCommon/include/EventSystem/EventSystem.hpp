@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
+#include "Data/Mutex.hpp"
 #include "Functional/Functional.hpp"
 
 namespace Lina
@@ -42,6 +43,7 @@ namespace Lina
     namespace Editor
     {
         class Editor;
+        class ShortcutManager;
     } // namespace Editor
 
     namespace World
@@ -175,6 +177,7 @@ namespace Lina::Event
         friend class Engine;
         friend class Log;
         friend class Editor::Editor;
+        friend class Editor::ShortcutManager;
         friend class Resources::EditorResourceLoader;
         friend class Graphics::Renderer;
         friend class Graphics::Win32Window;

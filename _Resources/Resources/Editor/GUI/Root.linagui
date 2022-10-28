@@ -1,0 +1,14 @@
+{
+	"Node": "",
+	"Size": {
+		"X": 1.0,
+		"Y": 1.0
+	},
+	"Pos": {
+		"X": 0.0,
+		"Y": 0.0
+	},
+	"Children": [
+		"Resources/Editor/GUI/Sections/TopSection.linagui"
+	]
+}

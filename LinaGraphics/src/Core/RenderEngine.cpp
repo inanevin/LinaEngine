@@ -52,8 +52,8 @@ namespace Lina::Graphics
 
     Model* cube = nullptr;
 
-#define RETURN_NOTINITED                                                                                                                                                                               \
-    if (!m_initedSuccessfully)                                                                                                                                                                         \
+#define RETURN_NOTINITED                                                                                                                                                                                                   \
+    if (!m_initedSuccessfully)                                                                                                                                                                                             \
     return
 
     void RenderEngine::Initialize(const InitInfo& initInfo)
@@ -166,8 +166,9 @@ namespace Lina::Graphics
         m_enginePrimitiveNames[EnginePrimitiveType::Suzanne]  = "Suzanne";
 
         // Engine textures
-        m_engineTextureNames[EngineTextureType::DefaultLina] = "DefaultLina";
-        m_engineTextureNames[EngineTextureType::Grid512]     = "Grid512";
+        m_engineTextureNames[EngineTextureType::DefaultLina]         = "DefaultLinaWithText";
+        m_engineTextureNames[EngineTextureType::LinaLogoTransparent] = "LinaLogoTransparent";
+        m_engineTextureNames[EngineTextureType::Grid512]             = "Grid512";
     }
 
     void RenderEngine::Clear()

@@ -104,12 +104,15 @@ namespace Lina::Input
         InputEngine()  = default;
         ~InputEngine() = default;
         void Initialize();
+        void PrePoll();
         void Tick();
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
 
     private:
+
+        friend class Application;
         friend class Engine;
         static InputEngine* s_inputEngine;
         int                 m_keyStatesDown[NUM_KEY_STATES];

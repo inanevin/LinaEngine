@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Vector_HPP
@@ -51,14 +49,10 @@ namespace Lina
     {
     public:
         Vector2ui() = default;
-        Vector2ui(unsigned int x, unsigned int y)
-            : glm::uvec2(x, y){};
-        Vector2ui(const Vector2ui& rhs)
-            : glm::uvec2(rhs){};
-        Vector2ui(unsigned int val)
-            : glm::uvec2(val, val){};
-        Vector2ui(const glm::vec2& rhs)
-            : glm::uvec2(rhs.x, rhs.y){};
+        Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y){};
+        Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
+        Vector2ui(unsigned int val) : glm::uvec2(val, val){};
+        Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y){};
 
         static Vector2ui Zero;
         static Vector2ui One;
@@ -75,8 +69,7 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -86,14 +79,10 @@ namespace Lina
     {
     public:
         Vector2i() = default;
-        Vector2i(int x, int y)
-            : glm::ivec2(x, y){};
-        Vector2i(const Vector2i& rhs)
-            : glm::ivec2(rhs){};
-        Vector2i(unsigned int val)
-            : glm::ivec2(val, val){};
-        Vector2i(const glm::vec2& rhs)
-            : glm::ivec2(rhs.x, rhs.y){};
+        Vector2i(int x, int y) : glm::ivec2(x, y){};
+        Vector2i(const Vector2i& rhs) : glm::ivec2(rhs){};
+        Vector2i(unsigned int val) : glm::ivec2(val, val){};
+        Vector2i(const glm::vec2& rhs) : glm::ivec2(rhs.x, rhs.y){};
 
         static Vector2i Zero;
         static Vector2i One;
@@ -109,8 +98,7 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -120,19 +108,17 @@ namespace Lina
     {
     public:
         Vector2() = default;
-        Vector2(float x, float y)
-            : glm::vec2(x, y){};
-        Vector2(const Vector2& rhs)
-            : glm::vec2(rhs){};
-        Vector2(float val)
-            : glm::vec2(val, val){};
-        Vector2(const glm::vec2& rhs)
-            : glm::vec2(rhs.x, rhs.y){};
+        Vector2(float x, float y) : glm::vec2(x, y){};
+        Vector2(const Vector2& rhs) : glm::vec2(rhs){};
+        Vector2(float val) : glm::vec2(val, val){};
+        Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
 
         static Vector2 Zero;
         static Vector2 One;
 
         Vector2 Abs() const;
+        Vector2 MinLength(const Vector2& other) const;
+        Vector2 MaxLength(const Vector2& other) const;
         Vector2 Min(const Vector2& other) const;
         Vector2 Max(const Vector2& other) const;
         Vector2 Normalized() const;
@@ -238,8 +224,7 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y);
         }
@@ -301,16 +286,11 @@ namespace Lina
 
     public:
         Vector3() = default;
-        Vector3(float x, float y, float z)
-            : glm::vec3(x, y, z){};
-        Vector3(const Vector3& rhs)
-            : glm::vec3(rhs){};
-        Vector3(const Vector2& rhs)
-            : glm::vec3(rhs.x, rhs.y, 0.0f){};
-        Vector3(float val)
-            : glm::vec3(val, val, val){};
-        Vector3(const glm::vec3& rhs)
-            : glm::vec3(rhs.x, rhs.y, rhs.z){};
+        Vector3(float x, float y, float z) : glm::vec3(x, y, z){};
+        Vector3(const Vector3& rhs) : glm::vec3(rhs){};
+        Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
+        Vector3(float val) : glm::vec3(val, val, val){};
+        Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z){};
 
         static Vector3 Zero;
         static Vector3 Up;
@@ -325,6 +305,8 @@ namespace Lina
 
         Vector3 Cross(const Vector3& other) const;
         Vector3 Abs() const;
+        Vector3 MinLength(const Vector3& other) const;
+        Vector3 MaxLength(const Vector3& other) const;
         Vector3 Min(const Vector3& other) const;
         Vector3 Max(const Vector3& other) const;
         Vector3 Normalized() const;
@@ -443,8 +425,7 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y, z);
         }
@@ -504,15 +485,10 @@ namespace Lina
 
     public:
         Vector3ui() = default;
-        Vector3ui(uint32 x, uint32 y, uint32 z)
-            : glm::uvec3(x, y, z) {};
-        Vector3ui(const Vector3ui& rhs)
-            : glm::uvec3(rhs) {};
-        Vector3ui(const Vector2ui& rhs)
-            : glm::uvec3(rhs.x, rhs.y, 0.0f) {};
-        Vector3ui(const glm::uvec3& rhs)
-            : glm::uvec3(rhs.x, rhs.y, rhs.z) {};
-
+        Vector3ui(uint32 x, uint32 y, uint32 z) : glm::uvec3(x, y, z){};
+        Vector3ui(const Vector3ui& rhs) : glm::uvec3(rhs){};
+        Vector3ui(const Vector2ui& rhs) : glm::uvec3(rhs.x, rhs.y, 0.0f){};
+        Vector3ui(const glm::uvec3& rhs) : glm::uvec3(rhs.x, rhs.y, rhs.z){};
     };
 
     class Vector4 : public glm::vec4
@@ -520,24 +496,19 @@ namespace Lina
 
     public:
         Vector4() = default;
-        Vector4(float x, float y, float z, float w)
-            : glm::vec4(x, y, z, w){};
-        Vector4(const Vector4& rhs)
-            : glm::vec4(rhs){};
-        Vector4(const Vector3& rhs)
-            : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
-        Vector4(const Vector2& rhs)
-            : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
-        Vector4(float f)
-            : glm::vec4(f, f, f, f){};
-        Vector4(const glm::vec4& rhs)
-            : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
-        Vector4(const Vector3& src, float w)
-            : glm::vec4(src, w){};
+        Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
+        Vector4(const Vector4& rhs) : glm::vec4(rhs){};
+        Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
+        Vector4(const Vector2& rhs) : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
+        Vector4(float f) : glm::vec4(f, f, f, f){};
+        Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+        Vector4(const Vector3& src, float w) : glm::vec4(src, w){};
         static Vector4 Zero;
         static Vector4 One;
 
         Vector4 Abs() const;
+        Vector4 MinLength(const Vector4& other) const;
+        Vector4 MaxLength(const Vector4& other) const;
         Vector4 Min(const Vector4& other) const;
         Vector4 Max(const Vector4& other) const;
         Vector4 Normalized() const;
@@ -668,8 +639,7 @@ namespace Lina
             return ss.str().c_str();
         }
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y, z, w);
         }

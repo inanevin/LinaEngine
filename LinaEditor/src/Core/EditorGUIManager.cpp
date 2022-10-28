@@ -27,7 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/EditorGUIManager.hpp"
-#include "GUI/Window.hpp"
+#include "GUI/GNode.hpp"
+#include "Utility/GUIParseUtility.hpp"
+#include "Core/EditorCommon.hpp"
+#include "Surfaces/STopSection.hpp"
+#include "Surfaces/SBottomSection.hpp"
 
 namespace Lina::Editor
 {
@@ -36,19 +40,25 @@ namespace Lina::Editor
     void EditorGUIManager::Initialize()
     {
         s_instance = this;
+        LoadRoot();
+    }
 
-        Window* background = new Window();
-        background->GetMask().Set(WindowMask::Fullscreen);
-        m_rootNode.AddChildren(background);
+    void EditorGUIManager::LoadRoot()
+    {
+        m_rootNode              = new GNode();
+        STopSection* topSection = new STopSection();
+        m_rootNode->AddChild(topSection);
     }
 
     void EditorGUIManager::Shutdown()
     {
+        delete m_rootNode;
     }
 
     void EditorGUIManager::Draw()
     {
-        m_rootNode.Draw(RuntimeInfo::GetDeltaTime());
+        if (m_rootNode != nullptr)
+            m_rootNode->Draw(RuntimeInfo::GetDeltaTime());
     }
 
 } // namespace Lina::Editor

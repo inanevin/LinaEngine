@@ -88,7 +88,6 @@ namespace Lina::World
             m_targetPosition += -rg * delta.x * 0.5f;
             m_targetPosition += up * delta.y * 0.5f;
 
-            LINA_TRACE("{0}", inputEngine->GetMousePosition().ToString());
         }
 
         const Vector3 currentPos = m_entity->GetPosition();

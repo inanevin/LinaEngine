@@ -85,6 +85,7 @@ namespace Lina::Input
     {
         m_currentMouseScroll.x = (float)e.xoff;
         m_currentMouseScroll.y = (float)e.yoff;
+        LINA_TRACE("{0}", m_currentMouseScroll.ToString());
     }
 
     bool InputEngine::GetKey(int keycode)
@@ -291,6 +292,12 @@ namespace Lina::Input
 #endif
     }
 
+
+    void InputEngine::PrePoll()
+    {
+        m_currentMouseScroll = Vector2::Zero;
+    }
+
     void InputEngine::Tick()
     {
         // Refresh the key states from previous frame.
@@ -311,7 +318,6 @@ namespace Lina::Input
         m_mouseDownNewStateMap.clear();
         m_mouseUpNewStateMap.clear();
 
-        m_currentMouseScroll = Vector2::Zero;
 
 #ifdef LINA_PLATFORM_WINDOWS
 

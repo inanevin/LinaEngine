@@ -259,7 +259,7 @@ namespace Lina::Graphics
         PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
         m_swapchain       = Swapchain{
                   .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
-                  .format      = Format::B8G8R8A8_SRGB,
+                  .format      = Format::B8G8R8A8_UNORM,
                   .colorSpace  = ColorSpace::SRGB_NONLINEAR,
                   .presentMode = pMode,
         };

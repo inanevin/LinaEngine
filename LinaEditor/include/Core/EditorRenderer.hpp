@@ -31,6 +31,8 @@ SOFTWARE.
 #ifndef EditorRenderer_HPP
 #define EditorRenderer_HPP
 
+#include "Data/HashMap.hpp"
+
 namespace Lina
 {
     namespace Event
@@ -55,6 +57,8 @@ namespace Lina::Editor
         void OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev);
         void OnEditorDraw(const Event::EOnEditorDraw& ev);
         void OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev);
+
+    private:
     };
 } // namespace Lina::Editor
 

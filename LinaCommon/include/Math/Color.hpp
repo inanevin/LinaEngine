@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef Lina_Color_HPP
@@ -39,28 +37,29 @@ namespace Lina
     {
 
     public:
-        Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : r(is255 ? rv / 255.0f : rv), g(is255 ? gv / 255.0f : gv), b(is255 ? bv / 255.0f : bv), a(is255 ? av / 255.0f : av){};
-        
-        float r, g, b, a = 1.0f;
+        Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false)
+            : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
+
+        float x, y, z, w = 1.0f;
 
         bool operator!=(const Color& rhs) const
         {
-            return !(r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
+            return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
         }
 
         bool operator==(const Color& rhs) const
         {
-            return (r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
+            return (x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
         }
 
         Color operator*(const float& rhs) const
         {
-            return Color(r * rhs, g * rhs, b * rhs, a * rhs);
+            return Color(x * rhs, y * rhs, z * rhs, w * rhs);
         }
 
         Color operator+(const Color& rhs) const
         {
-            return Color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
+            return Color(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
         }
 
     public:
@@ -79,10 +78,9 @@ namespace Lina
         static Color Brown;
         static Color Gray;
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
-            archive(r, g, b, a);
+            archive(x, y, z, w);
         }
     };
 

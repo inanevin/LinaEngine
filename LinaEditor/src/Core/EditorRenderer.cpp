@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/EditorGUIManager.hpp"
-
+#include "Core/Theme.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 using namespace LinaVG;
@@ -276,10 +276,12 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
-        uint32 atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", false, 35);
-        Graphics::GUIBackend::Get()->UploadFontTexture(atlas);
-        atlas = LinaVG::LoadFont("Resources/Editor/Fonts/NotoSans-Regular.ttf", true, 35);
-        Graphics::GUIBackend::Get()->UploadFontTexture(atlas);
+
+        Theme::s_fonts[ThemeFont::Default] = LinaVG::LoadFont("Resources/Editor/Fonts/DefaultFont.ttf", false, 18);
+        Graphics::GUIBackend::Get()->UploadFontTexture();
+
+        Theme::s_fonts[ThemeFont::LinaStyle] = LinaVG::LoadFont("Resources/Editor/Fonts/GoodTimes.otf", false, 50);
+        Graphics::GUIBackend::Get()->UploadFontTexture();
     }
 
     void EditorRenderer::Shutdown()
@@ -292,10 +294,10 @@ namespace Lina::Editor
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
-     //   LinaVG::StartFrame();
-      //  EditorGUIManager::Get()->Draw();
-     //   LinaVG::Render();
-      //  LinaVG::EndFrame();
+        LinaVG::StartFrame();
+        EditorGUIManager::Get()->Draw();
+        LinaVG::Render();
+        LinaVG::EndFrame();
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)

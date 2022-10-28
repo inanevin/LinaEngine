@@ -31,8 +31,6 @@ SOFTWARE.
 #ifndef EditorGUIManager_HPP
 #define EditorGUIManager_HPP
 
-#include "GUI/Node.hpp"
-
 namespace Lina
 {
     namespace Event
@@ -44,6 +42,9 @@ namespace Lina
 
 namespace Lina::Editor
 {
+    class GNode;
+    struct EShortcut;
+
     class EditorGUIManager
     {
     public:
@@ -57,12 +58,13 @@ namespace Lina::Editor
         friend class Editor;
 
         void Initialize();
+        void LoadRoot();
         void Shutdown();
         void Draw();
 
     private:
         static EditorGUIManager* s_instance;
-        Node                     m_rootNode;
+        GNode*                   m_rootNode = nullptr;
     };
 } // namespace Lina::Editor
 

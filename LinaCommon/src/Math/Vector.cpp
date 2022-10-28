@@ -62,14 +62,24 @@ namespace Lina
         return Vector4(glm::abs(x), glm::abs(y), glm::abs(z), glm::abs(w));
     }
 
-    Vector4 Vector4::Min(const Vector4& other) const
+    Vector4 Vector4::MinLength(const Vector4& other) const
     {
         return length() < other.length() ? *this : other;
     }
 
-    Vector4 Vector4::Max(const Vector4& other) const
+    Vector4 Vector4::MaxLength(const Vector4& other) const
     {
         return length() > other.length() ? *this : other;
+    }
+
+    Vector4 Vector4::Min(const Vector4& other) const
+    {
+        return Vector4(glm::min(x, other.x), glm::min(y, other.y), glm::min(z, other.z), glm::min(w, other.w));
+    }
+
+    Vector4 Vector4::Max(const Vector4& other) const
+    {
+        return Vector4(glm::max(x, other.x), glm::max(y, other.y), glm::max(z, other.z), glm::max(w, other.w));
     }
 
     Vector4 Vector4::Normalized() const
@@ -160,14 +170,24 @@ namespace Lina
         return glm::vec3(glm::abs(x), glm::abs(y), glm::abs(z));
     }
 
-    Vector3 Vector3::Min(const Vector3& other) const
+    Vector3 Vector3::MinLength(const Vector3& other) const
     {
         return length() < other.length() ? glm::vec3(*this) : glm::vec3(other);
     }
 
-    Vector3 Vector3::Max(const Vector3& other) const
+    Vector3 Vector3::MaxLength(const Vector3& other) const
     {
         return length() > other.length() ? glm::vec3(*this) : glm::vec3(other);
+    }
+
+    Vector3 Vector3::Min(const Vector3& other) const
+    {
+        return Vector3(glm::min(x, other.x), glm::min(y, other.y), glm::min(z, other.z));
+    }
+
+    Vector3 Vector3::Max(const Vector3& other) const
+    {
+        return Vector3(glm::max(x, other.x), glm::max(y, other.y), glm::max(z, other.z));
     }
 
     Vector3 Vector3::Normalized() const
@@ -250,14 +270,24 @@ namespace Lina
         return Vector2(glm::abs(x), glm::abs(y));
     }
 
-    Vector2 Vector2::Min(const Vector2& other) const
+    Vector2 Vector2::MinLength(const Vector2& other) const
     {
         return length() < other.length() ? glm::vec2(*this) : glm::vec2(other);
     }
 
-    Vector2 Vector2::Max(const Vector2& other) const
+    Vector2 Vector2::MaxLength(const Vector2& other) const
     {
         return length() > other.length() ? glm::vec2(*this) : glm::vec2(other);
+    }
+
+    Vector2 Vector2::Min(const Vector2& other) const
+    {
+       return Vector2(glm::min(x, other.x), glm::min(y, other.y));
+    }
+
+    Vector2 Vector2::Max(const Vector2& other) const
+    {
+        return Vector2(glm::max(x, other.x), glm::max(y, other.y));
     }
 
     Vector2 Vector2::Normalized() const

@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef Profiler_HPP
 #define Profiler_HPP
 
-#undef LINA_ENABLE_PROFILING
 #ifdef LINA_ENABLE_PROFILING
 
 #define MEMORY_STACK_TRACE_SIZE 20

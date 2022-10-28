@@ -67,6 +67,11 @@ namespace Lina
 #ifndef LINA_PRODUCTION_BUILD
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.VerifyStaticResources();
+
+        const Vector<String> editorTextures = m_editor.GetDefaultTextures();
+
+        for (auto& s : editorTextures)
+            DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
 #endif
 
         // Static resources

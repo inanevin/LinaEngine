@@ -108,6 +108,11 @@ namespace Lina
         m_isRunning = true;
     }
 
+    void Application::PrePoll()
+    {
+        m_engine.m_inputEngine.PrePoll();
+    }
+
     void Application::Tick()
     {
         if (m_dirty)

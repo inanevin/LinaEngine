@@ -94,6 +94,7 @@ namespace Lina::Graphics
 
         inline bool IsActiveWindow()
         {
+            return true;
             return m_isActive;
         }
 

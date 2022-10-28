@@ -222,7 +222,6 @@ namespace Lina::Graphics
 
     void GUIBackend::RecordDrawCommands()
     {
-        return;
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
@@ -318,15 +317,16 @@ namespace Lina::Graphics
         }
     }
 
-    void GUIBackend::UploadFontTexture(uint32 handle)
+    void GUIBackend::UploadFontTexture()
     {
-        Texture* txt       = m_fontTextures[handle];
+        Texture* txt       = m_fontTextures[m_bufferingFontTexture];
         Offset3D imgOffset = Offset3D{.x = 0, .y = 0, .z = 0};
         txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, false);
     }
 
     void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
     {
+        m_bufferingFontTexture = texture;
     }
 
     void GUIBackend::SaveAPIState()

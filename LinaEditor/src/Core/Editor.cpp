@@ -52,6 +52,8 @@ namespace Lina::Editor
     void Editor::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Editor::OnPreMainLoop>(this);
+
         m_resLoader = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
@@ -59,12 +61,14 @@ namespace Lina::Editor
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         m_renderer.Initialize();
-        m_guiManager.Initialize();
+        m_shortcutManager.Initialize();
     }
 
     void Editor::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
+
         m_guiManager.Shutdown();
         m_renderer.Shutdown();
     }
@@ -223,6 +227,17 @@ namespace Lina::Editor
             return;
 
         RuntimeInfo::s_shouldSkipFrame = true;
+    }
+
+    Vector<String> Editor::GetDefaultTextures()
+    {
+        Vector<String> vec;
+        return vec;
+    }
+
+    void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
+    {
+        m_guiManager.Initialize();
     }
 
 } // namespace Lina::Editor

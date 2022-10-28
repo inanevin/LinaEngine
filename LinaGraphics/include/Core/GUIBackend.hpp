@@ -136,7 +136,7 @@ namespace Lina::Graphics
         void      CreateBufferCapsule();
         void      UpdateProjection();
         void      RecordDrawCommands();
-        void      UploadFontTexture(uint32 handle);
+        void      UploadFontTexture();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
     private:

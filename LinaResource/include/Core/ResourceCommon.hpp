@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Functional/Functional.hpp"
 #include "Core/CommonMemory.hpp"
 #include "Data/String.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina::Resources
 {

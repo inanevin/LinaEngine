@@ -56,6 +56,7 @@ namespace Lina
 
         void Initialize(const InitInfo& initInfo, GameManager* gm);
         void Start();
+        void PrePoll();
         void Tick();
         void Shutdown();
 
@@ -67,7 +68,6 @@ namespace Lina
         static void Cleanup(Application* runningInstance);
 
     private:
-        
         // Callbacks.
         void OnWindowClosed(const Event::EWindowClosed& ev);
         void OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev);

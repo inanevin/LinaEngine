@@ -1,0 +1,54 @@
+Node -> Node Type Str
+Pos -> V2
+Size -> V2
+MinSize -> V2
+MaxSize -> V2
+Anchor -> V2
+Name -> Str
+AA -> bool
+Style -> Object
+    Color -> Object
+        Start -> ThemeColor
+        End -> ThemeColor
+        GradientType -> Str of: Horizontal, Vertical, Radial, RadialCorner
+        RadialSize -> Float
+    Rounding -> Float
+    OnlyRoundCorners -> Array of ints
+    Texture -> Full path
+    TextureUVOffset -> V2
+    TextureUVTiling -> V2
+    IsFilled -> bool
+    Outline -> Object
+        Color -> Object, same as above
+        DrawDirection -> Str of Inwards, Both or Outwards,
+        Texture -> Full path,
+        TextureUVOffset -> V2,
+        TextureUVTiling -> V2,
+        Thickness -> Float
+    
+
+For Texts
+
+Color -> Object
+Alignment -> Str of Left, Right or Center
+DropShadowColor -> Theme Color
+DropShadowOffset -> V2
+Font -> ThemeFont
+NewLineSpacing -> Float,
+Spacing -> Float
+Scale -> Float
+WrapWidth -> Float
+
+
+SDF Texts
+
+All above +:
+
+SDFThickness -> Float,
+SDFSoftness -> Float,
+SDFOutlineThickness -> Float,
+SDFOutlineSoftness ->Float
+SDFDropShadowThickness -> Float
+SDFDropShadowSoftness -> Float
+SDFOutlineColor -> ThemeColor
+

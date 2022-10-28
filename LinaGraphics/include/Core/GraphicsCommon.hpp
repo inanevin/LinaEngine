@@ -83,6 +83,7 @@ namespace Lina::Graphics
     enum class Format
     {
         B8G8R8A8_SRGB,
+        B8G8R8A8_UNORM,
         R32G32B32_SFLOAT,
         R32G32B32A32_SFLOAT,
         R32G32_SFLOAT,
@@ -572,6 +573,7 @@ namespace Lina::Graphics
     enum class EngineTextureType
     {
         DefaultLina,
+        LinaLogoTransparent,
         Grid512,
     };
 

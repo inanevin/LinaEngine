@@ -25,6 +25,8 @@ set(LINAEDITOR_SOURCES
 src/Core/Editor.cpp
 src/Core/EditorRenderer.cpp
 src/Core/EditorGUIManager.cpp
+src/Core/Theme.cpp
+src/Core/ShortcutManager.cpp
 
 # Components
 src/Components/EditorFreeLookComponent.cpp
@@ -33,8 +35,18 @@ src/Components/EditorFreeLookComponent.cpp
 src/Resource/EditorResourceLoader.cpp
 
 # GUI
-src/GUI/Node.cpp
-src/GUI/Window.cpp
+src/GUI/GNode.cpp
+src/GUI/GWindow.cpp
+src/GUI/GShape.cpp
+src/GUI/GText.cpp
+src/GUI/GImage.cpp
+
+# Surfaces
+src/Surfaces/STopSection.cpp
+src/Surfaces/SBottomSection.cpp
+
+# Utility
+src/Utility/GUIParseUtility.cpp
 )
 
 
@@ -44,6 +56,9 @@ set(LINAEDITOR_HEADERS
 include/Core/Editor.hpp
 include/Core/EditorRenderer.hpp
 include/Core/EditorGUIManager.hpp
+include/Core/Theme.hpp
+include/Core/ShortcutManager.hpp
+include/Core/EditorCommon.hpp
 
 # Components
 include/Components/EditorFreeLookComponent.hpp
@@ -52,9 +67,18 @@ include/Components/EditorFreeLookComponent.hpp
 include/Resource/EditorResourceLoader.hpp
 
 # GUI
-include/GUI/Node.hpp
-include/GUI/Window.hpp
+include/GUI/GNode.hpp
+include/GUI/GWindow.hpp
+include/GUI/GShape.hpp
+include/GUI/GText.hpp
+include/GUI/GImage.hpp
 
+# Surfaces
+include/Surfaces/STopSection.hpp
+include/Surfaces/SBottomSection.hpp
+
+# Utility
+include/Utility/GUIParseUtility.hpp
 )
 
 #--------------------------------------------------------------------
@@ -76,6 +100,7 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEngine/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGUI/include)
 
 include(../CMake/ProjectSettings.cmake)
 
@@ -83,7 +108,8 @@ include(../CMake/ProjectSettings.cmake)
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
-PUBLIC Lina::Engine
+PRIVATE Lina::Engine
+PRIVATE Lina::GUI
 )
 
 #--------------------------------------------------------------------

@@ -80,27 +80,47 @@ namespace Lina::Graphics
         }
         break;
         case WM_KEYDOWN: {
-            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
-            WORD keyFlags = HIWORD(lParam);
-            WORD scanCode = LOBYTE(keyFlags);
-            Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
-                .window   = static_cast<void*>(ptr),
-                .key      = static_cast<uint32>(wParam),
-                .scancode = static_cast<int>(scanCode),
-                .action   = Input::InputAction::Pressed,
-            });
+            if ((HIWORD(lParam) & KF_REPEAT) == 0)
+            {
+                HWND   ptr      = Win32Window::GetWin32()->GetWindowPtr();
+                WORD   keyFlags = HIWORD(lParam);
+                WORD   scanCode = LOBYTE(keyFlags);
+                uint32 key      = static_cast<uint32>(wParam);
+                int    extended = (lParam & 0x01000000) != 0;
+
+                if (wParam == VK_SHIFT)
+                    key = extended == 0 ? VK_LSHIFT : VK_RSHIFT;
+                else if (wParam == VK_CONTROL)
+                    key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
+
+                Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
+                    .window   = static_cast<void*>(ptr),
+                    .key      = key,
+                    .scancode = static_cast<int>(scanCode),
+                    .action   = Input::InputAction::Pressed,
+                });
+            }
         }
         break;
         case WM_KEYUP: {
-            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
             WORD keyFlags = HIWORD(lParam);
             WORD scanCode = LOBYTE(keyFlags);
+
+            uint32 key = static_cast<uint32>(wParam);
+            int    extended = (lParam & 0x01000000) != 0;
+
+            if (wParam == VK_SHIFT)
+                key = extended ? VK_LSHIFT : VK_RSHIFT;
+            else if (wParam == VK_CONTROL)
+                key = extended ? VK_LCONTROL : VK_RCONTROL;
+
             Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
-                .window   = static_cast<void*>(ptr),
-                .key      = static_cast<uint32>(wParam),
+                .window = static_cast<void*>(ptr),
+                .key = key,
                 .scancode = static_cast<int>(scanCode),
-                .action   = Input::InputAction::Released,
-            });
+                .action = Input::InputAction::Released,
+                });
         }
         break;
         case WM_MOUSEWHEEL: {
@@ -355,6 +375,8 @@ namespace Lina::Graphics
 
     void Win32Window::UpdateCursor()
     {
+        return;
+
         RECT r   = {};
         r.left   = m_pos.x;
         r.right  = m_pos.x + m_size.x;

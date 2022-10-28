@@ -33,12 +33,13 @@ SOFTWARE.
 
 #include "EditorRenderer.hpp"
 #include "EditorGUIManager.hpp"
-
+#include "ShortcutManager.hpp"
 namespace Lina
 {
     namespace Event
     {
         struct ELevelInstalled;
+        struct EPreMainLoop;
     } // namespace Event
 
     namespace World
@@ -60,23 +61,28 @@ namespace Lina::Editor
         Editor()          = default;
         virtual ~Editor() = default;
 
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void Initialize();
-        void Shutdown();
-        void VerifyStaticResources();
-        void CreateEditorCamera();
-        void DeleteEditorCamera();
-        void SaveCurrentLevel();
-        void PackageProject();
-        void SetPlayMode(bool enabled);
-        void SetIsPaused(bool paused);
-        void SkipNextFrame();
+        void           OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void           Initialize();
+        void           Shutdown();
+        void           VerifyStaticResources();
+        void           CreateEditorCamera();
+        void           DeleteEditorCamera();
+        void           SaveCurrentLevel();
+        void           PackageProject();
+        void           SetPlayMode(bool enabled);
+        void           SetIsPaused(bool paused);
+        void           SkipNextFrame();
+        Vector<String> GetDefaultTextures();
+
+    private:
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
 
     private:
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
         EditorRenderer                   m_renderer;
         EditorGUIManager                 m_guiManager;
+        ShortcutManager                  m_shortcutManager;
     };
 } // namespace Lina::Editor
 
