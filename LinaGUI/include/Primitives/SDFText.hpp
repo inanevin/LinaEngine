@@ -28,42 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GNode_HPP
-#define GNode_HPP
+#ifndef SDFText_HPP
+#define SDFText_HPP
 
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
-#include "Math/Vector.hpp"
+#include "Core/GUINode.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-    class GNode
+    class SDFText : public GUINode
     {
     public:
-        GNode() = default;
-        virtual ~GNode();
+        SDFText()          = default;
+        virtual ~SDFText() = default;
 
-        void         AddChild(GNode* child);
-        void         RemoveChild(GNode* child);
-        Vector2      GetAbsPosition();
-        Vector2      GetAbsSize();
-        virtual void Calculate();
-        virtual void Draw();
+        virtual void Draw() override;
 
-        GNode*         parent = nullptr;
-        Vector<GNode*> children;
-        String         name         = "";
-        uint32         drawOrder    = 0;
-        bool           enableAA     = true;
-        float          rotateAngle  = 0.0f;
-        Vector2        position     = Vector2();
-        Vector2        size         = Vector2();
-        Vector2        _absPosition = Vector2();
-        Vector2        _absSize     = Vector2();
-        Vector2        _absHalfSize = Vector2();
-        Vector2        _min         = Vector2();
-        Vector2        _max         = Vector2();
+        LinaVG::SDFTextOptions style;
+        String                 text = "";
     };
 } // namespace Lina::GUI
 

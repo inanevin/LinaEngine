@@ -26,15 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Primitives/GCircle.hpp"
+#pragma once
+
+#ifndef HorizontalLayout_HPP
+#define HorizontalLayout_HPP
+
+#include "Core/GUINode.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-    void GCircle::Draw()
+    enum class HorizontalLayoutType
     {
-        const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = enableAA;
-        LinaVG::DrawCircle(LV2(_absPosition), _absHalfSize.x, style, segments, rotateAngle, startAngle, endAngle, drawOrder);
-        LinaVG::Config.aaEnabled = aa;
-    }
+        EquallyDistribute,
+        Append,
+    };
+
+    class HorizontalLayout : public GUINode
+    {
+    public:
+        HorizontalLayout()          = default;
+        virtual ~HorizontalLayout() = default;
+
+        virtual void Draw() override;
+
+        float                spacing = 0.0f;
+        HorizontalLayoutType type    = HorizontalLayoutType::EquallyDistribute;
+    };
 } // namespace Lina::GUI
+
+#endif

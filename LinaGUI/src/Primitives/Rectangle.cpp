@@ -26,26 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef GRect_HPP
-#define GRect_HPP
-
-#include "Core/GNode.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Primitives/Rectangle.hpp"
 
 namespace Lina::GUI
 {
-    class GRect : public GNode
+    void Rect::Draw()
     {
-    public:
-        GRect()          = default;
-        virtual ~GRect() = default;
-
-        virtual void Draw() override;
-
-        LinaVG::StyleOptions style;
-    };
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = enableAA;
+        const Vector2 halfSize   = size * 0.5f;
+        const Vector2 min        = position - halfSize;
+        const Vector2 max        = position + halfSize;
+        LinaVG::DrawRect(LV2(min), LV2(max), style, rotateAngle, drawOrder);
+        LinaVG::Config.aaEnabled = aa;
+        GUINode::Draw();
+    }
 } // namespace Lina::GUI
-
-#endif

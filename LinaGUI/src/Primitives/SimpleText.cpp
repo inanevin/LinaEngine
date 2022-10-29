@@ -26,26 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Primitives/GConvex.hpp"
+#include "Primitives/SimpleText.hpp"
 
 namespace Lina::GUI
 {
-    void GConvex::Draw()
+    void SimpleText::Draw()
     {
-        const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = enableAA;
-        Vector<LinaVG::Vec2> _points;
-
-        for (auto& pp : pointPositions)
-        {
-            if (parent != nullptr)
-                _points.push_back(LV2((parent->_absPosition + parent->_absSize * pp)));
-            else
-                _points.push_back(LV2((RuntimeInfo::GetScreenSizeF() * pp)));
-        }
-
-        LinaVG::DrawConvex(_points.data(), _points.size(), style, rotateAngle, drawOrder);
-        _points.clear();
-        LinaVG::Config.aaEnabled = aa;
+       LinaVG::DrawTextNormal(text.c_str(), LV2(position), style, rotateAngle, drawOrder);
+       GUINode::Draw();
     }
 } // namespace Lina::GUI

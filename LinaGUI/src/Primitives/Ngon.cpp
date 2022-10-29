@@ -26,17 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Primitives/GRect.hpp"
+#include "Primitives/Ngon.hpp"
 
 namespace Lina::GUI
 {
-    void GRect::Draw()
+    void Ngon::Draw()
     {
         const bool aa            = LinaVG::Config.aaEnabled;
         LinaVG::Config.aaEnabled = enableAA;
-        LinaVG::DrawRect(LV2(_min), LV2(_max), style, rotateAngle, drawOrder);
+        LinaVG::DrawNGon(LV2(position), size.x * 0.5f, count, style, rotateAngle, drawOrder);
         LinaVG::Config.aaEnabled = aa;
-
-        GNode::Draw();
+        GUINode::Draw();
     }
 } // namespace Lina::GUI

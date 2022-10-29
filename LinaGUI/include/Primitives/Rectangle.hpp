@@ -26,15 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Primitives/GNgon.hpp"
+#pragma once
+
+#ifndef GUIRectangle_HPP
+#define GUIRectangle_HPP
+
+#include "Core/GUINode.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-    void GNgon::Draw()
+    class Rect : public GUINode
     {
-        const bool aa            = LinaVG::Config.aaEnabled;
-        LinaVG::Config.aaEnabled = enableAA;
-        LinaVG::DrawNGon(LV2(_absPosition), _absSize.x, count, style, rotateAngle, drawOrder);
-        LinaVG::Config.aaEnabled = aa;
-    }
+    public:
+        Rect()          = default;
+        virtual ~Rect() = default;
+
+        virtual void Draw() override;
+
+        LinaVG::StyleOptions style;
+    };
 } // namespace Lina::GUI
+
+#endif

@@ -26,27 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef GConvex_HPP
-#define GConvex_HPP
-
-#include "Core/GNode.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Primitives/Circle.hpp"
 
 namespace Lina::GUI
 {
-    class GConvex : public GNode
+    void Circle::Draw()
     {
-    public:
-        GConvex()          = default;
-        virtual ~GConvex() = default;
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = enableAA;
+        LinaVG::DrawCircle(LV2(position), size.x * 0.5f, style, segments, rotateAngle, startAngle, endAngle, drawOrder);
+        LinaVG::Config.aaEnabled = aa;
+        GUINode::Draw();
 
-        virtual void Draw() override;
-
-        LinaVG::StyleOptions style;
-        Vector<Vector2>      pointPositions;
-    };
+    }
 } // namespace Lina::GUI
-
-#endif

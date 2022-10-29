@@ -28,26 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GCircle_HPP
-#define GCircle_HPP
+#ifndef Convex_HPP
+#define Convex_HPP
 
-#include "Core/GNode.hpp"
+#include "Core/GUINode.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-    class GCircle : public GNode
+    class Convex : public GUINode
     {
     public:
-        GCircle()          = default;
-        virtual ~GCircle() = default;
+        Convex()          = default;
+        virtual ~Convex() = default;
 
         virtual void Draw() override;
 
-        float                startAngle = 0.0f;
-        float                endAngle   = 360.0f;
-        int                  segments   = 36;
         LinaVG::StyleOptions style;
+        Vector<Vector2>      pointPositions;
     };
 } // namespace Lina::GUI
 

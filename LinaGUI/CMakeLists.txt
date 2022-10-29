@@ -21,13 +21,21 @@ project(LinaGUI CXX)
 set (LINAGUI_SOURCES
 	
 	# Core
-	src/Core/GNode.cpp
+	src/Core/GUINode.cpp
 
 	# Primitives
-	src/Primitives/GRect.cpp
-	src/Primitives/GCircle.cpp
-	src/Primitives/GNgon.cpp
-	src/Primitives/GConvex.cpp
+	src/Primitives/Rectangle.cpp
+	src/Primitives/Circle.cpp
+	src/Primitives/Ngon.cpp
+	src/Primitives/Convex.cpp
+	src/Primitives/SimpleText.cpp
+	src/Primitives/SDFText.cpp
+
+	# Platform
+	include/Platform/LinaVGIncl.hpp
+	
+	# Layout
+	src/Layout/HorizontalLayout.cpp
 )
 
 #--------------------------------------------------------------------
@@ -36,13 +44,18 @@ set (LINAGUI_SOURCES
 set(LINAGUI_HEADERS
 
 	# Core
-	include/Core/GNode.hpp
+	include/Core/GUINode.hpp
 
 	# Primitives
-	include/Primitives/GRect.hpp
-	include/Primitives/GCircle.hpp
-	include/Primitives/GNgon.hpp
-	include/Primitives/GConvex.hpp
+	include/Primitives/Rectangle.hpp
+	include/Primitives/Circle.hpp
+	include/Primitives/Ngon.hpp
+	include/Primitives/Convex.hpp
+	include/Primitives/SimpleText.hpp
+	include/Primitives/SDFText.hpp
+
+	# Layout
+	include/Layout/HorizontalLayout.hpp
 )
 
 #--------------------------------------------------------------------
@@ -72,7 +85,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Common)
 
+include(../_Dependencies/freetype/link.cmake)
 include(../_Dependencies/linavg/link.cmake)
+link_freetype()
 link_linavg()
 
 

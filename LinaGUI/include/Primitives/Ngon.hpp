@@ -28,19 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GNgon_HPP
-#define GNgon_HPP
+#ifndef Ngon_HPP
+#define Ngon_HPP
 
-#include "Core/GNode.hpp"
+#include "Core/GUINode.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-    class GNgon : public GNode
+    class Ngon : public GUINode
     {
     public:
-        GNgon()          = default;
-        virtual ~GNgon() = default;
+        Ngon()          = default;
+        virtual ~Ngon() = default;
 
         virtual void Draw() override;
 
