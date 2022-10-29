@@ -26,40 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorGUIManager.hpp"
-#include "Core/EditorCommon.hpp"
-#include "Core/GUINode.hpp"
+#include "Surfaces/SurfaceTop.hpp"
 
 namespace Lina::Editor
 {
-    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
-
-    void EditorGUIManager::Initialize()
+    void SurfaceTop::Setup()
     {
-        s_instance = this;
-        LoadRoot();
+        name              = "SurfaceTop";
+        const float sizeY = 0.12f;
+        AddParentConstraint(GUI::ParentConstraintType::PosX, 0.5f)->AddParentConstraint(GUI::ParentConstraintType::PosY, sizeY * 0.5f);
+        AddParentConstraint(GUI::ParentConstraintType::SizeX, 1.0f)->AddParentConstraint(GUI::ParentConstraintType::SizeY, sizeY);
+        AddAbsConstraint(GUI::AbsConstraintType::MinSizeX, 525.0f);
+        AddAbsConstraint(GUI::AbsConstraintType::MinSizeY, 325.0f);
     }
 
-    void EditorGUIManager::LoadRoot()
+    void SurfaceTop::Draw()
     {
-        m_rootNode       = new GUI::GUINode();
-        m_rootNode->name = "Root";
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::SizeX, 1.0f)->AddParentConstraint(GUI::ParentConstraintType::SizeY, 1.0f);
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::PosX, 0.5f)->AddParentConstraint(GUI::ParentConstraintType::PosY, 0.5f);
-
-        m_surfaceTop = new SurfaceTop();
-        m_surfaceTop->Setup();
-        m_rootNode->AddChild(m_surfaceTop);
+        GUINode::Draw();
     }
-
-    void EditorGUIManager::Shutdown()
-    {
-        delete m_rootNode;
-    }
-
-    void EditorGUIManager::Draw()
-    {
-        m_rootNode->Draw();
-    }
-
 } // namespace Lina::Editor

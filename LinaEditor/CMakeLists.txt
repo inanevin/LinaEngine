@@ -34,6 +34,10 @@ src/Components/EditorFreeLookComponent.cpp
 # Resource
 src/Resource/EditorResourceLoader.cpp
 
+# Surfaces
+src/Surfaces/SurfaceTop.cpp
+src/Surfaces/SurfaceBottom.cpp
+
 )
 
 
@@ -52,6 +56,10 @@ include/Components/EditorFreeLookComponent.hpp
 
 # Resource
 include/Resource/EditorResourceLoader.hpp
+
+# Surfaces
+include/Surfaces/SurfaceTop.hpp
+include/Surfaces/SurfaceBottom.hpp
 
 )
 

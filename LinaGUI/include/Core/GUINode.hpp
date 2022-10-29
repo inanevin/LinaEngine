@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/String.hpp"
 #include "Math/Vector.hpp"
-#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
@@ -44,12 +43,32 @@ namespace Lina::GUI
         SizeY,
         PosX,
         PosY,
+        SizeXToY,
+        SizeYToX,
+    };
+
+    enum class AbsConstraintType
+    {
+        MinSizeX,
+        MinSizeY,
+        MaxSizeX,
+        MaxSizeY,
+        MinPosX,
+        MinPosY,
+        MaxPosX,
+        MaxPosY,
     };
 
     struct ParentConstraint
     {
         ParentConstraintType type;
         float                val = 0.0f;
+    };
+
+    struct AbsConstraint
+    {
+        AbsConstraintType type;
+        float             val = 0.0f;
     };
 
     class GUINode
@@ -60,8 +79,10 @@ namespace Lina::GUI
 
         void         AddChild(GUINode* child);
         void         RemoveChild(GUINode* child);
-        void         AddParentConstraint(ParentConstraintType type, float value);
+        GUINode*     AddParentConstraint(ParentConstraintType type, float value);
+        GUINode*     AddAbsConstraint(AbsConstraintType type, float value);
         void         RemoveParentConstraint(ParentConstraintType type);
+        void         RemoveAbsConstraint(AbsConstraintType type);
         virtual void Draw();
         void         Calculate();
 
@@ -72,11 +93,17 @@ namespace Lina::GUI
         Vector2 position    = Vector2();
         Vector2 size        = Vector2();
 
+        // Debug
+        bool _showBoundingBox = false;
+
     protected:
+        void DebugDraw();
+
     protected:
         GUINode*                 m_parent = nullptr;
         Vector<GUINode*>         m_children;
         Vector<ParentConstraint> m_parentConstraints;
+        Vector<AbsConstraint>    m_absConstraints;
     };
 } // namespace Lina::GUI
 

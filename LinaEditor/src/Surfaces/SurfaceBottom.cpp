@@ -26,40 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/EditorGUIManager.hpp"
-#include "Core/EditorCommon.hpp"
-#include "Core/GUINode.hpp"
+#include "Surfaces/SurfaceBottom.hpp"
 
 namespace Lina::Editor
 {
-    EditorGUIManager* EditorGUIManager::s_instance = nullptr;
-
-    void EditorGUIManager::Initialize()
-    {
-        s_instance = this;
-        LoadRoot();
-    }
-
-    void EditorGUIManager::LoadRoot()
-    {
-        m_rootNode       = new GUI::GUINode();
-        m_rootNode->name = "Root";
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::SizeX, 1.0f)->AddParentConstraint(GUI::ParentConstraintType::SizeY, 1.0f);
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::PosX, 0.5f)->AddParentConstraint(GUI::ParentConstraintType::PosY, 0.5f);
-
-        m_surfaceTop = new SurfaceTop();
-        m_surfaceTop->Setup();
-        m_rootNode->AddChild(m_surfaceTop);
-    }
-
-    void EditorGUIManager::Shutdown()
-    {
-        delete m_rootNode;
-    }
-
-    void EditorGUIManager::Draw()
-    {
-        m_rootNode->Draw();
-    }
-
+	void SurfaceBottom::Draw()
+	{
+	}
 } // namespace Lina::Editor

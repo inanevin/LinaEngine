@@ -32,6 +32,8 @@ namespace Lina::GUI
 {
     void HorizontalLayout::Draw()
     {
+        DebugDraw();
+
         if (type == HorizontalLayoutType::EquallyDistribute)
         {
             const float childSize       = static_cast<float>(m_children.size());

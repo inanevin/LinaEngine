@@ -31,6 +31,9 @@ SOFTWARE.
 #ifndef EditorGUIManager_HPP
 #define EditorGUIManager_HPP
 
+#include "Surfaces/SurfaceBottom.hpp"
+#include "Surfaces/SurfaceTop.hpp"
+
 namespace Lina
 {
     namespace Event
@@ -38,6 +41,10 @@ namespace Lina
         struct ETick;
     } // namespace Event
 
+    namespace GUI
+    {
+        class GUINode;
+    }
 } // namespace Lina
 
 namespace Lina::Editor
@@ -63,6 +70,9 @@ namespace Lina::Editor
 
     private:
         static EditorGUIManager* s_instance;
+        GUI::GUINode*            m_rootNode      = nullptr;
+        SurfaceTop*              m_surfaceTop    = nullptr;
+        SurfaceBottom*           m_surfaceBottom = nullptr;
     };
 } // namespace Lina::Editor
 

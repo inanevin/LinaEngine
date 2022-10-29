@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "Core/GUINode.hpp"
 #include "Core/CommonEngine.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+#define DRAW_ALL_BB true
 
 namespace Lina::GUI
 {
@@ -79,23 +82,74 @@ namespace Lina::GUI
             else if (c.type == ParentConstraintType::PosX)
             {
                 if (m_parent)
-                    position.x = m_parent->position.x;
-
-                position.x += refSize.x * c.val;
+                    position.x = m_parent->position.x - m_parent->size.x * 0.5f + refSize.x * c.val;
+                else
+                    position.x = refSize.x * c.val;
             }
             else if (c.type == ParentConstraintType::PosY)
             {
                 if (m_parent)
-                    position.y = m_parent->position.y;
-
-                position.y += refSize.y * c.val;
+                    position.y = m_parent->position.y - m_parent->size.y * 0.5f + refSize.y * c.val;
+                else
+                    position.y = refSize.y * c.val;
             }
+        }
+
+        // Equal Sizes
+        for (auto& c : m_parentConstraints)
+        {
+            if (c.type == ParentConstraintType::SizeXToY)
+                size.x = size.y * c.val;
+            else if (c.type == ParentConstraintType::SizeYToX)
+                size.y = size.x * c.val;
+        }
+
+        // Abs constraints
+        for (auto& c : m_absConstraints)
+        {
+            if (c.type == AbsConstraintType::MinSizeX && size.x < c.val)
+                size.x = c.val;
+            else if (c.type == AbsConstraintType::MinSizeY && size.y < c.val)
+                size.y = c.val;
+            if (c.type == AbsConstraintType::MaxSizeX && size.x > c.val)
+                size.x = c.val;
+            else if (c.type == AbsConstraintType::MaxSizeY && size.y > c.val)
+                size.y = c.val;
+            else if (c.type == AbsConstraintType::MinPosX && position.x < c.val)
+                position.x = c.val;
+            else if (c.type == AbsConstraintType::MinPosY && position.y < c.val)
+                position.y = c.val;
+            if (c.type == AbsConstraintType::MaxPosX && position.x > c.val)
+                position.x = c.val;
+            else if (c.type == AbsConstraintType::MaxPosY && position.y > c.val)
+                position.y = c.val;
         }
     }
 
-    void GUINode::AddParentConstraint(ParentConstraintType type, float value)
+    void GUINode::DebugDraw()
+    {
+        if (!DRAW_ALL_BB && !_showBoundingBox)
+            return;
+
+        const bool aa            = LinaVG::Config.aaEnabled;
+        LinaVG::Config.aaEnabled = false;
+        LinaVG::StyleOptions dbgStyle;
+        dbgStyle.color    = LinaVG::Vec4(1, 0, 0, 1);
+        dbgStyle.isFilled = false;
+        LinaVG::DrawRect(LV2((position - size * 0.5f)), LV2((position + size * 0.5)), dbgStyle, 0.0f, 1000);
+        LinaVG::Config.aaEnabled = aa;
+    }
+
+    GUINode* GUINode::AddParentConstraint(ParentConstraintType type, float value)
     {
         m_parentConstraints.push_back(ParentConstraint{.type = type, .val = value});
+        return this;
+    }
+
+    GUINode* GUINode::AddAbsConstraint(AbsConstraintType type, float value)
+    {
+        m_absConstraints.push_back(AbsConstraint{.type = type, .val = value});
+        return this;
     }
 
     void GUINode::RemoveParentConstraint(ParentConstraintType type)
@@ -112,8 +166,27 @@ namespace Lina::GUI
         }
     }
 
+    void GUINode::RemoveAbsConstraint(AbsConstraintType type)
+    {
+        auto it = m_absConstraints.begin();
+
+        for (; it < m_absConstraints.end(); ++it)
+        {
+            if (it->type == type)
+            {
+                m_absConstraints.erase(it);
+                break;
+            }
+        }
+    }
+
     void GUINode::Draw()
     {
+        if (m_parent == nullptr)
+            Calculate();
+
+        DebugDraw();
+
         for (auto& n : m_children)
         {
             n->Calculate();
