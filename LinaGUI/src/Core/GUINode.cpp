@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
-#define DRAW_ALL_BB true
+#define DRAW_ALL_BB false
 
 namespace Lina::GUI
 {
@@ -134,7 +134,7 @@ namespace Lina::GUI
         const bool aa            = LinaVG::Config.aaEnabled;
         LinaVG::Config.aaEnabled = false;
         LinaVG::StyleOptions dbgStyle;
-        dbgStyle.color    = LinaVG::Vec4(1, 0, 0, 1);
+        dbgStyle.color    = LinaVG::Vec4(1, 0, 0, 0.2f);
         dbgStyle.isFilled = false;
         LinaVG::DrawRect(LV2((position - size * 0.5f)), LV2((position + size * 0.5)), dbgStyle, 0.0f, 1000);
         LinaVG::Config.aaEnabled = aa;

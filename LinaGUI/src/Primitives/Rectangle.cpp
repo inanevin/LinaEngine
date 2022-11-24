@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace Lina::GUI
 {
-    void Rect::Draw()
+    void Rectangle::Draw()
     {
         const bool aa            = LinaVG::Config.aaEnabled;
         LinaVG::Config.aaEnabled = enableAA;

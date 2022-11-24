@@ -46,6 +46,7 @@ namespace Lina::GUI
 
         LinaVG::StyleOptions style;
         Vector<Vector2>      pointPositions;
+        bool                 useOwnSizePercentages = false;
     };
 } // namespace Lina::GUI
 

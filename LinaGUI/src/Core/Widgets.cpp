@@ -26,28 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef HorizontalLayout_HPP
-#define HorizontalLayout_HPP
-
-#include "Core/GUINode.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Core/Widgets.hpp"
+#include "Core/LinaGUI.hpp"
 
 namespace Lina::GUI
 {
-
-    class HorizontalLayout : public GUINode
-    {
-    public:
-        HorizontalLayout()          = default;
-        virtual ~HorizontalLayout() = default;
-
-        virtual void Draw() override;
-
-        float   windowItemSpacing = 0.0f;
-        Vector2 padding = Vector2::Zero;
-    };
+   
 } // namespace Lina::GUI
-
-#endif

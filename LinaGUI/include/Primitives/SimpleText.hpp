@@ -45,7 +45,10 @@ namespace Lina::GUI
         virtual void Draw() override;
 
         LinaVG::TextOptions style;
-        String              text = "";
+        String              text          = "";
+        bool                dynamicSize   = false;
+        bool                centerCursorX = false;
+        bool                centerCursorY = false;
     };
 } // namespace Lina::GUI
 

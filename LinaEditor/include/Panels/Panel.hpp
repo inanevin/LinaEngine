@@ -25,29 +25,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #pragma once
 
-#ifndef HorizontalLayout_HPP
-#define HorizontalLayout_HPP
+#ifndef Panel_HPP
+#define Panel_HPP
 
-#include "Core/GUINode.hpp"
-#include "Platform/LinaVGIncl.hpp"
-
-namespace Lina::GUI
+namespace Lina::Editor
 {
 
-    class HorizontalLayout : public GUINode
+    class Panel
     {
     public:
-        HorizontalLayout()          = default;
-        virtual ~HorizontalLayout() = default;
+        Panel()          = default;
+        virtual ~Panel() = default;
 
-        virtual void Draw() override;
-
-        float   windowItemSpacing = 0.0f;
-        Vector2 padding = Vector2::Zero;
+        virtual void Setup(){};
+        virtual void Draw(){};
     };
-} // namespace Lina::GUI
+} // namespace Lina::Editor
 
 #endif

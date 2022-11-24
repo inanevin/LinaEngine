@@ -36,11 +36,11 @@ SOFTWARE.
 
 namespace Lina::GUI
 {
-    class Rect : public GUINode
+    class Rectangle : public GUINode
     {
     public:
-        Rect()          = default;
-        virtual ~Rect() = default;
+        Rectangle()          = default;
+        virtual ~Rectangle() = default;
 
         virtual void Draw() override;
 

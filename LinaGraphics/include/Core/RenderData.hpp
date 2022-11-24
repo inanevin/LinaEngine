@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Set.hpp"
 #include "Data/Bitmask.hpp"
 #include "Math/AABB.hpp"
+#include "GraphicsCommon.hpp"
 
 namespace Lina::Graphics
 {

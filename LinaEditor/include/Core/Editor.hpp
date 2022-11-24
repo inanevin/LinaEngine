@@ -73,6 +73,7 @@ namespace Lina::Editor
         void           SetIsPaused(bool paused);
         void           SkipNextFrame();
         Vector<String> GetDefaultTextures();
+        Vector<String> GetDefaultFonts();
 
     private:
         void OnPreMainLoop(const Event::EPreMainLoop& ev);

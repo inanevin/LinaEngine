@@ -28,25 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef HorizontalLayout_HPP
-#define HorizontalLayout_HPP
+#ifndef GUIImage_HPP
+#define GUIImage_HPP
 
 #include "Core/GUINode.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::GUI
 {
-
-    class HorizontalLayout : public GUINode
+    class Image : public GUINode
     {
     public:
-        HorizontalLayout()          = default;
-        virtual ~HorizontalLayout() = default;
+        Image()          = default;
+        virtual ~Image() = default;
 
         virtual void Draw() override;
 
-        float   windowItemSpacing = 0.0f;
-        Vector2 padding = Vector2::Zero;
+        Vector2 uvTiling = Vector2(1.0f, 1.0f);
+        Vector2 uvOffset = Vector2(0.0f, 0.0f);
+        Vector2 uvTL     = Vector2(0.0f, 0.0f);
+        Vector2 uvBR     = Vector2(1.0f, 1.0f);
+        uint32  texture  = 0;
     };
 } // namespace Lina::GUI
 

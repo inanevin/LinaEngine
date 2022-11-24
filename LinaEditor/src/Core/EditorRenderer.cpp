@@ -29,14 +29,17 @@ SOFTWARE.
 #include "Core/EditorRenderer.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 #include "Core/GUIBackend.hpp"
 #include "Core/Screen.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Resource/Texture.hpp"
+#include "Resource/Font.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/EditorGUIManager.hpp"
 #include "Core/Theme.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Core/LinaGUI.hpp"
 
 using namespace LinaVG;
 #include "LinaVG/Utility/Utility.hpp"
@@ -276,12 +279,8 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
+        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorRenderer::OnEngineResourcesLoaded>(this);
 
-        Theme::s_fonts[ThemeFont::Default] = LinaVG::LoadFont("Resources/Editor/Fonts/DefaultFont.ttf", false, 18);
-        Graphics::GUIBackend::Get()->UploadFontTexture();
-
-        Theme::s_fonts[ThemeFont::LinaStyle] = LinaVG::LoadFont("Resources/Editor/Fonts/GoodTimes.otf", false, 50);
-        Graphics::GUIBackend::Get()->UploadFontTexture();
     }
 
     void EditorRenderer::Shutdown()
@@ -289,6 +288,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawEnd>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
     }
 
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
@@ -307,6 +307,21 @@ namespace Lina::Editor
 
     void EditorRenderer::OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev)
     {
+    }
+
+    void EditorRenderer::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
+    {
+        auto* defaultFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/DefaultFont.ttf");
+        auto* goodTimesFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/GoodTimes.otf");
+
+        defaultFont->GenerateFont(false, 18);
+        Graphics::GUIBackend::Get()->UploadFontTexture();
+
+        goodTimesFont->GenerateFont(false, 50);
+        Graphics::GUIBackend::Get()->UploadFontTexture();
+
+        Theme::s_fonts[ThemeFont::Default] = defaultFont->GetHandle();
+        Theme::s_fonts[ThemeFont::LinaStyle] = goodTimesFont->GetHandle();
     }
 
 } // namespace Lina::Editor

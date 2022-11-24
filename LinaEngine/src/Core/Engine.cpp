@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Resource/Model.hpp"
 #include "Resource/Material.hpp"
 #include "Resource/Texture.hpp"
+#include "Resource/Font.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Components/RenderableComponent.hpp"
@@ -66,12 +67,19 @@ namespace Lina
     {
 #ifndef LINA_PRODUCTION_BUILD
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
+        {
             m_editor.VerifyStaticResources();
 
-        const Vector<String> editorTextures = m_editor.GetDefaultTextures();
+            const Vector<String> editorTextures = m_editor.GetDefaultTextures();
+            const Vector<String> editorFonts    = m_editor.GetDefaultFonts();
 
-        for (auto& s : editorTextures)
-            DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
+            for (auto& s : editorTextures)
+                DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
+
+            for (auto& f : editorFonts)
+                DefaultResources::s_engineResources[GetTypeID<Graphics::Font>()].push_back(f);
+        }
+
 #endif
 
         // Static resources
@@ -473,7 +481,17 @@ namespace Lina
             .associatedExtensions = extensions,
             .debugColor           = Color::White,
         });
-        // TODO: Font class.
+
+        extensions.clear();
+        extensions.push_back("ttf");
+        extensions.push_back("otf");
+        m_resourceManager.RegisterResourceType<Graphics::Font>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Graphics,
+            .typeName             = "Font",
+            .memChunkCount        = 15,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
     }
 
     double Engine::SmoothDeltaTime(double dt)

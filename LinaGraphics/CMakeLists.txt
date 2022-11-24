@@ -69,6 +69,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Resource/Texture.cpp
 	src/Resource/Material.cpp
 	src/Resource/MaterialProperty.cpp
+	src/Resource/Font.cpp
 
 	# Platform
 	src/Platform/Win32/Win32Window.cpp
@@ -153,6 +154,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Resource/Texture.hpp
 	include/Resource/Material.hpp
 	include/Resource/MaterialProperty.hpp
+	include/Resource/Font.hpp
 
 	# Platform
 	include/Platform/Win32/Win32Window.hpp

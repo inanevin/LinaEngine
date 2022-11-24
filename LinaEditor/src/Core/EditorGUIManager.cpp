@@ -37,29 +37,16 @@ namespace Lina::Editor
     void EditorGUIManager::Initialize()
     {
         s_instance = this;
-        LoadRoot();
-    }
-
-    void EditorGUIManager::LoadRoot()
-    {
-        m_rootNode       = new GUI::GUINode();
-        m_rootNode->name = "Root";
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::SizeX, 1.0f)->AddParentConstraint(GUI::ParentConstraintType::SizeY, 1.0f);
-        m_rootNode->AddParentConstraint(GUI::ParentConstraintType::PosX, 0.5f)->AddParentConstraint(GUI::ParentConstraintType::PosY, 0.5f);
-
-        m_surfaceTop = new SurfaceTop();
-        m_surfaceTop->Setup();
-        m_rootNode->AddChild(m_surfaceTop);
     }
 
     void EditorGUIManager::Shutdown()
     {
-        delete m_rootNode;
+    
     }
 
     void EditorGUIManager::Draw()
     {
-        m_rootNode->Draw();
+       m_topPanel.Draw();
     }
 
 } // namespace Lina::Editor

@@ -26,22 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Surfaces/SurfaceTop.hpp"
+#include "Panels/TopPanel.hpp"
+#include "Core/LinaGUI.hpp"
+#include "Core/Screen.hpp"
 
 namespace Lina::Editor
 {
-    void SurfaceTop::Setup()
+    void TopPanel::Draw()
     {
-        name              = "SurfaceTop";
-        const float sizeY = 0.12f;
-        AddParentConstraint(GUI::ParentConstraintType::PosX, 0.5f)->AddParentConstraint(GUI::ParentConstraintType::PosY, sizeY * 0.5f);
-        AddParentConstraint(GUI::ParentConstraintType::SizeX, 1.0f)->AddParentConstraint(GUI::ParentConstraintType::SizeY, sizeY);
-        AddAbsConstraint(GUI::AbsConstraintType::MinSizeX, 525.0f);
-        AddAbsConstraint(GUI::AbsConstraintType::MinSizeY, 325.0f);
-    }
-
-    void SurfaceTop::Draw()
-    {
-        GUINode::Draw();
+        const Vector2 screenSize = Graphics::Screen::SizeF();
+        if (GUI::BeginWindow("Top Panel", screenSize))
+        {
+            
+            GUI::EndWindow();
+        }
     }
 } // namespace Lina::Editor

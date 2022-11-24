@@ -26,24 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef SurfaceTop_HPP
-#define SurfaceTop_HPP
-
-#include "Core/GUINode.hpp"
+#include "Panels/Panel.hpp"
 
 namespace Lina::Editor
 {
-    class SurfaceTop : public GUI::GUINode
-    {
-    public:
-        SurfaceTop()          = default;
-        virtual ~SurfaceTop() = default;
+    
 
-        void         Setup();
-        virtual void Draw() override;
-    };
 } // namespace Lina::Editor
-
-#endif

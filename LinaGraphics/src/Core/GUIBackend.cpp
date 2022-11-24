@@ -32,6 +32,7 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Resource/Texture.hpp"
+#include "Core/Screen.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
@@ -180,6 +181,7 @@ namespace Lina::Graphics
         const uint32 frame         = RenderEngine::Get()->GetRenderer().GetFrameIndex();
         auto&        targetCapsule = m_bufferCapsules[frame];
 
+        const Vector2i     screen = Screen::Size();
         OrderedDrawRequest request;
         request.firstIndex   = targetCapsule.indexCounter;
         request.vertexOffset = targetCapsule.vertexCounter;
@@ -187,8 +189,8 @@ namespace Lina::Graphics
         request.indexSize    = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.meta.clipX   = buf->clipPosX;
         request.meta.clipY   = buf->clipPosY;
-        request.meta.clipW   = buf->clipSizeX;
-        request.meta.clipH   = buf->clipSizeY;
+        request.meta.clipW   = buf->clipSizeX == 0 ? screen.x : buf->clipSizeX;
+        request.meta.clipH   = buf->clipSizeY == 0 ? screen.y : buf->clipSizeY;
 
         auto& pool = m_materialPools[frame];
 
@@ -238,6 +240,12 @@ namespace Lina::Graphics
 
         for (auto& r : b.orderedDrawRequests)
         {
+            Recti rect;
+            rect.pos.x  = r.meta.clipX;
+            rect.pos.y  = r.meta.clipY;
+            rect.size.x = r.meta.clipW;
+            rect.size.y = r.meta.clipH;
+            m_cmd->CMD_SetScissors(rect);
             r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }

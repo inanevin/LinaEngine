@@ -22,6 +22,8 @@ set (LINAGUI_SOURCES
 	
 	# Core
 	src/Core/GUINode.cpp
+	src/Core/LinaGUI.cpp
+	src/Core/Widgets.cpp
 
 	# Primitives
 	src/Primitives/Rectangle.cpp
@@ -30,6 +32,7 @@ set (LINAGUI_SOURCES
 	src/Primitives/Convex.cpp
 	src/Primitives/SimpleText.cpp
 	src/Primitives/SDFText.cpp
+	src/Primitives/Image.cpp
 
 	# Platform
 	include/Platform/LinaVGIncl.hpp
@@ -45,6 +48,8 @@ set(LINAGUI_HEADERS
 
 	# Core
 	include/Core/GUINode.hpp
+	include/Core/LinaGUI.hpp
+	include/Core/Widgets.hpp
 
 	# Primitives
 	include/Primitives/Rectangle.hpp
@@ -53,7 +58,8 @@ set(LINAGUI_HEADERS
 	include/Primitives/Convex.hpp
 	include/Primitives/SimpleText.hpp
 	include/Primitives/SDFText.hpp
-
+	include/Primitives/Image.hpp
+	
 	# Layout
 	include/Layout/HorizontalLayout.hpp
 )

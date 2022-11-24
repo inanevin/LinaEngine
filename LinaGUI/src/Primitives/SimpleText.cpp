@@ -32,7 +32,24 @@ namespace Lina::GUI
 {
     void SimpleText::Draw()
     {
-       LinaVG::DrawTextNormal(text.c_str(), LV2(position), style, rotateAngle, drawOrder);
-       GUINode::Draw();
+        const LinaVG::Vec2 calcSize  = LinaVG::CalculateTextSize(text.c_str(), style);
+        Vector2            totalSize = Vector2(calcSize.x, calcSize.y);
+
+        if (dynamicSize)
+        {
+            style.textScale = size.x / calcSize.x;
+            totalSize.x     = size.x;
+        }
+
+        Vector2 targetPosition = position;
+
+        if (centerCursorX)
+            targetPosition.x -= totalSize.x * 0.5f;
+
+        if (centerCursorY)
+            targetPosition.y -= totalSize.y * 0.5f;
+
+       // LinaVG::DrawTextNormal(text.c_str(), LV2(targetPosition), style, rotateAngle, drawOrder);
+        GUINode::Draw();
     }
 } // namespace Lina::GUI

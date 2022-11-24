@@ -28,18 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SurfaceBottom_HPP
-#define SurfaceBottom_HPP
+#ifndef TopPanel_HPP
+#define TopPanel_HPP
 
-#include "Core/GUINode.hpp"
+#include "Panel.hpp"
 
 namespace Lina::Editor
 {
-    class SurfaceBottom : public GUI::GUINode
+    class TopPanel : public Panel
     {
-
-        SurfaceBottom()          = default;
-        virtual ~SurfaceBottom() = default;
+    public:
+        TopPanel()          = default;
+        virtual ~TopPanel() = default;
 
         virtual void Draw() override;
     };

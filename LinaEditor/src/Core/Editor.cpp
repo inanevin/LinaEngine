@@ -235,6 +235,14 @@ namespace Lina::Editor
         return vec;
     }
 
+    Vector<String> Editor::GetDefaultFonts()
+    {
+        Vector<String> vec;
+        vec.push_back("Resources/Editor/Fonts/DefaultFont.ttf");
+        vec.push_back("Resources/Editor/Fonts/GoodTimes.otf");
+        return vec;
+    }
+
     void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
         m_guiManager.Initialize();

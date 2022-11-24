@@ -26,11 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Surfaces/SurfaceBottom.hpp"
+#include "Primitives/Image.hpp"
 
-namespace Lina::Editor
+namespace Lina::GUI
 {
-	void SurfaceBottom::Draw()
-	{
-	}
-} // namespace Lina::Editor
+    void Image::Draw()
+    {
+        LinaVG::DrawImage(texture, LV2(position), LV2(size), rotateAngle, drawOrder, LV2(uvTiling), LV2(uvOffset), LV2(uvTL), LV2(uvBR));
+        GUINode::Draw();
+    }
+} // namespace Lina::GUI

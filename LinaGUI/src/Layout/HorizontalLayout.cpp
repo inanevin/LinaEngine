@@ -34,36 +34,17 @@ namespace Lina::GUI
     {
         DebugDraw();
 
-        if (type == HorizontalLayoutType::EquallyDistribute)
-        {
-            const float childSize       = static_cast<float>(m_children.size());
-            const float totalSpacedArea = spacing * (childSize + 1);
-            const float xPerChild       = (size.x - totalSpacedArea) / childSize;
-            const float halfXPerChild   = xPerChild * 0.5f;
+        const float startPosX   = position.x - size.x * 0.5f;
 
-            float lastX = 0.0f;
-
-            for (auto& c : m_children)
-            {
-                c->position.y = position.y;
-                c->position.x = lastX + spacing * xPerChild;
-                lastX         = c->position.x;
-                c->size.y     = size.y;
-                c->size.x     = xPerChild;
-                c->Draw();
-            }
-        }
-        else if (type == HorizontalLayoutType::Append)
+        float lastEndX = startPosX;
+        for (auto& c : m_children)
         {
-            float lastEndX = 0.0f;
-            for (auto& c : m_children)
-            {
-                c->Calculate();
-                c->position.y = position.y;
-                c->position.x = lastEndX + spacing + c->size.x * 0.5f;
-                lastEndX      = c->position.x + c->size.x * 0.5f;
-                c->Draw();
-            }
+            c->Calculate();
+            c->position.y = position.y;
+            c->position.x = lastEndX + windowItemSpacing + c->size.x * 0.5f;
+            lastEndX      = c->position.x + c->size.x * 0.5f;
+            c->Draw();
         }
+
     }
 } // namespace Lina::GUI

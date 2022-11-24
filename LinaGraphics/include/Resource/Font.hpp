@@ -28,26 +28,45 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef HorizontalLayout_HPP
-#define HorizontalLayout_HPP
+#ifndef LFont_HPP
+#define LFont_HPP
 
-#include "Core/GUINode.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Core/Resource.hpp"
+#include "Data/Vector.hpp"
 
-namespace Lina::GUI
+namespace Lina::Graphics
 {
-
-    class HorizontalLayout : public GUINode
+    class Font : public Resources::Resource
     {
+        struct AssetData
+        {
+            int          size  = 36;
+            bool         isSDF = false;
+            Vector<char> file;
+        };
+
     public:
-        HorizontalLayout()          = default;
-        virtual ~HorizontalLayout() = default;
+        Font()  = default;
+        ~Font() = default;
 
-        virtual void Draw() override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const String& path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        void              GenerateFont(bool isSDF, int size);
 
-        float   windowItemSpacing = 0.0f;
-        Vector2 padding = Vector2::Zero;
+        inline uint32 GetHandle()
+        {
+            return m_handle;
+        }
+
+    protected:
+        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+
+    private:
+        uint32    m_handle = 0;
+        AssetData m_assetData;
     };
-} // namespace Lina::GUI
+} // namespace Lina::Graphics
 
 #endif

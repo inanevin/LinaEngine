@@ -25,8 +25,8 @@ set(LINAEDITOR_SOURCES
 src/Core/Editor.cpp
 src/Core/EditorRenderer.cpp
 src/Core/EditorGUIManager.cpp
-src/Core/Theme.cpp
 src/Core/ShortcutManager.cpp
+src/Core/Theme.cpp
 
 # Components
 src/Components/EditorFreeLookComponent.cpp
@@ -34,9 +34,9 @@ src/Components/EditorFreeLookComponent.cpp
 # Resource
 src/Resource/EditorResourceLoader.cpp
 
-# Surfaces
-src/Surfaces/SurfaceTop.cpp
-src/Surfaces/SurfaceBottom.cpp
+# Sections
+src/Panels/TopPanel.cpp
+src/Panels/Panel.cpp
 
 )
 
@@ -47,9 +47,9 @@ set(LINAEDITOR_HEADERS
 include/Core/Editor.hpp
 include/Core/EditorRenderer.hpp
 include/Core/EditorGUIManager.hpp
-include/Core/Theme.hpp
 include/Core/ShortcutManager.hpp
 include/Core/EditorCommon.hpp
+include/Core/Theme.hpp
 
 # Components
 include/Components/EditorFreeLookComponent.hpp
@@ -57,9 +57,9 @@ include/Components/EditorFreeLookComponent.hpp
 # Resource
 include/Resource/EditorResourceLoader.hpp
 
-# Surfaces
-include/Surfaces/SurfaceTop.hpp
-include/Surfaces/SurfaceBottom.hpp
+# Sections
+include/Panels/TopPanel.hpp
+include/Panels/Panel.hpp
 
 )
 

@@ -37,12 +37,15 @@ namespace Lina::GUI
         Vector<LinaVG::Vec2> _points;
 
         for (auto& pp : pointPositions)
-            _points.push_back(LV2((position + pp)));
-
+        {
+            if (!useOwnSizePercentages)
+                _points.push_back(LV2((position + pp)));
+            else
+                _points.push_back(LV2((position + size * pp)));
+        }
         LinaVG::DrawConvex(_points.data(), _points.size(), style, rotateAngle, drawOrder);
         _points.clear();
         LinaVG::Config.aaEnabled = aa;
         GUINode::Draw();
-
     }
 } // namespace Lina::GUI

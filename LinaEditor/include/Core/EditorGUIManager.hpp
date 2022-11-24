@@ -31,8 +31,7 @@ SOFTWARE.
 #ifndef EditorGUIManager_HPP
 #define EditorGUIManager_HPP
 
-#include "Surfaces/SurfaceBottom.hpp"
-#include "Surfaces/SurfaceTop.hpp"
+#include "Panels/TopPanel.hpp"
 
 namespace Lina
 {
@@ -64,15 +63,12 @@ namespace Lina::Editor
         friend class Editor;
 
         void Initialize();
-        void LoadRoot();
         void Shutdown();
         void Draw();
 
     private:
         static EditorGUIManager* s_instance;
-        GUI::GUINode*            m_rootNode      = nullptr;
-        SurfaceTop*              m_surfaceTop    = nullptr;
-        SurfaceBottom*           m_surfaceBottom = nullptr;
+        TopPanel                 m_topPanel;
     };
 } // namespace Lina::Editor
 

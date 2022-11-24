@@ -41,6 +41,7 @@ namespace Lina::Editor
 
 #define TC_DARK     Color(20.0f, 20.0f, 20.0f, 255.0f, true)
 #define TC_VERYDARK Color(14.0f, 14.0f, 14.0f, 255.0f, true)
+#define TC_LIGHT1 Color(32.0f, 32.0f, 32.0f, 255.0f, true)
 #define TC_OUTLINE1 Color(14.0f, 14.0f, 14.0f, 255.0f, true)
 
     enum class ThemeFont
