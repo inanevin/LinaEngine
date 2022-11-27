@@ -37,6 +37,8 @@ namespace Lina::Editor
     void EditorGUIManager::Initialize()
     {
         s_instance = this;
+
+        m_topPanel.Setup();
     }
 
     void EditorGUIManager::Shutdown()

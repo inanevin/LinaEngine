@@ -28,8 +28,27 @@ SOFTWARE.
 
 #include "Core/Widgets.hpp"
 #include "Core/LinaGUI.hpp"
+#include "Core/InputEngine.hpp"
 
 namespace Lina::GUI
 {
-   
+    bool Button(const String& str, const Vector2& size)
+    {
+        BeginWidget(size);
+        auto&         w   = GetCurrentWindow();
+        const Vector2 min = w._absPos + w._cursorPos;
+        const Vector2 max = min + size;
+
+        const bool  isHovered = IsLastWidgetHovered();
+        const bool  isPressed = IsLastWidgetPressed();
+        const auto& color     = isPressed ? g_theme.colors[StyleColor::ButtonPressed] : (isHovered ? g_theme.colors[StyleColor::ButtonHovered] : g_theme.colors[StyleColor::ButtonBackground]);
+
+        LinaVG::StyleOptions style;
+        style.isFilled = true;
+        style.color    = LV4(color);
+
+        LinaVG::DrawRect(LV2(min), LV2(max), style, g_theme.currentRotateAngle, w._drawOrder + 1);
+        EndWidget();
+        return isPressed;
+    }
 } // namespace Lina::GUI

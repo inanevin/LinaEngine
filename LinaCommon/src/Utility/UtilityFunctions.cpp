@@ -221,6 +221,14 @@ namespace Lina
             return true;
         }
 
+        Vector<String> GetFolderContents(const String& path)
+        {
+            Vector<String> paths;
+            for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
+                paths.push_back(entry.path().string().c_str());
+            return paths;
+        }
+
         void ParentPathUpdated(Folder* folder)
         {
             const String oldPath = folder->fullPath;

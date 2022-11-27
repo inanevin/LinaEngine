@@ -36,11 +36,19 @@ SOFTWARE.
 #include "Data/Deque.hpp"
 #include "Math/Color.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Widgets.hpp"
 
 #define LINAGUI_API
 
 namespace Lina::GUI
 {
+    struct WidgetState
+    {
+        Vector2 _absPos = Vector2();
+        Vector2 _size = Vector2();
+    };
+
+
     struct WindowState
     {
         Vector2              currentPos  = Vector2::Zero;
@@ -48,32 +56,38 @@ namespace Lina::GUI
         LinaVG::StyleOptions style       = LinaVG::StyleOptions();
 
         // Runtime
-        Vector2 _absPos               = Vector2::Zero;
-        Vector2 _cursorPos            = Vector2::Zero;
-        Vector2 _horizontalMaxBounnds = Vector2::Zero;
-        int     _drawOrder            = 0;
-        bool    _isVertical           = true;
+        Vector2             _absPos     = Vector2::Zero;
+        Vector2             _cursorPos  = Vector2::Zero;
+        int                 _drawOrder  = 0;
+        bool                _isVertical = true;
+        Vector<WidgetState> _widgets;
     };
 
-    enum class Colors
+    enum class StyleColor
     {
         Window,
+        ButtonBackground,
+        ButtonHovered,
+        ButtonPressed,
+        ButtonDisabled,
     };
 
     struct Theme
     {
-        LinaVG::StyleOptions    currentStyleOptions;
-        float                   currentRotateAngle = 0.0f;
-        Vector2                 windowItemSpacing  = Vector2(10, 10);
-        float                   windowItemPadding  = 10.0f;
-        HashMap<Colors, Color>  colors;
-        HashMap<uint64, uint32> fonts;
+        LinaVG::StyleOptions       currentStyleOptions;
+        float                      currentRotateAngle = 0.0f;
+        Vector2                    windowItemSpacing  = Vector2(10, 10);
+        float                      windowItemPadding  = 10.0f;
+        HashMap<StyleColor, Color> colors;
+        HashMap<uint64, uint32>    fonts;
     };
 
     extern Theme                        g_theme;
     extern uint64                       g_currentWindow;
     extern HashMap<uint64, WindowState> g_windows;
     extern Deque<uint64>                g_windowStack;
+    extern uint64                       g_transientHoveredWindow;
+    extern uint64                       g_hoveredWindow;
 
     // Font
     extern uint32 LoadFont(const String& path, uint32 customID, bool isSDF, int size);
@@ -82,6 +96,11 @@ namespace Lina::GUI
     // Theme
     extern LinaVG::StyleOptions& GetCurrentStyle();
     extern void                  ResetStyle();
+
+    extern void StartFrame();
+    extern void EndFrame();
+
+    extern bool IsMouseHoveringRect(const Rect& rect);
 
     // Window
     extern bool               HasParentWindow();
@@ -92,24 +111,32 @@ namespace Lina::GUI
     extern void               SetCursorPosX(float x);
     extern void               SetCursorPosY(float y);
     extern float              GetScaled(float f);
+    extern bool               IsCurrentWindowHovered();
+
+    // Widgets
+    extern void         BeginWidget(const Vector2& size);
+    extern void         EndWidget();
+    extern bool         IsLastWidgetHovered();
+    extern bool         IsLastWidgetPressed();
+    extern WidgetState& GetLastWidget();
 
     // Layout
     extern void BeginHorizontal();
     extern void EndHorizontal();
 
     // Shapes
-    extern void DrawRect(const Vector2& size);
-    extern void DrawCircle(float radius, float startAngle = 0.0f, float endAngle = 0.0f, int segments = 36);
-    extern void DrawNGon(float radius, int n);
-    extern void DrawConvex(const Vector<Vector2>& points, float maxSize);
-    extern void DrawLine();
-    extern void DrawLines();
-    extern void DrawImage();
+    // extern void DrawRect(const Vector2& size);
+    // extern void DrawCircle(float radius, float startAngle = 0.0f, float endAngle = 0.0f, int segments = 36);
+    // extern void DrawNGon(float radius, int n);
+    // extern void DrawConvex(const Vector<Vector2>& points, float maxSize);
+    // extern void DrawLine();
+    // extern void DrawLines();
+    // extern void DrawImage();
 
-    namespace Internal
-    {
-        void EndWindowItem(const Vector2& size);
-    }
+    // namespace Internal
+    // {
+    //     void EndWindowItem(const Vector2& size);
+    // }
 
 } // namespace Lina::GUI
 

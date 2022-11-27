@@ -28,16 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Rect_HPP
-#define Rect_HPP
+#ifndef RRect_HPP
+#define RRect_HPP
 
-#include "Vector.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina
 {
     class Rect
     {
     public:
+        Rect(){};
+        Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
         Vector2 pos  = Vector2i(0, 0);
         Vector2 size = Vector2i(0, 0);
     };

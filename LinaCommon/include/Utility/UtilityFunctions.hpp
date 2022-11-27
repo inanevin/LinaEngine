@@ -32,7 +32,7 @@ SOFTWARE.
 #define UtilityFunctions_HPP
 
 #include "Core/CommonUtility.hpp"
-
+#include "Data/Vector.hpp"
 #include "Data/Map.hpp"
 
 namespace Lina
@@ -67,6 +67,9 @@ namespace Lina
 
         // Removes all files & folders in directory.
         extern bool DeleteDirectory(const String& path);
+
+        // Gets all files within the directory
+        extern Vector<String> GetFolderContents(const String& path);
 
         // Updates a folder's path according to a change on it's parent.
         extern void ParentPathUpdated(Folder* folder);

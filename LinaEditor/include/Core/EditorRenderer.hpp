@@ -32,6 +32,7 @@ SOFTWARE.
 #define EditorRenderer_HPP
 
 #include "Data/HashMap.hpp"
+#include "Utility/Graphics/TexturePacker.hpp"
 
 namespace Lina
 {
@@ -44,6 +45,10 @@ namespace Lina
         struct EEngineResourcesLoaded;
     } // namespace Event
 
+    namespace Graphics
+    {
+        class Texture;
+    }
 } // namespace Lina
 
 namespace Lina::Editor
@@ -61,6 +66,8 @@ namespace Lina::Editor
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:
+        Graphics::Texture*    m_iconTexture = nullptr;
+        Vector<PackedTexture> m_packedIcons;
     };
 } // namespace Lina::Editor
 

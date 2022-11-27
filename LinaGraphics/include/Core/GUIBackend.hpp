@@ -117,6 +117,11 @@ namespace Lina::Graphics
         virtual void                  RestoreAPIState() override;
         virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
+        inline void SetIconPackTexture(Texture* txt)
+        {
+            m_iconPackTexture = txt;
+        }
+
         static inline GUIBackend* Get()
         {
             return s_instance;
@@ -147,7 +152,8 @@ namespace Lina::Graphics
         Material*                 m_guiStandard = nullptr;
         HashMap<uint32, Texture*> m_fontTextures;
         uint32                    m_bufferingFontTexture = 0;
-
+        Texture*                  m_iconPackTexture      = nullptr;
+        uint32                    m_iconPackSID          = 0;
         // Pool per frame-in-flight
         HashMap<uint32, MaterialPool> m_materialPools;
     };

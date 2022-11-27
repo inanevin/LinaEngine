@@ -58,4 +58,4 @@ endif()
 # Lina
 #--------------------------------------------------------------------
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
+

@@ -28,6 +28,9 @@ src/Core/EditorGUIManager.cpp
 src/Core/ShortcutManager.cpp
 src/Core/Theme.cpp
 
+# Graphics
+src/Utility/Graphics/TexturePacker.cpp
+
 # Components
 src/Components/EditorFreeLookComponent.cpp
 
@@ -50,6 +53,9 @@ include/Core/EditorGUIManager.hpp
 include/Core/ShortcutManager.hpp
 include/Core/EditorCommon.hpp
 include/Core/Theme.hpp
+
+# Graphics
+include/Utility/Graphics/TexturePacker.hpp
 
 # Components
 include/Components/EditorFreeLookComponent.hpp

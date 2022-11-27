@@ -57,6 +57,7 @@ namespace Lina::Resources
         virtual bool                    Exists(StringID sid) const                                                     = 0;
         virtual void                    UnloadUnusedLevelResources(const Vector<Pair<TypeID, String>>& levelResources) = 0;
         virtual void                    LoadReferences()                                                               = 0;
+        virtual Resource*               Create(StringID sid)                                                           = 0;
 
         HashSet<ResourceHandleBase*>& GetResourceHandles()
         {
@@ -68,9 +69,8 @@ namespace Lina::Resources
         friend class DefaultResourceLoader;
         friend class EditorResourceLoader;
 
-        virtual void      Initialize(const ResourceTypeData& typeData) = 0;
-        virtual void      Shutdown()                                   = 0;
-        virtual Resource* Create(StringID sid)                         = 0;
+        virtual void Initialize(const ResourceTypeData& typeData) = 0;
+        virtual void Shutdown()                                   = 0;
 
     protected:
         friend class ResourceLoader;
@@ -96,15 +96,6 @@ namespace Lina::Resources
             return m_resources;
         }
 
-    protected:
-        friend class ResourceManager;
-
-        virtual void Initialize(const ResourceTypeData& typeData) override
-        {
-            m_typeData = typeData;
-            Memory::MemoryManager::Get()->CreatePoolBlock<T>(m_typeData.memChunkCount, typeid(T).name());
-        }
-
         virtual Resource* Create(StringID sid)
         {
             T* ptr = Memory::MemoryManager::Get()->GetFromPoolBlock<T>();
@@ -116,6 +107,14 @@ namespace Lina::Resources
             return static_cast<Resource*>(ptr);
         }
 
+    protected:
+        friend class ResourceManager;
+
+        virtual void Initialize(const ResourceTypeData& typeData) override
+        {
+            m_typeData = typeData;
+            Memory::MemoryManager::Get()->CreatePoolBlock<T>(m_typeData.memChunkCount, typeid(T).name());
+        }
 
         // For packaging.
         virtual Resource* CreateMockResource()

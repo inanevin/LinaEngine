@@ -28,31 +28,45 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef TopPanel_HPP
-#define TopPanel_HPP
+#ifndef TexturePacker_HPP
+#define TexturePacker_HPP
 
-#include "Panel.hpp"
-
+namespace Lina
+{
+    namespace Graphics
+    {
+        class Texture;
+    }
+} // namespace Lina
 namespace Lina::Editor
 {
-    class TopPanel : public Panel
+    struct InFlightPixelData
+    {
+        unsigned char* pixels       = nullptr;
+        int            width        = 0;
+        int            height       = 0;
+        uint32         bufferOffset = 0;
+        uint32         startY       = 0;
+    };
+
+    struct PackRow
+    {
+        float currentX = 0.0f;
+        float currentY = 0.0f;
+    };
+
+    struct PackedTexture
+    {
+        String  name = "";
+        Vector2 uvTL = Vector2::Zero;
+        Vector2 uvBR = Vector2::Zero;
+        Vector2 size = Vector2::Zero;
+    };
+
+    class TexturePacker
     {
     public:
-        TopPanel()          = default;
-        virtual ~TopPanel() = default;
-
-        virtual void Setup() override;
-        virtual void Draw() override;
-
-    private:
-        void DrawFileMenu();
-        void DrawLinaLogo();
-        void DrawButtons();
-
-    private:
-        Vector2 m_currentSize     = Vector2();
-        uint32  m_linaLogoTexture = 0;
-        uint32  m_linaTitleFont   = 0;
+        static Graphics::Texture* PackFilesOrdered(Vector<String>& paths, float maxAllowedWidth, Vector<PackedTexture>& packed);
     };
 } // namespace Lina::Editor
 

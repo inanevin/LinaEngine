@@ -31,8 +31,11 @@ SOFTWARE.
 #include "PipelineObjects/Buffer.hpp"
 #include "PipelineObjects/UploadContext.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
-#include "Utility/stb/stb_image.h"
 #include "Utility/Command.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "Utility/stb/stb_image.h"
+
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -46,7 +49,15 @@ namespace Lina::Graphics
     Resources::Resource* Texture::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
         LoadFromArchive(archive);
-        GenerateBuffers(m_pixels);
+        Sampler sampler = Sampler{
+            .minFilter = m_assetData.minFilter,
+            .magFilter = m_assetData.magFilter,
+            .u         = m_assetData.mode,
+            .v         = m_assetData.mode,
+            .w         = m_assetData.mode,
+        };
+        GenerateCustomBuffers(m_assetData.width, m_assetData.height, 4, m_assetData.format, sampler, ImageTiling::Optimal);
+        WriteToGPUImage(0, m_pixels, m_assetData.width * m_assetData.height * 4, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
     }
 
@@ -71,8 +82,15 @@ namespace Lina::Graphics
             SaveAssetData();
         }
 
-        GenerateBuffers(m_pixels);
-
+        Sampler sampler = Sampler{
+            .minFilter = m_assetData.minFilter,
+            .magFilter = m_assetData.magFilter,
+            .u         = m_assetData.mode,
+            .v         = m_assetData.mode,
+            .w         = m_assetData.mode,
+        };
+        GenerateCustomBuffers(m_assetData.width, m_assetData.height, 4, m_assetData.format, sampler, ImageTiling::Optimal);
+        WriteToGPUImage(0, m_pixels, m_assetData.width * m_assetData.height * 4, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
     }
 
@@ -128,45 +146,6 @@ namespace Lina::Graphics
             m_pixels = new unsigned char[pixelsSize];
             archive.GetStream().ReadEndianSafe(m_pixels, pixelsSize);
         }
-    }
-
-    void Texture::GenerateBuffers(unsigned char* pixels)
-    {
-        const size_t          bufferSize = m_assetData.width * m_assetData.height * 4;
-        ImageSubresourceRange range;
-        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-        m_extent          = Extent3D{.width = m_assetData.width, .height = m_assetData.height, .depth = 1};
-
-        // Buffers & sampler
-        m_cpuBuffer = Buffer{
-            .size        = bufferSize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuOnly,
-        };
-
-        m_gpuImage = Image{
-            .format          = m_assetData.format,
-            .tiling          = ImageTiling::Optimal,
-            .extent          = m_extent,
-            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
-            .subresRange     = range,
-        };
-
-        m_sampler = Sampler{
-            .minFilter = m_assetData.minFilter,
-            .magFilter = m_assetData.magFilter,
-            .u         = m_assetData.mode,
-            .v         = m_assetData.mode,
-            .w         = m_assetData.mode,
-        };
-
-        m_cpuBuffer.Create();
-        m_gpuImage.Create(true, false);
-        m_sampler.Create(false);
-
-        Offset3D off = Offset3D{.x = 0, .y = 0, .z = 0};
-        // Upload data
-        WriteToGPUImage(0, pixels, bufferSize, off, m_extent, true);
     }
 
     void Texture::CreateFromRuntime(Image img, Sampler sampler)
@@ -242,6 +221,45 @@ namespace Lina::Graphics
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+    }
+
+    void Texture::GenerateCustomBuffers(int width, int height, int channels, Format format, Sampler sampler, ImageTiling imageTiling)
+    {
+        Extent3D ext = Extent3D{
+            .width  = static_cast<uint32>(width),
+            .height = static_cast<uint32>(height),
+            .depth  = 1,
+        };
+
+        const uint32 bufferSize = ext.width * ext.height * channels;
+        m_extent                = ext;
+
+        // Cpu buf
+        m_cpuBuffer = Buffer{
+            .size        = bufferSize,
+            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
+            .memoryUsage = MemoryUsageFlags::CpuOnly,
+        };
+
+        m_cpuBuffer.Create();
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+
+        // Gpu buf
+        m_gpuImage = Image{
+            .format          = format,
+            .tiling          = imageTiling,
+            .extent          = ext,
+            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
+            .subresRange     = range,
+        };
+
+        m_gpuImage.Create(true, false);
+
+        // Sampler
+        m_sampler = sampler;
+        m_sampler.Create(false);
     }
 
 } // namespace Lina::Graphics

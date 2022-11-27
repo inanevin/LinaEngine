@@ -37,6 +37,14 @@ SOFTWARE.
 #include "PipelineObjects/Sampler.hpp"
 #include "PipelineObjects/Buffer.hpp"
 
+namespace Lina
+{
+    namespace Editor
+    {
+        class EditorRenderer;
+    }
+} // namespace Lina
+
 namespace Lina::Graphics
 {
     class Texture : public Resources::Resource
@@ -63,6 +71,17 @@ namespace Lina::Graphics
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         void              CreateFromRuntime(Image img, Sampler sampler);
         void              WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
+        void              GenerateCustomBuffers(int width, int height, int channels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
+
+        inline const Extent3D& GetExtent() const
+        {
+            return m_extent;
+        }
+
+        inline Buffer& GetCPUBuffer()
+        {
+            return m_cpuBuffer;
+        }
 
         inline Image& GetImage()
         {
@@ -79,10 +98,9 @@ namespace Lina::Graphics
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
-        void GenerateBuffers(unsigned char* pixels);
-
     private:
         friend class GUIBackend;
+        friend class Editor::EditorRenderer;
 
         AssetData      m_assetData;
         Image          m_gpuImage;

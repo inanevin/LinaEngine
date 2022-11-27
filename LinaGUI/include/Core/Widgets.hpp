@@ -31,10 +31,11 @@ SOFTWARE.
 #ifndef LinaGUIWidgets_HPP
 #define LinaGUIWidgets_HPP
 
+#include "Data/String.hpp"
 
 namespace Lina::GUI
 {
-    
+    extern bool Button(const String& str, const Vector2& size);
 } // namespace Lina::GUI
 
 #endif

@@ -50,6 +50,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
         CreateBufferCapsule();
         CreateBufferCapsule();
+        m_iconPackSID = TO_SID(String(ICONPACK_SID));
         return true;
     }
 
@@ -136,7 +137,8 @@ namespace Lina::Graphics
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
     {
         Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Textured);
-        Texture*  txt = Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
+        Texture*  txt = buf->m_textureHandle == m_iconPackSID ? m_iconPackTexture : Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
+
         mat->SetProperty("intvar1", 2);
         mat->SetProperty("vec2pack1", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));
         mat->SetProperty("vec2pack2", Vector2(buf->m_textureUVOffset.x, buf->m_textureUVOffset.y));
@@ -255,54 +257,20 @@ namespace Lina::Graphics
 
     LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
     {
-        Extent3D ext = Extent3D{
-            .width  = static_cast<uint32>(width),
-            .height = static_cast<uint32>(height),
-            .depth  = 1,
+        Texture* txt     = new Texture();
+        Sampler  sampler = Sampler{
+             .minFilter     = Filter::Linear,
+             .magFilter     = Filter::Linear,
+             .u             = SamplerAddressMode::ClampToEdge,
+             .v             = SamplerAddressMode::ClampToEdge,
+             .w             = SamplerAddressMode::ClampToEdge,
+             .mipLodBias    = 0.0f,
+             .maxAnisotropy = 1.0f,
+             .minLod        = 0.0f,
+             .maxLod        = 1.0f,
+             .borderColor   = BorderColor::FloatOpaqueWhite,
         };
-
-        const uint32 bufferSize = ext.width * ext.height;
-        Texture*     txt        = new Texture();
-        txt->m_extent           = ext;
-
-        // Cpu buf
-        txt->m_cpuBuffer = Buffer{
-            .size        = bufferSize,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuOnly,
-        };
-
-        txt->m_cpuBuffer.Create();
-
-        ImageSubresourceRange range;
-        range.aspectFlags   = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-        const Format format = Format::R8_UNORM;
-
-        // Gpu buf
-        txt->m_gpuImage = Image{
-            .format          = format,
-            .tiling          = ImageTiling::Linear,
-            .extent          = ext,
-            .imageUsageFlags = GetImageUsage(ImageUsageFlags::Sampled) | GetImageUsage(ImageUsageFlags::TransferDest),
-            .subresRange     = range,
-        };
-
-        txt->m_gpuImage.Create(true, false);
-
-        // Sampler
-        txt->m_sampler = Sampler{
-            .minFilter     = Filter::Linear,
-            .magFilter     = Filter::Linear,
-            .u             = SamplerAddressMode::ClampToEdge,
-            .v             = SamplerAddressMode::ClampToEdge,
-            .w             = SamplerAddressMode::ClampToEdge,
-            .mipLodBias    = 0.0f,
-            .maxAnisotropy = 1.0f,
-            .minLod        = 0.0f,
-            .maxLod        = 1.0f,
-            .borderColor   = BorderColor::FloatOpaqueWhite,
-        };
-        txt->m_sampler.Create(false);
+        txt->GenerateCustomBuffers(width, height, 1, Format::R8_UNORM, sampler, ImageTiling::Linear);
 
         // Skipping 0 index
         const uint32 handle    = static_cast<uint32>(m_fontTextures.size() + 1);
@@ -329,7 +297,7 @@ namespace Lina::Graphics
     {
         Texture* txt       = m_fontTextures[m_bufferingFontTexture];
         Offset3D imgOffset = Offset3D{.x = 0, .y = 0, .z = 0};
-        txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, false);
+        txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, true);
     }
 
     void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
