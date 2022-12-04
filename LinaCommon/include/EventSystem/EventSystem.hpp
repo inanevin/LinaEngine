@@ -31,9 +31,9 @@ SOFTWARE.
 #define EventSystem_HPP
 
 #include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
 #include "Data/Mutex.hpp"
 #include "Functional/Functional.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina
 {

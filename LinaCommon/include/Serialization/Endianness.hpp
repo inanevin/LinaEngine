@@ -30,7 +30,9 @@ SOFTWARE.
 
 #ifndef Endianness_HPP
 #define Endianness_HPP
+
 #include <bit>
+#include <algorithm>
 
 namespace Lina::Serialization
 {

@@ -33,7 +33,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    Graphics::Texture* TexturePacker::PackFilesOrdered(Vector<String>& paths, float maxWidth, Vector<PackedTexture>& packed)
+    Graphics::Texture* TexturePacker::PackFilesOrdered(Vector<String>& paths, int maxWidth, Vector<PackedTexture>& packed)
     {
         Graphics::Texture* txt = new Graphics::Texture();
 
@@ -52,23 +52,24 @@ namespace Lina::Editor
             int               texChannels;
             data.pixels = stbi_load(paths[i].c_str(), &data.width, &data.height, &texChannels, STBI_rgb_alpha);
 
-            float previousTotalHeight = 0.0f;
+            int previousTotalHeight = 0;
             for (uint32 k = 0; k < rows.size() - 1; k++)
                 previousTotalHeight += rows[k].currentY;
 
             data.bufferOffset = maxWidth * previousTotalHeight * 4 + r.currentX * 4;
 
             PackedTexture pt;
+            pt.name     = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(paths[i]));
             data.startY = previousTotalHeight;
             r.currentX += data.width;
 
             if (r.currentX == maxWidth)
             {
-                r.currentY = Math::Max(r.currentY, static_cast<float>(data.height));
+                r.currentY = Math::Max(r.currentY, data.height);
                 rows.push_back(PackRow());
 
-                pt.uvTL.x = (r.currentX - data.width) / maxWidth;
-                pt.uvBR.x = r.currentX / maxWidth;
+                pt.uvTL.x = static_cast<float>(r.currentX - data.width) / static_cast<float>(maxWidth);
+                pt.uvBR.x = static_cast<float>(r.currentX) / static_cast<float>(maxWidth);
             }
             else if (r.currentX > maxWidth)
             {
@@ -79,38 +80,38 @@ namespace Lina::Editor
                 rows.push_back(PackRow());
                 auto& newRow    = rows[rows.size() - 1];
                 newRow.currentX = data.width;
-                newRow.currentY = static_cast<float>(data.height);
+                newRow.currentY = data.height;
 
                 pt.uvTL.x = 0.0f;
-                pt.uvBR.x = data.width / maxWidth;
+                pt.uvBR.x = static_cast<float>(data.width) / static_cast<float>(maxWidth);
             }
             else
             {
-                r.currentY = Math::Max(r.currentY, static_cast<float>(data.height));
-                pt.uvTL.x  = (r.currentX - data.width) / maxWidth;
-                pt.uvBR.x  = r.currentX / maxWidth;
+                r.currentY = Math::Max(r.currentY, data.height);
+                pt.uvTL.x  = static_cast<float>(r.currentX - data.width) / static_cast<float>(maxWidth);
+                pt.uvBR.x  = static_cast<float>(r.currentX) / static_cast<float>(maxWidth);
             }
 
-            pt.size = Vector2(data.width, data.height);
+            pt.size = Vector2(static_cast<float>(data.width), static_cast<float>(data.height));
             pixelData.push_back(data);
             packed.push_back(pt);
         }
 
-        float totalHeight = 0.0f;
+        int totalHeight = 0;
 
         for (auto& r : rows)
             totalHeight += r.currentY;
 
         for (uint32 i = 0; i < pixelData.size(); i++)
         {
-            packed[i].uvTL.y = pixelData[i].startY / totalHeight;
-            packed[i].uvBR.y = (pixelData[i].startY + pixelData[i].height) / totalHeight;
+            packed[i].uvTL.y = static_cast<float>(pixelData[i].startY) / static_cast<float>(totalHeight);
+            packed[i].uvBR.y = static_cast<float>(pixelData[i].startY + pixelData[i].height) / static_cast<float>(totalHeight);
         }
 
         rows.clear();
 
-        const float atlasWidth  = maxWidth;
-        const float atlasHeight = totalHeight;
+        const int atlasWidth  = maxWidth;
+        const int atlasHeight = totalHeight;
 
         // Generate icon texture.
         Graphics::Sampler sampler = Graphics::Sampler{
@@ -145,6 +146,7 @@ namespace Lina::Editor
         pixelData.clear();
 
         // Upload to gpu
+        // Might be transferred late, so don't destroy cpu buffer right away
         txt->WriteToGPUImage(0, nullptr, 0, Graphics::Offset3D{.x = 0, .y = 0, .z = 0}, txt->GetExtent(), true);
 
         return txt;

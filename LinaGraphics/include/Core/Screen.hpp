@@ -55,6 +55,18 @@ namespace Lina::Graphics
         static Vector2 SizeF();
 
         /// <summary>
+        /// Returns the display resolution of the primary monitor.
+        /// </summary>
+        /// <returns></returns>
+        static Vector2i DisplayResolution();
+
+        /// <summary>
+        /// Returns the display resolution of the primary monitor.
+        /// </summary>
+        /// <returns></returns>
+        static Vector2 DisplayResolutionF();
+
+        /// <summary>
         /// Returns viewport position, defaults to 0-0 unless explicitly stated.
         /// </summary>
         /// <returns></returns>

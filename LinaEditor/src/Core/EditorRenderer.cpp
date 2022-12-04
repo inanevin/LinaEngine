@@ -37,11 +37,10 @@ SOFTWARE.
 #include "Resource/Font.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/EditorGUIManager.hpp"
-#include "Core/Theme.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/GraphicsCommon.hpp"
-#include "Core/LinaGUI.hpp"
 #include "LinaVG/Utility/Utility.hpp"
+#include "GUI/GUI.hpp"
 
 namespace Lina::Editor
 {
@@ -65,19 +64,13 @@ namespace Lina::Editor
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
-        GUI::StartFrame();
+        LGUI->StartFrame();
         LinaVG::StartFrame();
         EditorGUIManager::Get()->Draw();
         auto* t = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Engine/Textures/LinaLogoTransparent.png");
-
-        for (uint32 i = 0; i < m_packedIcons.size(); i++)
-        {
-            PackedTexture& pt = m_packedIcons[i];
-            LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(1800, 500 + i * 150), LV2(pt.size), 0.0f, 5, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(pt.uvTL), LV2(pt.uvBR));
-        }
         LinaVG::Render();
         LinaVG::EndFrame();
-        GUI::EndFrame();
+        LGUI->EndFrame();
     }
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
@@ -94,21 +87,61 @@ namespace Lina::Editor
         auto* defaultFont   = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/DefaultFont.ttf");
         auto* goodTimesFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/GoodTimes.otf");
 
-        defaultFont->GenerateFont(false, 18);
-        Graphics::GUIBackend::Get()->UploadFontTexture();
-
+        defaultFont->GenerateFont(false, 12);
         goodTimesFont->GenerateFont(false, 60);
-        Graphics::GUIBackend::Get()->UploadFontTexture();
 
-        Theme::s_fonts[ThemeFont::Default]   = defaultFont->GetHandle();
-        Theme::s_fonts[ThemeFont::LinaStyle] = goodTimesFont->GetHandle();
+        Graphics::GUIBackend::Get()->UploadAllFontTextures();
+
+        auto& theme = LGUI->GetTheme();
+
+        theme.m_fonts[ThemeFont::Default]   = defaultFont->GetHandle();
+        theme.m_fonts[ThemeFont::LinaStyle] = goodTimesFont->GetHandle();
 
         // Scan Icons folder & buffer all icons into a texture atlas.
         Vector<String> icons = Utility::GetFolderContents("Resources/Editor/Icons");
-        m_iconTexture        = TexturePacker::PackFilesOrdered(icons, 150, m_packedIcons);
+        m_iconTexture        = TexturePacker::PackFilesOrdered(icons, 250, m_packedIcons);
         m_iconTexture->m_sid = TO_SID(String(ICONPACK_SID));
 
+        for (auto& pi : m_packedIcons)
+        {
+            ThemeIconData id;
+            id.topLeft                     = pi.uvTL;
+            id.bottomRight                 = pi.uvBR;
+            id.size                        = pi.size;
+            theme.m_icons[TO_SID(pi.name)] = id;
+        }
         // Set texture
         Graphics::GUIBackend::Get()->SetIconPackTexture(m_iconTexture);
+
+        // Setup style
+        const Color dark0 = Color(14.0f, 14.0f, 14.0f, 255.0f, true);
+        const Color dark1 = Color(20.0f, 20.0f, 20.0f, 255.0f, true);
+        const Color dark2 = Color(25.0f, 25.0f, 25.0f, 255.0f, true);
+
+        const Color light0 = Color(35.0f, 35.0f, 35.0f, 255.0f, true);
+        const Color light1 = Color(40.0f, 40.0f, 40.0f, 255.0f, true);
+        const Color light2 = Color(60.0f, 60.0f, 60.0f, 255.0f, true);
+
+        theme.m_colors[ThemeColor::Error]              = Color(160.0f, 30.0f, 30.0f, 255.0f, true);
+        theme.m_colors[ThemeColor::Warn]               = Color(60.0f, 60.0f, 30.0f, 255.0f, true);
+        theme.m_colors[ThemeColor::Check]              = Color(30.0f, 60.0f, 30.0f, 255.0f, true);
+        theme.m_colors[ThemeColor::Dark0]              = dark0;
+        theme.m_colors[ThemeColor::TopPanelBackground] = dark1;
+        theme.m_colors[ThemeColor::Window]             = dark2;
+        theme.m_colors[ThemeColor::ButtonBackground]   = light1;
+        theme.m_colors[ThemeColor::ButtonHovered]      = light2;
+        theme.m_colors[ThemeColor::ButtonPressed]      = light0;
+        theme.m_colors[ThemeColor::ButtonBorder]       = dark0;
+        theme.m_colors[ThemeColor::ButtonIconTint]     = Color(1, 1, 1, 1);
+
+        theme.m_properties[ThemeProperty::AAEnabled]             = LinaVG::Config.aaEnabled ? 1.0f : 0.0f;
+        theme.m_properties[ThemeProperty::WindowItemPaddingX]    = 8;
+        theme.m_properties[ThemeProperty::WindowItemPaddingY]    = 8;
+        theme.m_properties[ThemeProperty::WindowItemSpacingX]    = 5;
+        theme.m_properties[ThemeProperty::WindowItemSpacingY]    = 5;
+        theme.m_properties[ThemeProperty::ButtonRounding]        = 0.2f;
+        theme.m_properties[ThemeProperty::ButtonBorderThickness] = 1.0f;
+        theme.m_properties[ThemeProperty::ButtonIconFit]         = 0.75f;
+        theme.m_properties[ThemeProperty::ButtonTextFit]         = 0.35f;
     }
 } // namespace Lina::Editor

@@ -40,7 +40,9 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Resource/Material.hpp"
 #include "Core/GUIBackend.hpp"
-#include "Platform/LinaVGIncl.hpp"
+
+#define LINAVG_TEXT_SUPPORT
+#include "LinaVG/LinaVG.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Platform/Win32/Win32Window.hpp"
@@ -133,9 +135,9 @@ namespace Lina::Graphics
         LinaVG::Config.displayWidth          = 0;
         LinaVG::Config.displayHeight         = 0;
         LinaVG::Config.flipTextureUVs        = false;
-        LinaVG::Config.framebufferScale.x    = ApplicationInfo::GetContentScaleWidth();
-        LinaVG::Config.framebufferScale.y    = ApplicationInfo::GetContentScaleHeight();
-        LinaVG::Config.aaMultiplier          = ApplicationInfo::GetContentScaleWidth() * 1.2f;
+        LinaVG::Config.framebufferScale.x    = RuntimeInfo::GetContentScaleWidth();
+        LinaVG::Config.framebufferScale.y    = RuntimeInfo::GetContentScaleHeight();
+        LinaVG::Config.aaMultiplier          = RuntimeInfo::GetContentScaleWidth() * 0.2f;
         LinaVG::Config.aaEnabled             = true;
         LinaVG::Config.textCachingEnabled    = true;
         LinaVG::Config.textCachingSDFEnabled = true;

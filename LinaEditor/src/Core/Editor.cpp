@@ -60,6 +60,8 @@ namespace Lina::Editor
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
+        ImmediateGUI::s_instance = &m_gui;
+        m_gui.m_iconTexture      = TO_SID(String(ICONPACK_SID));
         m_renderer.Initialize();
         m_shortcutManager.Initialize();
     }

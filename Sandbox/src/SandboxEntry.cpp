@@ -9,10 +9,10 @@ namespace Lina
         // Initialize application info
         Lina::WindowProperties windowProps = Lina::WindowProperties{
             .title      = "Lina Engine - Demo Sandbox Project",
-            .width      = 3000,
-            .height     = 1764,
+            .width      = 1920,
+            .height     = 980,
             .vsync      = Lina::VsyncMode::None, // fifo
-            .decorated  = false,
+            .decorated  = true,
             .resizable  = true,
             .fullscreen = false,
         };

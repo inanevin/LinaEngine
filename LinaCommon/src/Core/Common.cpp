@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/CommonPhysics.hpp"
 #include "Core/CommonUtility.hpp"
 #include "Core/CommonEngine.hpp"
+#include "Core/Time.hpp"
 
 namespace EA
 {
@@ -68,18 +69,19 @@ namespace EA
 namespace Lina
 {
     TypeID                          g_levelTypeID;
-    const char*                     ApplicationInfo::s_appName            = "Lina Engine";
-    float                           ApplicationInfo::s_contentScaleWidth  = 1.0f;
-    float                           ApplicationInfo::s_contentScaleHeight = 1.0f;
-    ApplicationMode                 ApplicationInfo::s_appMode            = ApplicationMode::Editor;
+    const char*                     ApplicationInfo::s_appName = "Lina Engine";
+    ApplicationMode                 ApplicationInfo::s_appMode = ApplicationMode::Editor;
     HashMap<TypeID, Vector<String>> DefaultResources::s_engineResources;
-    double                          RuntimeInfo::s_startTime       = 0.0;
-    bool                            RuntimeInfo::s_isInPlayMode    = false;
-    bool                            RuntimeInfo::s_paused          = false;
-    bool                            RuntimeInfo::s_shouldSkipFrame = false;
-    float                           RuntimeInfo::s_smoothDeltaTime = 0.0f;
-    float                           RuntimeInfo::s_deltaTime       = 0.0f;
-    Vector2i                        RuntimeInfo::s_screenSize      = Vector2();
+    float                           RuntimeInfo::s_contentScaleWidth  = 1.0f;
+    float                           RuntimeInfo::s_contentScaleHeight = 1.0f;
+    Vector2i                        RuntimeInfo::s_displayResolution  = Vector2i::Zero;
+    double                          RuntimeInfo::s_startTime          = 0.0;
+    bool                            RuntimeInfo::s_isInPlayMode       = false;
+    bool                            RuntimeInfo::s_paused             = false;
+    bool                            RuntimeInfo::s_shouldSkipFrame    = false;
+    float                           RuntimeInfo::s_smoothDeltaTime    = 0.0f;
+    float                           RuntimeInfo::s_deltaTime          = 0.0f;
+    Vector2i                        RuntimeInfo::s_screenSize         = Vector2();
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
     {
@@ -95,6 +97,11 @@ namespace Lina
         }
 
         return false;
+    }
+
+    double RuntimeInfo::GetElapsedTime()
+    {
+        return Time::GetCPUTime() - RuntimeInfo::s_startTime;;
     }
 
     String LogLevelAsString(LogLevel level)

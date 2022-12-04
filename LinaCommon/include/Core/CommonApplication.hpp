@@ -80,23 +80,11 @@ namespace Lina
             return s_appMode;
         }
 
-        static inline float GetContentScaleWidth()
-        {
-            return s_contentScaleWidth;
-        }
-
-        static inline float GetContentScaleHeight()
-        {
-            return s_contentScaleHeight;
-        }
-
     private:
         friend class Application;
         friend class Graphics::Win32Window;
 
         static const char*     s_appName;
-        static float           s_contentScaleWidth;
-        static float           s_contentScaleHeight;
         static ApplicationMode s_appMode;
     };
 

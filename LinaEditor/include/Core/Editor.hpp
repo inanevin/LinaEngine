@@ -34,6 +34,8 @@ SOFTWARE.
 #include "EditorRenderer.hpp"
 #include "EditorGUIManager.hpp"
 #include "ShortcutManager.hpp"
+#include "GUI/GUI.hpp"
+
 namespace Lina
 {
     namespace Event
@@ -84,6 +86,7 @@ namespace Lina::Editor
         EditorRenderer                   m_renderer;
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
+        ImmediateGUI                     m_gui;
     };
 } // namespace Lina::Editor
 

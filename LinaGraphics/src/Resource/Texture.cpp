@@ -42,6 +42,9 @@ namespace Lina::Graphics
 {
     Texture::~Texture()
     {
+        if (m_cpuBuffer.size != 0)
+            m_cpuBuffer.Destroy();
+
         m_gpuImage.Destroy();
         m_sampler.Destroy();
     }
@@ -163,6 +166,7 @@ namespace Lina::Graphics
 
         Command cmd;
         cmd.Record = [this, copyExtent, gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
+
             ImageSubresourceRange range = ImageSubresourceRange{
                 .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
                 .baseMipLevel   = 0,

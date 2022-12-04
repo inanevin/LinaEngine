@@ -37,8 +37,6 @@ SOFTWARE.
 #include "Data/DataCommon.hpp"
 #include <variant>
 
-#include <cereal/types/variant.hpp>
-
 namespace Lina::Serialization
 {
     template<typename A, typename B>

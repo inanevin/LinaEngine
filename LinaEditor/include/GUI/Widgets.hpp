@@ -28,26 +28,31 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef HorizontalLayout_HPP
-#define HorizontalLayout_HPP
+#ifndef LinaGUIWidgets_HPP
+#define LinaGUIWidgets_HPP
 
-#include "Core/GUINode.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Data/String.hpp"
 
-namespace Lina::GUI
+namespace Lina::Editor
 {
+    enum ButtonStyleMask
+    {
+        ButtonStyle_None = 0,
+        ButtonStyle_Border,
+        ButtonStyle_RoundCorners,
+    };
 
-    class HorizontalLayout : public GUINode
+    class Widgets
     {
     public:
-        HorizontalLayout()          = default;
-        virtual ~HorizontalLayout() = default;
 
-        virtual void Draw() override;
+        // Buttons
+        static bool ButtonEmpty(const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool Button(const String& str, const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
-        float   windowItemSpacing = 0.0f;
-        Vector2 padding = Vector2::Zero;
+
     };
-} // namespace Lina::GUI
+} // namespace Lina::Editor
 
 #endif

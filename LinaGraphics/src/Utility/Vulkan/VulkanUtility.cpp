@@ -32,7 +32,9 @@ SOFTWARE.
 #include "PipelineObjects/RenderPass.hpp"
 #include "PipelineObjects/Framebuffer.hpp"
 #include "Resource/Texture.hpp"
-#include "Platform/LinaVGIncl.hpp"
+
+#define LINAVG_TEXT_SUPPORT
+#include "LinaVG/LinaVG.hpp"
 
 namespace Lina::Graphics
 {

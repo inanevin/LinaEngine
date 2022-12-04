@@ -45,14 +45,14 @@ namespace Lina::Editor
         unsigned char* pixels       = nullptr;
         int            width        = 0;
         int            height       = 0;
-        uint32         bufferOffset = 0;
-        uint32         startY       = 0;
+        int            bufferOffset = 0;
+        int            startY       = 0;
     };
 
     struct PackRow
     {
-        float currentX = 0.0f;
-        float currentY = 0.0f;
+        int currentX = 0;
+        int currentY = 0;
     };
 
     struct PackedTexture
@@ -66,7 +66,7 @@ namespace Lina::Editor
     class TexturePacker
     {
     public:
-        static Graphics::Texture* PackFilesOrdered(Vector<String>& paths, float maxAllowedWidth, Vector<PackedTexture>& packed);
+        static Graphics::Texture* PackFilesOrdered(Vector<String>& paths, int maxAllowedWidth, Vector<PackedTexture>& packed);
     };
 } // namespace Lina::Editor
 

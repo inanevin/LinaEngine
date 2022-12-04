@@ -44,6 +44,16 @@ namespace Lina::Graphics
         return Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
     }
 
+    Vector2 Screen::DisplayResolutionF()
+    {
+        return RuntimeInfo::GetDisplayResolutionF();
+    }
+
+    Vector2i Screen::DisplayResolution()
+    {
+        return RuntimeInfo::GetDisplayResolution();
+    }
+
     Vector2i Screen::GetViewportPos()
     {
         auto*       renderEngine = RenderEngine::Get();

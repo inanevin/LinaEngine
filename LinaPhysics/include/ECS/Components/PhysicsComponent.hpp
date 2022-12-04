@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/CommonPhysics.hpp"
 #include "Math/Vector.hpp"
 #include "Core/ResourceHandle.hpp"
+#include "Physics/PhysicsMaterial.hpp"
 
 namespace Lina
 {

@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
-#include "Data/DataCommon.hpp"
 
 namespace Lina
 {
@@ -48,7 +47,8 @@ namespace Lina
     namespace Graphics
     {
         class Swapchain;
-    }
+        class Win32Window;
+    } // namespace Graphics
 
     class DefaultResources
     {
@@ -74,10 +74,7 @@ namespace Lina
             return s_isInPlayMode;
         }
 
-        static inline double GetElapsedTime()
-        {
-            return Time::GetCPUTime() - s_startTime;
-        }
+        static inline double GetElapsedTime();
 
         static inline float GetDeltaTime()
         {
@@ -99,9 +96,30 @@ namespace Lina
             return Vector2(static_cast<float>(s_screenSize.x), static_cast<float>(s_screenSize.y));
         }
 
+        static Vector2i GetDisplayResolution()
+        {
+            return s_displayResolution;
+        }
+
+        static Vector2 GetDisplayResolutionF()
+        {
+            return Vector2(static_cast<float>(s_displayResolution.x), static_cast<float>(s_displayResolution.y));
+        }
+
+        static inline float GetContentScaleWidth()
+        {
+            return s_contentScaleWidth;
+        }
+
+        static inline float GetContentScaleHeight()
+        {
+            return s_contentScaleHeight;
+        }
+
     private:
         friend class Engine;
         friend class Editor::Editor;
+        friend class Graphics::Win32Window;
         friend class Graphics::Swapchain;
 
         static double   s_startTime;
@@ -110,7 +128,10 @@ namespace Lina
         static bool     s_shouldSkipFrame;
         static float    s_deltaTime;
         static float    s_smoothDeltaTime;
+        static float    s_contentScaleWidth;
+        static float    s_contentScaleHeight;
         static Vector2i s_screenSize;
+        static Vector2i s_displayResolution;
     };
 
     extern TypeID g_levelTypeID;

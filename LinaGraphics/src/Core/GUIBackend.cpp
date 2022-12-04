@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Resource/Material.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include "Platform/LinaVGIncl.hpp"
 #include "Resource/Texture.hpp"
 #include "Core/Screen.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
@@ -142,6 +141,7 @@ namespace Lina::Graphics
         mat->SetProperty("intvar1", 2);
         mat->SetProperty("vec2pack1", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));
         mat->SetProperty("vec2pack2", Vector2(buf->m_textureUVOffset.x, buf->m_textureUVOffset.y));
+        mat->SetProperty("color1", Vector4(buf->m_tint.x, buf->m_tint.y, buf->m_tint.z, buf->m_tint.w));
         mat->SetTexture("diffuse", txt);
         mat->CheckUpdatePropertyBuffers();
     }
@@ -293,11 +293,13 @@ namespace Lina::Graphics
         }
     }
 
-    void GUIBackend::UploadFontTexture()
+    void GUIBackend::UploadAllFontTextures()
     {
-        Texture* txt       = m_fontTextures[m_bufferingFontTexture];
-        Offset3D imgOffset = Offset3D{.x = 0, .y = 0, .z = 0};
-        txt->WriteToGPUImage(0, nullptr, 0, imgOffset, txt->m_extent, true);
+        for (auto& t : m_fontTextures)
+        {
+            Texture* txt = t.second;
+            txt->WriteToGPUImage(0, nullptr, 0, Offset3D{.x = 0, .y = 0, .z = 0}, txt->m_extent, true);
+        }
     }
 
     void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)

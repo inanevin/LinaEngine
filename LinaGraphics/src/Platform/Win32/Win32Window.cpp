@@ -79,7 +79,21 @@ namespace Lina::Graphics
             }
         }
         break;
+        case WM_SETFOCUS: {
+            Win32Window::GetWin32()->m_hasFocus = true;
+            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({true});
+        }
+        break;
+        case WM_KILLFOCUS: {
+            Win32Window::GetWin32()->m_hasFocus = false;
+            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({ false });
+        }
+        break;
         case WM_KEYDOWN: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             if ((HIWORD(lParam) & KF_REPEAT) == 0)
             {
                 HWND   ptr      = Win32Window::GetWin32()->GetWindowPtr();
@@ -103,11 +117,15 @@ namespace Lina::Graphics
         }
         break;
         case WM_KEYUP: {
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
+            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
             WORD keyFlags = HIWORD(lParam);
             WORD scanCode = LOBYTE(keyFlags);
 
-            uint32 key = static_cast<uint32>(wParam);
+            uint32 key      = static_cast<uint32>(wParam);
             int    extended = (lParam & 0x01000000) != 0;
 
             if (wParam == VK_SHIFT)
@@ -116,14 +134,18 @@ namespace Lina::Graphics
                 key = extended ? VK_LCONTROL : VK_RCONTROL;
 
             Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
-                .window = static_cast<void*>(ptr),
-                .key = key,
+                .window   = static_cast<void*>(ptr),
+                .key      = key,
                 .scancode = static_cast<int>(scanCode),
-                .action = Input::InputAction::Released,
-                });
+                .action   = Input::InputAction::Released,
+            });
         }
         break;
         case WM_MOUSEWHEEL: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr   = Win32Window::GetWin32()->GetWindowPtr();
             auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
             Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{
@@ -134,6 +156,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_LBUTTONDOWN: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -144,6 +170,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_RBUTTONDOWN: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -154,6 +184,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_MBUTTONDOWN: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -164,6 +198,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_LBUTTONUP: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -174,6 +212,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_RBUTTONUP: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -184,6 +226,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_MBUTTONUP: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
             HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
@@ -231,9 +277,11 @@ namespace Lina::Graphics
 
         HMONITOR mon = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
         UINT     dpiX, dpiY;
-        HRESULT  temp2                        = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
-        ApplicationInfo::s_contentScaleWidth  = static_cast<float>(dpiY) / 96.0f;
-        ApplicationInfo::s_contentScaleHeight = static_cast<float>(dpiY) / 96.0f;
+        HRESULT  temp2                     = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+        RuntimeInfo::s_contentScaleWidth   = static_cast<float>(dpiY) / 96.0f;
+        RuntimeInfo::s_contentScaleHeight  = static_cast<float>(dpiY) / 96.0f;
+        RuntimeInfo::s_displayResolution.x = GetSystemMetrics(SM_CXSCREEN);
+        RuntimeInfo::s_displayResolution.y = GetSystemMetrics(SM_CYSCREEN);
 
         const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
 

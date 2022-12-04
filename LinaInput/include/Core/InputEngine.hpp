@@ -45,6 +45,7 @@ namespace Lina
     {
         struct EWindowContextCreated;
         struct EMouseScrollCallback;
+        struct EWindowFocusChanged;
     } // namespace Event
 
 } // namespace Lina
@@ -109,9 +110,9 @@ namespace Lina::Input
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
+        void OnWindowFocusChanged(const Event::EWindowFocusChanged& e);
 
     private:
-
         friend class Application;
         friend class Engine;
         static InputEngine* s_inputEngine;
@@ -129,6 +130,7 @@ namespace Lina::Input
         Vector2             m_currentMouseScroll = Vector2::Zero;
         Vector2             m_axisMousePos       = Vector2::Zero;
         bool                m_rawMotionSupported = false;
+        bool                m_windowFocused      = false;
     };
 } // namespace Lina::Input
 

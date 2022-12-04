@@ -26,41 +26,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef TopPanel_HPP
-#define TopPanel_HPP
-
-#include "Panel.hpp"
 #include "GUI/CustomWidgets/MenuBar.hpp"
+#include "GUI/GUI.hpp"
+#include "Core/InputEngine.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-    class TopPanel : public Panel
+    void MenuBarItemPopup::Draw(const Vector2& size)
     {
-    public:
-        TopPanel()          = default;
-        virtual ~TopPanel() = default;
+        const Vector2& penPos = LGUI->GetCurrentWindow().GetPenPos();
 
-        virtual void Setup() override;
-        virtual void Draw() override;
+        if (Input::InputEngine::Get()->GetMouseButtonDown(LINA_MOUSE_0))
+        {
+            if (m_isOpen && !LGUI->IsMouseHoveringRect(Rect(penPos, size)))
+            {
+                m_isOpen = !m_isOpen;
+            }
+        }
 
-    private:
-        void DrawFileMenu();
-        void DrawLinaLogo();
-        void DrawButtons();
+        if (Widgets::Button(m_name, size))
+        {
+            OnClicked();
+        }
 
-    private:
-        MenuBar  m_menuBar;
-        Vector2  m_currentSize     = Vector2();
-        StringID m_sid             = 0;
-        uint32   m_linaLogoTexture = 0;
-        uint32   m_linaTitleFont   = 0;
-        StringID m_minimizeSid     = 0;
-        StringID m_maximizeSid     = 0;
-        StringID m_closeSid        = 0;
-        StringID m_restoreSid      = 0;
-    };
+        if (m_isOpen)
+        {
+            const Vector2 menuPopupStartPos = penPos + Vector2(0, size.y);
+            m_menuPopup.Draw(menuPopupStartPos);
+        }
+    }
+
+    void MenuBarItemPopup::OnClicked()
+    {
+        m_isOpen = !m_isOpen;
+    }
+
+    MenuBar::~MenuBar()
+    {
+        for (auto& i : m_items)
+            delete i;
+
+        m_items.clear();
+    }
+
+    void MenuBar::Draw()
+    {
+        auto& window = LGUI->GetCurrentWindow();
+        Vector2 pos = m_startPosition;
+        for (auto i : m_items)
+        {
+            window.SetPenPos(pos);
+            i->Draw(m_itemSize);
+            pos.x += m_itemSize.x + m_extraSpacing;
+        }
+    }
 } // namespace Lina::Editor
-
-#endif

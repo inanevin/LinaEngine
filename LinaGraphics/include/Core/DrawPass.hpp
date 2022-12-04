@@ -34,6 +34,7 @@ SOFTWARE.
 #include "GraphicsCommon.hpp"
 #include "Data/Mutex.hpp"
 #include "RenderData.hpp"
+#include "PipelineObjects/Buffer.hpp"
 
 namespace Lina
 {

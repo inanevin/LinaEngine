@@ -125,7 +125,7 @@ void main()
    {
       // Textured
       vec4 col = texture(diffuse, fUV * material.vec2pack1 + material.vec2pack2);
-      finalColor = vec4(col.rgb, material.intvar3 == 1 ? fCol.a : col.a); 
+      finalColor = vec4(col.rgb, material.intvar3 == 1 ? fCol.a : col.a) * material.color1; 
    }
    else if(material.intvar1 == 3)
    {

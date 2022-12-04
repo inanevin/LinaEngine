@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Memory/Memory.hpp"
 #include "Data/DataCommon.hpp"
 #include <type_traits>
+#include <iosfwd>
 
 namespace Lina
 {

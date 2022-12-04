@@ -26,7 +26,13 @@ src/Core/Editor.cpp
 src/Core/EditorRenderer.cpp
 src/Core/EditorGUIManager.cpp
 src/Core/ShortcutManager.cpp
-src/Core/Theme.cpp
+
+# GUI
+src/GUI/Theme.cpp
+src/GUI/Widgets.cpp
+src/GUI/GUI.cpp
+src/GUI/CustomWidgets/MenuBar.cpp
+src/GUI/CustomWidgets/MenuPopup.cpp
 
 # Graphics
 src/Utility/Graphics/TexturePacker.cpp
@@ -52,7 +58,16 @@ include/Core/EditorRenderer.hpp
 include/Core/EditorGUIManager.hpp
 include/Core/ShortcutManager.hpp
 include/Core/EditorCommon.hpp
-include/Core/Theme.hpp
+
+# GUI
+include/GUI/Theme.hpp
+include/GUI/GUI.hpp
+include/GUI/Widgets.hpp
+include/GUI/CustomWidgets/MenuBar.hpp
+include/GUI/CustomWidgets/MenuPopup.hpp
+
+# Platform
+include/Platform/LinaVGIncl.hpp
 
 # Graphics
 include/Utility/Graphics/TexturePacker.hpp
@@ -88,7 +103,6 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEngine/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGUI/include)
 
 include(../CMake/ProjectSettings.cmake)
 
@@ -97,7 +111,6 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE Lina::GUI
 )
 
 #--------------------------------------------------------------------

@@ -57,10 +57,9 @@ namespace Lina::Event
     {
         void* window = nullptr;
     };
-    struct EWindowFocused
+    struct EWindowFocusChanged
     {
-        void* window  = nullptr;
-        int   focused = false;
+        int isFocused = false;
     };
     struct EVsyncModeChanged
     {

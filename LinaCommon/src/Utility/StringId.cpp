@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,8 +27,19 @@ SOFTWARE.
 */
 
 #include "Utility/StringId.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
-
-}
+    uint32 FnvHash::fnvHash(const char* str)
+    {
+        const size_t length = strlen(str) + 1;
+        uint32       hash   = OFFSET_BASIS;
+        for (size_t i = 0; i < length; ++i)
+        {
+            hash ^= *str++;
+            hash *= FNV_PRIME;
+        }
+        return hash;
+    }
+} // namespace Lina

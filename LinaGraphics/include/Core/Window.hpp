@@ -98,6 +98,8 @@ namespace Lina::Graphics
             return m_isActive;
         }
 
+        virtual void Close() = 0;
+
     protected:
         friend class RenderEngine;
         friend class Engine;
@@ -106,7 +108,6 @@ namespace Lina::Graphics
         ~Window()                                              = default;
         virtual bool Initialize(const WindowProperties& props) = 0;
         virtual void Shutdown()                                = 0;
-        virtual void Close()                                   = 0;
 
         VsyncMode m_vsync       = VsyncMode::None;
         Vector2i  m_size        = Vector2i(0, 0);
@@ -116,6 +117,7 @@ namespace Lina::Graphics
         bool      m_minimized   = false;
         bool      m_maximized   = false;
         bool      m_isActive    = false;
+        bool      m_hasFocus    = false;
 
     private:
         static Window* s_instance;

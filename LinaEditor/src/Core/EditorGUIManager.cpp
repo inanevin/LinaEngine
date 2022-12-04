@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/EditorGUIManager.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Core/GUINode.hpp"
 
 namespace Lina::Editor
 {
@@ -37,7 +36,6 @@ namespace Lina::Editor
     void EditorGUIManager::Initialize()
     {
         s_instance = this;
-
         m_topPanel.Setup();
     }
 

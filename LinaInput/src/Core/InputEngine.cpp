@@ -58,6 +58,7 @@ namespace Lina::Input
         LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
         Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &InputEngine::OnWindowContextCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowFocusChanged, &InputEngine::OnWindowFocusChanged>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
     }
@@ -65,6 +66,9 @@ namespace Lina::Input
     void InputEngine::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
+        Event::EventSystem::Get()->Disconnect<Event::EWindowContextCreated>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EMouseScrollCallback>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowFocusChanged>(this);
         m_keyDownNewStateMap.clear();
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
@@ -88,8 +92,16 @@ namespace Lina::Input
         LINA_TRACE("{0}", m_currentMouseScroll.ToString());
     }
 
+    void InputEngine::OnWindowFocusChanged(const Event::EWindowFocusChanged& e)
+    {
+        m_windowFocused = e.isFocused;
+    }
+
     bool InputEngine::GetKey(int keycode)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         return GetKeyState(keycode) & 0x8000;
 #else
@@ -100,6 +112,9 @@ namespace Lina::Input
 
     bool InputEngine::GetKeyDown(int keyCode)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         int  newState                 = GetKey(keyCode);
         bool flag                     = (newState == 1 && m_keyStatesDown[keyCode] == 0) ? true : false;
@@ -114,6 +129,9 @@ namespace Lina::Input
     }
     bool InputEngine::GetKeyUp(int keyCode)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         int  newState                 = GetKey(keyCode);
         bool flag                     = (newState == 0 && m_keyStatesDown[keyCode] == 1) ? true : false;
@@ -128,6 +146,9 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButton(int button)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         int state = GetKeyState(button) & 0x8000;
         return state;
@@ -136,8 +157,12 @@ namespace Lina::Input
         return state == GLFW_PRESS || state == GLFW_REPEAT;
 #endif
     }
+
     bool InputEngine::GetMouseButtonDown(int button)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         int  newState                  = GetMouseButton(button);
         bool flag                      = (newState == 1 && m_mouseStatesDown[button] == 0) ? true : false;
@@ -152,6 +177,9 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButtonUp(int button)
     {
+        if (!m_windowFocused)
+            return false;
+
 #ifdef LINA_PLATFORM_WINDOWS
         int  newState                = GetMouseButton(button);
         bool flag                    = (newState == 0 && m_mouseStatesUp[button] == 1) ? true : false;
@@ -292,7 +320,6 @@ namespace Lina::Input
 #endif
     }
 
-
     void InputEngine::PrePoll()
     {
         m_currentMouseScroll = Vector2::Zero;
@@ -317,7 +344,6 @@ namespace Lina::Input
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
         m_mouseUpNewStateMap.clear();
-
 
 #ifdef LINA_PLATFORM_WINDOWS
 

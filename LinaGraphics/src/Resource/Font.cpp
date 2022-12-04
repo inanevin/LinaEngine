@@ -27,7 +27,9 @@ SOFTWARE.
 */
 
 #include "Resource/Font.hpp"
-#include "Platform/LinaVGIncl.hpp"
+
+#define LINAVG_TEXT_SUPPORT
+#include "LinaVG/LinaVG.hpp"
 
 namespace Lina::Graphics
 {

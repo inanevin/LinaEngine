@@ -32,7 +32,6 @@ SOFTWARE.
 #define Matrix_HPP
 
 #include "Quaternion.hpp"
-#include "Vector.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/matrix.hpp>

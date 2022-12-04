@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Data/String.hpp"
 #include "Archive.hpp"
-#include <cereal/types/string.hpp>
 
 namespace Lina::Serialization
 {
