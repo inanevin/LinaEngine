@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/InputEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"

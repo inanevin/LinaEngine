@@ -28,6 +28,10 @@ set (LINAENGINE_SOURCES
 	src/Settings/EngineSettings.cpp
 	src/Settings/RenderSettings.cpp
 
+	# Input
+	src/Input/InputEngine.cpp
+	src/Input/InputAxis.cpp
+
 	# Game
 	src/Game/GameManager.cpp
 
@@ -47,6 +51,11 @@ set(LINAENGINE_HEADERS
 	include/Settings/EditorSettings.hpp
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
+
+	#Input
+	include/Input/InputEngine.hpp
+	include/Input/InputMappings.hpp
+	include/Input/InputAxis.hpp
 	
 	# Game
 	include/Game/GameManager.hpp
@@ -77,7 +86,6 @@ add_definitions(/bigobj)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
@@ -97,7 +105,6 @@ endif()
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PUBLIC Lina::Common
-	PUBLIC Lina::Input
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio
 	PUBLIC Lina::Resource

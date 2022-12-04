@@ -4,7 +4,7 @@
 #include "Core/CustomFontIcons.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
-#include "Core/InputEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include "Core/PhysicsCommon.hpp"
 #include "Core/Window.hpp"
 #include "Drawers/ComponentDrawer.hpp"

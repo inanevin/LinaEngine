@@ -32,8 +32,8 @@ SOFTWARE.
 #define InputEngine_HPP
 
 #include "Core/CommonInput.hpp"
-#include "Core/InputAxis.hpp"
-#include "Core/InputMappings.hpp"
+#include "Input/InputAxis.hpp"
+#include "Input/InputMappings.hpp"
 #include "Math/Vector.hpp"
 #include "Data/HashMap.hpp"
 

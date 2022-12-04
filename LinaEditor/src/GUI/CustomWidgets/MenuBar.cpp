@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/CustomWidgets/MenuBar.hpp"
 #include "GUI/GUI.hpp"
-#include "Core/InputEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor

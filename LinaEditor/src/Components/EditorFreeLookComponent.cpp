@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Components/EditorFreeLookComponent.hpp"
 #include "Core/CommonEngine.hpp"
-#include "Core/InputEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include "Core/Entity.hpp"
 #include "Core/World.hpp"
 
