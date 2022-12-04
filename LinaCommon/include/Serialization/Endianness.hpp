@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include <bit>
 #include <algorithm>
+#include <array>
 
 namespace Lina::Serialization
 {

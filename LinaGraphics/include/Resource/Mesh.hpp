@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Vertex.hpp"
+#include "Serialization/Archive.hpp"
 #include "Math/AABB.hpp"
 #include "PipelineObjects/Buffer.hpp"
 

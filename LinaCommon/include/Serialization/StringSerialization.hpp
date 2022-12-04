@@ -72,8 +72,4 @@ namespace Lina::Serialization
 
 } // namespace Lina::Serialization
 
-namespace cereal
-{
-
-}
 #endif

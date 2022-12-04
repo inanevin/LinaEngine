@@ -31,7 +31,10 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/LevelEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "JobSystem/JobSystem.hpp"
 #include "Core/ResourceLoader.hpp"
+#include "Data/String.hpp"
 
 namespace Lina::World
 {
@@ -64,7 +67,7 @@ namespace Lina::World
 
         // Load level file itself.
         Resources::ResourceManager* storage = Resources::ResourceManager::Get();
-        storage->GetLoader()->LoadSingleResource(GetTypeID<Level>(), path, false);
+        storage->GetLoader()->LoadSingleResource(GetTypeID<Level>(), path.c_str(), false);
         m_currentLevel = storage->GetResource<Level>(path);
 
         // Notify that we are starting to load the resources for this level.
@@ -74,7 +77,7 @@ namespace Lina::World
         const auto& load = [storage, this]() {
             storage->GetLoader()->LoadLevelResources(m_currentLevel->GetResources());
             m_currentLevel->ResourcesLoaded();
-            Event::EventSystem::Get()->Trigger<Event::ELevelResourcesLoaded>(Event::ELevelResourcesLoaded{.path = m_currentLevel->GetPath()});
+            Event::EventSystem::Get()->Trigger<Event::ELevelResourcesLoaded>(Event::ELevelResourcesLoaded{.path = m_currentLevel->GetPath().c_str()});
         };
 
         if (loadAsync)
@@ -85,7 +88,7 @@ namespace Lina::World
         // Activate the level, actively switching the ECS registry & then notify.
         // Level might still be unplayable if the resources are not loaded (level loaded async).
         m_currentLevel->Install();
-        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{.path = m_currentLevel->GetPath()});
+        Event::EventSystem::Get()->Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{.path = m_currentLevel->GetPath().c_str()});
     }
 
     void LevelManager::UninstallCurrent()

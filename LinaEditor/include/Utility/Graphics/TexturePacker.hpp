@@ -31,6 +31,10 @@ SOFTWARE.
 #ifndef TexturePacker_HPP
 #define TexturePacker_HPP
 
+#include "Data/String.hpp"
+#include "Math/Vector.hpp"
+#include "Data/Vector.hpp"
+
 namespace Lina
 {
     namespace Graphics

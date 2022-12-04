@@ -18,7 +18,6 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Core/CommonReflection.hpp"
 #include "Shader.hpp"
 #include "Data/Map.hpp"
-#include "Serialization/MapSerialization.hpp"
 
 
 namespace Lina::Graphics
@@ -49,7 +48,7 @@ namespace Lina::Graphics
         virtual ~Material() = default;
 
         static Material* CreateMaterial(Shader* shader, const String& savePath);
-        virtual void*    LoadFromFile(const String& path) override;
+        virtual void*    LoadFromFile(const char* path) override;
         virtual void*    LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
         void             Save();
         void             SetShader(Shader* shader, bool onlySetID = false);

@@ -33,12 +33,14 @@ SOFTWARE.
 
 // Headers here.
 #include "ResourceCommon.hpp"
-#include "Resource.hpp"
 #include "Data/Mutex.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/HashSet.hpp"
 #include "Utility/StringId.hpp"
+#include "Data/Vector.hpp"
+#include "Data/DataCommon.hpp"
 #include "Memory/MemoryManager.hpp"
-#include "Serialization/Serialization.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina::Resources
 {

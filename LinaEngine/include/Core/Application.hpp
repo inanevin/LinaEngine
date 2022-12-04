@@ -37,7 +37,6 @@ namespace Lina
 
     namespace Event
     {
-        struct ELog;
         struct EWindowClosed;
         struct EWindowResized;
         struct EResourceProgressUpdated;

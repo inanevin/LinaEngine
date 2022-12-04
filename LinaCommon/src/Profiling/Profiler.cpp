@@ -31,9 +31,10 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/Time.hpp"
 #include "Memory/Memory.hpp"
-#include <iostream>
-#include <fstream>
 #include "Utility/UtilityFunctions.hpp"
+#include "Log/Log.hpp"
+#include <fstream>
+#include <iostream>
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <process.h>
@@ -123,8 +124,7 @@ namespace Lina
             {
                 memcpy(&sys, &fsys, sizeof(FILETIME));
                 memcpy(&user, &fuser, sizeof(FILETIME));
-                percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) +
-                                              (user.QuadPart - lastUserCPU.QuadPart));
+                percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart));
 
                 m_cpuInfo.processUtilization = (percent / 100000.0) / static_cast<double>(numProcessors);
 

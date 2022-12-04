@@ -36,6 +36,9 @@ SOFTWARE.
 #include "Resource/Material.hpp"
 #include "Resource/ModelNode.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Profiling/Profiler.hpp"
+#include "JobSystem/JobSystem.hpp"
+#include "Core/Time.hpp"
 
 namespace Lina::Graphics
 {

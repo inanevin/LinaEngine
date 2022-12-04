@@ -27,12 +27,12 @@ SOFTWARE.
 */
 
 #include "Math/Quaternion.hpp"
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_FORCE_LEFT_HANDED
-#include <glm/gtx/quaternion.hpp>
+#include "Math/Vector.hpp"
+
 
 namespace Lina
 {
+    Quaternion::Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z){};
 
     Quaternion::Quaternion(const Vector3& axis, float angle)
     {
@@ -126,6 +126,11 @@ namespace Lina
     float Quaternion::LengthSquared() const
     {
         return glm::length2(glm::quat(*this));
+    }
+
+    Vector4 Quaternion::ToVector() const
+    {
+        return Vector4(x, y, z, w);
     }
 
     Quaternion Quaternion::Euler(const Vector3& v)

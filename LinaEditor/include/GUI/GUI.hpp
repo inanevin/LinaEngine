@@ -32,9 +32,13 @@ SOFTWARE.
 #ifndef LinaGUI_HPP
 #define LinaGUI_HPP
 
+#include "Core/SizeDefinitions.hpp"
+#include "Utility/StringId.hpp"
 #include "Math/Vector.hpp"
+#include "Math/Rect.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Deque.hpp"
+#include "Data/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Widgets.hpp"
 #include "Theme.hpp"

@@ -40,6 +40,7 @@ SOFTWARE.
 namespace Lina
 {
     class Engine;
+    class Application;
 
     namespace Event
     {

@@ -38,21 +38,8 @@ namespace Lina::Event
 {
     struct ELog
     {
-        ELog() = default;
-        ELog(LogLevel lvl, const String& msg)
-            : level(lvl), message(msg){};
-        LogLevel level   = LogLevel::Info;
-        String   message = "";
-
-        friend bool operator==(const ELog c1, const ELog& c2)
-        {
-            return (c1.level == c2.level);
-        }
-
-        friend bool operator!=(const ELog c1, const ELog& c2)
-        {
-            return (c1.level != c2.level);
-        }
+        LogLevel    level   = LogLevel::Info;
+        const char* message = "";
     };
 
 } // namespace Lina::Event

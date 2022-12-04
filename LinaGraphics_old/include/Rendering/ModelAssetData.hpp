@@ -16,7 +16,6 @@ Timestamp: 12/31/2021 8:18:10 PM
 #include "Core/CommonReflection.hpp"
 #include "Data/Map.hpp"
 #include "Data/Vector.hpp"
-#include "Serialization/MapSerialization.hpp"
 
 namespace Lina::Graphics
 {
@@ -29,7 +28,7 @@ namespace Lina::Graphics
         ~ModelAssetData() = default;
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        virtual void* LoadFromFile(const char* path) override;
 
         LINA_PROPERTY("Global Scale", "Float")
         float m_globalScale = 1.0f; // 1 meter file = 1 unit Lina

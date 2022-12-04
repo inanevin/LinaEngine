@@ -32,6 +32,7 @@ SOFTWARE.
 #define DescriptorPool_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Data/DataCommon.hpp"
 
 struct VkDescriptorPool_T;
 

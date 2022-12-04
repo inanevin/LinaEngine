@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {

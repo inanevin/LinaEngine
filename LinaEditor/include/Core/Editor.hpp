@@ -63,19 +63,19 @@ namespace Lina::Editor
         Editor()          = default;
         virtual ~Editor() = default;
 
-        void           OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void           Initialize();
-        void           Shutdown();
-        void           VerifyStaticResources();
-        void           CreateEditorCamera();
-        void           DeleteEditorCamera();
-        void           SaveCurrentLevel();
-        void           PackageProject();
-        void           SetPlayMode(bool enabled);
-        void           SetIsPaused(bool paused);
-        void           SkipNextFrame();
-        Vector<String> GetDefaultTextures();
-        Vector<String> GetDefaultFonts();
+        void                OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void                Initialize();
+        void                Shutdown();
+        void                VerifyStaticResources();
+        void                CreateEditorCamera();
+        void                DeleteEditorCamera();
+        void                SaveCurrentLevel();
+        void                PackageProject();
+        void                SetPlayMode(bool enabled);
+        void                SetIsPaused(bool paused);
+        void                SkipNextFrame();
+        Vector<const char*> GetDefaultTextures();
+        Vector<const char*> GetDefaultFonts();
 
     private:
         void OnPreMainLoop(const Event::EPreMainLoop& ev);

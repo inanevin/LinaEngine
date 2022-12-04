@@ -32,17 +32,13 @@ SOFTWARE.
 #define RenderEngine_HPP
 
 #include "Renderer.hpp"
-#include "Data/Deque.hpp"
-#include "Utility/StringId.hpp"
-#include "Data/FixedVector.hpp"
-#include "Core/CommonApplication.hpp"
+#include "Data/String.hpp"
 #include "Utility/DeletionQueue.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
-#include <functional>
 
 namespace Lina
 {

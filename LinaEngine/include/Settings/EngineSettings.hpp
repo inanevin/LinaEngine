@@ -34,11 +34,8 @@ SOFTWARE.
 // Headers here.
 #include "Core/Resource.hpp"
 #include "Data/Vector.hpp"
+#include "Core/CommonReflection.hpp"
 #include "Data/String.hpp"
-#include "Serialization/VectorSerialization.hpp"
-#include "Serialization/Serialization.hpp"
-#include "Serialization/QueueSerialization.hpp"
-#include "Serialization/CommonTypesSerialization.hpp"
 #include <variant>
 
 namespace Lina
@@ -54,7 +51,7 @@ namespace Lina
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 

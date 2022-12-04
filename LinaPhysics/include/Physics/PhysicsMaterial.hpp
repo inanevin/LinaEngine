@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Utility/StringId.hpp"
 #include "Core/Resource.hpp"
-#include "Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -59,7 +58,7 @@ namespace Lina::Physics
 
         static PhysicsMaterial* CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution);
         virtual Resource*       LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource*       LoadFromFile(const String& path) override;
+        virtual Resource*       LoadFromFile(const char* path) override;
         virtual void            WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         float GetStaticFriction()

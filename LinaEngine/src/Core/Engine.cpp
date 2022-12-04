@@ -52,6 +52,7 @@ SOFTWARE.
 #include "Components/RenderableComponent.hpp"
 #include "Core/ResourceLoader.hpp"
 #include "Game/GameManager.hpp"
+#include "Core/Time.hpp"
 
 namespace Lina
 {
@@ -70,8 +71,8 @@ namespace Lina
         {
             m_editor.VerifyStaticResources();
 
-            const Vector<String> editorTextures = m_editor.GetDefaultTextures();
-            const Vector<String> editorFonts    = m_editor.GetDefaultFonts();
+            const Vector<const char*> editorTextures = m_editor.GetDefaultTextures();
+            const Vector<const char*> editorFonts    = m_editor.GetDefaultFonts();
 
             for (auto& s : editorTextures)
                 DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
@@ -248,7 +249,8 @@ namespace Lina
             m_updates = 0;
         }
 
-        m_renderEngine.m_window->SetTitle(m_initialTitle + " FPS: " + TO_STRING(m_currentFPS));
+        const String title = m_initialTitle + " FPS: " + TO_STRING(m_currentFPS);
+        m_renderEngine.m_window->SetTitle(title.c_str());
         // LINA_TRACE("FPS: {0}", m_currentFPS);
 
         if (m_firstRun)

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "Core/Resource.hpp"
 #include "Data/Map.hpp"
-#include <Data/String.hpp>
+#include "Serialization/Archive.hpp"
 
 namespace Lina::Audio
 {
@@ -54,7 +54,7 @@ namespace Lina::Audio
         virtual ~Audio();
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         unsigned int GetBuffer()

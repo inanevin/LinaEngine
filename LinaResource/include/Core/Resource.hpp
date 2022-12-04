@@ -32,6 +32,7 @@ SOFTWARE.
 #define Resource_HPP
 
 // Headers here.
+#include "Core/SizeDefinitions.hpp"
 #include "Data/String.hpp"
 #include "Data/Streams.hpp"
 #include "Utility/StringId.hpp"
@@ -55,7 +56,7 @@ namespace Lina::Resources
         Resource()          = default;
         virtual ~Resource() = default;
 
-        virtual Resource* LoadFromFile(const String& path)                         = 0;
+        virtual Resource* LoadFromFile(const char* path)                         = 0;
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) = 0;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
         virtual void      LoadReferences(){};

@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Window.hpp"
 #include "Profiling/Profiler.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 
 #include <vulkan/vulkan.h>
@@ -86,7 +87,7 @@ namespace Lina::Graphics
 
         // Instance builder
         vkb::InstanceBuilder builder;
-        builder = builder.set_app_name(initInfo.windowProperties.title.c_str()).request_validation_layers(true).require_api_version(1, 2, 0);
+        builder = builder.set_app_name(initInfo.windowProperties.title).request_validation_layers(true).require_api_version(1, 2, 0);
 
         // Extensions
         for (auto ext : requiredExtensions)
@@ -265,7 +266,7 @@ namespace Lina::Graphics
         };
 
         m_swapchain.Create();
-        LINA_TRACE("[Swapchain] -> Swapchain created: {0}", m_swapchain.size.ToString());
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_swapchain.size.x, m_swapchain.size.y);
 
         // Query queue family indices.
         uint32_t queueFamilyCount = 0;

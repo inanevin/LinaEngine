@@ -30,7 +30,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Model::LoadFromFile(const String& path)
+    void* Model::LoadFromFile(const char* path)
     {
         LINA_TRACE("[Model Loader - File] -> Loading: {0}", path);
 

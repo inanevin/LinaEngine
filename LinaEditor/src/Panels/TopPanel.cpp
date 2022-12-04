@@ -30,6 +30,7 @@ SOFTWARE.
 #include "GUI/GUI.hpp"
 #include "Core/Screen.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Math/Math.hpp"
 #include "Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
 

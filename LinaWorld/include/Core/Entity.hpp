@@ -33,10 +33,17 @@ SOFTWARE.
 
 #include "Core/SizeDefinitions.hpp"
 #include "Data/String.hpp"
-#include "Data/HashSet.hpp"
 #include "Serialization/SetSerialization.hpp"
 #include "Math/Transformation.hpp"
 #include "WorldCommon.hpp"
+
+namespace Lina
+{
+    namespace Memory
+    {
+        class MemoryManager;
+    }
+} // namespace Lina
 
 namespace Lina::World
 {
@@ -48,8 +55,7 @@ namespace Lina::World
         Entity()  = default;
         ~Entity() = default;
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(m_id, m_name, m_parentID, m_childrenID, m_transform, m_mask);
         }

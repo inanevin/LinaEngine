@@ -27,7 +27,10 @@ SOFTWARE.
 */
 
 #include "Data/Streams.hpp"
+#include "Data/Vector.hpp"
+#include "Data/DataCommon.hpp"
 #include <algorithm>
+#include <fstream>
 
 namespace Lina
 {

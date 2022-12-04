@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/FileWatcher.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 
 namespace Lina

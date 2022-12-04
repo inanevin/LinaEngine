@@ -31,7 +31,9 @@ SOFTWARE.
 #ifndef MemoryManager_HPP
 #define MemoryManager_HPP
 
-#include "Core/CommonMemory.hpp"
+#include "Data/String.hpp"
+#include "Data/Vector.hpp"
+#include "Log/Log.hpp"
 #include "Data/Mutex.hpp"
 #include "Data/HashMap.hpp"
 #include "Utility/StringId.hpp"

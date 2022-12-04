@@ -89,7 +89,6 @@ namespace Lina::Input
     {
         m_currentMouseScroll.x = (float)e.xoff;
         m_currentMouseScroll.y = (float)e.yoff;
-        LINA_TRACE("{0}", m_currentMouseScroll.ToString());
     }
 
     void InputEngine::OnWindowFocusChanged(const Event::EWindowFocusChanged& e)

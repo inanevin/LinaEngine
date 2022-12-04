@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Math/Matrix.hpp"
-
 #include "Math/Quaternion.hpp"
+#include "Math/Vector.hpp"
 #include "Math/Transformation.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
@@ -38,6 +38,7 @@ SOFTWARE.
 
 namespace Lina
 {
+    Matrix::Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset){};
 
     Matrix Matrix::Identity()
     {
@@ -135,6 +136,16 @@ namespace Lina
         return *this;
     }
 
+    Vector3 Matrix::GetScale()
+    {
+        return Vector3((*this)[0][0], (*this)[1][1], (*this)[2][2]);
+    }
+
+    Vector3 Matrix::GetTranslation()
+    {
+        return Vector3((*this)[3][0], (*this)[3][1], (*this)[3][2]);
+    }
+
     void Matrix::Decompose(Vector3& position, Quaternion& rotation, Vector3& scale)
     {
         glm::vec4 perspective;
@@ -154,7 +165,8 @@ namespace Lina
             return false;
 
         // First, isolate perspective.  This is the messiest.
-        if (epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
+        if (epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) ||
+            epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
         {
             // Clear the perspective partition
             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
@@ -229,12 +241,4 @@ namespace Lina
         return Inverse().Transpose();
     }
 
-    String Matrix::ToString()
-    {
-        String str = "0: " + TO_STRING((*this)[0][0]) + " | " + TO_STRING((*this)[0][1]) + " | " + TO_STRING((*this)[0][2]) + " | " + TO_STRING((*this)[0][3]) + "\n" + TO_STRING((*this)[1][0]) + " | " + TO_STRING((*this)[1][1]) + " | " +
-                     TO_STRING((*this)[1][2]) + " | " + TO_STRING((*this)[1][3]) + "\n" + TO_STRING((*this)[2][0]) + " | " + TO_STRING((*this)[2][1]) + " | " + TO_STRING((*this)[2][2]) + " | " + TO_STRING((*this)[2][3]) + "\n" + TO_STRING((*this)[3][0]) +
-                     " | " + TO_STRING((*this)[3][1]) + " | " + TO_STRING((*this)[3][2]) + " | " + TO_STRING((*this)[3][3]) + "\n";
-
-        return str;
-    }
 } // namespace Lina

@@ -35,7 +35,6 @@ namespace Lina
     void Plane::Normalize()
     {
         normal = normal.Normalized();
-        LINA_TRACE("Normalized {0}", normal.ToString());
     }
 
     float Plane::GetSignedDistance(const Vector3& point) const

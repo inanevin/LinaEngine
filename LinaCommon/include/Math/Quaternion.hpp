@@ -31,10 +31,14 @@ SOFTWARE.
 #ifndef Quaternion_HPP
 #define Quaternion_HPP
 
-#include "Vector.hpp"
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_LEFT_HANDED
+#include <glm/gtx/quaternion.hpp>
 
 namespace Lina
 {
+    class Vector3;
+    class Vector4;
 
     class Quaternion : public glm::quat
     {
@@ -42,8 +46,8 @@ namespace Lina
     public:
         Quaternion()
             : glm::quat(1, 0, 0, 0){};
-        Quaternion(const Vector4& v)
-            : glm::quat(v.w, v.x, v.y, v.z){};
+        Quaternion(const Vector4& v);
+            
         Quaternion(float x, float y, float z, float w)
             : glm::quat(w, x, y, z){};
         Quaternion(glm::quat q)
@@ -135,25 +139,7 @@ namespace Lina
         float             Dot(const Quaternion& other) const;
         float             Length() const;
         float             LengthSquared() const;
-        Vector4           ToVector() const
-        {
-            return Vector4(x, y, z, w);
-        }
-
-        String ToStringEuler() const
-        {
-            std::stringstream ss;
-            Vector3           eul = GetEuler();
-            ss << "X:" << eul.x << "   Y:" << eul.y << "   Z:" << eul.z;
-            return ss.str().c_str();
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
-            return ss.str().c_str();
-        }
+        Vector4           ToVector() const;
 
         template <class Archive>
         void Serialize(Archive& archive)

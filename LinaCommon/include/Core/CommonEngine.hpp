@@ -33,9 +33,9 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
-#include "Data/String.hpp"
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -74,7 +74,7 @@ namespace Lina
             return s_isInPlayMode;
         }
 
-        static inline double GetElapsedTime();
+        static double GetElapsedTime();
 
         static inline float GetDeltaTime()
         {

@@ -35,6 +35,10 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/EntityEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
+#include "EventSystem/ComponentEvents.hpp"
+#include "EventSystem/WindowEvents.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Resource/Texture.hpp"
 #include "Core/LevelManager.hpp"
 #include "Core/Level.hpp"
@@ -48,6 +52,7 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
+#include "Profiling/Profiler.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

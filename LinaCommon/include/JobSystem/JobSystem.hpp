@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef JobSystem_HPP
 #define JobSystem_HPP
 
+#include "Data/String.hpp"
 #include <taskflow/taskflow.hpp>
 
 namespace Lina

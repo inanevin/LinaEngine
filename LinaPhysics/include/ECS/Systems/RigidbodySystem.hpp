@@ -32,6 +32,7 @@ SOFTWARE.
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
+#include "Data/String.hpp"
 
 namespace Lina::Physics
 {

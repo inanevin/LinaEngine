@@ -67,7 +67,7 @@ namespace Lina::Graphics
         ~Texture();
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         void              CreateFromRuntime(Image img, Sampler sampler);
         void              WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);

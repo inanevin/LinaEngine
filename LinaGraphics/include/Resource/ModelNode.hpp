@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Resource/StaticMesh.hpp"
 #include "Resource/SkinnedMesh.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina::Graphics
 {

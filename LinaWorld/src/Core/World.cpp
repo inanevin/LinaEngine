@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Core/Entity.hpp"
 #include "Core/Component.hpp"
-#include "Serialization/QueueSerialization.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Memory/MemoryManager.hpp"

@@ -37,6 +37,14 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Serialization/Archive.hpp"
 
+namespace Lina
+{
+    namespace Memory
+    {
+        class MemoryManager;
+    }
+} // namespace Lina
+
 namespace Lina::World
 {
     class Entity;

@@ -46,7 +46,7 @@ namespace Lina::Graphics
         virtual void SetPos(const Vector2i& newPos) override;
         virtual void SetPosCentered(const Vector2i& newPos) override;
         virtual void SetVsync(VsyncMode mode) override;
-        virtual void SetTitle(const String& title) override;
+        virtual void SetTitle(const char* title) override;
         virtual void Minimize() override;
         virtual void Maximize() override;
 

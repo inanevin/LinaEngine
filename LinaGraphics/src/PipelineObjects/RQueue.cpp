@@ -32,6 +32,7 @@ SOFTWARE.
 #include "PipelineObjects/Fence.hpp"
 #include "PipelineObjects/Semaphore.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
+#include "Log/Log.hpp"
 #include "vulkan/vulkan.h"
 
 namespace Lina::Graphics

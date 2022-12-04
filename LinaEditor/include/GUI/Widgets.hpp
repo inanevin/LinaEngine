@@ -32,6 +32,9 @@ SOFTWARE.
 #define LinaGUIWidgets_HPP
 
 #include "Data/String.hpp"
+#include "Data/Bitmask.hpp"
+#include "Math/Vector.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina::Editor
 {

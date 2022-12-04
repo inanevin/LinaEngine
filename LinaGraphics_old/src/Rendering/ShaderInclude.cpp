@@ -12,7 +12,7 @@ namespace Lina::Graphics
         IResource::SetSID(path);
         return static_cast<void*>(this);
     }
-    void* ShaderInclude::LoadFromFile(const String& path)
+    void* ShaderInclude::LoadFromFile(const char* path)
     {
         LINA_TRACE("[Shader Include Loader - File] -> Loading: {0}", path);
         const String& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(path));

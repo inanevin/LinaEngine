@@ -55,7 +55,7 @@ namespace Lina::World
         return this;
     }
 
-    Resources::Resource* Level::LoadFromFile(const String& path)
+    Resources::Resource* Level::LoadFromFile(const char* path)
     {
         Serialization::LoadFromFile<Level>(path, *this);
         return this;

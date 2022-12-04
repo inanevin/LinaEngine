@@ -32,6 +32,7 @@ SOFTWARE.
 #define CommandBuffer_HPP
 
 #include "Core/GraphicsCommon.hpp"
+#include "Math/Rect.hpp"
 
 struct VkCommandBuffer_T;
 struct VkCommandPool_T;

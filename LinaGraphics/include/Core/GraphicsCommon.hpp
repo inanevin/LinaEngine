@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Data/Vector.hpp"
 #include "Math/Matrix.hpp"
+#include "Math/Vector.hpp"
+#include "Data/String.hpp"
 #include "Core/SizeDefinitions.hpp"
 
 enum VkFormat;

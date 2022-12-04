@@ -34,6 +34,9 @@ SOFTWARE.
 // Headers here.
 #include "Core/ResourceCommon.hpp"
 #include "Data/Mutex.hpp"
+#include "Utility/StringId.hpp"
+#include "Data/String.hpp"
+#include "Data/DataCommon.hpp"
 
 namespace Lina::Resources
 {

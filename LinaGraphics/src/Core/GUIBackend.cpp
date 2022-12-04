@@ -32,6 +32,8 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Resource/Texture.hpp"
 #include "Core/Screen.hpp"
+#include "Profiling/Profiler.hpp"
+#include "Math/Math.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>

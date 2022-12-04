@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Vector_HPP
 #define Vector_HPP
 
-#include "Data/String.hpp"
+#include "Core/SizeDefinitions.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -39,9 +39,6 @@ SOFTWARE.
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-
-#include <iostream>
-#include <sstream>
 
 namespace Lina
 {
@@ -56,18 +53,6 @@ namespace Lina
 
         static Vector2ui Zero;
         static Vector2ui One;
-
-        std::ostream& operator<<(std::ostream& os)
-        {
-            return os << "X:" << x << "   Y:" << y;
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y;
-            return ss.str().c_str();
-        }
 
         template <class Archive> void Serialize(Archive& archive)
         {
@@ -86,17 +71,6 @@ namespace Lina
 
         static Vector2i Zero;
         static Vector2i One;
-        std::ostream&   operator<<(std::ostream& os)
-        {
-            return os << "X:" << x << "   Y:" << y;
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y;
-            return ss.str().c_str();
-        }
 
         template <class Archive> void Serialize(Archive& archive)
         {
@@ -210,18 +184,6 @@ namespace Lina
         float* Get()
         {
             return &x;
-        }
-
-        std::ostream& operator<<(std::ostream& os)
-        {
-            return os << "X:" << x << "   Y:" << y;
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y;
-            return ss.str().c_str();
         }
 
         template <class Archive> void Serialize(Archive& archive)
@@ -411,18 +373,6 @@ namespace Lina
         float* Get()
         {
             return &x;
-        }
-
-        std::ostream& operator<<(std::ostream& os)
-        {
-            return os << "X:" << x << "   Y:" << y << "   Z:" << z;
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y << "   Z:" << z;
-            return ss.str().c_str();
         }
 
         template <class Archive> void Serialize(Archive& archive)
@@ -625,18 +575,6 @@ namespace Lina
         float* Get()
         {
             return &x;
-        }
-
-        std::ostream& operator<<(std::ostream& os)
-        {
-            return os << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
-        }
-
-        String ToString() const
-        {
-            std::stringstream ss;
-            ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
-            return ss.str().c_str();
         }
 
         template <class Archive> void Serialize(Archive& archive)

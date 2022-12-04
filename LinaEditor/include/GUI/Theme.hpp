@@ -34,8 +34,10 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
+#include "Math/Vector.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Data/Deque.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina::Editor
 {

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/ModelLoader.hpp"
+#include "Math/Vector.hpp"
 #include "Resource/Model.hpp"
 #include "Resource/ModelNode.hpp"
 #include "Resource/StaticMesh.hpp"

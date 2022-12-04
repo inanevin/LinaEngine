@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "PipelineObjects/Buffer.hpp"
 #include "Data/Vector.hpp"
+#include "Data/HashMap.hpp"
 #include <LinaVG/Backends/BaseBackend.hpp>
 
 namespace Lina

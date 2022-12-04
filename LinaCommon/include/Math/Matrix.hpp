@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef Matrix_HPP
 #define Matrix_HPP
 
-#include "Quaternion.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/matrix.hpp>
@@ -39,13 +38,16 @@ SOFTWARE.
 namespace Lina
 {
     class Transformation;
+    class Quaternion;
+    class Vector3;
+    class Vector4;
 
     class Matrix : public glm::mat4
     {
     public:
         Matrix(){};
-        Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset)
-            : glm::mat4(vecX, vecY, vecZ, vecOffset){};
+        Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
+           
         Matrix(glm::mat4 mat)
             : glm::mat4(mat){};
 
@@ -66,22 +68,13 @@ namespace Lina
         Matrix        Inverse() const;
         Matrix        ApplyScale(const Vector3& scale);
 
-        Vector3 GetScale()
-        {
-            return Vector3((*this)[0][0], (*this)[1][1], (*this)[2][2]);
-        }
-
-        Vector3 GetTranslation()
-        {
-            return Vector3((*this)[3][0], (*this)[3][1], (*this)[3][2]);
-        }
+        Vector3 GetScale();
+        Vector3 GetTranslation();
 
         void        Decompose(Vector3& position, Quaternion& rotation, Vector3& scale);
         static bool Decompose(const glm::mat4& transform, glm::vec3& outTranslation, glm::vec3& outRotation, glm::vec3& outScale);
 
         Transformation ToTransform();
-
-        String ToString();
 
         template <class Archive>
         void Serialize(Archive& archive)

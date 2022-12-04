@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Serialization/Endianness.hpp"
 #include "Memory/Memory.hpp"
-#include "Data/DataCommon.hpp"
 #include <type_traits>
 #include <iosfwd>
 

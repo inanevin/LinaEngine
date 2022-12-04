@@ -26,6 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "Core/Time.hpp"
+#include "Serialization/Serialization.hpp"
 #include "Core/ResourceLoader.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Core/ResourceCache.hpp"
@@ -113,7 +117,7 @@ namespace Lina::Resources
         ResourceManager::Get()->LoadReferences();
     }
 
-    void ResourceLoader::LoadSingleResource(TypeID tid, const String& path, bool async)
+    void ResourceLoader::LoadSingleResource(TypeID tid, const char* path, bool async)
     {
         const ResourceTypeData& td                = ResourceManager::Get()->GetCache(tid)->GetTypeData();
         const String            packageName       = GetPackageTypeName(td.packageType);
@@ -125,7 +129,7 @@ namespace Lina::Resources
         TypeID         resTid    = 0;
         StringID       resSid    = 0;
         uint32         resSize   = 0;
-        const StringID targetSid = TO_SID(path);
+        const StringID targetSid = TO_SIDC(path);
 
         Future<void> ft;
 
@@ -191,12 +195,11 @@ namespace Lina::Resources
                         uint8* ptr = archive.GetStream().GetDataCurrent();
                         futures.push_back(Future<void>());
 
-                        futures[futures.size() - 1] = JobSystem::Get()->GetResourceExecutor().Async([this, tid, pair, ptr, size]() {
-                            LoadResourceFromMemory(tid, pair.second, ptr, size);
+                        futures[futures.size() - 1] = JobSystem::Get()->GetResourceExecutor().Async([this, tid, pair, ptr, size]() { LoadResourceFromMemory(tid, pair.second.c_str(), ptr, size);
                         });
                     }
                     else
-                        LoadResourceFromMemory(tid, pair.second, archive.GetStream().GetDataCurrent(), size);
+                        LoadResourceFromMemory(tid, pair.second.c_str(), archive.GetStream().GetDataCurrent(), size);
 
                     archive.GetStream().SkipBy(size);
                     loadedResources++;
@@ -214,9 +217,9 @@ namespace Lina::Resources
         archive.GetStream().Destroy();
     }
 
-    void ResourceLoader::LoadResourceFromMemory(TypeID tid, const String& path, uint8* data, uint32 size)
+    void ResourceLoader::LoadResourceFromMemory(TypeID tid, const char* path, uint8* data, uint32 size)
     {
-        const StringID sid = TO_SID(path);
+        const StringID sid = TO_SIDC(path);
         auto*          rm  = ResourceManager::Get();
 
         if (rm->Exists(tid, sid))

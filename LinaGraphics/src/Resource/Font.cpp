@@ -27,9 +27,12 @@ SOFTWARE.
 */
 
 #include "Resource/Font.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"
+
+#include <fstream>
 
 namespace Lina::Graphics
 {
@@ -40,7 +43,7 @@ namespace Lina::Graphics
         return this;
     }
 
-    Resources::Resource* Font::LoadFromFile(const String& path)
+    Resources::Resource* Font::LoadFromFile(const char* path)
     {
         LoadAssetData();
         return this;

@@ -34,7 +34,7 @@ namespace Lina::Graphics
         ~Shader();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        virtual void* LoadFromFile(const char* path) override;
 
         Shader& Construct(const String& text, bool usesGeometryShader);
         void    SetUniformBuffer(const String& name, UniformBuffer& buffer);

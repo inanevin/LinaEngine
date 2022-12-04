@@ -62,7 +62,7 @@ namespace Lina::Graphics
         return this;
     }
 
-    Resources::Resource* Model::LoadFromFile(const String& path)
+    Resources::Resource* Model::LoadFromFile(const char* path)
     {
         LoadAssetData();
 

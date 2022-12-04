@@ -34,11 +34,11 @@ SOFTWARE.
 #include "WorldCommon.hpp"
 #include "Entity.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "Data/Queue.hpp"
-#include "Data/HashMap.hpp"
 #include "Serialization/HashMapSerialization.hpp"
 #include "Serialization/QueueSerialization.hpp"
-#include "Serialization/Archive.hpp"
+#include "Data/Vector.hpp"
+#include "Memory/MemoryManager.hpp"
+#include "Reflection/ReflectionSystem.hpp"
 
 #include <functional>
 

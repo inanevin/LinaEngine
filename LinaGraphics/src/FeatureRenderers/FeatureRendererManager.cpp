@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "FeatureRenderers/FeatureRendererManager.hpp"
-#include "Core/FramePacket.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/Renderer.hpp"
 
@@ -54,11 +53,11 @@ namespace Lina::Graphics
 
     void FeatureRendererManager::BatchRenderables(const Vector<RenderableData>& renderables)
     {
-        Taskflow tf;
-        tf.for_each(m_renderers.begin(), m_renderers.end(), [renderables](FeatureRenderer* r) {
-            r->BatchRenderables(renderables);
-        });
-        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
+        // Taskflow tf;
+        // tf.for_each(m_renderers.begin(), m_renderers.end(), [renderables](FeatureRenderer* r) {
+        //     r->BatchRenderables(renderables);
+        // });
+        // JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
     }
 
     void FeatureRendererManager::RecordDrawCommands(CommandBuffer& cmd)

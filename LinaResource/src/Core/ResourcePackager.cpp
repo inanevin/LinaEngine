@@ -30,6 +30,9 @@ SOFTWARE.
 #include "Serialization/Archive.hpp"
 #include "Serialization/Serialization.hpp"
 #include "Core/ResourceManager.hpp"
+#include "Core/Resource.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/ResourceEvents.hpp"
 
 namespace Lina::Resources
 {
@@ -74,7 +77,7 @@ namespace Lina::Resources
             tempArchive.GetStream().Destroy();
 
             LOCK_GUARD(m_mtx);
-            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path});
+            Event::EventSystem::Get()->Trigger<Event::EResourceProgressUpdated>(Event::EResourceProgressUpdated{.currentResource = path.c_str()});
         }
 
         Serialization::SaveArchiveToFile(packagePath, archive);

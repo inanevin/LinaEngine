@@ -50,7 +50,7 @@ namespace Lina::Graphics
         ~Font() = default;
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         void              GenerateFont(bool isSDF, int size);
 

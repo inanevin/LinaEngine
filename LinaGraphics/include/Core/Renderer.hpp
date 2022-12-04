@@ -53,8 +53,6 @@ SOFTWARE.
 #include "View.hpp"
 #include "DrawPass.hpp"
 
-#include <functional>
-
 namespace Lina
 {
     namespace World

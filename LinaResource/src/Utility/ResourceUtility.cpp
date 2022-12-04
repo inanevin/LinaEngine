@@ -63,7 +63,7 @@ namespace Lina::Resources
                             const StringID sid = TO_SID(replacedFullPath);
                             const TypeID   tid = outItem->typeID;
                             Resources::ResourceManager::Get()->Unload(tid, sid);
-                            Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
+                            Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath.c_str(), tid, sid});
                         }
                         continue;
                     }
@@ -78,7 +78,7 @@ namespace Lina::Resources
                 {
                     const StringID sid = TO_SID(replacedFullPath);
                     const TypeID   tid = Resources::ResourceManager::Get()->GetTypeIDFromExtension(Utility::GetFileExtension(replacedFullPath));
-                    Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath, tid, sid});
+                    Event::EventSystem::Get()->Trigger<Event::ERequestResourceReload>(Event::ERequestResourceReload{replacedFullPath.c_str(), tid, sid});
                 }
             }
 

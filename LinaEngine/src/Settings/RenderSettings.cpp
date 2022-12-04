@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Settings/RenderSettings.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -36,7 +37,7 @@ namespace Lina
         return this;
     }
 
-    Resources::Resource* RenderSettings::LoadFromFile(const String& path)
+    Resources::Resource* RenderSettings::LoadFromFile(const char* path)
     {
         Serialization::LoadFromFile<RenderSettings>(path, *this);
         return this;

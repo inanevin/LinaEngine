@@ -106,7 +106,7 @@ namespace Lina::Graphics
         return mat;
     }
 
-    void* Material::LoadFromFile(const String& path)
+    void* Material::LoadFromFile(const char* path)
     {
         LINA_TRACE("[Material Loader - File] -> Loading: {0}", path);
 

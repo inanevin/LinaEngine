@@ -31,8 +31,6 @@ SOFTWARE.
 #ifndef LevelEvents_HPP
 #define LevelEvents_HPP
 
-#include "Data/String.hpp"
-
 namespace Lina::Event
 {
     // Level
@@ -41,7 +39,7 @@ namespace Lina::Event
     };
     struct ELevelInstalled
     {
-        String path = "";
+        const char* path = "";
     };
 
     /// <summary>
@@ -49,7 +47,7 @@ namespace Lina::Event
     /// </summary>
     struct ELevelResourcesLoaded
     {
-        String path = "";
+        const char* path = "";
     };
     struct ELevelUninstalled
     {

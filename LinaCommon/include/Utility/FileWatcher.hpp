@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,19 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef FileWatcher_HPP
 #define FileWatcher_HPP
 
 // Headers here.
-#include "EventSystem/MainLoopEvents.hpp"
 #include "Functional/Functional.hpp"
+#include "Data/String.hpp"
+#include "Data/HashMap.hpp"
 #include <filesystem>
 
 namespace Lina
 {
+    namespace Event
+    {
+        struct ETick;
+    }
+
     enum class FileWatchStatus
     {
         None,
@@ -65,11 +70,11 @@ namespace Lina
         void ReplaceAndCall(FileWatchStatus status, const String& path);
 
     private:
-        String                                                      m_directory        = "";
-        float                                                            m_totalTime        = 0.0f;
-        float                                                            m_interval         = 0.0f;
-        float                                                            m_lastCheckTime    = 0.0f;
-        FileWatchStatus                                                  m_targetStatus     = FileWatchStatus::None;
+        String                                           m_directory     = "";
+        float                                            m_totalTime     = 0.0f;
+        float                                            m_interval      = 0.0f;
+        float                                            m_lastCheckTime = 0.0f;
+        FileWatchStatus                                  m_targetStatus  = FileWatchStatus::None;
         HashMap<String, std::filesystem::file_time_type> m_paths;
     };
 } // namespace Lina

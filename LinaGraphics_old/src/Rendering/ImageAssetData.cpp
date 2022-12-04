@@ -8,7 +8,7 @@ namespace Lina::Graphics
         IResource::SetSID(path);
         return static_cast<void*>(this);
     }
-    void* ImageAssetData::LoadFromFile(const String& path)
+    void* ImageAssetData::LoadFromFile(const char* path)
     {
         *this = Resources::LoadArchiveFromFile<ImageAssetData>(path);
         IResource::SetSID(path);

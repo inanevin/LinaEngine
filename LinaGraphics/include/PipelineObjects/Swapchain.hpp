@@ -32,6 +32,7 @@ SOFTWARE.
 #define Swapchain_HPP
 
 #include "Data/Vector.hpp"
+#include "Math/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
 
 struct VkImage_T;

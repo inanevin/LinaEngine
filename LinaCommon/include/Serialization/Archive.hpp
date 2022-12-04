@@ -31,7 +31,8 @@ SOFTWARE.
 #ifndef Archive_HPP
 #define Archive_HPP
 
-#include <Data/Streams.hpp>
+#include "Log/Log.hpp"
+#include "Data/Streams.hpp"
 #include <type_traits>
 
 namespace Lina::Serialization

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Backend.hpp"
 #include "PipelineObjects/Swapchain.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina::Graphics
 {

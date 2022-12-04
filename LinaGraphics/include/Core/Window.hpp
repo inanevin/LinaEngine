@@ -32,6 +32,7 @@ SOFTWARE.
 #define Window_HPP
 
 #include "Math/Vector.hpp"
+#include "Core/CommonWindow.hpp"
 
 struct GLFWwindow;
 
@@ -44,7 +45,7 @@ namespace Lina::Graphics
         virtual void SetPos(const Vector2i& newPos)         = 0;
         virtual void SetPosCentered(const Vector2i& newPos) = 0;
         virtual void SetVsync(VsyncMode mode)               = 0;
-        virtual void SetTitle(const String& title)          = 0;
+        virtual void SetTitle(const char*)                  = 0;
         virtual void Minimize()                             = 0;
         virtual void Maximize()                             = 0;
 
@@ -82,7 +83,7 @@ namespace Lina::Graphics
             return m_aspectRatio;
         }
 
-        inline String& GetTitle()
+        inline const char* GetTitle()
         {
             return m_title;
         }
@@ -109,15 +110,15 @@ namespace Lina::Graphics
         virtual bool Initialize(const WindowProperties& props) = 0;
         virtual void Shutdown()                                = 0;
 
-        VsyncMode m_vsync       = VsyncMode::None;
-        Vector2i  m_size        = Vector2i(0, 0);
-        Vector2i  m_pos         = Vector2i(0, 0);
-        float     m_aspectRatio = 0.0f;
-        String    m_title       = "";
-        bool      m_minimized   = false;
-        bool      m_maximized   = false;
-        bool      m_isActive    = false;
-        bool      m_hasFocus    = false;
+        VsyncMode   m_vsync       = VsyncMode::None;
+        Vector2i    m_size        = Vector2i(0, 0);
+        Vector2i    m_pos         = Vector2i(0, 0);
+        float       m_aspectRatio = 0.0f;
+        const char* m_title       = "";
+        bool        m_minimized   = false;
+        bool        m_maximized   = false;
+        bool        m_isActive    = false;
+        bool        m_hasFocus    = false;
 
     private:
         static Window* s_instance;

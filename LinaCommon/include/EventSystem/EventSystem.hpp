@@ -39,6 +39,7 @@ namespace Lina
 {
     class Engine;
     class FileWatcher;
+    class Log;
 
     namespace Editor
     {

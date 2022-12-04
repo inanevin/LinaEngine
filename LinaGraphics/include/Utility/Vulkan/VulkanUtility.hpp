@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Data/Vector.hpp"
+#include "Math/Rect.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

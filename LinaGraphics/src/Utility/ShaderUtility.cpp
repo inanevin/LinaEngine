@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Utility/ShaderUtility.hpp"
 #include "Math/Matrix.hpp"
+#include "Data/DataCommon.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include <sstream>
 #include <iostream>
 #include <string>

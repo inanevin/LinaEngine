@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Physics/PhysicsMaterial.hpp"
 #include "Core/ResourceCommon.hpp"
+#include "Serialization/Serialization.hpp"
 #include "Log/Log.hpp"
-#include <fstream>
 
 namespace Lina::Physics
 {
@@ -54,7 +54,7 @@ namespace Lina::Physics
         return nullptr;
     }
 
-    Resources::Resource* PhysicsMaterial::LoadFromFile(const String& path)
+    Resources::Resource* PhysicsMaterial::LoadFromFile(const char* path)
     {
         Serialization::LoadFromFile<PhysicsMaterial>(path, *this);
         return this;

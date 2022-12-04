@@ -43,7 +43,6 @@ namespace Lina
     class FnvHash
     {
     public:
-
         static const unsigned int                               FNV_PRIME    = 16777619u;
         static const unsigned int                               OFFSET_BASIS = 2166136261u;
         template <unsigned int N> static constexpr unsigned int fnvHashConst(const char (&str)[N], unsigned int I = N)
@@ -86,7 +85,8 @@ namespace Lina
         return FnvHash(str);
     }
 
-#define TO_SID(X) FnvHash(X.c_str())
+#define TO_SID(X)  FnvHash(X.c_str())
+#define TO_SIDC(X) FnvHash(X)
 
 } // namespace Lina
 

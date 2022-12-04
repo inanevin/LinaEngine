@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/CustomWidgets/MenuPopup.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {

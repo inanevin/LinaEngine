@@ -231,15 +231,15 @@ namespace Lina::Editor
         RuntimeInfo::s_shouldSkipFrame = true;
     }
 
-    Vector<String> Editor::GetDefaultTextures()
+    Vector<const char*> Editor::GetDefaultTextures()
     {
-        Vector<String> vec;
+        Vector<const char*> vec;
         return vec;
     }
 
-    Vector<String> Editor::GetDefaultFonts()
+    Vector<const char*> Editor::GetDefaultFonts()
     {
-        Vector<String> vec;
+        Vector<const char*> vec;
         vec.push_back("Resources/Editor/Fonts/DefaultFont.ttf");
         vec.push_back("Resources/Editor/Fonts/GoodTimes.otf");
         return vec;

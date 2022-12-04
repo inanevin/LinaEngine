@@ -32,7 +32,6 @@ SOFTWARE.
 #define CommonWindow_HPP
 
 // Headers here.
-#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -46,13 +45,13 @@ namespace Lina
     };
     struct WindowProperties
     {
-        String       title;
-        int          width              = 1440;
-        int          height             = 900;
-        VsyncMode    vsync              = VsyncMode::None;
-        bool         decorated          = true;
-        bool         resizable          = true;
-        bool         fullscreen         = false;
+        const char* title      = "";
+        int         width      = 1440;
+        int         height     = 900;
+        VsyncMode   vsync      = VsyncMode::None;
+        bool        decorated  = true;
+        bool        resizable  = true;
+        bool        fullscreen = false;
     };
 } // namespace Lina
 

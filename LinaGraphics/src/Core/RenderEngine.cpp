@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Resource/Mesh.hpp"
 #include "Resource/Material.hpp"
 #include "Core/GUIBackend.hpp"
+#include "Profiling/Profiler.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"

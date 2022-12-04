@@ -31,6 +31,7 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSet.hpp"
 #include "Core/Backend.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
+#include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

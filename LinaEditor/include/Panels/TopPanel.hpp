@@ -32,6 +32,7 @@ SOFTWARE.
 #define TopPanel_HPP
 
 #include "Panel.hpp"
+#include "Utility/StringId.hpp"
 #include "GUI/CustomWidgets/MenuBar.hpp"
 
 namespace Lina::Editor

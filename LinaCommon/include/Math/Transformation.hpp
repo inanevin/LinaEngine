@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Matrix.hpp"
 #include "Quaternion.hpp"
+#include "Vector.hpp"
 #include "Data/Set.hpp"
 
 namespace Lina

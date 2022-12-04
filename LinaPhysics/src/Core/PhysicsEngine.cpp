@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Physics/PhysicsMaterial.hpp"
 #include "Physics/Raycast.hpp"
+#include "Profiling/Profiler.hpp"
 #include <PxPhysicsAPI.h>
 #include <fstream>
 

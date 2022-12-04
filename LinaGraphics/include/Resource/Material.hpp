@@ -41,7 +41,6 @@ SOFTWARE.
 #include "Resource/MaterialProperty.hpp"
 #include "Resource/Texture.hpp"
 #include "Serialization/StringSerialization.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Lina::Graphics
 {
@@ -141,7 +140,7 @@ namespace Lina::Graphics
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         virtual void      LoadReferences() override;
         virtual void      SaveToFile() override;

@@ -161,7 +161,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Texture::LoadFromFile(const String& path)
+    void* Texture::LoadFromFile(const char* path)
     {
         LINA_TRACE("[Texture Loader - File] -> Loading: {0}", path);
 

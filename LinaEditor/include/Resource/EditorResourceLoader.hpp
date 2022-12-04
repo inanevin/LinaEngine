@@ -43,10 +43,10 @@ namespace Lina::Resources
 
         virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources) override;
         virtual void LoadEngineResources() override;
-        virtual void LoadSingleResource(TypeID tid, const String& path, bool async) override;
+        virtual void LoadSingleResource(TypeID tid, const char* path, bool async) override;
 
     protected:
-        void LoadResource(TypeID tid, const String& path);
+        void LoadResource(TypeID tid, const char* path);
 
     private:
         Mutex m_mtx;

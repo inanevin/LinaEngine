@@ -32,6 +32,7 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/Level.hpp"
+#include "Core/Time.hpp"
 #include <iostream>
 #include <fstream>
 namespace Lina::Resources
@@ -51,8 +52,8 @@ namespace Lina::Resources
 
         for (auto& [tid, vec] : engineRes)
         {
-            for (auto& path : vec)
-                tf.emplace([this, tid, path]() { LoadResource(tid, path); });
+            for (auto path : vec)
+                tf.emplace([this, tid, path]() { LoadResource(tid, path.c_str()); });
         }
 
         JobSystem::Get()->GetResourceExecutor().RunAndWait(tf);
@@ -66,7 +67,7 @@ namespace Lina::Resources
         ResourceManager::Get()->LoadReferences();
     }
 
-    void EditorResourceLoader::LoadSingleResource(TypeID tid, const String& path, bool async)
+    void EditorResourceLoader::LoadSingleResource(TypeID tid, const char* path, bool async)
     {
         Event::EventSystem::Get()->Trigger<Event::EResourceProgressStarted>(Event::EResourceProgressStarted{.title = "Resource loaded", .totalFiles = 1});
 
@@ -113,7 +114,7 @@ namespace Lina::Resources
         Taskflow tf;
 
         for (auto& pair : toLoad)
-            tf.emplace([this, pair]() { LoadResource(pair.first, pair.second); });
+            tf.emplace([this, pair]() { LoadResource(pair.first, pair.second.c_str()); });
 
         JobSystem::Get()->GetResourceExecutor().RunAndWait(tf);
 
@@ -124,9 +125,9 @@ namespace Lina::Resources
         ResourceManager::Get()->LoadReferences();
     }
 
-    void EditorResourceLoader::LoadResource(TypeID tid, const String& path)
+    void EditorResourceLoader::LoadResource(TypeID tid, const char* path)
     {
-        const StringID sid = TO_SID(path);
+        const StringID sid = TO_SIDC(path);
         auto*          rm  = ResourceManager::Get();
 
         if (rm->Exists(tid, sid))

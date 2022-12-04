@@ -91,7 +91,6 @@ namespace Lina::Physics
 
     private:
         friend class World::Level;
-        friend class ECS::Registry;
         friend class Physics::PhysicsEngine;
 
         Physics::SimulationType                             m_simType           = Physics::SimulationType::None;

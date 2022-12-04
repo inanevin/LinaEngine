@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
+#include "Serialization/Serialization.hpp"
+#include "Math/Math.hpp"
 
 // #define DEBUG_RELOAD_PROPERTIES
 
@@ -58,7 +60,7 @@ namespace Lina::Graphics
         return this;
     }
 
-    Resources::Resource* Material::LoadFromFile(const String& path)
+    Resources::Resource* Material::LoadFromFile(const char* path)
     {
         Serialization::LoadFromFile<Material>(path, *this);
         CreateBuffer();

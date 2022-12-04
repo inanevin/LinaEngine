@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/ApplicationEvents.hpp"
+#include "Data/String.hpp"
 #include <sstream>
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -39,11 +40,11 @@ namespace Lina
 {
     Mutex Log::s_logMtx;
 
-    void Log::LogImpl(LogLevel level, const String& msg)
+    void Log::LogImpl(LogLevel level, const char* msg)
     {
         LOCK_GUARD(s_logMtx);
 
-        String msgStr = "[" + LogLevelAsString(level) + "] " + msg + "\n";
+        String msgStr = "[" + String(GetLogLevel(level)) + "] " + msg + "\n";
 
 #ifdef LINA_PLATFORM_WINDOWS
         HANDLE hConsole;

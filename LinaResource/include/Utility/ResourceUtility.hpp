@@ -30,6 +30,7 @@ SOFTWARE.
 #define ResourceUtility_HPP
 
 #include "Core/ResourceCommon.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina
 {

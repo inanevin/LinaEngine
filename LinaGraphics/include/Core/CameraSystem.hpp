@@ -31,6 +31,9 @@ SOFTWARE.
 #ifndef CameraSystem_HPP
 #define CameraSystem_HPP
 
+#include "Math/Matrix.hpp"
+#include "Math/Vector.hpp"
+
 namespace Lina::Graphics
 {
     class CameraComponent;

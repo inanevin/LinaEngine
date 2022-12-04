@@ -32,7 +32,6 @@ SOFTWARE.
 #define MaterialProperty_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Serialization/Archive.hpp"
 #include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Graphics

@@ -64,14 +64,14 @@ namespace Lina::Graphics
         return this;
     }
 
-    Resources::Resource* Texture::LoadFromFile(const String& path)
+    Resources::Resource* Texture::LoadFromFile(const char* path)
     {
         LoadAssetData();
 
         if (m_pixels == nullptr)
         {
             int texWidth, texHeight, texChannels;
-            m_pixels             = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_pixels             = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             m_assetData.width    = static_cast<uint32>(texWidth);
             m_assetData.height   = static_cast<uint32>(texHeight);
             m_assetData.channels = static_cast<uint32>(texChannels);

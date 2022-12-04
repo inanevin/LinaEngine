@@ -38,15 +38,15 @@ namespace Lina::Event
 {
     struct EResourceProgressStarted
     {
-        String title      = "";
-        int    totalFiles = 0;
+        const char* title      = "";
+        int         totalFiles = 0;
     };
     struct EResourceProgressEnded
     {
     };
     struct EResourceProgressUpdated
     {
-        String currentResource = "";
+        const char* currentResource = "";
     };
     struct EResourceLoaded
     {
@@ -56,11 +56,11 @@ namespace Lina::Event
 
     struct EResourcePathUpdated
     {
-        TypeID   tid              = 0;
-        StringID previousStringID = 0;
-        StringID newStringID      = 0;
-        String   oldPath          = "";
-        String   newPath          = "";
+        TypeID      tid              = 0;
+        StringID    previousStringID = 0;
+        StringID    newStringID      = 0;
+        const char* oldPath          = "";
+        const char* newPath          = "";
     };
 
     struct EResourceUnloaded
@@ -70,9 +70,9 @@ namespace Lina::Event
     };
     struct ERequestResourceReload
     {
-        String   fullPath = "";
-        TypeID   tid      = 0;
-        StringID sid      = 0;
+        const char* fullPath = "";
+        TypeID      tid      = 0;
+        StringID    sid      = 0;
     };
     struct EResourceReloaded
     {

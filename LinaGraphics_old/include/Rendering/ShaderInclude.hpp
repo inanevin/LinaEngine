@@ -22,7 +22,7 @@ namespace Lina::Graphics
 	public:
 		
 		virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        virtual void* LoadFromFile(const char* path) override;
 	
 		const String& GetText() const
         {

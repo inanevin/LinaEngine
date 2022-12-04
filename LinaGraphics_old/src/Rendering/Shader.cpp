@@ -23,7 +23,7 @@ namespace Lina::Graphics
         return static_cast<void*>(this);
     }
 
-    void* Shader::LoadFromFile(const String& path)
+    void* Shader::LoadFromFile(const char* path)
     {
         LINA_TRACE("[Shader Loader - File] -> Loading: {0}", path);
         Resources::IResource::SetSID(path);

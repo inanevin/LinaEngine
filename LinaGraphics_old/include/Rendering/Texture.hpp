@@ -29,7 +29,7 @@ namespace Lina::Graphics
         ~Texture();
 
         virtual void* LoadFromMemory(const String& path, unsigned char* data, size_t dataSize) override;
-        virtual void* LoadFromFile(const String& path) override;
+        virtual void* LoadFromFile(const char* path) override;
         void*         LoadFromFileHDRI(const String& path);
         void*         LoadFromMemoryHDRI(const String& path, unsigned char* data, size_t dataSize);
         void          WriteToFile(const String& path);

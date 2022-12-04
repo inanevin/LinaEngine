@@ -34,8 +34,8 @@ SOFTWARE.
 // Headers here.
 #include "Core/Resource.hpp"
 #include "Data/Vector.hpp"
-#include "Serialization/VectorSerialization.hpp"
 #include "Data/String.hpp"
+#include "Core/CommonReflection.hpp"
 
 namespace Lina
 {
@@ -57,7 +57,7 @@ namespace Lina
 
         // Inherited via IResource
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
     private:

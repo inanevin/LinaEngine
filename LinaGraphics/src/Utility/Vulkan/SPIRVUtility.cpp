@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/Vulkan/SPIRVUtility.hpp"
+#include "Log/Log.hpp"
 #include "Data/DataCommon.hpp"
 
 namespace Lina::Graphics

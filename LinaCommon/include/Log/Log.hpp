@@ -31,8 +31,8 @@ SOFTWARE.
 #ifndef Log_HPP
 #define Log_HPP
 
-#include "EventSystem/ApplicationEvents.hpp"
-#include "EventSystem/EventCommon.hpp"
+#include "Core/CommonApplication.hpp"
+#define FMT_HEADER_ONLY
 #include "fmt/core.h"
 
 #ifdef LINA_ENABLE_LOGGING
@@ -66,30 +66,31 @@ SOFTWARE.
 
 #ifdef LINA_DEBUG
 
-#define LINA_ASSERT(x, ...)            \
-    {                                  \
-        if (!(x))                      \
-        {                              \
-            LINA_CRITICAL(__VA_ARGS__) \
-            __debugbreak();            \
-        }                              \
+#define LINA_ASSERT(x, ...)                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                      \
+        if (!(x))                                                                                                                                                                                                          \
+        {                                                                                                                                                                                                                  \
+            LINA_CRITICAL(__VA_ARGS__)                                                                                                                                                                                     \
+            __debugbreak();                                                                                                                                                                                                \
+        }                                                                                                                                                                                                                  \
     }
 #else
 #define LINA_ASSERT(x, ...)
 #endif
 
-#define FMT_HEADER_ONLY
 
 #include "Data/Mutex.hpp"
+
 namespace Lina
 {
+    enum class LogLevel;
+
     class Log
     {
     public:
-        static void LogImpl(LogLevel level, const String& msg);
+        static void LogImpl(LogLevel level, const char* msg);
 
-        template <typename... Args>
-        static void LogMessage(LogLevel level, const Args&... args)
+        template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
         {
             LogImpl(level, fmt::format(args...).c_str());
         }

@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/EditorGUIManager.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/GraphicsCommon.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "LinaVG/Utility/Utility.hpp"
 #include "GUI/GUI.hpp"
 

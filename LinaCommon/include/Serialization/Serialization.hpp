@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Streams.hpp"
 #include "Data/String.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Log/Log.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -146,7 +147,7 @@ namespace Lina::Serialization
     }
 
     template <typename T>
-    T LoadFromFile(const String& path)
+    T LoadFromFile(const char* path)
     {
         T obj = T();
         LoadFromFile(path, obj);

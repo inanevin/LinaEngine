@@ -39,7 +39,9 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/HashSet.hpp"
+#include "Data/DataCommon.hpp"
 #include "Serialization/CommonTypesSerialization.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina::World
 {
@@ -59,7 +61,7 @@ namespace Lina::World
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
 
         void SaveToFile(const String& path);

@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef ModelLoader_HPP
 #define ModelLoader_HPP
 
+#include "Core/SizeDefinitions.hpp"
 #include "Data/String.hpp"
 
 struct aiMesh;

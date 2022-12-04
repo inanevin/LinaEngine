@@ -28,6 +28,7 @@ SOFTWARE.
 
 
 #include "JobSystem/JobSystem.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina
 {

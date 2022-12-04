@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/InputEngine.hpp"
 #include "Core/ResourceLoader.hpp"
 #include "Core/Window.hpp"
+#include "Math/Math.hpp"
 
 using namespace Lina;
 

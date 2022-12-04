@@ -31,6 +31,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/InputEvents.hpp"
+#include "Core/CommonEngine.hpp"
 #include <Windows.h>
 #include <shellscalingapi.h>
 
@@ -266,7 +267,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title.c_str(), 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title, 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
         m_title  = props.title;
 
         if (m_window == 0)
@@ -443,10 +444,10 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Trigger<Event::EVsyncModeChanged>(Event::EVsyncModeChanged{.newMode = mode});
     }
 
-    void Win32Window::SetTitle(const String& title)
+    void Win32Window::SetTitle(const char* title)
     {
         m_title = title;
-        SetWindowTextA(m_window, title.c_str());
+        SetWindowTextA(m_window, title);
     }
 
     void Win32Window::Minimize()

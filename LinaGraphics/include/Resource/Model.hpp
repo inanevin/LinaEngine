@@ -65,7 +65,7 @@ namespace Lina::Graphics
         virtual ~Model();
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
 
         World::Entity* AddToWorld(World::EntityWorld* w);

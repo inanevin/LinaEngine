@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Core/GraphicsCommon.hpp"
+#include "Data/HashMap.hpp"
 #include "Data/Bitmask.hpp"
 
 #include "PipelineObjects/Pipeline.hpp"
@@ -60,7 +61,7 @@ namespace Lina::Graphics
         virtual ~Shader();
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const String& path) override;
+        virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()

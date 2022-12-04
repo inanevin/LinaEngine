@@ -32,6 +32,7 @@ SOFTWARE.
 #define Backend_HPP
 
 #include "Data/Vector.hpp"
+#include "Data/DataCommon.hpp"
 #include "Core/CommonApplication.hpp"
 #include "PipelineObjects/RQueue.hpp"
 #include "PipelineObjects/Swapchain.hpp"

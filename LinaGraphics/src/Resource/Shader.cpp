@@ -33,10 +33,12 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Utility/ShaderUtility.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -64,7 +66,7 @@ namespace Lina::Graphics
         return this;
     }
 
-    Resources::Resource* Shader::LoadFromFile(const String& path)
+    Resources::Resource* Shader::LoadFromFile(const char* path)
     {
         LoadAssetData();
 
@@ -88,7 +90,7 @@ namespace Lina::Graphics
 
             // Get the text from file.
             std::ifstream file;
-            file.open(path.c_str());
+            file.open(path);
             std::stringstream buffer;
             buffer << file.rdbuf();
             m_text = buffer.str().c_str();

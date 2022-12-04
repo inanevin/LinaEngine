@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Settings/EngineSettings.hpp"
+#include "Serialization/VectorSerialization.hpp"
 #include "Serialization/Serialization.hpp"
 
 namespace Lina
@@ -37,7 +38,7 @@ namespace Lina
         return this;
     }
 
-    Resources::Resource* EngineSettings::LoadFromFile(const String& path)
+    Resources::Resource* EngineSettings::LoadFromFile(const char* path)
     {
         Serialization::LoadFromFile<EngineSettings>(path, *this);
         return this;
