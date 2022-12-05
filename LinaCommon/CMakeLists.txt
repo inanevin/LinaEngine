@@ -196,24 +196,16 @@ include(../CMake/ProjectSettings.cmake)
 
 target_precompile_headers(${PROJECT_NAME}
 PUBLIC
-	<assert.h>
-	<math.h>
-	<xmemory>
-	<tuple>
-	<xutility>
-	<exception>
-	<compare>
-	<new>
-	<type_traits>
-	<limits>
-	<bit>
-	<cwchar>
-	<cstdio>
-	<xstddef>
-	<utility>
-	<cstdlib>
-	<filesystem>
+	<algorithm>
+	<functional>
 	<chrono>
+	<assert.h>
+	<xutility>
+	<xstring>
+	<exception>
+	<filesystem>
+	<xmemory>
+	<type_traits>
 	include/Math/Matrix.hpp
 	include/Math/Vector.hpp
 	include/Math/Quaternion.hpp
@@ -222,13 +214,46 @@ PUBLIC
 	include/Data/HashMap.hpp
 	include/Data/Vector.hpp
 	include/JobSystem/JobSystem.hpp
+	<glm/glm.hpp>
+	include/Serialization/Endianness.hpp
+	include/Data/Streams.hpp
 )
 
+# target_precompile_headers(${PROJECT_NAME}
+# PUBLIC
+# 	<assert.h>
+# 	<math.h>
+# 	<xmemory>
+# 	<tuple>
+# 	<xutility>
+# 	<exception>
+# 	<compare>
+# 	<new>
+# 	<type_traits>
+# 	<limits>
+# 	<bit>
+# 	<cwchar>
+# 	<cstdio>
+# 	<xstddef>
+# 	<utility>
+# 	<cstdlib>
+# 	<filesystem>
+# 	<chrono>
+# 	include/Math/Matrix.hpp
+# 	include/Math/Vector.hpp
+# 	include/Math/Quaternion.hpp
+# 	include/Data/String.hpp
+# 	include/Utility/UtilityFunctions.hpp
+# 	include/Data/HashMap.hpp
+# 	include/Data/Vector.hpp
+# 	include/JobSystem/JobSystem.hpp
+# )
+# 
 if(MSVC)
 target_precompile_headers(${PROJECT_NAME}
 PUBLIC <windows.h>)
 endif()
-
+# 
 # target_precompile_headers(${PROJECT_NAME}
 # PUBLIC
 # 	<assert.h>

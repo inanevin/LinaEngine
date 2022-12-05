@@ -32,7 +32,6 @@ SOFTWARE.
 #define Framebuffer_HPP
 
 #include "Core/GraphicsCommon.hpp"
-#include "Data/Vector.hpp"
 
 struct VkImageView_T;
 struct VkFramebuffer_T;

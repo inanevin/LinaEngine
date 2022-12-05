@@ -41,6 +41,7 @@ namespace Lina
     {
         class Texture;
     }
+
 } // namespace Lina
 namespace Lina::Editor
 {

@@ -31,8 +31,6 @@ SOFTWARE.
 #ifndef LinaVGInc_HPP
 #define LinaVGInc_HPP
 
-#include "Data/Vector.hpp"
-
 #define LINAVG_TEXT_SUPPORT
 #include <LinaVG/LinaVG.hpp>
 

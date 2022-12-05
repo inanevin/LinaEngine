@@ -33,7 +33,6 @@ SOFTWARE.
 
 // Headers here.
 #include "Math/Plane.hpp"
-#include "Data/Vector.hpp"
 
 namespace Lina
 {
