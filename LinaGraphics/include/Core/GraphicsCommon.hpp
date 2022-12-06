@@ -836,7 +836,6 @@ namespace Lina::Graphics
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)
-#define ICONPACK_SID "LINA_ENGINE_ICONPACK"
 
 } // namespace Lina::Graphics
 

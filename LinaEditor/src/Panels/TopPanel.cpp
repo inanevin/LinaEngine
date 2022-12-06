@@ -32,10 +32,13 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Math/Math.hpp"
 #include "Resource/Texture.hpp"
+#include "Core/ResourceManager.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
+#define TITLE_ANIM_SID  "toppanel_titleanim"
+#define TEXT_ANIM_SPEED 0.05f
     enum TopPanelPopupIDs
     {
         // File
@@ -73,15 +76,23 @@ namespace Lina::Editor
         TPID_Website,
         TPID_About,
     };
-    void TopPanel::Setup()
+
+    void TopPanel::Initialize()
     {
-        m_linaLogoTexture = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LinaLogoTransparent)->GetSID();
-        m_linaTitleFont   = LGUI->GetTheme().GetFont(ThemeFont::LinaStyle);
-        m_sid             = TO_SID(String("Top Panel"));
-        m_minimizeSid     = TO_SID(String("Minimize"));
-        m_maximizeSid     = TO_SID(String("Maximize"));
-        m_restoreSid      = TO_SID(String("Restore"));
-        m_closeSid        = TO_SID(String("Close"));
+        m_minimizeSid = TO_SID(String("Minimize"));
+        m_maximizeSid = TO_SID(String("Maximize"));
+        m_restoreSid  = TO_SID(String("Restore"));
+        m_closeSid    = TO_SID(String("Close"));
+
+        auto* titleTexture = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/TitleText.png");
+        m_titleTexture     = titleTexture->GetSID();
+        m_titleAspect      = titleTexture->GetExtent().width / titleTexture->GetExtent().height;
+
+        auto animFiles = Utility::GetFolderContents("Resources/Editor/Textures/TitleTextAnim/");
+        m_packedAnim   = TexturePacker::PackFilesOrdered(animFiles, 2050, m_packedAnimTextures);
+        m_packedAnim->ChangeSID(TO_SIDC(TITLE_ANIM_SID));
+        m_packedAnim->SetUserManaged(true);
+        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(TO_SIDC(TITLE_ANIM_SID), m_packedAnim);
 
         // Base menu bar items.
         MenuBarItemPopup* file   = new MenuBarItemPopup("File");
@@ -135,26 +146,32 @@ namespace Lina::Editor
         helpPopup.AddElement(new MenuPopupActionElement("About", TPID_About));
     }
 
+    void TopPanel::Shutdown()
+    {
+        Resources::ResourceManager::Get()->Unload<Graphics::Texture>(m_packedAnim->GetSID());
+    }
+
     void TopPanel::Draw()
     {
         const Vector2 screenSize = Graphics::Screen::SizeF();
         const Vector2 display    = Graphics::Screen::DisplayResolutionF();
         m_currentSize            = Vector2(screenSize.x, display.y * 0.1f);
-        m_currentSize.x          = Math::Max(m_currentSize.x, display.x * 0.5f);
 
         auto& theme = LGUI->GetTheme();
 
         theme.PushSetColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
 
-        LGUI->SetWindowSize(m_sid, m_currentSize);
-        if (LGUI->BeginWindow(m_sid))
+        LGUI->SetWindowSize("Top Panel", m_currentSize);
+        if (LGUI->BeginWindow("Top Panel"))
         {
-            theme.PopStoredColor();
+            DrawFileMenu();
+            m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
             DrawLinaLogo();
             DrawButtons();
-            DrawFileMenu();
             LGUI->EndWindow();
         }
+
+        theme.PopStoredColor();
     }
 
     void TopPanel::DrawFileMenu()
@@ -172,7 +189,7 @@ namespace Lina::Editor
         const float   buttonSizeX = display.x * 0.027f;
         const float   buttonSizeY = buttonSizeX * 0.5f;
         const Vector2 buttonSize  = Vector2(buttonSizeX, buttonSizeY);
-        m_menuBar.SetStartPosition(Vector2(0,0));
+        m_menuBar.SetStartPosition(Vector2(0, 0));
         m_menuBar.SetItemSize(buttonSize);
         m_menuBar.SetExtraSpacing(buttonSizeX * 0.05f);
         m_menuBar.Draw();
@@ -182,18 +199,23 @@ namespace Lina::Editor
     void TopPanel::DrawLinaLogo()
     {
         const Vector2 screenSize = Graphics::Screen::SizeF();
-        const auto&   w          = LGUI->GetCurrentWindow();
+        auto&         w          = LGUI->GetCurrentWindow();
 
         // BG
         Vector<LinaVG::Vec2> points;
-        const float          bgWidth  = m_currentSize.x * 0.24f;
-        const float          bgHeight = m_currentSize.y * 0.4f;
-        const float          bgFactor = bgWidth * 0.04f;
+        const float          bgHeight     = m_currentSize.y * 0.35f;
+        const float          desiredTextY = bgHeight * 0.6f;
+        const Vector2        textureSize  = Vector2(m_titleAspect * desiredTextY, desiredTextY);
+        const float          bgWidth      = textureSize.x + textureSize.x * 0.3f;
+        const float          bgFactor     = bgWidth * 0.04f;
+        float                centerX      = m_currentSize.x * 0.5f;
+        centerX                           = Math::Max(centerX, m_fileMenuMaxX + bgWidth * 0.5f);
 
-        const LinaVG::Vec2 bg1 = LinaVG::Vec2(m_currentSize.x * 0.5f - bgWidth * 0.5f, 0.0f);
-        const LinaVG::Vec2 bg2 = LinaVG::Vec2(m_currentSize.x * 0.5f + bgWidth * 0.5f, 0.0f);
-        const LinaVG::Vec2 bg3 = LinaVG::Vec2(m_currentSize.x * 0.5f + bgWidth * 0.5f - bgFactor, bgHeight);
-        const LinaVG::Vec2 bg4 = LinaVG::Vec2(m_currentSize.x * 0.5f - bgWidth * 0.5f + bgFactor, bgHeight);
+        const LinaVG::Vec2 bg1 = LinaVG::Vec2(centerX - bgWidth * 0.5f, 0.0f);
+        const LinaVG::Vec2 bg2 = LinaVG::Vec2(centerX + bgWidth * 0.5f, 0.0f);
+        const LinaVG::Vec2 bg3 = LinaVG::Vec2(centerX + bgWidth * 0.5f - bgFactor, bgHeight);
+        const LinaVG::Vec2 bg4 = LinaVG::Vec2(centerX - bgWidth * 0.5f + bgFactor, bgHeight);
+        m_titleMaxX            = bg2.x;
 
         LinaVG::StyleOptions bgStyle;
         bgStyle.color = LV4(LGUI->GetTheme().GetColor(ThemeColor::Dark0));
@@ -204,18 +226,40 @@ namespace Lina::Editor
         LinaVG::DrawConvex(points.data(), points.size(), bgStyle, 0.0f, w.GetDrawOrder() + 1);
 
         // Title
-        LinaVG::TextOptions titleOpts;
-        titleOpts.alignment          = LinaVG::TextAlignment::Center;
-        titleOpts.font               = m_linaTitleFont;
-        titleOpts.textScale          = bgWidth / 1000.0f;
-        const LinaVG::Vec2 titleSize = LinaVG::CalculateTextSize("LINA ENGINE", titleOpts);
-        const Vector2      titlePos  = Vector2(m_currentSize.x * 0.5f, (bg3.y - bg2.y) * 0.5f) - Vector2(0, titleSize.y * 0.5f);
-        LinaVG::DrawTextNormal("LINA ENGINE", LV2(titlePos), titleOpts, 0.0f, w.GetDrawOrder() + 2);
+        const Color   tint       = Color(0.4f, 0.4f, 0.4f, 1.0f);
+        const Vector2 texturePos = Vector2(centerX, bgHeight * 0.5f);
+        LinaVG::DrawImage(m_titleTexture, LV2(texturePos), LV2(textureSize), LV4(tint), 0.0f, w.GetDrawOrder() + 2);
 
-        // Lina Logo
-        const Vector2 logoSize = (bgHeight)*0.7f;
-        const Vector2 logoPos  = Vector2(titlePos.x - titleSize.x * 0.5f - logoSize.x, bgHeight * 0.5f);
-        LinaVG::DrawImage(m_linaLogoTexture, LV2(logoPos), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), LGUI->GetTheme().GetCurrentRotateAngle(), w.GetDrawOrder() + 2);
+        if (LGUI->IsMouseHoveringRect(Rect(texturePos - textureSize * 0.5f, textureSize)))
+        {
+            auto&       pa      = m_packedAnimTextures[m_textAnimationIndex % m_packedAnimTextures.size()];
+            const float elapsed = RuntimeInfo::GetElapsedTime();
+
+            if (elapsed > m_lastTextAnimTime + TEXT_ANIM_SPEED)
+            {
+                m_textAnimationIndex++;
+                m_lastTextAnimTime = elapsed;
+            }
+
+            const Color animTint = Color(0.8f, 0.8f, 0.8f, 1.0f);
+            LinaVG::DrawImage(m_packedAnim->GetSID(), LV2(Vector2(texturePos)), LV2(textureSize), LV4(animTint), 0.0f, w.GetDrawOrder() + 2, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(pa.uvTL), LV2(pa.uvBR));
+
+            // Popup
+            const Vector2 mouse         = LGUI->GetMousePosition();
+            const Vector2 popupPosition = Vector2(mouse.x + 50, mouse.y + 50);
+            // LGUI->SetWindowPosition("TitleInfoPopup", popupPosition);
+            // if (Widgets::BeginPopup("TitleInfoPopup", Vector2(100,100)))
+            //{
+            //     Widgets::EndPopup();
+            // }
+
+            const char* popupName = "TitlePopup";
+           
+            if (Widgets::BeginPopup(popupName, popupPosition, Vector2(50,50)))
+            {
+                Widgets::EndPopup();
+            }
+        }
     }
 
     void TopPanel::DrawButtons()
@@ -225,20 +269,25 @@ namespace Lina::Editor
 
         const Bitmask8 mask          = 0;
         const Vector2  display       = Graphics::Screen::DisplayResolutionF();
+        const Vector2  screen        = Graphics::Screen::SizeF();
         const float    buttonSizeX   = display.x * 0.022f;
         const float    buttonSizeY   = buttonSizeX * 0.7f;
         const Vector2  buttonSize    = Vector2(buttonSizeX, buttonSizeY);
         const float    initialOffset = buttonSizeX * 0.01f;
         const float    spacing       = 0.0f;
         const float    penY          = 0.0f;
-        float          penX          = m_currentSize.x - buttonSize.x - initialOffset;
 
-        w.SetPenPos(Vector2(penX, penY));
+        float minimizeStart = screen.x - buttonSize.x * 3 - spacing * 2 - initialOffset;
+        minimizeStart       = Math::Max(minimizeStart, m_titleMaxX);
+
+        const float restoreStart = minimizeStart + buttonSize.x + spacing;
+        const float closeStart   = restoreStart + buttonSize.x + spacing;
+
         theme.PushSetProperty(ThemeProperty::ButtonIconFit, 0.45f);
         theme.PushSetColor(ThemeColor::ButtonBackground, ThemeColor::Dark0);
-
         theme.PushSetColor(ThemeColor::ButtonHovered, ThemeColor::Error);
 
+        w.SetPenPos(Vector2(closeStart, penY));
         if (Widgets::ButtonIcon(m_closeSid, buttonSize, mask))
         {
             Graphics::Window::Get()->Close();
@@ -246,15 +295,13 @@ namespace Lina::Editor
 
         theme.PopStoredColor();
 
-        penX = m_currentSize.x - buttonSize.x * 2 - spacing - initialOffset;
-        w.SetPenPos(Vector2(penX, penY));
+        w.SetPenPos(Vector2(restoreStart, penY));
 
         if (Widgets::ButtonIcon(m_restoreSid, buttonSize, mask))
         {
         }
 
-        penX = m_currentSize.x - buttonSize.x * 3 - spacing * 2 - initialOffset;
-        w.SetPenPos(Vector2(penX, penY));
+        w.SetPenPos(Vector2(minimizeStart, penY));
         if (Widgets::ButtonIcon(m_minimizeSid, buttonSize, mask))
         {
         }

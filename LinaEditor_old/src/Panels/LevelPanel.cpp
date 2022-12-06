@@ -6,7 +6,7 @@
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/GUILayer.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/InputMappings.hpp"
 #include "Core/RenderEngine.hpp"
 #include "ECS/Components/CameraComponent.hpp"

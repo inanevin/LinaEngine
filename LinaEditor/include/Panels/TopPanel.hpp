@@ -34,6 +34,15 @@ SOFTWARE.
 #include "Panel.hpp"
 #include "Utility/StringId.hpp"
 #include "GUI/CustomWidgets/MenuBar.hpp"
+#include "Utility/Graphics/TexturePacker.hpp"
+
+namespace Lina
+{
+    namespace Graphics
+    {
+        class Texture;
+    }
+} // namespace Lina
 
 namespace Lina::Editor
 {
@@ -43,7 +52,8 @@ namespace Lina::Editor
         TopPanel()          = default;
         virtual ~TopPanel() = default;
 
-        virtual void Setup() override;
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
         virtual void Draw() override;
 
     private:
@@ -52,15 +62,20 @@ namespace Lina::Editor
         void DrawButtons();
 
     private:
-        MenuBar  m_menuBar;
-        Vector2  m_currentSize     = Vector2();
-        StringID m_sid             = 0;
-        uint32   m_linaLogoTexture = 0;
-        uint32   m_linaTitleFont   = 0;
-        StringID m_minimizeSid     = 0;
-        StringID m_maximizeSid     = 0;
-        StringID m_closeSid        = 0;
-        StringID m_restoreSid      = 0;
+        MenuBar               m_menuBar;
+        Vector2               m_currentSize        = Vector2();
+        uint32                m_titleTexture       = 0;
+        uint32                m_textAnimationIndex = 0;
+        float                 m_titleAspect        = 0.0f;
+        float                 m_lastTextAnimTime   = 0.0f;
+        float                 m_fileMenuMaxX       = 0.0f;
+        float                 m_titleMaxX          = 0.0f;
+        StringID              m_minimizeSid        = 0;
+        StringID              m_maximizeSid        = 0;
+        StringID              m_closeSid           = 0;
+        StringID              m_restoreSid         = 0;
+        Graphics::Texture*    m_packedAnim         = nullptr;
+        Vector<PackedTexture> m_packedAnimTextures;
     };
 } // namespace Lina::Editor
 

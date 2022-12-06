@@ -51,7 +51,6 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
         CreateBufferCapsule();
         CreateBufferCapsule();
-        m_iconPackSID = TO_SID(String(ICONPACK_SID));
         return true;
     }
 
@@ -131,14 +130,12 @@ namespace Lina::Graphics
         mat->SetProperty("floatvar1", buf->m_color.radialSize);
         mat->SetProperty("intvar3", buf->m_isAABuffer);
         mat->CheckUpdatePropertyBuffers();
-
-        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
     }
 
     void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf)
     {
         Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Textured);
-        Texture*  txt = buf->m_textureHandle == m_iconPackSID ? m_iconPackTexture : Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
+        Texture*  txt = Resources::ResourceManager::Get()->GetResource<Texture>(buf->m_textureHandle);
 
         mat->SetProperty("intvar1", 2);
         mat->SetProperty("vec2pack1", Vector2(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y));

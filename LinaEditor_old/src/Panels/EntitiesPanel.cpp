@@ -2,7 +2,7 @@
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/GUILayer.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "EventSystem/LevelEvents.hpp"

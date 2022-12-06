@@ -66,6 +66,11 @@ namespace Lina::Graphics
 
     Resources::Resource* Texture::LoadFromFile(const char* path)
     {
+        String path2 = "Resources/Editor/Textures/Logo/Test1.png";
+        if (path2.compare(path) == 0)
+        {
+            int a = 5;
+        }
         LoadAssetData();
 
         if (m_pixels == nullptr)
@@ -222,6 +227,9 @@ namespace Lina::Graphics
 
             if (destroyCPUBufferAfter)
                 m_cpuBuffer.Destroy();
+
+            if (m_pixels != nullptr)
+                stbi_image_free(m_pixels);
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);

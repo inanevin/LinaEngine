@@ -59,6 +59,11 @@ namespace Lina::Editor
         void Initialize();
         void Shutdown();
 
+        inline StringID GetIconTextureSID()
+        {
+            return m_iconTextureSID;
+        }
+
     private:
         void OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev);
         void OnEditorDraw(const Event::EOnEditorDraw& ev);
@@ -66,7 +71,8 @@ namespace Lina::Editor
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:
-        Graphics::Texture*    m_iconTexture = nullptr;
+        Graphics::Texture*    m_iconTexture    = nullptr;
+        StringID              m_iconTextureSID = 0;
         Vector<PackedTexture> m_packedIcons;
     };
 } // namespace Lina::Editor

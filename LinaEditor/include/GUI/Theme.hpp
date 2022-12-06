@@ -63,6 +63,7 @@ namespace Lina::Editor
         ButtonBorder,
         ButtonIconTint,
         TopPanelBackground,
+        PopupBG,
     };
 
     enum class ThemeProperty

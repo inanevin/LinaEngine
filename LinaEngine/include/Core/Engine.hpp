@@ -33,7 +33,7 @@ SOFTWARE.
 
 // Headers here.
 #include "Core/AudioEngine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/LevelManager.hpp"

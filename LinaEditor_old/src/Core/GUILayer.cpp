@@ -9,7 +9,7 @@
 #include "Core/EditorApplication.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/Engine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Core/RenderEngineFwd.hpp"
 #include "ECS/Components/LightComponent.hpp"

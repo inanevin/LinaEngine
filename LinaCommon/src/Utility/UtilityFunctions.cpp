@@ -221,11 +221,33 @@ namespace Lina
             return true;
         }
 
-        Vector<String> GetFolderContents(const String& path)
+        Vector<String> GetFolderContents(const String& path, String extensionFilter)
         {
             Vector<String> paths;
             for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
+            {
+                if (!entry.is_directory())
+                {
+                    if (extensionFilter.empty())
+                        paths.push_back(entry.path().string().c_str());
+                    else
+                    {
+                        String fullpath = entry.path().string().c_str();
+                        if (GetFileExtension(fullpath).compare(extensionFilter))
+                            paths.push_back(fullpath);
+                    }
+                }
+            }
+            return paths;
+        }
+
+        Vector<String> GetFolderContentsAndDirs(const String& path)
+        {
+            Vector<String> paths;
+            for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
+            {
                 paths.push_back(entry.path().string().c_str());
+            }
             return paths;
         }
 

@@ -48,13 +48,14 @@ namespace Lina::Editor
     class Widgets
     {
     public:
-
         // Buttons
         static bool ButtonEmpty(const Vector2& size, Bitmask8 mask = Bitmask8());
         static bool Button(const String& str, const Vector2& size, Bitmask8 mask = Bitmask8());
         static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
-
+        // Popup
+        static bool BeginPopup(const String& str, const Vector2& pos, const Vector2& size);
+        static void EndPopup();
     };
 } // namespace Lina::Editor
 

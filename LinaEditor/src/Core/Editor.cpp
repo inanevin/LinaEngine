@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Core/ResourcePackager.hpp"
 #include "Core/Engine.hpp"
 #include "Core/Level.hpp"
+#include "Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -61,8 +62,8 @@ namespace Lina::Editor
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         ImmediateGUI::s_instance = &m_gui;
-        m_gui.m_iconTexture      = TO_SID(String(ICONPACK_SID));
         m_renderer.Initialize();
+        m_gui.m_iconTexture = m_renderer.GetIconTextureSID();
         m_shortcutManager.Initialize();
     }
 
@@ -234,6 +235,7 @@ namespace Lina::Editor
     Vector<const char*> Editor::GetDefaultTextures()
     {
         Vector<const char*> vec;
+        vec.push_back("Resources/Editor/Textures/TitleText.png");
         return vec;
     }
 

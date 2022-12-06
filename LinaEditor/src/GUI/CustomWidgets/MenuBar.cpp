@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/CustomWidgets/MenuBar.hpp"
 #include "GUI/GUI.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -80,5 +80,6 @@ namespace Lina::Editor
             i->Draw(m_itemSize);
             pos.x += m_itemSize.x + m_extraSpacing;
         }
+        window.SetPenPos(pos);
     }
 } // namespace Lina::Editor

@@ -39,8 +39,9 @@ namespace Lina::Editor
         Panel()          = default;
         virtual ~Panel() = default;
 
-        virtual void Setup(){};
+        virtual void Initialize(){};
         virtual void Draw(){};
+        virtual void Shutdown(){};
     };
 } // namespace Lina::Editor
 

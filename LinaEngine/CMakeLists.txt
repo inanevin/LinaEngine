@@ -28,10 +28,6 @@ set (LINAENGINE_SOURCES
 	src/Settings/EngineSettings.cpp
 	src/Settings/RenderSettings.cpp
 
-	# Input
-	src/Input/InputEngine.cpp
-	src/Input/InputAxis.cpp
-
 	# Game
 	src/Game/GameManager.cpp
 
@@ -52,11 +48,6 @@ set(LINAENGINE_HEADERS
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
 
-	#Input
-	include/Input/InputEngine.hpp
-	include/Input/InputMappings.hpp
-	include/Input/InputAxis.hpp
-	
 	# Game
 	include/Game/GameManager.hpp
 	
@@ -88,6 +79,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaWorld/include)
@@ -107,6 +99,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Common
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio
+	PUBLIC Lina::Input
 	PUBLIC Lina::Resource
 	PUBLIC Lina::Graphics
 	PUBLIC Lina::World
@@ -127,5 +120,3 @@ if(MSVC_IDE)
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()
 endif()
-
-

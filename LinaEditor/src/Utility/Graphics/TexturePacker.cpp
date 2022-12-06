@@ -42,8 +42,8 @@ namespace Lina::Editor
         Vector<InFlightPixelData> pixelData;
         const uint32              fileSize = static_cast<uint32>(paths.size());
 
+        // Each row represents (maxWidth, maxHeightForCurrentRow)
         Vector<PackRow> rows;
-
         rows.push_back(PackRow());
 
         for (uint32 i = 0; i < fileSize; i++)
@@ -138,7 +138,7 @@ namespace Lina::Editor
 
             for (int k = 0; k < pd.height; k++)
             {
-                txt->GetCPUBuffer().CopyIntoPadded(&pd.pixels[pd.height * k * 4], pd.width * 4, rowOffset + pd.bufferOffset);
+                txt->GetCPUBuffer().CopyIntoPadded(&pd.pixels[pd.width * k * 4], pd.width * 4, rowOffset + pd.bufferOffset);
                 rowOffset += atlasWidth * 4;
             }
 

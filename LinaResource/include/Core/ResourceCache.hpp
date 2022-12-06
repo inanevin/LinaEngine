@@ -109,6 +109,12 @@ namespace Lina::Resources
             return static_cast<Resource*>(ptr);
         }
 
+        void AddResource(StringID sid, T* res)
+        {
+            LINA_ASSERT(!m_resources.contains(sid), "Resource already exists!");
+            m_resources[sid] = res;
+        }
+
     protected:
         friend class ResourceManager;
 
@@ -144,6 +150,9 @@ namespace Lina::Resources
 
         void Unload(T* resource)
         {
+            if (resource->GetUserManaged())
+                return;
+
             LINA_TRACE("[Resource Cache] -> Unloading resource: {0}", resource->GetPath());
             const auto& it = m_resources.find(resource->GetSID());
             m_resources.erase(it);

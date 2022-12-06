@@ -2,7 +2,7 @@
 
 #include "Core/Application.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Registry.hpp"

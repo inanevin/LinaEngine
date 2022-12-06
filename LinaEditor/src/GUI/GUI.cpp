@@ -28,12 +28,16 @@ SOFTWARE.
 
 #include "GUI/GUI.hpp"
 #include "Utility/StringId.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
+#include "Math/Math.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
     ImmediateGUI* ImmediateGUI::s_instance = nullptr;
+
+// #define DEBUG
+#define POPUP_DRAWORDER_START 100
 
     void ImmediateGUI::StartFrame()
     {
@@ -42,78 +46,89 @@ namespace Lina::Editor
     void ImmediateGUI::EndFrame()
     {
         m_windows.clear();
-        m_hoveredWindow = m_transientHoveredWindow;
+        m_hoveredWindow     = m_transientHoveredWindow;
+        m_absoluteDrawOrder = 0;
     }
 
-    bool ImmediateGUI::BeginWindow(StringID sid)
+    bool ImmediateGUI::BeginWindow(const String& str, Bitmask16 mask)
     {
-        m_windows.push_back(ImmediateWindow());
-        ImmediateWindow& w = GetCurrentWindow();
+        Vector2 parentPos       = Vector2::Zero;
+        int     parentDrawOrder = mask.IsSet(IMW_UseAbsoluteDrawOrder) ? POPUP_DRAWORDER_START : m_absoluteDrawOrder;
 
-        const Vector2 desiredPos      = m_windowPositions[sid];
-        const Vector2 desiredSize     = m_windowSizes[sid];
-        int           parentDrawOrder = 0;
-
-        Vector2 parentPos = Vector2::Zero;
-
-        if (m_hasParentWindow)
+        if (!m_windows.empty())
         {
-            ImmediateWindow& parent = m_windows[m_windows.size() - 2];
-            parentPos               = parent.m_absPos;
+            ImmediateWindow& parent = m_windows.back();
+            parentPos               = mask.IsSet(IMW_UseAbsolutePosition) ? Vector2::Zero : parent.m_absPos;
             parentDrawOrder         = parent.m_drawOrder;
         }
 
-        m_hasParentWindow = true;
-        w.m_id            = sid;
-        w.m_relPos        = desiredPos;
-        w.m_absPos        = parentPos + desiredPos;
-        w.m_size          = desiredSize;
-        w.m_drawOrder     = parentDrawOrder + 1;
-        w.m_penPos.x      = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
-        w.m_penPos.y      = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
+        m_windows.push_back(ImmediateWindow());
+        ImmediateWindow& w = GetCurrentWindow();
+        w.m_name           = str;
+
+        const StringID sid         = GetSIDFromStr(str);
+        const Vector2  desiredPos  = m_windowPositions[sid];
+        const Vector2  desiredSize = m_windowSizes[sid];
+
+        w.m_sid       = sid;
+        w.m_relPos    = desiredPos;
+        w.m_absPos    = parentPos + desiredPos;
+        w.m_size      = desiredSize;
+        w.m_drawOrder = parentDrawOrder + 1;
+        w.m_penPos.x  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
+        w.m_penPos.y  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
 
         // Hover state
         if (IsMouseHoveringRect(Rect(w.m_absPos, w.m_size)))
         {
-            ImmediateWindow* transientHovered = GetWindowByID(m_transientHoveredWindow);
-            if (transientHovered == nullptr || w.m_drawOrder >= transientHovered->m_drawOrder)
-                m_transientHoveredWindow = w.m_id;
+            if (w.m_drawOrder >= m_hoveredDrawOrder)
+            {
+                m_hoveredDrawOrder       = w.m_drawOrder;
+                m_transientHoveredWindow = w.m_sid;
+            }
         }
 
-        w.Draw();
         return true;
     }
 
     void ImmediateGUI::EndWindow()
     {
-        m_hasParentWindow = false;
+        GetCurrentWindow().Draw();
+        LINA_TRACE("Drawing window {0}", GetCurrentWindow().m_name);
+        m_windows.pop_back();
+    }
+
+    bool ImmediateGUI::BeginPopup(const String& name)
+    {
+        m_absoluteDrawOrder  = POPUP_DRAWORDER_START;
+        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_UseAbsolutePosition;
+        m_theme.PushSetColor(ThemeColor::Window, ThemeColor::PopupBG);
+        return BeginWindow(name);
+    }
+
+    void ImmediateGUI::EndPopup()
+    {
+        EndWindow();
+        m_theme.PopStoredColor();
     }
 
     ImmediateWindow& ImmediateGUI::GetCurrentWindow()
     {
-        return m_windows[m_windows.size() - 1];
+        return m_windows.back();
     }
 
-    ImmediateWindow* ImmediateGUI::GetHoveredWindow()
+    StringID ImmediateGUI::GetSIDFromStr(const String& str)
     {
-        for (auto& w : m_windows)
+        StringID sid = 0;
+        auto     it  = m_windowSIDs.find(str);
+        if (it != m_windowSIDs.end())
+            sid = it->second;
+        else
         {
-            if (w.m_id == m_hoveredWindow)
-                return &w;
+            sid               = TO_SID(str);
+            m_windowSIDs[str] = sid;
         }
-
-        return nullptr;
-    }
-
-    ImmediateWindow* ImmediateGUI::GetWindowByID(StringID sid)
-    {
-        for (auto& w : m_windows)
-        {
-            if (w.m_id == sid)
-                return &w;
-        }
-
-        return nullptr;
+        return sid;
     }
 
     bool ImmediateGUI::IsMouseHoveringRect(const Rect& rect)
@@ -122,29 +137,48 @@ namespace Lina::Editor
         return mousePos.x > rect.pos.x && mousePos.x < rect.pos.x + rect.size.x && mousePos.y > rect.pos.y && mousePos.y < rect.pos.y + rect.size.y;
     }
 
-    void ImmediateGUI::SetWindowSize(StringID sid, const Vector2& size)
+    Vector2 ImmediateGUI::GetMousePosition()
     {
-        m_windowSizes[sid] = size;
+        return Input::InputEngine::Get()->GetMousePosition();
     }
 
-    void ImmediateGUI::SetWindowPosition(StringID sid, const Vector2& pos)
+    void ImmediateGUI::SetWindowSize(const String& str, const Vector2& size)
     {
-        m_windowPositions[sid] = pos;
+        m_windowSizes[GetSIDFromStr(str)] = size;
+    }
+
+    void ImmediateGUI::SetWindowPosition(const String& str, const Vector2& pos)
+    {
+        m_windowPositions[GetSIDFromStr(str)] = pos;
     }
 
     void ImmediateWindow::Draw()
     {
+        if (m_size == Vector2::Zero)
+        {
+            auto&       theme    = LGUI->GetTheme();
+            const float xPadding = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
+            const float yPadding = theme.GetProperty(ThemeProperty::WindowItemPaddingY);
+            m_size               = Vector2(m_maxPenPosX + xPadding, m_penPos.y + yPadding);
+        }
+
         const Vector2        min = m_absPos;
         const Vector2        max = m_absPos + m_size;
         LinaVG::StyleOptions opts;
         opts.color = LV4(ImmediateGUI::Get()->GetTheme().GetColor(ThemeColor::Window));
         LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, m_drawOrder);
+
+        LINA_TRACE("Drawin! {0}", m_name);
+#ifdef DEBUG
+        LinaVG::StyleOptions optsDebug;
+        optsDebug.isFilled = false;
+        LinaVG::DrawRect(LV2(min), LV2(max), optsDebug, 0.0f, m_drawOrder + 1);
+#endif
     }
 
     bool ImmediateWindow::IsWindowHovered()
     {
-        auto hovered = ImmediateGUI::Get()->GetHoveredWindow();
-        return hovered ? hovered->GetID() == m_id : false;
+        return m_sid == ImmediateGUI::Get()->GetHoveredWindowSID();
     }
 
     void ImmediateWindow::BeginWidget(const Vector2& size)
@@ -164,6 +198,7 @@ namespace Lina::Editor
 
         // If not
         m_penPos.y += LGUI->GetTheme().GetProperty(ThemeProperty::WindowItemSpacingY) + widget.m_size.y;
+        m_maxPenPosX = Math::Max(m_maxPenPosX, widget.m_size.x);
     }
 
     ImmediateWidget& ImmediateWindow::GetCurrentWidget()

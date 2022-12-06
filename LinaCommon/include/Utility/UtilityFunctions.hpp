@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -25,8 +25,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-
 
 #ifndef UtilityFunctions_HPP
 #define UtilityFunctions_HPP
@@ -68,15 +66,18 @@ namespace Lina
         // Removes all files & folders in directory.
         extern bool DeleteDirectory(const String& path);
 
-        // Gets all files within the directory
-        extern Vector<String> GetFolderContents(const String& path);
+        // Gets all files within the directory, returns only the files with the given extension if filter is supplied, supply filter without any dots (".")
+        extern Vector<String> GetFolderContents(const String& path, String extensionFilter = "");
+
+        // Gets all files and directories within the directory
+        extern Vector<String> GetFolderContentsAndDirs(const String& path);
 
         // Updates a folder's path according to a change on it's parent.
         extern void ParentPathUpdated(Folder* folder);
 
         // Updates the file's path according to a change on it's parent.
         extern void ParentPathUpdated(File* file);
-        
+
         // Replaces the folder name, updates it's path and makes sure the children's path are updated as well.
         extern void ChangeFolderName(Folder* folder, const String& newName);
 

@@ -38,4 +38,17 @@ SOFTWARE.
 #define LV4(V) LinaVG::Vec4(V.x, V.y, V.z, V.w)
 #define FL2(V) Vector2(V.x, V.y)
 #define FL4(V) Vector4(V.x, V.y, V.z, V.w)
+
+namespace Lina
+{
+    inline extern void DrawPoint(const Vector2& p, int drawOrder, Color col = Color::Red)
+    {
+        LinaVG::StyleOptions style;
+        style.color = LV4(col);
+        const Vector2 size = Vector2(2,2) * LinaVG::Config.framebufferScale.x;
+        const LinaVG::Vec2 min = LV2((p - size));
+        const LinaVG::Vec2 max = LV2((p + size));
+        LinaVG::DrawRect(min, max, style, 0, drawOrder);
+    }
+}
 #endif

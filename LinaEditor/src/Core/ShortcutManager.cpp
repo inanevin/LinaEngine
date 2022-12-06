@@ -1,5 +1,5 @@
 #include "Core/ShortcutManager.hpp"
-#include "Input/InputMappings.hpp"
+#include "Core/InputMappings.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include "Core/EditorCommon.hpp"

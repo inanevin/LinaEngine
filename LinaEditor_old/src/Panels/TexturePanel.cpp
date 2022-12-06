@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/Texture.hpp"
 #include "Log/Log.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Resources/ResourceStorage.hpp"
 #include "Core/EditorCommon.hpp"
 #include "EventSystem/ResourceEvents.hpp"

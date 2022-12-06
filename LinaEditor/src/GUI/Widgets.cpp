@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/Widgets.hpp"
 #include "GUI/GUI.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -84,7 +84,7 @@ namespace Lina::Editor
         const float  textRatio   = desiredYFit / textSize.y;
         textOpts.textScale       = textRatio;
         textSize                 = LinaVG::CalculateTextSize(str.c_str(), textOpts);
-        const Vector2 textPos = mid - Vector2(textSize.x * 0.5f, textSize.y * 0.5f);
+        const Vector2 textPos    = mid - Vector2(textSize.x * 0.5f, textSize.y * 0.5f);
         LinaVG::DrawTextNormal(str.c_str(), LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
 
         return isClicked;
@@ -115,5 +115,17 @@ namespace Lina::Editor
         LinaVG::DrawImage(LGUI->GetIconTexture(), LV2(center), LV2(iconSize), LV4(tint), theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(tl), LV2(br));
 
         return isClicked;
+    }
+
+    bool Widgets::BeginPopup(const String& str, const Vector2& pos, const Vector2& size)
+    {
+        LGUI->SetWindowPosition(str, pos);
+        LGUI->SetWindowSize(str, size);
+        return LGUI->BeginPopup(str);
+    }
+
+    void Widgets::EndPopup()
+    {
+        LGUI->EndPopup();
     }
 } // namespace Lina::Editor

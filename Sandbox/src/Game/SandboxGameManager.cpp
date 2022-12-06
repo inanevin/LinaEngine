@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Core/ResourceManager.hpp"
 #include "Components/ModelNodeComponent.hpp"
 #include "Core/RenderEngine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "Core/ResourceLoader.hpp"
 #include "Core/Window.hpp"
 #include "Math/Math.hpp"

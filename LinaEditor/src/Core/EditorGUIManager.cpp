@@ -36,12 +36,12 @@ namespace Lina::Editor
     void EditorGUIManager::Initialize()
     {
         s_instance = this;
-        m_topPanel.Setup();
+        m_topPanel.Initialize();
     }
 
     void EditorGUIManager::Shutdown()
     {
-    
+        m_topPanel.Shutdown();
     }
 
     void EditorGUIManager::Draw()

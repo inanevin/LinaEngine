@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Rect.hpp"
+#include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Deque.hpp"
 #include "Data/Vector.hpp"
@@ -47,6 +48,12 @@ namespace Lina::Editor
 {
     class ImmediateGUI;
     class ImmediateWindow;
+
+    enum ImmediateWindowMask
+    {
+        IMW_UseAbsolutePosition,
+        IMW_UseAbsoluteDrawOrder,
+    };
 
     class ImmediateWidget
     {
@@ -120,18 +127,20 @@ namespace Lina::Editor
 
         inline uint32 GetID()
         {
-            return m_id;
+            return m_sid;
         }
 
     private:
         friend class ImmediateGUI;
 
-        StringID                m_id        = 0;
-        Vector2                 m_penPos    = Vector2::Zero;
-        Vector2                 m_absPos    = Vector2::Zero;
-        Vector2                 m_relPos    = Vector2::Zero;
-        Vector2                 m_size      = Vector2::Zero;
-        int                     m_drawOrder = 0;
+        String                  m_name       = "";
+        StringID                m_sid        = 0;
+        Vector2                 m_penPos     = Vector2::Zero;
+        Vector2                 m_absPos     = Vector2::Zero;
+        Vector2                 m_relPos     = Vector2::Zero;
+        Vector2                 m_size       = Vector2::Zero;
+        float                   m_maxPenPosX = 0.0f;
+        int                     m_drawOrder  = 0;
         Vector<ImmediateWidget> m_widgets;
     };
 
@@ -148,16 +157,23 @@ namespace Lina::Editor
         void EndFrame();
 
         // Window
-        bool             BeginWindow(StringID sid);
+        bool             BeginWindow(const String& name, Bitmask16 mask = 0);
+        bool             BeginPopup(const String& name);
         void             EndWindow();
-        void             SetWindowSize(StringID sid, const Vector2& size);
-        void             SetWindowPosition(StringID sid, const Vector2& pos);
+        void             EndPopup();
+        void             SetWindowSize(const String& str, const Vector2& size);
+        void             SetWindowPosition(const String& str, const Vector2& pos);
         ImmediateWindow& GetCurrentWindow();
-        ImmediateWindow* GetHoveredWindow();
-        ImmediateWindow* GetWindowByID(StringID sid);
+        StringID         GetSIDFromStr(const String& str);
 
         // Utility
-        bool IsMouseHoveringRect(const Rect& rect);
+        bool    IsMouseHoveringRect(const Rect& rect);
+        Vector2 GetMousePosition();
+
+        inline void SetAbsoluteDrawOrder(int drawOrder)
+        {
+            m_absoluteDrawOrder = drawOrder;
+        }
 
         // Theme
         inline Theme& GetTheme()
@@ -165,23 +181,30 @@ namespace Lina::Editor
             return m_theme;
         }
 
-        StringID GetIconTexture()
+        inline StringID GetIconTexture()
         {
             return m_iconTexture;
+        }
+
+        inline StringID GetHoveredWindowSID()
+        {
+            return m_hoveredWindow;
         }
 
     private:
         friend class Editor;
 
         static ImmediateGUI*       s_instance;
-        Vector<ImmediateWindow>    m_windows;
+        Deque<ImmediateWindow>     m_windows;
+        HashMap<String, StringID>  m_windowSIDs;
         HashMap<StringID, Vector2> m_windowSizes;
         HashMap<StringID, Vector2> m_windowPositions;
-        bool                       m_hasParentWindow = false;
         Theme                      m_theme;
+        StringID                   m_iconTexture;
         StringID                   m_hoveredWindow          = 0;
         StringID                   m_transientHoveredWindow = 0;
-        StringID                   m_iconTexture;
+        int                        m_hoveredDrawOrder       = 0;
+        int                        m_absoluteDrawOrder      = 0;
     };
 
 #define LGUI ImmediateGUI::Get()

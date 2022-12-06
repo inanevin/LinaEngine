@@ -56,7 +56,7 @@ namespace Lina::Resources
         Resource()          = default;
         virtual ~Resource() = default;
 
-        virtual Resource* LoadFromFile(const char* path)                         = 0;
+        virtual Resource* LoadFromFile(const char* path)                           = 0;
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) = 0;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
         virtual void      LoadReferences(){};
@@ -77,6 +77,21 @@ namespace Lina::Resources
             return m_path;
         }
 
+        inline void ChangeSID(StringID newSid)
+        {
+            m_sid = newSid;
+        }
+
+        inline bool GetUserManaged()
+        {
+            return m_userManaged;
+        }
+
+        inline void SetUserManaged(bool userManaged)
+        {
+            m_userManaged = userManaged;
+        }
+
     protected:
         virtual void SaveAssetData();
         virtual void LoadAssetData();
@@ -88,13 +103,13 @@ namespace Lina::Resources
         bool                            MetaArchiveExists();
 
     protected:
-        template <typename U>
-        friend class ResourceCache;
+        template <typename U> friend class ResourceCache;
         friend class Memory::MemoryManager;
         friend class EditorResourceLoader;
         friend class ResourceLoader;
         friend class ResourcePackager;
 
+        bool     m_userManaged    = false;
         uint32   m_allocPoolIndex = 0;
         TypeID   m_tid            = 0;
         StringID m_sid            = 0;

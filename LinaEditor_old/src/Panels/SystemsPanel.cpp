@@ -6,7 +6,7 @@
 #include "Core/Engine.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/PhysicsEngine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputEngine.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor

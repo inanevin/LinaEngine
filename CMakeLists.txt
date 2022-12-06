@@ -98,6 +98,7 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 
 add_subdirectory(LinaAudio)
 add_subdirectory(LinaCommon)
+add_subdirectory(LinaInput)
 add_subdirectory(LinaGraphics)
 add_subdirectory(LinaPhysics)
 add_subdirectory(LinaEngine)
