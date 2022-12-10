@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina::Editor
 {
@@ -43,87 +44,66 @@ namespace Lina::Editor
     {
 
     public:
+        enum class ElementType
+        {
+            Divider,
+            Action,
+            Expendable,
+            Toggle,
+        };
+
         MenuPopupElement() = default;
-        MenuPopupElement(const String& name, uint32 id, const String& tooltip) : m_name(name), m_id(id), m_tooltip(tooltip){};
+        MenuPopupElement(ElementType type, const String& name, uint32 id, const String& tooltip = "")
+            : m_type(type), m_name(name), m_id(id), m_tooltip(tooltip){
+
+                                                    };
         virtual ~MenuPopupElement() = default;
+
+        bool    Draw();
+        Vector2 GetTextSize();
+        Vector2 GetTooltipSize();
+
+        inline const String& GetName() const
+        {
+            return m_name;
+        }
+
+        inline bool HasExtra()
+        {
+            return m_type == ElementType::Toggle || m_type == ElementType::Expendable;
+        }
 
     private:
         friend class MenuPopup;
 
-    protected:
-        virtual void  OnClicked() = 0;
-        virtual void  Draw()      = 0;
-        virtual float GetWidth()  = 0;
-
-    protected:
-        String m_name    = "";
-        uint32 m_id      = 0;
-        String m_tooltip = "";
-        float  m_width   = 0.0f;
-    };
-
-    class MenuPopupToggleElement : public MenuPopupElement
-    {
-    public:
-        MenuPopupToggleElement() = default;
-        MenuPopupToggleElement(const String& name, uint32 id, String tooltip = "") : MenuPopupElement(name, id, tooltip){};
-        virtual ~MenuPopupToggleElement() = default;
-
-    protected:
-        virtual void  OnClicked() override;
-        virtual void  Draw() override;
-        virtual float GetWidth() override;
-    };
-
-    class MenuPopupExpandableElement : public MenuPopupElement
-    {
-    public:
-        MenuPopupExpandableElement() = default;
-        MenuPopupExpandableElement(const String& name, uint32 id, String tooltip = "") : MenuPopupElement(name, id, tooltip){};
-        virtual ~MenuPopupExpandableElement() = default;
-
-    protected:
-        virtual void  OnClicked() override;
-        virtual void  Draw() override;
-        virtual float GetWidth() override;
-    };
-
-    class MenuPopupActionElement : public MenuPopupElement
-    {
-    public:
-        MenuPopupActionElement() = default;
-        MenuPopupActionElement(const String& name, uint32 id, String tooltip = "") : MenuPopupElement(name, id, tooltip){};
-        virtual ~MenuPopupActionElement() = default;
-
-    protected:
-        virtual void  OnClicked() override;
-        virtual void  Draw() override;
-        virtual float GetWidth() override;
-    };
-
-    class MenuPopupDividerElement : public MenuPopupElement
-    {
-    public:
-        MenuPopupDividerElement() = default;
-        MenuPopupDividerElement(const String& name, uint32 id, String tooltip = "") : MenuPopupElement(name, id, tooltip){};
-        virtual ~MenuPopupDividerElement() = default;
-
-    protected:
-        virtual void  OnClicked() override;
-        virtual void  Draw() override;
-        virtual float GetWidth() override;
+        ElementType m_type         = ElementType::Action;
+        String      m_name         = "";
+        uint32      m_id           = 0;
+        String      m_tooltip      = "";
+        Rect        m_rect         = Rect(0, 0);
+        Vector2     m_textSize     = Vector2::Zero;
+        Vector2     m_maxTextSize  = Vector2::Zero;
+        Vector2     m_maxExtraSize = Vector2::Zero;
+        bool        m_toggleValue  = false;
     };
 
     class MenuPopup
     {
     public:
+        MenuPopup(const String& name) : m_name(name){};
         ~MenuPopup();
+
         void AddElement(MenuPopupElement* element);
-        void Draw(const Vector2& startPosition);
+        bool Draw(const Vector2& startPosition);
+
+        inline const String& GetName() const
+        {
+            return m_name;
+        }
 
     private:
         Vector<MenuPopupElement*> m_elements;
-        float                     m_maxWidth = 0.0f;
+        String                    m_name = "";
     };
 } // namespace Lina::Editor
 

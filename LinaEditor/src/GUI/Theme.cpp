@@ -33,52 +33,55 @@ namespace Lina::Editor
 {
     float Theme::GetProperty(ThemeProperty p)
     {
-        bool shouldScale = p == ThemeProperty::WindowItemSpacingX || p == ThemeProperty::WindowItemSpacingY || p == ThemeProperty::WindowItemPaddingX || p == ThemeProperty::WindowItemPaddingY;
+        bool shouldScale = p == ThemeProperty::WindowItemSpacingX || p == ThemeProperty::WindowItemSpacingY || p == ThemeProperty::WindowItemPaddingX || p == ThemeProperty::WindowItemPaddingY ||
+                           p == ThemeProperty::ButtonBorderThickness || p == ThemeProperty::PopupBorderThickness || p == ThemeProperty::WindowBorderThickness || p == ThemeProperty::MenuBarItemsTooltipSpacing ||
+                           p == ThemeProperty::MenuBarPopupBorderThickness;
         return shouldScale ? m_properties[p] * LinaVG::Config.framebufferScale.x : m_properties[p];
     }
 
-    void Theme::PushSetColor(ThemeColor tc, Color c)
+    void Theme::PushColor(ThemeColor tc, Color c)
     {
         StoredColor sc;
         sc.tc  = tc;
         sc.col = m_colors[tc];
-        m_storedColors.push_back(sc);
+        m_colorStack.push_back(sc);
         m_colors[tc] = c;
     }
 
-    void Theme::PushSetColor(ThemeColor tc, ThemeColor fromTc)
+    void Theme::PushColor(ThemeColor tc, ThemeColor fromTc)
     {
-        StoredColor sc;
-        sc.tc  = tc;
-        sc.col = m_colors[tc];
-        m_storedColors.push_back(sc);
-        m_colors[tc] = m_colors[fromTc];
+        PushColor(tc, GetColor(fromTc));
     }
 
-    void Theme::PopStoredColor()
+    void Theme::PopColor()
     {
-        StoredColor restore  = m_storedColors.back();
+        StoredColor restore  = m_colorStack.back();
         m_colors[restore.tc] = restore.col;
-        m_storedColors.pop_back();
+        m_colorStack.pop_back();
     }
 
-    void Theme::PushSetProperty(ThemeProperty tp, float val)
+    void Theme::PushProperty(ThemeProperty tp, float val)
     {
         StoredProperty sp;
         sp.tp  = tp;
         sp.val = m_properties[tp];
-        m_storedProperties.push_back(sp);
+        m_propertyStack.push_back(sp);
         m_properties[tp] = val;
 
         if (tp == ThemeProperty::AAEnabled)
             LinaVG::Config.aaEnabled = val == 1.0f;
     }
 
-    void Theme::PopStoredProperty()
+    void Theme::PushProperty(ThemeProperty tp, ThemeProperty p)
     {
-        StoredProperty restored   = m_storedProperties.back();
+        PushProperty(tp, GetProperty(p));
+    }
+
+    void Theme::PopProperty()
+    {
+        StoredProperty restored   = m_propertyStack.back();
         m_properties[restored.tp] = restored.val;
-        m_storedProperties.pop_back();
+        m_propertyStack.pop_back();
 
         if (restored.tp == ThemeProperty::AAEnabled)
             LinaVG::Config.aaEnabled = restored.val == 1.0f;

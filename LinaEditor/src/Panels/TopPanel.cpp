@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Resource/Texture.hpp"
 #include "Core/ResourceManager.hpp"
+#include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -95,55 +96,48 @@ namespace Lina::Editor
         Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(TO_SIDC(TITLE_ANIM_SID), m_packedAnim);
 
         // Base menu bar items.
-        MenuBarItemPopup* file   = new MenuBarItemPopup("File");
-        MenuBarItemPopup* edit   = new MenuBarItemPopup("Edit");
-        MenuBarItemPopup* level  = new MenuBarItemPopup("Level");
-        MenuBarItemPopup* view   = new MenuBarItemPopup("View");
-        MenuBarItemPopup* entity = new MenuBarItemPopup("Entity");
-        MenuBarItemPopup* debug  = new MenuBarItemPopup("Debug");
-        MenuBarItemPopup* help   = new MenuBarItemPopup("Help");
-        m_menuBar.AddItem(file, edit, view, level, entity, debug, help);
+        MenuPopup* file   = new MenuPopup("File");
+        MenuPopup* edit   = new MenuPopup("Edit");
+        MenuPopup* level  = new MenuPopup("Level");
+        MenuPopup* view   = new MenuPopup("View");
+        MenuPopup* entity = new MenuPopup("Entity");
+        MenuPopup* debug  = new MenuPopup("Debug");
+        MenuPopup* help   = new MenuPopup("Help");
+        m_menuBar.AddItem(file, edit, level, view, entity, debug, help);
 
         // Popup element for each item.
-        auto& filePopup = file->GetPopup();
-        filePopup.AddElement(new MenuPopupDividerElement("Project", 0));
-        filePopup.AddElement(new MenuPopupActionElement("Open Project", TPID_OpenProject));
-        filePopup.AddElement(new MenuPopupActionElement("Save Project", TPID_SaveProject));
-        filePopup.AddElement(new MenuPopupActionElement("Export Project", TPID_ExportProject));
-        filePopup.AddElement(new MenuPopupDividerElement("App", 0));
-        filePopup.AddElement(new MenuPopupActionElement("Exit", TPID_Exit));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Open Project", TPID_OpenProject));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Project", TPID_SaveProject, "CTRL+S"));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Export Project", TPID_ExportProject));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Divider, "App", 0));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Exit", TPID_Exit));
 
-        auto& editPopup = edit->GetPopup();
-        // todo:
+        // todo edit
 
-        auto& viewPopup = edit->GetPopup();
-        viewPopup.AddElement(new MenuPopupDividerElement("Panels", 0));
-        viewPopup.AddElement(new MenuPopupExpandableElement("Panels", TPID_Panels));
+        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels", TPID_Panels));
+        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Divider, "", 0));
+        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Dummy1", 0));
+        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "AQBC", 0));
+        //
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Create Level", TPID_CreateLevel, "CTRL+L"));
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Level As...", TPID_SaveLevel, "CTRL+SHIFT+S"));
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Load Level", TPID_LoadLevel));
+        //
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Empty Entity", TPID_CreateEntity, "CTRL+E"));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cube", TPID_Cube));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cylinder", TPID_Cylinder));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Capsule", TPID_Capsule));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Sphere", TPID_Sphere));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "LinaLogo", TPID_LinaLogo));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Quad", TPID_Quad));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Plane", TPID_Plane));
 
-        auto& levelPopup = edit->GetPopup();
-        levelPopup.AddElement(new MenuPopupActionElement("Create Level", TPID_CreateLevel));
-        levelPopup.AddElement(new MenuPopupActionElement("Save Level", TPID_SaveLevel));
-        levelPopup.AddElement(new MenuPopupActionElement("Load Level", TPID_LoadLevel));
+        // todo debug
 
-        auto& entityPopup = edit->GetPopup();
-        entityPopup.AddElement(new MenuPopupDividerElement("Create", 0));
-        entityPopup.AddElement(new MenuPopupActionElement("Entity", TPID_CreateEntity));
-        entityPopup.AddElement(new MenuPopupActionElement("Cube", TPID_Cube));
-        entityPopup.AddElement(new MenuPopupActionElement("Cylinder", TPID_Cylinder));
-        entityPopup.AddElement(new MenuPopupActionElement("Capsule", TPID_Capsule));
-        entityPopup.AddElement(new MenuPopupActionElement("Sphere", TPID_Sphere));
-        entityPopup.AddElement(new MenuPopupActionElement("LinaLogo", TPID_LinaLogo));
-        entityPopup.AddElement(new MenuPopupActionElement("Quad", TPID_Quad));
-        entityPopup.AddElement(new MenuPopupActionElement("Plane", TPID_Plane));
-
-        auto& debugPopup = edit->GetPopup();
-        // todo:
-
-        auto& helpPopup = edit->GetPopup();
-        helpPopup.AddElement(new MenuPopupDividerElement("Links", 0));
-        helpPopup.AddElement(new MenuPopupActionElement("Github", TPID_Github));
-        helpPopup.AddElement(new MenuPopupActionElement("Website", TPID_Website));
-        helpPopup.AddElement(new MenuPopupActionElement("About", TPID_About));
+        //
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Github", TPID_Github));
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Website", TPID_Website));
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "About", TPID_About));
     }
 
     void TopPanel::Shutdown()
@@ -159,7 +153,7 @@ namespace Lina::Editor
 
         auto& theme = LGUI->GetTheme();
 
-        theme.PushSetColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
+        theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
 
         LGUI->SetWindowSize("Top Panel", m_currentSize);
         if (LGUI->BeginWindow("Top Panel"))
@@ -171,7 +165,7 @@ namespace Lina::Editor
             LGUI->EndWindow();
         }
 
-        theme.PopStoredColor();
+        theme.PopColor();
     }
 
     void TopPanel::DrawFileMenu()
@@ -181,10 +175,9 @@ namespace Lina::Editor
         auto&         w       = LGUI->GetCurrentWindow();
 
         w.SetPenPos(Vector2(10, 0));
-        theme.SetCurrentFont(ThemeFont::Default);
 
         // Style
-        theme.PushSetColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);
+        theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);
 
         const float   buttonSizeX = display.x * 0.027f;
         const float   buttonSizeY = buttonSizeX * 0.5f;
@@ -193,7 +186,7 @@ namespace Lina::Editor
         m_menuBar.SetItemSize(buttonSize);
         m_menuBar.SetExtraSpacing(buttonSizeX * 0.05f);
         m_menuBar.Draw();
-        theme.PopStoredColor();
+        theme.PopColor();
     }
 
     void TopPanel::DrawLinaLogo()
@@ -246,17 +239,16 @@ namespace Lina::Editor
 
             // Popup
             const Vector2 mouse         = LGUI->GetMousePosition();
-            const Vector2 popupPosition = Vector2(mouse.x + 50, mouse.y + 50);
-            // LGUI->SetWindowPosition("TitleInfoPopup", popupPosition);
-            // if (Widgets::BeginPopup("TitleInfoPopup", Vector2(100,100)))
-            //{
-            //     Widgets::EndPopup();
-            // }
+            const Vector2 popupPosition = Vector2(mouse.x + 15, mouse.y + 15);
 
             const char* popupName = "TitlePopup";
-           
-            if (Widgets::BeginPopup(popupName, popupPosition, Vector2(50,50)))
+
+            if (Widgets::BeginPopup(popupName, popupPosition, Vector2::Zero))
             {
+                const String versionText = "Lina Engine: " + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b." + TO_STRING(LINA_BUILD);
+                const String configText  = "Configuration: " + String(LINA_CONFIGURATION);
+                Widgets::Text(versionText, 400);
+                Widgets::Text(configText, 400);
                 Widgets::EndPopup();
             }
         }
@@ -283,9 +275,9 @@ namespace Lina::Editor
         const float restoreStart = minimizeStart + buttonSize.x + spacing;
         const float closeStart   = restoreStart + buttonSize.x + spacing;
 
-        theme.PushSetProperty(ThemeProperty::ButtonIconFit, 0.45f);
-        theme.PushSetColor(ThemeColor::ButtonBackground, ThemeColor::Dark0);
-        theme.PushSetColor(ThemeColor::ButtonHovered, ThemeColor::Error);
+        theme.PushProperty(ThemeProperty::ButtonIconFit, 0.45f);
+        theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::Dark0);
+        theme.PushColor(ThemeColor::ButtonHovered, ThemeColor::Error);
 
         w.SetPenPos(Vector2(closeStart, penY));
         if (Widgets::ButtonIcon(m_closeSid, buttonSize, mask))
@@ -293,10 +285,9 @@ namespace Lina::Editor
             Graphics::Window::Get()->Close();
         }
 
-        theme.PopStoredColor();
+        theme.PopColor();
 
         w.SetPenPos(Vector2(restoreStart, penY));
-
         if (Widgets::ButtonIcon(m_restoreSid, buttonSize, mask))
         {
         }
@@ -306,7 +297,7 @@ namespace Lina::Editor
         {
         }
 
-        theme.PopStoredProperty();
-        theme.PopStoredColor();
+        theme.PopProperty();
+        theme.PopColor();
     }
 } // namespace Lina::Editor

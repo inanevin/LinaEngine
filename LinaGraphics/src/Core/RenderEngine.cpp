@@ -138,10 +138,11 @@ namespace Lina::Graphics
         LinaVG::Config.flipTextureUVs        = false;
         LinaVG::Config.framebufferScale.x    = RuntimeInfo::GetContentScaleWidth();
         LinaVG::Config.framebufferScale.y    = RuntimeInfo::GetContentScaleHeight();
-        LinaVG::Config.aaMultiplier          = RuntimeInfo::GetContentScaleWidth() * 0.2f;
+        LinaVG::Config.aaMultiplier          = RuntimeInfo::GetContentScaleWidth() * 0.4f;
         LinaVG::Config.aaEnabled             = true;
         LinaVG::Config.textCachingEnabled    = true;
         LinaVG::Config.textCachingSDFEnabled = true;
+        LinaVG::Config.textCacheReserve = 10000;
 
         LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 

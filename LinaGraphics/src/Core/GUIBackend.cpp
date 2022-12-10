@@ -271,10 +271,16 @@ namespace Lina::Graphics
         };
         txt->GenerateCustomBuffers(width, height, 1, Format::R8_UNORM, sampler, ImageTiling::Linear);
 
+        txt->SetUserManaged(true);
+
         // Skipping 0 index
         const uint32 handle    = static_cast<uint32>(m_fontTextures.size() + 1);
         m_fontTextures[handle] = txt;
         m_bufferingFontTexture = handle;
+
+        String fontTextureID = "Font Texture" + TO_STRING(handle);
+        txt->m_sid           = TO_SID(fontTextureID);
+        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(txt->m_sid, txt);
         return handle;
     }
 

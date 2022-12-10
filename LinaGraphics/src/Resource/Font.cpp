@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Resource/Font.hpp"
+#include "Core/CommonEngine.hpp"
 #include "Serialization/VectorSerialization.hpp"
 
 #define LINAVG_TEXT_SUPPORT
@@ -76,19 +77,34 @@ namespace Lina::Graphics
         SaveToArchive(archive);
     }
 
-    void Font::GenerateFont(bool isSDF, int size)
+    void Font::GenerateFontImpl(bool isSDF, int size)
     {
         m_assetData.isSDF = isSDF;
         m_assetData.size  = size;
 
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            m_handle = LinaVG::LoadFont(m_path.c_str(), m_assetData.isSDF, m_assetData.size);
+            m_handles[size] = LinaVG::LoadFont(m_path.c_str(), m_assetData.isSDF, m_assetData.size * RuntimeInfo::GetContentScaleWidth());
         else
         {
-            uint8* ptr = (uint8*)(m_assetData.file.data());
-            m_handle   = LinaVG::LoadFontFromMemory(ptr, m_assetData.file.size(), m_assetData.isSDF, m_assetData.size);
-            m_assetData.file.clear();
+            uint8* ptr      = (uint8*)(m_assetData.file.data());
+            m_handles[size] = LinaVG::LoadFontFromMemory(ptr, m_assetData.file.size(), m_assetData.isSDF, m_assetData.size * RuntimeInfo::GetContentScaleWidth());
         }
+    }
+
+    void Font::ClearBuffers()
+    {
+        if (ApplicationInfo::GetAppMode() != ApplicationMode::Editor)
+            m_assetData.file.clear();
+    }
+
+    uint32 Font::GetHandle()
+    {
+        return m_handles.begin()->second;
+    }
+
+    uint32 Font::GetHandle(int size)
+    {
+        return m_handles[size];
     }
 
     void Font::SaveToArchive(Serialization::Archive<OStream>& archive)

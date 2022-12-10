@@ -45,25 +45,35 @@ namespace Lina::Editor
     enum class ThemeFont
     {
         Default,
-        LinaStyle,
+        PopupMenuText,
+        PopupText,
+        MenuBar,
     };
 
     enum class ThemeColor
     {
         Null,
         Dark0,
+        Light5,
+        Light3,
         Error,
         Warn,
         Check,
+        TopPanelBackground,
+        TextColor,
         Window,
+        WindowBorderColor,
         ButtonBackground,
         ButtonHovered,
         ButtonPressed,
         ButtonDisabled,
         ButtonBorder,
         ButtonIconTint,
-        TopPanelBackground,
         PopupBG,
+        PopupBorderColor,
+        Highlight,
+        MenuBarPopupBG,
+        MenuBarPopupBorderColor,
     };
 
     enum class ThemeProperty
@@ -78,6 +88,12 @@ namespace Lina::Editor
         ButtonBorderThickness,
         ButtonIconFit,
         ButtonTextFit,
+        WindowRounding,
+        PopupRounding,
+        WindowBorderThickness,
+        PopupBorderThickness,
+        MenuBarPopupBorderThickness,
+        MenuBarItemsTooltipSpacing,
     };
 
     struct ThemeIconData
@@ -103,11 +119,30 @@ namespace Lina::Editor
     {
     public:
         float GetProperty(ThemeProperty p);
-        void  PushSetColor(ThemeColor tc, Color c);
-        void  PushSetColor(ThemeColor tc, ThemeColor fromTc);
-        void  PopStoredColor();
-        void  PushSetProperty(ThemeProperty tp, float val);
-        void  PopStoredProperty();
+        void  PushColor(ThemeColor tc, Color c);
+        void  PushColor(ThemeColor tc, ThemeColor fromTc);
+        void  PopColor();
+        void  PushProperty(ThemeProperty tp, float val);
+        void  PushProperty(ThemeProperty tp, ThemeProperty p);
+        void  PopProperty();
+
+        inline void PushFont(ThemeFont f)
+        {
+            m_fontStack.push_back(m_fonts[f]);
+        }
+
+        inline void PopFont()
+        {
+            m_fontStack.pop_back();
+        }
+
+        inline uint32 GetCurrentFont()
+        {
+            if (m_fontStack.empty())
+                return m_fonts[ThemeFont::Default];
+
+            return m_fontStack.back();
+        }
 
         inline void SetColor(ThemeColor tc, Color c)
         {
@@ -139,19 +174,9 @@ namespace Lina::Editor
             return m_colors[col];
         }
 
-        inline void SetCurrentFont(ThemeFont font)
-        {
-            m_currentFont = m_fonts[font];
-        }
-
         inline uint32 GetFont(ThemeFont font)
         {
             return m_fonts[font];
-        }
-
-        inline uint32 GetCurrentFont()
-        {
-            return m_currentFont;
         }
 
         inline const ThemeIconData& GetIcon(StringID icon)
@@ -163,10 +188,10 @@ namespace Lina::Editor
         friend class EditorRenderer;
         friend class Editor;
 
-        Deque<StoredColor>               m_storedColors;
-        Deque<StoredProperty>            m_storedProperties;
+        Deque<StoredColor>               m_colorStack;
+        Deque<StoredProperty>            m_propertyStack;
+        Deque<uint32>                    m_fontStack;
         float                            m_currentRotateAngle = 0.0f;
-        uint32                           m_currentFont        = 0;
         HashMap<ThemeColor, Color>       m_colors;
         HashMap<ThemeFont, uint32>       m_fonts;
         HashMap<ThemeProperty, float>    m_properties;

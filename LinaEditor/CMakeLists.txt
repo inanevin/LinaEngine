@@ -62,6 +62,7 @@ include/Core/EditorCommon.hpp
 # GUI
 include/GUI/Theme.hpp
 include/GUI/GUI.hpp
+include/GUI/GUICommon.hpp
 include/GUI/Widgets.hpp
 include/GUI/CustomWidgets/MenuBar.hpp
 include/GUI/CustomWidgets/MenuPopup.hpp

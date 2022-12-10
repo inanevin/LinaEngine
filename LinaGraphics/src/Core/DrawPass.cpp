@@ -188,7 +188,7 @@ namespace Lina::Graphics
         if (Time::GetCPUTime() > lastReportTime + 1.0f)
         {
             lastReportTime = static_cast<float>(Time::GetCPUTime());
-            LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
+            // LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
         }
     }
 

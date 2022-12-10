@@ -32,7 +32,7 @@ SOFTWARE.
 #define LFont_HPP
 
 #include "Core/Resource.hpp"
-#include "Data/Vector.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina::Graphics
 {
@@ -52,20 +52,26 @@ namespace Lina::Graphics
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-        void              GenerateFont(bool isSDF, int size);
+        void              ClearBuffers();
 
-        inline uint32 GetHandle()
+        template <typename... Args> inline void GenerateFont(bool isSDF, Args... args)
         {
-            return m_handle;
+            (GenerateFontImpl(isSDF, std::forward<Args>(args)), ...);
         }
+
+        uint32 GetHandle();
+        uint32 GetHandle(int size);
 
     protected:
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
-        uint32    m_handle = 0;
-        AssetData m_assetData;
+        void GenerateFontImpl(bool isSDF, int size);
+
+    private:
+        AssetData            m_assetData;
+        HashMap<int, uint32> m_handles;
     };
 } // namespace Lina::Graphics
 

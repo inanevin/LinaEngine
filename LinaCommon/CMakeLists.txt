@@ -249,10 +249,8 @@ PUBLIC
 # 	include/JobSystem/JobSystem.hpp
 # )
 # 
-if(MSVC)
-target_precompile_headers(${PROJECT_NAME}
-PUBLIC <windows.h>)
-endif()
+
+
 # 
 # target_precompile_headers(${PROJECT_NAME}
 # PUBLIC

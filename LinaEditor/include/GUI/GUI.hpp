@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Deque.hpp"
-#include "Data/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Widgets.hpp"
 #include "Theme.hpp"
@@ -51,7 +50,7 @@ namespace Lina::Editor
 
     enum ImmediateWindowMask
     {
-        IMW_UseAbsolutePosition,
+        IMW_UseAbsolutePosition = 0,
         IMW_UseAbsoluteDrawOrder,
     };
 
@@ -84,6 +83,10 @@ namespace Lina::Editor
         void             BeginWidget(const Vector2& size);
         void             EndWidget();
         ImmediateWidget& GetCurrentWidget();
+
+        // Layout
+        void BeginHorizontal();
+        void EndHorizontal();
 
         inline void SetPenPos(const Vector2& pos)
         {
@@ -130,18 +133,25 @@ namespace Lina::Editor
             return m_sid;
         }
 
+        inline const Deque<int>& GetHorizontalRequests()
+        {
+            return m_horizontalRequests;
+        }
+
     private:
         friend class ImmediateGUI;
 
-        String                  m_name       = "";
-        StringID                m_sid        = 0;
-        Vector2                 m_penPos     = Vector2::Zero;
-        Vector2                 m_absPos     = Vector2::Zero;
-        Vector2                 m_relPos     = Vector2::Zero;
-        Vector2                 m_size       = Vector2::Zero;
-        float                   m_maxPenPosX = 0.0f;
-        int                     m_drawOrder  = 0;
-        Vector<ImmediateWidget> m_widgets;
+        String                 m_name                 = "";
+        StringID               m_sid                  = 0;
+        Vector2                m_penPos               = Vector2::Zero;
+        Vector2                m_absPos               = Vector2::Zero;
+        Vector2                m_relPos               = Vector2::Zero;
+        Vector2                m_size                 = Vector2::Zero;
+        float                  m_maxPenPosX           = 0.0f;
+        float                  m_maxYDuringHorizontal = 0.0f;
+        int                    m_drawOrder            = 0;
+        Deque<ImmediateWidget> m_widgets;
+        Deque<int>             m_horizontalRequests;
     };
 
     class ImmediateGUI

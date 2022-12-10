@@ -33,55 +33,11 @@ SOFTWARE.
 
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
-#include "MenuPopup.hpp"
+#include "Functional/Functional.hpp"
 
 namespace Lina::Editor
 {
-
-    class MenuBar;
-
-    class MenuBarItem
-    {
-
-    public:
-        MenuBarItem(){};
-        MenuBarItem(const String& name) : m_name(name){};
-        MenuBarItem(const String& name, uint32 id) : m_name(name){};
-        virtual ~MenuBarItem() = default;
-
-    protected:
-        virtual void Draw(const Vector2& size) = 0;
-
-    private:
-        friend class MenuBar;
-
-    protected:
-        String m_name = "";
-    };
-
-    class MenuBarItemPopup : public MenuBarItem
-    {
-
-    public:
-        MenuBarItemPopup(){};
-        MenuBarItemPopup(const String& name) : MenuBarItem(name){};
-        virtual ~MenuBarItemPopup() = default;
-
-        inline MenuPopup& GetPopup()
-        {
-            return m_menuPopup;
-        }
-
-    protected:
-        virtual void Draw(const Vector2& size) override;
-
-    private:
-        void OnClicked();
-
-    private:
-        bool      m_isOpen = false;
-        MenuPopup m_menuPopup;
-    };
+    class MenuPopup;
 
     class MenuBar
     {
@@ -112,10 +68,11 @@ namespace Lina::Editor
         }
 
     private:
-        Vector<MenuBarItem*> m_items;
-        Vector2              m_itemSize      = Vector2::Zero;
-        Vector2              m_startPosition = Vector2::Zero;
-        float                m_extraSpacing  = 0.0f;
+        Vector<MenuPopup*> m_items;
+        Vector2            m_itemSize      = Vector2::Zero;
+        Vector2            m_startPosition = Vector2::Zero;
+        float              m_extraSpacing  = 0.0f;
+        int32              m_activeItem    = -1;
     };
 } // namespace Lina::Editor
 

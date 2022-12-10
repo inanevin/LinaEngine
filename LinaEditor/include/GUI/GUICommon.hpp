@@ -1,4 +1,5 @@
 /*
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -28,45 +29,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaGUIWidgets_HPP
-#define LinaGUIWidgets_HPP
-
-#include "Data/Bitmask.hpp"
-#include "Utility/StringId.hpp"
-#include "Theme.hpp"
+#ifndef LinaGUICommon_HPP
+#define LinaGUICommon_HPP
 
 namespace Lina::Editor
 {
-    enum ButtonStyleMask
-    {
-        ButtonStyle_None = 0,
-        ButtonStyle_Border,
-        ButtonStyle_RoundCorners,
-    };
+#define LGUI_POPUP_DRAWORDER_START 100
+#define LGUI_ICONSIZE              Vector2(100, 100)
 
-    class Widgets
-    {
-    public:
-        // Buttons
-        static bool ButtonEmpty(const Vector2& size, Bitmask8 mask = Bitmask8());
-        static bool Button(const String& str, const Vector2& size, Bitmask8 mask = Bitmask8());
-        static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
-
-        // Popup
-        static bool BeginPopup(const String& str, const Vector2& pos, const Vector2& size);
-        static void EndPopup();
-
-        // Text
-        static void Text(const String& text, int wrapWidth = 0);
-
-        // Utility
-        static void BeginHorizontal();
-        static void EndHorizontal();
-        static void Space(float amt);
-
-        // Icon
-        static void DrawIcon(const String& name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);
-    };
 } // namespace Lina::Editor
 
 #endif

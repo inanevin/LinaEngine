@@ -242,8 +242,8 @@ namespace Lina::Editor
     Vector<const char*> Editor::GetDefaultFonts()
     {
         Vector<const char*> vec;
-        vec.push_back("Resources/Editor/Fonts/DefaultFont.ttf");
-        vec.push_back("Resources/Editor/Fonts/GoodTimes.otf");
+        vec.push_back("Resources/Editor/Fonts/Rubik-Regular.ttf");
+        vec.push_back("Resources/Editor/Fonts/NunitoSans.ttf");
         return vec;
     }
 

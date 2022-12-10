@@ -224,7 +224,7 @@ namespace Lina
         m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
             m_renderEngine.Render();
             m_frames++;
-        });
+         });
 
         // Game sim, physics + update etc.
         RunSimulation((float)RuntimeInfo::s_deltaTime);
