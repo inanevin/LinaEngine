@@ -47,6 +47,7 @@ namespace Lina
         struct EWindowContextCreated;
         struct EMouseScrollCallback;
         struct EWindowFocusChanged;
+        struct EMouseButtonCallback;
     } // namespace Event
 
 } // namespace Lina
@@ -61,12 +62,14 @@ namespace Lina::Input
         {
             return s_inputEngine;
         }
-        bool GetKey(int keyCode);
-        bool GetKeyDown(int keyCode);
-        bool GetKeyUp(int keyCode);
-        bool GetMouseButton(int index);
-        bool GetMouseButtonDown(int index);
-        bool GetMouseButtonUp(int index);
+        bool GetKey(int button);
+        bool GetKeyDown(int button);
+        bool GetKeyUp(int button);
+        bool GetMouseButton(int button);
+        bool GetMouseButtonDown(int button);
+        bool GetMouseButtonUp(int button);
+        bool GetMouseButtonDoubleClick(int button);
+        bool GetMouseButtonClicked(int button);
         void SetCursorMode(CursorMode mode);
         void SetMousePosition(const Vector2& v) const;
         void SetRawMotion(bool enabled);
@@ -111,6 +114,7 @@ namespace Lina::Input
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
+        void OnMouseButtonCallback(const Event::EMouseButtonCallback& e);
         void OnWindowFocusChanged(const Event::EWindowFocusChanged& e);
 
     private:
@@ -125,11 +129,14 @@ namespace Lina::Input
         HashMap<int, int>   m_keyUpNewStateMap;
         HashMap<int, int>   m_mouseDownNewStateMap;
         HashMap<int, int>   m_mouseUpNewStateMap;
+        HashMap<int, bool>  m_doubleClicks;
+        HashMap<int, int>   m_singleClickStates;
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
         CursorMode          m_cursorMode         = CursorMode::Visible;
         Vector2             m_currentMouseScroll = Vector2::Zero;
         Vector2             m_axisMousePos       = Vector2::Zero;
+        Vector2             m_previousMousePos   = Vector2::Zero;
         bool                m_rawMotionSupported = false;
         bool                m_windowFocused      = false;
     };

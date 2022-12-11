@@ -59,6 +59,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &InputEngine::OnWindowContextCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowFocusChanged, &InputEngine::OnWindowFocusChanged>(this);
+        Event::EventSystem::Get()->Connect<Event::EMouseButtonCallback, &InputEngine::OnMouseButtonCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
     }
@@ -69,6 +70,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Disconnect<Event::EWindowContextCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseScrollCallback>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowFocusChanged>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EMouseButtonCallback>(this);
         m_keyDownNewStateMap.clear();
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
@@ -89,6 +91,12 @@ namespace Lina::Input
     {
         m_currentMouseScroll.x = (float)e.xoff;
         m_currentMouseScroll.y = (float)e.yoff;
+    }
+
+    void InputEngine::OnMouseButtonCallback(const Event::EMouseButtonCallback& e)
+    {
+        if (e.action == InputAction::Repeated)
+            m_doubleClicks[e.button] = true;
     }
 
     void InputEngine::OnWindowFocusChanged(const Event::EWindowFocusChanged& e)
@@ -190,6 +198,24 @@ namespace Lina::Input
         m_mouseUpNewStateMap[button] = newState;
         return flag;
 #endif
+    }
+
+    bool InputEngine::GetMouseButtonDoubleClick(int button)
+    {
+        return m_doubleClicks[button];
+    }
+
+    bool InputEngine::GetMouseButtonClicked(int button)
+    {
+        bool result = false;
+
+        if (GetMouseButtonDown(button))
+            m_previousMousePos = GetMousePosition();
+
+        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_previousMousePos, 0.01f))
+            result = true;
+
+        return result;
     }
 
     Vector2 InputEngine::GetMouseAxisDefinite()
@@ -322,6 +348,8 @@ namespace Lina::Input
     void InputEngine::PrePoll()
     {
         m_currentMouseScroll = Vector2::Zero;
+        m_doubleClicks.clear();
+        m_singleClickStates.clear();
     }
 
     void InputEngine::Tick()

@@ -52,7 +52,11 @@ namespace Lina::Editor
         // todo
 
         // View
-        TPID_Panels,
+        TPID_Panels_Entities,
+        TPID_Panels_Level,
+        TPID_Panels_Properties,
+        TPID_Panels_Resources,
+        TPID_Panels_Global,
 
         // Level,
         TPID_CreateLevel,
@@ -113,11 +117,27 @@ namespace Lina::Editor
         file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Exit", TPID_Exit));
 
         // todo edit
+        auto* panels = new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels", 0);
+        panels->CreateExpandedPopup();
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities", TPID_Panels_Entities));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level", TPID_Panels_Level));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Properties", TPID_Panels_Properties));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global", TPID_Panels_Global));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources", TPID_Panels_Resources));
 
-        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels", TPID_Panels));
+         auto* panels2 = new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels2", 0);
+        panels2->CreateExpandedPopup();
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities2", TPID_Panels_Entities));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level2", TPID_Panels_Level));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Propertie2s", TPID_Panels_Properties));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global2", TPID_Panels_Global));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources2", TPID_Panels_Resources));
+
+        view->AddElement(panels);
+        view->AddElement(panels2);
         view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Divider, "", 0));
         view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Dummy1", 0));
-        view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "AQBC", 0));
+
         //
         level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Create Level", TPID_CreateLevel, "CTRL+L"));
         level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Level As...", TPID_SaveLevel, "CTRL+SHIFT+S"));

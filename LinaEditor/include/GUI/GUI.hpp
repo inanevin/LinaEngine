@@ -179,6 +179,11 @@ namespace Lina::Editor
         // Utility
         bool    IsMouseHoveringRect(const Rect& rect);
         Vector2 GetMousePosition();
+        bool    GetMouseButtonDown(int button);
+        bool    GetMouseButtonUp(int button);
+        bool    GetMouseButton(int button);
+        bool    GetMouseButtonClicked(int button);
+        bool    GetMouseButtonDoubleClicked(int button);
 
         inline void SetAbsoluteDrawOrder(int drawOrder)
         {

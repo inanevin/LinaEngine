@@ -27,10 +27,13 @@ SOFTWARE.
 */
 
 #include "GUI/CustomWidgets/MenuPopup.hpp"
+#include "GUI/CustomWidgets/MenuBar.hpp"
 #include "GUI/Widgets.hpp"
 #include "Math/Math.hpp"
 #include "GUI/GUI.hpp"
 #include "GUI/GUICommon.hpp"
+#include "Core/InputMappings.hpp"
+#include "Core/CommonEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -40,34 +43,32 @@ namespace Lina::Editor
 #define EXPAND_ICON_SCALE   1.25f
 #define XPADDING_MULTIPLIER 2.0f
 
+    MenuPopupElement::~MenuPopupElement()
+    {
+        if (m_expandedPopup != nullptr)
+            delete m_expandedPopup;
+    }
+
     bool MenuPopupElement::Draw()
     {
-        auto&       w         = LGUI->GetCurrentWindow();
-        auto&       theme     = LGUI->GetTheme();
-        const float xPadding  = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
-        int         drawOrder = LGUI_POPUP_DRAWORDER_START + 1;
+        auto&       w           = LGUI->GetCurrentWindow();
+        auto&       theme       = LGUI->GetTheme();
+        const float xPadding    = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
+        int         drawOrder   = LGUI_POPUP_DRAWORDER_START + 1;
+        const bool  isHovered   = LGUI->IsMouseHoveringRect(m_rect);
+        bool        returnValue = isHovered;
 
-        // Highlighted background
-        if (m_type != ElementType::Divider)
-        {
-            if (LGUI->IsMouseHoveringRect(m_rect))
-            {
-                LinaVG::StyleOptions bgOpts;
-                bgOpts.color = LV4(theme.GetColor(ThemeColor::Highlight));
-                LinaVG::DrawRect(LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), bgOpts, 0.0f, drawOrder);
-            }
-
-            drawOrder++;
-
-            // Text
+        auto drawText = [&]() {
             LinaVG::TextOptions text;
-            text.font              = theme.GetCurrentFont();
-            const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_name.c_str(), text));
-            const Vector2 textPos  = Vector2(m_rect.pos.x + xPadding * XPADDING_MULTIPLIER, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f);
+            text.font                  = theme.GetCurrentFont();
+            const float   posAdditionY = isHovered && LGUI->GetMouseButton(LINA_MOUSE_0) ? 1.0f * RuntimeInfo::GetContentScaleWidth() : 0.0f;
+            const Vector2 textSize     = FL2(LinaVG::CalculateTextSize(m_name.c_str(), text));
+            const Vector2 textPos      = Vector2(m_rect.pos.x + xPadding * XPADDING_MULTIPLIER, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f + posAdditionY);
             LinaVG::DrawTextNormal(m_name.c_str(), LV2(textPos), text, 0.0f, drawOrder);
             drawOrder++;
+        };
 
-            // Tooltip
+        auto drawTooltip = [&]() {
             if (!m_tooltip.empty())
             {
                 LinaVG::TextOptions textOpts;
@@ -80,6 +81,22 @@ namespace Lina::Editor
                 LinaVG::DrawTextNormal(m_tooltip.c_str(), LV2(tooltipPos), textOpts, 0.0f, drawOrder);
                 drawOrder++;
             }
+        };
+
+        auto drawBG = [&]() {
+            LinaVG::StyleOptions bgOpts;
+            bgOpts.color = LV4(theme.GetColor(ThemeColor::Highlight));
+            LinaVG::DrawRect(LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), bgOpts, 0.0f, drawOrder);
+            drawOrder++;
+        };
+
+        if (m_type == ElementType::Action || m_type == ElementType::Toggle)
+        {
+            if (isHovered)
+                drawBG();
+
+            drawText();
+            drawTooltip();
         }
 
         // DrawPoint(m_rect.pos, 1000);
@@ -103,12 +120,44 @@ namespace Lina::Editor
         }
         else if (m_type == ElementType::Expendable)
         {
+            const Vector2 expandedPos = Vector2(m_rect.pos + Vector2(m_rect.size.x, 0));
+            m_expandedPopup->Calculate(expandedPos);
+
+            if (m_activeElement == this)
+                drawBG();
+
+            drawText();
+            drawTooltip();
+
             const float   iconSize = m_rect.size.y * 0.5f;
             const Vector2 iconPos  = Vector2(m_rect.pos.x + m_rect.size.x - xPadding * XPADDING_MULTIPLIER * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
             Widgets::DrawIcon("CaretRightLight", iconPos, iconSize, drawOrder, Color(0.7f, 0.7f, 0.7f, 1.0f));
+
+            if (m_activeElement == this)
+                m_expandedPopup->Draw();
+
+            if (!returnValue)
+            {
+                const Vector2 expandedSize = m_expandedPopup->GetPopupSize();
+                const Rect    expandRect   = Rect(expandedPos, expandedSize);
+                returnValue                = LGUI->IsMouseHoveringRect(expandRect);
+            }
         }
 
-        return false;
+        if (isHovered)
+        {
+            if (LGUI->GetMouseButtonDown(LINA_MOUSE_0))
+        {
+            LINA_TRACE("AQ1");
+        }
+        
+        if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
+        {
+            LINA_TRACE("AQ2");
+        }
+        }
+    
+        return returnValue;
     }
 
     Vector2 MenuPopupElement::GetTextSize()
@@ -133,6 +182,11 @@ namespace Lina::Editor
         return m_textSize;
     }
 
+    void MenuPopupElement::CreateExpandedPopup()
+    {
+        m_expandedPopup = new MenuPopup("Exp");
+    }
+
     MenuPopup::~MenuPopup()
     {
         for (auto e : m_elements)
@@ -146,7 +200,7 @@ namespace Lina::Editor
         m_elements.push_back(element);
     }
 
-    bool MenuPopup::Draw(const Vector2& startPosition)
+    void MenuPopup::Calculate(const Vector2& startPosition)
     {
         bool  isClicked = false;
         auto& theme     = LGUI->GetTheme();
@@ -174,33 +228,57 @@ namespace Lina::Editor
         if (containsExtra)
             xSize += maxTextSize.y * EXPAND_ICON_SCALE;
 
-        const float itemYSize = maxTextSize.y * 2.5f;
+        m_itemSizeY           = maxTextSize.y * 2.5f;
+        m_dividerSizeY        = m_itemSizeY * 0.5f;
         const float itemCount = static_cast<float>(m_elements.size());
         const float xPadding  = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
-        const float yPadding  = theme.GetProperty(ThemeProperty::WindowItemPaddingY) * 0.5f;
+        m_yPadding            = theme.GetProperty(ThemeProperty::WindowItemPaddingY) * 0.5f;
 
-        const Vector2        popupSize = Vector2(xSize + xPadding * XPADDING_MULTIPLIER * 2, itemYSize * itemCount + yPadding * 2);
+        float popupYSize = 0.0f;
+
+        for (auto& e : m_elements)
+            popupYSize += e->m_type == MenuPopupElement::ElementType::Divider ? m_dividerSizeY : m_itemSizeY;
+
+        m_startPosition = startPosition;
+        m_popupSize     = Vector2(xSize + xPadding * XPADDING_MULTIPLIER * 2, popupYSize + m_yPadding * 2);
+    }
+
+    bool MenuPopup::Draw()
+    {
+        auto& theme  = LGUI->GetTheme();
+        auto& window = LGUI->GetCurrentWindow();
+
         LinaVG::StyleOptions style;
         style.color                    = LV4(theme.GetColor(ThemeColor::MenuBarPopupBG));
         style.outlineOptions.thickness = theme.GetProperty(ThemeProperty::MenuBarPopupBorderThickness);
         style.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::MenuBarPopupBorderColor));
-        // LinaVG::DrawRect(LV2(startPosition), LV2((startPosition + popupSize)), style, 0.0f, LGUI_POPUP_DRAWORDER_START);
+        LinaVG::DrawRect(LV2(m_startPosition), LV2((m_startPosition + m_popupSize)), style, 0.0f, LGUI_POPUP_DRAWORDER_START);
 
-        // Draw each element.
-        for (uint32 i = 0; i < m_elements.size(); i++)
+        float currentPosY = 0.0f;
+        bool  anyHovered  = false;
+
+        for (int32 i = 0; i < m_elements.size(); i++)
         {
-            auto* e   = m_elements[i];
-            e->m_rect = Rect(startPosition + Vector2(0, yPadding + i * itemYSize), Vector2(popupSize.x, itemYSize));
+            auto*       e              = m_elements[i];
+            const float finalItemSizeY = e->m_type == MenuPopupElement::ElementType::Divider ? m_dividerSizeY : m_itemSizeY;
+            e->m_rect                  = Rect(m_startPosition + Vector2(0, m_yPadding + currentPosY), Vector2(m_popupSize.x, finalItemSizeY));
+            currentPosY += finalItemSizeY;
 
-            LinaVG::TextOptions optsx;
-            optsx.font = theme.GetFont(ThemeFont::PopupMenuText);
-            LinaVG::DrawTextNormal(e->m_name.c_str(), LV2(e->m_rect.pos), optsx, 0, LGUI_POPUP_DRAWORDER_START + 100);
-
-            // if (e->Draw())
-            //     isClicked = true;
+            if (LGUI->IsMouseHoveringRect(e->m_rect))
+                m_activeElement = e;
         }
 
-        return isClicked;
+        // Draw each element.
+        for (int32 i = 0; i < m_elements.size(); i++)
+        {
+            auto* e            = m_elements[i];
+            e->m_activeElement = m_activeElement;
+
+            if (e->Draw())
+                anyHovered = true;
+        }
+
+        return anyHovered;
     }
 
 } // namespace Lina::Editor

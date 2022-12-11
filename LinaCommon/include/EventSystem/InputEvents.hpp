@@ -58,6 +58,10 @@ namespace Lina::Event
         double yoff   = 0.0;
     };
 
+    struct EMouseMoved
+    {
+    };
+
 } // namespace Lina::Event
 
 #endif

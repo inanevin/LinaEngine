@@ -29,8 +29,8 @@ SOFTWARE.
 #define NOMINMAX
 
 #include "Math/Vector.hpp"
-
 #include "Math/Quaternion.hpp"
+#include "Math/Math.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtx/projection.hpp>
@@ -153,6 +153,11 @@ namespace Lina
         *this = glm::normalize(*this);
     }
 
+    bool Vector4::Equals(const Vector4& other, float epsilon) const
+    {
+        return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon) && Math::Equals(w, other.w, epsilon);
+    }
+
     //////////////////////////////////////////////////////////////////////////
 
     Vector3 Vector3::Lerp(const Vector3& from, const Vector3& to, float t)
@@ -221,6 +226,11 @@ namespace Lina
         return glm::refract(glm::vec3(*this), glm::vec3(normal), indexOfRefraction);
     }
 
+    bool Vector3::Equals(const Vector3& other, float epsilon) const
+    {
+        return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon);
+    }
+
     float Vector3::Dot(const Vector3& other) const
     {
         return glm::dot<3, float, glm::qualifier::highp>(glm::vec3(*this), glm::vec3(other));
@@ -282,7 +292,7 @@ namespace Lina
 
     Vector2 Vector2::Min(const Vector2& other) const
     {
-       return Vector2(glm::min(x, other.x), glm::min(y, other.y));
+        return Vector2(glm::min(x, other.x), glm::min(y, other.y));
     }
 
     Vector2 Vector2::Max(const Vector2& other) const
@@ -314,6 +324,11 @@ namespace Lina
     Vector2 Vector2::Refract(const Vector2& normal, float indexOfRefraction) const
     {
         return glm::refract(glm::vec2(*this), glm::vec2(normal), indexOfRefraction);
+    }
+
+    bool Vector2::Equals(const Vector2& other, float epsilon) const
+    {
+        return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon);
     }
 
     float Vector2::Dot(const Vector2& other) const

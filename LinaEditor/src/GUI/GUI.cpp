@@ -251,6 +251,31 @@ namespace Lina::Editor
         return Input::InputEngine::Get()->GetMousePosition();
     }
 
+    bool ImmediateGUI::GetMouseButtonDown(int button)
+    {
+        return Input::InputEngine::Get()->GetMouseButtonDown(button);
+    }
+
+    bool ImmediateGUI::GetMouseButtonUp(int button)
+    {
+        return Input::InputEngine::Get()->GetMouseButtonUp(button);
+    }
+
+    bool ImmediateGUI::GetMouseButton(int button)
+    {
+        return Input::InputEngine::Get()->GetMouseButton(button);
+    }
+
+    bool ImmediateGUI::GetMouseButtonClicked(int button)
+    {
+        return Input::InputEngine::Get()->GetMouseButtonClicked(button);
+    }
+
+    bool ImmediateGUI::GetMouseButtonDoubleClicked(int button)
+    {
+        return Input::InputEngine::Get()->GetMouseButtonDoubleClick(button);
+    }
+
     void ImmediateGUI::SetWindowSize(const String& str, const Vector2& size)
     {
         m_windowSizes[GetSIDFromStr(str)] = size;

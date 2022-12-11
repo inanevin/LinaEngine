@@ -100,6 +100,7 @@ namespace Lina
         Vector2 Rotate(const Vector2& axis, float angle) const;
         Vector2 Reflect(const Vector2& normal) const;
         Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
+        bool    Equals(const Vector2& other, float epsilon) const;
         float   Dot(const Vector2& other) const;
         float   Distance(const Vector2& other) const;
         float   Magnitude() const;
@@ -289,6 +290,7 @@ namespace Lina
         float Min() const;
         float Avg() const;
         void  Normalize();
+        bool  Equals(const Vector3& other, float epsilon) const;
 
         Vector3& operator*=(Vector3 const& v)
         {
@@ -475,6 +477,7 @@ namespace Lina
         {
             return Vector2(x, y);
         }
+
         float Dot(const Vector4& other) const;
         float Distance(const Vector4& other) const;
         float Magnitude() const;
@@ -483,6 +486,7 @@ namespace Lina
         float Min() const;
         float Avg() const;
         void  Normalize();
+        bool  Equals(const Vector4& other, float epsilon) const;
 
         Vector4& operator*=(Vector4 const& v)
         {

@@ -40,8 +40,8 @@ namespace Lina
     public:
         Rect(){};
         Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
-        Vector2 pos  = Vector2i(0, 0);
-        Vector2 size = Vector2i(0, 0);
+        Vector2 pos  = Vector2(0, 0);
+        Vector2 size = Vector2(0, 0);
     };
 
     class Recti

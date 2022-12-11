@@ -86,7 +86,7 @@ namespace Lina::Editor
         textOpts.textScale       = textRatio;
         textSize                 = LinaVG::CalculateTextSize(str.c_str(), textOpts);
         const Vector2 textPos    = mid - Vector2(textSize.x * 0.5f, textSize.y * 0.5f);
-       // LinaVG::DrawTextNormal(str.c_str(), LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
+        LinaVG::DrawTextNormal(str.c_str(), LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
 
         return isClicked;
     }

@@ -87,7 +87,7 @@ namespace Lina::Graphics
         break;
         case WM_KILLFOCUS: {
             Win32Window::GetWin32()->m_hasFocus = false;
-            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({ false });
+            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({false});
         }
         break;
         case WM_KEYDOWN: {
@@ -165,7 +165,7 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 0,
+                .button = VK_LBUTTON,
                 .action = Input::InputAction::Pressed,
             });
         }
@@ -179,7 +179,7 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 1,
+                .button = VK_RBUTTON,
                 .action = Input::InputAction::Pressed,
             });
         }
@@ -193,7 +193,7 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 2,
+                .button = VK_MBUTTON,
                 .action = Input::InputAction::Pressed,
             });
         }
@@ -207,7 +207,7 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 0,
+                .button = VK_LBUTTON,
                 .action = Input::InputAction::Released,
             });
         }
@@ -221,7 +221,7 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 1,
+                .button = VK_RBUTTON,
                 .action = Input::InputAction::Released,
             });
         }
@@ -235,8 +235,50 @@ namespace Lina::Graphics
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
-                .button = 2,
+                .button = VK_MBUTTON,
                 .action = Input::InputAction::Released,
+            });
+        }
+        break;
+        case WM_LBUTTONDBLCLK: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = VK_LBUTTON,
+                .action = Input::InputAction::Repeated,
+            });
+        }
+        break;
+        case WM_RBUTTONDBLCLK: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = VK_RBUTTON,
+                .action = Input::InputAction::Repeated,
+            });
+        }
+        break;
+        case WM_MBUTTONDBLCLK: {
+
+            if (!Win32Window::GetWin32()->m_hasFocus)
+                break;
+
+            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+
+            Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
+                .window = static_cast<void*>(ptr),
+                .button = VK_MBUTTON,
+                .action = Input::InputAction::Repeated,
             });
         }
         break;
@@ -260,6 +302,7 @@ namespace Lina::Graphics
         wc.hInstance     = m_hinst;
         wc.lpszClassName = "Lina Engine";
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+        wc.style         = CS_DBLCLKS;
 
         if (!RegisterClassA(&wc))
         {

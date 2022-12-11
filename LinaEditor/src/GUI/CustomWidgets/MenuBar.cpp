@@ -48,19 +48,29 @@ namespace Lina::Editor
         auto&   theme  = LGUI->GetTheme();
         Vector2 pos    = m_startPosition;
 
-  
+        bool anyHovered = false;
+
         for (int32 i = 0; i < m_items.size(); i++)
         {
             auto* item = m_items[i];
             window.SetPenPos(pos);
 
-            const Rect itemRect = Rect(pos, m_itemSize);
+            const Rect itemRect  = Rect(pos, m_itemSize);
+            const bool isHovered = LGUI->IsMouseHoveringRect(itemRect);
+
+            if (isHovered)
+                anyHovered = true;
 
             // If we are already active, hovering over items will switch activation
             if (m_activeItem != -1)
             {
-                if (LGUI->IsMouseHoveringRect(itemRect))
+                if (isHovered)
+                {
+                    if (m_activeItem != i)
+                        item->Reset();
+
                     m_activeItem = i;
+                }
             }
 
             const bool itemActive = m_activeItem == i;
@@ -86,15 +96,21 @@ namespace Lina::Editor
                 theme.PushFont(ThemeFont::PopupMenuText);
 
                 // Draw the item, if it's clicked disable the popup
-                if (item->Draw(pos + Vector2(0, m_itemSize.y)))
-                {
-                    m_activeItem = -1;
-                }
+                item->Calculate(pos + Vector2(0, m_itemSize.y));
+
+                if (item->Draw())
+                    anyHovered = true;
 
                 theme.PopFont();
             }
 
             pos.x += m_itemSize.x + m_extraSpacing;
+        }
+
+        if (m_activeItem != -1 && LGUI->GetMouseButtonDown(LINA_MOUSE_0) && !anyHovered)
+        {
+            m_items[m_activeItem]->Reset();
+            m_activeItem = -1;
         }
 
         // So that we can correctly calculate total size of the menu bar from pen pos.
