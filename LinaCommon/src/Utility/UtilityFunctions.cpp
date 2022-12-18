@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Data/DataCommon.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -229,12 +230,19 @@ namespace Lina
                 if (!entry.is_directory())
                 {
                     if (extensionFilter.empty())
-                        paths.push_back(entry.path().string().c_str());
+                    {
+                        String path = entry.path().string().c_str();
+                        linatl::replace(path.begin(), path.end(), '\\', '/');
+                        paths.push_back(path);
+                    }
                     else
                     {
                         String fullpath = entry.path().string().c_str();
                         if (GetFileExtension(fullpath).compare(extensionFilter))
+                        {
+                            linatl::replace(fullpath.begin(), fullpath.end(), '\\', '/');
                             paths.push_back(fullpath);
+                        }
                     }
                 }
             }

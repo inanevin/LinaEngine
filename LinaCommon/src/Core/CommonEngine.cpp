@@ -32,16 +32,16 @@ SOFTWARE.
 namespace Lina
 {
     HashMap<TypeID, Vector<String>> DefaultResources::s_engineResources;
-    float                                RuntimeInfo::s_contentScaleWidth  = 1.0f;
-    float                                RuntimeInfo::s_contentScaleHeight = 1.0f;
-    Vector2i                             RuntimeInfo::s_displayResolution  = Vector2i::Zero;
-    double                               RuntimeInfo::s_startTime          = 0.0;
-    bool                                 RuntimeInfo::s_isInPlayMode       = false;
-    bool                                 RuntimeInfo::s_paused             = false;
-    bool                                 RuntimeInfo::s_shouldSkipFrame    = false;
-    float                                RuntimeInfo::s_smoothDeltaTime    = 0.0f;
-    float                                RuntimeInfo::s_deltaTime          = 0.0f;
-    Vector2i                             RuntimeInfo::s_screenSize         = Vector2();
+    float                           RuntimeInfo::s_contentScaleWidth  = 1.0f;
+    float                           RuntimeInfo::s_contentScaleHeight = 1.0f;
+    Vector2i                        RuntimeInfo::s_displayResolution  = Vector2i::Zero;
+    double                          RuntimeInfo::s_startTime          = 0.0;
+    bool                            RuntimeInfo::s_isInPlayMode       = false;
+    bool                            RuntimeInfo::s_paused             = false;
+    bool                            RuntimeInfo::s_shouldSkipFrame    = false;
+    float                           RuntimeInfo::s_smoothDeltaTime    = 0.0f;
+    float                           RuntimeInfo::s_deltaTime          = 0.0f;
+    Vector2i                        RuntimeInfo::s_screenSize         = Vector2();
 
     bool DefaultResources::IsEngineResource(TypeID tid, StringID sid)
     {
@@ -62,6 +62,10 @@ namespace Lina
     double RuntimeInfo::GetElapsedTime()
     {
         return Time::GetCPUTime() - RuntimeInfo::s_startTime;
-        ;
+    }
+
+    float RuntimeInfo::GetElapsedTimeF()
+    {
+        return static_cast<float>(GetElapsedTime());
     }
 } // namespace Lina

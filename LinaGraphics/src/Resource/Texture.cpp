@@ -66,11 +66,6 @@ namespace Lina::Graphics
 
     Resources::Resource* Texture::LoadFromFile(const char* path)
     {
-        String path2 = "Resources/Editor/Textures/Logo/Test1.png";
-        if (path2.compare(path) == 0)
-        {
-            int a = 5;
-        }
         LoadAssetData();
 
         if (m_pixels == nullptr)

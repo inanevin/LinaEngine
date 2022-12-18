@@ -270,7 +270,6 @@ namespace Lina::Graphics
              .borderColor   = BorderColor::FloatOpaqueWhite,
         };
         txt->GenerateCustomBuffers(width, height, 1, Format::R8_UNORM, sampler, ImageTiling::Linear);
-
         txt->SetUserManaged(true);
 
         // Skipping 0 index

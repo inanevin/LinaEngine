@@ -26,40 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Panels/DockPanel.hpp"
+#include "GUI/GUI.hpp"
+#include "Core/Screen.hpp"
 
-#ifndef Sampler_HPP
-#define Sampler_HPP
-
-#include "Core/GraphicsCommon.hpp"
-
-struct VkSampler_T;
-
-namespace Lina::Graphics
+namespace Lina::Editor
 {
-    class Sampler
+    void DockPanel::Initialize()
     {
-    public:
-        void Create(bool autoDestroy = true);
-        void Destroy();
+    }
 
-        // Description
-        Filter             minFilter         = Filter::Linear;
-        Filter             magFilter         = Filter::Linear;
-        SamplerAddressMode u                 = SamplerAddressMode::Repeat;
-        SamplerAddressMode v                 = SamplerAddressMode::Repeat;
-        SamplerAddressMode w                 = SamplerAddressMode::Repeat;
-        float              mipLodBias        = 0.0f;
-        float              maxAnisotropy     = 0.0f;
-        float              minLod            = 0.0f;
-        float              maxLod            = 0.0f;
-        BorderColor        borderColor       = BorderColor::FloatTransparentBlack;
-        MipmapMode         mipmapMode        = MipmapMode::Nearest;
-        bool               anisotropyEnabled = true;
+    void DockPanel::Shutdown()
+    {
+    }
 
-        // Runtime
-        VkSampler_T* _ptr = nullptr;
-    };
-} // namespace Lina::Graphics
+    void DockPanel::Draw()
+    {
+        auto&         theme  = LGUI->GetTheme();
+        const Vector2 screen = Graphics::Screen::SizeF();
+        const String  name   = "DockPanel";
+        LGUI->SetWindowPosition(name, m_pos);
+        LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));
 
-#endif
+        theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
+        if (LGUI->BeginWindow(name))
+        {
+            theme.PopColor();
+            LGUI->EndWindow();
+        }
+    }
+
+} // namespace Lina::Editor

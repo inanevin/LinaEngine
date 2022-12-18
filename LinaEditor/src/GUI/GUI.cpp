@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "GUI/GUI.hpp"
-#include "Utility/StringId.hpp"
 #include "Core/InputEngine.hpp"
-#include "Math/Math.hpp"
 #include "GUI/GUICommon.hpp"
+#include "Math/Math.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina::Editor
 {
@@ -65,7 +65,8 @@ namespace Lina::Editor
 
     void ImmediateWindow::Draw()
     {
-        if (m_size == Vector2::Zero)
+        // For when we determine a window's size based on its content.
+        if (m_size.Equals(Vector2::Zero, 0.001f))
         {
             auto&       theme    = LGUI->GetTheme();
             const float xPadding = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
@@ -78,7 +79,7 @@ namespace Lina::Editor
         const Vector2        min   = m_absPos;
         const Vector2        max   = m_absPos + m_size;
         LinaVG::StyleOptions opts;
-        opts.color                    = LV4(theme.GetColor(ThemeColor::Window));
+        opts.color                    = LV4(m_color);
         opts.rounding                 = theme.GetProperty(ThemeProperty::WindowRounding);
         opts.outlineOptions.thickness = theme.GetProperty(ThemeProperty::WindowBorderThickness);
         opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
@@ -147,8 +148,25 @@ namespace Lina::Editor
 
     void ImmediateGUI::EndFrame()
     {
+        // Determine hovered window.
+        m_hoveredWindow = 0;
+
+        for (auto& w : m_windowDataPerFrame)
+        {
+            if (IsMouseHoveringRect(w.second.rect))
+            {
+                if (m_hoveredWindow != 0)
+                {
+                    if (w.second.drawOrder >= m_windowDataPerFrame[m_hoveredWindow].drawOrder)
+                        m_hoveredWindow = w.first;
+                }
+                else
+                    m_hoveredWindow = w.first;
+            }
+        }
+
         m_windows.clear();
-        m_hoveredWindow     = m_transientHoveredWindow;
+        m_windowDataPerFrame.clear();
         m_absoluteDrawOrder = 0;
     }
 
@@ -171,9 +189,10 @@ namespace Lina::Editor
         w.m_name           = str;
 
         const StringID sid         = GetSIDFromStr(str);
-        const Vector2  desiredPos  = m_windowPositions[sid];
-        const Vector2  desiredSize = m_windowSizes[sid];
+        const Vector2  desiredPos  = m_windowDataPersistent[sid].position;
+        Vector2        desiredSize = m_windowDataPersistent[sid].size;
 
+        w.m_color     = GetTheme().GetColor(ThemeColor::Window);
         w.m_sid       = sid;
         w.m_relPos    = desiredPos;
         w.m_absPos    = parentPos + desiredPos;
@@ -182,16 +201,8 @@ namespace Lina::Editor
         w.m_penPos.x  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
         w.m_penPos.y  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
 
-        // Hover state
-        if (IsMouseHoveringRect(Rect(w.m_absPos, w.m_size)))
-        {
-            if (w.m_drawOrder >= m_hoveredDrawOrder)
-            {
-                m_hoveredDrawOrder       = w.m_drawOrder;
-                m_transientHoveredWindow = w.m_sid;
-            }
-        }
-
+        m_windowDataPerFrame[sid].rect      = Rect(w.m_absPos, w.m_size);
+        m_windowDataPerFrame[sid].drawOrder = w.m_drawOrder;
         return true;
     }
 
@@ -226,6 +237,17 @@ namespace Lina::Editor
         return m_windows.back();
     }
 
+    ImmediateWindow* ImmediateGUI::GetWindowBySID(StringID sid)
+    {
+        for (auto& w : m_windows)
+        {
+            if (w.m_sid == sid)
+                return &w;
+        }
+
+        return nullptr;
+    }
+
     StringID ImmediateGUI::GetSIDFromStr(const String& str)
     {
         StringID sid = 0;
@@ -238,6 +260,17 @@ namespace Lina::Editor
             m_windowSIDs[str] = sid;
         }
         return sid;
+    }
+
+    String ImmediateGUI::GetNameFromSID(StringID sid)
+    {
+        for (auto& w : m_windowSIDs)
+        {
+            if (w.second == sid)
+                return w.first;
+        }
+
+        return "NotFound";
     }
 
     bool ImmediateGUI::IsMouseHoveringRect(const Rect& rect)
@@ -278,12 +311,12 @@ namespace Lina::Editor
 
     void ImmediateGUI::SetWindowSize(const String& str, const Vector2& size)
     {
-        m_windowSizes[GetSIDFromStr(str)] = size;
+        m_windowDataPersistent[GetSIDFromStr(str)].size = size;
     }
 
     void ImmediateGUI::SetWindowPosition(const String& str, const Vector2& pos)
     {
-        m_windowPositions[GetSIDFromStr(str)] = pos;
+        m_windowDataPersistent[GetSIDFromStr(str)].position = pos;
     }
 
 } // namespace Lina::Editor

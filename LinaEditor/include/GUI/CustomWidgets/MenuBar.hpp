@@ -46,7 +46,6 @@ namespace Lina::Editor
         ~MenuBar();
 
         void Draw();
-        void OnItemClicked(uint32 id);
 
         template <typename... Args> void AddItem(Args... args)
         {
@@ -68,18 +67,15 @@ namespace Lina::Editor
             m_extraSpacing = spacing;
         }
 
-        inline void Reset()
-        {
-            m_activeItem = -1;
-        }
+        void Reset();
+        void SetOnItemClicked(Delegate<void(uint32)>&& cb);
 
     private:
-        Delegate<void(uint32)> m_onClicked;
-        Vector<MenuPopup*>     m_items;
-        Vector2                m_itemSize      = Vector2::Zero;
-        Vector2                m_startPosition = Vector2::Zero;
-        float                  m_extraSpacing  = 0.0f;
-        int32                  m_activeItem    = -1;
+        Vector<MenuPopup*> m_items;
+        Vector2            m_itemSize      = Vector2::Zero;
+        Vector2            m_startPosition = Vector2::Zero;
+        float              m_extraSpacing  = 0.0f;
+        int32              m_activeItem    = -1;
     };
 } // namespace Lina::Editor
 

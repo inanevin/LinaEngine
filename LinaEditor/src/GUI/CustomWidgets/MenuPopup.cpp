@@ -144,19 +144,12 @@ namespace Lina::Editor
             }
         }
 
-        if (isHovered)
+        if (m_type != ElementType::Expendable && isHovered && LGUI->GetMouseButtonClicked(LINA_MOUSE_0))
         {
-            if (LGUI->GetMouseButtonDown(LINA_MOUSE_0))
-        {
-            LINA_TRACE("AQ1");
+            if (m_onItemClicked)
+                m_onItemClicked(m_id);
         }
-        
-        if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
-        {
-            LINA_TRACE("AQ2");
-        }
-        }
-    
+
         return returnValue;
     }
 
@@ -279,6 +272,17 @@ namespace Lina::Editor
         }
 
         return anyHovered;
+    }
+
+    void MenuPopup::SetOnItemClicked(const Delegate<void(uint32)>& onItemClicked)
+    {
+        for (auto e : m_elements)
+        {
+            e->SetOnItemClicked(onItemClicked);
+
+            if (e->m_expandedPopup != nullptr)
+                e->m_expandedPopup->SetOnItemClicked(onItemClicked);
+        }
     }
 
 } // namespace Lina::Editor

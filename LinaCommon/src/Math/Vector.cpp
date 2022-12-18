@@ -57,6 +57,11 @@ namespace Lina
     Vector2i  Vector2i::Zero   = Vector2i(0);
     Vector2i  Vector2i::One    = Vector2i(1);
 
+    Vector4 Vector4::Clamp(const Vector4& min, const Vector4& max) const
+    {
+        return Vector4(Math::Clamp(this->x, min.x, max.x), Math::Clamp(this->y, min.y, max.y), Math::Clamp(this->z, min.z, max.z), Math::Clamp(this->w, min.w, max.w));
+    }
+
     Vector4 Vector4::Abs() const
     {
         return Vector4(glm::abs(x), glm::abs(y), glm::abs(z), glm::abs(w));
@@ -163,6 +168,11 @@ namespace Lina
     Vector3 Vector3::Lerp(const Vector3& from, const Vector3& to, float t)
     {
         return Vector3(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, from.z + (to.z - from.z) * t);
+    }
+
+    Vector3 Vector3::Clamp(const Vector3& min, const Vector3& max) const
+    {
+        return Vector3(Math::Clamp(this->x, min.x, max.x), Math::Clamp(this->y, min.y, max.y), Math::Clamp(this->z, min.z, max.z));
     }
 
     Vector3 Vector3::Cross(const Vector3& other) const
@@ -274,6 +284,11 @@ namespace Lina
     }
 
     //////////////////////////////////////////////
+
+    Vector2 Vector2::Clamp(const Vector2& min, const Vector2& max) const
+    {
+        return Vector2(Math::Clamp(this->x, min.x, max.x), Math::Clamp(this->y, min.y, max.y));
+    }
 
     Vector2 Vector2::Abs() const
     {

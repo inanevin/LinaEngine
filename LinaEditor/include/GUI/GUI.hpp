@@ -54,6 +54,18 @@ namespace Lina::Editor
         IMW_UseAbsoluteDrawOrder,
     };
 
+    struct PersistentWindowData
+    {
+        Vector2 position = Vector2::Zero;
+        Vector2 size     = Vector2::Zero;
+    };
+
+    struct PerFrameWindowData
+    {
+        int  drawOrder = 0;
+        Rect rect      = Rect();
+    };
+
     class ImmediateWidget
     {
     public:
@@ -152,6 +164,7 @@ namespace Lina::Editor
         int                    m_drawOrder            = 0;
         Deque<ImmediateWidget> m_widgets;
         Deque<int>             m_horizontalRequests;
+        Color                  m_color = Color::White;
     };
 
     class ImmediateGUI
@@ -174,7 +187,9 @@ namespace Lina::Editor
         void             SetWindowSize(const String& str, const Vector2& size);
         void             SetWindowPosition(const String& str, const Vector2& pos);
         ImmediateWindow& GetCurrentWindow();
+        ImmediateWindow* GetWindowBySID(StringID sid);
         StringID         GetSIDFromStr(const String& str);
+        String           GetNameFromSID(StringID sid);
 
         // Utility
         bool    IsMouseHoveringRect(const Rect& rect);
@@ -209,17 +224,15 @@ namespace Lina::Editor
     private:
         friend class Editor;
 
-        static ImmediateGUI*       s_instance;
-        Deque<ImmediateWindow>     m_windows;
-        HashMap<String, StringID>  m_windowSIDs;
-        HashMap<StringID, Vector2> m_windowSizes;
-        HashMap<StringID, Vector2> m_windowPositions;
-        Theme                      m_theme;
-        StringID                   m_iconTexture;
-        StringID                   m_hoveredWindow          = 0;
-        StringID                   m_transientHoveredWindow = 0;
-        int                        m_hoveredDrawOrder       = 0;
-        int                        m_absoluteDrawOrder      = 0;
+        static ImmediateGUI*                    s_instance;
+        Deque<ImmediateWindow>                  m_windows;
+        HashMap<String, StringID>               m_windowSIDs;
+        HashMap<StringID, PersistentWindowData> m_windowDataPersistent;
+        HashMap<StringID, PerFrameWindowData>   m_windowDataPerFrame;
+        Theme                                   m_theme;
+        StringID                                m_iconTexture;
+        StringID                                m_hoveredWindow     = 0;
+        int                                     m_absoluteDrawOrder = 0;
     };
 
 #define LGUI ImmediateGUI::Get()

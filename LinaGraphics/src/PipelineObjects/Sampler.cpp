@@ -36,18 +36,20 @@ namespace Lina::Graphics
     void Sampler::Create(bool autoDestroy)
     {
         VkSamplerCreateInfo i = VkSamplerCreateInfo{
-            .sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-            .pNext         = nullptr,
-            .magFilter     = GetFilter(magFilter),
-            .minFilter     = GetFilter(minFilter),
-            .addressModeU  = GetSamplerAddressMode(u),
-            .addressModeV  = GetSamplerAddressMode(v),
-            .addressModeW  = GetSamplerAddressMode(w),
-            .mipLodBias    = mipLodBias,
-            .maxAnisotropy = maxAnisotropy,
-            .minLod        = 0.0f,
-            .maxLod        = 1.0f,
-            .borderColor   = GetBorderColor(borderColor),
+            .sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .pNext            = nullptr,
+            .magFilter        = GetFilter(magFilter),
+            .minFilter        = GetFilter(minFilter),
+            .mipmapMode       = GetMipmapMode(mipmapMode),
+            .addressModeU     = GetSamplerAddressMode(u),
+            .addressModeV     = GetSamplerAddressMode(v),
+            .addressModeW     = GetSamplerAddressMode(w),
+            .mipLodBias       = mipLodBias,
+            .anisotropyEnable = anisotropyEnabled,
+            .maxAnisotropy    = maxAnisotropy,
+            .minLod           = minLod,
+            .maxLod           = maxLod,
+            .borderColor      = GetBorderColor(borderColor),
         };
 
         VkResult res = vkCreateSampler(Backend::Get()->GetDevice(), &i, Backend::Get()->GetAllocator(), &_ptr);

@@ -32,6 +32,7 @@ SOFTWARE.
 #define EditorGUIManager_HPP
 
 #include "Panels/TopPanel.hpp"
+#include "Panels/DockPanel.hpp"
 
 namespace Lina
 {
@@ -69,6 +70,7 @@ namespace Lina::Editor
     private:
         static EditorGUIManager* s_instance;
         TopPanel                 m_topPanel;
+        DockPanel                m_dockPanel;
     };
 } // namespace Lina::Editor
 

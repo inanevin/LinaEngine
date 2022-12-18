@@ -46,7 +46,9 @@ namespace Lina::Editor
 
     void EditorGUIManager::Draw()
     {
-       m_topPanel.Draw();
+        m_topPanel.Draw();
+        m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+        m_dockPanel.Draw();
     }
 
 } // namespace Lina::Editor

@@ -43,43 +43,43 @@ namespace Lina::Editor
     enum TopPanelPopupIDs
     {
         // File
-        TPID_OpenProject = 1,
-        TPID_SaveProject,
-        TPID_ExportProject,
-        TPID_Exit,
+        TP_File_OpenProject = 1,
+        TP_File_SaveProject,
+        TP_File_ExportProject,
+        TP_File_Exit,
 
         // Edit
         // todo
 
         // View
-        TPID_Panels_Entities,
-        TPID_Panels_Level,
-        TPID_Panels_Properties,
-        TPID_Panels_Resources,
-        TPID_Panels_Global,
+        TP_Panels_Entities,
+        TP_Panels_Level,
+        TP_Panels_Properties,
+        TP_Panels_Resources,
+        TP_Panels_Global,
 
         // Level,
-        TPID_CreateLevel,
-        TPID_SaveLevel,
-        TPID_LoadLevel,
+        TP_Level_CreateLevel,
+        TP_Level_SaveLevel,
+        TP_Level_LoadLevel,
 
         // Entity,
-        TPID_CreateEntity,
-        TPID_Cube,
-        TPID_Cylinder,
-        TPID_Capsule,
-        TPID_Sphere,
-        TPID_LinaLogo,
-        TPID_Quad,
-        TPID_Plane,
+        TP_Entity_CreateEntity,
+        TP_Entity_Cube,
+        TP_Entity_Cylinder,
+        TP_Entity_Capsule,
+        TP_Entity_Sphere,
+        TP_Entity_LinaLogo,
+        TP_Entity_Quad,
+        TP_Entity_Plane,
 
         // Debug
         // todo
 
         // Help
-        TPID_Github,
-        TPID_Website,
-        TPID_About,
+        TP_Help_Github,
+        TP_Help_Website,
+        TP_Help_About,
     };
 
     void TopPanel::Initialize()
@@ -91,7 +91,7 @@ namespace Lina::Editor
 
         auto* titleTexture = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/TitleText.png");
         m_titleTexture     = titleTexture->GetSID();
-        m_titleAspect      = titleTexture->GetExtent().width / titleTexture->GetExtent().height;
+        m_titleAspect      = static_cast<float>(titleTexture->GetExtent().width) / static_cast<float>(titleTexture->GetExtent().height);
 
         auto animFiles = Utility::GetFolderContents("Resources/Editor/Textures/TitleTextAnim/");
         m_packedAnim   = TexturePacker::PackFilesOrdered(animFiles, 2050, m_packedAnimTextures);
@@ -110,28 +110,28 @@ namespace Lina::Editor
         m_menuBar.AddItem(file, edit, level, view, entity, debug, help);
 
         // Popup element for each item.
-        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Open Project", TPID_OpenProject));
-        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Project", TPID_SaveProject, "CTRL+S"));
-        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Export Project", TPID_ExportProject));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Open Project", TP_File_OpenProject));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Project", TP_File_SaveProject, "CTRL+S"));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Export Project", TP_File_ExportProject));
         file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Divider, "App", 0));
-        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Exit", TPID_Exit));
+        file->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Exit", TP_File_Exit));
 
         // todo edit
         auto* panels = new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels", 0);
         panels->CreateExpandedPopup();
-        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities", TPID_Panels_Entities));
-        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level", TPID_Panels_Level));
-        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Properties", TPID_Panels_Properties));
-        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global", TPID_Panels_Global));
-        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources", TPID_Panels_Resources));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities", TP_Panels_Entities));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level", TP_Panels_Level));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Properties", TP_Panels_Properties));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global", TP_Panels_Global));
+        panels->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources", TP_Panels_Resources));
 
-         auto* panels2 = new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels2", 0);
+        auto* panels2 = new MenuPopupElement(MenuPopupElement::ElementType::Expendable, "Panels2", 0);
         panels2->CreateExpandedPopup();
-        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities2", TPID_Panels_Entities));
-        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level2", TPID_Panels_Level));
-        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Propertie2s", TPID_Panels_Properties));
-        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global2", TPID_Panels_Global));
-        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources2", TPID_Panels_Resources));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Entities2", TP_Panels_Entities));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Level2", TP_Panels_Level));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Propertie2s", TP_Panels_Properties));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Global2", TP_Panels_Global));
+        panels2->GetExpandedPopup()->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Resources2", TP_Panels_Resources));
 
         view->AddElement(panels);
         view->AddElement(panels2);
@@ -139,30 +139,32 @@ namespace Lina::Editor
         view->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Dummy1", 0));
 
         //
-        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Create Level", TPID_CreateLevel, "CTRL+L"));
-        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Level As...", TPID_SaveLevel, "CTRL+SHIFT+S"));
-        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Load Level", TPID_LoadLevel));
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Create Level", TP_Level_CreateLevel, "CTRL+L"));
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Save Level As...", TP_Level_SaveLevel, "CTRL+SHIFT+S"));
+        level->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Load Level", TP_Level_LoadLevel));
         //
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Empty Entity", TPID_CreateEntity, "CTRL+E"));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cube", TPID_Cube));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cylinder", TPID_Cylinder));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Capsule", TPID_Capsule));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Sphere", TPID_Sphere));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "LinaLogo", TPID_LinaLogo));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Quad", TPID_Quad));
-        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Plane", TPID_Plane));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Empty Entity", TP_Entity_CreateEntity, "CTRL+E"));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cube", TP_Entity_Cube));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Cylinder", TP_Entity_Cylinder));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Capsule", TP_Entity_Capsule));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Sphere", TP_Entity_Sphere));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "LinaLogo", TP_Entity_LinaLogo));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Quad", TP_Entity_Quad));
+        entity->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Plane", TP_Entity_Plane));
 
         // todo debug
 
         //
-        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Github", TPID_Github));
-        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Website", TPID_Website));
-        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "About", TPID_About));
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Github", TP_Help_Github));
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "Website", TP_Help_Website));
+        help->AddElement(new MenuPopupElement(MenuPopupElement::ElementType::Action, "About", TP_Help_About));
+
+        m_menuBar.SetOnItemClicked(BIND(&TopPanel::OnMenuBarItemClicked, this, std::placeholders::_1));
     }
 
     void TopPanel::Shutdown()
     {
-        Resources::ResourceManager::Get()->Unload<Graphics::Texture>(m_packedAnim->GetSID());
+        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_packedAnim);
     }
 
     void TopPanel::Draw()
@@ -172,20 +174,19 @@ namespace Lina::Editor
         m_currentSize            = Vector2(screenSize.x, display.y * 0.1f);
 
         auto& theme = LGUI->GetTheme();
-
         theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
 
         LGUI->SetWindowSize("Top Panel", m_currentSize);
         if (LGUI->BeginWindow("Top Panel"))
         {
+            theme.PopColor();
             DrawFileMenu();
             m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
             DrawLinaLogo();
             DrawButtons();
+            DrawControls();
             LGUI->EndWindow();
         }
-
-        theme.PopColor();
     }
 
     void TopPanel::DrawFileMenu()
@@ -236,7 +237,7 @@ namespace Lina::Editor
         points.push_back(bg2);
         points.push_back(bg3);
         points.push_back(bg4);
-        LinaVG::DrawConvex(points.data(), points.size(), bgStyle, 0.0f, w.GetDrawOrder() + 1);
+        LinaVG::DrawConvex(points.data(), static_cast<int>(points.size()), bgStyle, 0.0f, w.GetDrawOrder() + 1);
 
         // Title
         const Color   tint       = Color(0.4f, 0.4f, 0.4f, 1.0f);
@@ -246,7 +247,7 @@ namespace Lina::Editor
         if (LGUI->IsMouseHoveringRect(Rect(texturePos - textureSize * 0.5f, textureSize)))
         {
             auto&       pa      = m_packedAnimTextures[m_textAnimationIndex % m_packedAnimTextures.size()];
-            const float elapsed = RuntimeInfo::GetElapsedTime();
+            const float elapsed = RuntimeInfo::GetElapsedTimeF();
 
             if (elapsed > m_lastTextAnimTime + TEXT_ANIM_SPEED)
             {
@@ -317,7 +318,105 @@ namespace Lina::Editor
         {
         }
 
+        w.SetPenPos(Vector2(minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
+
+        Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);
         theme.PopProperty();
         theme.PopColor();
+    }
+
+    void TopPanel::DrawControls()
+    {
+
+        auto& w     = LGUI->GetCurrentWindow();
+        auto& theme = LGUI->GetTheme();
+
+        LinaVG::StyleOptions controlsBG;
+        controlsBG.color = LV4(theme.GetColor(ThemeColor::Light5));
+
+        const Vector2 pos  = Vector2(0, m_currentSize.y * 0.5f);
+        const String  name = "TopPanelControls";
+        LGUI->SetWindowPosition(name, pos);
+        LGUI->SetWindowSize(name, Vector2(m_currentSize.x, pos.y));
+
+        if (LGUI->BeginWindow(name))
+        {
+            LGUI->EndWindow();
+        }
+    }
+
+    void TopPanel::OnMenuBarItemClicked(uint32 id)
+    {
+        m_menuBar.Reset();
+
+        if (id == TP_File_OpenProject)
+        {
+        }
+        else if (id == TP_File_SaveProject)
+        {
+        }
+        else if (id == TP_File_ExportProject)
+        {
+        }
+        else if (id == TP_File_Exit)
+        {
+        }
+        else if (id == TP_Panels_Entities)
+        {
+        }
+        else if (id == TP_Panels_Global)
+        {
+        }
+        else if (id == TP_Panels_Level)
+        {
+        }
+        else if (id == TP_Panels_Resources)
+        {
+        }
+        else if (id == TP_Panels_Properties)
+        {
+        }
+        else if (id == TP_Level_CreateLevel)
+        {
+        }
+        else if (id == TP_Level_SaveLevel)
+        {
+        }
+        else if (id == TP_Level_LoadLevel)
+        {
+        }
+        else if (id == TP_Entity_CreateEntity)
+        {
+        }
+        else if (id == TP_Entity_Capsule)
+        {
+        }
+        else if (id == TP_Entity_Cube)
+        {
+        }
+        else if (id == TP_Entity_Cylinder)
+        {
+        }
+        else if (id == TP_Entity_LinaLogo)
+        {
+        }
+        else if (id == TP_Entity_Plane)
+        {
+        }
+        else if (id == TP_Entity_Quad)
+        {
+        }
+        else if (id == TP_Entity_Sphere)
+        {
+        }
+        else if (id == TP_Help_About)
+        {
+        }
+        else if (id == TP_Help_Github)
+        {
+        }
+        else if (id == TP_Help_Website)
+        {
+        }
     }
 } // namespace Lina::Editor

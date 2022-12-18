@@ -160,6 +160,21 @@ namespace Lina::Resources
             resource->~T();
         }
 
+        void UnloadUserManaged(T* resource)
+        {
+            if (!resource->GetUserManaged())
+            {
+                LINA_ERR("[Resource Manager] -> Trying to unload a non-user-managed resource via UnloadUserManaged!");
+                return;
+            }
+
+            LINA_TRACE("[Resource Cache] -> Unloading resource: {0}", resource->GetPath());
+            const auto& it = m_resources.find(resource->GetSID());
+            m_resources.erase(it);
+            Memory::MemoryManager::Get()->FreeFromPoolBlock<T>(resource, resource->m_allocPoolIndex);
+            resource->~T();
+        }
+
         void Unload(StringID sid)
         {
             Unload(m_resources.at(sid));
@@ -174,7 +189,7 @@ namespace Lina::Resources
         {
             for (auto& [sid, res] : m_resources)
             {
-                if (!res)
+                if (!res || res->GetUserManaged())
                     continue;
 
                 LINA_TRACE("[Resource Cache] -> Unloading resource: {0}", res->GetPath());

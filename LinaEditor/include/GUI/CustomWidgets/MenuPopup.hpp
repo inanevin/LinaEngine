@@ -63,7 +63,6 @@ namespace Lina::Editor
         Vector2 GetTextSize();
         Vector2 GetTooltipSize();
         void    CreateExpandedPopup();
-        void    OnItemClicked(uint32 id);
 
         inline const String& GetName() const
         {
@@ -80,7 +79,7 @@ namespace Lina::Editor
             return m_expandedPopup;
         }
 
-        inline void SetOnItemClicked(Delegate<void(uint32)>&& onItemClicked)
+        inline void SetOnItemClicked(const Delegate<void(uint32)>& onItemClicked)
         {
             m_onItemClicked = onItemClicked;
         }
@@ -111,7 +110,6 @@ namespace Lina::Editor
         void AddElement(MenuPopupElement* element);
         void Calculate(const Vector2& startPosition);
         bool Draw();
-        void OnItemClicked(uint32 id);
 
         inline const String& GetName() const
         {
@@ -128,8 +126,10 @@ namespace Lina::Editor
             m_activeElement = nullptr;
         }
 
+        void SetOnItemClicked(const Delegate<void(uint32)>& onItemClicked);
+
     private:
-        Delegate<void(uint32)>    m_onClicked;
+        Delegate<void(uint32)>    m_onItemClicked;
         Vector<MenuPopupElement*> m_elements;
         Vector2                   m_startPosition = Vector2::Zero;
         Vector2                   m_popupSize     = Vector2::Zero;

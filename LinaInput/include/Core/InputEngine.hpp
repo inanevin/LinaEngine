@@ -133,12 +133,13 @@ namespace Lina::Input
         HashMap<int, int>   m_singleClickStates;
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
-        CursorMode          m_cursorMode         = CursorMode::Visible;
-        Vector2             m_currentMouseScroll = Vector2::Zero;
-        Vector2             m_axisMousePos       = Vector2::Zero;
-        Vector2             m_previousMousePos   = Vector2::Zero;
-        bool                m_rawMotionSupported = false;
-        bool                m_windowFocused      = false;
+        CursorMode          m_cursorMode           = CursorMode::Visible;
+        Vector2             m_currentMouseScroll   = Vector2::Zero;
+        Vector2             m_axisMousePos         = Vector2::Zero;
+        Vector2             m_previousMousePos     = Vector2::Zero;
+        bool                m_rawMotionSupported   = false;
+        bool                m_windowFocused        = false;
+        Vector2             m_currentMousePosition = Vector2::Zero;
     };
 } // namespace Lina::Input
 

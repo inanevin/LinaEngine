@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/GraphicsCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "LinaVG/Utility/Utility.hpp"
+#include "Core/InputMappings.hpp"
 #include "GUI/GUI.hpp"
 
 namespace Lina::Editor
@@ -60,7 +61,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawEnd>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
-        Resources::ResourceManager::Get()->Unload<Graphics::Texture>(m_iconTexture->GetSID());
+        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
     }
 
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
@@ -68,10 +69,14 @@ namespace Lina::Editor
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
         LGUI->StartFrame();
         LinaVG::StartFrame();
+
+
         EditorGUIManager::Get()->Draw();
 
-          LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
-                            LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
+        // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
+        //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
+
+        static int count = 0;
 
         auto* t = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Engine/Textures/LinaLogoTransparent.png");
         LinaVG::Render();
@@ -102,8 +107,6 @@ namespace Lina::Editor
 
         theme.m_fonts[ThemeFont::Default]       = rubikFont->GetHandle(12);
         theme.m_fonts[ThemeFont::PopupMenuText] = rubikFont->GetHandle(13);
-        theme.m_fonts[ThemeFont::MenuBar]       = rubikFont->GetHandle(12);
-        theme.m_fonts[ThemeFont::PopupText]     = rubikFont->GetHandle();
 
         // Scan Icons folder & buffer all icons into a texture atlas.
         Vector<String> icons = Utility::GetFolderContents("Resources/Editor/Icons");

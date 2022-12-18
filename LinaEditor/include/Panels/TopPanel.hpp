@@ -52,29 +52,36 @@ namespace Lina::Editor
         TopPanel()          = default;
         virtual ~TopPanel() = default;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-        virtual void Draw() override;
+        virtual void   Initialize() override;
+        virtual void   Shutdown() override;
+        virtual void   Draw() override;
+        
+        inline Vector2 GetCurrentSize()
+        {
+            return m_currentSize;
+        }
 
     private:
         void DrawFileMenu();
         void DrawLinaLogo();
         void DrawButtons();
+        void DrawControls();
+        void OnMenuBarItemClicked(uint32 id);
 
     private:
         MenuBar               m_menuBar;
-        Vector2               m_currentSize        = Vector2();
-        uint32                m_titleTexture       = 0;
-        uint32                m_textAnimationIndex = 0;
-        float                 m_titleAspect        = 0.0f;
-        float                 m_lastTextAnimTime   = 0.0f;
-        float                 m_fileMenuMaxX       = 0.0f;
-        float                 m_titleMaxX          = 0.0f;
-        StringID              m_minimizeSid        = 0;
-        StringID              m_maximizeSid        = 0;
-        StringID              m_closeSid           = 0;
-        StringID              m_restoreSid         = 0;
-        Graphics::Texture*    m_packedAnim         = nullptr;
+        Vector2               m_currentSize         = Vector2();
+        uint32                m_titleTexture        = 0;
+        uint32                m_textAnimationIndex  = 0;
+        float                 m_titleAspect         = 0.0f;
+        float                 m_lastTextAnimTime    = 0.0f;
+        float                 m_fileMenuMaxX        = 0.0f;
+        float                 m_titleMaxX           = 0.0f;
+        StringID              m_minimizeSid         = 0;
+        StringID              m_maximizeSid         = 0;
+        StringID              m_closeSid            = 0;
+        StringID              m_restoreSid          = 0;
+        Graphics::Texture*    m_packedAnim          = nullptr;
         Vector<PackedTexture> m_packedAnimTextures;
     };
 } // namespace Lina::Editor

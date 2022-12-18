@@ -773,6 +773,20 @@ namespace Lina::Graphics
             return VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
         }
     }
+
+    VkSamplerMipmapMode GetMipmapMode(MipmapMode mode)
+    {
+        switch (mode)
+        {
+        case MipmapMode::Nearest:
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        case MipmapMode::Linear:
+            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        default:
+            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        }
+    }
+
     VkSharingMode GetSharingMode(SharingMode m)
     {
         switch (m)

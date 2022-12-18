@@ -52,7 +52,43 @@ namespace Lina::Editor
 
             InFlightPixelData data;
             int               texChannels;
-            data.pixels = stbi_load(paths[i].c_str(), &data.width, &data.height, &texChannels, STBI_rgb_alpha);
+
+            const String& path = paths[i];
+
+            if (Resources::Resource::MetaArchiveExists(path))
+            {
+                auto arch = Resources::Resource::GetMetaArchive(path);
+
+                uint32 size = 0;
+                arch(size);
+                arch(data.width);
+                arch(data.height);
+
+                if (size != 0)
+                {
+                    data.pixels = new unsigned char[size];
+                    arch.GetStream().ReadEndianSafe(data.pixels, size);
+                }
+
+                arch.GetStream().Destroy();
+            }
+            else
+            {
+                data.pixels = stbi_load(path.c_str(), &data.width, &data.height, &texChannels, STBI_rgb_alpha);
+
+                // Save as meta archive.
+                Serialization::Archive<OStream> arch;
+                const uint32                    size = data.width * data.height * 4;
+                arch(size);
+                arch(data.width);
+                arch(data.height);
+
+                if (size != 0)
+                    arch.GetStream().WriteEndianSafe(data.pixels, size);
+
+                Resources::Resource::SaveMetaArchive(arch, paths[i]);
+                arch.GetStream().Destroy();
+            }
 
             int previousTotalHeight = 0;
             for (uint32 k = 0; k < rows.size() - 1; k++)
@@ -123,10 +159,11 @@ namespace Lina::Editor
             .v             = Graphics::SamplerAddressMode::ClampToEdge,
             .w             = Graphics::SamplerAddressMode::ClampToEdge,
             .mipLodBias    = 0.0f,
-            .maxAnisotropy = 15.0f,
+            .maxAnisotropy = 8.0f,
             .minLod        = 0.0f,
             .maxLod        = 1.0f,
             .borderColor   = Graphics::BorderColor::FloatOpaqueWhite,
+            .mipmapMode    = Graphics::MipmapMode::Linear,
         };
         txt->GenerateCustomBuffers(atlasWidth, atlasHeight, 4, Graphics::Format::R8G8B8A8_SRGB, sampler, Graphics::ImageTiling::Linear);
 

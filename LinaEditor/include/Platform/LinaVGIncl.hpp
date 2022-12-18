@@ -50,5 +50,6 @@ namespace Lina
         const LinaVG::Vec2 max = LV2((p + size));
         LinaVG::DrawRect(min, max, style, 0, drawOrder);
     }
+
 }
 #endif

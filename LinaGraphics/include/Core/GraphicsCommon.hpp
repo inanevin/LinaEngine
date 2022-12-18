@@ -72,6 +72,7 @@ enum VkBlendOp;
 enum VkLogicOp;
 enum VkResult;
 enum VkSharingMode;
+enum VkSamplerMipmapMode;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -527,6 +528,14 @@ namespace Lina::Graphics
     };
 
     uint32 GetDescriptorLayoutBindingFlags(DescriptorSetLayoutBindingFlags flags);
+
+    enum class MipmapMode
+    {
+        Nearest,
+        Linear
+    };
+
+    VkSamplerMipmapMode GetMipmapMode(MipmapMode mode);
 
     enum class SharingMode
     {

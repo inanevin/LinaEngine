@@ -212,7 +212,7 @@ namespace Lina::Input
         if (GetMouseButtonDown(button))
             m_previousMousePos = GetMousePosition();
 
-        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_previousMousePos, 0.01f))
+        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_previousMousePos, 5))
             result = true;
 
         return result;
@@ -272,18 +272,7 @@ namespace Lina::Input
 
     Vector2 InputEngine::GetMousePosition()
     {
-        double xpos, ypos;
-
-#ifdef LINA_PLATFORM_WINDOWS
-        POINT point;
-        GetCursorPos(&point);
-        ScreenToClient(win32Window, &point);
-        xpos = point.x;
-        ypos = point.y;
-#else
-        glfwGetCursorPos(glfwWindow, &xpos, &ypos);
-#endif
-        return Vector2((float)xpos, (float)ypos);
+        return m_currentMousePosition;
     }
 
     void InputEngine::SetCursorMode(CursorMode mode)
@@ -350,6 +339,18 @@ namespace Lina::Input
         m_currentMouseScroll = Vector2::Zero;
         m_doubleClicks.clear();
         m_singleClickStates.clear();
+
+        double xpos, ypos;
+#ifdef LINA_PLATFORM_WINDOWS
+        POINT point;
+        GetCursorPos(&point);
+        ScreenToClient(win32Window, &point);
+        xpos = point.x;
+        ypos = point.y;
+#else
+        glfwGetCursorPos(glfwWindow, &xpos, &ypos);
+#endif
+        m_currentMousePosition = Vector2((float)xpos, (float)ypos);
     }
 
     void InputEngine::Tick()

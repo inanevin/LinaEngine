@@ -122,6 +122,14 @@ namespace Lina::Resources
             cache->Unload(sid);
         }
 
+        template<typename T>
+        void UnloadUserManaged(T* t)
+        {
+            const TypeID      tid   = GetTypeID<T>();
+            ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+            cache->UnloadUserManaged(t);
+        }
+
         void Unload(TypeID tid, StringID sid)
         {
             m_caches[tid]->UnloadBase(sid);

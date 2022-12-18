@@ -36,4 +36,6 @@ SOFTWARE.
 template<typename T>
 using Delegate = std::function<T>;
 
+#define BIND std::bind
+
 #endif

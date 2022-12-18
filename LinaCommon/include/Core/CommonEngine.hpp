@@ -75,6 +75,7 @@ namespace Lina
         }
 
         static double GetElapsedTime();
+        static float  GetElapsedTimeF();
 
         static inline float GetDeltaTime()
         {

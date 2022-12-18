@@ -61,6 +61,7 @@ namespace Lina::Graphics
 
         vmaDestroyBuffer(Backend::Get()->GetVMA(), _ptr, _allocation);
 
+        size        = 0;
         _ptr        = nullptr;
         _allocation = nullptr;
     }
@@ -130,8 +131,8 @@ namespace Lina::Graphics
 
     void Buffer::ResetIfNecessary(size_t newSize)
     {
-       // if(newSize > size)
-       // Recreate(
+        // if(newSize > size)
+        // Recreate(
     }
 
 } // namespace Lina::Graphics

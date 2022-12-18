@@ -28,38 +28,39 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Sampler_HPP
-#define Sampler_HPP
+#ifndef DockPanel_HPP
+#define DockPanel_HPP
 
-#include "Core/GraphicsCommon.hpp"
+#include "Panel.hpp"
 
-struct VkSampler_T;
-
-namespace Lina::Graphics
+namespace Lina
 {
-    class Sampler
+    namespace Graphics
+    {
+        class Texture;
+    }
+} // namespace Lina
+
+namespace Lina::Editor
+{
+    class DockPanel : public Panel
     {
     public:
-        void Create(bool autoDestroy = true);
-        void Destroy();
+        DockPanel()          = default;
+        virtual ~DockPanel() = default;
 
-        // Description
-        Filter             minFilter         = Filter::Linear;
-        Filter             magFilter         = Filter::Linear;
-        SamplerAddressMode u                 = SamplerAddressMode::Repeat;
-        SamplerAddressMode v                 = SamplerAddressMode::Repeat;
-        SamplerAddressMode w                 = SamplerAddressMode::Repeat;
-        float              mipLodBias        = 0.0f;
-        float              maxAnisotropy     = 0.0f;
-        float              minLod            = 0.0f;
-        float              maxLod            = 0.0f;
-        BorderColor        borderColor       = BorderColor::FloatTransparentBlack;
-        MipmapMode         mipmapMode        = MipmapMode::Nearest;
-        bool               anisotropyEnabled = true;
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        virtual void Draw() override;
 
-        // Runtime
-        VkSampler_T* _ptr = nullptr;
+        void SetStartY(float startY)
+        {
+            m_pos.y = startY;
+        }
+
+    private:
+        Vector2 m_pos = Vector2::Zero;
     };
-} // namespace Lina::Graphics
+} // namespace Lina::Editor
 
 #endif

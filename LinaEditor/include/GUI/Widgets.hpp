@@ -44,12 +44,32 @@ namespace Lina::Editor
         ButtonStyle_RoundCorners,
     };
 
+    enum class TextAlignment
+    {
+        Left,
+        Center,
+        Right
+    };
+
     class Widgets
     {
     public:
         // Buttons
         static bool ButtonEmpty(const Vector2& size, Bitmask8 mask = Bitmask8());
+
+        /// <summary>
+        /// Button with a pre-defined size that fits the text inside.
+        /// </summary>
         static bool Button(const String& str, const Vector2& size, Bitmask8 mask = Bitmask8());
+
+        /// <summary>
+        /// Button that auto-adjusts its size according to the text inside.
+        /// </summary>
+        static bool ButtonFlexible(const String& str, Bitmask8 mask = Bitmask8(), Vector2* outTotalSize = nullptr);
+
+        /// <summary>
+        /// Button with a pre-defined size that fits the icon inside in the middle.
+        /// </summary>
         static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         // Popup
@@ -57,7 +77,7 @@ namespace Lina::Editor
         static void EndPopup();
 
         // Text
-        static void Text(const String& text, int wrapWidth = 0);
+        static void Text(const String& text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
 
         // Utility
         static void BeginHorizontal();

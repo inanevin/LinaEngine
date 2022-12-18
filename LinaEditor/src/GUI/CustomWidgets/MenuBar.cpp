@@ -81,12 +81,14 @@ namespace Lina::Editor
                 theme.PushColor(ThemeColor::ButtonHovered, ThemeColor::Highlight);
             }
 
-            theme.PushFont(ThemeFont::MenuBar);
-
-            if (Widgets::Button(item->GetName(), m_itemSize))
-                m_activeItem = i;
-
-            theme.PopFont();
+            Vector2 totalSize = Vector2::Zero;
+            if (Widgets::ButtonFlexible(item->GetName(), Bitmask8(), &totalSize))
+            {
+                if (m_activeItem != -1)
+                    Reset();
+                else
+                    m_activeItem = i;
+            }
 
             if (itemActive)
             {
@@ -96,7 +98,7 @@ namespace Lina::Editor
                 theme.PushFont(ThemeFont::PopupMenuText);
 
                 // Draw the item, if it's clicked disable the popup
-                item->Calculate(pos + Vector2(0, m_itemSize.y));
+                item->Calculate(pos + Vector2(0, totalSize.y));
 
                 if (item->Draw())
                     anyHovered = true;
@@ -104,7 +106,7 @@ namespace Lina::Editor
                 theme.PopFont();
             }
 
-            pos.x += m_itemSize.x + m_extraSpacing;
+            pos.x += totalSize.x;
         }
 
         if (m_activeItem != -1 && LGUI->GetMouseButtonDown(LINA_MOUSE_0) && !anyHovered)
@@ -116,4 +118,19 @@ namespace Lina::Editor
         // So that we can correctly calculate total size of the menu bar from pen pos.
         window.SetPenPos(pos);
     }
+
+    void MenuBar::Reset()
+    {
+        m_activeItem = -1;
+
+        for (auto i : m_items)
+            i->Reset();
+    }
+
+    void MenuBar::SetOnItemClicked(Delegate<void(uint32)>&& cb)
+    {
+        for (auto p : m_items)
+            p->SetOnItemClicked(cb);
+    }
+
 } // namespace Lina::Editor

@@ -31,7 +31,8 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-    String GetFilename(const String& path)
+
+    String Resource::GetFilename(const String& path)
     {
         const String basePath  = "Resources/Editor/Metacache/";
         const String ext       = ".linameta";
@@ -45,32 +46,32 @@ namespace Lina::Resources
         return finalName;
     }
 
-    Serialization::Archive<IStream> Resource::GetMetaArchive()
+    Serialization::Archive<IStream> Resource::GetMetaArchive(const String& path)
     {
-        const String path = GetFilename(m_path);
-        if (!Utility::FileExists(path))
+        const String p = GetFilename(path);
+        if (!Utility::FileExists(p))
             return Serialization::Archive<IStream>();
 
-        return Serialization::LoadArchiveFromFile(path);
+        return Serialization::LoadArchiveFromFile(p);
     }
 
-    void Resource::SaveMetaArchive(Serialization::Archive<OStream>& arch)
+    void Resource::SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path)
     {
-        const String path = GetFilename(m_path);
-        Serialization::SaveArchiveToFile(path, arch);
+        const String p = GetFilename(path);
+        Serialization::SaveArchiveToFile(p, arch);
     }
-    bool Resource::MetaArchiveExists()
+    bool Resource::MetaArchiveExists(const String& path)
     {
-        const String path = GetFilename(m_path);
-        return Utility::FileExists(path);
+        const String p = GetFilename(path);
+        return Utility::FileExists(p);
     }
 
     void Resource::LoadAssetData()
     {
-        if (!MetaArchiveExists())
+        if (!MetaArchiveExists(m_path))
             SaveAssetData();
 
-        auto archive = GetMetaArchive();
+        auto archive = GetMetaArchive(m_path);
         LoadFromArchive(archive);
         archive.GetStream().Destroy();
     }
@@ -80,6 +81,6 @@ namespace Lina::Resources
         Serialization::Archive<OStream> archive;
         archive.GetStream().CreateReserve(200);
         SaveToArchive(archive);
-        SaveMetaArchive(archive);
+        SaveMetaArchive(archive, m_path);
     }
 } // namespace Lina::Resources

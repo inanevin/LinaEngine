@@ -90,6 +90,7 @@ namespace Lina
         static Vector2 Zero;
         static Vector2 One;
 
+        Vector2 Clamp(const Vector2& min, const Vector2& max) const;
         Vector2 Abs() const;
         Vector2 MinLength(const Vector2& other) const;
         Vector2 MaxLength(const Vector2& other) const;
@@ -266,6 +267,7 @@ namespace Lina
 
         static Vector3 Lerp(const Vector3& from, const Vector3& to, float t);
 
+        Vector3 Clamp(const Vector3& min, const Vector3& max) const;
         Vector3 Cross(const Vector3& other) const;
         Vector3 Abs() const;
         Vector3 MinLength(const Vector3& other) const;
@@ -458,6 +460,7 @@ namespace Lina
         static Vector4 Zero;
         static Vector4 One;
 
+        Vector4 Clamp(const Vector4& min, const Vector4& max) const;
         Vector4 Abs() const;
         Vector4 MinLength(const Vector4& other) const;
         Vector4 MaxLength(const Vector4& other) const;

@@ -46,8 +46,6 @@ namespace Lina::Editor
     {
         Default,
         PopupMenuText,
-        PopupText,
-        MenuBar,
     };
 
     enum class ThemeColor
