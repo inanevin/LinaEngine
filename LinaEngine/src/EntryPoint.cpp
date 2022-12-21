@@ -90,9 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     Lina::Application::Cleanup(app);
     delete app;
 
-#ifndef LINA_PRODUCTION_BUILD
     FreeConsole();
-#endif
 
     return 0;
 }

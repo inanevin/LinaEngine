@@ -9,8 +9,8 @@ namespace Lina
         // Initialize application info
         Lina::WindowProperties windowProps = Lina::WindowProperties{
             .title      = "Lina Engine",
-            .width      = 1920,
-            .height     = 980,
+            .width      = 1440,
+            .height     = 960,
             .vsync      = Lina::VsyncMode::None, // fifo
             .decorated  = true,
             .resizable  = true,

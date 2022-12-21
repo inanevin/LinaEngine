@@ -171,20 +171,23 @@ namespace Lina::Editor
     {
         const Vector2 screenSize = Graphics::Screen::SizeF();
         const Vector2 display    = Graphics::Screen::DisplayResolutionF();
-        m_currentSize            = Vector2(screenSize.x, display.y * 0.1f);
+        m_currentSize            = Vector2(screenSize.x, display.y * 0.084f);
 
         auto& theme = LGUI->GetTheme();
         theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
 
-        LGUI->SetWindowSize("Top Panel", m_currentSize);
-        if (LGUI->BeginWindow("Top Panel"))
+        const String name = "TopPanel";
+        LGUI->SetWindowSize(name, m_currentSize);
+        if (LGUI->BeginWindow(name, IMW_FixedWindow))
         {
             theme.PopColor();
+
             DrawFileMenu();
             m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
             DrawLinaLogo();
             DrawButtons();
             DrawControls();
+
             LGUI->EndWindow();
         }
     }
@@ -194,18 +197,13 @@ namespace Lina::Editor
         const Vector2 display = Graphics::Screen::DisplayResolutionF();
         auto&         theme   = LGUI->GetTheme();
         auto&         w       = LGUI->GetCurrentWindow();
-
         w.SetPenPos(Vector2(10, 0));
 
-        // Style
         theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);
-
         const float   buttonSizeX = display.x * 0.027f;
         const float   buttonSizeY = buttonSizeX * 0.5f;
         const Vector2 buttonSize  = Vector2(buttonSizeX, buttonSizeY);
         m_menuBar.SetStartPosition(Vector2(0, 0));
-        m_menuBar.SetItemSize(buttonSize);
-        m_menuBar.SetExtraSpacing(buttonSizeX * 0.05f);
         m_menuBar.Draw();
         theme.PopColor();
     }
@@ -224,12 +222,11 @@ namespace Lina::Editor
         const float          bgFactor     = bgWidth * 0.04f;
         float                centerX      = m_currentSize.x * 0.5f;
         centerX                           = Math::Max(centerX, m_fileMenuMaxX + bgWidth * 0.5f);
-
-        const LinaVG::Vec2 bg1 = LinaVG::Vec2(centerX - bgWidth * 0.5f, 0.0f);
-        const LinaVG::Vec2 bg2 = LinaVG::Vec2(centerX + bgWidth * 0.5f, 0.0f);
-        const LinaVG::Vec2 bg3 = LinaVG::Vec2(centerX + bgWidth * 0.5f - bgFactor, bgHeight);
-        const LinaVG::Vec2 bg4 = LinaVG::Vec2(centerX - bgWidth * 0.5f + bgFactor, bgHeight);
-        m_titleMaxX            = bg2.x;
+        const LinaVG::Vec2 bg1            = LinaVG::Vec2(centerX - bgWidth * 0.5f, 0.0f);
+        const LinaVG::Vec2 bg2            = LinaVG::Vec2(centerX + bgWidth * 0.5f, 0.0f);
+        const LinaVG::Vec2 bg3            = LinaVG::Vec2(centerX + bgWidth * 0.5f - bgFactor, bgHeight);
+        const LinaVG::Vec2 bg4            = LinaVG::Vec2(centerX - bgWidth * 0.5f + bgFactor, bgHeight);
+        m_titleMaxX                       = bg2.x;
 
         LinaVG::StyleOptions bgStyle;
         bgStyle.color = LV4(LGUI->GetTheme().GetColor(ThemeColor::Dark0));
@@ -289,10 +286,10 @@ namespace Lina::Editor
         const float    initialOffset = buttonSizeX * 0.01f;
         const float    spacing       = 0.0f;
         const float    penY          = 0.0f;
+        const Vector2  appTitleSize  = Widgets::GetTextSize(ApplicationInfo::GetAppName());
 
-        float minimizeStart = screen.x - buttonSize.x * 3 - spacing * 2 - initialOffset;
-        minimizeStart       = Math::Max(minimizeStart, m_titleMaxX);
-
+        float minimizeStart      = screen.x - buttonSize.x * 3 - spacing * 2 - initialOffset;
+        minimizeStart            = Math::Max(minimizeStart, m_titleMaxX + appTitleSize.x + display.x * 0.01f);
         const float restoreStart = minimizeStart + buttonSize.x + spacing;
         const float closeStart   = restoreStart + buttonSize.x + spacing;
 
@@ -319,7 +316,6 @@ namespace Lina::Editor
         }
 
         w.SetPenPos(Vector2(minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
-
         Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);
         theme.PopProperty();
         theme.PopColor();
@@ -327,19 +323,18 @@ namespace Lina::Editor
 
     void TopPanel::DrawControls()
     {
-
         auto& w     = LGUI->GetCurrentWindow();
         auto& theme = LGUI->GetTheme();
 
         LinaVG::StyleOptions controlsBG;
         controlsBG.color = LV4(theme.GetColor(ThemeColor::Light5));
 
-        const Vector2 pos  = Vector2(0, m_currentSize.y * 0.5f);
+        const Vector2 pos  = Vector2(0, m_currentSize.y * 0.55f);
         const String  name = "TopPanelControls";
         LGUI->SetWindowPosition(name, pos);
-        LGUI->SetWindowSize(name, Vector2(m_currentSize.x, pos.y));
+        LGUI->SetWindowSize(name, Vector2(m_currentSize.x, m_currentSize.y * 0.45f));
 
-        if (LGUI->BeginWindow(name))
+        if (LGUI->BeginWindow(name, IMW_FixedWindow))
         {
             LGUI->EndWindow();
         }

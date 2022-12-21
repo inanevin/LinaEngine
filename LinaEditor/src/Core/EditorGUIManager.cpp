@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/EditorGUIManager.hpp"
 #include "Core/EditorCommon.hpp"
+#include "GUI/GUI.hpp"
 
 namespace Lina::Editor
 {
@@ -37,6 +38,8 @@ namespace Lina::Editor
     {
         s_instance = this;
         m_topPanel.Initialize();
+           LGUI->SetWindowPosition("TestWindow", Vector2(200, 200));
+        LGUI->SetWindowPosition("TestWindow2", Vector2(800, 200));
     }
 
     void EditorGUIManager::Shutdown()
@@ -48,7 +51,28 @@ namespace Lina::Editor
     {
         m_topPanel.Draw();
         m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+
         m_dockPanel.Draw();
+
+     
+
+        LGUI->SetWindowSize("TestWindow", Vector2(500, 500));
+
+        if (LGUI->BeginWindow("TestWindow"))
+        {
+
+            LGUI->EndWindow();
+        }
+
+
+        
+       // LGUI->SetWindowSize("TestWindow2", Vector2(500, 500));
+       // 
+       // if (LGUI->BeginWindow("TestWindow2"))
+       // {
+       // 
+       //     LGUI->EndWindow();
+       // }
     }
 
 } // namespace Lina::Editor

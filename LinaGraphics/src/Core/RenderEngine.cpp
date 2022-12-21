@@ -142,7 +142,7 @@ namespace Lina::Graphics
         LinaVG::Config.aaEnabled             = true;
         LinaVG::Config.textCachingEnabled    = true;
         LinaVG::Config.textCachingSDFEnabled = true;
-        LinaVG::Config.textCacheReserve = 10000;
+        LinaVG::Config.textCacheReserve      = 10000;
 
         LinaVG::Config.errorCallback = [](const std::string& err) { LINA_ERR(err.c_str()); };
 
@@ -170,9 +170,10 @@ namespace Lina::Graphics
         m_enginePrimitiveNames[EnginePrimitiveType::Suzanne]  = "Suzanne";
 
         // Engine textures
-        m_engineTextureNames[EngineTextureType::DefaultLina]         = "DefaultLinaWithText";
-        m_engineTextureNames[EngineTextureType::LinaLogoTransparent] = "LinaLogoTransparent";
-        m_engineTextureNames[EngineTextureType::Grid512]             = "Grid512";
+        m_engineTextureNames[EngineTextureType::LogoWithText]    = "LogoWithText";
+        m_engineTextureNames[EngineTextureType::LogoColored1024] = "Logo_Colored_1024";
+        m_engineTextureNames[EngineTextureType::LogoWhite256]    = "Logo_White_256";
+        m_engineTextureNames[EngineTextureType::Grid512]         = "Grid512";
     }
 
     void RenderEngine::Clear()

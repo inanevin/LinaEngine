@@ -48,6 +48,7 @@ namespace Lina
         struct EMouseScrollCallback;
         struct EWindowFocusChanged;
         struct EMouseButtonCallback;
+        struct EMouseMovedRaw;
     } // namespace Event
 
 } // namespace Lina
@@ -72,15 +73,26 @@ namespace Lina::Input
         bool GetMouseButtonClicked(int button);
         void SetCursorMode(CursorMode mode);
         void SetMousePosition(const Vector2& v) const;
-        void SetRawMotion(bool enabled);
 
         /// <summary>
         /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
         /// </summary>
         /// <returns></returns>
-        Vector2        GetMousePosition();
-        Vector2        GetMouseAxisDefinite();
-        Vector2        GetMouseAxis();
+        inline Vector2 GetMousePosition()
+        {
+            return m_currentMousePosition;
+        }
+
+        inline Vector2 GetMouseDelta()
+        {
+            return m_mouseDelta;
+        }
+
+        inline Vector2 GetMouseDeltaRaw()
+        {
+            return m_mouseDeltaRaw;
+        }
+
         inline Vector2 GetMouseScroll()
         {
             return m_currentMouseScroll;
@@ -99,11 +111,6 @@ namespace Lina::Input
             return m_verticalAxis.GetValue();
         }
 
-        inline void SetAxisMousePos(const Vector2& v)
-        {
-            m_axisMousePos = v;
-        }
-
     private:
         friend class Engine;
         InputEngine()  = default;
@@ -115,6 +122,7 @@ namespace Lina::Input
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
         void OnMouseButtonCallback(const Event::EMouseButtonCallback& e);
+        void OnMouseMovedRaw(const Event::EMouseMovedRaw& e);
         void OnWindowFocusChanged(const Event::EWindowFocusChanged& e);
 
     private:
@@ -133,13 +141,14 @@ namespace Lina::Input
         HashMap<int, int>   m_singleClickStates;
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
-        CursorMode          m_cursorMode           = CursorMode::Visible;
-        Vector2             m_currentMouseScroll   = Vector2::Zero;
-        Vector2             m_axisMousePos         = Vector2::Zero;
-        Vector2             m_previousMousePos     = Vector2::Zero;
-        bool                m_rawMotionSupported   = false;
-        bool                m_windowFocused        = false;
-        Vector2             m_currentMousePosition = Vector2::Zero;
+        CursorMode          m_cursorMode            = CursorMode::Visible;
+        Vector2             m_currentMouseScroll    = Vector2::Zero;
+        Vector2             m_mousePosTrackingClick = Vector2::Zero;
+        Vector2             m_mouseDelta            = Vector2::Zero;
+        Vector2             m_mouseDeltaRaw         = Vector2::Zero;
+        bool                m_windowFocused         = false;
+        Vector2             m_currentMousePosition  = Vector2::Zero;
+        Vector2             m_previousMousePosition = Vector2::Zero;
     };
 } // namespace Lina::Input
 

@@ -583,8 +583,9 @@ namespace Lina::Graphics
 
     enum class EngineTextureType
     {
-        DefaultLina,
-        LinaLogoTransparent,
+        LogoWithText,
+        LogoColored1024,
+        LogoWhite256,
         Grid512,
     };
 

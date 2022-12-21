@@ -55,7 +55,7 @@ namespace Lina::Graphics
         float              maxLod            = 0.0f;
         BorderColor        borderColor       = BorderColor::FloatTransparentBlack;
         MipmapMode         mipmapMode        = MipmapMode::Nearest;
-        bool               anisotropyEnabled = true;
+        bool               anisotropyEnabled = false;
 
         // Runtime
         VkSampler_T* _ptr = nullptr;

@@ -41,13 +41,16 @@ namespace Lina::Graphics
     class Window
     {
     public:
-        virtual void SetSize(const Vector2i& newSize)       = 0;
-        virtual void SetPos(const Vector2i& newPos)         = 0;
-        virtual void SetPosCentered(const Vector2i& newPos) = 0;
-        virtual void SetVsync(VsyncMode mode)               = 0;
-        virtual void SetTitle(const char*)                  = 0;
-        virtual void Minimize()                             = 0;
-        virtual void Maximize()                             = 0;
+        virtual void  SetSize(const Vector2i& newSize)                                                     = 0;
+        virtual void  SetPos(const Vector2i& newPos)                                                       = 0;
+        virtual void  SetPosCentered(const Vector2i& newPos)                                               = 0;
+        virtual void  SetVsync(VsyncMode mode)                                                             = 0;
+        virtual void  SetTitle(const char*)                                                                = 0;
+        virtual void  Minimize()                                                                           = 0;
+        virtual void  Maximize()                                                                           = 0;
+        virtual void* CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size) = 0;
+        virtual void  DestroyAdditionalWindow(StringID sid)                                                = 0;
+        virtual bool  AdditionalWindowExists(StringID sid)                                                 = 0;
 
         /// <summary>
         /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.

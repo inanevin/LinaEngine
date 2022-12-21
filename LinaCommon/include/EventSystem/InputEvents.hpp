@@ -62,6 +62,12 @@ namespace Lina::Event
     {
     };
 
+    struct EMouseMovedRaw
+    {
+        int xDelta = 0;
+        int yDelta = 0;
+    };
+
 } // namespace Lina::Event
 
 #endif

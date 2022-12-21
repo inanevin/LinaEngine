@@ -158,7 +158,7 @@ namespace Lina::Graphics
 
         m_properties.clear();
         m_textures.clear();
-        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::DefaultLina);
+        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::LogoWithText);
 
         const auto& vec = m_shader.value->GetReflectedProperties();
 

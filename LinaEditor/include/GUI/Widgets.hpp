@@ -77,7 +77,8 @@ namespace Lina::Editor
         static void EndPopup();
 
         // Text
-        static void Text(const String& text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
+        static Vector2 GetTextSize(const String& text, float wrapWidth = 0.0f);
+        static void    Text(const String& text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
 
         // Utility
         static void BeginHorizontal();

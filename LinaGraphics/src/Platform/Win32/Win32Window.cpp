@@ -34,6 +34,14 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include <Windows.h>
 #include <shellscalingapi.h>
+#include <hidusage.h>
+
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE ((USHORT)0x02)
+#endif
 
 namespace Lina::Graphics
 {
@@ -41,7 +49,6 @@ namespace Lina::Graphics
 
     LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
     {
-
         switch (msg)
         {
         case WM_CLOSE: {
@@ -282,6 +289,22 @@ namespace Lina::Graphics
             });
         }
         break;
+        case WM_INPUT: {
+            UINT        dwSize = sizeof(RAWINPUT);
+            static BYTE lpb[sizeof(RAWINPUT)];
+
+            GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+            RAWINPUT* raw = (RAWINPUT*)lpb;
+
+            if (raw->header.dwType == RIM_TYPEMOUSE)
+            {
+                int xPosRelative = raw->data.mouse.lLastX;
+                int yPosRelative = raw->data.mouse.lLastY;
+                Event::EventSystem::Get()->Trigger<Event::EMouseMovedRaw>(Event::EMouseMovedRaw{.xDelta = xPosRelative, .yDelta = yPosRelative});
+            }
+            break;
+        }
         }
 
         return DefWindowProcA(window, msg, wParam, lParam);
@@ -298,26 +321,34 @@ namespace Lina::Graphics
         m_hinst = GetModuleHandle(0);
 
         WNDCLASS wc      = {};
-        wc.lpfnWndProc   = WndProc;
+        wc.lpfnWndProc   = Win32Window::WndProc;
         wc.hInstance     = m_hinst;
-        wc.lpszClassName = "Lina Engine";
+        wc.lpszClassName = "Lina Engine Main";
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
         wc.style         = CS_DBLCLKS;
 
         if (!RegisterClassA(&wc))
         {
-            LINA_ERR("[Win32 Window] -> Filed registering window class!");
+            LINA_ERR("[Win32 Window] -> Failed registering window class!");
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine", props.title, 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine Main", props.title, 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
         m_title  = props.title;
 
-        if (m_window == 0)
+        if (m_window == nullptr)
         {
             LINA_ERR("[Win32 Window] -> Failed creating window!");
             return false;
         }
+
+        // For raw input
+        RAWINPUTDEVICE Rid[1];
+        Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+        Rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
+        Rid[0].dwFlags     = RIDEV_INPUTSINK;
+        Rid[0].hwndTarget  = m_window;
+        RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 
         HMONITOR mon = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
         UINT     dpiX, dpiY;
@@ -501,6 +532,45 @@ namespace Lina::Graphics
     void Win32Window::Maximize()
     {
         ShowWindow(m_window, SW_SHOWMAXIMIZED);
+    }
+
+    void* Win32Window::CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size)
+    {
+        const StringID sid = TO_SIDC(title);
+        // m_additionalWindows[sid] = CreateWin32Window(title, title, true, size.x, size.y);
+
+        WNDCLASS wc      = {};
+        wc.lpfnWndProc   = Win32Window::WndProc;
+        wc.hInstance     = m_hinst;
+        wc.lpszClassName = title;
+        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+        wc.style         = CS_DBLCLKS;
+
+        if (!RegisterClassA(&wc))
+        {
+            LINA_ERR("[Win32 Window] -> Failed registering window class!");
+            return nullptr;
+        }
+
+        auto child = CreateWindowExA(WS_EX_APPWINDOW, title, title, WS_OVERLAPPED, 500, 500, 100, 200, m_window, NULL, m_hinst, NULL);
+        LINA_TRACE("[Win32 Window] -> Created a child window!");
+
+        // SetParent(child, m_window);
+        ShowWindow(child, SW_SHOW);
+        // auto           wnd = CreateWindowExA(0, "Lina Engine", (LPCTSTR)NULL, WS_CHILD | WS_BORDER | WS_VISIBLE, 0, 0, size.x, size.y, m_window, (HMENU)(int)(sid), m_hinst, NULL);
+        // m_additionalWindows[sid] = CreateWindowEx(WS_CHILD, "Lina Engine", "window1", 0, 0, 0, size.x, size.y, NULL, NULL, m_hinst, NULL);
+        return child;
+    }
+
+    void Win32Window::DestroyAdditionalWindow(StringID sid)
+    {
+        DestroyWindow(m_additionalWindows[sid]);
+        m_additionalWindows.erase(m_additionalWindows.find(sid));
+    }
+
+    bool Win32Window::AdditionalWindowExists(StringID sid)
+    {
+        return m_additionalWindows.find(sid) != m_additionalWindows.end();
     }
 
     void Win32Window::OnWin32Close()

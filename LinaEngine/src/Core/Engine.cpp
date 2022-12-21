@@ -224,11 +224,17 @@ namespace Lina
         m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
             m_renderEngine.Render();
             m_frames++;
-         });
+        });
 
         // Game sim, physics + update etc.
         RunSimulation((float)RuntimeInfo::s_deltaTime);
         m_updates++;
+
+
+        if (m_inputEngine.GetKeyDown(LINA_KEY_E))
+        {
+            Graphics::Window::Get()->CreateAdditionalWindow("TestWindow", Vector2i(0, 0), Vector2i(200, 200));
+        }
 
         // Wait for all.
         m_renderJob.get();

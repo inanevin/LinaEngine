@@ -52,19 +52,9 @@ namespace Lina::Editor
             (m_items.push_back(std::forward<Args>(args)), ...);
         }
 
-        inline void SetItemSize(const Vector2& size)
-        {
-            m_itemSize = size;
-        }
-
         inline void SetStartPosition(const Vector2& pos)
         {
             m_startPosition = pos;
-        }
-
-        inline void SetExtraSpacing(float spacing)
-        {
-            m_extraSpacing = spacing;
         }
 
         void Reset();
@@ -72,9 +62,7 @@ namespace Lina::Editor
 
     private:
         Vector<MenuPopup*> m_items;
-        Vector2            m_itemSize      = Vector2::Zero;
         Vector2            m_startPosition = Vector2::Zero;
-        float              m_extraSpacing  = 0.0f;
         int32              m_activeItem    = -1;
     };
 } // namespace Lina::Editor

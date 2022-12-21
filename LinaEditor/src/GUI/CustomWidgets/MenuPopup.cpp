@@ -144,7 +144,7 @@ namespace Lina::Editor
             }
         }
 
-        if (m_type != ElementType::Expendable && isHovered && LGUI->GetMouseButtonClicked(LINA_MOUSE_0))
+        if (m_type != ElementType::Expendable && isHovered && LGUI->GetMouseButtonUp(LINA_MOUSE_0))
         {
             if (m_onItemClicked)
                 m_onItemClicked(m_id);

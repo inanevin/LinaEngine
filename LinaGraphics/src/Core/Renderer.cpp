@@ -72,7 +72,7 @@ namespace Lina::Graphics
 
         m_backend = Backend::Get();
 
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
         Extent3D       ext  = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
         ImageSubresourceRange depthRange;
@@ -116,7 +116,7 @@ namespace Lina::Graphics
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
         m_cmdPool.Create();
 
-        const uint32 imageSize = static_cast<uint32>(m_backend->GetSwapchain()._images.size());
+        const uint32 imageSize = static_cast<uint32>(m_backend->GetMainSwapchain()._images.size());
 
         for (uint32 i = 0; i < imageSize; i++)
         {
@@ -504,10 +504,15 @@ namespace Lina::Graphics
         m_framebuffers.clear();
 
         // Swapchain
-        auto& swapchain = Backend::Get()->GetSwapchain();
-        swapchain.Destroy();
-        swapchain.size = size;
-        swapchain.Create();
+        auto& swapchains = Backend::Get()->GetSwapchains();
+
+        for (auto& swp : swapchains)
+        {
+             swapchain.Destroy();
+            swapchain.size = size;
+            swapchain.Create();
+        }
+   
 
         // Make sure we always match swapchain
         size = swapchain.size;

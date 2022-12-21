@@ -52,12 +52,14 @@ namespace Lina::Editor
     {
         IMW_UseAbsolutePosition = 0,
         IMW_UseAbsoluteDrawOrder,
+        IMW_FixedWindow,
     };
 
     struct PersistentWindowData
     {
         Vector2 position = Vector2::Zero;
         Vector2 size     = Vector2::Zero;
+        bool    docked   = false;
     };
 
     struct PerFrameWindowData
@@ -153,6 +155,7 @@ namespace Lina::Editor
     private:
         friend class ImmediateGUI;
 
+        Bitmask16              m_mask                 = 0;
         String                 m_name                 = "";
         StringID               m_sid                  = 0;
         Vector2                m_penPos               = Vector2::Zero;
@@ -164,7 +167,8 @@ namespace Lina::Editor
         int                    m_drawOrder            = 0;
         Deque<ImmediateWidget> m_widgets;
         Deque<int>             m_horizontalRequests;
-        Color                  m_color = Color::White;
+        Color                  m_color  = Color::White;
+        bool                   m_docked = false;
     };
 
     class ImmediateGUI
@@ -194,11 +198,13 @@ namespace Lina::Editor
         // Utility
         bool    IsMouseHoveringRect(const Rect& rect);
         Vector2 GetMousePosition();
+        Vector2 GetMouseDelta();
         bool    GetMouseButtonDown(int button);
         bool    GetMouseButtonUp(int button);
         bool    GetMouseButton(int button);
         bool    GetMouseButtonClicked(int button);
         bool    GetMouseButtonDoubleClicked(int button);
+        bool    GetKeyDown(int key);
 
         inline void SetAbsoluteDrawOrder(int drawOrder)
         {
@@ -221,6 +227,21 @@ namespace Lina::Editor
             return m_hoveredWindow;
         }
 
+        inline StringID GetDraggedWindowSID()
+        {
+            return m_draggedWindow;
+        }
+
+        inline StringID GetFocusedWindowSID()
+        {
+            return m_focusedWindow;
+        }
+
+        inline void SetDraggedWindow(StringID sid)
+        {
+            m_draggedWindow = sid;
+        }
+
     private:
         friend class Editor;
 
@@ -232,6 +253,8 @@ namespace Lina::Editor
         Theme                                   m_theme;
         StringID                                m_iconTexture;
         StringID                                m_hoveredWindow     = 0;
+        StringID                                m_draggedWindow     = 0;
+        StringID                                m_focusedWindow     = 0;
         int                                     m_absoluteDrawOrder = 0;
     };
 

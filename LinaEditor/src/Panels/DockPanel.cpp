@@ -47,9 +47,10 @@ namespace Lina::Editor
         const String  name   = "DockPanel";
         LGUI->SetWindowPosition(name, m_pos);
         LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));
+        LGUI->SetAbsoluteDrawOrder(0);
 
         theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
-        if (LGUI->BeginWindow(name))
+        if (LGUI->BeginWindow(name, IMW_FixedWindow | IMW_UseAbsoluteDrawOrder))
         {
             theme.PopColor();
             LGUI->EndWindow();

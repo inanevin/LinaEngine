@@ -31,13 +31,15 @@ SOFTWARE.
 #include "GUI/GUICommon.hpp"
 #include "Math/Math.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Core/Screen.hpp"
 #include "Utility/StringId.hpp"
 
 namespace Lina::Editor
 {
     ImmediateGUI* ImmediateGUI::s_instance = nullptr;
 
-    // #define DEBUG
+// #define DEBUG
+#define DRO_FOCUSED 25
 
     ImmediateWidget& ImmediateWindow::GetCurrentWidget()
     {
@@ -77,13 +79,61 @@ namespace Lina::Editor
 
         auto&                theme = ImmediateGUI::Get()->GetTheme();
         const Vector2        min   = m_absPos;
-        const Vector2        max   = m_absPos + m_size;
+        const Vector2        max   = min + m_size;
         LinaVG::StyleOptions opts;
-        opts.color                    = LV4(m_color);
-        opts.rounding                 = theme.GetProperty(ThemeProperty::WindowRounding);
-        opts.outlineOptions.thickness = theme.GetProperty(ThemeProperty::WindowBorderThickness);
-        opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
-        LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, m_drawOrder);
+        opts.color = LV4(m_color);
+
+        Rect dragRect = Rect();
+        if (!m_mask.IsSet(IMW_FixedWindow))
+        {
+            if (m_docked)
+            {
+            }
+            else
+            {
+                // Only undocked windows have rounding & border options.
+                opts.rounding                 = theme.GetProperty(ThemeProperty::WindowRounding);
+                opts.outlineOptions.thickness = theme.GetProperty(ThemeProperty::WindowBorderThickness);
+                opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
+
+                // Undocked & non-fixed windows have title bars.
+                const Vector2 display = Graphics::Screen::DisplayResolutionF();
+
+                // Main window rect.
+                LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, m_drawOrder);
+
+                // Title bar
+                const float          titleBarSizeY = display.y * 0.045f;
+                const Vector2        titleBarSize  = Vector2(m_size.x, titleBarSizeY);
+                const Vector2        titleBarMax   = min + titleBarSize;
+                LinaVG::StyleOptions titleBarStyle;
+                titleBarStyle.color = LV4(theme.GetColor(ThemeColor::TopPanelBackground));
+                LinaVG::DrawRect(LV2(min), LV2(titleBarMax), titleBarStyle, 0.0f, m_drawOrder + 1);
+                dragRect = Rect(min, titleBarSize);
+
+                // Lina Logo
+            }
+        }
+        else
+        {
+            LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, m_drawOrder);
+        }
+
+        if (LGUI->GetDraggedWindowSID() == 0 && LGUI->IsMouseHoveringRect(dragRect) && LGUI->GetMouseButtonDown(LINA_MOUSE_0))
+        {
+            LGUI->SetDraggedWindow(m_sid);
+        }
+
+        if (m_sid == LGUI->GetDraggedWindowSID())
+        {
+            if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
+                LGUI->SetDraggedWindow(0);
+
+            const Vector2 delta     = LGUI->GetMouseDelta();
+            Vector2       targetPos = m_absPos + delta;
+            LGUI->SetWindowPosition(m_name, targetPos);
+            LINA_TRACE("Dragging {0} {1}", delta.x, delta.y);
+        }
 
 #ifdef DEBUG
         LinaVG::StyleOptions optsDebug;
@@ -144,6 +194,31 @@ namespace Lina::Editor
 
     void ImmediateGUI::StartFrame()
     {
+        auto&               theme = LGUI->GetTheme();
+        LinaVG::TextOptions txt;
+        txt.font      = theme.GetFont(ThemeFont::Default);
+        txt.alignment = LinaVG::TextAlignment::Right;
+
+        auto screen = Graphics::Screen::SizeF();
+
+        const Vector2 mouseDelta       = LGUI->GetMouseDelta();
+        const String  mouseDeltaStr    = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);
+        const String  focusedWindowStr = "Focused Window: " + GetNameFromSID(m_focusedWindow);
+        const String  hoveredWindowStr = "Hovered Window: " + GetNameFromSID(m_hoveredWindow);
+        const String  draggedWindowStr = "Dragged Window: " + GetNameFromSID(m_draggedWindow);
+
+        Vector2        pos = Vector2(screen.x * 0.98f, screen.y * 0.8f);
+        Vector<String> debugs;
+        debugs.push_back(mouseDeltaStr);
+        debugs.push_back(focusedWindowStr);
+        debugs.push_back(hoveredWindowStr);
+        debugs.push_back(draggedWindowStr);
+
+        for (auto& s : debugs)
+        {
+            LinaVG::DrawTextNormal(s.c_str(), LV2(pos), txt, 0, 200);
+            pos.y += 20.0f;
+        }
     }
 
     void ImmediateGUI::EndFrame()
@@ -151,6 +226,7 @@ namespace Lina::Editor
         // Determine hovered window.
         m_hoveredWindow = 0;
 
+        // Hovered
         for (auto& w : m_windowDataPerFrame)
         {
             if (IsMouseHoveringRect(w.second.rect))
@@ -165,6 +241,16 @@ namespace Lina::Editor
             }
         }
 
+        // Focused
+        if (LGUI->GetMouseButtonDown(LINA_MOUSE_0))
+        {
+            for (auto& w : m_windowDataPerFrame)
+            {
+                if (w.first == m_hoveredWindow)
+                    m_focusedWindow = w.first;
+            }
+        }
+
         m_windows.clear();
         m_windowDataPerFrame.clear();
         m_absoluteDrawOrder = 0;
@@ -173,15 +259,13 @@ namespace Lina::Editor
     bool ImmediateGUI::BeginWindow(const String& str, Bitmask16 mask)
     {
         Vector2 parentPos       = Vector2::Zero;
-        int     parentDrawOrder = mask.IsSet(IMW_UseAbsoluteDrawOrder) ? m_absoluteDrawOrder : 0;
+        int     parentDrawOrder = 0;
 
         if (!m_windows.empty())
         {
             ImmediateWindow& parent = m_windows.back();
             parentPos               = mask.IsSet(IMW_UseAbsolutePosition) ? Vector2::Zero : parent.m_absPos;
-
-            if (!mask.IsSet(IMW_UseAbsoluteDrawOrder))
-                parentDrawOrder = parent.m_drawOrder;
+            parentDrawOrder         = parent.m_drawOrder;
         }
 
         m_windows.push_back(ImmediateWindow());
@@ -191,15 +275,24 @@ namespace Lina::Editor
         const StringID sid         = GetSIDFromStr(str);
         const Vector2  desiredPos  = m_windowDataPersistent[sid].position;
         Vector2        desiredSize = m_windowDataPersistent[sid].size;
+        const bool     isDocked    = m_windowDataPersistent[w.m_sid].docked;
 
-        w.m_color     = GetTheme().GetColor(ThemeColor::Window);
-        w.m_sid       = sid;
-        w.m_relPos    = desiredPos;
-        w.m_absPos    = parentPos + desiredPos;
-        w.m_size      = desiredSize;
-        w.m_drawOrder = parentDrawOrder + 1;
-        w.m_penPos.x  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
-        w.m_penPos.y  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
+        w.m_mask     = mask;
+        w.m_color    = GetTheme().GetColor(ThemeColor::Window);
+        w.m_sid      = sid;
+        w.m_relPos   = desiredPos;
+        w.m_absPos   = parentPos + desiredPos;
+        w.m_size     = desiredSize;
+        w.m_penPos.x = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
+        w.m_penPos.y = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
+        w.m_docked   = isDocked;
+
+        if (mask.IsSet(IMW_UseAbsoluteDrawOrder))
+            w.m_drawOrder = m_absoluteDrawOrder;
+        else
+        {
+            w.m_drawOrder = m_focusedWindow == sid ? DRO_FOCUSED : parentDrawOrder + 1;
+        }
 
         m_windowDataPerFrame[sid].rect      = Rect(w.m_absPos, w.m_size);
         m_windowDataPerFrame[sid].drawOrder = w.m_drawOrder;
@@ -215,7 +308,7 @@ namespace Lina::Editor
     bool ImmediateGUI::BeginPopup(const String& name)
     {
         m_absoluteDrawOrder  = LGUI_POPUP_DRAWORDER_START;
-        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_UseAbsolutePosition;
+        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_UseAbsolutePosition | IMW_FixedWindow;
         m_theme.PushColor(ThemeColor::Window, ThemeColor::PopupBG);
         m_theme.PushColor(ThemeColor::WindowBorderColor, ThemeColor::PopupBorderColor);
         m_theme.PushProperty(ThemeProperty::WindowRounding, ThemeProperty::PopupRounding);
@@ -284,6 +377,11 @@ namespace Lina::Editor
         return Input::InputEngine::Get()->GetMousePosition();
     }
 
+    Vector2 ImmediateGUI::GetMouseDelta()
+    {
+        return Input::InputEngine::Get()->GetMouseDelta();
+    }
+
     bool ImmediateGUI::GetMouseButtonDown(int button)
     {
         return Input::InputEngine::Get()->GetMouseButtonDown(button);
@@ -307,6 +405,11 @@ namespace Lina::Editor
     bool ImmediateGUI::GetMouseButtonDoubleClicked(int button)
     {
         return Input::InputEngine::Get()->GetMouseButtonDoubleClick(button);
+    }
+
+    bool ImmediateGUI::GetKeyDown(int key)
+    {
+        return Input::InputEngine::Get()->GetKeyDown(key);
     }
 
     void ImmediateGUI::SetWindowSize(const String& str, const Vector2& size)

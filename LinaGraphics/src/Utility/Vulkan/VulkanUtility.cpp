@@ -159,7 +159,7 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateMainRenderPass(RenderPass& pass)
     {
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
 
         Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
@@ -174,7 +174,7 @@ namespace Lina::Graphics
         };
 
         Attachment colorAttachment = Attachment{
-            .format         = Backend::Get()->GetSwapchain().format,
+            .format         = Backend::Get()->GetMainSwapchain().format,
             .loadOp         = LoadOp::Clear,
             .storeOp        = StoreOp::Store,
             .stencilLoadOp  = LoadOp::DontCare,
@@ -231,7 +231,7 @@ namespace Lina::Graphics
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
 
         Image image = Image{
-            .format              = Backend::Get()->GetSwapchain().format,
+            .format              = Backend::Get()->GetMainSwapchain().format,
             .tiling              = ImageTiling::Optimal,
             .extent              = ext,
             .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled),
@@ -265,7 +265,7 @@ namespace Lina::Graphics
         pass._depthTexture    = new Texture();
         pass._depthTexture->CreateFromRuntime(image, sampler);
 
-        const uint32 imgSize = static_cast<uint32>(Backend::Get()->GetSwapchain()._images.size());
+        const uint32 imgSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
         for (uint32 i = 0; i < imgSize; i++)
         {
@@ -287,7 +287,7 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateFinalRenderPass(RenderPass& pass)
     {
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
 
         Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
@@ -302,7 +302,7 @@ namespace Lina::Graphics
         };
 
         Attachment colorAttachment = Attachment{
-            .format         = Backend::Get()->GetSwapchain().format,
+            .format         = Backend::Get()->GetMainSwapchain().format,
             .loadOp         = LoadOp::Clear,
             .storeOp        = StoreOp::Store,
             .stencilLoadOp  = LoadOp::DontCare,
@@ -359,7 +359,7 @@ namespace Lina::Graphics
 
     void VulkanUtility::SetupAndCreateDefaultRenderPass(RenderPass& pass)
     {
-        // const Vector2i size = Vector2i(Backend::Get()->GetSwapchain().width, Backend::Get()->GetSwapchain().height);
+        // const Vector2i size = Vector2i(Backend::Get()->GetMainSwapchain().width, Backend::Get()->GetMainSwapchain().height);
 
         // Attachment att = Attachment{
         //     .format = m_backend->m_swapchain.format,

@@ -153,17 +153,18 @@ namespace Lina::Editor
 
         // Generate icon texture.
         Graphics::Sampler sampler = Graphics::Sampler{
-            .minFilter     = Graphics::Filter::Linear,
-            .magFilter     = Graphics::Filter::Linear,
-            .u             = Graphics::SamplerAddressMode::ClampToEdge,
-            .v             = Graphics::SamplerAddressMode::ClampToEdge,
-            .w             = Graphics::SamplerAddressMode::ClampToEdge,
-            .mipLodBias    = 0.0f,
-            .maxAnisotropy = 8.0f,
-            .minLod        = 0.0f,
-            .maxLod        = 1.0f,
-            .borderColor   = Graphics::BorderColor::FloatOpaqueWhite,
-            .mipmapMode    = Graphics::MipmapMode::Linear,
+            .minFilter         = Graphics::Filter::Linear,
+            .magFilter         = Graphics::Filter::Nearest,
+            .u                 = Graphics::SamplerAddressMode::ClampToEdge,
+            .v                 = Graphics::SamplerAddressMode::ClampToEdge,
+            .w                 = Graphics::SamplerAddressMode::ClampToEdge,
+            .mipLodBias        = 0.0f,
+            .maxAnisotropy     = 8.0f,
+            .minLod            = 0.0f,
+            .maxLod            = 1.0f,
+            .borderColor       = Graphics::BorderColor::FloatOpaqueWhite,
+            .mipmapMode        = Graphics::MipmapMode::Linear,
+            .anisotropyEnabled = true,
         };
         txt->GenerateCustomBuffers(atlasWidth, atlasHeight, 4, Graphics::Format::R8G8B8A8_SRGB, sampler, Graphics::ImageTiling::Linear);
 

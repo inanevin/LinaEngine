@@ -42,13 +42,16 @@ namespace Lina::Graphics
     {
     public:
         // Inherited via Window
-        virtual void SetSize(const Vector2i& newSize) override;
-        virtual void SetPos(const Vector2i& newPos) override;
-        virtual void SetPosCentered(const Vector2i& newPos) override;
-        virtual void SetVsync(VsyncMode mode) override;
-        virtual void SetTitle(const char* title) override;
-        virtual void Minimize() override;
-        virtual void Maximize() override;
+        virtual void  SetSize(const Vector2i& newSize) override;
+        virtual void  SetPos(const Vector2i& newPos) override;
+        virtual void  SetPosCentered(const Vector2i& newPos) override;
+        virtual void  SetVsync(VsyncMode mode) override;
+        virtual void  SetTitle(const char* title) override;
+        virtual void  Minimize() override;
+        virtual void  Maximize() override;
+        virtual void* CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size) override;
+        virtual void  DestroyAdditionalWindow(StringID sid) override;
+        virtual bool  AdditionalWindowExists(StringID sid) override;
 
         void OnWin32Close();
 
@@ -80,19 +83,19 @@ namespace Lina::Graphics
         virtual void Close() override;
 
     private:
-        void UpdateStyle();
-
-        void SetToWorkingArea();
-        void SetToFullscreen();
+        void    UpdateStyle();
+        void    SetToWorkingArea();
+        void    SetToFullscreen();
 
     private:
-        static Win32Window* s_win32Window;
-        HWND__*             m_window      = nullptr;
-        HINSTANCE__*        m_hinst       = nullptr;
-        Vector2i            m_initialPos  = Vector2i();
-        Vector2i            m_initialSize = Vector2i();
-        Vector2i            m_previousSize;
-        unsigned long       m_style;
+        static Win32Window*        s_win32Window;
+        HWND__*                    m_window      = nullptr;
+        HINSTANCE__*               m_hinst       = nullptr;
+        Vector2i                   m_initialPos  = Vector2i();
+        Vector2i                   m_initialSize = Vector2i();
+        Vector2i                   m_previousSize;
+        HashMap<StringID, HWND__*> m_additionalWindows;
+        unsigned long              m_style;
     };
 } // namespace Lina::Graphics
 

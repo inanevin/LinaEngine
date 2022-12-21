@@ -70,15 +70,11 @@ namespace Lina::Editor
         LGUI->StartFrame();
         LinaVG::StartFrame();
 
-
         EditorGUIManager::Get()->Draw();
 
         // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
         //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
 
-        static int count = 0;
-
-        auto* t = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Engine/Textures/LinaLogoTransparent.png");
         LinaVG::Render();
         LinaVG::EndFrame();
         LGUI->EndFrame();
@@ -145,7 +141,7 @@ namespace Lina::Editor
         theme.m_colors[ThemeColor::Light5]                  = light5;
         theme.m_colors[ThemeColor::TopPanelBackground]      = dark1;
         theme.m_colors[ThemeColor::Window]                  = dark2;
-        theme.m_colors[ThemeColor::WindowBorderColor]       = Color::Black;
+        theme.m_colors[ThemeColor::WindowBorderColor]       = light1;
         theme.m_colors[ThemeColor::PopupBG]                 = light15;
         theme.m_colors[ThemeColor::PopupBorderColor]        = Color::Black;
         theme.m_colors[ThemeColor::ButtonBackground]        = light1;
@@ -163,7 +159,8 @@ namespace Lina::Editor
         theme.m_properties[ThemeProperty::WindowItemSpacingX]    = 12;
         theme.m_properties[ThemeProperty::WindowItemSpacingY]    = 12;
         theme.m_properties[ThemeProperty::WindowRounding]        = 0.0f;
-        theme.m_properties[ThemeProperty::WindowBorderThickness] = 0.0f;
+        theme.m_properties[ThemeProperty::WindowBorderThickness] = 1.0f;
+        theme.m_properties[ThemeProperty::WindowBorderThickness] = 1.0f;
 
         theme.m_properties[ThemeProperty::ButtonRounding]        = 0.2f;
         theme.m_properties[ThemeProperty::ButtonBorderThickness] = 1.0f;

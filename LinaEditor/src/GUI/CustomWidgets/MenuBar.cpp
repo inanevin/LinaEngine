@@ -55,24 +55,6 @@ namespace Lina::Editor
             auto* item = m_items[i];
             window.SetPenPos(pos);
 
-            const Rect itemRect  = Rect(pos, m_itemSize);
-            const bool isHovered = LGUI->IsMouseHoveringRect(itemRect);
-
-            if (isHovered)
-                anyHovered = true;
-
-            // If we are already active, hovering over items will switch activation
-            if (m_activeItem != -1)
-            {
-                if (isHovered)
-                {
-                    if (m_activeItem != i)
-                        item->Reset();
-
-                    m_activeItem = i;
-                }
-            }
-
             const bool itemActive = m_activeItem == i;
 
             if (itemActive)
@@ -88,6 +70,24 @@ namespace Lina::Editor
                     Reset();
                 else
                     m_activeItem = i;
+            }
+
+            const Rect itemRect  = Rect(pos, totalSize);
+            const bool isHovered = LGUI->IsMouseHoveringRect(itemRect);
+
+            if (isHovered)
+                anyHovered = true;
+
+            // If we are already active, hovering over items will switch activation
+            if (m_activeItem != -1)
+            {
+                if (isHovered)
+                {
+                    if (m_activeItem != i)
+                        item->Reset();
+
+                    m_activeItem = i;
+                }
             }
 
             if (itemActive)

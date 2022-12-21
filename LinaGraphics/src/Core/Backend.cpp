@@ -257,16 +257,18 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
+        m_swapchains.push_back(Swapchain());
+
         PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
-        m_swapchain       = Swapchain{
-                  .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
-                  .format      = Format::B8G8R8A8_UNORM,
-                  .colorSpace  = ColorSpace::SRGB_NONLINEAR,
-                  .presentMode = pMode,
+        m_swapchains[0]   = Swapchain{
+              .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
+              .format      = Format::B8G8R8A8_UNORM,
+              .colorSpace  = ColorSpace::SRGB_NONLINEAR,
+              .presentMode = pMode,
         };
 
-        m_swapchain.Create();
-        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_swapchain.size.x, m_swapchain.size.y);
+        m_swapchains[0].Create();
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_swapchains[0].size.x, m_swapchains[0].size.y);
 
         // Query queue family indices.
         uint32_t queueFamilyCount = 0;
@@ -314,9 +316,12 @@ namespace Lina::Graphics
 
     void Backend::OnVsyncModeChanged(const Event::EVsyncModeChanged& ev)
     {
-        m_swapchain.Destroy();
-        m_swapchain.presentMode = VsyncToPresentMode(ev.newMode);
-        m_swapchain.Create();
+        for (auto& swp : m_swapchains)
+        {
+            swp.Destroy();
+            swp.presentMode = VsyncToPresentMode(ev.newMode);
+            swp.Create();
+        }
     }
 
     PresentMode Backend::VsyncToPresentMode(VsyncMode mode)
@@ -341,7 +346,10 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EVsyncModeChanged>(this);
 
         vmaDestroyAllocator(m_vmaAllocator);
-        m_swapchain.Destroy();
+
+        for (auto& swp : m_swapchains)
+            swp.Destroy();
+
         vkDestroyDevice(m_device, m_allocator);
         vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);

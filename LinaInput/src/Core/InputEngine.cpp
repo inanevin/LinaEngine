@@ -60,6 +60,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowFocusChanged, &InputEngine::OnWindowFocusChanged>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseButtonCallback, &InputEngine::OnMouseButtonCallback>(this);
+        Event::EventSystem::Get()->Connect<Event::EMouseMovedRaw, &InputEngine::OnMouseMovedRaw>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
     }
@@ -71,6 +72,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Disconnect<Event::EMouseScrollCallback>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowFocusChanged>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseButtonCallback>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EMouseMovedRaw>(this);
         m_keyDownNewStateMap.clear();
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
@@ -82,8 +84,7 @@ namespace Lina::Input
 #ifdef LINA_PLATFORM_WINDOWS
         win32Window = static_cast<HWND__*>(e.window);
 #else
-        glfwWindow           = static_cast<GLFWwindow*>(e.window);
-        m_rawMotionSupported = glfwRawMouseMotionSupported() == GLFW_TRUE ? true : false;
+        glfwWindow = static_cast<GLFWwindow*>(e.window);
 #endif
     }
 
@@ -99,6 +100,12 @@ namespace Lina::Input
             m_doubleClicks[e.button] = true;
     }
 
+    void InputEngine::OnMouseMovedRaw(const Event::EMouseMovedRaw& e)
+    {
+        m_mouseDeltaRaw.x = static_cast<float>(e.xDelta);
+        m_mouseDeltaRaw.y = static_cast<float>(e.yDelta);
+    }
+
     void InputEngine::OnWindowFocusChanged(const Event::EWindowFocusChanged& e)
     {
         m_windowFocused = e.isFocused;
@@ -112,7 +119,7 @@ namespace Lina::Input
 #ifdef LINA_PLATFORM_WINDOWS
         return GetKeyState(keycode) & 0x8000;
 #else
-        int state            = glfwGetKey(glfwWindow, keycode);
+        int state  = glfwGetKey(glfwWindow, keycode);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
 #endif
     }
@@ -210,69 +217,12 @@ namespace Lina::Input
         bool result = false;
 
         if (GetMouseButtonDown(button))
-            m_previousMousePos = GetMousePosition();
+            m_mousePosTrackingClick = GetMousePosition();
 
-        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_previousMousePos, 5))
+        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_mousePosTrackingClick, 5))
             result = true;
 
         return result;
-    }
-
-    Vector2 InputEngine::GetMouseAxisDefinite()
-    {
-        // Get the cursor position.
-        const Vector2 mousePos = GetMousePosition();
-        float         posX, posY;
-        posX = mousePos.x;
-        posY = mousePos.y;
-
-        // Get the delta mouse position.
-        Vector2 currentMousePosition = Vector2(posX, posY);
-        Vector2 diff                 = currentMousePosition - m_axisMousePos;
-        Vector2 raw                  = Vector2::Zero;
-
-        // Set raw axis values depending on the direction of the axis.
-        if (diff.x > 0.0f)
-            raw.x = 1.0f;
-        else if (diff.x < 0.0f)
-            raw.x = -1.0f;
-        if (diff.y > 0)
-            raw.y = 1.0f;
-        else if (diff.y < 0)
-            raw.y = -1.0f;
-
-        // Set previous position.
-        m_axisMousePos = currentMousePosition;
-
-        // Return raw.
-        return raw;
-    }
-
-    Vector2 InputEngine::GetMouseAxis()
-    {
-        const Vector2 mousePos = GetMousePosition();
-        float         posX, posY;
-        posX = mousePos.x;
-        posY = mousePos.y;
-
-        // Delta
-        Vector2 diff = Vector2(posX - m_axisMousePos.x, posY - m_axisMousePos.y);
-
-        // Clamp and remap delta mouse position.
-        diff.x = Math::Clamp(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
-        diff.y = Math::Clamp(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY);
-        diff.x = Math::Remap(diff.x, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
-        diff.y = Math::Remap(diff.y, -MOUSE_SENSITIVITY, MOUSE_SENSITIVITY, -1.0f, 1.0f);
-
-        // Set the previous position.
-        m_axisMousePos = Vector2((float)posX, (float)posY);
-
-        return diff;
-    }
-
-    Vector2 InputEngine::GetMousePosition()
-    {
-        return m_currentMousePosition;
     }
 
     void InputEngine::SetCursorMode(CursorMode mode)
@@ -319,23 +269,9 @@ namespace Lina::Input
 #endif
     }
 
-    void InputEngine::SetRawMotion(bool enabled)
-    {
-#ifdef LINA_PLATFORM_WINDOWS
-
-#else
-        if (!m_rawMotionSupported)
-        {
-            LINA_ERR("[Input Engine] -> Raw motion is not supported on this hardware.");
-            return;
-        }
-
-        glfwSetInputMode(glfwWindow, GLFW_RAW_MOUSE_MOTION, enabled ? GLFW_TRUE : GLFW_FALSE);
-#endif
-    }
-
     void InputEngine::PrePoll()
     {
+        m_mouseDeltaRaw      = Vector2::Zero;
         m_currentMouseScroll = Vector2::Zero;
         m_doubleClicks.clear();
         m_singleClickStates.clear();
@@ -350,7 +286,9 @@ namespace Lina::Input
 #else
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 #endif
-        m_currentMousePosition = Vector2((float)xpos, (float)ypos);
+        m_previousMousePosition = m_currentMousePosition;
+        m_currentMousePosition  = Vector2((float)xpos, (float)ypos);
+        m_mouseDelta            = m_currentMousePosition - m_previousMousePosition;
     }
 
     void InputEngine::Tick()

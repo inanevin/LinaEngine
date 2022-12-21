@@ -154,9 +154,18 @@ namespace Lina::Editor
         LGUI->EndPopup();
     }
 
+    Vector2 Widgets::GetTextSize(const String& text, float wrapWidth)
+    {
+        auto&               theme = LGUI->GetTheme();
+        LinaVG::TextOptions textOpts;
+        textOpts.font                  = theme.GetCurrentFont();
+        textOpts.wrapWidth             = wrapWidth;
+        const LinaVG::Vec2 lvgTextSize = LinaVG::CalculateTextSize(text.c_str(), textOpts);
+        return FL2(lvgTextSize);
+    }
+
     void Widgets::Text(const String& text, float wrapWidth, TextAlignment alignment, bool alignY)
     {
-
         auto&         theme  = LGUI->GetTheme();
         auto&         window = LGUI->GetCurrentWindow();
         const Vector2 penPos = window.GetPenPos();

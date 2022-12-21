@@ -46,17 +46,15 @@ namespace Lina::World
             return;
 
         auto*         inputEngine = Input::InputEngine::Get();
-        const Vector2 mouseAxis   = inputEngine->GetMouseAxis();
+        const Vector2 mouseAxis   = inputEngine->GetMouseDeltaRaw() * RuntimeInfo::GetDeltaTime();
 
         if (inputEngine->GetMouseButtonDown(LINA_MOUSE_RIGHT))
         {
             inputEngine->SetCursorMode(Input::CursorMode::Disabled);
-            inputEngine->SetRawMotion(true);
         }
         if (inputEngine->GetMouseButtonUp(LINA_MOUSE_RIGHT))
         {
             inputEngine->SetCursorMode(Input::CursorMode::Visible);
-            inputEngine->SetRawMotion(true);
         }
 
         if (inputEngine->GetMouseButton(LINA_MOUSE_RIGHT))
@@ -88,7 +86,6 @@ namespace Lina::World
             const Vector2 delta = inputEngine->GetMousePosition() - m_lastMousePos;
             m_targetPosition += -rg * delta.x * 0.5f;
             m_targetPosition += up * delta.y * 0.5f;
-
         }
 
         const Vector3 currentPos = m_entity->GetPosition();

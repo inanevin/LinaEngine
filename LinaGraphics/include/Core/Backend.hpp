@@ -91,9 +91,9 @@ namespace Lina::Graphics
             return m_allocator;
         }
 
-        inline Swapchain& GetSwapchain()
+        inline Swapchain& GetMainSwapchain()
         {
-            return m_swapchain;
+            return m_swapchains[0];
         }
 
         inline VmaAllocator_T* GetVMA()
@@ -131,6 +131,11 @@ namespace Lina::Graphics
             return m_computeQueue;
         }
 
+        inline const Vector<Swapchain>& GetSwapchains() const
+        {
+            return m_swapchains;
+        }
+
     private:
         friend class RenderEngine;
         friend class Renderer;
@@ -153,7 +158,6 @@ namespace Lina::Graphics
         VkPhysicalDevice_T*         m_gpu            = nullptr;
         VkSurfaceKHR_T*             m_surface        = nullptr;
         VmaAllocator_T*             m_vmaAllocator   = nullptr;
-        Swapchain                   m_swapchain;
         Vector<QueueFamily>         m_queueFamilies;
         uint64                      m_minUniformBufferOffsetAlignment = 0;
         Pair<uint32, uint32>        m_graphicsQueueIndices;
@@ -164,6 +168,7 @@ namespace Lina::Graphics
         RQueue                      m_computeQueue;
         bool                        m_supportsAsyncTransferQueue = false;
         bool                        m_supportsAsyncComputeQueue  = false;
+        Vector<Swapchain>           m_swapchains;
     };
 } // namespace Lina::Graphics
 
