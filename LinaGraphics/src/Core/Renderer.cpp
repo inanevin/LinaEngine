@@ -60,6 +60,7 @@ namespace Lina::Graphics
 
 #define DEF_VTXBUF_SIZE   sizeof(Vertex) * 2000
 #define DEF_INDEXBUF_SIZE sizeof(uint32) * 2000
+
     void Renderer::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
@@ -69,25 +70,6 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Renderer::OnPreMainLoop>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &Renderer::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &Renderer::OnWindowPositioned>(this);
-
-        m_backend = Backend::Get();
-
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        Extent3D       ext  = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
-
-        ImageSubresourceRange depthRange;
-        depthRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth);
-
-        m_depthImage = Image{
-            .format              = Format::D32_SFLOAT,
-            .tiling              = ImageTiling::Optimal,
-            .extent              = ext,
-            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
-            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
-            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
-            .subresRange         = depthRange,
-        };
-        m_depthImage.Create(true, false);
 
         m_renderPasses[RenderPassType::Main]        = RenderPass();
         m_renderPasses[RenderPassType::PostProcess] = RenderPass();
@@ -99,24 +81,11 @@ namespace Lina::Graphics
         VulkanUtility::SetupAndCreateMainRenderPass(postPass);
         VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
 
-        // Final pass uses swapchain images.
-        for (auto iv : m_backend->m_swapchain._imageViews)
-        {
-            Framebuffer fb = Framebuffer{
-                .width  = static_cast<uint32>(size.x),
-                .height = static_cast<uint32>(size.y),
-                .layers = 1,
-            };
-
-            fb.AttachRenderPass(finalPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
-            m_framebuffers.push_back(fb);
-        }
-
         // Commands
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
         m_cmdPool.Create();
 
-        const uint32 imageSize = static_cast<uint32>(m_backend->GetMainSwapchain()._images.size());
+        const uint32 imageSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
         for (uint32 i = 0; i < imageSize; i++)
         {
@@ -270,10 +239,8 @@ namespace Lina::Graphics
         m_cpuIndexBuffer.Destroy();
         m_cpuVtxBuffer.Destroy();
 
-        m_depthImage.Destroy();
-
-        for (int i = 0; i < m_framebuffers.size(); i++)
-            m_framebuffers[i].Destroy();
+        // for (int i = 0; i < m_framebuffers.size(); i++)
+        //     m_framebuffers[i].Destroy();
     }
 
     void Renderer::Tick()
@@ -330,12 +297,37 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto& frame = GetCurrentFrame();
+        const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor;
+        auto&      frame      = GetCurrentFrame();
 
         frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        uint32       imageIndex = m_backend->m_swapchain.AcquireNextImage(1.0, frame.graphicsSemaphore, res);
+        uint32       imageIndex = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.graphicsSemaphore, res);
+
+        Vector<Swapchain> additionalSwapchains;
+        Vector<uint32>    additionalIndices;
+        Vector<Semaphore> additionalSubmitSemaphores;
+        Vector<Semaphore> additionalPresentSemaphores;
+
+        auto& additionalWindows = RenderEngine::Get()->GetAdditionalWindows();
+
+        if (drawEditor)
+        {
+            additionalSwapchains.push_back(Backend::Get()->GetMainSwapchain());
+            additionalIndices.push_back(imageIndex);
+            additionalSubmitSemaphores.push_back(frame.graphicsSemaphore);
+            additionalPresentSemaphores.push_back(frame.presentSemaphore);
+
+            for (auto& pair : additionalWindows)
+            {
+                const uint32 additionalIndex = pair.second.swapchain->AcquireNextImage(1.0f, pair.second.waitSemaphore, res);
+                additionalIndices.push_back(additionalIndex);
+                additionalSwapchains.push_back(*pair.second.swapchain);
+                additionalSubmitSemaphores.push_back(pair.second.waitSemaphore);
+                additionalPresentSemaphores.push_back(pair.second.presentSemaphore);
+            }
+        }
 
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
         {
@@ -353,9 +345,12 @@ namespace Lina::Graphics
         cmd.Reset(true);
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
-        cmd.CMD_SetViewport(RenderEngine::Get()->GetViewport());
-        cmd.CMD_SetScissors(RenderEngine::Get()->GetScissors());
-      
+        auto        vp                = RenderEngine::Get()->GetViewport();
+        auto        scissor           = RenderEngine::Get()->GetScissors();
+        const Recti defaultRenderArea = Recti(Vector2(vp.x, vp.y), Vector2(vp.width, vp.height));
+        cmd.CMD_SetViewport(vp);
+        cmd.CMD_SetScissors(scissor);
+
         // Merged object buffer.
         uint64 offset = 0;
         cmd.CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
@@ -364,14 +359,14 @@ namespace Lina::Graphics
         // Global set.
         cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
 
+        // Pass set.
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
+
         // Global - scene data.
         GetSceneDataBuffer().CopyInto(&m_sceneData, sizeof(GPUSceneData));
 
         // Global - light data.
         GetLightDataBuffer().CopyInto(&m_lightData, sizeof(GPULightData));
-
-        // Pass set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
 
         // Per render pass - obj data.
         Vector<GPUObjectData> gpuObjectData;
@@ -392,7 +387,7 @@ namespace Lina::Graphics
 
         // ****** MAIN PASS ******
         PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
-        mainPass.Begin(mainPass.framebuffers[imageIndex], cmd);
+        mainPass.Begin(mainPass.framebuffers[imageIndex], cmd, defaultRenderArea);
         m_opaquePass.UpdateViewData(GetViewDataBuffer());
         m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main);
         mainPass.End(cmd);
@@ -400,7 +395,7 @@ namespace Lina::Graphics
 
         // ****** POST PROCESS PASS ******
         PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
-        postPass.Begin(postPass.framebuffers[imageIndex], cmd);
+        postPass.Begin(postPass.framebuffers[imageIndex], cmd, defaultRenderArea);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
@@ -410,11 +405,10 @@ namespace Lina::Graphics
         // ****** FINAL PASS ******
         PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
 
-        const bool drawEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor;
         if (drawEditor)
             Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawBegin>(Event::EOnEditorDrawBegin{.cmd = &cmd});
 
-        finalPass.Begin(m_framebuffers[imageIndex], cmd);
+        finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
 
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
         finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
@@ -425,8 +419,22 @@ namespace Lina::Graphics
 
         finalPass.End(cmd);
 
-        if (drawEditor)
-            Event::EventSystem::Get()->Trigger<Event::EOnEditorDrawEnd>(Event::EOnEditorDrawEnd{.cmd = &cmd});
+        uint32 indx = 0;
+        for (auto& p : additionalWindows)
+        {
+            Recti rect = Recti(Vector2::Zero, Vector2(p.second.swapchain->size.x, p.second.swapchain->size.y));
+            finalPass.Begin(p.second.framebuffers[additionalIndices[indx]], cmd, rect);
+
+            auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
+            finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+            cmd.CMD_Draw(3, 1, 0, 0);
+
+            if (drawEditor)
+                Event::EventSystem::Get()->Trigger<Event::EOnEditorDraw>(Event::EOnEditorDraw{.cmd = &cmd});
+
+            finalPass.End(cmd);
+            indx++;
+        }
 
         PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
 
@@ -435,8 +443,18 @@ namespace Lina::Graphics
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
-        Backend::Get()->GetGraphicsQueue().Submit(frame.graphicsSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
-        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, &imageIndex);
+
+        if (drawEditor)
+        {
+            Backend::Get()->GetGraphicsQueue().Submit(additionalSubmitSemaphores, additionalPresentSemaphores, frame.graphicsFence, cmd, 1);
+            Backend::Get()->GetGraphicsQueue().Present(additionalPresentSemaphores, additionalSwapchains, additionalIndices);
+        }
+        else
+        {
+            Backend::Get()->GetGraphicsQueue().Submit(frame.graphicsSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
+            Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex);
+        }
+
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -498,42 +516,29 @@ namespace Lina::Graphics
         if (size.x == 0 || size.y == 0)
             return;
 
-        // Framebuffers
-        for (auto& fb : m_framebuffers)
-            fb.Destroy();
-        m_framebuffers.clear();
+        auto& mainPass  = m_renderPasses[RenderPassType::Main];
+        auto& ppPass    = m_renderPasses[RenderPassType::PostProcess];
+        auto& finalPass = m_renderPasses[RenderPassType::Final];
+
+        // Only final render pass depends on swapchain, destroy it.
+        finalPass.Destroy();
 
         // Swapchain
-        auto& swapchains = Backend::Get()->GetSwapchains();
-
-        for (auto& swp : swapchains)
-        {
-             swapchain.Destroy();
-            swapchain.size = size;
-            swapchain.Create();
-        }
-   
+        auto& swapchain = Backend::Get()->GetMainSwapchain();
+        swapchain.Destroy();
+        swapchain.size = size;
+        swapchain.Create();
 
         // Make sure we always match swapchain
         size = swapchain.size;
 
-        // Frame buffer depth
-        m_depthImage.Destroy();
-        m_depthImage.extent.width  = size.x;
-        m_depthImage.extent.height = size.y;
-        m_depthImage.Create(true, false);
-
-        // Only final render pass depends on swapchain, destroy it.
-        auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& ppPass    = m_renderPasses[RenderPassType::PostProcess];
-        auto& finalPass = m_renderPasses[RenderPassType::Final];
         mainPass.Destroy();
         ppPass.Destroy();
-        finalPass.Destroy();
+
+        // Recreate passes
         mainPass  = RenderPass();
         ppPass    = RenderPass();
         finalPass = RenderPass();
-
         VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
         VulkanUtility::SetupAndCreateMainRenderPass(ppPass);
         VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
@@ -541,25 +546,15 @@ namespace Lina::Graphics
         // Re-assign target textures to render passes
         OnPreMainLoop({});
 
-        // framebuffers
-        for (auto iv : m_backend->m_swapchain._imageViews)
-        {
-            Framebuffer fb = Framebuffer{
-                .width  = static_cast<uint32>(size.x),
-                .height = static_cast<uint32>(size.y),
-                .layers = 1,
-            };
-
-            fb.AttachRenderPass(finalPass).AddImageView(iv).AddImageView(m_depthImage._ptrImgView).Create();
-            m_framebuffers.push_back(fb);
-        }
-
         m_recreateSwapchain = false;
         RenderEngine::Get()->SwapchainRecreated();
     }
 
     void Renderer::MergeMeshes()
     {
+        // Get all the meshes currently loaded in the resource manager
+        // Meaning all used meshes for this level.
+        // Merge them into big vtx & indx buffers.
         auto  rm    = Resources::ResourceManager::Get();
         auto  cache = rm->GetCache<Graphics::Model>();
         auto& res   = cache->GetResources();

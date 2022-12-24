@@ -37,6 +37,10 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSetLayout.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/Fence.hpp"
+#include "PipelineObjects/Buffer.hpp"
+#include "PipelineObjects/DescriptorSet.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
 
@@ -59,8 +63,32 @@ namespace Lina::Graphics
     class Material;
     class GUIBackend;
 
+    struct AdditionalWindow
+    {
+        StringID            sid = 0;
+        Swapchain*          swapchain;
+        Texture*            depthImg = nullptr;
+        Vector<Framebuffer> framebuffers;
+        Semaphore           waitSemaphore;
+        Semaphore           presentSemaphore;
+    };
+
     class RenderEngine
     {
+    private:
+        struct Frame
+        {
+            Fence         graphicsFence;
+            Semaphore     presentSemaphore;
+            Semaphore     graphicsSemaphore;
+            Buffer        objDataBuffer;
+            Buffer        indirectBuffer;
+            Buffer        sceneDataBuffer;
+            Buffer        viewDataBuffer;
+            Buffer        lightDataBuffer;
+            DescriptorSet passDescriptor;
+            DescriptorSet globalDescriptor;
+        };
 
     public:
         RenderEngine()  = default;
@@ -151,6 +179,15 @@ namespace Lina::Graphics
             return m_scissors;
         }
 
+        inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
+        {
+            return m_additionalWindows;
+        }
+
+        void CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
+        void UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
+        void DestroyAdditionalWindow(const String& nameID);
+
         void           Join();
         Vector<String> GetEngineShaderPaths();
         Vector<String> GetEngineMaterialPaths();
@@ -202,6 +239,7 @@ namespace Lina::Graphics
         HashMap<EngineShaderType, Material*> m_engineMaterials;
         HashMap<EnginePrimitiveType, Model*> m_engineModels;
         HashMap<EngineTextureType, Texture*> m_engineTextures;
+        HashMap<StringID, AdditionalWindow>  m_additionalWindows;
     };
 } // namespace Lina::Graphics
 

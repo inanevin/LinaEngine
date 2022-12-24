@@ -321,7 +321,7 @@ namespace Lina::Graphics
 
     void GUIBackend::UpdateProjection()
     {
-        const Vector2i size = Backend::Get()->GetSwapchain().size;
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
         const Vector2i pos  = Vector2i();
 
         Matrix projectionMatrix;

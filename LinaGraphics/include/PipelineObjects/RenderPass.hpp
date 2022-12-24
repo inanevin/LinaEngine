@@ -36,6 +36,11 @@ SOFTWARE.
 
 struct VkRenderPass_T;
 
+namespace Lina
+{
+    class Recti;
+}
+
 namespace Lina::Graphics
 {
     class Framebuffer;
@@ -68,7 +73,7 @@ namespace Lina::Graphics
         RenderPass& AddAttachment(Attachment att);
         RenderPass& AddSubPassDependency(SubPassDependency& d);
         RenderPass& AddClearValue(const ClearValue& clear);
-        void        Begin(const Framebuffer& fb, const CommandBuffer& cmd);
+        void        Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea);
         void        End(const CommandBuffer& cmd);
 
         // Description
@@ -76,7 +81,6 @@ namespace Lina::Graphics
         Vector<Attachment>        attachments;
         Vector<SubPass>           subpasses;
         Vector<SubPassDependency> dependencies;
-        bool                      isSwapchainPass = false;
         Vector<Framebuffer>       framebuffers;
 
         // Runtime

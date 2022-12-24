@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Resource/Material.hpp"
 #include "Core/GUIBackend.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Utility/Vulkan/VulkanUtility.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"
@@ -203,6 +204,53 @@ namespace Lina::Graphics
         m_renderer.Stop();
     }
 
+    void RenderEngine::CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
+    {
+        const StringID    sid              = TO_SID(nameID);
+        AdditionalWindow& additionalWindow = m_additionalWindows[sid];
+        additionalWindow.sid               = sid;
+
+        auto* windowPtr = Window::Get()->CreateAdditionalWindow(nameID.c_str(), pos, size);
+        auto* swp       = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
+
+        additionalWindow.swapchain = swp;
+        additionalWindow.depthImg  = VulkanUtility::CreateDefaultPassTextureDepth(true, static_cast<int>(size.x), static_cast<int>(size.y));
+        additionalWindow.waitSemaphore.Create();
+        additionalWindow.presentSemaphore.Create();
+
+        auto& fp = m_renderer.GetRenderPass(RenderPassType::Final);
+
+        for (auto& iv : additionalWindow.swapchain->_imageViews)
+        {
+            Framebuffer fb = Framebuffer{
+                .width  = static_cast<uint32>(size.x),
+                .height = static_cast<uint32>(size.y),
+                .layers = 1,
+            };
+
+            fb.AttachRenderPass(fp).AddImageView(iv).AddImageView(additionalWindow.depthImg->GetImage()._ptrImgView).Create();
+            additionalWindow.framebuffers.push_back(fb);
+        }
+    }
+
+    void RenderEngine::UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
+    {
+        const StringID sid = TO_SID(nameID);
+        DestroyAdditionalWindow(nameID);
+        CreateAdditionalWindow(nameID, pos, size);
+    }
+
+    void RenderEngine::DestroyAdditionalWindow(const String& nameID)
+    {
+        const StringID sid = TO_SID(nameID);
+        auto&          w   = m_additionalWindows[sid];
+
+        delete w.depthImg;
+        w.swapchain->Destroy();
+        for (auto& fb : w.framebuffers)
+            fb.Destroy();
+    }
+
     void RenderEngine::Join()
     {
         RETURN_NOTINITED;
@@ -276,7 +324,7 @@ namespace Lina::Graphics
 
     void RenderEngine::SwapchainRecreated()
     {
-        const Vector2i size          = Backend::Get()->GetSwapchain().size;
+        const Vector2i size          = Backend::Get()->GetMainSwapchain().size;
         m_viewport.width             = static_cast<float>(size.x);
         m_viewport.height            = static_cast<float>(size.y);
         m_scissors.size              = size;

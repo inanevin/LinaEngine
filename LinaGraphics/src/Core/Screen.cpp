@@ -36,7 +36,7 @@ namespace Lina::Graphics
 {
     Vector2i Screen::Size()
     {
-        return Backend::Get()->GetSwapchain().size;
+        return Backend::Get()->GetMainSwapchain().size;
     }
 
     Vector2 Screen::SizeF()

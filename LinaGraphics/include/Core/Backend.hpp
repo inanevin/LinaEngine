@@ -57,6 +57,10 @@ namespace Lina
 namespace Lina::Graphics
 {
 
+    struct AdditionalWindowData
+    {
+    };
+
     struct QueueFamily
     {
         uint32 flags = 0;
@@ -66,6 +70,9 @@ namespace Lina::Graphics
     class Backend
     {
     public:
+        Swapchain* CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height);
+        void       DestroyAdditionalSwapchain(StringID sid);
+
         static Backend* Get()
         {
             return s_instance;
@@ -83,7 +90,7 @@ namespace Lina::Graphics
 
         inline VkSurfaceKHR_T* GetSurface()
         {
-            return m_surface;
+            return m_mainSurface;
         }
 
         inline const VkAllocationCallbacks* GetAllocator()
@@ -93,7 +100,7 @@ namespace Lina::Graphics
 
         inline Swapchain& GetMainSwapchain()
         {
-            return m_swapchains[0];
+            return m_mainSwapchain;
         }
 
         inline VmaAllocator_T* GetVMA()
@@ -131,11 +138,6 @@ namespace Lina::Graphics
             return m_computeQueue;
         }
 
-        inline const Vector<Swapchain>& GetSwapchains() const
-        {
-            return m_swapchains;
-        }
-
     private:
         friend class RenderEngine;
         friend class Renderer;
@@ -150,25 +152,27 @@ namespace Lina::Graphics
         PresentMode VsyncToPresentMode(VsyncMode mode);
 
     private:
-        static Backend*             s_instance;
-        VkInstance_T*               m_vkInstance     = nullptr;
-        VkDebugUtilsMessengerEXT_T* m_debugMessenger = nullptr;
-        VkAllocationCallbacks*      m_allocator      = nullptr;
-        VkDevice_T*                 m_device         = nullptr;
-        VkPhysicalDevice_T*         m_gpu            = nullptr;
-        VkSurfaceKHR_T*             m_surface        = nullptr;
-        VmaAllocator_T*             m_vmaAllocator   = nullptr;
-        Vector<QueueFamily>         m_queueFamilies;
-        uint64                      m_minUniformBufferOffsetAlignment = 0;
-        Pair<uint32, uint32>        m_graphicsQueueIndices;
-        Pair<uint32, uint32>        m_transferQueueIndices;
-        Pair<uint32, uint32>        m_computeQueueIndices;
-        RQueue                      m_graphicsQueue;
-        RQueue                      m_transferQueue;
-        RQueue                      m_computeQueue;
-        bool                        m_supportsAsyncTransferQueue = false;
-        bool                        m_supportsAsyncComputeQueue  = false;
-        Vector<Swapchain>           m_swapchains;
+        static Backend*              s_instance;
+        VkInstance_T*                m_vkInstance     = nullptr;
+        VkDebugUtilsMessengerEXT_T*  m_debugMessenger = nullptr;
+        VkAllocationCallbacks*       m_allocator      = nullptr;
+        VkDevice_T*                  m_device         = nullptr;
+        VkPhysicalDevice_T*          m_gpu            = nullptr;
+        VmaAllocator_T*              m_vmaAllocator   = nullptr;
+        Vector<QueueFamily>          m_queueFamilies;
+        uint64                       m_minUniformBufferOffsetAlignment = 0;
+        Pair<uint32, uint32>         m_graphicsQueueIndices;
+        Pair<uint32, uint32>         m_transferQueueIndices;
+        Pair<uint32, uint32>         m_computeQueueIndices;
+        RQueue                       m_graphicsQueue;
+        RQueue                       m_transferQueue;
+        RQueue                       m_computeQueue;
+        bool                         m_supportsAsyncTransferQueue = false;
+        bool                         m_supportsAsyncComputeQueue  = false;
+        Swapchain                    m_mainSwapchain;
+        VkSurfaceKHR_T*              m_mainSurface;
+        PresentMode                  m_currentPresentMode;
+        HashMap<StringID, Swapchain> m_additionalSwapchains;
     };
 } // namespace Lina::Graphics
 

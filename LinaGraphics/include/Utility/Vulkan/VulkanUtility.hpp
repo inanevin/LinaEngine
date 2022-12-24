@@ -40,6 +40,8 @@ namespace Lina::Graphics
 {
     struct Attachment;
     class RenderPass;
+    class Texture;
+    class Sampler;
 
     class VulkanUtility
     {
@@ -48,8 +50,7 @@ namespace Lina::Graphics
 
         // Pipeline
         static VkPipelineShaderStageCreateInfo        CreatePipelineShaderStageCreateInfo(ShaderStage stage, VkShaderModule shaderModule);
-        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>&   bindingDescs,
-                                                                                               const Vector<VkVertexInputAttributeDescription>& attDescs);
+        static VkPipelineVertexInputStateCreateInfo   CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs);
         static VkPipelineInputAssemblyStateCreateInfo CreatePipelineInputAssemblyCreateInfo(Topology top, bool primitiveRestart = false);
         static VkPipelineRasterizationStateCreateInfo CreatePipelineRasterStateCreateInfo(PolygonMode pm, CullMode mode, FrontFace frontFace);
         static VkPipelineMultisampleStateCreateInfo   CreatePipelineMSAACreateInfo();
@@ -57,15 +58,18 @@ namespace Lina::Graphics
         static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
         // Render Pass
-        static void SetupAndCreateMainRenderPass(RenderPass& pass);
-        static void SetupAndCreateFinalRenderPass(RenderPass& pass);
-        static void SetupAndCreateDefaultRenderPass(RenderPass& pass);
+        static void     GetDefaultPassSampler(Sampler& sampler);
+        static Texture* CreateDefaultPassTextureColor(bool useExplicitSize = false, int width = 0, int height = 0);
+        static Texture* CreateDefaultPassTextureDepth(bool useExplicitSize = false, int width = 0, int height = 0);
+        static void     SetupAndCreateMainRenderPass(RenderPass& pass);
+        static void     SetupAndCreateFinalRenderPass(RenderPass& pass);
+        static void     SetupAndCreateDefaultRenderPass(RenderPass& pass);
 
         // InputDesc
         static VertexInputDescription GetVertexDescription();
         static VertexInputDescription GetEmptyVertexDescription();
         static VertexInputDescription GetGUIVertexDescription();
-        static void GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
+        static void                   GetDescriptionStructs(const VertexInputDescription& desc, Vector<VkVertexInputBindingDescription>& bindingDescs, Vector<VkVertexInputAttributeDescription>& attDescs);
 
         // Image
         static VkImageCreateInfo     GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent, ImageLayout initialLayout, SharingMode sharingMode);

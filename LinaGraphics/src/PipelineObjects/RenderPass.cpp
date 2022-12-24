@@ -101,17 +101,14 @@ namespace Lina::Graphics
     {
         vkDestroyRenderPass(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
 
-        if (!isSwapchainPass)
-        {
-            for (auto& fb : framebuffers)
-                fb.Destroy();
+        for (auto& fb : framebuffers)
+            fb.Destroy();
 
-            if (_colorTexture != nullptr)
-                delete _colorTexture;
+        if (_colorTexture != nullptr)
+            delete _colorTexture;
 
-            if (_depthTexture != nullptr)
-                delete _depthTexture;
-        }
+        if (_depthTexture != nullptr)
+            delete _depthTexture;
     }
 
     RenderPass& RenderPass::AddSubpass(SubPass sp)
@@ -138,12 +135,8 @@ namespace Lina::Graphics
         return *this;
     }
 
-    void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd)
+    void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea)
     {
-        const auto&    vp         = RenderEngine::Get()->GetViewport();
-        const Vector2i windowSize = Backend::Get()->GetSwapchain().size;
-        const Vector2i pos        = Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
-
         Vector<VkClearValue> _clearValues;
 
         for (auto& cv : clearValues)
@@ -171,10 +164,10 @@ namespace Lina::Graphics
             .pClearValues    = _clearValues.data(),
         };
 
-        info.renderArea.extent.width  = static_cast<uint32>(windowSize.x);
-        info.renderArea.extent.height = static_cast<uint32>(windowSize.y);
-        info.renderArea.offset.x      = static_cast<uint32>(pos.x);
-        info.renderArea.offset.y      = static_cast<uint32>(pos.y);
+        info.renderArea.extent.width  = static_cast<uint32>(renderArea.size.x);
+        info.renderArea.extent.height = static_cast<uint32>(renderArea.size.y);
+        info.renderArea.offset.x      = static_cast<uint32>(renderArea.pos.x);
+        info.renderArea.offset.y      = static_cast<uint32>(renderArea.pos.y);
 
         // Bind the framebuffer & clear the images
         vkCmdBeginRenderPass(cmd._ptr, &info, VK_SUBPASS_CONTENTS_INLINE);

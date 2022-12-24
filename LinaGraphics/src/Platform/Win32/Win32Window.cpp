@@ -52,7 +52,7 @@ namespace Lina::Graphics
         switch (msg)
         {
         case WM_CLOSE: {
-            Win32Window::GetWin32()->OnWin32Close();
+            Win32Window::GetWin32()->Close();
             DestroyWindow(Win32Window::GetWin32()->GetWindowPtr());
             PostQuitMessage(0);
         }
@@ -552,14 +552,15 @@ namespace Lina::Graphics
             return nullptr;
         }
 
-        auto child = CreateWindowExA(WS_EX_APPWINDOW, title, title, WS_OVERLAPPED, 500, 500, 100, 200, m_window, NULL, m_hinst, NULL);
-        LINA_TRACE("[Win32 Window] -> Created a child window!");
-
-        // SetParent(child, m_window);
+        auto child = CreateWindowExA(WS_EX_APPWINDOW, title, title, WS_POPUP, pos.x, pos.y, size.x, size.y, m_window, NULL, m_hinst, NULL);
         ShowWindow(child, SW_SHOW);
-        // auto           wnd = CreateWindowExA(0, "Lina Engine", (LPCTSTR)NULL, WS_CHILD | WS_BORDER | WS_VISIBLE, 0, 0, size.x, size.y, m_window, (HMENU)(int)(sid), m_hinst, NULL);
-        // m_additionalWindows[sid] = CreateWindowEx(WS_CHILD, "Lina Engine", "window1", 0, 0, 0, size.x, size.y, NULL, NULL, m_hinst, NULL);
+        m_additionalWindows[sid] = child;
         return child;
+    }
+
+    void Win32Window::UpdateAdditionalWindow(StringID sid, const Vector2i& pos, const Vector2i& size)
+    {
+        SetWindowPos(m_additionalWindows[sid], 0, pos.x, pos.y, size.x, size.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     }
 
     void Win32Window::DestroyAdditionalWindow(StringID sid)
@@ -571,11 +572,6 @@ namespace Lina::Graphics
     bool Win32Window::AdditionalWindowExists(StringID sid)
     {
         return m_additionalWindows.find(sid) != m_additionalWindows.end();
-    }
-
-    void Win32Window::OnWin32Close()
-    {
-        Close();
     }
 
 } // namespace Lina::Graphics

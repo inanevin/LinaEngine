@@ -79,7 +79,6 @@ namespace Lina::Graphics
 
     class Renderer
     {
-
     private:
         struct Frame
         {
@@ -91,7 +90,6 @@ namespace Lina::Graphics
             Buffer    sceneDataBuffer;
             Buffer    viewDataBuffer;
             Buffer    lightDataBuffer;
-
             DescriptorSet passDescriptor;
             DescriptorSet globalDescriptor;
         };
@@ -193,9 +191,7 @@ namespace Lina::Graphics
         Vector<View*>                       m_views;
         View                                m_playerView;
         CameraSystem                        m_cameraSystem;
-        Vector<Framebuffer>                 m_framebuffers;
         Vector<RenderableData>              m_extractedRenderables;
-        Image                               m_depthImage;
         HashMap<RenderPassType, RenderPass> m_renderPasses;
 
         IDList<RenderableComponent*>          m_allRenderables;
@@ -213,10 +209,9 @@ namespace Lina::Graphics
         Buffer                m_gpuVtxBuffer;
         Buffer                m_gpuIndexBuffer;
 
-        uint32   m_frameNumber = 0;
-        Frame    m_frames[FRAMES_IN_FLIGHT];
-        Backend* m_backend           = nullptr;
-        bool     m_recreateSwapchain = false;
+        uint32 m_frameNumber = 0;
+        Frame  m_frames[FRAMES_IN_FLIGHT];
+        bool   m_recreateSwapchain = false;
 
         Atomic<bool> m_stopped = false;
     };

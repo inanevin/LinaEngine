@@ -50,10 +50,9 @@ namespace Lina::Graphics
         virtual void  Minimize() override;
         virtual void  Maximize() override;
         virtual void* CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size) override;
+        virtual void  UpdateAdditionalWindow(StringID sid, const Vector2i& pos, const Vector2i& size) override;
         virtual void  DestroyAdditionalWindow(StringID sid) override;
         virtual bool  AdditionalWindowExists(StringID sid) override;
-
-        void OnWin32Close();
 
         inline static Win32Window* GetWin32()
         {
@@ -83,9 +82,9 @@ namespace Lina::Graphics
         virtual void Close() override;
 
     private:
-        void    UpdateStyle();
-        void    SetToWorkingArea();
-        void    SetToFullscreen();
+        void UpdateStyle();
+        void SetToWorkingArea();
+        void SetToFullscreen();
 
     private:
         static Win32Window*        s_win32Window;

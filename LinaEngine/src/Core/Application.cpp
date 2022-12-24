@@ -119,7 +119,8 @@ namespace Lina
         if (m_dirty)
             return;
 
-        m_engine.Tick();
+        if (m_isRunning)
+            m_engine.Tick();
     }
     void Application::Shutdown()
     {

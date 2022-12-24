@@ -50,7 +50,6 @@ namespace Lina::Editor
     {
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
-        Event::EventSystem::Get()->Connect<Event::EOnEditorDrawEnd, &EditorRenderer::OnEditorDrawEnd>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorRenderer::OnEngineResourcesLoaded>(this);
         m_iconTextureSID = TO_SIDC("LINA_ENGINE_ICONPACK");
     }
@@ -59,13 +58,13 @@ namespace Lina::Editor
     {
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawEnd>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
     }
 
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
+        return;
         Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
         LGUI->StartFrame();
         LinaVG::StartFrame();
@@ -82,11 +81,8 @@ namespace Lina::Editor
 
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
     {
+        return;
         Graphics::GUIBackend::Get()->RecordDrawCommands();
-    }
-
-    void EditorRenderer::OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev)
-    {
     }
 
     void EditorRenderer::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)

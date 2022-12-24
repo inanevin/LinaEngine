@@ -40,7 +40,6 @@ namespace Lina
     {
         struct EOnEditorDrawBegin;
         struct EOnEditorDraw;
-        struct EOnEditorDrawEnd;
         struct ETick;
         struct EEngineResourcesLoaded;
     } // namespace Event
@@ -67,7 +66,6 @@ namespace Lina::Editor
     private:
         void OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev);
         void OnEditorDraw(const Event::EOnEditorDraw& ev);
-        void OnEditorDrawEnd(const Event::EOnEditorDrawEnd& ev);
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:

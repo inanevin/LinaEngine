@@ -38,6 +38,7 @@ SOFTWARE.
 struct VkImage_T;
 struct VkImageView_T;
 struct VkSwapchainKHR_T;
+struct VkSurfaceKHR_T;
 
 namespace Lina::Graphics
 {
@@ -53,10 +54,11 @@ namespace Lina::Graphics
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence);
 
         // Desired
-        Vector2i    size        = Vector2i();
-        Format      format      = Format::B8G8R8A8_SRGB;
-        ColorSpace  colorSpace  = ColorSpace::SRGB_NONLINEAR;
-        PresentMode presentMode = PresentMode::Immediate;
+        Vector2i        size        = Vector2i();
+        Format          format      = Format::B8G8R8A8_SRGB;
+        ColorSpace      colorSpace  = ColorSpace::SRGB_NONLINEAR;
+        PresentMode     presentMode = PresentMode::Immediate;
+        VkSurfaceKHR_T* surface     = nullptr;
 
         // Runtime
         VkSwapchainKHR_T*      _ptr = nullptr;

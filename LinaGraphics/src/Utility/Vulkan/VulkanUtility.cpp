@@ -64,8 +64,7 @@ namespace Lina::Graphics
 
         return info;
     }
-    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>&   bindingDescs,
-                                                                                                 const Vector<VkVertexInputAttributeDescription>& attDescs)
+    VkPipelineVertexInputStateCreateInfo VulkanUtility::CreatePipelineVertexInputStateCreateInfo(const Vector<VkVertexInputBindingDescription>& bindingDescs, const Vector<VkVertexInputAttributeDescription>& attDescs)
     {
         VkPipelineVertexInputStateCreateInfo info = VkPipelineVertexInputStateCreateInfo{
             .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -157,11 +156,82 @@ namespace Lina::Graphics
         return info;
     }
 
+    void VulkanUtility::GetDefaultPassSampler(Sampler& sampler)
+    {
+        sampler = Sampler{
+            .minFilter     = Filter::Linear,
+            .magFilter     = Filter::Linear,
+            .u             = SamplerAddressMode::ClampToEdge,
+            .v             = SamplerAddressMode::ClampToEdge,
+            .w             = SamplerAddressMode::ClampToEdge,
+            .mipLodBias    = 0.0f,
+            .maxAnisotropy = 1.0f,
+            .minLod        = 0.0f,
+            .maxLod        = 1.0f,
+            .borderColor   = BorderColor::FloatOpaqueWhite,
+        };
+    }
+
+    Texture* VulkanUtility::CreateDefaultPassTextureColor(bool useExplicitSize, int width, int height)
+    {
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D       ext  = Extent3D{.depth = 1};
+        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+
+        Image image = Image{
+            .format              = Backend::Get()->GetMainSwapchain().format,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+            .subresRange         = range,
+        };
+
+        // Color texture
+        Texture* txt = new Texture();
+        Sampler  sampler;
+        GetDefaultPassSampler(sampler);
+        txt->CreateFromRuntime(image, sampler);
+        return txt;
+    }
+
+    Texture* VulkanUtility::CreateDefaultPassTextureDepth(bool useExplicitSize, int width, int height)
+    {
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D       ext  = Extent3D{.depth = 1};
+        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth); // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
+
+        Image image = Image{
+            .format              = Format::D32_SFLOAT,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+            .subresRange         = range,
+        };
+
+        // Texture
+        Texture* txt = new Texture();
+        Sampler  sampler;
+        GetDefaultPassSampler(sampler);
+        txt->CreateFromRuntime(image, sampler);
+        return txt;
+    }
+
     void VulkanUtility::SetupAndCreateMainRenderPass(RenderPass& pass)
     {
         const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-
-        Extent3D ext = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
+        Extent3D       ext  = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
 
         ClearValue clrCol = ClearValue{
             .clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f),
@@ -217,53 +287,10 @@ namespace Lina::Graphics
         };
 
         // Create the actual pass.
-        pass.AddAttachment(colorAttachment)
-            .AddAttachment(depthAttachment)
-            .AddSubpass(subpass)
-            .AddSubPassDependency(dep1)
-            .AddSubPassDependency(dep2)
-            .AddClearValue(clrCol)
-            .AddClearValue(clrDepth)
-            .Create();
+        pass.AddAttachment(colorAttachment).AddAttachment(depthAttachment).AddSubpass(subpass).AddSubPassDependency(dep1).AddSubPassDependency(dep2).AddClearValue(clrCol).AddClearValue(clrDepth).Create();
 
-        // Pass textures.
-        ImageSubresourceRange range;
-        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-
-        Image image = Image{
-            .format              = Backend::Get()->GetMainSwapchain().format,
-            .tiling              = ImageTiling::Optimal,
-            .extent              = ext,
-            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled),
-            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
-            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
-            .subresRange         = range,
-        };
-
-        Sampler sampler = Sampler{
-            .minFilter     = Filter::Linear,
-            .magFilter     = Filter::Linear,
-            .u             = SamplerAddressMode::ClampToEdge,
-            .v             = SamplerAddressMode::ClampToEdge,
-            .w             = SamplerAddressMode::ClampToEdge,
-            .mipLodBias    = 0.0f,
-            .maxAnisotropy = 1.0f,
-            .minLod        = 0.0f,
-            .maxLod        = 1.0f,
-            .borderColor   = BorderColor::FloatOpaqueWhite,
-        };
-
-        // Color texture
-        pass._colorTexture = new Texture();
-        pass._colorTexture->CreateFromRuntime(image, sampler);
-
-        // Depth texture
-        image.format          = Format::D32_SFLOAT;
-        image.imageUsageFlags = GetImageUsage(ImageUsageFlags::DepthStencilAttachment);
-        range.aspectFlags     = GetImageAspectFlags(ImageAspectFlags::AspectDepth), // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
-            image.subresRange = range;
-        pass._depthTexture    = new Texture();
-        pass._depthTexture->CreateFromRuntime(image, sampler);
+        pass._colorTexture = CreateDefaultPassTextureColor();
+        pass._depthTexture = CreateDefaultPassTextureDepth();
 
         const uint32 imgSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
@@ -281,8 +308,6 @@ namespace Lina::Graphics
             fb.AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
             fb.Create();
         }
-
-        pass.isSwapchainPass = false;
     }
 
     void VulkanUtility::SetupAndCreateFinalRenderPass(RenderPass& pass)
@@ -345,16 +370,27 @@ namespace Lina::Graphics
         };
 
         // Create the actual pass.
-        pass.AddAttachment(colorAttachment)
-            .AddAttachment(depthAttachment)
-            .AddSubpass(subpass)
-            .AddSubPassDependency(dep1)
-            .AddSubPassDependency(dep2)
-            .AddClearValue(clrCol)
-            .AddClearValue(clrDepth)
-            .Create();
+        pass.AddAttachment(colorAttachment).AddAttachment(depthAttachment).AddSubpass(subpass).AddSubPassDependency(dep1).AddSubPassDependency(dep2).AddClearValue(clrCol).AddClearValue(clrDepth).Create();
 
-        pass.isSwapchainPass = true;
+        pass._colorTexture = CreateDefaultPassTextureColor();
+        pass._depthTexture = CreateDefaultPassTextureDepth();
+
+        const uint32 imgSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._imageViews.size());
+
+        for (uint32 i = 0; i < imgSize; i++)
+        {
+            pass.framebuffers.push_back(Framebuffer());
+            auto& fb = pass.framebuffers[i];
+            fb       = Framebuffer{
+                      .width  = static_cast<uint32>(size.x),
+                      .height = static_cast<uint32>(size.y),
+                      .layers = 1,
+            };
+
+            fb.AttachRenderPass(pass);
+            fb.AddImageView(Backend::Get()->GetMainSwapchain()._imageViews[i]).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
+            fb.Create();
+        }
     }
 
     void VulkanUtility::SetupAndCreateDefaultRenderPass(RenderPass& pass)

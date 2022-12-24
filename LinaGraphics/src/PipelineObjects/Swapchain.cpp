@@ -47,7 +47,7 @@ namespace Lina::Graphics
             return;
         }
 
-        vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), Backend::Get()->GetSurface()};
+        vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), surface};
         swapchainBuilder = swapchainBuilder
                                //.use_default_format_selection()
                                .set_desired_present_mode(GetPresentMode(presentMode))
@@ -64,8 +64,8 @@ namespace Lina::Graphics
         std::vector<VkImage>     imgs  = vkbSwapchain.get_images().value();
         std::vector<VkImageView> views = vkbSwapchain.get_image_views().value();
 
-        size.x = vkbSwapchain.extent.width;
-        size.y = vkbSwapchain.extent.height;
+        size.x                    = vkbSwapchain.extent.width;
+        size.y                    = vkbSwapchain.extent.height;
         RuntimeInfo::s_screenSize = size;
 
         for (VkImage img : imgs)

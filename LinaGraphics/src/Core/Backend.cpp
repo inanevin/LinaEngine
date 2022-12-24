@@ -70,6 +70,46 @@ namespace Lina::Graphics
         return VK_FALSE;
     }
 
+    Swapchain* Backend::CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height)
+    {
+        VkSurfaceKHR surface;
+
+#ifdef LINA_PLATFORM_WINDOWS
+        VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR{
+            .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+            .pNext     = nullptr,
+            .hinstance = Win32Window::GetWin32()->GetInstancePtr(),
+            .hwnd      = static_cast<HWND>(windowPtr),
+        };
+        vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &surface);
+#else
+        LINA_ASSERT(false, "Not implemented!");
+#endif
+
+        m_additionalSwapchains[sid] = Swapchain();
+        auto& swp = m_additionalSwapchains[sid];
+
+        swp = Swapchain{
+            .size        = Vector2i(static_cast<uint32>(width), static_cast<uint32>(height)),
+            .format      = Format::B8G8R8A8_UNORM,
+            .colorSpace  = ColorSpace::SRGB_NONLINEAR,
+            .presentMode = m_currentPresentMode,
+        };
+
+        swp.surface = surface;
+        swp.Create();
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", swp.size.x, swp.size.y);
+        return &m_additionalSwapchains[sid];
+    }
+
+    void Backend::DestroyAdditionalSwapchain(StringID sid)
+    {
+        auto& swp     = m_additionalSwapchains[sid];
+        auto  surface = swp.surface;
+        swp.Destroy();
+        vkDestroySurfaceKHR(m_vkInstance, surface, m_allocator);
+    }
+
     bool Backend::Initialize(const InitInfo& initInfo)
     {
         LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
@@ -124,7 +164,9 @@ namespace Lina::Graphics
             .hinstance = Win32Window::GetWin32()->GetInstancePtr(),
             .hwnd      = Win32Window::GetWin32()->GetWindowPtr(),
         };
-        vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &m_surface);
+        vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &m_mainSurface);
+#else
+        LINA_ASSERT(false, "Not implemented");
 #endif
 
         LINA_TRACE("[Vulkan Backend] -> Created surface.");
@@ -145,7 +187,7 @@ namespace Lina::Graphics
 
         vkb::PhysicalDeviceSelector selector{inst};
         vkb::PhysicalDevice         physicalDevice = selector.set_minimum_version(1, 1)
-                                                 .set_surface(m_surface)
+                                                 .set_surface(m_mainSurface)
                                                  .prefer_gpu_device_type(targetDeviceType)
                                                  .allow_any_gpu_device_type(false)
                                                  .set_required_features(features)
@@ -257,18 +299,17 @@ namespace Lina::Graphics
 
         LINA_TRACE("[Vulkan Backend] -> Selected GPU: {0} - {1} mb", gpuProps.deviceName, gpuMemProps.memoryHeaps->size / 1000000);
 
-        m_swapchains.push_back(Swapchain());
-
-        PresentMode pMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
-        m_swapchains[0]   = Swapchain{
-              .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
-              .format      = Format::B8G8R8A8_UNORM,
-              .colorSpace  = ColorSpace::SRGB_NONLINEAR,
-              .presentMode = pMode,
+        m_currentPresentMode = VsyncToPresentMode(initInfo.windowProperties.vsync);
+        m_mainSwapchain      = Swapchain{
+                 .size        = Vector2i(static_cast<uint32>(initInfo.windowProperties.width), static_cast<uint32>(initInfo.windowProperties.height)),
+                 .format      = Format::B8G8R8A8_UNORM,
+                 .colorSpace  = ColorSpace::SRGB_NONLINEAR,
+                 .presentMode = m_currentPresentMode,
         };
 
-        m_swapchains[0].Create();
-        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_swapchains[0].size.x, m_swapchains[0].size.y);
+        m_mainSwapchain.surface = m_mainSurface;
+        m_mainSwapchain.Create();
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_mainSwapchain.size.x, m_mainSwapchain.size.y);
 
         // Query queue family indices.
         uint32_t queueFamilyCount = 0;
@@ -316,12 +357,10 @@ namespace Lina::Graphics
 
     void Backend::OnVsyncModeChanged(const Event::EVsyncModeChanged& ev)
     {
-        for (auto& swp : m_swapchains)
-        {
-            swp.Destroy();
-            swp.presentMode = VsyncToPresentMode(ev.newMode);
-            swp.Create();
-        }
+        m_mainSwapchain.Destroy();
+        m_mainSwapchain.presentMode = VsyncToPresentMode(ev.newMode);
+        m_currentPresentMode        = m_mainSwapchain.presentMode;
+        m_mainSwapchain.Create();
     }
 
     PresentMode Backend::VsyncToPresentMode(VsyncMode mode)
@@ -347,11 +386,10 @@ namespace Lina::Graphics
 
         vmaDestroyAllocator(m_vmaAllocator);
 
-        for (auto& swp : m_swapchains)
-            swp.Destroy();
+        m_mainSwapchain.Destroy();
 
         vkDestroyDevice(m_device, m_allocator);
-        vkDestroySurfaceKHR(m_vkInstance, m_surface, m_allocator);
+        vkDestroySurfaceKHR(m_vkInstance, m_mainSurface, m_allocator);
         vkb::destroy_debug_utils_messenger(m_vkInstance, m_debugMessenger);
         vkDestroyInstance(m_vkInstance, m_allocator);
     }

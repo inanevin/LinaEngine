@@ -49,6 +49,7 @@ namespace Lina::Graphics
         virtual void  Minimize()                                                                           = 0;
         virtual void  Maximize()                                                                           = 0;
         virtual void* CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size) = 0;
+        virtual void  UpdateAdditionalWindow(StringID sid, const Vector2i& pos, const Vector2i& size)      = 0;
         virtual void  DestroyAdditionalWindow(StringID sid)                                                = 0;
         virtual bool  AdditionalWindowExists(StringID sid)                                                 = 0;
 
