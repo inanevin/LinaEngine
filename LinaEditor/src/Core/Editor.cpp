@@ -108,7 +108,7 @@ namespace Lina::Editor
         m_editorCamera->SetPosition(Vector3(0, 0, -10.0f));
         m_editorCamera->SetRotationAngles(Vector3(0, 0.0f, 0));
         freeLook->rotationPower = 50.0f;
-        Graphics::RenderEngine::Get()->GetRenderer().GetCameraSystem().SetActiveCamera(cam);
+        Graphics::RenderEngine::Get()->GetCameraSystem().SetActiveCamera(cam);
     }
 
     void Editor::DeleteEditorCamera()

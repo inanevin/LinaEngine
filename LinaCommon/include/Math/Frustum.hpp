@@ -66,7 +66,7 @@ namespace Lina
         /// </summary>
         /// <param name="aabb"></param>
         /// <returns></returns>
-        FrustumTest TestIntersection(const AABB& aabb);
+        FrustumTest TestIntersection(const AABB& aabb) const;
 
     private:
         Plane m_left;

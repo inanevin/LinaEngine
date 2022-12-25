@@ -433,7 +433,7 @@ namespace Lina::Graphics
                 m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
             }
 
-            m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer().GetRenderPass(rp)).Create();
+            m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderPass(rp)).Create();
         }
     }
 } // namespace Lina::Graphics

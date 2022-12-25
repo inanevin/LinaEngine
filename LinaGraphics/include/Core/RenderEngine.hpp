@@ -31,18 +31,21 @@ SOFTWARE.
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
-#include "Renderer.hpp"
+#include "RenderData.hpp"
 #include "Data/String.hpp"
 #include "Utility/DeletionQueue.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
+#include "PipelineObjects/DescriptorPool.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
-#include "PipelineObjects/Semaphore.hpp"
-#include "PipelineObjects/Fence.hpp"
-#include "PipelineObjects/Buffer.hpp"
-#include "PipelineObjects/DescriptorSet.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/CommandPool.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
+#include "PipelineObjects/RenderPass.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
+#include "CameraSystem.hpp"
+#include "View.hpp"
 
 namespace Lina
 {
@@ -62,37 +65,26 @@ namespace Lina::Graphics
     class ModelNode;
     class Material;
     class GUIBackend;
-
-    struct AdditionalWindow
-    {
-        StringID            sid = 0;
-        Swapchain*          swapchain;
-        Texture*            depthImg = nullptr;
-        Vector<Framebuffer> framebuffers;
-        Semaphore           waitSemaphore;
-        Semaphore           presentSemaphore;
-    };
+    class Renderer;
+    class Shader;
 
     class RenderEngine
     {
-    private:
-        struct Frame
-        {
-            Fence         graphicsFence;
-            Semaphore     presentSemaphore;
-            Semaphore     graphicsSemaphore;
-            Buffer        objDataBuffer;
-            Buffer        indirectBuffer;
-            Buffer        sceneDataBuffer;
-            Buffer        viewDataBuffer;
-            Buffer        lightDataBuffer;
-            DescriptorSet passDescriptor;
-            DescriptorSet globalDescriptor;
-        };
 
     public:
         RenderEngine()  = default;
         ~RenderEngine() = default;
+
+        // void CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
+        // void UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
+        // void DestroyAdditionalWindow(const String& nameID);
+        void           AddRenderer(Renderer* renderer);
+        void           RemoveRenderer(Renderer* renderer);
+        Vector<String> GetEngineShaderPaths();
+        Vector<String> GetEngineMaterialPaths();
+        Vector<String> GetEnginePrimitivePaths();
+        Vector<String> GetEngineTexturePaths();
+        Mesh*          GetPlaceholderMesh();
 
         static inline RenderEngine* Get()
         {
@@ -114,11 +106,6 @@ namespace Lina::Graphics
             return m_placeholderMaterial;
         }
 
-        inline Renderer& GetRenderer()
-        {
-            return m_renderer;
-        }
-
         inline DeletionQueue& GetMainDeletionQueue()
         {
             return m_mainDeletionQueue;
@@ -137,11 +124,6 @@ namespace Lina::Graphics
         inline PipelineLayout& GetGlobalAndPassLayouts()
         {
             return m_globalAndPassLayout;
-        }
-
-        inline DescriptorPool& GetDescriptorPool()
-        {
-            return m_descriptorPool;
         }
 
         inline UploadContext& GetGPUUploader()
@@ -169,33 +151,43 @@ namespace Lina::Graphics
             return m_engineShaders[sh];
         }
 
-        inline Viewport& GetViewport()
+        inline const Viewport& GetViewport() const
         {
             return m_viewport;
         }
 
-        inline Recti& GetScissors()
+        inline const Recti& GetScissors() const
         {
             return m_scissors;
         }
 
-        inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
+        inline uint32 GetFrameIndex()
         {
-            return m_additionalWindows;
+            return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
-        void CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
-        void UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
-        void DestroyAdditionalWindow(const String& nameID);
+        inline CameraSystem& GetCameraSystem()
+        {
+            return m_cameraSystem;
+        }
 
-        void           Join();
-        Vector<String> GetEngineShaderPaths();
-        Vector<String> GetEngineMaterialPaths();
-        Vector<String> GetEnginePrimitivePaths();
-        Vector<String> GetEngineTexturePaths();
-        Mesh*          GetPlaceholderMesh();
+        inline const View& GetPlayerView()
+        {
+            return m_playerView;
+        }
+
+        inline const RenderPass& GetRenderPass(RenderPassType rpType)
+        {
+            return m_renderPasses[rpType];
+        }
+        // inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
+        // {
+        //     return m_additionalWindows;
+        // }
 
     private:
+        friend class Engine;
+
         void Initialize(const InitInfo& initInfo);
         void Clear();
         void Tick();
@@ -206,11 +198,10 @@ namespace Lina::Graphics
         void SwapchainRecreated();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void OnOutOfDateImageHandled(Swapchain* swp);
+        void Join();
 
     private:
-        friend class Renderer;
-        friend class Engine;
-
         static RenderEngine* s_instance;
 
         Model*        m_placeholderModel     = nullptr;
@@ -226,10 +217,19 @@ namespace Lina::Graphics
         DescriptorPool                                  m_descriptorPool;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
-        Renderer                                        m_renderer;
         GUIBackend*                                     m_guiBackend;
         Viewport                                        m_viewport;
         Recti                                           m_scissors;
+        HashMap<RenderPassType, RenderPass>             m_renderPasses;
+
+        CommandPool       m_cmdPool;
+        uint32            m_frameNumber = 0;
+        Frame             m_frames[FRAMES_IN_FLIGHT];
+        Vector<Renderer*> m_renderers;
+        CameraSystem      m_cameraSystem;
+        View              m_playerView;
+
+        //  HashMap<StringID, AdditionalWindow>  m_additionalWindows;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;
@@ -239,7 +239,6 @@ namespace Lina::Graphics
         HashMap<EngineShaderType, Material*> m_engineMaterials;
         HashMap<EnginePrimitiveType, Model*> m_engineModels;
         HashMap<EngineTextureType, Texture*> m_engineTextures;
-        HashMap<StringID, AdditionalWindow>  m_additionalWindows;
     };
 } // namespace Lina::Graphics
 

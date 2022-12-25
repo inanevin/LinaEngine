@@ -36,7 +36,7 @@ namespace Lina
 {
     void Frustum::Calculate(const Matrix& matrix, bool normalize)
     {
-        Matrix  m      = matrix.Transpose();
+        Matrix  m       = matrix.Transpose();
         Vector4 vleft   = m[3] + m[0];
         Vector4 vright  = m[3] - m[0];
         Vector4 vtop    = m[3] - m[1];
@@ -72,22 +72,42 @@ namespace Lina
             m_far.normal.Normalize();
         }
     }
-    FrustumTest Frustum::TestIntersection(const AABB& aabb)
+    FrustumTest Frustum::TestIntersection(const AABB& aabb) const
     {
-        FrustumTest    test   = FrustumTest::Inside;
-        Vector<Plane*> planes = {&m_left, &m_right, &m_top, &m_bottom, &m_near, &m_far};
+        FrustumTest test = FrustumTest::Inside;
 
-        for (auto* p : planes)
-        {
-            const float   pos    = p->distance;
-            const Vector3 normal = p->normal;
+        auto performTest = [&](const Plane& p) {
+            const float   pos    = p.distance;
+            const Vector3 normal = p.normal;
 
             if (normal.Dot(aabb.GetPositive(normal)) + pos < 0.0f)
-                return FrustumTest::Outside;
+                test = FrustumTest::Outside;
 
             if (normal.Dot(aabb.GetNegative(normal)) + pos < 0.0f)
                 test = FrustumTest::Intersects;
-        }
+        };
+
+        performTest(m_left);
+        if (test == FrustumTest::Outside)
+            return test;
+
+        performTest(m_right);
+        if (test == FrustumTest::Outside)
+            return test;
+
+        performTest(m_top);
+        if (test == FrustumTest::Outside)
+            return test;
+
+        performTest(m_bottom);
+        if (test == FrustumTest::Outside)
+            return test;
+
+        performTest(m_near);
+        if (test == FrustumTest::Outside)
+            return test;
+
+        performTest(m_far);
 
         return test;
     }

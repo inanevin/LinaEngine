@@ -28,192 +28,84 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderDataManager_HPP
-#define RenderDataManager_HPP
+#ifndef Renderer_HPP
+#define Renderer_HPP
 
-#include "Math/Matrix.hpp"
-#include "Data/Vector.hpp"
-#include "Data/Vertex.hpp"
-#include "Core/GraphicsCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Data/Mutex.hpp"
 #include "PipelineObjects/CommandBuffer.hpp"
-#include "PipelineObjects/CommandPool.hpp"
-#include "PipelineObjects/RenderPass.hpp"
-#include "PipelineObjects/Framebuffer.hpp"
 #include "PipelineObjects/Semaphore.hpp"
-#include "PipelineObjects/Fence.hpp"
-#include "PipelineObjects/Pipeline.hpp"
-#include "PipelineObjects/PipelineLayout.hpp"
-#include "PipelineObjects/Image.hpp"
-#include "PipelineObjects/Buffer.hpp"
-#include "PipelineObjects/DescriptorSet.hpp"
-#include "PipelineObjects/Sampler.hpp"
-#include "PipelineObjects/DescriptorPool.hpp"
-#include "Data/IDList.hpp"
-#include "CameraSystem.hpp"
-#include "View.hpp"
-#include "DrawPass.hpp"
+#include "Functional/Functional.hpp"
 
-namespace Lina
-{
-    namespace World
-    {
-        class EntityWorld;
-    }
-
-    namespace Event
-    {
-        struct ELevelUninstalled;
-        struct ELevelInstalled;
-        struct EComponentCreated;
-        struct EComponentDestroyed;
-        struct EPreMainLoop;
-        struct EWindowResized;
-        struct EWindowPositioned;
-    } // namespace Event
-
-} // namespace Lina
 namespace Lina::Graphics
 {
-    class Backend;
-    class ModelNodeComponent;
+    class Swapchain;
+    class CommandPool;
+    class Semaphore;
+    struct Frame;
+    class Buffer;
 
     class Renderer
     {
-    private:
-        struct Frame
-        {
-            Fence     graphicsFence;
-            Semaphore presentSemaphore;
-            Semaphore graphicsSemaphore;
-            Buffer    objDataBuffer;
-            Buffer    indirectBuffer;
-            Buffer    sceneDataBuffer;
-            Buffer    viewDataBuffer;
-            Buffer    lightDataBuffer;
-            DescriptorSet passDescriptor;
-            DescriptorSet globalDescriptor;
-        };
-
     public:
         Renderer()  = default;
-        ~Renderer() = default;
+        virtual ~Renderer() = default;
 
-        inline CameraSystem& GetCameraSystem()
+        virtual void Initialize();
+        virtual void Shutdown(){};
+        virtual void Tick(){};
+        virtual bool AcquireImage(Frame& frame, uint32 frameIndex);
+        virtual void BeginCommandBuffer();
+        virtual void RecordCommandBuffer(Frame& frame) = 0;
+        virtual void EndCommandBuffer();
+        virtual void SyncData(){};
+        virtual void Stop();
+        virtual void HandleOutOfDateImage() = 0;
+
+        inline void SetSwapchain(Swapchain* swp)
         {
-            return m_cameraSystem;
+            m_swapchain = swp;
         }
 
-        inline const Vector<View*>& GetViews()
+        inline void SetCommandPool(CommandPool* pool)
         {
-            return m_views;
+            m_commandPool = pool;
         }
 
-        inline DescriptorSet& GetGlobalDescriptorSet()
+        inline uint32 GetCurrentImageIndex()
         {
-            return GetCurrentFrame().globalDescriptor;
+            return m_currentImageIndex;
         }
 
-        inline DescriptorSet& GetPassDescriptorSet()
+        inline CommandBuffer* GetCurrentCommandBuffer()
         {
-            return GetCurrentFrame().passDescriptor;
-        }
-        inline uint32 GetFrameIndex()
-        {
-            return m_frameNumber % FRAMES_IN_FLIGHT;
+            return &m_cmds[m_currentImageIndex];
         }
 
-        inline Buffer& GetObjectDataBuffer()
+        inline Swapchain* GetSwapchain()
         {
-            return GetCurrentFrame().objDataBuffer;
+            return m_swapchain;
         }
 
-        inline Buffer& GetSceneDataBuffer()
+        inline Semaphore* GetCurrentSemaphore(uint32 frameIndex)
         {
-            return GetCurrentFrame().sceneDataBuffer;
+            return &m_submitSemaphores[frameIndex];
         }
 
-        inline Buffer& GetViewDataBuffer()
+        inline void SetOnOutOfDateImageHandled(Delegate<void(Swapchain*)>&& del)
         {
-            return GetCurrentFrame().viewDataBuffer;
+            m_handledOutOfDateImage = del;
         }
 
-        inline Buffer& GetLightDataBuffer()
-        {
-            return GetCurrentFrame().lightDataBuffer;
-        }
-
-        inline Buffer& GetIndirectBuffer()
-        {
-            return GetCurrentFrame().indirectBuffer;
-        }
-
-        inline GPUViewData& GetViewData()
-        {
-            return m_viewData;
-        }
-
-        Frame& GetCurrentFrame()
-        {
-            return m_frames[m_frameNumber % FRAMES_IN_FLIGHT];
-        }
-
-        inline RenderPass& GetRenderPass(RenderPassType type)
-        {
-            return m_renderPasses[type];
-        }
-
-        inline HashMap<Mesh*, MergedBufferMeshEntry>& GetMergedMeshEntries()
-        {
-            return m_meshEntries;
-        }
-
-    private:
-        friend class RenderEngine;
-
-        void Initialize();
-        void Shutdown();
-        void Tick();
-        void Render();
-        void Join();
-        void SyncData();
-        void Stop();
-        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void OnComponentCreated(const Event::EComponentCreated& ev);
-        void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        void OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void OnWindowResized(const Event::EWindowResized& ev);
-        void OnWindowPositioned(const Event::EWindowPositioned& newPos);
-        void HandleOutOfDateImage();
-        void MergeMeshes();
-
-    private:
-        Vector<View*>                       m_views;
-        View                                m_playerView;
-        CameraSystem                        m_cameraSystem;
-        Vector<RenderableData>              m_extractedRenderables;
-        HashMap<RenderPassType, RenderPass> m_renderPasses;
-
-        IDList<RenderableComponent*>          m_allRenderables;
-        Vector<GPUObjectData>                 m_gpuObjectData;
-        DrawPass                              m_opaquePass;
-        GPUSceneData                          m_sceneData;
-        GPUViewData                           m_viewData;
-        GPULightData                          m_lightData;
-        HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
-
-        CommandPool           m_cmdPool;
-        Vector<CommandBuffer> m_cmds;
-        Buffer                m_cpuVtxBuffer;
-        Buffer                m_cpuIndexBuffer;
-        Buffer                m_gpuVtxBuffer;
-        Buffer                m_gpuIndexBuffer;
-
-        uint32 m_frameNumber = 0;
-        Frame  m_frames[FRAMES_IN_FLIGHT];
-        bool   m_recreateSwapchain = false;
-
-        Atomic<bool> m_stopped = false;
+    protected:
+        Delegate<void(Swapchain* swp)> m_handledOutOfDateImage;
+        Swapchain*                     m_swapchain   = nullptr;
+        CommandPool*                   m_commandPool = nullptr;
+        Vector<CommandBuffer>          m_cmds;
+        Vector<Semaphore>              m_submitSemaphores;
+        uint32                         m_currentImageIndex = 0;
+        bool                           m_recreateSwapchain = false;
+        Atomic<bool>                   m_stopped           = false;
     };
 
 } // namespace Lina::Graphics

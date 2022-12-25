@@ -269,7 +269,6 @@ namespace Lina::Graphics
 
     void Material::Bind(CommandBuffer& cmd, RenderPassType rpType, uint32 bindFlags)
     {
-        auto& renderer = RenderEngine::Get()->GetRenderer();
         auto& pipeline = m_shader.value->GetPipeline(rpType);
 
         if (bindFlags & MaterialBindFlag::BindPipeline)

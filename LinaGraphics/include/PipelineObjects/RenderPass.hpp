@@ -73,8 +73,8 @@ namespace Lina::Graphics
         RenderPass& AddAttachment(Attachment att);
         RenderPass& AddSubPassDependency(SubPassDependency& d);
         RenderPass& AddClearValue(const ClearValue& clear);
-        void        Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea);
-        void        End(const CommandBuffer& cmd);
+        void        Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea) const;
+        void        End(const CommandBuffer& cmd) const;
 
         // Description
         Vector<ClearValue>        clearValues;

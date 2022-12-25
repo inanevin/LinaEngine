@@ -37,12 +37,19 @@ SOFTWARE.
 #include "Data/Bitmask.hpp"
 #include "Math/AABB.hpp"
 #include "GraphicsCommon.hpp"
+#include "PipelineObjects/Semaphore.hpp"
+#include "PipelineObjects/Fence.hpp"
+#include "PipelineObjects/Buffer.hpp"
+#include "PipelineObjects/DescriptorSet.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
 
 namespace Lina::Graphics
 {
     class RenderableComponent;
     class Mesh;
     class Material;
+    class Swapchain;
+    class Texture;
 
 #define OBJ_BUFFER_MAX   15
 #define MAX_LIGHTS       10
@@ -125,6 +132,29 @@ namespace Lina::Graphics
         uint32 vertexOffset = 0;
         uint32 indexSize    = 0;
         uint32 firstIndex   = 0;
+    };
+
+    struct Frame
+    {
+        Fence         graphicsFence;
+        Semaphore     presentSemaphore;
+        Buffer        objDataBuffer;
+        Buffer        indirectBuffer;
+        Buffer        sceneDataBuffer;
+        Buffer        viewDataBuffer;
+        Buffer        lightDataBuffer;
+        DescriptorSet passDescriptor;
+        DescriptorSet globalDescriptor;
+    };
+
+    struct AdditionalWindow
+    {
+        StringID            sid = 0;
+        Swapchain*          swapchain;
+        Texture*            depthImg = nullptr;
+        Vector<Framebuffer> framebuffers;
+        Semaphore           waitSemaphore;
+        Semaphore           presentSemaphore;
     };
 
 } // namespace Lina::Graphics

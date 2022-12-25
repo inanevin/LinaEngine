@@ -40,6 +40,9 @@ namespace Lina::Graphics
     class CameraSystem
     {
     public:
+        CameraSystem()  = default;
+        ~CameraSystem() = default;
+
         void SetActiveCamera(CameraComponent* c)
         {
             m_activeCamera = c;
@@ -59,13 +62,9 @@ namespace Lina::Graphics
             return m_proj;
         }
 
-    private:
-        friend class Renderer;
-        CameraSystem()  = default;
-        ~CameraSystem() = default;
-
         void Tick();
 
+    private:
     private:
         Vector3          m_pos          = Vector3::Zero;
         CameraComponent* m_activeCamera = nullptr;

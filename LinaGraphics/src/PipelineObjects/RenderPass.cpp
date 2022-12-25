@@ -135,7 +135,7 @@ namespace Lina::Graphics
         return *this;
     }
 
-    void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea)
+    void RenderPass::Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea) const
     {
         Vector<VkClearValue> _clearValues;
 
@@ -173,7 +173,7 @@ namespace Lina::Graphics
         vkCmdBeginRenderPass(cmd._ptr, &info, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void RenderPass::End(const CommandBuffer& cmd)
+    void RenderPass::End(const CommandBuffer& cmd) const
     {
         vkCmdEndRenderPass(cmd._ptr);
     }

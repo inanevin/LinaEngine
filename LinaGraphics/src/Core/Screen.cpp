@@ -71,7 +71,7 @@ namespace Lina::Graphics
     Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos)
     {
         auto*       renderEngine = RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetRenderer().GetCameraSystem();
+        const auto& cameraSystem = renderEngine->GetCameraSystem();
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
@@ -94,7 +94,7 @@ namespace Lina::Graphics
     Vector3 Screen::WorldToScreenCoordinates(const Vector3& world)
     {
         auto*       renderEngine = Graphics::RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetRenderer().GetCameraSystem();
+        const auto& cameraSystem = renderEngine->GetCameraSystem();
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();

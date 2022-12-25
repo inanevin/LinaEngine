@@ -41,6 +41,10 @@ namespace Lina::Graphics
     {
     public:
         void Push(Delegate<void()>&& f);
+
+    private:
+        friend class RenderEngine;
+
         void Flush();
 
     private:

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Log/Log.hpp"
+#include "Core/Renderer.hpp"
 #include "Core/Level.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -53,6 +54,7 @@ SOFTWARE.
 #include "Core/ResourceLoader.hpp"
 #include "Game/GameManager.hpp"
 #include "Core/Time.hpp"
+#include "Core/DefaultRenderer.hpp"
 
 namespace Lina
 {
@@ -161,6 +163,12 @@ namespace Lina
             m_editor.Initialize();
 #endif
 
+        if (m_defaultRenderer == nullptr)
+        {
+            m_defaultRenderer = new Graphics::DefaultRenderer();
+            m_defaultRenderer->SetSwapchain(&Graphics::Backend::Get()->GetMainSwapchain());
+            m_renderEngine.AddRenderer(m_defaultRenderer);
+        }
         // Runtime info setup
         m_physicsAccumulator = 0.0f;
         m_deltaTimeArray.fill(-1.0);
@@ -222,7 +230,7 @@ namespace Lina
 
         if (m_inputEngine.GetKeyDown(LINA_KEY_E))
         {
-            Graphics::RenderEngine::Get()->CreateAdditionalWindow("TestWindow", Vector2(0, 0), Vector2(600, 600));
+            // Graphics::RenderEngine::Get()->CreateAdditionalWindow("TestWindow", Vector2(0, 0), Vector2(600, 600));
         }
 
         // Render

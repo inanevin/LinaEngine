@@ -47,13 +47,13 @@ namespace Lina::Graphics
     int    drawCalls      = 0;
     uint32 batches        = 0;
 
-    void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList)
+    void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList, const View& view)
     {
-        ExtractPassRenderables(drawList);
+        ExtractPassRenderables(drawList, view);
         BatchPassRenderables();
     }
 
-    void DrawPass::ExtractPassRenderables(Vector<RenderableData>& drawList)
+    void DrawPass::ExtractPassRenderables(Vector<RenderableData>& drawList, const View& view)
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
@@ -64,7 +64,7 @@ namespace Lina::Graphics
             RenderableData& data = drawList[i];
 
             // Cull by distance
-            if (m_view->GetPos().Distance(data.position) > m_drawDistance)
+            if (view.GetPos().Distance(data.position) > m_drawDistance)
                 return;
 
             // Cull by pass mask.
@@ -72,7 +72,7 @@ namespace Lina::Graphics
                 return;
 
             // Cull by frustum
-            if (m_view->IsVisible(data.aabb))
+            if (view.IsVisible(data.aabb))
             {
                 LOCK_GUARD(m_mtx);
                 m_renderables.push_back(data);
@@ -122,23 +122,20 @@ namespace Lina::Graphics
         batches = static_cast<uint32>(m_batches.size());
     }
 
-    void DrawPass::UpdateViewData(Buffer& viewDataBuffer)
+    void DrawPass::UpdateViewData(Buffer& viewDataBuffer, const View& view)
     {
         GPUViewData data;
-        data.view     = m_view->GetView();
-        data.proj     = m_view->GetProj();
+        data.view     = view.GetView();
+        data.proj     = view.GetProj();
         data.viewProj = data.proj * data.view;
         viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
     }
 
-    void DrawPass::RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType)
+    void DrawPass::RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
     {
         drawCalls = 0;
 
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
-
-        auto& renderer     = RenderEngine::Get()->GetRenderer();
-        auto& mergedMeshes = renderer.GetMergedMeshEntries();
 
         Vector<VkDrawIndexedIndirectCommand> commands;
         uint32                               i = 0;
@@ -147,7 +144,7 @@ namespace Lina::Graphics
             uint32 i = 0;
             for (auto ri : b.renderableIndices)
             {
-                auto&                        merged = mergedMeshes[b.meshes[i]];
+                auto&                        merged = mergedMeshes.at(b.meshes[i]);
                 VkDrawIndexedIndirectCommand c;
                 c.instanceCount = 1;
                 c.indexCount    = merged.indexSize;
@@ -159,7 +156,7 @@ namespace Lina::Graphics
             }
         }
 
-        renderer.GetIndirectBuffer().CopyInto(commands.data(), commands.size() * sizeof(VkDrawIndexedIndirectCommand));
+        indirectBuffer.CopyInto(commands.data(), commands.size() * sizeof(VkDrawIndexedIndirectCommand));
 
         const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
         uint32       firstInstance = 0;
@@ -179,7 +176,7 @@ namespace Lina::Graphics
             mat->Bind(cmd, rpType, MaterialBindFlag::BindDescriptor);
 
             const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
-            cmd.CMD_DrawIndexedIndirect(renderer.GetIndirectBuffer()._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
+            cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
             firstInstance += batch.count;
             // cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
             drawCalls++;

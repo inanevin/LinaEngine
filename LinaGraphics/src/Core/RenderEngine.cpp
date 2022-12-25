@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
 #include "Core/World.hpp"
+#include "Core/Renderer.hpp"
 
 #include "Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
@@ -125,11 +126,98 @@ namespace Lina::Graphics
         };
 
         m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(viewDataBinding).AddBinding(objDataBinding).Create();
-
         m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create();
-
-        m_renderer.Initialize();
         m_gpuUploader.Create();
+
+        m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
+        m_cmdPool.Create();
+
+        m_renderPasses[RenderPassType::Main]        = RenderPass();
+        m_renderPasses[RenderPassType::PostProcess] = RenderPass();
+        m_renderPasses[RenderPassType::Final]       = RenderPass();
+        auto& mainPass                              = m_renderPasses[RenderPassType::Main];
+        auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
+        auto& finalPass                             = m_renderPasses[RenderPassType::Final];
+        VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
+        VulkanUtility::SetupAndCreateMainRenderPass(postPass);
+        VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            Frame& f = m_frames[i];
+
+            // Sync
+            f.presentSemaphore.Create();
+            f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
+            f.graphicsFence.Create();
+
+            f.indirectBuffer = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                                      .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                                      .memoryUsage = MemoryUsageFlags::CpuToGpu};
+
+            f.indirectBuffer.Create();
+
+            // Scene data - set 0 b 0
+            f.sceneDataBuffer = Buffer{
+                .size        = sizeof(GPUSceneData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.sceneDataBuffer.Create();
+
+            // Light data - set 0 b 1
+            f.lightDataBuffer = Buffer{
+                .size        = sizeof(GPULightData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.lightDataBuffer.Create();
+
+            f.globalDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = m_descriptorPool._ptr,
+            };
+
+            f.globalDescriptor.AddLayout(&RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
+            f.globalDescriptor.Create();
+            f.globalDescriptor.BeginUpdate();
+            f.globalDescriptor.AddBufferUpdate(f.sceneDataBuffer, f.sceneDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            f.globalDescriptor.AddBufferUpdate(f.lightDataBuffer, f.lightDataBuffer.size, 1, DescriptorType::UniformBuffer);
+            f.globalDescriptor.SendUpdate();
+
+            // Pass descriptor
+
+            f.viewDataBuffer = Buffer{
+                .size        = sizeof(GPUViewData),
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.viewDataBuffer.Create();
+
+            f.objDataBuffer = Buffer{
+                .size        = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
+                .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
+                .memoryUsage = MemoryUsageFlags::CpuToGpu,
+            };
+            f.objDataBuffer.Create();
+            f.objDataBuffer.boundSet     = &f.passDescriptor;
+            f.objDataBuffer.boundBinding = 1;
+            f.objDataBuffer.boundType    = DescriptorType::StorageBuffer;
+
+            f.passDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = m_descriptorPool._ptr,
+            };
+
+            f.passDescriptor.AddLayout(&RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+            f.passDescriptor.Create();
+            f.passDescriptor.BeginUpdate();
+            f.passDescriptor.AddBufferUpdate(f.viewDataBuffer, f.viewDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            f.passDescriptor.AddBufferUpdate(f.objDataBuffer, f.objDataBuffer.size, 1, DescriptorType::StorageBuffer);
+            f.passDescriptor.SendUpdate();
+        }
+
+        m_playerView.Initialize(ViewType::Player);
 
         // Init GUI Backend, LinaVG
         LinaVG::Config.displayPosX           = 0;
@@ -184,7 +272,11 @@ namespace Lina::Graphics
 
     void RenderEngine::Tick()
     {
-        m_renderer.Tick();
+        m_cameraSystem.Tick();
+        m_playerView.Tick(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
+
+        for (auto& r : m_renderers)
+            r->Tick();
     }
 
     void RenderEngine::Render()
@@ -196,70 +288,68 @@ namespace Lina::Graphics
             return;
 
         m_gpuUploader.Poll();
-        m_renderer.Render();
+
+        const uint32 frameIndex = GetFrameIndex();
+        auto&        frame      = m_frames[m_frameNumber % FRAMES_IN_FLIGHT];
+
+        frame.graphicsFence.Wait(true, 1.0f);
+
+        Vector<Renderer*> renderersToSubmit;
+
+        for (auto& r : m_renderers)
+        {
+            if (r->AcquireImage(frame, frameIndex))
+                renderersToSubmit.push_back(r);
+        }
+
+        frame.graphicsFence.Reset();
+
+        Vector<CommandBuffer*> cmdBuffers;
+        Vector<uint32>         imageIndices;
+        Vector<Swapchain*>     swapchains;
+        Vector<Semaphore*>     semaphores;
+
+        for (auto& renderer : renderersToSubmit)
+        {
+            renderer->BeginCommandBuffer();
+            renderer->RecordCommandBuffer(frame);
+            renderer->EndCommandBuffer();
+            cmdBuffers.push_back(renderer->GetCurrentCommandBuffer());
+            imageIndices.push_back(renderer->GetCurrentImageIndex());
+            swapchains.push_back(renderer->GetSwapchain());
+            semaphores.push_back(renderer->GetCurrentSemaphore(frameIndex));
+        }
+
+        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
+        // Then submits command, and signals render semaphore when its submitted.
+        PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
+        Backend::Get()->GetGraphicsQueue().Submit(semaphores, frame.presentSemaphore, frame.graphicsFence, cmdBuffers, 1);
+        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, swapchains, imageIndices);
+
+        // Backend::Get()->GetGraphicsQueue().WaitIdle();
+        PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
+
+        m_frameNumber++;
     }
 
     void RenderEngine::Stop()
     {
-        m_renderer.Stop();
-    }
-
-    void RenderEngine::CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
-    {
-        const StringID    sid              = TO_SID(nameID);
-        AdditionalWindow& additionalWindow = m_additionalWindows[sid];
-        additionalWindow.sid               = sid;
-
-        auto* windowPtr = Window::Get()->CreateAdditionalWindow(nameID.c_str(), pos, size);
-        auto* swp       = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
-
-        additionalWindow.swapchain = swp;
-        additionalWindow.depthImg  = VulkanUtility::CreateDefaultPassTextureDepth(true, static_cast<int>(size.x), static_cast<int>(size.y));
-        additionalWindow.waitSemaphore.Create();
-        additionalWindow.presentSemaphore.Create();
-
-        auto& fp = m_renderer.GetRenderPass(RenderPassType::Final);
-
-        for (auto& iv : additionalWindow.swapchain->_imageViews)
-        {
-            Framebuffer fb = Framebuffer{
-                .width  = static_cast<uint32>(size.x),
-                .height = static_cast<uint32>(size.y),
-                .layers = 1,
-            };
-
-            fb.AttachRenderPass(fp).AddImageView(iv).AddImageView(additionalWindow.depthImg->GetImage()._ptrImgView).Create();
-            additionalWindow.framebuffers.push_back(fb);
-        }
-    }
-
-    void RenderEngine::UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
-    {
-        const StringID sid = TO_SID(nameID);
-        DestroyAdditionalWindow(nameID);
-        CreateAdditionalWindow(nameID, pos, size);
-    }
-
-    void RenderEngine::DestroyAdditionalWindow(const String& nameID)
-    {
-        const StringID sid = TO_SID(nameID);
-        auto&          w   = m_additionalWindows[sid];
-
-        delete w.depthImg;
-        w.swapchain->Destroy();
-        for (auto& fb : w.framebuffers)
-            fb.Destroy();
+        for (auto& r : m_renderers)
+            r->Stop();
     }
 
     void RenderEngine::Join()
     {
         RETURN_NOTINITED;
-        m_renderer.Join();
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+            m_frames[i].graphicsFence.Wait();
     }
 
     void RenderEngine::SyncData()
     {
-        m_renderer.SyncData();
+        for (auto& r : m_renderers)
+            r->SyncData();
     }
 
     void RenderEngine::Shutdown()
@@ -276,7 +366,22 @@ namespace Lina::Graphics
         m_gpuUploader.Destroy();
         m_mainDeletionQueue.Flush();
 
-        m_renderer.Shutdown();
+        for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            m_frames[i].objDataBuffer.Destroy();
+            m_frames[i].sceneDataBuffer.Destroy();
+            m_frames[i].viewDataBuffer.Destroy();
+            m_frames[i].lightDataBuffer.Destroy();
+            m_frames[i].indirectBuffer.Destroy();
+        }
+
+        m_renderPasses[RenderPassType::Main].Destroy();
+        m_renderPasses[RenderPassType::PostProcess].Destroy();
+        m_renderPasses[RenderPassType::Final].Destroy();
+
+        for (auto& r : m_renderers)
+            r->Shutdown();
+
         m_window->Shutdown();
         m_backend.Shutdown();
     }
@@ -324,19 +429,26 @@ namespace Lina::Graphics
 
     void RenderEngine::SwapchainRecreated()
     {
-        const Vector2i size          = Backend::Get()->GetMainSwapchain().size;
+    }
+
+    void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
+    {
+        // Update swapchain before we start.
+        OnOutOfDateImageHandled(&m_backend.GetMainSwapchain());
+    }
+
+    void RenderEngine::OnOutOfDateImageHandled(Swapchain* swp)
+    {
+        if (swp != &m_backend.GetMainSwapchain())
+            return;
+
+        const Vector2i size          = swp->size;
         m_viewport.width             = static_cast<float>(size.x);
         m_viewport.height            = static_cast<float>(size.y);
         m_scissors.size              = size;
         LinaVG::Config.displayWidth  = static_cast<unsigned int>(m_viewport.width);
         LinaVG::Config.displayHeight = static_cast<unsigned int>(m_viewport.height);
         GUIBackend::Get()->UpdateProjection();
-    }
-
-    void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
-    {
-        // Update swapchain before we start.
-        SwapchainRecreated();
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()
@@ -395,5 +507,74 @@ namespace Lina::Graphics
     {
         return GetPlaceholderModelNode()->GetMeshes()[0];
     }
+
+    void RenderEngine::AddRenderer(Renderer* renderer)
+    {
+        m_renderers.push_back(renderer);
+        renderer->SetOnOutOfDateImageHandled(BIND(&RenderEngine::OnOutOfDateImageHandled, this, std::placeholders::_1));
+        renderer->SetCommandPool(&m_cmdPool);
+        renderer->Initialize();
+    }
+
+    void RenderEngine::RemoveRenderer(Renderer* renderer)
+    {
+        Vector<Renderer*>::iterator it = m_renderers.begin();
+        for (; it < m_renderers.end(); ++it)
+        {
+            if (*it == renderer)
+            {
+                renderer->Shutdown();
+                m_renderers.erase(it);
+                break;
+            }
+        }
+    }
+
+    //  void RenderEngine::CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
+    //  {
+    //     const StringID    sid              = TO_SID(nameID);
+    //     AdditionalWindow& additionalWindow = m_additionalWindows[sid];
+    //     additionalWindow.sid               = sid;
+    //
+    //     auto* windowPtr = Window::Get()->CreateAdditionalWindow(nameID.c_str(), pos, size);
+    //     auto* swp       = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
+    //
+    //     additionalWindow.swapchain = swp;
+    //     additionalWindow.depthImg  = VulkanUtility::CreateDefaultPassTextureDepth(true, static_cast<int>(size.x), static_cast<int>(size.y));
+    //     additionalWindow.waitSemaphore.Create();
+    //     additionalWindow.presentSemaphore.Create();
+    //
+    //     auto& fp = m_renderer.GetRenderPass(RenderPassType::Final);
+    //
+    //     for (auto& iv : additionalWindow.swapchain->_imageViews)
+    //     {
+    //         Framebuffer fb = Framebuffer{
+    //             .width  = static_cast<uint32>(size.x),
+    //             .height = static_cast<uint32>(size.y),
+    //             .layers = 1,
+    //         };
+    //
+    //         fb.AttachRenderPass(fp).AddImageView(iv).AddImageView(additionalWindow.depthImg->GetImage()._ptrImgView).Create();
+    //         additionalWindow.framebuffers.push_back(fb);
+    //     }
+    //  }
+    //
+    //  void RenderEngine::UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
+    //  {
+    //       const StringID sid = TO_SID(nameID);
+    //       DestroyAdditionalWindow(nameID);
+    //       CreateAdditionalWindow(nameID, pos, size);
+    //  }
+    //
+    //  void RenderEngine::DestroyAdditionalWindow(const String& nameID)
+    //  {
+    //     const StringID sid = TO_SID(nameID);
+    //     auto&          w   = m_additionalWindows[sid];
+    //
+    //     delete w.depthImg;
+    //     w.swapchain->Destroy();
+    //     for (auto& fb : w.framebuffers)
+    //         fb.Destroy();
+    //  }
 
 } // namespace Lina::Graphics

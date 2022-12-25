@@ -74,12 +74,8 @@ namespace Lina::Graphics
         virtual Bitmask16                GetDrawPasses()        = 0;
         virtual RenderableType           GetType()              = 0;
 
-
-        int dummy  = 0;
-        int dummy2 = 0;
-
-    private:
-        friend class Renderer;
+        int    dummy          = 0;
+        int    dummy2         = 0;
         uint32 m_renderableID = 0;
     };
 } // namespace Lina::Graphics

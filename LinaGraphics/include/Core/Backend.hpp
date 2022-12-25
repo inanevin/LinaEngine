@@ -138,16 +138,16 @@ namespace Lina::Graphics
             return m_computeQueue;
         }
 
+        void WaitIdle();
+
     private:
         friend class RenderEngine;
-        friend class Renderer;
 
         Backend()  = default;
         ~Backend() = default;
 
         bool        Initialize(const InitInfo& appInfo);
         void        Shutdown();
-        void        WaitIdle();
         void        OnVsyncModeChanged(const Event::EVsyncModeChanged& ev);
         PresentMode VsyncToPresentMode(VsyncMode mode);
 

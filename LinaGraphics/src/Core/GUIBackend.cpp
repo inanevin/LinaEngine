@@ -116,7 +116,7 @@ namespace Lina::Graphics
 
     void GUIBackend::StartFrame()
     {
-        const uint32 frame           = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        const uint32 frame           = RenderEngine::Get()->GetFrameIndex();
         m_materialPools[frame].index = 0;
     }
 
@@ -179,7 +179,7 @@ namespace Lina::Graphics
 
     Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
     {
-        const uint32 frame         = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        const uint32 frame         = RenderEngine::Get()->GetFrameIndex();
         auto&        targetCapsule = m_bufferCapsules[frame];
 
         const Vector2i     screen = Screen::Size();
@@ -218,7 +218,7 @@ namespace Lina::Graphics
 
     void GUIBackend::EndFrame()
     {
-        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        const uint32 frame = RenderEngine::Get()->GetFrameIndex();
         auto&        b     = m_bufferCapsules[frame];
         b.indexCounter = b.vertexCounter = 0;
     }
@@ -227,7 +227,7 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        const uint32 frame = RenderEngine::Get()->GetRenderer().GetFrameIndex();
+        const uint32 frame = RenderEngine::Get()->GetFrameIndex();
 
         auto& b = m_bufferCapsules[frame];
 
