@@ -41,8 +41,6 @@ SOFTWARE.
 
 namespace Lina::Audio
 {
-    AudioEngine* AudioEngine::s_audioEngine = nullptr;
-
     void AudioEngine::Initialize()
     {
         LINA_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());

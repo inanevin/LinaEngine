@@ -28,67 +28,96 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef View_HPP
-#define View_HPP
+#ifndef GameRenderer_HPP
+#define GameRenderer_HPP
 
-#include "Math/Frustum.hpp"
-#include "Math/Vector.hpp"
-#include "Data/HashSet.hpp"
-#include "Core/RenderData.hpp"
+#include "Renderer.hpp"
+#include "RenderData.hpp"
+#include "PipelineObjects/CommandPool.hpp"
+#include "PipelineObjects/CommandBuffer.hpp"
+#include "PipelineObjects/DescriptorPool.hpp"
+#include "View.hpp"
+#include "DrawPass.hpp"
+#include "Data/IDList.hpp"
+
+namespace Lina
+{
+    class Engine;
+
+    namespace Event
+    {
+        struct ELevelUninstalled;
+        struct ELevelInstalled;
+        struct EComponentCreated;
+        struct EComponentDestroyed;
+        struct EPreMainLoop;
+        struct EWindowResized;
+        struct EWindowPositioned;
+    } // namespace Event
+
+} // namespace Lina
 
 namespace Lina::Graphics
 {
-    enum class ViewType
-    {
-        Player,
-        SunShadow,
-    };
-
-    class FramePacket;
-    class RenderableComponent;
-    class View
+    class GameRenderer : public Renderer
     {
     public:
-        bool IsVisible(const AABB& aabb) const;
+        GameRenderer()          = default;
+        virtual ~GameRenderer() = default;
 
-        inline ViewType GetType()
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        virtual void Tick() override;
+        virtual void Render() override;
+        virtual void SyncData() override;
+        virtual void Stop() override;
+        virtual void Join() override;
+
+        inline uint32 GetFrameIndex()
         {
-            return m_viewType;
+            return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
-        inline Vector<RenderableComponent*>& GetVisibleObjects()
+        inline const View& GetPlayerView()
         {
-            return m_visibleRenderables;
+            return m_playerView;
         }
-
-        inline const Vector3& GetPos() const
-        {
-            return m_pos;
-        }
-        inline const Matrix& GetView() const
-        {
-            return m_view;
-        }
-
-        inline const Matrix& GetProj() const
-        {
-            return m_proj;
-        }
-
-        inline void Initialize(ViewType type)
-        {
-            m_viewType = type;
-        }
-
-        void Tick(const Vector3& pos, const Matrix& view, const Matrix& proj);
 
     private:
-        Vector<RenderableComponent*> m_visibleRenderables;
-        ViewType                     m_viewType = ViewType::Player;
-        Matrix                       m_view;
-        Matrix                       m_proj;
-        Vector3                      m_pos     = Vector3::Zero;
-        Frustum                      m_frustum = Frustum();
+        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnComponentCreated(const Event::EComponentCreated& ev);
+        void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void OnWindowResized(const Event::EWindowResized& ev);
+        void OnWindowPositioned(const Event::EWindowPositioned& newPos);
+        void HandleOutOfDateImage();
+        void MergeMeshes();
+
+    private:
+        CommandPool    m_cmdPool;
+        uint32         m_frameNumber = 0;
+        Frame          m_frames[FRAMES_IN_FLIGHT];
+        DescriptorPool m_descriptorPool;
+
+        View m_playerView;
+
+        Vector<RenderableData>                m_extractedRenderables;
+        Vector<CommandBuffer>                 m_cmds;
+        IDList<RenderableComponent*>          m_allRenderables;
+        Vector<GPUObjectData>                 m_gpuObjectData;
+        DrawPass                              m_opaquePass;
+        GPUSceneData                          m_sceneData;
+        GPUViewData                           m_viewData;
+        GPULightData                          m_lightData;
+        HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
+
+        Buffer       m_cpuVtxBuffer;
+        Buffer       m_cpuIndexBuffer;
+        Buffer       m_gpuVtxBuffer;
+        Buffer       m_gpuIndexBuffer;
+        bool         m_recreateSwapchain = false;
+        Atomic<bool> m_stopped           = false;
     };
 } // namespace Lina::Graphics
 

@@ -137,6 +137,7 @@ namespace Lina::Graphics
     struct Frame
     {
         Fence         graphicsFence;
+        Semaphore     submitSemaphore;
         Semaphore     presentSemaphore;
         Buffer        objDataBuffer;
         Buffer        indirectBuffer;

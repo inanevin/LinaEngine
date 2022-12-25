@@ -55,6 +55,7 @@ namespace Lina::Graphics
     public:
         void Get(uint32 family, uint32 index);
         void Submit(const Vector<Semaphore*>& waitSemaphores, const Semaphore& signalSemaphore, const Fence& fence, Vector<CommandBuffer*>& cmds, uint32 submitCount = 1);
+        void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, CommandBuffer& cmd, uint32 submitCount = 1);
         void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1);
         void Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex);
         void Present(const Semaphore& waitSemaphore, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices);

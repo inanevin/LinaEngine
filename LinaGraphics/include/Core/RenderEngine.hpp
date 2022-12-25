@@ -31,21 +31,13 @@ SOFTWARE.
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
-#include "RenderData.hpp"
 #include "Data/String.hpp"
 #include "Utility/DeletionQueue.hpp"
 #include "PipelineObjects/DescriptorSetLayout.hpp"
-#include "PipelineObjects/DescriptorPool.hpp"
 #include "PipelineObjects/PipelineLayout.hpp"
 #include "PipelineObjects/UploadContext.hpp"
-#include "PipelineObjects/CommandBuffer.hpp"
-#include "PipelineObjects/CommandPool.hpp"
-#include "PipelineObjects/Framebuffer.hpp"
-#include "PipelineObjects/RenderPass.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
-#include "CameraSystem.hpp"
-#include "View.hpp"
 
 namespace Lina
 {
@@ -67,6 +59,7 @@ namespace Lina::Graphics
     class GUIBackend;
     class Renderer;
     class Shader;
+    class Mesh;
 
     class RenderEngine
     {
@@ -78,8 +71,6 @@ namespace Lina::Graphics
         // void CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
         // void UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
         // void DestroyAdditionalWindow(const String& nameID);
-        void           AddRenderer(Renderer* renderer);
-        void           RemoveRenderer(Renderer* renderer);
         Vector<String> GetEngineShaderPaths();
         Vector<String> GetEngineMaterialPaths();
         Vector<String> GetEnginePrimitivePaths();
@@ -116,12 +107,12 @@ namespace Lina::Graphics
             return m_initedSuccessfully;
         }
 
-        inline DescriptorSetLayout& GetLayout(DescriptorSetType set)
+        inline const DescriptorSetLayout& GetLayout(DescriptorSetType set)
         {
             return m_descriptorLayouts[set];
         }
 
-        inline PipelineLayout& GetGlobalAndPassLayouts()
+        inline const PipelineLayout& GetGlobalAndPassLayouts()
         {
             return m_globalAndPassLayout;
         }
@@ -151,35 +142,11 @@ namespace Lina::Graphics
             return m_engineShaders[sh];
         }
 
-        inline const Viewport& GetViewport() const
+        inline Renderer* GetRenderer()
         {
-            return m_viewport;
+            return m_renderer;
         }
 
-        inline const Recti& GetScissors() const
-        {
-            return m_scissors;
-        }
-
-        inline uint32 GetFrameIndex()
-        {
-            return m_frameNumber % FRAMES_IN_FLIGHT;
-        }
-
-        inline CameraSystem& GetCameraSystem()
-        {
-            return m_cameraSystem;
-        }
-
-        inline const View& GetPlayerView()
-        {
-            return m_playerView;
-        }
-
-        inline const RenderPass& GetRenderPass(RenderPassType rpType)
-        {
-            return m_renderPasses[rpType];
-        }
         // inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
         // {
         //     return m_additionalWindows;
@@ -189,17 +156,18 @@ namespace Lina::Graphics
         friend class Engine;
 
         void Initialize(const InitInfo& initInfo);
-        void Clear();
         void Tick();
         void SyncData();
         void Render();
         void Stop();
         void Shutdown();
-        void SwapchainRecreated();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
-        void OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void OnOutOfDateImageHandled(Swapchain* swp);
         void Join();
+
+        inline void SetRenderer(Renderer* renderer)
+        {
+            m_renderer = renderer;
+        }
 
     private:
         static RenderEngine* s_instance;
@@ -210,25 +178,16 @@ namespace Lina::Graphics
         DeletionQueue m_mainDeletionQueue;
         InitInfo      m_appInfo;
         Backend       m_backend;
-        bool          m_initedSuccessfully = false;
         Window*       m_window             = nullptr;
+        bool          m_initedSuccessfully = false;
 
         UploadContext                                   m_gpuUploader;
-        DescriptorPool                                  m_descriptorPool;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
         GUIBackend*                                     m_guiBackend;
-        Viewport                                        m_viewport;
-        Recti                                           m_scissors;
-        HashMap<RenderPassType, RenderPass>             m_renderPasses;
 
-        CommandPool       m_cmdPool;
-        uint32            m_frameNumber = 0;
-        Frame             m_frames[FRAMES_IN_FLIGHT];
-        Vector<Renderer*> m_renderers;
-        CameraSystem      m_cameraSystem;
-        View              m_playerView;
 
+        Renderer* m_renderer = nullptr;
         //  HashMap<StringID, AdditionalWindow>  m_additionalWindows;
 
         // Resources

@@ -27,7 +27,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Window.cpp
 	src/Core/GraphicsCommon.cpp
 	src/Core/Renderer.cpp
-	src/Core/DefaultRenderer.cpp
+	src/Core/GameRenderer.cpp
 	src/Core/View.cpp
 	src/Core/DrawPass.cpp
 	src/Core/CameraSystem.cpp
@@ -105,7 +105,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/GUIBackend.hpp
 	include/Core/Window.hpp
 	include/Core/Renderer.hpp
-	include/Core/DefaultRenderer.hpp
+	include/Core/GameRenderer.hpp
 	include/Core/RenderData.hpp
 	include/Core/View.hpp
 	include/Core/DrawPass.hpp

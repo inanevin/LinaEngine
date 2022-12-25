@@ -136,8 +136,7 @@ namespace Lina::Graphics
                 .setCount = 1,
                 .pool     = m_descriptorPool._ptr,
             };
-            m_descriptor.AddLayout(&m_shader.value->GetMaterialSetLayout());
-            m_descriptor.Create();
+            m_descriptor.Create(m_shader.value->GetMaterialSetLayout());
 
             m_descriptor.BeginUpdate();
 

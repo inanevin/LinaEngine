@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Screen.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Math/Math.hpp"
+#include "Core/RenderData.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
@@ -116,8 +117,7 @@ namespace Lina::Graphics
 
     void GUIBackend::StartFrame()
     {
-        const uint32 frame           = RenderEngine::Get()->GetFrameIndex();
-        m_materialPools[frame].index = 0;
+        m_materialPools[m_currentFrameIndex].index = 0;
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
@@ -179,8 +179,7 @@ namespace Lina::Graphics
 
     Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
     {
-        const uint32 frame         = RenderEngine::Get()->GetFrameIndex();
-        auto&        targetCapsule = m_bufferCapsules[frame];
+        auto& targetCapsule = m_bufferCapsules[m_currentFrameIndex];
 
         const Vector2i     screen = Screen::Size();
         OrderedDrawRequest request;
@@ -193,7 +192,7 @@ namespace Lina::Graphics
         request.meta.clipW   = buf->clipSizeX == 0 ? screen.x : buf->clipSizeX;
         request.meta.clipH   = buf->clipSizeY == 0 ? screen.y : buf->clipSizeY;
 
-        auto& pool = m_materialPools[frame];
+        auto& pool = m_materialPools[m_currentFrameIndex];
 
         uint32 matId = pool.index;
 
@@ -218,8 +217,7 @@ namespace Lina::Graphics
 
     void GUIBackend::EndFrame()
     {
-        const uint32 frame = RenderEngine::Get()->GetFrameIndex();
-        auto&        b     = m_bufferCapsules[frame];
+        auto& b        = m_bufferCapsules[m_currentFrameIndex];
         b.indexCounter = b.vertexCounter = 0;
     }
 
@@ -227,9 +225,7 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        const uint32 frame = RenderEngine::Get()->GetFrameIndex();
-
-        auto& b = m_bufferCapsules[frame];
+        auto& b = m_bufferCapsules[m_currentFrameIndex];
 
         if (b.orderedDrawRequests.empty())
             return;

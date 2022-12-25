@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Reflection/ReflectionSystem.hpp"
 #include "Data/FixedList.hpp"
 
-
 namespace Lina
 {
     namespace Event
@@ -68,13 +67,10 @@ namespace Lina::World
     public:
         Entity* GetEntity(uint32 id);
         Entity* GetEntity(const String& name);
-        void    CopyFrom(EntityWorld& world);
-        void    DestroyWorld();
         Entity* CreateEntity(const String& name);
         void    DestroyEntity(Entity* e);
 
-        template <typename T>
-        ComponentCache<T>* Cache()
+        template <typename T> ComponentCache<T>* Cache()
         {
             const TypeID       tid   = GetTypeID<T>();
             ComponentCache<T>* cache = nullptr;
@@ -90,44 +86,37 @@ namespace Lina::World
             return cache;
         }
 
-        template <typename T>
-        T** View(uint32* maxSize)
+        template <typename T> T** View(uint32* maxSize)
         {
             auto* cache = Cache<T>();
             *maxSize    = cache->m_nextID;
             return cache->m_components.data();
         }
 
-        template <typename T>
-        T* GetComponent(Entity* e)
+        template <typename T> T* GetComponent(Entity* e)
         {
             return Cache<T>()->GetComponent(e);
         }
 
-        template <typename T>
-        T* AddComponent(Entity* e, const T& t)
+        template <typename T> T* AddComponent(Entity* e, const T& t)
         {
             T* comp = Cache<T>()->AddComponent(e, t);
             *comp   = t;
             return comp;
         }
 
-        template <typename T>
-        T* AddComponent(Entity* e)
+        template <typename T> T* AddComponent(Entity* e)
         {
             return Cache<T>()->AddComponent(e);
         }
 
-        template <typename T>
-        void RemoveComponent(Entity* e)
+        template <typename T> void RemoveComponent(Entity* e)
         {
             Cache<T>()->DestroyComponent(e);
         }
 
-        template <typename T>
-        void Load(Serialization::Archive<T>& archive)
+        template <typename T> void Load(Serialization::Archive<T>& archive)
         {
-
             uint32 entitiesSize = 0;
             archive(m_nextID);
             archive(m_availableIDs);
@@ -185,8 +174,7 @@ namespace Lina::World
             }
         }
 
-        template <typename T>
-        void Save(Serialization::Archive<T>& archive)
+        template <typename T> void Save(Serialization::Archive<T>& archive)
         {
             const uint32 entitiesSize = static_cast<uint32>(m_entities.size());
             archive(m_nextID);
@@ -215,11 +203,13 @@ namespace Lina::World
         }
 
     private:
-        void DestroyEntityData(Entity* e);
         friend class Level;
 
         void Initialize();
         void Shutdown();
+        void CopyFrom(EntityWorld& world);
+        void DestroyWorld();
+        void DestroyEntityData(Entity* e);
 
     private:
         bool                                 m_initialized = false;

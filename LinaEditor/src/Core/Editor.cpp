@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Core/Level.hpp"
 #include "Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Core/Renderer.hpp"
 
 namespace Lina::Editor
 {
@@ -108,7 +109,7 @@ namespace Lina::Editor
         m_editorCamera->SetPosition(Vector3(0, 0, -10.0f));
         m_editorCamera->SetRotationAngles(Vector3(0, 0.0f, 0));
         freeLook->rotationPower = 50.0f;
-        Graphics::RenderEngine::Get()->GetCameraSystem().SetActiveCamera(cam);
+        Graphics::RenderEngine::Get()->GetRenderer()->GetCameraSystem().SetActiveCamera(cam);
     }
 
     void Editor::DeleteEditorCamera()

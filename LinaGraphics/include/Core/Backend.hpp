@@ -56,11 +56,6 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Graphics
 {
-
-    struct AdditionalWindowData
-    {
-    };
-
     struct QueueFamily
     {
         uint32 flags = 0;

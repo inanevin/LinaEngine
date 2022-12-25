@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/GraphicsCommon.hpp"
 #include "Data/HashMap.hpp"
+#include "PipelineObjects/Framebuffer.hpp"
 
 struct VkRenderPass_T;
 
@@ -43,7 +44,6 @@ namespace Lina
 
 namespace Lina::Graphics
 {
-    class Framebuffer;
     class CommandBuffer;
     class Texture;
 

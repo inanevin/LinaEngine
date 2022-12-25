@@ -31,81 +31,57 @@ SOFTWARE.
 #ifndef Renderer_HPP
 #define Renderer_HPP
 
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Mutex.hpp"
-#include "PipelineObjects/CommandBuffer.hpp"
-#include "PipelineObjects/Semaphore.hpp"
-#include "Functional/Functional.hpp"
+#include "GraphicsCommon.hpp"
+#include "Math/Rect.hpp"
+#include "CameraSystem.hpp"
+#include "PipelineObjects/RenderPass.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina::Graphics
 {
-    class Swapchain;
-    class CommandPool;
-    class Semaphore;
-    struct Frame;
-    class Buffer;
-
     class Renderer
     {
     public:
-        Renderer()  = default;
+        Renderer()          = default;
         virtual ~Renderer() = default;
 
-        virtual void Initialize();
+        virtual void Initialize(){};
         virtual void Shutdown(){};
         virtual void Tick(){};
-        virtual bool AcquireImage(Frame& frame, uint32 frameIndex);
-        virtual void BeginCommandBuffer();
-        virtual void RecordCommandBuffer(Frame& frame) = 0;
-        virtual void EndCommandBuffer();
+        virtual void Render(){};
         virtual void SyncData(){};
-        virtual void Stop();
-        virtual void HandleOutOfDateImage() = 0;
+        virtual void Stop(){};
+        virtual void Join(){};
 
-        inline void SetSwapchain(Swapchain* swp)
+        inline const Viewport& GetViewport() const
         {
-            m_swapchain = swp;
+            return m_viewport;
         }
 
-        inline void SetCommandPool(CommandPool* pool)
+        inline const Recti& GetScissors() const
         {
-            m_commandPool = pool;
+            return m_scissors;
         }
 
-        inline uint32 GetCurrentImageIndex()
+        inline CameraSystem& GetCameraSystem()
         {
-            return m_currentImageIndex;
+            return m_cameraSystem;
         }
 
-        inline CommandBuffer* GetCurrentCommandBuffer()
+        inline const RenderPass& GetRenderPass(RenderPassType rpType)
         {
-            return &m_cmds[m_currentImageIndex];
-        }
-
-        inline Swapchain* GetSwapchain()
-        {
-            return m_swapchain;
-        }
-
-        inline Semaphore* GetCurrentSemaphore(uint32 frameIndex)
-        {
-            return &m_submitSemaphores[frameIndex];
-        }
-
-        inline void SetOnOutOfDateImageHandled(Delegate<void(Swapchain*)>&& del)
-        {
-            m_handledOutOfDateImage = del;
+            return m_renderPasses[rpType];
         }
 
     protected:
-        Delegate<void(Swapchain* swp)> m_handledOutOfDateImage;
-        Swapchain*                     m_swapchain   = nullptr;
-        CommandPool*                   m_commandPool = nullptr;
-        Vector<CommandBuffer>          m_cmds;
-        Vector<Semaphore>              m_submitSemaphores;
-        uint32                         m_currentImageIndex = 0;
-        bool                           m_recreateSwapchain = false;
-        Atomic<bool>                   m_stopped           = false;
+        friend class Lina::Engine;
+        void UpdateViewport(const Vector2i& size);
+
+    protected:
+        Viewport                            m_viewport;
+        Recti                               m_scissors;
+        CameraSystem                        m_cameraSystem;
+        HashMap<RenderPassType, RenderPass> m_renderPasses;
     };
 
 } // namespace Lina::Graphics

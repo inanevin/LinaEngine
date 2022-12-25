@@ -49,8 +49,7 @@ namespace Lina::Graphics
     class DescriptorSet
     {
     public:
-        void           Create();
-        DescriptorSet& AddLayout(DescriptorSetLayout* layout);
+        void           Create(const DescriptorSetLayout& layout);
 
         void BeginUpdate();
         void AddBufferUpdate(Buffer& buffer, size_t range, uint32 binding, DescriptorType type);

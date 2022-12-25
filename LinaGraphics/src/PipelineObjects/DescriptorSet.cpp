@@ -37,7 +37,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void DescriptorSet::Create()
+    void DescriptorSet::Create(const DescriptorSetLayout& layout)
     {
         // allocate one descriptor set for each frame
         VkDescriptorSetAllocateInfo allocInfo = {
@@ -45,17 +45,11 @@ namespace Lina::Graphics
             .pNext              = nullptr,
             .descriptorPool     = pool,
             .descriptorSetCount = setCount,
-            .pSetLayouts        = &layout->_ptr,
+            .pSetLayouts        = &layout._ptr,
         };
 
         VkResult res = vkAllocateDescriptorSets(Backend::Get()->GetDevice(), &allocInfo, &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Set] -> Could not allocate descriptor set!");
-    }
-
-    DescriptorSet& DescriptorSet::AddLayout(DescriptorSetLayout* layout)
-    {
-        this->layout = layout;
-        return *this;
     }
 
     void DescriptorSet::BeginUpdate()

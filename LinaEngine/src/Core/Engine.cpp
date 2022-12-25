@@ -54,7 +54,7 @@ SOFTWARE.
 #include "Core/ResourceLoader.hpp"
 #include "Game/GameManager.hpp"
 #include "Core/Time.hpp"
-#include "Core/DefaultRenderer.hpp"
+#include "Core/GameRenderer.hpp"
 
 namespace Lina
 {
@@ -165,9 +165,10 @@ namespace Lina
 
         if (m_defaultRenderer == nullptr)
         {
-            m_defaultRenderer = new Graphics::DefaultRenderer();
-            m_defaultRenderer->SetSwapchain(&Graphics::Backend::Get()->GetMainSwapchain());
-            m_renderEngine.AddRenderer(m_defaultRenderer);
+            m_defaultRenderer = new Graphics::GameRenderer();
+            m_renderEngine.SetRenderer(m_defaultRenderer);
+            m_defaultRenderer->Initialize();
+            m_defaultRenderer->UpdateViewport(m_renderEngine.m_backend.GetMainSwapchain().size);
         }
         // Runtime info setup
         m_physicsAccumulator = 0.0f;

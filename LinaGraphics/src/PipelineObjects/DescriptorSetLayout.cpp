@@ -29,6 +29,7 @@ SOFTWARE.
 #include "PipelineObjects/DescriptorSetLayout.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Log/Log.hpp"
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 

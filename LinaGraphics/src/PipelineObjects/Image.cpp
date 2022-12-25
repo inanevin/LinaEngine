@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Utility/Vulkan/VulkanUtility.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Log/Log.hpp"
 #include "Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
 

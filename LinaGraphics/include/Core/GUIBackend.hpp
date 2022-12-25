@@ -118,10 +118,17 @@ namespace Lina::Graphics
         virtual void                  RestoreAPIState() override;
         virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
+        void SetFrameIndex(uint32 frameIndex)
+        {
+            m_currentFrameIndex = frameIndex;
+        }
+
         static inline GUIBackend* Get()
         {
             return s_instance;
         }
+
+        void UpdateProjection();
 
     private:
         friend class Editor::EditorRenderer;
@@ -135,7 +142,6 @@ namespace Lina::Graphics
 
         void      OnPreMainLoop(const Event::EPreMainLoop& ev);
         void      CreateBufferCapsule();
-        void      UpdateProjection();
         void      RecordDrawCommands();
         void      UploadAllFontTextures();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
@@ -148,6 +154,7 @@ namespace Lina::Graphics
         Material*                 m_guiStandard = nullptr;
         HashMap<uint32, Texture*> m_fontTextures;
         uint32                    m_bufferingFontTexture = 0;
+        uint32                    m_currentFrameIndex    = 0;
         // Pool per frame-in-flight
         HashMap<uint32, MaterialPool> m_materialPools;
     };

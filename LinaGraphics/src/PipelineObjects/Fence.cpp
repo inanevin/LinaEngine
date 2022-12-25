@@ -29,6 +29,7 @@ SOFTWARE.
 #include "PipelineObjects/Fence.hpp"
 #include "Core/Backend.hpp"
 #include "Core/RenderEngine.hpp"
+#include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

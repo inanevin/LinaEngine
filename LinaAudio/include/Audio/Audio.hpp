@@ -63,6 +63,7 @@ namespace Lina::Audio
         }
 
     protected:
+
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 

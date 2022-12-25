@@ -31,6 +31,7 @@ SOFTWARE.
 #include "PipelineObjects/Swapchain.hpp"
 #include "Core/RenderEngine.hpp"
 #include "Core/CommonEngine.hpp"
+#include "Core/Renderer.hpp"
 
 namespace Lina::Graphics
 {
@@ -58,7 +59,7 @@ namespace Lina::Graphics
     Vector2i Screen::GetViewportPos()
     {
         auto*       renderEngine = RenderEngine::Get();
-        const auto& vp           = renderEngine->GetViewport();
+        const auto& vp           = renderEngine->GetRenderer()->GetViewport();
         return Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
     }
 
@@ -71,7 +72,7 @@ namespace Lina::Graphics
     Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos)
     {
         auto*       renderEngine = RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetCameraSystem();
+        const auto& cameraSystem = renderEngine->GetRenderer()->GetCameraSystem();
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
@@ -94,7 +95,7 @@ namespace Lina::Graphics
     Vector3 Screen::WorldToScreenCoordinates(const Vector3& world)
     {
         auto*       renderEngine = Graphics::RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetCameraSystem();
+        const auto& cameraSystem = renderEngine->GetRenderer()->GetCameraSystem();
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();

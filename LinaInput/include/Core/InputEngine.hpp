@@ -63,6 +63,7 @@ namespace Lina::Input
         {
             return s_inputEngine;
         }
+
         bool GetKey(int button);
         bool GetKeyDown(int button);
         bool GetKeyUp(int button);

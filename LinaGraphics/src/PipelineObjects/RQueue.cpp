@@ -72,6 +72,25 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
     }
 
+    void RQueue::Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, CommandBuffer& cmd, uint32 submitCount)
+    {
+        VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        VkSubmitInfo info = VkSubmitInfo{
+            .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext                = nullptr,
+            .waitSemaphoreCount   = 1,
+            .pWaitSemaphores      = &waitSemaphore._ptr,
+            .pWaitDstStageMask    = &waitStage,
+            .commandBufferCount   = 1,
+            .pCommandBuffers      = &cmd._ptr,
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores    = &signalSemaphore._ptr,
+        };
+        VkResult result = vkQueueSubmit(_ptr, submitCount, &info, fence._ptr);
+        LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
+    }
+
     void RQueue::Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount)
     {
         VkSubmitInfo info = VkSubmitInfo{
