@@ -43,11 +43,11 @@ SOFTWARE.
 #include "GUI/GUI.hpp"
 #include "Platform/LinaVGIncl.hpp"
 
-
 namespace Lina::Editor
 {
-    void EditorRenderer::Initialize()
+    void EditorRenderer::Initialize(Graphics::GUIBackend* guiBackend)
     {
+        m_guiBackend = guiBackend;
         Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorRenderer::OnEngineResourcesLoaded>(this);
@@ -65,7 +65,7 @@ namespace Lina::Editor
     void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
     {
         return;
-        Graphics::GUIBackend::Get()->SetCmd(ev.cmd);
+        m_guiBackend->SetCmd(ev.cmd);
         LGUI->StartFrame();
         LinaVG::StartFrame();
 
@@ -82,7 +82,7 @@ namespace Lina::Editor
     void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
     {
         return;
-        Graphics::GUIBackend::Get()->RecordDrawCommands();
+        m_guiBackend->RecordDrawCommands();
     }
 
     void EditorRenderer::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
@@ -93,7 +93,7 @@ namespace Lina::Editor
         rubikFont->GenerateFont(false, 12, 13);
         nunitoFont->GenerateFont(false, 12);
 
-        Graphics::GUIBackend::Get()->UploadAllFontTextures();
+        m_guiBackend->UploadAllFontTextures();
 
         auto& theme = LGUI->GetTheme();
 

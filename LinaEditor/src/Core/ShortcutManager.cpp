@@ -1,5 +1,6 @@
 #include "Core/ShortcutManager.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Input/Core/InputCommon.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/InputEvents.hpp"
 #include "Core/EditorCommon.hpp"
@@ -23,7 +24,7 @@ namespace Lina::Editor
     {
         for (auto& shortcut : m_shortcuts)
         {
-            if (ev.action == Input::InputAction::Pressed)
+            if (ev.action == static_cast<int>(Input::InputAction::Pressed))
             {
                 if (shortcut.first.heldKey == ev.key)
                     shortcut.second = true;
@@ -32,7 +33,7 @@ namespace Lina::Editor
                     Event::EventSystem::Get()->Trigger<EShortcut>(shortcut.first);
                 }
             }
-            else if (ev.action == Input::InputAction::Released)
+            else if (ev.action == static_cast<int>(Input::InputAction::Released))
             {
                 if (shortcut.first.heldKey == ev.key && shortcut.second)
                     shortcut.second = false;

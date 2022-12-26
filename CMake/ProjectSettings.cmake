@@ -6,7 +6,6 @@ if(MSVC)
 add_definitions("/MP")
 endif()
 
-set(LAUNCHER_PROJECT "LinaLaunch")
 set(SANDBOX_NAME "Sandbox")
 add_definitions(-DLINA_SANDBOXNAME="${SANDBOX_NAME}")
 

@@ -51,19 +51,21 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void Editor::Initialize()
+    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::GUIBackend* guiBackend)
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Editor::OnPreMainLoop>(this);
 
-        m_resLoader = new Resources::EditorResourceLoader();
+        m_engine       = engine;
+        m_levelManager = lvlManager;
+        m_resLoader    = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         ImmediateGUI::s_instance = &m_gui;
-        m_renderer.Initialize();
+        m_renderer.Initialize(guiBackend);
         m_gui.m_iconTexture = m_renderer.GetIconTextureSID();
         m_shortcutManager.Initialize();
     }
@@ -139,7 +141,7 @@ namespace Lina::Editor
 
         // Fill level files.
         Vector<Pair<TypeID, String>> levelFiles;
-        const auto&                  levels = Engine::Get()->GetEngineSettings().GetPackagedLevels();
+        const auto&                  levels = m_engine->GetEngineSettings().GetPackagedLevels();
 
         const TypeID levelsTID = GetTypeID<World::Level>();
         for (auto& lvl : levels)

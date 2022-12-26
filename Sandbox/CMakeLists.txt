@@ -39,7 +39,12 @@ include/SandboxEntryPoint.hpp
 # Create executable project
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} SHARED ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
+if(WIN32)
+add_executable(${PROJECT_NAME} WIN32 ${SANDBOX_SOURCES} ${SANDBOX_HEADERS} ${APP_ICON_RESOURCE_WINDOWS})
+else()
+add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaSandbox")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
@@ -81,11 +86,36 @@ endif()
 # 	EXPORT_FILE_NAME SandboxAPI.hpp
 # )
 
+# Copy engine resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/${PROJECT_NAME}.dll" "${CMAKE_BINARY_DIR}/${LAUNCHER_PROJECT}/${PROJECT_NAME}.dll")
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
+
+# Copy dlls to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
+# Copy dlls to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
+
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
+COMMAND "LinaHeader.exe")
+
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

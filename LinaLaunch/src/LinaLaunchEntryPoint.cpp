@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Lina.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
@@ -40,63 +39,6 @@ namespace Lina
 {
     typedef GameManager* (*CreateGameManagerFunc)();
 
-    void Launch_PrepareLinaInit(InitInfo& initInfo)
-    {
-        // Initialize application info
-        Lina::WindowProperties windowProps = Lina::WindowProperties{
-            .title      = "Lina Engine",
-            .width      = 1440,
-            .height     = 960,
-            .vsync      = Lina::VsyncMode::None, // fifo
-            .decorated  = true,
-            .resizable  = true,
-            .fullscreen = false,
-        };
-
-        initInfo = Lina::InitInfo{
-            .appName          = "Lina Sandbox Game",
-            .appMode          = Lina::ApplicationMode::Editor,
-            .windowProperties = windowProps,
-            .preferredGPU     = Lina::PreferredGPUType::Integrated,
-        };
-    }
-
-    void Launch_LoadGameCode(GameManager*& gm)
-    {
-#ifdef LINA_PLATFORM_WINDOWS
-        _lina_gameCode = LoadLibrary(LINA_SANDBOXNAME);
-        if (NULL != _lina_gameCode)
-        {
-            CreateGameManagerFunc createGameManager = (CreateGameManagerFunc)GetProcAddress(_lina_gameCode, "CreateGameManager");
-
-            if (createGameManager == NULL)
-            {
-                // Handle the error
-                FreeLibrary(_lina_gameCode);
-                LINA_ASSERT(false, "Couldn't load game code!");
-                return;
-            }
-
-            gm = createGameManager();
-        }
-        else
-            LINA_ASSERT(false, "Couldn't load game code!");
-#else
-
-#endif
-    }
-
-    void Launch_UnloadGameCode(GameManager*& gm)
-    {
-#ifdef LINA_PLATFORM_WINDOWS
-        FreeLibrary(_lina_gameCode);
-#else
-
-#endif
-    }
-
-    void Launch_ReloadGameCode()
-    {
-    }
+    
 
 } // namespace Lina

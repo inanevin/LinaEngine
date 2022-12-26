@@ -42,10 +42,7 @@ namespace Lina
 {
     class GameManager;
 
-    extern void Launch_PrepareLinaInit(InitInfo& initInfo);
-    extern void Launch_LoadGameCode(GameManager*& gm);
-    extern void Launch_UnloadGameCode();
-    extern void Launch_ReloadGameCode();
+    extern void Launch_PrepareLinaInit(InitInfo& initInfo, GameManager*& gm);
 
 } // namespace Lina
 

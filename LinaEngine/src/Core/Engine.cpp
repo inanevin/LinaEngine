@@ -124,12 +124,12 @@ namespace Lina
     void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
     {
         // Assign
-        Event::EventSystem::s_eventSystem       = &m_eventSystem;
-        Input::InputEngine::s_inputEngine       = &m_inputEngine;
-        Resources::ResourceManager::s_instance  = &m_resourceManager;
-        Graphics::RenderEngine::s_instance      = &m_renderEngine;
-        Memory::MemoryManager::s_instance       = &m_memoryManager;
-        JobSystem::s_instance                   = &m_jobSystem;
+        Event::EventSystem::s_eventSystem      = &m_eventSystem;
+        Input::InputEngine::s_inputEngine      = &m_inputEngine;
+        Resources::ResourceManager::s_instance = &m_resourceManager;
+        Graphics::RenderEngine::s_instance     = &m_renderEngine;
+        Memory::MemoryManager::s_instance      = &m_memoryManager;
+        JobSystem::s_instance                  = &m_jobSystem;
 
         // Res init
         RegisterResourceTypes();
@@ -149,7 +149,7 @@ namespace Lina
         // Editor if used
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            m_editor.Initialize();
+            m_editor.Initialize(&m_levelManager, this, m_renderEngine.m_guiBackend);
 #endif
 
         if (m_defaultRenderer == nullptr)

@@ -66,20 +66,17 @@ namespace Lina::Reflection
             return *static_cast<String*>(ptr);
         }
 
-        template <typename T>
-        T Cast()
+        template <typename T> T Cast()
         {
             return *static_cast<T*>(ptr);
         }
 
-        template <typename T>
-        T& CastRef()
+        template <typename T> T& CastRef()
         {
             return *static_cast<T*>(ptr);
         }
 
-        template <typename T>
-        T* CastPtr()
+        template <typename T> T* CastPtr()
         {
             return static_cast<T*>(ptr);
         }
@@ -105,8 +102,7 @@ namespace Lina::Reflection
         HashMap<StringID, String> properties;
     };
 
-    template <typename T, class C>
-    class Field : public FieldBase
+    template <typename T, class C> class Field : public FieldBase
     {
     public:
         inline virtual FieldValue Value(void* obj) override
@@ -132,8 +128,7 @@ namespace Lina::Reflection
             return properties[sid];
         }
 
-        template <auto DATA, typename Class>
-        void AddField(StringID sid)
+        template <auto DATA, typename Class> void AddField(StringID sid)
         {
             Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
             f->m_var                        = DATA;
@@ -156,8 +151,7 @@ namespace Lina::Reflection
     extern HashMap<TypeID, MetaType> g_metaData;
     extern void                      Clear();
 
-    template <typename T>
-    MetaType& Meta()
+    template <typename T> MetaType& Meta()
     {
         return g_metaData[GetTypeID<T>()];
     }

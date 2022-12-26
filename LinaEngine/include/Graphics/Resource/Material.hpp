@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef Material_HPP
 #define Material_HPP
 
+#include "Serialization/StringSerialization.hpp"
 #include "Resource/Core/Resource.hpp"
 #include "Resource/Core/ResourceHandle.hpp"
 #include "Shader.hpp"
@@ -40,7 +41,6 @@ SOFTWARE.
 #include "Resource/Core/ResourceHandle.hpp"
 #include "Graphics/Resource/MaterialProperty.hpp"
 #include "Graphics/Resource/Texture.hpp"
-#include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Graphics
 {

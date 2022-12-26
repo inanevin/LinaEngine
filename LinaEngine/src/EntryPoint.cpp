@@ -38,6 +38,8 @@ SOFTWARE.
 #include "Graphics/Platform/Win32/Win32Window.hpp"
 #include <Windows.h>
 
+#include "Reflection/ReflectionSystem.hpp"
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
     // Win32 stuff
@@ -53,8 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     Lina::Application* app = new Lina::Application();
     Lina::InitInfo     initInfo;
     Lina::GameManager* gm = nullptr;
-    Lina::Launch_PrepareLinaInit(initInfo);
-    Lina::Launch_LoadGameCode(gm);
+    Lina::Launch_PrepareLinaInit(initInfo, gm);
 
     if (gm == nullptr)
     {
@@ -89,7 +90,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
     app->Shutdown();
     delete gm;
-    Lina::UnloadGameCode();
 
     Lina::Application::Cleanup(app);
     delete app;
@@ -107,8 +107,7 @@ int main(int argc, char** argv)
     Lina::Application* app = new Lina::Application();
     Lina::InitInfo     initInfo;
     Lina::GameManager* gm = nullptr;
-    Lina::Launch_PrepareLinaInit(initInfo);
-    Lina::Launch_LoadGameCode(gm);
+    Lina::Launch_PrepareLinaInit(initInfo, gm);
 
     if (gm == nullptr)
     {
@@ -129,6 +128,7 @@ int main(int argc, char** argv)
     }
 
     app->Shutdown();
+    delete gm;
     Lina::Application::Cleanup(app);
     delete app;
 }

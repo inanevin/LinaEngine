@@ -28,16 +28,32 @@ SOFTWARE.
 
 #include "SandboxEntryPoint.hpp"
 #include "Lina/ReflectionRegistry.hpp"
+#include "EventSystem/EventSystem.hpp"
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
-#else
-
-#endif
-
-Sandbox::SandboxGameManager* CreateGameManager()
+namespace Lina
 {
-    // Reflection registry
-    Lina::RegisterReflectedTypes();
-    return new Sandbox::SandboxGameManager();
-}
+    void Launch_PrepareLinaInit(InitInfo& initInfo, GameManager*& gm)
+    {
+        // Initialize application info
+        Lina::WindowProperties windowProps = Lina::WindowProperties{
+            .title      = "Lina Engine",
+            .width      = 1440,
+            .height     = 960,
+            .vsync      = Lina::VsyncMode::None, // fifo
+            .decorated  = true,
+            .resizable  = true,
+            .fullscreen = false,
+        };
+
+        initInfo = Lina::InitInfo{
+            .appName          = "Lina Sandbox Game",
+            .appMode          = Lina::ApplicationMode::Editor,
+            .windowProperties = windowProps,
+            .preferredGPU     = Lina::PreferredGPUType::Integrated,
+        };
+
+        Lina::RegisterReflectedTypes();
+        gm = new Sandbox::SandboxGameManager();
+    }
+
+} // namespace Lina

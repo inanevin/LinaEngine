@@ -47,7 +47,8 @@ namespace Lina
     namespace Graphics
     {
         class Texture;
-    }
+        class GUIBackend;
+    } // namespace Graphics
 } // namespace Lina
 
 namespace Lina::Editor
@@ -55,7 +56,7 @@ namespace Lina::Editor
     class EditorRenderer
     {
     public:
-        void Initialize();
+        void Initialize(Graphics::GUIBackend* guiBackend);
         void Shutdown();
 
         inline StringID GetIconTextureSID()
@@ -72,6 +73,7 @@ namespace Lina::Editor
         Graphics::Texture*    m_iconTexture    = nullptr;
         StringID              m_iconTextureSID = 0;
         Vector<PackedTexture> m_packedIcons;
+        Graphics::GUIBackend* m_guiBackend = nullptr;
     };
 } // namespace Lina::Editor
 

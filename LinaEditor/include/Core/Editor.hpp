@@ -38,6 +38,8 @@ SOFTWARE.
 
 namespace Lina
 {
+    class Engine;
+
     namespace Event
     {
         struct ELevelInstalled;
@@ -47,7 +49,9 @@ namespace Lina
     namespace World
     {
         class Entity;
-    }
+        class EntityWorld;
+        class LevelManager;
+    } // namespace World
 
     namespace Resources
     {
@@ -64,7 +68,7 @@ namespace Lina::Editor
         virtual ~Editor() = default;
 
         void                OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void                Initialize();
+        void                Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::GUIBackend* guiBackend);
         void                Shutdown();
         void                VerifyStaticResources();
         void                CreateEditorCamera();
@@ -87,7 +91,9 @@ namespace Lina::Editor
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
         ImmediateGUI                     m_gui;
-        World::EntityWorld*              m_world = nullptr;
+        World::LevelManager*             m_levelManager = nullptr;
+        World::EntityWorld*              m_world        = nullptr;
+        Engine*                          m_engine       = nullptr;
     };
 } // namespace Lina::Editor
 

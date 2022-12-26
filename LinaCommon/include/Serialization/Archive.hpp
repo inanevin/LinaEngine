@@ -38,73 +38,60 @@ SOFTWARE.
 namespace Lina::Serialization
 {
     // https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature
-    template <typename, typename T>
-    struct HasSerialize
+    template <typename, typename T> struct HasSerialize
     {
         static_assert(std::integral_constant<T, false>::value, "Second template parameter needs to be of function type.");
     };
 
-    template <typename, typename T>
-    struct HasSave
+    template <typename, typename T> struct HasSave
     {
         static_assert(std::integral_constant<T, false>::value, "Second template parameter needs to be of function type.");
     };
 
-    template <typename, typename T>
-    struct HasLoad
+    template <typename, typename T> struct HasLoad
     {
         static_assert(std::integral_constant<T, false>::value, "Second template parameter needs to be of function type.");
     };
 
     // specialization that does the checking
-    template <typename C, typename Ret, typename... Args>
-    struct HasSerialize<C, Ret(Args...)>
+    template <typename C, typename Ret, typename... Args> struct HasSerialize<C, Ret(Args...)>
     {
     private:
-        template <typename T>
-        static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Serialize(std::declval<Args>()...)), Ret>::type;
+        template <typename T> static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Serialize(std::declval<Args>()...)), Ret>::type;
 
-        template <typename>
-        static constexpr std::false_type check(...);
-        typedef decltype(check<C>(0))    type;
+        template <typename> static constexpr std::false_type check(...);
+        typedef decltype(check<C>(0))                        type;
 
     public:
         static constexpr bool value = type::value;
     };
 
-    template <typename C, typename Ret, typename... Args>
-    struct HasSave<C, Ret(Args...)>
+    template <typename C, typename Ret, typename... Args> struct HasSave<C, Ret(Args...)>
     {
     private:
-        template <typename T>
-        static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Save(std::declval<Args>()...)), Ret>::type;
+        template <typename T> static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Save(std::declval<Args>()...)), Ret>::type;
 
-        template <typename>
-        static constexpr std::false_type check(...);
-        typedef decltype(check<C>(0))    type;
+        template <typename> static constexpr std::false_type check(...);
+        typedef decltype(check<C>(0))                        type;
 
     public:
         static constexpr bool value = type::value;
     };
 
-    template <typename C, typename Ret, typename... Args>
-    struct HasLoad<C, Ret(Args...)>
+    template <typename C, typename Ret, typename... Args> struct HasLoad<C, Ret(Args...)>
     {
     private:
-        template <typename T>
-        static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Load(std::declval<Args>()...)), Ret>::type;
+        template <typename T> static constexpr auto check(T*) -> typename std::is_same<decltype(std::declval<T>().Load(std::declval<Args>()...)), Ret>::type;
 
-        template <typename>
-        static constexpr std::false_type check(...);
-        typedef decltype(check<C>(0))    type;
+        template <typename> static constexpr std::false_type check(...);
+        typedef decltype(check<C>(0))                        type;
 
     public:
         static constexpr bool value = type::value;
     };
 
     // Specialize this template to serialize types such as vectors, maps and other external data structures.
-    template <class Ar, typename T>
-    struct Serialize_NonTrivial
+    template <class Ar, typename T> struct Serialize_NonTrivial
     {
         void Serialize(Ar& ar, T& obj)
         {
@@ -113,8 +100,7 @@ namespace Lina::Serialization
     };
 
     // Specialization below, for separate Save & Load functions.
-    template <class Archive, typename T>
-    struct SaveLoad_Complex
+    template <class Archive, typename T> struct SaveLoad_Complex
     {
         void Serialize(Archive& archive, T& obj)
         {
@@ -122,61 +108,42 @@ namespace Lina::Serialization
         }
     };
 
-    template <typename T>
-    inline void Serialize_BasicType(OStream& stream, T& u)
+    template <typename T> inline void Serialize_BasicType(OStream& stream, T& u)
     {
         stream << u;
     };
 
-    template <typename T>
-    inline void Serialize_BasicType(IStream& stream, T& u)
+    template <typename T> inline void Serialize_BasicType(IStream& stream, T& u)
     {
         stream >> u;
     };
 
-    // If the type has Serialize() func.
-    template <typename T, typename U>
-    typename std::enable_if<HasSerialize<T, void(U& u)>::value>::type
-    SerializeComplex(T& obj, U& archive)
+    class ArchiveBase
     {
-        obj.Serialize(archive);
-    }
+    public:
+        // If the type has Serialize() func.
+        template <typename T, typename U> typename std::enable_if<HasSerialize<T, void(U& u)>::value>::type SerializeComplex(T& obj, U& archive)
+        {
+            obj.Serialize(archive);
+        }
 
-    // If the type has separate Save & Load func.
-    template <typename T, typename U>
-    typename std::enable_if<!HasSerialize<T, void(U& u)>::value && HasLoad<T, void(U& u)>::value && HasSave<T, void(U& u)>::value>::type
-    SerializeComplex(T& obj, U& archive)
-    {
-        SaveLoad_Complex<U, T> s;
-        s.Serialize(archive, obj);
-    }
+        // If the type has separate Save & Load func.
+        template <typename T, typename U> typename std::enable_if<!HasSerialize<T, void(U& u)>::value && HasLoad<T, void(U& u)>::value && HasSave<T, void(U& u)>::value>::type SerializeComplex(T& obj, U& archive)
+        {
+            SaveLoad_Complex<U, T> s;
+            s.Serialize(archive, obj);
+        }
 
-    // If the type doesn't have Serialize, Save or Load, then
-    // use external.
-    template <typename T, typename U>
-    typename std::enable_if<!HasSerialize<T, void(U& u)>::value && !HasLoad<T, void(U& u)>::value && !HasSave<T, void(U& u)>::value>::type
-    SerializeComplex(T& obj, U& archive)
-    {
-        Serialize_NonTrivial<U, T> a;
-        a.Serialize(archive, obj);
-    }
+        // If the type doesn't have Serialize, Save or Load, then
+        // use external.
+        template <typename T, typename U> typename std::enable_if<!HasSerialize<T, void(U& u)>::value && !HasLoad<T, void(U& u)>::value && !HasSave<T, void(U& u)>::value>::type SerializeComplex(T& obj, U& archive)
+        {
+            Serialize_NonTrivial<U, T> a;
+            a.Serialize(archive, obj);
+        }
+    };
 
-    template <typename T, typename U>
-    typename std::enable_if<std::is_class<T>::value>::type
-    SerializeType(T& obj, U& archive)
-    {
-        SerializeComplex(obj, archive);
-    }
-
-    template <typename T, typename U>
-    typename std::enable_if<!std::is_class<T>::value>::type
-    SerializeType(T& obj, U& archive)
-    {
-        Serialize_BasicType(archive.GetStream(), obj);
-    }
-
-    template <typename StreamType>
-    class Archive
+    template <typename StreamType> class Archive : public ArchiveBase
     {
     public:
         uint32 Version = 0;
@@ -191,14 +158,22 @@ namespace Lina::Serialization
             m_stream = stream;
         }
 
-        template <typename T>
-        void Serialize_Impl(T& arg)
+        template <typename T, typename U> typename std::enable_if<std::is_class<T>::value>::type SerializeType(T& obj, U& archive)
+        {
+            SerializeComplex(obj, archive);
+        }
+
+        template <typename T, typename U> typename std::enable_if<!std::is_class<T>::value>::type SerializeType(T& obj, U& archive)
+        {
+            Serialize_BasicType(archive.GetStream(), obj);
+        }
+
+        template <typename T> void Serialize_Impl(T& arg)
         {
             SerializeType(arg, *this);
         }
 
-        template <class... Types>
-        inline Archive& operator()(Types&&... args)
+        template <class... Types> inline Archive& operator()(Types&&... args)
         {
             (Serialize_Impl(std::forward<Types>(args)), ...);
             return *this;
@@ -208,8 +183,7 @@ namespace Lina::Serialization
         StreamType m_stream;
     };
 
-    template <typename T>
-    struct SaveLoad_Complex<Archive<IStream>, T>
+    template <typename T> struct SaveLoad_Complex<Archive<IStream>, T>
     {
         void Serialize(Archive<IStream>& archive, T& obj)
         {
@@ -217,8 +191,7 @@ namespace Lina::Serialization
         }
     };
 
-    template <typename T>
-    struct SaveLoad_Complex<Archive<OStream>, T>
+    template <typename T> struct SaveLoad_Complex<Archive<OStream>, T>
     {
         void Serialize(Archive<OStream>& archive, T& obj)
         {

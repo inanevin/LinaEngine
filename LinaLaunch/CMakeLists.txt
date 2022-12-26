@@ -39,7 +39,7 @@ add_executable(${PROJECT_NAME} ${LINALAUNCH_SOURCES} ${LINALAUNCH_HEADERS} ${APP
 endif()
 
 add_executable(Lina::LinaLaunch ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaLinaLaunch")
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaLaunch")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
@@ -63,41 +63,6 @@ PUBLIC Lina::Engine
 if(WIN32 AND LINA_ENABLE_PROFILING)
   target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
 endif()
-
-# Always generate PDB files 
-# if(MSVC)
-#    target_link_options(${PROJECT_NAME}  PUBLIC /DEBUG)
-# endif()
-
-# Copy engine resources to binary directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-
-# Copy engine resources to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
-
-# Copy dlls to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-
-# Copy dlls to binary directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
-
-# add_custom_command(
-# TARGET ${PROJECT_NAME}
-# PRE_BUILD
-# WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
-# COMMAND "LinaHeader.exe")
 
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
