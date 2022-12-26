@@ -74,7 +74,6 @@ namespace Lina
             for (auto& f : editorFonts)
                 DefaultResources::s_engineResources[GetTypeID<Graphics::Font>()].push_back(f);
         }
-
 #endif
 
         // Static resources
@@ -100,7 +99,7 @@ namespace Lina
         DefaultResources::s_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
 
         // Debug
-        DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Models/Tests/Test.fbx");
+        // DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back("Resources/Engine/Models/Tests/dummy.fbx");
 
         m_resourceManager.GetLoader()->LoadEngineResources();
 
@@ -133,7 +132,6 @@ namespace Lina
 
         // Res init
         RegisterResourceTypes();
-        g_levelTypeID = GetTypeID<World::Level>();
 
         // System init
         m_memoryManager.Initialize();
@@ -161,16 +159,12 @@ namespace Lina
         // Runtime info setup
         m_physicsAccumulator = 0.0f;
         m_deltaTimeArray.fill(-1.0);
-        m_initialTitle                 = m_renderEngine.m_window->GetTitle();
-        RuntimeInfo::s_startTime       = Time::GetCPUTime();
-        RuntimeInfo::s_paused          = false;
-        RuntimeInfo::s_shouldSkipFrame = false;
-        RuntimeInfo::s_isInPlayMode    = ApplicationInfo::GetAppMode() != ApplicationMode::Editor;
+        m_initialTitle    = m_renderEngine.m_window->GetTitle();
+        Time::s_startTime = Time::GetCPUTime();
 
         // Engine resources
         LoadEngineResources();
 
-        // Init user game.
         m_gameManager = gm;
     }
 
@@ -195,7 +189,7 @@ namespace Lina
         PROFILER_FRAME_START();
 
         m_previousFrameTime = m_currentFrameTime;
-        m_currentFrameTime  = RuntimeInfo::GetElapsedTime();
+        m_currentFrameTime  = Time::GetCPUTime() - Time::s_startTime;
 
         if (m_frameLimit > 0 && !m_firstRun)
         {
@@ -211,8 +205,8 @@ namespace Lina
             }
         }
 
-        RuntimeInfo::s_deltaTime       = (float)(m_currentFrameTime - m_previousFrameTime);
-        RuntimeInfo::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(RuntimeInfo::s_deltaTime));
+        Time::s_deltaTime       = (float)(m_currentFrameTime - m_previousFrameTime);
+        Time::s_smoothDeltaTime = static_cast<float>(SmoothDeltaTime(Time::s_deltaTime));
 
         // Input
         m_inputEngine.Tick();
@@ -229,7 +223,7 @@ namespace Lina
         });
 
         // Game sim, physics + update etc.
-        RunSimulation((float)RuntimeInfo::s_deltaTime);
+        RunSimulation((float)Time::s_deltaTime);
         m_updates++;
 
         // Wait for all.
@@ -243,7 +237,7 @@ namespace Lina
         // Calculate FPS, UPS.
         if (m_currentFrameTime - m_totalFPSTime >= 1.0)
         {
-            m_frameTime  = RuntimeInfo::s_deltaTime * 1000;
+            m_frameTime  = Time::s_deltaTime * 1000;
             m_currentFPS = m_frames;
             m_currentUPS = m_updates;
             m_totalFPSTime += 1.0f;
@@ -307,13 +301,13 @@ namespace Lina
     void Engine::RunSimulation(float deltaTime)
     {
         // Pause & skip frame controls.
-        if (RuntimeInfo::s_paused && !RuntimeInfo::s_shouldSkipFrame)
+        if (m_paused && !m_shouldSkipFrame)
             return;
 
-        RuntimeInfo::s_shouldSkipFrame = false;
+        m_shouldSkipFrame = false;
 
         PROFILER_SCOPE_START("Event: Pre Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{(float)Time::s_deltaTime, m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Pre Tick", PROFILER_THREAD_MAIN);
 
         // Physics events & physics tick.
@@ -333,17 +327,17 @@ namespace Lina
             PROFILER_SCOPE_END("Physics Simulation", PROFILER_THREAD_MAIN);
 
             PROFILER_SCOPE_START("Event: Post Physics", PROFILER_THREAD_MAIN);
-            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, RuntimeInfo::s_isInPlayMode});
+            m_eventSystem.Trigger<Event::EPostPhysicsTick>(Event::EPostPhysicsTick{physicsStep, m_isInPlayMode});
             PROFILER_SCOPE_END("Event: Post Physics", PROFILER_THREAD_MAIN);
         }
 
         // Other main systems (engine or game)
         PROFILER_SCOPE_START("Event: Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{(float)Time::s_deltaTime, m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)RuntimeInfo::s_deltaTime, RuntimeInfo::s_isInPlayMode});
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{(float)Time::s_deltaTime, m_isInPlayMode});
         PROFILER_SCOPE_END("Event: Post Simulation Tick", PROFILER_THREAD_MAIN);
 
         PROFILER_SCOPE_START("Render Engine Tick", PROFILER_THREAD_MAIN);

@@ -65,7 +65,6 @@ namespace EA
 
 namespace Lina
 {
-    TypeID                          g_levelTypeID;
     const char*                     ApplicationInfo::s_appName = "Lina Engine";
     ApplicationMode                 ApplicationInfo::s_appMode = ApplicationMode::Editor;
     

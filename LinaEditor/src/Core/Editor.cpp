@@ -56,6 +56,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Editor::OnPreMainLoop>(this);
 
+        m_guiBackend   = guiBackend;
         m_engine       = engine;
         m_levelManager = lvlManager;
         m_resLoader    = new Resources::EditorResourceLoader();
@@ -65,8 +66,7 @@ namespace Lina::Editor
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         ImmediateGUI::s_instance = &m_gui;
-        m_renderer.Initialize(guiBackend);
-        m_gui.m_iconTexture = m_renderer.GetIconTextureSID();
+        m_renderer.Initialize(m_guiBackend);
         m_shortcutManager.Initialize();
     }
 
@@ -213,27 +213,27 @@ namespace Lina::Editor
 
     void Editor::SetPlayMode(bool enabled)
     {
-        RuntimeInfo::s_isInPlayMode = enabled;
-        Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{enabled});
-
-        if (!RuntimeInfo::s_isInPlayMode && RuntimeInfo::s_paused)
-            SetIsPaused(false);
+        // RuntimeInfo::s_isInPlayMode = enabled;
+        // Event::EventSystem::Get()->Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{enabled});
+        //
+        // if (!RuntimeInfo::s_isInPlayMode && RuntimeInfo::s_paused)
+        //     SetIsPaused(false);
     }
 
     void Editor::SetIsPaused(bool paused)
     {
-        if (paused && !RuntimeInfo::s_isInPlayMode)
-            return;
-        RuntimeInfo::s_paused = paused;
-        Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{RuntimeInfo::s_paused});
+        // if (paused && !RuntimeInfo::s_isInPlayMode)
+        //     return;
+        // RuntimeInfo::s_paused = paused;
+        // Event::EventSystem::Get()->Trigger<Event::EPauseModeChanged>(Event::EPauseModeChanged{RuntimeInfo::s_paused});
     }
 
     void Editor::SkipNextFrame()
     {
-        if (!RuntimeInfo::s_isInPlayMode)
-            return;
-
-        RuntimeInfo::s_shouldSkipFrame = true;
+        // if (!RuntimeInfo::s_isInPlayMode)
+        //     return;
+        //
+        // RuntimeInfo::s_shouldSkipFrame = true;
     }
 
     Vector<const char*> Editor::GetDefaultTextures()
@@ -253,7 +253,8 @@ namespace Lina::Editor
 
     void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        m_guiManager.Initialize();
+        m_gui.m_iconTexture = m_guiManager.GetIconTextureSID();
+        m_guiManager.Initialize(m_guiBackend);
     }
 
 } // namespace Lina::Editor

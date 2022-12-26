@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Resource/Core/ResourceManager.hpp"
 #include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Core/Time.hpp"
 
 namespace Lina::Editor
 {
@@ -245,7 +246,7 @@ namespace Lina::Editor
         if (LGUI->IsMouseHoveringRect(Rect(texturePos - textureSize * 0.5f, textureSize)))
         {
             auto&       pa      = m_packedAnimTextures[m_textAnimationIndex % m_packedAnimTextures.size()];
-            const float elapsed = RuntimeInfo::GetElapsedTimeF();
+            const float elapsed = Time::GetElapsedTimeF();
 
             if (elapsed > m_lastTextAnimTime + TEXT_ANIM_SPEED)
             {

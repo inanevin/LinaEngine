@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Lina/ReflectionRegistry.hpp"
 #include "World/Core/World.hpp"
-
+#include "Core/Time.hpp"
 using namespace Lina;
 
 namespace Sandbox
@@ -73,11 +73,16 @@ namespace Sandbox
     void SandboxGameManager::OnTick(const Lina::Event::ETick& ev)
     {
         modelPaths.clear();
-        modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
+        modelPaths.push_back("Resources/Engine/Models/Tests/dummy.fbx");
         modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
         modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
         modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
         modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
+
+        if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_E))
+        {
+            Resources::ResourceManager::Get()->GetLoader()->LoadSingleResource(GetTypeID<Graphics::Model>(), "Resources/Engine/Models/Tests/dummy.fbx", false);
+        }
 
         if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
         {
@@ -106,7 +111,7 @@ namespace Sandbox
         for (auto e : entities)
         {
             // e->AddRotation(Vector3(0, ev.deltaTime * 45, 0));
-            e->SetPosition(initialPositions[i] + Vector3(Math::Sin(static_cast<float>(RuntimeInfo::GetElapsedTime()) * speeds[i] * 0.7f) * amounts[i] * 2.0f, 0, 0));
+            e->SetPosition(initialPositions[i] + Vector3(Math::Sin(static_cast<float>(Time::GetElapsedTimeF()) * speeds[i] * 0.7f) * amounts[i] * 2.0f, 0, 0));
             i++;
         }
     }

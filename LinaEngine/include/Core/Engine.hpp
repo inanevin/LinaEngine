@@ -63,7 +63,6 @@ namespace Lina
     class Engine
     {
     public:
-
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
         /// Setting 0 removes the cap.
@@ -121,6 +120,9 @@ namespace Lina
         String                     m_initialTitle      = "";
 
         // Performance & variable stepping
+        bool                                   m_shouldSkipFrame    = false;
+        bool                                   m_paused             = false;
+        bool                                   m_isInPlayMode       = false;
         int                                    m_currentFPS         = 0;
         int                                    m_currentUPS         = 0;
         double                                 m_updateTime         = 0;

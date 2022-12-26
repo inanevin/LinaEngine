@@ -40,6 +40,10 @@ namespace Lina
     bool   Time::s_isTimerInitialized = false;
 #endif
 
+    double Time::s_deltaTime       = 0.0;
+    double Time::s_smoothDeltaTime = 0.0;
+    double Time::s_startTime       = 0.0;
+
     double Time::GetCPUTime()
     {
 #ifdef LINA_PLATFORM_WINDOWS

@@ -53,6 +53,7 @@ namespace Lina
         struct EPreMainLoop;
         struct EWindowResized;
         struct EWindowPositioned;
+        struct EResourceLoaded;
     } // namespace Event
 
 } // namespace Lina
@@ -93,6 +94,7 @@ namespace Lina::Graphics
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
         void OnWindowPositioned(const Event::EWindowPositioned& newPos);
+        void OnResourceLoaded(const Event::EResourceLoaded& res);
         void HandleOutOfDateImage();
         void MergeMeshes();
 
@@ -113,12 +115,14 @@ namespace Lina::Graphics
         GPUViewData                           m_viewData;
         GPULightData                          m_lightData;
         HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
+        Vector<StringID>                      m_mergedModelIDs;
 
         Buffer       m_cpuVtxBuffer;
         Buffer       m_cpuIndexBuffer;
         Buffer       m_gpuVtxBuffer;
         Buffer       m_gpuIndexBuffer;
         bool         m_recreateSwapchain = false;
+        bool         m_hasLevelLoaded    = false;
         Atomic<bool> m_stopped           = false;
     };
 } // namespace Lina::Graphics

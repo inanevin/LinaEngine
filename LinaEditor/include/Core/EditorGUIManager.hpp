@@ -38,12 +38,12 @@ namespace Lina
 {
     namespace Event
     {
-        struct ETick;
+        struct EEngineResourcesLoaded;
     } // namespace Event
 
-    namespace GUI
+    namespace Graphics
     {
-        class GUINode;
+        class GUIBackend;
     }
 } // namespace Lina
 
@@ -54,23 +54,27 @@ namespace Lina::Editor
     class EditorGUIManager
     {
     public:
-        inline static EditorGUIManager* Get()
+        inline StringID GetIconTextureSID()
         {
-            return s_instance;
+            return m_iconTextureSID;
         }
 
     private:
         friend class EditorRenderer;
         friend class Editor;
 
-        void Initialize();
+        void Initialize(Graphics::GUIBackend* guiBackend);
         void Shutdown();
         void Draw();
+        void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:
-        static EditorGUIManager* s_instance;
-        TopPanel                 m_topPanel;
-        DockPanel                m_dockPanel;
+        Graphics::GUIBackend* m_guiBackend     = nullptr;
+        Graphics::Texture*    m_iconTexture    = nullptr;
+        StringID              m_iconTextureSID = 0;
+        Vector<PackedTexture> m_packedIcons;
+        TopPanel              m_topPanel;
+        DockPanel             m_dockPanel;
     };
 } // namespace Lina::Editor
 

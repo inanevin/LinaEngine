@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef CommonEngine_HPP
 #define CommonEngine_HPP
 
-#include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
@@ -39,17 +38,6 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace Editor
-    {
-        class Editor;
-    }
-
-    namespace Graphics
-    {
-        class Swapchain;
-        class Win32Window;
-    } // namespace Graphics
-
     class DefaultResources
     {
     public:
@@ -62,46 +50,8 @@ namespace Lina
 
     private:
         friend class Engine;
-
         static HashMap<TypeID, Vector<String>> s_engineResources;
     };
-
-    class RuntimeInfo
-    {
-    public:
-        static inline bool GetIsInPlayMode()
-        {
-            return s_isInPlayMode;
-        }
-
-        static double GetElapsedTime();
-        static float  GetElapsedTimeF();
-
-        static inline float GetDeltaTime()
-        {
-            return s_deltaTime;
-        }
-
-        static inline float GetSmoothDeltaTime()
-        {
-            return s_smoothDeltaTime;
-        }
-
-    private:
-        friend class Engine;
-        friend class Editor::Editor;
-        friend class Graphics::Win32Window;
-        friend class Graphics::Swapchain;
-
-        static double s_startTime;
-        static bool   s_isInPlayMode;
-        static bool   s_paused;
-        static bool   s_shouldSkipFrame;
-        static float  s_deltaTime;
-        static float  s_smoothDeltaTime;
-    };
-
-    extern TypeID g_levelTypeID;
 
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina

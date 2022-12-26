@@ -40,7 +40,7 @@ namespace Lina
 {
     namespace Editor
     {
-        class EditorRenderer;
+        class EditorGUIManager;
     }
 
     namespace Event
@@ -126,8 +126,7 @@ namespace Lina::Graphics
         void UpdateProjection();
 
     private:
-        friend class Editor::EditorRenderer;
-        friend class Renderer;
+        friend class Editor::EditorGUIManager;
         friend class GameRenderer;
         friend class RenderEngine;
 

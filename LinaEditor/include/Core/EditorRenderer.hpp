@@ -39,7 +39,6 @@ namespace Lina
     namespace Event
     {
         struct ETick;
-        struct EEngineResourcesLoaded;
     } // namespace Event
 
     namespace Graphics
@@ -57,18 +56,12 @@ namespace Lina::Editor
         void Initialize(Graphics::GUIBackend* guiBackend);
         void Shutdown();
 
-        inline StringID GetIconTextureSID()
-        {
-            return m_iconTextureSID;
-        }
+        
 
     private:
-        void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:
-        Graphics::Texture*    m_iconTexture    = nullptr;
-        StringID              m_iconTextureSID = 0;
-        Vector<PackedTexture> m_packedIcons;
+        
         Graphics::GUIBackend* m_guiBackend = nullptr;
     };
 } // namespace Lina::Editor

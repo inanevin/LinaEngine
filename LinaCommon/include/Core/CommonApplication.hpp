@@ -107,8 +107,7 @@ namespace Lina
     struct InitInfo
     {
         // App Info
-        const char* appName = "Lina Engine";
-
+        const char*      appName          = "Lina Engine";
         ApplicationMode  appMode          = ApplicationMode::Editor;
         WindowProperties windowProperties = WindowProperties();
         PreferredGPUType preferredGPU     = PreferredGPUType::Discrete;

@@ -37,7 +37,7 @@ namespace Lina::World
     void EditorFreeLookComponent::OnComponentCreated()
     {
         Component::OnComponentCreated();
-        m_targetEuler    = m_entity->GetRotationAngles();
+        m_targetEuler = m_entity->GetRotationAngles();
     }
 
     void EditorFreeLookComponent::OnTick(const Event::ETick& ev)
@@ -46,7 +46,7 @@ namespace Lina::World
             return;
 
         auto*         inputEngine = Input::InputEngine::Get();
-        const Vector2 mouseAxis   = inputEngine->GetMouseDeltaRaw() * RuntimeInfo::GetDeltaTime();
+        const Vector2 mouseAxis   = inputEngine->GetMouseDeltaRaw() * ev.deltaTime;
 
         if (inputEngine->GetMouseButtonDown(LINA_MOUSE_RIGHT))
         {
@@ -77,7 +77,7 @@ namespace Lina::World
         Vector3       up               = rotation.GetUp().Normalized();
         const Vector2 scroll           = inputEngine->GetMouseScroll();
 
-        const float dt = RuntimeInfo::GetDeltaTime();
+        const float dt = ev.deltaTime;
 
         Vector3 targetPosition = m_entity->GetPosition();
         targetPosition += fw * verticalKey * sprintMultiplier * movementSpeed * dt;

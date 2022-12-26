@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Data/Streams.hpp"
 #include "Core/CommonEngine.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "World/Core/Level.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -50,7 +51,7 @@ namespace Lina::Resources
         // Remove the currently loaded resources if they are not used by the next level.
         const auto& caches = rm->GetCaches();
 
-        const TypeID levelTid = g_levelTypeID;
+        const TypeID levelTid = GetTypeID<World::Level>();
         for (auto [tid, cache] : caches)
         {
             if (tid != levelTid)
@@ -145,10 +146,8 @@ namespace Lina::Resources
 
                 if (async)
                 {
-                    uint8*       ptr = archive.GetStream().GetDataCurrent();
-                    ft   = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path, ptr, resSize]() {
-                        LoadResourceFromMemory(tid, path, ptr, resSize);
-                    });
+                    uint8* ptr = archive.GetStream().GetDataCurrent();
+                    ft         = JobSystem::Get()->GetResourceExecutor().Async([this, tid, path, ptr, resSize]() { LoadResourceFromMemory(tid, path, ptr, resSize); });
                 }
                 else
                     LoadResourceFromMemory(tid, path, archive.GetStream().GetDataCurrent(), resSize);
@@ -195,8 +194,7 @@ namespace Lina::Resources
                         uint8* ptr = archive.GetStream().GetDataCurrent();
                         futures.push_back(Future<void>());
 
-                        futures[futures.size() - 1] = JobSystem::Get()->GetResourceExecutor().Async([this, tid, pair, ptr, size]() { LoadResourceFromMemory(tid, pair.second.c_str(), ptr, size);
-                        });
+                        futures[futures.size() - 1] = JobSystem::Get()->GetResourceExecutor().Async([this, tid, pair, ptr, size]() { LoadResourceFromMemory(tid, pair.second.c_str(), ptr, size); });
                     }
                     else
                         LoadResourceFromMemory(tid, pair.second.c_str(), archive.GetStream().GetDataCurrent(), size);

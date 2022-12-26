@@ -173,6 +173,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GameRenderer::OnPreMainLoop>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &GameRenderer::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &GameRenderer::OnWindowPositioned>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &GameRenderer::OnResourceLoaded>(this);
 
         // Merged buffers.
         m_cpuVtxBuffer = Buffer{
@@ -234,6 +235,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
 
         m_gpuIndexBuffer.Destroy();
         m_gpuVtxBuffer.Destroy();
@@ -405,10 +407,30 @@ namespace Lina::Graphics
     void GameRenderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
         m_allRenderables.Reset();
+        m_meshEntries.clear();
+        m_mergedModelIDs.clear();
+        m_hasLevelLoaded = false;
+    }
+
+    void GameRenderer::OnResourceLoaded(const Event::EResourceLoaded& res)
+    {
+        if (!m_hasLevelLoaded)
+            return;
+
+        if (res.tid == GetTypeID<Model>())
+        {
+            auto* found = linatl::find_if(m_mergedModelIDs.begin(), m_mergedModelIDs.end(), [&res](StringID sid) { return sid == res.sid; });
+            if (found == m_mergedModelIDs.end())
+            {
+                Join();
+                MergeMeshes();
+            }
+        }
     }
 
     void GameRenderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
+        m_hasLevelLoaded = true;
         MergeMeshes();
     }
 
@@ -500,6 +522,8 @@ namespace Lina::Graphics
         auto  cache = rm->GetCache<Graphics::Model>();
         auto& res   = cache->GetResources();
         m_meshEntries.clear();
+        m_mergedModelIDs.clear();
+        m_allRenderables.Reset();
 
         Vector<Vertex> mergedVertices;
         Vector<uint32> mergedIndices;
@@ -509,6 +533,8 @@ namespace Lina::Graphics
 
         for (auto& pair : res)
         {
+            m_mergedModelIDs.push_back(pair.second->GetSID());
+
             for (auto& node : pair.second->GetNodes())
             {
                 for (auto& m : node->GetMeshes())

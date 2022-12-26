@@ -183,7 +183,7 @@ namespace Lina::Editor
         }
 
     private:
-        friend class EditorRenderer;
+        friend class EditorGUIManager;
         friend class Editor;
 
         Deque<StoredColor>               m_colorStack;

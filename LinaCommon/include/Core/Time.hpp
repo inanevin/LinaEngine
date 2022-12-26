@@ -46,12 +46,49 @@ namespace Lina
         /// <returns>In seconds</returns>
         static double GetCPUTime();
 
+        static inline double GetDeltaTime()
+        {
+            return s_deltaTime;
+        }
+
+        static inline float GetDeltaTimeF()
+        {
+            return static_cast<float>(s_deltaTime);
+        }
+
+        static inline double GetSmoothDeltaTime()
+        {
+            return s_smoothDeltaTime;
+        }
+
+        static inline float GetSmoothDeltaTimeF()
+        {
+            return static_cast<float>(s_smoothDeltaTime);
+        }
+
+        static inline double GetElapsedTime()
+        {
+            return GetCPUTime() - s_startTime;
+        }
+
+        static inline float GetElapsedTimeF()
+        {
+            return static_cast<float>(GetElapsedTime());
+        }
+
+    private:
+        friend class Engine;
+
         /// <summary>
         /// Sleeps for given amount of seconds.
         /// </summary>
         static void Sleep(double seconds);
 
     private:
+        static double s_deltaTime;
+        static double s_smoothDeltaTime;
+        static double s_startTime;
+
 #ifdef LINA_PLATFORM_WINDOWS
         static double s_timerFrequency;
         static bool   s_isTimerInitialized;
