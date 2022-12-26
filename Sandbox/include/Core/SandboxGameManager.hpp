@@ -38,7 +38,13 @@ namespace Lina
     namespace Event
     {
         struct ETick;
+        struct ELevelInstalled;
     } // namespace Event
+
+    namespace World
+    {
+        class EntityWorld;
+    }
 } // namespace Lina
 
 namespace Sandbox
@@ -53,9 +59,12 @@ namespace Sandbox
         virtual void OnGameShutdown() override;
 
     private:
-        // void OnTick(const Lina::Event::ETick& ev);
+        void OnTick(const Lina::Event::ETick& ev);
+        void OnLevelInstalled(const Lina::Event::ELevelInstalled& ev);
+
+    private:
+        Lina::World::EntityWorld* m_world = nullptr;
     };
 } // namespace Sandbox
-
 
 #endif

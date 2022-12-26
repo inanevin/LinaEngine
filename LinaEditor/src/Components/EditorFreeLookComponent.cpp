@@ -37,7 +37,7 @@ namespace Lina::World
     void EditorFreeLookComponent::OnComponentCreated()
     {
         Component::OnComponentCreated();
-        m_targetEuler = m_entity->GetRotationAngles();
+        m_targetEuler    = m_entity->GetRotationAngles();
     }
 
     void EditorFreeLookComponent::OnTick(const Event::ETick& ev)
@@ -77,20 +77,21 @@ namespace Lina::World
         Vector3       up               = rotation.GetUp().Normalized();
         const Vector2 scroll           = inputEngine->GetMouseScroll();
 
-        m_targetPosition += fw * verticalKey * sprintMultiplier;
-        m_targetPosition += rg * horizontalKey * sprintMultiplier;
-        m_targetPosition += fw * scroll.y * 2.0f;
+        const float dt = RuntimeInfo::GetDeltaTime();
+
+        Vector3 targetPosition = m_entity->GetPosition();
+        targetPosition += fw * verticalKey * sprintMultiplier * movementSpeed * dt;
+        targetPosition += rg * horizontalKey * sprintMultiplier * movementSpeed * dt;
+        targetPosition += fw * scroll.y * 2.0f * movementSpeed * dt;
 
         if (inputEngine->GetMouseButton(LINA_MOUSE_MIDDLE))
         {
             const Vector2 delta = inputEngine->GetMousePosition() - m_lastMousePos;
-            m_targetPosition += -rg * delta.x * 0.5f;
-            m_targetPosition += up * delta.y * 0.5f;
+            targetPosition += -rg * delta.x * 0.5f * movementSpeed * dt;
+            targetPosition += up * delta.y * 0.5f * movementSpeed * dt;
         }
 
-        const Vector3 currentPos = m_entity->GetPosition();
-        m_targetPosition         = Vector3::Lerp(currentPos, m_targetPosition, RuntimeInfo::GetDeltaTime() * movementSpeed);
-        m_entity->SetPosition(m_targetPosition);
+        m_entity->SetPosition(targetPosition);
         m_lastMousePos = inputEngine->GetMousePosition();
     }
 } // namespace Lina::World

@@ -31,8 +31,6 @@ src/SandboxEntryPoint.cpp
 set(SANDBOX_HEADERS
 include/Core/SandboxGameManager.hpp
 include/Lina/ReflectionRegistry.hpp
-include/SandboxAPI.hpp
-include/SandboxEntryPoint.hpp
 )
 
 #--------------------------------------------------------------------

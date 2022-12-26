@@ -157,6 +157,7 @@ namespace Lina
             m_defaultRenderer = new Graphics::GameRenderer();
             m_renderEngine.SetRenderer(m_defaultRenderer);
         }
+
         // Runtime info setup
         m_physicsAccumulator = 0.0f;
         m_deltaTimeArray.fill(-1.0);

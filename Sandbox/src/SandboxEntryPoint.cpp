@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "SandboxEntryPoint.hpp"
+#include "Lina.hpp"
 #include "Lina/ReflectionRegistry.hpp"
-#include "EventSystem/EventSystem.hpp"
+#include "Core/SandboxGameManager.hpp"
 
 namespace Lina
 {

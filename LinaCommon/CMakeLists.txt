@@ -202,7 +202,6 @@ PUBLIC
 	<filesystem>
 	<xmemory>
 	<type_traits>
-	<glm/glm.hpp>
 	include/Math/Matrix.hpp
 	include/Math/Vector.hpp
 	include/Math/Quaternion.hpp
@@ -212,7 +211,6 @@ PUBLIC
 	include/Data/Vector.hpp
 	include/JobSystem/JobSystem.hpp
 	include/Serialization/Endianness.hpp
-	include/Serialization/StringSerialization.hpp
 	include/Data/Streams.hpp
 )
 
