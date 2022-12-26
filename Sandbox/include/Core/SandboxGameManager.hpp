@@ -53,8 +53,9 @@ namespace Sandbox
         virtual void OnGameShutdown() override;
 
     private:
-        void OnTick(const Lina::Event::ETick& ev);
+        // void OnTick(const Lina::Event::ETick& ev);
     };
 } // namespace Sandbox
+
 
 #endif

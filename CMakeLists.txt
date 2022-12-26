@@ -80,6 +80,7 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaEngine)
+add_subdirectory(LinaLaunch)
 add_subdirectory(Sandbox)
 
 if(NOT LINA_PRODUCTION_BUILD)

@@ -381,16 +381,6 @@ link_memallocators()
 link_lz4()
 
 #--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (LinaCommon
-#	BASE_NAME LinaCommon
-#	EXPORT_MACRO_NAME LINA_API
-#	EXPORT_FILE_NAME Common.hpp
-#)
-
-#--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)

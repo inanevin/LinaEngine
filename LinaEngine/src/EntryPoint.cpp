@@ -53,7 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     Lina::Application* app = new Lina::Application();
     Lina::InitInfo     initInfo;
     Lina::GameManager* gm = nullptr;
-    Lina::Sandbox_PrepareLinaInit(initInfo, gm);
+    Lina::Launch_PrepareLinaInit(initInfo);
+    Lina::Launch_LoadGameCode(gm);
 
     if (gm == nullptr)
     {
@@ -87,6 +88,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     }
 
     app->Shutdown();
+    delete gm;
+    Lina::UnloadGameCode();
+
     Lina::Application::Cleanup(app);
     delete app;
 
@@ -103,7 +107,8 @@ int main(int argc, char** argv)
     Lina::Application* app = new Lina::Application();
     Lina::InitInfo     initInfo;
     Lina::GameManager* gm = nullptr;
-    Lina::Sandbox_PrepareLinaInit(initInfo, gm);
+    Lina::Launch_PrepareLinaInit(initInfo);
+    Lina::Launch_LoadGameCode(gm);
 
     if (gm == nullptr)
     {

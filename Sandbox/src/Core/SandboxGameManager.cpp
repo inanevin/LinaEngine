@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Game/SandboxGameManager.hpp"
+#include "Core/SandboxGameManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Resource/Core/ResourceLoader.hpp"
 #include "Graphics/Core/Window.hpp"
 #include "Math/Math.hpp"
+#include "Lina/ReflectionRegistry.hpp"
 
 using namespace Lina;
 
@@ -58,52 +59,52 @@ namespace Sandbox
 
     void SandboxGameManager::OnGameInitialized()
     {
-        Event::EventSystem::Get()->Connect<Event::ETick, &SandboxGameManager::OnTick>(this);
+        // Event::EventSystem::Get()->Connect<Event::ETick, &SandboxGameManager::OnTick>(this);
     }
 
     void SandboxGameManager::OnGameShutdown()
     {
-        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
+        //  Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
     }
 
-    void SandboxGameManager::OnTick(const Lina::Event::ETick& ev)
-    {
-        modelPaths.clear();
-        modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
-
-        if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
-        {
-            if (!m)
-                m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Cube.fbx");
-
-            if (m)
-            {
-                for (int i = 0; i < 1; i++)
-                {
-                 //  Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
-                 //  e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
-                 //  // e->SetPosition(Vector3(0, 0, -2));
-                 //  entities.push_back(e);
-                 //  initialPositions.push_back(e->GetPosition());
-                 //  speeds.push_back(Math::RandF(0.5f, 1.5f));
-                 //  amounts.push_back(Math::RandF(-1.5, 2));
-                 //  LINA_TRACE("Added to world");
-                 //  m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
-                 //  ctr++;
-                }
-            }
-        }
-
-        uint32 i = 0;
-        for (auto e : entities)
-        {
-            // e->AddRotation(Vector3(0, ev.deltaTime * 45, 0));
-            e->SetPosition(initialPositions[i] + Vector3(Math::Sin(static_cast<float>(RuntimeInfo::GetElapsedTime()) * speeds[i] * 0.7f) * amounts[i] * 2.0f, 0, 0));
-            i++;
-        }
-    }
+    //  void SandboxGameManager::OnTick(const Lina::Event::ETick& ev)
+    //  {
+    //      modelPaths.clear();
+    //      modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
+    //      modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
+    //      modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
+    //      modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
+    //      modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
+    //
+    //      if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
+    //      {
+    //          if (!m)
+    //              m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Cube.fbx");
+    //
+    //          if (m)
+    //          {
+    //              for (int i = 0; i < 1; i++)
+    //              {
+    //               //  Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
+    //               //  e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
+    //               //  // e->SetPosition(Vector3(0, 0, -2));
+    //               //  entities.push_back(e);
+    //               //  initialPositions.push_back(e->GetPosition());
+    //               //  speeds.push_back(Math::RandF(0.5f, 1.5f));
+    //               //  amounts.push_back(Math::RandF(-1.5, 2));
+    //               //  LINA_TRACE("Added to world");
+    //               //  m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
+    //               //  ctr++;
+    //              }
+    //          }
+    //      }
+    //
+    //      uint32 i = 0;
+    //      for (auto e : entities)
+    //      {
+    //          // e->AddRotation(Vector3(0, ev.deltaTime * 45, 0));
+    //          e->SetPosition(initialPositions[i] + Vector3(Math::Sin(static_cast<float>(RuntimeInfo::GetElapsedTime()) * speeds[i] * 0.7f) * amounts[i] * 2.0f, 0, 0));
+    //          i++;
+    //      }
+    //  }
 } // namespace Sandbox

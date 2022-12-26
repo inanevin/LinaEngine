@@ -26,27 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Lina
-Timestamp: 12/30/2018 5:29:20 PM
-*/
+#include "SandboxAPI.hpp"
+#include "Core/SandboxGameManager.hpp"
 
-#pragma once
-
-#ifndef ENTRYPOINT_HPP
-#define ENTRYPOINT_HPP
-
-#include "Core/CommonApplication.hpp"
-
-namespace Lina
-{
-    class GameManager;
-
-    extern void Launch_PrepareLinaInit(InitInfo& initInfo);
-    extern void Launch_LoadGameCode(GameManager*& gm);
-    extern void Launch_UnloadGameCode();
-    extern void Launch_ReloadGameCode();
-
-} // namespace Lina
-
-#endif
+#ifndef SANDBOX_ENTRYPOINT_HPP
+#define SANDBOX_ENTRYPOINT_HPP
+extern "C" SANDBOX_API Sandbox::SandboxGameManager* CreateGameManager();
+#endif /* SANDBOX_API_H */

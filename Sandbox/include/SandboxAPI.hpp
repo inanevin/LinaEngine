@@ -26,27 +26,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Lina
-Timestamp: 12/30/2018 5:29:20 PM
-*/
+#ifndef SANDBOX_API_H
+#define SANDBOX_API_H
 
-#pragma once
-
-#ifndef ENTRYPOINT_HPP
-#define ENTRYPOINT_HPP
-
-#include "Core/CommonApplication.hpp"
-
-namespace Lina
-{
-    class GameManager;
-
-    extern void Launch_PrepareLinaInit(InitInfo& initInfo);
-    extern void Launch_LoadGameCode(GameManager*& gm);
-    extern void Launch_UnloadGameCode();
-    extern void Launch_ReloadGameCode();
-
-} // namespace Lina
-
+#ifdef SANDBOX_STATIC_DEFINE
+#define SANDBOX_API
+#define SANDBOX_NO_EXPORT
+#else
+#ifndef SANDBOX_API
+#ifdef Sandbox_EXPORTS
+/* We are building this library */
+#define SANDBOX_API __declspec(dllexport)
+#else
+/* We are using this library */
+#define SANDBOX_API __declspec(dllimport)
 #endif
+#endif
+
+#ifndef SANDBOX_NO_EXPORT
+#define SANDBOX_NO_EXPORT
+#endif
+#endif
+
+#ifndef SANDBOX_DEPRECATED
+#define SANDBOX_DEPRECATED __declspec(deprecated)
+#endif
+
+#ifndef SANDBOX_DEPRECATED_EXPORT
+#define SANDBOX_DEPRECATED_EXPORT SANDBOX_API SANDBOX_DEPRECATED
+#endif
+
+#ifndef SANDBOX_DEPRECATED_NO_EXPORT
+#define SANDBOX_DEPRECATED_NO_EXPORT SANDBOX_NO_EXPORT SANDBOX_DEPRECATED
+#endif
+
+#if 0 /* DEFINE_NO_DEPRECATED */
+#ifndef SANDBOX_NO_DEPRECATED
+#define SANDBOX_NO_DEPRECATED
+#endif
+#endif
+
+#endif /* SANDBOX_API_H */

@@ -13,7 +13,7 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(Sandbox)
+project(LinaLaunch)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -21,26 +21,25 @@ project(Sandbox)
 
 set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc")
 
-set(SANDBOX_SOURCES 
-
-src/Core/SandboxGameManager.cpp
-src/Lina/ReflectionRegistry.cpp
-src/SandboxEntryPoint.cpp
+set(LINALAUNCH_SOURCES 
+src/LinaLaunchEntryPoint.cpp
 )
 
-set(SANDBOX_HEADERS
-include/Core/SandboxGameManager.hpp
-include/Lina/ReflectionRegistry.hpp
-include/SandboxAPI.hpp
-include/SandboxEntryPoint.hpp
+set(LINALAUNCH_HEADERS
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} SHARED ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaSandbox")
+if(WIN32)
+add_executable(${PROJECT_NAME} WIN32 ${LINALAUNCH_SOURCES} ${LINALAUNCH_HEADERS} ${APP_ICON_RESOURCE_WINDOWS})
+else()
+add_executable(${PROJECT_NAME} ${LINALAUNCH_SOURCES} ${LINALAUNCH_HEADERS} ${APP_ICON_RESOURCE_WINDOWS})
+endif()
+
+add_executable(Lina::LinaLaunch ALIAS ${PROJECT_NAME}) 
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ${UNITY_BUILD_VALUE} UNITY_BUILD_UNIQUE_ID "LinaLinaLaunch")
 set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
 #--------------------------------------------------------------------
@@ -65,35 +64,55 @@ if(WIN32 AND LINA_ENABLE_PROFILING)
   target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
 endif()
 
+# Always generate PDB files 
+# if(MSVC)
+#    target_link_options(${PROJECT_NAME}  PUBLIC /DEBUG)
+# endif()
+
+# Copy engine resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
+# Copy engine resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
+
+# Copy dlls to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
+# Copy dlls to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
+
+# add_custom_command(
+# TARGET ${PROJECT_NAME}
+# PRE_BUILD
+# WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
+# COMMAND "LinaHeader.exe")
+
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
   target_link_options(${PROJECT_NAME} PRIVATE "/SAFESEH:NO")
 endif()
 
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-# 	GENERATE_EXPORT_HEADER (Sandbox
-# 	BASE_NAME Sandbox
-# 	EXPORT_MACRO_NAME SANDBOX_API
-# 	EXPORT_FILE_NAME SandboxAPI.hpp
-# )
-
-# Copy engine resources to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/${PROJECT_NAME}.dll" "${CMAKE_BINARY_DIR}/${LAUNCHER_PROJECT}/${PROJECT_NAME}.dll")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
+	foreach(source IN LISTS LINALAUNCH_HEADERS LINALAUNCH_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${SANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${LINALAUNCH_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()
