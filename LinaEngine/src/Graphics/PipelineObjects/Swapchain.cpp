@@ -66,7 +66,6 @@ namespace Lina::Graphics
 
         size.x                    = vkbSwapchain.extent.width;
         size.y                    = vkbSwapchain.extent.height;
-        RuntimeInfo::s_screenSize = size;
 
         for (VkImage img : imgs)
             _images.push_back(img);

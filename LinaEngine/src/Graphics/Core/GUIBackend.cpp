@@ -178,7 +178,7 @@ namespace Lina::Graphics
     {
         auto& targetCapsule = m_bufferCapsules[m_currentFrameIndex];
 
-        const Vector2i     screen = Screen::Size();
+        const Vector2i     screen = RenderEngine::Get()->GetScreen().Size();
         OrderedDrawRequest request;
         request.firstIndex   = targetCapsule.indexCounter;
         request.vertexOffset = targetCapsule.vertexCounter;

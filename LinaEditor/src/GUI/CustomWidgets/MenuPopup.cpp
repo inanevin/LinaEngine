@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Input/Core/InputMappings.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Editor
 {
@@ -51,17 +52,18 @@ namespace Lina::Editor
 
     bool MenuPopupElement::Draw()
     {
-        auto&       w           = LGUI->GetCurrentWindow();
-        auto&       theme       = LGUI->GetTheme();
-        const float xPadding    = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
-        int         drawOrder   = LGUI_POPUP_DRAWORDER_START + 1;
-        const bool  isHovered   = LGUI->IsMouseHoveringRect(m_rect);
-        bool        returnValue = isHovered;
+        auto&       w            = LGUI->GetCurrentWindow();
+        auto&       theme        = LGUI->GetTheme();
+        const float xPadding     = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
+        int         drawOrder    = LGUI_POPUP_DRAWORDER_START + 1;
+        const bool  isHovered    = LGUI->IsMouseHoveringRect(m_rect);
+        bool        returnValue  = isHovered;
+        const float contentScale = Graphics::RenderEngine::Get()->GetScreen().GetContentScale().x;
 
         auto drawText = [&]() {
             LinaVG::TextOptions text;
             text.font                  = theme.GetCurrentFont();
-            const float   posAdditionY = isHovered && LGUI->GetMouseButton(LINA_MOUSE_0) ? 1.0f * RuntimeInfo::GetContentScaleWidth() : 0.0f;
+            const float   posAdditionY = isHovered && LGUI->GetMouseButton(LINA_MOUSE_0) ? 1.0f * contentScale : 0.0f;
             const Vector2 textSize     = FL2(LinaVG::CalculateTextSize(m_name.c_str(), text));
             const Vector2 textPos      = Vector2(m_rect.pos.x + xPadding * XPADDING_MULTIPLIER, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f + posAdditionY);
             LinaVG::DrawTextNormal(m_name.c_str(), LV2(textPos), text, 0.0f, drawOrder);

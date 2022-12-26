@@ -169,9 +169,10 @@ namespace Lina::Editor
 
     void TopPanel::Draw()
     {
-        const Vector2 screenSize = Graphics::Screen::SizeF();
-        const Vector2 display    = Graphics::Screen::DisplayResolutionF();
-        m_currentSize            = Vector2(screenSize.x, display.y * 0.084f);
+        const Vector2 display    = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
+        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().SizeF();
+
+        m_currentSize = Vector2(screenSize.x, display.y * 0.084f);
 
         auto& theme = LGUI->GetTheme();
         theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
@@ -194,7 +195,7 @@ namespace Lina::Editor
 
     void TopPanel::DrawFileMenu()
     {
-        const Vector2 display = Graphics::Screen::DisplayResolutionF();
+        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
         auto&         theme   = LGUI->GetTheme();
         auto&         w       = LGUI->GetCurrentWindow();
         w.SetPenPos(Vector2(10, 0));
@@ -210,7 +211,7 @@ namespace Lina::Editor
 
     void TopPanel::DrawLinaLogo()
     {
-        const Vector2 screenSize = Graphics::Screen::SizeF();
+        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().SizeF();
         auto&         w          = LGUI->GetCurrentWindow();
 
         // BG
@@ -278,8 +279,8 @@ namespace Lina::Editor
         auto& theme = LGUI->GetTheme();
 
         const Bitmask8 mask          = 0;
-        const Vector2  display       = Graphics::Screen::DisplayResolutionF();
-        const Vector2  screen        = Graphics::Screen::SizeF();
+        const Vector2  screen        = Graphics::RenderEngine::Get()->GetScreen().SizeF();
+        const Vector2  display       = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
         const float    buttonSizeX   = display.x * 0.022f;
         const float    buttonSizeY   = buttonSizeX * 0.7f;
         const Vector2  buttonSize    = Vector2(buttonSizeX, buttonSizeY);

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/DescriptorSetLayout.hpp"
 #include "Graphics/PipelineObjects/PipelineLayout.hpp"
 #include "Graphics/PipelineObjects/UploadContext.hpp"
+#include "Screen.hpp"
 #include "Backend.hpp"
 #include "Window.hpp"
 
@@ -152,6 +153,11 @@ namespace Lina::Graphics
             return m_renderer;
         }
 
+        inline const Screen& GetScreen()
+        {
+            return m_screen;
+        }
+
         // inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
         // {
         //     return m_additionalWindows;
@@ -187,8 +193,8 @@ namespace Lina::Graphics
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
         GUIBackend*                                     m_guiBackend;
-
-        Renderer* m_renderer = nullptr;
+        Renderer*                                       m_renderer = nullptr;
+        Screen                                          m_screen;
         //  HashMap<StringID, AdditionalWindow>  m_additionalWindows;
 
         // Resources

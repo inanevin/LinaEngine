@@ -64,7 +64,7 @@ namespace Lina
 
     namespace Graphics
     {
-        class Renderer;
+        class GameRenderer;
         class RenderEngine;
         class Win32Window;
     } // namespace Graphics
@@ -146,7 +146,7 @@ namespace Lina::Event
         friend class Editor::Editor;
         friend class Editor::ShortcutManager;
         friend class Resources::EditorResourceLoader;
-        friend class Graphics::Renderer;
+        friend class Graphics::GameRenderer;
         friend class Graphics::Win32Window;
         friend class Resources::ResourceLoader;
         friend class Resources::ResourceUtility;

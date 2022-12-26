@@ -33,6 +33,7 @@ SOFTWARE.
 #include "EventSystem/InputEvents.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Input/Core/InputCommon.hpp"
+#include "Graphics/Core/Screen.hpp"
 #include <Windows.h>
 #include <shellscalingapi.h>
 #include <hidusage.h>
@@ -174,7 +175,7 @@ namespace Lina::Graphics
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
                 .button = VK_LBUTTON,
-                .action =static_cast<int>(Input::InputAction::Pressed),
+                .action = static_cast<int>(Input::InputAction::Pressed),
             });
         }
         break;
@@ -216,7 +217,7 @@ namespace Lina::Graphics
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = static_cast<void*>(ptr),
                 .button = VK_LBUTTON,
-                .action =static_cast<int>(Input::InputAction::Released),
+                .action = static_cast<int>(Input::InputAction::Released),
             });
         }
         break;
@@ -311,9 +312,10 @@ namespace Lina::Graphics
         return DefWindowProcA(window, msg, wParam, lParam);
     }
 
-    bool Win32Window::Initialize(const WindowProperties& props)
+    bool Win32Window::Initialize(const WindowProperties& props, Screen* screen)
     {
         s_win32Window = this;
+        m_screen      = screen;
 
         m_initialSize = Vector2i(props.width, props.height);
 
@@ -353,11 +355,9 @@ namespace Lina::Graphics
 
         HMONITOR mon = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
         UINT     dpiX, dpiY;
-        HRESULT  temp2                     = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
-        RuntimeInfo::s_contentScaleWidth   = static_cast<float>(dpiY) / 96.0f;
-        RuntimeInfo::s_contentScaleHeight  = static_cast<float>(dpiY) / 96.0f;
-        RuntimeInfo::s_displayResolution.x = GetSystemMetrics(SM_CXSCREEN);
-        RuntimeInfo::s_displayResolution.y = GetSystemMetrics(SM_CYSCREEN);
+        HRESULT  temp2                    = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+        m_screen->m_displayResolution     = Vector2i(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+        m_screen->m_contentScale          = Vector2(static_cast<float>(dpiY) / 96.0f, static_cast<float>(dpiY) / 96.0f);
 
         const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
 

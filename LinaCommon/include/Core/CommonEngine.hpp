@@ -87,52 +87,18 @@ namespace Lina
             return s_smoothDeltaTime;
         }
 
-        static Vector2i GetScreenSize()
-        {
-            return s_screenSize;
-        }
-
-        static Vector2 GetScreenSizeF()
-        {
-            return Vector2(static_cast<float>(s_screenSize.x), static_cast<float>(s_screenSize.y));
-        }
-
-        static Vector2i GetDisplayResolution()
-        {
-            return s_displayResolution;
-        }
-
-        static Vector2 GetDisplayResolutionF()
-        {
-            return Vector2(static_cast<float>(s_displayResolution.x), static_cast<float>(s_displayResolution.y));
-        }
-
-        static inline float GetContentScaleWidth()
-        {
-            return s_contentScaleWidth;
-        }
-
-        static inline float GetContentScaleHeight()
-        {
-            return s_contentScaleHeight;
-        }
-
     private:
         friend class Engine;
         friend class Editor::Editor;
         friend class Graphics::Win32Window;
         friend class Graphics::Swapchain;
 
-        static double   s_startTime;
-        static bool     s_isInPlayMode;
-        static bool     s_paused;
-        static bool     s_shouldSkipFrame;
-        static float    s_deltaTime;
-        static float    s_smoothDeltaTime;
-        static float    s_contentScaleWidth;
-        static float    s_contentScaleHeight;
-        static Vector2i s_screenSize;
-        static Vector2i s_displayResolution;
+        static double s_startTime;
+        static bool   s_isInPlayMode;
+        static bool   s_paused;
+        static bool   s_shouldSkipFrame;
+        static float  s_deltaTime;
+        static float  s_smoothDeltaTime;
     };
 
     extern TypeID g_levelTypeID;

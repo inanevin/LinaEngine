@@ -35,6 +35,11 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    class Renderer;
+    class CameraSystem;
+    class RenderEngine;
+    class Swapchain;
+
     class Screen
     {
     public:
@@ -44,7 +49,7 @@ namespace Lina::Graphics
         /// NOTE: This may not be the same as application resolution if running on windowed mode.
         /// </summary>
         /// <returns></returns>
-        static Vector2i Size();
+        Vector2i Size() const;
 
         /// <summary>
         /// Returns the total size in screen space.
@@ -52,31 +57,31 @@ namespace Lina::Graphics
         /// NOTE: This may not be the same as application resolution if running on windowed mode.
         /// </summary>
         /// <returns></returns>
-        static Vector2 SizeF();
+        Vector2 SizeF() const;
 
         /// <summary>
         /// Returns the display resolution of the primary monitor.
         /// </summary>
         /// <returns></returns>
-        static Vector2i DisplayResolution();
+        Vector2i DisplayResolution() const;
 
         /// <summary>
         /// Returns the display resolution of the primary monitor.
         /// </summary>
         /// <returns></returns>
-        static Vector2 DisplayResolutionF();
+        Vector2 DisplayResolutionF() const;
 
         /// <summary>
         /// Returns viewport position, defaults to 0-0 unless explicitly stated.
         /// </summary>
         /// <returns></returns>
-        static Vector2i GetViewportPos();
+        Vector2i GetViewportPos() const;
 
         /// <summary>
         /// Returns viewport position, defaults to 0-0 unless explicitly stated.
         /// </summary>
         /// <returns></returns>
-        static Vector2 GetViewportPosF();
+        Vector2 GetViewportPosF() const;
 
         /// <summary>
         /// Converts given screen-space coordinates to world-space coordinates.
@@ -85,7 +90,7 @@ namespace Lina::Graphics
         /// </summary>
         /// <param name="screenPos"></param>
         /// <returns></returns>
-        static Vector3 ScreenToWorldCoordinates(const Vector3& screenPos);
+        Vector3 ScreenToWorldCoordinates(const Vector3& screenPos) const;
 
         /// <summary>
         /// Converts given viewport-space coordinates to world-space coordinates.
@@ -93,7 +98,7 @@ namespace Lina::Graphics
         /// </summary>
         /// <param name="viewport"></param>
         /// <returns></returns>
-        static Vector3 ViewportToWorldCoordinates(const Vector3& viewport);
+        Vector3 ViewportToWorldCoordinates(const Vector3& viewport) const;
 
         /// <summary>
         /// Converts the given world-space coordinates to screen-space coordinates.
@@ -101,7 +106,7 @@ namespace Lina::Graphics
         /// </summary>
         /// <param name="world"></param>
         /// <returns></returns>
-        static Vector3 WorldToScreenCoordinates(const Vector3& world);
+        Vector3 WorldToScreenCoordinates(const Vector3& world) const;
 
         /// <summary>
         /// Converts the given world-space coordinates to viewport coordinates.
@@ -109,21 +114,45 @@ namespace Lina::Graphics
         /// </summary>
         /// <param name="world"></param>
         /// <returns></returns>
-        static Vector3 WorldToViewportCoordinates(const Vector3& world);
+        Vector3 WorldToViewportCoordinates(const Vector3& world) const;
 
         /// <summary>
         /// Converts from given screen coordinates to viewport coordinates.
         /// (0,0) top-left, (1,1) bottom-right
         /// </summary>
         /// <returns></returns>
-        static Vector2 ScreenToViewport(const Vector2& screen);
+        Vector2 ScreenToViewport(const Vector2& screen) const;
 
         /// <summary>
         /// Converts from given viewport coordinates to screen coordinates.
         /// (0,0) top-left, (1,1) bottom-right
         /// </summary>
         /// <returns></returns>
-        static Vector2 ViewportToScreen(const Vector2& vp);
+        Vector2 ViewportToScreen(const Vector2& vp) const;
+
+        /// <summary>
+        /// Returns platform DPI scale
+        /// </summary>
+        inline Vector2 GetContentScale() const
+        {
+            return m_contentScale;
+        }
+
+    private:
+        friend class RenderEngine;
+        friend class Win32Window;
+
+        inline void Initialize(Renderer* rend, Swapchain* swp)
+        {
+            m_renderer  = rend;
+            m_swapchain = swp;
+        }
+
+    private:
+        Vector2i   m_displayResolution = Vector2i::Zero;
+        Vector2    m_contentScale      = Vector2::Zero;
+        Swapchain* m_swapchain         = nullptr;
+        Renderer*  m_renderer          = nullptr;
     };
 } // namespace Lina::Graphics
 

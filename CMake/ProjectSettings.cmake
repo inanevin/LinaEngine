@@ -8,6 +8,7 @@ endif()
 
 set(SANDBOX_NAME "Sandbox")
 add_definitions(-DLINA_SANDBOXNAME="${SANDBOX_NAME}")
+target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
 
 #--------------------------------------------------------------------
 # Platform

@@ -77,7 +77,7 @@ namespace Lina::Graphics
         static __int64 __stdcall WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam);
 
     protected:
-        virtual bool Initialize(const WindowProperties& props) override;
+        virtual bool Initialize(const WindowProperties& props, Screen* screen) override;
         virtual void Shutdown() override;
         virtual void Close() override;
 
@@ -95,6 +95,7 @@ namespace Lina::Graphics
         Vector2i                   m_previousSize;
         HashMap<StringID, HWND__*> m_additionalWindows;
         unsigned long              m_style;
+        Screen*                    m_screen = nullptr;
     };
 } // namespace Lina::Graphics
 

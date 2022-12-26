@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/Screen.hpp"
 #include "Utility/StringId.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Editor
 {
@@ -97,7 +98,7 @@ namespace Lina::Editor
                 opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
 
                 // Undocked & non-fixed windows have title bars.
-                const Vector2 display = Graphics::Screen::DisplayResolutionF();
+                const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
 
                 // Main window rect.
                 LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, m_drawOrder);
@@ -199,7 +200,7 @@ namespace Lina::Editor
         txt.font      = theme.GetFont(ThemeFont::Default);
         txt.alignment = LinaVG::TextAlignment::Right;
 
-        auto screen = Graphics::Screen::SizeF();
+        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().SizeF();
 
         const Vector2 mouseDelta       = LGUI->GetMouseDelta();
         const String  mouseDeltaStr    = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);

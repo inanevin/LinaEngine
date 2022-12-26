@@ -44,17 +44,9 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Event
 {
-
-    struct EOnEditorDraw
+    struct EDrawGUI
     {
-        Lina::Graphics::CommandBuffer* cmd = nullptr;
     };
-
-    struct EOnEditorDrawBegin
-    {
-        Lina::Graphics::CommandBuffer* cmd = nullptr;
-    };
-
 
     struct EDrawLine
     {

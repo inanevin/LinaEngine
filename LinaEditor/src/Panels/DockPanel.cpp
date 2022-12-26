@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Panels/DockPanel.hpp"
 #include "GUI/GUI.hpp"
 #include "Graphics/Core/Screen.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Editor
 {
@@ -43,7 +44,7 @@ namespace Lina::Editor
     void DockPanel::Draw()
     {
         auto&         theme  = LGUI->GetTheme();
-        const Vector2 screen = Graphics::Screen::SizeF();
+        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().SizeF();
         const String  name   = "DockPanel";
         LGUI->SetWindowPosition(name, m_pos);
         LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));

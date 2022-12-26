@@ -38,6 +38,8 @@ struct GLFWwindow;
 
 namespace Lina::Graphics
 {
+    class Screen;
+
     class Window
     {
     public:
@@ -109,10 +111,10 @@ namespace Lina::Graphics
         friend class RenderEngine;
         friend class Engine;
 
-        Window()                                               = default;
-        ~Window()                                              = default;
-        virtual bool Initialize(const WindowProperties& props) = 0;
-        virtual void Shutdown()                                = 0;
+        Window()                                                               = default;
+        ~Window()                                                              = default;
+        virtual bool Initialize(const WindowProperties& props, Screen* screen) = 0;
+        virtual void Shutdown()                                                = 0;
 
         VsyncMode   m_vsync       = VsyncMode::None;
         Vector2i    m_size        = Vector2i(0, 0);

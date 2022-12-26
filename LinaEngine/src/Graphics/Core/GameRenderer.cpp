@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Graphics/Core/Backend.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/ModelNode.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 
 namespace Lina::Graphics
 {
@@ -366,10 +367,13 @@ namespace Lina::Graphics
 
         // ****** FINAL PASS ******
         PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+        m_guiBackend->SetCmd(&cmd);
+        Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
         finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
         finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
+        m_guiBackend->RecordDrawCommands();
         finalPass.End(cmd);
         PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
 

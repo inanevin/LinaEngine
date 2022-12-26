@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Resource/Font.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Serialization/VectorSerialization.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"
@@ -82,12 +83,14 @@ namespace Lina::Graphics
         m_assetData.isSDF = isSDF;
         m_assetData.size  = size;
 
+        const int contentScale = static_cast<int>(RenderEngine::Get()->GetScreen().GetContentScale().x);
+
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            m_handles[size] = LinaVG::LoadFont(m_path.c_str(), m_assetData.isSDF, m_assetData.size * static_cast<int>(RuntimeInfo::GetContentScaleWidth()));
+            m_handles[size] = LinaVG::LoadFont(m_path.c_str(), m_assetData.isSDF, m_assetData.size * contentScale);
         else
         {
             uint8* ptr      = (uint8*)(m_assetData.file.data());
-            m_handles[size] = LinaVG::LoadFontFromMemory(ptr, m_assetData.file.size(), m_assetData.isSDF, m_assetData.size * static_cast<int>(RuntimeInfo::GetContentScaleWidth()));
+            m_handles[size] = LinaVG::LoadFontFromMemory(ptr, m_assetData.file.size(), m_assetData.isSDF, m_assetData.size * contentScale);
         }
     }
 

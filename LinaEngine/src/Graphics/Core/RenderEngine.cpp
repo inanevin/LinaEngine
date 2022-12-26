@@ -72,7 +72,7 @@ namespace Lina::Graphics
         Window::s_instance  = m_window;
         Backend::s_instance = &m_backend;
 
-        m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties);
+        m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties, &m_screen);
         m_initedSuccessfully = m_backend.Initialize(initInfo);
 
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
@@ -82,6 +82,8 @@ namespace Lina::Graphics
             LINA_ERR("[Render Engine] -> Initialization failed, no rendering will occur!");
             return;
         }
+
+        m_screen.Initialize(m_renderer, &m_backend.m_mainSwapchain);
 
         DescriptorSetLayoutBinding sceneBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -123,9 +125,9 @@ namespace Lina::Graphics
         LinaVG::Config.displayWidth          = 0;
         LinaVG::Config.displayHeight         = 0;
         LinaVG::Config.flipTextureUVs        = false;
-        LinaVG::Config.framebufferScale.x    = RuntimeInfo::GetContentScaleWidth();
-        LinaVG::Config.framebufferScale.y    = RuntimeInfo::GetContentScaleHeight();
-        LinaVG::Config.aaMultiplier          = RuntimeInfo::GetContentScaleWidth() * 0.4f;
+        LinaVG::Config.framebufferScale.x    = m_screen.GetContentScale().x;
+        LinaVG::Config.framebufferScale.y    = m_screen.GetContentScale().y;
+        LinaVG::Config.aaMultiplier          = LinaVG::Config.framebufferScale.x * 0.4f;
         LinaVG::Config.aaEnabled             = true;
         LinaVG::Config.textCachingEnabled    = true;
         LinaVG::Config.textCachingSDFEnabled = true;

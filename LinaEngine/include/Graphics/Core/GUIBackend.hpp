@@ -128,6 +128,7 @@ namespace Lina::Graphics
     private:
         friend class Editor::EditorRenderer;
         friend class Renderer;
+        friend class GameRenderer;
         friend class RenderEngine;
 
         inline void SetCmd(CommandBuffer* cmd)

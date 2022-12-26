@@ -48,42 +48,33 @@ namespace Lina::Editor
     void EditorRenderer::Initialize(Graphics::GUIBackend* guiBackend)
     {
         m_guiBackend = guiBackend;
-        Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
-        Event::EventSystem::Get()->Connect<Event::EOnEditorDraw, &EditorRenderer::OnEditorDraw>(this);
+        // Event::EventSystem::Get()->Connect<Event::EOnEditorDrawBegin, &EditorRenderer::OnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorRenderer::OnEngineResourcesLoaded>(this);
         m_iconTextureSID = TO_SIDC("LINA_ENGINE_ICONPACK");
     }
 
     void EditorRenderer::Shutdown()
     {
-        Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EOnEditorDraw>(this);
+        // Event::EventSystem::Get()->Disconnect<Event::EOnEditorDrawBegin>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
     }
 
-    void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
-    {
-        return;
-        m_guiBackend->SetCmd(ev.cmd);
-        LGUI->StartFrame();
-        LinaVG::StartFrame();
-
-        EditorGUIManager::Get()->Draw();
-
-        // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
-        //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
-
-        LinaVG::Render();
-        LinaVG::EndFrame();
-        LGUI->EndFrame();
-    }
-
-    void EditorRenderer::OnEditorDraw(const Event::EOnEditorDraw& ev)
-    {
-        return;
-        m_guiBackend->RecordDrawCommands();
-    }
+    // void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
+    // {
+    //     return;
+    //     LGUI->StartFrame();
+    //     LinaVG::StartFrame();
+    //
+    //     EditorGUIManager::Get()->Draw();
+    //
+    //     // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
+    //     //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
+    //
+    //     LinaVG::Render();
+    //     LinaVG::EndFrame();
+    //     LGUI->EndFrame();
+    // }
 
     void EditorRenderer::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {

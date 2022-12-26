@@ -29,97 +29,89 @@ SOFTWARE.
 #include "Graphics/Core/Screen.hpp"
 #include "Graphics/Core/Backend.hpp"
 #include "Graphics/PipelineObjects/Swapchain.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Graphics/Core/Renderer.hpp"
+#include "Graphics/Core/CameraSystem.hpp"
 
 namespace Lina::Graphics
 {
-    Vector2i Screen::Size()
+    Vector2i Screen::Size() const
     {
-        return Backend::Get()->GetMainSwapchain().size;
+        return m_swapchain->size;
     }
 
-    Vector2 Screen::SizeF()
+    Vector2 Screen::SizeF() const
     {
         const Vector2i size = Size();
         return Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
     }
 
-    Vector2 Screen::DisplayResolutionF()
+    Vector2 Screen::DisplayResolutionF() const
     {
-        return RuntimeInfo::GetDisplayResolutionF();
+        return Vector2(static_cast<float>(m_displayResolution.x), static_cast<float>(m_displayResolution.y));
     }
 
-    Vector2i Screen::DisplayResolution()
+    Vector2i Screen::DisplayResolution() const
     {
-        return RuntimeInfo::GetDisplayResolution();
+        return m_displayResolution;
     }
 
-    Vector2i Screen::GetViewportPos()
+    Vector2i Screen::GetViewportPos() const
     {
-        auto*       renderEngine = RenderEngine::Get();
-        const auto& vp           = renderEngine->GetRenderer()->GetViewport();
+        const auto& vp = m_renderer->GetViewport();
         return Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
     }
 
-    Vector2 Screen::GetViewportPosF()
+    Vector2 Screen::GetViewportPosF() const
     {
         const Vector2i pos = GetViewportPos();
         return Vector2(static_cast<float>(pos.x), static_cast<float>(pos.y));
     }
 
-    Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos)
+    Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos) const
     {
-        auto*       renderEngine = RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetRenderer()->GetCameraSystem();
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
         Vector3 win      = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
-        Matrix  pp       = cameraSystem.GetProj();
-        Matrix  vv       = cameraSystem.GetView();
-        Vector3 camPos   = cameraSystem.GetPos();
+        Matrix  pp       = m_renderer->GetCameraSystem().GetProj();
+        Matrix  vv       = m_renderer->GetCameraSystem().GetView();
+        Vector3 camPos   = m_renderer->GetCameraSystem().GetPos();
         Vector3 worldPos = glm::unProject(win, vv, pp, viewport);
         return Vector3(glm::normalize(worldPos - camPos)) * screenPos.z + camPos;
     }
 
-    Vector3 Screen::ViewportToWorldCoordinates(const Vector3& viewport)
+    Vector3 Screen::ViewportToWorldCoordinates(const Vector3& viewport) const
     {
-        auto*   renderEngine = Graphics::RenderEngine::Get();
-        Vector2 windowSize   = SizeF();
+        Vector2 windowSize = SizeF();
         return ScreenToWorldCoordinates(Vector3(viewport.x * windowSize.x, viewport.y * windowSize.y, viewport.z));
     }
 
-    Vector3 Screen::WorldToScreenCoordinates(const Vector3& world)
+    Vector3 Screen::WorldToScreenCoordinates(const Vector3& world) const
     {
-        auto*       renderEngine = Graphics::RenderEngine::Get();
-        const auto& cameraSystem = renderEngine->GetRenderer()->GetCameraSystem();
-
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
-        Matrix  pp     = cameraSystem.GetProj();
-        Matrix  vv     = cameraSystem.GetView();
+        Matrix  pp     = m_renderer->GetCameraSystem().GetProj();
+        Matrix  vv     = m_renderer->GetCameraSystem().GetView();
         Vector3 result = glm::project(world, vv, pp, viewport);
         return Vector3(result.x, windowSize.y - result.y, result.z);
     }
 
-    Vector3 Screen::WorldToViewportCoordinates(const Vector3& world)
+    Vector3 Screen::WorldToViewportCoordinates(const Vector3& world) const
     {
-        auto*   renderEngine = Graphics::RenderEngine::Get();
-        Vector2 windowSize   = SizeF();
-        Vector3 screen       = WorldToScreenCoordinates(world);
+        Vector2 windowSize = SizeF();
+        Vector3 screen     = WorldToScreenCoordinates(world);
         return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);
     }
-    Vector2 Screen::ScreenToViewport(const Vector2& screen)
+    Vector2 Screen::ScreenToViewport(const Vector2& screen) const
     {
         const Vector2 size = SizeF();
         return Vector2(screen.x / size.x, screen.y / size.y);
     }
 
-    Vector2 Screen::ViewportToScreen(const Vector2& vp)
+    Vector2 Screen::ViewportToScreen(const Vector2& vp) const
     {
         const Vector2 size = SizeF();
         return Vector2(size.x * vp.x, size.y * vp.y);
