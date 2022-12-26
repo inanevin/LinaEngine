@@ -61,8 +61,8 @@ namespace Lina::Graphics
         static void     GetDefaultPassSampler(Sampler& sampler);
         static Texture* CreateDefaultPassTextureColor(bool useExplicitSize = false, int width = 0, int height = 0);
         static Texture* CreateDefaultPassTextureDepth(bool useExplicitSize = false, int width = 0, int height = 0);
-        static void     SetupAndCreateMainRenderPass(RenderPass& pass);
-        static void     SetupAndCreateFinalRenderPass(RenderPass& pass);
+        static void     CreateMainRenderPass(RenderPass& pass);
+        static void     CreatePresentRenderPass(RenderPass& pass);
         static void     SetupAndCreateDefaultRenderPass(RenderPass& pass);
 
         // InputDesc

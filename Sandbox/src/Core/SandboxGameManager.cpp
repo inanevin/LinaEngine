@@ -73,16 +73,11 @@ namespace Sandbox
     void SandboxGameManager::OnTick(const Lina::Event::ETick& ev)
     {
         modelPaths.clear();
-        modelPaths.push_back("Resources/Engine/Models/Tests/dummy.fbx");
+        modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
         modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
         modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
         modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
         modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
-
-        if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_E))
-        {
-            Resources::ResourceManager::Get()->GetLoader()->LoadSingleResource(GetTypeID<Graphics::Model>(), "Resources/Engine/Models/Tests/dummy.fbx", false);
-        }
 
         if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
         {

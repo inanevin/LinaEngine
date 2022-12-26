@@ -39,16 +39,18 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void EditorGUIManager::Initialize(Graphics::GUIBackend* guiBackend)
+    void EditorGUIManager::Initialize()
     {
-        m_guiBackend = guiBackend;
-
         m_topPanel.Initialize();
         LGUI->SetWindowPosition("TestWindow", Vector2(200, 200));
         LGUI->SetWindowPosition("TestWindow2", Vector2(800, 200));
-
-        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorGUIManager::OnEngineResourcesLoaded>(this);
         m_iconTextureSID = TO_SIDC("LINA_ENGINE_ICONPACK");
+    }
+
+    void EditorGUIManager::ConnectEvents(Graphics::GUIBackend* guiBackend)
+    {
+        m_guiBackend = guiBackend;
+        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorGUIManager::OnEngineResourcesLoaded>(this);
     }
 
     void EditorGUIManager::Shutdown()

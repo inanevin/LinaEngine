@@ -85,9 +85,9 @@ namespace Lina::Graphics
         auto& mainPass                              = m_renderPasses[RenderPassType::Main];
         auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
         auto& finalPass                             = m_renderPasses[RenderPassType::Final];
-        VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
-        VulkanUtility::SetupAndCreateMainRenderPass(postPass);
-        VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
+        VulkanUtility::CreateMainRenderPass(mainPass);
+        VulkanUtility::CreatePresentRenderPass(postPass);
+        VulkanUtility::CreatePresentRenderPass(finalPass);
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -360,24 +360,27 @@ namespace Lina::Graphics
 
         // ****** POST PROCESS PASS ******
         PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
+        m_guiBackend->SetCmd(&cmd);
+        Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
         postPass.Begin(postPass.framebuffers[imageIndex], cmd, defaultRenderArea);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
+        m_guiBackend->RecordDrawCommands();
         postPass.End(cmd);
         PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
 
         // ****** FINAL PASS ******
-        PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
-        m_guiBackend->SetCmd(&cmd);
-        Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-        finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-        auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-        finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-        cmd.CMD_Draw(3, 1, 0, 0);
-        m_guiBackend->RecordDrawCommands();
-        finalPass.End(cmd);
-        PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
+        // PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+        // m_guiBackend->SetCmd(&cmd);
+        // Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
+        // finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
+        // auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
+        // finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+        // cmd.CMD_Draw(3, 1, 0, 0);
+        // m_guiBackend->RecordDrawCommands();
+        // finalPass.End(cmd);
+        // PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
 
         cmd.End();
 
@@ -406,6 +409,7 @@ namespace Lina::Graphics
 
     void GameRenderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
+        Join();
         m_allRenderables.Reset();
         m_meshEntries.clear();
         m_mergedModelIDs.clear();
@@ -414,6 +418,8 @@ namespace Lina::Graphics
 
     void GameRenderer::OnResourceLoaded(const Event::EResourceLoaded& res)
     {
+        // When a new model is loaded re-merge meshes
+        // Do this only after a level is fully loaded, not during loading level resources.
         if (!m_hasLevelLoaded)
             return;
 
@@ -455,8 +461,8 @@ namespace Lina::Graphics
         auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         auto& mainPass     = m_renderPasses[RenderPassType::Main];
         auto& ppPass       = m_renderPasses[RenderPassType::PostProcess];
-        finalQuadMat->SetTexture(0, ppPass._colorTexture);
-        finalQuadMat->CheckUpdatePropertyBuffers();
+        // finalQuadMat->SetTexture(0, ppPass._colorTexture);
+        // finalQuadMat->CheckUpdatePropertyBuffers();
         ppMat->SetTexture(0, mainPass._colorTexture);
         ppMat->CheckUpdatePropertyBuffers();
     }
@@ -501,9 +507,9 @@ namespace Lina::Graphics
         mainPass  = RenderPass();
         ppPass    = RenderPass();
         finalPass = RenderPass();
-        VulkanUtility::SetupAndCreateMainRenderPass(mainPass);
-        VulkanUtility::SetupAndCreateMainRenderPass(ppPass);
-        VulkanUtility::SetupAndCreateFinalRenderPass(finalPass);
+        VulkanUtility::CreateMainRenderPass(mainPass);
+        VulkanUtility::CreatePresentRenderPass(ppPass);
+        VulkanUtility::CreatePresentRenderPass(finalPass);
 
         // Re-assign target textures to render passes
         OnPreMainLoop({});

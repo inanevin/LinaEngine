@@ -67,6 +67,8 @@ namespace Lina::Editor
 
         ImmediateGUI::s_instance = &m_gui;
         m_renderer.Initialize(m_guiBackend);
+        m_guiManager.ConnectEvents(m_guiBackend);
+
         m_shortcutManager.Initialize();
     }
 
@@ -254,7 +256,7 @@ namespace Lina::Editor
     void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
         m_gui.m_iconTexture = m_guiManager.GetIconTextureSID();
-        m_guiManager.Initialize(m_guiBackend);
+        m_guiManager.Initialize();
     }
 
 } // namespace Lina::Editor

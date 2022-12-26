@@ -228,7 +228,7 @@ namespace Lina::Graphics
         return txt;
     }
 
-    void VulkanUtility::SetupAndCreateMainRenderPass(RenderPass& pass)
+    void VulkanUtility::CreateMainRenderPass(RenderPass& pass)
     {
         const Vector2i size = Backend::Get()->GetMainSwapchain().size;
         Extent3D       ext  = Extent3D{.width = static_cast<unsigned int>(size.x), .height = static_cast<unsigned int>(size.y), .depth = 1};
@@ -308,9 +308,10 @@ namespace Lina::Graphics
             fb.AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
             fb.Create();
         }
+
     }
 
-    void VulkanUtility::SetupAndCreateFinalRenderPass(RenderPass& pass)
+    void VulkanUtility::CreatePresentRenderPass(RenderPass& pass)
     {
         const Vector2i size = Backend::Get()->GetMainSwapchain().size;
 

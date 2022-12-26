@@ -63,7 +63,8 @@ namespace Lina::Editor
         friend class EditorRenderer;
         friend class Editor;
 
-        void Initialize(Graphics::GUIBackend* guiBackend);
+        void Initialize();
+        void ConnectEvents(Graphics::GUIBackend* guiBackend);
         void Shutdown();
         void Draw();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
