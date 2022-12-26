@@ -116,6 +116,9 @@ target_link_libraries(${PROJECT_NAME}
 PRIVATE Lina::Engine
 )
 
+include(../_Dependencies/linavg/link.cmake)
+link_linavg()
+
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------

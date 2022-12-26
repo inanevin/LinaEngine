@@ -31,15 +31,15 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "Core/LevelManager.hpp"
-#include "Core/World.hpp"
-#include "Resource/Model.hpp"
-#include "Core/ResourceManager.hpp"
-#include "Components/ModelNodeComponent.hpp"
-#include "Core/RenderEngine.hpp"
-#include "Core/InputEngine.hpp"
-#include "Core/ResourceLoader.hpp"
-#include "Core/Window.hpp"
+#include "World/Core/LevelManager.hpp"
+#include "World/Core/World.hpp"
+#include "Graphics/Resource/Model.hpp"
+#include "Resource/Core/ResourceManager.hpp"
+#include "Graphics/Components/ModelNodeComponent.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
+#include "Input/Core/InputEngine.hpp"
+#include "Resource/Core/ResourceLoader.hpp"
+#include "Graphics/Core/Window.hpp"
 #include "Math/Math.hpp"
 
 using namespace Lina;
@@ -84,16 +84,16 @@ namespace Sandbox
             {
                 for (int i = 0; i < 1; i++)
                 {
-                    Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
-                    e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
-                    // e->SetPosition(Vector3(0, 0, -2));
-                    entities.push_back(e);
-                    initialPositions.push_back(e->GetPosition());
-                    speeds.push_back(Math::RandF(0.5f, 1.5f));
-                    amounts.push_back(Math::RandF(-1.5, 2));
-                    LINA_TRACE("Added to world");
-                    m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
-                    ctr++;
+                 //  Lina::World::Entity* e = m->AddToWorld(Lina::World::EntityWorld::Get());
+                 //  e->SetPosition(Vector3(Math::RandF(-5, 5), Math::RandF(-5, 5), Math::RandF(-5, 5)));
+                 //  // e->SetPosition(Vector3(0, 0, -2));
+                 //  entities.push_back(e);
+                 //  initialPositions.push_back(e->GetPosition());
+                 //  speeds.push_back(Math::RandF(0.5f, 1.5f));
+                 //  amounts.push_back(Math::RandF(-1.5, 2));
+                 //  LINA_TRACE("Added to world");
+                 //  m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
+                 //  ctr++;
                 }
             }
         }

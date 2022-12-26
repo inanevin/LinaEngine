@@ -79,13 +79,7 @@ set(LINACOMMON_HEADERS
 
 	#CORE
 	include/Core/CommonApplication.hpp
-	include/Core/CommonWindow.hpp
-	include/Core/CommonInput.hpp
-	include/Core/CommonPhysics.hpp
-	include/Core/CommonUtility.hpp
-	include/Core/CommonReflection.hpp
 	include/Core/CommonEngine.hpp
-	include/Core/CommonMemory.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
@@ -101,6 +95,7 @@ set(LINACOMMON_HEADERS
 
 	# Reflection
 	include/Reflection/ReflectionSystem.hpp
+	include/Reflection/ReflectionCommon.hpp
 	
 	# Events
 	include/EventSystem/EventCommon.hpp
@@ -175,9 +170,10 @@ set(LINACOMMON_HEADERS
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
 
-	#include/Utility/FileUtility.hpp
+	# Utility
 	include/Utility/StringID.hpp
 	include/Utility/FileWatcher.hpp
+	include/Utility/UtilityCommon.hpp
 
 )
 
@@ -303,8 +299,6 @@ PUBLIC
 ##	include/Core/PlatformMacros.hpp
 ##	include/Core/CommonApplication.hpp
 ##	include/Core/CommonWindow.hpp
-##	include/Core/CommonInput.hpp
-##	include/Core/CommonPhysics.hpp
 ##	include/Core/CommonUtility.hpp
 ##	include/Core/CommonReflection.hpp
 ##	include/Core/CommonEngine.hpp

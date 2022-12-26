@@ -35,7 +35,7 @@ SOFTWARE.
 
 // Headers here.
 #include <Data/String.hpp>
-#include "Core/CommonReflection.hpp"
+#include "Reflection/ReflectionCommon.hpp"
 #include "Serialization/Serialization.hpp"
 
 namespace Lina::Editor

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "EventSystem/MainLoopEvents.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32Window.hpp"
+#include "Graphics/Platform/Win32/Win32Window.hpp"
 #include <Windows.h>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     MSG msg    = {0};
     msg.wParam = 0;
 
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
     if (AllocConsole() == FALSE)
         Lina::Log::LogMessage(Lina::LogLevel::Error, "[Entry Point] -> Couldn't allocate console!");
 #endif

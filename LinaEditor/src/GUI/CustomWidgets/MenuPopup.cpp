@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "GUI/GUI.hpp"
 #include "GUI/GUICommon.hpp"
-#include "Core/InputMappings.hpp"
+#include "Input/Core/InputMappings.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Platform/LinaVGIncl.hpp"
 

@@ -32,9 +32,9 @@ SOFTWARE.
 #define EngineSettings_HPP
 
 // Headers here.
-#include "Core/Resource.hpp"
+#include "Resource/Core/Resource.hpp"
 #include "Data/Vector.hpp"
-#include "Core/CommonReflection.hpp"
+#include "Reflection/ReflectionCommon.hpp"
 #include "Data/String.hpp"
 #include <variant>
 

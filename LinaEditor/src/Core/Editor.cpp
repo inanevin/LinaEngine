@@ -34,20 +34,20 @@ SOFTWARE.
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
-#include "Core/LevelManager.hpp"
-#include "Core/World.hpp"
-#include "Components/CameraComponent.hpp"
+#include "World/Core/LevelManager.hpp"
+#include "World/Core/World.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
 #include "Components/EditorFreeLookComponent.hpp"
-#include "Core/RenderEngine.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 #include "Resource/EditorResourceLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Serialization/Serialization.hpp"
-#include "Core/ResourcePackager.hpp"
+#include "Resource/Core/ResourcePackager.hpp"
 #include "Core/Engine.hpp"
-#include "Core/Level.hpp"
-#include "Resource/Texture.hpp"
+#include "World/Core/Level.hpp"
+#include "Graphics/Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
-#include "Core/Renderer.hpp"
+#include "Graphics/Core/Renderer.hpp"
 
 namespace Lina::Editor
 {
@@ -89,21 +89,20 @@ namespace Lina::Editor
 
     void Editor::CreateEditorCamera()
     {
-        World::EntityWorld*             world    = World::EntityWorld::Get();
         Graphics::CameraComponent*      cam      = nullptr;
         World::EditorFreeLookComponent* freeLook = nullptr;
-        m_editorCamera                           = world->GetEntity(LINA_EDITOR_CAMERA_NAME);
+        m_editorCamera                           = m_world->GetEntity(LINA_EDITOR_CAMERA_NAME);
 
         if (m_editorCamera == nullptr)
         {
-            m_editorCamera = world->CreateEntity(LINA_EDITOR_CAMERA_NAME);
-            cam            = world->AddComponent<Graphics::CameraComponent>(m_editorCamera);
-            freeLook       = world->AddComponent<World::EditorFreeLookComponent>(m_editorCamera);
+            m_editorCamera = m_world->CreateEntity(LINA_EDITOR_CAMERA_NAME);
+            cam            = m_world->AddComponent<Graphics::CameraComponent>(m_editorCamera);
+            freeLook       = m_world->AddComponent<World::EditorFreeLookComponent>(m_editorCamera);
         }
         else
         {
-            cam      = world->GetComponent<Graphics::CameraComponent>(m_editorCamera);
-            freeLook = world->GetComponent<World::EditorFreeLookComponent>(m_editorCamera);
+            cam      = m_world->GetComponent<Graphics::CameraComponent>(m_editorCamera);
+            freeLook = m_world->GetComponent<World::EditorFreeLookComponent>(m_editorCamera);
         }
 
         m_editorCamera->SetPosition(Vector3(0, 0, -10.0f));
@@ -114,13 +113,13 @@ namespace Lina::Editor
 
     void Editor::DeleteEditorCamera()
     {
-        World::EntityWorld::Get()->DestroyEntity(m_editorCamera);
+        m_world->DestroyEntity(m_editorCamera);
     }
 
     void Editor::SaveCurrentLevel()
     {
         DeleteEditorCamera();
-        World::LevelManager::Get()->SaveCurrentLevel();
+        m_levelManager->SaveCurrentLevel();
         CreateEditorCamera();
     }
 
@@ -205,6 +204,7 @@ namespace Lina::Editor
 
     void Editor::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
+        m_world = ev.world;
         CreateEditorCamera();
     }
 

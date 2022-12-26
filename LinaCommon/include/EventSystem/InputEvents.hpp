@@ -32,24 +32,23 @@ SOFTWARE.
 #define InputEvents_HPP
 
 // Headers here.
-#include "Core/CommonInput.hpp"
 
 namespace Lina::Event
 {
     struct EKeyCallback
     {
-        void*              window   = nullptr;
-        uint32             key      = 0;
-        int                scancode = 0;
-        Input::InputAction action   = Input::InputAction::Pressed;
+        void*  window   = nullptr;
+        uint32 key      = 0;
+        int    scancode = 0;
+        int    action   = 0;
     };
 
     struct EMouseButtonCallback
     {
-        void*              window = nullptr;
-        int                button = 0;
-        Input::InputAction action = Input::InputAction::Pressed;
-        int                mods   = 0;
+        void* window = nullptr;
+        int   button = 0;
+        int   action = 0;
+        int   mods   = 0;
     };
     struct EMouseScrollCallback
     {

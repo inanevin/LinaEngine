@@ -28,11 +28,11 @@ SOFTWARE.
 
 #include "Panels/TopPanel.hpp"
 #include "GUI/GUI.hpp"
-#include "Core/Screen.hpp"
-#include "Core/RenderEngine.hpp"
+#include "Graphics/Core/Screen.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 #include "Math/Math.hpp"
-#include "Resource/Texture.hpp"
-#include "Core/ResourceManager.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Resource/Core/ResourceManager.hpp"
 #include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Platform/LinaVGIncl.hpp"
 

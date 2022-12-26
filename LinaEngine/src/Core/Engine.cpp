@@ -31,44 +31,36 @@ SOFTWARE.
 #include "EventSystem/ApplicationEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Log/Log.hpp"
-#include "Core/Renderer.hpp"
-#include "Core/Level.hpp"
+#include "Graphics/Core/Renderer.hpp"
+#include "World/Core/Level.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Physics/PhysicsMaterial.hpp"
+#include "Physics/Core/PhysicsMaterial.hpp"
 #include "Audio/Audio.hpp"
 #include "Math/Math.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
 #include "Data/HashSet.hpp"
-#include "Core/Level.hpp"
+#include "World/Core/Level.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Resource/Shader.hpp"
-#include "Resource/Model.hpp"
-#include "Resource/Material.hpp"
-#include "Resource/Texture.hpp"
-#include "Resource/Font.hpp"
+#include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Resource/Model.hpp"
+#include "Graphics/Resource/Material.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Font.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Reflection/ReflectionSystem.hpp"
-#include "Components/RenderableComponent.hpp"
-#include "Core/ResourceLoader.hpp"
+#include "Graphics/Components/RenderableComponent.hpp"
+#include "Resource/Core/ResourceLoader.hpp"
 #include "Game/GameManager.hpp"
 #include "Core/Time.hpp"
-#include "Core/GameRenderer.hpp"
+#include "Graphics/Core/GameRenderer.hpp"
 
 namespace Lina
 {
-    Engine* Engine::s_engine = nullptr;
-
-    void Engine::InstallLevel(const String& path, bool async)
-    {
-        m_renderEngine.Join();
-        m_levelManager.InstallLevel(path, async);
-    }
-
     void Engine::LoadEngineResources()
     {
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
             m_editor.VerifyStaticResources();
@@ -133,14 +125,11 @@ namespace Lina
     {
         // Assign
         Event::EventSystem::s_eventSystem       = &m_eventSystem;
-        Physics::PhysicsEngine::s_physicsEngine = &m_physicsEngine;
         Input::InputEngine::s_inputEngine       = &m_inputEngine;
-        Audio::AudioEngine::s_audioEngine       = &m_audioEngine;
         Resources::ResourceManager::s_instance  = &m_resourceManager;
-        World::LevelManager::s_instance         = &m_levelManager;
         Graphics::RenderEngine::s_instance      = &m_renderEngine;
-        JobSystem::s_instance                   = &m_jobSystem;
         Memory::MemoryManager::s_instance       = &m_memoryManager;
+        JobSystem::s_instance                   = &m_jobSystem;
 
         // Res init
         RegisterResourceTypes();
@@ -154,11 +143,11 @@ namespace Lina
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
         m_physicsEngine.Initialize();
-        m_levelManager.Initialize();
+        m_levelManager.Initialize(&m_renderEngine);
         m_renderEngine.Initialize(initInfo);
 
         // Editor if used
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Initialize();
 #endif
@@ -167,8 +156,6 @@ namespace Lina
         {
             m_defaultRenderer = new Graphics::GameRenderer();
             m_renderEngine.SetRenderer(m_defaultRenderer);
-            m_defaultRenderer->Initialize();
-            m_defaultRenderer->UpdateViewport(m_renderEngine.m_backend.GetMainSwapchain().size);
         }
         // Runtime info setup
         m_physicsAccumulator = 0.0f;
@@ -291,7 +278,7 @@ namespace Lina
         // Shutdown game
         m_gameManager->OnGameShutdown();
 
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_editor.Shutdown();
 #endif

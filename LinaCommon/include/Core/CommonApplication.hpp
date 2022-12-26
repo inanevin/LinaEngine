@@ -32,7 +32,6 @@ SOFTWARE.
 #define CommonApplication_HPP
 
 // Headers here.
-#include "Core/CommonWindow.hpp"
 
 namespace Lina
 {
@@ -65,6 +64,23 @@ namespace Lina
         CPU
     };
 
+    enum class VsyncMode
+    {
+        None = 0,
+        StrongVsync,
+        Adaptive,
+        TripleBuffer
+    };
+    struct WindowProperties
+    {
+        const char* title      = "";
+        int         width      = 1440;
+        int         height     = 900;
+        VsyncMode   vsync      = VsyncMode::None;
+        bool        decorated  = true;
+        bool        resizable  = true;
+        bool        fullscreen = false;
+    };
 
     class ApplicationInfo
     {

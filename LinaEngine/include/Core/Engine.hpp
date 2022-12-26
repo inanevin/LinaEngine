@@ -32,18 +32,18 @@ SOFTWARE.
 #define Engine_HPP
 
 // Headers here.
-#include "Core/AudioEngine.hpp"
-#include "Core/InputEngine.hpp"
-#include "Core/PhysicsEngine.hpp"
-#include "Core/RenderEngine.hpp"
-#include "Core/LevelManager.hpp"
-#include "Core/ResourceManager.hpp"
+#include "Audio/AudioEngine.hpp"
+#include "Input/Core/InputEngine.hpp"
+#include "Physics/Core/PhysicsEngine.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
+#include "World/Core/LevelManager.hpp"
+#include "Resource/Core/ResourceManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Data/Vector.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "Memory/MemoryManager.hpp"
 
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
 #include "Core/Editor.hpp"
 #endif
 
@@ -62,14 +62,7 @@ namespace Lina
 
     class Engine
     {
-
     public:
-        static Engine* Get()
-        {
-            return s_engine;
-        }
-
-        void InstallLevel(const String& path, bool async);
 
         /// <summary>
         /// Tries to cap the application to a certain frames-per-second. Accurate up to 240~ frames depending on the platform.
@@ -111,7 +104,6 @@ namespace Lina
         double SmoothDeltaTime(double dt);
 
     private:
-        static Engine*             s_engine;
         Resources::ResourceManager m_resourceManager;
         Physics::PhysicsEngine     m_physicsEngine;
         Audio::AudioEngine         m_audioEngine;
@@ -150,7 +142,7 @@ namespace Lina
         Future<void>                           m_renderJob;
         std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
 
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
         Editor::Editor m_editor;
 #endif
     };

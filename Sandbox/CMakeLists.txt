@@ -99,11 +99,11 @@ TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/_Dependencies/bin/${PLATFORM}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
 
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
-COMMAND "LinaHeader.exe")
+# add_custom_command(
+# TARGET ${PROJECT_NAME}
+# PRE_BUILD
+# WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/_Dependencies/linaheadertool/bin/Win64/"
+# COMMAND "LinaHeader.exe")
 
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "EventSystem/ResourceEvents.hpp"
 #include "Log/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Utility/ResourceUtility.hpp"
+#include "Resource/Utility/ResourceUtility.hpp"
 #include "Profiling/Profiler.hpp"
 
 namespace Lina
@@ -69,7 +69,6 @@ namespace Lina
 
         LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
         s_runningInstance = this;
-        m_engine.s_engine = &m_engine;
     }
 
     void Application::Initialize(const InitInfo& initInfo, GameManager* gm)
@@ -82,8 +81,8 @@ namespace Lina
         ApplicationInfo::s_appName = initInfo.appName;
 
 // Editor will be compiled out, force standalone.
-#ifdef LINA_PRODUCTION_BUILD
-        g_appInfo.m_appMode = ApplicationMode::Standalone;
+#ifdef LINA_PRODUCTION
+        ApplicationInfo::s_appMode = ApplicationMode::Standalone;
 #endif
 
 #ifdef LINA_ENABLE_PROFILING
@@ -148,7 +147,7 @@ namespace Lina
 
     void Application::OnResourceProgressUpdated(const Event::EResourceProgressUpdated& ev)
     {
-#ifndef LINA_PRODUCTION_BUILD
+#ifndef LINA_PRODUCTION
         LOCK_GUARD(m_infoLock);
         const int   processed = ++m_resourceProgressCurrentProcessed;
         const float perc      = static_cast<float>(processed) / static_cast<float>(m_resourceProgressCurrentTotalFiles);

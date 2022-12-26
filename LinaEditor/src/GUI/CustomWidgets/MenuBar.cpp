@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/CustomWidgets/MenuBar.hpp"
 #include "GUI/GUI.hpp"
-#include "Core/InputEngine.hpp"
+#include "Input/Core/InputEngine.hpp"
 #include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Platform/LinaVGIncl.hpp"
 

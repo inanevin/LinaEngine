@@ -27,8 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/CommonApplication.hpp"
-#include "Core/CommonPhysics.hpp"
-#include "Core/CommonUtility.hpp"
+#include "Utility/UtilityCommon.hpp"
 
 namespace EA
 {
@@ -93,12 +92,6 @@ namespace Lina
         }
     }
 } // namespace Lina
-
-namespace Lina::Physics
-{
-    String SIMULATION_TYPES[3] = {"None", "Static", "Dynamic"};
-    String COLLISION_SHAPES[4] = {"Box", "Sphere", "Capsule", "ConvexMesh"};
-} // namespace Lina::Physics
 
 namespace Lina::Utility
 {

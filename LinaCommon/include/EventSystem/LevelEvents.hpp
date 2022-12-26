@@ -31,15 +31,24 @@ SOFTWARE.
 #ifndef LevelEvents_HPP
 #define LevelEvents_HPP
 
+namespace Lina
+{
+    namespace World
+    {
+        class EntityWorld;
+    }
+} // namespace Lina
 namespace Lina::Event
 {
     // Level
     struct ELevelInstallStarted
     {
     };
+
     struct ELevelInstalled
     {
-        const char* path = "";
+        World::EntityWorld* world = nullptr;
+        const char*         path  = "";
     };
 
     /// <summary>

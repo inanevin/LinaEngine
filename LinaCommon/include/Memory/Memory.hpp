@@ -45,4 +45,13 @@ extern bool g_skipAllocTrack;
 #define MALLOC(...) malloc(__VA_ARGS__)
 #define FREE(...)   free(__VA_ARGS__)
 
+namespace Lina::Memory
+{
+    enum class ResourceAllocator
+    {
+        None,
+        Static
+    };
+} // namespace Lina::Memory
+
 #endif

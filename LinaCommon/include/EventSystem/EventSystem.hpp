@@ -127,7 +127,34 @@ namespace Lina::Event
             return s_eventSystem;
         }
 
+    public:
+        template <typename T, auto Candidate, typename Type> void Connect(Type* inst)
+        {
+            LOCK_GUARD(m_mtx);
+            GetSink<T>()->Connect<Candidate>(inst);
+        }
+
+        template <typename T, typename Type> void Disconnect(Type* inst)
+        {
+            LOCK_GUARD(m_mtx);
+            GetSink<T>()->Disconnect(inst);
+        }
+
     private:
+        friend class Engine;
+        friend class Log;
+        friend class Editor::Editor;
+        friend class Editor::ShortcutManager;
+        friend class Resources::EditorResourceLoader;
+        friend class Graphics::Renderer;
+        friend class Graphics::Win32Window;
+        friend class Resources::ResourceLoader;
+        friend class Resources::ResourceUtility;
+        friend class Resources::ResourcePackager;
+        friend class World::Entity;
+        friend class World::LevelManager;
+        friend class World::Component;
+
         template <typename T> EventSink<T>* GetSink()
         {
             const TypeID  tid  = GetTypeID<T>();
@@ -144,20 +171,6 @@ namespace Lina::Event
             return sink;
         }
 
-    public:
-        template <typename T, auto Candidate, typename Type> void Connect(Type* inst)
-        {
-            LOCK_GUARD(m_mtx);
-            GetSink<T>()->Connect<Candidate>(inst);
-        }
-
-        template <typename T, typename Type> void Disconnect(Type* inst)
-        {
-            LOCK_GUARD(m_mtx);
-            GetSink<T>()->Disconnect(inst);
-        }
-
-    private:
         template <typename T> void Trigger(const T& args)
         {
             GetSink<T>()->Trigger(args);
@@ -172,22 +185,6 @@ namespace Lina::Event
         {
             GetSink<T>()->Trigger();
         }
-
-    private:
-
-        friend class Engine;
-        friend class Log;
-        friend class Editor::Editor;
-        friend class Editor::ShortcutManager;
-        friend class Resources::EditorResourceLoader;
-        friend class Graphics::Renderer;
-        friend class Graphics::Win32Window;
-        friend class Resources::ResourceLoader;
-        friend class Resources::ResourceUtility;
-        friend class Resources::ResourcePackager;
-        friend class World::Entity;
-        friend class World::LevelManager;
-        friend class World::Component;
 
         void Initialize();
         void Shutdown();

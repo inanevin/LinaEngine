@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "GUI/GUI.hpp"
-#include "Core/InputEngine.hpp"
+#include "Input/Core/InputEngine.hpp"
 #include "GUI/GUICommon.hpp"
 #include "Math/Math.hpp"
 #include "Platform/LinaVGIncl.hpp"
-#include "Core/Screen.hpp"
+#include "Graphics/Core/Screen.hpp"
 #include "Utility/StringId.hpp"
 
 namespace Lina::Editor

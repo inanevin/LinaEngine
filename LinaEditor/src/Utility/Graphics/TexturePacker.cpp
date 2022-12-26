@@ -27,10 +27,10 @@ SOFTWARE.
 */
 
 #include "Utility/Graphics/TexturePacker.hpp"
-#include "Resource/Texture.hpp"
+#include "Graphics/Resource/Texture.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Math/Math.hpp"
-#include "Utility/stb/stb_image.h"
+#include "Graphics/Utility/stb/stb_image.h"
 
 namespace Lina::Editor
 {

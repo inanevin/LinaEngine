@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Lina/ReflectionRegistry.hpp"
 #include "Reflection/ReflectionSystem.hpp"
-#include "Core/ComponentCache.hpp"
+#include "World/Core/ComponentCache.hpp"
 #include "Utility/StringId.hpp"
 
 /// <summary>
@@ -43,18 +43,17 @@ SOFTWARE.
 /// </summary>
 
 //INC_BEGIN - !! DO NOT MODIFY THIS LINE !!
-#include "Components/EditorFreeLookComponent.hpp"
-#include "Components/SkyComponent.hpp"
-#include "Components/ModelNodeComponent.hpp"
-#include "Components/CameraComponent.hpp"
-#include "Components/DecalComponent.hpp"
-#include "Components/LightComponent.hpp"
-#include "Components/LightComponent.hpp"
-#include "Components/LightComponent.hpp"
-#include "Components/LightComponent.hpp"
-#include "Components/ParticleComponent.hpp"
-#include "Components/RenderableComponent.hpp"
-#include "Components/SpriteComponent.hpp"
+#include "Graphics/Components/SkyComponent.hpp"
+#include "Graphics/Components/ModelNodeComponent.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include "Graphics/Components/DecalComponent.hpp"
+#include "Graphics/Components/LightComponent.hpp"
+#include "Graphics/Components/LightComponent.hpp"
+#include "Graphics/Components/LightComponent.hpp"
+#include "Graphics/Components/LightComponent.hpp"
+#include "Graphics/Components/ParticleComponent.hpp"
+#include "Graphics/Components/RenderableComponent.hpp"
+#include "Graphics/Components/SpriteComponent.hpp"
 #include "Settings/EditorSettings.hpp"
 #include "Settings/EngineSettings.hpp"
 #include "Settings/RenderSettings.hpp"
@@ -93,24 +92,7 @@ namespace Lina
         g_reflectedTypesRegistered = true;
 
 //REGFUNC_BEGIN - !! DO NOT MODIFY THIS LINE !!
-Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Title"_hs,"Editor Free Look");
-Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("Category"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));
-Reflection::Meta<World::EditorFreeLookComponent>().AddField<&World::EditorFreeLookComponent::movementSpeed, World::EditorFreeLookComponent>("movementSpeed"_hs);
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Title"_hs,"Movement Speed");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Type"_hs,"Float");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Tooltip"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Depends On"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("movementSpeed"_hs)->AddProperty("Category"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().AddField<&World::EditorFreeLookComponent::rotationPower, World::EditorFreeLookComponent>("rotationPower"_hs);
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Title"_hs,"Rotation Power");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Type"_hs,"float");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Tooltip"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Depends On"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().GetField("rotationPower"_hs)->AddProperty("Category"_hs,"");
-Reflection::Meta<World::EditorFreeLookComponent>().createCompCacheFunc = std::bind(&REF_CreateComponentCacheFunc<World::EditorFreeLookComponent>);
-Reflection::Meta<World::EditorFreeLookComponent>().createFunc = std::bind(&REF_CreateComponentFunc<World::EditorFreeLookComponent>);
-Reflection::Meta<World::EditorFreeLookComponent>().destroyFunc = std::bind(&REF_DestroyComponentFunc<World::EditorFreeLookComponent>, std::placeholders::_1);
+
 Reflection::Meta<Graphics::SkyComponent>().AddProperty("Title"_hs,"Sky Component");
 Reflection::Meta<Graphics::SkyComponent>().AddProperty("Category"_hs,"Graphics");
 Reflection::Meta<Graphics::SkyComponent>().AddProperty("MemChunkSize"_hs,TO_STRING(DEFAULT_COMP_CHUNK_SIZE));

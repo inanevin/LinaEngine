@@ -31,8 +31,8 @@ SOFTWARE.
 #ifndef FreeLookComponent_HPP
 #define FreeLookComponent_HPP
 
-#include "Core/Component.hpp"
-#include "Core/CommonReflection.hpp"
+#include "World/Core/Component.hpp"
+#include "Reflection/ReflectionCommon.hpp"
 #include "Math/Vector.hpp"
 
 namespace Lina::World

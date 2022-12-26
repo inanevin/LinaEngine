@@ -32,7 +32,7 @@ SOFTWARE.
 #define WindowEvents_HPP
 
 // Headers here.
-#include "Core/CommonWindow.hpp"
+#include "Core/CommonApplication.hpp"
 
 namespace Lina::Event
 {

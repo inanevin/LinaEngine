@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef EditorResourceLoader_HPP
 #define EditorResourceLoader_HPP
 
-#include "Core/ResourceLoader.hpp"
+#include "Resource/Core/ResourceLoader.hpp"
 
 namespace Lina::Resources
 {

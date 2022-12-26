@@ -29,7 +29,7 @@ SOFTWARE.
 #ifndef UtilityFunctions_HPP
 #define UtilityFunctions_HPP
 
-#include "Core/CommonUtility.hpp"
+#include "Utility/UtilityCommon.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Map.hpp"
 

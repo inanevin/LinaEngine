@@ -25,6 +25,24 @@ if(NOT WIN32 AND NOT APPLE AND NOT UNIX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNKNOWN=1)
 endif()
 
+if(LINA_ENABLE_LOGGING)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_LOGGING=1)
+endif()
+
+if(LINA_ENABLE_PROFILING)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_PROFILING=1)
+endif()
+
+if(LINA_PRODUCTION_BUILD)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PRODUCTION=1)
+else()
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
+endif()
+
+if(LINA_EDITOR)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
+endif()
+
 #--------------------------------------------------------------------
 # Properties
 #--------------------------------------------------------------------

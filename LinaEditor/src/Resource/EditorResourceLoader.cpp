@@ -28,10 +28,10 @@ SOFTWARE.
 
 #include "Resource/EditorResourceLoader.hpp"
 #include "JobSystem/JobSystem.hpp"
-#include "Core/ResourceManager.hpp"
+#include "Resource/Core/ResourceManager.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Core/Level.hpp"
+#include "World/Core/Level.hpp"
 #include "Core/Time.hpp"
 #include <iostream>
 #include <fstream>

@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Panels/DockPanel.hpp"
 #include "GUI/GUI.hpp"
-#include "Core/Screen.hpp"
+#include "Graphics/Core/Screen.hpp"
 
 namespace Lina::Editor
 {

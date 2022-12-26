@@ -30,19 +30,19 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
-#include "Core/GUIBackend.hpp"
-#include "Core/Screen.hpp"
-#include "Core/ResourceManager.hpp"
-#include "Resource/Texture.hpp"
-#include "Resource/Font.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/GUIBackend.hpp"
+#include "Graphics/Core/Screen.hpp"
+#include "Resource/Core/ResourceManager.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Font.hpp"
 #include "Core/EditorGUIManager.hpp"
 #include "Platform/LinaVGIncl.hpp"
-#include "Core/GraphicsCommon.hpp"
+#include "Graphics/Core/GraphicsCommon.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "LinaVG/Utility/Utility.hpp"
-#include "Core/InputMappings.hpp"
+#include "Input/Core/InputMappings.hpp"
 #include "GUI/GUI.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
 
 namespace Lina::Editor
 {

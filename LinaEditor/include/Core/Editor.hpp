@@ -87,6 +87,7 @@ namespace Lina::Editor
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
         ImmediateGUI                     m_gui;
+        World::EntityWorld*              m_world = nullptr;
     };
 } // namespace Lina::Editor
 

@@ -32,10 +32,10 @@ SOFTWARE.
 #define RenderSettings_HPP
 
 // Headers here.
-#include "Core/Resource.hpp"
+#include "Resource/Core/Resource.hpp"
 #include "Data/Vector.hpp"
 #include "Data/String.hpp"
-#include "Core/CommonReflection.hpp"
+#include "Reflection/ReflectionCommon.hpp"
 
 namespace Lina
 {

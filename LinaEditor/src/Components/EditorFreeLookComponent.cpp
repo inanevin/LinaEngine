@@ -28,9 +28,9 @@ SOFTWARE.
 
 #include "Components/EditorFreeLookComponent.hpp"
 #include "Core/CommonEngine.hpp"
-#include "Core/InputEngine.hpp"
-#include "Core/Entity.hpp"
-#include "Core/World.hpp"
+#include "Input/Core/InputEngine.hpp"
+#include "World/Core/Entity.hpp"
+#include "World/Core/World.hpp"
 
 namespace Lina::World
 {
