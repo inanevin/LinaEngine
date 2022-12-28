@@ -60,6 +60,7 @@ namespace Lina::Event
     };
     struct ELevelUninstalled
     {
+        World::EntityWorld* world = nullptr;
     };
 
 } // namespace Lina::Event

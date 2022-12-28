@@ -31,38 +31,40 @@ SOFTWARE.
 #ifndef EditorRenderer_HPP
 #define EditorRenderer_HPP
 
-#include "Data/HashMap.hpp"
-#include "Utility/Graphics/TexturePacker.hpp"
+#include "Graphics/Core/GameRenderer.hpp"
 
 namespace Lina
 {
-    namespace Event
+    namespace World
     {
-        struct ETick;
-    } // namespace Event
+        class EntityWorld;
+    }
 
     namespace Graphics
     {
-        class Texture;
         class GUIBackend;
+        class CameraComponent;
     } // namespace Graphics
 } // namespace Lina
 
 namespace Lina::Editor
 {
-    class EditorRenderer
+    class EditorRenderer : public Graphics::GameRenderer
     {
-    public:
-        void Initialize(Graphics::GUIBackend* guiBackend);
-        void Shutdown();
+    private:
+    protected:
+        friend class Editor;
 
-        
+        virtual void CreateRenderPasses() override;
+        virtual void Tick() override;
+        virtual void Render() override;
+        virtual void SyncData() override;
+        virtual void OnComponentCreated(const Event::EComponentCreated& ev) override;
+        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev) override;
+        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev) override;
 
     private:
-
-    private:
-        
-        Graphics::GUIBackend* m_guiBackend = nullptr;
+        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldsToRender;
     };
 } // namespace Lina::Editor
 

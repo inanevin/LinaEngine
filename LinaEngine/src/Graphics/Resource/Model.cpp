@@ -148,6 +148,7 @@ namespace Lina::Graphics
 
     World::Entity* Model::AddToWorld(World::EntityWorld* w)
     {
+        LINA_ASSERT(w != nullptr, "World doesn't exist!");
         return CreateEntityForNode(nullptr, w, m_rootNode);
     }
 
@@ -164,9 +165,9 @@ namespace Lina::Graphics
         {
             ModelNodeComponent* comp = world->AddComponent<ModelNodeComponent>(e);
 
-            comp->m_modelHandle.sid = GetSID();
+            comp->m_modelHandle.sid   = GetSID();
             comp->m_modelHandle.value = this;
-            comp->m_nodeIndex = node->GetNodeIndex();
+            comp->m_nodeIndex         = node->GetNodeIndex();
 
             for (auto mesh : node->GetMeshes())
             {
@@ -174,8 +175,8 @@ namespace Lina::Graphics
 
                 // Assign default material for now.
                 Resources::ResourceHandle<Material> handle;
-                handle.value = RenderEngine::Get()->GetPlaceholderMaterial();
-                handle.sid = handle.value->GetSID();
+                handle.value            = RenderEngine::Get()->GetPlaceholderMaterial();
+                handle.sid              = handle.value->GetSID();
                 comp->m_materials[slot] = handle;
             }
         }

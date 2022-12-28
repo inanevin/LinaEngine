@@ -47,6 +47,7 @@ namespace Lina
 
 namespace Lina::World
 {
+    class EntityWorld;
 
     // Actual game state
     class Entity
@@ -58,20 +59,6 @@ namespace Lina::World
         template <class Archive> void Serialize(Archive& archive)
         {
             archive(m_id, m_name, m_parentID, m_childrenID, m_transform, m_mask);
-        }
-
-        inline uint32 GetID()
-        {
-            return m_id;
-        }
-
-        Matrix ToMatrix() const
-        {
-            return m_transform.ToMatrix();
-        }
-        Matrix ToLocalMatrix() const
-        {
-            return m_transform.ToLocalMatrix();
         }
 
         void           AddChild(Entity* e);
@@ -94,6 +81,25 @@ namespace Lina::World
         void           SetScale(const Vector3& scale, bool isThisPivot = true);
         void           SetVisible(bool visible);
         void           SetStatic(bool isStatic);
+
+        inline uint32 GetID()
+        {
+            return m_id;
+        }
+
+        inline EntityWorld* GetWorld()
+        {
+            return m_world;
+        }
+
+        Matrix ToMatrix() const
+        {
+            return m_transform.ToMatrix();
+        }
+        Matrix ToLocalMatrix() const
+        {
+            return m_transform.ToLocalMatrix();
+        }
 
         inline bool IsVisible()
         {

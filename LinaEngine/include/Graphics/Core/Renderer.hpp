@@ -37,6 +37,13 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/RenderPass.hpp"
 #include "Data/HashMap.hpp"
 
+namespace Lina
+{
+    namespace Editor
+    {
+        class Editor;
+    }
+} // namespace Lina
 namespace Lina::Graphics
 {
     class GUIBackend;
@@ -72,6 +79,7 @@ namespace Lina::Graphics
 
     protected:
         friend class RenderEngine;
+        friend class Editor::Editor;
 
         virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend)
         {

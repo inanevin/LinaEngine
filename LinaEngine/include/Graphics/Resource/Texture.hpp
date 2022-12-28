@@ -37,14 +37,6 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Sampler.hpp"
 #include "Graphics/PipelineObjects/Buffer.hpp"
 
-namespace Lina
-{
-    namespace Editor
-    {
-        class EditorRenderer;
-    }
-} // namespace Lina
-
 namespace Lina::Graphics
 {
     class Texture : public Resources::Resource
@@ -100,7 +92,6 @@ namespace Lina::Graphics
     private:
     private:
         friend class GUIBackend;
-        friend class Editor::EditorRenderer;
 
         AssetData      m_assetData;
         Image          m_gpuImage;

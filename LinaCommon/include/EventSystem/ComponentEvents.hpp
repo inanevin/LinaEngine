@@ -37,22 +37,25 @@ namespace Lina
 {
     namespace World
     {
+        class EntityWorld;
         class Component;
-    }
+    } // namespace World
 } // namespace Lina
 
 namespace Lina::Event
 {
     struct EComponentCreated
     {
-        World::Component* ptr = nullptr;
-        TypeID            tid = 0;
+        World::EntityWorld* world = nullptr;
+        World::Component*   ptr   = nullptr;
+        TypeID              tid   = 0;
     };
 
     struct EComponentDestroyed
     {
-        World::Component* ptr = nullptr;
-        TypeID            tid = 0;
+        World::EntityWorld* world = nullptr;
+        World::Component*   ptr   = nullptr;
+        TypeID              tid   = 0;
     };
 } // namespace Lina::Event
 

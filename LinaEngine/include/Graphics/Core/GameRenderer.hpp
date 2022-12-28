@@ -42,8 +42,10 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Engine;
-
+    namespace Editor
+    {
+        class Editor;
+    }
     namespace Event
     {
         struct ELevelUninstalled;
@@ -60,7 +62,6 @@ namespace Lina
 
 namespace Lina::Graphics
 {
-
     class GameRenderer : public Renderer
     {
     public:
@@ -72,10 +73,17 @@ namespace Lina::Graphics
             return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
-        inline const View& GetPlayerView()
+        struct RenderWorldData
         {
-            return m_playerView;
-        }
+            Texture*                     finalTexture = nullptr;
+            IDList<RenderableComponent*> allRenderables;
+            Vector<RenderableData>       extractedRenderables;
+            DrawPass                     opaquePass;
+            View                         playerView;
+            CameraComponent*             cameraComponent = nullptr;
+            GPUSceneData                 sceneData;
+            GPULightData                 lightData;
+        };
 
     protected:
         virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend) override;
@@ -85,45 +93,37 @@ namespace Lina::Graphics
         virtual void SyncData() override;
         virtual void Stop() override;
         virtual void Join() override;
+        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        virtual void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        virtual void OnComponentCreated(const Event::EComponentCreated& ev);
+        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
+        virtual void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        virtual void OnWindowResized(const Event::EWindowResized& ev);
+        virtual void OnWindowPositioned(const Event::EWindowPositioned& newPos);
+        virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
+        virtual void HandleOutOfDateImage();
+        virtual void MergeMeshes();
+        virtual void CreateRenderPasses();
 
-    private:
-        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void OnComponentCreated(const Event::EComponentCreated& ev);
-        void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        void OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void OnWindowResized(const Event::EWindowResized& ev);
-        void OnWindowPositioned(const Event::EWindowPositioned& newPos);
-        void OnResourceLoaded(const Event::EResourceLoaded& res);
-        void HandleOutOfDateImage();
-        void MergeMeshes();
+    protected:
+        friend class Editor::Editor;
 
-    private:
-        CommandPool    m_cmdPool;
-        uint32         m_frameNumber = 0;
-        Frame          m_frames[FRAMES_IN_FLIGHT];
-        DescriptorPool m_descriptorPool;
-
-        View m_playerView;
-
-        Vector<RenderableData>                m_extractedRenderables;
+        CommandPool                           m_cmdPool;
+        uint32                                m_frameNumber = 0;
+        Frame                                 m_frames[FRAMES_IN_FLIGHT];
+        DescriptorPool                        m_descriptorPool;
         Vector<CommandBuffer>                 m_cmds;
-        IDList<RenderableComponent*>          m_allRenderables;
         Vector<GPUObjectData>                 m_gpuObjectData;
-        DrawPass                              m_opaquePass;
-        GPUSceneData                          m_sceneData;
-        GPUViewData                           m_viewData;
-        GPULightData                          m_lightData;
+        RenderWorldData                       m_renderWorldData;
         HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
         Vector<StringID>                      m_mergedModelIDs;
-
-        Buffer       m_cpuVtxBuffer;
-        Buffer       m_cpuIndexBuffer;
-        Buffer       m_gpuVtxBuffer;
-        Buffer       m_gpuIndexBuffer;
-        bool         m_recreateSwapchain = false;
-        bool         m_hasLevelLoaded    = false;
-        Atomic<bool> m_stopped           = false;
+        Buffer                                m_cpuVtxBuffer;
+        Buffer                                m_cpuIndexBuffer;
+        Buffer                                m_gpuVtxBuffer;
+        Buffer                                m_gpuIndexBuffer;
+        bool                                  m_recreateSwapchain = false;
+        bool                                  m_hasLevelLoaded    = false;
+        Atomic<bool>                          m_stopped           = false;
     };
 } // namespace Lina::Graphics
 

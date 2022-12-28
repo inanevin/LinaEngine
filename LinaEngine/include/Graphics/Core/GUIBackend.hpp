@@ -41,6 +41,7 @@ namespace Lina
     namespace Editor
     {
         class EditorGUIManager;
+        class EditorRenderer;
     }
 
     namespace Event
@@ -128,6 +129,7 @@ namespace Lina::Graphics
     private:
         friend class Editor::EditorGUIManager;
         friend class GameRenderer;
+        friend class Editor::EditorRenderer;
         friend class RenderEngine;
 
         inline void SetCmd(CommandBuffer* cmd)

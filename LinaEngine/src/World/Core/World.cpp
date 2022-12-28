@@ -128,6 +128,7 @@ namespace Lina::World
         Entity* e = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
         e->SetVisible(true);
         e->SetStatic(true);
+        e->m_world = this;
 
         uint32 id = 0;
         if (!m_availableIDs.empty())

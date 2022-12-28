@@ -45,6 +45,7 @@ namespace Lina
     {
         class Editor;
         class ShortcutManager;
+        class EditorRenderer;
     } // namespace Editor
 
     namespace World
@@ -147,6 +148,7 @@ namespace Lina::Event
         friend class Editor::ShortcutManager;
         friend class Resources::EditorResourceLoader;
         friend class Graphics::GameRenderer;
+        friend class Editor::EditorRenderer;
         friend class Graphics::Win32Window;
         friend class Resources::ResourceLoader;
         friend class Resources::ResourceUtility;

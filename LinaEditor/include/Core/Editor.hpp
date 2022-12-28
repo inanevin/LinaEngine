@@ -68,7 +68,7 @@ namespace Lina::Editor
         virtual ~Editor() = default;
 
         void                OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void                Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::GUIBackend* guiBackend);
+        void                Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swp, Graphics::GUIBackend* guiBackend);
         void                Shutdown();
         void                VerifyStaticResources();
         void                CreateEditorCamera();

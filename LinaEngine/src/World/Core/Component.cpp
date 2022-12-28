@@ -46,7 +46,7 @@ namespace Lina::World
     {
         auto* es = Event::EventSystem::Get();
 
-        es->Trigger<Event::EComponentCreated>({this, GetTID()});
+        es->Trigger<Event::EComponentCreated>({m_entity->GetWorld(), this, GetTID()});
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
             es->Connect<Event::EEndGame, &Component::OnEndGame>(this);
@@ -71,7 +71,7 @@ namespace Lina::World
     {
         auto* es = Event::EventSystem::Get();
 
-        es->Trigger<Event::EComponentDestroyed>({this, GetTID()});
+        es->Trigger<Event::EComponentDestroyed>({m_entity->GetWorld(), this, GetTID()});
 
         if (GetComponentMask().IsSet(ComponentMask::ReceiveOnGameEnd))
             es->Disconnect<Event::EEndGame>(this);

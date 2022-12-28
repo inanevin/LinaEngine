@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Reflection/ReflectionSystem.hpp"
 #include "Data/FixedList.hpp"
 
-
 namespace Lina::World
 {
     class Entity;
@@ -124,6 +123,7 @@ namespace Lina::World
                 Entity*      e  = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
                 *e              = entities[i];
                 e->m_id         = id;
+                e->m_world      = this;
                 m_entities[id]  = e;
             }
 

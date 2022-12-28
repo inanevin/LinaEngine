@@ -45,11 +45,13 @@ namespace Lina
     {
         class GUIBackend;
     }
+
 } // namespace Lina
 
 namespace Lina::Editor
 {
     struct EShortcut;
+    class EditorRenderer;
 
     class EditorGUIManager
     {

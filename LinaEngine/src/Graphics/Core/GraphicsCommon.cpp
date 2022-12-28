@@ -457,6 +457,8 @@ namespace Lina::Graphics
             return VK_ACCESS_SHADER_READ_BIT;
         case AccessFlags::MemoryRead:
             return VK_ACCESS_MEMORY_READ_BIT;
+        case AccessFlags::HostWrite:
+            return VK_ACCESS_HOST_WRITE_BIT;
         default:
             return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         }
@@ -480,6 +482,8 @@ namespace Lina::Graphics
             return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
         case PipelineStageFlags::FragmentShader:
             return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        case PipelineStageFlags::Host:
+            return VK_PIPELINE_STAGE_HOST_BIT;
         default:
             return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         }

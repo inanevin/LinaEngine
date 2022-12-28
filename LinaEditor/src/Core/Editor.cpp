@@ -51,7 +51,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::GUIBackend* guiBackend)
+    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swapchain, Graphics::GUIBackend* guiBackend)
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Editor::OnPreMainLoop>(this);
@@ -66,9 +66,8 @@ namespace Lina::Editor
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         ImmediateGUI::s_instance = &m_gui;
-        m_renderer.Initialize(m_guiBackend);
+        m_renderer.Initialize(swapchain, m_guiBackend);
         m_guiManager.ConnectEvents(m_guiBackend);
-
         m_shortcutManager.Initialize();
     }
 

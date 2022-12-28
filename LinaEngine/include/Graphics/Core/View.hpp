@@ -38,23 +38,12 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    enum class ViewType
-    {
-        Player,
-        SunShadow,
-    };
-
     class FramePacket;
     class RenderableComponent;
     class View
     {
     public:
         bool IsVisible(const AABB& aabb) const;
-
-        inline ViewType GetType()
-        {
-            return m_viewType;
-        }
 
         inline Vector<RenderableComponent*>& GetVisibleObjects()
         {
@@ -75,16 +64,10 @@ namespace Lina::Graphics
             return m_proj;
         }
 
-        inline void Initialize(ViewType type)
-        {
-            m_viewType = type;
-        }
-
         void Tick(const Vector3& pos, const Matrix& view, const Matrix& proj);
 
     private:
         Vector<RenderableComponent*> m_visibleRenderables;
-        ViewType                     m_viewType = ViewType::Player;
         Matrix                       m_view;
         Matrix                       m_proj;
         Vector3                      m_pos     = Vector3::Zero;

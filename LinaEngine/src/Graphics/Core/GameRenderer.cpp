@@ -79,15 +79,7 @@ namespace Lina::Graphics
             .AddPoolSize(DescriptorType::CombinedImageSampler, 10)
             .Create();
 
-        m_renderPasses[RenderPassType::Main]        = RenderPass();
-        m_renderPasses[RenderPassType::PostProcess] = RenderPass();
-        m_renderPasses[RenderPassType::Final]       = RenderPass();
-        auto& mainPass                              = m_renderPasses[RenderPassType::Main];
-        auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
-        auto& finalPass                             = m_renderPasses[RenderPassType::Final];
-        VulkanUtility::CreateMainRenderPass(mainPass);
-        VulkanUtility::CreatePresentRenderPass(postPass);
-        VulkanUtility::CreatePresentRenderPass(finalPass);
+        CreateRenderPasses();
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -164,8 +156,6 @@ namespace Lina::Graphics
             f.passDescriptor.SendUpdate();
         }
 
-        m_playerView.Initialize(ViewType::Player);
-
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GameRenderer::OnLevelUninstalled>(this);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GameRenderer::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &GameRenderer::OnComponentCreated>(this);
@@ -206,11 +196,11 @@ namespace Lina::Graphics
         m_gpuIndexBuffer.Create();
 
         // Draw passes.
-        m_opaquePass.Initialize(DrawPassMask::Opaque, 1000.0f);
+        m_renderWorldData.opaquePass.Initialize(DrawPassMask::Opaque, 1000.0f);
 
         // IDlists
-        m_allRenderables.Initialize(250, nullptr);
-        m_allRenderables.Initialize(250, nullptr);
+        m_renderWorldData.allRenderables.Initialize(250, nullptr);
+        m_renderWorldData.allRenderables.Initialize(250, nullptr);
     }
 
     void GameRenderer::Shutdown()
@@ -246,15 +236,15 @@ namespace Lina::Graphics
     void GameRenderer::Tick()
     {
         m_cameraSystem.Tick();
-        m_playerView.Tick(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
+        m_renderWorldData.playerView.Tick(m_cameraSystem.GetPos(), m_cameraSystem.GetView(), m_cameraSystem.GetProj());
     }
 
     void GameRenderer::SyncData()
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
 
-        m_extractedRenderables.clear();
-        const auto& renderables = m_allRenderables.GetItems();
+        m_renderWorldData.extractedRenderables.clear();
+        const auto& renderables = m_renderWorldData.allRenderables.GetItems();
 
         uint32 i = 0;
         for (auto r : renderables)
@@ -275,10 +265,10 @@ namespace Lina::Graphics
             data.type              = r->GetType();
             data.meshMaterialPairs = r->GetMeshMaterialPairs();
             data.objDataIndex      = i++;
-            m_extractedRenderables.push_back(data);
+            m_renderWorldData.extractedRenderables.push_back(data);
         }
 
-        m_opaquePass.PrepareRenderData(m_extractedRenderables, m_playerView);
+        m_renderWorldData.opaquePass.PrepareRenderData(m_renderWorldData.extractedRenderables, m_renderWorldData.playerView);
     }
 
     void GameRenderer::Render()
@@ -328,15 +318,15 @@ namespace Lina::Graphics
         cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
 
         // Global - scene data.
-        frame.sceneDataBuffer.CopyInto(&m_sceneData, sizeof(GPUSceneData));
+        frame.sceneDataBuffer.CopyInto(&m_renderWorldData.sceneData, sizeof(GPUSceneData));
 
         // Global - light data.
-        frame.lightDataBuffer.CopyInto(&m_lightData, sizeof(GPULightData));
+        frame.lightDataBuffer.CopyInto(&m_renderWorldData.lightData, sizeof(GPULightData));
 
         // Per render pass - obj data.
         Vector<GPUObjectData> gpuObjectData;
 
-        for (auto& r : m_extractedRenderables)
+        for (auto& r : m_renderWorldData.extractedRenderables)
         {
             // Object data.
             GPUObjectData objData;
@@ -353,8 +343,28 @@ namespace Lina::Graphics
         // ****** MAIN PASS ******
         PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
         mainPass.Begin(mainPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-        m_opaquePass.UpdateViewData(frame.viewDataBuffer, m_playerView);
-        m_opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
+
+        if (m_renderWorldData.extractedRenderables.empty())
+        {
+            ImageMemoryBarrier barrier = ImageMemoryBarrier{
+                .srcAccessMask       = GetAccessFlags(AccessFlags::HostWrite),
+                .dstAccessMask       = GetAccessFlags(AccessFlags::ShaderRead),
+                .oldLayout           = ImageLayout::Undefined,
+                .newLayout           = ImageLayout::ShaderReadOnlyOptimal,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .img                 = mainPass._colorTexture->GetImage()._allocatedImg.image,
+            };
+            Vector<ImageMemoryBarrier> imageBarriers;
+            imageBarriers.push_back(barrier);
+            cmd.CMD_PipelineBarrier(PipelineStageFlags::Host, PipelineStageFlags::FragmentShader, 0, {}, {}, imageBarriers);
+        }
+        else
+        {
+            m_renderWorldData.opaquePass.UpdateViewData(frame.viewDataBuffer, m_renderWorldData.playerView);
+            m_renderWorldData.opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
+        }
+
         mainPass.End(cmd);
         PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
 
@@ -369,19 +379,6 @@ namespace Lina::Graphics
         m_guiBackend->RecordDrawCommands();
         postPass.End(cmd);
         PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
-
-        // ****** FINAL PASS ******
-        // PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
-        // m_guiBackend->SetCmd(&cmd);
-        // Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-        // finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-        // auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-        // finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-        // cmd.CMD_Draw(3, 1, 0, 0);
-        // m_guiBackend->RecordDrawCommands();
-        // finalPass.End(cmd);
-        // PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
-
         cmd.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
@@ -410,10 +407,16 @@ namespace Lina::Graphics
     void GameRenderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
     {
         Join();
-        m_allRenderables.Reset();
+        m_renderWorldData.allRenderables.Reset();
         m_meshEntries.clear();
         m_mergedModelIDs.clear();
         m_hasLevelLoaded = false;
+    }
+
+    void GameRenderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
+    {
+        m_hasLevelLoaded = true;
+        MergeMeshes();
     }
 
     void GameRenderer::OnResourceLoaded(const Event::EResourceLoaded& res)
@@ -434,25 +437,19 @@ namespace Lina::Graphics
         }
     }
 
-    void GameRenderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
-    {
-        m_hasLevelLoaded = true;
-        MergeMeshes();
-    }
-
     void GameRenderer::OnComponentCreated(const Event::EComponentCreated& ev)
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
         {
             auto renderable            = static_cast<RenderableComponent*>(ev.ptr);
-            renderable->m_renderableID = m_allRenderables.AddItem(renderable);
+            renderable->m_renderableID = m_renderWorldData.allRenderables.AddItem(renderable);
         }
     }
 
     void GameRenderer::OnComponentDestroyed(const Event::EComponentDestroyed& ev)
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
-            m_allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
+            m_renderWorldData.allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
     }
 
     void GameRenderer::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -504,12 +501,7 @@ namespace Lina::Graphics
         ppPass.Destroy();
 
         // Recreate passes
-        mainPass  = RenderPass();
-        ppPass    = RenderPass();
-        finalPass = RenderPass();
-        VulkanUtility::CreateMainRenderPass(mainPass);
-        VulkanUtility::CreatePresentRenderPass(ppPass);
-        VulkanUtility::CreatePresentRenderPass(finalPass);
+        CreateRenderPasses();
 
         // Re-assign target textures to render passes
         OnPreMainLoop({});
@@ -529,7 +521,6 @@ namespace Lina::Graphics
         auto& res   = cache->GetResources();
         m_meshEntries.clear();
         m_mergedModelIDs.clear();
-        m_allRenderables.Reset();
 
         Vector<Vertex> mergedVertices;
         Vector<uint32> mergedIndices;
@@ -631,6 +622,19 @@ namespace Lina::Graphics
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+    }
+
+    void GameRenderer::CreateRenderPasses()
+    {
+        m_renderPasses[RenderPassType::Main]        = RenderPass();
+        m_renderPasses[RenderPassType::PostProcess] = RenderPass();
+        m_renderPasses[RenderPassType::Final]       = RenderPass();
+        auto& mainPass                              = m_renderPasses[RenderPassType::Main];
+        auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
+        auto& finalPass                             = m_renderPasses[RenderPassType::Final];
+        VulkanUtility::CreateMainRenderPass(mainPass);
+        VulkanUtility::CreatePresentRenderPass(postPass);
+        VulkanUtility::CreatePresentRenderPass(finalPass);
     }
 
 } // namespace Lina::Graphics

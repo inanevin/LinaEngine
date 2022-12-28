@@ -147,6 +147,7 @@ set(LINACOMMON_HEADERS
 
 	# Serialization
 	include/Serialization/Archive.hpp
+	include/Serialization/Archive2.hpp
 	include/Serialization/Compressor.hpp
 	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp

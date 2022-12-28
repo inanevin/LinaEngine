@@ -346,6 +346,7 @@ namespace Lina::Graphics
         TransferWrite,
         ShaderRead,
         MemoryRead,
+        HostWrite,
     };
 
     extern uint32 GetAccessFlags(AccessFlags flags);
@@ -359,6 +360,7 @@ namespace Lina::Graphics
         Transfer,
         BottomOfPipe,
         FragmentShader,
+        Host,
     };
 
     extern uint32 GetPipelineStageFlags(PipelineStageFlags flags);
