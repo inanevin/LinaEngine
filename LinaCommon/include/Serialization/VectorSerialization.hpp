@@ -32,39 +32,27 @@ SOFTWARE.
 #define VectorSerialization_HPP
 
 #include "Data/Vector.hpp"
-#include "Archive.hpp"
 
 namespace Lina::Serialization
 {
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<OStream>, Vector<A>>
+    template <typename Ar, typename T> void SaveOther(Ar& ar, Vector<T>& vec)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Vector<A>& vec)
-        {
-            const uint32 size = static_cast<uint32>(vec.size());
-            ar(size);
+        const uint32 size = static_cast<uint32>(vec.size());
+        ar(size);
 
-            for (uint32 i = 0; i < size; i++)
-                ar(vec[i]);
-        }
-    };
-
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<IStream>, Vector<A>>
+        for (uint32 i = 0; i < size; i++)
+            ar(vec[i]);
+    }
+    template <typename Ar, typename T> void LoadOther(Ar& ar, Vector<T>& vec)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Vector<A>& vec)
-        {
-            uint32 size = 0;
-            ar(size);
+        uint32 size = 0;
+        ar(size);
 
-            vec.clear();
-            vec.resize(size);
-            for (uint32 i = 0; i < size; i++)
-                ar(vec[i]);
-        }
-    };
+        vec.clear();
+        vec.resize(size);
+        for (uint32 i = 0; i < size; i++)
+            ar(vec[i]);
+    }
 
 } // namespace Lina::Serialization
 #endif

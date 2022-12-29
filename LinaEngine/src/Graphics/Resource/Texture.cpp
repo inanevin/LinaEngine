@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/UploadContext.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Utility/Command.hpp"
-
+#include "Log/Log.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Graphics/Utility/stb/stb_image.h"
 

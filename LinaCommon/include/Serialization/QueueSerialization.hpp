@@ -33,89 +33,68 @@ SOFTWARE.
 
 #include "Data/Queue.hpp"
 #include "Data/PriorityQueue.hpp"
-#include "Archive.hpp"
 
 namespace Lina::Serialization
 {
-    template <typename T>
-    struct Serialize_NonTrivial<Archive<OStream>, Queue<T>>
+
+    template <typename Ar, typename T> void SaveOther(Ar& ar, Queue<T>& q)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Queue<T>& q)
+        const uint32 size = static_cast<uint32>(q.size());
+        ar(size);
+
+        Queue<T> rep = q;
+
+        for (uint32 i = 0; i < size; i++)
         {
-            const uint32 size = static_cast<uint32>(q.size());
-            ar(size);
-
-            Queue<T> rep = q;
-
-            for (uint32 i = 0; i < size; i++)
-            {
-                T t = rep.front();
-                rep.pop();
-                ar(t);
-            }
+            T t = rep.front();
+            rep.pop();
+            ar(t);
         }
-    };
-
-    template <typename T>
-    struct Serialize_NonTrivial<Archive<IStream>, Queue<T>>
+    }
+    template <typename Ar, typename T> void LoadOther(Ar& ar, Queue<T>& q)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Queue<T>& q)
+        uint32 size = 0;
+        ar(size);
+
+        q = Queue<T>();
+
+        for (uint32 i = 0; i < size; i++)
         {
-            uint32 size = 0;
-            ar(size);
-
-            q = Queue<T>();
-
-            for (uint32 i = 0; i < size; i++)
-            {
-                T t;
-                ar(t);
-                q.push(t);
-            }
+            T t;
+            ar(t);
+            q.push(t);
         }
-    };
+    }
 
-    template <typename T, typename Container, typename Compare>
-    struct Serialize_NonTrivial<Archive<OStream>, PriorityQueue<T, Container, Compare>>
+    template <typename Ar, typename T, typename Container, typename Compare> void SaveOther(Ar& ar, PriorityQueue<T, Container, Compare>& q)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, PriorityQueue<T, Container, Compare>& q)
+        const uint32 size = static_cast<uint32>(q.size());
+        ar(size);
+
+        Queue<T, Container> rep = q;
+
+        for (uint32 i = 0; i < size; i++)
         {
-            const uint32 size = static_cast<uint32>(q.size());
-            ar(size);
-
-            Queue<T, Container> rep = q;
-
-            for (uint32 i = 0; i < size; i++)
-            {
-                T t = rep.front();
-                rep.pop();
-                ar(t);
-            }
+            T t = rep.front();
+            rep.pop();
+            ar(t);
         }
-    };
-
-    template <typename T, typename Container, typename Compare>
-    struct Serialize_NonTrivial<Archive<IStream>, PriorityQueue<T, Container, Compare>>
+    }
+    template <typename Ar, typename T, typename Container, typename Compare> void LoadOther(Ar& ar, PriorityQueue<T, Container, Compare>& q)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, PriorityQueue<T, Container, Compare>& q)
+        uint32 size = 0;
+        ar(size);
+
+        q = Queue<T, Container>();
+
+        for (uint32 i = 0; i < size; i++)
         {
-            uint32 size = 0;
-            ar(size);
-
-            q = Queue<T, Container>();
-
-            for (uint32 i = 0; i < size; i++)
-            {
-                T t;
-                ar(t);
-                q.push(t);
-            }
+            T t;
+            ar(t);
+            q.push(t);
         }
-    };
+    }
+
 } // namespace Lina::Serialization
 
 #endif

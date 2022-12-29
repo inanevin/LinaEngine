@@ -100,7 +100,7 @@ namespace Lina::World
             Cache<T>()->DestroyComponent(e);
         }
 
-        template <typename T> void Load(Serialization::Archive<T>& archive)
+        template <typename T> void Load(T& archive)
         {
             uint32 entitiesSize = 0;
             archive(m_nextID);
@@ -160,7 +160,7 @@ namespace Lina::World
             }
         }
 
-        template <typename T> void Save(Serialization::Archive<T>& archive)
+        template <typename T> void Save(T& archive)
         {
             const uint32 entitiesSize = static_cast<uint32>(m_entities.size());
             archive(m_nextID);

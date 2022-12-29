@@ -43,6 +43,7 @@ namespace Lina::Graphics
 {
 #define BUFFER_LIMIT        50000
 #define MATERIAL_POOL_COUNT 30
+#define TO_LINA_VEC4(V)     Vector4(V.x, V.y, V.z, V.w)
 
     bool GUIBackend::Initialize()
     {
@@ -121,8 +122,8 @@ namespace Lina::Graphics
     {
         Material* mat = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Gradient);
         mat->SetProperty("intvar1", 1);
-        mat->SetProperty("color1", buf->m_color.start);
-        mat->SetProperty("color2", buf->m_color.end);
+        mat->SetProperty("color1", TO_LINA_VEC4(buf->m_color.start));
+        mat->SetProperty("color2", TO_LINA_VEC4(buf->m_color.end));
         mat->SetProperty("intvar2", static_cast<int>(buf->m_color.gradientType));
         mat->SetProperty("floatvar1", buf->m_color.radialSize);
         mat->SetProperty("intvar3", buf->m_isAABuffer);
@@ -164,7 +165,7 @@ namespace Lina::Graphics
         const float softness         = Math::Clamp(buf->m_softness, 0.0f, 10.0f) * 0.1f;
         const float outlineThickness = Math::Clamp(buf->m_outlineThickness, 0.0f, 1.0f);
         mat->SetProperty("intvar1", 4);
-        mat->SetProperty("color1", buf->m_outlineColor);
+        mat->SetProperty("color1", TO_LINA_VEC4(buf->m_outlineColor));
         mat->SetProperty("floatvar3", outlineThickness);
         mat->SetProperty("floatvar2", softness);
         mat->SetProperty("floatvar1", thickness);

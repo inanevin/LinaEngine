@@ -31,6 +31,9 @@ SOFTWARE.
 #ifndef Level_HPP
 #define Level_HPP
 
+#include "Serialization/CommonTypesSerialization.hpp"
+#include "Serialization/VectorSerialization.hpp"
+#include "Serialization/StringSerialization.hpp"
 #include "World.hpp"
 #include "Resource/Core/Resource.hpp"
 #include "Utility/StringId.hpp"
@@ -40,8 +43,6 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/HashSet.hpp"
 #include "Data/DataCommon.hpp"
-#include "Serialization/CommonTypesSerialization.hpp"
-#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina::World
 {
@@ -54,10 +55,10 @@ namespace Lina::World
         virtual ~Level(){};
         Level(const Level&);
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
-            archive(m_usedResources, m_world);
+            // archive(m_usedResources, m_world);
+            archive(m_world);
         }
 
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
@@ -94,7 +95,6 @@ namespace Lina::World
     private:
         friend class LevelManager;
         friend class Engine;
-
         Vector<Pair<TypeID, String>> m_usedResources;
     };
 } // namespace Lina::World

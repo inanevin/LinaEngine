@@ -346,18 +346,18 @@ namespace Lina::Graphics
 
         if (m_renderWorldData.extractedRenderables.empty())
         {
-            ImageMemoryBarrier barrier = ImageMemoryBarrier{
-                .srcAccessMask       = GetAccessFlags(AccessFlags::HostWrite),
-                .dstAccessMask       = GetAccessFlags(AccessFlags::ShaderRead),
-                .oldLayout           = ImageLayout::Undefined,
-                .newLayout           = ImageLayout::ShaderReadOnlyOptimal,
-                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .img                 = mainPass._colorTexture->GetImage()._allocatedImg.image,
-            };
-            Vector<ImageMemoryBarrier> imageBarriers;
-            imageBarriers.push_back(barrier);
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::Host, PipelineStageFlags::FragmentShader, 0, {}, {}, imageBarriers);
+          //  ImageMemoryBarrier barrier = ImageMemoryBarrier{
+          //      .srcAccessMask       = GetAccessFlags(AccessFlags::HostWrite),
+          //      .dstAccessMask       = GetAccessFlags(AccessFlags::ShaderRead),
+          //      .oldLayout           = ImageLayout::Undefined,
+          //      .newLayout           = ImageLayout::ShaderReadOnlyOptimal,
+          //      .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          //      .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          //      .img                 = mainPass._colorTexture->GetImage()._allocatedImg.image,
+          //  };
+          //  Vector<ImageMemoryBarrier> imageBarriers;
+          //  imageBarriers.push_back(barrier);
+          //  cmd.CMD_PipelineBarrier(PipelineStageFlags::Host, PipelineStageFlags::FragmentShader, 0, {}, {}, imageBarriers);
         }
         else
         {

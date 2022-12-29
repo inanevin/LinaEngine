@@ -36,39 +36,30 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-    template <> struct Serialize_NonTrivial<Archive<OStream>, String>
+    template <typename Ar> void SaveOther(Ar& ar, String& str)
     {
-        template <typename Ar> void Serialize(Ar& ar, String& str)
-        {
-            const uint32 size = static_cast<uint32>(str.size());
-            ar(size);
-            ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
-        }
-    };
+        const uint32 size = static_cast<uint32>(str.size());
+        ar(size);
+        ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
+    }
 
-    template <> struct Serialize_NonTrivial<Archive<IStream>, String>
+    template <typename Ar> void SaveOther(Ar& ar, const String& str)
     {
-        template <typename Ar> void Serialize(Ar& ar, String& str)
-        {
-            uint32 size = 0;
-            ar(size);
-            void* d = MALLOC(size);
-            ar.GetStream().ReadEndianSafe(d, size);
-            String s((char*)d, size);
-            str = s;
-            FREE(d);
-        }
-    };
+        const uint32 size = static_cast<uint32>(str.size());
+        ar(size);
+        ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
+    }
 
-    template <> struct Serialize_NonTrivial<Archive<OStream>, const String>
+    template <typename Ar> void LoadOther(Ar& ar, String& str)
     {
-        template <typename Ar> void Serialize(Ar& ar, const String& str)
-        {
-            const uint32 size = static_cast<uint32>(str.size());
-            ar(size);
-            ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
-        }
-    };
+        uint32 size = 0;
+        ar(size);
+        void* d = MALLOC(size);
+        ar.GetStream().ReadEndianSafe(d, size);
+        String s((char*)d, size);
+        str = s;
+        FREE(d);
+    }
 
 } // namespace Lina::Serialization
 

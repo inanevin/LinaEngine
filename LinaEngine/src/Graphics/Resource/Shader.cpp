@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Shader.hpp"
+#include "Serialization/StringSerialization.hpp"
 #include "Graphics/Core/Backend.hpp"
 #include "Graphics/Utility/Vulkan/SPIRVUtility.hpp"
 #include "Core/CommonApplication.hpp"

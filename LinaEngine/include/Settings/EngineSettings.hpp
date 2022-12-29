@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Reflection/ReflectionCommon.hpp"
 #include "Data/String.hpp"
+#include "Serialization/StringSerialization.hpp"
 #include <variant>
 
 namespace Lina
@@ -58,7 +59,7 @@ namespace Lina
         template <typename Archive>
         void Serialize(Archive& ar)
         {
-            ar(m_packagedLevels);
+           ar(m_packagedLevels);
         }
 
         inline const Vector<String>& GetPackagedLevels() const

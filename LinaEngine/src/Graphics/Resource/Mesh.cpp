@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Graphics/Core/GraphicsCommon.hpp"
 #include "Graphics/Utility/Command.hpp"
+#include "Log/Log.hpp"
 #include "Graphics/Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
 

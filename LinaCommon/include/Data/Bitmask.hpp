@@ -65,7 +65,7 @@ namespace Lina
         }
 
         template <typename T>
-        void Serialize(Serialization::Archive<T>& ar)
+        void Serialize(T& ar)
         {
             ar(m_mask);
         }

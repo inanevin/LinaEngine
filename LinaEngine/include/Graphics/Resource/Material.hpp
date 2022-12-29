@@ -78,8 +78,8 @@ namespace Lina::Graphics
 
             for (auto& p : m_properties)
             {
-                const String name = p->GetName();
-                const uint8  type = static_cast<uint8>(p->GetType());
+                String      name = p->GetName();
+                const uint8 type = static_cast<uint8>(p->GetType());
                 archive(type);
                 archive(name);
                 p->SaveToArchive(archive);

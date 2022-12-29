@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Resource/StaticMesh.hpp"
 #include "Graphics/Resource/SkinnedMesh.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Log/Log.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/metadata.h>
 #include <assimp/postprocess.h>

@@ -33,18 +33,35 @@ SOFTWARE.
 #include "Data/Streams.hpp"
 #include <type_traits>
 #include <vector>
+#include "StringSerialization.hpp"
+#include "VectorSerialization.hpp"
+#include "HashMapSerialization.hpp"
+#include "QueueSerialization.hpp"
+#include "CommonTypesSerialization.hpp"
+#include "SetSerialization.hpp"
+
 namespace Lina::Serialization
 {
     class OStream;
     class IStream;
 
-    template <typename Ar, typename T> void SaveOther(Ar& ar, std::vector<T>& vec)
+    // template <typename Ar, typename T> void SaveOther(Ar& ar, std::vector<T>& vec)
+    //{
+    //     int x = 5;
+    // }
+    //
+    // template <typename Ar, typename T> void LoadOther(Ar& ar, std::vector<T>& vec)
+    //{
+    // }
+
+    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, std::unordered_map<T, K>& vec)
     {
         int x = 5;
     }
 
-    template <typename Ar, typename T> void LoadOther(Ar& ar, std::vector<T>& vec)
+    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, std::unordered_map<T, K>& vec)
     {
+        int x = 5;
     }
 
     template <typename Ar, typename T, typename = void> struct IsSaveOtherDefined : std::false_type

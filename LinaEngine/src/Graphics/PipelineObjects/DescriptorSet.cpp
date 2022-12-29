@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/DescriptorPool.hpp"
 #include "Graphics/PipelineObjects/Buffer.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
+#include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics

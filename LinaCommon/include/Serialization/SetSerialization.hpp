@@ -35,8 +35,7 @@ SOFTWARE.
 
 namespace Lina::Serialization
 {
-    template <typename T>
-    void WriteSet(Archive<OStream>& ar, T& set)
+    template <typename T> void WriteSet(Archive<OStream>& ar, T& set)
     {
         const uint32 size = static_cast<uint32>(set.size());
         ar(size);
@@ -45,8 +44,7 @@ namespace Lina::Serialization
             ar(i);
     }
 
-    template <typename T, typename U>
-    void ReadSet(Archive<IStream>& ar, T& set)
+    template <typename T, typename U> void ReadSet(Archive<IStream>& ar, T& set)
     {
         uint32 size = 0;
         ar(size);
@@ -60,45 +58,23 @@ namespace Lina::Serialization
         }
     }
 
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<OStream>, Set<A>>
+    template <typename Ar, typename T> void SaveOther(Ar& ar, Set<T>& set)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Set<A>& set)
-        {
-            WriteSet<Set<A>>(ar, set);
-        }
-    };
+        WriteSet<Set<T>>(ar, set);
+    }
+    template <typename Ar, typename T> void LoadOther(Ar& ar, Set<T>& set)
+    {
+        ReadSet<Set<T>, T>(ar, set);
+    }
 
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<IStream>, Set<A>>
+    template <typename Ar, typename T> void SaveOther(Ar& ar, HashSet<T>& set)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, Set<A>& set)
-        {
-            ReadSet<Set<A>, A>(ar, set);
-        }
-    };
-
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<OStream>, HashSet<A>>
+        WriteSet<HashSet<T>>(ar, set);
+    }
+    template <typename Ar, typename T> void LoadOther(Ar& ar, HashSet<T>& set)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, HashSet<A>& set)
-        {
-            WriteSet<HashSet<A>>(ar, set);
-        }
-    };
-
-    template <typename A>
-    struct Serialize_NonTrivial<Archive<IStream>, HashSet<A>>
-    {
-        template <typename Ar>
-        void Serialize(Ar& ar, HashSet<A>& set)
-        {
-            ReadSet<HashSet<A>, A>(ar, set);
-        }
-    };
+        ReadSet<HashSet<T>, T>(ar, set);
+    }
 
 } // namespace Lina::Serialization
 

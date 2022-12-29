@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Resource/Core/ResourceHandle.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Material.hpp"
+#include "Serialization/HashMapSerialization.hpp"
 #include "Data/HashMap.hpp"
 
 namespace Lina

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Graphics
 {

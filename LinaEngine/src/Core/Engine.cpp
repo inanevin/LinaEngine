@@ -55,7 +55,6 @@ SOFTWARE.
 #include "Game/GameManager.hpp"
 #include "Core/Time.hpp"
 #include "Graphics/Core/GameRenderer.hpp"
-#include "Serialization/Archive2.hpp"
 
 namespace Lina
 {
@@ -146,12 +145,6 @@ namespace Lina
 
     void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
     {
-        Serialization::Archive2<IStream> arc;
-        TestClass                        test;
-        int                              xd = 15;
-        std::vector<int>                 he;
-        std::unordered_map<int, int>     aq;
-        arc(test, 5, he);
 
         // Assign
         Event::EventSystem::s_eventSystem      = &m_eventSystem;

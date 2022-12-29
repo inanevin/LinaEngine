@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/Core/Screen.hpp"
 #include "Utility/StringId.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Editor
 {

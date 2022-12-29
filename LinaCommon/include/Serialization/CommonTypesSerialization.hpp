@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,46 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef CommonTypesSerialization_HPP
 #define CommonTypesSerialization_HPP
 
-#include "Archive.hpp"
 #include "Data/DataCommon.hpp"
-#include <variant>
 
 namespace Lina::Serialization
 {
-    template<typename A, typename B>
-    struct Serialize_NonTrivial<Archive<OStream>, Pair<A, B>>
+    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, Pair<T, K>& p)
     {
-        template<typename Ar>
-        void Serialize(Ar& ar, Pair<A, B>& p)
-        {
-            ar(p.first);
-            ar(p.second);
-        }
-    };
-
-    template<typename A, typename B>
-    struct Serialize_NonTrivial<Archive<IStream>, Pair<A, B>>
+        ar(p.first);
+        ar(p.second);
+    }
+    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, Pair<T, K>& p)
     {
-        template<typename Ar>
-        void Serialize(Ar& ar, Pair<A, B>& p)
-        {
-           A first = A();
-           B second = B();
-           ar(first);
-           ar(second);
-           p.first = first;
-           p.second = second;
-        }
-    };
+        T first  = T();
+        K second = K();
+        ar(first);
+        ar(second);
+        p.first  = first;
+        p.second = second;
+    }
 
-}
-
+} // namespace Lina::Serialization
 
 #endif

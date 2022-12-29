@@ -31,14 +31,12 @@ SOFTWARE.
 #ifndef HashMapSerialization_HPP
 #define HashMapSerialization_HPP
 
-#include <Data/HashMap.hpp>
-#include "Archive.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina::Serialization
 {
 
-    template <typename T>
-    void WriteMap(Archive<OStream>& ar, T& map)
+    template <typename Ar, typename T> void WriteMap(Ar& ar, T& map)
     {
         const uint32 size = static_cast<uint32>(map.size());
         ar(size);
@@ -50,8 +48,7 @@ namespace Lina::Serialization
         }
     }
 
-    template <typename T, typename U, typename V>
-    void ReadMap(Archive<IStream>& ar, T& map)
+    template <typename Ar, typename T, typename U, typename V> void ReadMap(Ar& ar, T& map)
     {
         uint32 size = 0;
         ar(size);
@@ -67,64 +64,32 @@ namespace Lina::Serialization
         }
     }
 
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<OStream>, HashMap<A, B>>
+    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, HashMap<T, K>& map)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, HashMap<A, B>& map)
-        {
-            WriteMap<HashMap<A, B>>(ar, map);
-        }
-    };
+        WriteMap<Ar, HashMap<T, K>>(ar, map);
+    }
+    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, HashMap<T, K>& map)
+    {
+        ReadMap<Ar, HashMap<T, K>, T, K>(ar, map);
+    }
 
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<IStream>, HashMap<A, B>>
+    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, ParallelHashMapMutex<T, K>& map)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, HashMap<A, B>& map)
-        {
-            ReadMap<HashMap<A, B>, A, B>(ar, map);
-        }
-    };
+        WriteMap<Ar, ParallelHashMapMutex<T, K>>(ar, map);
+    }
+    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, ParallelHashMapMutex<T, K>& map)
+    {
+        ReadMap<Ar, ParallelHashMapMutex<T, K>, T, K>(ar, map);
+    }
 
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<OStream>, ParallelHashMap<A, B>>
+    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, ParallelHashMap<T, K>& map)
     {
-        template <typename Ar>
-        void Serialize(Ar& ar, ParallelHashMap<A, B>& map)
-        {
-            WriteMap<ParallelHashMap<A, B>>(ar, map);
-        }
-    };
+        WriteMap<Ar, ParallelHashMap<T, K>>(ar, map);
+    }
+    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, ParallelHashMap<T, K>& map)
+    {
+        ReadMap<Ar, ParallelHashMap<T, K>, T, K>(ar, map);
+    }
 
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<IStream>, ParallelHashMap<A, B>>
-    {
-        template <typename Ar>
-        void Serialize(Ar& ar, ParallelHashMap<A, B>& map)
-        {
-            ReadMap<ParallelHashMap<A, B>, A, B>(ar, map);
-        }
-    };
-
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<OStream>, ParallelHashMapMutex<A, B>>
-    {
-        template <typename Ar>
-        void Serialize(Ar& ar, ParallelHashMapMutex<A, B>& map)
-        {
-            WriteMap<ParallelHashMapMutex<A, B>>(ar, map);
-        }
-    };
-
-    template <typename A, typename B>
-    struct Serialize_NonTrivial<Archive<IStream>, ParallelHashMapMutex<A, B>>
-    {
-        template <typename Ar>
-        void Serialize(Ar& ar, ParallelHashMapMutex<A, B>& map)
-        {
-            ReadMap<ParallelHashMapMutex<A, B>, A, B>(ar, map);
-        }
-    };
 } // namespace Lina::Serialization
 #endif

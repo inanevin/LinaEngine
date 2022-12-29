@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include "Serialization/VectorSerialization.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
+#include "Log/Log.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"

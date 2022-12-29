@@ -147,7 +147,6 @@ set(LINACOMMON_HEADERS
 
 	# Serialization
 	include/Serialization/Archive.hpp
-	include/Serialization/Archive2.hpp
 	include/Serialization/Compressor.hpp
 	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
@@ -213,6 +212,8 @@ PUBLIC
 	include/JobSystem/JobSystem.hpp
 	include/Serialization/Endianness.hpp
 	include/Data/Streams.hpp
+	include/Log/Log.hpp
+	
 )
 
 # target_precompile_headers(${PROJECT_NAME}
