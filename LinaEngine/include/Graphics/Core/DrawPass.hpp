@@ -66,6 +66,16 @@ namespace Lina::Graphics
             m_passMask     = other.m_passMask;
             m_drawDistance = other.m_drawDistance;
         }
+        DrawPass& operator=(const DrawPass& other)
+        {
+            LOCK_GUARD(m_mtx);
+            m_renderables  = other.m_renderables;
+            m_batches      = other.m_batches;
+            m_passMask     = other.m_passMask;
+            m_drawDistance = other.m_drawDistance;
+            return *this;
+        }
+
         virtual ~DrawPass() = default;
 
         inline void Initialize(DrawPassMask mask, float distance)

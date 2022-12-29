@@ -251,7 +251,7 @@ namespace Lina::Editor
         HashMap<StringID, PersistentWindowData> m_windowDataPersistent;
         HashMap<StringID, PerFrameWindowData>   m_windowDataPerFrame;
         Theme                                   m_theme;
-        StringID                                m_iconTexture;
+        StringID                                m_iconTexture       = 0;
         StringID                                m_hoveredWindow     = 0;
         StringID                                m_draggedWindow     = 0;
         StringID                                m_focusedWindow     = 0;

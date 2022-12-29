@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ComponentEvents_HPP
-#define ComponentEvents_HPP
+#ifndef WorldEvents_HPP
+#define WorldEvents_HPP
 
 #include "Utility/StringId.hpp"
 
@@ -57,6 +57,12 @@ namespace Lina::Event
         World::Component*   ptr   = nullptr;
         TypeID              tid   = 0;
     };
+
+    struct EWorldDestroyed
+    {
+        World::EntityWorld* world = nullptr;
+    };
+
 } // namespace Lina::Event
 
 #endif

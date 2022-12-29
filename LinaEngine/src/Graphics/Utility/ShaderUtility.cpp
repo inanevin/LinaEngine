@@ -336,9 +336,9 @@ namespace Lina::Graphics
                 vec.push_back(static_cast<uint8>(RenderPassType::Main));
                 continue;
             }
-            else if (line.find("#LINA_RP_PP") != std::string::npos)
+            else if (line.find("#LINA_RP_INTERMEDIATE") != std::string::npos)
             {
-                vec.push_back(static_cast<uint8>(RenderPassType::PostProcess));
+                vec.push_back(static_cast<uint8>(RenderPassType::Intermediate));
                 continue;
             }
             else if (line.find("#LINA_RP_FINAL") != std::string::npos)

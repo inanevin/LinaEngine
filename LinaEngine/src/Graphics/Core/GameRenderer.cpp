@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GUIBackend.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/LevelEvents.hpp"
-#include "EventSystem/ComponentEvents.hpp"
+#include "EventSystem/WorldEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Graphics/PipelineObjects/Swapchain.hpp"
@@ -156,14 +156,7 @@ namespace Lina::Graphics
             f.passDescriptor.SendUpdate();
         }
 
-        Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GameRenderer::OnLevelUninstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GameRenderer::OnLevelInstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::EComponentCreated, &GameRenderer::OnComponentCreated>(this);
-        Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &GameRenderer::OnComponentDestroyed>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GameRenderer::OnPreMainLoop>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowResized, &GameRenderer::OnWindowResized>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &GameRenderer::OnWindowPositioned>(this);
-        Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &GameRenderer::OnResourceLoaded>(this);
+        ConnectEvents();
 
         // Merged buffers.
         m_cpuVtxBuffer = Buffer{
@@ -215,7 +208,7 @@ namespace Lina::Graphics
         }
 
         m_renderPasses[RenderPassType::Main].Destroy();
-        m_renderPasses[RenderPassType::PostProcess].Destroy();
+        m_renderPasses[RenderPassType::Intermediate].Destroy();
         m_renderPasses[RenderPassType::Final].Destroy();
 
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
@@ -337,34 +330,13 @@ namespace Lina::Graphics
         frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
         auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& postPass  = m_renderPasses[RenderPassType::PostProcess];
-        auto& finalPass = m_renderPasses[RenderPassType::Final];
+        auto& interPass = m_renderPasses[RenderPassType::Intermediate];
 
         // ****** MAIN PASS ******
         PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
         mainPass.Begin(mainPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-
-        if (m_renderWorldData.extractedRenderables.empty())
-        {
-          //  ImageMemoryBarrier barrier = ImageMemoryBarrier{
-          //      .srcAccessMask       = GetAccessFlags(AccessFlags::HostWrite),
-          //      .dstAccessMask       = GetAccessFlags(AccessFlags::ShaderRead),
-          //      .oldLayout           = ImageLayout::Undefined,
-          //      .newLayout           = ImageLayout::ShaderReadOnlyOptimal,
-          //      .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          //      .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          //      .img                 = mainPass._colorTexture->GetImage()._allocatedImg.image,
-          //  };
-          //  Vector<ImageMemoryBarrier> imageBarriers;
-          //  imageBarriers.push_back(barrier);
-          //  cmd.CMD_PipelineBarrier(PipelineStageFlags::Host, PipelineStageFlags::FragmentShader, 0, {}, {}, imageBarriers);
-        }
-        else
-        {
-            m_renderWorldData.opaquePass.UpdateViewData(frame.viewDataBuffer, m_renderWorldData.playerView);
-            m_renderWorldData.opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
-        }
-
+        m_renderWorldData.opaquePass.UpdateViewData(frame.viewDataBuffer, m_renderWorldData.playerView);
+        m_renderWorldData.opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
         mainPass.End(cmd);
         PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
 
@@ -372,12 +344,12 @@ namespace Lina::Graphics
         PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
         m_guiBackend->SetCmd(&cmd);
         Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-        postPass.Begin(postPass.framebuffers[imageIndex], cmd, defaultRenderArea);
+        interPass.Begin(interPass.framebuffers[imageIndex], cmd, defaultRenderArea);
         auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-        ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+        ppMat->Bind(cmd, RenderPassType::Intermediate, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
         cmd.CMD_Draw(3, 1, 0, 0);
         m_guiBackend->RecordDrawCommands();
-        postPass.End(cmd);
+        interPass.End(cmd);
         PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
         cmd.End();
 
@@ -457,11 +429,9 @@ namespace Lina::Graphics
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
         auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
         auto& mainPass     = m_renderPasses[RenderPassType::Main];
-        auto& ppPass       = m_renderPasses[RenderPassType::PostProcess];
-        // finalQuadMat->SetTexture(0, ppPass._colorTexture);
-        // finalQuadMat->CheckUpdatePropertyBuffers();
         ppMat->SetTexture(0, mainPass._colorTexture);
         ppMat->CheckUpdatePropertyBuffers();
+        m_guiBackend->UpdateProjection();
     }
 
     void GameRenderer::OnWindowResized(const Event::EWindowResized& ev)
@@ -483,7 +453,6 @@ namespace Lina::Graphics
             return;
 
         auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& ppPass    = m_renderPasses[RenderPassType::PostProcess];
         auto& finalPass = m_renderPasses[RenderPassType::Final];
 
         // Only final render pass depends on swapchain, destroy
@@ -498,7 +467,6 @@ namespace Lina::Graphics
         size = m_swapchain->size;
 
         mainPass.Destroy();
-        ppPass.Destroy();
 
         // Recreate passes
         CreateRenderPasses();
@@ -626,15 +594,27 @@ namespace Lina::Graphics
 
     void GameRenderer::CreateRenderPasses()
     {
-        m_renderPasses[RenderPassType::Main]        = RenderPass();
-        m_renderPasses[RenderPassType::PostProcess] = RenderPass();
-        m_renderPasses[RenderPassType::Final]       = RenderPass();
-        auto& mainPass                              = m_renderPasses[RenderPassType::Main];
-        auto& postPass                              = m_renderPasses[RenderPassType::PostProcess];
-        auto& finalPass                             = m_renderPasses[RenderPassType::Final];
+        m_renderPasses[RenderPassType::Main]         = RenderPass();
+        m_renderPasses[RenderPassType::Intermediate] = RenderPass();
+        m_renderPasses[RenderPassType::Final]        = RenderPass();
+        auto& mainPass                               = m_renderPasses[RenderPassType::Main];
+        auto& interPass                              = m_renderPasses[RenderPassType::Intermediate];
+        auto& finalPass                              = m_renderPasses[RenderPassType::Final];
         VulkanUtility::CreateMainRenderPass(mainPass);
-        VulkanUtility::CreatePresentRenderPass(postPass);
+        VulkanUtility::CreatePresentRenderPass(interPass);
         VulkanUtility::CreatePresentRenderPass(finalPass);
+    }
+
+    void GameRenderer::ConnectEvents()
+    {
+        Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &GameRenderer::OnLevelUninstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GameRenderer::OnLevelInstalled>(this);
+        Event::EventSystem::Get()->Connect<Event::EComponentCreated, &GameRenderer::OnComponentCreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &GameRenderer::OnComponentDestroyed>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GameRenderer::OnPreMainLoop>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &GameRenderer::OnWindowResized>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &GameRenderer::OnWindowPositioned>(this);
+        Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &GameRenderer::OnResourceLoaded>(this);
     }
 
 } // namespace Lina::Graphics

@@ -75,6 +75,7 @@ namespace Lina::Graphics
         RenderPass& AddClearValue(const ClearValue& clear);
         void        Begin(const Framebuffer& fb, const CommandBuffer& cmd, const Recti& renderArea) const;
         void        End(const CommandBuffer& cmd) const;
+        void        Clear(const CommandBuffer& cmd, const Recti& clearArea);
 
         // Description
         Vector<ClearValue>        clearValues;

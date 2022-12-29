@@ -75,7 +75,9 @@ namespace Lina::Graphics
 
         struct RenderWorldData
         {
-            Texture*                     finalTexture = nullptr;
+
+            Texture*                     finalColorTexture = nullptr;
+            Texture*                     finalDepthTexture = nullptr;
             IDList<RenderableComponent*> allRenderables;
             Vector<RenderableData>       extractedRenderables;
             DrawPass                     opaquePass;
@@ -83,6 +85,8 @@ namespace Lina::Graphics
             CameraComponent*             cameraComponent = nullptr;
             GPUSceneData                 sceneData;
             GPULightData                 lightData;
+            Vector<Framebuffer>          framebuffers;
+            bool                         initialized = false;
         };
 
     protected:
@@ -104,6 +108,7 @@ namespace Lina::Graphics
         virtual void HandleOutOfDateImage();
         virtual void MergeMeshes();
         virtual void CreateRenderPasses();
+        virtual void ConnectEvents();
 
     protected:
         friend class Editor::Editor;

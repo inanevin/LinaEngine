@@ -196,7 +196,7 @@ namespace Lina::Graphics
         Texture* txt = new Texture();
         Sampler  sampler;
         GetDefaultPassSampler(sampler);
-        txt->CreateFromRuntime(image, sampler);
+        txt->CreateFromRuntime(image, sampler, ext);
         return txt;
     }
 
@@ -224,7 +224,7 @@ namespace Lina::Graphics
         Texture* txt = new Texture();
         Sampler  sampler;
         GetDefaultPassSampler(sampler);
-        txt->CreateFromRuntime(image, sampler);
+        txt->CreateFromRuntime(image, sampler, ext);
         return txt;
     }
 
@@ -308,7 +308,6 @@ namespace Lina::Graphics
             fb.AddImageView(pass._colorTexture->GetImage()._ptrImgView).AddImageView(pass._depthTexture->GetImage()._ptrImgView);
             fb.Create();
         }
-
     }
 
     void VulkanUtility::CreatePresentRenderPass(RenderPass& pass)
@@ -803,7 +802,7 @@ namespace Lina::Graphics
         return vkp;
     }
 
-    VkRect2D VulkanUtility::GetRect(Recti& rect)
+    VkRect2D VulkanUtility::GetRect(const Recti& rect)
     {
         VkRect2D r;
         r.offset.x      = rect.pos.x;
@@ -830,6 +829,16 @@ namespace Lina::Graphics
             .x = o.x,
             .y = o.y,
             .z = o.z,
+        };
+        return off;
+    }
+
+    Offset3D VulkanUtility::GetOffset3D(Extent3D e)
+    {
+        Offset3D off = Offset3D{
+            .x = static_cast<int>(e.width),
+            .y = static_cast<int>(e.height),
+            .z = static_cast<int>(e.depth),
         };
         return off;
     }

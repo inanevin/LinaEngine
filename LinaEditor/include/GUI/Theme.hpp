@@ -186,10 +186,10 @@ namespace Lina::Editor
         friend class EditorGUIManager;
         friend class Editor;
 
+        float                            m_currentRotateAngle = 0.0f;
         Deque<StoredColor>               m_colorStack;
         Deque<StoredProperty>            m_propertyStack;
         Deque<uint32>                    m_fontStack;
-        float                            m_currentRotateAngle = 0.0f;
         HashMap<ThemeColor, Color>       m_colors;
         HashMap<ThemeFont, uint32>       m_fonts;
         HashMap<ThemeProperty, float>    m_properties;

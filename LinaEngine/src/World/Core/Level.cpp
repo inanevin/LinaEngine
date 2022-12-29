@@ -40,6 +40,7 @@ namespace Lina::World
 {
     void Level::Install()
     {
+        EntityWorld::s_levelWorld = &m_world;
         m_world.Initialize();
         LINA_TRACE("Level installed: {0}", m_path);
     }

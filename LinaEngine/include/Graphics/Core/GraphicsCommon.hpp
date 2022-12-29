@@ -589,6 +589,7 @@ namespace Lina::Graphics
         LogoColored1024,
         LogoWhite256,
         Grid512,
+        DummyBlack32,
     };
 
     enum RenderableType
@@ -620,9 +621,9 @@ namespace Lina::Graphics
 
     enum class RenderPassType
     {
-        Main        = 0,
-        PostProcess = 1,
-        Final       = 2,
+        Main         = 0,
+        Intermediate = 1,
+        Final        = 2,
     };
 
     enum class PipelineType
@@ -845,6 +846,14 @@ namespace Lina::Graphics
         BlendFactor         dstAlphaBlendFactor = BlendFactor::Zero;
         BlendOp             alphaBlendOp        = BlendOp::Add;
         ColorComponentFlags componentFlags      = ColorComponentFlags::RGBA;
+    };
+
+    struct ImageBlit
+    {
+        Offset3D              srcOffsets[2];
+        ImageSubresourceRange srcRange;
+        Offset3D              dstOffsets[2];
+        ImageSubresourceRange dstRange;
     };
 
 #define TO_FLAGS(X) static_cast<uint32>(X)

@@ -49,10 +49,6 @@ SOFTWARE.
 
 #define DELTA_TIME_HISTORY 11
 
-namespace Graphics
-{
-    class Renderer;
-}
 namespace Lina
 {
     class Application;
@@ -140,7 +136,6 @@ namespace Lina
         float                                  m_physicsAccumulator = 0.0f;
         EngineSettings*                        m_engineSettings     = nullptr;
         RenderSettings*                        m_renderSettings     = nullptr;
-        Graphics::Renderer*                    m_defaultRenderer    = nullptr;
         Future<void>                           m_renderJob;
         std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
 

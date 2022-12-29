@@ -60,6 +60,7 @@ namespace Lina
         ~FileWatcher(){};
 
         void Initialize(const String& directory, float interval, FileWatchStatus targetStatus);
+        void Shutdown();
 
     public:
         Delegate<void(FileWatchStatus status, const String& fullPath)> m_changeCallback;

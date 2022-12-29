@@ -38,6 +38,7 @@ struct VkCommandBuffer_T;
 struct VkCommandPool_T;
 struct VkBuffer_T;
 struct VkPipelineLayout_T;
+struct VKImage_T;
 
 namespace Lina::Graphics
 {
@@ -67,6 +68,7 @@ namespace Lina::Graphics
         void CMD_CopyBufferToImage(VkBuffer_T* src, VkImage_T* dst, ImageLayout layout, const Vector<BufferImageCopy>& copy);
         void CMD_SetViewport(Viewport& vp);
         void CMD_SetScissors(Recti& rect);
+        void CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter);
         void End();
 
         // Description

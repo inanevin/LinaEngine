@@ -50,6 +50,15 @@ namespace Lina::World
         ~EntityWorld() = default;
 
     public:
+        /// <summary>
+        /// Returns the current installed level's world.
+        /// </summary>
+        /// <returns></returns>
+        static inline EntityWorld* GetWorld()
+        {
+            return s_levelWorld;
+        }
+
         Entity* GetEntity(uint32 id);
         Entity* GetEntity(const String& name);
         Entity* CreateEntity(const String& name);
@@ -198,6 +207,7 @@ namespace Lina::World
         void DestroyEntityData(Entity* e);
 
     private:
+        static EntityWorld*                  s_levelWorld;
         bool                                 m_initialized = false;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         Vector<Entity*>                      m_entities;

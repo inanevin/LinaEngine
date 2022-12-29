@@ -108,7 +108,7 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/ApplicationEvents.hpp
 	include/EventSystem/ResourceEvents.hpp
 	include/EventSystem/EventSystem.hpp
-	include/EventSystem/ComponentEvents.hpp
+	include/EventSystem/WorldEvents.hpp
 
 	# Data
 	include/Data/Vector.hpp

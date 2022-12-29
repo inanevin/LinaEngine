@@ -39,6 +39,8 @@ namespace Lina
     namespace Event
     {
         struct EEngineResourcesLoaded;
+        struct EDrawGUI;
+        struct ETick;
     } // namespace Event
 
     namespace Graphics
@@ -51,33 +53,26 @@ namespace Lina
 namespace Lina::Editor
 {
     struct EShortcut;
-    class EditorRenderer;
 
     class EditorGUIManager
     {
     public:
-        inline StringID GetIconTextureSID()
-        {
-            return m_iconTextureSID;
-        }
-
     private:
         friend class EditorRenderer;
         friend class Editor;
 
-        void Initialize();
-        void ConnectEvents(Graphics::GUIBackend* guiBackend);
+        void Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend);
         void Shutdown();
-        void Draw();
-        void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
+        void OnDrawGUI(const Event::EDrawGUI& ev);
+        void OnTick(const Event::ETick& ev);
 
     private:
-        Graphics::GUIBackend* m_guiBackend     = nullptr;
-        Graphics::Texture*    m_iconTexture    = nullptr;
-        StringID              m_iconTextureSID = 0;
+        Graphics::GUIBackend* m_guiBackend  = nullptr;
+        Graphics::Texture*    m_iconTexture = nullptr;
         Vector<PackedTexture> m_packedIcons;
         TopPanel              m_topPanel;
         DockPanel             m_dockPanel;
+        EditorRenderer*       m_renderer = nullptr;
     };
 } // namespace Lina::Editor
 

@@ -58,6 +58,8 @@ namespace Sandbox
     Vector<String>               modelPaths;
     int                          ctr = 0;
 
+    World::EntityWorld* testWorld = nullptr;
+
     void SandboxGameManager::OnGameInitialized()
     {
         Event::EventSystem::Get()->Connect<Event::ETick, &SandboxGameManager::OnTick>(this);
@@ -74,15 +76,15 @@ namespace Sandbox
     {
         modelPaths.clear();
         modelPaths.push_back("Resources/Engine/Models/Cube.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
-        modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
+        // modelPaths.push_back("Resources/Engine/Models/Sphere.fbx");
+        // modelPaths.push_back("Resources/Engine/Models/Cylinder.fbx");
+        // modelPaths.push_back("Resources/Engine/Models/Capsule.fbx");
+        // modelPaths.push_back("Resources/Engine/Models/Plane.fbx");
+
 
         if (Lina::Input::InputEngine::Get()->GetKeyDown(LINA_KEY_SPACE))
         {
-            if (!m)
-                m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Cube.fbx");
+            m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Cube.fbx");
 
             if (m)
             {
@@ -96,7 +98,7 @@ namespace Sandbox
                     speeds.push_back(Math::RandF(0.5f, 1.5f));
                     amounts.push_back(Math::RandF(-1.5, 2));
                     LINA_TRACE("Added to world");
-                    m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
+                   // m = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>(modelPaths[ctr % 5]);
                     ctr++;
                 }
             }

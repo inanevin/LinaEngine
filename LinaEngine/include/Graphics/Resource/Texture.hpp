@@ -61,7 +61,7 @@ namespace Lina::Graphics
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-        void              CreateFromRuntime(Image img, Sampler sampler);
+        void              CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext);
         void              WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
         void              GenerateCustomBuffers(int width, int height, int channels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
 

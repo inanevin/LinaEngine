@@ -93,11 +93,12 @@ namespace Lina::Graphics
 
         // Viewport
         static VkViewport GetViewport(Viewport& vp);
-        static VkRect2D   GetRect(Recti& rect);
+        static VkRect2D   GetRect(const Recti& rect);
 
         // Others
         static VkExtent3D GetExtent3D(Extent3D e);
         static VkOffset3D GetOffset3D(Offset3D e);
+        static Offset3D   GetOffset3D(Extent3D e);
         static size_t     PadUniformBufferSize(size_t originalSize);
     };
 

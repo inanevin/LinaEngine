@@ -31,9 +31,6 @@ SOFTWARE.
 #ifndef MainLoopEvents_HPP
 #define MainLoopEvents_HPP
 
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
 namespace Lina::Event
 {
     struct EShutdown
@@ -66,7 +63,6 @@ namespace Lina::Event
         float deltaTime    = 0.0f;
         bool  isInPlayMode = false;
     };
-
 
     struct EPlayModeChanged
     {

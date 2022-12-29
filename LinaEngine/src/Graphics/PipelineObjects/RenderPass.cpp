@@ -179,6 +179,21 @@ namespace Lina::Graphics
         vkCmdEndRenderPass(cmd._ptr);
     }
 
+    void RenderPass::Clear(const CommandBuffer& cmd, const Recti& clearArea)
+    {
+        VkClearAttachment colorAttachment = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .colorAttachment = 0, .clearValue = {{0.0f, 0.0f, 0.0f, 1.0f}}};
+        VkClearAttachment depthAttachment = {.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT, .colorAttachment = 0, .clearValue = {{1.0f, 0}}};
+        VkRect2D          rect            = VulkanUtility::GetRect(clearArea);
+        VkClearRect       clearRect       = VkClearRect{
+                        .rect           = rect,
+                        .baseArrayLayer = 0,
+                        .layerCount     = 1,
+        };
+
+        vkCmdClearAttachments(cmd._ptr, 1, &colorAttachment, 1, &clearRect);
+        vkCmdClearAttachments(cmd._ptr, 1, &depthAttachment, 1, &clearRect);
+    }
+
     void SubPass::Create()
     {
         // Description needs to be created within the used renderpass due to invalidated pointers of color attachments array.

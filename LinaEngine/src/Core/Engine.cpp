@@ -64,21 +64,18 @@ namespace Lina
     private:
         FRIEND_ARCHIVE;
 
-        template<typename T>
-        void Save(T& ar)
+        template <typename T> void Save(T& ar)
         {
-           ar(xd, sa);
+            ar(xd, sa);
         }
 
-        template<typename T>
-        void Load(T& ar)
+        template <typename T> void Load(T& ar)
         {
-           ar(xd, sa);
+            ar(xd, sa);
         }
 
         std::vector<float> sa;
-        int xd = 5;
-        
+        int                xd = 5;
     };
 
     void Engine::LoadEngineResources()
@@ -168,19 +165,22 @@ namespace Lina
         m_levelManager.Initialize(&m_renderEngine);
         m_renderEngine.Initialize(initInfo);
 
+        Graphics::Renderer* renderer = nullptr;
+
         // Editor if used
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
+            m_editor.m_renderer = new Editor::EditorRenderer();
+            renderer            = m_editor.m_renderer;
             m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend);
-            //   m_defaultRenderer = new Editor::EditorRenderer();
         }
 #endif
 
-        if (m_defaultRenderer == nullptr)
-            m_defaultRenderer = new Graphics::GameRenderer();
+        if (renderer == nullptr)
+            renderer = new Graphics::GameRenderer();
 
-        m_renderEngine.SetRenderer(m_defaultRenderer);
+        m_renderEngine.SetRenderer(renderer);
 
         // Runtime info setup
         m_physicsAccumulator = 0.0f;

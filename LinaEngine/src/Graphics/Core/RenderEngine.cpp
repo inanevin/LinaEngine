@@ -162,6 +162,7 @@ namespace Lina::Graphics
         m_engineTextureNames[EngineTextureType::LogoColored1024] = "Logo_Colored_1024";
         m_engineTextureNames[EngineTextureType::LogoWhite256]    = "Logo_White_256";
         m_engineTextureNames[EngineTextureType::Grid512]         = "Grid512";
+        m_engineTextureNames[EngineTextureType::DummyBlack32]    = "DummyBlack_32";
     }
 
     void RenderEngine::Tick()
@@ -218,6 +219,7 @@ namespace Lina::Graphics
         m_gpuUploader.Destroy();
         m_mainDeletionQueue.Flush();
         m_renderer->Shutdown();
+        delete m_renderer;
         m_window->Shutdown();
         m_backend.Shutdown();
     }

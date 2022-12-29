@@ -87,7 +87,7 @@ namespace Lina::Graphics
 #endif
 
         m_additionalSwapchains[sid] = Swapchain();
-        auto& swp = m_additionalSwapchains[sid];
+        auto& swp                   = m_additionalSwapchains[sid];
 
         swp = Swapchain{
             .size        = Vector2i(static_cast<uint32>(width), static_cast<uint32>(height)),
@@ -263,6 +263,7 @@ namespace Lina::Graphics
         vkb::Device vkbDevice = deviceBuilder.build().value();
         m_device              = vkbDevice.device;
         m_gpu                 = physicalDevice.physical_device;
+
 
         // if (hasDedicatedTransferQueue)
         // {

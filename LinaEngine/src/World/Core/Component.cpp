@@ -30,7 +30,7 @@ SOFTWARE.
 #include "World/Core/World.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
-#include "EventSystem/ComponentEvents.hpp"
+#include "EventSystem/WorldEvents.hpp"
 
 namespace Lina::World
 {

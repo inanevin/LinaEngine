@@ -40,6 +40,11 @@ namespace Lina
 {
     class Engine;
 
+    namespace Graphics
+    {
+        class GameRenderer;
+    }
+
     namespace Event
     {
         struct ELevelInstalled;
@@ -85,10 +90,12 @@ namespace Lina::Editor
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
 
     private:
+        friend class Engine;
+
         Graphics::GUIBackend*            m_guiBackend = nullptr;
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer                   m_renderer;
+        EditorRenderer*                  m_renderer     = nullptr;
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
         ImmediateGUI                     m_gui;

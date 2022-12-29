@@ -151,8 +151,9 @@ namespace Lina::Graphics
         }
     }
 
-    void Texture::CreateFromRuntime(Image img, Sampler sampler)
+    void Texture::CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext)
     {
+        m_extent   = ext;
         m_gpuImage = img;
         m_gpuImage.Create(true, false);
         m_sampler = sampler;
@@ -166,7 +167,6 @@ namespace Lina::Graphics
 
         Command cmd;
         cmd.Record = [this, copyExtent, gpuImgOffset, cpuBufferOffset](CommandBuffer& cmd) {
-
             ImageSubresourceRange range = ImageSubresourceRange{
                 .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
                 .baseMipLevel   = 0,

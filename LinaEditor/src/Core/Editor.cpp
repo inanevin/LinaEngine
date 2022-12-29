@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/Renderer.hpp"
+#include "Core/EditorRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -66,8 +67,6 @@ namespace Lina::Editor
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
         ImmediateGUI::s_instance = &m_gui;
-        m_renderer.Initialize(swapchain, m_guiBackend);
-        m_guiManager.ConnectEvents(m_guiBackend);
         m_shortcutManager.Initialize();
     }
 
@@ -75,9 +74,7 @@ namespace Lina::Editor
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
-
         m_guiManager.Shutdown();
-        m_renderer.Shutdown();
     }
 
     void Editor::VerifyStaticResources()
@@ -254,8 +251,8 @@ namespace Lina::Editor
 
     void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        m_gui.m_iconTexture = m_guiManager.GetIconTextureSID();
-        m_guiManager.Initialize();
+        m_guiManager.Initialize(m_guiBackend, m_renderer);
+        m_gui.m_iconTexture = m_guiManager.m_iconTexture->GetSID();
     }
 
 } // namespace Lina::Editor

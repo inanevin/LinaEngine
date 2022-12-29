@@ -53,6 +53,7 @@ namespace Lina
         class Entity;
         class LevelManager;
         class Component;
+        class EntityWorld;
     } // namespace World
 
     namespace Resources
@@ -156,6 +157,7 @@ namespace Lina::Event
         friend class World::Entity;
         friend class World::LevelManager;
         friend class World::Component;
+        friend class World::EntityWorld;
 
         template <typename T> EventSink<T>* GetSink()
         {

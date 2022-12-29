@@ -32,77 +32,31 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/LevelEvents.hpp"
 #include "Resource/Core/ResourceManager.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
+#include "Core/EditorRenderer.hpp"
+#include "Platform/LinaVGIncl.hpp"
+
+// Debug
+#include "Input/Core/InputEngine.hpp"
+#include "World/Core/World.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Model.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include "Math/Math.hpp"
+#include "Core/Time.hpp"
 
 namespace Lina::Editor
 {
-    void EditorGUIManager::Initialize()
+    void EditorGUIManager::Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend)
     {
-        m_topPanel.Initialize();
-        LGUI->SetWindowPosition("TestWindow", Vector2(200, 200));
-        LGUI->SetWindowPosition("TestWindow2", Vector2(800, 200));
-        m_iconTextureSID = TO_SIDC("LINA_ENGINE_ICONPACK");
-    }
-
-    void EditorGUIManager::ConnectEvents(Graphics::GUIBackend* guiBackend)
-    {
+        m_renderer   = rend;
         m_guiBackend = guiBackend;
-        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &EditorGUIManager::OnEngineResourcesLoaded>(this);
-    }
 
-    void EditorGUIManager::Shutdown()
-    {
-        m_topPanel.Shutdown();
-
-        Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
-        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
-    }
-
-    void EditorGUIManager::Draw()
-    {
-        m_topPanel.Draw();
-        m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
-
-        m_dockPanel.Draw();
-
-        LGUI->SetWindowSize("TestWindow", Vector2(500, 500));
-
-        if (LGUI->BeginWindow("TestWindow"))
-        {
-
-            LGUI->EndWindow();
-        }
-
-        // LGUI->SetWindowSize("TestWindow2", Vector2(500, 500));
-        //
-        // if (LGUI->BeginWindow("TestWindow2"))
-        // {
-        //
-        //     LGUI->EndWindow();
-        // }
-    }
-
-    // void EditorRenderer::OnEditorDrawBegin(const Event::EOnEditorDrawBegin& ev)
-    // {
-    //     return;
-    //     LGUI->StartFrame();
-    //     LinaVG::StartFrame();
-    //
-    //     EditorGUIManager::Get()->Draw();
-    //
-    //     // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
-    //     //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
-    //
-    //     LinaVG::Render();
-    //     LinaVG::EndFrame();
-    //     LGUI->EndFrame();
-    // }
-
-    void EditorGUIManager::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
-    {
         auto* nunitoFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/NunitoSans.ttf");
         auto* rubikFont  = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/Rubik-Regular.ttf");
 
@@ -111,6 +65,7 @@ namespace Lina::Editor
 
         m_guiBackend->UploadAllFontTextures();
 
+        auto  gui   = ImmediateGUI::Get();
         auto& theme = LGUI->GetTheme();
 
         theme.m_fonts[ThemeFont::Default]       = rubikFont->GetHandle(12);
@@ -119,9 +74,10 @@ namespace Lina::Editor
         // Scan Icons folder & buffer all icons into a texture atlas.
         Vector<String> icons = Utility::GetFolderContents("Resources/Editor/Icons");
         m_iconTexture        = TexturePacker::PackFilesOrdered(icons, 2000, m_packedIcons);
-        m_iconTexture->ChangeSID(m_iconTextureSID);
+        const StringID sid   = TO_SIDC("LINA_ENGINE_EDITOR_ICONPACK");
+        m_iconTexture->ChangeSID(sid);
         m_iconTexture->SetUserManaged(true);
-        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(m_iconTextureSID, m_iconTexture);
+        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, m_iconTexture);
 
         for (auto& pi : m_packedIcons)
         {
@@ -183,6 +139,110 @@ namespace Lina::Editor
         theme.m_properties[ThemeProperty::PopupBorderThickness]        = 1.0f;
         theme.m_properties[ThemeProperty::MenuBarPopupBorderThickness] = 1.0f;
         theme.m_properties[ThemeProperty::MenuBarItemsTooltipSpacing]  = 24.0f;
+
+        // Events
+        Event::EventSystem::Get()->Connect<Event::EDrawGUI, &EditorGUIManager::OnDrawGUI>(this);
+        Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
+
+        m_topPanel.Initialize();
+        LGUI->SetWindowPosition("TestWindow", Vector2(200, 200));
+        LGUI->SetWindowPosition("TestWindow2", Vector2(800, 200));
     }
 
+    void EditorGUIManager::Shutdown()
+    {
+        m_topPanel.Shutdown();
+        Event::EventSystem::Get()->Disconnect<Event::EDrawGUI>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
+        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
+    }
+
+    World::EntityWorld* testWorld = nullptr;
+
+    void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
+    {
+        LGUI->StartFrame();
+        LinaVG::StartFrame();
+
+        const auto& wd = m_renderer->GetWorldData();
+
+        if (testWorld)
+        {
+            auto it = wd.find(testWorld);
+
+            if (it != wd.end())
+            {
+                 auto txt = it->second.finalColorTexture;
+                 if(txt != nullptr && txt->GetSID() != 0)
+                 LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(250, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
+            }
+
+            auto entity = testWorld->GetEntity("TestUlan");
+
+            if (entity)
+            {
+                auto pos = entity->GetPosition();
+                pos = Vector3(0, Math::Sin(Time::GetElapsedTimeF() * 5) * 2, 0);
+                entity->SetPosition(pos);
+            }
+        }
+
+        auto levelWorld = World::EntityWorld::GetWorld();
+        if (levelWorld)
+        {
+            auto it = wd.find(levelWorld);
+            if (it != wd.end())
+            {
+                auto txt = it->second.finalColorTexture;
+                if (txt != nullptr && txt->GetSID() != 0)
+                    LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(900, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
+            }
+        }
+        // m_topPanel.Draw();
+        // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+        //
+        // m_dockPanel.Draw();
+        //
+        // LGUI->SetWindowSize("TestWindow", Vector2(500, 500));
+        //
+        // if (LGUI->BeginWindow("TestWindow"))
+        //{
+        //
+        //     LGUI->EndWindow();
+        // }
+
+        // LGUI->SetWindowSize("TestWindow2", Vector2(500, 500));
+        //
+        // if (LGUI->BeginWindow("TestWindow2"))
+        // {
+        //
+        //     LGUI->EndWindow();
+        // }
+
+        // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
+        //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
+
+        LinaVG::Render();
+        LinaVG::EndFrame();
+        LGUI->EndFrame();
+    }
+
+    void EditorGUIManager::OnTick(const Event::ETick& ev)
+    {
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_E))
+        {
+            testWorld   = new World::EntityWorld();
+            auto cam = testWorld->CreateEntity(LINA_EDITOR_CAMERA_NAME);
+            testWorld->AddComponent<Graphics::CameraComponent>(cam);
+            cam->SetPosition(Vector3(0,0, -15));
+            auto sphere = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Capsule.fbx");
+            auto ent = sphere->AddToWorld(testWorld);
+            ent->SetName("TestUlan");
+        }
+
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
+        {
+            // testWorld->Shutdown();
+        }
+    }
 } // namespace Lina::Editor

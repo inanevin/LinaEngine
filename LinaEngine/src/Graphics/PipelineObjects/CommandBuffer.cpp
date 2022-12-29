@@ -110,7 +110,12 @@ namespace Lina::Graphics
         vkCmdDrawIndexedIndirect(_ptr, buffer, offset, drawCount, stride);
     }
 
-    void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags srcStageFlags, PipelineStageFlags dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers)
+    void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags                  srcStageFlags,
+                                            PipelineStageFlags                  dstStageFlags,
+                                            uint32                              dependencyFlags,
+                                            const Vector<DefaultMemoryBarrier>& barriers,
+                                            const Vector<BufferMemoryBarrier>&  bufferBarriers,
+                                            const Vector<ImageMemoryBarrier>&   imageBarriers)
     {
         Vector<VkMemoryBarrier>       _barriers;
         Vector<VkBufferMemoryBarrier> _bufferBarriers;
@@ -131,7 +136,9 @@ namespace Lina::Graphics
         for (auto& b : imageBarriers)
             _imageBarriers.push_back(VulkanUtility::GetImageMemoryBarrier(b));
 
-        vkCmdPipelineBarrier(_ptr, GetPipelineStageFlags(srcStageFlags), GetPipelineStageFlags(dstStageFlags), dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(), imageBarriersSize, _imageBarriers.data());
+        vkCmdPipelineBarrier(_ptr, GetPipelineStageFlags(srcStageFlags), GetPipelineStageFlags(dstStageFlags), dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(),
+                             imageBarriersSize, _imageBarriers.data());
+
     }
 
     void CommandBuffer::CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions)
@@ -165,8 +172,27 @@ namespace Lina::Graphics
 
     void CommandBuffer::CMD_SetScissors(Recti& rect)
     {
-        VkRect2D   _scissors = VulkanUtility::GetRect(rect);
+        VkRect2D _scissors = VulkanUtility::GetRect(rect);
         vkCmdSetScissor(_ptr, 0, 1, &_scissors);
+    }
+
+    void CommandBuffer::CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter)
+    {
+        Vector<VkImageBlit> _regions;
+
+        for (auto& r : regions)
+        {
+            VkImageBlit blit;
+            blit.dstOffsets[0]  = VulkanUtility::GetOffset3D(r.dstOffsets[0]);
+            blit.dstOffsets[1]  = VulkanUtility::GetOffset3D(r.dstOffsets[1]);
+            blit.srcOffsets[0]  = VulkanUtility::GetOffset3D(r.srcOffsets[0]);
+            blit.srcOffsets[1]  = VulkanUtility::GetOffset3D(r.srcOffsets[1]);
+            blit.dstSubresource = VulkanUtility::GetImageSubresourceLayers(r.dstRange);
+            blit.srcSubresource = VulkanUtility::GetImageSubresourceLayers(r.srcRange);
+            _regions.push_back(blit);
+        }
+
+        vkCmdBlitImage(_ptr, src, GetImageLayout(srcLayout), dest, GetImageLayout(destLayout), static_cast<uint32>(regions.size()), &_regions[0], GetFilter(filter));
     }
 
     void CommandBuffer::End()

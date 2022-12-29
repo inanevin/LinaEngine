@@ -30,10 +30,14 @@ SOFTWARE.
 #include "World/Core/Entity.hpp"
 #include "World/Core/Component.hpp"
 #include "Memory/MemoryManager.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/WorldEvents.hpp"
 
 namespace Lina::World
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
+
+    EntityWorld* EntityWorld::s_levelWorld = nullptr;
 
     void EntityWorld::Initialize()
     {
@@ -76,6 +80,8 @@ namespace Lina::World
         m_componentCaches.clear();
         m_nextID       = 0;
         m_availableIDs = Queue<uint32>();
+
+        Event::EventSystem::Get()->Trigger<Event::EWorldDestroyed>({this});
     }
 
     Entity* EntityWorld::GetEntity(uint32 id)

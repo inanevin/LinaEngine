@@ -40,6 +40,10 @@ namespace Lina
         class EntityWorld;
     }
 
+    namespace Event
+    {
+        struct EWorldDestroyed;
+    }
     namespace Graphics
     {
         class GUIBackend;
@@ -51,7 +55,13 @@ namespace Lina::Editor
 {
     class EditorRenderer : public Graphics::GameRenderer
     {
-    private:
+
+    public:
+        inline const HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData>& GetWorldData()
+        {
+            return m_worldDataCPU;
+        }
+
     protected:
         friend class Editor;
 
@@ -62,9 +72,14 @@ namespace Lina::Editor
         virtual void OnComponentCreated(const Event::EComponentCreated& ev) override;
         virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev) override;
         virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev) override;
+        virtual void OnPreMainLoop(const Event::EPreMainLoop& ev) override;
+        virtual void ConnectEvents() override;
+
+        void OnWorldDestroyed(const Event::EWorldDestroyed& ev);
 
     private:
-        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldsToRender;
+        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldDataCPU;
+        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldDataGPU;
     };
 } // namespace Lina::Editor
 

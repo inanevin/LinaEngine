@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,6 +43,11 @@ namespace Lina
 
         for (auto& file : std::filesystem::recursive_directory_iterator(m_directory.c_str()))
             m_paths[String(file.path().string().c_str())] = std::filesystem::last_write_time(file);
+    }
+
+    void FileWatcher::Shutdown()
+    {
+        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
     }
 
     void FileWatcher::OnTick(const Event::ETick& ev)
