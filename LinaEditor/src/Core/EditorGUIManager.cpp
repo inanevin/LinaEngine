@@ -161,43 +161,44 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
+        return;
         LGUI->StartFrame();
         LinaVG::StartFrame();
 
-        const auto& wd = m_renderer->GetWorldData();
-
-        if (testWorld)
-        {
-            auto it = wd.find(testWorld);
-
-            if (it != wd.end())
-            {
-                 auto txt = it->second.finalColorTexture;
-                 if(txt != nullptr && txt->GetSID() != 0)
-                 LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(250, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
-            }
-
-            auto entity = testWorld->GetEntity("TestUlan");
-
-            if (entity)
-            {
-                auto pos = entity->GetPosition();
-                pos = Vector3(0, Math::Sin(Time::GetElapsedTimeF() * 5) * 2, 0);
-                entity->SetPosition(pos);
-            }
-        }
-
-        auto levelWorld = World::EntityWorld::GetWorld();
-        if (levelWorld)
-        {
-            auto it = wd.find(levelWorld);
-            if (it != wd.end())
-            {
-                auto txt = it->second.finalColorTexture;
-                if (txt != nullptr && txt->GetSID() != 0)
-                    LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(900, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
-            }
-        }
+        //  const auto& wd = m_renderer->GetWorldData();
+        //
+        //  if (testWorld)
+        //  {
+        //      auto it = wd.find(testWorld);
+        //
+        //      if (it != wd.end())
+        //      {
+        //           auto txt = it->second.finalColorTexture;
+        //           if(txt != nullptr && txt->GetSID() != 0)
+        //           LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(250, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
+        //      }
+        //
+        //      auto entity = testWorld->GetEntity("TestUlan");
+        //
+        //      if (entity)
+        //      {
+        //          auto pos = entity->GetPosition();
+        //          pos = Vector3(0, Math::Sin(Time::GetElapsedTimeF() * 5) * 2, 0);
+        //          entity->SetPosition(pos);
+        //      }
+        //  }
+        //
+        //  auto levelWorld = World::EntityWorld::GetWorld();
+        //  if (levelWorld)
+        //  {
+        //      auto it = wd.find(levelWorld);
+        //      if (it != wd.end())
+        //      {
+        //          auto txt = it->second.finalColorTexture;
+        //          if (txt != nullptr && txt->GetSID() != 0)
+        //              LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(900, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
+        //      }
+        //  }
         // m_topPanel.Draw();
         // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
         //
@@ -231,12 +232,12 @@ namespace Lina::Editor
     {
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_E))
         {
-            testWorld   = new World::EntityWorld();
-            auto cam = testWorld->CreateEntity(LINA_EDITOR_CAMERA_NAME);
+            testWorld = new World::EntityWorld();
+            auto cam  = testWorld->CreateEntity(LINA_EDITOR_CAMERA_NAME);
             testWorld->AddComponent<Graphics::CameraComponent>(cam);
-            cam->SetPosition(Vector3(0,0, -15));
+            cam->SetPosition(Vector3(0, 0, -15));
             auto sphere = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Capsule.fbx");
-            auto ent = sphere->AddToWorld(testWorld);
+            auto ent    = sphere->AddToWorld(testWorld);
             ent->SetName("TestUlan");
         }
 

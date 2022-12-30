@@ -118,9 +118,18 @@ namespace Lina::Graphics
             .pDynamicStates    = dynamicStates.data(),
         };
 
+        auto format = GetFormat(Backend::Get()->GetMainSwapchain().format);
+
+        VkPipelineRenderingCreateInfoKHR pipelineRenderingInfo = VkPipelineRenderingCreateInfoKHR{
+            .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR,
+            .colorAttachmentCount    = 1,
+            .pColorAttachmentFormats = &format,
+            .depthAttachmentFormat   = GetFormat(DEFAULT_DEPTH_FORMAT),
+        };
+
         VkGraphicsPipelineCreateInfo pipelineInfo = VkGraphicsPipelineCreateInfo{
             .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-            .pNext               = nullptr,
+            .pNext               = &pipelineRenderingInfo,
             .stageCount          = static_cast<uint32>(_shaderStages.size()),
             .pStages             = _shaderStages.data(),
             .pVertexInputState   = &_vertexInput,
@@ -132,7 +141,7 @@ namespace Lina::Graphics
             .pColorBlendState    = &_colorBlending,
             .pDynamicState       = &dynamicStateCreate,
             .layout              = _layout,
-            .renderPass          = _renderPass,
+            .renderPass          = _renderPass == nullptr ? VK_NULL_HANDLE : _renderPass,
             .subpass             = 0,
             .basePipelineHandle  = VK_NULL_HANDLE,
         };

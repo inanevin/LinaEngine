@@ -141,20 +141,7 @@ namespace Lina::Graphics
         Vector<VkClearValue> _clearValues;
 
         for (auto& cv : clearValues)
-        {
-            VkClearValue clearValue;
-            if (cv.isColor)
-            {
-                clearValue.color = {{cv.clearColor.x, cv.clearColor.y, cv.clearColor.z, cv.clearColor.w}};
-            }
-            else
-            {
-                clearValue.depthStencil.depth   = cv.depth;
-                clearValue.depthStencil.stencil = cv.stencil;
-            }
-
-            _clearValues.push_back(clearValue);
-        }
+            _clearValues.push_back(VulkanUtility::GetClearValue(cv));
 
         VkRenderPassBeginInfo info = VkRenderPassBeginInfo{
             .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,

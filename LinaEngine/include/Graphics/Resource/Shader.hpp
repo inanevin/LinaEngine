@@ -74,9 +74,9 @@ namespace Lina::Graphics
             return m_surface;
         }
 
-        inline Pipeline& GetPipeline(RenderPassType rpType)
+        inline Pipeline& GetPipeline()
         {
-            return m_pipelines[rpType];
+            return m_pipeline;
         }
 
         inline Bitmask16 GetDrawPassMask()
@@ -87,11 +87,6 @@ namespace Lina::Graphics
         inline const Vector<ShaderReflectedProperty>& GetReflectedProperties() const
         {
             return m_reflectedProperties;
-        }
-
-        inline const Vector<uint8>& GetRenderPasses() const
-        {
-            return m_renderPasses;
         }
 
         inline DescriptorSetLayout& GetMaterialSetLayout()
@@ -111,14 +106,15 @@ namespace Lina::Graphics
         void GeneratePipeline();
 
     private:
-        HashMap<RenderPassType, Pipeline> m_pipelines;
-        PipelineLayout                    m_pipelineLayout;
-        DescriptorSetLayout               m_materialLayout;
-        SurfaceType                       m_surface = SurfaceType::Opaque;
-        String                            m_text    = "";
-        Vector<ShaderReflectedProperty>   m_reflectedProperties;
-        Vector<uint8>                     m_renderPasses;
-        PipelineType                      m_pipelineType = PipelineType::Default;
+        // HashMap<RenderPassType, Pipeline> m_pipelines;
+        Pipeline                        m_pipeline;
+        PipelineLayout                  m_pipelineLayout;
+        DescriptorSetLayout             m_materialLayout;
+        SurfaceType                     m_surface = SurfaceType::Opaque;
+        String                          m_text    = "";
+        Vector<ShaderReflectedProperty> m_reflectedProperties;
+        Vector<uint8>                   m_renderPasses;
+        PipelineType                    m_pipelineType = PipelineType::Default;
 
     private:
         HashMap<ShaderStage, ShaderModule> m_modules;

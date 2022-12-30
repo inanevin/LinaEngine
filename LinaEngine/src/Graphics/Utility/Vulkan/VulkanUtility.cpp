@@ -38,6 +38,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
+    PFN_vkCmdBeginRenderingKHR g_vkCmdBeginRenderingKHR = nullptr;
+    PFN_vkCmdEndRenderingKHR   g_vkCmdEndRenderingKHR   = nullptr;
+
     VkAttachmentDescription VulkanUtility::CreateAttachmentDescription(const Attachment& att)
     {
         return VkAttachmentDescription{
@@ -211,7 +215,7 @@ namespace Lina::Graphics
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth); // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
 
         Image image = Image{
-            .format              = Format::D32_SFLOAT,
+            .format              = DEFAULT_DEPTH_FORMAT,
             .tiling              = ImageTiling::Optimal,
             .extent              = ext,
             .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
@@ -254,7 +258,7 @@ namespace Lina::Graphics
         };
 
         Attachment depthAttachment = Attachment{
-            .format         = Format::D32_SFLOAT,
+            .format         = DEFAULT_DEPTH_FORMAT,
             .loadOp         = LoadOp::Clear,
             .storeOp        = StoreOp::DontCare,
             .stencilLoadOp  = LoadOp::DontCare,
@@ -337,7 +341,7 @@ namespace Lina::Graphics
         };
 
         Attachment depthAttachment = Attachment{
-            .format         = Format::D32_SFLOAT,
+            .format         = DEFAULT_DEPTH_FORMAT,
             .loadOp         = LoadOp::Clear,
             .storeOp        = StoreOp::Store,
             .stencilLoadOp  = LoadOp::Clear,
@@ -812,7 +816,7 @@ namespace Lina::Graphics
         return r;
     }
 
-    VkExtent3D VulkanUtility::GetExtent3D(Extent3D e)
+    VkExtent3D VulkanUtility::GetExtent3D(const Extent3D& e)
     {
         VkExtent3D ex = VkExtent3D{
             .width  = e.width,
@@ -823,7 +827,7 @@ namespace Lina::Graphics
         return ex;
     }
 
-    VkOffset3D VulkanUtility::GetOffset3D(Offset3D o)
+    VkOffset3D VulkanUtility::GetOffset3D(const Offset3D& o)
     {
         VkOffset3D off = VkOffset3D{
             .x = o.x,
@@ -833,7 +837,7 @@ namespace Lina::Graphics
         return off;
     }
 
-    Offset3D VulkanUtility::GetOffset3D(Extent3D e)
+    Offset3D VulkanUtility::GetOffset3D(const Extent3D& e)
     {
         Offset3D off = Offset3D{
             .x = static_cast<int>(e.width),
@@ -852,6 +856,53 @@ namespace Lina::Graphics
             alignedSize = (alignedSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
         }
         return alignedSize;
+    }
+
+    VkClearValue VulkanUtility::GetClearValue(const ClearValue& cv)
+    {
+        VkClearValue clearValue;
+        if (cv.isColor)
+            clearValue.color = {{cv.clearColor.x, cv.clearColor.y, cv.clearColor.z, cv.clearColor.w}};
+        else
+        {
+            clearValue.depthStencil.depth   = cv.depth;
+            clearValue.depthStencil.stencil = cv.stencil;
+        }
+
+        return clearValue;
+    }
+
+    VkRenderingAttachmentInfo VulkanUtility::GetRenderingAttachmentInfo(const RenderingAttachmentInfo& inf)
+    {
+        VkRenderingAttachmentInfo info = VkRenderingAttachmentInfo{
+            .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+            .pNext              = nullptr,
+            .imageView          = inf.imageView,
+            .imageLayout        = GetImageLayout(inf.imageLayout),
+            .resolveMode        = GetResolveModeFlags(inf.resolveMode),
+            .resolveImageView   = inf.resolveView,
+            .resolveImageLayout = GetImageLayout(inf.resolveLayout),
+            .loadOp             = GetLoadOp(inf.loadOp),
+            .storeOp            = GetStoreOp(inf.storeOp),
+            .clearValue         = GetClearValue(inf.clearValue),
+        };
+        return info;
+    } // namespace Lina::Graphics
+
+    VkRenderingInfo VulkanUtility::GetRenderingInfo(const RenderingInfo& inf)
+    {
+        VkRenderingInfo info = VkRenderingInfo{
+            .sType              = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+            .pNext              = nullptr,
+            .flags              = inf.flags,
+            .renderArea         = GetRect(inf.renderArea),
+            .layerCount         = inf.layerCount,
+            .viewMask           = inf.viewMask,
+            .pDepthAttachment   = nullptr,
+            .pStencilAttachment = nullptr,
+        };
+
+        return info;
     }
 
 } // namespace Lina::Graphics

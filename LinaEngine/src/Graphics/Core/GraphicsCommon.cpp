@@ -172,6 +172,8 @@ namespace Lina::Graphics
             return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         case ImageLayout::ShaderReadOnlyOptimal:
             return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        case ImageLayout::AttachmentOptimal:
+            return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
         default:
             return VK_IMAGE_LAYOUT_UNDEFINED;
         }
@@ -775,6 +777,25 @@ namespace Lina::Graphics
             return VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT;
         default:
             return VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        }
+    }
+
+    VkResolveModeFlagBits GetResolveModeFlags(ResolveMode mode)
+    {
+        switch (mode)
+        {
+        case ResolveMode::None:
+            return VK_RESOLVE_MODE_NONE;
+        case ResolveMode::SampleZero:
+            return VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+        case ResolveMode::Average:
+            return VK_RESOLVE_MODE_AVERAGE_BIT;
+        case ResolveMode::Min:
+            return VK_RESOLVE_MODE_MIN_BIT;
+        case ResolveMode::Max:
+            return VK_RESOLVE_MODE_MAX_BIT;
+        default:
+            return VK_RESOLVE_MODE_NONE;
         }
     }
 

@@ -231,7 +231,7 @@ namespace Lina::Graphics
         uint64 offset = 0;
         m_cmd->CMD_BindVertexBuffers(0, 1, b.testVtxBuffer._ptr, &offset);
         m_cmd->CMD_BindIndexBuffers(b.testIndexBuffer._ptr, 0, IndexType::Uint32);
-        m_guiStandard->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline);
+        m_guiStandard->Bind(*m_cmd,  MaterialBindFlag::BindPipeline);
 
         for (auto& r : b.orderedDrawRequests)
         {
@@ -241,7 +241,7 @@ namespace Lina::Graphics
             rect.size.x = r.meta.clipW;
             rect.size.y = r.meta.clipH;
             m_cmd->CMD_SetScissors(rect);
-            r.transientMat->Bind(*m_cmd, RenderPassType::Final, MaterialBindFlag::BindDescriptor);
+            r.transientMat->Bind(*m_cmd, MaterialBindFlag::BindDescriptor);
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
 

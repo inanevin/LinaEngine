@@ -70,11 +70,6 @@ namespace Lina::Graphics
             return m_cameraSystem;
         }
 
-        inline const RenderPass& GetRenderPass(RenderPassType rpType)
-        {
-            return m_renderPasses[rpType];
-        }
-
         void UpdateViewport(const Vector2i& size);
 
     protected:
@@ -98,7 +93,6 @@ namespace Lina::Graphics
         Viewport                            m_viewport;
         Recti                               m_scissors;
         CameraSystem                        m_cameraSystem;
-        HashMap<RenderPassType, RenderPass> m_renderPasses;
         Swapchain*                          m_swapchain  = nullptr;
         GUIBackend*                         m_guiBackend = nullptr;
     };

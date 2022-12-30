@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Data/String.hpp"
 #include "Core/SizeDefinitions.hpp"
+#include "Math/Rect.hpp"
 
 enum VkFormat;
 enum VkColorSpaceKHR;
@@ -73,6 +74,7 @@ enum VkLogicOp;
 enum VkResult;
 enum VkSharingMode;
 enum VkSamplerMipmapMode;
+enum VkResolveModeFlagBits;
 
 struct VmaAllocation_T;
 struct VkBuffer_T;
@@ -179,6 +181,7 @@ namespace Lina::Graphics
         TransferSrcOptimal,
         TransferDstOptimal,
         ShaderReadOnlyOptimal,
+        AttachmentOptimal,
     };
 
     extern VkImageLayout GetImageLayout(ImageLayout l);
@@ -531,6 +534,17 @@ namespace Lina::Graphics
 
     uint32 GetDescriptorLayoutBindingFlags(DescriptorSetLayoutBindingFlags flags);
 
+    enum class ResolveMode
+    {
+        None,
+        SampleZero,
+        Average,
+        Min,
+        Max,
+    };
+
+    VkResolveModeFlagBits GetResolveModeFlags(ResolveMode mode);
+
     enum class MipmapMode
     {
         Nearest,
@@ -856,8 +870,33 @@ namespace Lina::Graphics
         ImageSubresourceRange dstRange;
     };
 
-#define TO_FLAGS(X) static_cast<uint32>(X)
+    struct RenderingAttachmentInfo
+    {
+        VkImageView_T* imageView;
+        ImageLayout    imageLayout;
+        ResolveMode    resolveMode;
+        VkImageView_T* resolveView;
+        ImageLayout    resolveLayout;
+        LoadOp         loadOp;
+        StoreOp        storeOp;
+        ClearValue     clearValue;
+    };
 
+    struct RenderingInfo
+    {
+        uint32                          flags;
+        Recti                           renderArea;
+        uint32                          layerCount;
+        uint32                          viewMask;
+        Vector<RenderingAttachmentInfo> colorAttachments;
+        RenderingAttachmentInfo         depthAttachment;
+        RenderingAttachmentInfo         stencilAttachment;
+        bool                            useDepthAttachment   = false;
+        bool                            useStencilAttachment = false;
+    };
+
+#define TO_FLAGS(X)          static_cast<uint32>(X)
+#define DEFAULT_DEPTH_FORMAT Format::D32_SFLOAT
 } // namespace Lina::Graphics
 
 #endif

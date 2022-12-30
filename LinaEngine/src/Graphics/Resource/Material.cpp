@@ -266,9 +266,9 @@ namespace Lina::Graphics
         return offset;
     }
 
-    void Material::Bind(CommandBuffer& cmd, RenderPassType rpType, uint32 bindFlags)
+    void Material::Bind(CommandBuffer& cmd, uint32 bindFlags)
     {
-        auto& pipeline = m_shader.value->GetPipeline(rpType);
+        auto& pipeline = m_shader.value->GetPipeline();
 
         if (bindFlags & MaterialBindFlag::BindPipeline)
             pipeline.Bind(cmd, PipelineBindPoint::Graphics);

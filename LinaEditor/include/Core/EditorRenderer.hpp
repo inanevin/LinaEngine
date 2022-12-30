@@ -65,7 +65,6 @@ namespace Lina::Editor
     protected:
         friend class Editor;
 
-        virtual void CreateRenderPasses() override;
         virtual void Tick() override;
         virtual void Render() override;
         virtual void SyncData() override;

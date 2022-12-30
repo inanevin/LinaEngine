@@ -86,7 +86,7 @@ namespace Lina::Graphics
 
         void PrepareRenderData(Vector<RenderableData>& drawList, const View& view);
         void UpdateViewData(Buffer& viewDataBuffer, const View& view);
-        void RecordDrawCommands(CommandBuffer& cmd, RenderPassType rpType, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer);
+        void RecordDrawCommands(CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer);
 
     private:
         void ExtractPassRenderables(Vector<RenderableData>& drawList, const View& view);

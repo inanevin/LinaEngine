@@ -85,7 +85,6 @@ namespace Lina::Graphics
             CameraComponent*             cameraComponent = nullptr;
             GPUSceneData                 sceneData;
             GPULightData                 lightData;
-            Vector<Framebuffer>          framebuffers;
             bool                         initialized = false;
         };
 
@@ -107,7 +106,6 @@ namespace Lina::Graphics
         virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
         virtual void HandleOutOfDateImage();
         virtual void MergeMeshes();
-        virtual void CreateRenderPasses();
         virtual void ConnectEvents();
 
     protected:
@@ -129,6 +127,8 @@ namespace Lina::Graphics
         bool                                  m_recreateSwapchain = false;
         bool                                  m_hasLevelLoaded    = false;
         Atomic<bool>                          m_stopped           = false;
+        Texture*                              m_mainPassResult    = nullptr;
+        Texture*                              m_mainPassDepth     = nullptr;
     };
 } // namespace Lina::Graphics
 

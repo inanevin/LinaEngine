@@ -58,8 +58,8 @@ namespace Lina::Graphics
         void CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst);
         void CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance);
         void CMD_DrawIndexedIndirect(VkBuffer_T* buffer, uint64 offset, uint32 drawCount, uint32 stride);
-        void CMD_PipelineBarrier(PipelineStageFlags                  srcStageFlags,
-                                 PipelineStageFlags                  dstStageFlags,
+        void CMD_PipelineBarrier(uint32                              srcStageFlags,
+                                 uint32                              dstStageFlags,
                                  uint32                              dependencyFlags,
                                  const Vector<DefaultMemoryBarrier>& barriers,
                                  const Vector<BufferMemoryBarrier>&  bufferBarriers,
@@ -69,6 +69,14 @@ namespace Lina::Graphics
         void CMD_SetViewport(Viewport& vp);
         void CMD_SetScissors(Recti& rect);
         void CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter);
+        void CMD_BeginRendering(RenderingInfo& info);
+        void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea);
+        void CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea);
+        void CMD_EndRendering();
+        void CMD_ImageTransition_ToColorOptimal(VkImage_T* img);
+        void CMD_ImageTransition_ToColorShaderRead(VkImage_T* img);
+        void CMD_ImageTransition_ToDepthOptimal(VkImage_T* img);
+        void CMD_ImageTransition_ToPresent(VkImage_T* img);
         void End();
 
         // Description

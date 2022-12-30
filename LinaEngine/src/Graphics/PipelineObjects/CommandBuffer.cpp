@@ -110,8 +110,8 @@ namespace Lina::Graphics
         vkCmdDrawIndexedIndirect(_ptr, buffer, offset, drawCount, stride);
     }
 
-    void CommandBuffer::CMD_PipelineBarrier(PipelineStageFlags                  srcStageFlags,
-                                            PipelineStageFlags                  dstStageFlags,
+    void CommandBuffer::CMD_PipelineBarrier(uint32                              srcStageFlags,
+                                            uint32                              dstStageFlags,
                                             uint32                              dependencyFlags,
                                             const Vector<DefaultMemoryBarrier>& barriers,
                                             const Vector<BufferMemoryBarrier>&  bufferBarriers,
@@ -136,9 +136,7 @@ namespace Lina::Graphics
         for (auto& b : imageBarriers)
             _imageBarriers.push_back(VulkanUtility::GetImageMemoryBarrier(b));
 
-        vkCmdPipelineBarrier(_ptr, GetPipelineStageFlags(srcStageFlags), GetPipelineStageFlags(dstStageFlags), dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(),
-                             imageBarriersSize, _imageBarriers.data());
-
+        vkCmdPipelineBarrier(_ptr, srcStageFlags, dstStageFlags, dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(), imageBarriersSize, _imageBarriers.data());
     }
 
     void CommandBuffer::CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions)
@@ -193,6 +191,185 @@ namespace Lina::Graphics
         }
 
         vkCmdBlitImage(_ptr, src, GetImageLayout(srcLayout), dest, GetImageLayout(destLayout), static_cast<uint32>(regions.size()), &_regions[0], GetFilter(filter));
+    }
+
+    void CommandBuffer::CMD_BeginRendering(RenderingInfo& info)
+    {
+        VkRenderingInfo                   _renderingInfo = VulkanUtility::GetRenderingInfo(info);
+        VkRenderingAttachmentInfo         _depthInfo;
+        VkRenderingAttachmentInfo         _stencilInfo;
+        Vector<VkRenderingAttachmentInfo> _colorInfo;
+
+        if (info.useDepthAttachment)
+            _depthInfo = VulkanUtility::GetRenderingAttachmentInfo(info.depthAttachment);
+
+        if (info.useStencilAttachment)
+            _stencilInfo = VulkanUtility::GetRenderingAttachmentInfo(info.stencilAttachment);
+
+        for (auto& ci : info.colorAttachments)
+            _colorInfo.push_back(VulkanUtility::GetRenderingAttachmentInfo(ci));
+
+        _renderingInfo.colorAttachmentCount = static_cast<uint32>(_colorInfo.size());
+        _renderingInfo.pColorAttachments    = &_colorInfo[0];
+        _renderingInfo.pDepthAttachment     = info.useDepthAttachment ? &_depthInfo : nullptr;
+        _renderingInfo.pStencilAttachment   = info.useStencilAttachment ? &_stencilInfo : nullptr;
+        pfn_vkCmdBeginRenderingKHR(_ptr, &_renderingInfo);
+    }
+
+    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea)
+    {
+        ClearValue clearValue = ClearValue{
+            .clearColor = Color::Gray,
+            .isColor    = true,
+        };
+
+        ClearValue clearValueDepth = ClearValue{
+            .isColor = false,
+            .depth   = 1.0f,
+            .stencil = 0,
+        };
+
+        RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{
+            .imageView   = colorImageView,
+            .imageLayout = ImageLayout::AttachmentOptimal,
+            .loadOp      = LoadOp::Clear,
+            .storeOp     = StoreOp::Store,
+            .clearValue  = clearValue,
+        };
+
+        RenderingAttachmentInfo depthAttachment = RenderingAttachmentInfo{
+            .imageView   = depthImageView,
+            .imageLayout = ImageLayout::DepthStencilOptimal,
+            .loadOp      = LoadOp::Clear,
+            .storeOp     = StoreOp::Store,
+            .clearValue  = clearValueDepth,
+        };
+
+        RenderingInfo renderingInfo = RenderingInfo{
+            .renderArea         = renderArea,
+            .layerCount         = 1,
+            .depthAttachment    = depthAttachment,
+            .useDepthAttachment = true,
+        };
+
+        renderingInfo.colorAttachments.push_back(colorAttachment);
+        CMD_BeginRendering(renderingInfo);
+    }
+
+    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea)
+    {
+        ClearValue clearValue = ClearValue{
+            .clearColor = Color::Gray,
+            .isColor    = true,
+        };
+        RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{
+            .imageView   = colorImageView,
+            .imageLayout = ImageLayout::AttachmentOptimal,
+            .loadOp      = LoadOp::Clear,
+            .storeOp     = StoreOp::Store,
+            .clearValue  = clearValue,
+        };
+        RenderingInfo renderingInfo = RenderingInfo{
+            .renderArea         = renderArea,
+            .layerCount         = 1,
+            .useDepthAttachment = false,
+        };
+
+        renderingInfo.colorAttachments.push_back(colorAttachment);
+        CMD_BeginRendering(renderingInfo);
+    }
+
+    void CommandBuffer::CMD_EndRendering()
+    {
+        pfn_vkCmdEndRenderingKHR(_ptr);
+    }
+
+    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img)
+    {
+        ImageSubresourceRange subresRange = ImageSubresourceRange{
+            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        };
+
+        ImageMemoryBarrier barrier = ImageMemoryBarrier{
+            .srcAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .oldLayout        = ImageLayout::ColorOptimal,
+            .newLayout        = ImageLayout::PresentSurface,
+            .img              = img,
+            .subresourceRange = subresRange,
+        };
+
+        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), GetPipelineStageFlags(PipelineStageFlags::BottomOfPipe), 0, {}, {}, {barrier});
+    }
+
+    void CommandBuffer::CMD_ImageTransition_ToColorOptimal(VkImage_T* image)
+    {
+        ImageSubresourceRange subresRange = ImageSubresourceRange{
+            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        };
+
+        ImageMemoryBarrier barrier = ImageMemoryBarrier{
+            .srcAccessMask    = 0,
+            .dstAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .oldLayout        = ImageLayout::Undefined,
+            .newLayout        = ImageLayout::ColorOptimal,
+            .img              = image,
+            .subresourceRange = subresRange,
+        };
+
+        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
+    }
+
+    void CommandBuffer::CMD_ImageTransition_ToColorShaderRead(VkImage_T* img)
+    {
+        ImageSubresourceRange subresRange = ImageSubresourceRange{
+            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        };
+
+        ImageMemoryBarrier barrier = ImageMemoryBarrier{
+            .srcAccessMask    = 0,
+            .dstAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
+            .oldLayout        = ImageLayout::ColorOptimal,
+            .newLayout        = ImageLayout::ShaderReadOnlyOptimal,
+            .img              = img,
+            .subresourceRange = subresRange,
+        };
+
+        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
+    }
+
+    void CommandBuffer::CMD_ImageTransition_ToDepthOptimal(VkImage_T* image)
+    {
+        ImageSubresourceRange subresRange = ImageSubresourceRange{
+            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        };
+
+        ImageMemoryBarrier barrier = ImageMemoryBarrier{
+            .srcAccessMask    = 0,
+            .dstAccessMask    = GetAccessFlags(AccessFlags::DepthStencilAttachmentWrite),
+            .oldLayout        = ImageLayout::Undefined,
+            .newLayout        = ImageLayout::DepthStencilOptimal,
+            .img              = image,
+            .subresourceRange = subresRange,
+        };
+
+        const uint32 stageFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+        CMD_PipelineBarrier(stageFlags, stageFlags, 0, {}, {}, {barrier});
     }
 
     void CommandBuffer::End()

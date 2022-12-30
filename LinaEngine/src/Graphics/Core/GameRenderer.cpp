@@ -60,6 +60,9 @@ namespace Lina::Graphics
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
         m_cmdPool.Create();
 
+        m_mainPassDepth  = VulkanUtility::CreateDefaultPassTextureDepth();
+        m_mainPassResult = VulkanUtility::CreateDefaultPassTextureColor();
+
         const uint32 imageSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
         for (uint32 i = 0; i < imageSize; i++)
@@ -78,8 +81,6 @@ namespace Lina::Graphics
             .AddPoolSize(DescriptorType::StorageBuffer, 10)
             .AddPoolSize(DescriptorType::CombinedImageSampler, 10)
             .Create();
-
-        CreateRenderPasses();
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -207,10 +208,6 @@ namespace Lina::Graphics
             m_frames[i].indirectBuffer.Destroy();
         }
 
-        m_renderPasses[RenderPassType::Main].Destroy();
-        m_renderPasses[RenderPassType::Intermediate].Destroy();
-        m_renderPasses[RenderPassType::Final].Destroy();
-
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
@@ -219,6 +216,9 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
         Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
+
+        delete m_mainPassDepth;
+        delete m_mainPassResult;
 
         m_gpuIndexBuffer.Destroy();
         m_gpuVtxBuffer.Destroy();
@@ -266,6 +266,7 @@ namespace Lina::Graphics
 
     void GameRenderer::Render()
     {
+
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         const uint32 frameIndex = GetFrameIndex();
@@ -275,7 +276,9 @@ namespace Lina::Graphics
         frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        const uint32 imageIndex = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.submitSemaphore, res);
+        const uint32 imageIndex         = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.submitSemaphore, res);
+        auto         swapchainImage     = Backend::Get()->GetMainSwapchain()._images[imageIndex];
+        auto         swapchainImageView = Backend::Get()->GetMainSwapchain()._imageViews[imageIndex];
 
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
         {
@@ -296,6 +299,7 @@ namespace Lina::Graphics
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
         const Recti defaultRenderArea = Recti(Vector2(m_viewport.x, m_viewport.y), Vector2(m_viewport.width, m_viewport.height));
+
         cmd.CMD_SetViewport(m_viewport);
         cmd.CMD_SetScissors(m_scissors);
 
@@ -329,28 +333,42 @@ namespace Lina::Graphics
 
         frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
-        auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& interPass = m_renderPasses[RenderPassType::Intermediate];
+        // Put necessary images to correct layouts.
+        auto mainPassImage      = m_mainPassResult->GetImage()._allocatedImg.image;
+        auto mainPassImageView  = m_mainPassResult->GetImage()._ptrImgView;
+        auto mainPassDepthImage = m_mainPassDepth->GetImage()._allocatedImg.image;
+        auto mainPassDepthView  = m_mainPassDepth->GetImage()._ptrImgView;
+        cmd.CMD_ImageTransition_ToColorOptimal(mainPassImage);
+        cmd.CMD_ImageTransition_ToDepthOptimal(mainPassDepthImage);
+        cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
 
-        // ****** MAIN PASS ******
-        PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
-        mainPass.Begin(mainPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-        m_renderWorldData.opaquePass.UpdateViewData(frame.viewDataBuffer, m_renderWorldData.playerView);
-        m_renderWorldData.opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
-        mainPass.End(cmd);
-        PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
+        // ********* MAIN PASS *********
+        {
+            PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
+            cmd.CMD_BeginRenderingDefault(mainPassImageView, mainPassDepthView, defaultRenderArea);
+            m_renderWorldData.opaquePass.UpdateViewData(frame.viewDataBuffer, m_renderWorldData.playerView);
+            m_renderWorldData.opaquePass.RecordDrawCommands(cmd, m_meshEntries, frame.indirectBuffer);
+            cmd.CMD_EndRendering();
 
-        // ****** POST PROCESS PASS ******
-        PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
-        m_guiBackend->SetCmd(&cmd);
-        Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-        interPass.Begin(interPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-        auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-        ppMat->Bind(cmd, RenderPassType::Intermediate, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-        cmd.CMD_Draw(3, 1, 0, 0);
-        m_guiBackend->RecordDrawCommands();
-        interPass.End(cmd);
-        PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
+            // Final texture is gonna be read from the next pass.
+            cmd.CMD_ImageTransition_ToColorShaderRead(mainPassImage);
+            PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
+        }
+
+        // ********* FINAL & PP PASS *********
+        {
+            PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+            cmd.CMD_BeginRenderingFinal(swapchainImageView, defaultRenderArea);
+            auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
+            ppMat->Bind(cmd, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+            cmd.CMD_Draw(3, 1, 0, 0);
+            cmd.CMD_EndRendering();
+
+            // Make sure presentable
+            cmd.CMD_ImageTransition_ToPresent(swapchainImage);
+            PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
+        }
+
         cmd.End();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
@@ -428,8 +446,7 @@ namespace Lina::Graphics
     {
         auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
         auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-        auto& mainPass     = m_renderPasses[RenderPassType::Main];
-        ppMat->SetTexture(0, mainPass._colorTexture);
+        ppMat->SetTexture(0, m_mainPassResult);
         ppMat->CheckUpdatePropertyBuffers();
         m_guiBackend->UpdateProjection();
     }
@@ -452,12 +469,6 @@ namespace Lina::Graphics
         if (size.x == 0 || size.y == 0)
             return;
 
-        auto& mainPass  = m_renderPasses[RenderPassType::Main];
-        auto& finalPass = m_renderPasses[RenderPassType::Final];
-
-        // Only final render pass depends on swapchain, destroy
-        finalPass.Destroy();
-
         // Swapchain
         m_swapchain->Destroy();
         m_swapchain->size = size;
@@ -465,11 +476,6 @@ namespace Lina::Graphics
 
         // Make sure we always match swapchain
         size = m_swapchain->size;
-
-        mainPass.Destroy();
-
-        // Recreate passes
-        CreateRenderPasses();
 
         // Re-assign target textures to render passes
         OnPreMainLoop({});
@@ -590,19 +596,6 @@ namespace Lina::Graphics
         };
 
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
-    }
-
-    void GameRenderer::CreateRenderPasses()
-    {
-        m_renderPasses[RenderPassType::Main]         = RenderPass();
-        m_renderPasses[RenderPassType::Intermediate] = RenderPass();
-        m_renderPasses[RenderPassType::Final]        = RenderPass();
-        auto& mainPass                               = m_renderPasses[RenderPassType::Main];
-        auto& interPass                              = m_renderPasses[RenderPassType::Intermediate];
-        auto& finalPass                              = m_renderPasses[RenderPassType::Final];
-        VulkanUtility::CreateMainRenderPass(mainPass);
-        VulkanUtility::CreatePresentRenderPass(interPass);
-        VulkanUtility::CreatePresentRenderPass(finalPass);
     }
 
     void GameRenderer::ConnectEvents()

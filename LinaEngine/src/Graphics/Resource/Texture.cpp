@@ -187,7 +187,7 @@ namespace Lina::Graphics
             Vector<ImageMemoryBarrier> imageBarriers;
             imageBarriers.push_back(imageBarrierToTransfer);
 
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, 0, {}, {}, imageBarriers);
+            cmd.CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags( PipelineStageFlags::Transfer), 0, {}, {}, imageBarriers);
 
             ImageSubresourceRange copySubres = ImageSubresourceRange{
                 .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -214,7 +214,7 @@ namespace Lina::Graphics
             barrierToReadable.srcAccessMask      = GetAccessFlags(AccessFlags::TransferWrite);
             barrierToReadable.dstAccessMask      = GetAccessFlags(AccessFlags::ShaderRead);
 
-            cmd.CMD_PipelineBarrier(PipelineStageFlags::Transfer, PipelineStageFlags::FragmentShader, 0, {}, {}, {barrierToReadable});
+            cmd.CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::Transfer), GetPipelineStageFlags(PipelineStageFlags::FragmentShader), 0, {}, {}, {barrierToReadable});
         };
 
         cmd.OnSubmitted = [this, destroyCPUBufferAfter]() {

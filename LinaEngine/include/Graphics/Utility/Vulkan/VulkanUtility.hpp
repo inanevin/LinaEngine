@@ -96,11 +96,23 @@ namespace Lina::Graphics
         static VkRect2D   GetRect(const Recti& rect);
 
         // Others
-        static VkExtent3D GetExtent3D(Extent3D e);
-        static VkOffset3D GetOffset3D(Offset3D e);
-        static Offset3D   GetOffset3D(Extent3D e);
-        static size_t     PadUniformBufferSize(size_t originalSize);
+        static VkExtent3D   GetExtent3D(const Extent3D& e);
+        static VkOffset3D   GetOffset3D(const Offset3D& e);
+        static Offset3D     GetOffset3D(const Extent3D& e);
+        static size_t       PadUniformBufferSize(size_t originalSize);
+        static VkClearValue GetClearValue(const ClearValue& c);
+
+        // Rendering
+        static VkRenderingAttachmentInfo GetRenderingAttachmentInfo(const RenderingAttachmentInfo& inf);
+        static VkRenderingInfo           GetRenderingInfo(const RenderingInfo& inf);
     };
+
+    // Functions
+    extern PFN_vkCmdBeginRenderingKHR g_vkCmdBeginRenderingKHR;
+    extern PFN_vkCmdEndRenderingKHR  g_vkCmdEndRenderingKHR;
+
+#define pfn_vkCmdBeginRenderingKHR g_vkCmdBeginRenderingKHR
+#define pfn_vkCmdEndRenderingKHR   g_vkCmdEndRenderingKHR
 
 } // namespace Lina::Graphics
 

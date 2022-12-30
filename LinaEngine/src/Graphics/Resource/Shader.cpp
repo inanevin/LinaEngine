@@ -173,7 +173,7 @@ namespace Lina::Graphics
         uint8 pipelineTypeInt = static_cast<uint8>(m_pipelineType);
         archive(pipelineTypeInt);
 
-        archive(m_renderPasses);
+        // archive(m_renderPasses);
         archive(m_drawPassMask);
 
         const uint32 reflectedPropertyCount = static_cast<uint32>(m_reflectedProperties.size());
@@ -219,7 +219,7 @@ namespace Lina::Graphics
         archive(pipelineTypeInt);
         m_pipelineType = static_cast<PipelineType>(pipelineTypeInt);
 
-        archive(m_renderPasses);
+        // archive(m_renderPasses);
         archive(m_drawPassMask);
 
         uint32 reflectedPropertyCount = 0;
@@ -380,50 +380,46 @@ namespace Lina::Graphics
 
         m_pipelineLayout.Create();
 
-        for (auto rpi : m_renderPasses)
+        ColorBlendAttachmentState blendAttachment = ColorBlendAttachmentState{
+            .blendEnable         = true,
+            .srcColorBlendFactor = BlendFactor::SrcAlpha,
+            .dstColorBlendFactor = BlendFactor::OneMinusSrcAlpha,
+            .colorBlendOp        = BlendOp::Add,
+            .srcAlphaBlendFactor = BlendFactor::One,
+            .dstAlphaBlendFactor = BlendFactor::OneMinusSrcAlpha,
+            .alphaBlendOp        = BlendOp::Add,
+            .componentFlags      = ColorComponentFlags::RGBA,
+        };
+
+        m_pipeline = Pipeline{
+            .pipelineType             = m_pipelineType,
+            .depthTestEnabled         = true,
+            .depthWriteEnabled        = true,
+            .depthCompareOp           = CompareOp::LEqual,
+            .topology                 = Topology::TriangleList,
+            .polygonMode              = PolygonMode::Fill,
+            .blendAttachment          = blendAttachment,
+            .colorBlendLogicOpEnabled = false,
+            .colorBlendLogicOp        = LogicOp::Copy,
+        };
+
+        if (m_pipelineType == PipelineType::Default)
         {
-            const RenderPassType rp = static_cast<RenderPassType>(rpi);
-
-            ColorBlendAttachmentState blendAttachment = ColorBlendAttachmentState{
-                .blendEnable         = true,
-                .srcColorBlendFactor = BlendFactor::SrcAlpha,
-                .dstColorBlendFactor = BlendFactor::OneMinusSrcAlpha,
-                .colorBlendOp        = BlendOp::Add,
-                .srcAlphaBlendFactor = BlendFactor::One,
-                .dstAlphaBlendFactor = BlendFactor::OneMinusSrcAlpha,
-                .alphaBlendOp        = BlendOp::Add,
-                .componentFlags      = ColorComponentFlags::RGBA,
-            };
-
-            m_pipelines[rp] = Pipeline{
-                .pipelineType             = m_pipelineType,
-                .depthTestEnabled         = true,
-                .depthWriteEnabled        = true,
-                .depthCompareOp           = CompareOp::LEqual,
-                .topology                 = Topology::TriangleList,
-                .polygonMode              = PolygonMode::Fill,
-                .blendAttachment          = blendAttachment,
-                .colorBlendLogicOpEnabled = false,
-                .colorBlendLogicOp        = LogicOp::Copy,
-            };
-
-            if (m_pipelineType == PipelineType::Default)
-            {
-                m_pipelines[rp].cullMode  = CullMode::Back;
-                m_pipelines[rp].frontFace = FrontFace::ClockWise;
-            }
-            else if (m_pipelineType == PipelineType::NoVertex)
-            {
-                m_pipelines[rp].cullMode  = CullMode::Front;
-                m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
-            }
-            else if (m_pipelineType == PipelineType::GUI)
-            {
-                m_pipelines[rp].cullMode  = CullMode::None;
-                m_pipelines[rp].frontFace = FrontFace::AntiClockWise;
-            }
-
-            m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer()->GetRenderPass(rp)).Create();
+            m_pipeline.cullMode  = CullMode::Back;
+            m_pipeline.frontFace = FrontFace::ClockWise;
         }
+        else if (m_pipelineType == PipelineType::NoVertex)
+        {
+            m_pipeline.cullMode  = CullMode::Front;
+            m_pipeline.frontFace = FrontFace::AntiClockWise;
+        }
+        else if (m_pipelineType == PipelineType::GUI)
+        {
+            m_pipeline.cullMode  = CullMode::None;
+            m_pipeline.frontFace = FrontFace::AntiClockWise;
+        }
+
+        // m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer()->GetRenderPass(rp)).Create();
+        m_pipeline.SetShader(this).SetLayout(m_pipelineLayout).Create();
     }
 } // namespace Lina::Graphics

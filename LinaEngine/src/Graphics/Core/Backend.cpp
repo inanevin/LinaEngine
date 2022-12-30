@@ -41,6 +41,7 @@ SOFTWARE.
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 
+#include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 
 #define VMA_IMPLEMENTATION
@@ -119,6 +120,7 @@ namespace Lina::Graphics
         // Total extensions
         Vector<const char*> requiredExtensions;
         requiredExtensions.push_back("VK_KHR_surface");
+        requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
 #ifdef LINA_DEBUG
         // Debug messenger
@@ -185,9 +187,17 @@ namespace Lina::Graphics
         features.samplerAnisotropy         = true;
         features.fillModeNonSolid          = true;
 
+        std::vector<const char*> deviceExtensions;
+        deviceExtensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+        // deviceExtensions.push_back(VK_KHR_MAINTENANCE2_EXTENSION_NAME);
+        // deviceExtensions.push_back(VK_KHR_MULTIVIEW_EXTENSION_NAME);
+        // deviceExtensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+        // deviceExtensions.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+
         vkb::PhysicalDeviceSelector selector{inst};
-        vkb::PhysicalDevice         physicalDevice = selector.set_minimum_version(1, 1)
+        vkb::PhysicalDevice         physicalDevice = selector.set_minimum_version(1, 3)
                                                  .set_surface(m_mainSurface)
+                                                 .add_required_extensions(deviceExtensions)
                                                  .prefer_gpu_device_type(targetDeviceType)
                                                  .allow_any_gpu_device_type(false)
                                                  .set_required_features(features)
@@ -210,8 +220,14 @@ namespace Lina::Graphics
             .descriptorBindingSampledImageUpdateAfterBind  = VK_TRUE,
         };
 
+        VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_feature{
+            .sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+            .dynamicRendering = VK_TRUE,
+        };
+
         deviceBuilder.add_pNext(&shaderDrawParamsFeature);
         deviceBuilder.add_pNext(&descFeatures);
+        deviceBuilder.add_pNext(&dynamic_rendering_feature);
 
         bool hasDedicatedTransferQueue = physicalDevice.has_dedicated_transfer_queue();
         bool hasDedicatedComputeQueue  = physicalDevice.has_dedicated_compute_queue();
@@ -260,10 +276,11 @@ namespace Lina::Graphics
         deviceBuilder.custom_queue_setup(queue_descriptions);
 
         // deviceBuilder.custom_queue_setup(desc);
-        vkb::Device vkbDevice = deviceBuilder.build().value();
-        m_device              = vkbDevice.device;
-        m_gpu                 = physicalDevice.physical_device;
-
+        vkb::Device vkbDevice    = deviceBuilder.build().value();
+        m_device                 = vkbDevice.device;
+        m_gpu                    = physicalDevice.physical_device;
+        g_vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(m_device, "vkCmdBeginRenderingKHR"));
+        g_vkCmdEndRenderingKHR   = reinterpret_cast<PFN_vkCmdEndRenderingKHR>(vkGetDeviceProcAddr(m_device, "vkCmdEndRenderingKHR"));
 
         // if (hasDedicatedTransferQueue)
         // {
