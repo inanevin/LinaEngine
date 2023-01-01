@@ -256,10 +256,10 @@ namespace Lina::Graphics
         CMD_BeginRendering(renderingInfo);
     }
 
-    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea)
+    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea, Color test)
     {
         ClearValue clearValue = ClearValue{
-            .clearColor = Color::Gray,
+            .clearColor = test,
             .isColor    = true,
         };
         RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{

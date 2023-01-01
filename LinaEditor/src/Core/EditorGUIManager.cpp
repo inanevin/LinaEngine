@@ -169,7 +169,7 @@ namespace Lina::Editor
         m_topPanel.Draw();
 
         const auto& wd = m_renderer->GetWorldData();
-        if (testWorld && false)
+        if (testWorld)
         {
             auto it = wd.find(testWorld);
 
@@ -192,7 +192,7 @@ namespace Lina::Editor
         }
 
         auto levelWorld = World::EntityWorld::GetWorld();
-        if (levelWorld && false)
+        if (levelWorld)
         {
             auto it = wd.find(levelWorld);
             if (it != wd.end())

@@ -91,22 +91,23 @@ namespace Lina::Editor
         cmd.CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
 
         // Global set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
-
-        // Pass set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
+        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
 
         PROFILER_SCOPE_START("Main Passes", PROFILER_THREAD_RENDER);
 
+        int wc = 0;
         for (auto& pair : m_worldDataGPU)
         {
             auto& worldData = pair.second;
 
+            // Pass set.
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &worldData.passDescriptor, 0, nullptr);
+
             // Global - scene data.
-            frame.sceneDataBuffer.CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
+            worldData.sceneDataBuffer[frameIndex].CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
 
             // Global - light data.
-            frame.lightDataBuffer.CopyInto(&worldData.lightData, sizeof(GPULightData));
+            worldData.lightDataBuffer[frameIndex].CopyInto(&worldData.lightData, sizeof(GPULightData));
 
             // Per render pass - obj data.
             Vector<GPUObjectData> gpuObjectData;
@@ -119,17 +120,18 @@ namespace Lina::Editor
                 gpuObjectData.push_back(objData);
             }
 
-            frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+            worldData.objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
             cmd.CMD_ImageTransition_ToColorOptimal(worldData.finalColorTexture->GetImage()._allocatedImg.image);
             cmd.CMD_ImageTransition_ToDepthOptimal(worldData.finalDepthTexture->GetImage()._allocatedImg.image);
 
-            cmd.CMD_BeginRenderingFinal(worldData.finalColorTexture->GetImage()._ptrImgView, defaultRenderArea);
-            worldData.opaquePass.UpdateViewData(frame.viewDataBuffer, worldData.playerView);
-            worldData.opaquePass.RecordDrawCommands(cmd, m_meshEntries, frame.indirectBuffer);
+            cmd.CMD_BeginRenderingFinal(worldData.finalColorTexture->GetImage()._ptrImgView, defaultRenderArea, wc == 0 ? Color(0.2f, 0, 0, 1) : Color(0, 0, 0.2f, 1));
+            worldData.opaquePass.UpdateViewData(worldData.viewDataBuffer[frameIndex], worldData.playerView);
+            worldData.opaquePass.RecordDrawCommands(cmd, m_meshEntries, worldData.indirectBuffer[frameIndex]);
             cmd.CMD_EndRendering();
 
             cmd.CMD_ImageTransition_ToColorShaderRead(worldData.finalColorTexture->GetImage()._allocatedImg.image);
+            wc++;
         }
 
         PROFILER_SCOPE_END("Main Passes", PROFILER_THREAD_RENDER);
@@ -225,8 +227,8 @@ namespace Lina::Editor
     {
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
         {
-            auto  renderable = static_cast<RenderableComponent*>(ev.ptr);
-            auto& data       = m_worldDataCPU[ev.world];
+            auto             renderable = static_cast<RenderableComponent*>(ev.ptr);
+            RenderWorldData& data       = m_worldDataCPU[ev.world];
 
             if (!data.initialized)
             {
@@ -238,15 +240,71 @@ namespace Lina::Editor
                 data.cameraComponent = comp;
 
                 // Create framebuffers & attachment textures for this world. We won't be using the main passes' textures but will use this instead.
+                data.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+                data.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
+                const String   sidStr  = "World: " + TO_STRING(testCtr++) + "_";
+                const StringID sid     = TO_SID(sidStr);
+                data.finalColorTexture->ChangeSID(sid);
+                data.finalColorTexture->SetUserManaged(true);
+                Resources::ResourceManager::Get()->GetCache<Texture>()->AddResource(sid, data.finalColorTexture);
+
                 for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
                 {
-                    data.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
-                    data.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
-                    const String   sidStr  = "World: " + TO_STRING(testCtr++) + "_" + TO_STRING(i);
-                    const StringID sid     = TO_SID(sidStr);
-                    data.finalColorTexture->ChangeSID(sid);
-                    data.finalColorTexture->SetUserManaged(true);
-                    Resources::ResourceManager::Get()->GetCache<Texture>()->AddResource(sid, data.finalColorTexture);
+
+                    data.indirectBuffer[i] =
+                        Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                               .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                               .memoryUsage = MemoryUsageFlags::CpuToGpu};
+
+                    data.indirectBuffer[i].Create();
+
+                    // Scene data - set 0 b 0
+                    data.sceneDataBuffer[i] = Buffer{
+                        .size        = sizeof(GPUSceneData),
+                        .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                        .memoryUsage = MemoryUsageFlags::CpuToGpu,
+                    };
+                    data.sceneDataBuffer[i].Create();
+
+                    // Light data - set 0 b 1
+                    data.lightDataBuffer[i] = Buffer{
+                        .size        = sizeof(GPULightData),
+                        .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                        .memoryUsage = MemoryUsageFlags::CpuToGpu,
+                    };
+                    data.lightDataBuffer[i].Create();
+
+                    data.viewDataBuffer[i] = Buffer{
+                        .size        = sizeof(GPUViewData),
+                        .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+                        .memoryUsage = MemoryUsageFlags::CpuToGpu,
+                    };
+                    data.viewDataBuffer[i].Create();
+
+                    data.objDataBuffer[i] = Buffer{
+                        .size        = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
+                        .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
+                        .memoryUsage = MemoryUsageFlags::CpuToGpu,
+                    };
+                    data.objDataBuffer[i].Create();
+                    data.objDataBuffer[i].boundSet     = &data.passDescriptor;
+                    data.objDataBuffer[i].boundBinding = 1;
+                    data.objDataBuffer[i].boundType    = DescriptorType::StorageBuffer;
+
+                    // Pass descriptor
+
+                    data.passDescriptor = DescriptorSet{
+                        .setCount = 1,
+                        .pool     = m_descriptorPool._ptr,
+                    };
+
+                    data.passDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+                    data.passDescriptor.BeginUpdate();
+                    data.passDescriptor.AddBufferUpdate(data.sceneDataBuffer[i], data.sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
+                    data.passDescriptor.AddBufferUpdate(data.viewDataBuffer[i], data.viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
+                    data.passDescriptor.AddBufferUpdate(data.lightDataBuffer[i], data.lightDataBuffer[i].size, 2, DescriptorType::UniformBuffer);
+                    data.passDescriptor.AddBufferUpdate(data.objDataBuffer[i], data.objDataBuffer[i].size, 3, DescriptorType::StorageBuffer);
+                    data.passDescriptor.SendUpdate();
                 }
 
                 data.initialized = true;
@@ -312,8 +370,17 @@ namespace Lina::Editor
             {
                 Join();
 
-                delete it->second.finalColorTexture;
+                Resources::ResourceManager::Get()->UnloadUserManaged(it->second.finalColorTexture);
                 delete it->second.finalDepthTexture;
+
+                for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+                {
+                    it->second.objDataBuffer[i].Destroy();
+                    it->second.lightDataBuffer[i].Destroy();
+                    it->second.viewDataBuffer[i].Destroy();
+                    it->second.indirectBuffer[i].Destroy();
+                    it->second.sceneDataBuffer[i].Destroy();
+                }
 
                 m_worldDataCPU.erase(it);
                 return;

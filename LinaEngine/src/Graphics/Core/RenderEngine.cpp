@@ -86,6 +86,15 @@ namespace Lina::Graphics
 
         m_screen.Initialize(m_renderer, &m_backend.m_mainSwapchain);
 
+        DescriptorSetLayoutBinding globalBinding = DescriptorSetLayoutBinding{
+            .binding         = 0,
+            .descriptorCount = 1,
+            .stageFlags      = GetShaderStage(ShaderStage::Fragment) | GetShaderStage(ShaderStage::Vertex),
+            .type            = DescriptorType::UniformBuffer,
+        };
+
+        m_descriptorLayouts[DescriptorSetType::GlobalSet].AddBinding(globalBinding).Create();
+
         DescriptorSetLayoutBinding sceneBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
             .descriptorCount = 1,
@@ -93,30 +102,29 @@ namespace Lina::Graphics
             .type            = DescriptorType::UniformBuffer,
         };
 
-        DescriptorSetLayoutBinding lightDataBinding = DescriptorSetLayoutBinding{
+        DescriptorSetLayoutBinding viewDataBinding = DescriptorSetLayoutBinding{
             .binding         = 1,
             .descriptorCount = 1,
             .stageFlags      = GetShaderStage(ShaderStage::Vertex),
             .type            = DescriptorType::UniformBuffer,
         };
 
-        m_descriptorLayouts[DescriptorSetType::GlobalSet].AddBinding(sceneBinding).AddBinding(lightDataBinding).Create();
-
-        DescriptorSetLayoutBinding viewDataBinding = DescriptorSetLayoutBinding{
-            .binding         = 0,
+        DescriptorSetLayoutBinding lightDataBinding = DescriptorSetLayoutBinding{
+            .binding         = 2,
             .descriptorCount = 1,
             .stageFlags      = GetShaderStage(ShaderStage::Vertex),
             .type            = DescriptorType::UniformBuffer,
         };
 
         DescriptorSetLayoutBinding objDataBinding = DescriptorSetLayoutBinding{
-            .binding         = 1,
+            .binding         = 3,
             .descriptorCount = 1,
             .stageFlags      = GetShaderStage(ShaderStage::Vertex),
             .type            = DescriptorType::StorageBuffer,
         };
 
-        m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(viewDataBinding).AddBinding(objDataBinding).Create();
+        m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(sceneBinding).AddBinding(viewDataBinding).AddBinding(lightDataBinding).AddBinding(objDataBinding).Create();
+
         m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create();
         m_gpuUploader.Create();
 

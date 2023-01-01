@@ -115,19 +115,6 @@ namespace Lina::Graphics
             };
             f.lightDataBuffer.Create();
 
-            f.globalDescriptor = DescriptorSet{
-                .setCount = 1,
-                .pool     = m_descriptorPool._ptr,
-            };
-
-            f.globalDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
-            f.globalDescriptor.BeginUpdate();
-            f.globalDescriptor.AddBufferUpdate(f.sceneDataBuffer, f.sceneDataBuffer.size, 0, DescriptorType::UniformBuffer);
-            f.globalDescriptor.AddBufferUpdate(f.lightDataBuffer, f.lightDataBuffer.size, 1, DescriptorType::UniformBuffer);
-            f.globalDescriptor.SendUpdate();
-
-            // Pass descriptor
-
             f.viewDataBuffer = Buffer{
                 .size        = sizeof(GPUViewData),
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
@@ -145,6 +132,19 @@ namespace Lina::Graphics
             f.objDataBuffer.boundBinding = 1;
             f.objDataBuffer.boundType    = DescriptorType::StorageBuffer;
 
+            f.globalDescriptor = DescriptorSet{
+                .setCount = 1,
+                .pool     = m_descriptorPool._ptr,
+            };
+
+            // f.globalDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
+            // f.globalDescriptor.BeginUpdate();
+            // f.globalDescriptor.AddBufferUpdate(f.sceneDataBuffer, f.sceneDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            // f.globalDescriptor.AddBufferUpdate(f.lightDataBuffer, f.lightDataBuffer.size, 1, DescriptorType::UniformBuffer);
+            // f.globalDescriptor.SendUpdate();
+
+            // Pass descriptor
+
             f.passDescriptor = DescriptorSet{
                 .setCount = 1,
                 .pool     = m_descriptorPool._ptr,
@@ -152,8 +152,10 @@ namespace Lina::Graphics
 
             f.passDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
             f.passDescriptor.BeginUpdate();
-            f.passDescriptor.AddBufferUpdate(f.viewDataBuffer, f.viewDataBuffer.size, 0, DescriptorType::UniformBuffer);
-            f.passDescriptor.AddBufferUpdate(f.objDataBuffer, f.objDataBuffer.size, 1, DescriptorType::StorageBuffer);
+            f.passDescriptor.AddBufferUpdate(f.sceneDataBuffer, f.sceneDataBuffer.size, 0, DescriptorType::UniformBuffer);
+            f.passDescriptor.AddBufferUpdate(f.viewDataBuffer, f.viewDataBuffer.size, 1, DescriptorType::UniformBuffer);
+            f.passDescriptor.AddBufferUpdate(f.lightDataBuffer, f.lightDataBuffer.size, 2, DescriptorType::UniformBuffer);
+            f.passDescriptor.AddBufferUpdate(f.objDataBuffer, f.objDataBuffer.size, 3, DescriptorType::StorageBuffer);
             f.passDescriptor.SendUpdate();
         }
 
@@ -291,7 +293,7 @@ namespace Lina::Graphics
         cmd.CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
 
         // Global set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
+        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
 
         // Pass set.
         cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);

@@ -171,8 +171,8 @@ namespace Lina
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
-          // m_editor.m_renderer = new Editor::EditorRenderer();
-          // renderer            = m_editor.m_renderer;
+            m_editor.m_renderer = new Editor::EditorRenderer();
+            renderer            = m_editor.m_renderer;
             m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend);
         }
 #endif

@@ -85,6 +85,12 @@ namespace Lina::Graphics
             GPUSceneData                 sceneData;
             GPULightData                 lightData;
             bool                         initialized = false;
+            Buffer                       objDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       indirectBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       sceneDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       viewDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       lightDataBuffer[FRAMES_IN_FLIGHT];
+            DescriptorSet                passDescriptor;
         };
 
     protected:
