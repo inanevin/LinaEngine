@@ -75,7 +75,6 @@ namespace Lina::Graphics
 
         struct RenderWorldData
         {
-
             Texture*                     finalColorTexture = nullptr;
             Texture*                     finalDepthTexture = nullptr;
             IDList<RenderableComponent*> allRenderables;
@@ -96,17 +95,18 @@ namespace Lina::Graphics
         virtual void SyncData() override;
         virtual void Stop() override;
         virtual void Join() override;
+        virtual void SetMaterialTextures() override;
         virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
         virtual void OnLevelInstalled(const Event::ELevelInstalled& ev);
         virtual void OnComponentCreated(const Event::EComponentCreated& ev);
         virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        virtual void OnPreMainLoop(const Event::EPreMainLoop& ev);
         virtual void OnWindowResized(const Event::EWindowResized& ev);
         virtual void OnWindowPositioned(const Event::EWindowPositioned& newPos);
         virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
-        virtual void HandleOutOfDateImage();
+        virtual bool HandleOutOfDateImage(VulkanResult res);
         virtual void MergeMeshes();
         virtual void ConnectEvents();
+        virtual void DisconnectEvents();
 
     protected:
         friend class Editor::Editor;
@@ -126,9 +126,6 @@ namespace Lina::Graphics
         Buffer                                m_gpuIndexBuffer;
         bool                                  m_recreateSwapchain = false;
         bool                                  m_hasLevelLoaded    = false;
-        Atomic<bool>                          m_stopped           = false;
-        Texture*                              m_mainPassResult    = nullptr;
-        Texture*                              m_mainPassDepth     = nullptr;
     };
 } // namespace Lina::Graphics
 

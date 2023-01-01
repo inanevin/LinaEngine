@@ -174,6 +174,7 @@ namespace Lina::Graphics
         void Stop();
         void Shutdown();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
+        void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void Join();
         void SetRenderer(Renderer* renderer);
 

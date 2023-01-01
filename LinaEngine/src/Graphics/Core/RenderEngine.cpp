@@ -76,6 +76,7 @@ namespace Lina::Graphics
         m_initedSuccessfully = m_backend.Initialize(initInfo);
 
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -263,6 +264,11 @@ namespace Lina::Graphics
             Model*       model      = rm->GetResource<Model>(modelPath);
             m_engineModels[p.first] = model;
         }
+    }
+
+    void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
+    {
+        m_renderer->SetMaterialTextures();
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

@@ -50,6 +50,7 @@ namespace Lina::Graphics
         vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), surface};
         swapchainBuilder = swapchainBuilder
                                //.use_default_format_selection()
+                               // .set_old_swapchain(_oldSwapchain)
                                .set_desired_present_mode(GetPresentMode(presentMode))
                                .set_desired_extent(size.x, size.y);
 
@@ -60,12 +61,13 @@ namespace Lina::Graphics
         vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();
         _ptr                        = vkbSwapchain.swapchain;
         _format                     = vkbSwapchain.image_format;
+        _oldSwapchain               = _ptr;
 
         std::vector<VkImage>     imgs  = vkbSwapchain.get_images().value();
         std::vector<VkImageView> views = vkbSwapchain.get_image_views().value();
 
-        size.x                    = vkbSwapchain.extent.width;
-        size.y                    = vkbSwapchain.extent.height;
+        size.x = vkbSwapchain.extent.width;
+        size.y = vkbSwapchain.extent.height;
 
         for (VkImage img : imgs)
             _images.push_back(img);

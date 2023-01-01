@@ -60,8 +60,8 @@ namespace Lina::Graphics
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
         m_cmdPool.Create();
 
-        m_mainPassDepth  = VulkanUtility::CreateDefaultPassTextureDepth();
-        m_mainPassResult = VulkanUtility::CreateDefaultPassTextureColor();
+        m_renderWorldData.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+        m_renderWorldData.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
 
         const uint32 imageSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
@@ -208,17 +208,10 @@ namespace Lina::Graphics
             m_frames[i].indirectBuffer.Destroy();
         }
 
-        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
+        DisconnectEvents();
 
-        delete m_mainPassDepth;
-        delete m_mainPassResult;
+        delete m_renderWorldData.finalColorTexture;
+        delete m_renderWorldData.finalDepthTexture;
 
         m_gpuIndexBuffer.Destroy();
         m_gpuVtxBuffer.Destroy();
@@ -266,12 +259,10 @@ namespace Lina::Graphics
 
     void GameRenderer::Render()
     {
-
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
         const uint32 frameIndex = GetFrameIndex();
         auto&        frame      = m_frames[frameIndex];
-        m_guiBackend->SetFrameIndex(frameIndex);
 
         frame.graphicsFence.Wait(true, 1.0f);
 
@@ -280,17 +271,8 @@ namespace Lina::Graphics
         auto         swapchainImage     = Backend::Get()->GetMainSwapchain()._images[imageIndex];
         auto         swapchainImageView = Backend::Get()->GetMainSwapchain()._imageViews[imageIndex];
 
-        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-        {
-            if (!m_stopped.load())
-                HandleOutOfDateImage();
+        if (HandleOutOfDateImage(res))
             return;
-        }
-        else if (res != VulkanResult::Success)
-        {
-            LINA_ASSERT(false, "Could not acquire next image!");
-            return;
-        }
 
         frame.graphicsFence.Reset();
 
@@ -334,10 +316,10 @@ namespace Lina::Graphics
         frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
         // Put necessary images to correct layouts.
-        auto mainPassImage      = m_mainPassResult->GetImage()._allocatedImg.image;
-        auto mainPassImageView  = m_mainPassResult->GetImage()._ptrImgView;
-        auto mainPassDepthImage = m_mainPassDepth->GetImage()._allocatedImg.image;
-        auto mainPassDepthView  = m_mainPassDepth->GetImage()._ptrImgView;
+        auto mainPassImage      = m_renderWorldData.finalColorTexture->GetImage()._allocatedImg.image;
+        auto mainPassImageView  = m_renderWorldData.finalColorTexture->GetImage()._ptrImgView;
+        auto mainPassDepthImage = m_renderWorldData.finalDepthTexture->GetImage()._allocatedImg.image;
+        auto mainPassDepthView  = m_renderWorldData.finalDepthTexture->GetImage()._ptrImgView;
         cmd.CMD_ImageTransition_ToColorOptimal(mainPassImage);
         cmd.CMD_ImageTransition_ToDepthOptimal(mainPassDepthImage);
         cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
@@ -358,10 +340,20 @@ namespace Lina::Graphics
         // ********* FINAL & PP PASS *********
         {
             PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+
+            // Issue GUI draw commands.
+            m_guiBackend->SetIndex(imageIndex);
+            m_guiBackend->SetCmd(&cmd);
+            Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
+
             cmd.CMD_BeginRenderingFinal(swapchainImageView, defaultRenderArea);
             auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
             ppMat->Bind(cmd, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
             cmd.CMD_Draw(3, 1, 0, 0);
+
+            // Render GUI on top
+            m_guiBackend->RecordDrawCommands();
+
             cmd.CMD_EndRendering();
 
             // Make sure presentable
@@ -375,8 +367,8 @@ namespace Lina::Graphics
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         Backend::Get()->GetGraphicsQueue().Submit(frame.submitSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
-        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex);
-
+        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex, res);
+        HandleOutOfDateImage(res);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -385,13 +377,20 @@ namespace Lina::Graphics
 
     void GameRenderer::Stop()
     {
-        m_stopped.store(true);
     }
 
     void GameRenderer::Join()
     {
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             m_frames[i].graphicsFence.Wait();
+    }
+
+    void GameRenderer::SetMaterialTextures()
+    {
+        auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
+        ppMat->SetTexture(0, m_renderWorldData.finalColorTexture);
+        ppMat->CheckUpdatePropertyBuffers();
+        m_guiBackend->UpdateProjection();
     }
 
     void GameRenderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
@@ -442,15 +441,6 @@ namespace Lina::Graphics
             m_renderWorldData.allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
     }
 
-    void GameRenderer::OnPreMainLoop(const Event::EPreMainLoop& ev)
-    {
-        auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-        auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-        ppMat->SetTexture(0, m_mainPassResult);
-        ppMat->CheckUpdatePropertyBuffers();
-        m_guiBackend->UpdateProjection();
-    }
-
     void GameRenderer::OnWindowResized(const Event::EWindowResized& ev)
     {
         m_recreateSwapchain = true;
@@ -461,28 +451,52 @@ namespace Lina::Graphics
         m_recreateSwapchain = true;
     }
 
-    void GameRenderer::HandleOutOfDateImage()
+    bool GameRenderer::HandleOutOfDateImage(VulkanResult res)
     {
-        Backend::Get()->WaitIdle();
-        Vector2i size = Window::Get()->GetSize();
+        bool shouldRecreate = false;
 
-        if (size.x == 0 || size.y == 0)
-            return;
+        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        {
+            m_recreateSwapchain = false;
+            shouldRecreate      = true;
+        }
+        else if (res != VulkanResult::Success)
+            LINA_ASSERT(false, "Could not acquire next image!");
 
-        // Swapchain
-        m_swapchain->Destroy();
-        m_swapchain->size = size;
-        m_swapchain->Create();
+        if (shouldRecreate)
+        {
+            Backend::Get()->WaitIdle();
+            Vector2i size = Window::Get()->GetSize();
 
-        // Make sure we always match swapchain
-        size = m_swapchain->size;
+            if (size.x == 0 || size.y == 0)
+                return true;
 
-        // Re-assign target textures to render passes
-        OnPreMainLoop({});
+            // Swapchain
+            m_swapchain->Destroy();
+            m_swapchain->size = size;
+            m_swapchain->Create();
 
-        m_recreateSwapchain = false;
-        UpdateViewport(size);
-        m_guiBackend->UpdateProjection();
+            // Make sure we always match swapchain
+            size = m_swapchain->size;
+
+            delete m_renderWorldData.finalColorTexture;
+            delete m_renderWorldData.finalDepthTexture;
+            m_renderWorldData.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+            m_renderWorldData.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
+
+            // Re-assign target textures to render passes
+            SetMaterialTextures();
+
+            UpdateViewport(size);
+            m_guiBackend->UpdateProjection();
+
+            // Make sure the semaphore is unsignalled after resize operation.
+            Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
+
+            return true;
+        }
+
+        return false;
     }
 
     void GameRenderer::MergeMeshes()
@@ -604,10 +618,20 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &GameRenderer::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &GameRenderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &GameRenderer::OnComponentDestroyed>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GameRenderer::OnPreMainLoop>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &GameRenderer::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &GameRenderer::OnWindowPositioned>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &GameRenderer::OnResourceLoaded>(this);
+    }
+
+    void GameRenderer::DisconnectEvents()
+    {
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
     }
 
 } // namespace Lina::Graphics

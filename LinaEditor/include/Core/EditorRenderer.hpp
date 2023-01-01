@@ -59,7 +59,7 @@ namespace Lina::Editor
     public:
         inline const HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData>& GetWorldData()
         {
-            return m_worldDataCPU;
+            return m_worldDataGPU;
         }
 
     protected:
@@ -68,11 +68,12 @@ namespace Lina::Editor
         virtual void Tick() override;
         virtual void Render() override;
         virtual void SyncData() override;
+        virtual void SetMaterialTextures() override;
         virtual void OnComponentCreated(const Event::EComponentCreated& ev) override;
         virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev) override;
         virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev) override;
-        virtual void OnPreMainLoop(const Event::EPreMainLoop& ev) override;
         virtual void ConnectEvents() override;
+        virtual void DisconnectEvents() override;
 
         void OnWorldDestroyed(const Event::EWorldDestroyed& ev);
 

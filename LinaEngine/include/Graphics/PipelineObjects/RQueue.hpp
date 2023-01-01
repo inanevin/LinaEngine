@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 
 struct VkQueue_T;
+enum VkResult;
 
 namespace Lina::Graphics
 {
@@ -57,9 +58,10 @@ namespace Lina::Graphics
         void Submit(const Vector<Semaphore*>& waitSemaphores, const Semaphore& signalSemaphore, const Fence& fence, Vector<CommandBuffer*>& cmds, uint32 submitCount = 1) const;
         void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, CommandBuffer& cmd, uint32 submitCount = 1) const;
         void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1) const;
-        void Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex) const;
+        void Submit(const Semaphore& waitSemaphore) const;
+        void Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex, VulkanResult& res) const;
         void Present(const Semaphore& waitSemaphore, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const;
-        void WaitIdle();
+        void WaitIdle() const;
 
         // Runtime
         VkQueue_T* _ptr    = nullptr;

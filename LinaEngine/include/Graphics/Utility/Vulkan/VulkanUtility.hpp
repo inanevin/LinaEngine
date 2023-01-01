@@ -42,6 +42,7 @@ namespace Lina::Graphics
     class RenderPass;
     class Texture;
     class Sampler;
+    class Image;
 
     class VulkanUtility
     {
@@ -61,6 +62,8 @@ namespace Lina::Graphics
         static void     GetDefaultPassSampler(Sampler& sampler);
         static Texture* CreateDefaultPassTextureColor(bool useExplicitSize = false, int width = 0, int height = 0);
         static Texture* CreateDefaultPassTextureDepth(bool useExplicitSize = false, int width = 0, int height = 0);
+        static void     CreateDefaultPassImageDepth(Image& img, bool useExplicitSize = false, int width = 0, int height = 0);
+        static void     CreateDefaultPassImageColor(Image& img, bool useExplicitSize = false, int width = 0, int height = 0);
         static void     CreateMainRenderPass(RenderPass& pass);
         static void     CreatePresentRenderPass(RenderPass& pass);
         static void     SetupAndCreateDefaultRenderPass(RenderPass& pass);
@@ -109,7 +112,7 @@ namespace Lina::Graphics
 
     // Functions
     extern PFN_vkCmdBeginRenderingKHR g_vkCmdBeginRenderingKHR;
-    extern PFN_vkCmdEndRenderingKHR  g_vkCmdEndRenderingKHR;
+    extern PFN_vkCmdEndRenderingKHR   g_vkCmdEndRenderingKHR;
 
 #define pfn_vkCmdBeginRenderingKHR g_vkCmdBeginRenderingKHR
 #define pfn_vkCmdEndRenderingKHR   g_vkCmdEndRenderingKHR

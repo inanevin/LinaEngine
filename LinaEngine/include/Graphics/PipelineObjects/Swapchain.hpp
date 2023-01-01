@@ -61,7 +61,8 @@ namespace Lina::Graphics
         VkSurfaceKHR_T* surface     = nullptr;
 
         // Runtime
-        VkSwapchainKHR_T*      _ptr = nullptr;
+        VkSwapchainKHR_T*      _ptr          = nullptr;
+        VkSwapchainKHR_T*      _oldSwapchain = nullptr;
         Vector<VkImage_T*>     _images;
         Vector<VkImageView_T*> _imageViews;
         VkFormat               _format;

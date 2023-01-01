@@ -88,13 +88,14 @@ namespace Lina::Graphics
         virtual void SyncData(){};
         virtual void Stop(){};
         virtual void Join(){};
+        virtual void SetMaterialTextures(){};
 
     protected:
-        Viewport                            m_viewport;
-        Recti                               m_scissors;
-        CameraSystem                        m_cameraSystem;
-        Swapchain*                          m_swapchain  = nullptr;
-        GUIBackend*                         m_guiBackend = nullptr;
+        Viewport     m_viewport;
+        Recti        m_scissors;
+        CameraSystem m_cameraSystem;
+        Swapchain*   m_swapchain  = nullptr;
+        GUIBackend*  m_guiBackend = nullptr;
     };
 
 } // namespace Lina::Graphics

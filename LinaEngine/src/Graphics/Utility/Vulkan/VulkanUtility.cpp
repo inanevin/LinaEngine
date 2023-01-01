@@ -232,6 +232,52 @@ namespace Lina::Graphics
         return txt;
     }
 
+    void VulkanUtility::CreateDefaultPassImageDepth(Image& img, bool useExplicitSize, int width, int height)
+    {
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D       ext  = Extent3D{.depth = 1};
+        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth); // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
+
+        img = Image{
+            .format              = DEFAULT_DEPTH_FORMAT,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::DepthStencilAttachment),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+            .subresRange         = range,
+        };
+
+        img.Create(true, false);
+    }
+
+    void VulkanUtility::CreateDefaultPassImageColor(Image& img, bool useExplicitSize, int width, int height)
+    {
+        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D       ext  = Extent3D{.depth = 1};
+        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+
+        ImageSubresourceRange range;
+        range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
+
+        img = Image{
+            .format              = Backend::Get()->GetMainSwapchain().format,
+            .tiling              = ImageTiling::Optimal,
+            .extent              = ext,
+            .imageUsageFlags     = GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled),
+            .memoryUsageFlags    = MemoryUsageFlags::GpuOnly,
+            .memoryPropertyFlags = MemoryPropertyFlags::DeviceLocal,
+            .subresRange         = range,
+        };
+
+        img.Create(true, false);
+    }
+
     void VulkanUtility::CreateMainRenderPass(RenderPass& pass)
     {
         const Vector2i size = Backend::Get()->GetMainSwapchain().size;

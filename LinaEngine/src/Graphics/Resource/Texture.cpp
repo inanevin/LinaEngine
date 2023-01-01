@@ -187,7 +187,7 @@ namespace Lina::Graphics
             Vector<ImageMemoryBarrier> imageBarriers;
             imageBarriers.push_back(imageBarrierToTransfer);
 
-            cmd.CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags( PipelineStageFlags::Transfer), 0, {}, {}, imageBarriers);
+            cmd.CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::Transfer), 0, {}, {}, imageBarriers);
 
             ImageSubresourceRange copySubres = ImageSubresourceRange{
                 .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),

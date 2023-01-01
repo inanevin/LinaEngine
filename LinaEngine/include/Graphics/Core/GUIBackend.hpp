@@ -42,7 +42,7 @@ namespace Lina
     {
         class EditorGUIManager;
         class EditorRenderer;
-    }
+    } // namespace Editor
 
     namespace Event
     {
@@ -86,21 +86,20 @@ namespace Lina::Graphics
             OrderedDrawRequestMeta meta;
         };
 
+        struct MaterialPool
+        {
+            uint32           index = 0;
+            Vector<Material> materials;
+        };
+
         struct BufferCapsule
         {
             Vector<OrderedDrawRequest> orderedDrawRequests;
             uint32                     indexCounter  = 0;
             uint32                     vertexCounter = 0;
-            Buffer                     testVtxBuffer;
-            Buffer                     testIndexBuffer;
-            void*                      indexPtr = nullptr;
-            void*                      vtxPtr   = nullptr;
-        };
-
-        struct MaterialPool
-        {
-            uint32           index = 0;
-            Vector<Material> materials;
+            Buffer                     vtxBuffer;
+            Buffer                     indxBuffer;
+            MaterialPool               materialPool;
         };
 
     public:
@@ -119,7 +118,7 @@ namespace Lina::Graphics
         virtual void                  RestoreAPIState() override;
         virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-        void SetFrameIndex(uint32 frameIndex)
+        void SetIndex(uint32 frameIndex)
         {
             m_currentFrameIndex = frameIndex;
         }
@@ -151,8 +150,6 @@ namespace Lina::Graphics
         HashMap<uint32, Texture*> m_fontTextures;
         uint32                    m_bufferingFontTexture = 0;
         uint32                    m_currentFrameIndex    = 0;
-        // Pool per frame-in-flight
-        HashMap<uint32, MaterialPool> m_materialPools;
     };
 
 } // namespace Lina::Graphics

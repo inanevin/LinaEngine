@@ -46,6 +46,7 @@ SOFTWARE.
 using namespace Lina::Graphics;
 namespace Lina::Editor
 {
+
     void EditorRenderer::Tick()
     {
         for (auto& pair : m_worldDataCPU)
@@ -62,24 +63,16 @@ namespace Lina::Editor
 
         const uint32 frameIndex = GetFrameIndex();
         auto&        frame      = m_frames[frameIndex];
-        m_guiBackend->SetFrameIndex(frameIndex);
 
         frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        const uint32 imageIndex = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.submitSemaphore, res);
+        const uint32 imageIndex         = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.submitSemaphore, res);
+        auto         swapchainImage     = Backend::Get()->GetMainSwapchain()._images[imageIndex];
+        auto         swapchainImageView = Backend::Get()->GetMainSwapchain()._imageViews[imageIndex];
 
-        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-        {
-            if (!m_stopped.load())
-                HandleOutOfDateImage();
+        if (HandleOutOfDateImage(res))
             return;
-        }
-        else if (res != VulkanResult::Success)
-        {
-            LINA_ASSERT(false, "Could not acquire next image!");
-            return;
-        }
 
         frame.graphicsFence.Reset();
 
@@ -88,6 +81,7 @@ namespace Lina::Editor
         cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
         const Recti defaultRenderArea = Recti(Vector2(m_viewport.x, m_viewport.y), Vector2(m_viewport.width, m_viewport.height));
+
         cmd.CMD_SetViewport(m_viewport);
         cmd.CMD_SetScissors(m_scissors);
 
@@ -102,98 +96,72 @@ namespace Lina::Editor
         // Pass set.
         cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &frame.passDescriptor, 0, nullptr);
 
-    //  auto& mainPass  = m_renderPasses[RenderPassType::Main];
-    //  auto& finalPass = m_renderPasses[RenderPassType::Final];
-    //
-    //  // ****** MAIN PASS ******
-    //  PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
-    //      LINA_TRACE("-------------------------------------------");
-    //
-    //  for (auto& pair : m_worldDataGPU)
-    //  {
-    //      auto& worldData = pair.second;
-    //
-    //      LINA_TRACE("Rendering World With: ");
-    //      LINA_TRACE("Object Count {0}", worldData.extractedRenderables.size());
-    //      auto p = worldData.cameraComponent->GetEntity()->GetPosition();
-    //      LINA_TRACE("Cam Pos {0} {1} {2}", p.x, p.y, p.z);
-    //
-    //      // Global - scene data.
-    //      frame.sceneDataBuffer.CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
-    //
-    //      // Global - light data.
-    //      frame.lightDataBuffer.CopyInto(&worldData.lightData, sizeof(GPULightData));
-    //
-    //      // Per render pass - obj data.
-    //      Vector<GPUObjectData> gpuObjectData;
-    //
-    //      for (auto& r : worldData.extractedRenderables)
-    //      {
-    //          // Object data.
-    //          GPUObjectData objData;
-    //          objData.modelMatrix = r.modelMatrix;
-    //          gpuObjectData.push_back(objData);
-    //      }
-    //
-    //      frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
-    //
-    //      mainPass.Begin(worldData.framebuffers[imageIndex], cmd, defaultRenderArea);
-    //      worldData.opaquePass.UpdateViewData(frame.viewDataBuffer, worldData.playerView);
-    //      worldData.opaquePass.RecordDrawCommands(cmd, RenderPassType::Main, m_meshEntries, frame.indirectBuffer);
-    //      mainPass.End(cmd);
-    //
-    //      // aq = worldData.finalColorTexture;
-    //
-    //      //  const Extent3D    ext = mainPass._colorTexture->GetExtent();
-    //      //  Vector<ImageBlit> regions;
-    //      //  ImageBlit         blit;
-    //      //  blit.srcRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-    //      //  blit.dstRange.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
-    //      //  blit.srcOffsets[0]        = Offset3D{0, 0, 0};
-    //      //  blit.srcOffsets[1]        = VulkanUtility::GetOffset3D(ext);
-    //      //  blit.dstOffsets[0]        = Offset3D{0, 0, 0};
-    //      //  blit.dstOffsets[1]        = VulkanUtility::GetOffset3D(ext);
-    //      //
-    //      //  regions.push_back(blit);
-    //      //  cmd.CMD_BlitImage(mainPass._colorTexture->GetImage()._allocatedImg.image, ImageLayout::ShaderReadOnlyOptimal, worldData.finalTexture->GetImage()._allocatedImg.image, ImageLayout::TransferDstOptimal,
-    //      //  regions,
-    //      //                    Filter::Linear);
-    //  }
-    //
-    //  PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
-    //
-    //  // ****** POST PROCESS PASS ******
-    //  // PROFILER_SCOPE_START("PP Pass", PROFILER_THREAD_RENDER);
-    //  // m_guiBackend->SetCmd(&cmd);
-    //  // Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-    //  // postPass.Begin(postPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-    //  // auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-    //  // ppMat->Bind(cmd, RenderPassType::PostProcess, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-    //  // cmd.CMD_Draw(3, 1, 0, 0);
-    //  // m_guiBackend->RecordDrawCommands();
-    //  // postPass.End(cmd);
-    //  // PROFILER_SCOPE_END("PP Pass", PROFILER_THREAD_RENDER);
-    //
-    //  // ****** FINAL PASS ******
-    //  PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
-    //  m_guiBackend->SetCmd(&cmd);
-    //  Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
-    //  finalPass.Begin(finalPass.framebuffers[imageIndex], cmd, defaultRenderArea);
-    //  auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-    //  finalQuadMat->Bind(cmd, RenderPassType::Final, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
-    //  cmd.CMD_Draw(3, 1, 0, 0);
-    //  m_guiBackend->RecordDrawCommands();
-    //  finalPass.End(cmd);
-    //  PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
-    //
-    //  cmd.End();
-    //
-    //  // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
-    //  // Then submits command, and signals render semaphore when its submitted.
-    //  PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
-    //  Backend::Get()->GetGraphicsQueue().Submit(frame.submitSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
-    //  Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex);
+        PROFILER_SCOPE_START("Main Passes", PROFILER_THREAD_RENDER);
 
+        for (auto& pair : m_worldDataGPU)
+        {
+            auto& worldData = pair.second;
+
+            // Global - scene data.
+            frame.sceneDataBuffer.CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
+
+            // Global - light data.
+            frame.lightDataBuffer.CopyInto(&worldData.lightData, sizeof(GPULightData));
+
+            // Per render pass - obj data.
+            Vector<GPUObjectData> gpuObjectData;
+
+            for (auto& r : worldData.extractedRenderables)
+            {
+                // Object data.
+                GPUObjectData objData;
+                objData.modelMatrix = r.modelMatrix;
+                gpuObjectData.push_back(objData);
+            }
+
+            frame.objDataBuffer.CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+
+            cmd.CMD_ImageTransition_ToColorOptimal(worldData.finalColorTexture->GetImage()._allocatedImg.image);
+            cmd.CMD_ImageTransition_ToDepthOptimal(worldData.finalDepthTexture->GetImage()._allocatedImg.image);
+
+            cmd.CMD_BeginRenderingFinal(worldData.finalColorTexture->GetImage()._ptrImgView, defaultRenderArea);
+            worldData.opaquePass.UpdateViewData(frame.viewDataBuffer, worldData.playerView);
+            worldData.opaquePass.RecordDrawCommands(cmd, m_meshEntries, frame.indirectBuffer);
+            cmd.CMD_EndRendering();
+
+            cmd.CMD_ImageTransition_ToColorShaderRead(worldData.finalColorTexture->GetImage()._allocatedImg.image);
+        }
+
+        PROFILER_SCOPE_END("Main Passes", PROFILER_THREAD_RENDER);
+
+        // ********* FINAL PASS *********
+        {
+            PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+            cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
+
+            // Issue GUI commands
+            m_guiBackend->SetIndex(imageIndex);
+            m_guiBackend->SetCmd(&cmd);
+            Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
+
+            // Actually draw commands
+            cmd.CMD_BeginRenderingFinal(swapchainImageView, defaultRenderArea);
+            m_guiBackend->RecordDrawCommands();
+            cmd.CMD_EndRendering();
+
+            // Make sure presentable
+            cmd.CMD_ImageTransition_ToPresent(swapchainImage);
+            PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
+        }
+
+        cmd.End();
+
+        // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
+        // Then submits command, and signals render semaphore when its submitted.
+        PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
+        Backend::Get()->GetGraphicsQueue().Submit(frame.submitSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
+        Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex, res);
+        HandleOutOfDateImage(res);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -241,6 +209,16 @@ namespace Lina::Editor
         }
     }
 
+    void EditorRenderer::SetMaterialTextures()
+    {
+        m_guiBackend->UpdateProjection();
+        auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
+        auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
+        // auto& mainPass     = m_renderPasses[RenderPassType::Main];
+        // finalQuadMat->SetTexture(0, RenderEngine::Get()->GetEngineTexture(EngineTextureType::DummyBlack32));
+        // finalQuadMat->CheckUpdatePropertyBuffers();
+    }
+
     int testCtr = 0;
 
     void EditorRenderer::OnComponentCreated(const Event::EComponentCreated& ev)
@@ -260,13 +238,16 @@ namespace Lina::Editor
                 data.cameraComponent = comp;
 
                 // Create framebuffers & attachment textures for this world. We won't be using the main passes' textures but will use this instead.
-                data.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
-                data.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
-                const String   sidStr  = "World: " + TO_STRING(testCtr++);
-                const StringID sid     = TO_SID(sidStr);
-                data.finalColorTexture->ChangeSID(sid);
-                data.finalColorTexture->SetUserManaged(true);
-                Resources::ResourceManager::Get()->GetCache<Texture>()->AddResource(sid, data.finalColorTexture);
+                for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+                {
+                    data.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+                    data.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
+                    const String   sidStr  = "World: " + TO_STRING(testCtr++) + "_" + TO_STRING(i);
+                    const StringID sid     = TO_SID(sidStr);
+                    data.finalColorTexture->ChangeSID(sid);
+                    data.finalColorTexture->SetUserManaged(true);
+                    Resources::ResourceManager::Get()->GetCache<Texture>()->AddResource(sid, data.finalColorTexture);
+                }
 
                 data.initialized = true;
             }
@@ -295,27 +276,28 @@ namespace Lina::Editor
         }
     }
 
-    void EditorRenderer::OnPreMainLoop(const Event::EPreMainLoop& ev)
-    {
-        auto* finalQuadMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQFinal);
-        auto* ppMat        = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
-       // auto& mainPass     = m_renderPasses[RenderPassType::Main];
-       // finalQuadMat->SetTexture(0, RenderEngine::Get()->GetEngineTexture(EngineTextureType::DummyBlack32));
-       // finalQuadMat->CheckUpdatePropertyBuffers();
-        m_guiBackend->UpdateProjection();
-    }
-
     void EditorRenderer::ConnectEvents()
     {
         Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &EditorRenderer::OnLevelUninstalled>(this);
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &EditorRenderer::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &EditorRenderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &EditorRenderer::OnComponentDestroyed>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &EditorRenderer::OnPreMainLoop>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &EditorRenderer::OnWindowResized>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &EditorRenderer::OnWindowPositioned>(this);
         Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &EditorRenderer::OnResourceLoaded>(this);
         Event::EventSystem::Get()->Connect<Event::EWorldDestroyed, &EditorRenderer::OnWorldDestroyed>(this);
+    }
+
+    void EditorRenderer::DisconnectEvents()
+    {
+        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWorldDestroyed>(this);
     }
 
     void EditorRenderer::OnWorldDestroyed(const Event::EWorldDestroyed& ev)
@@ -329,6 +311,7 @@ namespace Lina::Editor
             if (world == ev.world)
             {
                 Join();
+
                 delete it->second.finalColorTexture;
                 delete it->second.finalDepthTexture;
 

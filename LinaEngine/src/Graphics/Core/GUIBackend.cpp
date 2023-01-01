@@ -48,8 +48,10 @@ namespace Lina::Graphics
     bool GUIBackend::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
-        CreateBufferCapsule();
-        CreateBufferCapsule();
+
+        for (int i = 0; i < Backend::Get()->GetMainSwapchain()._images.size(); i++)
+            CreateBufferCapsule();
+
         return true;
     }
 
@@ -58,22 +60,22 @@ namespace Lina::Graphics
         m_bufferCapsules.push_back(BufferCapsule());
         auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
 
-        caps.testVtxBuffer = Buffer{
+        caps.vtxBuffer = Buffer{
             .size          = BUFFER_LIMIT,
             .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer),
             .memoryUsage   = MemoryUsageFlags::CpuToGpu,
             .requiredFlags = MemoryPropertyFlags::HostVisible,
         };
 
-        caps.testIndexBuffer = Buffer{
+        caps.indxBuffer = Buffer{
             .size          = BUFFER_LIMIT,
             .bufferUsage   = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer),
             .memoryUsage   = MemoryUsageFlags::CpuToGpu,
             .requiredFlags = MemoryPropertyFlags::HostVisible,
         };
 
-        caps.testIndexBuffer.Create();
-        caps.testVtxBuffer.Create();
+        caps.indxBuffer.Create();
+        caps.vtxBuffer.Create();
     }
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -81,9 +83,9 @@ namespace Lina::Graphics
         if (m_guiStandard == nullptr)
             m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
 
-        for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+        for (auto& b : m_bufferCapsules)
         {
-            auto& pool = m_materialPools[i];
+            auto& pool = b.materialPool;
             pool.materials.resize(MATERIAL_POOL_COUNT, Material());
             pool.index = 0;
 
@@ -108,14 +110,14 @@ namespace Lina::Graphics
 
         for (auto& b : m_bufferCapsules)
         {
-            b.testIndexBuffer.Destroy();
-            b.testVtxBuffer.Destroy();
+            b.indxBuffer.Destroy();
+            b.vtxBuffer.Destroy();
         }
     }
 
     void GUIBackend::StartFrame()
     {
-        m_materialPools[m_currentFrameIndex].index = 0;
+        m_bufferCapsules[m_currentFrameIndex].materialPool.index = 0;
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
@@ -190,7 +192,7 @@ namespace Lina::Graphics
         request.meta.clipW   = buf->clipSizeX == 0 ? screen.x : buf->clipSizeX;
         request.meta.clipH   = buf->clipSizeY == 0 ? screen.y : buf->clipSizeY;
 
-        auto& pool = m_materialPools[m_currentFrameIndex];
+        auto& pool = targetCapsule.materialPool;
 
         uint32 matId = pool.index;
 
@@ -205,8 +207,8 @@ namespace Lina::Graphics
         request.transientMat->SetProperty("projection", m_projection);
 
         targetCapsule.orderedDrawRequests.push_back(request);
-        targetCapsule.testVtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
-        targetCapsule.testIndexBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
+        targetCapsule.vtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
+        targetCapsule.indxBuffer.CopyIntoPadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), targetCapsule.indexCounter * sizeof(LinaVG::Index));
 
         targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
@@ -229,9 +231,9 @@ namespace Lina::Graphics
             return;
 
         uint64 offset = 0;
-        m_cmd->CMD_BindVertexBuffers(0, 1, b.testVtxBuffer._ptr, &offset);
-        m_cmd->CMD_BindIndexBuffers(b.testIndexBuffer._ptr, 0, IndexType::Uint32);
-        m_guiStandard->Bind(*m_cmd,  MaterialBindFlag::BindPipeline);
+        m_cmd->CMD_BindVertexBuffers(0, 1, b.vtxBuffer._ptr, &offset);
+        m_cmd->CMD_BindIndexBuffers(b.indxBuffer._ptr, 0, IndexType::Uint32);
+        m_guiStandard->Bind(*m_cmd, MaterialBindFlag::BindPipeline);
 
         for (auto& r : b.orderedDrawRequests)
         {

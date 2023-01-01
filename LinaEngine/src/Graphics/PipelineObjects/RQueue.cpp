@@ -109,7 +109,18 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
     }
 
-    void RQueue::Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex) const
+    void RQueue::Submit(const Semaphore& waitSemaphore) const
+    {
+        const VkPipelineStageFlags psw         = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        VkSubmitInfo               submit_info = {};
+        submit_info.sType                      = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.waitSemaphoreCount         = 1;
+        submit_info.pWaitSemaphores            = &waitSemaphore._ptr;
+        submit_info.pWaitDstStageMask;
+        vkQueueSubmit(Backend::Get()->GetGraphicsQueue()._ptr, 1, &submit_info, VK_NULL_HANDLE);
+    }
+
+    void RQueue::Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex, VulkanResult& res) const
     {
         auto&        swapchain = Backend::Get()->GetMainSwapchain();
         const uint32 index     = swapchainImageIndex;
@@ -125,6 +136,7 @@ namespace Lina::Graphics
         };
         VkResult result = vkQueuePresentKHR(_ptr, &info);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
+        res = GetResult(result);
     }
 
     void RQueue::Present(const Semaphore& waitSemaphore, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const
@@ -148,7 +160,7 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
     }
 
-    void RQueue::WaitIdle()
+    void RQueue::WaitIdle() const
     {
         vkQueueWaitIdle(_ptr);
     }
