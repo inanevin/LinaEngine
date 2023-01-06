@@ -37,9 +37,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void Swapchain::Create()
+    void Swapchain::Create(StringID sid)
     {
         LINA_ASSERT(_ptr == nullptr, "[Swapchain] -> Can not re-create swapchain before it's destroyed!");
+        swapchainID = sid;
 
         if (size.x == 0 || size.y == 0)
         {

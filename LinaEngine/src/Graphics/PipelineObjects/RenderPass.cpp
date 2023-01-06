@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Graphics/Core/Backend.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Math/Vector.hpp"
-#include "Graphics/Core/Window.hpp"
 #include "Graphics/PipelineObjects/Framebuffer.hpp"
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"

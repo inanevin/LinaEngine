@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include "Input/Core/InputCommon.hpp"
 #include "Graphics/Core/Screen.hpp"
+#include "Core/Application.hpp"
 #include <Windows.h>
 #include <shellscalingapi.h>
 #include <hidusage.h>
@@ -47,66 +48,67 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    Win32Window* Win32Window::s_win32Window = nullptr;
+    HashMap<HWND__*, Win32Window*> Win32Window::s_win32Windows;
+    bool                           Win32Window::s_isAppActive;
+    Application*                   Win32Window::s_app = nullptr;
 
     LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
     {
+        auto* win32Window = s_win32Windows[window];
+        if (win32Window == nullptr)
+            return DefWindowProcA(window, msg, wParam, lParam);
+
         switch (msg)
         {
+        case WM_SETFOCUS: {
+            win32Window->SetFocus(true);
+            Event::EventSystem::Get()->Trigger<Event::EWindowFocused>({static_cast<void*>(win32Window)});
+        }
+        break;
         case WM_CLOSE: {
-            Win32Window::GetWin32()->Close();
-            DestroyWindow(Win32Window::GetWin32()->GetWindowPtr());
+            win32Window->Close();
+            DestroyWindow(window);
             PostQuitMessage(0);
         }
         break;
-        case WM_PAINT: {
-            //
-        }
-        break;
         case WM_DPICHANGED: {
-            // Find the button and resize it
             HWND hWndButton = FindWindowEx(window, NULL, NULL, NULL);
             if (hWndButton != NULL)
-                Win32Window::GetWin32()->UpdateButtonLayoutForDpi(hWndButton);
+                win32Window->UpdateButtonLayoutForDpi(hWndButton);
         }
         break;
         case WM_ACTIVATEAPP: {
-            Win32Window::GetWin32()->SetIsActiveWindow(wParam == TRUE ? true : false);
+            s_isAppActive = wParam == TRUE ? true : false;
+            Event::EventSystem::Get()->Trigger<Event::EActiveAppChanged>({s_isAppActive});
         }
         break;
+        case WM_MOVE: {
+            LINA_TRACE("MOVE");
+
+            if (s_app != nullptr)
+                s_app->Tick();
+            break;
+        }
         case WM_SIZE: {
 
             if (wParam == SIZE_MINIMIZED)
-            {
-                Win32Window::GetWin32()->UpdateSize(Vector2i(0, 0));
-            }
+                win32Window->UpdateSize(Vector2i(0, 0));
             else
             {
                 RECT rect;
-                GetWindowRect(Win32Window::GetWin32()->GetWindowPtr(), &rect);
+                GetWindowRect(window, &rect);
                 const Vector2i newSize = Vector2i(rect.right - rect.left, rect.bottom - rect.top);
-                Win32Window::GetWin32()->UpdateSize(newSize);
+                win32Window->UpdateSize(newSize);
             }
-        }
-        break;
-        case WM_SETFOCUS: {
-            Win32Window::GetWin32()->m_hasFocus = true;
-            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({true});
-        }
-        break;
-        case WM_KILLFOCUS: {
-            Win32Window::GetWin32()->m_hasFocus = false;
-            Event::EventSystem::Get()->Trigger<Event::EWindowFocusChanged>({false});
         }
         break;
         case WM_KEYDOWN: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
             if ((HIWORD(lParam) & KF_REPEAT) == 0)
             {
-                HWND   ptr      = Win32Window::GetWin32()->GetWindowPtr();
                 WORD   keyFlags = HIWORD(lParam);
                 WORD   scanCode = LOBYTE(keyFlags);
                 uint32 key      = static_cast<uint32>(wParam);
@@ -118,7 +120,7 @@ namespace Lina::Graphics
                     key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
 
                 Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
-                    .window   = static_cast<void*>(ptr),
+                    .window   = win32Window->GetHandle(),
                     .key      = key,
                     .scancode = static_cast<int>(scanCode),
                     .action   = static_cast<int>(Input::InputAction::Pressed),
@@ -128,10 +130,9 @@ namespace Lina::Graphics
         break;
         case WM_KEYUP: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr      = Win32Window::GetWin32()->GetWindowPtr();
             WORD keyFlags = HIWORD(lParam);
             WORD scanCode = LOBYTE(keyFlags);
 
@@ -144,7 +145,7 @@ namespace Lina::Graphics
                 key = extended ? VK_LCONTROL : VK_RCONTROL;
 
             Event::EventSystem::Get()->Trigger<Event::EKeyCallback>(Event::EKeyCallback{
-                .window   = static_cast<void*>(ptr),
+                .window   = win32Window->GetHandle(),
                 .key      = key,
                 .scancode = static_cast<int>(scanCode),
                 .action   = static_cast<int>(Input::InputAction::Released),
@@ -153,13 +154,12 @@ namespace Lina::Graphics
         break;
         case WM_MOUSEWHEEL: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr   = Win32Window::GetWin32()->GetWindowPtr();
             auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
             Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .xoff   = 0.0f,
                 .yoff   = static_cast<float>(delta),
             });
@@ -167,13 +167,13 @@ namespace Lina::Graphics
         break;
         case WM_LBUTTONDOWN: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
+            LINA_TRACE("MBD {0} ", static_cast<void*>(window));
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_LBUTTON,
                 .action = static_cast<int>(Input::InputAction::Pressed),
             });
@@ -181,13 +181,11 @@ namespace Lina::Graphics
         break;
         case WM_RBUTTONDOWN: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_RBUTTON,
                 .action = static_cast<int>(Input::InputAction::Pressed),
             });
@@ -195,13 +193,11 @@ namespace Lina::Graphics
         break;
         case WM_MBUTTONDOWN: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_MBUTTON,
                 .action = static_cast<int>(Input::InputAction::Pressed),
             });
@@ -209,13 +205,11 @@ namespace Lina::Graphics
         break;
         case WM_LBUTTONUP: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_LBUTTON,
                 .action = static_cast<int>(Input::InputAction::Released),
             });
@@ -223,13 +217,11 @@ namespace Lina::Graphics
         break;
         case WM_RBUTTONUP: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_RBUTTON,
                 .action = static_cast<int>(Input::InputAction::Released),
             });
@@ -237,13 +229,11 @@ namespace Lina::Graphics
         break;
         case WM_MBUTTONUP: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_MBUTTON,
                 .action = static_cast<int>(Input::InputAction::Released),
             });
@@ -251,13 +241,11 @@ namespace Lina::Graphics
         break;
         case WM_LBUTTONDBLCLK: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_LBUTTON,
                 .action = static_cast<int>(Input::InputAction::Repeated),
             });
@@ -265,13 +253,11 @@ namespace Lina::Graphics
         break;
         case WM_RBUTTONDBLCLK: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_RBUTTON,
                 .action = static_cast<int>(Input::InputAction::Repeated),
             });
@@ -279,13 +265,11 @@ namespace Lina::Graphics
         break;
         case WM_MBUTTONDBLCLK: {
 
-            if (!Win32Window::GetWin32()->m_hasFocus)
+            if (!s_isAppActive)
                 break;
 
-            HWND ptr = Win32Window::GetWin32()->GetWindowPtr();
-
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
-                .window = static_cast<void*>(ptr),
+                .window = win32Window->GetHandle(),
                 .button = VK_MBUTTON,
                 .action = static_cast<int>(Input::InputAction::Repeated),
             });
@@ -312,21 +296,20 @@ namespace Lina::Graphics
         return DefWindowProcA(window, msg, wParam, lParam);
     }
 
-    bool Win32Window::Initialize(const WindowProperties& props, Screen* screen)
+    bool Win32Window::Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
     {
-        s_win32Window = this;
-        m_screen      = screen;
+        if (parent == nullptr)
+            s_isAppActive = true;
 
-        m_initialSize = Vector2i(props.width, props.height);
-
-        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-
-        m_hinst = GetModuleHandle(0);
+        m_size           = size;
+        m_pos            = pos;
+        m_hinst          = GetModuleHandle(0);
+        m_registryHandle = static_cast<void*>(m_hinst);
 
         WNDCLASS wc      = {};
         wc.lpfnWndProc   = Win32Window::WndProc;
         wc.hInstance     = m_hinst;
-        wc.lpszClassName = "Lina Engine Main";
+        wc.lpszClassName = title;
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
         wc.style         = CS_DBLCLKS;
 
@@ -336,8 +319,8 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, "Lina Engine Main", props.title, 0, 0, 0, props.width, props.height, NULL, NULL, m_hinst, NULL);
-        m_title  = props.title;
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, title, title, parent == nullptr ? 0 : WS_POPUP, 0, 0, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
+        m_title  = title;
 
         if (m_window == nullptr)
         {
@@ -345,72 +328,26 @@ namespace Lina::Graphics
             return false;
         }
 
+        m_handle                 = static_cast<void*>(m_window);
+        s_win32Windows[m_window] = this;
+
         // For raw input
-        RAWINPUTDEVICE Rid[1];
-        Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-        Rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
-        Rid[0].dwFlags     = RIDEV_INPUTSINK;
-        Rid[0].hwndTarget  = m_window;
-        RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
-
-        HMONITOR mon = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
-        UINT     dpiX, dpiY;
-        HRESULT  temp2                    = GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
-        m_screen->m_displayResolution     = Vector2i(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
-        m_screen->m_contentScale          = Vector2(static_cast<float>(dpiY) / 96.0f, static_cast<float>(dpiY) / 96.0f);
-
-        const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
-
-        if (launchOnEditor)
-            SetToWorkingArea();
-        else
+        if (parent == nullptr)
         {
-            if (props.fullscreen)
-                SetToFullscreen();
-            else
-            {
-                if (props.decorated)
-                {
-                    m_style = WS_CAPTION | WS_SYSMENU | WS_OVERLAPPED;
-
-                    if (props.resizable)
-                        m_style |= WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
-                }
-                else
-                {
-                    m_style = WS_POPUP;
-                    if (props.resizable)
-                        m_style |= WS_THICKFRAME;
-                }
-
-                UpdateStyle();
-
-                int w = GetSystemMetrics(SM_CXSCREEN);
-                int h = GetSystemMetrics(SM_CYSCREEN);
-
-                SetPos(Vector2i(w / 2 - props.width / 2, h / 2 - props.height / 2));
-                SetSize(Vector2i(props.width, props.height));
-                m_maximized = true;
-            }
+            RAWINPUTDEVICE Rid[1];
+            Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+            Rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
+            Rid[0].dwFlags     = RIDEV_INPUTSINK;
+            Rid[0].hwndTarget  = m_window;
+            RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
         }
-
-        ShowWindow(m_window, SW_SHOW);
-        Event::EventSystem::Get()->Trigger<Event::EWindowContextCreated>(Event::EWindowContextCreated{.window = static_cast<void*>(m_window)});
-
-        DWORD dwError;
-        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
-        {
-            dwError = GetLastError();
-            LINA_ERR("[Win32 Window] -> Failed setting priority: {0}", dwError);
-        }
-
-        SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
-
         return true;
     }
 
-    void Win32Window::Shutdown()
+    void Win32Window::Destroy()
     {
+        s_win32Windows.erase(s_win32Windows.find(m_window));
+        DestroyWindow(m_window);
     }
 
     void Win32Window::Close()
@@ -418,32 +355,58 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Trigger<Event::EWindowClosed>();
     }
 
-    void Win32Window::UpdateStyle()
+    void Win32Window::UpdateWinStyle()
     {
-        SetWindowLong(m_window, GWL_STYLE, m_style);
+        SetWindowLongPtr(m_window, GWL_STYLE, m_style);
     }
 
     void Win32Window::SetToWorkingArea()
     {
         m_style = WS_POPUP;
-        UpdateStyle();
+        UpdateWinStyle();
 
         RECT r;
         SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0);
         SetPos(Vector2i(0, 0));
         SetSize(Vector2i(r.right, r.bottom));
-        m_maximized = true;
+        m_isMaximized = true;
     }
 
     void Win32Window::SetToFullscreen()
     {
         m_style = WS_POPUP;
-        UpdateStyle();
+        UpdateWinStyle();
         int w = GetSystemMetrics(SM_CXSCREEN);
         int h = GetSystemMetrics(SM_CYSCREEN);
         SetPos(Vector2i(0, 0));
         SetSize(Vector2i(w, h));
-        m_maximized = true;
+        m_isMaximized = true;
+    }
+
+    void Win32Window::SetCustomStyle(bool decorated, bool resizable)
+    {
+        if (decorated)
+        {
+            m_style = WS_OVERLAPPEDWINDOW;
+
+            if (resizable)
+                m_style |= WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
+        }
+        else
+        {
+            m_style = WS_POPUP;
+            if (resizable)
+                m_style |= WS_THICKFRAME;
+        }
+
+        UpdateWinStyle();
+
+        int w = GetSystemMetrics(SM_CXSCREEN);
+        int h = GetSystemMetrics(SM_CYSCREEN);
+
+        SetPos(Vector2i(w / 2 - m_size.x / 2, h / 2 - m_size.y / 2));
+        SetSize(Vector2i(m_size.x, m_size.y));
+        m_isMaximized = true;
     }
 
     void Win32Window::UpdateButtonLayoutForDpi(HWND__* hwnd)
@@ -451,8 +414,8 @@ namespace Lina::Graphics
         int iDpi            = GetDpiForWindow(m_window);
         int dpiScaledX      = MulDiv(0, iDpi, 96);
         int dpiScaledY      = MulDiv(0, iDpi, 96);
-        int dpiScaledWidth  = MulDiv(m_initialSize.x, iDpi, 96);
-        int dpiScaledHeight = MulDiv(m_initialSize.y, iDpi, 96);
+        int dpiScaledWidth  = MulDiv(m_size.x, iDpi, 96);
+        int dpiScaledHeight = MulDiv(m_size.y, iDpi, 96);
         SetWindowPos(hwnd, hwnd, dpiScaledX, dpiScaledY, dpiScaledWidth, dpiScaledHeight, SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
@@ -463,7 +426,11 @@ namespace Lina::Graphics
 
         SetWindowPos(m_window, 0, CW_USEDEFAULT, CW_USEDEFAULT, newSize.x, newSize.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         UpdateSize(newSize);
-        UpdateCursor();
+    }
+
+    void Win32Window::ShowHideWindow(bool show)
+    {
+        ShowWindow(m_window, show ? SW_SHOW : SW_HIDE);
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)
@@ -473,50 +440,23 @@ namespace Lina::Graphics
 
         SetWindowPos(m_window, 0, newPos.x, newPos.y, CW_USEDEFAULT, CW_USEDEFAULT, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         UpdatePos(newPos);
-        UpdateCursor();
     }
 
     void Win32Window::UpdatePos(const Vector2i& pos)
     {
         const Vector2i oldPos = m_pos;
         m_pos                 = pos;
-        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = nullptr, .oldPos = oldPos, .newPos = m_pos});
+        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_handle, .oldPos = oldPos, .newPos = m_pos});
     }
 
     void Win32Window::UpdateSize(const Vector2i& size)
     {
-        if (size.x == 0 || size.y == 0)
-            m_minimized = true;
-        else
-            m_minimized = false;
+        m_isMinimized = size.x == 0 || size.y == 0;
 
         const Vector2i oldSize = m_size;
         m_size                 = size;
-        m_minimized            = m_size.x == 0 || m_size.y == 0;
-        m_aspectRatio          = m_minimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
-        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = nullptr, .oldSize = oldSize, .newSize = m_size});
-    }
-
-    void Win32Window::UpdateCursor()
-    {
-        return;
-
-        RECT r   = {};
-        r.left   = m_pos.x;
-        r.right  = m_pos.x + m_size.x;
-        r.top    = m_pos.y;
-        r.bottom = m_pos.y + m_size.y;
-        ClipCursor(&r);
-    }
-
-    void Win32Window::SetPosCentered(const Vector2i& newPos)
-    {
-    }
-
-    void Win32Window::SetVsync(VsyncMode mode)
-    {
-        m_vsync = mode;
-        Event::EventSystem::Get()->Trigger<Event::EVsyncModeChanged>(Event::EVsyncModeChanged{.newMode = mode});
+        m_aspect               = m_isMinimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
+        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_handle, .oldSize = oldSize, .newSize = m_size});
     }
 
     void Win32Window::SetTitle(const char* title)
@@ -533,46 +473,6 @@ namespace Lina::Graphics
     void Win32Window::Maximize()
     {
         ShowWindow(m_window, SW_SHOWMAXIMIZED);
-    }
-
-    void* Win32Window::CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size)
-    {
-        const StringID sid = TO_SIDC(title);
-        // m_additionalWindows[sid] = CreateWin32Window(title, title, true, size.x, size.y);
-
-        WNDCLASS wc      = {};
-        wc.lpfnWndProc   = Win32Window::WndProc;
-        wc.hInstance     = m_hinst;
-        wc.lpszClassName = title;
-        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-        wc.style         = CS_DBLCLKS;
-
-        if (!RegisterClassA(&wc))
-        {
-            LINA_ERR("[Win32 Window] -> Failed registering window class!");
-            return nullptr;
-        }
-
-        auto child = CreateWindowExA(WS_EX_APPWINDOW, title, title, WS_POPUP, pos.x, pos.y, size.x, size.y, m_window, NULL, m_hinst, NULL);
-        ShowWindow(child, SW_SHOW);
-        m_additionalWindows[sid] = child;
-        return child;
-    }
-
-    void Win32Window::UpdateAdditionalWindow(StringID sid, const Vector2i& pos, const Vector2i& size)
-    {
-        SetWindowPos(m_additionalWindows[sid], 0, pos.x, pos.y, size.x, size.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-    }
-
-    void Win32Window::DestroyAdditionalWindow(StringID sid)
-    {
-        DestroyWindow(m_additionalWindows[sid]);
-        m_additionalWindows.erase(m_additionalWindows.find(sid));
-    }
-
-    bool Win32Window::AdditionalWindowExists(StringID sid)
-    {
-        return m_additionalWindows.find(sid) != m_additionalWindows.end();
     }
 
 } // namespace Lina::Graphics

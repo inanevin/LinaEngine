@@ -31,7 +31,8 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Swapchain.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Graphics/Core/Renderer.hpp"
-#include "Graphics/Core/CameraSystem.hpp"
+#include "World/Core/World.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
 
 namespace Lina::Graphics
 {
@@ -70,14 +71,18 @@ namespace Lina::Graphics
 
     Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos) const
     {
+        auto* world = World::EntityWorld::GetWorld();
+        if (!world || world->GetActiveCamera() == nullptr)
+            return Vector3::Zero;
 
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
-        Vector3 win      = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
-        Matrix  pp       = m_renderer->GetCameraSystem().GetProj();
-        Matrix  vv       = m_renderer->GetCameraSystem().GetView();
-        Vector3 camPos   = m_renderer->GetCameraSystem().GetPos();
+        Vector3 win = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
+
+        Matrix  pp       = world->GetActiveCamera()->GetProjection();
+        Matrix  vv       = world->GetActiveCamera()->GetView();
+        Vector3 camPos   = world->GetActiveCamera()->GetEntity()->GetPosition();
         Vector3 worldPos = glm::unProject(win, vv, pp, viewport);
         return Vector3(glm::normalize(worldPos - camPos)) * screenPos.z + camPos;
     }
@@ -90,11 +95,15 @@ namespace Lina::Graphics
 
     Vector3 Screen::WorldToScreenCoordinates(const Vector3& world) const
     {
+        auto* w = World::EntityWorld::GetWorld();
+        if (!w || w->GetActiveCamera() == nullptr)
+            return Vector3::Zero;
+
         Vector2 windowSize = SizeF();
         Vector2 windowPos  = GetViewportPosF();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
-        Matrix  pp     = m_renderer->GetCameraSystem().GetProj();
-        Matrix  vv     = m_renderer->GetCameraSystem().GetView();
+        Matrix  pp     = w->GetActiveCamera()->GetProjection();
+        Matrix  vv     = w->GetActiveCamera()->GetView();
         Vector3 result = glm::project(world, vv, pp, viewport);
         return Vector3(result.x, windowSize.y - result.y, result.z);
     }

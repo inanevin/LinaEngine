@@ -38,6 +38,12 @@ SOFTWARE.
 #include "Resource/Utility/ResourceUtility.hpp"
 #include "Profiling/Profiler.hpp"
 
+#ifdef LINA_PLATFORM_WINDOWS
+#include "Graphics/Platform/Win32/Win32Window.hpp"
+#else
+
+#endif
+
 namespace Lina
 {
     bool         Application::s_initialized     = false;
@@ -105,6 +111,12 @@ namespace Lina
             return;
 
         m_engine.Start();
+
+#ifdef LINA_PLATFORM_WINDOWS
+        Graphics::Win32Window::s_app = this;
+#else
+#endif
+
         m_isRunning = true;
     }
 

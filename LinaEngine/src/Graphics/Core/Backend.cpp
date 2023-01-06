@@ -35,11 +35,12 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Graphics/Utility/Vulkan/VkBootstrap.h"
 #include "Graphics/Utility/Vulkan/SPIRVUtility.hpp"
-#include "Graphics/Core/Window.hpp"
+#include "Graphics/Core/WindowManager.hpp"
 #include "Profiling/Profiler.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/WindowEvents.hpp"
 
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
@@ -75,11 +76,13 @@ namespace Lina::Graphics
     {
         VkSurfaceKHR surface;
 
+        const auto& mw = m_windowManager->GetMainWindow();
+
 #ifdef LINA_PLATFORM_WINDOWS
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR{
             .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
             .pNext     = nullptr,
-            .hinstance = Win32Window::GetWin32()->GetInstancePtr(),
+            .hinstance = static_cast<HINSTANCE>(mw.GetRegisteryHandle()),
             .hwnd      = static_cast<HWND>(windowPtr),
         };
         vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &surface);
@@ -87,35 +90,40 @@ namespace Lina::Graphics
         LINA_ASSERT(false, "Not implemented!");
 #endif
 
-        m_additionalSwapchains[sid] = Swapchain();
-        auto& swp                   = m_additionalSwapchains[sid];
-
-        swp = Swapchain{
+        Swapchain* swp = new Swapchain{
             .size        = Vector2i(static_cast<uint32>(width), static_cast<uint32>(height)),
             .format      = Format::B8G8R8A8_UNORM,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
             .presentMode = m_currentPresentMode,
         };
 
-        swp.surface = surface;
-        swp.Create();
-        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", swp.size.x, swp.size.y);
-        return &m_additionalSwapchains[sid];
+        swp->_windowHandle = windowPtr;
+        swp->surface       = surface;
+        swp->Create(sid);
+        LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", swp->size.x, swp->size.y);
+
+        m_additionalSwapchains[sid] = swp;
+        return swp;
     }
 
     void Backend::DestroyAdditionalSwapchain(StringID sid)
     {
-        auto& swp     = m_additionalSwapchains[sid];
-        auto  surface = swp.surface;
-        swp.Destroy();
+        auto it      = m_additionalSwapchains.find(sid);
+        auto swp     = it->second;
+        auto surface = swp->surface;
+        swp->Destroy();
         vkDestroySurfaceKHR(m_vkInstance, surface, m_allocator);
+        delete swp;
+        m_additionalSwapchains.erase(it);
     }
 
-    bool Backend::Initialize(const InitInfo& initInfo)
+    bool Backend::Initialize(const InitInfo& initInfo, WindowManager* windowManager)
     {
         LINA_TRACE("[Initialization] -> Vulkan Backend ({0})", typeid(*this).name());
-        m_allocator = nullptr;
+        m_allocator     = nullptr;
+        m_windowManager = windowManager;
         Event::EventSystem::Get()->Connect<Event::EVsyncModeChanged, &Backend::OnVsyncModeChanged>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &Backend::OnWindowPositioned>(this);
 
         // Total extensions
         Vector<const char*> requiredExtensions;
@@ -158,14 +166,17 @@ namespace Lina::Graphics
         m_vkInstance       = inst.instance;
         m_debugMessenger   = inst.debug_messenger;
 
-#ifdef LINA_PLATFORM_WINDOWS
+        const auto& mw = m_windowManager->GetMainWindow();
 
+#ifdef LINA_PLATFORM_WINDOWS
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR{
             .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
             .pNext     = nullptr,
-            .hinstance = Win32Window::GetWin32()->GetInstancePtr(),
-            .hwnd      = Win32Window::GetWin32()->GetWindowPtr(),
+            .hinstance = static_cast<HINSTANCE>(mw.GetRegisteryHandle()),
+            .hwnd      = static_cast<HWND>(mw.GetHandle()),
         };
+
+        m_mainSwapchain._windowHandle = mw.GetHandle();
         vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, nullptr, &m_mainSurface);
 #else
         LINA_ASSERT(false, "Not implemented");
@@ -326,7 +337,7 @@ namespace Lina::Graphics
         };
 
         m_mainSwapchain.surface = m_mainSurface;
-        m_mainSwapchain.Create();
+        m_mainSwapchain.Create(LINA_MAIN_SWAPCHAIN_ID);
         LINA_TRACE("[Swapchain] -> Swapchain created: {0} x {1}", m_mainSwapchain.size.x, m_mainSwapchain.size.y);
 
         // Query queue family indices.
@@ -378,7 +389,11 @@ namespace Lina::Graphics
         m_mainSwapchain.Destroy();
         m_mainSwapchain.presentMode = VsyncToPresentMode(ev.newMode);
         m_currentPresentMode        = m_mainSwapchain.presentMode;
-        m_mainSwapchain.Create();
+        m_mainSwapchain.Create(0);
+    }
+
+    void Backend::OnWindowPositioned(const Event::EWindowPositioned& ev)
+    {
     }
 
     PresentMode Backend::VsyncToPresentMode(VsyncMode mode)
@@ -395,12 +410,32 @@ namespace Lina::Graphics
         return pMode;
     }
 
+    void Backend::SetSwapchainPosition(void* windowHandle, const Vector2i& pos)
+    {
+        const Vector2 posf = Vector2(static_cast<float>(pos.x), static_cast<float>(pos.y));
+        ;
+        if (windowHandle == m_mainSwapchain._windowHandle)
+            m_mainSwapchain.pos = posf;
+        else
+        {
+            for (auto& [sid, swp] : m_additionalSwapchains)
+            {
+                if (swp->_windowHandle == windowHandle)
+                {
+                    swp->pos = posf;
+                    return;
+                }
+            }
+        }
+    }
+
     void Backend::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Vulkan Backend  ({0})", typeid(*this).name());
 
         SPIRVUtility::Shutdown();
         Event::EventSystem::Get()->Disconnect<Event::EVsyncModeChanged>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
 
         vmaDestroyAllocator(m_vmaAllocator);
 

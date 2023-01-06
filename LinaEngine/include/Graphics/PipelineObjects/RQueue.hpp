@@ -55,12 +55,12 @@ namespace Lina::Graphics
     {
     public:
         void Get(uint32 family, uint32 index);
-        void Submit(const Vector<Semaphore*>& waitSemaphores, const Semaphore& signalSemaphore, const Fence& fence, Vector<CommandBuffer*>& cmds, uint32 submitCount = 1) const;
+        void Submit(const Vector<Semaphore*>& waitSemaphores, const Vector<Semaphore*>& signalSemaphore, const Fence& fence, const Vector<CommandBuffer*>& cmd, uint32 submitCount = 1) const;
         void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, CommandBuffer& cmd, uint32 submitCount = 1) const;
         void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1) const;
         void Submit(const Semaphore& waitSemaphore) const;
         void Present(const Semaphore& waitSemaphore, uint32 swapchainImageIndex, VulkanResult& res) const;
-        void Present(const Semaphore& waitSemaphore, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const;
+        void Present(const Vector<Semaphore*>& waitSemaphores, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const;
         void WaitIdle() const;
 
         // Runtime

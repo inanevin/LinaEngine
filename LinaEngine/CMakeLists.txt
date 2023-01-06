@@ -44,7 +44,7 @@ set (LINAENGINE_SOURCES
 	src/Graphics/Core/RenderEngine.cpp
 	src/Graphics/Core/Backend.cpp
 	src/Graphics/Core/GUIBackend.cpp
-	src/Graphics/Core/Window.cpp
+	src/Graphics/Core/WindowManager.cpp
 	src/Graphics/Core/GraphicsCommon.cpp
 	src/Graphics/Core/Renderer.cpp
 	src/Graphics/Core/GameRenderer.cpp
@@ -72,6 +72,7 @@ set (LINAENGINE_SOURCES
 	src/Graphics/PipelineObjects/PipelineLayout.cpp
 	src/Graphics/PipelineObjects/Image.cpp
 	src/Graphics/PipelineObjects/Sampler.cpp
+	src/Graphics/Platform/Win32/Win32Window.cpp
 	src/Graphics/Resource/Shader.cpp
 	src/Graphics/Resource/Mesh.cpp
 	src/Graphics/Resource/Model.cpp
@@ -82,7 +83,6 @@ set (LINAENGINE_SOURCES
 	src/Graphics/Resource/Material.cpp
 	src/Graphics/Resource/MaterialProperty.cpp
 	src/Graphics/Resource/Font.cpp
-	src/Graphics/Platform/Win32/Win32Window.cpp
 	src/Graphics/Utility/Vulkan/VkBootstrap.cpp
 	src/Graphics/Utility/Vulkan/SPIRVUtility.cpp
 	src/Graphics/Utility/Vulkan/VulkanUtility.cpp
@@ -138,7 +138,6 @@ set(LINAENGINE_HEADERS
 	include/Core/Engine.hpp
 
 	# Settings
-	include/Settings/EditorSettings.hpp
 	include/Settings/EngineSettings.hpp
 	include/Settings/RenderSettings.hpp
 
@@ -153,7 +152,7 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Core/RenderEngine.hpp
 	include/Graphics/Core/Backend.hpp
 	include/Graphics/Core/GUIBackend.hpp
-	include/Graphics/Core/Window.hpp
+	include/Graphics/Core/WindowManager.hpp
 	include/Graphics/Core/Renderer.hpp
 	include/Graphics/Core/GameRenderer.hpp
 	include/Graphics/Core/RenderData.hpp
@@ -187,6 +186,8 @@ set(LINAENGINE_HEADERS
 	include/Graphics/PipelineObjects/PipelineLayout.hpp
 	include/Graphics/PipelineObjects/Image.hpp
 	include/Graphics/PipelineObjects/Sampler.hpp
+	include/Graphics/Platform/Win32/Win32Window.hpp
+	include/Graphics/Platform/LinaVGIncl.hpp
 	include/Graphics/Resource/Shader.hpp
 	include/Graphics/Resource/Mesh.hpp
 	include/Graphics/Resource/Model.hpp
@@ -197,7 +198,6 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Resource/Material.hpp
 	include/Graphics/Resource/MaterialProperty.hpp
 	include/Graphics/Resource/Font.hpp
-	include/Graphics/Platform/Win32/Win32Window.hpp
 	include/Graphics/Utility/stb/stb_image.h
 	include/Graphics/Utility/stb/stb_image_write.h
 	include/Graphics/Utility/Vulkan/VkBootstrap.h

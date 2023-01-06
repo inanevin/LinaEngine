@@ -37,7 +37,8 @@ namespace Lina::World
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-    EntityWorld* EntityWorld::s_levelWorld = nullptr;
+    EntityWorld* EntityWorld::s_levelWorld   = nullptr;
+    uint32       EntityWorld::s_worldCounter = 0;
 
     void EntityWorld::Initialize()
     {
@@ -45,6 +46,7 @@ namespace Lina::World
             return;
 
         m_initialized = true;
+        m_worldID     = s_worldCounter++;
 
         if (m_entities.empty())
         {

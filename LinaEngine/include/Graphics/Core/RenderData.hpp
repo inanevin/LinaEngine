@@ -139,13 +139,6 @@ namespace Lina::Graphics
         Fence         graphicsFence;
         Semaphore     submitSemaphore;
         Semaphore     presentSemaphore;
-        Buffer        objDataBuffer;
-        Buffer        indirectBuffer;
-        Buffer        sceneDataBuffer;
-        Buffer        viewDataBuffer;
-        Buffer        lightDataBuffer;
-        DescriptorSet passDescriptor;
-        DescriptorSet globalDescriptor;
     };
 
     struct AdditionalWindow

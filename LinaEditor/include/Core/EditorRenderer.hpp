@@ -31,55 +31,77 @@ SOFTWARE.
 #ifndef EditorRenderer_HPP
 #define EditorRenderer_HPP
 
-#include "Graphics/Core/GameRenderer.hpp"
-
-namespace Lina
-{
-    namespace World
-    {
-        class EntityWorld;
-    }
-
-    namespace Event
-    {
-        struct EWorldDestroyed;
-    }
-    namespace Graphics
-    {
-        class GUIBackend;
-        class CameraComponent;
-    } // namespace Graphics
-} // namespace Lina
+#include "Graphics/Core/Renderer.hpp"
+#include "Graphics/PipelineObjects/Semaphore.hpp"
 
 namespace Lina::Editor
 {
-    class EditorRenderer : public Graphics::GameRenderer
+    class ImmediateGUI;
+
+    class EditorRenderer : public Graphics::Renderer
     {
 
     public:
-        inline const HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData>& GetWorldData()
+        inline const HashMap<World::EntityWorld*, Graphics::Renderer::RenderWorldData>& GetWorldData()
         {
-            return m_worldDataGPU;
+            return m_worldsToRenderGPU;
         }
+
+    private:
+        struct AdditionalWindowData
+        {
+            Graphics::Swapchain*            swapchain = nullptr;
+            Graphics::Semaphore             submitSemaphores[FRAMES_IN_FLIGHT];
+            Graphics::Semaphore             presentSemaphore[FRAMES_IN_FLIGHT];
+            Vector<Graphics::CommandBuffer> cmds;
+            void*                           windowHandle   = nullptr;
+            bool                            shouldRecreate = false;
+            Vector2i                        pos            = Vector2i::Zero;
+            Vector2i                        size           = Vector2i::Zero;
+        };
+
+        struct EditorFrameData
+        {
+            Graphics::Semaphore*     submitSemaphore  = nullptr;
+            Graphics::Semaphore*     presentSemaphore = nullptr;
+            Graphics::CommandBuffer* cmd              = nullptr;
+            Graphics::Swapchain*     swp              = nullptr;
+            Graphics::Viewport       viewport;
+            AdditionalWindowData*    wd         = nullptr;
+            uint32                   imageIndex = 0;
+        };
+
+        struct AdditionalWindowRequest
+        {
+            String                name   = "";
+            void**                handle = nullptr;
+            Graphics::Swapchain** swp    = nullptr;
+            Vector2i              pos    = Vector2i::Zero;
+            Vector2i              size   = Vector2i::Zero;
+        };
 
     protected:
         friend class Editor;
+        friend class ImmediateGUI;
+
+        void CreateAdditionalWindow(const String& name, void** handle, Graphics::Swapchain** swp, const Vector2i& pos, const Vector2i& size);
+        void RemoveAdditionalWindow(StringID sid);
 
         virtual void Tick() override;
+        virtual void Shutdown() override;
         virtual void Render() override;
+        virtual void OnTexturesRecreated() override{};
         virtual void SyncData() override;
-        virtual void SetMaterialTextures() override;
-        virtual void OnComponentCreated(const Event::EComponentCreated& ev) override;
-        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev) override;
-        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev) override;
-        virtual void ConnectEvents() override;
-        virtual void DisconnectEvents() override;
-
-        void OnWorldDestroyed(const Event::EWorldDestroyed& ev);
+        virtual void WindowResized(void* handle) override;
 
     private:
-        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldDataCPU;
-        HashMap<World::EntityWorld*, Graphics::GameRenderer::RenderWorldData> m_worldDataGPU;
+        bool                  HandleOutOfDateImageAdditional(AdditionalWindowData* wd, Graphics::VulkanResult res);
+        AdditionalWindowData* GetWindowDataFromSwapchain(Graphics::Swapchain* swp);
+
+    private:
+        HashMap<StringID, AdditionalWindowData> m_additionalWindows;
+        Mutex                                   m_additionalWindowMtx;
+        Vector<AdditionalWindowRequest>         m_additionalWindowRequests;
     };
 } // namespace Lina::Editor
 

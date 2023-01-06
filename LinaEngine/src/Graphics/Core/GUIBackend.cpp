@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Math/Math.hpp"
 #include "Graphics/Core/RenderData.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
@@ -50,15 +51,15 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
 
         for (int i = 0; i < Backend::Get()->GetMainSwapchain()._images.size(); i++)
-            CreateBufferCapsule();
+            CreateBufferCapsule(0, false);
 
         return true;
     }
 
-    void GUIBackend::CreateBufferCapsule()
+    void GUIBackend::CreateBufferCapsule(StringID sid, bool setMaterials)
     {
-        m_bufferCapsules.push_back(BufferCapsule());
-        auto& caps = m_bufferCapsules[m_bufferCapsules.size() - 1];
+        m_bufferCapsules[sid].push_back(BufferCapsule());
+        auto& caps = m_bufferCapsules[sid][m_bufferCapsules[sid].size() - 1];
 
         caps.vtxBuffer = Buffer{
             .size          = BUFFER_LIMIT,
@@ -76,6 +77,19 @@ namespace Lina::Graphics
 
         caps.indxBuffer.Create();
         caps.vtxBuffer.Create();
+
+        if (setMaterials)
+        {
+            auto& pool = caps.materialPool;
+            pool.materials.resize(MATERIAL_POOL_COUNT, Material());
+            pool.index = 0;
+
+            for (auto& m : pool.materials)
+            {
+                m.CreateBuffer();
+                m.SetShader(m_guiStandard->GetShaderHandle().value);
+            }
+        }
     }
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -83,17 +97,19 @@ namespace Lina::Graphics
         if (m_guiStandard == nullptr)
             m_guiStandard = Lina::Graphics::RenderEngine::Get()->GetEngineMaterial(Lina::Graphics::EngineShaderType::GUIStandard);
 
-        for (auto& b : m_bufferCapsules)
+        for (auto& pair : m_bufferCapsules)
         {
-            auto& pool = b.materialPool;
-            pool.materials.resize(MATERIAL_POOL_COUNT, Material());
-            pool.index = 0;
-
-            int a = 0;
-            for (auto& m : pool.materials)
+            for (auto& b : pair.second)
             {
-                m.CreateBuffer();
-                m.SetShader(m_guiStandard->GetShaderHandle().value);
+                auto& pool = b.materialPool;
+                pool.materials.resize(MATERIAL_POOL_COUNT, Material());
+                pool.index = 0;
+
+                for (auto& m : pool.materials)
+                {
+                    m.CreateBuffer();
+                    m.SetShader(m_guiStandard->GetShaderHandle().value);
+                }
             }
         }
     }
@@ -110,14 +126,16 @@ namespace Lina::Graphics
 
         for (auto& b : m_bufferCapsules)
         {
-            b.indxBuffer.Destroy();
-            b.vtxBuffer.Destroy();
+            for (auto& c : b.second)
+            {
+                c.indxBuffer.Destroy();
+                c.vtxBuffer.Destroy();
+            }
         }
     }
 
     void GUIBackend::StartFrame()
     {
-        m_bufferCapsules[m_currentFrameIndex].materialPool.index = 0;
     }
 
     void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf)
@@ -179,9 +197,9 @@ namespace Lina::Graphics
 
     Material* GUIBackend::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
     {
-        auto& targetCapsule = m_bufferCapsules[m_currentFrameIndex];
+        auto& targetCapsule = GetCurrentBufferCapsule();
 
-        const Vector2i     screen = RenderEngine::Get()->GetScreen().Size();
+        const Vector2i     swpSize = m_currentSwapchainIndexPair.first->size;
         OrderedDrawRequest request;
         request.firstIndex   = targetCapsule.indexCounter;
         request.vertexOffset = targetCapsule.vertexCounter;
@@ -189,8 +207,8 @@ namespace Lina::Graphics
         request.indexSize    = static_cast<uint32>(buf->m_indexBuffer.m_size);
         request.meta.clipX   = buf->clipPosX;
         request.meta.clipY   = buf->clipPosY;
-        request.meta.clipW   = buf->clipSizeX == 0 ? screen.x : buf->clipSizeX;
-        request.meta.clipH   = buf->clipSizeY == 0 ? screen.y : buf->clipSizeY;
+        request.meta.clipW   = buf->clipSizeX == 0 ? swpSize.x : buf->clipSizeX;
+        request.meta.clipH   = buf->clipSizeY == 0 ? swpSize.y : buf->clipSizeY;
 
         auto& pool = targetCapsule.materialPool;
 
@@ -217,15 +235,15 @@ namespace Lina::Graphics
 
     void GUIBackend::EndFrame()
     {
-        auto& b        = m_bufferCapsules[m_currentFrameIndex];
-        b.indexCounter = b.vertexCounter = 0;
     }
 
     void GUIBackend::RecordDrawCommands()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
-        auto& b = m_bufferCapsules[m_currentFrameIndex];
+        LinaVG::Render();
+
+        auto& b = GetCurrentBufferCapsule();
 
         if (b.orderedDrawRequests.empty())
             return;
@@ -248,6 +266,11 @@ namespace Lina::Graphics
         }
 
         b.orderedDrawRequests.clear();
+
+        // End frame, important.
+        b.indexCounter = b.vertexCounter = 0;
+
+        LinaVG::EndFrame();
     }
 
     LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
@@ -315,10 +338,22 @@ namespace Lina::Graphics
     {
     }
 
-    void GUIBackend::UpdateProjection()
+    void GUIBackend::Prepare(Swapchain* swapchain, uint32 imgIndex, CommandBuffer* cmd)
     {
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        const Vector2i pos  = Vector2i();
+        m_currentSwapchainIndexPair.first  = swapchain;
+        m_currentSwapchainIndexPair.second = imgIndex;
+        m_cmd                              = cmd;
+        UpdateProjection(swapchain->size);
+        GetCurrentBufferCapsule().materialPool.index = 0;
+    }
+
+    void GUIBackend::UpdateProjection(const Vector2i& size)
+    {
+        if (size.Equals(m_lastProjectionSize))
+            return;
+
+        m_lastProjectionSize = size;
+        const Vector2i pos   = Vector2i();
 
         Matrix projectionMatrix;
 
@@ -349,6 +384,18 @@ namespace Lina::Graphics
         m_projection[3][1] = (T + B) / (B - T);
         m_projection[3][2] = 0.0f;
         m_projection[3][3] = 1.0f;
+    }
+
+    GUIBackend::BufferCapsule& GUIBackend::GetCurrentBufferCapsule()
+    {
+        const StringID id = m_currentSwapchainIndexPair.first->swapchainID;
+        if (m_bufferCapsules.find(id) == m_bufferCapsules.end())
+        {
+            for (auto& img : m_currentSwapchainIndexPair.first->_images)
+                CreateBufferCapsule(id, true);
+        }
+
+        return m_bufferCapsules[id][m_currentSwapchainIndexPair.second];
     }
 
 } // namespace Lina::Graphics

@@ -26,54 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Settings/DockSetup.hpp"
+#include "Serialization/Serialization.hpp"
 
-#ifndef WindowEvents_HPP
-#define WindowEvents_HPP
-
-// Headers here.
-#include "Core/CommonApplication.hpp"
-
-namespace Lina::Event
+namespace Lina::Editor
 {
+    Resources::Resource* DockSetup::LoadFromFile(const char* path)
+    {
+        Serialization::LoadFromFile<DockSetup>(path, *this);
+        return this;
+    }
 
-    struct EWindowContextCreated
+    Resources::Resource* DockSetup::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
-        void* window = nullptr;
-    };
-    struct EWindowResized
-    {
-        void*    window  = nullptr;
-        Vector2i oldSize = Vector2();
-        Vector2i newSize = Vector2();
-    };
-    struct EWindowPositioned
-    {
-        void*    window = nullptr;
-        Vector2i oldPos = Vector2();
-        Vector2i newPos = Vector2();
-    };
-    struct EWindowClosed
-    {
-        void* window = nullptr;
-    };
-    struct EWindowFocused
-    {
-        void* window = nullptr;
-    };
-    struct EActiveAppChanged
-    {
-        bool isThisApp = false;
-    };
-    struct EVsyncModeChanged
-    {
-        VsyncMode newMode = VsyncMode::None;
-    };
-    // struct EWindowMaximized { void* m_window; int m_isMaximized; };
-    // struct EWindowIconified { void* m_window; int m_isIconified; };
-    // struct EWindowRefreshed { void* m_window; };
-    // struct EWindowMoved { void* m_window; int m_x; int m_y; };
+        Serialize(archive);
+        return this;
+    }
 
-} // namespace Lina::Event
+    void DockSetup::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<DockSetup>(m_path, *this);
+        Serialize(archive);
+    }
 
-#endif
+} // namespace Lina::Editor

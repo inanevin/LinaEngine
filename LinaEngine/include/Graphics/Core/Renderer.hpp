@@ -32,10 +32,17 @@ SOFTWARE.
 #define Renderer_HPP
 
 #include "GraphicsCommon.hpp"
+#include "RenderData.hpp"
 #include "Math/Rect.hpp"
 #include "CameraSystem.hpp"
 #include "Graphics/PipelineObjects/RenderPass.hpp"
+#include "Graphics/PipelineObjects/CommandPool.hpp"
+#include "Graphics/PipelineObjects/CommandBuffer.hpp"
+#include "Graphics/PipelineObjects/DescriptorPool.hpp"
 #include "Data/HashMap.hpp"
+#include "View.hpp"
+#include "DrawPass.hpp"
+#include "Data/IDList.hpp"
 
 namespace Lina
 {
@@ -43,15 +50,55 @@ namespace Lina
     {
         class Editor;
     }
+
+    namespace World
+    {
+        class EntityWorld;
+    }
+
+    namespace Event
+    {
+        struct EWindowResized;
+        struct EWindowPositioned;
+        struct ELevelUninstalled;
+        struct ELevelInstalled;
+        struct EResourceLoaded;
+        struct EComponentCreated;
+        struct EComponentDestroyed;
+    } // namespace Event
+
 } // namespace Lina
+
 namespace Lina::Graphics
 {
     class GUIBackend;
     class Swapchain;
+    class WindowManager;
 
     class Renderer
     {
     public:
+        struct RenderWorldData
+        {
+            Texture*                     finalColorTexture = nullptr;
+            Texture*                     finalDepthTexture = nullptr;
+            IDList<RenderableComponent*> allRenderables;
+            Vector<RenderableData>       extractedRenderables;
+            DrawPass                     opaquePass;
+            View                         playerView;
+            CameraComponent*             cameraComponent = nullptr;
+            GPUSceneData                 sceneData;
+            GPULightData                 lightData;
+            Buffer                       objDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       indirectBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       sceneDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       viewDataBuffer[FRAMES_IN_FLIGHT];
+            Buffer                       lightDataBuffer[FRAMES_IN_FLIGHT];
+            DescriptorSet                passDescriptor;
+            bool                         initialized = false;
+            // DescriptorSet             globalDescriptor;
+        };
+
         Renderer()          = default;
         virtual ~Renderer() = default;
 
@@ -70,32 +117,65 @@ namespace Lina::Graphics
             return m_cameraSystem;
         }
 
+        inline uint32 GetFrameIndex()
+        {
+            return m_frameNumber % FRAMES_IN_FLIGHT;
+        }
+
         void UpdateViewport(const Vector2i& size);
+
+        void AddWorldToRender(World::EntityWorld* world);
+        void RemoveWorldToRender(World::EntityWorld* world);
 
     protected:
         friend class RenderEngine;
         friend class Editor::Editor;
 
-        virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend)
-        {
-            m_swapchain  = swp;
-            m_guiBackend = guiBackend;
-        };
+        virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager);
+        virtual void Shutdown();
+        virtual void MergeMeshes();
+        virtual bool HandleOutOfDateImage(VulkanResult res);
+        virtual void ConnectEvents();
+        virtual void DisconnectEvents();
+        virtual void Join();
+        virtual void RenderWorld(const CommandBuffer& cmd, RenderWorldData& data);
+        virtual void SyncData();
+        virtual void WindowResized(void* windowHandle);
 
-        virtual void Shutdown(){};
-        virtual void Tick(){};
-        virtual void Render(){};
-        virtual void SyncData(){};
-        virtual void Stop(){};
-        virtual void Join(){};
-        virtual void SetMaterialTextures(){};
+        virtual void Tick()                = 0;
+        virtual void Render()              = 0;
+        virtual void OnTexturesRecreated() = 0;
+
+        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        virtual void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
+        virtual void OnComponentCreated(const Event::EComponentCreated& ev);
+        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
 
     protected:
-        Viewport     m_viewport;
-        Recti        m_scissors;
-        CameraSystem m_cameraSystem;
-        Swapchain*   m_swapchain  = nullptr;
-        GUIBackend*  m_guiBackend = nullptr;
+        Viewport                                      m_viewport;
+        Recti                                         m_scissors;
+        CameraSystem                                  m_cameraSystem;
+        Swapchain*                                    m_swapchain  = nullptr;
+        GUIBackend*                                   m_guiBackend = nullptr;
+        CommandPool                                   m_cmdPool;
+        uint32                                        m_frameNumber = 0;
+        Frame                                         m_frames[FRAMES_IN_FLIGHT];
+        DescriptorPool                                m_descriptorPool;
+        Vector<CommandBuffer>                         m_cmds;
+        HashMap<Mesh*, MergedBufferMeshEntry>         m_meshEntries;
+        Vector<StringID>                              m_mergedModelIDs;
+        Buffer                                        m_cpuVtxBuffer;
+        Buffer                                        m_cpuIndexBuffer;
+        Buffer                                        m_gpuVtxBuffer;
+        Buffer                                        m_gpuIndexBuffer;
+        bool                                          m_recreateSwapchain = false;
+        bool                                          m_hasLevelLoaded    = false;
+        HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRender;
+        HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRenderGPU;
+        World::EntityWorld*                           m_installedWorld = nullptr;
+        uint32                                        m_worldCounter   = 0;
+        WindowManager*                                m_windowManager;
     };
 
 } // namespace Lina::Graphics

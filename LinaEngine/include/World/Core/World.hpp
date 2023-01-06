@@ -37,6 +37,13 @@ SOFTWARE.
 #include "Reflection/ReflectionSystem.hpp"
 #include "Data/FixedList.hpp"
 
+namespace Lina
+{
+    namespace Graphics
+    {
+        class CameraComponent;
+    }
+} // namespace Lina
 namespace Lina::World
 {
     class Entity;
@@ -63,6 +70,21 @@ namespace Lina::World
         Entity* GetEntity(const String& name);
         Entity* CreateEntity(const String& name);
         void    DestroyEntity(Entity* e);
+
+        inline uint32 GetID()
+        {
+            return m_worldID;
+        }
+
+        inline void SetActiveCamera(Graphics::CameraComponent* cam)
+        {
+            m_activeCamera = cam;
+        }
+
+        inline Graphics::CameraComponent* GetActiveCamera()
+        {
+            return m_activeCamera;
+        }
 
         template <typename T> ComponentCache<T>* Cache()
         {
@@ -107,6 +129,9 @@ namespace Lina::World
         template <typename T> void RemoveComponent(Entity* e)
         {
             Cache<T>()->DestroyComponent(e);
+
+            if (Cache<T>()->GetComponent(e) == m_activeCamera)
+                m_activeCamera = nullptr;
         }
 
         template <typename T> void Load(T& archive)
@@ -208,11 +233,14 @@ namespace Lina::World
 
     private:
         static EntityWorld*                  s_levelWorld;
+        static uint32                        s_worldCounter;
         bool                                 m_initialized = false;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         Vector<Entity*>                      m_entities;
         uint32                               m_nextID = 0;
         Queue<uint32>                        m_availableIDs;
+        Graphics::CameraComponent*           m_activeCamera = nullptr;
+        uint32                               m_worldID      = 0;
     };
 
 } // namespace Lina::World

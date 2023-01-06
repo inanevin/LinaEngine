@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,38 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
-#pragma once
-
-#ifndef EditorSettings_HPP
-#define EditorSettings_HPP
-
-// Headers here.
-#include <Data/String.hpp>
-#include "Reflection/ReflectionCommon.hpp"
+#include "Settings/EditorSettings.hpp"
 #include "Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
-	LINA_CLASS("Editor Settings")
-	class EditorSettings
-	{
-		
-	public:
-		
-		EditorSettings() {};
-		~EditorSettings() {};
-
-		void Save(OStream& stream)
-		{
-			// stream << m_textEditorPath;
-		}
-	
-		LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
-		String m_textEditorPath = "";
-	
-	};
-}
-
-#endif
+    Resources::Resource* EditorSettings::LoadFromFile(const char* path)
+    {
+        Serialization::LoadFromFile<EditorSettings>(path, *this);
+        return this;
+    }
+    Resources::Resource* EditorSettings::LoadFromMemory(Serialization::Archive<IStream>& archive)
+    {
+        Serialize(archive);
+        return this;
+    }
+    void EditorSettings::WriteToPackage(Serialization::Archive<OStream>& archive)
+    {
+        Serialization::LoadFromFile<EditorSettings>(m_path, *this);
+        Serialize(archive);
+    }
+} // namespace Lina::Editor

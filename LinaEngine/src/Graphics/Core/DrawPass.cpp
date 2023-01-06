@@ -131,7 +131,7 @@ namespace Lina::Graphics
         viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
     }
 
-    void DrawPass::RecordDrawCommands(CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
+    void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
     {
         drawCalls = 0;
 

@@ -37,6 +37,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    class CameraSystem;
     LINA_COMPONENT("Camera Component", "Graphics")
     class CameraComponent : public World::Component
     {
@@ -61,6 +62,22 @@ namespace Lina::Graphics
         {
             return GetTypeID<CameraComponent>();
         }
+
+        inline const Matrix& GetProjection()
+        {
+            return m_projection;
+        }
+
+        inline const Matrix& GetView()
+        {
+            return m_view;
+        }
+
+    private:
+        friend class CameraSystem;
+
+        Matrix m_projection = Matrix::Identity();
+        Matrix m_view       = Matrix::Identity();
     };
 } // namespace Lina::Graphics
 

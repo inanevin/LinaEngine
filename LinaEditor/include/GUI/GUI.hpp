@@ -43,29 +43,37 @@ SOFTWARE.
 #include "Widgets.hpp"
 #include "Theme.hpp"
 
+namespace Lina
+{
+    namespace Graphics
+    {
+        class Swapchain;
+        class WindowManager;
+    } // namespace Graphics
+} // namespace Lina
+
 namespace Lina::Editor
 {
     class ImmediateGUI;
     class ImmediateWindow;
+    class EditorRenderer;
+    class DockSetup;
 
     enum ImmediateWindowMask
     {
-        IMW_UseAbsolutePosition = 0,
-        IMW_UseAbsoluteDrawOrder,
-        IMW_FixedWindow,
+        IMW_None                 = 0,
+        IMW_UseAbsoluteDrawOrder = 1,
+        IMW_CantDock             = 2,
+        IMW_CantHostDock         = 3,
+        IMW_MainSwapchain        = 4,
+        IMW_NoMove               = 5,
+        IMW_NoResize             = 6,
     };
 
-    struct PersistentWindowData
+    struct SwapchainInfo
     {
-        Vector2 position = Vector2::Zero;
-        Vector2 size     = Vector2::Zero;
-        bool    docked   = false;
-    };
-
-    struct PerFrameWindowData
-    {
-        int  drawOrder = 0;
-        Rect rect      = Rect();
+        void*                windowHandle = nullptr;
+        Graphics::Swapchain* swapchain    = nullptr;
     };
 
     class ImmediateWidget
@@ -124,12 +132,7 @@ namespace Lina::Editor
 
         inline Vector2 GetAbsPos() const
         {
-            return m_absPos;
-        }
-
-        inline Vector2 GetRelPos() const
-        {
-            return m_relPos;
+            return _absPos;
         }
 
         inline Vector2 GetSize() const
@@ -139,7 +142,7 @@ namespace Lina::Editor
 
         inline int GetDrawOrder() const
         {
-            return m_drawOrder;
+            return _drawOrder;
         }
 
         inline uint32 GetID()
@@ -155,20 +158,25 @@ namespace Lina::Editor
     private:
         friend class ImmediateGUI;
 
-        Bitmask16              m_mask                 = 0;
-        String                 m_name                 = "";
-        StringID               m_sid                  = 0;
-        Vector2                m_penPos               = Vector2::Zero;
-        Vector2                m_absPos               = Vector2::Zero;
-        Vector2                m_relPos               = Vector2::Zero;
-        Vector2                m_size                 = Vector2::Zero;
-        float                  m_maxPenPosX           = 0.0f;
-        float                  m_maxYDuringHorizontal = 0.0f;
-        int                    m_drawOrder            = 0;
+        Bitmask16              m_mask     = 0;
+        String                 m_name     = "";
+        StringID               m_sid      = 0;
+        Vector2                m_penPos   = Vector2::Zero;
+        Vector2                m_localPos = Vector2::Zero;
+        Vector2                m_size     = Vector2::Zero;
         Deque<ImmediateWidget> m_widgets;
         Deque<int>             m_horizontalRequests;
-        Color                  m_color  = Color::White;
-        bool                   m_docked = false;
+        Color                  m_color                = Color(0, 0, 0, 0);
+        float                  m_maxPenPosX           = 0.0f;
+        float                  m_maxYDuringHorizontal = 0.0f;
+        bool                   m_docked               = false;
+
+        Color    _finalColor  = Color::White;
+        int      _drawOrder   = 0;
+        Vector2  _absPos      = Vector2::Zero;
+        Rect     _rect        = Rect();
+        StringID _parent      = 0;
+        StringID _swapchainID = 0;
     };
 
     class ImmediateGUI
@@ -184,16 +192,14 @@ namespace Lina::Editor
         void EndFrame();
 
         // Window
-        bool             BeginWindow(const String& name, Bitmask16 mask = 0);
-        bool             BeginPopup(const String& name);
+        bool             BeginWindow(const char* name, Bitmask16 mask = 0);
+        bool             BeginPopup(const char* name);
         void             EndWindow();
         void             EndPopup();
-        void             SetWindowSize(const String& str, const Vector2& size);
-        void             SetWindowPosition(const String& str, const Vector2& pos);
+        void             SetWindowSize(const char* str, const Vector2& size);
+        void             SetWindowPosition(const char* str, const Vector2& pos);
+        void             SetWindowColor(const char* str, const Color& col);
         ImmediateWindow& GetCurrentWindow();
-        ImmediateWindow* GetWindowBySID(StringID sid);
-        StringID         GetSIDFromStr(const String& str);
-        String           GetNameFromSID(StringID sid);
 
         // Utility
         bool    IsMouseHoveringRect(const Rect& rect);
@@ -222,40 +228,32 @@ namespace Lina::Editor
             return m_iconTexture;
         }
 
-        inline StringID GetHoveredWindowSID()
-        {
-            return m_hoveredWindow;
-        }
-
-        inline StringID GetDraggedWindowSID()
-        {
-            return m_draggedWindow;
-        }
-
-        inline StringID GetFocusedWindowSID()
-        {
-            return m_focusedWindow;
-        }
-
-        inline void SetDraggedWindow(StringID sid)
-        {
-            m_draggedWindow = sid;
-        }
-
     private:
         friend class Editor;
+        friend class EditorRenderer;
 
-        static ImmediateGUI*                    s_instance;
-        Deque<ImmediateWindow>                  m_windows;
-        HashMap<String, StringID>               m_windowSIDs;
-        HashMap<StringID, PersistentWindowData> m_windowDataPersistent;
-        HashMap<StringID, PerFrameWindowData>   m_windowDataPerFrame;
-        Theme                                   m_theme;
-        StringID                                m_iconTexture       = 0;
-        StringID                                m_hoveredWindow     = 0;
-        StringID                                m_draggedWindow     = 0;
-        StringID                                m_focusedWindow     = 0;
-        int                                     m_absoluteDrawOrder = 0;
+        void Initialize(EditorRenderer* renderer, Graphics::WindowManager* windowManager);
+
+        inline void SetCurrentSwapchain(Graphics::Swapchain* swapchain)
+        {
+            m_currentSwapchain = swapchain;
+        }
+
+        void           SetupDocks(DockSetup* setup);
+        SwapchainInfo& CreateSwapchain(const char* str, const Vector2& pos, const Vector2& size);
+
+    private:
+        static ImmediateGUI*               s_instance;
+        HashMap<StringID, SwapchainInfo>   m_swapchainInfos;
+        HashMap<StringID, ImmediateWindow> m_windowData;
+        StringID                           m_lastWindow = 0;
+        Theme                              m_theme;
+        StringID                           m_iconTexture       = 0;
+        int                                m_absoluteDrawOrder = 0;
+        EditorRenderer*                    m_renderer;
+        Graphics::Swapchain*               m_currentSwapchain = nullptr;
+        DockSetup*                         m_dockSetup        = nullptr;
+        Graphics::WindowManager*           m_windowManager    = nullptr;
     };
 
 #define LGUI ImmediateGUI::Get()

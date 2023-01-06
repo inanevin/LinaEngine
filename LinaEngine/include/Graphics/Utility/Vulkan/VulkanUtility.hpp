@@ -95,7 +95,7 @@ namespace Lina::Graphics
         static VkImageMemoryBarrier  GetImageMemoryBarrier(const ImageMemoryBarrier& bar);
 
         // Viewport
-        static VkViewport GetViewport(Viewport& vp);
+        static VkViewport GetViewport(const Viewport& vp);
         static VkRect2D   GetRect(const Recti& rect);
 
         // Others

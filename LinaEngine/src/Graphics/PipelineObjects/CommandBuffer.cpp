@@ -50,13 +50,13 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Could not allocate command buffers!");
     }
 
-    void CommandBuffer::Reset(bool releaseResources)
+    void CommandBuffer::Reset(bool releaseResources) const
     {
         VkResult result = vkResetCommandBuffer(_ptr, releaseResources ? VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT : 0);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Resetting command buffer failed!");
     }
 
-    void CommandBuffer::Begin(uint32 flags)
+    void CommandBuffer::Begin(uint32 flags) const
     {
         VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -69,17 +69,17 @@ namespace Lina::Graphics
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed to begin!");
     }
 
-    void CommandBuffer::CMD_BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset)
+    void CommandBuffer::CMD_BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset) const
     {
         vkCmdBindVertexBuffers(_ptr, firstBinding, bindingCount, &buffer, offset);
     }
 
-    void CommandBuffer::CMD_BindIndexBuffers(VkBuffer_T* buffer, uint64 offset, IndexType indexType)
+    void CommandBuffer::CMD_BindIndexBuffers(VkBuffer_T* buffer, uint64 offset, IndexType indexType) const
     {
         vkCmdBindIndexBuffer(_ptr, buffer, offset, GetIndexType(indexType));
     }
 
-    void CommandBuffer::CMD_BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets, uint32 dynamicOffsetCount, uint32* dynamicOffsets)
+    void CommandBuffer::CMD_BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets, uint32 dynamicOffsetCount, uint32* dynamicOffsets) const
     {
         Vector<VkDescriptorSet> _sets;
         _sets.reserve(setCount);
@@ -90,22 +90,22 @@ namespace Lina::Graphics
         vkCmdBindDescriptorSets(_ptr, GetPipelineBindPoint(bindPoint), pLayout, firstSet, setCount, _sets.data(), dynamicOffsetCount, dynamicOffsets);
     }
 
-    void CommandBuffer::CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants)
+    void CommandBuffer::CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants) const
     {
         vkCmdPushConstants(_ptr, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), constants);
     }
 
-    void CommandBuffer::CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst)
+    void CommandBuffer::CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst) const
     {
         vkCmdDraw(_ptr, vtxCount, instCount, firstVtx, firstInst);
     }
 
-    void CommandBuffer::CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance)
+    void CommandBuffer::CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) const
     {
         vkCmdDrawIndexed(_ptr, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
-    void CommandBuffer::CMD_DrawIndexedIndirect(VkBuffer_T* buffer, uint64 offset, uint32 drawCount, uint32 stride)
+    void CommandBuffer::CMD_DrawIndexedIndirect(VkBuffer_T* buffer, uint64 offset, uint32 drawCount, uint32 stride) const
     {
         vkCmdDrawIndexedIndirect(_ptr, buffer, offset, drawCount, stride);
     }
@@ -115,7 +115,7 @@ namespace Lina::Graphics
                                             uint32                              dependencyFlags,
                                             const Vector<DefaultMemoryBarrier>& barriers,
                                             const Vector<BufferMemoryBarrier>&  bufferBarriers,
-                                            const Vector<ImageMemoryBarrier>&   imageBarriers)
+                                            const Vector<ImageMemoryBarrier>&   imageBarriers) const
     {
         Vector<VkMemoryBarrier>       _barriers;
         Vector<VkBufferMemoryBarrier> _bufferBarriers;
@@ -139,7 +139,7 @@ namespace Lina::Graphics
         vkCmdPipelineBarrier(_ptr, srcStageFlags, dstStageFlags, dependencyFlags, barriersSize, _barriers.data(), bufferBarriersSize, _bufferBarriers.data(), imageBarriersSize, _imageBarriers.data());
     }
 
-    void CommandBuffer::CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions)
+    void CommandBuffer::CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions) const
     {
 
         Vector<VkBufferCopy> _regions;
@@ -150,7 +150,7 @@ namespace Lina::Graphics
         vkCmdCopyBuffer(_ptr, src, dst, static_cast<uint32>(regions.size()), _regions.data());
     }
 
-    void CommandBuffer::CMD_CopyBufferToImage(VkBuffer_T* src, VkImage_T* dst, ImageLayout layout, const Vector<BufferImageCopy>& copy)
+    void CommandBuffer::CMD_CopyBufferToImage(VkBuffer_T* src, VkImage_T* dst, ImageLayout layout, const Vector<BufferImageCopy>& copy) const
     {
         Vector<VkBufferImageCopy> _copy;
         const uint32              size = static_cast<uint32>(copy.size());
@@ -162,19 +162,19 @@ namespace Lina::Graphics
         vkCmdCopyBufferToImage(_ptr, src, dst, GetImageLayout(layout), size, _copy.data());
     }
 
-    void CommandBuffer::CMD_SetViewport(Viewport& vp)
+    void CommandBuffer::CMD_SetViewport(const Viewport& vp) const
     {
         VkViewport _vp = VulkanUtility::GetViewport(vp);
         vkCmdSetViewport(_ptr, 0, 1, &_vp);
     }
 
-    void CommandBuffer::CMD_SetScissors(Recti& rect)
+    void CommandBuffer::CMD_SetScissors(const Recti& rect) const
     {
         VkRect2D _scissors = VulkanUtility::GetRect(rect);
         vkCmdSetScissor(_ptr, 0, 1, &_scissors);
     }
 
-    void CommandBuffer::CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter)
+    void CommandBuffer::CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter) const
     {
         Vector<VkImageBlit> _regions;
 
@@ -193,7 +193,7 @@ namespace Lina::Graphics
         vkCmdBlitImage(_ptr, src, GetImageLayout(srcLayout), dest, GetImageLayout(destLayout), static_cast<uint32>(regions.size()), &_regions[0], GetFilter(filter));
     }
 
-    void CommandBuffer::CMD_BeginRendering(RenderingInfo& info)
+    void CommandBuffer::CMD_BeginRendering(RenderingInfo& info) const
     {
         VkRenderingInfo                   _renderingInfo = VulkanUtility::GetRenderingInfo(info);
         VkRenderingAttachmentInfo         _depthInfo;
@@ -216,7 +216,7 @@ namespace Lina::Graphics
         pfn_vkCmdBeginRenderingKHR(_ptr, &_renderingInfo);
     }
 
-    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea)
+    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea) const
     {
         ClearValue clearValue = ClearValue{
             .clearColor = Color::Gray,
@@ -256,10 +256,10 @@ namespace Lina::Graphics
         CMD_BeginRendering(renderingInfo);
     }
 
-    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea, Color test)
+    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea) const
     {
         ClearValue clearValue = ClearValue{
-            .clearColor = test,
+            .clearColor = Color::Gray,
             .isColor    = true,
         };
         RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{
@@ -279,12 +279,12 @@ namespace Lina::Graphics
         CMD_BeginRendering(renderingInfo);
     }
 
-    void CommandBuffer::CMD_EndRendering()
+    void CommandBuffer::CMD_EndRendering() const
     {
         pfn_vkCmdEndRenderingKHR(_ptr);
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img)
+    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img) const
     {
         ImageSubresourceRange subresRange = ImageSubresourceRange{
             .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -305,7 +305,7 @@ namespace Lina::Graphics
         CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), GetPipelineStageFlags(PipelineStageFlags::BottomOfPipe), 0, {}, {}, {barrier});
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToColorOptimal(VkImage_T* image)
+    void CommandBuffer::CMD_ImageTransition_ToColorOptimal(VkImage_T* image) const
     {
         ImageSubresourceRange subresRange = ImageSubresourceRange{
             .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -327,7 +327,7 @@ namespace Lina::Graphics
         CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToColorShaderRead(VkImage_T* img)
+    void CommandBuffer::CMD_ImageTransition_ToColorShaderRead(VkImage_T* img) const
     {
         ImageSubresourceRange subresRange = ImageSubresourceRange{
             .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -349,7 +349,7 @@ namespace Lina::Graphics
         CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToDepthOptimal(VkImage_T* image)
+    void CommandBuffer::CMD_ImageTransition_ToDepthOptimal(VkImage_T* image) const
     {
         ImageSubresourceRange subresRange = ImageSubresourceRange{
             .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
@@ -372,7 +372,7 @@ namespace Lina::Graphics
         CMD_PipelineBarrier(stageFlags, stageFlags, 0, {}, {}, {barrier});
     }
 
-    void CommandBuffer::End()
+    void CommandBuffer::End() const
     {
         VkResult result = vkEndCommandBuffer(_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Buffer] -> Failed ending command buffer!");

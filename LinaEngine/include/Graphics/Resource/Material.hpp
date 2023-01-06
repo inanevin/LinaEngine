@@ -145,7 +145,7 @@ namespace Lina::Graphics
         virtual void      LoadReferences() override;
         virtual void      SaveToFile() override;
         void              SetShader(Shader* shader);
-        void              Bind(CommandBuffer& cmd, uint32 bindFlags);
+        void              Bind(const CommandBuffer& cmd, uint32 bindFlags);
         void              CheckUpdatePropertyBuffers();
         void              SetTexture(const String& name, Texture* texture);
         void              SetTexture(uint32 index, Texture* texture);

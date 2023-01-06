@@ -39,6 +39,7 @@ namespace Lina::Graphics
     class CameraSystem;
     class RenderEngine;
     class Swapchain;
+    class WindowManager;
 
     class Screen
     {
@@ -140,7 +141,7 @@ namespace Lina::Graphics
 
     private:
         friend class RenderEngine;
-        friend class Win32Window;
+        friend class WindowManager;
 
         inline void Initialize(Renderer* rend, Swapchain* swp)
         {

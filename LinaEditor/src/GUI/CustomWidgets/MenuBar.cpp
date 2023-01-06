@@ -30,7 +30,7 @@ SOFTWARE.
 #include "GUI/GUI.hpp"
 #include "Input/Core/InputEngine.hpp"
 #include "GUI/CustomWidgets/MenuPopup.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
@@ -64,7 +64,7 @@ namespace Lina::Editor
             }
 
             Vector2 totalSize = Vector2::Zero;
-            if (Widgets::ButtonFlexible(item->GetName(), Bitmask8(), &totalSize))
+            if (Widgets::ButtonFlexible(item->GetName().c_str(), Bitmask8(), &totalSize))
             {
                 if (m_activeItem != -1)
                     Reset();

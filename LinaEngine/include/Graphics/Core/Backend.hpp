@@ -52,7 +52,13 @@ namespace Lina
     namespace Event
     {
         struct EVsyncModeChanged;
+        struct EWindowPositioned;
     } // namespace Event
+
+    namespace Editor
+    {
+        class ImmediateGUI;
+    }
 } // namespace Lina
 namespace Lina::Graphics
 {
@@ -61,6 +67,8 @@ namespace Lina::Graphics
         uint32 flags = 0;
         uint32 count = 0;
     };
+
+    class WindowManager;
 
     class Backend
     {
@@ -138,37 +146,41 @@ namespace Lina::Graphics
     private:
         friend class RenderEngine;
         friend class Engine;
+        friend class Editor::ImmediateGUI;
 
         Backend()  = default;
         ~Backend() = default;
 
-        bool        Initialize(const InitInfo& appInfo);
+        bool        Initialize(const InitInfo& appInfo, WindowManager* windowManager);
         void        Shutdown();
         void        OnVsyncModeChanged(const Event::EVsyncModeChanged& ev);
+        void        OnWindowPositioned(const Event::EWindowPositioned& ev);
         PresentMode VsyncToPresentMode(VsyncMode mode);
+        void        SetSwapchainPosition(void* windowHandle, const Vector2i& pos);
 
     private:
-        static Backend*              s_instance;
-        VkInstance_T*                m_vkInstance     = nullptr;
-        VkDebugUtilsMessengerEXT_T*  m_debugMessenger = nullptr;
-        VkAllocationCallbacks*       m_allocator      = nullptr;
-        VkDevice_T*                  m_device         = nullptr;
-        VkPhysicalDevice_T*          m_gpu            = nullptr;
-        VmaAllocator_T*              m_vmaAllocator   = nullptr;
-        Vector<QueueFamily>          m_queueFamilies;
-        uint64                       m_minUniformBufferOffsetAlignment = 0;
-        Pair<uint32, uint32>         m_graphicsQueueIndices;
-        Pair<uint32, uint32>         m_transferQueueIndices;
-        Pair<uint32, uint32>         m_computeQueueIndices;
-        RQueue                       m_graphicsQueue;
-        RQueue                       m_transferQueue;
-        RQueue                       m_computeQueue;
-        bool                         m_supportsAsyncTransferQueue = false;
-        bool                         m_supportsAsyncComputeQueue  = false;
-        Swapchain                    m_mainSwapchain;
-        VkSurfaceKHR_T*              m_mainSurface;
-        PresentMode                  m_currentPresentMode;
-        HashMap<StringID, Swapchain> m_additionalSwapchains;
+        static Backend*               s_instance;
+        VkInstance_T*                 m_vkInstance     = nullptr;
+        VkDebugUtilsMessengerEXT_T*   m_debugMessenger = nullptr;
+        VkAllocationCallbacks*        m_allocator      = nullptr;
+        VkDevice_T*                   m_device         = nullptr;
+        VkPhysicalDevice_T*           m_gpu            = nullptr;
+        VmaAllocator_T*               m_vmaAllocator   = nullptr;
+        Vector<QueueFamily>           m_queueFamilies;
+        uint64                        m_minUniformBufferOffsetAlignment = 0;
+        Pair<uint32, uint32>          m_graphicsQueueIndices;
+        Pair<uint32, uint32>          m_transferQueueIndices;
+        Pair<uint32, uint32>          m_computeQueueIndices;
+        RQueue                        m_graphicsQueue;
+        RQueue                        m_transferQueue;
+        RQueue                        m_computeQueue;
+        bool                          m_supportsAsyncTransferQueue = false;
+        bool                          m_supportsAsyncComputeQueue  = false;
+        Swapchain                     m_mainSwapchain;
+        VkSurfaceKHR_T*               m_mainSurface;
+        PresentMode                   m_currentPresentMode;
+        HashMap<StringID, Swapchain*> m_additionalSwapchains;
+        WindowManager*                m_windowManager = nullptr;
     };
 } // namespace Lina::Graphics
 

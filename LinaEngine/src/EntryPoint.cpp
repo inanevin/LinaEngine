@@ -65,12 +65,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
     // Initialize main Lina Systems.
     app->Initialize(initInfo, gm);
-
-    // Retrieve window.
-    auto* window  = Lina::Graphics::Win32Window::GetWin32();
-    HWND  whandle = window->GetWindowPtr();
-
     app->Start();
+
+    // auto windowsJob = Lina::JobSystem::Get()->GetMainExecutor().Async([&]() {
+    //
+    // });
 
     while (app->IsRunning())
     {
@@ -80,13 +79,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+            // Lina::Log::LogMessage(Lina::LogLevel::Warn, "MSG");
         }
 
         if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
             break;
 
         app->Tick();
+        // Lina::Log::LogMessage(Lina::LogLevel::Warn, "TICK");
     }
+
+    //  windowsJob.get();
 
     app->Shutdown();
     delete gm;

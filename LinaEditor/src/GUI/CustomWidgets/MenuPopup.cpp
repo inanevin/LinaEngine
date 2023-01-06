@@ -34,7 +34,7 @@ SOFTWARE.
 #include "GUI/GUICommon.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Core/CommonEngine.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Editor

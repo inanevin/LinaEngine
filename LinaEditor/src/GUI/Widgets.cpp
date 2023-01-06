@@ -29,7 +29,8 @@ SOFTWARE.
 #include "GUI/Widgets.hpp"
 #include "GUI/GUI.hpp"
 #include "Input/Core/InputEngine.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Data/DataCommon.hpp"
 
 namespace Lina::Editor
 {
@@ -67,7 +68,7 @@ namespace Lina::Editor
         return isClicked;
     }
 
-    bool Widgets::Button(const String& str, const Vector2& size, Bitmask8 mask)
+    bool Widgets::Button(const char* str, const Vector2& size, Bitmask8 mask)
     {
         auto&         theme     = LGUI->GetTheme();
         auto&         window    = LGUI->GetCurrentWindow();
@@ -80,18 +81,18 @@ namespace Lina::Editor
         textOpts.font  = theme.GetCurrentFont();
         textOpts.color = LV4(theme.GetColor(ThemeColor::TextColor));
 
-        LinaVG::Vec2 textSize    = LinaVG::CalculateTextSize(str.c_str(), textOpts);
+        LinaVG::Vec2 textSize    = LinaVG::CalculateTextSize(str, textOpts);
         const float  desiredYFit = size.y * theme.GetProperty(ThemeProperty::ButtonTextFit);
         const float  textRatio   = desiredYFit / textSize.y;
         textOpts.textScale       = textRatio;
-        textSize                 = LinaVG::CalculateTextSize(str.c_str(), textOpts);
+        textSize                 = LinaVG::CalculateTextSize(str, textOpts);
         const Vector2 textPos    = mid - Vector2(textSize.x * 0.5f, textSize.y * 0.5f);
-        LinaVG::DrawTextNormal(str.c_str(), LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
+        LinaVG::DrawTextNormal(str, LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
 
         return isClicked;
     }
 
-    bool Widgets::ButtonFlexible(const String& str, Bitmask8 mask, Vector2* outTotalSize)
+    bool Widgets::ButtonFlexible(const char* str, Bitmask8 mask, Vector2* outTotalSize)
     {
         auto& theme  = LGUI->GetTheme();
         auto& window = LGUI->GetCurrentWindow();
@@ -102,13 +103,13 @@ namespace Lina::Editor
         LinaVG::TextOptions textOpts;
         textOpts.font                = theme.GetCurrentFont();
         textOpts.color               = LV4(theme.GetColor(ThemeColor::TextColor));
-        const LinaVG::Vec2 textSize  = LinaVG::CalculateTextSize(str.c_str(), textOpts);
+        const LinaVG::Vec2 textSize  = LinaVG::CalculateTextSize(str, textOpts);
         const Vector2      totalSize = Vector2(xPad * 2 + textSize.x, yPad * 2 + textSize.y);
         const Vector2      mid       = window.GetAbsPos() + window.GetPenPos() + totalSize * 0.5f;
         const Vector2      textPos   = mid - Vector2(textSize.x * 0.5f, textSize.y * 0.5f);
 
         const bool isClicked = ButtonEmpty(totalSize, mask);
-        LinaVG::DrawTextNormal(str.c_str(), LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
+        LinaVG::DrawTextNormal(str, LV2(textPos), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1);
 
         if (outTotalSize != nullptr)
             *outTotalSize = totalSize;
@@ -142,7 +143,7 @@ namespace Lina::Editor
         return isClicked;
     }
 
-    bool Widgets::BeginPopup(const String& str, const Vector2& pos, const Vector2& size)
+    bool Widgets::BeginPopup(const char* str, const Vector2& pos, const Vector2& size)
     {
         LGUI->SetWindowPosition(str, pos);
         LGUI->SetWindowSize(str, size);
@@ -154,17 +155,17 @@ namespace Lina::Editor
         LGUI->EndPopup();
     }
 
-    Vector2 Widgets::GetTextSize(const String& text, float wrapWidth)
+    Vector2 Widgets::GetTextSize(const char* text, float wrapWidth)
     {
         auto&               theme = LGUI->GetTheme();
         LinaVG::TextOptions textOpts;
         textOpts.font                  = theme.GetCurrentFont();
         textOpts.wrapWidth             = wrapWidth;
-        const LinaVG::Vec2 lvgTextSize = LinaVG::CalculateTextSize(text.c_str(), textOpts);
+        const LinaVG::Vec2 lvgTextSize = LinaVG::CalculateTextSize(text, textOpts);
         return FL2(lvgTextSize);
     }
 
-    void Widgets::Text(const String& text, float wrapWidth, TextAlignment alignment, bool alignY)
+    void Widgets::Text(const char* text, float wrapWidth, TextAlignment alignment, bool alignY)
     {
         auto&         theme  = LGUI->GetTheme();
         auto&         window = LGUI->GetCurrentWindow();
@@ -183,11 +184,11 @@ namespace Lina::Editor
         else if (alignment == TextAlignment::Center)
             textOpts.alignment = LinaVG::TextAlignment::Center;
 
-        const LinaVG::Vec2 lvgTextSize = LinaVG::CalculateTextSize(text.c_str(), textOpts);
+        const LinaVG::Vec2 lvgTextSize = LinaVG::CalculateTextSize(text, textOpts);
         window.BeginWidget(FL2(lvgTextSize));
 
         const Vector2 textPosition = window.GetAbsPos() + window.GetPenPos() - (alignY ? Vector2(0, lvgTextSize.y * 0.5f) : Vector2::Zero);
-        LinaVG::DrawTextNormal(text.c_str(), LV2(textPosition), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1, false);
+        LinaVG::DrawTextNormal(text, LV2(textPosition), textOpts, theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1, false);
         window.EndWidget();
     }
 
@@ -213,10 +214,10 @@ namespace Lina::Editor
         w.EndWidget();
     }
 
-    void Widgets::DrawIcon(const String& name, const Vector2& pos, float size, int drawOrder, const Color& tint)
+    void Widgets::DrawIcon(const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint)
     {
         auto&          theme   = LGUI->GetTheme();
-        const StringID iconSID = TO_SID(name);
+        const StringID iconSID = TO_SIDC(name);
         auto&          ip      = theme.GetIcon(iconSID);
         LinaVG::DrawImage(LGUI->GetIconTexture(), LV2(pos), LV2(Vector2(size, size)), LV4(tint), theme.GetCurrentRotateAngle(), drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(ip.topLeft), LV2(ip.bottomRight));
     }

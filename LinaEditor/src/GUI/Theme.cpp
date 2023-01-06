@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/Theme.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {

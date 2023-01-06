@@ -44,29 +44,37 @@ namespace Lina::Graphics
         LINA_ASSERT(_ptr, "[Render Queue] -> Could not get device queue.");
     }
 
-    void RQueue::Submit(const Vector<Semaphore*>& waitSemaphores, const Semaphore& signalSemaphore, const Fence& fence, Vector<CommandBuffer*>& cmds, uint32 submitCount) const
+    void RQueue::Submit(const Vector<Semaphore*>& waitSemaphores, const Vector<Semaphore*>& signalSemaphores, const Fence& fence, const Vector<CommandBuffer*>& cmds, uint32 submitCount) const
     {
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        Vector<VkCommandBuffer> _cmds;
         Vector<VkSemaphore>     _waitSemaphores;
+        Vector<VkSemaphore>     _signalSemaphores;
+        Vector<VkCommandBuffer> _cmds;
+        Vector<VkPipelineStageFlags> _waitStages;
 
         for (auto& cmd : cmds)
+        {
             _cmds.push_back(cmd->_ptr);
+            _waitStages.push_back(waitStage);
+        }
 
         for (auto& sm : waitSemaphores)
             _waitSemaphores.push_back(sm->_ptr);
+
+        for (auto& sm : signalSemaphores)
+            _signalSemaphores.push_back(sm->_ptr);
 
         VkSubmitInfo info = VkSubmitInfo{
             .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .pNext                = nullptr,
             .waitSemaphoreCount   = static_cast<uint32>(_waitSemaphores.size()),
             .pWaitSemaphores      = &_waitSemaphores[0],
-            .pWaitDstStageMask    = &waitStage,
+            .pWaitDstStageMask    = &_waitStages[0],
             .commandBufferCount   = static_cast<uint32>(_cmds.size()),
             .pCommandBuffers      = &_cmds[0],
-            .signalSemaphoreCount = 1,
-            .pSignalSemaphores    = &signalSemaphore._ptr,
+            .signalSemaphoreCount = static_cast<uint32>(_signalSemaphores.size()),
+            .pSignalSemaphores    = &_signalSemaphores[0],
         };
         VkResult result = vkQueueSubmit(_ptr, submitCount, &info, fence._ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed submitting to queue!");
@@ -139,18 +147,22 @@ namespace Lina::Graphics
         res = GetResult(result);
     }
 
-    void RQueue::Present(const Semaphore& waitSemaphore, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const
+    void RQueue::Present(const Vector<Semaphore*>& waitSemaphores, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const
     {
         Vector<VkSwapchainKHR> _swapchains;
+        Vector<VkSemaphore>    _waitSemaphores;
 
         for (auto& swp : swapchains)
             _swapchains.push_back(swp->_ptr);
 
+        for (auto& sm : waitSemaphores)
+            _waitSemaphores.push_back(sm->_ptr);
+
         VkPresentInfoKHR info = VkPresentInfoKHR{
             .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
             .pNext              = nullptr,
-            .waitSemaphoreCount = 1,
-            .pWaitSemaphores    = &waitSemaphore._ptr,
+            .waitSemaphoreCount = static_cast<uint32>(_waitSemaphores.size()),
+            .pWaitSemaphores    = &_waitSemaphores[0],
             .swapchainCount     = static_cast<uint32>(_swapchains.size()),
             .pSwapchains        = &_swapchains[0],
             .pImageIndices      = &imgIndices[0],

@@ -37,39 +37,23 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     class CameraComponent;
+    class WindowManager;
     class CameraSystem
     {
     public:
         CameraSystem()  = default;
         ~CameraSystem() = default;
 
-        void SetActiveCamera(CameraComponent* c)
+        void Initialize(WindowManager* windowManager)
         {
-            m_activeCamera = c;
+            m_windowManager = windowManager;
         }
 
-        inline const Vector3& GetPos() const
-        {
-            return m_pos;
-        }
-        inline const Matrix& GetView() const
-        {
-            return m_view;
-        }
-
-        inline const Matrix& GetProj() const
-        {
-            return m_proj;
-        }
-
-        void Tick();
+        void CalculateCamera(CameraComponent* cam);
+        void CalculateCamera(CameraComponent* cam, float aspect);
 
     private:
-    private:
-        Vector3          m_pos          = Vector3::Zero;
-        CameraComponent* m_activeCamera = nullptr;
-        Matrix           m_view         = Matrix::Identity();
-        Matrix           m_proj         = Matrix::Identity();
+        WindowManager* m_windowManager = nullptr;
     };
 } // namespace Lina::Graphics
 

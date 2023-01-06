@@ -47,6 +47,23 @@ namespace Lina
     class Recti
     {
     public:
+        Recti(){};
+        Recti(const Rect& r)
+        {
+            pos  = r.pos;
+            size = r.size;
+        };
+        Recti(const Recti& r)
+        {
+            pos  = r.pos;
+            size = r.size;
+        }
+        Recti(const Vector2i pos, const Vector2i& size)
+        {
+            this->pos  = pos;
+            this->size = size;
+        }
+
         Vector2i pos  = Vector2i(0, 0);
         Vector2i size = Vector2i(0, 0);
     };

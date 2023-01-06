@@ -32,33 +32,6 @@ SOFTWARE.
 #define GameRenderer_HPP
 
 #include "Renderer.hpp"
-#include "RenderData.hpp"
-#include "Graphics/PipelineObjects/CommandPool.hpp"
-#include "Graphics/PipelineObjects/CommandBuffer.hpp"
-#include "Graphics/PipelineObjects/DescriptorPool.hpp"
-#include "View.hpp"
-#include "DrawPass.hpp"
-#include "Data/IDList.hpp"
-
-namespace Lina
-{
-    namespace Editor
-    {
-        class Editor;
-    }
-    namespace Event
-    {
-        struct ELevelUninstalled;
-        struct ELevelInstalled;
-        struct EComponentCreated;
-        struct EComponentDestroyed;
-        struct EPreMainLoop;
-        struct EWindowResized;
-        struct EWindowPositioned;
-        struct EResourceLoaded;
-    } // namespace Event
-
-} // namespace Lina
 
 namespace Lina::Graphics
 {
@@ -68,70 +41,13 @@ namespace Lina::Graphics
         GameRenderer()          = default;
         virtual ~GameRenderer() = default;
 
-        inline uint32 GetFrameIndex()
-        {
-            return m_frameNumber % FRAMES_IN_FLIGHT;
-        }
-
-        struct RenderWorldData
-        {
-            Texture*                     finalColorTexture = nullptr;
-            Texture*                     finalDepthTexture = nullptr;
-            IDList<RenderableComponent*> allRenderables;
-            Vector<RenderableData>       extractedRenderables;
-            DrawPass                     opaquePass;
-            View                         playerView;
-            CameraComponent*             cameraComponent = nullptr;
-            GPUSceneData                 sceneData;
-            GPULightData                 lightData;
-            bool                         initialized = false;
-            Buffer                       objDataBuffer[FRAMES_IN_FLIGHT];
-            Buffer                       indirectBuffer[FRAMES_IN_FLIGHT];
-            Buffer                       sceneDataBuffer[FRAMES_IN_FLIGHT];
-            Buffer                       viewDataBuffer[FRAMES_IN_FLIGHT];
-            Buffer                       lightDataBuffer[FRAMES_IN_FLIGHT];
-            DescriptorSet                passDescriptor;
-        };
-
     protected:
-        virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend) override;
-        virtual void Shutdown() override;
         virtual void Tick() override;
         virtual void Render() override;
-        virtual void SyncData() override;
-        virtual void Stop() override;
-        virtual void Join() override;
-        virtual void SetMaterialTextures() override;
-        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        virtual void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        virtual void OnComponentCreated(const Event::EComponentCreated& ev);
-        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
-        virtual void OnWindowResized(const Event::EWindowResized& ev);
-        virtual void OnWindowPositioned(const Event::EWindowPositioned& newPos);
-        virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
-        virtual bool HandleOutOfDateImage(VulkanResult res);
-        virtual void MergeMeshes();
-        virtual void ConnectEvents();
-        virtual void DisconnectEvents();
+        virtual void OnTexturesRecreated() override;
 
-    protected:
-        friend class Editor::Editor;
-
-        CommandPool                           m_cmdPool;
-        uint32                                m_frameNumber = 0;
-        Frame                                 m_frames[FRAMES_IN_FLIGHT];
-        DescriptorPool                        m_descriptorPool;
-        Vector<CommandBuffer>                 m_cmds;
-        Vector<GPUObjectData>                 m_gpuObjectData;
-        RenderWorldData                       m_renderWorldData;
-        HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
-        Vector<StringID>                      m_mergedModelIDs;
-        Buffer                                m_cpuVtxBuffer;
-        Buffer                                m_cpuIndexBuffer;
-        Buffer                                m_gpuVtxBuffer;
-        Buffer                                m_gpuIndexBuffer;
-        bool                                  m_recreateSwapchain = false;
-        bool                                  m_hasLevelLoaded    = false;
+    private:
+        World::EntityWorld* m_worldToRenderGPU = nullptr;
     };
 } // namespace Lina::Graphics
 

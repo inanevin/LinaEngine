@@ -26,10 +26,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Core/Window.hpp"
+#pragma once
 
-namespace Lina::Graphics
+#ifndef EditorSettings_HPP
+#define EditorSettings_HPP
+
+// Headers here.
+#include <Data/String.hpp>
+#include "Reflection/ReflectionCommon.hpp"
+#include "Resource/Core/Resource.hpp"
+#include "Serialization/ArchiveCommon.hpp"
+
+namespace Lina::Editor
 {
-    Window* Window::s_instance = nullptr;
+    LINA_CLASS("Editor Settings")
+    class EditorSettings : public Resources::Resource
+    {
 
-} // namespace Lina::Graphics
+    public:
+        EditorSettings(){};
+        ~EditorSettings(){};
+
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+
+        LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
+        String m_textEditorPath = "";
+
+    private:
+        FRIEND_ARCHIVE;
+
+        template <typename Ar> void Serialize(Ar& ar)
+        {
+        }
+
+    private:
+    };
+} // namespace Lina::Editor
+
+#endif

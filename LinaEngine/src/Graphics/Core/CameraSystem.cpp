@@ -29,29 +29,31 @@ SOFTWARE.
 #include "Graphics/Core/CameraSystem.hpp"
 #include "World/Core/Entity.hpp"
 #include "Graphics/Components/CameraComponent.hpp"
-#include "Graphics/Core/Window.hpp"
+#include "Graphics/Core/WindowManager.hpp"
 
 namespace Lina::Graphics
 {
-    void CameraSystem::Tick()
+
+    void CameraSystem::CalculateCamera(CameraComponent* cam)
     {
-        if (m_activeCamera != nullptr)
-        {
-            const float aspect = Window::Get()->GetAspect();
+        const float aspect = m_windowManager->GetMainWindow().GetAspect();
+        if (aspect == 0.0f)
+            return;
 
-            if (aspect == 0.0f)
-                return;
+        CalculateCamera(cam, aspect);
+    }
 
-            World::Entity*   e      = m_activeCamera->GetEntity();
-            const Vector3    camPos = e->GetPosition();
-            const Quaternion camRot = e->GetRotation();
-            m_pos                   = camPos;
-            m_view                  = Matrix::InitLookAt(camPos, camPos + camRot.GetForward(), camRot.GetUp());
-            m_proj                  = Matrix::Perspective(m_activeCamera->fieldOfView / 2.0f, aspect, m_activeCamera->zNear, m_activeCamera->zFar);
+    void CameraSystem::CalculateCamera(CameraComponent* cam, float aspect)
+    {
 
-            const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
-            m_proj = clip * m_proj;
-            // m_proj[1][1] *= -1;
-        }
+        World::Entity*   e      = cam->GetEntity();
+        const Vector3    pos    = e->GetPosition();
+        const Quaternion camRot = e->GetRotation();
+        cam->m_view             = Matrix::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
+        cam->m_projection       = Matrix::Perspective(cam->fieldOfView / 2.0f, aspect, cam->zNear, cam->zFar);
+
+        const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
+        cam->m_projection = clip * cam->m_projection;
+        // m_proj[1][1] *= -1;
     }
 } // namespace Lina::Graphics

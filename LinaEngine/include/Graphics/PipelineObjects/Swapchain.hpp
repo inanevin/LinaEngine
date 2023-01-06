@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
+#include "Utility/StringId.hpp"
 #include "Graphics/Core/GraphicsCommon.hpp"
 
 struct VkImage_T;
@@ -47,7 +48,7 @@ namespace Lina::Graphics
     class Swapchain
     {
     public:
-        void   Create();
+        void   Create(StringID sid);
         void   Destroy();
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& result) const;
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence) const;
@@ -55,10 +56,12 @@ namespace Lina::Graphics
 
         // Desired
         Vector2i        size        = Vector2i();
+        Vector2         pos         = Vector2::Zero;
         Format          format      = Format::B8G8R8A8_SRGB;
         ColorSpace      colorSpace  = ColorSpace::SRGB_NONLINEAR;
         PresentMode     presentMode = PresentMode::Immediate;
         VkSurfaceKHR_T* surface     = nullptr;
+        StringID        swapchainID = 0;
 
         // Runtime
         VkSwapchainKHR_T*      _ptr          = nullptr;
@@ -66,6 +69,7 @@ namespace Lina::Graphics
         Vector<VkImage_T*>     _images;
         Vector<VkImageView_T*> _imageViews;
         VkFormat               _format;
+        void*                  _windowHandle = nullptr;
     };
 } // namespace Lina::Graphics
 

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Buffer.hpp"
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/DataCommon.hpp"
 #include <LinaVG/Backends/BaseBackend.hpp>
 
 namespace Lina
@@ -55,6 +56,7 @@ namespace Lina::Graphics
     class CommandBuffer;
     class Material;
     class Texture;
+    class Swapchain;
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
@@ -118,12 +120,7 @@ namespace Lina::Graphics
         virtual void                  RestoreAPIState() override;
         virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-        void SetIndex(uint32 frameIndex)
-        {
-            m_currentFrameIndex = frameIndex;
-        }
-
-        void UpdateProjection();
+        BufferCapsule& GetCurrentBufferCapsule();
 
     private:
         friend class Editor::EditorGUIManager;
@@ -131,25 +128,24 @@ namespace Lina::Graphics
         friend class Editor::EditorRenderer;
         friend class RenderEngine;
 
-        inline void SetCmd(CommandBuffer* cmd)
-        {
-            m_cmd = cmd;
-        }
+        void Prepare(Swapchain* swapchain, uint32 imgIndex, CommandBuffer* cmd);
+        void UpdateProjection(const Vector2i& size);
 
         void      OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void      CreateBufferCapsule();
+        void      CreateBufferCapsule(StringID sid, bool setMaterials);
         void      RecordDrawCommands();
         void      UploadAllFontTextures();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
     private:
-        Vector<BufferCapsule>     m_bufferCapsules;
-        Matrix                    m_projection  = Matrix::Identity();
-        CommandBuffer*            m_cmd         = nullptr;
-        Material*                 m_guiStandard = nullptr;
-        HashMap<uint32, Texture*> m_fontTextures;
-        uint32                    m_bufferingFontTexture = 0;
-        uint32                    m_currentFrameIndex    = 0;
+        HashMap<StringID, Vector<BufferCapsule>> m_bufferCapsules;
+        Matrix                                   m_projection  = Matrix::Identity();
+        CommandBuffer*                           m_cmd         = nullptr;
+        Material*                                m_guiStandard = nullptr;
+        HashMap<uint32, Texture*>                m_fontTextures;
+        uint32                                   m_bufferingFontTexture = 0;
+        Vector2i                                 m_lastProjectionSize   = Vector2i::Zero;
+        Pair<Swapchain*, uint32>                 m_currentSwapchainIndexPair;
     };
 
 } // namespace Lina::Graphics

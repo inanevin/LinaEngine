@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/Bitmask.hpp"
 #include "Utility/StringId.hpp"
 #include "Theme.hpp"
+#include "Functional/Functional.hpp"
 
 namespace Lina::Editor
 {
@@ -60,12 +61,12 @@ namespace Lina::Editor
         /// <summary>
         /// Button with a pre-defined size that fits the text inside.
         /// </summary>
-        static bool Button(const String& str, const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool Button(const char* str, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         /// <summary>
         /// Button that auto-adjusts its size according to the text inside.
         /// </summary>
-        static bool ButtonFlexible(const String& str, Bitmask8 mask = Bitmask8(), Vector2* outTotalSize = nullptr);
+        static bool ButtonFlexible(const char* str, Bitmask8 mask = Bitmask8(), Vector2* outTotalSize = nullptr);
 
         /// <summary>
         /// Button with a pre-defined size that fits the icon inside in the middle.
@@ -73,12 +74,12 @@ namespace Lina::Editor
         static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         // Popup
-        static bool BeginPopup(const String& str, const Vector2& pos, const Vector2& size);
+        static bool BeginPopup(const char* str, const Vector2& pos, const Vector2& size);
         static void EndPopup();
 
         // Text
-        static Vector2 GetTextSize(const String& text, float wrapWidth = 0.0f);
-        static void    Text(const String& text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
+        static Vector2 GetTextSize(const char* text, float wrapWidth = 0.0f);
+        static void    Text(const char* text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
 
         // Utility
         static void BeginHorizontal();
@@ -86,7 +87,7 @@ namespace Lina::Editor
         static void Space(float amt);
 
         // Icon
-        static void DrawIcon(const String& name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);
+        static void DrawIcon(const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);
     };
 } // namespace Lina::Editor
 

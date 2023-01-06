@@ -39,7 +39,7 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Core/EditorRenderer.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 // Debug
 #include "Input/Core/InputEngine.hpp"
@@ -159,63 +159,48 @@ namespace Lina::Editor
 
     World::EntityWorld* testWorld = nullptr;
 
+    bool test = false;
+
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
-        LGUI->StartFrame();
-        LinaVG::StartFrame();
-
         // LinaVG::StyleOptions style;
         // LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
         m_topPanel.Draw();
 
-        const auto& wd = m_renderer->GetWorldData();
-        if (testWorld)
-        {
-            auto it = wd.find(testWorld);
-
-            if (it != wd.end())
-            {
-
-                auto txt = it->second.finalColorTexture;
-                if (txt != nullptr && txt->GetSID() != 0)
-                    LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(250, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
-            }
-
-            auto entity = testWorld->GetEntity("TestUlan");
-
-            if (entity)
-            {
-                auto pos = entity->GetPosition();
-                pos      = Vector3(0, Math::Sin(Time::GetElapsedTimeF() * 5) * 2, 0);
-                entity->SetPosition(pos);
-            }
-        }
-
-        auto levelWorld = World::EntityWorld::GetWorld();
-        if (levelWorld)
-        {
-            auto it = wd.find(levelWorld);
-            if (it != wd.end())
-            {
-                auto txt = it->second.finalColorTexture;
-                if (txt != nullptr && txt->GetSID() != 0)
-                    LinaVG::DrawImage(txt->GetSID(), LV2(Vector2(900, 250)), LV2(Vector2(500, 500)), LV4(Vector4(1, 1, 1, 1)), 0.0f, 100);
-            }
-        }
-
-        // m_topPanel.Draw();
         // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
-        //
-        // m_dockPanel.Draw();
-        //
-        // LGUI->SetWindowSize("TestWindow", Vector2(500, 500));
-        //
-        // if (LGUI->BeginWindow("TestWindow"))
-        //{
-        //
-        //     LGUI->EndWindow();
-        // }
 
+        m_dockPanel.Draw();
+//
+//  constexpr const char* aq = "TestWindow";
+//  LGUI->SetWindowSize(aq, Vector2(500, 500));
+//  LGUI->SetWindowPosition(aq, Vector2(0, 0));
+//
+//  if (LGUI->BeginWindow(aq))
+//  {
+//      LinaVG::StyleOptions style;
+//      style.color = LV4(Color::DarkBlue);
+//      // LinaVG::DrawRect(LV2(Vector2(0,0)), LV2(Vector2(500,500)), style, 0, 100);
+//      LGUI->EndWindow();
+//  }
+
+        //  const String aq2 = "TestWindow2";
+        //  LGUI->SetWindowSize(aq2, Vector2(500, 500));
+        //  LGUI->SetWindowPosition(aq2, Vector2(1400,600));
+        //
+        //  if (test)
+        //      LGUI->UndockWindow(aq2);
+        //
+        //  if (LGUI->BeginWindow(aq2))
+        //  {
+        //      LGUI->EndWindow();
+        //  }
+
+        //
+        //
+        //
+        //
+        //
+        //
         // LGUI->SetWindowSize("TestWindow2", Vector2(500, 500));
         //
         // if (LGUI->BeginWindow("TestWindow2"))
@@ -223,31 +208,11 @@ namespace Lina::Editor
         //
         //     LGUI->EndWindow();
         // }
-
-        // LinaVG::DrawImage(m_iconTexture->GetSID(), LinaVG::Vec2(m_iconTexture->GetExtent().width * 0.5f, 500 + m_iconTexture->GetExtent().height * 0.5f),
-        //                   LinaVG::Vec2(m_iconTexture->GetExtent().width, m_iconTexture->GetExtent().height), LinaVG::Vec4(1, 1, 1, 1), 0, 100);
-
-        LinaVG::Render();
-        LinaVG::EndFrame();
-        LGUI->EndFrame();
     }
 
     void EditorGUIManager::OnTick(const Event::ETick& ev)
     {
-        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_E))
-        {
-            testWorld = new World::EntityWorld();
-            auto cam  = testWorld->CreateEntity(LINA_EDITOR_CAMERA_NAME);
-            testWorld->AddComponent<Graphics::CameraComponent>(cam);
-            cam->SetPosition(Vector3(0, 0, -15));
-            auto sphere = Lina::Resources::ResourceManager::Get()->GetResource<Lina::Graphics::Model>("Resources/Engine/Models/Capsule.fbx");
-            auto ent    = sphere->AddToWorld(testWorld);
-            ent->SetName("TestUlan");
-        }
-
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
-        {
-            // testWorld->Shutdown();
-        }
+            test = true;
     }
 } // namespace Lina::Editor

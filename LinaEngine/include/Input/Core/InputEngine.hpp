@@ -35,6 +35,7 @@ SOFTWARE.
 #include "InputAxis.hpp"
 #include "InputMappings.hpp"
 #include "Data/HashMap.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina
 {
@@ -45,9 +46,10 @@ namespace Lina
     {
         struct EWindowContextCreated;
         struct EMouseScrollCallback;
-        struct EWindowFocusChanged;
+        struct EActiveAppChanged;
         struct EMouseButtonCallback;
         struct EMouseMovedRaw;
+        struct EWindowFocused;
     } // namespace Event
 
 } // namespace Lina
@@ -71,6 +73,7 @@ namespace Lina::Input
         bool GetMouseButtonUp(int button);
         bool GetMouseButtonDoubleClick(int button);
         bool GetMouseButtonClicked(int button);
+        bool IsPointInRect(const Vector2i point, const Recti& rect);
         void SetCursorMode(CursorMode mode);
         void SetMousePosition(const Vector2& v) const;
 
@@ -81,6 +84,11 @@ namespace Lina::Input
         inline Vector2 GetMousePosition()
         {
             return m_currentMousePosition;
+        }
+
+        inline Vector2 GetMousePositionAbs()
+        {
+            return m_currentMousePositionAbs;
         }
 
         inline Vector2 GetMouseDelta()
@@ -123,7 +131,8 @@ namespace Lina::Input
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
         void OnMouseButtonCallback(const Event::EMouseButtonCallback& e);
         void OnMouseMovedRaw(const Event::EMouseMovedRaw& e);
-        void OnWindowFocusChanged(const Event::EWindowFocusChanged& e);
+        void OnActiveAppChanged(const Event::EActiveAppChanged& e);
+        void OnWindowFocused(const Event::EWindowFocused& e);
 
     private:
         friend class Application;
@@ -141,14 +150,16 @@ namespace Lina::Input
         HashMap<int, int>   m_singleClickStates;
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
-        CursorMode          m_cursorMode            = CursorMode::Visible;
-        Vector2             m_currentMouseScroll    = Vector2::Zero;
-        Vector2             m_mousePosTrackingClick = Vector2::Zero;
-        Vector2             m_mouseDelta            = Vector2::Zero;
-        Vector2             m_mouseDeltaRaw         = Vector2::Zero;
-        bool                m_windowFocused         = false;
-        Vector2             m_currentMousePosition  = Vector2::Zero;
-        Vector2             m_previousMousePosition = Vector2::Zero;
+        CursorMode          m_cursorMode              = CursorMode::Visible;
+        Vector2             m_currentMouseScroll      = Vector2::Zero;
+        Vector2             m_mousePosTrackingClick   = Vector2::Zero;
+        Vector2             m_mouseDelta              = Vector2::Zero;
+        Vector2             m_mouseDeltaRaw           = Vector2::Zero;
+        Vector2             m_currentMousePosition    = Vector2::Zero;
+        Vector2             m_previousMousePosition   = Vector2::Zero;
+        Vector2             m_currentMousePositionAbs = Vector2::Zero;
+        bool                m_windowActive            = false;
+        void*               m_lastFocusedWindowHandle = nullptr;
     };
 } // namespace Lina::Input
 

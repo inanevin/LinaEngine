@@ -143,8 +143,8 @@ namespace Lina::Graphics
             if (m_shader.value->GetMaterialSetLayout().bindings[0].type == DescriptorType::UniformBuffer)
                 m_descriptor.AddBufferUpdate(m_uniformBuffer, m_uniformBuffer.size, 0, DescriptorType::UniformBuffer);
 
-            for (auto& pair : m_textures)
-                m_descriptor.AddTextureUpdate(pair.binding, pair.handle.value);
+            for (auto& txt : m_textures)
+                m_descriptor.AddTextureUpdate(txt.binding, txt.handle.value);
 
             m_descriptor.SendUpdate();
         }
@@ -225,7 +225,6 @@ namespace Lina::Graphics
             m_totalPropertySize += p->GetTypeSize();
 
         m_totalAlignedSize = GetPropertiesTotalAlignedSize();
-
     }
 
     uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)
@@ -266,7 +265,7 @@ namespace Lina::Graphics
         return offset;
     }
 
-    void Material::Bind(CommandBuffer& cmd, uint32 bindFlags)
+    void Material::Bind(const CommandBuffer& cmd, uint32 bindFlags)
     {
         auto& pipeline = m_shader.value->GetPipeline();
 

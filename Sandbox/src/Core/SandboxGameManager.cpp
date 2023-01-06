@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Input/Core/InputEngine.hpp"
 #include "Resource/Core/ResourceLoader.hpp"
-#include "Graphics/Core/Window.hpp"
 #include "Math/Math.hpp"
 #include "Lina/ReflectionRegistry.hpp"
 #include "World/Core/World.hpp"

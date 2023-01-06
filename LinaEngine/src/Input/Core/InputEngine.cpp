@@ -34,11 +34,12 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Profiling/Profiler.hpp"
 
-#ifndef LINA_PLATFORM_WINDOWS
+#ifdef LINA_PLATFORM_WINDOWS
+#include "Graphics/Platform/Win32/Win32Window.hpp"
 
+#else
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-
 #endif
 
 namespace Lina::Input
@@ -58,9 +59,10 @@ namespace Lina::Input
         LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
         Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &InputEngine::OnWindowContextCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseScrollCallback, &InputEngine::OnMouseScrollCallback>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowFocusChanged, &InputEngine::OnWindowFocusChanged>(this);
+        Event::EventSystem::Get()->Connect<Event::EActiveAppChanged, &InputEngine::OnActiveAppChanged>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseButtonCallback, &InputEngine::OnMouseButtonCallback>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseMovedRaw, &InputEngine::OnMouseMovedRaw>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowFocused, &InputEngine::OnWindowFocused>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
     }
@@ -70,9 +72,10 @@ namespace Lina::Input
         LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
         Event::EventSystem::Get()->Disconnect<Event::EWindowContextCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseScrollCallback>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowFocusChanged>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EActiveAppChanged>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseButtonCallback>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseMovedRaw>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowFocused>(this);
         m_keyDownNewStateMap.clear();
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
@@ -86,6 +89,8 @@ namespace Lina::Input
 #else
         glfwWindow = static_cast<GLFWwindow*>(e.window);
 #endif
+
+        m_lastFocusedWindowHandle = static_cast<void*>(win32Window);
     }
 
     void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
@@ -106,14 +111,19 @@ namespace Lina::Input
         m_mouseDeltaRaw.y = static_cast<float>(e.yDelta);
     }
 
-    void InputEngine::OnWindowFocusChanged(const Event::EWindowFocusChanged& e)
+    void InputEngine::OnActiveAppChanged(const Event::EActiveAppChanged& e)
     {
-        m_windowFocused = e.isFocused;
+        m_windowActive = e.isThisApp;
+    }
+
+    void InputEngine::OnWindowFocused(const Event::EWindowFocused& e)
+    {
+        m_lastFocusedWindowHandle = e.window;
     }
 
     bool InputEngine::GetKey(int keycode)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -126,7 +136,7 @@ namespace Lina::Input
 
     bool InputEngine::GetKeyDown(int keyCode)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -143,7 +153,7 @@ namespace Lina::Input
     }
     bool InputEngine::GetKeyUp(int keyCode)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -160,7 +170,7 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButton(int button)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -174,7 +184,7 @@ namespace Lina::Input
 
     bool InputEngine::GetMouseButtonDown(int button)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -191,7 +201,7 @@ namespace Lina::Input
     }
     bool InputEngine::GetMouseButtonUp(int button)
     {
-        if (!m_windowFocused)
+        if (!m_windowActive)
             return false;
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -223,6 +233,24 @@ namespace Lina::Input
             result = true;
 
         return result;
+    }
+
+    bool InputEngine::IsPointInRect(const Vector2i point, const Recti& rect)
+    {
+#ifdef LINA_PLATFORM_WINDOWS
+
+        RECT r;
+        r.left   = rect.pos.x;
+        r.top    = rect.pos.y;
+        r.right  = rect.pos.x + rect.size.x;
+        r.bottom = rect.pos.y + rect.size.y;
+        POINT pt;
+        pt.x = point.x;
+        pt.y = point.y;
+        return PtInRect(&r, pt);
+#else
+        return false;
+#endif
     }
 
     void InputEngine::SetCursorMode(CursorMode mode)
@@ -280,15 +308,17 @@ namespace Lina::Input
 #ifdef LINA_PLATFORM_WINDOWS
         POINT point;
         GetCursorPos(&point);
-        ScreenToClient(win32Window, &point);
+        m_currentMousePositionAbs = Vector2(static_cast<float>(point.x), static_cast<float>(point.y));
+        ScreenToClient(static_cast<HWND>(m_lastFocusedWindowHandle), &point);
         xpos = point.x;
         ypos = point.y;
 #else
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 #endif
         m_previousMousePosition = m_currentMousePosition;
-        m_currentMousePosition  = Vector2((float)xpos, (float)ypos);
+        m_currentMousePosition  = Vector2(static_cast<float>(xpos), static_cast<float>(ypos));
         m_mouseDelta            = m_currentMousePosition - m_previousMousePosition;
+        // LINA_TRACE("CM {0}, {1}", m_currentMousePosition.x, m_currentMousePosition.y);
     }
 
     void InputEngine::Tick()

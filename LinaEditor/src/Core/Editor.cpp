@@ -41,21 +41,23 @@ SOFTWARE.
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Resource/EditorResourceLoader.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Serialization/Serialization.hpp"
 #include "Resource/Core/ResourcePackager.hpp"
 #include "Core/Engine.hpp"
 #include "World/Core/Level.hpp"
 #include "Graphics/Resource/Texture.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/Renderer.hpp"
 #include "Core/EditorRenderer.hpp"
+#include "Graphics/Resource/Font.hpp"
+#include "Serialization/Serialization.hpp"
+#include "Settings/DockSetup.hpp"
 
 namespace Lina::Editor
 {
-    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swapchain, Graphics::GUIBackend* guiBackend)
+    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swapchain, Graphics::GUIBackend* guiBackend, Graphics::WindowManager* windowManager)
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &Editor::OnPreMainLoop>(this);
+        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &Editor::OnEngineResourcesLoaded>(this);
 
         m_guiBackend   = guiBackend;
         m_engine       = engine;
@@ -66,6 +68,7 @@ namespace Lina::Editor
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
+        m_gui.Initialize(m_renderer, windowManager);
         ImmediateGUI::s_instance = &m_gui;
         m_shortcutManager.Initialize();
     }
@@ -73,18 +76,52 @@ namespace Lina::Editor
     void Editor::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         m_guiManager.Shutdown();
     }
 
     void Editor::VerifyStaticResources()
     {
         // Make sure the static resources needed are initialized.
-        if (!Utility::FileExists("Resources/engine.linasettings"))
-            Serialization::SaveToFile<EngineSettings>("Resources/engine.linasettings");
+        if (!Utility::FileExists("Resources/Engine/engine.linasettings"))
+            Serialization::SaveToFile<EngineSettings>("Resources/Engine/engine.linasettings");
 
-        if (!Utility::FileExists("Resources/render.linasettings"))
-            Serialization::SaveToFile<RenderSettings>("Resources/render.linasettings");
+        if (!Utility::FileExists("Resources/Engine/render.linasettings"))
+            Serialization::SaveToFile<RenderSettings>("Resources/Engine/render.linasettings");
+
+        if (!Utility::FileExists("Resources/Editor/dockSetup.linasettings"))
+            Serialization::SaveToFile<DockSetup>("Resources/Editor/dockSetup.linasettings");
+
+        DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back("Resources/Editor/Textures/TitleText.png");
+        DefaultResources::s_engineResources[GetTypeID<Graphics::Font>()].push_back("Resources/Editor/Fonts/Rubik-Regular.ttf");
+        DefaultResources::s_engineResources[GetTypeID<Graphics::Font>()].push_back("Resources/Editor/Fonts/NunitoSans.ttf");
+        DefaultResources::s_engineResources[GetTypeID<DockSetup>()].push_back("Resources/Editor/dockSetup.linasettings");
+    }
+
+    void Editor::RegisterResourceTypes()
+    {
+        Vector<String> extensions;
+
+        auto rm = Resources::ResourceManager::Get();
+
+        extensions.push_back("linasettings");
+        rm->RegisterResourceType<DockSetup>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Static,
+            .typeName             = "Dock Setup",
+            .memChunkCount        = 1,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
+
+        extensions.clear();
+        extensions.push_back("linasettings");
+        rm->RegisterResourceType<EditorSettings>(Resources::ResourceTypeData{
+            .packageType          = Resources::PackageType::Static,
+            .typeName             = "Editor Settings",
+            .memChunkCount        = 1,
+            .associatedExtensions = extensions,
+            .debugColor           = Color::White,
+        });
     }
 
     void Editor::CreateEditorCamera()
@@ -109,7 +146,7 @@ namespace Lina::Editor
         m_editorCamera->SetRotationAngles(Vector3(0, 0.0f, 0));
         freeLook->rotationPower = 50.0f;
         freeLook->movementSpeed = 12.0f;
-        Graphics::RenderEngine::Get()->GetRenderer()->GetCameraSystem().SetActiveCamera(cam);
+        m_world->SetActiveCamera(cam);
     }
 
     void Editor::DeleteEditorCamera()
@@ -234,25 +271,12 @@ namespace Lina::Editor
         // RuntimeInfo::s_shouldSkipFrame = true;
     }
 
-    Vector<const char*> Editor::GetDefaultTextures()
+    void Editor::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
-        Vector<const char*> vec;
-        vec.push_back("Resources/Editor/Textures/TitleText.png");
-        return vec;
-    }
-
-    Vector<const char*> Editor::GetDefaultFonts()
-    {
-        Vector<const char*> vec;
-        vec.push_back("Resources/Editor/Fonts/Rubik-Regular.ttf");
-        vec.push_back("Resources/Editor/Fonts/NunitoSans.ttf");
-        return vec;
-    }
-
-    void Editor::OnPreMainLoop(const Event::EPreMainLoop& ev)
-    {
+        m_dockSetup = Resources::ResourceManager::Get()->GetResource<DockSetup>("Resources/Editor/dockSetup.linasettings");
         m_guiManager.Initialize(m_guiBackend, m_renderer);
         m_gui.m_iconTexture = m_guiManager.m_iconTexture->GetSID();
+        m_gui.SetupDocks(m_dockSetup);
     }
 
 } // namespace Lina::Editor

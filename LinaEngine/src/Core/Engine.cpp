@@ -82,31 +82,16 @@ namespace Lina
     {
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-        {
             m_editor.VerifyStaticResources();
-
-            const Vector<const char*> editorTextures = m_editor.GetDefaultTextures();
-            const Vector<const char*> editorFonts    = m_editor.GetDefaultFonts();
-
-            for (auto& s : editorTextures)
-                DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
-
-            for (auto& f : editorFonts)
-                DefaultResources::s_engineResources[GetTypeID<Graphics::Font>()].push_back(f);
-        }
 #endif
 
         // Static resources
-        const Vector<String> defaultShaders   = m_renderEngine.GetEngineShaderPaths();
-        const Vector<String> defaultMaterials = m_renderEngine.GetEngineMaterialPaths();
-        const Vector<String> defaultModels    = m_renderEngine.GetEnginePrimitivePaths();
-        const Vector<String> defaultTextures  = m_renderEngine.GetEngineTexturePaths();
+        const Vector<String> defaultShaders  = m_renderEngine.GetEngineShaderPaths();
+        const Vector<String> defaultModels   = m_renderEngine.GetEnginePrimitivePaths();
+        const Vector<String> defaultTextures = m_renderEngine.GetEngineTexturePaths();
 
         for (auto& s : defaultShaders)
             DefaultResources::s_engineResources[GetTypeID<Graphics::Shader>()].push_back(s);
-
-        for (auto& s : defaultMaterials)
-            DefaultResources::s_engineResources[GetTypeID<Graphics::Material>()].push_back(s);
 
         for (auto& s : defaultModels)
             DefaultResources::s_engineResources[GetTypeID<Graphics::Model>()].push_back(s);
@@ -114,8 +99,8 @@ namespace Lina
         for (auto& s : defaultTextures)
             DefaultResources::s_engineResources[GetTypeID<Graphics::Texture>()].push_back(s);
 
-        DefaultResources::s_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/engine.linasettings");
-        DefaultResources::s_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/render.linasettings");
+        DefaultResources::s_engineResources[GetTypeID<EngineSettings>()].push_back("Resources/Engine/engine.linasettings");
+        DefaultResources::s_engineResources[GetTypeID<RenderSettings>()].push_back("Resources/Engine/render.linasettings");
         DefaultResources::s_engineResources[GetTypeID<Audio::Audio>()].push_back("Resources/Engine/Audio/Startup.wav");
 
         // Debug
@@ -123,21 +108,14 @@ namespace Lina
 
         m_resourceManager.GetLoader()->LoadEngineResources();
 
-        m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/engine.linasettings");
-        m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/render.linasettings");
+        m_engineSettings = m_resourceManager.GetResource<EngineSettings>("Resources/Engine/engine.linasettings");
+        m_renderSettings = m_resourceManager.GetResource<RenderSettings>("Resources/Engine/render.linasettings");
 
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIStandard));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::GUIText)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::GUIText));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::LitStandard)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::LitStandard));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQFinal)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQFinal));
         m_renderEngine.GetEngineMaterial(Graphics::EngineShaderType::SQPostProcess)->SetShader(m_renderEngine.GetEngineShader(Graphics::EngineShaderType::SQPostProcess));
-
-        const auto& paths = m_renderEngine.GetEngineMaterialPaths();
-        for (auto& p : paths)
-        {
-            auto mat = m_resourceManager.GetResource<Graphics::Material>(p);
-            mat->SaveToFile();
-        }
     }
 
     void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
@@ -153,6 +131,12 @@ namespace Lina
 
         // Res init
         RegisterResourceTypes();
+
+#ifndef LINA_PRODUCTION
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
+            m_editor.RegisterResourceTypes();
+
+#endif
 
         // System init
         m_memoryManager.Initialize();
@@ -171,9 +155,9 @@ namespace Lina
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
-            m_editor.m_renderer = new Editor::EditorRenderer();
-            renderer            = m_editor.m_renderer;
-            m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend);
+            // m_editor.m_renderer = new Editor::EditorRenderer();
+            //  renderer            = m_editor.m_renderer;
+            m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
         }
 #endif
 
@@ -185,7 +169,7 @@ namespace Lina
         // Runtime info setup
         m_physicsAccumulator = 0.0f;
         m_deltaTimeArray.fill(-1.0);
-        m_initialTitle    = m_renderEngine.m_window->GetTitle();
+        m_initialTitle    = m_renderEngine.m_windowManager.GetMainWindow().GetTitle();
         Time::s_startTime = Time::GetCPUTime();
 
         // Engine resources
@@ -237,11 +221,6 @@ namespace Lina
         // Input
         m_inputEngine.Tick();
 
-        if (m_inputEngine.GetKeyDown(LINA_KEY_E))
-        {
-            // Graphics::RenderEngine::Get()->CreateAdditionalWindow("TestWindow", Vector2(0, 0), Vector2(600, 600));
-        }
-
         // Render
         m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
             m_renderEngine.Render();
@@ -272,7 +251,7 @@ namespace Lina
         }
 
         const String title = m_initialTitle + " FPS: " + TO_STRING(m_currentFPS);
-        m_renderEngine.m_window->SetTitle(title.c_str());
+        m_renderEngine.m_windowManager.GetMainWindowPtr()->SetTitle(title.c_str());
         // LINA_TRACE("FPS: {0}", m_currentFPS);
 
         if (m_firstRun)
@@ -412,7 +391,7 @@ namespace Lina
     {
         Vector<String> extensions;
 
-        extensions.push_back("enginesettings");
+        extensions.push_back("linasettings");
         m_resourceManager.RegisterResourceType<EngineSettings>(Resources::ResourceTypeData{
             .packageType          = Resources::PackageType::Static,
             .typeName             = "Engine Settings",
@@ -422,7 +401,7 @@ namespace Lina
         });
 
         extensions.clear();
-        extensions.push_back("rendersettings");
+        extensions.push_back("linasettings");
         m_resourceManager.RegisterResourceType<RenderSettings>(Resources::ResourceTypeData{
             .packageType          = Resources::PackageType::Static,
             .typeName             = "Render Settings",

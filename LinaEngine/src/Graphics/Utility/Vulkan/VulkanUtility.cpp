@@ -838,7 +838,7 @@ namespace Lina::Graphics
         return b;
     }
 
-    VkViewport VulkanUtility::GetViewport(Viewport& vp)
+    VkViewport VulkanUtility::GetViewport(const Viewport& vp)
     {
         VkViewport vkp = VkViewport{
             .x        = vp.x,

@@ -31,107 +31,10 @@ SOFTWARE.
 #ifndef Archive_HPP
 #define Archive_HPP
 
-#include "Data/Streams.hpp"
-#include <type_traits>
-#include <vector>
-#include "Data/String.hpp"
+#include "ArchiveCommon.hpp"
 
 namespace Lina::Serialization
 {
-
-
-    /* Example Specialization for custom 3rd party types
-    template <typename Ar, typename T> void SaveOther(Ar& ar, std::vector<T>& vec)
-    {
-    }
-    template <typename Ar, typename T> void LoadOther(Ar& ar, std::vector<T>& vec)
-    {
-    }
-    template <typename Ar, typename T, typename K> void SaveOther(Ar& ar, std::unordered_map<T, K>& vec)
-    {
-    }
-    template <typename Ar, typename T, typename K> void LoadOther(Ar& ar, std::unordered_map<T, K>& vec)
-    {
-    }
-    */
-
-    template <typename Ar, typename T, typename = void> struct IsSaveOtherDefined : std::false_type
-    {
-    };
-
-    template <typename Ar, typename T> struct IsSaveOtherDefined<Ar, T, std::void_t<decltype(SaveOther(std::declval<Ar&>(), std::declval<T&>()))>> : std::true_type
-    {
-    };
-
-    template <typename Ar, typename T, typename = void> struct IsLoadOtherDefined : std::false_type
-    {
-    };
-
-    template <typename Ar, typename T> struct IsLoadOtherDefined<Ar, T, std::void_t<decltype(LoadOther(std::declval<Ar&>(), std::declval<T&>()))>> : std::true_type
-    {
-    };
-
-    template <typename T> struct HasSerialize
-    {
-    private:
-        template <typename U> static constexpr auto          check(int) -> decltype(std::declval<U>().Serialize(std::declval<T>()), std::true_type());
-        template <typename U> static constexpr auto          check(long) -> decltype(std::declval<U&>().Serialize(std::declval<T&>()), std::true_type());
-        template <typename> static constexpr std::false_type check(...);
-
-    public:
-        static constexpr bool value = decltype(check<T>(0))::value;
-    };
-
-    template <typename T> struct HasSave
-    {
-    private:
-        template <typename U> static constexpr auto          check(int) -> typename std::is_same<decltype(std::declval<U>().Save(std::declval<T>())), void>::type;
-        template <typename U> static constexpr auto          check(long) -> typename std::is_same<decltype(std::declval<U&>().Save(std::declval<T&>())), void>::type;
-        template <typename> static constexpr std::false_type check(...);
-
-    public:
-        static constexpr bool value = decltype(check<T>(0))::value;
-    };
-
-    template <typename T> struct HasLoad
-    {
-    private:
-        template <typename U> static constexpr auto          check(int) -> typename std::is_same<decltype(std::declval<U>().Load(std::declval<T>())), void>::type;
-        template <typename U> static constexpr auto          check(long) -> typename std::is_same<decltype(std::declval<U&>().Load(std::declval<T&>())), void>::type;
-        template <typename> static constexpr std::false_type check(...);
-
-    public:
-        static constexpr bool value = decltype(check<T>(0))::value;
-    };
-
-    class ArchiveBase
-    {
-    public:
-        ArchiveBase()          = default;
-        virtual ~ArchiveBase() = default;
-
-    protected:
-        template <typename Ar, typename T> void CallSerialize(Ar& ar, T& obj)
-        {
-            obj.Serialize(ar);
-        }
-
-        template <typename Ar, typename T> void CallSave(Ar& ar, T& obj)
-        {
-            obj.Save(ar);
-        }
-
-        template <typename Ar, typename T> void CallLoad(Ar& ar, T& obj)
-        {
-            obj.Load(ar);
-        }
-    };
-
-#define FRIEND_ARCHIVE                                                                                                                                                                                                     \
-    friend class Serialization::ArchiveBase;                                                                                                                                                                               \
-    template <typename> friend struct Serialization::HasSerialize;                                                                                                                                                         \
-    template <typename> friend struct Serialization::HasSave;                                                                                                                                                              \
-    template <typename> friend struct Serialization::HasLoad
 
     template <typename StreamType> class Archive : public ArchiveBase
     {

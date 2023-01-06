@@ -38,15 +38,15 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/UploadContext.hpp"
 #include "Screen.hpp"
 #include "Backend.hpp"
-#include "Window.hpp"
+#include "WindowManager.hpp"
 
 namespace Lina
 {
     namespace Event
     {
         struct EEngineResourcesLoaded;
-        struct EEWindowResized;
-        struct EEWindowPositioned;
+        struct EWindowResized;
+        struct EWindowPositioned;
         struct EPreMainLoop;
     } // namespace Event
 
@@ -79,11 +79,7 @@ namespace Lina::Graphics
             return s_instance;
         }
 
-        // void CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
-        // void UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size);
-        // void DestroyAdditionalWindow(const String& nameID);
         Vector<String> GetEngineShaderPaths();
-        Vector<String> GetEngineMaterialPaths();
         Vector<String> GetEnginePrimitivePaths();
         Vector<String> GetEngineTexturePaths();
         Mesh*          GetPlaceholderMesh();
@@ -175,6 +171,8 @@ namespace Lina::Graphics
         void Shutdown();
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void OnWindowPositioned(const Event::EWindowPositioned& ev);
+        void OnWindowResized(const Event::EWindowResized& ev);
         void Join();
         void SetRenderer(Renderer* renderer);
 
@@ -187,7 +185,7 @@ namespace Lina::Graphics
         DeletionQueue m_mainDeletionQueue;
         InitInfo      m_appInfo;
         Backend       m_backend;
-        Window*       m_window             = nullptr;
+        WindowManager m_windowManager;
         bool          m_initedSuccessfully = false;
 
         UploadContext                                   m_gpuUploader;

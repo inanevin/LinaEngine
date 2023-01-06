@@ -72,11 +72,18 @@ namespace Lina
         static Vector2i Zero;
         static Vector2i One;
 
+        bool Equals(const Vector2i& other, int epsilon = 0) const;
+
         template <class Archive> void Serialize(Archive& archive)
         {
             archive(x, y);
         }
     };
+
+    inline Vector2i operator-(Vector2i const& v, Vector2i const& v2)
+    {
+        return Vector2i(v.x - v2.x, v.y - v2.y);
+    }
 
     class Vector2 : public glm::vec2
     {

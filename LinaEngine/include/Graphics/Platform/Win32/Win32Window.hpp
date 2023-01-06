@@ -31,71 +31,57 @@ SOFTWARE.
 #ifndef Win32Window_HPP
 #define Win32Window_HPP
 
-#include "Graphics/Core/Window.hpp"
+#include "Graphics/Core/WindowManager.hpp"
 
 struct HWND__;
 struct HINSTANCE__;
+
+namespace Lina
+{
+    class Application;
+}
 
 namespace Lina::Graphics
 {
     class Win32Window : public Window
     {
+    private:
     public:
         // Inherited via Window
-        virtual void  SetSize(const Vector2i& newSize) override;
-        virtual void  SetPos(const Vector2i& newPos) override;
-        virtual void  SetPosCentered(const Vector2i& newPos) override;
-        virtual void  SetVsync(VsyncMode mode) override;
-        virtual void  SetTitle(const char* title) override;
-        virtual void  Minimize() override;
-        virtual void  Maximize() override;
-        virtual void* CreateAdditionalWindow(const char* title, const Vector2i& pos, const Vector2i& size) override;
-        virtual void  UpdateAdditionalWindow(StringID sid, const Vector2i& pos, const Vector2i& size) override;
-        virtual void  DestroyAdditionalWindow(StringID sid) override;
-        virtual bool  AdditionalWindowExists(StringID sid) override;
-
-        inline static Win32Window* GetWin32()
+        virtual bool Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size) override;
+        virtual void Destroy() override;
+        virtual void SetSize(const Vector2i& newSize) override;
+        virtual void SetPos(const Vector2i& newPos) override;
+        virtual void SetTitle(const char*) override;
+        virtual void Minimize() override;
+        virtual void Maximize() override;
+        virtual void Close() override;
+        virtual void SetToWorkingArea() override;
+        virtual void SetToFullscreen() override;
+        virtual void SetCustomStyle(bool decorated, bool resizable) override;
+        virtual void ShowHideWindow(bool show) override;
+        virtual bool GetIsAppActive() const override
         {
-            return s_win32Window;
+            return s_isAppActive;
         }
-
-        inline HWND__* GetWindowPtr()
-        {
-            return m_window;
-        }
-
-        inline HINSTANCE__* GetInstancePtr()
-        {
-            return m_hinst;
-        }
-
-        void UpdateButtonLayoutForDpi(HWND__* hwnd);
-        void UpdatePos(const Vector2i& pos);
-        void UpdateSize(const Vector2i& size);
-        void UpdateCursor();
 
         static __int64 __stdcall WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam);
 
-    protected:
-        virtual bool Initialize(const WindowProperties& props, Screen* screen) override;
-        virtual void Shutdown() override;
-        virtual void Close() override;
+    private:
+        void UpdateButtonLayoutForDpi(HWND__* hwnd);
+        void UpdatePos(const Vector2i& pos);
+        void UpdateSize(const Vector2i& size);
+        void UpdateWinStyle();
 
     private:
-        void UpdateStyle();
-        void SetToWorkingArea();
-        void SetToFullscreen();
+        friend class Application;
 
-    private:
-        static Win32Window*        s_win32Window;
-        HWND__*                    m_window      = nullptr;
-        HINSTANCE__*               m_hinst       = nullptr;
-        Vector2i                   m_initialPos  = Vector2i();
-        Vector2i                   m_initialSize = Vector2i();
-        Vector2i                   m_previousSize;
-        HashMap<StringID, HWND__*> m_additionalWindows;
-        unsigned long              m_style;
-        Screen*                    m_screen = nullptr;
+        static Application*                   s_app;
+        static bool                           s_isAppActive;
+        static HashMap<HWND__*, Win32Window*> s_win32Windows;
+        HWND__*                               m_window = nullptr;
+        HINSTANCE__*                          m_hinst  = nullptr;
+        unsigned long                         m_style;
     };
 } // namespace Lina::Graphics
 

@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Graphics/Resource/Shader.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
 #include "Resource/Core/ResourceManager.hpp"
 
@@ -64,19 +65,16 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
 
-#ifdef LINA_PLATFORM_WINDOWS
-        m_window = new Win32Window();
-#else
-        F_ASSERT(false, "Platform window implementation not found!");
-#endif
-        Window::s_instance  = m_window;
         Backend::s_instance = &m_backend;
 
-        m_initedSuccessfully = m_window->Initialize(initInfo.windowProperties, &m_screen);
-        m_initedSuccessfully = m_backend.Initialize(initInfo);
+        m_initedSuccessfully = m_windowManager.Initialize(initInfo.windowProperties, &m_screen);
+        m_initedSuccessfully = m_backend.Initialize(initInfo, &m_windowManager);
+        m_backend.SetSwapchainPosition(m_windowManager.GetMainWindow().GetHandle(), m_windowManager.GetMainWindow().GetPos());
 
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &RenderEngine::OnWindowPositioned>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &RenderEngine::OnWindowResized>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -184,7 +182,8 @@ namespace Lina::Graphics
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
         RETURN_NOTINITED;
 
-        if (m_window->IsMinimized() || !m_window->IsActiveWindow())
+        auto& window = m_windowManager.GetMainWindow();
+        if (window.IsMinimized() || !window.GetIsAppActive())
             return;
 
         m_gpuUploader.Poll();
@@ -193,7 +192,6 @@ namespace Lina::Graphics
 
     void RenderEngine::Stop()
     {
-        m_renderer->Stop();
     }
 
     void RenderEngine::Join()
@@ -205,7 +203,7 @@ namespace Lina::Graphics
     void RenderEngine::SetRenderer(Renderer* renderer)
     {
         m_renderer = renderer;
-        m_renderer->Initialize(&m_backend.m_mainSwapchain, m_guiBackend);
+        m_renderer->Initialize(&m_backend.m_mainSwapchain, m_guiBackend, &m_windowManager);
         m_renderer->UpdateViewport(m_backend.m_mainSwapchain.size);
     }
 
@@ -220,6 +218,11 @@ namespace Lina::Graphics
 
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
+
+        for (auto pair : m_engineMaterials)
+            delete pair.second;
 
         LinaVG::Terminate();
 
@@ -229,16 +232,13 @@ namespace Lina::Graphics
         m_mainDeletionQueue.Flush();
         m_renderer->Shutdown();
         delete m_renderer;
-        m_window->Shutdown();
+        m_windowManager.Shutdown();
         m_backend.Shutdown();
     }
 
     void RenderEngine::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
-        auto* rm               = Resources::ResourceManager::Get();
-        m_placeholderMaterial  = rm->GetResource<Material>("Resources/Engine/Materials/LitStandard.linamat");
-        m_placeholderModel     = rm->GetResource<Model>("Resources/Engine/Models/Cube.fbx");
-        m_placeholderModelNode = m_placeholderModel->GetRootNode();
+        auto* rm = Resources::ResourceManager::Get();
 
         for (auto& p : m_engineTextureNames)
         {
@@ -249,20 +249,16 @@ namespace Lina::Graphics
 
         for (auto& p : m_engineShaderNames)
         {
-            const String shaderPath   = "Resources/Engine/Shaders/" + p.second + ".linashader";
+            const String shaderPath  = "Resources/Engine/Shaders/" + p.second + ".linashader";
+            Shader*      shader      = rm->GetResource<Shader>(shaderPath);
+            m_engineShaders[p.first] = shader;
+
             const String materialPath = "Resources/Engine/Materials/" + p.second + ".linamat";
-            Shader*      shader       = rm->GetResource<Shader>(shaderPath);
-            Material*    material     = rm->GetResource<Material>(materialPath);
-
-            if (material->GetShaderHandle().sid == 0 && ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            {
-                material->m_path = materialPath;
-                material->m_sid  = TO_SID(materialPath);
-                material->SetShader(shader);
-                material->SaveToFile();
-            }
-
-            m_engineShaders[p.first]   = shader;
+            Material*    material     = new Material();
+            material->m_path          = materialPath;
+            material->m_sid           = TO_SID(materialPath);
+            material->CreateBuffer();
+            material->SetShader(shader);
             m_engineMaterials[p.first] = material;
         }
 
@@ -272,11 +268,25 @@ namespace Lina::Graphics
             Model*       model      = rm->GetResource<Model>(modelPath);
             m_engineModels[p.first] = model;
         }
+
+        m_placeholderMaterial  = m_engineMaterials[EngineShaderType::LitStandard];
+        m_placeholderModel     = m_engineModels[EnginePrimitiveType::Cube];
+        m_placeholderModelNode = m_placeholderModel->GetRootNode();
     }
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        m_renderer->SetMaterialTextures();
+        m_guiBackend->UpdateProjection(m_backend.m_mainSwapchain.size);
+    }
+
+    void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)
+    {
+        m_backend.SetSwapchainPosition(ev.window, ev.newPos);
+    }
+
+    void RenderEngine::OnWindowResized(const Event::EWindowResized& ev)
+    {
+        m_renderer->WindowResized(ev.window);
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()
@@ -286,19 +296,6 @@ namespace Lina::Graphics
         for (auto& p : m_engineShaderNames)
         {
             const String path = "Resources/Engine/Shaders/" + p.second + ".linashader";
-            paths.push_back(path);
-        }
-
-        return paths;
-    }
-
-    Vector<String> RenderEngine::GetEngineMaterialPaths()
-    {
-        Vector<String> paths;
-
-        for (auto& p : m_engineShaderNames)
-        {
-            const String path = "Resources/Engine/Materials/" + p.second + ".linamat";
             paths.push_back(path);
         }
 
@@ -335,52 +332,5 @@ namespace Lina::Graphics
     {
         return GetPlaceholderModelNode()->GetMeshes()[0];
     }
-
-    //  void RenderEngine::CreateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
-    //  {
-    //     const StringID    sid              = TO_SID(nameID);
-    //     AdditionalWindow& additionalWindow = m_additionalWindows[sid];
-    //     additionalWindow.sid               = sid;
-    //
-    //     auto* windowPtr = Window::Get()->CreateAdditionalWindow(nameID.c_str(), pos, size);
-    //     auto* swp       = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
-    //
-    //     additionalWindow.swapchain = swp;
-    //     additionalWindow.depthImg  = VulkanUtility::CreateDefaultPassTextureDepth(true, static_cast<int>(size.x), static_cast<int>(size.y));
-    //     additionalWindow.waitSemaphore.Create();
-    //     additionalWindow.presentSemaphore.Create();
-    //
-    //     auto& fp = m_renderer.GetRenderPass(RenderPassType::Final);
-    //
-    //     for (auto& iv : additionalWindow.swapchain->_imageViews)
-    //     {
-    //         Framebuffer fb = Framebuffer{
-    //             .width  = static_cast<uint32>(size.x),
-    //             .height = static_cast<uint32>(size.y),
-    //             .layers = 1,
-    //         };
-    //
-    //         fb.AttachRenderPass(fp).AddImageView(iv).AddImageView(additionalWindow.depthImg->GetImage()._ptrImgView).Create();
-    //         additionalWindow.framebuffers.push_back(fb);
-    //     }
-    //  }
-    //
-    //  void RenderEngine::UpdateAdditionalWindow(const String& nameID, const Vector2& pos, const Vector2& size)
-    //  {
-    //       const StringID sid = TO_SID(nameID);
-    //       DestroyAdditionalWindow(nameID);
-    //       CreateAdditionalWindow(nameID, pos, size);
-    //  }
-    //
-    //  void RenderEngine::DestroyAdditionalWindow(const String& nameID)
-    //  {
-    //     const StringID sid = TO_SID(nameID);
-    //     auto&          w   = m_additionalWindows[sid];
-    //
-    //     delete w.depthImg;
-    //     w.swapchain->Destroy();
-    //     for (auto& fb : w.framebuffers)
-    //         fb.Destroy();
-    //  }
 
 } // namespace Lina::Graphics

@@ -386,4 +386,9 @@ namespace Lina
         *this = glm::normalize(glm::vec2(*this));
     }
 
+    /////////////////////////////////////
+    bool Vector2i::Equals(const Vector2i& other, int epsilon) const
+    {
+        return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon);
+    }
 } // namespace Lina

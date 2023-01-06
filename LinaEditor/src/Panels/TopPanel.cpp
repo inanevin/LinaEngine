@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Resource/Core/ResourceManager.hpp"
 #include "GUI/CustomWidgets/MenuPopup.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Time.hpp"
 
 namespace Lina::Editor
@@ -176,20 +176,18 @@ namespace Lina::Editor
         m_currentSize = Vector2(screenSize.x, display.y * 0.084f);
 
         auto& theme = LGUI->GetTheme();
-        theme.PushColor(ThemeColor::Window, ThemeColor::TopPanelBackground);
 
-        const String name = "TopPanel";
+        constexpr const char* name = "TopPanel";
         LGUI->SetWindowSize(name, m_currentSize);
-        if (LGUI->BeginWindow(name, IMW_FixedWindow))
-        {
-            theme.PopColor();
+        LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
 
+        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize))
+        {
             DrawFileMenu();
             m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
             DrawLinaLogo();
             DrawButtons();
             DrawControls();
-
             LGUI->EndWindow();
         }
     }
@@ -267,8 +265,8 @@ namespace Lina::Editor
             {
                 const String versionText = "Lina Engine: " + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b." + TO_STRING(LINA_BUILD);
                 const String configText  = "Configuration: " + String(LINA_CONFIGURATION);
-                Widgets::Text(versionText, 400);
-                Widgets::Text(configText, 400);
+                Widgets::Text(versionText.c_str(), 400);
+                Widgets::Text(configText.c_str(), 400);
                 Widgets::EndPopup();
             }
         }
@@ -302,7 +300,7 @@ namespace Lina::Editor
         w.SetPenPos(Vector2(closeStart, penY));
         if (Widgets::ButtonIcon(m_closeSid, buttonSize, mask))
         {
-            Graphics::Window::Get()->Close();
+            
         }
 
         theme.PopColor();
@@ -328,15 +326,12 @@ namespace Lina::Editor
         auto& w     = LGUI->GetCurrentWindow();
         auto& theme = LGUI->GetTheme();
 
-        LinaVG::StyleOptions controlsBG;
-        controlsBG.color = LV4(theme.GetColor(ThemeColor::Light5));
-
-        const Vector2 pos  = Vector2(0, m_currentSize.y * 0.55f);
-        const String  name = "TopPanelControls";
+        const Vector2         pos  = Vector2(0, m_currentSize.y * 0.55f);
+        constexpr const char* name = "TopPanelControls";
         LGUI->SetWindowPosition(name, pos);
         LGUI->SetWindowSize(name, Vector2(m_currentSize.x, m_currentSize.y * 0.45f));
 
-        if (LGUI->BeginWindow(name, IMW_FixedWindow))
+        if (LGUI->BeginWindow(name))
         {
             LGUI->EndWindow();
         }

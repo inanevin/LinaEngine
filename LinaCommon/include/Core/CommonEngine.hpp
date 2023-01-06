@@ -38,6 +38,11 @@ SOFTWARE.
 
 namespace Lina
 {
+    namespace Editor
+    {
+        class Editor;
+    }
+
     class DefaultResources
     {
     public:
@@ -50,6 +55,7 @@ namespace Lina
 
     private:
         friend class Engine;
+        friend class Editor::Editor;
         static HashMap<TypeID, Vector<String>> s_engineResources;
     };
 

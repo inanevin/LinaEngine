@@ -67,6 +67,7 @@ namespace Lina
         // calulate in compile-time
         template <unsigned int N> constexpr FnvHash(const char (&str)[N]) : hash_value(fnvHashConst(str))
         {
+            
         }
         // output result
         constexpr operator unsigned int() const

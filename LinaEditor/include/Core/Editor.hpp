@@ -43,12 +43,14 @@ namespace Lina
     namespace Graphics
     {
         class GameRenderer;
-    }
+        class WindowManager;
+    } // namespace Graphics
 
     namespace Event
     {
         struct ELevelInstalled;
         struct EPreMainLoop;
+        struct EEngineResourcesLoaded;
     } // namespace Event
 
     namespace World
@@ -66,28 +68,29 @@ namespace Lina
 
 namespace Lina::Editor
 {
+    class DockSetup;
+
     class Editor
     {
     public:
         Editor()          = default;
         virtual ~Editor() = default;
 
-        void                OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void                Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swp, Graphics::GUIBackend* guiBackend);
-        void                Shutdown();
-        void                VerifyStaticResources();
-        void                CreateEditorCamera();
-        void                DeleteEditorCamera();
-        void                SaveCurrentLevel();
-        void                PackageProject();
-        void                SetPlayMode(bool enabled);
-        void                SetIsPaused(bool paused);
-        void                SkipNextFrame();
-        Vector<const char*> GetDefaultTextures();
-        Vector<const char*> GetDefaultFonts();
+        void Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swp, Graphics::GUIBackend* guiBackend, Graphics::WindowManager* windowManager);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void Shutdown();
+        void VerifyStaticResources();
+        void RegisterResourceTypes();
+        void CreateEditorCamera();
+        void DeleteEditorCamera();
+        void SaveCurrentLevel();
+        void PackageProject();
+        void SetPlayMode(bool enabled);
+        void SetIsPaused(bool paused);
+        void SkipNextFrame();
 
     private:
-        void OnPreMainLoop(const Event::EPreMainLoop& ev);
+        void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
 
     private:
         friend class Engine;
@@ -102,6 +105,7 @@ namespace Lina::Editor
         World::LevelManager*             m_levelManager = nullptr;
         World::EntityWorld*              m_world        = nullptr;
         Engine*                          m_engine       = nullptr;
+        DockSetup*                       m_dockSetup;
     };
 } // namespace Lina::Editor
 
