@@ -49,7 +49,15 @@ namespace Lina
     {
         class Swapchain;
         class WindowManager;
+        class Window;
     } // namespace Graphics
+
+    namespace Event
+    {
+        struct EWindowFocused;
+        struct EAdditionalSwapchainCreated;
+        struct EAdditionalSwapchainDestroyed;
+    } // namespace Event
 } // namespace Lina
 
 namespace Lina::Editor
@@ -61,13 +69,13 @@ namespace Lina::Editor
 
     enum ImmediateWindowMask
     {
-        IMW_None                 = 0,
-        IMW_UseAbsoluteDrawOrder = 1,
-        IMW_CantDock             = 2,
-        IMW_CantHostDock         = 3,
-        IMW_MainSwapchain        = 4,
-        IMW_NoMove               = 5,
-        IMW_NoResize             = 6,
+        IMW_None                 = 1 << 0,
+        IMW_UseAbsoluteDrawOrder = 1 << 1,
+        IMW_CantDock             = 1 << 2,
+        IMW_CantHostDock         = 1 << 3,
+        IMW_MainSwapchain        = 1 << 4,
+        IMW_NoMove               = 1 << 5,
+        IMW_NoResize             = 1 << 6,
     };
 
     struct SwapchainInfo
@@ -192,25 +200,26 @@ namespace Lina::Editor
         void EndFrame();
 
         // Window
-        bool             BeginWindow(const char* name, Bitmask16 mask = 0);
-        bool             BeginPopup(const char* name);
+        bool             BeginWindow(const char* name, Bitmask16 mask = 0, const Vector2i& pos = Vector2i::Zero);
+        bool             BeginPopup(const char* name, const Vector2i& pos = Vector2i::Zero);
         void             EndWindow();
         void             EndPopup();
         void             SetWindowSize(const char* str, const Vector2& size);
-        void             SetWindowPosition(const char* str, const Vector2& pos);
         void             SetWindowColor(const char* str, const Color& col);
         ImmediateWindow& GetCurrentWindow();
 
         // Utility
-        bool    IsMouseHoveringRect(const Rect& rect);
-        Vector2 GetMousePosition();
-        Vector2 GetMouseDelta();
-        bool    GetMouseButtonDown(int button);
-        bool    GetMouseButtonUp(int button);
-        bool    GetMouseButton(int button);
-        bool    GetMouseButtonClicked(int button);
-        bool    GetMouseButtonDoubleClicked(int button);
-        bool    GetKeyDown(int key);
+        bool     IsPointInRect(const Vector2i& p, const Recti& rect);
+        bool     IsMouseHoveringRect(const Rect& rect);
+        Vector2i GetMousePosition();
+        Vector2i GetMousePositionAbs();
+        Vector2i GetMouseDelta();
+        bool     GetMouseButtonDown(int button);
+        bool     GetMouseButtonUp(int button);
+        bool     GetMouseButton(int button);
+        bool     GetMouseButtonClicked(int button);
+        bool     GetMouseButtonDoubleClicked(int button);
+        bool     GetKeyDown(int key);
 
         inline void SetAbsoluteDrawOrder(int drawOrder)
         {
@@ -228,19 +237,31 @@ namespace Lina::Editor
             return m_iconTexture;
         }
 
+        inline StringID GetHoveredSwapchainID()
+        {
+            return m_hoveredSwapchainSID;
+        }
+
+        inline StringID GetHoveredWindowID()
+        {
+            return m_hoveredWindowSID;
+        }
+
     private:
         friend class Editor;
         friend class EditorRenderer;
-
-        void Initialize(EditorRenderer* renderer, Graphics::WindowManager* windowManager);
 
         inline void SetCurrentSwapchain(Graphics::Swapchain* swapchain)
         {
             m_currentSwapchain = swapchain;
         }
 
-        void           SetupDocks(DockSetup* setup);
-        SwapchainInfo& CreateSwapchain(const char* str, const Vector2& pos, const Vector2& size);
+        void Initialize(EditorRenderer* renderer, Graphics::WindowManager* windowManager);
+        void Shutdown();
+        void SetupDocks(DockSetup* setup);
+        void OnWindowFocused(const Event::EWindowFocused& ev);
+        void OnAdditionalSwapchainCreated(const Event::EAdditionalSwapchainCreated& ev);
+        void OnAdditionalSwapchainDestroyed(const Event::EAdditionalSwapchainDestroyed& ev);
 
     private:
         static ImmediateGUI*               s_instance;
@@ -254,6 +275,10 @@ namespace Lina::Editor
         Graphics::Swapchain*               m_currentSwapchain = nullptr;
         DockSetup*                         m_dockSetup        = nullptr;
         Graphics::WindowManager*           m_windowManager    = nullptr;
+
+        StringID m_lastFocusedSwapchainSID = 0;
+        StringID m_hoveredSwapchainSID     = 0;
+        StringID m_hoveredWindowSID        = 0;
     };
 
 #define LGUI ImmediateGUI::Get()

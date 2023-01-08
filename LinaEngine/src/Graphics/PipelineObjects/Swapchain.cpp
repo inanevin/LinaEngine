@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Fence.hpp"
 #include "Core/CommonEngine.hpp"
 #include "Log/Log.hpp"
+#include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
@@ -71,8 +72,13 @@ namespace Lina::Graphics
         size.y = vkbSwapchain.extent.height;
 
         for (VkImage img : imgs)
+        {
             _images.push_back(img);
 
+            Image depthImg;
+            VulkanUtility::CreateDefaultPassImageDepth(depthImg, true, size.x, size.y);
+            _depthImages.push_back(depthImg);
+        }
         for (VkImageView view : views)
             _imageViews.push_back(view);
     }
@@ -93,6 +99,11 @@ namespace Lina::Graphics
             _images.clear();
             _imageViews.clear();
             _ptr = nullptr;
+
+            for (auto t : _depthImages)
+                t.Destroy();
+
+            _depthImages.clear();
         }
     }
 

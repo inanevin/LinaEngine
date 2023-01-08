@@ -48,7 +48,7 @@ namespace Lina::Graphics
     private:
     public:
         // Inherited via Window
-        virtual bool Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size) override;
+        virtual bool Create(WindowManager* wm, void* parent, const char* title, const Vector2i& pos, const Vector2i& size) override;
         virtual void Destroy() override;
         virtual void SetSize(const Vector2i& newSize) override;
         virtual void SetPos(const Vector2i& newPos) override;
@@ -60,6 +60,7 @@ namespace Lina::Graphics
         virtual void SetToFullscreen() override;
         virtual void SetCustomStyle(bool decorated, bool resizable) override;
         virtual void ShowHideWindow(bool show) override;
+        virtual void SetFocus(bool hasFocus) override;
         virtual bool GetIsAppActive() const override
         {
             return s_isAppActive;

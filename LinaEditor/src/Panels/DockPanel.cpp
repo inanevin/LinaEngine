@@ -46,12 +46,11 @@ namespace Lina::Editor
         auto&         theme  = LGUI->GetTheme();
         const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
         constexpr const char* name   = "DockPanel";
-        LGUI->SetWindowPosition(name, m_pos);
         LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));
         LGUI->SetAbsoluteDrawOrder(0);
 
         LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
-        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize))
+        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize, m_pos))
         {
             LGUI->EndWindow();
         }

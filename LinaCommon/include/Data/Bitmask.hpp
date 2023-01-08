@@ -49,6 +49,11 @@ namespace Lina
             return (m_mask & m) != 0;
         }
 
+        inline bool IsAllSet(T bits) const
+        {
+            return (m_mask & bits) == bits;
+        }
+
         inline void Set(T m)
         {
             m_mask |= m;

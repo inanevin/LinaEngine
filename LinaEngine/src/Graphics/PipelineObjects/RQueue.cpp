@@ -147,7 +147,7 @@ namespace Lina::Graphics
         res = GetResult(result);
     }
 
-    void RQueue::Present(const Vector<Semaphore*>& waitSemaphores, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices) const
+    void RQueue::Present(const Vector<Semaphore*>& waitSemaphores, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices, VulkanResult& res) const
     {
         Vector<VkSwapchainKHR> _swapchains;
         Vector<VkSemaphore>    _waitSemaphores;
@@ -170,6 +170,7 @@ namespace Lina::Graphics
 
         VkResult result = vkQueuePresentKHR(_ptr, &info);
         LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
+        res = GetResult(result);
     }
 
     void RQueue::WaitIdle() const

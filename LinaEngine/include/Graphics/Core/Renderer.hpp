@@ -134,7 +134,7 @@ namespace Lina::Graphics
         virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager);
         virtual void Shutdown();
         virtual void MergeMeshes();
-        virtual bool HandleOutOfDateImage(VulkanResult res);
+        virtual bool HandleOutOfDateImage(VulkanResult res, bool checkSemaphoreSignal);
         virtual void ConnectEvents();
         virtual void DisconnectEvents();
         virtual void Join();

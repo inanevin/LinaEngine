@@ -145,8 +145,6 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
 
         m_topPanel.Initialize();
-        LGUI->SetWindowPosition("TestWindow", Vector2(200, 200));
-        LGUI->SetWindowPosition("TestWindow2", Vector2(800, 200));
     }
 
     void EditorGUIManager::Shutdown()
@@ -163,25 +161,36 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
+        m_topPanel.Draw();
+
+        m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+
+        m_dockPanel.Draw();
+        constexpr const char* aq = "TestWindow";
+        LGUI->SetWindowSize(aq, Vector2(500, 500));
+
+        if (LGUI->BeginWindow(aq))
+        {
+            LinaVG::StyleOptions style;
+            style.color = LV4(Color::DarkBlue);
+            // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
+            LGUI->EndWindow();
+        }
+
+        constexpr const char* aq2 = "TestWindow2";
+        LGUI->SetWindowSize(aq2, Vector2(500, 500));
+
+        if (LGUI->BeginWindow(aq2))
+        {
+            LinaVG::StyleOptions style;
+            style.color = LV4(Color::DarkBlue);
+            // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
+            LGUI->EndWindow();
+        }
+
+        return;
         // LinaVG::StyleOptions style;
         // LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
-      //  m_topPanel.Draw();
-
-        // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
-
-        //m_dockPanel.Draw();
-//
-//  constexpr const char* aq = "TestWindow";
-//  LGUI->SetWindowSize(aq, Vector2(500, 500));
-//  LGUI->SetWindowPosition(aq, Vector2(0, 0));
-//
-//  if (LGUI->BeginWindow(aq))
-//  {
-//      LinaVG::StyleOptions style;
-//      style.color = LV4(Color::DarkBlue);
-//      // LinaVG::DrawRect(LV2(Vector2(0,0)), LV2(Vector2(500,500)), style, 0, 100);
-//      LGUI->EndWindow();
-//  }
 
         //  const String aq2 = "TestWindow2";
         //  LGUI->SetWindowSize(aq2, Vector2(500, 500));

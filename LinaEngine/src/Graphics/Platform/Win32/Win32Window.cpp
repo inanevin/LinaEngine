@@ -293,8 +293,9 @@ namespace Lina::Graphics
         return DefWindowProcA(window, msg, wParam, lParam);
     }
 
-    bool Win32Window::Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
+    bool Win32Window::Create(WindowManager* wm , void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
     {
+        m_windowManager = wm;
         if (parent == nullptr)
             s_isAppActive = true;
 
@@ -316,7 +317,7 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, title, title, parent == nullptr ? 0 : WS_POPUP, 0, 0, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
+        m_window = CreateWindowExA(WS_EX_APPWINDOW, title, title, parent == nullptr ? 0 : WS_POPUP | WS_CAPTION, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
         m_title  = title;
 
         if (m_window == nullptr)
@@ -428,6 +429,12 @@ namespace Lina::Graphics
     void Win32Window::ShowHideWindow(bool show)
     {
         ShowWindow(m_window, show ? SW_SHOW : SW_HIDE);
+    }
+
+    void Win32Window::SetFocus(bool hasFocus)
+    {
+        m_hasFocus = hasFocus;
+        m_windowManager->OnWindowFocused(m_sid);
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)

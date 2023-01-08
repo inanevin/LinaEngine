@@ -256,38 +256,15 @@ namespace Lina::Graphics
         CMD_BeginRendering(renderingInfo);
     }
 
-    void CommandBuffer::CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea) const
-    {
-        ClearValue clearValue = ClearValue{
-            .clearColor = Color::Gray,
-            .isColor    = true,
-        };
-        RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{
-            .imageView   = colorImageView,
-            .imageLayout = ImageLayout::AttachmentOptimal,
-            .loadOp      = LoadOp::Clear,
-            .storeOp     = StoreOp::Store,
-            .clearValue  = clearValue,
-        };
-        RenderingInfo renderingInfo = RenderingInfo{
-            .renderArea         = renderArea,
-            .layerCount         = 1,
-            .useDepthAttachment = false,
-        };
-
-        renderingInfo.colorAttachments.push_back(colorAttachment);
-        CMD_BeginRendering(renderingInfo);
-    }
-
     void CommandBuffer::CMD_EndRendering() const
     {
         pfn_vkCmdEndRenderingKHR(_ptr);
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img) const
+    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img, ImageAspectFlags aspect) const
     {
         ImageSubresourceRange subresRange = ImageSubresourceRange{
-            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
+            .aspectFlags    = GetImageAspectFlags(aspect),
             .baseMipLevel   = 0,
             .levelCount     = 1,
             .baseArrayLayer = 0,

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
 #include "Graphics/Core/GraphicsCommon.hpp"
+#include "Image.hpp"
 
 struct VkImage_T;
 struct VkImageView_T;
@@ -45,6 +46,7 @@ namespace Lina::Graphics
 {
     class Semaphore;
     class Fence;
+
     class Swapchain
     {
     public:
@@ -56,7 +58,7 @@ namespace Lina::Graphics
 
         // Desired
         Vector2i        size        = Vector2i();
-        Vector2         pos         = Vector2::Zero;
+        Vector2i        pos         = Vector2i::Zero;
         Format          format      = Format::B8G8R8A8_SRGB;
         ColorSpace      colorSpace  = ColorSpace::SRGB_NONLINEAR;
         PresentMode     presentMode = PresentMode::Immediate;
@@ -70,6 +72,7 @@ namespace Lina::Graphics
         Vector<VkImageView_T*> _imageViews;
         VkFormat               _format;
         void*                  _windowHandle = nullptr;
+        Vector<Image>          _depthImages;
     };
 } // namespace Lina::Graphics
 

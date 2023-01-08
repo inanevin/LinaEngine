@@ -48,15 +48,13 @@ SOFTWARE.
 using namespace Lina::Graphics;
 namespace Lina::Editor
 {
-    void EditorRenderer::CreateAdditionalWindow(const String& name, void** handle, Graphics::Swapchain** swp, const Vector2i& pos, const Vector2i& size)
+    void EditorRenderer::CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size)
     {
         LOCK_GUARD(m_additionalWindowMtx);
         AdditionalWindowRequest req = AdditionalWindowRequest{
-            .name   = name,
-            .handle = handle,
-            .swp    = swp,
-            .pos    = pos,
-            .size   = size,
+            .name = name,
+            .pos  = pos,
+            .size = size,
         };
 
         m_additionalWindowRequests.push_back(req);
@@ -64,11 +62,7 @@ namespace Lina::Editor
 
     void EditorRenderer::RemoveAdditionalWindow(StringID sid)
     {
-        auto  it = m_additionalWindows.find(sid);
-        auto& wd = it->second;
-        Backend::Get()->DestroyAdditionalSwapchain(sid);
-        m_windowManager->DestroyAppWindow(sid);
-        m_additionalWindows.erase(it);
+        m_additionalWindowRemoveRequests.push_back({sid});
     }
 
     void EditorRenderer::Tick()
@@ -135,13 +129,11 @@ namespace Lina::Editor
             const bool                            isMainSwapchain = fd.swp == m_swapchain;
             EditorRenderer::AdditionalWindowData* wd              = isMainSwapchain ? nullptr : GetWindowDataFromSwapchain(fd.swp);
             VulkanResult                          res;
-            const uint32                          imageIndex         = fd.swp->AcquireNextImage(1.0, isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex], res);
-            auto                                  swapchainImage     = fd.swp->_images[imageIndex];
-            auto                                  swapchainImageView = fd.swp->_imageViews[imageIndex];
+            const uint32                          imageIndex = fd.swp->AcquireNextImage(1.0, isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex], res);
 
             if (isMainSwapchain)
             {
-                if (HandleOutOfDateImage(res))
+                if (HandleOutOfDateImage(res, true))
                     return;
             }
             else
@@ -156,7 +148,6 @@ namespace Lina::Editor
 
         frame.graphicsFence.Reset();
 
-        LinaVG::StartFrame();
         LGUI->StartFrame();
 
         for (auto& fd : allFrameData)
@@ -222,11 +213,14 @@ namespace Lina::Editor
             // ********* FINAL PASS *********
             {
                 PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
-
-                auto image     = fd.swp->_images[fd.imageIndex];
-                auto imageView = fd.swp->_imageViews[fd.imageIndex];
+                LinaVG::StartFrame();
+                auto image          = fd.swp->_images[fd.imageIndex];
+                auto imageView      = fd.swp->_imageViews[fd.imageIndex];
+                auto depthImage     = fd.swp->_depthImages[fd.imageIndex]._allocatedImg.image;
+                auto depthImageView = fd.swp->_depthImages[fd.imageIndex]._ptrImgView;
 
                 fd.cmd->CMD_ImageTransition_ToColorOptimal(image);
+                fd.cmd->CMD_ImageTransition_ToDepthOptimal(depthImage);
 
                 // Issue GUI commands
                 m_guiBackend->Prepare(fd.swp, fd.imageIndex, fd.cmd);
@@ -234,12 +228,13 @@ namespace Lina::Editor
                 Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
                 // Actually draw commands
-                fd.cmd->CMD_BeginRenderingFinal(imageView, defaultRenderArea);
+                fd.cmd->CMD_BeginRenderingDefault(imageView, depthImageView, defaultRenderArea);
                 m_guiBackend->RecordDrawCommands();
                 fd.cmd->CMD_EndRendering();
 
                 // Make sure presentable
-                fd.cmd->CMD_ImageTransition_ToPresent(image);
+                fd.cmd->CMD_ImageTransition_ToPresent(image, ImageAspectFlags::AspectColor);
+                LinaVG::EndFrame();
                 PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
             }
 
@@ -247,7 +242,6 @@ namespace Lina::Editor
         }
 
         LGUI->EndFrame();
-        LinaVG::EndFrame();
 
         Vector<Semaphore*>     allSubmitSemaphores;
         Vector<Semaphore*>     allPresentSemaphores;
@@ -267,8 +261,10 @@ namespace Lina::Editor
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
+        VulkanResult presentRes;
         Backend::Get()->GetGraphicsQueue().Submit(allSubmitSemaphores, allPresentSemaphores, frame.graphicsFence, allCommandBuffers, 1);
-        Backend::Get()->GetGraphicsQueue().Present(allPresentSemaphores, allSwapchains, allImageIndices);
+        Backend::Get()->GetGraphicsQueue().Present(allPresentSemaphores, allSwapchains, allImageIndices, presentRes);
+        HandleOutOfDateImage(presentRes, false);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -289,10 +285,10 @@ namespace Lina::Editor
             auto* windowPtr     = createdWindow.GetHandle();
             auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(r.size.x), static_cast<int>(r.size.y));
             auto& data          = m_additionalWindows[sid];
-            *r.swp              = swapchainPtr;
-            *r.handle           = windowPtr;
 
             data.swapchain = swapchainPtr;
+
+            Event::EventSystem::Get()->Trigger<Event::EAdditionalSwapchainCreated>(Event::EAdditionalSwapchainCreated{.sid = sid, .pos = r.pos, .size = r.size, .windowPtr = windowPtr, .swp = swapchainPtr});
 
             for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             {
@@ -313,6 +309,18 @@ namespace Lina::Editor
         }
 
         m_additionalWindowRequests.clear();
+
+        for (auto& r : m_additionalWindowRemoveRequests)
+        {
+            auto  it = m_additionalWindows.find(r.sid);
+            auto& wd = it->second;
+            Backend::Get()->DestroyAdditionalSwapchain(r.sid);
+            m_windowManager->DestroyAppWindow(r.sid);
+            m_additionalWindows.erase(it);
+            Event::EventSystem::Get()->Trigger<Event::EAdditionalSwapchainDestroyed>({r.sid});
+        }
+
+        m_additionalWindowRemoveRequests.clear();
     }
 
     bool EditorRenderer::HandleOutOfDateImageAdditional(AdditionalWindowData* wd, VulkanResult res)

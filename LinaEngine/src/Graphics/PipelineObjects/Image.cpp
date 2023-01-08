@@ -71,12 +71,10 @@ namespace Lina::Graphics
 
     void Image::Destroy()
     {
-        if (_allocatedImg.allocation == nullptr)
-            return;
-
         if (_ptrImgView != nullptr)
             vkDestroyImageView(Backend::Get()->GetDevice(), _ptrImgView, nullptr);
 
-        vmaDestroyImage(Backend::Get()->GetVMA(), _allocatedImg.image, _allocatedImg.allocation);
+        if (_allocatedImg.allocation != nullptr)
+            vmaDestroyImage(Backend::Get()->GetVMA(), _allocatedImg.image, _allocatedImg.allocation);
     }
 } // namespace Lina::Graphics

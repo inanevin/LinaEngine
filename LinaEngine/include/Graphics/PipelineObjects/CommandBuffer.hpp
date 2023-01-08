@@ -71,12 +71,11 @@ namespace Lina::Graphics
         void CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter) const;
         void CMD_BeginRendering(RenderingInfo& info) const;
         void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea) const;
-        void CMD_BeginRenderingFinal(VkImageView_T* colorImageView, const Recti& renderArea) const;
         void CMD_EndRendering() const;
         void CMD_ImageTransition_ToColorOptimal(VkImage_T* img) const;
         void CMD_ImageTransition_ToColorShaderRead(VkImage_T* img) const;
         void CMD_ImageTransition_ToDepthOptimal(VkImage_T* img) const;
-        void CMD_ImageTransition_ToPresent(VkImage_T* img) const;
+        void CMD_ImageTransition_ToPresent(VkImage_T* img, ImageAspectFlags aspect) const;
         void End() const;
 
         // Description

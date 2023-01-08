@@ -145,9 +145,8 @@ namespace Lina::Editor
 
     bool Widgets::BeginPopup(const char* str, const Vector2& pos, const Vector2& size)
     {
-        LGUI->SetWindowPosition(str, pos);
         LGUI->SetWindowSize(str, size);
-        return LGUI->BeginPopup(str);
+        return LGUI->BeginPopup(str, pos);
     }
 
     void Widgets::EndPopup()

@@ -72,18 +72,21 @@ namespace Lina::Editor
 
         struct AdditionalWindowRequest
         {
-            String                name   = "";
-            void**                handle = nullptr;
-            Graphics::Swapchain** swp    = nullptr;
-            Vector2i              pos    = Vector2i::Zero;
-            Vector2i              size   = Vector2i::Zero;
+            String   name = "";
+            Vector2i pos  = Vector2i::Zero;
+            Vector2i size = Vector2i::Zero;
+        };
+
+        struct AdditionalWindowRemoveRequest
+        {
+            StringID sid = 0;
         };
 
     protected:
         friend class Editor;
         friend class ImmediateGUI;
 
-        void CreateAdditionalWindow(const String& name, void** handle, Graphics::Swapchain** swp, const Vector2i& pos, const Vector2i& size);
+        void CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
         void RemoveAdditionalWindow(StringID sid);
 
         virtual void Tick() override;
@@ -100,6 +103,7 @@ namespace Lina::Editor
         HashMap<StringID, AdditionalWindowData> m_additionalWindows;
         Mutex                                   m_additionalWindowMtx;
         Vector<AdditionalWindowRequest>         m_additionalWindowRequests;
+        Vector<AdditionalWindowRemoveRequest>   m_additionalWindowRemoveRequests;
     };
 } // namespace Lina::Editor
 

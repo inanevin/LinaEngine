@@ -155,8 +155,8 @@ namespace Lina
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
         {
-            // m_editor.m_renderer = new Editor::EditorRenderer();
-            //  renderer            = m_editor.m_renderer;
+            m_editor.m_renderer = new Editor::EditorRenderer();
+            renderer            = m_editor.m_renderer;
             m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
         }
 #endif
@@ -222,20 +222,17 @@ namespace Lina
         m_inputEngine.Tick();
 
         // Render
-       // m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
-       //     m_renderEngine.Render();
-       //     m_frames++;
-       // });
+        m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+            m_renderEngine.Render();
+            m_frames++;
+        });
 
         // Game sim, physics + update etc.
         RunSimulation((float)Time::s_deltaTime);
         m_updates++;
 
-         m_renderEngine.Render();
-            m_frames++;
-
         // Wait for all.
-        // m_renderJob.get();
+        m_renderJob.get();
 
         // Sync previous frame.
         m_renderEngine.SyncData();

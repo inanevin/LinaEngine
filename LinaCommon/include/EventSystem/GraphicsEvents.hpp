@@ -40,7 +40,8 @@ namespace Lina
     namespace Graphics
     {
         class CommandBuffer;
-    }
+        class Swapchain;
+    } // namespace Graphics
 } // namespace Lina
 namespace Lina::Event
 {
@@ -94,12 +95,20 @@ namespace Lina::Event
         bool       half      = false;
         Quaternion rotation  = Quaternion();
     };
-    struct ESwapchainRecreated
+
+    struct EAdditionalSwapchainCreated
     {
-        void* oldPtr = nullptr;
-        void* newPtr = nullptr;
+        StringID             sid       = 0;
+        Vector2i             pos       = Vector2i::Zero;
+        Vector2i             size      = Vector2i::Zero;
+        void*                windowPtr = nullptr;
+        Graphics::Swapchain* swp       = nullptr;
     };
 
+    struct EAdditionalSwapchainDestroyed
+    {
+        StringID sid = 0;
+    };
 } // namespace Lina::Event
 
 #endif

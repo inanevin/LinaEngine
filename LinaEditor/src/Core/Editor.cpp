@@ -78,6 +78,7 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         m_guiManager.Shutdown();
+        m_gui.Shutdown();
     }
 
     void Editor::VerifyStaticResources()

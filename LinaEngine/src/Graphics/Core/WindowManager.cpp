@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/Screen.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
+#include "Data/DataCommon.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Graphics/Platform/Win32/Win32Window.hpp"
@@ -61,7 +62,7 @@ namespace Lina::Graphics
 #endif
 
         m_mainWindowSID = TO_SIDC(props.title);
-        if (!CreateAppWindow(nullptr, props.title, Vector2i::Zero, Vector2i(props.width, props.height), false))
+        if (!CreateAppWindow(nullptr, props.title, Vector2i::Zero, Vector2i(props.width, props.height), false, LINA_MAIN_SWAPCHAIN_ID))
         {
             LINA_ERR("[Window Manager] -> Failed to initialize!");
             return false;
@@ -116,12 +117,17 @@ namespace Lina::Graphics
         m_windows.clear();
     }
 
-    bool WindowManager::CreateAppWindow(void* parentHandle, const char* title, const Vector2i& pos, const Vector2i& size, bool showImmediately)
+    bool WindowManager::CreateAppWindow(void* parentHandle, const char* title, const Vector2i& pos, const Vector2i& size, bool showImmediately, StringID explicitSid)
     {
         const StringID sid    = TO_SIDC(title);
         Window*        window = new WINDOW_SUBCLASS();
 
-        if (!window->Create(parentHandle, title, pos, size))
+        if (explicitSid != 0)
+            window->m_sid = explicitSid;
+        else
+            window->m_sid = sid;
+
+        if (!window->Create(this, parentHandle, title, pos, size))
         {
             delete window;
             return false;
@@ -142,9 +148,44 @@ namespace Lina::Graphics
         delete window;
         m_windows.erase(it);
     }
+
     void WindowManager::SetVsync(VsyncMode mode)
     {
         m_vsync = mode;
         Event::EventSystem::Get()->Trigger<Event::EVsyncModeChanged>(Event::EVsyncModeChanged{.newMode = mode});
+    }
+
+    void WindowManager::OnWindowFocused(StringID sid)
+    {
+        auto it = linatl::find_if(m_drawOrders.begin(), m_drawOrders.end(), [&](auto orderedSid) { return sid == orderedSid; });
+
+        if (it == m_drawOrders.end())
+            m_drawOrders.push_back(sid);
+        else
+        {
+            StringID hmm = *it;
+            m_drawOrders.erase(it);
+            m_drawOrders.push_back(sid);
+        }
+    }
+
+    int WindowManager::GetWindowZOrder(StringID sid)
+    {
+        if (sid == LINA_MAIN_SWAPCHAIN_ID)
+            return 0;
+        else
+        {
+            int index = 0;
+
+            for (auto& s : m_drawOrders)
+            {
+                if (s == sid)
+                    return index;
+
+                index++;
+            }
+        }
+
+        return 0;
     }
 } // namespace Lina::Graphics

@@ -300,7 +300,6 @@ namespace Lina::Editor
         w.SetPenPos(Vector2(closeStart, penY));
         if (Widgets::ButtonIcon(m_closeSid, buttonSize, mask))
         {
-            
         }
 
         theme.PopColor();
@@ -328,10 +327,13 @@ namespace Lina::Editor
 
         const Vector2         pos  = Vector2(0, m_currentSize.y * 0.55f);
         constexpr const char* name = "TopPanelControls";
-        LGUI->SetWindowPosition(name, pos);
         LGUI->SetWindowSize(name, Vector2(m_currentSize.x, m_currentSize.y * 0.45f));
 
-        if (LGUI->BeginWindow(name))
+        Bitmask16 mask = IMW_NoMove | IMW_NoResize;
+        Bitmask16 mask2 = IMW_UseAbsoluteDrawOrder;
+        auto bol = mask.IsSet(IMW_UseAbsoluteDrawOrder);
+        auto bol2 = mask2.IsSet(IMW_UseAbsoluteDrawOrder);
+        if (LGUI->BeginWindow(name, mask, pos))
         {
             LGUI->EndWindow();
         }

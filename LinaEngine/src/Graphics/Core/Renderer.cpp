@@ -327,12 +327,12 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
     }
 
-    bool Renderer::HandleOutOfDateImage(VulkanResult res)
+    bool Renderer::HandleOutOfDateImage(VulkanResult res, bool checkSemaphoreSignal)
     {
         bool shouldRecreate = false;
 
         if (res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-            shouldRecreate      = true;
+            shouldRecreate = true;
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
@@ -343,16 +343,12 @@ namespace Lina::Graphics
             Vector2i size = m_lastMainSwapchainSize;
 
             if (size.x == 0 || size.y == 0)
-            {
-                // Make sure the semaphore is unsignalled after resize operation.
-                //Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
                 return true;
-            }
 
             // Swapchain
             m_swapchain->Destroy();
             m_swapchain->size = size;
-            m_swapchain->Create(0);
+            m_swapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
 
             // Make sure we always match swapchain
             size = m_swapchain->size;
@@ -376,7 +372,8 @@ namespace Lina::Graphics
             UpdateViewport(size);
 
             // Make sure the semaphore is unsignalled after resize operation.
-            //Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
+            if (checkSemaphoreSignal)
+                Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
 
             return true;
         }

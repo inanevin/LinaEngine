@@ -51,19 +51,20 @@ namespace Lina::Graphics
         Window()          = default;
         virtual ~Window() = default;
 
-        virtual bool Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size) = 0;
-        virtual void Destroy()                                                                          = 0;
-        virtual void SetSize(const Vector2i& newSize)                                                   = 0;
-        virtual void SetPos(const Vector2i& newPos)                                                     = 0;
-        virtual void SetTitle(const char*)                                                              = 0;
-        virtual void Minimize()                                                                         = 0;
-        virtual void Maximize()                                                                         = 0;
-        virtual void Close()                                                                            = 0;
-        virtual void SetToWorkingArea()                                                                 = 0;
-        virtual void SetToFullscreen()                                                                  = 0;
-        virtual void SetCustomStyle(bool decorated, bool resizable)                                     = 0;
-        virtual bool GetIsAppActive() const                                                             = 0;
-        virtual void ShowHideWindow(bool show)                                                          = 0;
+        virtual bool Create(WindowManager* wm, void* parent, const char* title, const Vector2i& pos, const Vector2i& size) = 0;
+        virtual void Destroy()                                                                                             = 0;
+        virtual void SetSize(const Vector2i& newSize)                                                                      = 0;
+        virtual void SetPos(const Vector2i& newPos)                                                                        = 0;
+        virtual void SetTitle(const char*)                                                                                 = 0;
+        virtual void Minimize()                                                                                            = 0;
+        virtual void Maximize()                                                                                            = 0;
+        virtual void Close()                                                                                               = 0;
+        virtual void SetToWorkingArea()                                                                                    = 0;
+        virtual void SetToFullscreen()                                                                                     = 0;
+        virtual void SetCustomStyle(bool decorated, bool resizable)                                                        = 0;
+        virtual bool GetIsAppActive() const                                                                                = 0;
+        virtual void ShowHideWindow(bool show)                                                                             = 0;
+        virtual void SetFocus(bool hasFocus)                                                                               = 0;
 
         /// <summary>
         /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
@@ -114,22 +115,25 @@ namespace Lina::Graphics
             return m_hasFocus;
         }
 
-        inline void SetFocus(bool focus)
+        inline StringID GetSID() const
         {
-            m_hasFocus = focus;
+            return m_sid;
         }
 
     protected:
-        Vector2i    m_size           = Vector2i::Zero;
-        Vector2i    m_pos            = Vector2i::Zero;
-        bool        m_isMinimized    = false;
-        bool        m_isMaximized    = false;
-        bool        m_hasFocus       = false;
-        float       m_aspect         = 0.0f;
-        const char* m_title          = 0;
-        StringID    m_id             = 0;
-        void*       m_handle         = nullptr;
-        void*       m_registryHandle = nullptr;
+        friend class WindowManager;
+
+        Vector2i       m_size           = Vector2i::Zero;
+        Vector2i       m_pos            = Vector2i::Zero;
+        StringID       m_sid            = 0;
+        WindowManager* m_windowManager  = nullptr;
+        bool           m_isMinimized    = false;
+        bool           m_isMaximized    = false;
+        bool           m_hasFocus       = false;
+        float          m_aspect         = 0.0f;
+        const char*    m_title          = 0;
+        void*          m_handle         = nullptr;
+        void*          m_registryHandle = nullptr;
     };
 
     class WindowManager
@@ -140,9 +144,11 @@ namespace Lina::Graphics
 
         bool Initialize(const WindowProperties& props, Screen* screen);
         void Shutdown();
-        bool CreateAppWindow(void* parentHandle, const char* title, const Vector2i& pos, const Vector2i& size, bool showImmediately);
+        bool CreateAppWindow(void* parentHandle, const char* title, const Vector2i& pos, const Vector2i& size, bool showImmediately, StringID explicitSid = 0);
         void DestroyAppWindow(StringID sid);
         void SetVsync(VsyncMode mode);
+        void OnWindowFocused(StringID sid);
+        int  GetWindowZOrder(StringID sid);
 
         inline const Window& GetWindow(StringID id)
         {
@@ -173,6 +179,7 @@ namespace Lina::Graphics
         bool                       m_isActive      = false;
         Screen*                    m_screen        = nullptr;
         StringID                   m_mainWindowSID = 0;
+        Vector<StringID>           m_drawOrders;
     };
 } // namespace Lina::Graphics
 

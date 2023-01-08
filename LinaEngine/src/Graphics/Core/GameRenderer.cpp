@@ -44,6 +44,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+
     void GameRenderer::Tick()
     {
         if (m_installedWorld == nullptr)
@@ -81,11 +82,13 @@ namespace Lina::Graphics
         frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        const uint32 imageIndex         = Backend::Get()->GetMainSwapchain().AcquireNextImage(1.0, frame.submitSemaphore, res);
-        auto         swapchainImage     = Backend::Get()->GetMainSwapchain()._images[imageIndex];
-        auto         swapchainImageView = Backend::Get()->GetMainSwapchain()._imageViews[imageIndex];
+        const uint32 imageIndex              = m_swapchain->AcquireNextImage(1.0, frame.submitSemaphore, res);
+        auto         swapchainImage          = m_swapchain->_images[imageIndex];
+        auto         swapchainImageView      = m_swapchain->_imageViews[imageIndex];
+        auto         swapchainDepthImage     = m_swapchain->_depthImages[imageIndex]._allocatedImg.image;
+        auto         swapchainDepthImageView = m_swapchain->_depthImages[imageIndex]._ptrImgView;
 
-        if (HandleOutOfDateImage(res))
+        if (HandleOutOfDateImage(res, true))
             return;
 
         frame.graphicsFence.Reset();
@@ -136,7 +139,6 @@ namespace Lina::Graphics
         auto mainPassDepthView  = wd.finalDepthTexture->GetImage()._ptrImgView;
         cmd.CMD_ImageTransition_ToColorOptimal(mainPassImage);
         cmd.CMD_ImageTransition_ToDepthOptimal(mainPassDepthImage);
-        cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
 
         // ********* MAIN PASS *********
         {
@@ -150,6 +152,9 @@ namespace Lina::Graphics
             PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
         }
 
+        cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
+        cmd.CMD_ImageTransition_ToDepthOptimal(swapchainDepthImage);
+
         // ********* FINAL & PP PASS *********
         {
             LinaVG::StartFrame();
@@ -159,7 +164,7 @@ namespace Lina::Graphics
             m_guiBackend->Prepare(m_swapchain, imageIndex, &cmd);
             Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
-            cmd.CMD_BeginRenderingFinal(swapchainImageView, defaultRenderArea);
+            cmd.CMD_BeginRenderingDefault(swapchainImageView, swapchainDepthImageView, defaultRenderArea);
             auto* ppMat = RenderEngine::Get()->GetEngineMaterial(EngineShaderType::SQPostProcess);
             ppMat->Bind(cmd, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
             cmd.CMD_Draw(3, 1, 0, 0);
@@ -169,7 +174,7 @@ namespace Lina::Graphics
             cmd.CMD_EndRendering();
 
             // Make sure presentable
-            cmd.CMD_ImageTransition_ToPresent(swapchainImage);
+            cmd.CMD_ImageTransition_ToPresent(swapchainImage, ImageAspectFlags::AspectColor);
             PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
             LinaVG::EndFrame();
         }
@@ -181,7 +186,7 @@ namespace Lina::Graphics
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         Backend::Get()->GetGraphicsQueue().Submit(frame.submitSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
         Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex, res);
-        HandleOutOfDateImage(res);
+        HandleOutOfDateImage(res, false);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 

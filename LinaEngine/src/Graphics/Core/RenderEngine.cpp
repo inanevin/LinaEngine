@@ -65,15 +65,15 @@ namespace Lina::Graphics
     {
         LINA_TRACE("[Initialization] -> Render Engine ({0})", typeid(*this).name());
 
+        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
+        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &RenderEngine::OnWindowPositioned>(this);
+
         Backend::s_instance = &m_backend;
 
         m_initedSuccessfully = m_windowManager.Initialize(initInfo.windowProperties, &m_screen);
         m_initedSuccessfully = m_backend.Initialize(initInfo, &m_windowManager);
         m_backend.SetSwapchainPosition(m_windowManager.GetMainWindow().GetHandle(), m_windowManager.GetMainWindow().GetPos());
-
-        Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
-        Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &RenderEngine::OnWindowPositioned>(this);
 
         if (!m_initedSuccessfully)
         {
