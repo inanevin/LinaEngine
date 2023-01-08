@@ -41,17 +41,6 @@ namespace Lina::Graphics
         return m_swapchain->size;
     }
 
-    Vector2 Screen::SizeF() const
-    {
-        const Vector2i size = Size();
-        return Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
-    }
-
-    Vector2 Screen::DisplayResolutionF() const
-    {
-        return Vector2(static_cast<float>(m_displayResolution.x), static_cast<float>(m_displayResolution.y));
-    }
-
     Vector2i Screen::DisplayResolution() const
     {
         return m_displayResolution;
@@ -63,20 +52,14 @@ namespace Lina::Graphics
         return Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
     }
 
-    Vector2 Screen::GetViewportPosF() const
-    {
-        const Vector2i pos = GetViewportPos();
-        return Vector2(static_cast<float>(pos.x), static_cast<float>(pos.y));
-    }
-
     Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos) const
     {
         auto* world = World::EntityWorld::GetWorld();
         if (!world || world->GetActiveCamera() == nullptr)
             return Vector3::Zero;
 
-        Vector2 windowSize = SizeF();
-        Vector2 windowPos  = GetViewportPosF();
+        Vector2 windowSize = Size();
+        Vector2 windowPos  = GetViewportPos();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
         Vector3 win = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
 
@@ -89,7 +72,7 @@ namespace Lina::Graphics
 
     Vector3 Screen::ViewportToWorldCoordinates(const Vector3& viewport) const
     {
-        Vector2 windowSize = SizeF();
+        Vector2 windowSize = Size();
         return ScreenToWorldCoordinates(Vector3(viewport.x * windowSize.x, viewport.y * windowSize.y, viewport.z));
     }
 
@@ -99,8 +82,8 @@ namespace Lina::Graphics
         if (!w || w->GetActiveCamera() == nullptr)
             return Vector3::Zero;
 
-        Vector2 windowSize = SizeF();
-        Vector2 windowPos  = GetViewportPosF();
+        Vector2 windowSize = Size();
+        Vector2 windowPos  = GetViewportPos();
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
         Matrix  pp     = w->GetActiveCamera()->GetProjection();
         Matrix  vv     = w->GetActiveCamera()->GetView();
@@ -110,19 +93,19 @@ namespace Lina::Graphics
 
     Vector3 Screen::WorldToViewportCoordinates(const Vector3& world) const
     {
-        Vector2 windowSize = SizeF();
+        Vector2 windowSize = Size();
         Vector3 screen     = WorldToScreenCoordinates(world);
         return Vector3(screen.x / windowSize.x, screen.y / windowSize.y, screen.z);
     }
     Vector2 Screen::ScreenToViewport(const Vector2& screen) const
     {
-        const Vector2 size = SizeF();
+        const Vector2 size = Size();
         return Vector2(screen.x / size.x, screen.y / size.y);
     }
 
     Vector2 Screen::ViewportToScreen(const Vector2& vp) const
     {
-        const Vector2 size = SizeF();
+        const Vector2 size = Size();
         return Vector2(size.x * vp.x, size.y * vp.y);
     }
 } // namespace Lina::Graphics

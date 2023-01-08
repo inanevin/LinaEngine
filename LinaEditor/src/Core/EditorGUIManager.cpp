@@ -165,11 +165,11 @@ namespace Lina::Editor
     {
         // LinaVG::StyleOptions style;
         // LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
-        m_topPanel.Draw();
+      //  m_topPanel.Draw();
 
         // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
 
-        m_dockPanel.Draw();
+        //m_dockPanel.Draw();
 //
 //  constexpr const char* aq = "TestWindow";
 //  LGUI->SetWindowSize(aq, Vector2(500, 500));

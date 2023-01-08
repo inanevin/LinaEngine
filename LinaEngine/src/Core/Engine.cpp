@@ -222,17 +222,20 @@ namespace Lina
         m_inputEngine.Tick();
 
         // Render
-        m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
-            m_renderEngine.Render();
-            m_frames++;
-        });
+       // m_renderJob = m_jobSystem.GetMainExecutor().Async([&]() {
+       //     m_renderEngine.Render();
+       //     m_frames++;
+       // });
 
         // Game sim, physics + update etc.
         RunSimulation((float)Time::s_deltaTime);
         m_updates++;
 
+         m_renderEngine.Render();
+            m_frames++;
+
         // Wait for all.
-        m_renderJob.get();
+        // m_renderJob.get();
 
         // Sync previous frame.
         m_renderEngine.SyncData();
@@ -250,7 +253,7 @@ namespace Lina
             m_updates = 0;
         }
 
-        const String title = m_initialTitle + " FPS: " + TO_STRING(m_currentFPS);
+        const String title = m_initialTitle + " FPS: " + TO_STRING(m_currentFPS) + " UPS: " + TO_STRING(m_currentUPS);
         m_renderEngine.m_windowManager.GetMainWindowPtr()->SetTitle(title.c_str());
         // LINA_TRACE("FPS: {0}", m_currentFPS);
 

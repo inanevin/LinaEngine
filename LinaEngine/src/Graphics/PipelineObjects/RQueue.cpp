@@ -143,7 +143,7 @@ namespace Lina::Graphics
             .pImageIndices      = &index,
         };
         VkResult result = vkQueuePresentKHR(_ptr, &info);
-        LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
+        //LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
         res = GetResult(result);
     }
 

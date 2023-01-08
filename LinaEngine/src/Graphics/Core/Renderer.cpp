@@ -179,6 +179,7 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
 
+        m_lastMainSwapchainSize = m_windowManager->GetMainWindow().GetSize();
         m_worldsToRenderGPU.clear();
         m_worldsToRenderGPU = m_worldsToRender;
 
@@ -211,12 +212,6 @@ namespace Lina::Graphics
 
             wd.opaquePass.PrepareRenderData(wd.extractedRenderables, wd.playerView);
         }
-    }
-
-    void Renderer::WindowResized(void* windowHandle)
-    {
-        if (windowHandle == m_windowManager->GetMainWindow().GetHandle())
-            m_recreateSwapchain = true;
     }
 
     void Renderer::MergeMeshes()
@@ -336,21 +331,23 @@ namespace Lina::Graphics
     {
         bool shouldRecreate = false;
 
-        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-        {
-            m_recreateSwapchain = false;
+        if (res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
             shouldRecreate      = true;
-        }
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
         if (shouldRecreate)
         {
             Backend::Get()->WaitIdle();
-            Vector2i size = m_windowManager->GetMainWindow().GetSize();
+
+            Vector2i size = m_lastMainSwapchainSize;
 
             if (size.x == 0 || size.y == 0)
+            {
+                // Make sure the semaphore is unsignalled after resize operation.
+                //Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
                 return true;
+            }
 
             // Swapchain
             m_swapchain->Destroy();
@@ -360,6 +357,7 @@ namespace Lina::Graphics
             // Make sure we always match swapchain
             size = m_swapchain->size;
 
+            // Delete the textures for every worls we render.
             for (auto& [world, wd] : m_worldsToRender)
             {
                 Resources::ResourceManager::Get()->UnloadUserManaged(wd.finalColorTexture);
@@ -378,7 +376,7 @@ namespace Lina::Graphics
             UpdateViewport(size);
 
             // Make sure the semaphore is unsignalled after resize operation.
-            Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
+            //Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
 
             return true;
         }

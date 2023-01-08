@@ -81,35 +81,36 @@ namespace Lina::Input
         /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
         /// </summary>
         /// <returns></returns>
-        inline Vector2 GetMousePosition()
+        inline Vector2i GetMousePosition()
         {
             return m_currentMousePosition;
         }
 
-        inline Vector2 GetMousePositionAbs()
+        inline Vector2i GetMousePositionAbs()
         {
             return m_currentMousePositionAbs;
         }
 
-        inline Vector2 GetMouseDelta()
+        inline Vector2i GetMouseDelta()
         {
             return m_mouseDelta;
         }
 
-        inline Vector2 GetMouseDeltaRaw()
+        inline Vector2i GetMouseDeltaRaw()
         {
             return m_mouseDeltaRaw;
         }
 
-        inline Vector2 GetMouseScroll()
+        inline Vector2i GetMouseScroll()
         {
-            return m_currentMouseScroll;
+            return m_mouseScroll;
         }
 
         inline CursorMode GetCursorMode()
         {
             return m_cursorMode;
         }
+
         inline float GetHorizontalAxisValue()
         {
             return m_horizontalAxis.GetValue();
@@ -124,7 +125,6 @@ namespace Lina::Input
         InputEngine()  = default;
         ~InputEngine() = default;
         void Initialize();
-        void PrePoll();
         void Tick();
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
@@ -151,13 +151,15 @@ namespace Lina::Input
         InputAxis           m_horizontalAxis;
         InputAxis           m_verticalAxis;
         CursorMode          m_cursorMode              = CursorMode::Visible;
-        Vector2             m_currentMouseScroll      = Vector2::Zero;
-        Vector2             m_mousePosTrackingClick   = Vector2::Zero;
-        Vector2             m_mouseDelta              = Vector2::Zero;
-        Vector2             m_mouseDeltaRaw           = Vector2::Zero;
-        Vector2             m_currentMousePosition    = Vector2::Zero;
-        Vector2             m_previousMousePosition   = Vector2::Zero;
-        Vector2             m_currentMousePositionAbs = Vector2::Zero;
+        Vector2i            m_mouseScroll             = Vector2i::Zero;
+        Vector2i            m_mouseScrollPrev         = Vector2i::Zero;
+        Vector2i            m_mousePosTrackingClick   = Vector2i::Zero;
+        Vector2i            m_mouseDelta              = Vector2i::Zero;
+        Vector2i            m_mouseDeltaRaw           = Vector2i::Zero;
+        Vector2i            m_mouseDeltaRawPrev       = Vector2i::Zero;
+        Vector2i            m_currentMousePosition    = Vector2i::Zero;
+        Vector2i            m_previousMousePosition   = Vector2i::Zero;
+        Vector2i            m_currentMousePositionAbs = Vector2i::Zero;
         bool                m_windowActive            = false;
         void*               m_lastFocusedWindowHandle = nullptr;
     };

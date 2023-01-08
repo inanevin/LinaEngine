@@ -26,35 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Panels/DockPanel.hpp"
-#include "GUI/GUI.hpp"
-#include "Graphics/Core/Screen.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#pragma once
 
-namespace Lina::Editor
+#ifndef DataStructuresArray_HPP
+#define DataStructuresArray_HPP
+
+#include <EASTL/array.h>
+
+namespace Lina
 {
-    void DockPanel::Initialize()
-    {
-    }
+    template <typename T, size_t nodeCount> using Array = eastl::array<T, nodeCount>;
+} // namespace Lina
 
-    void DockPanel::Shutdown()
-    {
-    }
-
-    void DockPanel::Draw()
-    {
-        auto&         theme  = LGUI->GetTheme();
-        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
-        constexpr const char* name   = "DockPanel";
-        LGUI->SetWindowPosition(name, m_pos);
-        LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));
-        LGUI->SetAbsoluteDrawOrder(0);
-
-        LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
-        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize))
-        {
-            LGUI->EndWindow();
-        }
-    }
-
-} // namespace Lina::Editor
+#endif

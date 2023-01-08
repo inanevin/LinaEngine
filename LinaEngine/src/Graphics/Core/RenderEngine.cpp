@@ -74,7 +74,6 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &RenderEngine::OnEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &RenderEngine::OnPreMainLoop>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowPositioned, &RenderEngine::OnWindowPositioned>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowResized, &RenderEngine::OnWindowResized>(this);
 
         if (!m_initedSuccessfully)
         {
@@ -183,8 +182,14 @@ namespace Lina::Graphics
         RETURN_NOTINITED;
 
         auto& window = m_windowManager.GetMainWindow();
-        if (window.IsMinimized() || !window.GetIsAppActive())
+        if (window.IsMinimized()) //
             return;
+
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Standalone)
+        {
+            if (!window.GetIsAppActive())
+                return;
+        }
 
         m_gpuUploader.Poll();
         m_renderer->Render();
@@ -219,7 +224,6 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
 
         for (auto pair : m_engineMaterials)
             delete pair.second;
@@ -282,11 +286,6 @@ namespace Lina::Graphics
     void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)
     {
         m_backend.SetSwapchainPosition(ev.window, ev.newPos);
-    }
-
-    void RenderEngine::OnWindowResized(const Event::EWindowResized& ev)
-    {
-        m_renderer->WindowResized(ev.window);
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

@@ -269,8 +269,6 @@ namespace Lina::Graphics
 
         // End frame, important.
         b.indexCounter = b.vertexCounter = 0;
-
-        LinaVG::EndFrame();
     }
 
     LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)

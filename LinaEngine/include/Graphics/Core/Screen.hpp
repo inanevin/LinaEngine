@@ -53,36 +53,16 @@ namespace Lina::Graphics
         Vector2i Size() const;
 
         /// <summary>
-        /// Returns the total size in screen space.
-        /// NOTE: This is not the monitor size.
-        /// NOTE: This may not be the same as application resolution if running on windowed mode.
-        /// </summary>
-        /// <returns></returns>
-        Vector2 SizeF() const;
-
-        /// <summary>
         /// Returns the display resolution of the primary monitor.
         /// </summary>
         /// <returns></returns>
         Vector2i DisplayResolution() const;
 
         /// <summary>
-        /// Returns the display resolution of the primary monitor.
-        /// </summary>
-        /// <returns></returns>
-        Vector2 DisplayResolutionF() const;
-
-        /// <summary>
         /// Returns viewport position, defaults to 0-0 unless explicitly stated.
         /// </summary>
         /// <returns></returns>
         Vector2i GetViewportPos() const;
-
-        /// <summary>
-        /// Returns viewport position, defaults to 0-0 unless explicitly stated.
-        /// </summary>
-        /// <returns></returns>
-        Vector2 GetViewportPosF() const;
 
         /// <summary>
         /// Converts given screen-space coordinates to world-space coordinates.

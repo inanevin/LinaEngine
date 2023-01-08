@@ -54,10 +54,9 @@ namespace Lina::Editor
             Graphics::Semaphore             submitSemaphores[FRAMES_IN_FLIGHT];
             Graphics::Semaphore             presentSemaphore[FRAMES_IN_FLIGHT];
             Vector<Graphics::CommandBuffer> cmds;
-            void*                           windowHandle   = nullptr;
-            bool                            shouldRecreate = false;
-            Vector2i                        pos            = Vector2i::Zero;
-            Vector2i                        size           = Vector2i::Zero;
+            void*                           windowHandle = nullptr;
+            Vector2i                        pos          = Vector2i::Zero;
+            Vector2i                        size         = Vector2i::Zero;
         };
 
         struct EditorFrameData
@@ -92,7 +91,6 @@ namespace Lina::Editor
         virtual void Render() override;
         virtual void OnTexturesRecreated() override{};
         virtual void SyncData() override;
-        virtual void WindowResized(void* handle) override;
 
     private:
         bool                  HandleOutOfDateImageAdditional(AdditionalWindowData* wd, Graphics::VulkanResult res);

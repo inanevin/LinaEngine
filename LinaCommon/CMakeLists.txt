@@ -33,6 +33,7 @@ set (LINACOMMON_SOURCES
 	
 	# Data
 	src/Data/Streams.cpp
+	src/Data/SyncQueue.cpp
 
 	# Events
 	src/EventSystem/EventSystem.cpp
@@ -111,10 +112,12 @@ set(LINACOMMON_HEADERS
 	include/EventSystem/WorldEvents.hpp
 
 	# Data
+	include/Data/Array.hpp
 	include/Data/Vector.hpp
 	include/Data/IntrusiveList.hpp
 	include/Data/Map.hpp
 	include/Data/List.hpp
+	include/Data/Ringbuffer.hpp
 	include/Data/IDList.hpp
 	include/Data/SList.hpp
 	include/Data/HashMap.hpp
@@ -134,6 +137,7 @@ set(LINACOMMON_HEADERS
 	include/Data/Bitmask.hpp
 	include/Data/Mutex.hpp
 	include/Data/Streams.hpp
+	include/Data/SyncQueue.hpp
 
 	# Memory
 	include/Memory/Memory.hpp

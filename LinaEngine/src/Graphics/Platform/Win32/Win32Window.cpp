@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/CommonEngine.hpp"
 #include "Input/Core/InputCommon.hpp"
 #include "Graphics/Core/Screen.hpp"
-#include "Core/Application.hpp"
 #include <Windows.h>
 #include <shellscalingapi.h>
 #include <hidusage.h>
@@ -83,10 +82,10 @@ namespace Lina::Graphics
         }
         break;
         case WM_MOVE: {
-            LINA_TRACE("MOVE");
-
-            if (s_app != nullptr)
-                s_app->Tick();
+            int xPos = 0, yPos = 0;
+            xPos = (int)(short)LOWORD(lParam); // horizontal position
+            yPos = (int)(short)HIWORD(lParam); // vertical position
+            win32Window->UpdatePos(Vector2i(xPos, yPos));
             break;
         }
         case WM_SIZE: {
@@ -169,8 +168,6 @@ namespace Lina::Graphics
 
             if (!s_isAppActive)
                 break;
-
-            LINA_TRACE("MBD {0} ", static_cast<void*>(window));
 
             Event::EventSystem::Get()->Trigger<Event::EMouseButtonCallback>(Event::EMouseButtonCallback{
                 .window = win32Window->GetHandle(),

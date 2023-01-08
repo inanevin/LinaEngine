@@ -170,8 +170,8 @@ namespace Lina::Editor
 
     void TopPanel::Draw()
     {
-        const Vector2 display    = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
-        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().SizeF();
+        const Vector2 display    = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
+        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().Size();
 
         m_currentSize = Vector2(screenSize.x, display.y * 0.084f);
 
@@ -194,7 +194,7 @@ namespace Lina::Editor
 
     void TopPanel::DrawFileMenu()
     {
-        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
+        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
         auto&         theme   = LGUI->GetTheme();
         auto&         w       = LGUI->GetCurrentWindow();
         w.SetPenPos(Vector2(10, 0));
@@ -210,7 +210,7 @@ namespace Lina::Editor
 
     void TopPanel::DrawLinaLogo()
     {
-        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().SizeF();
+        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().Size();
         auto&         w          = LGUI->GetCurrentWindow();
 
         // BG
@@ -278,8 +278,8 @@ namespace Lina::Editor
         auto& theme = LGUI->GetTheme();
 
         const Bitmask8 mask          = 0;
-        const Vector2  screen        = Graphics::RenderEngine::Get()->GetScreen().SizeF();
-        const Vector2  display       = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
+        const Vector2  screen        = Graphics::RenderEngine::Get()->GetScreen().Size();
+        const Vector2  display       = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
         const float    buttonSizeX   = display.x * 0.022f;
         const float    buttonSizeY   = buttonSizeX * 0.7f;
         const Vector2  buttonSize    = Vector2(buttonSizeX, buttonSizeY);

@@ -45,7 +45,6 @@ namespace Lina
     namespace Event
     {
         struct EEngineResourcesLoaded;
-        struct EWindowResized;
         struct EWindowPositioned;
         struct EPreMainLoop;
     } // namespace Event
@@ -172,7 +171,6 @@ namespace Lina::Graphics
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void OnWindowPositioned(const Event::EWindowPositioned& ev);
-        void OnWindowResized(const Event::EWindowResized& ev);
         void Join();
         void SetRenderer(Renderer* renderer);
 

@@ -67,29 +67,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     app->Initialize(initInfo, gm);
     app->Start();
 
-    // auto windowsJob = Lina::JobSystem::Get()->GetMainExecutor().Async([&]() {
-    //
-    // });
-
     while (app->IsRunning())
     {
-        app->PrePoll();
-
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-            // Lina::Log::LogMessage(Lina::LogLevel::Warn, "MSG");
         }
 
         if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
             break;
 
         app->Tick();
-        // Lina::Log::LogMessage(Lina::LogLevel::Warn, "TICK");
     }
-
-    //  windowsJob.get();
 
     app->Shutdown();
     delete gm;

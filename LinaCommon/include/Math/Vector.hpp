@@ -93,6 +93,7 @@ namespace Lina
         Vector2(const Vector2& rhs) : glm::vec2(rhs){};
         Vector2(float val) : glm::vec2(val, val){};
         Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
+        Vector2(const Vector2i& rhs) : glm::vec2(static_cast<float>(rhs.x), static_cast<float>(rhs.y)){};
 
         static Vector2 Zero;
         static Vector2 One;

@@ -92,7 +92,7 @@ namespace Lina::Editor
         opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
 
         // Undocked & non-fixed windows have title bars.
-        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolutionF();
+        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
 
         // Main window rect.
         LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, _drawOrder);
@@ -190,7 +190,7 @@ namespace Lina::Editor
         txt.font      = theme.GetFont(ThemeFont::Default);
         txt.alignment = LinaVG::TextAlignment::Right;
 
-        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().SizeF();
+        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
 
         // const Vector2 mouseDelta       = LGUI->GetMouseDelta();
         // const String  mouseDeltaStr    = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);

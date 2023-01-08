@@ -140,7 +140,6 @@ namespace Lina::Graphics
         virtual void Join();
         virtual void RenderWorld(const CommandBuffer& cmd, RenderWorldData& data);
         virtual void SyncData();
-        virtual void WindowResized(void* windowHandle);
 
         virtual void Tick()                = 0;
         virtual void Render()              = 0;
@@ -169,13 +168,13 @@ namespace Lina::Graphics
         Buffer                                        m_cpuIndexBuffer;
         Buffer                                        m_gpuVtxBuffer;
         Buffer                                        m_gpuIndexBuffer;
-        bool                                          m_recreateSwapchain = false;
-        bool                                          m_hasLevelLoaded    = false;
+        bool                                          m_hasLevelLoaded = false;
         HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRender;
         HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRenderGPU;
         World::EntityWorld*                           m_installedWorld = nullptr;
         uint32                                        m_worldCounter   = 0;
         WindowManager*                                m_windowManager;
+        Vector2i                                      m_lastMainSwapchainSize = Vector2i::Zero;
     };
 
 } // namespace Lina::Graphics

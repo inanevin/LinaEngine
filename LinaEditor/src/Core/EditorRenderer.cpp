@@ -315,28 +315,11 @@ namespace Lina::Editor
         m_additionalWindowRequests.clear();
     }
 
-    void EditorRenderer::WindowResized(void* handle)
-    {
-        Renderer::WindowResized(handle);
-
-        for (auto& [sid, windowData] : m_additionalWindows)
-        {
-            if (handle == windowData.windowHandle)
-            {
-                windowData.shouldRecreate = true;
-                return;
-            }
-        }
-    }
-
     bool EditorRenderer::HandleOutOfDateImageAdditional(AdditionalWindowData* wd, VulkanResult res)
     {
         bool shouldRecreate = false;
-        if (wd->shouldRecreate || res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-        {
-            wd->shouldRecreate = false;
-            shouldRecreate     = true;
-        }
+        if (res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+            shouldRecreate = true;
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
@@ -346,7 +329,10 @@ namespace Lina::Editor
             Vector2i size = wd->size;
 
             if (size.x == 0 || size.y == 0)
+            {
+                Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
                 return true;
+            }
 
             // Swapchain
             wd->swapchain->Destroy();

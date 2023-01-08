@@ -26,35 +26,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Panels/DockPanel.hpp"
-#include "GUI/GUI.hpp"
-#include "Graphics/Core/Screen.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Data/SyncQueue.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-    void DockPanel::Initialize()
+    void SyncQueue::Push(const SyncQueueElement& el)
     {
+        LOCK_GUARD(*m_mtx);
+        m_elements.push_back(el);
     }
 
-    void DockPanel::Shutdown()
+    void SyncQueue::Push(uint32 id)
     {
+        SyncQueueElement el;
+        el.id = id;
+        Push(el);
     }
 
-    void DockPanel::Draw()
+    void SyncQueue::Push(uint32 id, float v)
     {
-        auto&         theme  = LGUI->GetTheme();
-        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
-        constexpr const char* name   = "DockPanel";
-        LGUI->SetWindowPosition(name, m_pos);
-        LGUI->SetWindowSize(name, Vector2(screen.x, screen.y - m_pos.y));
-        LGUI->SetAbsoluteDrawOrder(0);
-
-        LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
-        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize))
-        {
-            LGUI->EndWindow();
-        }
+        SyncQueueElement el;
+        el.id = id;
+        el.floats.push_back(v);
+        Push(el);
     }
 
-} // namespace Lina::Editor
+    void SyncQueue::Push(uint32 id, int v)
+    {
+        SyncQueueElement el;
+        el.id = id;
+        el.ints.push_back(v);
+        Push(el);
+    }
+
+    void SyncQueue::Push(uint32 id, const Vector2& v)
+    {
+        SyncQueueElement el;
+        el.id = id;
+        el.vector2s.push_back(v);
+        Push(el);
+    }
+
+    void SyncQueue::Push(uint32 id, const Vector2i& v)
+    {
+        SyncQueueElement el;
+        el.id = id;
+        el.vector2is.push_back(v);
+        Push(el);
+    }
+
+    void SyncQueue::Push(uint32 id, const String& v)
+    {
+        SyncQueueElement el;
+        el.id = id;
+        el.strings.push_back(v);
+        Push(el);
+    }
+    void SyncQueue::Reset()
+    {
+        m_elements.clear();
+    }
+} // namespace Lina

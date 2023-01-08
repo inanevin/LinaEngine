@@ -95,8 +95,8 @@ namespace Lina::Input
 
     void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
     {
-        m_currentMouseScroll.x = (float)e.xoff;
-        m_currentMouseScroll.y = (float)e.yoff;
+        m_mouseScrollPrev.x = (float)e.xoff;
+        m_mouseScrollPrev.y = (float)e.yoff;
     }
 
     void InputEngine::OnMouseButtonCallback(const Event::EMouseButtonCallback& e)
@@ -107,8 +107,8 @@ namespace Lina::Input
 
     void InputEngine::OnMouseMovedRaw(const Event::EMouseMovedRaw& e)
     {
-        m_mouseDeltaRaw.x = static_cast<float>(e.xDelta);
-        m_mouseDeltaRaw.y = static_cast<float>(e.yDelta);
+        m_mouseDeltaRawPrev.x = static_cast<float>(e.xDelta);
+        m_mouseDeltaRawPrev.y = static_cast<float>(e.yDelta);
     }
 
     void InputEngine::OnActiveAppChanged(const Event::EActiveAppChanged& e)
@@ -297,32 +297,27 @@ namespace Lina::Input
 #endif
     }
 
-    void InputEngine::PrePoll()
+    void InputEngine::Tick()
     {
-        m_mouseDeltaRaw      = Vector2::Zero;
-        m_currentMouseScroll = Vector2::Zero;
+        m_mouseDeltaRaw     = m_mouseDeltaRawPrev;
+        m_mouseScroll       = m_mouseScrollPrev;
+        m_mouseScrollPrev   = Vector2i::Zero;
+        m_mouseDeltaRawPrev = Vector2i::Zero;
         m_doubleClicks.clear();
         m_singleClickStates.clear();
 
-        double xpos, ypos;
 #ifdef LINA_PLATFORM_WINDOWS
         POINT point;
         GetCursorPos(&point);
-        m_currentMousePositionAbs = Vector2(static_cast<float>(point.x), static_cast<float>(point.y));
+        m_currentMousePositionAbs = Vector2i(point.x, point.y);
         ScreenToClient(static_cast<HWND>(m_lastFocusedWindowHandle), &point);
-        xpos = point.x;
-        ypos = point.y;
 #else
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 #endif
         m_previousMousePosition = m_currentMousePosition;
-        m_currentMousePosition  = Vector2(static_cast<float>(xpos), static_cast<float>(ypos));
+        m_currentMousePosition  = Vector2i(point.x, point.y);
         m_mouseDelta            = m_currentMousePosition - m_previousMousePosition;
-        // LINA_TRACE("CM {0}, {1}", m_currentMousePosition.x, m_currentMousePosition.y);
-    }
 
-    void InputEngine::Tick()
-    {
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)
             m_keyStatesDown[pair.first] = m_keyDownNewStateMap[pair.first];

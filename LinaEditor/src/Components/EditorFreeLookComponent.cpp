@@ -86,7 +86,7 @@ namespace Lina::World
 
         if (inputEngine->GetMouseButton(LINA_MOUSE_MIDDLE))
         {
-            const Vector2 delta = inputEngine->GetMousePosition() - m_lastMousePos;
+            const Vector2 delta = Vector2(inputEngine->GetMousePosition()) - m_lastMousePos;
             targetPosition += -rg * delta.x * 0.5f * movementSpeed * dt;
             targetPosition += up * delta.y * 0.5f * movementSpeed * dt;
         }
