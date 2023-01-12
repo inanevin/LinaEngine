@@ -50,19 +50,24 @@ namespace Lina::Editor
         // Draw title bar
         if (m_detached)
         {
-            LinaVG::StyleOptions titleStyle;
-            titleStyle.color = LV4(theme.GetColor(ThemeColor::DockAreaTitleBar));
+            const Vector2 displayRes   = screen.DisplayResolution();
+            const float   headerHeight = displayRes.y * 0.055f;
+            const Rect    headerRect   = Rect(m_rect.pos, Vector2(m_rect.size.x, headerHeight));
+            const String  headerName   = TO_STRING(m_swapchainID) + "header";
+            LGUI->SetWindowSize(headerName.c_str(), headerRect.size);
 
             /************** HEADER BG **************/
-            const Vector2 displayRes = screen.DisplayResolution();
-            const float   height     = displayRes.y * 0.045f;
-            Rect          headerRect = Rect(m_rect.pos, Vector2(m_rect.size.x, height));
-            LinaVG::DrawRect(LV2(headerRect.pos), LV2(headerRect.size), titleStyle, 0.0f, 1);
+            if (LGUI->BeginWindow(headerName.c_str()))
+            {
+                int closeState = 0, minimizeState = 0, maximizeState = 0;
+                Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, 0.0f, nullptr);
+                LGUI->EndWindow();
+            }
 
             /************** DIVIDER **************/
             LinaVG::StyleOptions lineStyle;
             const float          dividerThickness = 1.0f * screen.GetContentScale().x;
-            const Color          dividerColor     = theme.GetColor(ThemeColor::DockAreaTitleBarBorder);
+            const Color          dividerColor     = theme.GetColor(ThemeColor::DefaultBorderColor);
             Widgets::DropShadow(Vector2(0.0f, headerRect.size.y), headerRect.size, dividerColor, dividerThickness, 2, 1);
 
             /************** BORDER **************/
@@ -77,9 +82,14 @@ namespace Lina::Editor
 
             /************** LOGO **************/
             const StringID sid      = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite256)->GetSID();
-            const Vector2  logoSize = Vector2(height * 0.8f, height * 0.8f);
-            const Vector2  logoPos  = Vector2(m_rect.pos.x + logoSize.x * 0.5f + height * 0.2f, m_rect.pos.y + logoSize.y * 0.5f + height * 0.1f);
+            const Vector2  logoSize = Vector2(headerHeight * 0.6f, headerHeight * 0.6f);
+            const Vector2  logoPos  = Vector2(headerRect.size.y * 0.5f, headerRect.size.y * 0.5f);
             LinaVG::DrawImage(sid, LV2(logoPos), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
+
+            /************** HANDLE MOVING DETACHED WINDOW **************/
+            if (m_isSwapchainHovered)
+            {
+            }
         }
     }
 

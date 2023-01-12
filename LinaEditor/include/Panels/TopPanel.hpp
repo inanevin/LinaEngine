@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef TopPanel_HPP
 #define TopPanel_HPP
 
-#include "Panel.hpp"
 #include "Utility/StringId.hpp"
 #include "GUI/CustomWidgets/MenuBar.hpp"
 #include "Utility/Graphics/TexturePacker.hpp"
@@ -79,10 +78,6 @@ namespace Lina::Editor
         float                 m_lastTextAnimTime   = 0.0f;
         float                 m_fileMenuMaxX       = 0.0f;
         float                 m_titleMaxX          = 0.0f;
-        StringID              m_minimizeSid        = 0;
-        StringID              m_maximizeSid        = 0;
-        StringID              m_closeSid           = 0;
-        StringID              m_restoreSid         = 0;
         Graphics::Texture*    m_packedAnim         = nullptr;
         Vector<PackedTexture> m_packedAnimTextures;
         EditorGUIManager*     m_guiManager = nullptr;

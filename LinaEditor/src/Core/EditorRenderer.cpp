@@ -204,16 +204,16 @@ namespace Lina::Editor
                     fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
                                                 PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
 
-                    fd.cmd->CMD_ImageTransition(worldData.finalDepthTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None,
-                                                AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
+                    fd.cmd->CMD_ImageTransition(worldData.finalDepthTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite,
+                                                depthTransitionFlags, depthTransitionFlags);
 
                     fd.cmd->CMD_BeginRenderingDefault(worldData.finalColorTexture->GetImage()._ptrImgView, worldData.finalDepthTexture->GetImage()._ptrImgView, defaultRenderArea);
                     RenderWorld(*fd.cmd, worldData);
                     fd.cmd->CMD_EndRendering();
 
                     // Transition to shader read
-                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None,
-                                                AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
+                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
+                                                PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
                 }
             }
 
@@ -237,7 +237,6 @@ namespace Lina::Editor
                 // Issue GUI commands
                 m_guiBackend->Prepare(fd.swp, fd.imageIndex, fd.cmd);
                 m_guiManager->SetCurrentSwapchain(fd.swp);
-                LGUI->SetCurrentSwapchain(fd.swp);
                 Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
                 // Actually draw commands
@@ -297,7 +296,7 @@ namespace Lina::Editor
             m_windowManager->CreateAppWindow(m_windowManager->GetMainWindow().GetHandle(), r.name.c_str(), r.pos, r.size, true);
             auto& createdWindow = m_windowManager->GetWindow(sid);
             auto* windowPtr     = createdWindow.GetHandle();
-            auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, static_cast<int>(r.size.x), static_cast<int>(r.size.y));
+            auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, r.pos, r.size);
             auto& data          = m_additionalWindows[sid];
 
             data.swapchain = swapchainPtr;

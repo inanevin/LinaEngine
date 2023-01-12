@@ -59,19 +59,20 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &Editor::OnEngineResourcesLoaded>(this);
 
-        m_guiBackend   = guiBackend;
-        m_engine       = engine;
-        m_levelManager = lvlManager;
-        m_resLoader    = new Resources::EditorResourceLoader();
+        m_windowManager = windowManager;
+        m_guiBackend    = guiBackend;
+        m_engine        = engine;
+        m_levelManager  = lvlManager;
+        m_resLoader     = new Resources::EditorResourceLoader();
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
-        m_gui.Initialize(m_renderer, windowManager);
+        m_gui.Initialize();
         ImmediateGUI::s_instance = &m_gui;
         m_shortcutManager.Initialize();
-       m_renderer->SetGUIManager(&m_guiManager);
+        m_renderer->SetGUIManager(&m_guiManager);
     }
 
     void Editor::Shutdown()
@@ -276,9 +277,8 @@ namespace Lina::Editor
     void Editor::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
         m_dockSetup = Resources::ResourceManager::Get()->GetResource<DockSetup>("Resources/Editor/dockSetup.linasettings");
-        m_guiManager.Initialize(m_guiBackend, m_renderer);
+        m_guiManager.Initialize(m_guiBackend, m_renderer, m_windowManager);
         m_gui.m_iconTexture = m_guiManager.GetIconTexture()->GetSID();
-        m_gui.SetupDocks(m_dockSetup);
     }
 
 } // namespace Lina::Editor

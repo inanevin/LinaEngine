@@ -71,12 +71,6 @@ namespace Lina::Editor
     {
         IMW_None                 = 1 << 0,
         IMW_UseAbsoluteDrawOrder = 1 << 1,
-        IMW_CantDock             = 1 << 2,
-        IMW_CantHostDock         = 1 << 3,
-        IMW_MainSwapchain        = 1 << 4,
-        IMW_NoMove               = 1 << 5,
-        IMW_NoResize             = 1 << 6,
-        IMW_NoHeader             = 1 << 7,
     };
 
     struct SwapchainInfo
@@ -181,13 +175,12 @@ namespace Lina::Editor
         float                  m_maxYDuringHorizontal = 0.0f;
         bool                   m_docked               = false;
 
-        Color    _finalColor  = Color::White;
-        int      _drawOrder   = 0;
-        Vector2  _absPos      = Vector2::Zero;
-        Rect     _rect        = Rect();
-        StringID _parent      = 0;
-        StringID _swapchainID = 0;
-        Rect     _dragRect    = Rect();
+        Color    _finalColor = Color::White;
+        int      _drawOrder  = 0;
+        Vector2  _absPos     = Vector2::Zero;
+        Rect     _rect       = Rect();
+        StringID _parent     = 0;
+        Rect     _dragRect   = Rect();
     };
 
     class ImmediateGUI
@@ -240,48 +233,20 @@ namespace Lina::Editor
             return m_iconTexture;
         }
 
-        inline StringID GetHoveredSwapchainID()
-        {
-            return m_hoveredSwapchainSID;
-        }
-
-        inline StringID GetHoveredWindowID()
-        {
-            return m_hoveredWindowSID;
-        }
-
     private:
         friend class Editor;
         friend class EditorRenderer;
 
-        inline void SetCurrentSwapchain(Graphics::Swapchain* swapchain)
-        {
-            m_currentSwapchain = swapchain;
-        }
-
-        void Initialize(EditorRenderer* renderer, Graphics::WindowManager* windowManager);
+        void Initialize();
         void Shutdown();
-        void SetupDocks(DockSetup* setup);
-        void OnWindowFocused(const Event::EWindowFocused& ev);
-        void OnAdditionalSwapchainCreated(const Event::EAdditionalSwapchainCreated& ev);
-        void OnAdditionalSwapchainDestroyed(const Event::EAdditionalSwapchainDestroyed& ev);
 
     private:
         static ImmediateGUI*               s_instance;
-        HashMap<StringID, SwapchainInfo>   m_swapchainInfos;
         HashMap<StringID, ImmediateWindow> m_windowData;
         StringID                           m_lastWindow = 0;
         Theme                              m_theme;
         StringID                           m_iconTexture       = 0;
         int                                m_absoluteDrawOrder = 0;
-        EditorRenderer*                    m_renderer;
-        Graphics::Swapchain*               m_currentSwapchain = nullptr;
-        DockSetup*                         m_dockSetup        = nullptr;
-        Graphics::WindowManager*           m_windowManager    = nullptr;
-
-        StringID m_lastFocusedSwapchainSID = 0;
-        StringID m_hoveredSwapchainSID     = 0;
-        StringID m_hoveredWindowSID        = 0;
     };
 
 #define LGUI ImmediateGUI::Get()

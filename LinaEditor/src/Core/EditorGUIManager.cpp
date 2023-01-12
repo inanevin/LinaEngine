@@ -59,10 +59,11 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void EditorGUIManager::Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend)
+    void EditorGUIManager::Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend, Graphics::WindowManager* wm)
     {
-        m_renderer   = rend;
-        m_guiBackend = guiBackend;
+        m_renderer      = rend;
+        m_guiBackend    = guiBackend;
+        m_windowManager = wm;
 
         auto* nunitoFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/NunitoSans.ttf");
         auto* rubikFont  = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/Rubik-Regular.ttf");
@@ -116,7 +117,7 @@ namespace Lina::Editor
         theme.m_colors[ThemeColor::Light5]                  = light5;
         theme.m_colors[ThemeColor::TopPanelBackground]      = dark1;
         theme.m_colors[ThemeColor::Window]                  = dark2;
-        theme.m_colors[ThemeColor::WindowBorderColor]       = light1;
+        theme.m_colors[ThemeColor::DefaultBorderColor]      = Color(5.0f, 5.0f, 5.0f, 200.0f, true);
         theme.m_colors[ThemeColor::PopupBG]                 = light15;
         theme.m_colors[ThemeColor::PopupBorderColor]        = Color::Black;
         theme.m_colors[ThemeColor::ButtonBackground]        = light1;
@@ -129,17 +130,13 @@ namespace Lina::Editor
         theme.m_colors[ThemeColor::MenuBarPopupBorderColor] = light1;
         theme.m_colors[ThemeColor::DockArea]                = dark1;
         theme.m_colors[ThemeColor::DockAreaBorder]          = light1;
-        theme.m_colors[ThemeColor::DockAreaTitleBar]        = dark2;
-        theme.m_colors[ThemeColor::DockAreaTitleBarBorder]  = Color(5.0f, 5.0f, 5.0f, 200.0f, true);
 
-        theme.m_properties[ThemeProperty::AAEnabled]             = LinaVG::Config.aaEnabled ? 1.0f : 0.0f;
-        theme.m_properties[ThemeProperty::WindowItemPaddingX]    = 12;
-        theme.m_properties[ThemeProperty::WindowItemPaddingY]    = 12;
-        theme.m_properties[ThemeProperty::WindowItemSpacingX]    = 12;
-        theme.m_properties[ThemeProperty::WindowItemSpacingY]    = 12;
-        theme.m_properties[ThemeProperty::WindowRounding]        = 0.0f;
-        theme.m_properties[ThemeProperty::WindowBorderThickness] = 1.0f;
-        theme.m_properties[ThemeProperty::WindowBorderThickness] = 1.0f;
+        theme.m_properties[ThemeProperty::AAEnabled]          = LinaVG::Config.aaEnabled ? 1.0f : 0.0f;
+        theme.m_properties[ThemeProperty::WindowItemPaddingX] = 12;
+        theme.m_properties[ThemeProperty::WindowItemPaddingY] = 12;
+        theme.m_properties[ThemeProperty::WindowItemSpacingX] = 12;
+        theme.m_properties[ThemeProperty::WindowItemSpacingY] = 12;
+        theme.m_properties[ThemeProperty::WindowRounding]     = 0.0f;
 
         theme.m_properties[ThemeProperty::ButtonRounding]        = 0.2f;
         theme.m_properties[ThemeProperty::ButtonBorderThickness] = 1.0f;
@@ -192,7 +189,8 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
-        m_topPanel->Draw();
+        if (m_currentSwapchain->swapchainID == LINA_MAIN_SWAPCHAIN_ID)
+            m_topPanel->Draw();
 
         const auto&   topPanelRect = m_topPanel->GetRect();
         const Vector2 screen       = Graphics::RenderEngine::Get()->GetScreen().Size();
@@ -201,65 +199,57 @@ namespace Lina::Editor
         for (auto d : m_dockAreas)
         {
             d->UpdateCurrentSwapchainID(m_currentSwapchain->swapchainID);
+            d->m_isSwapchainHovered = d->m_swapchainID == m_hoveredSwapchainID;
             d->Draw();
         }
 
-        // m_topPanel.Draw();
-        //
-        // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
-        //
-        // m_dockPanel.Draw();
-        // constexpr const char* aq = "TestWindow";
-        // LGUI->SetWindowSize(aq, Vector2(500, 500));
-        //
-        // if (LGUI->BeginWindow(aq))
-        //{
-        //     LinaVG::StyleOptions style;
-        //     style.color = LV4(Color::DarkBlue);
-        //     // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
-        //     LGUI->EndWindow();
-        // }
-        //
-        // constexpr const char* aq2 = "TestWindow2";
-        // LGUI->SetWindowSize(aq2, Vector2(500, 500));
-        //
-        // if (LGUI->BeginWindow(aq2))
-        //{
-        //     LinaVG::StyleOptions style;
-        //     style.color = LV4(Color::DarkBlue);
-        //     // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
-        //     LGUI->EndWindow();
-        // }
-        //
-        // return;
-        //  LinaVG::StyleOptions style;
-        //  LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
+        FindHoveredSwapchain();
+    }
 
-        //  const String aq2 = "TestWindow2";
-        //  LGUI->SetWindowSize(aq2, Vector2(500, 500));
-        //  LGUI->SetWindowPosition(aq2, Vector2(1400,600));
-        //
-        //  if (test)
-        //      LGUI->UndockWindow(aq2);
-        //
-        //  if (LGUI->BeginWindow(aq2))
-        //  {
-        //      LGUI->EndWindow();
-        //  }
+    void EditorGUIManager::FindHoveredSwapchain()
+    {
+        const auto& additionalWindows = m_renderer->GetAdditionalWindows();
 
-        //
-        //
-        //
-        //
-        //
-        //
-        // LGUI->SetWindowSize("TestWindow2", Vector2(500, 500));
-        //
-        // if (LGUI->BeginWindow("TestWindow2"))
-        // {
-        //
-        //     LGUI->EndWindow();
-        // }
+        Vector<Graphics::Swapchain*> hoveredSwapchains;
+
+        for (const auto& [sid, wd] : additionalWindows)
+        {
+            const Rect swpRect = Rect(wd.swapchain->pos, wd.swapchain->size);
+
+            if (LGUI->IsMouseHoveringRect(swpRect))
+                hoveredSwapchains.push_back(wd.swapchain);
+        }
+
+        const uint32 hoveredSwapchainsSize = static_cast<uint32>(hoveredSwapchains.size());
+
+        if (hoveredSwapchainsSize == 0)
+            m_hoveredSwapchainID = 0;
+        else if (hoveredSwapchainsSize == 1)
+            m_hoveredSwapchainID = hoveredSwapchains[0]->swapchainID;
+        else
+        {
+            int      biggestZOrder = 0;
+            StringID biggestWindow = 0;
+            for (auto& s : hoveredSwapchains)
+            {
+                const int zOrder = m_windowManager->GetWindowZOrder(s->swapchainID);
+                if (zOrder >= biggestZOrder)
+                {
+                    biggestZOrder = zOrder;
+                    biggestWindow = s->swapchainID;
+                }
+            }
+
+            m_hoveredSwapchainID = biggestWindow;
+        }
+
+        if (m_hoveredSwapchainID == 0)
+        {
+            const auto& mainSwp = Graphics::Backend::Get()->GetMainSwapchain();
+            const Rect  r       = Rect(mainSwp.pos, mainSwp.size);
+            if (LGUI->IsMouseHoveringRect(r))
+                m_hoveredSwapchainID = mainSwp.swapchainID;
+        }
     }
 
     Drawable* EditorGUIManager::GetContentFromPanelRequest(EditorPanel panel)
@@ -275,6 +265,11 @@ namespace Lina::Editor
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
         {
             LaunchPanel(EditorPanel::Level);
+        }
+
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_T))
+        {
+            LaunchPanel(EditorPanel::Entities);
         }
 
         const auto& additionalWindows = m_renderer->GetAdditionalWindows();
@@ -311,9 +306,9 @@ namespace Lina::Editor
     {
         // ? check if we should preserve some layout for the panel
         // receive last pos & size.
-        const Vector2 lastPos   = Vector2(100, 100);
+        const Vector2 lastPos   = panel == EditorPanel::Level ? Vector2(100, 100) : Vector2(500, 100);
         const Vector2 lastSize  = Vector2(500, 500);
-        const String  panelName = "TestPanel";
+        const String  panelName = panel == EditorPanel::Level ? "TestPanel" : "Aq";
 
         m_renderer->CreateAdditionalWindow(panelName, lastPos, lastSize);
         m_panelRequests.push_back({panel, TO_SID(panelName), Vector2::Zero, lastSize});

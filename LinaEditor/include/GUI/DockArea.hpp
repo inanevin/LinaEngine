@@ -65,11 +65,13 @@ namespace Lina::Editor
     private:
         friend class EditorGUIManager;
 
-        bool              m_shouldDraw  = false;
-        bool              m_detached    = false;
-        StringID          m_swapchainID = 0;
+        bool              m_shouldDraw         = false;
+        bool              m_detached           = false;
+        bool              m_isSwapchainHovered = false;
+        StringID          m_swapchainID        = 0;
         Vector<DockArea*> m_dockAreas;
         Vector<Drawable*> m_content;
+        uint32            m_selectedContent = 0;
     };
 
 } // namespace Lina::Editor

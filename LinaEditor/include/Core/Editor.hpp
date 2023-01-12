@@ -95,7 +95,8 @@ namespace Lina::Editor
     private:
         friend class Engine;
 
-        Graphics::GUIBackend*            m_guiBackend = nullptr;
+        Graphics::GUIBackend*            m_guiBackend    = nullptr;
+        Graphics::WindowManager*         m_windowManager = nullptr;
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
         EditorRenderer*                  m_renderer     = nullptr;

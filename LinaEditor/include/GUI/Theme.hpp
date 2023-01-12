@@ -60,7 +60,7 @@ namespace Lina::Editor
         TopPanelBackground,
         TextColor,
         Window,
-        WindowBorderColor,
+        DefaultBorderColor,
         ButtonBackground,
         ButtonHovered,
         ButtonPressed,
@@ -74,8 +74,6 @@ namespace Lina::Editor
         MenuBarPopupBorderColor,
         DockArea,
         DockAreaBorder,
-        DockAreaTitleBar,
-        DockAreaTitleBarBorder,
     };
 
     enum class ThemeProperty
@@ -92,7 +90,6 @@ namespace Lina::Editor
         ButtonTextFit,
         WindowRounding,
         PopupRounding,
-        WindowBorderThickness,
         PopupBorderThickness,
         MenuBarPopupBorderThickness,
         MenuBarItemsTooltipSpacing,

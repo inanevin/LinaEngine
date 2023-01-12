@@ -48,6 +48,7 @@ namespace Lina
     {
         class GUIBackend;
         class Swapchain;
+        class WindowManager;
     } // namespace Graphics
 
 } // namespace Lina
@@ -73,7 +74,7 @@ namespace Lina::Editor
         };
 
     public:
-        void Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend);
+        void Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend, Graphics::WindowManager* wm);
         void Shutdown();
         void LaunchPanel(EditorPanel panel);
 
@@ -88,21 +89,23 @@ namespace Lina::Editor
         }
 
     private:
-        void OnTick(const Event::ETick& ev);
-        void OnDrawGUI(const Event::EDrawGUI& ev);
-
+        void      OnTick(const Event::ETick& ev);
+        void      OnDrawGUI(const Event::EDrawGUI& ev);
+        void      FindHoveredSwapchain();
         Drawable* GetContentFromPanelRequest(EditorPanel panel);
 
     private:
-        Graphics::GUIBackend*      m_guiBackend  = nullptr;
-        Graphics::Texture*         m_iconTexture = nullptr;
+        Graphics::GUIBackend*      m_guiBackend    = nullptr;
+        Graphics::Texture*         m_iconTexture   = nullptr;
+        Graphics::WindowManager*   m_windowManager = nullptr;
         Vector<PackedTexture>      m_packedIcons;
         EditorRenderer*            m_renderer = nullptr;
-        Vector<Drawable*>          m_dockAreas;
+        Vector<DockArea*>          m_dockAreas;
         Graphics::Swapchain*       m_currentSwapchain = nullptr;
         DockArea*                  m_mainDockArea     = nullptr;
         TopPanel*                  m_topPanel         = nullptr;
         Vector<LaunchPanelRequest> m_panelRequests;
+        StringID                   m_hoveredSwapchainID = 0;
     };
 } // namespace Lina::Editor
 

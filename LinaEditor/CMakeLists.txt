@@ -53,8 +53,6 @@ src/Resource/EditorResourceLoader.cpp
 
 # Sections
 src/Panels/TopPanel.cpp
-src/Panels/DockPanel.cpp
-src/Panels/Panel.cpp
 
 )
 
@@ -95,8 +93,6 @@ include/Resource/EditorResourceLoader.hpp
 
 # Sections
 include/Panels/TopPanel.hpp
-include/Panels/DockPanel.hpp
-include/Panels/Panel.hpp
 
 )
 

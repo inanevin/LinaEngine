@@ -34,7 +34,7 @@ namespace Lina::Editor
     float Theme::GetProperty(ThemeProperty p)
     {
         bool shouldScale = p == ThemeProperty::WindowItemSpacingX || p == ThemeProperty::WindowItemSpacingY || p == ThemeProperty::WindowItemPaddingX || p == ThemeProperty::WindowItemPaddingY ||
-                           p == ThemeProperty::ButtonBorderThickness || p == ThemeProperty::PopupBorderThickness || p == ThemeProperty::WindowBorderThickness || p == ThemeProperty::MenuBarItemsTooltipSpacing ||
+                           p == ThemeProperty::ButtonBorderThickness || p == ThemeProperty::PopupBorderThickness|| p == ThemeProperty::MenuBarItemsTooltipSpacing ||
                            p == ThemeProperty::MenuBarPopupBorderThickness;
         return shouldScale ? m_properties[p] * LinaVG::Config.framebufferScale.x : m_properties[p];
     }

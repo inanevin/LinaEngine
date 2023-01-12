@@ -69,7 +69,7 @@ namespace Lina::Graphics
         return VK_FALSE;
     }
 
-    Swapchain* Backend::CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height)
+    Swapchain* Backend::CreateAdditionalSwapchain(StringID sid, void* windowPtr, const Vector2i& pos, const Vector2i& size)
     {
         VkSurfaceKHR surface;
 
@@ -88,7 +88,8 @@ namespace Lina::Graphics
 #endif
 
         Swapchain* swp = new Swapchain{
-            .size        = Vector2i(static_cast<uint32>(width), static_cast<uint32>(height)),
+            .size        = size,
+            .pos         = pos,
             .format      = Format::B8G8R8A8_UNORM,
             .colorSpace  = ColorSpace::SRGB_NONLINEAR,
             .presentMode = m_currentPresentMode,

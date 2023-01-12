@@ -85,13 +85,12 @@ namespace Lina::Editor
         if (canDrag && Input::InputEngine::Get()->GetMouseButton(LINA_MOUSE_0))
         {
             const Vector2 delta = Input::InputEngine::Get()->GetMouseDelta();
-
         }
     }
 
     void ImmediateWindow::Draw()
     {
-        // For when we determine a window's hoveredSwapchainsSize based on its content.
+        // For when we determine a window's size based on its content.
         if (m_size.Equals(Vector2::Zero, 0.001f))
         {
             auto&       theme    = LGUI->GetTheme();
@@ -109,53 +108,9 @@ namespace Lina::Editor
 
         // Only undocked windows have rounding & border options.
         opts.rounding                 = theme.GetProperty(ThemeProperty::WindowRounding);
-        opts.outlineOptions.thickness = theme.GetProperty(ThemeProperty::WindowBorderThickness);
-        opts.outlineOptions.color     = LV4(theme.GetColor(ThemeColor::WindowBorderColor));
-
-        // Undocked & non-fixed windows have title bars.
-        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
 
         // Main window rect.
         LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, _drawOrder);
-
-        // Title bar
-        if (!m_mask.IsSet(IMW_NoHeader))
-        {
-            const float          titleBarSizeY = display.y * 0.045f;
-            const Vector2        titleBarSize  = Vector2(m_size.x, titleBarSizeY);
-            const Vector2        titleBarMax   = min + titleBarSize;
-            LinaVG::StyleOptions titleBarStyle;
-            titleBarStyle.color = LV4(theme.GetColor(ThemeColor::TopPanelBackground));
-            LinaVG::DrawRect(LV2(min), LV2(titleBarMax), titleBarStyle, 0.0f, _drawOrder + 1);
-            _dragRect = Rect(min, titleBarSize);
-        }
-
-        if (!m_mask.IsSet(IMW_NoMove))
-        {
-            DragBehaviour();
-        }
-
-        //  dragRect      = Rect(min, titleBarSize);
-        //  Rect dragRect = Rect();
-
-        // Lina Logo
-
-        //
-        //   if (LGUI->GetDraggedWindowSID() == 0 && LGUI->IsMouseHoveringRect(dragRect) && LGUI->GetMouseButtonDown(LINA_MOUSE_0))
-        //   {
-        //       LGUI->SetDraggedWindow(m_sid);
-        //   }
-        //
-        //   if (m_sid == LGUI->GetDraggedWindowSID())
-        //   {
-        //       if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
-        //           LGUI->SetDraggedWindow(0);
-        //
-        //       const Vector2 delta     = LGUI->GetMouseDelta();
-        //       Vector2       targetPos = m_absPos + delta;
-        //       LGUI->SetWindowPosition(m_name, targetPos);
-        //       LINA_TRACE("Dragging {0} {1}", delta.x, delta.y);
-        //   }
 
 #ifdef DEBUG
         LinaVG::StyleOptions optsDebug;
@@ -166,7 +121,7 @@ namespace Lina::Editor
 
     bool ImmediateWindow::IsHovered()
     {
-        return _swapchainID == LGUI->GetHoveredSwapchainID() && LGUI->IsMouseHoveringRect(_rect);
+        return LGUI->IsMouseHoveringRect(_rect);
     }
 
     void ImmediateWindow::BeginWidget(const Vector2& size)
@@ -223,16 +178,12 @@ namespace Lina::Editor
 
         const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
 
-        const Vector2 mouseDelta       = LGUI->GetMouseDelta();
-        const String  mouseDeltaStr    = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);
-        const String  hoveredSwapchain = "Hovered Swapchain: " + TO_STRING(m_hoveredSwapchainSID);
-        const String  hoveredWindowStr = "Hovered Window: " + (m_hoveredWindowSID != 0 ? m_windowData[m_hoveredWindowSID].m_name : "None");
+        const Vector2 mouseDelta    = LGUI->GetMouseDelta();
+        const String  mouseDeltaStr = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);
 
         Vector2        pos = Vector2(screen.x * 0.98f, screen.y * 0.8f);
         Vector<String> debugs;
         debugs.push_back(mouseDeltaStr);
-        debugs.push_back(hoveredSwapchain);
-        debugs.push_back(hoveredWindowStr);
 
         for (auto& s : debugs)
         {
@@ -243,121 +194,6 @@ namespace Lina::Editor
 
     void ImmediateGUI::EndFrame()
     {
-        const Vector2 mousePos = GetMousePositionAbs();
-
-        /************************** HOVERED SWAPCHAIN *****************************/
-        {
-            Vector<StringID> hoveredSwapchains;
-            // Find which swapchain the mouse is on.
-            for (auto& [sid, info] : m_swapchainInfos)
-            {
-                auto swp = info.swapchain;
-
-                if (!swp)
-                    continue;
-
-                if (IsMouseHoveringRect(Rect(swp->pos, swp->size)))
-                    hoveredSwapchains.push_back(sid);
-            }
-
-            const uint32 hoveredSwapchainsSize = static_cast<uint32>(hoveredSwapchains.size());
-
-            if (hoveredSwapchainsSize == 0)
-                m_hoveredSwapchainSID = 0;
-            else if (hoveredSwapchainsSize == 1)
-                m_hoveredSwapchainSID = hoveredSwapchains[0];
-            else
-            {
-                int      biggestZOrder = 0;
-                StringID biggestWindow = 0;
-                for (auto& s : hoveredSwapchains)
-                {
-                    const int zOrder = m_windowManager->GetWindowZOrder(s);
-                    if (zOrder >= biggestZOrder)
-                    {
-                        biggestZOrder = zOrder;
-                        biggestWindow = s;
-                    }
-                }
-
-                // set
-                m_hoveredSwapchainSID = biggestWindow;
-            }
-        }
-
-        /************************** HOVERED WINDOW *****************************/
-        {
-            Vector<StringID> hoveredWindows;
-            for (auto& [sid, wd] : m_windowData)
-            {
-                if (wd._swapchainID != m_hoveredSwapchainSID)
-                    continue;
-
-                auto swp = m_swapchainInfos[m_hoveredSwapchainSID].swapchain;
-
-                const Rect finalRect = Rect(wd._rect.pos + swp->pos, wd._rect.size);
-
-                if (IsMouseHoveringRect(finalRect))
-                    hoveredWindows.push_back(sid);
-            }
-
-            const uint32 hoveredWindowsSize = static_cast<uint32>(hoveredWindows.size());
-            if (hoveredWindowsSize == 0)
-                m_hoveredWindowSID = 0;
-            else if (hoveredWindowsSize == 1)
-                m_hoveredWindowSID = hoveredWindows[0];
-            else
-            {
-                int      biggestDrawOrder = 0;
-                StringID biggest          = 0;
-
-                for (auto& sid : hoveredWindows)
-                {
-                    const int drawOrder = m_windowData[sid]._drawOrder;
-                    if (drawOrder >= biggestDrawOrder)
-                    {
-                        biggest          = sid;
-                        biggestDrawOrder = drawOrder;
-                    }
-                }
-
-                m_hoveredWindowSID = biggest;
-            }
-        }
-
-        if (m_hoveredWindowSID != 0)
-            LINA_TRACE("{0}", m_windowData[m_hoveredWindowSID].m_name);
-
-        // Only iterate the windows that belongs to that swapchain.
-
-        // Determine hovered window.
-        // m_hoveredWindow = 0;
-
-        // Hovered
-        // for (auto& w : m_windowDataPerFrame)
-        // {
-        //     if (IsMouseHoveringRect(w.second.rect))
-        //     {
-        //         if (m_hoveredWindow != 0)
-        //         {
-        //             if (w.second.drawOrder >= m_windowDataPerFrame[m_hoveredWindow].drawOrder)
-        //                 m_hoveredWindow = w.first;
-        //         }
-        //         else
-        //             m_hoveredWindow = w.first;
-        //     }
-        // }
-
-        // Focused
-        // if (LGUI->GetMouseButtonDown(LINA_MOUSE_0))
-        // {
-        //     for (auto& w : m_windowDataPerFrame)
-        //     {
-        //         if (w.first == m_hoveredWindow)
-        //             m_focusedWindow = w.first;
-        //     }
-        // }
-
         m_absoluteDrawOrder = 0;
     }
 
@@ -374,31 +210,14 @@ namespace Lina::Editor
             parentPos               = parent._absPos;
             parentDrawOrder         = parent._drawOrder;
             windowData._parent      = m_lastWindow;
-            windowData._swapchainID = parent._swapchainID;
         }
-
-        if (mask.IsSet(IMW_MainSwapchain))
-            windowData._swapchainID = LINA_MAIN_SWAPCHAIN_ID;
-
-        if (mask.IsSet(IMW_NoMove))
-            windowData.m_localPos = pos;
-
-        if (windowData._swapchainID == 0)
-        {
-            // Window is free, no swapchain, create one.
-            m_renderer->CreateAdditionalWindow(str, windowData.m_localPos, windowData.m_size);
-            m_swapchainInfos[sid]   = SwapchainInfo();
-            windowData._swapchainID = sid;
-        }
-
-        if (m_currentSwapchain->swapchainID != windowData._swapchainID)
-            return false;
 
         windowData.m_name      = str;
         windowData.m_mask      = mask;
         windowData.m_sid       = sid;
         windowData.m_penPos.x  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingX);
         windowData.m_penPos.y  = m_theme.GetProperty(ThemeProperty::WindowItemPaddingY);
+        windowData.m_localPos  = pos;
         windowData._absPos     = parentPos + windowData.m_localPos;
         windowData._finalColor = windowData.m_color == Color(0, 0, 0, 0) ? GetTheme().GetColor(ThemeColor::Window) : windowData.m_color;
         windowData._drawOrder  = mask.IsSet(IMW_UseAbsoluteDrawOrder) ? m_absoluteDrawOrder : parentDrawOrder + 1;
@@ -418,11 +237,10 @@ namespace Lina::Editor
     bool ImmediateGUI::BeginPopup(const char* name, const Vector2i& pos)
     {
         m_absoluteDrawOrder  = LGUI_POPUP_DRAWORDER_START;
-        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_NoMove | IMW_NoResize | IMW_NoHeader;
+        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder;
         m_theme.PushColor(ThemeColor::Window, ThemeColor::PopupBG);
-        m_theme.PushColor(ThemeColor::WindowBorderColor, ThemeColor::PopupBorderColor);
+        m_theme.PushColor(ThemeColor::DefaultBorderColor, ThemeColor::PopupBorderColor);
         m_theme.PushProperty(ThemeProperty::WindowRounding, ThemeProperty::PopupRounding);
-        m_theme.PushProperty(ThemeProperty::WindowBorderThickness, ThemeProperty::PopupBorderThickness);
         return BeginWindow(name, mask, pos);
     }
 
@@ -448,39 +266,12 @@ namespace Lina::Editor
     bool ImmediateGUI::IsMouseHoveringRect(const Rect& rect)
     {
         const Vector2 mouseAbs = Input::InputEngine::Get()->GetMousePositionAbs();
-
-        if (m_lastWindow != 0)
-        {
-            // Called inside a window.
-            auto& window = GetCurrentWindow();
-            auto  swp    = m_swapchainInfos[window._swapchainID].swapchain;
-
-            // not created yet, waiting renderer
-            if (!swp)
-                return false;
-
-            const Recti finalRect = Recti(swp->pos + rect.pos, rect.size);
-            return IsPointInRect(mouseAbs, finalRect);
-        }
-        else
-            return IsPointInRect(mouseAbs, rect);
+        return IsPointInRect(mouseAbs, rect);
     }
 
     Vector2i ImmediateGUI::GetMousePosition()
     {
         const Vector2i mpAbs = Input::InputEngine::Get()->GetMousePositionAbs();
-
-        if (m_lastWindow != 0)
-        {
-            auto& wd  = GetCurrentWindow();
-            auto  swp = m_swapchainInfos[wd._swapchainID].swapchain;
-
-            if (!swp)
-                return Vector2i::Zero;
-
-            return Vector2i(mpAbs.x - swp->pos.x, mpAbs.y - swp->pos.y);
-        }
-
         return mpAbs;
     }
 
@@ -524,65 +315,12 @@ namespace Lina::Editor
         return Input::InputEngine::Get()->GetKeyDown(key);
     }
 
-    void ImmediateGUI::Initialize(EditorRenderer* renderer, Graphics::WindowManager* windowManager)
+    void ImmediateGUI::Initialize()
     {
-        m_renderer      = renderer;
-        m_windowManager = windowManager;
-       // SwapchainInfo info;
-       // info.swapchain                           = &Graphics::Backend::Get()->m_swapchains[]
-       // info.windowHandle                        = m_windowManager->GetMainWindow().GetHandle();
-       // m_swapchainInfos[LINA_MAIN_SWAPCHAIN_ID] = info;
-        Event::EventSystem::Get()->Connect<Event::EWindowFocused, &ImmediateGUI::OnWindowFocused>(this);
-        Event::EventSystem::Get()->Connect<Event::EAdditionalSwapchainCreated, &ImmediateGUI::OnAdditionalSwapchainCreated>(this);
-        Event::EventSystem::Get()->Connect<Event::EAdditionalSwapchainDestroyed, &ImmediateGUI::OnAdditionalSwapchainDestroyed>(this);
-        m_lastFocusedSwapchainSID = m_windowManager->GetMainWindow().GetSID();
     }
 
     void ImmediateGUI::Shutdown()
     {
-        Event::EventSystem::Get()->Disconnect<Event::EWindowFocused>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EAdditionalSwapchainCreated>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EAdditionalSwapchainDestroyed>(this);
-    }
-
-    void ImmediateGUI::SetupDocks(DockSetup* setup)
-    {
-        m_dockSetup = setup;
-
-        // auto& swapchains = m_dockSetup->GetSwapchains();
-        //
-        // for (auto& swpData : swapchains)
-        // {
-        //     void*                windowHandle = nullptr;
-        //     Graphics::Swapchain* swp          = nullptr;
-        //     m_renderer->CreateAdditionalWindow(swpData.swapchainName, &windowHandle, &swp, swpData.pos, swpData.hoveredSwapchainsSize);
-        //
-        //     for (auto& window : swpData.windows)
-        //     {
-        //         auto& wd        = m_windowDataPersistent[window.sid];
-        //         wd.swapchain    = swp;
-        //         wd.windowHandle = windowHandle;
-        //         wd.position     = window.localPos;
-        //         wd.hoveredSwapchainsSize         = window.localSize;
-        //     }
-        // }
-    }
-
-    void ImmediateGUI::OnWindowFocused(const Event::EWindowFocused& ev)
-    {
-        m_lastFocusedSwapchainSID = static_cast<Graphics::Window*>(ev.window)->GetSID();
-    }
-
-    void ImmediateGUI::OnAdditionalSwapchainCreated(const Event::EAdditionalSwapchainCreated& ev)
-    {
-        SwapchainInfo& info = m_swapchainInfos[ev.sid];
-        info.swapchain      = ev.swp;
-        info.windowHandle   = ev.windowPtr;
-    }
-
-    void ImmediateGUI::OnAdditionalSwapchainDestroyed(const Event::EAdditionalSwapchainDestroyed& ev)
-    {
-        m_swapchainInfos.erase(m_swapchainInfos.find(ev.sid));
     }
 
     void ImmediateGUI::SetWindowSize(const char* str, const Vector2& size)

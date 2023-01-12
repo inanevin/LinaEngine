@@ -87,10 +87,6 @@ namespace Lina::Editor
 
     void TopPanel::Initialize()
     {
-        m_minimizeSid = TO_SID(String("Minimize"));
-        m_maximizeSid = TO_SID(String("Maximize"));
-        m_restoreSid  = TO_SID(String("Restore"));
-        m_closeSid    = TO_SID(String("Close"));
 
         auto* titleTexture = Resources::ResourceManager::Get()->GetResource<Graphics::Texture>("Resources/Editor/Textures/TitleText.png");
         m_titleTexture     = titleTexture->GetSID();
@@ -183,7 +179,7 @@ namespace Lina::Editor
         LGUI->SetWindowSize(name, m_rect.size);
         LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
 
-        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize | IMW_NoHeader))
+        if (LGUI->BeginWindow(name))
         {
             DrawFileMenu();
             m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
@@ -276,50 +272,17 @@ namespace Lina::Editor
 
     void TopPanel::DrawButtons()
     {
+        int   closeState = 0, minimizeState = 0, maximizeState = 0;
         auto& w     = LGUI->GetCurrentWindow();
         auto& theme = LGUI->GetTheme();
 
-        const Bitmask8 mask          = 0;
-        const Vector2  screen        = Graphics::RenderEngine::Get()->GetScreen().Size();
-        const Vector2  display       = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
-        const float    buttonSizeX   = display.x * 0.022f;
-        const float    buttonSizeY   = buttonSizeX * 0.7f;
-        const Vector2  buttonSize    = Vector2(buttonSizeX, buttonSizeY);
-        const float    initialOffset = buttonSizeX * 0.01f;
-        const float    spacing       = 0.0f;
-        const float    penY          = 0.0f;
-        const Vector2  appTitleSize  = Widgets::GetTextSize(ApplicationInfo::GetAppName());
+        Vector2       buttonSize   = Vector2::Zero;
+        const Vector2 appTitleSize = Widgets::GetTextSize(ApplicationInfo::GetAppName());
 
-        float minimizeStart      = screen.x - buttonSize.x * 3 - spacing * 2 - initialOffset;
-        minimizeStart            = Math::Max(minimizeStart, m_titleMaxX + appTitleSize.x + display.x * 0.01f);
-        const float restoreStart = minimizeStart + buttonSize.x + spacing;
-        const float closeStart   = restoreStart + buttonSize.x + spacing;
-
-        theme.PushProperty(ThemeProperty::ButtonIconFit, 0.45f);
-        theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::Dark0);
-        theme.PushColor(ThemeColor::ButtonHovered, ThemeColor::Error);
-
-        w.SetPenPos(Vector2(closeStart, penY));
-        if (Widgets::ButtonIcon(m_closeSid, buttonSize, mask))
-        {
-        }
-
-        theme.PopColor();
-
-        w.SetPenPos(Vector2(restoreStart, penY));
-        if (Widgets::ButtonIcon(m_restoreSid, buttonSize, mask))
-        {
-        }
-
-        w.SetPenPos(Vector2(minimizeStart, penY));
-        if (Widgets::ButtonIcon(m_minimizeSid, buttonSize, mask))
-        {
-        }
+        const float minimizeStart = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
 
         w.SetPenPos(Vector2(minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
         Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);
-        theme.PopProperty();
-        theme.PopColor();
     }
 
     void TopPanel::DrawControls()
@@ -331,8 +294,7 @@ namespace Lina::Editor
         constexpr const char* name = "TopPanelControls";
         LGUI->SetWindowSize(name, Vector2(m_rect.size.x, m_rect.size.y * 0.45f));
 
-        Bitmask16 mask = IMW_NoMove | IMW_NoResize | IMW_NoHeader;
-        if (LGUI->BeginWindow(name, mask, pos))
+        if (LGUI->BeginWindow(name, 0, pos))
         {
             LGUI->EndWindow();
         }

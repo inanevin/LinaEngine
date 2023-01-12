@@ -73,7 +73,7 @@ namespace Lina::Graphics
     class Backend
     {
     public:
-        Swapchain*       CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height);
+        Swapchain*       CreateAdditionalSwapchain(StringID sid, void* windowPtr, const Vector2i& pos, const Vector2i& size);
         void             DestroyAdditionalSwapchain(StringID sid);
         const Swapchain& GetSwapchain(StringID sid);
         const Swapchain& GetMainSwapchain();

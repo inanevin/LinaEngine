@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Data/DataCommon.hpp"
 #include "Math/Color.hpp"
 #include "Math/Math.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Editor
 {
@@ -143,6 +144,50 @@ namespace Lina::Editor
         LinaVG::DrawImage(LGUI->GetIconTexture(), LV2(center), LV2(iconSize), LV4(tint), theme.GetCurrentRotateAngle(), window.GetDrawOrder() + 1, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(tl), LV2(br));
 
         return isClicked;
+    }
+
+    float Widgets::WindowButtons(int* close, int* minimize, int* maximizeRestore, float maxX, Vector2* outButtonSize, float extraXSpace)
+    {
+        auto&          w             = LGUI->GetCurrentWindow();
+        auto&          theme         = LGUI->GetTheme();
+        const Bitmask8 mask          = 0;
+        const Vector2  windowSize    = w.GetSize().x;
+        const Vector2  display       = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
+        const float    buttonSizeX   = display.x * 0.022f;
+        const float    buttonSizeY   = buttonSizeX * 0.7f;
+        const Vector2  buttonSize    = Vector2(buttonSizeX, buttonSizeY);
+        const float    initialOffset = buttonSize.x * 0.01f;
+        const float    spacing       = 0.0f;
+        const float    penY          = 0.0f;
+        float          minimizeStart = Math::Max(windowSize.x - buttonSize.x * 3 - spacing * 2 - initialOffset, maxX + extraXSpace + display.x * 0.01f);
+        const float    restoreStart  = minimizeStart + buttonSize.x + spacing;
+        const float    closeStart    = restoreStart + buttonSize.x + spacing;
+
+        theme.PushProperty(ThemeProperty::ButtonIconFit, 0.45f);
+        theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::Dark0);
+        theme.PushColor(ThemeColor::ButtonHovered, ThemeColor::Error);
+
+        w.SetPenPos(Vector2(closeStart, penY));
+        if (Widgets::ButtonIcon(TO_SIDC("Close"), buttonSize, mask))
+            *close = 1;
+
+        theme.PopColor();
+
+        w.SetPenPos(Vector2(restoreStart, penY));
+        if (Widgets::ButtonIcon(*maximizeRestore ? TO_SIDC("Restore") : TO_SIDC("Maximize"), buttonSize, mask))
+            *maximizeRestore = 1;
+
+        w.SetPenPos(Vector2(minimizeStart, penY));
+        if (Widgets::ButtonIcon(TO_SIDC("Minimize"), buttonSize, mask))
+            *minimize = 1;
+
+        theme.PopProperty();
+        theme.PopColor();
+
+        if (outButtonSize != nullptr)
+            *outButtonSize = buttonSize;
+
+        return minimizeStart;
     }
 
     bool Widgets::BeginPopup(const char* str, const Vector2& pos, const Vector2& size)

@@ -78,6 +78,12 @@ namespace Lina::Editor
         /// </summary>
         static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
+        /// <summary>
+        /// Minimize, Maximize and Close buttons.
+        /// Returns the start X
+        /// </summary>
+        static float WindowButtons(int* close, int* minimize, int* maximizeRestore, float maxX, Vector2* outButtonSize, float extraXSpace = 0.0f);
+
         // Popup
         static bool BeginPopup(const char* str, const Vector2& pos, const Vector2& size);
         static void EndPopup();
