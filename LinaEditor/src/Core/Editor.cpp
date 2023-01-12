@@ -71,7 +71,7 @@ namespace Lina::Editor
         m_gui.Initialize(m_renderer, windowManager);
         ImmediateGUI::s_instance = &m_gui;
         m_shortcutManager.Initialize();
-        m_renderer->SetGUIManager(&m_guiManager);
+       m_renderer->SetGUIManager(&m_guiManager);
     }
 
     void Editor::Shutdown()

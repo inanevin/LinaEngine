@@ -73,7 +73,6 @@ namespace Lina::Graphics
             uint32         height         = 0;
             uint32         mipLevels      = 0;
             uint32         channels       = 0;
-            uint32         channelsForGPU = 0;
             unsigned char* pixels         = nullptr;
             Vector<Mipmap> mipmaps;
         };
@@ -121,7 +120,7 @@ namespace Lina::Graphics
 
     private:
         void    AddPixelsFromAssetData();
-        void    CheckFormat();
+        void    CheckFormat(int channels);
         void    GenerateMipmaps();
         void    CopyImage(uint32 cpuOffset, const CommandBuffer& cmd, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, uint32 totalMipLevels, uint32 baseMipLevel);
         Sampler CreateDefaultSampler();

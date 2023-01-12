@@ -41,13 +41,6 @@ SOFTWARE.
 
 #include <vulkan/vulkan.h>
 
-// We removed STBI_alpha, left it default
-// so it will load how many channesl are there in the texture
-// This caused crash in write endian safe for some reason check that.
-
-// then remove the behavior, force 4 components, and check writing & reading that 80 mb texture
-
-// then continue & verify mip generation.
 namespace Lina::Graphics
 {
     Texture::~Texture()
@@ -63,7 +56,7 @@ namespace Lina::Graphics
     {
         const Sampler sampler = CreateDefaultSampler();
         LoadFromArchive(archive);
-        GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channelsForGPU, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
+        GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channels, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
         WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
@@ -79,9 +72,9 @@ namespace Lina::Graphics
             m_assetData.pixels    = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             m_assetData.width     = static_cast<uint32>(texWidth);
             m_assetData.height    = static_cast<uint32>(texHeight);
-            m_assetData.mipLevels = static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1;
-            m_assetData.channels  = static_cast<uint32>(texChannels);
-            CheckFormat();
+            m_assetData.mipLevels = m_assetData.generateMipmaps ? static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1 : 1;
+            m_assetData.channels  = 4;
+            CheckFormat(texChannels);
             GenerateMipmaps();
 
             LINA_TRACE("Loading {0}, dim {1}x{2}, channels {3}", m_path.c_str(), m_assetData.width, m_assetData.height, texChannels);
@@ -96,7 +89,7 @@ namespace Lina::Graphics
         }
 
         const Sampler sampler = CreateDefaultSampler();
-        GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channelsForGPU, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
+        GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channels, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
         WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
@@ -109,12 +102,12 @@ namespace Lina::Graphics
         if (m_assetData.pixels == nullptr)
         {
             int texWidth, texHeight, texChannels;
-            m_assetData.pixels    = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, 0);
+            m_assetData.pixels    = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             m_assetData.width     = static_cast<uint32>(texWidth);
             m_assetData.height    = static_cast<uint32>(texHeight);
-            m_assetData.mipLevels = static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1;
-            m_assetData.channels  = static_cast<uint32>(texChannels);
-            CheckFormat();
+            m_assetData.mipLevels = m_assetData.generateMipmaps ? static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1 : 1;
+            m_assetData.channels  = 4;
+            CheckFormat(texChannels);
             GenerateMipmaps();
         }
 
@@ -138,7 +131,7 @@ namespace Lina::Graphics
         const uint8  mipmapMode   = static_cast<uint8>(m_assetData.mipmapMode);
         const uint8  mipmapFilter = static_cast<uint8>(m_assetData.mipmapFilter);
 
-        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels, m_assetData.channelsForGPU);
+        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels);
         archive(m_assetData.anisotropyEnabled, m_assetData.anisotropy, m_assetData.isInLinearSpace);
         archive(size, format, min, mag, mode, mipmapMode, mipmapFilter);
 
@@ -166,7 +159,7 @@ namespace Lina::Graphics
     {
         uint32 pixelsSize = 0;
         uint8  format = 0, min = 0, mag = 0, mode = 0, mipmapMode = 0, mipmapFilter = 0;
-        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels, m_assetData.channelsForGPU);
+        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels);
         archive(m_assetData.anisotropyEnabled, m_assetData.anisotropy, m_assetData.isInLinearSpace);
         archive(pixelsSize, format, min, mag, mode, mipmapMode, mipmapFilter);
 
@@ -218,25 +211,14 @@ namespace Lina::Graphics
         }
     }
 
-    void Texture::CheckFormat()
+    void Texture::CheckFormat(int channels)
     {
-        const int ch = m_assetData.channels;
-
-        if (ch == 2)
-        {
-            m_assetData.format         = Format::R8G8_UNORM;
-            m_assetData.channelsForGPU = 2;
-        }
-        else if (ch == 1)
-        {
-            m_assetData.format         = Format::R8_UNORM;
-            m_assetData.channelsForGPU = 1;
-        }
+        if (channels == 2)
+            m_assetData.format = Format::R8G8_UNORM;
+        else if (channels == 1)
+            m_assetData.format = Format::R8_UNORM;
         else
-        {
-            m_assetData.format         = m_assetData.isInLinearSpace ? Format::R8G8B8A8_UNORM : Format::R8G8B8A8_SRGB;
-            m_assetData.channelsForGPU = 4;
-        }
+            m_assetData.format = m_assetData.isInLinearSpace ? Format::R8G8B8A8_UNORM : Format::R8G8B8A8_SRGB;
     }
 
     void Texture::GenerateMipmaps()
@@ -253,18 +235,11 @@ namespace Lina::Graphics
         Vector<Mipmap> mipmaps;
         mipmaps.resize(m_assetData.mipLevels - 1);
 
-        auto subdivide = [&](int N, uint32 target) {
-            for (int i = 0; i < N; i++)
-                target /= 2;
-
-            return target > 1 ? target : 1;
-        };
-
         unsigned char* lastPixels = m_assetData.pixels;
         uint32         lastWidth  = m_assetData.width;
         uint32         lastHeight = m_assetData.height;
 
-        for (int i = 0; i < m_assetData.mipLevels - 1; i++)
+        for (uint32 i = 0; i < m_assetData.mipLevels - 1; i++)
         {
             uint32 width  = lastWidth / 2;
             uint32 height = lastHeight / 2;
@@ -280,14 +255,11 @@ namespace Lina::Graphics
             mipmap.height = height;
             mipmap.pixels = new unsigned char[width * height * m_assetData.channels];
             // stbir_resize_uint8(m_assetData.pixels, m_assetData.width, m_assetData.height, 0, mipmap.pixels, width, height, 0, m_assetData.channels);
-
             const stbir_colorspace cs = m_assetData.isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
             stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_assetData.channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(m_assetData.mipmapFilter), cs, 0);
-
             lastWidth  = width;
             lastHeight = height;
             lastPixels = mipmap.pixels;
-
             mipmaps[i] = mipmap;
         }
 
@@ -329,7 +301,7 @@ namespace Lina::Graphics
             .v                 = m_assetData.mode,
             .w                 = m_assetData.mode,
             .minLod            = 0.0f,
-            .maxLod            = static_cast<float>(m_assetData.mipLevels),
+            .maxLod            = m_assetData.generateMipmaps ? static_cast<float>(m_assetData.mipLevels) : 0.0f,
             .anisotropyEnabled = m_assetData.anisotropyEnabled,
             .maxAnisotropy     = m_assetData.anisotropy,
             .mipmapMode        = m_assetData.mipmapMode,
