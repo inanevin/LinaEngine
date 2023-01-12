@@ -57,11 +57,16 @@ namespace Lina::Graphics
 
         struct AssetData
         {
-            Format             format          = Format::R8G8B8A8_SRGB;
-            Filter             minFilter       = Filter::Nearest;
-            Filter             magFilter       = Filter::Nearest;
-            SamplerAddressMode mode            = SamplerAddressMode::Repeat;
-            bool               generateMipmaps = true;
+            Format             format            = Format::R8G8B8A8_SRGB;
+            Filter             minFilter         = Filter::Nearest;
+            Filter             magFilter         = Filter::Nearest;
+            SamplerAddressMode mode              = SamplerAddressMode::Repeat;
+            MipmapFilter       mipmapFilter      = MipmapFilter::Mitchell;
+            MipmapMode         mipmapMode        = MipmapMode::Linear;
+            bool               anisotropyEnabled = true;
+            float              anisotropy        = 2.0f;
+            bool               generateMipmaps   = true;
+            bool               isInLinearSpace   = false;
 
             // Runtime
             uint32         width          = 0;
@@ -115,10 +120,11 @@ namespace Lina::Graphics
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
-        void AddPixelsFromAssetData();
-        void CheckFormat();
-        void GenerateMipmaps();
-        void CopyImage(uint32 cpuOffset, const CommandBuffer& cmd, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, uint32 totalMipLevels, uint32 baseMipLevel);
+        void    AddPixelsFromAssetData();
+        void    CheckFormat();
+        void    GenerateMipmaps();
+        void    CopyImage(uint32 cpuOffset, const CommandBuffer& cmd, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, uint32 totalMipLevels, uint32 baseMipLevel);
+        Sampler CreateDefaultSampler();
 
     private:
         friend class GUIBackend;

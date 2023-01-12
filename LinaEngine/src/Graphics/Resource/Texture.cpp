@@ -61,15 +61,8 @@ namespace Lina::Graphics
 
     Resources::Resource* Texture::LoadFromMemory(Serialization::Archive<IStream>& archive)
     {
+        const Sampler sampler = CreateDefaultSampler();
         LoadFromArchive(archive);
-        Sampler sampler = Sampler{
-            .minFilter = m_assetData.minFilter,
-            .magFilter = m_assetData.magFilter,
-            .u         = m_assetData.mode,
-            .v         = m_assetData.mode,
-            .w         = m_assetData.mode,
-        };
-
         GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channelsForGPU, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
         WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
@@ -87,7 +80,7 @@ namespace Lina::Graphics
             m_assetData.width     = static_cast<uint32>(texWidth);
             m_assetData.height    = static_cast<uint32>(texHeight);
             m_assetData.mipLevels = static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1;
-            m_assetData.channels  = 4;
+            m_assetData.channels  = static_cast<uint32>(texChannels);
             CheckFormat();
             GenerateMipmaps();
 
@@ -102,21 +95,7 @@ namespace Lina::Graphics
             SaveAssetData();
         }
 
-        Sampler sampler = Sampler{
-            .minFilter         = m_assetData.minFilter,
-            .magFilter         = m_assetData.magFilter,
-            .u                 = m_assetData.mode,
-            .v                 = m_assetData.mode,
-            .w                 = m_assetData.mode,
-            .minLod            = 0.0f,
-            .maxLod            = static_cast<float>(m_assetData.mipLevels),
-            .anisotropyEnabled = true,
-            .maxAnisotropy     = 4.0f,
-            .mipmapMode        = MipmapMode::Linear,
-
-        };
-
-        // dont use the asset data channels for now.
+        const Sampler sampler = CreateDefaultSampler();
         GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channelsForGPU, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
         WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
@@ -130,11 +109,11 @@ namespace Lina::Graphics
         if (m_assetData.pixels == nullptr)
         {
             int texWidth, texHeight, texChannels;
-            m_assetData.pixels    = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            m_assetData.pixels    = stbi_load(m_path.c_str(), &texWidth, &texHeight, &texChannels, 0);
             m_assetData.width     = static_cast<uint32>(texWidth);
             m_assetData.height    = static_cast<uint32>(texHeight);
             m_assetData.mipLevels = static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1;
-            m_assetData.channels  = 4;
+            m_assetData.channels  = static_cast<uint32>(texChannels);
             CheckFormat();
             GenerateMipmaps();
         }
@@ -151,16 +130,17 @@ namespace Lina::Graphics
 
     void Texture::SaveToArchive(Serialization::Archive<OStream>& archive)
     {
-        const uint32 size   = static_cast<uint32>(m_assetData.width * m_assetData.height * m_assetData.channels);
-        const uint8  format = static_cast<uint8>(m_assetData.format);
-        const uint8  min    = static_cast<uint8>(m_assetData.minFilter);
-        const uint8  mag    = static_cast<uint8>(m_assetData.magFilter);
-        const uint8  mode   = static_cast<uint8>(m_assetData.mode);
-        archive(format, min, mag, mode);
-        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels);
-        archive(size);
-        archive(m_assetData.generateMipmaps);
-        archive(m_assetData.channels, m_assetData.channelsForGPU);
+        const uint32 size         = static_cast<uint32>(m_assetData.width * m_assetData.height * m_assetData.channels);
+        const uint8  format       = static_cast<uint8>(m_assetData.format);
+        const uint8  min          = static_cast<uint8>(m_assetData.minFilter);
+        const uint8  mag          = static_cast<uint8>(m_assetData.magFilter);
+        const uint8  mode         = static_cast<uint8>(m_assetData.mode);
+        const uint8  mipmapMode   = static_cast<uint8>(m_assetData.mipmapMode);
+        const uint8  mipmapFilter = static_cast<uint8>(m_assetData.mipmapFilter);
+
+        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels, m_assetData.channelsForGPU);
+        archive(m_assetData.anisotropyEnabled, m_assetData.anisotropy, m_assetData.isInLinearSpace);
+        archive(size, format, min, mag, mode, mipmapMode, mipmapFilter);
 
         if (size != 0)
             archive.GetStream().WriteEndianSafe(m_assetData.pixels, size);
@@ -184,25 +164,18 @@ namespace Lina::Graphics
 
     void Texture::LoadFromArchive(Serialization::Archive<IStream>& archive)
     {
-        uint8  format = 0, min = 0, mag = 0, mode = 0;
-        uint32 w = 0, h = 0, pixelsSize = 0, mipLevels = 0, channels = 0, channelsForGPU;
-        bool   generateMipmaps = false;
-        archive(format, min, mag, mode);
-        archive(w, h, mipLevels);
-        archive(pixelsSize);
-        archive(generateMipmaps);
-        archive(channels, channelsForGPU);
+        uint32 pixelsSize = 0;
+        uint8  format = 0, min = 0, mag = 0, mode = 0, mipmapMode = 0, mipmapFilter = 0;
+        archive(m_assetData.width, m_assetData.height, m_assetData.mipLevels, m_assetData.generateMipmaps, m_assetData.channels, m_assetData.channelsForGPU);
+        archive(m_assetData.anisotropyEnabled, m_assetData.anisotropy, m_assetData.isInLinearSpace);
+        archive(pixelsSize, format, min, mag, mode, mipmapMode, mipmapFilter);
 
-        m_assetData.format          = static_cast<Format>(format);
-        m_assetData.minFilter       = static_cast<Filter>(min);
-        m_assetData.magFilter       = static_cast<Filter>(mag);
-        m_assetData.mode            = static_cast<SamplerAddressMode>(mode);
-        m_assetData.width           = w;
-        m_assetData.height          = h;
-        m_assetData.mipLevels       = mipLevels;
-        m_assetData.generateMipmaps = generateMipmaps;
-        m_assetData.channels        = channels;
-        m_assetData.channelsForGPU  = channelsForGPU;
+        m_assetData.format       = static_cast<Format>(format);
+        m_assetData.minFilter    = static_cast<Filter>(min);
+        m_assetData.magFilter    = static_cast<Filter>(mag);
+        m_assetData.mode         = static_cast<SamplerAddressMode>(mode);
+        m_assetData.mipmapMode   = static_cast<MipmapMode>(mipmapMode);
+        m_assetData.mipmapFilter = static_cast<MipmapFilter>(mipmapFilter);
 
         if (pixelsSize != 0)
         {
@@ -261,7 +234,7 @@ namespace Lina::Graphics
         }
         else
         {
-            m_assetData.format         = Format::R8G8B8A8_SRGB;
+            m_assetData.format         = m_assetData.isInLinearSpace ? Format::R8G8B8A8_UNORM : Format::R8G8B8A8_SRGB;
             m_assetData.channelsForGPU = 4;
         }
     }
@@ -287,19 +260,36 @@ namespace Lina::Graphics
             return target > 1 ? target : 1;
         };
 
-        Taskflow tf;
-        tf.for_each_index(0, static_cast<int>(m_assetData.mipLevels - 1), 1, [&](int i) {
-            uint32 width  = subdivide(i + 1, m_assetData.width);
-            uint32 height = subdivide(i + 1, m_assetData.height);
+        unsigned char* lastPixels = m_assetData.pixels;
+        uint32         lastWidth  = m_assetData.width;
+        uint32         lastHeight = m_assetData.height;
+
+        for (int i = 0; i < m_assetData.mipLevels - 1; i++)
+        {
+            uint32 width  = lastWidth / 2;
+            uint32 height = lastHeight / 2;
+
+            if (width < 1)
+                width = 1;
+
+            if (height < 1)
+                height = 1;
+
             Mipmap mipmap;
             mipmap.width  = width;
             mipmap.height = height;
             mipmap.pixels = new unsigned char[width * height * m_assetData.channels];
-            stbir_resize_uint8(m_assetData.pixels, m_assetData.width, m_assetData.height, 0, mipmap.pixels, width, height, 0, m_assetData.channels);
-            mipmaps[i] = mipmap;
-        });
+            // stbir_resize_uint8(m_assetData.pixels, m_assetData.width, m_assetData.height, 0, mipmap.pixels, width, height, 0, m_assetData.channels);
 
-        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
+            const stbir_colorspace cs = m_assetData.isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
+            stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_assetData.channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(m_assetData.mipmapFilter), cs, 0);
+
+            lastWidth  = width;
+            lastHeight = height;
+            lastPixels = mipmap.pixels;
+
+            mipmaps[i] = mipmap;
+        }
 
         m_assetData.mipmaps = mipmaps;
     }
@@ -328,6 +318,24 @@ namespace Lina::Graphics
         // Transfer to shader read.
         cmd.CMD_ImageTransition(m_gpuImage._allocatedImg.image, ImageLayout::TransferDstOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::TransferWrite, AccessFlags::ShaderRead, PipelineStageFlags::Transfer,
                                 PipelineStageFlags::FragmentShader, totalMipLevels, baseMipLevel);
+    }
+
+    Sampler Texture::CreateDefaultSampler()
+    {
+        Sampler sampler = Sampler{
+            .minFilter         = m_assetData.minFilter,
+            .magFilter         = m_assetData.magFilter,
+            .u                 = m_assetData.mode,
+            .v                 = m_assetData.mode,
+            .w                 = m_assetData.mode,
+            .minLod            = 0.0f,
+            .maxLod            = static_cast<float>(m_assetData.mipLevels),
+            .anisotropyEnabled = m_assetData.anisotropyEnabled,
+            .maxAnisotropy     = m_assetData.anisotropy,
+            .mipmapMode        = m_assetData.mipmapMode,
+        };
+
+        return sampler;
     }
 
     void Texture::CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext)

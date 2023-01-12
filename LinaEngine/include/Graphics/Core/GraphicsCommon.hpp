@@ -655,6 +655,15 @@ namespace Lina::Graphics
         GUI      = 2,
     };
 
+    enum class MipmapFilter
+    {
+        Box = 0,
+        Triangle,
+        CubicSpline,
+        CatmullRom,
+        Mitchell
+    };
+
     struct Offset3D
     {
         int32 x = 0;
