@@ -81,7 +81,7 @@ namespace Lina::Graphics
             return;
         }
 
-        m_screen.Initialize(m_renderer, &m_backend.m_mainSwapchain);
+        m_screen.Initialize(m_renderer, m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID]);
 
         DescriptorSetLayoutBinding globalBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -207,9 +207,10 @@ namespace Lina::Graphics
 
     void RenderEngine::SetRenderer(Renderer* renderer)
     {
-        m_renderer = renderer;
-        m_renderer->Initialize(&m_backend.m_mainSwapchain, m_guiBackend, &m_windowManager);
-        m_renderer->UpdateViewport(m_backend.m_mainSwapchain.size);
+        m_renderer         = renderer;
+        auto mainSwapchain = m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID];
+        m_renderer->Initialize(mainSwapchain, m_guiBackend, &m_windowManager);
+        m_renderer->UpdateViewport(mainSwapchain->size);
     }
 
     void RenderEngine::SyncData()
@@ -280,7 +281,8 @@ namespace Lina::Graphics
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
-        m_guiBackend->UpdateProjection(m_backend.m_mainSwapchain.size);
+        auto mainSwapchain = m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID];
+        m_guiBackend->UpdateProjection(mainSwapchain->size);
     }
 
     void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)

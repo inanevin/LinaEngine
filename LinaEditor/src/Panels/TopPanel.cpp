@@ -36,11 +36,13 @@ SOFTWARE.
 #include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Time.hpp"
+#include "Core/EditorGUIManager.hpp"
 
 namespace Lina::Editor
 {
 #define TITLE_ANIM_SID  "toppanel_titleanim"
 #define TEXT_ANIM_SPEED 0.05f
+
     enum TopPanelPopupIDs
     {
         // File
@@ -52,7 +54,7 @@ namespace Lina::Editor
         // Edit
         // todo
 
-        // View
+        // Panels
         TP_Panels_Entities,
         TP_Panels_Level,
         TP_Panels_Properties,
@@ -173,15 +175,15 @@ namespace Lina::Editor
         const Vector2 display    = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
         const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().Size();
 
-        m_currentSize = Vector2(screenSize.x, display.y * 0.084f);
+        m_rect.size = Vector2(screenSize.x, display.y * 0.084f);
 
         auto& theme = LGUI->GetTheme();
 
         constexpr const char* name = "TopPanel";
-        LGUI->SetWindowSize(name, m_currentSize);
+        LGUI->SetWindowSize(name, m_rect.size);
         LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
 
-        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize))
+        if (LGUI->BeginWindow(name, IMW_MainSwapchain | IMW_NoMove | IMW_NoResize | IMW_NoHeader))
         {
             DrawFileMenu();
             m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
@@ -215,12 +217,12 @@ namespace Lina::Editor
 
         // BG
         Vector<LinaVG::Vec2> points;
-        const float          bgHeight     = m_currentSize.y * 0.35f;
+        const float          bgHeight     = m_rect.size.y * 0.35f;
         const float          desiredTextY = bgHeight * 0.6f;
         const Vector2        textureSize  = Vector2(m_titleAspect * desiredTextY, desiredTextY);
         const float          bgWidth      = textureSize.x + textureSize.x * 0.3f;
         const float          bgFactor     = bgWidth * 0.04f;
-        float                centerX      = m_currentSize.x * 0.5f;
+        float                centerX      = m_rect.size.x * 0.5f;
         centerX                           = Math::Max(centerX, m_fileMenuMaxX + bgWidth * 0.5f);
         const LinaVG::Vec2 bg1            = LinaVG::Vec2(centerX - bgWidth * 0.5f, 0.0f);
         const LinaVG::Vec2 bg2            = LinaVG::Vec2(centerX + bgWidth * 0.5f, 0.0f);
@@ -325,14 +327,11 @@ namespace Lina::Editor
         auto& w     = LGUI->GetCurrentWindow();
         auto& theme = LGUI->GetTheme();
 
-        const Vector2         pos  = Vector2(0, m_currentSize.y * 0.55f);
+        const Vector2         pos  = Vector2(0, m_rect.size.y * 0.55f);
         constexpr const char* name = "TopPanelControls";
-        LGUI->SetWindowSize(name, Vector2(m_currentSize.x, m_currentSize.y * 0.45f));
+        LGUI->SetWindowSize(name, Vector2(m_rect.size.x, m_rect.size.y * 0.45f));
 
-        Bitmask16 mask = IMW_NoMove | IMW_NoResize;
-        Bitmask16 mask2 = IMW_UseAbsoluteDrawOrder;
-        auto bol = mask.IsSet(IMW_UseAbsoluteDrawOrder);
-        auto bol2 = mask2.IsSet(IMW_UseAbsoluteDrawOrder);
+        Bitmask16 mask = IMW_NoMove | IMW_NoResize | IMW_NoHeader;
         if (LGUI->BeginWindow(name, mask, pos))
         {
             LGUI->EndWindow();
@@ -357,18 +356,23 @@ namespace Lina::Editor
         }
         else if (id == TP_Panels_Entities)
         {
+            m_guiManager->LaunchPanel(EditorPanel::Entities);
         }
         else if (id == TP_Panels_Global)
         {
+            m_guiManager->LaunchPanel(EditorPanel::Global);
         }
         else if (id == TP_Panels_Level)
         {
+            m_guiManager->LaunchPanel(EditorPanel::Level);
         }
         else if (id == TP_Panels_Resources)
         {
+            m_guiManager->LaunchPanel(EditorPanel::Resources);
         }
         else if (id == TP_Panels_Properties)
         {
+            m_guiManager->LaunchPanel(EditorPanel::Properties);
         }
         else if (id == TP_Level_CreateLevel)
         {

@@ -95,8 +95,8 @@ namespace Lina::Input
 
     void InputEngine::OnMouseScrollCallback(const Event::EMouseScrollCallback& e)
     {
-        m_mouseScrollPrev.x = (float)e.xoff;
-        m_mouseScrollPrev.y = (float)e.yoff;
+        m_mouseScrollPrev.x = e.xoff;
+        m_mouseScrollPrev.y = e.yoff;
     }
 
     void InputEngine::OnMouseButtonCallback(const Event::EMouseButtonCallback& e)
@@ -107,8 +107,8 @@ namespace Lina::Input
 
     void InputEngine::OnMouseMovedRaw(const Event::EMouseMovedRaw& e)
     {
-        m_mouseDeltaRawPrev.x = static_cast<float>(e.xDelta);
-        m_mouseDeltaRawPrev.y = static_cast<float>(e.yDelta);
+        m_mouseDeltaRawPrev.x = e.xDelta;
+        m_mouseDeltaRawPrev.y = e.yDelta;
     }
 
     void InputEngine::OnActiveAppChanged(const Event::EActiveAppChanged& e)

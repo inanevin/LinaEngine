@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Serialization/Endianness.hpp"
 #include "Memory/Memory.hpp"
+#include "Utility/StringId.hpp"
 #include <type_traits>
 #include <iosfwd>
 
@@ -43,12 +44,12 @@ namespace Lina
     {
     public:
         void Create(size_t size);
+        void CreateFromPreAllocated(StringID linearBlockSid, size_t size);
         void Create(uint8* data, size_t size);
         void Destroy();
         void ReadFromStream(std::ifstream& stream);
 
-        template <typename T>
-        void Read(T& t)
+        template <typename T> void Read(T& t)
         {
             MEMCPY(reinterpret_cast<uint8*>(&t), &m_data[m_index], sizeof(T));
             m_index += sizeof(T);
@@ -93,13 +94,13 @@ namespace Lina
         }
 
     private:
-        uint8* m_data  = nullptr;
-        size_t m_index = 0;
-        size_t m_size  = 0;
+        StringID m_preAllocatedLinearBlock = 0;
+        uint8*   m_data                    = nullptr;
+        size_t   m_index                   = 0;
+        size_t   m_size                    = 0;
     };
 
-    template <typename T>
-    IStream& operator>>(IStream& istm, T& val)
+    template <typename T> IStream& operator>>(IStream& istm, T& val)
     {
         istm.Read(val);
 
@@ -115,14 +116,14 @@ namespace Lina
     {
     public:
         void CreateReserve(size_t size);
+        void CreateReserveFromPreAllocated(StringID sid, size_t size);
         void Destroy();
         void CheckGrow(size_t sz);
         void WriteToStream(std::ofstream& stream);
         void WriteEndianSafe(const uint8* ptr, size_t size);
         void WriteRaw(const uint8* ptr, size_t size);
 
-        template <typename T>
-        void Write(T& t)
+        template <typename T> void Write(T& t)
         {
             uint8*       ptr  = (uint8*)&t;
             const size_t size = sizeof(T);
@@ -148,13 +149,13 @@ namespace Lina
         }
 
     private:
-        uint8* m_data        = nullptr;
-        size_t m_currentSize = 0;
-        size_t m_totalSize   = 0;
+        StringID m_preAllocatedLinearBlock = 0;
+        uint8*   m_data                    = nullptr;
+        size_t   m_currentSize             = 0;
+        size_t   m_totalSize               = 0;
     };
 
-    template <typename T>
-    OStream& operator<<(OStream& stream, T& val)
+    template <typename T> OStream& operator<<(OStream& stream, T& val)
     {
         auto copy = const_cast<typename std::remove_const<T>::type&>(val);
         if (Serialization::ShouldSwap())

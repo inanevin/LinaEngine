@@ -36,6 +36,11 @@ SOFTWARE.
 #include "Theme.hpp"
 #include "Functional/Functional.hpp"
 
+namespace Lina
+{
+    class Color;
+}
+
 namespace Lina::Editor
 {
     enum ButtonStyleMask
@@ -85,6 +90,9 @@ namespace Lina::Editor
         static void BeginHorizontal();
         static void EndHorizontal();
         static void Space(float amt);
+
+        // Style
+        static void DropShadow(const Vector2& p1, const Vector2& p2, const Color& color, float thickness, int count, int drawOrder);
 
         // Icon
         static void DrawIcon(const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);

@@ -28,62 +28,141 @@ SOFTWARE.
 
 #include "Memory/MemoryManager.hpp"
 #include "Log/Log.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Memory
 {
 
 #define STATIC_BLOCK_SIZE 32000
+#define BYTES_TO_MB(x)    x * 0.000001f
 
     MemoryManager* MemoryManager::s_instance = nullptr;
+
+    void MemoryManager::CreateLinearBlockList(StringID sid, size_t size)
+    {
+        LinearBlock block;
+        block.maxSize   = size;
+        block.allocator = new LinearAllocator(size);
+        block.allocator->Init();
+
+        auto& bl = m_linearBlocks[sid];
+        bl.size  = size;
+        bl.blocks.push_back(block);
+
+        LINA_TRACE("[Memory Manager] -> Created linear allocator block for: {0}, size: {1} (mb)", sid, BYTES_TO_MB(size));
+    }
+
+    void* MemoryManager::GetFromLinearBlock(LinearBlock& block, size_t size)
+    {
+        block.allocated += size;
+        return block.allocator->Allocate(size);
+    }
+
+    void* MemoryManager::GetFromLinearBlockList(StringID sid, size_t size)
+    {
+        LOCK_GUARD(m_linearMtx);
+
+        auto& bl = m_linearBlocks[sid];
+        for (auto& block : bl.blocks)
+        {
+            if (block.IsAvailable(size))
+                return GetFromLinearBlock(block, size);
+        }
+
+        const uint32 targetSize = Math::Max(size, bl.size);
+        LinearBlock  block;
+        block.maxSize   = targetSize;
+        block.allocator = new LinearAllocator(targetSize);
+        block.allocator->Init();
+        bl.blocks.push_back(block);
+
+        auto data = GetFromLinearBlock(bl.blocks[bl.blocks.size() - 1], size);
+        return data;
+    }
+
+    void MemoryManager::FlushLinearBlockList(StringID sid)
+    {
+        auto&  bl         = m_linearBlocks[sid];
+        size_t totalFreed = 0;
+
+        Vector<LinearBlock> newBlocks;
+
+        for (auto& b : bl.blocks)
+        {
+            totalFreed += b.maxSize;
+
+            // remove outliers, only the ones with the initial reserved size are allowed to stay.
+            if (b.maxSize > bl.size)
+                delete b.allocator;
+            else
+            {
+                newBlocks.push_back(b);
+                b.allocated = 0;
+                b.allocator->Reset();
+            }
+        }
+
+        bl.blocks.clear();
+        bl.blocks = newBlocks;
+
+        LINA_TRACE("[Memory Manager] -> Flushed linear block list: {0}, total resetted size: {1} (mb)", sid, BYTES_TO_MB(totalFreed));
+    }
+
+    void MemoryManager::FreeLinearBlockList(StringID sid)
+    {
+        LOCK_GUARD(m_linearMtx);
+
+        auto&  bl         = m_linearBlocks[sid];
+        size_t totalFreed = 0;
+        for (auto& b : bl.blocks)
+        {
+            totalFreed += b.maxSize;
+            delete b.allocator;
+        }
+
+        LINA_TRACE("[Memory Manager] -> Cleaning linear block list: {0}, total freed size: {1} (mb)", sid, BYTES_TO_MB(totalFreed));
+        bl.blocks.clear();
+    }
 
     void MemoryManager::Initialize()
     {
         LINA_TRACE("[Initialization] -> Memory Manager ({0})", typeid(*this).name());
-        CreateStaticBlock();
-    }
-
-    StaticBlock* MemoryManager::CreateStaticBlock()
-    {
-        LINA_TRACE("[Memory Manager] -> Static block exceeded, allocating new block.");
-        StaticBlock staticBlock;
-        staticBlock.allocator = new LinearAllocator(STATIC_BLOCK_SIZE);
-        staticBlock.allocator->Init();
-        staticBlock.maxSize = STATIC_BLOCK_SIZE;
-        m_staticBlocks.push_back(staticBlock);
-        return m_staticBlocks.end();
     }
 
     void MemoryManager::Shutdown()
     {
         LINA_TRACE("[Shutdown] -> Memory Manager ({0})", typeid(*this).name());
 
-        for (auto& bl : m_staticBlocks)
+        for (auto& [sid, bl] : m_linearBlocks)
         {
-            LINA_TRACE("[Memory Manager] -> Freeing static block of size: {0}", bl.maxSize);
-            delete bl.allocator;
+            LINA_TRACE("[Memory Manager] -> Freeing static linear block list, list size: {0}, total max size per item: {1} (mb)", bl.blocks.size(), BYTES_TO_MB(bl.size));
+            FreeLinearBlockList(sid);
         }
 
         for (auto& [sid, vec] : m_poolBlocks)
         {
             for (auto& bl : vec)
             {
-                LINA_TRACE("[Memory Manager] -> Freeing pool block of size: {0}", bl.maxSize);
+                LINA_TRACE("[Memory Manager] -> Freeing pool block of size: {0} (mb)", BYTES_TO_MB(bl.maxSize));
                 delete bl.allocator;
             }
         }
-
-        m_staticBlocks.clear();
     }
 
-    void MemoryManager::PrintStaticBlockInfo()
+    void MemoryManager::PrintBlockInfos()
     {
         int counter = 0;
-        for (auto& bl : m_staticBlocks)
+        for (auto& [sid, bl] : m_linearBlocks)
         {
-            LINA_TRACE("Static Block {0}", counter);
-            LINA_TRACE("  * Allocated: {0}", bl.allocated);
-            LINA_TRACE("  * Remaining: {0}", bl.maxSize - bl.allocated);
-            LINA_TRACE("  * Max: {0}", bl.maxSize);
+            LINA_TRACE("Linear Block {0}", counter);
+
+            for (auto& b : bl.blocks)
+            {
+                LINA_TRACE("  * Allocated: {0} (mb)", BYTES_TO_MB(b.allocated));
+                LINA_TRACE("  * Remaining: {0} (mb)", BYTES_TO_MB((b.maxSize - b.allocated)));
+                LINA_TRACE("  * Max: {0} (mb)", BYTES_TO_MB(b.maxSize));
+            }
+
             counter++;
         }
 
@@ -93,9 +172,9 @@ namespace Lina::Memory
             for (auto& bl : vec)
             {
                 LINA_TRACE("Pool Block: {0} - {1}", bl.name, counter);
-                LINA_TRACE("  * Allocated: {0}", bl.allocated);
-                LINA_TRACE("  * Remaining: {0}", bl.maxSize - bl.allocated);
-                LINA_TRACE("  * Max: {0}", bl.maxSize);
+                LINA_TRACE("  * Allocated: {0} (mb)", BYTES_TO_MB(bl.allocated));
+                LINA_TRACE("  * Remaining: {0} (mb)", BYTES_TO_MB((bl.maxSize - bl.allocated)));
+                LINA_TRACE("  * Max: {0} (mb)", BYTES_TO_MB(bl.maxSize));
                 counter++;
             }
         }

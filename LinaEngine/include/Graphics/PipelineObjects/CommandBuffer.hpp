@@ -58,24 +58,18 @@ namespace Lina::Graphics
         void CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst) const;
         void CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) const;
         void CMD_DrawIndexedIndirect(VkBuffer_T* buffer, uint64 offset, uint32 drawCount, uint32 stride) const;
-        void CMD_PipelineBarrier(uint32                              srcStageFlags,
-                                 uint32                              dstStageFlags,
-                                 uint32                              dependencyFlags,
-                                 const Vector<DefaultMemoryBarrier>& barriers,
-                                 const Vector<BufferMemoryBarrier>&  bufferBarriers,
-                                 const Vector<ImageMemoryBarrier>&   imageBarriers) const;
+        void CMD_PipelineBarrier(uint32 srcStageFlags, uint32 dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers) const;
         void CMD_CopyBuffer(VkBuffer_T* src, VkBuffer_T* dst, const Vector<BufferCopy>& regions) const;
         void CMD_CopyBufferToImage(VkBuffer_T* src, VkImage_T* dst, ImageLayout layout, const Vector<BufferImageCopy>& copy) const;
         void CMD_SetViewport(const Viewport& vp) const;
         void CMD_SetScissors(const Recti& rect) const;
         void CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter) const;
         void CMD_BeginRendering(RenderingInfo& info) const;
-        void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea) const;
+        void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea, const Color& color = Color::Gray) const;
         void CMD_EndRendering() const;
-        void CMD_ImageTransition_ToColorOptimal(VkImage_T* img) const;
-        void CMD_ImageTransition_ToColorShaderRead(VkImage_T* img) const;
-        void CMD_ImageTransition_ToDepthOptimal(VkImage_T* img) const;
-        void CMD_ImageTransition_ToPresent(VkImage_T* img, ImageAspectFlags aspect) const;
+        void CMD_ImageTransition(VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags dstAccessFlags, uint32 srcStage, uint32 destStage, uint32 mipLevels = 1, uint32 baseMip = 0) const;
+        void CMD_ImageTransition(
+            VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags dstAccessFlags, PipelineStageFlags srcStage, PipelineStageFlags destStage, uint32 mipLevels = 1, uint32 baseMip = 0) const;
         void End() const;
 
         // Description

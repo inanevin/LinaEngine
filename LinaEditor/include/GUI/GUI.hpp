@@ -76,6 +76,7 @@ namespace Lina::Editor
         IMW_MainSwapchain        = 1 << 4,
         IMW_NoMove               = 1 << 5,
         IMW_NoResize             = 1 << 6,
+        IMW_NoHeader             = 1 << 7,
     };
 
     struct SwapchainInfo
@@ -106,8 +107,9 @@ namespace Lina::Editor
     class ImmediateWindow
     {
     public:
+        void DragBehaviour();
         void Draw();
-        bool IsWindowHovered();
+        bool IsHovered();
 
         // Widgets
         void             BeginWidget(const Vector2& size);
@@ -185,6 +187,7 @@ namespace Lina::Editor
         Rect     _rect        = Rect();
         StringID _parent      = 0;
         StringID _swapchainID = 0;
+        Rect     _dragRect    = Rect();
     };
 
     class ImmediateGUI

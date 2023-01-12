@@ -39,31 +39,56 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+    class CommandBuffer;
+
     class Texture : public Resources::Resource
     {
+
+    public:
+        struct Mipmap
+        {
+            uint32         width  = 0;
+            uint32         height = 0;
+            unsigned char* pixels = nullptr;
+        };
+
+    private:
+#define VERSION 2
+
         struct AssetData
         {
-            Format             format    = Format::R8G8B8A8_SRGB;
-            Filter             minFilter = Filter::Nearest;
-            Filter             magFilter = Filter::Nearest;
-            SamplerAddressMode mode      = SamplerAddressMode::Repeat;
+            Format             format          = Format::R8G8B8A8_SRGB;
+            Filter             minFilter       = Filter::Nearest;
+            Filter             magFilter       = Filter::Nearest;
+            SamplerAddressMode mode            = SamplerAddressMode::Repeat;
+            bool               generateMipmaps = true;
 
             // Runtime
-            uint32 width    = 0;
-            uint32 height   = 0;
-            uint32 channels = 0;
+            uint32         width          = 0;
+            uint32         height         = 0;
+            uint32         mipLevels      = 0;
+            uint32         channels       = 0;
+            uint32         channelsForGPU = 0;
+            unsigned char* pixels         = nullptr;
+            Vector<Mipmap> mipmaps;
         };
 
     public:
         Texture() = default;
         ~Texture();
 
+        virtual uint32 GetVersion() override
+        {
+            return VERSION;
+        }
+
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual Resource* LoadFromFile(const char* path) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
         void              CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext);
-        void              WriteToGPUImage(uint32 cpuBufferOffset, unsigned char* data, size_t dataSize, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
-        void              GenerateCustomBuffers(int width, int height, int channels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
+        void              WriteToGPUImage(const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
+        void              WriteToGPUImage(const Vector<Mipmap>& mipmaps, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
+        void              GenerateCustomBuffers(int width, int height, int channels, uint32 mipLevels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
 
         inline const Extent3D& GetExtent() const
         {
@@ -90,15 +115,19 @@ namespace Lina::Graphics
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
+        void AddPixelsFromAssetData();
+        void CheckFormat();
+        void GenerateMipmaps();
+        void CopyImage(uint32 cpuOffset, const CommandBuffer& cmd, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, uint32 totalMipLevels, uint32 baseMipLevel);
+
     private:
         friend class GUIBackend;
 
-        AssetData      m_assetData;
-        Image          m_gpuImage;
-        Sampler        m_sampler;
-        Extent3D       m_extent;
-        Buffer         m_cpuBuffer;
-        unsigned char* m_pixels = nullptr;
+        AssetData m_assetData;
+        Image     m_gpuImage;
+        Sampler   m_sampler;
+        Extent3D  m_extent;
+        Buffer    m_cpuBuffer;
     };
 } // namespace Lina::Graphics
 

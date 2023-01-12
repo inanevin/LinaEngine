@@ -41,7 +41,7 @@ namespace Lina::Serialization
     {
     public:
         static OStream Compress(const OStream& stream);
-        static IStream Decompress(IStream& stream);
+        static IStream Decompress(IStream& stream, size_t decompressedBound);
     };
 }; // namespace Lina::Serialization
 

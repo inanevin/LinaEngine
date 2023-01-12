@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,6 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define NOMINMAX
-
 #include "Math/Rect.hpp"
+
+namespace Lina
+{
+    Rect Rect::Shrink(float percentage) const
+    {
+        Rect        r    = *this;
+        const float amtX = r.size.x * percentage / 100.0f;
+        const float amtY = r.size.y * percentage / 100.0f;
+        r.size -= Vector2(amtX, amtY) * 2.0f;
+        r.pos += Vector2(amtX, amtY);
+        return r;
+    }
+
+} // namespace Lina

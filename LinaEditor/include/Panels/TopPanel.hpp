@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "GUI/CustomWidgets/MenuBar.hpp"
 #include "Utility/Graphics/TexturePacker.hpp"
+#include "GUI/Drawable.hpp"
 
 namespace Lina
 {
@@ -46,19 +47,21 @@ namespace Lina
 
 namespace Lina::Editor
 {
-    class TopPanel : public Panel
+    class EditorGUIManager;
+
+    class TopPanel : public Drawable
     {
     public:
         TopPanel()          = default;
         virtual ~TopPanel() = default;
 
-        virtual void   Initialize() override;
-        virtual void   Shutdown() override;
-        virtual void   Draw() override;
-        
-        inline Vector2 GetCurrentSize()
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        virtual void Draw() override;
+
+        inline void SetGUIManager(EditorGUIManager* guiManager)
         {
-            return m_currentSize;
+            m_guiManager = guiManager;
         }
 
     private:
@@ -70,19 +73,19 @@ namespace Lina::Editor
 
     private:
         MenuBar               m_menuBar;
-        Vector2               m_currentSize         = Vector2();
-        uint32                m_titleTexture        = 0;
-        uint32                m_textAnimationIndex  = 0;
-        float                 m_titleAspect         = 0.0f;
-        float                 m_lastTextAnimTime    = 0.0f;
-        float                 m_fileMenuMaxX        = 0.0f;
-        float                 m_titleMaxX           = 0.0f;
-        StringID              m_minimizeSid         = 0;
-        StringID              m_maximizeSid         = 0;
-        StringID              m_closeSid            = 0;
-        StringID              m_restoreSid          = 0;
-        Graphics::Texture*    m_packedAnim          = nullptr;
+        uint32                m_titleTexture       = 0;
+        uint32                m_textAnimationIndex = 0;
+        float                 m_titleAspect        = 0.0f;
+        float                 m_lastTextAnimTime   = 0.0f;
+        float                 m_fileMenuMaxX       = 0.0f;
+        float                 m_titleMaxX          = 0.0f;
+        StringID              m_minimizeSid        = 0;
+        StringID              m_maximizeSid        = 0;
+        StringID              m_closeSid           = 0;
+        StringID              m_restoreSid         = 0;
+        Graphics::Texture*    m_packedAnim         = nullptr;
         Vector<PackedTexture> m_packedAnimTextures;
+        EditorGUIManager*     m_guiManager = nullptr;
     };
 } // namespace Lina::Editor
 

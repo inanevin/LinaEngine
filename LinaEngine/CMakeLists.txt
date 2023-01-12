@@ -199,6 +199,7 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Resource/MaterialProperty.hpp
 	include/Graphics/Resource/Font.hpp
 	include/Graphics/Utility/stb/stb_image.h
+	include/Graphics/Utility/stb/stb_image_resize.h
 	include/Graphics/Utility/stb/stb_image_write.h
 	include/Graphics/Utility/Vulkan/VkBootstrap.h
 	include/Graphics/Utility/Vulkan/VkBootstrapDispatch.h

@@ -281,12 +281,12 @@ namespace Lina::Graphics
              .v             = SamplerAddressMode::ClampToEdge,
              .w             = SamplerAddressMode::ClampToEdge,
              .mipLodBias    = 0.0f,
-             .maxAnisotropy = 1.0f,
              .minLod        = 0.0f,
              .maxLod        = 1.0f,
+             .maxAnisotropy = 1.0f,
              .borderColor   = BorderColor::FloatOpaqueWhite,
         };
-        txt->GenerateCustomBuffers(width, height, 1, Format::R8_UNORM, sampler, ImageTiling::Linear);
+        txt->GenerateCustomBuffers(width, height, 1, 1, Format::R8_UNORM, sampler, ImageTiling::Linear);
         txt->SetUserManaged(true);
 
         // Skipping 0 index
@@ -319,7 +319,7 @@ namespace Lina::Graphics
         for (auto& t : m_fontTextures)
         {
             Texture* txt = t.second;
-            txt->WriteToGPUImage(0, nullptr, 0, Offset3D{.x = 0, .y = 0, .z = 0}, txt->m_extent, true);
+            txt->WriteToGPUImage(Offset3D{.x = 0, .y = 0, .z = 0}, txt->m_extent, true);
         }
     }
 

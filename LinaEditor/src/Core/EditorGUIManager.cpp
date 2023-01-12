@@ -40,6 +40,13 @@ SOFTWARE.
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Core/EditorRenderer.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "GUI/Drawable.hpp"
+#include "GUI/DockArea.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/PipelineObjects/Swapchain.hpp"
+#include "Panels/TopPanel.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
+#include "Core/EditorRenderer.hpp"
 
 // Debug
 #include "Input/Core/InputEngine.hpp"
@@ -120,6 +127,10 @@ namespace Lina::Editor
         theme.m_colors[ThemeColor::Highlight]               = Color(142, 34, 34, 255, true);
         theme.m_colors[ThemeColor::MenuBarPopupBG]          = light0;
         theme.m_colors[ThemeColor::MenuBarPopupBorderColor] = light1;
+        theme.m_colors[ThemeColor::DockArea]                = dark1;
+        theme.m_colors[ThemeColor::DockAreaBorder]          = light1;
+        theme.m_colors[ThemeColor::DockAreaTitleBar]        = dark2;
+        theme.m_colors[ThemeColor::DockAreaTitleBarBorder]  = Color(5.0f, 5.0f, 5.0f, 200.0f, true);
 
         theme.m_properties[ThemeProperty::AAEnabled]             = LinaVG::Config.aaEnabled ? 1.0f : 0.0f;
         theme.m_properties[ThemeProperty::WindowItemPaddingX]    = 12;
@@ -144,12 +155,34 @@ namespace Lina::Editor
         Event::EventSystem::Get()->Connect<Event::EDrawGUI, &EditorGUIManager::OnDrawGUI>(this);
         Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
 
-        m_topPanel.Initialize();
+        // m_topPanel.Initialize();
+
+        // top panel is a fixed window drawable, create init.
+
+        // then bottom dock area.
+        m_mainDockArea                = new DockArea();
+        m_mainDockArea->m_swapchainID = LINA_MAIN_SWAPCHAIN_ID;
+        m_dockAreas.push_back(m_mainDockArea);
+
+        m_topPanel = new TopPanel();
+        m_topPanel->Initialize();
+
+        for (auto d : m_dockAreas)
+            d->Initialize();
     }
 
     void EditorGUIManager::Shutdown()
     {
-        m_topPanel.Shutdown();
+        m_topPanel->Shutdown();
+        delete m_topPanel;
+
+        for (auto d : m_dockAreas)
+        {
+            d->Shutdown();
+            delete d;
+        }
+
+        // m_topPanel.Shutdown();
         Event::EventSystem::Get()->Disconnect<Event::EDrawGUI>(this);
         Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
         Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
@@ -157,40 +190,50 @@ namespace Lina::Editor
 
     World::EntityWorld* testWorld = nullptr;
 
-    bool test = false;
-
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
-        m_topPanel.Draw();
+        m_topPanel->Draw();
 
-        m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+        const auto&   topPanelRect = m_topPanel->GetRect();
+        const Vector2 screen       = Graphics::RenderEngine::Get()->GetScreen().Size();
+        m_mainDockArea->m_rect     = Rect(Vector2(0, topPanelRect.size.y), Vector2(screen.x, screen.y - topPanelRect.size.y));
 
-        m_dockPanel.Draw();
-        constexpr const char* aq = "TestWindow";
-        LGUI->SetWindowSize(aq, Vector2(500, 500));
-
-        if (LGUI->BeginWindow(aq))
+        for (auto d : m_dockAreas)
         {
-            LinaVG::StyleOptions style;
-            style.color = LV4(Color::DarkBlue);
-            // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
-            LGUI->EndWindow();
+            d->UpdateCurrentSwapchainID(m_currentSwapchain->swapchainID);
+            d->Draw();
         }
 
-        constexpr const char* aq2 = "TestWindow2";
-        LGUI->SetWindowSize(aq2, Vector2(500, 500));
-
-        if (LGUI->BeginWindow(aq2))
-        {
-            LinaVG::StyleOptions style;
-            style.color = LV4(Color::DarkBlue);
-            // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
-            LGUI->EndWindow();
-        }
-
-        return;
-        // LinaVG::StyleOptions style;
-        // LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
+        // m_topPanel.Draw();
+        //
+        // m_dockPanel.SetStartY(m_topPanel.GetCurrentSize().y);
+        //
+        // m_dockPanel.Draw();
+        // constexpr const char* aq = "TestWindow";
+        // LGUI->SetWindowSize(aq, Vector2(500, 500));
+        //
+        // if (LGUI->BeginWindow(aq))
+        //{
+        //     LinaVG::StyleOptions style;
+        //     style.color = LV4(Color::DarkBlue);
+        //     // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
+        //     LGUI->EndWindow();
+        // }
+        //
+        // constexpr const char* aq2 = "TestWindow2";
+        // LGUI->SetWindowSize(aq2, Vector2(500, 500));
+        //
+        // if (LGUI->BeginWindow(aq2))
+        //{
+        //     LinaVG::StyleOptions style;
+        //     style.color = LV4(Color::DarkBlue);
+        //     // LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(15, 15)), style, 0, 100);
+        //     LGUI->EndWindow();
+        // }
+        //
+        // return;
+        //  LinaVG::StyleOptions style;
+        //  LinaVG::DrawRect(LV2(Vector2::Zero), LV2(Vector2(500,500)), style, 0, 100);
 
         //  const String aq2 = "TestWindow2";
         //  LGUI->SetWindowSize(aq2, Vector2(500, 500));
@@ -219,9 +262,60 @@ namespace Lina::Editor
         // }
     }
 
+    Drawable* EditorGUIManager::GetContentFromPanelRequest(EditorPanel panel)
+    {
+        if (panel == EditorPanel::Entities)
+        {
+        }
+        return nullptr;
+    }
+
     void EditorGUIManager::OnTick(const Event::ETick& ev)
     {
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
-            test = true;
+        {
+            LaunchPanel(EditorPanel::Level);
+        }
+
+        const auto& additionalWindows = m_renderer->GetAdditionalWindows();
+
+        auto it = m_panelRequests.begin();
+
+        for (; it < m_panelRequests.end(); ++it)
+        {
+            bool  found = false;
+            auto& req   = *it;
+            for (const auto& [windowSid, windowData] : additionalWindows)
+            {
+                if (windowSid == req.sid)
+                {
+                    DockArea* area      = new DockArea();
+                    area->m_rect        = Rect(req.pos, req.size);
+                    area->m_swapchainID = req.sid;
+                    area->m_detached    = true;
+                    area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
+
+                    found = true;
+                    m_dockAreas.push_back(area);
+                    m_panelRequests.erase(it);
+                    break;
+                }
+            }
+
+            if (found)
+                break;
+        }
+    }
+
+    void EditorGUIManager::LaunchPanel(EditorPanel panel)
+    {
+        // ? check if we should preserve some layout for the panel
+        // receive last pos & size.
+        const Vector2 lastPos   = Vector2(100, 100);
+        const Vector2 lastSize  = Vector2(500, 500);
+        const String  panelName = "TestPanel";
+
+        m_renderer->CreateAdditionalWindow(panelName, lastPos, lastSize);
+        m_panelRequests.push_back({panel, TO_SID(panelName), Vector2::Zero, lastSize});
     }
 } // namespace Lina::Editor

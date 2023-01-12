@@ -61,6 +61,7 @@ namespace Lina::Graphics
         virtual void SetCustomStyle(bool decorated, bool resizable) override;
         virtual void ShowHideWindow(bool show) override;
         virtual void SetFocus(bool hasFocus) override;
+        virtual void SetAlpha(float alpha) override;
         virtual bool GetIsAppActive() const override
         {
             return s_isAppActive;

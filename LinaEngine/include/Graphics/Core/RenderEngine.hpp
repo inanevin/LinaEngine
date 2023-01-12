@@ -177,22 +177,21 @@ namespace Lina::Graphics
     private:
         static RenderEngine* s_instance;
 
-        Model*        m_placeholderModel     = nullptr;
-        ModelNode*    m_placeholderModelNode = nullptr;
-        Material*     m_placeholderMaterial  = nullptr;
         DeletionQueue m_mainDeletionQueue;
+        WindowManager m_windowManager;
         InitInfo      m_appInfo;
         Backend       m_backend;
-        WindowManager m_windowManager;
+        Screen        m_screen;
         bool          m_initedSuccessfully = false;
 
         UploadContext                                   m_gpuUploader;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
         GUIBackend*                                     m_guiBackend;
-        Renderer*                                       m_renderer = nullptr;
-        Screen                                          m_screen;
-        //  HashMap<StringID, AdditionalWindow>  m_additionalWindows;
+        Renderer*                                       m_renderer             = nullptr;
+        Model*                                          m_placeholderModel     = nullptr;
+        ModelNode*                                      m_placeholderModelNode = nullptr;
+        Material*                                       m_placeholderMaterial  = nullptr;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;

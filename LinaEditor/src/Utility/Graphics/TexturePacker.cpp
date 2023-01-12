@@ -159,14 +159,14 @@ namespace Lina::Editor
             .v                 = Graphics::SamplerAddressMode::ClampToEdge,
             .w                 = Graphics::SamplerAddressMode::ClampToEdge,
             .mipLodBias        = 0.0f,
-            .maxAnisotropy     = 8.0f,
             .minLod            = 0.0f,
             .maxLod            = 1.0f,
+            .anisotropyEnabled = true,
+            .maxAnisotropy     = 8.0f,
             .borderColor       = Graphics::BorderColor::FloatOpaqueWhite,
             .mipmapMode        = Graphics::MipmapMode::Linear,
-            .anisotropyEnabled = true,
         };
-        txt->GenerateCustomBuffers(atlasWidth, atlasHeight, 4, Graphics::Format::R8G8B8A8_SRGB, sampler, Graphics::ImageTiling::Linear);
+        txt->GenerateCustomBuffers(atlasWidth, atlasHeight, 4, 1, Graphics::Format::R8G8B8A8_SRGB, sampler, Graphics::ImageTiling::Linear);
 
         // Buffer data
         for (uint32 i = 0; i < fileSize; i++)
@@ -187,7 +187,7 @@ namespace Lina::Editor
 
         // Upload to gpu
         // Might be transferred late, so don't destroy cpu buffer right away
-        txt->WriteToGPUImage(0, nullptr, 0, Graphics::Offset3D{.x = 0, .y = 0, .z = 0}, txt->GetExtent(), true);
+        txt->WriteToGPUImage(Graphics::Offset3D{.x = 0, .y = 0, .z = 0}, txt->GetExtent(), true);
 
         return txt;
     }

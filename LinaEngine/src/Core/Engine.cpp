@@ -129,6 +129,9 @@ namespace Lina
         Memory::MemoryManager::s_instance      = &m_memoryManager;
         JobSystem::s_instance                  = &m_jobSystem;
 
+        // 32 mbs of memory space for serialization allocations (archives, compressors etc.)
+        m_memoryManager.CreateLinearBlockList(SERIALIZATION_LINEARBLOCK_SID, 32108864);
+
         // Res init
         RegisterResourceTypes();
 
@@ -157,7 +160,7 @@ namespace Lina
         {
             m_editor.m_renderer = new Editor::EditorRenderer();
             renderer            = m_editor.m_renderer;
-            m_editor.Initialize(&m_levelManager, this, &m_renderEngine.m_backend.m_mainSwapchain, m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
+            m_editor.Initialize(&m_levelManager, this, m_renderEngine.m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID], m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
         }
 #endif
 
@@ -174,6 +177,8 @@ namespace Lina
 
         // Engine resources
         LoadEngineResources();
+
+        m_memoryManager.FlushLinearBlockList(SERIALIZATION_LINEARBLOCK_SID);
 
         m_gameManager = gm;
     }
@@ -285,12 +290,17 @@ namespace Lina
 
         // Clear
         // m_editor.PackageProject();
-        m_memoryManager.PrintStaticBlockInfo();
+        m_memoryManager.PrintBlockInfos();
         Reflection::Clear();
 
         // Dump info
         PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
+        while (true)
+        {
+            if (m_inputEngine.GetKeyDown(LINA_KEY_SPACE))
+                break;
+        }
         // Shut down systems.
         m_resourceManager.Shutdown();
         m_renderEngine.Shutdown();

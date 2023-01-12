@@ -53,7 +53,7 @@ namespace Lina::Graphics
 {
     bool WindowManager::Initialize(const WindowProperties& props, Screen* screen)
     {
-        LINA_TRACE("[Window Manager] -> Initialize");
+        LINA_TRACE("[Initialization] -> Window Manager");
         m_screen = screen;
 
         // Platform setup
@@ -107,7 +107,7 @@ namespace Lina::Graphics
 
     void WindowManager::Shutdown()
     {
-        LINA_TRACE("[Window Manager] -> Shutdown");
+        LINA_TRACE("[Shutdown] -> Window Manager");
         for (auto& [sid, window] : m_windows)
         {
             window->Destroy();

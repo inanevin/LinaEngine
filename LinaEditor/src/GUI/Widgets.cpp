@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Input/Core/InputEngine.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Data/DataCommon.hpp"
+#include "Math/Color.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
@@ -211,6 +213,21 @@ namespace Lina::Editor
             w.BeginWidget(Vector2(amt, 0));
 
         w.EndWidget();
+    }
+
+    void Widgets::DropShadow(const Vector2& p1, const Vector2& p2, const Color& color, float thickness, int count, int drawOrder)
+    {
+        LinaVG::StyleOptions style;
+        style.thickness = thickness;
+
+        for (int i = 0; i < count; i++)
+        {
+            const float alpha     = Math::Remap(static_cast<float>(i), 0.0f, static_cast<float>(count), color.w, 0.0f);
+            style.color           = LinaVG::Vec4(color.x, color.y, color.z, alpha);
+            const Vector2 finalP1 = Vector2(p1.x, p1.y + thickness * i);
+            const Vector2 finalP2 = Vector2(p2.x, p2.y + thickness * i);
+            LinaVG::DrawLine(LV2(finalP1), LV2(finalP2), style, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
+        }
     }
 
     void Widgets::DrawIcon(const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint)

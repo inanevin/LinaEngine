@@ -42,8 +42,6 @@ namespace Lina::Serialization
         Archive()          = default;
         virtual ~Archive() = default;
 
-        uint32 Version = 0;
-
         inline StreamType& GetStream()
         {
             return m_stream;

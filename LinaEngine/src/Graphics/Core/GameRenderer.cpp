@@ -137,8 +137,14 @@ namespace Lina::Graphics
         auto mainPassImageView  = wd.finalColorTexture->GetImage()._ptrImgView;
         auto mainPassDepthImage = wd.finalDepthTexture->GetImage()._allocatedImg.image;
         auto mainPassDepthView  = wd.finalDepthTexture->GetImage()._ptrImgView;
-        cmd.CMD_ImageTransition_ToColorOptimal(mainPassImage);
-        cmd.CMD_ImageTransition_ToDepthOptimal(mainPassDepthImage);
+
+        // Transition to optimal
+        const uint32 depthTransitionFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+
+        cmd.CMD_ImageTransition(mainPassImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                PipelineStageFlags::ColorAttachmentOutput);
+
+        cmd.CMD_ImageTransition(mainPassImage, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
 
         // ********* MAIN PASS *********
         {
@@ -147,13 +153,18 @@ namespace Lina::Graphics
             RenderWorld(cmd, wd);
             cmd.CMD_EndRendering();
 
-            // Final texture is gonna be read from the next pass.
-            cmd.CMD_ImageTransition_ToColorShaderRead(mainPassImage);
+            // Transition to shader read
+            cmd.CMD_ImageTransition(mainPassImage, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                    PipelineStageFlags::ColorAttachmentOutput);
+
             PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
         }
 
-        cmd.CMD_ImageTransition_ToColorOptimal(swapchainImage);
-        cmd.CMD_ImageTransition_ToDepthOptimal(swapchainDepthImage);
+        // Transition swapchain to optimal
+        cmd.CMD_ImageTransition(swapchainImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                PipelineStageFlags::ColorAttachmentOutput);
+
+        cmd.CMD_ImageTransition(swapchainDepthImage, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
 
         // ********* FINAL & PP PASS *********
         {
@@ -173,8 +184,10 @@ namespace Lina::Graphics
             m_guiBackend->RecordDrawCommands();
             cmd.CMD_EndRendering();
 
-            // Make sure presentable
-            cmd.CMD_ImageTransition_ToPresent(swapchainImage, ImageAspectFlags::AspectColor);
+            // Transition to present
+            cmd.CMD_ImageTransition(swapchainImage, ImageLayout::ColorOptimal, ImageLayout::PresentSurface, ImageAspectFlags::AspectColor, AccessFlags::ColorAttachmentWrite, AccessFlags::None, PipelineStageFlags::ColorAttachmentOutput,
+                                    PipelineStageFlags::BottomOfPipe);
+
             PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
             LinaVG::EndFrame();
         }

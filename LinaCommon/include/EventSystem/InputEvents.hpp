@@ -52,9 +52,9 @@ namespace Lina::Event
     };
     struct EMouseScrollCallback
     {
-        void*  window = nullptr;
-        double xoff   = 0.0;
-        double yoff   = 0.0;
+        void* window = nullptr;
+        int   xoff   = 0;
+        int   yoff   = 0;
     };
 
     struct EMouseMoved

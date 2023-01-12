@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Serialization/Compressor.hpp"
 #include "Data/Streams.hpp"
+#include "Serialization/ArchiveCommon.hpp"
 
 #define LZ4_STATIC_LINKING_ONLY_DISABLE_MEMORY_ALLOCATION
 #include <lz4/lz4.h>
@@ -46,26 +47,28 @@ namespace Lina::Serialization
         const int compressBound = LZ4_compressBound(size);
 
         // Create stream capable of holding max compressed bytes.
-        OStream compressedStream;
-        compressedStream.CreateReserve(compressBound);
-        char* dest = (char*)compressedStream.GetDataRaw();
-        
+        OStream compressedStream = OStream();
+        compressedStream.CreateReserveFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, compressBound);
+        char* dest         = (char*)compressedStream.GetDataRaw();
         char* data         = (char*)stream.GetDataRaw();
         int   bytesWritten = LZ4_compress_default(data, dest, size, compressBound);
+
+        if (bytesWritten == 0)
+            LINA_ERR("[Compressor] -> LZ4 compression failed!");
+
         compressedStream.Shrink(static_cast<size_t>(bytesWritten));
 
         return compressedStream;
     }
-    IStream Compressor::Decompress(IStream& stream)
+    IStream Compressor::Decompress(IStream& stream, size_t decompressedBound)
     {
-
-        const size_t size            = stream.GetSize();
-        const size_t decompressedEst = EstimateDecompressSize(size);
-        IStream      decompressedStream;
-        decompressedStream.Create(decompressedEst);
+        const size_t size               = stream.GetSize();
+        IStream      decompressedStream = IStream();
+        decompressedStream.CreateFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, decompressedBound);
         void*     src              = stream.GetDataRaw();
         void*     ptr              = decompressedStream.GetDataRaw();
-        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedEst));
+        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedBound));
+
         decompressedStream.Shrink(static_cast<size_t>(decompressedSize));
         return decompressedStream;
     }

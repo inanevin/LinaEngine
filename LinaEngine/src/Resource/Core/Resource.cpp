@@ -32,13 +32,14 @@ SOFTWARE.
 namespace Lina::Resources
 {
 
-    String Resource::GetFilename(const String& path)
+    String Resource::GetFilename(const String& path, uint32 version)
     {
-        const String basePath  = "Resources/Editor/Metacache/";
-        const String ext       = ".linameta";
-        const String name      = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
-        const String sidStr    = TO_STRING(TO_SID(path));
-        const String finalName = basePath + name + "-" + sidStr + ext;
+        const String basePath   = "Resources/Editor/Metacache/";
+        const String ext        = ".linameta";
+        const String name       = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
+        const String sidStr     = TO_STRING(TO_SID(path));
+        const String versionStr = "_v" + TO_STRING(version) + "_";
+        const String finalName  = basePath + name + "-" + sidStr + versionStr + ext;
 
         if (!Utility::FileExists(basePath))
             Utility::CreateFolderInPath(basePath);
@@ -46,41 +47,42 @@ namespace Lina::Resources
         return finalName;
     }
 
-    Serialization::Archive<IStream> Resource::GetMetaArchive(const String& path)
+    Serialization::Archive<IStream> Resource::GetMetaArchive(const String& path, uint32 version)
     {
-        const String p = GetFilename(path);
+        const String p = GetFilename(path, version);
         if (!Utility::FileExists(p))
             return Serialization::Archive<IStream>();
 
         return Serialization::LoadArchiveFromFile(p);
     }
 
-    void Resource::SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path)
+    void Resource::SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path, uint32 version)
     {
-        const String p = GetFilename(path);
+        const String p = GetFilename(path, version);
         Serialization::SaveArchiveToFile(p, arch);
     }
-    bool Resource::MetaArchiveExists(const String& path)
+    bool Resource::MetaArchiveExists(const String& path, uint32 version)
     {
-        const String p = GetFilename(path);
+        const String p = GetFilename(path, version);
         return Utility::FileExists(p);
     }
 
     void Resource::LoadAssetData()
     {
-        if (!MetaArchiveExists(m_path))
+        const uint32 version = GetVersion();
+        if (!MetaArchiveExists(m_path, version))
             SaveAssetData();
 
-        auto archive = GetMetaArchive(m_path);
+        auto archive = GetMetaArchive(m_path, version);
         LoadFromArchive(archive);
         archive.GetStream().Destroy();
     }
 
-    void Resource::SaveAssetData()
+    void Resource::SaveAssetData(uint32 reserveSize)
     {
         Serialization::Archive<OStream> archive;
-        archive.GetStream().CreateReserve(200);
+        archive.GetStream().CreateReserveFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, reserveSize);
         SaveToArchive(archive);
-        SaveMetaArchive(archive, m_path);
+        SaveMetaArchive(archive, m_path, GetVersion());
     }
 } // namespace Lina::Resources

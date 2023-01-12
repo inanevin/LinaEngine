@@ -169,19 +169,21 @@ namespace Lina::Graphics
             .v             = SamplerAddressMode::ClampToEdge,
             .w             = SamplerAddressMode::ClampToEdge,
             .mipLodBias    = 0.0f,
-            .maxAnisotropy = 1.0f,
             .minLod        = 0.0f,
             .maxLod        = 1.0f,
+            .maxAnisotropy = 1.0f,
             .borderColor   = BorderColor::FloatOpaqueWhite,
         };
     }
 
     Texture* VulkanUtility::CreateDefaultPassTextureColor(bool useExplicitSize, int width, int height)
     {
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        Extent3D       ext  = Extent3D{.depth = 1};
-        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
-        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+        Vector2i size = Vector2i::Zero;
+        if (!useExplicitSize)
+            size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D ext = Extent3D{.depth = 1};
+        ext.width    = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height   = useExplicitSize ? height : static_cast<unsigned int>(size.y);
 
         ImageSubresourceRange range;
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
@@ -206,10 +208,12 @@ namespace Lina::Graphics
 
     Texture* VulkanUtility::CreateDefaultPassTextureDepth(bool useExplicitSize, int width, int height)
     {
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        Extent3D       ext  = Extent3D{.depth = 1};
-        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
-        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+        Vector2i size = Vector2i::Zero;
+        if (!useExplicitSize)
+            size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D ext = Extent3D{.depth = 1};
+        ext.width    = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height   = useExplicitSize ? height : static_cast<unsigned int>(size.y);
 
         ImageSubresourceRange range;
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth); // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
@@ -234,10 +238,12 @@ namespace Lina::Graphics
 
     void VulkanUtility::CreateDefaultPassImageDepth(Image& img, bool useExplicitSize, int width, int height)
     {
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        Extent3D       ext  = Extent3D{.depth = 1};
-        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
-        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+        Vector2i size = Vector2i::Zero;
+        if (!useExplicitSize)
+            size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D ext = Extent3D{.depth = 1};
+        ext.width    = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height   = useExplicitSize ? height : static_cast<unsigned int>(size.y);
 
         ImageSubresourceRange range;
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectDepth); // | GetImageAspectFlags(ImageAspectFlags::AspectStencil);
@@ -257,10 +263,12 @@ namespace Lina::Graphics
 
     void VulkanUtility::CreateDefaultPassImageColor(Image& img, bool useExplicitSize, int width, int height)
     {
-        const Vector2i size = Backend::Get()->GetMainSwapchain().size;
-        Extent3D       ext  = Extent3D{.depth = 1};
-        ext.width           = useExplicitSize ? width : static_cast<unsigned int>(size.x);
-        ext.height          = useExplicitSize ? height : static_cast<unsigned int>(size.y);
+        Vector2i size = Vector2i::Zero;
+        if (!useExplicitSize)
+            size = Backend::Get()->GetMainSwapchain().size;
+        Extent3D ext = Extent3D{.depth = 1};
+        ext.width    = useExplicitSize ? width : static_cast<unsigned int>(size.x);
+        ext.height   = useExplicitSize ? height : static_cast<unsigned int>(size.y);
 
         ImageSubresourceRange range;
         range.aspectFlags = GetImageAspectFlags(ImageAspectFlags::AspectColor);
@@ -683,7 +691,7 @@ namespace Lina::Graphics
         }
     }
 
-    VkImageCreateInfo VulkanUtility::GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent, ImageLayout initialLayout, SharingMode sharingMode)
+    VkImageCreateInfo VulkanUtility::GetImageCreateInfo(Format format, uint32 usageFlags, ImageTiling tiling, Extent3D extent, ImageLayout initialLayout, SharingMode sharingMode, uint32 mipLevels)
     {
         VkImageCreateInfo info = VkImageCreateInfo{
             .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -691,7 +699,7 @@ namespace Lina::Graphics
             .imageType     = VK_IMAGE_TYPE_2D,
             .format        = GetFormat(format),
             .extent        = VkExtent3D{extent.width, extent.height, extent.depth},
-            .mipLevels     = 1,
+            .mipLevels     = mipLevels,
             .arrayLayers   = 1,
             .samples       = VK_SAMPLE_COUNT_1_BIT,
             .tiling        = GetImageTiling(tiling),

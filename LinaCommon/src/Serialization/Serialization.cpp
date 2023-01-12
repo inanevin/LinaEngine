@@ -27,9 +27,11 @@ SOFTWARE.
 */
 
 #include "Serialization/Serialization.hpp"
+#include <iostream>
+#include <fstream>
+#include <filesystem>
 namespace Lina::Serialization
 {
-
     void SaveArchiveToFile(const String& path, Archive<OStream>& archive)
     {
         std::ofstream wf(path.c_str(), std::ios::out | std::ios::binary);
@@ -43,13 +45,30 @@ namespace Lina::Serialization
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
-        OStream compressed = Compressor::Compress(archive.GetStream());
-        archive.GetStream().Destroy();
+        const uint32 archiveSize = static_cast<uint32>(archive.GetStream().GetCurrentSize());
 
-        // Copy data to ofstream & write file
-        compressed.WriteToStream(wf);
-        wf.close();
-        compressed.Destroy();
+        // Compress if between 750 kb and 150 megabytes
+        uint8 shouldCompress = (archiveSize < 150000000 && archiveSize > 750000) ? 1 : 0;
+        archive(shouldCompress);
+
+        // Uncompressed data size
+        const uint32 size = archiveSize + sizeof(uint8) + sizeof(uint32);
+        archive(size);
+
+        if (shouldCompress)
+        {
+            OStream compressed = Compressor::Compress(archive.GetStream());
+            archive.GetStream().Destroy();
+            compressed.WriteToStream(wf);
+            wf.close();
+            compressed.Destroy();
+        }
+        else
+        {
+            archive.GetStream().WriteToStream(wf);
+            wf.close();
+            archive.GetStream().Destroy();
+        }
 
         if (!wf.good())
         {
@@ -72,17 +91,32 @@ namespace Lina::Serialization
 
         // Create
         IStream readStream;
-        readStream.Create(size);
+        readStream.CreateFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, size);
         readStream.ReadFromStream(rf);
         rf.close();
 
         if (!rf.good())
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
-        IStream          decompressedStream = Compressor::Decompress(readStream);
+        // Read uncompressed size of archive.
+        uint8  shouldDecompress = 0;
+        uint32 uncompressedSize = 0;
+        readStream.Seek(readStream.GetSize() - sizeof(uint32) - sizeof(uint8));
+        readStream.Read(shouldDecompress);
+        readStream.Read(uncompressedSize);
+        readStream.Seek(0);
+
         Archive<IStream> arch;
-        arch.SetStream(decompressedStream);
-        readStream.Destroy();
+
+        if (shouldDecompress)
+        {
+            IStream decompressedStream = Compressor::Decompress(readStream, static_cast<size_t>(uncompressedSize));
+            arch.SetStream(decompressedStream);
+            readStream.Destroy();
+        }
+        else
+            arch.SetStream(readStream);
+
         return arch;
     }
 

@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Graphics/Components/CameraComponent.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/GUI.hpp"
+#include "Core/EditorGUIManager.hpp"
 
 using namespace Lina::Graphics;
 namespace Lina::Editor
@@ -148,6 +149,8 @@ namespace Lina::Editor
 
         frame.graphicsFence.Reset();
 
+        const uint32 depthTransitionFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+
         LGUI->StartFrame();
 
         for (auto& fd : allFrameData)
@@ -197,14 +200,20 @@ namespace Lina::Editor
 
                     worldData.objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
 
-                    fd.cmd->CMD_ImageTransition_ToColorOptimal(worldData.finalColorTexture->GetImage()._allocatedImg.image);
-                    fd.cmd->CMD_ImageTransition_ToDepthOptimal(worldData.finalDepthTexture->GetImage()._allocatedImg.image);
+                    // Transition into optimal
+                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
+                                                PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
+
+                    fd.cmd->CMD_ImageTransition(worldData.finalDepthTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None,
+                                                AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
 
                     fd.cmd->CMD_BeginRenderingDefault(worldData.finalColorTexture->GetImage()._ptrImgView, worldData.finalDepthTexture->GetImage()._ptrImgView, defaultRenderArea);
                     RenderWorld(*fd.cmd, worldData);
                     fd.cmd->CMD_EndRendering();
 
-                    fd.cmd->CMD_ImageTransition_ToColorShaderRead(worldData.finalColorTexture->GetImage()._allocatedImg.image);
+                    // Transition to shader read
+                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None,
+                                                AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
                 }
             }
 
@@ -219,21 +228,26 @@ namespace Lina::Editor
                 auto depthImage     = fd.swp->_depthImages[fd.imageIndex]._allocatedImg.image;
                 auto depthImageView = fd.swp->_depthImages[fd.imageIndex]._ptrImgView;
 
-                fd.cmd->CMD_ImageTransition_ToColorOptimal(image);
-                fd.cmd->CMD_ImageTransition_ToDepthOptimal(depthImage);
+                // Transition to optimal
+                fd.cmd->CMD_ImageTransition(image, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                            PipelineStageFlags::ColorAttachmentOutput);
+
+                fd.cmd->CMD_ImageTransition(depthImage, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
 
                 // Issue GUI commands
                 m_guiBackend->Prepare(fd.swp, fd.imageIndex, fd.cmd);
+                m_guiManager->SetCurrentSwapchain(fd.swp);
                 LGUI->SetCurrentSwapchain(fd.swp);
                 Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
                 // Actually draw commands
-                fd.cmd->CMD_BeginRenderingDefault(imageView, depthImageView, defaultRenderArea);
+                fd.cmd->CMD_BeginRenderingDefault(imageView, depthImageView, defaultRenderArea, Color::Gray);
                 m_guiBackend->RecordDrawCommands();
                 fd.cmd->CMD_EndRendering();
 
-                // Make sure presentable
-                fd.cmd->CMD_ImageTransition_ToPresent(image, ImageAspectFlags::AspectColor);
+                // Transition to present
+                fd.cmd->CMD_ImageTransition(image, ImageLayout::ColorOptimal, ImageLayout::PresentSurface, ImageAspectFlags::AspectColor, AccessFlags::ColorAttachmentWrite, AccessFlags::None, PipelineStageFlags::ColorAttachmentOutput,
+                                            PipelineStageFlags::BottomOfPipe);
                 LinaVG::EndFrame();
                 PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
             }

@@ -87,6 +87,7 @@ namespace Lina::Graphics
 {
     enum class Format
     {
+        UNDEFINED = 0,
         B8G8R8A8_SRGB,
         B8G8R8A8_UNORM,
         R32G32B32_SFLOAT,
@@ -95,14 +96,20 @@ namespace Lina::Graphics
         D32_SFLOAT,
         R8G8B8A8_UNORM,
         R8G8B8A8_SRGB,
+        R8G8B8_SRGB,
+        R8G8B8_UNORM,
+        R8G8_SRGB,
+        R8G8_UNORM,
         R8_UNORM,
         R8_UINT,
         R16_SFLOAT,
         R16_SINT,
         R32_SFLOAT,
         R32_SINT,
+        FORMAT_MAX,
     };
 
+    extern Format   GetFormatFromVkFormat(VkFormat f);
     extern VkFormat GetFormat(Format f);
 
     enum class Filter
@@ -341,6 +348,7 @@ namespace Lina::Graphics
 
     enum class AccessFlags
     {
+        None,
         ColorAttachmentRead,
         ColorAttachmentWrite,
         DepthStencilAttachmentRead,

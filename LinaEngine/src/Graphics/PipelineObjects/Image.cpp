@@ -38,7 +38,7 @@ namespace Lina::Graphics
 {
     void Image::Create(bool createImageView, bool autoDestroy)
     {
-        VkImageCreateInfo imgInfo = VulkanUtility::GetImageCreateInfo(format, imageUsageFlags, tiling, extent, initialLayout, sharingMode);
+        VkImageCreateInfo imgInfo = VulkanUtility::GetImageCreateInfo(format, imageUsageFlags, tiling, extent, initialLayout, sharingMode, mipLevels);
 
         VmaAllocationCreateInfo allocinfo = VmaAllocationCreateInfo{
             .usage         = GetMemoryUsageFlags(memoryUsageFlags),

@@ -22,6 +22,15 @@ namespace Lina::Editor
         int    pressedKey = 0;
     };
 
+    enum class EditorPanel
+    {
+        Entities,
+        Level,
+        Properties,
+        Resources,
+        Global,
+    };
+
 } // namespace Lina::Editor
 
 #endif

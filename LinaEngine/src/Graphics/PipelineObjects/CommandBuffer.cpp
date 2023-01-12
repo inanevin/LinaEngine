@@ -110,12 +110,8 @@ namespace Lina::Graphics
         vkCmdDrawIndexedIndirect(_ptr, buffer, offset, drawCount, stride);
     }
 
-    void CommandBuffer::CMD_PipelineBarrier(uint32                              srcStageFlags,
-                                            uint32                              dstStageFlags,
-                                            uint32                              dependencyFlags,
-                                            const Vector<DefaultMemoryBarrier>& barriers,
-                                            const Vector<BufferMemoryBarrier>&  bufferBarriers,
-                                            const Vector<ImageMemoryBarrier>&   imageBarriers) const
+    void CommandBuffer::CMD_PipelineBarrier(
+        uint32 srcStageFlags, uint32 dstStageFlags, uint32 dependencyFlags, const Vector<DefaultMemoryBarrier>& barriers, const Vector<BufferMemoryBarrier>& bufferBarriers, const Vector<ImageMemoryBarrier>& imageBarriers) const
     {
         Vector<VkMemoryBarrier>       _barriers;
         Vector<VkBufferMemoryBarrier> _bufferBarriers;
@@ -216,10 +212,10 @@ namespace Lina::Graphics
         pfn_vkCmdBeginRenderingKHR(_ptr, &_renderingInfo);
     }
 
-    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea) const
+    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea, const Color& color) const
     {
         ClearValue clearValue = ClearValue{
-            .clearColor = Color::Gray,
+            .clearColor = color,
             .isColor    = true,
         };
 
@@ -261,92 +257,34 @@ namespace Lina::Graphics
         pfn_vkCmdEndRenderingKHR(_ptr);
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToPresent(VkImage_T* img, ImageAspectFlags aspect) const
+    void CommandBuffer::CMD_ImageTransition(VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags destAccessFlags, uint32 srcStage, uint32 dstStage, uint32 mipLevels, uint32 baseMip) const
     {
-        ImageSubresourceRange subresRange = ImageSubresourceRange{
-            .aspectFlags    = GetImageAspectFlags(aspect),
+        ImageSubresourceRange range = ImageSubresourceRange{
+            .aspectFlags    = GetImageAspectFlags(aspectFlags),
             .baseMipLevel   = 0,
-            .levelCount     = 1,
+            .levelCount     = mipLevels,
             .baseArrayLayer = 0,
             .layerCount     = 1,
         };
 
-        ImageMemoryBarrier barrier = ImageMemoryBarrier{
-            .srcAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
-            .oldLayout        = ImageLayout::ColorOptimal,
-            .newLayout        = ImageLayout::PresentSurface,
+        ImageMemoryBarrier imageBarrierToTransfer = ImageMemoryBarrier{
+            .srcAccessMask    = GetAccessFlags(srcAccessFlags),
+            .dstAccessMask    = GetAccessFlags(destAccessFlags),
+            .oldLayout        = from,
+            .newLayout        = to,
             .img              = img,
-            .subresourceRange = subresRange,
+            .subresourceRange = range,
         };
 
-        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), GetPipelineStageFlags(PipelineStageFlags::BottomOfPipe), 0, {}, {}, {barrier});
+        Vector<ImageMemoryBarrier> imageBarriers;
+        imageBarriers.push_back(imageBarrierToTransfer);
+
+        CMD_PipelineBarrier(srcStage, dstStage, 0, {}, {}, imageBarriers);
     }
 
-    void CommandBuffer::CMD_ImageTransition_ToColorOptimal(VkImage_T* image) const
+    void CommandBuffer::CMD_ImageTransition(VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags destAccessFlags, PipelineStageFlags srcStage, PipelineStageFlags dstStage, uint32 mipLevels, uint32 baseMip) const
     {
-        ImageSubresourceRange subresRange = ImageSubresourceRange{
-            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-            .baseMipLevel   = 0,
-            .levelCount     = 1,
-            .baseArrayLayer = 0,
-            .layerCount     = 1,
-        };
-
-        ImageMemoryBarrier barrier = ImageMemoryBarrier{
-            .srcAccessMask    = 0,
-            .dstAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
-            .oldLayout        = ImageLayout::Undefined,
-            .newLayout        = ImageLayout::ColorOptimal,
-            .img              = image,
-            .subresourceRange = subresRange,
-        };
-
-        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
-    }
-
-    void CommandBuffer::CMD_ImageTransition_ToColorShaderRead(VkImage_T* img) const
-    {
-        ImageSubresourceRange subresRange = ImageSubresourceRange{
-            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectColor),
-            .baseMipLevel   = 0,
-            .levelCount     = 1,
-            .baseArrayLayer = 0,
-            .layerCount     = 1,
-        };
-
-        ImageMemoryBarrier barrier = ImageMemoryBarrier{
-            .srcAccessMask    = 0,
-            .dstAccessMask    = GetAccessFlags(AccessFlags::ColorAttachmentWrite),
-            .oldLayout        = ImageLayout::ColorOptimal,
-            .newLayout        = ImageLayout::ShaderReadOnlyOptimal,
-            .img              = img,
-            .subresourceRange = subresRange,
-        };
-
-        CMD_PipelineBarrier(GetPipelineStageFlags(PipelineStageFlags::TopOfPipe), GetPipelineStageFlags(PipelineStageFlags::ColorAttachmentOutput), 0, {}, {}, {barrier});
-    }
-
-    void CommandBuffer::CMD_ImageTransition_ToDepthOptimal(VkImage_T* image) const
-    {
-        ImageSubresourceRange subresRange = ImageSubresourceRange{
-            .aspectFlags    = GetImageAspectFlags(ImageAspectFlags::AspectDepth),
-            .baseMipLevel   = 0,
-            .levelCount     = 1,
-            .baseArrayLayer = 0,
-            .layerCount     = 1,
-        };
-
-        ImageMemoryBarrier barrier = ImageMemoryBarrier{
-            .srcAccessMask    = 0,
-            .dstAccessMask    = GetAccessFlags(AccessFlags::DepthStencilAttachmentWrite),
-            .oldLayout        = ImageLayout::Undefined,
-            .newLayout        = ImageLayout::DepthStencilOptimal,
-            .img              = image,
-            .subresourceRange = subresRange,
-        };
-
-        const uint32 stageFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
-        CMD_PipelineBarrier(stageFlags, stageFlags, 0, {}, {}, {barrier});
+        CMD_ImageTransition(img, from, to, aspectFlags, srcAccessFlags, destAccessFlags, GetPipelineStageFlags(srcStage), GetPipelineStageFlags(dstStage), mipLevels, baseMip);
     }
 
     void CommandBuffer::End() const

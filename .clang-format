@@ -1,16 +1,16 @@
 ﻿---
-BasedOnStyle: Microsoft
 AccessModifierOffset: '-4'
+BasedOnStyle: Microsoft
 AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
 AlignConsecutiveDeclarations: 'true'
-ColumnLimit: '220'
+ColumnLimit: '260'
 BinPackParameters: 'false'
 Language: Cpp
 NamespaceIndentation: All
 PointerAlignment: Left
 ReflowComments: 'true'
-Standard: Cpp11
 SortIncludes: 'false'
+Standard: Cpp11
 ...

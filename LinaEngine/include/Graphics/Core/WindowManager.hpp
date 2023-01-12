@@ -65,6 +65,7 @@ namespace Lina::Graphics
         virtual bool GetIsAppActive() const                                                                                = 0;
         virtual void ShowHideWindow(bool show)                                                                             = 0;
         virtual void SetFocus(bool hasFocus)                                                                               = 0;
+        virtual void SetAlpha(float alpha)                                                                                 = 0;
 
         /// <summary>
         /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
@@ -175,11 +176,11 @@ namespace Lina::Graphics
 
     private:
         HashMap<StringID, Window*> m_windows;
+        Vector<StringID>           m_drawOrders;
         VsyncMode                  m_vsync         = VsyncMode::None;
         bool                       m_isActive      = false;
         Screen*                    m_screen        = nullptr;
         StringID                   m_mainWindowSID = 0;
-        Vector<StringID>           m_drawOrders;
     };
 } // namespace Lina::Graphics
 

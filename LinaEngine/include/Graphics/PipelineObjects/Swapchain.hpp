@@ -57,13 +57,13 @@ namespace Lina::Graphics
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence) const;
 
         // Desired
-        Vector2i        size        = Vector2i();
-        Vector2i        pos         = Vector2i::Zero;
-        Format          format      = Format::B8G8R8A8_SRGB;
-        ColorSpace      colorSpace  = ColorSpace::SRGB_NONLINEAR;
-        PresentMode     presentMode = PresentMode::Immediate;
-        VkSurfaceKHR_T* surface     = nullptr;
-        StringID        swapchainID = 0;
+        Vector2i        size           = Vector2i();
+        Vector2i        pos            = Vector2i::Zero;
+        Format          format         = Format::B8G8R8A8_SRGB;
+        ColorSpace      colorSpace     = ColorSpace::SRGB_NONLINEAR;
+        PresentMode     presentMode    = PresentMode::Immediate;
+        VkSurfaceKHR_T* surface        = nullptr;
+        StringID        swapchainID    = 0;
 
         // Runtime
         VkSwapchainKHR_T*      _ptr          = nullptr;

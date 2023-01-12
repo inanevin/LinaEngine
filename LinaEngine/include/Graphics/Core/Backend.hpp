@@ -73,8 +73,10 @@ namespace Lina::Graphics
     class Backend
     {
     public:
-        Swapchain* CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height);
-        void       DestroyAdditionalSwapchain(StringID sid);
+        Swapchain*       CreateAdditionalSwapchain(StringID sid, void* windowPtr, int width, int height);
+        void             DestroyAdditionalSwapchain(StringID sid);
+        const Swapchain& GetSwapchain(StringID sid);
+        const Swapchain& GetMainSwapchain();
 
         static Backend* Get()
         {
@@ -91,11 +93,6 @@ namespace Lina::Graphics
             return m_gpu;
         }
 
-        inline VkSurfaceKHR_T* GetSurface()
-        {
-            return m_mainSurface;
-        }
-
         inline const VkAllocationCallbacks* GetAllocator()
         {
             return m_allocator;
@@ -104,11 +101,6 @@ namespace Lina::Graphics
         inline VmaAllocator_T* GetVMA()
         {
             return m_vmaAllocator;
-        }
-
-        inline const Swapchain& GetMainSwapchain()
-        {
-            return m_mainSwapchain;
         }
 
         inline const RQueue& GetGraphicsQueue()
@@ -139,6 +131,11 @@ namespace Lina::Graphics
         inline bool SupportsAsyncComputeQueue()
         {
             return m_supportsAsyncComputeQueue;
+        }
+
+        inline const Vector<Format>& GetSupportedGameTextureFormats()
+        {
+            return m_supportedGameTextureFormats;
         }
 
         void WaitIdle();
@@ -174,14 +171,15 @@ namespace Lina::Graphics
         RQueue                        m_graphicsQueue;
         RQueue                        m_transferQueue;
         RQueue                        m_computeQueue;
+        PresentMode                   m_currentPresentMode;
+        HashMap<StringID, Swapchain*> m_swapchains;
+        WindowManager*                m_windowManager = nullptr;
+        Vector<Format>                m_supportedGameTextureFormats;
         bool                          m_supportsAsyncTransferQueue = false;
         bool                          m_supportsAsyncComputeQueue  = false;
-        Swapchain                     m_mainSwapchain;
-        VkSurfaceKHR_T*               m_mainSurface;
-        PresentMode                   m_currentPresentMode;
-        HashMap<StringID, Swapchain*> m_additionalSwapchains;
-        WindowManager*                m_windowManager = nullptr;
+        Format                        m_defaultFormat4Ch           = Format::UNDEFINED;
+        Format                        m_defaultFormat2Ch           = Format::UNDEFINED;
+        Format                        m_defaultFormat1Ch           = Format::UNDEFINED;
     };
 } // namespace Lina::Graphics
-
 #endif

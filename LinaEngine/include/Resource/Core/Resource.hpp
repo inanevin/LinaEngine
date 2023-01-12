@@ -62,9 +62,14 @@ namespace Lina::Resources
         virtual void      LoadReferences(){};
         virtual void      SaveToFile(){};
 
-        static Serialization::Archive<IStream> GetMetaArchive(const String& path);
-        static void                            SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path);
-        static bool                            MetaArchiveExists(const String& path);
+        virtual uint32 GetVersion()
+        {
+            return 0;
+        }
+
+        static Serialization::Archive<IStream> GetMetaArchive(const String& path, uint32 version = 0);
+        static void                            SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path, uint32 version = 0);
+        static bool                            MetaArchiveExists(const String& path, uint32 version = 0);
 
         inline TypeID GetTID()
         {
@@ -97,13 +102,13 @@ namespace Lina::Resources
         }
 
     protected:
-        virtual void SaveAssetData();
+        virtual void SaveAssetData(uint32 reserveSize = 512);
         virtual void LoadAssetData();
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive){};
         virtual void LoadFromArchive(Serialization::Archive<IStream>& archive){};
 
     private:
-        static String GetFilename(const String& path);
+        static String GetFilename(const String& path, uint32 version);
 
     protected:
         template <typename U> friend class ResourceCache;

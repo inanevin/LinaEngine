@@ -54,8 +54,15 @@ namespace Lina::Editor
 
     bool ImmediateWidget::IsHovered()
     {
-        auto& window = LGUI->GetCurrentWindow();
-        return window.IsWindowHovered() && LGUI->IsMouseHoveringRect(Rect(m_absPos, m_size));
+        auto&      window = LGUI->GetCurrentWindow();
+        const bool wh     = window.IsHovered();
+        const bool rh     = LGUI->IsMouseHoveringRect(Rect(m_absPos, m_size));
+
+        if (wh && rh)
+        {
+            int a = 5;
+        }
+        return wh && rh;
     }
 
     bool ImmediateWidget::IsPressed()
@@ -69,6 +76,17 @@ namespace Lina::Editor
         bool       released  = Input::InputEngine::Get()->GetMouseButtonUp(LINA_MOUSE_0);
         const bool isClicked = isHovered && released;
         return isClicked;
+    }
+
+    void ImmediateWindow::DragBehaviour()
+    {
+        const bool canDrag = IsHovered() && LGUI->IsMouseHoveringRect(_dragRect);
+
+        if (canDrag && Input::InputEngine::Get()->GetMouseButton(LINA_MOUSE_0))
+        {
+            const Vector2 delta = Input::InputEngine::Get()->GetMouseDelta();
+
+        }
     }
 
     void ImmediateWindow::Draw()
@@ -101,13 +119,23 @@ namespace Lina::Editor
         LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, _drawOrder);
 
         // Title bar
-        // const float          titleBarSizeY = display.y * 0.045f;
-        // const Vector2        titleBarSize  = Vector2(m_size.x, titleBarSizeY);
-        // const Vector2        titleBarMax   = min + titleBarSize;
-        // LinaVG::StyleOptions titleBarStyle;
-        // titleBarStyle.color = LV4(theme.GetColor(ThemeColor::TopPanelBackground));
-        // LinaVG::DrawRect(LV2(min), LV2(titleBarMax), titleBarStyle, 0.0f, _drawOrder + 1);
-        // dragRect = Rect(min, titleBarSize);
+        if (!m_mask.IsSet(IMW_NoHeader))
+        {
+            const float          titleBarSizeY = display.y * 0.045f;
+            const Vector2        titleBarSize  = Vector2(m_size.x, titleBarSizeY);
+            const Vector2        titleBarMax   = min + titleBarSize;
+            LinaVG::StyleOptions titleBarStyle;
+            titleBarStyle.color = LV4(theme.GetColor(ThemeColor::TopPanelBackground));
+            LinaVG::DrawRect(LV2(min), LV2(titleBarMax), titleBarStyle, 0.0f, _drawOrder + 1);
+            _dragRect = Rect(min, titleBarSize);
+        }
+
+        if (!m_mask.IsSet(IMW_NoMove))
+        {
+            DragBehaviour();
+        }
+
+        //  dragRect      = Rect(min, titleBarSize);
         //  Rect dragRect = Rect();
 
         // Lina Logo
@@ -136,7 +164,7 @@ namespace Lina::Editor
 #endif
     }
 
-    bool ImmediateWindow::IsWindowHovered()
+    bool ImmediateWindow::IsHovered()
     {
         return _swapchainID == LGUI->GetHoveredSwapchainID() && LGUI->IsMouseHoveringRect(_rect);
     }
@@ -390,7 +418,7 @@ namespace Lina::Editor
     bool ImmediateGUI::BeginPopup(const char* name, const Vector2i& pos)
     {
         m_absoluteDrawOrder  = LGUI_POPUP_DRAWORDER_START;
-        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_NoMove | IMW_NoResize;
+        const Bitmask16 mask = IMW_UseAbsoluteDrawOrder | IMW_NoMove | IMW_NoResize | IMW_NoHeader;
         m_theme.PushColor(ThemeColor::Window, ThemeColor::PopupBG);
         m_theme.PushColor(ThemeColor::WindowBorderColor, ThemeColor::PopupBorderColor);
         m_theme.PushProperty(ThemeProperty::WindowRounding, ThemeProperty::PopupRounding);
@@ -431,7 +459,7 @@ namespace Lina::Editor
             if (!swp)
                 return false;
 
-            const Recti finalRect = Recti(swp->pos + window._rect.pos, window._rect.size);
+            const Recti finalRect = Recti(swp->pos + rect.pos, rect.size);
             return IsPointInRect(mouseAbs, finalRect);
         }
         else
@@ -500,10 +528,10 @@ namespace Lina::Editor
     {
         m_renderer      = renderer;
         m_windowManager = windowManager;
-        SwapchainInfo info;
-        info.swapchain                           = &Graphics::Backend::Get()->m_mainSwapchain;
-        info.windowHandle                        = m_windowManager->GetMainWindow().GetHandle();
-        m_swapchainInfos[LINA_MAIN_SWAPCHAIN_ID] = info;
+       // SwapchainInfo info;
+       // info.swapchain                           = &Graphics::Backend::Get()->m_swapchains[]
+       // info.windowHandle                        = m_windowManager->GetMainWindow().GetHandle();
+       // m_swapchainInfos[LINA_MAIN_SWAPCHAIN_ID] = info;
         Event::EventSystem::Get()->Connect<Event::EWindowFocused, &ImmediateGUI::OnWindowFocused>(this);
         Event::EventSystem::Get()->Connect<Event::EAdditionalSwapchainCreated, &ImmediateGUI::OnAdditionalSwapchainCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EAdditionalSwapchainDestroyed, &ImmediateGUI::OnAdditionalSwapchainDestroyed>(this);

@@ -4,10 +4,26 @@
 
 namespace Lina::Graphics
 {
+    Format GetFormatFromVkFormat(VkFormat f)
+    {
+        const int begin = static_cast<int>(Format::UNDEFINED);
+        const int end   = static_cast<int>(Format::FORMAT_MAX);
+        for (int i = begin; i < end; i++)
+        {
+            const Format format = static_cast<Format>(i);
+            if (f == GetFormat(format))
+                return format;
+        }
+
+        return Format::UNDEFINED;
+    }
+
     VkFormat GetFormat(Format f)
     {
         switch (f)
         {
+        case Format::UNDEFINED:
+            return VK_FORMAT_UNDEFINED;
         case Format::B8G8R8A8_SRGB:
             return VK_FORMAT_B8G8R8A8_SRGB;
         case Format::B8G8R8A8_UNORM:
@@ -24,6 +40,12 @@ namespace Lina::Graphics
             return VK_FORMAT_R8G8B8A8_UNORM;
         case Format::R8G8B8A8_SRGB:
             return VK_FORMAT_R8G8B8A8_SRGB;
+        case Format::R8G8B8_SRGB:
+            return VK_FORMAT_R8G8B8_SRGB;
+        case Format::R8G8B8_UNORM:
+            return VK_FORMAT_R8G8B8_UNORM;
+        case Format::R8G8_SRGB:
+            return VK_FORMAT_R8G8_SRGB;
         case Format::R16_SFLOAT:
             return VK_FORMAT_R16_SFLOAT;
         case Format::R16_SINT:
@@ -36,6 +58,8 @@ namespace Lina::Graphics
             return VK_FORMAT_R8_UNORM;
         case Format::R8_UINT:
             return VK_FORMAT_R8_UINT;
+        case Format::R8G8_UNORM:
+            return VK_FORMAT_R8G8_UNORM;
         default:
             return VK_FORMAT_B8G8R8A8_SRGB;
         }
@@ -443,6 +467,8 @@ namespace Lina::Graphics
     {
         switch (flags)
         {
+        case AccessFlags::None:
+            return 0;
         case AccessFlags::ColorAttachmentRead:
             return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         case AccessFlags::ColorAttachmentWrite:

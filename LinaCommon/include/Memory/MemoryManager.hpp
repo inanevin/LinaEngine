@@ -39,11 +39,11 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include <memallocators/LinearAllocator.h>
 #include <memallocators/PoolAllocator.h>
+#include <memallocators/StackAllocator.h>
 
 namespace Lina::Memory
 {
-
-    struct StaticBlock
+    struct LinearBlock
     {
         LinearAllocator* allocator = nullptr;
         size_t           allocated = 0;
@@ -53,6 +53,12 @@ namespace Lina::Memory
         {
             return maxSize - allocated > size;
         }
+    };
+
+    struct LinearBlockList
+    {
+        Vector<LinearBlock> blocks;
+        size_t              size = 0;
     };
 
     struct PoolBlock
@@ -77,37 +83,14 @@ namespace Lina::Memory
             return s_instance;
         }
 
-        template <typename T>
-        T* GetFromStaticBlock(size_t size)
+        void  CreateLinearBlockList(StringID sid, size_t size);
+        void* GetFromLinearBlockList(StringID sid, size_t size);
+        void  FlushLinearBlockList(StringID sid);
+        void  FreeLinearBlockList(StringID sid);
+
+        template <typename T> T* GetFromPoolBlock()
         {
-            LOCK_GUARD(m_mutex);
-
-            StaticBlock* block = nullptr;
-
-            for (auto& bl : m_staticBlocks)
-            {
-                if (bl.IsAvailable(size))
-                {
-                    block = &bl;
-                    break;
-                }
-            }
-
-            if (block == nullptr)
-                block = CreateStaticBlock();
-
-            void* ptr = block->allocator->Allocate(size);
-            LINA_ASSERT(ptr != nullptr, "Could not allocate from block!");
-
-            block->allocated += size;
-            T* newPtr = new (ptr) T();
-            return newPtr;
-        }
-
-        template <typename T>
-        T* GetFromPoolBlock()
-        {
-            LOCK_GUARD(m_mutex);
+            LOCK_GUARD(m_poolMtx);
 
             const TypeID tid       = GetTypeID<T>();
             PoolBlock*   block     = nullptr;
@@ -154,8 +137,7 @@ namespace Lina::Memory
             return newPtr;
         }
 
-        template <typename T>
-        void FreeFromPoolBlock(void* ptr, uint32 poolIndex)
+        template <typename T> void FreeFromPoolBlock(void* ptr, uint32 poolIndex)
         {
             PoolBlock& block = m_poolBlocks[GetTypeID<T>()][poolIndex];
             block.allocator->Free(ptr);
@@ -166,29 +148,24 @@ namespace Lina::Memory
         {
             PoolBlock    block;
             const size_t totalSize = static_cast<size_t>(chunkSize * chunkCount);
-            block.allocator = new PoolAllocator(totalSize, chunkSize);
+            block.allocator        = new PoolAllocator(totalSize, chunkSize);
             block.allocator->Init();
-            block.maxSize = totalSize;
+            block.maxSize    = totalSize;
             block.chunkCount = chunkCount;
-            block.name = blockName;
+            block.name       = blockName;
             m_poolBlocks[tid].push_back(block);
             return &m_poolBlocks[tid][m_poolBlocks[tid].size() - 1];
         }
 
-        template <typename T>
-        PoolBlock* CreatePoolBlock(uint32 chunkCount, const String& blockName)
+        template <typename T> PoolBlock* CreatePoolBlock(uint32 chunkCount, const String& blockName)
         {
             return CreatePoolBlock(GetTypeID<T>(), sizeof(T), chunkCount, blockName);
         }
 
-        template <typename T>
-        bool PoolBlockExists()
+        template <typename T> bool PoolBlockExists()
         {
             return m_poolBlocks.find(GetTypeID<T>()) != m_poolBlocks.end();
         }
-
-    private:
-        StaticBlock* CreateStaticBlock();
 
     private:
         friend class Engine;
@@ -198,14 +175,16 @@ namespace Lina::Memory
         MemoryManager()  = default;
         ~MemoryManager() = default;
 
-        void Initialize();
-        void Shutdown();
-        void PrintStaticBlockInfo();
+        void  Initialize();
+        void  Shutdown();
+        void  PrintBlockInfos();
+        void* GetFromLinearBlock(LinearBlock& block, size_t size);
 
     private:
-        Mutex                              m_mutex;
-        Vector<StaticBlock>                m_staticBlocks;
+        Mutex                              m_poolMtx;
+        Mutex                              m_linearMtx;
         HashMap<TypeID, Vector<PoolBlock>> m_poolBlocks;
+        HashMap<StringID, LinearBlockList> m_linearBlocks;
     };
 } // namespace Lina::Memory
 

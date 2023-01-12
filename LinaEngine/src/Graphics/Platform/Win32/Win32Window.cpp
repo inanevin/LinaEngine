@@ -159,8 +159,8 @@ namespace Lina::Graphics
             auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
             Event::EventSystem::Get()->Trigger<Event::EMouseScrollCallback>(Event::EMouseScrollCallback{
                 .window = win32Window->GetHandle(),
-                .xoff   = 0.0f,
-                .yoff   = static_cast<float>(delta),
+                .xoff   = 0,
+                .yoff   = delta,
             });
         }
         break;
@@ -293,7 +293,7 @@ namespace Lina::Graphics
         return DefWindowProcA(window, msg, wParam, lParam);
     }
 
-    bool Win32Window::Create(WindowManager* wm , void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
+    bool Win32Window::Create(WindowManager* wm, void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
     {
         m_windowManager = wm;
         if (parent == nullptr)
@@ -317,7 +317,12 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_window = CreateWindowExA(WS_EX_APPWINDOW, title, title, parent == nullptr ? 0 : WS_POPUP | WS_CAPTION, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
+        DWORD exStyle = WS_EX_APPWINDOW;
+
+        if (parent != nullptr)
+            exStyle |= WS_EX_LAYERED;
+
+        m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : WS_POPUP, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
         m_title  = title;
 
         if (m_window == nullptr)
@@ -325,6 +330,10 @@ namespace Lina::Graphics
             LINA_ERR("[Win32 Window] -> Failed creating window!");
             return false;
         }
+
+        // Otherwise will be inviisble, created via EX_LAYERED
+        if (parent != nullptr)
+            SetAlpha(1.0f);
 
         m_handle                 = static_cast<void*>(m_window);
         s_win32Windows[m_window] = this;
@@ -435,6 +444,13 @@ namespace Lina::Graphics
     {
         m_hasFocus = hasFocus;
         m_windowManager->OnWindowFocused(m_sid);
+    }
+
+    void Win32Window::SetAlpha(float alpha)
+    {
+        const BYTE     finalAlpha = static_cast<BYTE>(alpha * 255.0f);
+        const COLORREF colorKey   = RGB(1, 1, 1);
+        SetLayeredWindowAttributes(m_window, colorKey, finalAlpha, LWA_ALPHA);
     }
 
     void Win32Window::SetPos(const Vector2i& newPos)

@@ -73,7 +73,7 @@ namespace Lina::Editor
             }
 
             const Rect itemRect  = Rect(pos, totalSize);
-            const bool isHovered = LGUI->IsMouseHoveringRect(itemRect);
+            const bool isHovered = window.IsHovered() && LGUI->IsMouseHoveringRect(itemRect);
 
             if (isHovered)
                 anyHovered = true;

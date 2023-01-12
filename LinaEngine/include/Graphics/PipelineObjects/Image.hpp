@@ -53,6 +53,7 @@ namespace Lina::Graphics
         ImageLayout           initialLayout       = ImageLayout::Undefined;
         SharingMode           sharingMode         = SharingMode::Exclusive;
         ImageSubresourceRange subresRange;
+        uint32                mipLevels = 1;
 
         // Runtime
         AllocatedImage _allocatedImg;

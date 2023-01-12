@@ -39,6 +39,8 @@ SOFTWARE.
 #define FL2(V) Vector2(V.x, V.y)
 #define FL4(V) Vector4(V.x, V.y, V.z, V.w)
 
+#include "Math/Color.hpp"
+
 namespace Lina
 {
     inline extern void DrawPoint(const Vector2& p, int drawOrder, Color col = Color::Red)

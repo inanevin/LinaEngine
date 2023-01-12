@@ -37,15 +37,11 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Log/Log.hpp"
-#include <iostream>
-#include <fstream>
-#include <filesystem>
 
-#define CLASS_VERSION(X, VER)   \
-    template <>                 \
-    uint32 GetClassVersion<X>() \
-    {                           \
-        return VER;             \
+#define CLASS_VERSION(X, VER)                                                                                                                                                                                                                                      \
+    template <> uint32 GetClassVersion<X>()                                                                                                                                                                                                                        \
+    {                                                                                                                                                                                                                                                              \
+        return VER;                                                                                                                                                                                                                                                \
     };
 
 namespace Lina::Serialization
@@ -53,108 +49,45 @@ namespace Lina::Serialization
 
 #define COMPRESS_MIN_LIMIT 1000
 
-    template <typename T>
-    uint32 GetClassVersion()
-    {
-        return 0;
-    }
+    extern void             SaveArchiveToFile(const String& path, Archive<OStream>& archive);
+    extern Archive<IStream> LoadArchiveFromFile(const String& path);
 
-    template <typename T>
-    void SaveToFile(const String& path, T& obj)
+    template <typename T> void SaveToFile(const String& path, T& obj)
     {
-        std::ofstream wf(path.c_str(), std::ios::out | std::ios::binary);
-        if (!wf)
-        {
-            LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
-            return;
-        }
-
         if (Utility::FileExists(path))
             Utility::DeleteFileInPath(path);
 
         // Create
         Archive<OStream> arch;
-        arch.GetStream().CreateReserve(sizeof(T));
-
-        // Header
-        const uint32 classVersion = GetClassVersion<T>();
-        arch.Version              = classVersion;
-        arch(classVersion);
+        arch.GetStream().CreateReserveFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, sizeof(T));
 
         // Write obj
         arch(obj);
 
-        // Copy to ofstream & write file.
-        OStream compressed = Compressor::Compress(arch.GetStream());
-        compressed.WriteToStream(wf);
-        wf.close();
-        arch.GetStream().Destroy();
-        compressed.Destroy();
-
-        if (!wf.good())
-        {
-            LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
-            return;
-        }
+        SaveArchiveToFile(path, arch);
     }
 
-    template <typename T>
-    void LoadFromFile(const String& path, T& obj)
+    template <typename T> void LoadFromFile(const String& path, T& obj)
     {
-        std::ifstream rf(path.c_str(), std::ios::out | std::ios::binary);
-
-        if (!rf)
-        {
-            LINA_ERR("[Serialization] -> Could not open file for reading! {0}", path);
-            return;
-        }
-
-        auto size = std::filesystem::file_size(path.c_str());
-
-        // Create
-        Archive<IStream> arch;
-        arch.GetStream().Create(size);
-
-        // Read from ifstream
-        arch.GetStream().ReadFromStream(rf);
-        rf.close();
-
-        IStream decompressed = Compressor::Decompress(arch.GetStream());
-        arch.GetStream().Destroy();
-        arch.SetStream(decompressed);
-
-        if (!rf.good())
-            LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
-
-        // Header
-        uint32 version;
-        arch(version);
-        arch.Version = version;
-
-        if (version != GetClassVersion<T>())
-            LINA_WARN("[Serialization] -> Class versions do not match! {0}", typeid(T).name());
+        Archive<IStream> arch = LoadArchiveFromFile(path);
 
         // Read objects.
         arch(obj);
         arch.GetStream().Destroy();
     }
 
-    template <typename T>
-    void SaveToFile(const String& path)
+    template <typename T> void SaveToFile(const String& path)
     {
         T obj = T();
         SaveToFile(path, obj);
     }
 
-    template <typename T>
-    T LoadFromFile(const char* path)
+    template <typename T> T LoadFromFile(const char* path)
     {
         T obj = T();
         LoadFromFile(path, obj);
         return obj;
     }
-    extern void             SaveArchiveToFile(const String& path, Archive<OStream>& archive);
-    extern Archive<IStream> LoadArchiveFromFile(const String& path);
 
 } // namespace Lina::Serialization
 

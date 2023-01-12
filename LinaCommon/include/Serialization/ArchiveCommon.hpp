@@ -33,11 +33,14 @@ SOFTWARE.
 
 #include "Data/String.hpp"
 #include "Data/Streams.hpp"
+#include "Utility/StringId.hpp"
 #include <type_traits>
 #include <vector>
 
 namespace Lina::Serialization
 {
+
+#define SERIALIZATION_LINEARBLOCK_SID TO_SIDC("Lina_SerializationLinearBlock")
 
     /* Example Specialization for custom 3rd party types
     template <typename Ar, typename T> void SaveOther(Ar& ar, std::vector<T>& vec)
@@ -126,10 +129,10 @@ namespace Lina::Serialization
         }
     };
 
-#define FRIEND_ARCHIVE                                                                                                                                                                                                     \
-    friend class Serialization::ArchiveBase;                                                                                                                                                                               \
-    template <typename> friend struct Serialization::HasSerialize;                                                                                                                                                         \
-    template <typename> friend struct Serialization::HasSave;                                                                                                                                                              \
+#define FRIEND_ARCHIVE                                                                                                                                                                                                                                             \
+    friend class Serialization::ArchiveBase;                                                                                                                                                                                                                       \
+    template <typename> friend struct Serialization::HasSerialize;                                                                                                                                                                                                 \
+    template <typename> friend struct Serialization::HasSave;                                                                                                                                                                                                      \
     template <typename> friend struct Serialization::HasLoad
 
 } // namespace Lina::Serialization

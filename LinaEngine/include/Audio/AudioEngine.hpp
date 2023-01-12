@@ -76,7 +76,7 @@ namespace Lina::Audio
         void Shutdown();
 
     private:
-        mutable std::mutex                  m_mutex;
+        mutable std::mutex                  m_poolMtx;
         ALCcontext*                         m_context             = nullptr;
         ALCdevice*                          m_device              = nullptr;
         Vector3                             m_mainListenerLastPos = Vector3::Zero;

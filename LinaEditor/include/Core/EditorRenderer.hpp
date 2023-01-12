@@ -37,17 +37,12 @@ SOFTWARE.
 namespace Lina::Editor
 {
     class ImmediateGUI;
+    class EditorGUIManager;
 
     class EditorRenderer : public Graphics::Renderer
     {
 
     public:
-        inline const HashMap<World::EntityWorld*, Graphics::Renderer::RenderWorldData>& GetWorldData()
-        {
-            return m_worldsToRenderGPU;
-        }
-
-    private:
         struct AdditionalWindowData
         {
             Graphics::Swapchain*            swapchain = nullptr;
@@ -82,9 +77,21 @@ namespace Lina::Editor
             StringID sid = 0;
         };
 
-    protected:
-        friend class Editor;
-        friend class ImmediateGUI;
+    public:
+        inline const HashMap<StringID, AdditionalWindowData>& GetAdditionalWindows()
+        {
+            return m_additionalWindows;
+        }
+
+        inline const HashMap<World::EntityWorld*, Graphics::Renderer::RenderWorldData>& GetWorldData()
+        {
+            return m_worldsToRenderGPU;
+        }
+
+        inline void SetGUIManager(EditorGUIManager* guiMan)
+        {
+            m_guiManager = guiMan;
+        }
 
         void CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
         void RemoveAdditionalWindow(StringID sid);
@@ -92,10 +99,10 @@ namespace Lina::Editor
         virtual void Tick() override;
         virtual void Shutdown() override;
         virtual void Render() override;
-        virtual void OnTexturesRecreated() override{};
         virtual void SyncData() override;
 
     private:
+        virtual void          OnTexturesRecreated() override{};
         bool                  HandleOutOfDateImageAdditional(AdditionalWindowData* wd, Graphics::VulkanResult res);
         AdditionalWindowData* GetWindowDataFromSwapchain(Graphics::Swapchain* swp);
 
@@ -104,6 +111,7 @@ namespace Lina::Editor
         Mutex                                   m_additionalWindowMtx;
         Vector<AdditionalWindowRequest>         m_additionalWindowRequests;
         Vector<AdditionalWindowRemoveRequest>   m_additionalWindowRemoveRequests;
+        EditorGUIManager*                       m_guiManager = nullptr;
     };
 } // namespace Lina::Editor
 

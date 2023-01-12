@@ -35,6 +35,10 @@ src/Settings/DockSetup.cpp
 src/GUI/Theme.cpp
 src/GUI/Widgets.cpp
 src/GUI/GUI.cpp
+src/GUI/DockArea.cpp
+src/GUI/DockedWindow.cpp
+src/GUI/Drawable.cpp
+src/GUI/FixedWindow.cpp
 src/GUI/CustomWidgets/MenuBar.cpp
 src/GUI/CustomWidgets/MenuPopup.cpp
 
@@ -73,6 +77,10 @@ include/GUI/Theme.hpp
 include/GUI/GUI.hpp
 include/GUI/GUICommon.hpp
 include/GUI/Widgets.hpp
+include/GUI/DockArea.hpp
+include/GUI/DockedWindow.hpp
+include/GUI/Drawable.hpp
+include/GUI/FixedWindow.hpp
 include/GUI/CustomWidgets/MenuBar.hpp
 include/GUI/CustomWidgets/MenuPopup.hpp
 

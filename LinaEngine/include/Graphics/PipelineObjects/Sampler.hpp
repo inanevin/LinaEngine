@@ -50,12 +50,12 @@ namespace Lina::Graphics
         SamplerAddressMode v                 = SamplerAddressMode::Repeat;
         SamplerAddressMode w                 = SamplerAddressMode::Repeat;
         float              mipLodBias        = 0.0f;
-        float              maxAnisotropy     = 0.0f;
         float              minLod            = 0.0f;
         float              maxLod            = 0.0f;
+        bool               anisotropyEnabled = false;
+        float              maxAnisotropy     = 0.0f;
         BorderColor        borderColor       = BorderColor::FloatTransparentBlack;
         MipmapMode         mipmapMode        = MipmapMode::Nearest;
-        bool               anisotropyEnabled = false;
 
         // Runtime
         VkSampler_T* _ptr = nullptr;

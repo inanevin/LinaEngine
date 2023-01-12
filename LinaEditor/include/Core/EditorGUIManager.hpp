@@ -31,8 +31,9 @@ SOFTWARE.
 #ifndef EditorGUIManager_HPP
 #define EditorGUIManager_HPP
 
-#include "Panels/TopPanel.hpp"
-#include "Panels/DockPanel.hpp"
+#include "Utility/Graphics/TexturePacker.hpp"
+#include "EditorCommon.hpp"
+#include "Utility/StringId.hpp"
 
 namespace Lina
 {
@@ -46,33 +47,62 @@ namespace Lina
     namespace Graphics
     {
         class GUIBackend;
-    }
+        class Swapchain;
+    } // namespace Graphics
 
 } // namespace Lina
 
 namespace Lina::Editor
 {
     struct EShortcut;
+    class Drawable;
+    class DockArea;
+    class TopPanel;
+    class EditorRenderer;
 
     class EditorGUIManager
     {
-    public:
-    private:
-        friend class EditorRenderer;
-        friend class Editor;
 
+    private:
+        struct LaunchPanelRequest
+        {
+            EditorPanel panelType = EditorPanel::Global;
+            StringID    sid       = 0;
+            Vector2     pos       = Vector2::Zero;
+            Vector2     size      = Vector2::Zero;
+        };
+
+    public:
         void Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend);
         void Shutdown();
-        void OnDrawGUI(const Event::EDrawGUI& ev);
-        void OnTick(const Event::ETick& ev);
+        void LaunchPanel(EditorPanel panel);
+
+        inline void SetCurrentSwapchain(Graphics::Swapchain* swp)
+        {
+            m_currentSwapchain = swp;
+        }
+
+        inline Graphics::Texture* GetIconTexture()
+        {
+            return m_iconTexture;
+        }
 
     private:
-        Graphics::GUIBackend* m_guiBackend  = nullptr;
-        Graphics::Texture*    m_iconTexture = nullptr;
-        Vector<PackedTexture> m_packedIcons;
-        TopPanel              m_topPanel;
-        DockPanel             m_dockPanel;
-        EditorRenderer*       m_renderer = nullptr;
+        void OnTick(const Event::ETick& ev);
+        void OnDrawGUI(const Event::EDrawGUI& ev);
+
+        Drawable* GetContentFromPanelRequest(EditorPanel panel);
+
+    private:
+        Graphics::GUIBackend*      m_guiBackend  = nullptr;
+        Graphics::Texture*         m_iconTexture = nullptr;
+        Vector<PackedTexture>      m_packedIcons;
+        EditorRenderer*            m_renderer = nullptr;
+        Vector<Drawable*>          m_dockAreas;
+        Graphics::Swapchain*       m_currentSwapchain = nullptr;
+        DockArea*                  m_mainDockArea     = nullptr;
+        TopPanel*                  m_topPanel         = nullptr;
+        Vector<LaunchPanelRequest> m_panelRequests;
     };
 } // namespace Lina::Editor
 

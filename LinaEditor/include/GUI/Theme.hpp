@@ -72,6 +72,10 @@ namespace Lina::Editor
         Highlight,
         MenuBarPopupBG,
         MenuBarPopupBorderColor,
+        DockArea,
+        DockAreaBorder,
+        DockAreaTitleBar,
+        DockAreaTitleBarBorder,
     };
 
     enum class ThemeProperty
