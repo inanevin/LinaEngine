@@ -52,20 +52,29 @@ namespace Lina::Graphics
     bool                           Win32Window::s_isAppActive;
     Application*                   Win32Window::s_app = nullptr;
 
-    LRESULT HandleNonclientHitTest(HWND wnd, LPARAM lparam, int title_bar_hgt, int resizing_border_wd)
+    LRESULT HandleNonclientHitTest(HWND wnd, LPARAM lparam, const Recti& dragRect)
     {
         RECT wnd_rect;
         GetWindowRect(wnd, &wnd_rect);
 
-        int wd  = wnd_rect.right - wnd_rect.left;
-        int hgt = wnd_rect.bottom - wnd_rect.top;
+        int        width    = wnd_rect.right - wnd_rect.left;
+        int        height   = wnd_rect.bottom - wnd_rect.top;
+        const LONG margin   = 10;
+        const LONG trMargin = 5;
 
-        RECT title_bar = {0, 0, wd, title_bar_hgt};
-        RECT left      = {0, title_bar_hgt, resizing_border_wd, hgt - title_bar_hgt - resizing_border_wd};
-        RECT right     = {wd - resizing_border_wd, title_bar_hgt, wd, hgt - title_bar_hgt - resizing_border_wd};
-        RECT bottom    = {0, hgt - resizing_border_wd, wd, hgt};
+        RECT title_bar = {dragRect.pos.x, dragRect.pos.y, dragRect.pos.x + dragRect.size.x, dragRect.pos.y + dragRect.size.y};
+        RECT tl        = {0, 0, margin, margin};
+        RECT tr        = {width - trMargin, 0, width, trMargin};
+        RECT bl        = {0, height - margin, margin, height};
+        RECT br        = {width - margin, height - margin, width, height};
+        RECT left      = {0, tl.bottom, margin, bl.top};
+        RECT right     = {width - margin, tr.bottom, width, br.top};
+        RECT bottom    = {bl.right, bl.top, br.left, br.bottom};
+        RECT top       = {tl.right, tl.top, tr.left, tr.bottom};
 
-        std::tuple<RECT, LRESULT> rects[] = {{title_bar, HTCAPTION}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}};
+        // std::tuple<RECT, LRESULT> rects[] = {{title_bar, HTCAPTION}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}};
+        std::tuple<RECT, LRESULT> rects[] = {{tl, HTTOPLEFT}, {tr, HTTOPRIGHT}, {bl, HTBOTTOMLEFT}, {br, HTBOTTOMRIGHT}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}, {top, HTTOP},
+        {title_bar, HTCAPTION}};
 
         POINT pt = {GET_X_LPARAM(lparam) - wnd_rect.left, GET_Y_LPARAM(lparam) - wnd_rect.top};
         for (const auto& [r, code] : rects)
@@ -75,7 +84,7 @@ namespace Lina::Graphics
         }
         return HTCLIENT;
     }
-    
+
     LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
     {
         auto* win32Window = s_win32Windows[window];
@@ -84,14 +93,8 @@ namespace Lina::Graphics
 
         switch (msg)
         {
-      // case WM_NCHITTEST:
-      //    HandleNonclientHitTest(window, lParam, 25, 10);
-      //    break;
-        case WM_SETCURSOR: {
-            SetCursor(win32Window->m_targetCursor);
-            return TRUE;
-        }
-        break;
+        case WM_NCHITTEST:
+            return HandleNonclientHitTest(window, lParam, win32Window->m_dragRect);
         case WM_SETFOCUS: {
             win32Window->SetFocus(true);
             Event::EventSystem::Get()->Trigger<Event::EWindowFocused>({static_cast<void*>(win32Window)});
@@ -362,7 +365,6 @@ namespace Lina::Graphics
         if (parent != nullptr)
             exStyle |= WS_EX_LAYERED;
 
-
         m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : WS_POPUP, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
         m_title  = title;
 
@@ -389,6 +391,7 @@ namespace Lina::Graphics
             Rid[0].hwndTarget  = m_window;
             RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
         }
+
         return true;
     }
 

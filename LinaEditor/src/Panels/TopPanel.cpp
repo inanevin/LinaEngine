@@ -168,13 +168,20 @@ namespace Lina::Editor
 
     void TopPanel::Draw()
     {
-        const Vector2 display    = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
-        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().Size();
-
-        m_rect.size = Vector2(screenSize.x, display.y * 0.084f);
+        const Vector2 display        = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
+        const Vector2 screenSize     = Graphics::RenderEngine::Get()->GetScreen().Size();
+        const float   borderInMargin = 2.0f;
 
         auto& theme = LGUI->GetTheme();
 
+        // App border
+        LinaVG::StyleOptions appBorderStyle;
+        appBorderStyle.isFilled  = false;
+        appBorderStyle.thickness = 3.0f;
+        appBorderStyle.color     = LV4(theme.GetColor(ThemeColor::AppBorder));
+        LinaVG::DrawRect(LV2(Vector2(borderInMargin)), LV2((screenSize - borderInMargin)), appBorderStyle, 0.0f, 100);
+
+        m_rect.size                = Vector2(screenSize.x, display.y * 0.084f);
         constexpr const char* name = "TopPanel";
         LGUI->SetWindowSize(name, m_rect.size);
         LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
@@ -188,6 +195,9 @@ namespace Lina::Editor
             DrawControls();
             LGUI->EndWindow();
         }
+
+        const Recti dragRect = Recti(static_cast<int>(m_fileMenuMaxX), 0, static_cast<int>(m_minimizeStart - m_fileMenuMaxX), static_cast<int>(m_rect.size.y * 0.4f));
+        m_windowManager->GetMainWindow().SetDragRect(dragRect);
     }
 
     void TopPanel::DrawFileMenu()
@@ -195,13 +205,18 @@ namespace Lina::Editor
         const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
         auto&         theme   = LGUI->GetTheme();
         auto&         w       = LGUI->GetCurrentWindow();
-        w.SetPenPos(Vector2(10, 0));
+
+        const float    offset    = display.x * 0.005f;
+        const Vector2  logoStart = Vector2(offset, offset * 0.5f);
+        const Vector2  logoSize  = Vector2(display.x * 0.01f);
+        const StringID txtSid    = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite256)->GetSID();
+        LinaVG::DrawImage(txtSid, LV2((logoStart + logoSize * 0.5f)), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
 
         theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);
         const float   buttonSizeX = display.x * 0.027f;
         const float   buttonSizeY = buttonSizeX * 0.5f;
         const Vector2 buttonSize  = Vector2(buttonSizeX, buttonSizeY);
-        m_menuBar.SetStartPosition(Vector2(0, 0));
+        m_menuBar.SetStartPosition(Vector2(logoStart.x + logoSize.x + offset * 0.5f, offset * 0.5f));
         m_menuBar.Draw();
         theme.PopColor();
     }
@@ -279,9 +294,9 @@ namespace Lina::Editor
         Vector2       buttonSize   = Vector2::Zero;
         const Vector2 appTitleSize = Widgets::GetTextSize(ApplicationInfo::GetAppName());
 
-        const float minimizeStart = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
+        m_minimizeStart = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
 
-        w.SetPenPos(Vector2(minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
+        w.SetPenPos(Vector2(m_minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
         Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);
     }
 

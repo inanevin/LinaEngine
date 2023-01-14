@@ -41,7 +41,8 @@ namespace Lina
     namespace Graphics
     {
         class Texture;
-    }
+        class WindowManager;
+    } // namespace Graphics
 } // namespace Lina
 
 namespace Lina::Editor
@@ -58,6 +59,11 @@ namespace Lina::Editor
         virtual void Shutdown() override;
         virtual void Draw() override;
 
+        inline void SetWindowManager(Graphics::WindowManager* wm)
+        {
+            m_windowManager = wm;
+        }
+
         inline void SetGUIManager(EditorGUIManager* guiManager)
         {
             m_guiManager = guiManager;
@@ -71,16 +77,18 @@ namespace Lina::Editor
         void OnMenuBarItemClicked(uint32 id);
 
     private:
-        MenuBar               m_menuBar;
-        uint32                m_titleTexture       = 0;
-        uint32                m_textAnimationIndex = 0;
-        float                 m_titleAspect        = 0.0f;
-        float                 m_lastTextAnimTime   = 0.0f;
-        float                 m_fileMenuMaxX       = 0.0f;
-        float                 m_titleMaxX          = 0.0f;
-        Graphics::Texture*    m_packedAnim         = nullptr;
-        Vector<PackedTexture> m_packedAnimTextures;
-        EditorGUIManager*     m_guiManager = nullptr;
+        MenuBar                  m_menuBar;
+        uint32                   m_titleTexture       = 0;
+        uint32                   m_textAnimationIndex = 0;
+        float                    m_titleAspect        = 0.0f;
+        float                    m_lastTextAnimTime   = 0.0f;
+        float                    m_fileMenuMaxX       = 0.0f;
+        float                    m_titleMaxX          = 0.0f;
+        float                    m_minimizeStart      = 0.0f;
+        Graphics::Texture*       m_packedAnim         = nullptr;
+        Vector<PackedTexture>    m_packedAnimTextures;
+        EditorGUIManager*        m_guiManager    = nullptr;
+        Graphics::WindowManager* m_windowManager = nullptr;
     };
 } // namespace Lina::Editor
 

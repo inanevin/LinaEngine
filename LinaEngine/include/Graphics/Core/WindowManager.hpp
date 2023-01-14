@@ -64,7 +64,7 @@ namespace Lina::Graphics
         virtual void ShowHideWindow(bool show)                                                                             = 0;
         virtual void SetFocus(bool hasFocus)                                                                               = 0;
         virtual void SetAlpha(float alpha)                                                                                 = 0;
-        virtual void SetMouseCursor(CursorType cursor)                                                                          = 0;
+        virtual void SetMouseCursor(CursorType cursor)                                                                     = 0;
 
         /// <summary>
         /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
@@ -125,11 +125,22 @@ namespace Lina::Graphics
             return m_rect;
         }
 
+        inline const Recti& GetDragRect() const
+        {
+            return m_dragRect;
+        }
+
+        inline void SetDragRect(const Recti& r)
+        {
+            m_dragRect = r;
+        }
+
     protected:
         friend class WindowManager;
 
         CursorType     m_cursor         = CursorType::Default;
         Recti          m_rect           = Recti();
+        Recti          m_dragRect       = Recti();
         StringID       m_sid            = 0;
         WindowManager* m_windowManager  = nullptr;
         bool           m_isMinimized    = false;
@@ -160,7 +171,7 @@ namespace Lina::Graphics
             return *m_windows[id];
         }
 
-        inline const Window& GetMainWindow()
+        inline Window& GetMainWindow()
         {
             return *m_windows[m_mainWindowSID];
         }

@@ -87,7 +87,7 @@ namespace Lina::Graphics
         SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
 #endif
 
-        const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor && false;
+        const bool launchOnEditor = ApplicationInfo::GetAppMode() == ApplicationMode::Editor ;
 
         if (launchOnEditor)
             mainWindow->SetToWorkingArea();

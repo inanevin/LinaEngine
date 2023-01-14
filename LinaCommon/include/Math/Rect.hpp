@@ -44,6 +44,7 @@ namespace Lina
         Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
         Rect(const Rect& r) : pos(r.pos), size(r.size){};
         Rect(const Recti& r);
+        Rect(float x, float y, float w, float h) : pos(x, y), size(w, h){};
 
         Rect Shrink(float percentage) const;
 
@@ -70,6 +71,7 @@ namespace Lina
             this->pos  = pos;
             this->size = size;
         }
+        Recti(int x, int y, int w, int h) : pos(x, y), size(w, h){};
 
         Vector2i pos  = Vector2i(0, 0);
         Vector2i size = Vector2i(0, 0);

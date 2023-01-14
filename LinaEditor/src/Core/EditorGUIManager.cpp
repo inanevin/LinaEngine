@@ -130,6 +130,7 @@ namespace Lina::Editor
         theme.m_colors[ThemeColor::MenuBarPopupBorderColor] = light1;
         theme.m_colors[ThemeColor::DockArea]                = dark1;
         theme.m_colors[ThemeColor::DockAreaBorder]          = light1;
+        theme.m_colors[ThemeColor::AppBorder]               = light1;
 
         theme.m_properties[ThemeProperty::AAEnabled]          = LinaVG::Config.aaEnabled ? 1.0f : 0.0f;
         theme.m_properties[ThemeProperty::WindowItemPaddingX] = 12;
@@ -165,6 +166,7 @@ namespace Lina::Editor
 
         m_topPanel = new TopPanel();
         m_topPanel->Initialize();
+        m_topPanel->SetWindowManager(m_windowManager);
 
         for (auto d : m_dockAreas)
             d->Initialize();
@@ -192,8 +194,6 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
-        LINA_TRACE("{0}", m_hoveredSwapchainID);
-
         LGUI->m_currentSwaphchain  = m_currentSwapchain;
         LGUI->m_isSwapchainHovered = m_currentSwapchain->swapchainID == m_hoveredSwapchainID;
 

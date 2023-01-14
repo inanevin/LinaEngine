@@ -52,11 +52,15 @@ namespace Lina::Editor
         // Draw title bar
         if (m_detached)
         {
+
             const Vector2 displayRes   = screen.DisplayResolution();
             const float   headerHeight = displayRes.y * 0.055f;
             const Rect    headerRect   = Rect(m_rect.pos, Vector2(m_rect.size.x, headerHeight));
             const String  headerName   = TO_STRING(m_swapchainID) + "header";
             LGUI->SetWindowSize(headerName.c_str(), headerRect.size);
+
+            const Recti dragRect = Recti(0, 0, static_cast<int>(m_rect.size.x), static_cast<int>(headerRect.size.y * 0.5f));
+            m_windowManager->GetWindow(m_swapchainID).SetDragRect(dragRect);
 
             /************** HEADER BG **************/
             if (LGUI->BeginWindow(headerName.c_str()))
@@ -93,42 +97,42 @@ namespace Lina::Editor
             const Vector2 mouseDelta = LGUI->GetMouseDelta();
             const Vector2 mousePos   = LGUI->GetMousePosition();
 
-          //  if (!m_draggingMove && m_isSwapchainHovered && LGUI->GetMouseButtonDown(LINA_MOUSE_0))
-          //  {
-          //      m_mouseDiffOnPress = mousePos - Vector2(wd.GetPos());
-          //      m_draggingMove     = true;
-          //  }
-          //
-          //  if (m_draggingMove)
-          //  {
-          //      const Vector2 newPos = mousePos - m_mouseDiffOnPress;
-          //      m_windowPositionsNext.push_back(newPos);
-          //  }
-          //
-          //  if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
-          //      m_draggingMove = false;
+            //  if (!m_draggingMove && m_isSwapchainHovered && LGUI->GetMouseButtonDown(LINA_MOUSE_0))
+            //  {
+            //      m_mouseDiffOnPress = mousePos - Vector2(wd.GetPos());
+            //      m_draggingMove     = true;
+            //  }
+            //
+            //  if (m_draggingMove)
+            //  {
+            //      const Vector2 newPos = mousePos - m_mouseDiffOnPress;
+            //      m_windowPositionsNext.push_back(newPos);
+            //  }
+            //
+            //  if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
+            //      m_draggingMove = false;
 
-          //if (!m_draggingResize && m_isSwapchainHovered)
-          //{
-          //    int horizontalHover = 0, verticalHover = 0;
-          //    LGUI->IsMouseHoveringRectCornersAbs(wd.GetRect(), &horizontalHover, &verticalHover);
-          //
-          //    if (horizontalHover && !verticalHover)
-          //    {
-          //        m_cursorsNext.push_back(CursorType::ResizeH);
-          //    }
-          //    else if (verticalHover && !horizontalHover)
-          //    {
-          //        m_cursorsNext.push_back(CursorType::ResizeV);
-          //    }
-          //    else if (verticalHover && horizontalHover)
-          //    {
-          //        if (horizontalHover == 1 && verticalHover == 1 || horizontalHover == 2 && verticalHover == 2)
-          //            m_cursorsNext.push_back(CursorType::ResizeHV_E);
-          //        else
-          //            m_cursorsNext.push_back(CursorType::ResizeHV_W);
-          //    }
-          //}
+            // if (!m_draggingResize && m_isSwapchainHovered)
+            //{
+            //     int horizontalHover = 0, verticalHover = 0;
+            //     LGUI->IsMouseHoveringRectCornersAbs(wd.GetRect(), &horizontalHover, &verticalHover);
+            //
+            //     if (horizontalHover && !verticalHover)
+            //     {
+            //         m_cursorsNext.push_back(CursorType::ResizeH);
+            //     }
+            //     else if (verticalHover && !horizontalHover)
+            //     {
+            //         m_cursorsNext.push_back(CursorType::ResizeV);
+            //     }
+            //     else if (verticalHover && horizontalHover)
+            //     {
+            //         if (horizontalHover == 1 && verticalHover == 1 || horizontalHover == 2 && verticalHover == 2)
+            //             m_cursorsNext.push_back(CursorType::ResizeHV_E);
+            //         else
+            //             m_cursorsNext.push_back(CursorType::ResizeHV_W);
+            //     }
+            // }
         }
     }
 
