@@ -82,13 +82,13 @@ namespace Lina::Graphics
         frame.graphicsFence.Wait(true, 1.0f);
 
         VulkanResult res;
-        const uint32 imageIndex              = m_swapchain->AcquireNextImage(1.0, frame.submitSemaphore, res);
-        auto         swapchainImage          = m_swapchain->_images[imageIndex];
-        auto         swapchainImageView      = m_swapchain->_imageViews[imageIndex];
-        auto         swapchainDepthImage     = m_swapchain->_depthImages[imageIndex]._allocatedImg.image;
-        auto         swapchainDepthImageView = m_swapchain->_depthImages[imageIndex]._ptrImgView;
+        const uint32 imageIndex              = m_mainSwapchain->AcquireNextImage(1.0, frame.submitSemaphore, res);
+        auto         swapchainImage          = m_mainSwapchain->_images[imageIndex];
+        auto         swapchainImageView      = m_mainSwapchain->_imageViews[imageIndex];
+        auto         swapchainDepthImage     = m_mainSwapchain->_depthImages[imageIndex]._allocatedImg.image;
+        auto         swapchainDepthImageView = m_mainSwapchain->_depthImages[imageIndex]._ptrImgView;
 
-        if (HandleOutOfDateImage(res, true))
+        if (HandleOutOfDateImage(m_mainSwapchain, res, true))
             return;
 
         frame.graphicsFence.Reset();
@@ -168,7 +168,7 @@ namespace Lina::Graphics
             PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
 
             // Issue GUI draw commands.
-            m_guiBackend->Prepare(m_swapchain, imageIndex, &cmd);
+            m_guiBackend->Prepare(m_mainSwapchain, imageIndex, &cmd);
             Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
             cmd.CMD_BeginRenderingDefault(swapchainImageView, swapchainDepthImageView, defaultRenderArea);
@@ -195,7 +195,7 @@ namespace Lina::Graphics
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
         Backend::Get()->GetGraphicsQueue().Submit(frame.submitSemaphore, frame.presentSemaphore, frame.graphicsFence, cmd, 1);
         Backend::Get()->GetGraphicsQueue().Present(frame.presentSemaphore, imageIndex, res);
-        HandleOutOfDateImage(res, false);
+        HandleOutOfDateImage(m_mainSwapchain, res, false);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 

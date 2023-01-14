@@ -209,7 +209,7 @@ namespace Lina::Editor
         const float    offset    = display.x * 0.005f;
         const Vector2  logoStart = Vector2(offset, offset * 0.5f);
         const Vector2  logoSize  = Vector2(display.x * 0.01f);
-        const StringID txtSid    = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite256)->GetSID();
+        const StringID txtSid    = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite512)->GetSID();
         LinaVG::DrawImage(txtSid, LV2((logoStart + logoSize * 0.5f)), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
 
         theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);

@@ -66,7 +66,6 @@ namespace Lina::Graphics
         static void     CreateDefaultPassImageColor(Image& img, bool useExplicitSize = false, int width = 0, int height = 0);
         static void     CreateMainRenderPass(RenderPass& pass);
         static void     CreatePresentRenderPass(RenderPass& pass);
-        static void     SetupAndCreateDefaultRenderPass(RenderPass& pass);
 
         // InputDesc
         static VertexInputDescription GetVertexDescription();

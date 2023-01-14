@@ -58,13 +58,13 @@ namespace Lina
 
     namespace Event
     {
-        struct EWindowResized;
         struct EWindowPositioned;
         struct ELevelUninstalled;
         struct ELevelInstalled;
         struct EResourceLoaded;
         struct EComponentCreated;
         struct EComponentDestroyed;
+        struct EWindowResized;
     } // namespace Event
 
 } // namespace Lina
@@ -77,6 +77,19 @@ namespace Lina::Graphics
 
     class Renderer
     {
+
+    protected:
+        struct WindowResizeData
+        {
+            void*    window  = nullptr;
+            Vector2i newSize = Vector2i::Zero;
+        };
+
+        struct SharedData
+        {
+            Vector<WindowResizeData> resizeRequests;
+        };
+
     public:
         struct RenderWorldData
         {
@@ -123,7 +136,6 @@ namespace Lina::Graphics
         }
 
         void UpdateViewport(const Vector2i& size);
-
         void AddWorldToRender(World::EntityWorld* world);
         void RemoveWorldToRender(World::EntityWorld* world);
 
@@ -134,28 +146,31 @@ namespace Lina::Graphics
         virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager);
         virtual void Shutdown();
         virtual void MergeMeshes();
-        virtual bool HandleOutOfDateImage(VulkanResult res, bool checkSemaphoreSignal);
+        virtual bool HandleOutOfDateImage(Swapchain* targetSwapchain, VulkanResult res, bool checkSemaphoreSignal);
         virtual void ConnectEvents();
         virtual void DisconnectEvents();
         virtual void Join();
         virtual void RenderWorld(const CommandBuffer& cmd, RenderWorldData& data);
         virtual void SyncData();
-
         virtual void Tick()                = 0;
         virtual void Render()              = 0;
         virtual void OnTexturesRecreated() = 0;
 
-        virtual void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        virtual void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        virtual void OnResourceLoaded(const Event::EResourceLoaded& res);
-        virtual void OnComponentCreated(const Event::EComponentCreated& ev);
-        virtual void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
+    private:
+        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnResourceLoaded(const Event::EResourceLoaded& res);
+        void OnComponentCreated(const Event::EComponentCreated& ev);
+        void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
+        void OnWindowResized(const Event::EWindowResized& ev);
 
     protected:
+        SharedData                                    m_sharedDataCPU;
+        SharedData                                    m_sharedDataGPU;
         Viewport                                      m_viewport;
         Recti                                         m_scissors;
         CameraSystem                                  m_cameraSystem;
-        Swapchain*                                    m_swapchain  = nullptr;
+        Swapchain*                                    m_mainSwapchain  = nullptr;
         GUIBackend*                                   m_guiBackend = nullptr;
         CommandPool                                   m_cmdPool;
         uint32                                        m_frameNumber = 0;

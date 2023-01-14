@@ -87,7 +87,7 @@ namespace Lina::Editor
             LinaVG::DrawRect(LV2(borderRect.pos), LV2(borderRect.size), border, 0.0f, 2);
 
             /************** LOGO **************/
-            const StringID sid      = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite256)->GetSID();
+            const StringID sid      = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite512)->GetSID();
             const Vector2  logoSize = Vector2(headerHeight * 0.6f, headerHeight * 0.6f);
             const Vector2  logoPos  = Vector2(headerRect.size.y * 0.5f, headerRect.size.y * 0.5f);
             LinaVG::DrawImage(sid, LV2(logoPos), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);

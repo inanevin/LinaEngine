@@ -52,7 +52,6 @@ namespace Lina::Editor
 
     void EditorRenderer::CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size)
     {
-        LOCK_GUARD(m_additionalWindowMtx);
         AdditionalWindowRequest req = AdditionalWindowRequest{
             .name = name,
             .pos  = pos,
@@ -106,7 +105,7 @@ namespace Lina::Editor
         EditorFrameData mainData = EditorFrameData{
             .submitSemaphore  = &frame.submitSemaphore,
             .presentSemaphore = &frame.presentSemaphore,
-            .swp              = m_swapchain,
+            .swp              = m_mainSwapchain,
             .viewport         = m_viewport,
         };
 
@@ -120,28 +119,27 @@ namespace Lina::Editor
                 .swp              = wd.swapchain,
             };
 
-            data.viewport.width  = static_cast<float>(wd.size.x);
-            data.viewport.height = static_cast<float>(wd.size.y);
+            data.viewport.width  = static_cast<float>(wd.swapchain->size.x);
+            data.viewport.height = static_cast<float>(wd.swapchain->size.y);
             data.wd              = &wd;
             allFrameData.push_back(data);
         }
 
+        Vector<Semaphore> acquiredSemaphores;
         for (auto& fd : allFrameData)
         {
-            const bool                            isMainSwapchain = fd.swp == m_swapchain;
+            const bool                            isMainSwapchain = fd.swp == m_mainSwapchain;
             EditorRenderer::AdditionalWindowData* wd              = isMainSwapchain ? nullptr : GetWindowDataFromSwapchain(fd.swp);
             VulkanResult                          res;
             const uint32                          imageIndex = fd.swp->AcquireNextImage(1.0, isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex], res);
+            acquiredSemaphores.push_back(isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex]);
 
-            if (isMainSwapchain)
+            if (HandleOutOfDateImage(fd.swp, res, false))
             {
-                if (HandleOutOfDateImage(res, true))
-                    return;
-            }
-            else
-            {
-                if (HandleOutOfDateImageAdditional(wd, res))
-                    return;
+                for (auto& acq : acquiredSemaphores)
+                    Backend::Get()->GetGraphicsQueue().Submit(acq);
+
+                return;
             }
 
             fd.imageIndex = imageIndex;
@@ -175,7 +173,7 @@ namespace Lina::Editor
             PROFILER_SCOPE_START("Main Passes", PROFILER_THREAD_RENDER);
 
             // Render worlds only for the main swapchain.
-            if (fd.swp == m_swapchain)
+            if (fd.swp == m_mainSwapchain)
             {
                 for (auto& [world, worldData] : m_worldsToRenderGPU)
                 {
@@ -241,7 +239,7 @@ namespace Lina::Editor
                 Event::EventSystem::Get()->Trigger<Event::EDrawGUI>();
 
                 // Actually draw commands
-                fd.cmd->CMD_BeginRenderingDefault(imageView, depthImageView, defaultRenderArea, Color::Gray);
+                fd.cmd->CMD_BeginRenderingDefault(imageView, depthImageView, defaultRenderArea, Color::Black);
                 m_guiBackend->RecordDrawCommands();
                 fd.cmd->CMD_EndRendering();
 
@@ -278,7 +276,7 @@ namespace Lina::Editor
         VulkanResult presentRes;
         Backend::Get()->GetGraphicsQueue().Submit(allSubmitSemaphores, allPresentSemaphores, frame.graphicsFence, allCommandBuffers, 1);
         Backend::Get()->GetGraphicsQueue().Present(allPresentSemaphores, allSwapchains, allImageIndices, presentRes);
-        HandleOutOfDateImage(presentRes, false);
+        HandleOutOfDateImage(m_mainSwapchain, presentRes, false);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -288,8 +286,6 @@ namespace Lina::Editor
     void EditorRenderer::SyncData()
     {
         Renderer::SyncData();
-
-        LOCK_GUARD(m_additionalWindowMtx);
 
         for (auto& r : m_additionalWindowRequests)
         {
@@ -317,9 +313,6 @@ namespace Lina::Editor
                 data.cmds.push_back(buf);
                 data.cmds[i].Create(m_cmdPool._ptr);
             }
-
-            data.size = r.size;
-            data.pos  = r.pos;
         }
 
         m_additionalWindowRequests.clear();
@@ -335,42 +328,6 @@ namespace Lina::Editor
         }
 
         m_additionalWindowRemoveRequests.clear();
-    }
-
-    bool EditorRenderer::HandleOutOfDateImageAdditional(AdditionalWindowData* wd, VulkanResult res)
-    {
-        bool shouldRecreate = false;
-        if (res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
-            shouldRecreate = true;
-        else if (res != VulkanResult::Success)
-            LINA_ASSERT(false, "Could not acquire next image!");
-
-        if (shouldRecreate)
-        {
-            Backend::Get()->WaitIdle();
-            Vector2i size = wd->size;
-
-            if (size.x == 0 || size.y == 0)
-            {
-                Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
-                return true;
-            }
-
-            // Swapchain
-            wd->swapchain->Destroy();
-            wd->swapchain->size = size;
-            wd->swapchain->Create(wd->swapchain->swapchainID);
-
-            // Make sure we always match swapchain
-            size = wd->swapchain->size;
-
-            // Make sure the semaphore is unsignalled after resize operation.
-            Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
-
-            return true;
-        }
-
-        return false;
     }
 
     EditorRenderer::AdditionalWindowData* EditorRenderer::GetWindowDataFromSwapchain(Graphics::Swapchain* swp)

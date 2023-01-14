@@ -70,6 +70,7 @@ namespace Lina::Graphics
 
         size.x = vkbSwapchain.extent.width;
         size.y = vkbSwapchain.extent.height;
+        LINA_TRACE("Creating SWP {0}x{1}", size.x, size.y);
 
         for (VkImage img : imgs)
         {

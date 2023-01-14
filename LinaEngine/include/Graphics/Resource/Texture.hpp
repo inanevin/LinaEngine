@@ -58,9 +58,9 @@ namespace Lina::Graphics
         struct AssetData
         {
             Format             format            = Format::R8G8B8A8_SRGB;
-            Filter             minFilter         = Filter::Nearest;
-            Filter             magFilter         = Filter::Nearest;
-            SamplerAddressMode mode              = SamplerAddressMode::Repeat;
+            Filter             minFilter         = Filter::Linear;
+            Filter             magFilter         = Filter::Linear;
+            SamplerAddressMode mode              = SamplerAddressMode::ClampToBorder;
             MipmapFilter       mipmapFilter      = MipmapFilter::Mitchell;
             MipmapMode         mipmapMode        = MipmapMode::Linear;
             bool               anisotropyEnabled = true;
@@ -69,11 +69,11 @@ namespace Lina::Graphics
             bool               isInLinearSpace   = false;
 
             // Runtime
-            uint32         width          = 0;
-            uint32         height         = 0;
-            uint32         mipLevels      = 0;
-            uint32         channels       = 0;
-            unsigned char* pixels         = nullptr;
+            uint32         width     = 0;
+            uint32         height    = 0;
+            uint32         mipLevels = 0;
+            uint32         channels  = 0;
+            unsigned char* pixels    = nullptr;
             Vector<Mipmap> mipmaps;
         };
 

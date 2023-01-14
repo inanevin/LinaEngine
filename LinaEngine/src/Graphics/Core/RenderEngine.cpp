@@ -166,9 +166,10 @@ namespace Lina::Graphics
         // Engine textures
         m_engineTextureNames[EngineTextureType::LogoWithText]    = "LogoWithText";
         m_engineTextureNames[EngineTextureType::LogoColored1024] = "Logo_Colored_1024";
-        m_engineTextureNames[EngineTextureType::LogoWhite256]    = "Logo_White_256";
+        m_engineTextureNames[EngineTextureType::LogoWhite512]    = "Logo_White_512";
         m_engineTextureNames[EngineTextureType::Grid512]         = "Grid512";
         m_engineTextureNames[EngineTextureType::DummyBlack32]    = "DummyBlack_32";
+        
     }
 
     void RenderEngine::Tick()

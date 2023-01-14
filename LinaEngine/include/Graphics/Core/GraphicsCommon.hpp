@@ -609,7 +609,7 @@ namespace Lina::Graphics
     {
         LogoWithText,
         LogoColored1024,
-        LogoWhite256,
+        LogoWhite512,
         Grid512,
         DummyBlack32,
     };

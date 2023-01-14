@@ -332,8 +332,6 @@ namespace Lina::Graphics
     bool Win32Window::Create(WindowManager* wm, void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
     {
         m_windowManager = wm;
-        if (parent == nullptr)
-            s_isAppActive = true;
 
         m_rect.size      = size;
         m_rect.pos       = pos;

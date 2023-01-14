@@ -49,9 +49,9 @@ namespace Lina::Editor
             Graphics::Semaphore             submitSemaphores[FRAMES_IN_FLIGHT];
             Graphics::Semaphore             presentSemaphore[FRAMES_IN_FLIGHT];
             Vector<Graphics::CommandBuffer> cmds;
-            void*                           windowHandle = nullptr;
-            Vector2i                        pos          = Vector2i::Zero;
-            Vector2i                        size         = Vector2i::Zero;
+            void*                           windowHandle          = nullptr;
+            bool                            recreateSwapchain     = false;
+            Vector2i                        recreateSwapchainSize = Vector2i::Zero;
         };
 
         struct EditorFrameData
@@ -93,8 +93,8 @@ namespace Lina::Editor
             m_guiManager = guiMan;
         }
 
-        void                 CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
-        void                 RemoveAdditionalWindow(StringID sid);
+        void CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
+        void RemoveAdditionalWindow(StringID sid);
 
         virtual void Tick() override;
         virtual void Shutdown() override;
@@ -103,12 +103,10 @@ namespace Lina::Editor
 
     private:
         virtual void          OnTexturesRecreated() override{};
-        bool                  HandleOutOfDateImageAdditional(AdditionalWindowData* wd, Graphics::VulkanResult res);
         AdditionalWindowData* GetWindowDataFromSwapchain(Graphics::Swapchain* swp);
 
     private:
         HashMap<StringID, AdditionalWindowData> m_additionalWindows;
-        Mutex                                   m_additionalWindowMtx;
         Vector<AdditionalWindowRequest>         m_additionalWindowRequests;
         Vector<AdditionalWindowRemoveRequest>   m_additionalWindowRemoveRequests;
         EditorGUIManager*                       m_guiManager = nullptr;

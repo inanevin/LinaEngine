@@ -74,7 +74,7 @@ namespace Lina::Graphics
     void Renderer::Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager)
     {
         m_windowManager = windowManager;
-        m_swapchain     = swp;
+        m_mainSwapchain = swp;
         m_guiBackend    = guiBackend;
         m_cameraSystem.Initialize(windowManager);
 
@@ -94,11 +94,7 @@ namespace Lina::Graphics
             .maxSets = 10,
             .flags   = DescriptorPoolCreateFlags::None,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10)
-            .AddPoolSize(DescriptorType::UniformBufferDynamic, 10)
-            .AddPoolSize(DescriptorType::StorageBuffer, 10)
-            .AddPoolSize(DescriptorType::CombinedImageSampler, 10)
-            .Create();
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create();
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -178,6 +174,9 @@ namespace Lina::Graphics
     void Renderer::SyncData()
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
+
+        m_sharedDataGPU = m_sharedDataCPU;
+        m_sharedDataCPU = SharedData();
 
         m_lastMainSwapchainSize = m_windowManager->GetMainWindow().GetSize();
         m_worldsToRenderGPU.clear();
@@ -327,12 +326,28 @@ namespace Lina::Graphics
         RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
     }
 
-    bool Renderer::HandleOutOfDateImage(VulkanResult res, bool checkSemaphoreSignal)
+    bool Renderer::HandleOutOfDateImage(Swapchain* targetSwapchain, VulkanResult res, bool checkSemaphoreSignal)
     {
-        bool shouldRecreate = false;
+        bool    shouldRecreate      = false;
+        bool    resizeRequestExists = false;
+        Vector2 newSwapchainSize    = targetSwapchain->size;
 
-        if (res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        for (auto& r : m_sharedDataGPU.resizeRequests)
+        {
+            if (r.window == targetSwapchain->_windowHandle)
+            {
+                resizeRequestExists = true;
+                newSwapchainSize    = r.newSize;
+                break;
+            }
+        }
+
+        m_sharedDataGPU.resizeRequests.clear();
+
+        if (resizeRequestExists && res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        {
             shouldRecreate = true;
+        }
         else if (res != VulkanResult::Success)
             LINA_ASSERT(false, "Could not acquire next image!");
 
@@ -340,36 +355,34 @@ namespace Lina::Graphics
         {
             Backend::Get()->WaitIdle();
 
-            Vector2i size = m_lastMainSwapchainSize;
-
-            if (size.x == 0 || size.y == 0)
-                return true;
-
             // Swapchain
-            m_swapchain->Destroy();
-            m_swapchain->size = size;
-            m_swapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
+            targetSwapchain->Destroy();
+            targetSwapchain->size = newSwapchainSize;
+            targetSwapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
 
             // Make sure we always match swapchain
-            size = m_swapchain->size;
+            newSwapchainSize = targetSwapchain->size;
 
-            // Delete the textures for every worls we render.
-            for (auto& [world, wd] : m_worldsToRender)
+            // Recreate the textures for every world we render.
+            if (targetSwapchain == m_mainSwapchain)
             {
-                Resources::ResourceManager::Get()->UnloadUserManaged(wd.finalColorTexture);
-                delete wd.finalDepthTexture;
-                wd.finalColorTexture  = VulkanUtility::CreateDefaultPassTextureColor();
-                wd.finalDepthTexture  = VulkanUtility::CreateDefaultPassTextureDepth();
-                const String   sidStr = "World: " + TO_STRING(world->GetID()) + TO_STRING(m_worldCounter++);
-                const StringID sid    = TO_SID(sidStr);
-                wd.finalColorTexture->SetUserManaged(true);
-                wd.finalColorTexture->ChangeSID(sid);
-                Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, wd.finalColorTexture);
+                for (auto& [world, wd] : m_worldsToRender)
+                {
+                    Resources::ResourceManager::Get()->UnloadUserManaged(wd.finalColorTexture);
+                    delete wd.finalDepthTexture;
+                    wd.finalColorTexture  = VulkanUtility::CreateDefaultPassTextureColor();
+                    wd.finalDepthTexture  = VulkanUtility::CreateDefaultPassTextureDepth();
+                    const String   sidStr = "World: " + TO_STRING(world->GetID()) + TO_STRING(m_worldCounter++);
+                    const StringID sid    = TO_SID(sidStr);
+                    wd.finalColorTexture->SetUserManaged(true);
+                    wd.finalColorTexture->ChangeSID(sid);
+                    Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, wd.finalColorTexture);
+                }
             }
 
             // Re-assign target textures to render passes
             OnTexturesRecreated();
-            UpdateViewport(size);
+            UpdateViewport(newSwapchainSize);
 
             // Make sure the semaphore is unsignalled after resize operation.
             if (checkSemaphoreSignal)
@@ -388,6 +401,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &Renderer::OnResourceLoaded>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
         Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &Renderer::OnWindowResized>(this);
     }
 
     void Renderer::DisconnectEvents()
@@ -397,6 +411,7 @@ namespace Lina::Graphics
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
     }
 
     void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
@@ -463,6 +478,11 @@ namespace Lina::Graphics
         }
     }
 
+    void Renderer::OnWindowResized(const Event::EWindowResized& ev)
+    {
+        m_sharedDataCPU.resizeRequests.push_back({ev.window, ev.newSize});
+    }
+
     void Renderer::AddWorldToRender(World::EntityWorld* world)
     {
         LINA_ASSERT(m_worldsToRender.find(world) == m_worldsToRender.end(), "World already exists!");
@@ -471,10 +491,9 @@ namespace Lina::Graphics
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            data.indirectBuffer[i] =
-                Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-                       .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-                       .memoryUsage = MemoryUsageFlags::CpuToGpu};
+            data.indirectBuffer[i] = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                                            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                                            .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
             data.indirectBuffer[i].Create();
 
