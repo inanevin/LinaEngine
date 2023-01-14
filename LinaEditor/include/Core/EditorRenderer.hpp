@@ -93,8 +93,8 @@ namespace Lina::Editor
             m_guiManager = guiMan;
         }
 
-        void CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
-        void RemoveAdditionalWindow(StringID sid);
+        void                 CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size);
+        void                 RemoveAdditionalWindow(StringID sid);
 
         virtual void Tick() override;
         virtual void Shutdown() override;

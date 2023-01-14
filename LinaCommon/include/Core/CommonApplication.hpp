@@ -71,6 +71,16 @@ namespace Lina
         Adaptive,
         TripleBuffer
     };
+
+    enum class CursorType
+    {
+        Default = 0,
+        ResizeH,
+        ResizeV,
+        ResizeHV_E,
+        ResizeHV_W,
+    };
+
     struct WindowProperties
     {
         const char* title      = "";

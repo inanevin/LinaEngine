@@ -77,15 +77,6 @@ namespace Lina::Input
         void SetCursorMode(CursorMode mode);
         void SetMousePosition(const Vector2& v) const;
 
-        /// <summary>
-        /// 0,0 top-left, screenSizeX, screenSizeY bottom-right
-        /// </summary>
-        /// <returns></returns>
-        inline Vector2i GetMousePosition()
-        {
-            return m_currentMousePosition;
-        }
-
         inline Vector2i GetMousePositionAbs()
         {
             return m_currentMousePositionAbs;
@@ -157,7 +148,6 @@ namespace Lina::Input
         Vector2i            m_mouseDelta              = Vector2i::Zero;
         Vector2i            m_mouseDeltaRaw           = Vector2i::Zero;
         Vector2i            m_mouseDeltaRawPrev       = Vector2i::Zero;
-        Vector2i            m_currentMousePosition    = Vector2i::Zero;
         Vector2i            m_previousMousePosition   = Vector2i::Zero;
         Vector2i            m_currentMousePositionAbs = Vector2i::Zero;
         bool                m_windowActive            = false;

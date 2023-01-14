@@ -69,7 +69,7 @@ namespace Lina::Memory
                 return GetFromLinearBlock(block, size);
         }
 
-        const uint32 targetSize = Math::Max(size, bl.size);
+        const uint32 targetSize =  static_cast<uint32>(Math::Max(size, bl.size));
         LinearBlock  block;
         block.maxSize   = targetSize;
         block.allocator = new LinearAllocator(targetSize);

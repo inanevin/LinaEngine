@@ -48,6 +48,9 @@ namespace Lina::Event
     struct EEndGame
     {
     };
+    struct ESyncData
+    {
+    };
     struct ETick
     {
         float deltaTime    = 0.0f;

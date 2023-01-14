@@ -86,12 +86,12 @@ namespace Lina::World
 
         if (inputEngine->GetMouseButton(LINA_MOUSE_MIDDLE))
         {
-            const Vector2 delta = Vector2(inputEngine->GetMousePosition()) - m_lastMousePos;
+            const Vector2 delta = Vector2(inputEngine->GetMousePositionAbs()) - m_lastMousePos;
             targetPosition += -rg * delta.x * 0.5f * movementSpeed * dt;
             targetPosition += up * delta.y * 0.5f * movementSpeed * dt;
         }
 
         m_entity->SetPosition(targetPosition);
-        m_lastMousePos = inputEngine->GetMousePosition();
+        m_lastMousePos = inputEngine->GetMousePositionAbs();
     }
 } // namespace Lina::World

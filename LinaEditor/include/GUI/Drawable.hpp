@@ -45,6 +45,7 @@ namespace Lina::Editor
         virtual void Initialize(){};
         virtual void Shutdown(){};
         virtual void Draw() = 0;
+        virtual void SyncData(){};
         virtual void UpdateCurrentSwapchainID(StringID sid){};
 
         inline const Rect& GetRect()

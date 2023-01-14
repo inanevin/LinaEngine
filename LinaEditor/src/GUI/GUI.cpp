@@ -78,16 +78,6 @@ namespace Lina::Editor
         return isClicked;
     }
 
-    void ImmediateWindow::DragBehaviour()
-    {
-        const bool canDrag = IsHovered() && LGUI->IsMouseHoveringRect(_dragRect);
-
-        if (canDrag && Input::InputEngine::Get()->GetMouseButton(LINA_MOUSE_0))
-        {
-            const Vector2 delta = Input::InputEngine::Get()->GetMouseDelta();
-        }
-    }
-
     void ImmediateWindow::Draw()
     {
         // For when we determine a window's size based on its content.
@@ -107,7 +97,7 @@ namespace Lina::Editor
         opts.color = LV4(_finalColor);
 
         // Only undocked windows have rounding & border options.
-        opts.rounding                 = theme.GetProperty(ThemeProperty::WindowRounding);
+        opts.rounding = theme.GetProperty(ThemeProperty::WindowRounding);
 
         // Main window rect.
         LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, _drawOrder);
@@ -250,7 +240,6 @@ namespace Lina::Editor
         m_theme.PopColor();
         m_theme.PopColor();
         m_theme.PopProperty();
-        m_theme.PopProperty();
     }
 
     ImmediateWindow& ImmediateGUI::GetCurrentWindow()
@@ -265,19 +254,26 @@ namespace Lina::Editor
 
     bool ImmediateGUI::IsMouseHoveringRect(const Rect& rect)
     {
-        const Vector2 mouseAbs = Input::InputEngine::Get()->GetMousePositionAbs();
-        return IsPointInRect(mouseAbs, rect);
+        return m_isSwapchainHovered && IsPointInRect(GetMousePosition(), rect);
     }
+
+    // void ImmediateGUI::IsMouseHoveringRectCornersAbs(const Rect& rect, int* horizontal, int* vertical)
+    // {
+    //     const Vector2 mouseAbs  = Input::InputEngine::Get()->GetMousePosition();
+    //     const float   thickness = 2;
+    //     const bool    left      = mouseAbs.x > rect.pos.x - thickness && mouseAbs.x < rect.pos.x + thickness;
+    //     const bool    right     = mouseAbs.x > rect.pos.x + rect.size.x - thickness && mouseAbs.x < rect.pos.x + rect.size.x + thickness;
+    //     const bool    up        = mouseAbs.y > rect.pos.y - thickness && mouseAbs.y < rect.pos.y + thickness;
+    //     const bool    down      = mouseAbs.y > rect.pos.y + rect.size.y - thickness && mouseAbs.y < rect.pos.y + rect.size.y + thickness;
+    //     *horizontal             = left ? 1 : (right ? 2 : 0);
+    //     *vertical               = up ? 1 : (down ? 2 : 0);
+    // }
 
     Vector2i ImmediateGUI::GetMousePosition()
     {
-        const Vector2i mpAbs = Input::InputEngine::Get()->GetMousePositionAbs();
-        return mpAbs;
-    }
-
-    Vector2i ImmediateGUI::GetMousePositionAbs()
-    {
-        return Input::InputEngine::Get()->GetMousePositionAbs();
+        const Vector2i mouseAbs   = Input::InputEngine::Get()->GetMousePositionAbs();
+        const Vector2  finalMouse = mouseAbs - m_currentSwaphchain->pos;
+        return finalMouse;
     }
 
     Vector2i ImmediateGUI::GetMouseDelta()

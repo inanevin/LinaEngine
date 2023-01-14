@@ -31,12 +31,10 @@ SOFTWARE.
 #ifndef Window_HPP
 #define Window_HPP
 
-#include "Math/Vector.hpp"
+#include "Math/Rect.hpp"
 #include "Core/CommonApplication.hpp"
 #include "Utility/StringId.hpp"
 #include "Data/HashMap.hpp"
-
-struct GLFWwindow;
 
 namespace Lina::Graphics
 {
@@ -66,6 +64,7 @@ namespace Lina::Graphics
         virtual void ShowHideWindow(bool show)                                                                             = 0;
         virtual void SetFocus(bool hasFocus)                                                                               = 0;
         virtual void SetAlpha(float alpha)                                                                                 = 0;
+        virtual void SetMouseCursor(CursorType cursor)                                                                          = 0;
 
         /// <summary>
         /// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
@@ -73,7 +72,7 @@ namespace Lina::Graphics
         /// <returns></returns>
         inline const Vector2i& GetSize() const
         {
-            return m_size;
+            return m_rect.size;
         }
 
         inline bool IsMinimized() const
@@ -88,7 +87,7 @@ namespace Lina::Graphics
 
         inline const Vector2i& GetPos() const
         {
-            return m_pos;
+            return m_rect.pos;
         }
 
         inline float GetAspect() const
@@ -121,11 +120,16 @@ namespace Lina::Graphics
             return m_sid;
         }
 
+        inline const Recti& GetRect() const
+        {
+            return m_rect;
+        }
+
     protected:
         friend class WindowManager;
 
-        Vector2i       m_size           = Vector2i::Zero;
-        Vector2i       m_pos            = Vector2i::Zero;
+        CursorType     m_cursor         = CursorType::Default;
+        Recti          m_rect           = Recti();
         StringID       m_sid            = 0;
         WindowManager* m_windowManager  = nullptr;
         bool           m_isMinimized    = false;
@@ -151,7 +155,7 @@ namespace Lina::Graphics
         void OnWindowFocused(StringID sid);
         int  GetWindowZOrder(StringID sid);
 
-        inline const Window& GetWindow(StringID id)
+        inline Window& GetWindow(StringID id)
         {
             return *m_windows[id];
         }

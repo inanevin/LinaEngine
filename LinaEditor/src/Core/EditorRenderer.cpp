@@ -49,6 +49,7 @@ SOFTWARE.
 using namespace Lina::Graphics;
 namespace Lina::Editor
 {
+
     void EditorRenderer::CreateAdditionalWindow(const String& name, const Vector2i& pos, const Vector2i& size)
     {
         LOCK_GUARD(m_additionalWindowMtx);

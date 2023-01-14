@@ -61,7 +61,7 @@ namespace Lina::Graphics
         SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 #endif
 
-        m_mainWindowSID = TO_SIDC(props.title);
+        m_mainWindowSID = LINA_MAIN_SWAPCHAIN_ID;
         if (!CreateAppWindow(nullptr, props.title, Vector2i::Zero, Vector2i(props.width, props.height), false, LINA_MAIN_SWAPCHAIN_ID))
         {
             LINA_ERR("[Window Manager] -> Failed to initialize!");
@@ -136,7 +136,7 @@ namespace Lina::Graphics
         if (showImmediately)
             window->ShowHideWindow(true);
 
-        m_windows[sid] = window;
+        m_windows[window->m_sid] = window;
         return window;
     }
 
@@ -188,4 +188,5 @@ namespace Lina::Graphics
 
         return 0;
     }
+
 } // namespace Lina::Graphics

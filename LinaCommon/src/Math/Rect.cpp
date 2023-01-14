@@ -30,6 +30,12 @@ SOFTWARE.
 
 namespace Lina
 {
+    Rect::Rect(const Recti& r)
+    {
+        pos  = r.pos;
+        size = r.size;
+    }
+
     Rect Rect::Shrink(float percentage) const
     {
         Rect        r    = *this;

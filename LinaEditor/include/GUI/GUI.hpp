@@ -208,7 +208,6 @@ namespace Lina::Editor
         bool     IsPointInRect(const Vector2i& p, const Recti& rect);
         bool     IsMouseHoveringRect(const Rect& rect);
         Vector2i GetMousePosition();
-        Vector2i GetMousePositionAbs();
         Vector2i GetMouseDelta();
         bool     GetMouseButtonDown(int button);
         bool     GetMouseButtonUp(int button);
@@ -235,12 +234,15 @@ namespace Lina::Editor
 
     private:
         friend class Editor;
-        friend class EditorRenderer;
+        friend class EditorGUIManager;
 
         void Initialize();
         void Shutdown();
 
     private:
+        Graphics::Swapchain* m_currentSwaphchain  = nullptr;
+        bool                 m_isSwapchainHovered = false;
+
         static ImmediateGUI*               s_instance;
         HashMap<StringID, ImmediateWindow> m_windowData;
         StringID                           m_lastWindow = 0;

@@ -151,14 +151,16 @@ namespace Lina::Editor
         // Events
         Event::EventSystem::Get()->Connect<Event::EDrawGUI, &EditorGUIManager::OnDrawGUI>(this);
         Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
+        Event::EventSystem::Get()->Connect<Event::ESyncData, &EditorGUIManager::OnSyncData>(this);
 
         // m_topPanel.Initialize();
 
         // top panel is a fixed window drawable, create init.
 
         // then bottom dock area.
-        m_mainDockArea                = new DockArea();
-        m_mainDockArea->m_swapchainID = LINA_MAIN_SWAPCHAIN_ID;
+        m_mainDockArea                  = new DockArea();
+        m_mainDockArea->m_swapchainID   = LINA_MAIN_SWAPCHAIN_ID;
+        m_mainDockArea->m_windowManager = m_windowManager;
         m_dockAreas.push_back(m_mainDockArea);
 
         m_topPanel = new TopPanel();
@@ -182,6 +184,7 @@ namespace Lina::Editor
         // m_topPanel.Shutdown();
         Event::EventSystem::Get()->Disconnect<Event::EDrawGUI>(this);
         Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ESyncData>(this);
         Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
     }
 
@@ -189,6 +192,11 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
     {
+        LINA_TRACE("{0}", m_hoveredSwapchainID);
+
+        LGUI->m_currentSwaphchain  = m_currentSwapchain;
+        LGUI->m_isSwapchainHovered = m_currentSwapchain->swapchainID == m_hoveredSwapchainID;
+
         if (m_currentSwapchain->swapchainID == LINA_MAIN_SWAPCHAIN_ID)
             m_topPanel->Draw();
 
@@ -200,24 +208,39 @@ namespace Lina::Editor
         {
             d->UpdateCurrentSwapchainID(m_currentSwapchain->swapchainID);
             d->m_isSwapchainHovered = d->m_swapchainID == m_hoveredSwapchainID;
+            d->m_isTopMost          = d->m_swapchainID == m_topMostSwapchainID;
             d->Draw();
         }
 
         FindHoveredSwapchain();
     }
 
+    void EditorGUIManager::OnSyncData(const Event::ESyncData& ev)
+    {
+        for (auto& d : m_dockAreas)
+            d->SyncData();
+    }
+
     void EditorGUIManager::FindHoveredSwapchain()
     {
-        const auto& additionalWindows = m_renderer->GetAdditionalWindows();
-
+        const auto&                  additionalWindows = m_renderer->GetAdditionalWindows();
+        int                          biggestZOrder     = 0;
         Vector<Graphics::Swapchain*> hoveredSwapchains;
+        m_topMostSwapchainID = 0;
 
         for (const auto& [sid, wd] : additionalWindows)
         {
             const Rect swpRect = Rect(wd.swapchain->pos, wd.swapchain->size);
 
-            if (LGUI->IsMouseHoveringRect(swpRect))
+            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), swpRect))
                 hoveredSwapchains.push_back(wd.swapchain);
+
+            const int zOrder = m_windowManager->GetWindowZOrder(wd.swapchain->swapchainID);
+            if (zOrder >= biggestZOrder)
+            {
+                biggestZOrder        = zOrder;
+                m_topMostSwapchainID = wd.swapchain->swapchainID;
+            }
         }
 
         const uint32 hoveredSwapchainsSize = static_cast<uint32>(hoveredSwapchains.size());
@@ -228,7 +251,7 @@ namespace Lina::Editor
             m_hoveredSwapchainID = hoveredSwapchains[0]->swapchainID;
         else
         {
-            int      biggestZOrder = 0;
+            // Verify hover by checking z order
             StringID biggestWindow = 0;
             for (auto& s : hoveredSwapchains)
             {
@@ -239,7 +262,6 @@ namespace Lina::Editor
                     biggestWindow = s->swapchainID;
                 }
             }
-
             m_hoveredSwapchainID = biggestWindow;
         }
 
@@ -247,7 +269,7 @@ namespace Lina::Editor
         {
             const auto& mainSwp = Graphics::Backend::Get()->GetMainSwapchain();
             const Rect  r       = Rect(mainSwp.pos, mainSwp.size);
-            if (LGUI->IsMouseHoveringRect(r))
+            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), r))
                 m_hoveredSwapchainID = mainSwp.swapchainID;
         }
     }
@@ -284,10 +306,11 @@ namespace Lina::Editor
             {
                 if (windowSid == req.sid)
                 {
-                    DockArea* area      = new DockArea();
-                    area->m_rect        = Rect(req.pos, req.size);
-                    area->m_swapchainID = req.sid;
-                    area->m_detached    = true;
+                    DockArea* area        = new DockArea();
+                    area->m_windowManager = m_windowManager;
+                    area->m_rect          = Rect(req.pos, req.size);
+                    area->m_swapchainID   = req.sid;
+                    area->m_detached      = true;
                     area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
 
                     found = true;

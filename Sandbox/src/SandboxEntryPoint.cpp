@@ -40,8 +40,8 @@ namespace Lina
             .width      = 1440,
             .height     = 960,
             .vsync      = Lina::VsyncMode::None, // fifo
-            .decorated  = true,
-            .resizable  = true,
+            .decorated  = false,
+            .resizable  = false,
             .fullscreen = false,
         };
 

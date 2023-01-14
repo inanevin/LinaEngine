@@ -37,6 +37,7 @@ SOFTWARE.
 #include <Windows.h>
 #include <shellscalingapi.h>
 #include <hidusage.h>
+#include "windowsx.h"
 
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
@@ -51,6 +52,30 @@ namespace Lina::Graphics
     bool                           Win32Window::s_isAppActive;
     Application*                   Win32Window::s_app = nullptr;
 
+    LRESULT HandleNonclientHitTest(HWND wnd, LPARAM lparam, int title_bar_hgt, int resizing_border_wd)
+    {
+        RECT wnd_rect;
+        GetWindowRect(wnd, &wnd_rect);
+
+        int wd  = wnd_rect.right - wnd_rect.left;
+        int hgt = wnd_rect.bottom - wnd_rect.top;
+
+        RECT title_bar = {0, 0, wd, title_bar_hgt};
+        RECT left      = {0, title_bar_hgt, resizing_border_wd, hgt - title_bar_hgt - resizing_border_wd};
+        RECT right     = {wd - resizing_border_wd, title_bar_hgt, wd, hgt - title_bar_hgt - resizing_border_wd};
+        RECT bottom    = {0, hgt - resizing_border_wd, wd, hgt};
+
+        std::tuple<RECT, LRESULT> rects[] = {{title_bar, HTCAPTION}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}};
+
+        POINT pt = {GET_X_LPARAM(lparam) - wnd_rect.left, GET_Y_LPARAM(lparam) - wnd_rect.top};
+        for (const auto& [r, code] : rects)
+        {
+            if (PtInRect(&r, pt))
+                return code;
+        }
+        return HTCLIENT;
+    }
+    
     LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
     {
         auto* win32Window = s_win32Windows[window];
@@ -59,6 +84,14 @@ namespace Lina::Graphics
 
         switch (msg)
         {
+      // case WM_NCHITTEST:
+      //    HandleNonclientHitTest(window, lParam, 25, 10);
+      //    break;
+        case WM_SETCURSOR: {
+            SetCursor(win32Window->m_targetCursor);
+            return TRUE;
+        }
+        break;
         case WM_SETFOCUS: {
             win32Window->SetFocus(true);
             Event::EventSystem::Get()->Trigger<Event::EWindowFocused>({static_cast<void*>(win32Window)});
@@ -299,8 +332,8 @@ namespace Lina::Graphics
         if (parent == nullptr)
             s_isAppActive = true;
 
-        m_size           = size;
-        m_pos            = pos;
+        m_rect.size      = size;
+        m_rect.pos       = pos;
         m_hinst          = GetModuleHandle(0);
         m_registryHandle = static_cast<void*>(m_hinst);
 
@@ -310,6 +343,13 @@ namespace Lina::Graphics
         wc.lpszClassName = title;
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
         wc.style         = CS_DBLCLKS;
+
+        m_cursorDef    = LoadCursor(NULL, IDC_ARROW);
+        m_cursorH      = LoadCursor(NULL, IDC_SIZEWE);
+        m_cursorV      = LoadCursor(NULL, IDC_SIZENS);
+        m_cursorHV_E   = LoadCursor(NULL, IDC_SIZENWSE);
+        m_cursorHV_W   = LoadCursor(NULL, IDC_SIZENESW);
+        m_targetCursor = m_cursorDef;
 
         if (!RegisterClassA(&wc))
         {
@@ -321,6 +361,7 @@ namespace Lina::Graphics
 
         if (parent != nullptr)
             exStyle |= WS_EX_LAYERED;
+
 
         m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : WS_POPUP, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
         m_title  = title;
@@ -411,8 +452,8 @@ namespace Lina::Graphics
         int w = GetSystemMetrics(SM_CXSCREEN);
         int h = GetSystemMetrics(SM_CYSCREEN);
 
-        SetPos(Vector2i(w / 2 - m_size.x / 2, h / 2 - m_size.y / 2));
-        SetSize(Vector2i(m_size.x, m_size.y));
+        SetPos(Vector2i(w / 2 - m_rect.size.x / 2, h / 2 - m_rect.size.y / 2));
+        SetSize(Vector2i(m_rect.size.x, m_rect.size.y));
         m_isMaximized = true;
     }
 
@@ -421,14 +462,14 @@ namespace Lina::Graphics
         int iDpi            = GetDpiForWindow(m_window);
         int dpiScaledX      = MulDiv(0, iDpi, 96);
         int dpiScaledY      = MulDiv(0, iDpi, 96);
-        int dpiScaledWidth  = MulDiv(m_size.x, iDpi, 96);
-        int dpiScaledHeight = MulDiv(m_size.y, iDpi, 96);
+        int dpiScaledWidth  = MulDiv(m_rect.size.x, iDpi, 96);
+        int dpiScaledHeight = MulDiv(m_rect.size.y, iDpi, 96);
         SetWindowPos(hwnd, hwnd, dpiScaledX, dpiScaledY, dpiScaledWidth, dpiScaledHeight, SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     void Win32Window::SetSize(const Vector2i& newSize)
     {
-        if (m_size == newSize)
+        if (m_rect.size == newSize)
             return;
 
         SetWindowPos(m_window, 0, CW_USEDEFAULT, CW_USEDEFAULT, newSize.x, newSize.y, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
@@ -453,9 +494,28 @@ namespace Lina::Graphics
         SetLayeredWindowAttributes(m_window, colorKey, finalAlpha, LWA_ALPHA);
     }
 
+    void Win32Window::SetMouseCursor(CursorType cursor)
+    {
+        if (m_cursor == cursor)
+            return;
+
+        m_cursor = cursor;
+
+        if (cursor == CursorType::ResizeH)
+            m_targetCursor = m_cursorH;
+        if (cursor == CursorType::ResizeV)
+            m_targetCursor = m_cursorV;
+        if (cursor == CursorType::ResizeHV_W)
+            m_targetCursor = m_cursorHV_W;
+        if (cursor == CursorType::ResizeHV_E)
+            m_targetCursor = m_cursorHV_E;
+
+        SetCursor(m_targetCursor);
+    }
+
     void Win32Window::SetPos(const Vector2i& newPos)
     {
-        if (m_pos == newPos)
+        if (m_rect.pos == newPos)
             return;
 
         SetWindowPos(m_window, 0, newPos.x, newPos.y, CW_USEDEFAULT, CW_USEDEFAULT, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
@@ -464,19 +524,19 @@ namespace Lina::Graphics
 
     void Win32Window::UpdatePos(const Vector2i& pos)
     {
-        const Vector2i oldPos = m_pos;
-        m_pos                 = pos;
-        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_handle, .oldPos = oldPos, .newPos = m_pos});
+        const Vector2i oldPos = m_rect.pos;
+        m_rect.pos            = pos;
+        Event::EventSystem::Get()->Trigger<Event::EWindowPositioned>(Event::EWindowPositioned{.window = m_handle, .oldPos = oldPos, .newPos = m_rect.pos});
     }
 
     void Win32Window::UpdateSize(const Vector2i& size)
     {
         m_isMinimized = size.x == 0 || size.y == 0;
 
-        const Vector2i oldSize = m_size;
-        m_size                 = size;
-        m_aspect               = m_isMinimized ? 0.0f : static_cast<float>(m_size.x) / static_cast<float>(m_size.y);
-        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_handle, .oldSize = oldSize, .newSize = m_size});
+        const Vector2i oldSize = m_rect.size;
+        m_rect.size            = size;
+        m_aspect               = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
+        Event::EventSystem::Get()->Trigger<Event::EWindowResized>(Event::EWindowResized{.window = m_handle, .oldSize = oldSize, .newSize = m_rect.size});
     }
 
     void Win32Window::SetTitle(const char* title)

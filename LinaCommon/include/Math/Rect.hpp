@@ -35,11 +35,15 @@ SOFTWARE.
 
 namespace Lina
 {
+    class Recti;
+
     class Rect
     {
     public:
         Rect(){};
         Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
+        Rect(const Rect& r) : pos(r.pos), size(r.size){};
+        Rect(const Recti& r);
 
         Rect Shrink(float percentage) const;
 

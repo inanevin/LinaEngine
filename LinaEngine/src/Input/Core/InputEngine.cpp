@@ -227,9 +227,9 @@ namespace Lina::Input
         bool result = false;
 
         if (GetMouseButtonDown(button))
-            m_mousePosTrackingClick = GetMousePosition();
+            m_mousePosTrackingClick = GetMousePositionAbs();
 
-        if (GetMouseButtonUp(button) && GetMousePosition().Equals(m_mousePosTrackingClick, 5))
+        if (GetMouseButtonUp(button) && GetMousePositionAbs().Equals(m_mousePosTrackingClick, 5))
             result = true;
 
         return result;
@@ -309,14 +309,12 @@ namespace Lina::Input
 #ifdef LINA_PLATFORM_WINDOWS
         POINT point;
         GetCursorPos(&point);
-        m_currentMousePositionAbs = Vector2i(point.x, point.y);
-        ScreenToClient(static_cast<HWND>(m_lastFocusedWindowHandle), &point);
 #else
         glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 #endif
-        m_previousMousePosition = m_currentMousePosition;
-        m_currentMousePosition  = Vector2i(point.x, point.y);
-        m_mouseDelta            = m_currentMousePosition - m_previousMousePosition;
+        m_previousMousePosition   = m_currentMousePositionAbs;
+        m_currentMousePositionAbs = Vector2i(point.x, point.y);
+        m_mouseDelta              = m_currentMousePositionAbs - m_previousMousePosition;
 
         // Refresh the key states from previous frame.
         for (auto& pair : m_keyDownNewStateMap)

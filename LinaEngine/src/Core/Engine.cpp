@@ -241,6 +241,7 @@ namespace Lina
 
         // Sync previous frame.
         m_renderEngine.SyncData();
+        m_eventSystem.Trigger<Event::ESyncData>();
 
         PROFILER_SCOPE_START("Core Loop Finalize", PROFILER_THREAD_MAIN);
 

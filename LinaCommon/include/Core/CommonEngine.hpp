@@ -59,6 +59,7 @@ namespace Lina
         static HashMap<TypeID, Vector<String>> s_engineResources;
     };
 
+
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina
 

@@ -84,6 +84,14 @@ namespace Lina
     {
         return Vector2i(v.x - v2.x, v.y - v2.y);
     }
+    inline Vector2i operator+(Vector2i const& v, float scalar)
+    {
+        return Vector2i((int)((float)v.x + scalar), (int)(((float)v.y + scalar)));
+    }
+    inline Vector2i operator-(Vector2i const& v, float scalar)
+    {
+        return Vector2i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)));
+    }
 
     class Vector2 : public glm::vec2
     {

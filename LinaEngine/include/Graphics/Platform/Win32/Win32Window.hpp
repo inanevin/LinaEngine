@@ -35,6 +35,7 @@ SOFTWARE.
 
 struct HWND__;
 struct HINSTANCE__;
+struct HICON__;
 
 namespace Lina
 {
@@ -62,6 +63,8 @@ namespace Lina::Graphics
         virtual void ShowHideWindow(bool show) override;
         virtual void SetFocus(bool hasFocus) override;
         virtual void SetAlpha(float alpha) override;
+        virtual void SetMouseCursor(CursorType cursor) override;
+
         virtual bool GetIsAppActive() const override
         {
             return s_isAppActive;
@@ -81,8 +84,14 @@ namespace Lina::Graphics
         static Application*                   s_app;
         static bool                           s_isAppActive;
         static HashMap<HWND__*, Win32Window*> s_win32Windows;
-        HWND__*                               m_window = nullptr;
-        HINSTANCE__*                          m_hinst  = nullptr;
+        HWND__*                               m_window       = nullptr;
+        HINSTANCE__*                          m_hinst        = nullptr;
+        HICON__*                              m_targetCursor = nullptr;
+        HICON__*                              m_cursorDef    = nullptr;
+        HICON__*                              m_cursorH      = nullptr;
+        HICON__*                              m_cursorV      = nullptr;
+        HICON__*                              m_cursorHV_E   = nullptr;
+        HICON__*                              m_cursorHV_W   = nullptr;
         unsigned long                         m_style;
     };
 } // namespace Lina::Graphics

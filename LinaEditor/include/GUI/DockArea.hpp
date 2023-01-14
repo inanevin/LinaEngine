@@ -41,6 +41,7 @@ namespace Lina
     {
         class Swapchain;
         class Window;
+        class WindowManager;
     } // namespace Graphics
 } // namespace Lina
 
@@ -56,6 +57,7 @@ namespace Lina::Editor
         virtual ~DockArea() = default;
 
         virtual void Draw() override;
+        virtual void SyncData() override;
 
         inline void UpdateCurrentSwapchainID(StringID sid) override
         {
@@ -65,13 +67,20 @@ namespace Lina::Editor
     private:
         friend class EditorGUIManager;
 
-        bool              m_shouldDraw         = false;
-        bool              m_detached           = false;
-        bool              m_isSwapchainHovered = false;
-        StringID          m_swapchainID        = 0;
-        Vector<DockArea*> m_dockAreas;
-        Vector<Drawable*> m_content;
-        uint32            m_selectedContent = 0;
+        bool                     m_shouldDraw         = false;
+        bool                     m_detached           = false;
+        bool                     m_isSwapchainHovered = false;
+        bool                     m_isTopMost          = false;
+        StringID                 m_swapchainID        = 0;
+        Vector<DockArea*>        m_dockAreas;
+        Vector<Drawable*>        m_content;
+        uint32                   m_selectedContent = 0;
+        Graphics::WindowManager* m_windowManager   = nullptr;
+        Vector<Vector2>          m_windowPositionsNext;
+        Vector<CursorType>       m_cursorsNext;
+        bool                     m_draggingMove     = false;
+        bool                     m_draggingResize   = false;
+        Vector2                  m_mouseDiffOnPress = Vector2::Zero;
     };
 
 } // namespace Lina::Editor

@@ -42,6 +42,7 @@ namespace Lina
         struct EEngineResourcesLoaded;
         struct EDrawGUI;
         struct ETick;
+        struct ESyncData;
     } // namespace Event
 
     namespace Graphics
@@ -91,6 +92,7 @@ namespace Lina::Editor
     private:
         void      OnTick(const Event::ETick& ev);
         void      OnDrawGUI(const Event::EDrawGUI& ev);
+        void      OnSyncData(const Event::ESyncData& ev);
         void      FindHoveredSwapchain();
         Drawable* GetContentFromPanelRequest(EditorPanel panel);
 
@@ -106,6 +108,7 @@ namespace Lina::Editor
         TopPanel*                  m_topPanel         = nullptr;
         Vector<LaunchPanelRequest> m_panelRequests;
         StringID                   m_hoveredSwapchainID = 0;
+        StringID                   m_topMostSwapchainID = 0;
     };
 } // namespace Lina::Editor
 
