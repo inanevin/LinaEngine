@@ -26,45 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Drawable_HPP
-#define Drawable_HPP
-
-#include "Math/Rect.hpp"
-#include "Utility/StringId.hpp"
-
-namespace Lina
-{
-    namespace Graphics
-    {
-        class Swapchain;
-    } // namespace Graphics
-} // namespace Lina
+#include "GUI/Grid.hpp"
 
 namespace Lina::Editor
 {
-    class Drawable
-    {
-    public:
-        Drawable()          = default;
-        virtual ~Drawable() = default;
 
-        virtual void Initialize(){};
-        virtual void Shutdown(){};
-        virtual void Draw() = 0;
-        virtual void SyncData(){};
-        virtual void UpdateSwapchainInfo(uint32 currentSwapchainID, uint32 hoveredSwapchain, uint32 topMostSwapchain){};
-
-        inline const Rect& GetRect()
-        {
-            return m_rect;
-        }
-
-    protected:
-        StringID m_sid  = 0;
-        Rect     m_rect = Rect();
-    };
 } // namespace Lina::Editor
-
-#endif

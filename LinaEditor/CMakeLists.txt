@@ -23,7 +23,6 @@ set(LINAEDITOR_SOURCES
 
 # Core
 src/Core/Editor.cpp
-src/Core/EditorRenderer.cpp
 src/Core/EditorGUIManager.cpp
 src/Core/ShortcutManager.cpp
 
@@ -38,6 +37,7 @@ src/GUI/GUI.cpp
 src/GUI/DockArea.cpp
 src/GUI/DockedWindow.cpp
 src/GUI/Drawable.cpp
+src/GUI/Grid.cpp
 src/GUI/FixedWindow.cpp
 src/GUI/CustomWidgets/MenuBar.cpp
 src/GUI/CustomWidgets/MenuPopup.cpp
@@ -61,7 +61,6 @@ set(LINAEDITOR_HEADERS
 
 # Core
 include/Core/Editor.hpp
-include/Core/EditorRenderer.hpp
 include/Core/EditorGUIManager.hpp
 include/Core/EditorCommon.hpp
 include/Core/ShortcutManager.hpp
@@ -75,6 +74,7 @@ include/GUI/Theme.hpp
 include/GUI/GUI.hpp
 include/GUI/GUICommon.hpp
 include/GUI/Widgets.hpp
+include/GUI/Grid.hpp
 include/GUI/DockArea.hpp
 include/GUI/DockedWindow.hpp
 include/GUI/Drawable.hpp

@@ -99,8 +99,9 @@ namespace Lina::Graphics
     bool SurfaceRenderer::AcquireImage(uint32 frameIndex)
     {
         VulkanResult res;
-        m_acquiredImage = m_swapchain->AcquireNextImage(1.0, m_swapchain->_submitSemaphores[frameIndex], res);
-        return CanContinueWithAcquiredImage(res, true);
+        m_acquiredImage = m_swapchain->AcquireNextImage(10.0f, m_swapchain->_submitSemaphores[frameIndex], res);
+
+        return CanContinueWithAcquiredImage(res);
     }
 
     CommandBuffer* SurfaceRenderer::Render(uint32 frameIndex, Fence& fence)
@@ -158,7 +159,7 @@ namespace Lina::Graphics
             if (m_mask.IsSet(RM_RenderGUI))
             {
                 m_guiBackend->RecordDrawCommands();
-                  LinaVG::EndFrame();
+                LinaVG::EndFrame();
             }
 
             cmd.CMD_EndRendering();
@@ -168,7 +169,6 @@ namespace Lina::Graphics
                                     PipelineStageFlags::BottomOfPipe);
 
             PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
-          
         }
 
         cmd.End();
@@ -186,18 +186,19 @@ namespace Lina::Graphics
         if (!m_recreateSwapchain)
             m_newSwapchainSize = m_swapchain->size;
 
-        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || (disallowSuboptimal && res == VulkanResult::SuboptimalKHR))
+        if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || (res == VulkanResult::SuboptimalKHR && disallowSuboptimal))
         {
             Backend::Get()->WaitIdle();
             m_recreateSwapchain = false;
 
             // Swapchain
-            m_swapchain->Destroy(false);
+            // m_swapchain->Destroy(false);
             m_swapchain->size = m_newSwapchainSize;
-            m_swapchain->Create(m_swapchain->swapchainID);
+            m_swapchain->RecreateFromOld(m_swapchain->swapchainID);
 
             // Make sure we always match swapchain
             m_newSwapchainSize = m_swapchain->size;
+
             return false;
         }
 

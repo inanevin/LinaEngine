@@ -65,10 +65,6 @@ namespace Lina::Graphics
     RenderEngine* RenderEngine::s_instance = nullptr;
     Model*        cube                     = nullptr;
 
-#define RETURN_NOTINITED                                                                                                                                                                                                                                           \
-    if (!m_initedSuccessfully)                                                                                                                                                                                                                                     \
-    return
-
     void RenderEngine::CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer)
     {
         SimpleAction act;
@@ -301,7 +297,6 @@ namespace Lina::Graphics
     void RenderEngine::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
-        RETURN_NOTINITED;
 
         auto& window = m_windowManager.GetMainWindow();
         if (window.IsMinimized())
@@ -339,22 +334,16 @@ namespace Lina::Graphics
         for (auto r : surfaceRenderers)
         {
             const bool imageOK = r->AcquireImage(frameIndex);
-            acquiredSurfaceRenderers.push_back(r);
 
-            if (!imageOK)
-            {
-                for (auto ar : acquiredSurfaceRenderers)
-                    ar->AcquiredImageInvalid(frameIndex);
-
-                return;
-            }
+            if (imageOK)
+                acquiredSurfaceRenderers.push_back(r);
         }
-
-        frame.graphicsFence.Reset();
 
         // Nothing to present.
         if (acquiredSurfaceRenderers.empty())
             return;
+
+        frame.graphicsFence.Reset();
 
         // Render all worlds.
         Vector<uint32>         imageIndices;
@@ -394,7 +383,6 @@ namespace Lina::Graphics
 
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
-        LINA_TRACE("ENDING----------------------------");
         m_frameNumber++;
     }
 
@@ -404,8 +392,6 @@ namespace Lina::Graphics
 
     void RenderEngine::Join()
     {
-        RETURN_NOTINITED;
-
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             m_frames[i].graphicsFence.Wait();
     }
@@ -541,8 +527,6 @@ namespace Lina::Graphics
 
     void RenderEngine::Shutdown()
     {
-        RETURN_NOTINITED;
-
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
         Event::EventSystem::Get()->Disconnect<Event::EPreMainLoop>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowPositioned>(this);

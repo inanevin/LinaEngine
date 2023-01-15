@@ -32,15 +32,13 @@ SOFTWARE.
 #define DockArea_HPP
 
 #include "Drawable.hpp"
-#include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
+#include "Grid.hpp"
 
 namespace Lina
 {
     namespace Graphics
     {
-        class Swapchain;
-        class Window;
         class WindowManager;
     } // namespace Graphics
 } // namespace Lina
@@ -59,28 +57,26 @@ namespace Lina::Editor
         virtual void Draw() override;
         virtual void SyncData() override;
 
-        inline void UpdateCurrentSwapchainID(StringID sid) override
+        inline void UpdateSwapchainInfo(uint32 currentSwapchainID, uint32 hoveredSwapchain, uint32 topMostSwapchain) override
         {
-            m_shouldDraw = m_swapchainID == sid;
+            m_currentSwapchainID = currentSwapchainID;
         }
+
+    private:
+        void DrawGrid();
 
     private:
         friend class EditorGUIManager;
 
-        bool                     m_shouldDraw         = false;
         bool                     m_detached           = false;
-        bool                     m_isSwapchainHovered = false;
-        bool                     m_isTopMost          = false;
-        StringID                 m_swapchainID        = 0;
+        Recti                    m_gridRect           = Recti();
+        uint32                   m_hoveredSwapchainID = 0;
+        uint32                   m_topMostSwapchainID = 0;
         Vector<DockArea*>        m_dockAreas;
-        Vector<Drawable*>        m_content;
-        uint32                   m_selectedContent = 0;
-        Graphics::WindowManager* m_windowManager   = nullptr;
-        Vector<Vector2>          m_windowPositionsNext;
-        Vector<CursorType>       m_cursorsNext;
-        bool                     m_draggingMove     = false;
-        bool                     m_draggingResize   = false;
-        Vector2                  m_mouseDiffOnPress = Vector2::Zero;
+        Graphics::WindowManager* m_windowManager      = nullptr;
+        Graphics::Swapchain*     m_swapchain          = nullptr;
+        uint32                   m_currentSwapchainID = 0;
+        Vector<Row>              m_rows;
     };
 
 } // namespace Lina::Editor

@@ -52,6 +52,7 @@ namespace Lina::Graphics
     {
     public:
         void   Create(StringID sid);
+        void   RecreateFromOld(StringID sid);
         void   Destroy(bool destroySemaphores = true);
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& result) const;
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence) const;

@@ -74,7 +74,7 @@ namespace Lina::Editor
         };
 
     public:
-        void Initialize(Graphics::GUIBackend* guiBackend, Graphics::WindowManager* wm);
+        void Initialize(Graphics::GUIBackend* guiBackend, Graphics::WindowManager* wm, Graphics::Swapchain* mainSwapchain);
         void Shutdown();
         void LaunchPanel(EditorPanel panel);
 

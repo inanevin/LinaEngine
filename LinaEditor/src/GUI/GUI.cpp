@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
-#include "Core/EditorRenderer.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/GraphicsEvents.hpp"

@@ -51,7 +51,6 @@ namespace Lina::Graphics
         vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), surface};
         swapchainBuilder = swapchainBuilder
                                //.use_default_format_selection()
-                               //.set_old_swapchain(_ptr)
                                .set_desired_present_mode(GetPresentMode(presentMode))
                                .set_desired_extent(size.x, size.y);
 
@@ -68,7 +67,6 @@ namespace Lina::Graphics
 
         size.x = vkbSwapchain.extent.width;
         size.y = vkbSwapchain.extent.height;
-        LINA_TRACE("Creating SWP {0}x{1}", size.x, size.y);
 
         for (VkImage img : imgs)
         {
@@ -78,6 +76,7 @@ namespace Lina::Graphics
             VulkanUtility::CreateDefaultPassImageDepth(depthImg, true, size.x, size.y);
             _depthImages.push_back(depthImg);
         }
+
         for (VkImageView view : views)
             _imageViews.push_back(view);
 
@@ -90,6 +89,75 @@ namespace Lina::Graphics
             for (auto& s : _presentSemaphores)
                 s.Create(false);
         }
+    }
+
+    void Swapchain::RecreateFromOld(StringID sid)
+    {
+        swapchainID = sid;
+
+        if (size.x == 0 || size.y == 0)
+        {
+            LINA_ERR("[Swapchain] -> Could not create swapchain, width or height is 0!");
+            return;
+        }
+        auto oldSwapchain = _ptr;
+
+        vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), surface};
+        swapchainBuilder = swapchainBuilder.set_old_swapchain(oldSwapchain).set_desired_present_mode(GetPresentMode(presentMode)).set_desired_extent(size.x, size.y);
+
+        VkFormat        vkformat     = GetFormat(format);
+        VkColorSpaceKHR vkcolorspace = GetColorSpace(colorSpace);
+        swapchainBuilder             = swapchainBuilder.set_desired_format({vkformat, vkcolorspace});
+
+        vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();
+        _ptr                        = vkbSwapchain.swapchain;
+        _format                     = vkbSwapchain.image_format;
+
+        std::vector<VkImage>     imgs  = vkbSwapchain.get_images().value();
+        std::vector<VkImageView> views = vkbSwapchain.get_image_views().value();
+
+        size.x = vkbSwapchain.extent.width;
+        size.y = vkbSwapchain.extent.height;
+
+        auto*       device    = Backend::Get()->GetDevice();
+        const auto* allocator = Backend::Get()->GetAllocator();
+
+        if (oldSwapchain != VK_NULL_HANDLE)
+            vkDestroySwapchainKHR(device, oldSwapchain, nullptr);
+
+        for (auto view : _imageViews)
+            vkDestroyImageView(device, view, allocator);
+
+        for (auto t : _depthImages)
+            t.Destroy();
+
+        _images.clear();
+        _imageViews.clear();
+        _depthImages.clear();
+
+        for (auto& s : _submitSemaphores)
+        {
+            s.Destroy();
+            s.Create();
+        }
+
+        for (auto& s : _presentSemaphores)
+        {
+            s.Destroy();
+            s.Create();
+        }
+
+        for (VkImage img : imgs)
+        {
+            _images.push_back(img);
+
+            Image depthImg;
+            VulkanUtility::CreateDefaultPassImageDepth(depthImg, true, size.x, size.y);
+            _depthImages.push_back(depthImg);
+        }
+
+        for (VkImageView view : views)
+            _imageViews.push_back(view);
     }
 
     void Swapchain::Destroy(bool destroySemaphores)

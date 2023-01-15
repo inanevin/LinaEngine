@@ -28,43 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Drawable_HPP
-#define Drawable_HPP
+#ifndef Grid_HPP
+#define Grid_HPP
 
-#include "Math/Rect.hpp"
-#include "Utility/StringId.hpp"
-
-namespace Lina
-{
-    namespace Graphics
-    {
-        class Swapchain;
-    } // namespace Graphics
-} // namespace Lina
-
+#include "Data/Vector.hpp"
 namespace Lina::Editor
 {
-    class Drawable
+    struct Column
     {
-    public:
-        Drawable()          = default;
-        virtual ~Drawable() = default;
-
-        virtual void Initialize(){};
-        virtual void Shutdown(){};
-        virtual void Draw() = 0;
-        virtual void SyncData(){};
-        virtual void UpdateSwapchainInfo(uint32 currentSwapchainID, uint32 hoveredSwapchain, uint32 topMostSwapchain){};
-
-        inline const Rect& GetRect()
-        {
-            return m_rect;
-        }
-
-    protected:
-        StringID m_sid  = 0;
-        Rect     m_rect = Rect();
+        float perc = 0.0f;
     };
+
+    struct Row
+    {
+        float          perc = 0.0f;
+        Vector<Column> columns;
+    };
+
 } // namespace Lina::Editor
 
 #endif

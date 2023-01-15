@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef LinaEditor_HPP
 #define LinaEditor_HPP
 
-#include "EditorRenderer.hpp"
 #include "EditorGUIManager.hpp"
 #include "ShortcutManager.hpp"
 #include "GUI/GUI.hpp"
@@ -44,6 +43,7 @@ namespace Lina
     {
         class GameRenderer;
         class WindowManager;
+        class Swapchain;
     } // namespace Graphics
 
     namespace Event
@@ -102,9 +102,10 @@ namespace Lina::Editor
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
         ImmediateGUI                     m_gui;
-        World::LevelManager*             m_levelManager = nullptr;
-        World::EntityWorld*              m_world        = nullptr;
-        Engine*                          m_engine       = nullptr;
+        World::LevelManager*             m_levelManager  = nullptr;
+        World::EntityWorld*              m_world         = nullptr;
+        Engine*                          m_engine        = nullptr;
+        Graphics::Swapchain*             m_mainSwapchain = nullptr;
         DockSetup*                       m_dockSetup;
     };
 } // namespace Lina::Editor

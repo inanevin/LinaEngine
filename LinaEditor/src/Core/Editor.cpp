@@ -47,7 +47,6 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/Renderer.hpp"
-#include "Core/EditorRenderer.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Serialization/Serialization.hpp"
 #include "Settings/DockSetup.hpp"
@@ -64,6 +63,7 @@ namespace Lina::Editor
         m_engine        = engine;
         m_levelManager  = lvlManager;
         m_resLoader     = new Resources::EditorResourceLoader();
+        m_mainSwapchain = swapchain;
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
@@ -275,7 +275,7 @@ namespace Lina::Editor
     void Editor::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
         m_dockSetup = Resources::ResourceManager::Get()->GetResource<DockSetup>("Resources/Editor/dockSetup.linasettings");
-        m_guiManager.Initialize(m_guiBackend, m_windowManager);
+        m_guiManager.Initialize(m_guiBackend, m_windowManager, m_mainSwapchain);
         m_gui.m_iconTexture = m_guiManager.GetIconTexture()->GetSID();
     }
 

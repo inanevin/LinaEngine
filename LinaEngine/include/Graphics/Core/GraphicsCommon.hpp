@@ -524,10 +524,10 @@ namespace Lina::Graphics
 
     enum class VulkanResult
     {
-        Unknown,
-        OutOfDateKHR,
-        SuboptimalKHR,
-        Success,
+        Unknown = 0,
+        OutOfDateKHR = 1,
+        SuboptimalKHR = 2,
+        Success = 3, 
         Timeout,
         NotReady,
         ErrorOutOfHostMemory,

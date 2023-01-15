@@ -266,11 +266,6 @@ namespace Lina
         // Dump info
         PROFILER_DUMP_FRAME_ANALYSIS("lina_frame_analysis.txt");
 
-        while (true)
-        {
-            if (m_inputEngine.GetKeyDown(LINA_KEY_SPACE))
-                break;
-        }
         // Shut down systems.
         m_resourceManager.Shutdown();
         m_renderEngine.Shutdown();

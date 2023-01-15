@@ -82,7 +82,7 @@ namespace Lina::Graphics
         }
 
     private:
-        bool CanContinueWithAcquiredImage(VulkanResult res, bool disallowSuboptimal);
+        bool CanContinueWithAcquiredImage(VulkanResult res, bool disallowSuboptimal = false);
         void OnWindowResized(const Event::EWindowResized& ev);
 
     protected:

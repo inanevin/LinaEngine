@@ -46,7 +46,7 @@ namespace Lina::Graphics
         m_guiBackend    = guiBackend;
 
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
-        m_cmdPool.Create();
+        m_cmdPool.Create(false);
 
         const uint32 imageSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
@@ -61,13 +61,15 @@ namespace Lina::Graphics
             .maxSets = 10,
             .flags   = DescriptorPoolCreateFlags::None,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create();
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create(false);
 
         return true;
     }
 
     void Renderer::Shutdown()
     {
+        m_cmdPool.Destroy();
+        m_descriptorPool.Destroy();
     }
 
     void Renderer::SyncData()

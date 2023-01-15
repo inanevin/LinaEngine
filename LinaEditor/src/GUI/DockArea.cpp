@@ -39,7 +39,8 @@ namespace Lina::Editor
 {
     void DockArea::Draw()
     {
-        if (!m_shouldDraw)
+        const bool shouldDraw = m_swapchain->swapchainID == m_currentSwapchainID;
+        if (!shouldDraw)
             return;
 
         auto&                theme  = LGUI->GetTheme();
@@ -47,20 +48,24 @@ namespace Lina::Editor
         LinaVG::StyleOptions style;
         style.color = LV4(theme.GetColor(ThemeColor::DockArea));
 
+        if (m_detached)
+            m_rect.size = m_swapchain->size;
+
         LinaVG::DrawRect(LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, 0);
 
         // Draw title bar
         if (m_detached)
         {
-
             const Vector2 displayRes   = screen.DisplayResolution();
             const float   headerHeight = displayRes.y * 0.055f;
             const Rect    headerRect   = Rect(m_rect.pos, Vector2(m_rect.size.x, headerHeight));
-            const String  headerName   = TO_STRING(m_swapchainID) + "header";
+            const String  headerName   = TO_STRING(m_swapchain->swapchainID) + "header";
             LGUI->SetWindowSize(headerName.c_str(), headerRect.size);
 
+            m_gridRect = Rect(m_rect.pos + Vector2(0, headerHeight), m_rect.size - Vector2(0, headerHeight));
+
             const Recti dragRect = Recti(0, 0, static_cast<int>(m_rect.size.x), static_cast<int>(headerRect.size.y * 0.5f));
-            m_windowManager->GetWindow(m_swapchainID).SetDragRect(dragRect);
+            m_windowManager->GetWindow(m_swapchain->swapchainID).SetDragRect(dragRect);
 
             /************** HEADER BG **************/
             if (LGUI->BeginWindow(headerName.c_str()))
@@ -74,7 +79,7 @@ namespace Lina::Editor
             LinaVG::StyleOptions lineStyle;
             const float          dividerThickness = 1.0f * screen.GetContentScale().x;
             const Color          dividerColor     = theme.GetColor(ThemeColor::DefaultBorderColor);
-            Widgets::DropShadow(Vector2(0.0f, headerRect.size.y), headerRect.size, dividerColor, dividerThickness, 2, 1);
+            Widgets::DropShadow(Vector2(0.0f, headerRect.size.y), headerRect.size, dividerColor, dividerThickness, 2, 3);
 
             /************** BORDER **************/
             LinaVG::StyleOptions border;
@@ -91,66 +96,19 @@ namespace Lina::Editor
             const Vector2  logoSize = Vector2(headerHeight * 0.6f, headerHeight * 0.6f);
             const Vector2  logoPos  = Vector2(headerRect.size.y * 0.5f, headerRect.size.y * 0.5f);
             LinaVG::DrawImage(sid, LV2(logoPos), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
-
-            /************** HANDLE MOVING DETACHED WINDOW **************/
-            auto&         wd         = m_windowManager->GetWindow(m_swapchainID);
-            const Vector2 mouseDelta = LGUI->GetMouseDelta();
-            const Vector2 mousePos   = LGUI->GetMousePosition();
-
-            //  if (!m_draggingMove && m_isSwapchainHovered && LGUI->GetMouseButtonDown(LINA_MOUSE_0))
-            //  {
-            //      m_mouseDiffOnPress = mousePos - Vector2(wd.GetPos());
-            //      m_draggingMove     = true;
-            //  }
-            //
-            //  if (m_draggingMove)
-            //  {
-            //      const Vector2 newPos = mousePos - m_mouseDiffOnPress;
-            //      m_windowPositionsNext.push_back(newPos);
-            //  }
-            //
-            //  if (LGUI->GetMouseButtonUp(LINA_MOUSE_0))
-            //      m_draggingMove = false;
-
-            // if (!m_draggingResize && m_isSwapchainHovered)
-            //{
-            //     int horizontalHover = 0, verticalHover = 0;
-            //     LGUI->IsMouseHoveringRectCornersAbs(wd.GetRect(), &horizontalHover, &verticalHover);
-            //
-            //     if (horizontalHover && !verticalHover)
-            //     {
-            //         m_cursorsNext.push_back(CursorType::ResizeH);
-            //     }
-            //     else if (verticalHover && !horizontalHover)
-            //     {
-            //         m_cursorsNext.push_back(CursorType::ResizeV);
-            //     }
-            //     else if (verticalHover && horizontalHover)
-            //     {
-            //         if (horizontalHover == 1 && verticalHover == 1 || horizontalHover == 2 && verticalHover == 2)
-            //             m_cursorsNext.push_back(CursorType::ResizeHV_E);
-            //         else
-            //             m_cursorsNext.push_back(CursorType::ResizeHV_W);
-            //     }
-            // }
         }
+        else
+            m_gridRect = m_rect;
+
+        DrawGrid();
+    }
+
+    void DockArea::DrawGrid()
+    {
     }
 
     void DockArea::SyncData()
     {
-        if (!m_windowPositionsNext.empty())
-        {
-            auto& wd = m_windowManager->GetWindow(m_swapchainID);
-            wd.SetPos(m_windowPositionsNext[static_cast<uint32>(m_windowPositionsNext.size()) - 1]);
-            m_windowPositionsNext.clear();
-        }
-
-        if (!m_cursorsNext.empty())
-        {
-            auto& wd = m_windowManager->GetWindow(m_swapchainID);
-            wd.SetMouseCursor(m_cursorsNext[static_cast<uint32>(m_cursorsNext.size()) - 1]);
-            m_cursorsNext.clear();
-        }
     }
 
 } // namespace Lina::Editor
