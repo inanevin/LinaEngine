@@ -252,6 +252,31 @@ namespace Lina::Graphics
         CMD_BeginRendering(renderingInfo);
     }
 
+    void CommandBuffer::CMD_BeginRenderingDefault(VkImageView_T* colorImageView, const Recti& renderArea, const Color& color) const
+    {
+        ClearValue clearValue = ClearValue{
+            .clearColor = color,
+            .isColor    = true,
+        };
+
+        RenderingAttachmentInfo colorAttachment = RenderingAttachmentInfo{
+            .imageView   = colorImageView,
+            .imageLayout = ImageLayout::AttachmentOptimal,
+            .loadOp      = LoadOp::Clear,
+            .storeOp     = StoreOp::Store,
+            .clearValue  = clearValue,
+        };
+
+        RenderingInfo renderingInfo = RenderingInfo{
+            .renderArea         = renderArea,
+            .layerCount         = 1,
+            .useDepthAttachment = false,
+        };
+
+        renderingInfo.colorAttachments.push_back(colorAttachment);
+        CMD_BeginRendering(renderingInfo);
+    }
+
     void CommandBuffer::CMD_EndRendering() const
     {
         pfn_vkCmdEndRenderingKHR(_ptr);
@@ -282,7 +307,8 @@ namespace Lina::Graphics
         CMD_PipelineBarrier(srcStage, dstStage, 0, {}, {}, imageBarriers);
     }
 
-    void CommandBuffer::CMD_ImageTransition(VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags destAccessFlags, PipelineStageFlags srcStage, PipelineStageFlags dstStage, uint32 mipLevels, uint32 baseMip) const
+    void CommandBuffer::CMD_ImageTransition(
+        VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags destAccessFlags, PipelineStageFlags srcStage, PipelineStageFlags dstStage, uint32 mipLevels, uint32 baseMip) const
     {
         CMD_ImageTransition(img, from, to, aspectFlags, srcAccessFlags, destAccessFlags, GetPipelineStageFlags(srcStage), GetPipelineStageFlags(dstStage), mipLevels, baseMip);
     }

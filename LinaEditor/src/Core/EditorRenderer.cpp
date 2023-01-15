@@ -313,7 +313,7 @@ namespace Lina::Editor
             Backend::Get()->DestroyAdditionalSwapchain(r.sid);
             m_windowManager->DestroyAppWindow(r.sid);
             m_additionalWindows.erase(it);
-            Event::EventSystem::Get()->Trigger<Event::EAdditionalSwapchainDestroyed>({r.sid});
+           // Event::EventSystem::Get()->Trigger<Event::EAdditionalSwapchainDestroyed>({r.sid});
         }
 
         m_additionalWindowRemoveRequests.clear();

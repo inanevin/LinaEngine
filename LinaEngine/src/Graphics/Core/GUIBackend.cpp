@@ -50,7 +50,7 @@ namespace Lina::Graphics
     {
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
 
-        for (int i = 0; i < Backend::Get()->GetMainSwapchain()._images.size(); i++)
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             CreateBufferCapsule(0, false);
 
         return true;
@@ -336,10 +336,10 @@ namespace Lina::Graphics
     {
     }
 
-    void GUIBackend::Prepare(Swapchain* swapchain, uint32 imgIndex, CommandBuffer* cmd)
+    void GUIBackend::Prepare(Swapchain* swapchain, uint32 frameIndex, CommandBuffer* cmd)
     {
         m_currentSwapchainIndexPair.first  = swapchain;
-        m_currentSwapchainIndexPair.second = imgIndex;
+        m_currentSwapchainIndexPair.second = frameIndex;
         m_cmd                              = cmd;
         UpdateProjection(swapchain->size);
         GetCurrentBufferCapsule().materialPool.index = 0;

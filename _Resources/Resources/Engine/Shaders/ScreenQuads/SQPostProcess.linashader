@@ -54,7 +54,7 @@ layout(set = 2, binding = 0) uniform sampler2D quad;
 void main()
 {
 	vec4 color = vec4(texture(quad,inUV).xyz, 1.0f);
-	outFragColor = color;
+	outFragColor = vec4(1.0, color.g, color.b, 1.0f);
 }
 
 #LINA_END

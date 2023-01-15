@@ -89,7 +89,7 @@ namespace Lina::Graphics
         void RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer);
 
     private:
-        void ExtractPassRenderables(Vector<RenderableData>& drawList, const View& view);
+        void ExtractPassRenderables(const Vector<RenderableData>& drawList, const View& view);
         void BatchPassRenderables();
 
         Vector<RenderableData>& GetVisibleRenderables()

@@ -47,6 +47,8 @@ set (LINAENGINE_SOURCES
 	src/Graphics/Core/WindowManager.cpp
 	src/Graphics/Core/GraphicsCommon.cpp
 	src/Graphics/Core/Renderer.cpp
+	src/Graphics/Core/WorldRenderer.cpp
+	src/Graphics/Core/SurfaceRenderer.cpp
 	src/Graphics/Core/View.cpp
 	src/Graphics/Core/DrawPass.cpp
 	src/Graphics/Core/CameraSystem.cpp
@@ -152,6 +154,8 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Core/GUIBackend.hpp
 	include/Graphics/Core/WindowManager.hpp
 	include/Graphics/Core/Renderer.hpp
+	include/Graphics/Core/WorldRenderer.hpp
+	include/Graphics/Core/SurfaceRenderer.hpp
 	include/Graphics/Core/RenderData.hpp
 	include/Graphics/Core/View.hpp
 	include/Graphics/Core/DrawPass.hpp

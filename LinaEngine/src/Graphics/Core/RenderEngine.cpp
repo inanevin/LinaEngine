@@ -46,6 +46,8 @@ SOFTWARE.
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/WorldRenderer.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"
@@ -67,30 +69,19 @@ namespace Lina::Graphics
     if (!m_initedSuccessfully)                                                                                                                                                                                                                                     \
     return
 
-    World::EntityWorld* aq = nullptr;
-    
-    void RenderEngine::CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, const Bitmask16& newRendererMask)
+    void RenderEngine::CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer)
     {
         SimpleAction act;
-        act.Action = [this, name, pos, size, newRendererMask]() {
+        act.Action = [this, name, pos, size, associatedRenderer]() {
             const StringID sid = TO_SID(name);
             m_windowManager.CreateAppWindow(m_windowManager.GetMainWindow().GetHandle(), name.c_str(), pos, size, true);
             auto& createdWindow = m_windowManager.GetWindow(sid);
             auto* windowPtr     = createdWindow.GetHandle();
             auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, pos, size);
-
-            Renderer* rend = new Renderer();
-            rend->AssignSwapchain(swapchainPtr);
-            Bitmask16 mask = newRendererMask;
-            if (!mask.IsSet(RM_SwapchainOwner))
-                mask.Set(RM_SwapchainOwner);
-
-            rend->SetRenderMask(mask);
-
-            rend->SetWorld(aq);
-            if (rend->Initialize(m_guiBackend, &m_windowManager, this))
-                m_renderers.push_back(rend);
-                
+            associatedRenderer->AssignSwapchain(swapchainPtr);
+            associatedRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_childWindowRenderers[sid] = associatedRenderer;
+            m_renderers.push_back(associatedRenderer);
         };
 
         m_syncedActions.push_back(act);
@@ -103,12 +94,10 @@ namespace Lina::Graphics
         act.Action = [this, name]() {
             const StringID sid = TO_SID(name);
 
-            Swapchain* swp = m_backend.m_swapchains[sid];
-            auto       it  = linatl::find_if(m_renderers.begin(), m_renderers.end(), [swp](Renderer* r) { return r->m_swapchain == swp; });
-            auto       r   = *it;
-            r->Shutdown();
-            delete r;
-            m_renderers.erase(it);
+            auto it       = m_childWindowRenderers.find(sid);
+            auto renderer = it->second;
+            renderer->Shutdown();
+            delete renderer;
             m_windowManager.DestroyAppWindow(sid);
             Backend::Get()->DestroyAdditionalSwapchain(sid);
             m_windowManager.DestroyAppWindow(sid);
@@ -295,23 +284,18 @@ namespace Lina::Graphics
             f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
             f.graphicsFence.Create();
         }
-
-        Renderer* rend = new Renderer();
-        rend->AssignSwapchain(m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID]);
-
-        if (m_appInfo.appMode == ApplicationMode::Editor)
-            rend->SetRenderMask(RM_RenderGUI | RM_RenderWorld | RM_SwapchainOwner | RM_WorldToSurface);
-        else
-            rend->SetRenderMask(RM_RenderGUI | RM_RenderWorld | RM_SwapchainOwner | RM_WorldToSurface);
-
-        m_defaultRenderer = rend;
-        AddRenderer(m_defaultRenderer);
     }
 
     void RenderEngine::Tick()
     {
         for (auto r : m_renderers)
             r->Tick();
+
+        if (ApplicationInfo::GetAppMode() == ApplicationMode::Standalone)
+        {
+            m_defaultWorldRenderer->SetAspectRatio(0.0f);
+            m_defaultWorldRenderer->SetRenderResolution(m_defaultSurfaceRenderer->m_swapchain->size);
+        }
     }
 
     void RenderEngine::Render()
@@ -337,63 +321,63 @@ namespace Lina::Graphics
         const uint32 frameIndex = GetFrameIndex();
         Frame&       frame      = m_frames[frameIndex];
 
-        Vector<Renderer*> presentableRenderers;
+        Vector<Renderer*> surfaceRenderers;
+        Vector<Renderer*> worldRenderers;
 
         for (auto r : m_renderers)
         {
-            if (r->GetMask().IsSet(RM_SwapchainOwner))
-                presentableRenderers.push_back(r);
+            if (r->GetType() == RendererType::SurfaceRenderer)
+                surfaceRenderers.push_back(r);
+
+            if (r->GetType() == RendererType::WorldRenderer)
+                worldRenderers.push_back(r);
         }
 
         frame.graphicsFence.Wait(true, 1.0f);
 
-        Vector<uint32>         imageIndices;
-        Vector<CommandBuffer*> commandBuffers;
-        Vector<Semaphore*>     submitSemaphores;
-        Vector<Semaphore*>     presentSemaphores;
-        Vector<Swapchain*>     swapchains;
-
-        // If has a present mask
-        // acquire image.
-        Vector<Renderer*> acquiredRenderers;
-        for (auto& r : presentableRenderers)
+        Vector<Renderer*> acquiredSurfaceRenderers;
+        for (auto r : surfaceRenderers)
         {
             const bool imageOK = r->AcquireImage(frameIndex);
+            acquiredSurfaceRenderers.push_back(r);
 
-            if (imageOK)
+            if (!imageOK)
             {
-                acquiredRenderers.push_back(r);
-                imageIndices.push_back(r->GetAcquiredImage());
+                for (auto ar : acquiredSurfaceRenderers)
+                    ar->AcquiredImageInvalid(frameIndex);
+
+                return;
             }
         }
 
         frame.graphicsFence.Reset();
 
-        if (acquiredRenderers.empty())
+        // Nothing to present.
+        if (acquiredSurfaceRenderers.empty())
             return;
 
-        const uint32 renderersSize = static_cast<uint32>(m_renderers.size());
-        for (uint32 i = 0; i < renderersSize; i++)
+        // Render all worlds.
+        Vector<uint32>         imageIndices;
+        Vector<Semaphore*>     submitSemaphores;
+        Vector<Semaphore*>     presentSemaphores;
+        Vector<Swapchain*>     swapchains;
+        Vector<CommandBuffer*> commandBuffers;
+
+        commandBuffers.resize(worldRenderers.size());
+
+        // Render worlds in parallel
+        Taskflow tf;
+        tf.for_each_index(0, static_cast<int>(worldRenderers.size()), 1, [&](int i) { commandBuffers[i] = worldRenderers[i]->Render(frameIndex, frame.graphicsFence); });
+        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
+
+        for (auto r : acquiredSurfaceRenderers)
         {
-            auto r = m_renderers[i];
-
-            if (r->GetMask().IsSet(RM_SwapchainOwner))
-            {
-                auto it = linatl::find_if(acquiredRenderers.begin(), acquiredRenderers.end(), [r](Renderer* rend) { return r == rend; });
-
-                if (it != acquiredRenderers.end())
-                    commandBuffers.push_back(r->Render(frameIndex, frame.graphicsFence));
-            }
-        }
-
-        for (auto& r : acquiredRenderers)
-        {
-            if (r->GetMask().IsSet(RM_SwapchainOwner))
-            {
-                submitSemaphores.push_back(&r->m_swapchain->_submitSemaphores[frameIndex]);
-                presentSemaphores.push_back(&r->m_swapchain->_presentSemaphores[frameIndex]);
-                swapchains.push_back(r->m_swapchain);
-            }
+            auto swp = r->GetSwapchain();
+            imageIndices.push_back(r->GetAcquiredImage());
+            commandBuffers.push_back(r->Render(frameIndex, frame.graphicsFence));
+            submitSemaphores.push_back(&swp->_submitSemaphores[frameIndex]);
+            presentSemaphores.push_back(&swp->_presentSemaphores[frameIndex]);
+            swapchains.push_back(swp);
         }
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
@@ -403,8 +387,8 @@ namespace Lina::Graphics
         VulkanResult res;
         Backend::Get()->GetGraphicsQueue().Present(presentSemaphores, swapchains, imageIndices, res);
 
-        // for (auto r : presentableRenderers)
-        //     r->HandleOutOfDateImage(res);
+        for (auto r : acquiredSurfaceRenderers)
+            r->OnPostPresent(res);
 
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
         m_frameNumber++;
@@ -624,6 +608,32 @@ namespace Lina::Graphics
         m_placeholderMaterial  = m_engineMaterials[EngineShaderType::LitStandard];
         m_placeholderModel     = m_engineModels[EnginePrimitiveType::Cube];
         m_placeholderModelNode = m_placeholderModel->GetRootNode();
+
+        // world renderer.
+        m_defaultWorldRenderer = new WorldRenderer();
+        m_defaultWorldRenderer->SetRenderMask(0);
+
+        // surface renderer.
+        m_defaultSurfaceRenderer = new SurfaceRenderer();
+        m_defaultSurfaceRenderer->AssignSwapchain(m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID]);
+
+        if (m_appInfo.appMode == ApplicationMode::Editor)
+        {
+            m_defaultWorldRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultSurfaceRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultSurfaceRenderer->SetRenderMask(RM_RenderGUI);
+        }
+        else
+        {
+            m_defaultSurfaceRenderer->SetRenderMask(RM_RenderGUI | RM_DrawOffscreenTexture);
+            m_defaultWorldRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultSurfaceRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultSurfaceRenderer->SetOffscreenTexture(m_defaultWorldRenderer->GetFinalTexture());
+            m_defaultWorldRenderer->AddFinalTextureListener(m_defaultSurfaceRenderer);
+        }
+
+        m_renderers.push_back(m_defaultWorldRenderer);
+        m_renderers.push_back(m_defaultSurfaceRenderer);
     }
 
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -655,15 +665,14 @@ namespace Lina::Graphics
         m_meshEntries.clear();
         m_mergedModelIDs.clear();
         m_hasLevelLoaded = false;
-        m_defaultRenderer->RemoveWorld();
+        m_defaultWorldRenderer->RemoveWorld();
     }
 
     void RenderEngine::OnLevelInstalled(const Event::ELevelInstalled& ev)
     {
         m_hasLevelLoaded = true;
         MergeMeshes();
-        m_defaultRenderer->SetWorld(ev.world);
-        aq = ev.world;
+        m_defaultWorldRenderer->SetWorld(ev.world);
     }
 
     void RenderEngine::OnResourceLoaded(const Event::EResourceLoaded& res)

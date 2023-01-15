@@ -133,6 +133,14 @@ namespace Lina::World
 
     Entity* EntityWorld::CreateEntity(const String& name)
     {
+        if (m_entities.empty())
+        {
+            m_entities.resize(ENTITY_VEC_SIZE_CHUNK, nullptr);
+
+            if (!Memory::MemoryManager::Get()->PoolBlockExists<World::Entity>())
+                Memory::MemoryManager::Get()->CreatePoolBlock<World::Entity>(ENTITY_CHUNK_COUNT, "Entity");
+        }
+
         Entity* e = Memory::MemoryManager::Get()->GetFromPoolBlock<World::Entity>();
         e->SetVisible(true);
         e->SetStatic(true);

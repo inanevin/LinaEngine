@@ -45,6 +45,8 @@ namespace Lina::Graphics
 
     void CameraSystem::CalculateCamera(CameraComponent* cam, float aspect)
     {
+        if (aspect == 0.0f)
+            aspect = m_windowManager->GetMainWindow().GetAspect();
 
         World::Entity*   e      = cam->GetEntity();
         const Vector3    pos    = e->GetPosition();

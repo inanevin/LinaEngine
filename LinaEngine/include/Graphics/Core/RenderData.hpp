@@ -141,10 +141,16 @@ namespace Lina::Graphics
 
     enum RendererMask
     {
-        RM_SwapchainOwner = 1 << 0,
-        RM_RenderWorld    = 1 << 1,
-        RM_RenderGUI      = 1 << 2,
-        RM_WorldToSurface = 1 << 3,
+        RM_RenderGUI            = 1 << 0,
+        RM_DrawOffscreenTexture = 1 << 1,
+        RM_ApplyPostProcessing  = 1 << 2,
+    };
+
+    enum class RendererType
+    {
+        None,
+        WorldRenderer,
+        SurfaceRenderer
     };
 
 } // namespace Lina::Graphics

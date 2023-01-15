@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Panels/TopPanel.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Core/EditorRenderer.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
 
 // Debug
 #include "Input/Core/InputEngine.hpp"
@@ -329,9 +330,11 @@ namespace Lina::Editor
         const String   panelName = panel == EditorPanel::Level ? "TestPanel" : "Aq";
         const StringID sid       = TO_SID(panelName);
 
-        const Bitmask16 mask = Graphics::RendererMask::RM_SwapchainOwner | Graphics::RendererMask::RM_RenderGUI | Graphics::RendererMask::RM_RenderWorld | Graphics::RendererMask::RM_WorldToSurface;
+        const Bitmask16 mask = Graphics::RendererMask::RM_RenderGUI;
 
-        Graphics::RenderEngine::Get()->CreateChildWindow(panelName, lastPos, lastSize, mask);
+        Graphics::SurfaceRenderer* renderer = new Graphics::SurfaceRenderer();
+        renderer->SetRenderMask(Graphics::RendererMask::RM_RenderGUI);
+        Graphics::RenderEngine::Get()->CreateChildWindow(panelName, lastPos, lastSize, renderer);
 
         m_panelRequests.push_back({panel, TO_SID(panelName), Vector2::Zero, lastSize});
     }

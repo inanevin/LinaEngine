@@ -72,6 +72,8 @@ namespace Lina::Graphics
     class Renderer;
     class Shader;
     class Mesh;
+    class WorldRenderer;
+    class SurfaceRenderer;
 
     class RenderEngine
     {
@@ -176,7 +178,7 @@ namespace Lina::Graphics
             return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
-        void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, const Bitmask16& newRendererMask);
+        void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer);
         void DestroyChildWindow(const String& name);
         void AddRenderer(Renderer* renderer);
         void DeleteRenderer(Renderer* renderer);
@@ -227,10 +229,11 @@ namespace Lina::Graphics
         PipelineLayout                                  m_globalAndPassLayout;
         GUIBackend*                                     m_guiBackend;
         Vector<Renderer*>                               m_renderers;
-        Renderer*                                       m_defaultRenderer      = nullptr;
-        Model*                                          m_placeholderModel     = nullptr;
-        ModelNode*                                      m_placeholderModelNode = nullptr;
-        Material*                                       m_placeholderMaterial  = nullptr;
+        Model*                                          m_placeholderModel       = nullptr;
+        ModelNode*                                      m_placeholderModelNode   = nullptr;
+        Material*                                       m_placeholderMaterial    = nullptr;
+        WorldRenderer*                                  m_defaultWorldRenderer   = nullptr;
+        SurfaceRenderer*                                m_defaultSurfaceRenderer = nullptr;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;
@@ -240,6 +243,7 @@ namespace Lina::Graphics
         HashMap<EngineShaderType, Material*> m_engineMaterials;
         HashMap<EnginePrimitiveType, Model*> m_engineModels;
         HashMap<EngineTextureType, Texture*> m_engineTextures;
+        HashMap<StringID, SurfaceRenderer*>  m_childWindowRenderers;
     };
 } // namespace Lina::Graphics
 

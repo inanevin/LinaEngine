@@ -53,7 +53,7 @@ namespace Lina::Graphics
         BatchPassRenderables();
     }
 
-    void DrawPass::ExtractPassRenderables(Vector<RenderableData>& drawList, const View& view)
+    void DrawPass::ExtractPassRenderables(const Vector<RenderableData>& drawList, const View& view)
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
@@ -61,7 +61,7 @@ namespace Lina::Graphics
 
         Taskflow tf;
         tf.for_each_index(0, static_cast<int>(drawList.size()), 1, [&](int i) {
-            RenderableData& data = drawList[i];
+            const RenderableData& data = drawList[i];
 
             // Cull by distance
             if (view.GetPos().Distance(data.position) > m_drawDistance)

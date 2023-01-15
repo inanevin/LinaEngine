@@ -45,7 +45,6 @@ namespace Lina
     {
         class Editor;
         class ShortcutManager;
-        class EditorRenderer;
     } // namespace Editor
 
     namespace World
@@ -67,6 +66,8 @@ namespace Lina
     namespace Graphics
     {
         class Renderer;
+        class WorldRenderer;
+        class SurfaceRenderer;
         class RenderEngine;
         class Win32Window;
         class WindowManager;
@@ -150,7 +151,8 @@ namespace Lina::Event
         friend class Editor::ShortcutManager;
         friend class Resources::EditorResourceLoader;
         friend class Graphics::Renderer;
-        friend class Editor::EditorRenderer;
+        friend class Graphics::WorldRenderer;
+        friend class Graphics::SurfaceRenderer;
         friend class Graphics::Win32Window;
         friend class Graphics::WindowManager;
         friend class Resources::ResourceLoader;

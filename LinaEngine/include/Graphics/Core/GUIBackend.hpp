@@ -123,15 +123,8 @@ namespace Lina::Graphics
 
         BufferCapsule& GetCurrentBufferCapsule();
 
-    private:
-        friend class Editor::EditorGUIManager;
-        friend class Renderer;
-        friend class Editor::EditorRenderer;
-        friend class RenderEngine;
-
-        void Prepare(Swapchain* swapchain, uint32 imgIndex, CommandBuffer* cmd);
-        void UpdateProjection(const Vector2i& size);
-
+        void      Prepare(Swapchain* swapchain, uint32 frameIndex, CommandBuffer* cmd);
+        void      UpdateProjection(const Vector2i& size);
         void      OnPreMainLoop(const Event::EPreMainLoop& ev);
         void      CreateBufferCapsule(StringID sid, bool setMaterials);
         void      RecordDrawCommands();

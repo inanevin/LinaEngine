@@ -66,6 +66,7 @@ namespace Lina::Graphics
         void CMD_BlitImage(VkImage_T* src, ImageLayout srcLayout, VkImage_T* dest, ImageLayout destLayout, Vector<ImageBlit>& regions, Filter filter) const;
         void CMD_BeginRendering(RenderingInfo& info) const;
         void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, VkImageView_T* depthImageView, const Recti& renderArea, const Color& color = Color::Gray) const;
+        void CMD_BeginRenderingDefault(VkImageView_T* colorImageView, const Recti& renderArea, const Color& color = Color::Gray) const;
         void CMD_EndRendering() const;
         void CMD_ImageTransition(VkImage_T* img, ImageLayout from, ImageLayout to, ImageAspectFlags aspectFlags, AccessFlags srcAccessFlags, AccessFlags dstAccessFlags, uint32 srcStage, uint32 destStage, uint32 mipLevels = 1, uint32 baseMip = 0) const;
         void CMD_ImageTransition(
