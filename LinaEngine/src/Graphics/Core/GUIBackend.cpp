@@ -43,12 +43,15 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 #define BUFFER_LIMIT        50000
-#define MATERIAL_POOL_COUNT 30
+#define MATERIAL_POOL_COUNT 120
 #define TO_LINA_VEC4(V)     Vector4(V.x, V.y, V.z, V.w)
 
     bool GUIBackend::Initialize()
     {
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+            CreateBufferCapsule(0, false);
 
         return true;
     }
@@ -230,6 +233,15 @@ namespace Lina::Graphics
         return request.transientMat;
     }
 
+    void GUIBackend::Reset()
+    {
+        for (auto& b : m_bufferCapsules)
+        {
+            for(auto& c : b.second)
+                c.materialPool.index = 0;
+        }
+    }
+
     void GUIBackend::EndFrame()
     {
     }
@@ -339,7 +351,6 @@ namespace Lina::Graphics
         m_currentSwapchainIndexPair.second = frameIndex;
         m_cmd                              = cmd;
         UpdateProjection(swapchain->size);
-        GetCurrentBufferCapsule().materialPool.index = 0;
     }
 
     void GUIBackend::UpdateProjection(const Vector2i& size)

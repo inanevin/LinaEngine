@@ -380,6 +380,8 @@ namespace Lina::Graphics
             swapchains.push_back(swp);
         }
 
+        m_guiBackend->Reset();
+
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
         PROFILER_SCOPE_START("Queue Submit & Present", PROFILER_THREAD_RENDER);
@@ -391,6 +393,8 @@ namespace Lina::Graphics
             r->OnPostPresent(res);
 
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
+
+        LINA_TRACE("ENDING----------------------------");
         m_frameNumber++;
     }
 

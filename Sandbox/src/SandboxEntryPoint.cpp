@@ -49,7 +49,7 @@ namespace Lina
             .appName          = "Lina Sandbox Game",
             .appMode          = Lina::ApplicationMode::Editor,
             .windowProperties = windowProps,
-            .preferredGPU     = Lina::PreferredGPUType::Integrated,
+            .preferredGPU     = Lina::PreferredGPUType::Discrete,
         };
 
         Lina::RegisterReflectedTypes();

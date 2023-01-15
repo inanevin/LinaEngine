@@ -156,7 +156,10 @@ namespace Lina::Graphics
 
             // Render GUI on top
             if (m_mask.IsSet(RM_RenderGUI))
+            {
                 m_guiBackend->RecordDrawCommands();
+                  LinaVG::EndFrame();
+            }
 
             cmd.CMD_EndRendering();
 
@@ -165,7 +168,7 @@ namespace Lina::Graphics
                                     PipelineStageFlags::BottomOfPipe);
 
             PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
-            LinaVG::EndFrame();
+          
         }
 
         cmd.End();
@@ -191,7 +194,7 @@ namespace Lina::Graphics
             // Swapchain
             m_swapchain->Destroy(false);
             m_swapchain->size = m_newSwapchainSize;
-            m_swapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
+            m_swapchain->Create(m_swapchain->swapchainID);
 
             // Make sure we always match swapchain
             m_newSwapchainSize = m_swapchain->size;

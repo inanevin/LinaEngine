@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/DataCommon.hpp"
 #include <LinaVG/Backends/BaseBackend.hpp>
+#include "Graphics/Resource/Material.hpp"
 
 namespace Lina
 {
@@ -85,7 +86,8 @@ namespace Lina::Graphics
             uint32                 firstIndex   = 0;
             uint32                 indexSize    = 0;
             Material*              transientMat = nullptr;
-            LinaVGDrawCategoryType type         = LinaVGDrawCategoryType::Default;
+            Material               m;
+            LinaVGDrawCategoryType type = LinaVGDrawCategoryType::Default;
             OrderedDrawRequestMeta meta;
         };
 
@@ -130,6 +132,7 @@ namespace Lina::Graphics
         void      RecordDrawCommands();
         void      UploadAllFontTextures();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
+        void      Reset();
 
     private:
         HashMap<StringID, Vector<BufferCapsule>> m_bufferCapsules;
