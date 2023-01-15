@@ -137,6 +137,8 @@ namespace Lina::Graphics
 
     void WorldRenderer::Shutdown()
     {
+        Renderer::Shutdown();
+    
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
 

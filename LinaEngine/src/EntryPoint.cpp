@@ -86,12 +86,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         app->Tick();
     }
 
+  
     app->Shutdown();
     delete gm;
 
     Lina::Application::Cleanup(app);
     delete app;
-
+      while (true)
+    {
+        
+    }
 #ifndef LINA_PRODUCTION
     // system("pause");
 #endif

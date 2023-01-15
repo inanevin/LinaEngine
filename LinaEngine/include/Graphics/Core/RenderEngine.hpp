@@ -184,7 +184,7 @@ namespace Lina::Graphics
         }
 
         void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer);
-        void DestroyChildWindow(const String& name);
+        void DestroyChildWindow( StringID sid, bool immediate = false);
         void AddRenderer(Renderer* renderer);
         void DeleteRenderer(Renderer* renderer);
 

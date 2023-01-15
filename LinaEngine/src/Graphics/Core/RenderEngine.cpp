@@ -83,23 +83,27 @@ namespace Lina::Graphics
         m_syncedActions.push_back(act);
     }
 
-    void RenderEngine::DestroyChildWindow(const String& name)
+    void RenderEngine::DestroyChildWindow(StringID sid, bool immediate)
     {
         // First need to remove associated the renderer.
         SimpleAction act;
-        act.Action = [this, name]() {
-            const StringID sid = TO_SID(name);
-
-            auto it       = m_childWindowRenderers.find(sid);
-            auto renderer = it->second;
+        act.Action = [this, sid]() {
+            auto it                = m_childWindowRenderers.find(sid);
+            auto renderer          = it->second;
+            auto itInRenderersList = linatl::find_if(m_renderers.begin(), m_renderers.end(), [renderer](Renderer* r) { return r == renderer; });
+            m_renderers.erase(itInRenderersList);
             renderer->Shutdown();
             delete renderer;
             m_windowManager.DestroyAppWindow(sid);
             Backend::Get()->DestroyAdditionalSwapchain(sid);
             m_windowManager.DestroyAppWindow(sid);
+
         };
 
-        m_syncedActions.push_back(act);
+        if (immediate)
+            act.Action();
+        else
+            m_syncedActions.push_back(act);
     }
 
     void RenderEngine::AddRenderer(Renderer* renderer)
@@ -549,6 +553,13 @@ namespace Lina::Graphics
 
         m_gpuUploader.Destroy();
         m_mainDeletionQueue.Flush();
+
+        Vector<StringID> childs;
+        for (auto [sid, wd] : m_childWindowRenderers)
+            childs.push_back(sid);
+
+        for (auto c : childs)
+            DestroyChildWindow(c, true);
 
         for (auto r : m_renderers)
         {

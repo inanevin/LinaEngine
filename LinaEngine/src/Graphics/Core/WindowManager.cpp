@@ -142,7 +142,11 @@ namespace Lina::Graphics
 
     void WindowManager::DestroyAppWindow(StringID sid)
     {
-        auto  it     = m_windows.find(sid);
+        auto it = m_windows.find(sid);
+
+        if (it == m_windows.end())
+            return;
+
         auto* window = it->second;
         window->Destroy();
         delete window;
