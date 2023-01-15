@@ -178,6 +178,11 @@ namespace Lina::Graphics
             return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
+        inline const HashMap<StringID, SurfaceRenderer*>& GetChildWindowRenderers()
+        {
+            return m_childWindowRenderers;
+        }
+
         void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer);
         void DestroyChildWindow(const String& name);
         void AddRenderer(Renderer* renderer);

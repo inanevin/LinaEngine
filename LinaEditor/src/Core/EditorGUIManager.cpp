@@ -290,35 +290,34 @@ namespace Lina::Editor
             LaunchPanel(EditorPanel::Entities);
         }
 
-        // const auto& additionalWindows = m_renderer->GetAdditionalWindows();
-        //
-        // auto it = m_panelRequests.begin();
-        //
-        // for (; it < m_panelRequests.end(); ++it)
-        // {
-        //     bool  found = false;
-        //     auto& req   = *it;
-        //     for (const auto& [windowSid, windowData] : additionalWindows)
-        //     {
-        //         if (windowSid == req.sid)
-        //         {
-        //             DockArea* area        = new DockArea();
-        //             area->m_windowManager = m_windowManager;
-        //             area->m_rect          = Rect(req.pos, req.size);
-        //             area->m_swapchainID   = req.sid;
-        //             area->m_detached      = true;
-        //             area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
-        //
-        //             found = true;
-        //             m_dockAreas.push_back(area);
-        //             m_panelRequests.erase(it);
-        //             break;
-        //         }
-        //     }
-        //
-        //     if (found)
-        //         break;
-        // }
+        const auto& childWindows = Graphics::RenderEngine::Get()->GetChildWindowRenderers();
+        auto        it           = m_panelRequests.begin();
+
+        for (; it < m_panelRequests.end(); ++it)
+        {
+            bool  found = false;
+            auto& req   = *it;
+            for (const auto& [windowSid, renderer] : childWindows)
+            {
+                if (windowSid == req.sid)
+                {
+                    DockArea* area        = new DockArea();
+                    area->m_windowManager = m_windowManager;
+                    area->m_rect          = Rect(req.pos, req.size);
+                    area->m_swapchainID   = req.sid;
+                    area->m_detached      = true;
+                    area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
+
+                    found = true;
+                    m_dockAreas.push_back(area);
+                    m_panelRequests.erase(it);
+                    break;
+                }
+            }
+
+            if (found)
+                break;
+        }
     }
 
     void EditorGUIManager::LaunchPanel(EditorPanel panel)

@@ -155,8 +155,8 @@ namespace Lina::Graphics
             }
 
             // Render GUI on top
-            //   if (m_mask.IsSet(RM_RenderGUI))
-            //     m_guiBackend->RecordDrawCommands();
+            if (m_mask.IsSet(RM_RenderGUI))
+                m_guiBackend->RecordDrawCommands();
 
             cmd.CMD_EndRendering();
 
@@ -186,10 +186,7 @@ namespace Lina::Graphics
         if (m_recreateSwapchain || res == VulkanResult::OutOfDateKHR || (disallowSuboptimal && res == VulkanResult::SuboptimalKHR))
         {
             Backend::Get()->WaitIdle();
-
             m_recreateSwapchain = false;
-
-            Backend::Get()->WaitIdle();
 
             // Swapchain
             m_swapchain->Destroy(false);

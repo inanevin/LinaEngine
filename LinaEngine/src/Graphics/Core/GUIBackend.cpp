@@ -50,9 +50,6 @@ namespace Lina::Graphics
     {
         Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GUIBackend::OnPreMainLoop>(this);
 
-        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-            CreateBufferCapsule(0, false);
-
         return true;
     }
 
