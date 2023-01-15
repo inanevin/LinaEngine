@@ -138,13 +138,13 @@ namespace Lina::Graphics
         for (auto& s : _submitSemaphores)
         {
             s.Destroy();
-            s.Create();
+            s.Create(false);
         }
 
         for (auto& s : _presentSemaphores)
         {
             s.Destroy();
-            s.Create();
+            s.Create(false);
         }
 
         for (VkImage img : imgs)
@@ -160,7 +160,7 @@ namespace Lina::Graphics
             _imageViews.push_back(view);
     }
 
-    void Swapchain::Destroy(bool destroySemaphores)
+    void Swapchain::Destroy()
     {
         if (_ptr != nullptr)
         {
@@ -182,15 +182,11 @@ namespace Lina::Graphics
 
             _depthImages.clear();
         }
+        for (auto& s : _submitSemaphores)
+            s.Destroy();
 
-        if (destroySemaphores)
-        {
-            for (auto& s : _submitSemaphores)
-                s.Destroy();
-
-            for (auto& s : _presentSemaphores)
-                s.Destroy();
-        }
+        for (auto& s : _presentSemaphores)
+            s.Destroy();
     }
 
     uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& res) const

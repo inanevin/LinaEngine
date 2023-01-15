@@ -45,7 +45,6 @@ namespace Lina
     {
         class Editor;
         class ShortcutManager;
-        class Widgets;
     } // namespace Editor
 
     namespace World
@@ -146,7 +145,6 @@ namespace Lina::Event
         }
 
     private:
-    friend class Editor::Widgets;
         friend class Engine;
         friend class Log;
         friend class Editor::Editor;

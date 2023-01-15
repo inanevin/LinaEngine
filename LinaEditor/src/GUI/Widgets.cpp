@@ -34,8 +34,6 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Math/Math.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
-#include "EventSystem/WindowEvents.hpp"
-#include "EventSystem/EventSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -171,10 +169,7 @@ namespace Lina::Editor
 
         w.SetPenPos(Vector2(closeStart, penY));
         if (Widgets::ButtonIcon(TO_SIDC("Close"), buttonSize, mask))
-        {
             *close = 1;
-            Event::EventSystem::Get()->Trigger<Event::EWindowClosed>();
-        }
 
         theme.PopColor();
 

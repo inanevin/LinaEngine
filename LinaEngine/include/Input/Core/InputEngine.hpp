@@ -50,6 +50,7 @@ namespace Lina
         struct EMouseButtonCallback;
         struct EMouseMovedRaw;
         struct EWindowFocused;
+        struct EKeyCallback;
     } // namespace Event
 
 } // namespace Lina
@@ -116,11 +117,13 @@ namespace Lina::Input
         InputEngine()  = default;
         ~InputEngine() = default;
         void Initialize();
+        void PreTick();
         void Tick();
         void Shutdown();
         void OnWindowContextCreated(const Event::EWindowContextCreated& e);
         void OnMouseScrollCallback(const Event::EMouseScrollCallback& e);
         void OnMouseButtonCallback(const Event::EMouseButtonCallback& e);
+        void OnKeyCallback(const Event::EKeyCallback& e);
         void OnMouseMovedRaw(const Event::EMouseMovedRaw& e);
         void OnActiveAppChanged(const Event::EActiveAppChanged& e);
         void OnWindowFocused(const Event::EWindowFocused& e);
@@ -152,6 +155,8 @@ namespace Lina::Input
         Vector2i            m_currentMousePositionAbs = Vector2i::Zero;
         bool                m_windowActive            = false;
         void*               m_lastFocusedWindowHandle = nullptr;
+        bool                m_currentStates[256]      = {0};
+        bool                m_previousStates[256]     = {0};
     };
 } // namespace Lina::Input
 

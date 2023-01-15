@@ -120,6 +120,11 @@ namespace Lina
         m_isRunning = true;
     }
 
+    void Application::PreTick()
+    {
+        m_engine.m_inputEngine.PreTick();
+    }
+
     void Application::Tick()
     {
         if (m_dirty)

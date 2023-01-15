@@ -63,6 +63,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Connect<Event::EMouseButtonCallback, &InputEngine::OnMouseButtonCallback>(this);
         Event::EventSystem::Get()->Connect<Event::EMouseMovedRaw, &InputEngine::OnMouseMovedRaw>(this);
         Event::EventSystem::Get()->Connect<Event::EWindowFocused, &InputEngine::OnWindowFocused>(this);
+        Event::EventSystem::Get()->Connect<Event::EKeyCallback, &InputEngine::OnKeyCallback>(this);
         m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
         m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
     }
@@ -76,6 +77,7 @@ namespace Lina::Input
         Event::EventSystem::Get()->Disconnect<Event::EMouseButtonCallback>(this);
         Event::EventSystem::Get()->Disconnect<Event::EMouseMovedRaw>(this);
         Event::EventSystem::Get()->Disconnect<Event::EWindowFocused>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EKeyCallback>(this);
         m_keyDownNewStateMap.clear();
         m_keyUpNewStateMap.clear();
         m_mouseDownNewStateMap.clear();
@@ -101,8 +103,15 @@ namespace Lina::Input
 
     void InputEngine::OnMouseButtonCallback(const Event::EMouseButtonCallback& e)
     {
+        m_currentStates[e.button] = static_cast<InputAction>(e.action) == InputAction::Pressed ? 1 : 0;
+
         if (e.action == static_cast<int>(InputAction::Repeated))
             m_doubleClicks[e.button] = true;
+    }
+
+    void InputEngine::OnKeyCallback(const Event::EKeyCallback& e)
+    {
+        m_currentStates[e.key] = static_cast<InputAction>(e.action) == InputAction::Pressed ? 1 : 0;
     }
 
     void InputEngine::OnMouseMovedRaw(const Event::EMouseMovedRaw& e)
@@ -125,13 +134,7 @@ namespace Lina::Input
     {
         if (!m_windowActive)
             return false;
-
-#ifdef LINA_PLATFORM_WINDOWS
-        return GetKeyState(keycode) & 0x8000;
-#else
-        int state  = glfwGetKey(glfwWindow, keycode);
-        return state == GLFW_PRESS || state == GLFW_REPEAT;
-#endif
+        return m_currentStates[keycode] == 1;
     }
 
     bool InputEngine::GetKeyDown(int keyCode)
@@ -139,47 +142,21 @@ namespace Lina::Input
         if (!m_windowActive)
             return false;
 
-#ifdef LINA_PLATFORM_WINDOWS
-        int  newState                 = GetKey(keyCode);
-        bool flag                     = (newState == 1 && m_keyStatesDown[keyCode] == 0) ? true : false;
-        m_keyDownNewStateMap[keyCode] = newState;
-        return flag;
-#else
-        int  newState                 = glfwGetKey(glfwWindow, keyCode);
-        bool flag                     = (newState == GLFW_PRESS && m_keyStatesDown[keyCode] == GLFW_RELEASE) ? true : false;
-        m_keyDownNewStateMap[keyCode] = newState;
-        return flag;
-#endif
+        return m_currentStates[keyCode] == 1 && m_previousStates[keyCode] == 0;
     }
     bool InputEngine::GetKeyUp(int keyCode)
     {
         if (!m_windowActive)
             return false;
 
-#ifdef LINA_PLATFORM_WINDOWS
-        int  newState                 = GetKey(keyCode);
-        bool flag                     = (newState == 0 && m_keyStatesDown[keyCode] == 1) ? true : false;
-        m_keyDownNewStateMap[keyCode] = newState;
-        return flag;
-#else
-        int  newState               = glfwGetKey(glfwWindow, keyCode);
-        bool flag                   = (newState == GLFW_RELEASE && m_keyStatesUp[keyCode] == GLFW_PRESS) ? true : false;
-        m_keyUpNewStateMap[keyCode] = newState;
-        return flag;
-#endif
+        return m_currentStates[keyCode] == 0 && m_previousStates[keyCode] == 1;
     }
     bool InputEngine::GetMouseButton(int button)
     {
         if (!m_windowActive)
             return false;
 
-#ifdef LINA_PLATFORM_WINDOWS
-        int state = GetKeyState(button) & 0x8000;
-        return state;
-#else
-        int state = glfwGetMouseButton(glfwWindow, button);
-        return state == GLFW_PRESS || state == GLFW_REPEAT;
-#endif
+        return m_currentStates[button] == 1;
     }
 
     bool InputEngine::GetMouseButtonDown(int button)
@@ -187,34 +164,14 @@ namespace Lina::Input
         if (!m_windowActive)
             return false;
 
-#ifdef LINA_PLATFORM_WINDOWS
-        int  newState                  = GetMouseButton(button);
-        bool flag                      = (newState == 1 && m_mouseStatesDown[button] == 0) ? true : false;
-        m_mouseDownNewStateMap[button] = newState;
-        return flag;
-#else
-        int  newState                  = glfwGetMouseButton(glfwWindow, button);
-        bool flag                      = (newState == GLFW_PRESS && m_mouseStatesDown[button] == GLFW_RELEASE) ? true : false;
-        m_mouseDownNewStateMap[button] = newState;
-        return flag;
-#endif
+        return m_currentStates[button] == 1 && m_previousStates[button] == 0;
     }
     bool InputEngine::GetMouseButtonUp(int button)
     {
         if (!m_windowActive)
             return false;
 
-#ifdef LINA_PLATFORM_WINDOWS
-        int  newState                = GetMouseButton(button);
-        bool flag                    = (newState == 0 && m_mouseStatesUp[button] == 1) ? true : false;
-        m_mouseUpNewStateMap[button] = newState;
-        return flag;
-#else
-        int  newState                = glfwGetMouseButton(glfwWindow, button);
-        bool flag                    = (newState == GLFW_RELEASE && m_mouseStatesUp[button] == GLFW_PRESS) ? true : false;
-        m_mouseUpNewStateMap[button] = newState;
-        return flag;
-#endif
+        return m_currentStates[button] == 0 && m_previousStates[button] == 1;
     }
 
     bool InputEngine::GetMouseButtonDoubleClick(int button)
@@ -295,6 +252,12 @@ namespace Lina::Input
 #else
         glfwSetCursorPos(glfwWindow, v.x, v.y);
 #endif
+    }
+
+    void InputEngine::PreTick()
+    {
+        for (int i = 0; i < 256; i++)
+            m_previousStates[i] = m_currentStates[i];
     }
 
     void InputEngine::Tick()

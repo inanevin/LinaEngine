@@ -36,6 +36,7 @@ SOFTWARE.
 #include "GUI/CustomWidgets/MenuPopup.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Time.hpp"
+#include "Input/Core/InputEngine.hpp"
 #include "Core/EditorGUIManager.hpp"
 
 namespace Lina::Editor
@@ -295,6 +296,20 @@ namespace Lina::Editor
         const Vector2 appTitleSize = Widgets::GetTextSize(ApplicationInfo::GetAppName());
 
         m_minimizeStart = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
+
+        if (Input::InputEngine::Get()->GetMouseButtonUp(LINA_MOUSE_0))
+        {
+            LINA_TRACE("QUIT");
+        }
+        if (closeState == 1)
+        {
+            m_windowManager->GetMainWindow().Close();
+        }
+        if (minimizeState == 1)
+            m_windowManager->GetMainWindow().Minimize();
+
+        if (maximizeState == 1)
+            m_windowManager->GetMainWindow().Maximize();
 
         w.SetPenPos(Vector2(m_minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
         Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);

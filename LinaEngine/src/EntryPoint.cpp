@@ -74,6 +74,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
     while (app->IsRunning())
     {
+        app->PreTick();
+
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
@@ -86,15 +88,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         app->Tick();
     }
 
-  
     app->Shutdown();
     delete gm;
 
     Lina::Application::Cleanup(app);
     delete app;
-      while (true)
+    while (true)
     {
-        
     }
 #ifndef LINA_PRODUCTION
     // system("pause");

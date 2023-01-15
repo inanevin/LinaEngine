@@ -54,6 +54,7 @@ namespace Lina
 
         void Initialize(const InitInfo& initInfo, GameManager* gm);
         void Start();
+        void PreTick();
         void Tick();
         void Shutdown();
 

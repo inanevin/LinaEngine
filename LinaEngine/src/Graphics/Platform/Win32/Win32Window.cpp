@@ -100,12 +100,6 @@ namespace Lina::Graphics
             Event::EventSystem::Get()->Trigger<Event::EWindowFocused>({static_cast<void*>(win32Window)});
         }
         break;
-        case WM_CLOSE: {
-            win32Window->Close();
-            DestroyWindow(window);
-            PostQuitMessage(0);
-        }
-        break;
         case WM_DPICHANGED: {
             HWND hWndButton = FindWindowEx(window, NULL, NULL, NULL);
             if (hWndButton != NULL)
@@ -343,7 +337,7 @@ namespace Lina::Graphics
         wc.hInstance     = m_hinst;
         wc.lpszClassName = title;
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-        wc.style         = CS_DBLCLKS;
+      //  wc.style         = CS_DBLCLKS;
 
         m_cursorDef    = LoadCursor(NULL, IDC_ARROW);
         m_cursorH      = LoadCursor(NULL, IDC_SIZEWE);
