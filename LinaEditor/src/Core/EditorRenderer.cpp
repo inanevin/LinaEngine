@@ -68,15 +68,6 @@ namespace Lina::Editor
 
     void EditorRenderer::Tick()
     {
-        for (auto& [world, data] : m_worldsToRender)
-        {
-            auto* activeCamera = world->GetActiveCamera();
-            if (activeCamera == nullptr)
-                continue;
-
-            m_cameraSystem.CalculateCamera(world->GetActiveCamera());
-            data.playerView.Tick(activeCamera->GetEntity()->GetPosition(), activeCamera->GetView(), activeCamera->GetProjection());
-        }
     }
 
     void EditorRenderer::Shutdown()
@@ -90,7 +81,7 @@ namespace Lina::Editor
         for (auto sid : toRemove)
             RemoveAdditionalWindow(sid);
     }
-
+    /*
     void EditorRenderer::Render()
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
@@ -105,7 +96,7 @@ namespace Lina::Editor
         EditorFrameData mainData = EditorFrameData{
             .submitSemaphore  = &frame.submitSemaphore,
             .presentSemaphore = &frame.presentSemaphore,
-            .swp              = m_mainSwapchain,
+            .swp              = m_swapchain,
             .viewport         = m_viewport,
         };
 
@@ -128,13 +119,13 @@ namespace Lina::Editor
         Vector<Semaphore> acquiredSemaphores;
         for (auto& fd : allFrameData)
         {
-            const bool                            isMainSwapchain = fd.swp == m_mainSwapchain;
+            const bool                            isMainSwapchain = fd.swp == m_swapchain;
             EditorRenderer::AdditionalWindowData* wd              = isMainSwapchain ? nullptr : GetWindowDataFromSwapchain(fd.swp);
             VulkanResult                          res;
             const uint32                          imageIndex = fd.swp->AcquireNextImage(1.0, isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex], res);
             acquiredSemaphores.push_back(isMainSwapchain ? frame.submitSemaphore : wd->submitSemaphores[frameIndex]);
 
-            if (HandleOutOfDateImage(fd.swp, res, false))
+            if (CanContinueWithAcquiredImage(res, false))
             {
                 for (auto& acq : acquiredSemaphores)
                     Backend::Get()->GetGraphicsQueue().Submit(acq);
@@ -164,8 +155,8 @@ namespace Lina::Editor
 
             // Merged object buffer.
             uint64 offset = 0;
-            fd.cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
-            fd.cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
+          // fd.cmd->CMD_BindVertexBuffers(0, 1, m_gpuVtxBuffer._ptr, &offset);
+          // fd.cmd->CMD_BindIndexBuffers(m_gpuIndexBuffer._ptr, 0, IndexType::Uint32);
 
             // Global set.
             // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
@@ -173,47 +164,47 @@ namespace Lina::Editor
             PROFILER_SCOPE_START("Main Passes", PROFILER_THREAD_RENDER);
 
             // Render worlds only for the main swapchain.
-            if (fd.swp == m_mainSwapchain)
+            if (fd.swp == m_swapchain)
             {
-                for (auto& [world, worldData] : m_worldsToRenderGPU)
-                {
-                    // Pass set.
-                    fd.cmd->CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &worldData.passDescriptor, 0, nullptr);
-
-                    // Global - scene data.
-                    worldData.sceneDataBuffer[frameIndex].CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
-
-                    // Global - light data.
-                    worldData.lightDataBuffer[frameIndex].CopyInto(&worldData.lightData, sizeof(GPULightData));
-
-                    // Per render pass - obj data.
-                    Vector<GPUObjectData> gpuObjectData;
-
-                    for (auto& r : worldData.extractedRenderables)
-                    {
-                        // Object data.
-                        GPUObjectData objData;
-                        objData.modelMatrix = r.modelMatrix;
-                        gpuObjectData.push_back(objData);
-                    }
-
-                    worldData.objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
-
-                    // Transition into optimal
-                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
-                                                PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
-
-                    fd.cmd->CMD_ImageTransition(worldData.finalDepthTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite,
-                                                depthTransitionFlags, depthTransitionFlags);
-
-                    fd.cmd->CMD_BeginRenderingDefault(worldData.finalColorTexture->GetImage()._ptrImgView, worldData.finalDepthTexture->GetImage()._ptrImgView, defaultRenderArea);
-                    RenderWorld(*fd.cmd, worldData);
-                    fd.cmd->CMD_EndRendering();
-
-                    // Transition to shader read
-                    fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
-                                                PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
-                }
+             //  for (auto& [world, worldData] : m_worldsToRenderGPU)
+             //  {
+             //      // Pass set.
+             //      fd.cmd->CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &worldData.passDescriptor, 0, nullptr);
+             //
+             //      // Global - scene data.
+             //      worldData.sceneDataBuffer[frameIndex].CopyInto(&worldData.sceneData, sizeof(GPUSceneData));
+             //
+             //      // Global - light data.
+             //      worldData.lightDataBuffer[frameIndex].CopyInto(&worldData.lightData, sizeof(GPULightData));
+             //
+             //      // Per render pass - obj data.
+             //      Vector<GPUObjectData> gpuObjectData;
+             //
+             //      for (auto& r : worldData.extractedRenderables)
+             //      {
+             //          // Object data.
+             //          GPUObjectData objData;
+             //          objData.modelMatrix = r.modelMatrix;
+             //          gpuObjectData.push_back(objData);
+             //      }
+             //
+             //      worldData.objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+             //
+             //      // Transition into optimal
+             //      fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
+             //                                  PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
+             //
+             //      fd.cmd->CMD_ImageTransition(worldData.finalDepthTexture->GetImage()._allocatedImg.image, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite,
+             //                                  depthTransitionFlags, depthTransitionFlags);
+             //
+             //      fd.cmd->CMD_BeginRenderingDefault(worldData.finalColorTexture->GetImage()._ptrImgView, worldData.finalDepthTexture->GetImage()._ptrImgView, defaultRenderArea);
+             //      RenderWorld(*fd.cmd, worldData);
+             //      fd.cmd->CMD_EndRendering();
+             //
+             //      // Transition to shader read
+             //      fd.cmd->CMD_ImageTransition(worldData.finalColorTexture->GetImage()._allocatedImg.image, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite,
+             //                                  PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
+             //  }
             }
 
             PROFILER_SCOPE_END("Main Passes", PROFILER_THREAD_RENDER);
@@ -276,12 +267,12 @@ namespace Lina::Editor
         VulkanResult presentRes;
         Backend::Get()->GetGraphicsQueue().Submit(allSubmitSemaphores, allPresentSemaphores, frame.graphicsFence, allCommandBuffers, 1);
         Backend::Get()->GetGraphicsQueue().Present(allPresentSemaphores, allSwapchains, allImageIndices, presentRes);
-        HandleOutOfDateImage(m_mainSwapchain, presentRes, false);
+      //  CanContinueWithAcquiredImage(m_swapchain, presentRes, false);
         // Backend::Get()->GetGraphicsQueue().WaitIdle();
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
         m_frameNumber++;
-    }
+    }*/
 
     void EditorRenderer::SyncData()
     {
@@ -297,8 +288,6 @@ namespace Lina::Editor
             auto& data          = m_additionalWindows[sid];
 
             data.swapchain = swapchainPtr;
-
-            Event::EventSystem::Get()->Trigger<Event::EAdditionalSwapchainCreated>(Event::EAdditionalSwapchainCreated{.sid = sid, .pos = r.pos, .size = r.size, .windowPtr = windowPtr, .swp = swapchainPtr});
 
             for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             {

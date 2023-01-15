@@ -72,14 +72,12 @@ namespace Lina::Editor
         m_gui.Initialize();
         ImmediateGUI::s_instance = &m_gui;
         m_shortcutManager.Initialize();
-        m_renderer->SetGUIManager(&m_guiManager);
     }
 
     void Editor::Shutdown()
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
-        m_guiManager.Shutdown();
         m_gui.Shutdown();
     }
 
@@ -277,7 +275,7 @@ namespace Lina::Editor
     void Editor::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
         m_dockSetup = Resources::ResourceManager::Get()->GetResource<DockSetup>("Resources/Editor/dockSetup.linasettings");
-        m_guiManager.Initialize(m_guiBackend, m_renderer, m_windowManager);
+        m_guiManager.Initialize(m_guiBackend, m_windowManager);
         m_gui.m_iconTexture = m_guiManager.GetIconTexture()->GetSID();
     }
 

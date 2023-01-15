@@ -31,14 +31,17 @@ SOFTWARE.
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
+#include "RenderData.hpp"
 #include "Data/String.hpp"
 #include "Graphics/Utility/DeletionQueue.hpp"
 #include "Graphics/PipelineObjects/DescriptorSetLayout.hpp"
 #include "Graphics/PipelineObjects/PipelineLayout.hpp"
 #include "Graphics/PipelineObjects/UploadContext.hpp"
+#include "Graphics/PipelineObjects/Buffer.hpp"
 #include "Screen.hpp"
 #include "Backend.hpp"
 #include "WindowManager.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -46,7 +49,11 @@ namespace Lina
     {
         struct EEngineResourcesLoaded;
         struct EWindowPositioned;
+        struct EWindowResized;
         struct EPreMainLoop;
+        struct ELevelUninstalled;
+        struct ELevelInstalled;
+        struct EResourceLoaded;
     } // namespace Event
 
     namespace World
@@ -69,8 +76,9 @@ namespace Lina::Graphics
     class RenderEngine
     {
 
+    private:
     public:
-        RenderEngine()  = default;
+        RenderEngine();
         ~RenderEngine() = default;
 
         static inline RenderEngine* Get()
@@ -143,20 +151,35 @@ namespace Lina::Graphics
             return m_engineShaders[sh];
         }
 
-        inline Renderer* GetRenderer()
-        {
-            return m_renderer;
-        }
-
         inline const Screen& GetScreen()
         {
             return m_screen;
         }
 
-        // inline HashMap<StringID, AdditionalWindow>& GetAdditionalWindows()
-        // {
-        //     return m_additionalWindows;
-        // }
+        inline const HashMap<Mesh*, MergedBufferMeshEntry>& GetMeshEntries()
+        {
+            return m_meshEntries;
+        }
+
+        inline const Buffer& GetGPUVertexBuffer()
+        {
+            return m_gpuVtxBuffer;
+        }
+
+        inline const Buffer& GetGPUIndexBuffer()
+        {
+            return m_gpuIndexBuffer;
+        }
+
+        inline uint32 GetFrameIndex()
+        {
+            return m_frameNumber % FRAMES_IN_FLIGHT;
+        }
+
+        void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, const Bitmask16& newRendererMask);
+        void DestroyChildWindow(const String& name);
+        void AddRenderer(Renderer* renderer);
+        void DeleteRenderer(Renderer* renderer);
 
     private:
         friend class Engine;
@@ -168,27 +191,43 @@ namespace Lina::Graphics
         void Render();
         void Stop();
         void Shutdown();
+        void Join();
+        void MergeMeshes();
+
         void OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev);
         void OnPreMainLoop(const Event::EPreMainLoop& ev);
         void OnWindowPositioned(const Event::EWindowPositioned& ev);
-        void Join();
-        void SetRenderer(Renderer* renderer);
+        void OnWindowResized(const Event::EWindowResized& ev);
+        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
+        void OnLevelInstalled(const Event::ELevelInstalled& ev);
+        void OnResourceLoaded(const Event::EResourceLoaded& res);
 
     private:
         static RenderEngine* s_instance;
 
-        DeletionQueue m_mainDeletionQueue;
-        WindowManager m_windowManager;
-        InitInfo      m_appInfo;
-        Backend       m_backend;
-        Screen        m_screen;
-        bool          m_initedSuccessfully = false;
+        DeletionQueue                         m_mainDeletionQueue;
+        WindowManager                         m_windowManager;
+        InitInfo                              m_appInfo;
+        Backend                               m_backend;
+        Screen                                m_screen;
+        Vector<SimpleAction>                  m_syncedActions;
+        HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
+        Vector<StringID>                      m_mergedModelIDs;
+        Buffer                                m_cpuVtxBuffer;
+        Buffer                                m_cpuIndexBuffer;
+        Buffer                                m_gpuVtxBuffer;
+        Buffer                                m_gpuIndexBuffer;
+        bool                                  m_initedSuccessfully = false;
+        bool                                  m_hasLevelLoaded     = false;
+        Frame                                 m_frames[FRAMES_IN_FLIGHT];
+        uint32                                m_frameNumber = 0;
 
         UploadContext                                   m_gpuUploader;
         HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
         PipelineLayout                                  m_globalAndPassLayout;
         GUIBackend*                                     m_guiBackend;
-        Renderer*                                       m_renderer             = nullptr;
+        Vector<Renderer*>                               m_renderers;
+        Renderer*                                       m_defaultRenderer      = nullptr;
         Model*                                          m_placeholderModel     = nullptr;
         ModelNode*                                      m_placeholderModelNode = nullptr;
         Material*                                       m_placeholderMaterial  = nullptr;

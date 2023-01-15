@@ -84,6 +84,7 @@ set(LINACOMMON_HEADERS
 	include/Core/SizeDefinitions.hpp
 	include/Core/Time.hpp
 	include/Core/PlatformMacros.hpp
+	include/Core/Command.hpp
 
 	# Functional
 	include/Functional/Functional.hpp

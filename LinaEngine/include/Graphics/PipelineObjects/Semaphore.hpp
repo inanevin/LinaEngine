@@ -40,7 +40,8 @@ namespace Lina::Graphics
     class Semaphore
     {
     public:
-        void Create();
+        void Create(bool autoDestroy = true);
+        void Destroy();
 
         // Description
         uint32 flags = 0;

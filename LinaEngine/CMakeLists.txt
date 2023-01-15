@@ -47,7 +47,6 @@ set (LINAENGINE_SOURCES
 	src/Graphics/Core/WindowManager.cpp
 	src/Graphics/Core/GraphicsCommon.cpp
 	src/Graphics/Core/Renderer.cpp
-	src/Graphics/Core/GameRenderer.cpp
 	src/Graphics/Core/View.cpp
 	src/Graphics/Core/DrawPass.cpp
 	src/Graphics/Core/CameraSystem.cpp
@@ -87,7 +86,6 @@ set (LINAENGINE_SOURCES
 	src/Graphics/Utility/Vulkan/SPIRVUtility.cpp
 	src/Graphics/Utility/Vulkan/VulkanUtility.cpp
 	src/Graphics/Utility/DeletionQueue.cpp
-	src/Graphics/Utility/Command.cpp
 	src/Graphics/Utility/ModelLoader.cpp
 	src/Graphics/Utility/ShaderUtility.cpp
 
@@ -154,7 +152,6 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Core/GUIBackend.hpp
 	include/Graphics/Core/WindowManager.hpp
 	include/Graphics/Core/Renderer.hpp
-	include/Graphics/Core/GameRenderer.hpp
 	include/Graphics/Core/RenderData.hpp
 	include/Graphics/Core/View.hpp
 	include/Graphics/Core/DrawPass.hpp
@@ -207,7 +204,6 @@ set(LINAENGINE_HEADERS
 	include/Graphics/Utility/Vulkan/VulkanUtility.hpp
 	include/Graphics/Utility/Vulkan/vk_mem_alloc.h
 	include/Graphics/Utility/DeletionQueue.hpp
-	include/Graphics/Utility/Command.hpp
 	include/Graphics/Utility/ModelLoader.hpp
 	include/Graphics/Utility/ShaderUtility.hpp
 

@@ -55,7 +55,6 @@ namespace Lina
     namespace Event
     {
         struct EWindowFocused;
-        struct EAdditionalSwapchainCreated;
         struct EAdditionalSwapchainDestroyed;
     } // namespace Event
 } // namespace Lina

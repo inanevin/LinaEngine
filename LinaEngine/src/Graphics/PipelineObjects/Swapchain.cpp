@@ -40,7 +40,6 @@ namespace Lina::Graphics
 {
     void Swapchain::Create(StringID sid)
     {
-        LINA_ASSERT(_ptr == nullptr, "[Swapchain] -> Can not re-create swapchain before it's destroyed!");
         swapchainID = sid;
 
         if (size.x == 0 || size.y == 0)
@@ -52,7 +51,7 @@ namespace Lina::Graphics
         vkb::SwapchainBuilder swapchainBuilder{Backend::Get()->GetGPU(), Backend::Get()->GetDevice(), surface};
         swapchainBuilder = swapchainBuilder
                                //.use_default_format_selection()
-                               // .set_old_swapchain(_oldSwapchain)
+                               //.set_old_swapchain(_ptr)
                                .set_desired_present_mode(GetPresentMode(presentMode))
                                .set_desired_extent(size.x, size.y);
 
@@ -63,7 +62,6 @@ namespace Lina::Graphics
         vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();
         _ptr                        = vkbSwapchain.swapchain;
         _format                     = vkbSwapchain.image_format;
-        _oldSwapchain               = _ptr;
 
         std::vector<VkImage>     imgs  = vkbSwapchain.get_images().value();
         std::vector<VkImageView> views = vkbSwapchain.get_image_views().value();
@@ -82,9 +80,19 @@ namespace Lina::Graphics
         }
         for (VkImageView view : views)
             _imageViews.push_back(view);
+
+        if (!_semaphoresInited)
+        {
+            _semaphoresInited = true;
+
+            for (auto& s : _submitSemaphores)
+                s.Create(false);
+            for (auto& s : _presentSemaphores)
+                s.Create(false);
+        }
     }
 
-    void Swapchain::Destroy()
+    void Swapchain::Destroy(bool destroySemaphores)
     {
         if (_ptr != nullptr)
         {
@@ -105,6 +113,15 @@ namespace Lina::Graphics
                 t.Destroy();
 
             _depthImages.clear();
+        }
+
+        if (destroySemaphores)
+        {
+            for (auto& s : _submitSemaphores)
+                s.Destroy();
+
+            for (auto& s : _presentSemaphores)
+                s.Destroy();
         }
     }
 

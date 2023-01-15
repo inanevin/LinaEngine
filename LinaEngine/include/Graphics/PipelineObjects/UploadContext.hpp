@@ -37,13 +37,12 @@ SOFTWARE.
 #include "CommandPool.hpp"
 #include "CommandBuffer.hpp"
 #include "Fence.hpp"
-#include "Graphics/Utility/Command.hpp"
+#include "Core/Command.hpp"
 #include <functional>
 
 namespace Lina::Graphics
 {
     class RQueue;
-    class Command;
 
     class UploadContext
     {

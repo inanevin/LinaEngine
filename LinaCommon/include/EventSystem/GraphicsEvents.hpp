@@ -47,6 +47,7 @@ namespace Lina::Event
 {
     struct EDrawGUI
     {
+        Graphics::Swapchain* swapchain = nullptr;
     };
 
     struct EDrawLine
@@ -94,15 +95,6 @@ namespace Lina::Event
         float      lineWidth = 0.0f;
         bool       half      = false;
         Quaternion rotation  = Quaternion();
-    };
-
-    struct EAdditionalSwapchainCreated
-    {
-        StringID             sid       = 0;
-        Vector2i             pos       = Vector2i::Zero;
-        Vector2i             size      = Vector2i::Zero;
-        void*                windowPtr = nullptr;
-        Graphics::Swapchain* swp       = nullptr;
     };
 
     struct EAdditionalSwapchainDestroyed

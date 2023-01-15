@@ -778,14 +778,28 @@ namespace Lina::Graphics
 
         switch (vkRes)
         {
-        case VK_SUCCESS:
-            return VulkanResult::Success;
         case VK_ERROR_OUT_OF_DATE_KHR:
             return VulkanResult::OutOfDateKHR;
         case VK_SUBOPTIMAL_KHR:
             return VulkanResult::SuboptimalKHR;
+        case VK_SUCCESS:
+            return VulkanResult::Success;
+        case VK_TIMEOUT:
+            return VulkanResult::Timeout;
+        case VK_NOT_READY:
+            return VulkanResult::NotReady;
+        case VK_ERROR_OUT_OF_HOST_MEMORY:
+            return VulkanResult::ErrorOutOfHostMemory;
+        case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+            return VulkanResult::ErrorOutOfDeviceMemory;
+        case VK_ERROR_DEVICE_LOST:
+            return VulkanResult::ErrorDeviceLost;
+        case VK_ERROR_SURFACE_LOST_KHR:
+            return VulkanResult::ErrorSurfaceLost;
+        case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+            return VulkanResult::ErrorFullscreenExclusiveLost;
         default:
-            return VulkanResult::Error;
+            return VulkanResult::Unknown;
         }
     }
 

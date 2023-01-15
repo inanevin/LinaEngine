@@ -63,6 +63,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         return 0;
     }
 
+    // Force standalone on production
+#ifdef LINA_PRODUCTION
+    initInfo.appMode = Lina::ApplicationMode::Standalone;
+#endif
+
     // Initialize main Lina Systems.
     app->Initialize(initInfo, gm);
     app->Start();

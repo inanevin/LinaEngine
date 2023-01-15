@@ -524,10 +524,17 @@ namespace Lina::Graphics
 
     enum class VulkanResult
     {
+        Unknown,
         OutOfDateKHR,
         SuboptimalKHR,
         Success,
-        Error
+        Timeout,
+        NotReady,
+        ErrorOutOfHostMemory,
+        ErrorOutOfDeviceMemory,
+        ErrorDeviceLost,
+        ErrorSurfaceLost,
+        ErrorFullscreenExclusiveLost,
     };
 
     VulkanResult GetResult(int32 result);

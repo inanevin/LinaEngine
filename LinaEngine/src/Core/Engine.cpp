@@ -54,29 +54,9 @@ SOFTWARE.
 #include "Resource/Core/ResourceLoader.hpp"
 #include "Game/GameManager.hpp"
 #include "Core/Time.hpp"
-#include "Graphics/Core/GameRenderer.hpp"
 
 namespace Lina
 {
-
-    class TestClass
-    {
-    private:
-        FRIEND_ARCHIVE;
-
-        template <typename T> void Save(T& ar)
-        {
-            ar(xd, sa);
-        }
-
-        template <typename T> void Load(T& ar)
-        {
-            ar(xd, sa);
-        }
-
-        std::vector<float> sa;
-        int                xd = 5;
-    };
 
     void Engine::LoadEngineResources()
     {
@@ -120,7 +100,7 @@ namespace Lina
 
     void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
     {
-
+       
         // Assign
         Event::EventSystem::s_eventSystem      = &m_eventSystem;
         Input::InputEngine::s_inputEngine      = &m_inputEngine;
@@ -152,22 +132,11 @@ namespace Lina
         m_levelManager.Initialize(&m_renderEngine);
         m_renderEngine.Initialize(initInfo);
 
-        Graphics::Renderer* renderer = nullptr;
-
         // Editor if used
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-        {
-            m_editor.m_renderer = new Editor::EditorRenderer();
-            renderer            = m_editor.m_renderer;
             m_editor.Initialize(&m_levelManager, this, m_renderEngine.m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID], m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
-        }
 #endif
-
-        if (renderer == nullptr)
-            renderer = new Graphics::GameRenderer();
-
-        m_renderEngine.SetRenderer(renderer);
 
         // Runtime info setup
         m_physicsAccumulator = 0.0f;

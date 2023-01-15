@@ -69,6 +69,7 @@ namespace Lina::Graphics
     };
 
     class WindowManager;
+    class Renderer;
 
     class Backend
     {

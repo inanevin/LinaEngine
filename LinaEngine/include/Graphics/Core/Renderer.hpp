@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef Renderer_HPP
 #define Renderer_HPP
 
-#include "GraphicsCommon.hpp"
 #include "RenderData.hpp"
 #include "Math/Rect.hpp"
 #include "CameraSystem.hpp"
@@ -39,7 +38,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/CommandPool.hpp"
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
 #include "Graphics/PipelineObjects/DescriptorPool.hpp"
-#include "Data/HashMap.hpp"
+#include "Core/Command.hpp"
 #include "View.hpp"
 #include "DrawPass.hpp"
 #include "Data/IDList.hpp"
@@ -58,10 +57,6 @@ namespace Lina
 
     namespace Event
     {
-        struct EWindowPositioned;
-        struct ELevelUninstalled;
-        struct ELevelInstalled;
-        struct EResourceLoaded;
         struct EComponentCreated;
         struct EComponentDestroyed;
         struct EWindowResized;
@@ -74,25 +69,15 @@ namespace Lina::Graphics
     class GUIBackend;
     class Swapchain;
     class WindowManager;
+    class RenderEngine;
 
     class Renderer
     {
 
-    protected:
-        struct WindowResizeData
-        {
-            void*    window  = nullptr;
-            Vector2i newSize = Vector2i::Zero;
-        };
-
-        struct SharedData
-        {
-            Vector<WindowResizeData> resizeRequests;
-        };
-
     public:
         struct RenderWorldData
         {
+            World::EntityWorld*          world             = nullptr;
             Texture*                     finalColorTexture = nullptr;
             Texture*                     finalDepthTexture = nullptr;
             IDList<RenderableComponent*> allRenderables;
@@ -112,6 +97,7 @@ namespace Lina::Graphics
             // DescriptorSet             globalDescriptor;
         };
 
+    public:
         Renderer()          = default;
         virtual ~Renderer() = default;
 
@@ -130,66 +116,69 @@ namespace Lina::Graphics
             return m_cameraSystem;
         }
 
-        inline uint32 GetFrameIndex()
+        inline const Bitmask16& GetMask() const
         {
-            return m_frameNumber % FRAMES_IN_FLIGHT;
+            return m_renderMask;
         }
 
-        void UpdateViewport(const Vector2i& size);
-        void AddWorldToRender(World::EntityWorld* world);
-        void RemoveWorldToRender(World::EntityWorld* world);
+        inline uint32 GetAcquiredImage() const
+        {
+            return m_acquiredImage;
+        }
+
+        inline void SetRenderMask(const Bitmask16& mask)
+        {
+            m_renderMask = mask;
+        }
+
+        void AssignSwapchain(Swapchain* swp);
+        void SetWorld(World::EntityWorld* world);
+        void RemoveWorld();
 
     protected:
         friend class RenderEngine;
         friend class Editor::Editor;
 
-        virtual void Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager);
-        virtual void Shutdown();
-        virtual void MergeMeshes();
-        virtual bool HandleOutOfDateImage(Swapchain* targetSwapchain, VulkanResult res, bool checkSemaphoreSignal);
-        virtual void ConnectEvents();
-        virtual void DisconnectEvents();
-        virtual void Join();
-        virtual void RenderWorld(const CommandBuffer& cmd, RenderWorldData& data);
-        virtual void SyncData();
-        virtual void Tick()                = 0;
-        virtual void Render()              = 0;
-        virtual void OnTexturesRecreated() = 0;
+        virtual bool           Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng);
+        virtual void           Shutdown();
+        virtual bool           CanContinueWithAcquiredImage(VulkanResult res);
+        virtual void           RenderWorld(uint32 frameIndex, const CommandBuffer& cmd, RenderWorldData* data);
+        virtual void           SyncData();
+        virtual void           Tick();
+        virtual bool           AcquireImage(uint32 frameIndex);
+        virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence);
+        void                   UpdateViewport(const Vector2i& size);
 
     private:
-        void OnLevelUninstalled(const Event::ELevelUninstalled& ev);
-        void OnLevelInstalled(const Event::ELevelInstalled& ev);
-        void OnResourceLoaded(const Event::EResourceLoaded& res);
         void OnComponentCreated(const Event::EComponentCreated& ev);
         void OnComponentDestroyed(const Event::EComponentDestroyed& ev);
         void OnWindowResized(const Event::EWindowResized& ev);
+        void SetWorldImpl();
+        void RemoveWorldImpl();
 
     protected:
-        SharedData                                    m_sharedDataCPU;
-        SharedData                                    m_sharedDataGPU;
-        Viewport                                      m_viewport;
-        Recti                                         m_scissors;
-        CameraSystem                                  m_cameraSystem;
-        Swapchain*                                    m_mainSwapchain  = nullptr;
-        GUIBackend*                                   m_guiBackend = nullptr;
-        CommandPool                                   m_cmdPool;
-        uint32                                        m_frameNumber = 0;
-        Frame                                         m_frames[FRAMES_IN_FLIGHT];
-        DescriptorPool                                m_descriptorPool;
-        Vector<CommandBuffer>                         m_cmds;
-        HashMap<Mesh*, MergedBufferMeshEntry>         m_meshEntries;
-        Vector<StringID>                              m_mergedModelIDs;
-        Buffer                                        m_cpuVtxBuffer;
-        Buffer                                        m_cpuIndexBuffer;
-        Buffer                                        m_gpuVtxBuffer;
-        Buffer                                        m_gpuIndexBuffer;
-        bool                                          m_hasLevelLoaded = false;
-        HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRender;
-        HashMap<World::EntityWorld*, RenderWorldData> m_worldsToRenderGPU;
-        World::EntityWorld*                           m_installedWorld = nullptr;
-        uint32                                        m_worldCounter   = 0;
-        WindowManager*                                m_windowManager;
-        Vector2i                                      m_lastMainSwapchainSize = Vector2i::Zero;
+        static Atomic<uint32> s_worldCounter;
+
+        Vector<SimpleAction>  m_syncedActions;
+        Bitmask16             m_renderMask = 0;
+        Viewport              m_viewport;
+        Recti                 m_scissors;
+        CameraSystem          m_cameraSystem;
+        Swapchain*            m_swapchain  = nullptr;
+        GUIBackend*           m_guiBackend = nullptr;
+        CommandPool           m_cmdPool;
+        DescriptorPool        m_descriptorPool;
+        Vector<CommandBuffer> m_cmds;
+        RenderEngine*         m_renderEngine = nullptr;
+        WindowManager*        m_windowManager;
+        World::EntityWorld*   m_worldToSet      = nullptr;
+        RenderWorldData*      m_targetWorldData = nullptr;
+        Material*             m_worldMaterials[FRAMES_IN_FLIGHT];
+        uint32                m_acquiredImage     = 0;
+        bool                  m_shouldRemoveWorld = false;
+        bool                  m_initialized       = false;
+        bool                  m_recreateSwapchain = false;
+        Vector2i              m_newSwapchainSize  = Vector2i::Zero;
     };
 
 } // namespace Lina::Graphics

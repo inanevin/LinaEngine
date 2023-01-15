@@ -136,19 +136,15 @@ namespace Lina::Graphics
 
     struct Frame
     {
-        Fence         graphicsFence;
-        Semaphore     submitSemaphore;
-        Semaphore     presentSemaphore;
+        Fence graphicsFence;
     };
 
-    struct AdditionalWindow
+    enum RendererMask
     {
-        StringID            sid = 0;
-        Swapchain*          swapchain;
-        Texture*            depthImg = nullptr;
-        Vector<Framebuffer> framebuffers;
-        Semaphore           waitSemaphore;
-        Semaphore           presentSemaphore;
+        RM_SwapchainOwner = 1 << 0,
+        RM_RenderWorld    = 1 << 1,
+        RM_RenderGUI      = 1 << 2,
+        RM_WorldToSurface = 1 << 3,
     };
 
 } // namespace Lina::Graphics

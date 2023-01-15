@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void Semaphore::Create()
+    void Semaphore::Create(bool autoDestroy)
     {
         VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -45,10 +45,17 @@ namespace Lina::Graphics
         VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
 
-        VkSemaphore_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-            vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        }));
+        if (autoDestroy)
+        {
+            VkSemaphore_T* ptr = _ptr;
+            RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() { vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); }));
+        }
+    }
+
+    void Semaphore::Destroy()
+    {
+        if (_ptr != nullptr)
+            vkDestroySemaphore(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
 } // namespace Lina::Graphics

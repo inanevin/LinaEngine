@@ -59,7 +59,7 @@ namespace Lina::Graphics
         vkDestroyFence(Backend::Get()->GetDevice(), _ptr, Backend::Get()->GetAllocator());
     }
 
-    void Fence::Wait(bool waitForAll, double timeoutSeconds)
+    void Fence::Wait(bool waitForAll, double timeoutSeconds) const
     {
         const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
         vkWaitForFences(Backend::Get()->GetDevice(), 1, &_ptr, waitForAll, timeout);

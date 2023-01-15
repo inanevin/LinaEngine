@@ -48,19 +48,21 @@ namespace Lina::Graphics
     {
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        Vector<VkSemaphore>     _waitSemaphores;
-        Vector<VkSemaphore>     _signalSemaphores;
-        Vector<VkCommandBuffer> _cmds;
+        Vector<VkSemaphore>          _waitSemaphores;
+        Vector<VkSemaphore>          _signalSemaphores;
+        Vector<VkCommandBuffer>      _cmds;
         Vector<VkPipelineStageFlags> _waitStages;
 
         for (auto& cmd : cmds)
         {
             _cmds.push_back(cmd->_ptr);
-            _waitStages.push_back(waitStage);
         }
 
         for (auto& sm : waitSemaphores)
+        {
+            _waitStages.push_back(waitStage);
             _waitSemaphores.push_back(sm->_ptr);
+        }
 
         for (auto& sm : signalSemaphores)
             _signalSemaphores.push_back(sm->_ptr);
@@ -143,7 +145,7 @@ namespace Lina::Graphics
             .pImageIndices      = &index,
         };
         VkResult result = vkQueuePresentKHR(_ptr, &info);
-        //LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
+        // LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
         res = GetResult(result);
     }
 
@@ -169,7 +171,7 @@ namespace Lina::Graphics
         };
 
         VkResult result = vkQueuePresentKHR(_ptr, &info);
-        //LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
+        // LINA_ASSERT(result == VK_SUCCESS, "[Render Queue] -> Failed presenting image from queue!");
         res = GetResult(result);
     }
 

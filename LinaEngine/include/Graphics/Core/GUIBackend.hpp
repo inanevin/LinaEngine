@@ -57,6 +57,7 @@ namespace Lina::Graphics
     class Material;
     class Texture;
     class Swapchain;
+    class Renderer;
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
@@ -124,7 +125,7 @@ namespace Lina::Graphics
 
     private:
         friend class Editor::EditorGUIManager;
-        friend class GameRenderer;
+        friend class Renderer;
         friend class Editor::EditorRenderer;
         friend class RenderEngine;
 

@@ -41,7 +41,7 @@ namespace Lina::Graphics
     {
     public:
         void Create(bool destroyAuto = true);
-        void Wait(bool waitForAll = true, double timeOutSeconds = 1.0);
+        void Wait(bool waitForAll = true, double timeOutSeconds = 1.0) const;
         void Reset();
         void Destroy();
 

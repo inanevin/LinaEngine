@@ -26,10 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Utility/Command.hpp"
+#pragma once
+
+#ifndef Command_HPP
+#define Command_HPP
+
+#include "Functional/Functional.hpp"
 
 namespace Lina::Graphics
 {
-    
-
+    class CommandBuffer;
 } // namespace Lina::Graphics
+
+namespace Lina
+{
+    class Command
+    {
+    public:
+        Delegate<void(Graphics::CommandBuffer& buf)> Record;
+        Delegate<void()>                             OnRecorded;
+        Delegate<void()>                             OnSubmitted;
+    };
+
+    class SimpleAction
+    {
+    public:
+        Delegate<void()> Action;
+        Delegate<void()> OnExecuted;
+    };
+
+} // namespace Lina
+
+#endif

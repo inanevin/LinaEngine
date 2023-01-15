@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/UploadContext.hpp"
 #include "Graphics/Core/Backend.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
-#include "Graphics/Utility/Command.hpp"
+#include "Core/Command.hpp"
 
 #include <vulkan/vulkan.h>
 

@@ -31,10 +31,11 @@ SOFTWARE.
 #ifndef Swapchain_HPP
 #define Swapchain_HPP
 
+#include "Graphics/Core/RenderData.hpp"
 #include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
 #include "Utility/StringId.hpp"
-#include "Graphics/Core/GraphicsCommon.hpp"
+#include "Semaphore.hpp"
 #include "Image.hpp"
 
 struct VkImage_T;
@@ -51,23 +52,25 @@ namespace Lina::Graphics
     {
     public:
         void   Create(StringID sid);
-        void   Destroy();
+        void   Destroy(bool destroySemaphores = true);
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& result) const;
         uint32 AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence) const;
         uint32 AcquireNextImage(double timeoutSeconds, const Fence& fence) const;
 
         // Desired
-        Vector2i        size           = Vector2i();
-        Vector2i        pos            = Vector2i::Zero;
-        Format          format         = Format::B8G8R8A8_SRGB;
-        ColorSpace      colorSpace     = ColorSpace::SRGB_NONLINEAR;
-        PresentMode     presentMode    = PresentMode::Immediate;
-        VkSurfaceKHR_T* surface        = nullptr;
-        StringID        swapchainID    = 0;
+        Vector2i        size        = Vector2i();
+        Vector2i        pos         = Vector2i::Zero;
+        Format          format      = Format::B8G8R8A8_SRGB;
+        ColorSpace      colorSpace  = ColorSpace::SRGB_NONLINEAR;
+        PresentMode     presentMode = PresentMode::Immediate;
+        VkSurfaceKHR_T* surface     = nullptr;
+        StringID        swapchainID = 0;
 
         // Runtime
-        VkSwapchainKHR_T*      _ptr          = nullptr;
-        VkSwapchainKHR_T*      _oldSwapchain = nullptr;
+        bool                   _semaphoresInited = false;
+        Semaphore              _submitSemaphores[FRAMES_IN_FLIGHT];
+        Semaphore              _presentSemaphores[FRAMES_IN_FLIGHT];
+        VkSwapchainKHR_T*      _ptr = nullptr;
         Vector<VkImage_T*>     _images;
         Vector<VkImageView_T*> _imageViews;
         VkFormat               _format;

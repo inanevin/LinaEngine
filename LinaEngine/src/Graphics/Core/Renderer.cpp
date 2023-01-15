@@ -41,13 +41,15 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
 #include "EventSystem/WorldEvents.hpp"
-#include "EventSystem/LevelEvents.hpp"
-#include "EventSystem/ResourceEvents.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Components/RenderableComponent.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "World/Core/World.hpp"
 #include "Graphics/Components/ModelNodeComponent.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include "Graphics/Core/GUIBackend.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 
 #define LINAVG_TEXT_SUPPORT
 #include "LinaVG/LinaVG.hpp"
@@ -55,10 +57,9 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 
-#define DEF_VTXBUF_SIZE   sizeof(Vertex) * 2000
-#define DEF_INDEXBUF_SIZE sizeof(uint32) * 2000
+    Atomic<uint32> Renderer::s_worldCounter = 0;
 
-    template <typename T> void AddRenderable(World::EntityWorld* world, Renderer::RenderWorldData& data)
+    template <typename T> void AddRenderables(World::EntityWorld* world, Renderer::RenderWorldData* data)
     {
         uint32 maxSize = 0;
         auto   view    = world->View<T>(&maxSize);
@@ -67,14 +68,36 @@ namespace Lina::Graphics
         {
             auto* renderable = view[i];
             if (renderable != nullptr)
-                renderable->m_renderableID = data.allRenderables.AddItem(renderable);
+                renderable->m_renderableID = data->allRenderables.AddItem(renderable);
         }
     }
 
-    void Renderer::Initialize(Swapchain* swp, GUIBackend* guiBackend, WindowManager* windowManager)
+    bool Renderer::Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng)
     {
+        if (m_initialized)
+        {
+            LINA_ERR("[Renderer] -> Failed initialization, already initialized!");
+            return false;
+        }
+
+        if (m_renderMask.IsSet(RM_SwapchainOwner) && m_swapchain == nullptr)
+        {
+            LINA_ERR("[Renderer] -> Failed initialization, render mask is set to own a swapchain but no swapchain is provided!");
+            return false;
+        }
+
+        if (m_renderMask.IsSet(RM_WorldToSurface))
+        {
+            for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+            {
+                m_worldMaterials[i] = new Material();
+                m_worldMaterials[i]->SetShader(RenderEngine::Get()->GetEngineShader(EngineShaderType::SQPostProcess));
+            }
+        }
+
+        m_initialized   = true;
+        m_renderEngine  = eng;
         m_windowManager = windowManager;
-        m_mainSwapchain = swp;
         m_guiBackend    = guiBackend;
         m_cameraSystem.Initialize(windowManager);
 
@@ -96,96 +119,66 @@ namespace Lina::Graphics
         };
         m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create();
 
-        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-        {
-            Frame& f = m_frames[i];
+        Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
+        Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
+        Event::EventSystem::Get()->Connect<Event::EWindowResized, &Renderer::OnWindowResized>(this);
 
-            // Sync
-            f.presentSemaphore.Create();
-            f.submitSemaphore.Create();
-
-            f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
-            f.graphicsFence.Create();
-        }
-
-        // Merged buffers.
-        m_cpuVtxBuffer = Buffer{
-            .size        = DEF_VTXBUF_SIZE,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuOnly,
-        };
-
-        m_cpuIndexBuffer = Buffer{
-            .size        = DEF_INDEXBUF_SIZE,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferSrc),
-            .memoryUsage = MemoryUsageFlags::CpuOnly,
-        };
-
-        m_gpuVtxBuffer = Buffer{
-            .size        = DEF_VTXBUF_SIZE,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::VertexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-            .memoryUsage = MemoryUsageFlags::GpuOnly,
-        };
-
-        m_gpuIndexBuffer = Buffer{
-            .size        = DEF_INDEXBUF_SIZE,
-            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::IndexBuffer) | GetBufferUsageFlags(BufferUsageFlags::TransferDst),
-            .memoryUsage = MemoryUsageFlags::GpuOnly,
-        };
-
-        m_cpuVtxBuffer.Create();
-        m_cpuIndexBuffer.Create();
-        m_gpuVtxBuffer.Create();
-        m_gpuIndexBuffer.Create();
-
-        ConnectEvents();
+        return true;
     }
 
     void Renderer::Shutdown()
     {
-        DisconnectEvents();
+        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
+        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
 
-        Vector<World::EntityWorld*> worlds;
-        for (auto& p : m_worldsToRender)
-            worlds.push_back(p.first);
+        if (m_targetWorldData != nullptr)
+            RemoveWorldImpl();
 
-        for (auto& w : worlds)
-            RemoveWorldToRender(w);
-
-        m_gpuIndexBuffer.Destroy();
-        m_gpuVtxBuffer.Destroy();
-        m_cpuIndexBuffer.Destroy();
-        m_cpuVtxBuffer.Destroy();
-    }
-
-    void Renderer::Join()
-    {
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-            m_frames[i].graphicsFence.Wait();
+        {
+            if (m_worldMaterials[i] != nullptr)
+                delete m_worldMaterials[i];
+        }
     }
 
-    void Renderer::RenderWorld(const CommandBuffer& cmd, RenderWorldData& data)
+    void Renderer::RenderWorld(uint32 frameIndex, const CommandBuffer& cmd, RenderWorldData* data)
     {
-        const uint32 frameIndex = GetFrameIndex();
-        data.opaquePass.UpdateViewData(data.viewDataBuffer[frameIndex], data.playerView);
-        data.opaquePass.RecordDrawCommands(cmd, m_meshEntries, data.indirectBuffer[frameIndex]);
+        data->opaquePass.UpdateViewData(data->viewDataBuffer[frameIndex], data->playerView);
+        data->opaquePass.RecordDrawCommands(cmd, m_renderEngine->GetMeshEntries(), data->indirectBuffer[frameIndex]);
     }
 
     void Renderer::SyncData()
     {
         PROFILER_FUNC(PROFILER_THREAD_MAIN);
 
-        m_sharedDataGPU = m_sharedDataCPU;
-        m_sharedDataCPU = SharedData();
-
-        m_lastMainSwapchainSize = m_windowManager->GetMainWindow().GetSize();
-        m_worldsToRenderGPU.clear();
-        m_worldsToRenderGPU = m_worldsToRender;
-
-        for (auto& [world, wd] : m_worldsToRenderGPU)
+        // Sync shared data.
+        for (auto c : m_syncedActions)
         {
-            wd.extractedRenderables.clear();
-            const auto& renderables = wd.allRenderables.GetItems();
+            c.Action();
+
+            if (c.OnExecuted)
+                c.OnExecuted();
+        }
+
+        m_syncedActions.clear();
+
+        if (m_targetWorldData == nullptr && m_worldToSet != nullptr)
+        {
+            SetWorldImpl();
+            m_worldToSet = nullptr;
+        }
+        else if (m_targetWorldData != nullptr && m_shouldRemoveWorld)
+        {
+            RemoveWorldImpl();
+            m_shouldRemoveWorld = false;
+        }
+
+        auto wd = m_targetWorldData;
+        if (wd != nullptr)
+        {
+            wd->extractedRenderables.clear();
+            const auto& renderables = wd->allRenderables.GetItems();
 
             uint32 i = 0;
             for (auto r : renderables)
@@ -206,394 +199,406 @@ namespace Lina::Graphics
                 data.type              = r->GetType();
                 data.meshMaterialPairs = r->GetMeshMaterialPairs();
                 data.objDataIndex      = i++;
-                wd.extractedRenderables.push_back(data);
+                wd->extractedRenderables.push_back(data);
             }
 
-            wd.opaquePass.PrepareRenderData(wd.extractedRenderables, wd.playerView);
+            wd->opaquePass.PrepareRenderData(wd->extractedRenderables, wd->playerView);
         }
     }
 
-    void Renderer::MergeMeshes()
+    void Renderer::Tick()
     {
-        // Get all the meshes currently loaded in the resource manager
-        // Meaning all used meshes for this level.
-        // Merge them into big vtx & indx buffers.
-        auto  rm    = Resources::ResourceManager::Get();
-        auto  cache = rm->GetCache<Graphics::Model>();
-        auto& res   = cache->GetResources();
-        m_meshEntries.clear();
-        m_mergedModelIDs.clear();
+        auto wd = m_targetWorldData;
+        if (wd == nullptr)
+            return;
 
-        Vector<Vertex> mergedVertices;
-        Vector<uint32> mergedIndices;
+        auto* activeCamera = wd->world->GetActiveCamera();
+        if (activeCamera == nullptr)
+            return;
 
-        uint32 vertexOffset = 0;
-        uint32 firstIndex   = 0;
-
-        for (auto& pair : res)
-        {
-            m_mergedModelIDs.push_back(pair.second->GetSID());
-
-            for (auto& node : pair.second->GetNodes())
-            {
-                for (auto& m : node->GetMeshes())
-                {
-                    const auto& vertices = m->GetVertices();
-                    const auto& indices  = m->GetIndices();
-
-                    MergedBufferMeshEntry entry;
-                    entry.vertexOffset = vertexOffset;
-                    entry.firstIndex   = firstIndex;
-                    entry.indexSize    = static_cast<uint32>(indices.size());
-
-                    const uint32 vtxSize   = static_cast<uint32>(vertices.size());
-                    const uint32 indexSize = static_cast<uint32>(indices.size());
-                    for (auto& v : vertices)
-                        mergedVertices.push_back(v);
-
-                    for (auto& i : indices)
-                        mergedIndices.push_back(i);
-
-                    vertexOffset += vtxSize;
-                    firstIndex += indexSize;
-
-                    m_meshEntries[m] = entry;
-                }
-            }
-        }
-
-        const uint32 vtxSize   = static_cast<uint32>(mergedVertices.size() * sizeof(Vertex));
-        const uint32 indexSize = static_cast<uint32>(mergedIndices.size() * sizeof(uint32));
-
-        m_cpuVtxBuffer.CopyInto(mergedVertices.data(), vtxSize);
-        m_cpuIndexBuffer.CopyInto(mergedIndices.data(), indexSize);
-
-        // Realloc if necessary.
-        if (m_gpuVtxBuffer.size < m_cpuVtxBuffer.size)
-        {
-            m_gpuVtxBuffer.Destroy();
-            m_gpuVtxBuffer.size = m_cpuVtxBuffer.size;
-            m_gpuVtxBuffer.Create();
-        }
-
-        if (m_gpuIndexBuffer.size < m_cpuIndexBuffer.size)
-        {
-            m_gpuIndexBuffer.Destroy();
-            m_gpuIndexBuffer.size = m_cpuIndexBuffer.size;
-            m_gpuIndexBuffer.Create();
-        }
-
-        Command vtxCmd;
-        vtxCmd.Record = [this, vtxSize](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = vtxSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-
-            cmd.CMD_CopyBuffer(m_cpuVtxBuffer._ptr, m_gpuVtxBuffer._ptr, regions);
-        };
-
-        vtxCmd.OnSubmitted = [this]() {
-            m_gpuVtxBuffer._ready = true;
-            // f.cpuVtxBuffer.Destroy();
-        };
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
-
-        Command indexCmd;
-        indexCmd.Record = [this, indexSize](CommandBuffer& cmd) {
-            BufferCopy copy = BufferCopy{
-                .destinationOffset = 0,
-                .sourceOffset      = 0,
-                .size              = indexSize,
-            };
-
-            Vector<BufferCopy> regions;
-            regions.push_back(copy);
-
-            cmd.CMD_CopyBuffer(m_cpuIndexBuffer._ptr, m_gpuIndexBuffer._ptr, regions);
-        };
-
-        indexCmd.OnSubmitted = [this] {
-            m_gpuIndexBuffer._ready = true;
-            // f.cpuIndexBuffer.Destroy();
-        };
-
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+        m_cameraSystem.CalculateCamera(wd->world->GetActiveCamera());
+        wd->playerView.Tick(activeCamera->GetEntity()->GetPosition(), activeCamera->GetView(), activeCamera->GetProjection());
     }
 
-    bool Renderer::HandleOutOfDateImage(Swapchain* targetSwapchain, VulkanResult res, bool checkSemaphoreSignal)
+    bool Renderer::AcquireImage(uint32 frameIndex)
     {
-        bool    shouldRecreate      = false;
-        bool    resizeRequestExists = false;
-        Vector2 newSwapchainSize    = targetSwapchain->size;
-
-        for (auto& r : m_sharedDataGPU.resizeRequests)
+        if (!m_renderMask.IsSet(RM_SwapchainOwner))
         {
-            if (r.window == targetSwapchain->_windowHandle)
+            LINA_ERR("[Renderer] -> Can't acquire image on a renderer that's not a swapchain owner!");
+            return false;
+        }
+
+        VulkanResult res;
+        m_acquiredImage = m_swapchain->AcquireNextImage(1.0, m_swapchain->_submitSemaphores[frameIndex], res);
+        return CanContinueWithAcquiredImage(res);
+    }
+
+    CommandBuffer* Renderer::Render(uint32 frameIndex, Fence& fence)
+    {
+        auto& wd = m_targetWorldData;
+
+        // Nothing to render.
+        if (m_renderMask.GetValue() == 0)
+        {
+            LINA_WARN("[Renderer] -> Renderer is set to render nothing!");
+            return nullptr;
+        }
+
+        PROFILER_FUNC(PROFILER_THREAD_RENDER);
+
+        auto& cmd = m_cmds[frameIndex];
+        cmd.Reset(true);
+        cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+
+        const uint32 depthTransitionFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+        const Recti  defaultRenderArea    = Recti(Vector2(m_viewport.x, m_viewport.y), Vector2(m_viewport.width, m_viewport.height));
+
+        cmd.CMD_SetViewport(m_viewport);
+        cmd.CMD_SetScissors(m_scissors);
+
+        if (m_renderMask.IsSet(RM_RenderWorld) && wd != nullptr)
+        {
+            // Merged object buffer.
+            uint64 offset = 0;
+            cmd.CMD_BindVertexBuffers(0, 1, m_renderEngine->GetGPUVertexBuffer()._ptr, &offset);
+            cmd.CMD_BindIndexBuffers(m_renderEngine->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
+
+            // Global set.
+            // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
+
+            // Pass set.
+            cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd->passDescriptor, 0, nullptr);
+
+            // Global - scene data.
+            wd->sceneDataBuffer[frameIndex].CopyInto(&wd->sceneData, sizeof(GPUSceneData));
+
+            // Global - light data.
+            wd->lightDataBuffer[frameIndex].CopyInto(&wd->lightData, sizeof(GPULightData));
+
+            // Per render pass - obj data.
+            Vector<GPUObjectData> gpuObjectData;
+
+            for (auto& r : wd->extractedRenderables)
             {
-                resizeRequestExists = true;
-                newSwapchainSize    = r.newSize;
-                break;
+                // Object data.
+                GPUObjectData objData;
+                objData.modelMatrix = r.modelMatrix;
+                gpuObjectData.push_back(objData);
+            }
+
+            wd->objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+
+            // Put necessary images to correct layouts.
+            auto mainPassImage      = wd->finalColorTexture->GetImage()._allocatedImg.image;
+            auto mainPassImageView  = wd->finalColorTexture->GetImage()._ptrImgView;
+            auto mainPassDepthImage = wd->finalDepthTexture->GetImage()._allocatedImg.image;
+            auto mainPassDepthView  = wd->finalDepthTexture->GetImage()._ptrImgView;
+
+            // Transition to optimal
+            cmd.CMD_ImageTransition(mainPassImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                    PipelineStageFlags::ColorAttachmentOutput);
+            cmd.CMD_ImageTransition(mainPassDepthImage, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
+
+            // ********* MAIN PASS *********
+            {
+                PROFILER_SCOPE_START("Main Pass", PROFILER_THREAD_RENDER);
+                cmd.CMD_BeginRenderingDefault(mainPassImageView, mainPassDepthView, defaultRenderArea);
+                RenderWorld(frameIndex, cmd, wd);
+                cmd.CMD_EndRendering();
+
+                // Transition to shader read
+                cmd.CMD_ImageTransition(mainPassImage, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe,
+                                        PipelineStageFlags::ColorAttachmentOutput);
+
+                PROFILER_SCOPE_END("Main Pass", PROFILER_THREAD_RENDER);
             }
         }
 
-        m_sharedDataGPU.resizeRequests.clear();
-
-        if (resizeRequestExists && res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        if (!m_renderMask.IsSet(RM_SwapchainOwner))
         {
-            shouldRecreate = true;
+            cmd.End();
+            return &cmd;
         }
-        else if (res != VulkanResult::Success)
-            LINA_ASSERT(false, "Could not acquire next image!");
 
-        if (shouldRecreate)
+        auto swapchainImage          = m_swapchain->_images[m_acquiredImage];
+        auto swapchainImageView      = m_swapchain->_imageViews[m_acquiredImage];
+        auto swapchainDepthImage     = m_swapchain->_depthImages[m_acquiredImage]._allocatedImg.image;
+        auto swapchainDepthImageView = m_swapchain->_depthImages[m_acquiredImage]._ptrImgView;
+
+        // Transition swapchain to optimal
+        cmd.CMD_ImageTransition(swapchainImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
+        cmd.CMD_ImageTransition(swapchainDepthImage, ImageLayout::Undefined, ImageLayout::DepthStencilOptimal, ImageAspectFlags::AspectDepth, AccessFlags::None, AccessFlags::DepthStencilAttachmentWrite, depthTransitionFlags, depthTransitionFlags);
+
+        // ********* FINAL & PP PASS *********
         {
+            PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
+
+            // Issue GUI draw commands.
+            if (m_renderMask.IsSet(RM_RenderGUI))
+            {
+                LinaVG::StartFrame();
+                m_guiBackend->Prepare(m_swapchain, m_acquiredImage, &cmd);
+                Event::EventSystem::Get()->Trigger<Event::EDrawGUI>({m_swapchain});
+            }
+
+            cmd.CMD_BeginRenderingDefault(swapchainImageView, swapchainDepthImageView, defaultRenderArea);
+
+            // Draw the rendered world to surface if needed.
+            if (m_renderMask.IsAllSet(RM_WorldToSurface | RM_RenderWorld) && m_worldMaterials != nullptr && wd != nullptr)
+            {
+                m_worldMaterials[frameIndex]->Bind(cmd, MaterialBindFlag::BindPipeline | MaterialBindFlag::BindDescriptor);
+                cmd.CMD_Draw(3, 1, 0, 0);
+            }
+
+            // Render GUI on top
+            // if (m_renderMask.IsSet(RM_RenderGUI))
+            //     m_guiBackend->RecordDrawCommands();
+
+            cmd.CMD_EndRendering();
+
+            // Transition to present
+            cmd.CMD_ImageTransition(swapchainImage, ImageLayout::ColorOptimal, ImageLayout::PresentSurface, ImageAspectFlags::AspectColor, AccessFlags::ColorAttachmentWrite, AccessFlags::None, PipelineStageFlags::ColorAttachmentOutput,
+                                    PipelineStageFlags::BottomOfPipe);
+
+            PROFILER_SCOPE_END("Final Pass", PROFILER_THREAD_RENDER);
+            LinaVG::EndFrame();
+        }
+
+        cmd.End();
+        return &cmd;
+    }
+
+    bool Renderer::CanContinueWithAcquiredImage(VulkanResult res)
+    {
+        if (!m_recreateSwapchain)
+            m_newSwapchainSize = m_swapchain->size;
+
+        if (m_recreateSwapchain && res == VulkanResult::OutOfDateKHR || res == VulkanResult::SuboptimalKHR)
+        {
+            m_recreateSwapchain = false;
+
             Backend::Get()->WaitIdle();
 
             // Swapchain
-            targetSwapchain->Destroy();
-            targetSwapchain->size = newSwapchainSize;
-            targetSwapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
+            m_swapchain->Destroy(false);
+            m_swapchain->size = m_newSwapchainSize;
+            m_swapchain->Create(LINA_MAIN_SWAPCHAIN_ID);
 
             // Make sure we always match swapchain
-            newSwapchainSize = targetSwapchain->size;
+            m_newSwapchainSize = m_swapchain->size;
 
             // Recreate the textures for every world we render.
-            if (targetSwapchain == m_mainSwapchain)
+            auto wd = m_targetWorldData;
+            if (wd != nullptr)
             {
-                for (auto& [world, wd] : m_worldsToRender)
-                {
-                    Resources::ResourceManager::Get()->UnloadUserManaged(wd.finalColorTexture);
-                    delete wd.finalDepthTexture;
-                    wd.finalColorTexture  = VulkanUtility::CreateDefaultPassTextureColor();
-                    wd.finalDepthTexture  = VulkanUtility::CreateDefaultPassTextureDepth();
-                    const String   sidStr = "World: " + TO_STRING(world->GetID()) + TO_STRING(m_worldCounter++);
-                    const StringID sid    = TO_SID(sidStr);
-                    wd.finalColorTexture->SetUserManaged(true);
-                    wd.finalColorTexture->ChangeSID(sid);
-                    Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, wd.finalColorTexture);
-                }
+                Resources::ResourceManager::Get()->UnloadUserManaged(wd->finalColorTexture);
+                delete wd->finalDepthTexture;
+                wd->finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+                wd->finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
+                const String   sidStr = "World: " + TO_STRING(wd->world->GetID()) + TO_STRING(s_worldCounter++);
+                const StringID sid    = TO_SID(sidStr);
+                wd->finalColorTexture->SetUserManaged(true);
+                wd->finalColorTexture->ChangeSID(sid);
+                Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, wd->finalColorTexture);
+
+                SimpleAction act;
+                act.Action = [this, wd]() {
+                    for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+                    {
+                        if (m_worldMaterials[i] != nullptr)
+                        {
+                            m_worldMaterials[i]->SetTexture(0, wd->finalColorTexture);
+                            m_worldMaterials[i]->CheckUpdatePropertyBuffers();
+                        }
+                    }
+                };
+                m_syncedActions.push_back(act);
             }
 
-            // Re-assign target textures to render passes
-            OnTexturesRecreated();
-            UpdateViewport(newSwapchainSize);
+            m_swapchain->_submitSemaphores[m_renderEngine->GetFrameIndex()].Destroy();
+            m_swapchain->_submitSemaphores[m_renderEngine->GetFrameIndex()].Create(false);
+            // Backend::Get()->GetGraphicsQueue().Submit(m_swapchain->_submitSemaphores[m_renderEngine->GetFrameIndex()]);
 
-            // Make sure the semaphore is unsignalled after resize operation.
-            if (checkSemaphoreSignal)
-                Backend::Get()->GetGraphicsQueue().Submit(m_frames[GetFrameIndex()].submitSemaphore);
+            UpdateViewport(m_newSwapchainSize);
 
-            return true;
+            return false;
         }
 
-        return false;
-    }
-
-    void Renderer::ConnectEvents()
-    {
-        Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &Renderer::OnLevelUninstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Renderer::OnLevelInstalled>(this);
-        Event::EventSystem::Get()->Connect<Event::EResourceLoaded, &Renderer::OnResourceLoaded>(this);
-        Event::EventSystem::Get()->Connect<Event::EComponentCreated, &Renderer::OnComponentCreated>(this);
-        Event::EventSystem::Get()->Connect<Event::EComponentDestroyed, &Renderer::OnComponentDestroyed>(this);
-        Event::EventSystem::Get()->Connect<Event::EWindowResized, &Renderer::OnWindowResized>(this);
-    }
-
-    void Renderer::DisconnectEvents()
-    {
-        Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ELevelUninstalled>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EResourceLoaded>(this);
-        Event::EventSystem::Get()->Disconnect<Event::EWindowResized>(this);
-    }
-
-    void Renderer::OnLevelUninstalled(const Event::ELevelUninstalled& ev)
-    {
-        Join();
-        RemoveWorldToRender(m_installedWorld);
-        m_installedWorld = nullptr;
-        m_meshEntries.clear();
-        m_mergedModelIDs.clear();
-        m_hasLevelLoaded = false;
-    }
-
-    void Renderer::OnLevelInstalled(const Event::ELevelInstalled& ev)
-    {
-        Join();
-        m_installedWorld = ev.world;
-        AddWorldToRender(m_installedWorld);
-        OnTexturesRecreated();
-        m_hasLevelLoaded = true;
-        MergeMeshes();
-    }
-
-    void Renderer::OnResourceLoaded(const Event::EResourceLoaded& res)
-    {
-        // When a new model is loaded re-merge meshes
-        // Do this only after a level is fully loaded, not during loading level resources.
-        if (!m_hasLevelLoaded)
-            return;
-
-        if (res.tid == GetTypeID<Model>())
-        {
-            auto* found = linatl::find_if(m_mergedModelIDs.begin(), m_mergedModelIDs.end(), [&res](StringID sid) { return sid == res.sid; });
-            if (found == m_mergedModelIDs.end())
-            {
-                Join();
-                MergeMeshes();
-            }
-        }
+        return true;
     }
 
     void Renderer::OnComponentCreated(const Event::EComponentCreated& ev)
     {
+        if (m_targetWorldData == nullptr || ev.world != m_targetWorldData->world)
+            return;
+
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
         {
-            auto renderable = static_cast<RenderableComponent*>(ev.ptr);
-
-            if (m_worldsToRender.find(ev.world) == m_worldsToRender.end())
-                return;
-
-            auto& wd                   = m_worldsToRender[ev.world];
-            renderable->m_renderableID = wd.allRenderables.AddItem(renderable);
+            auto renderable            = static_cast<RenderableComponent*>(ev.ptr);
+            renderable->m_renderableID = m_targetWorldData->allRenderables.AddItem(renderable);
         }
     }
 
     void Renderer::OnComponentDestroyed(const Event::EComponentDestroyed& ev)
     {
+        if (m_targetWorldData == nullptr || ev.world != m_targetWorldData->world)
+            return;
+
         if (ev.ptr->GetComponentMask().IsSet(World::ComponentMask::Renderable))
         {
-            if (m_worldsToRender.find(ev.world) == m_worldsToRender.end())
-                return;
-
-            auto& wd = m_worldsToRender[ev.world];
-            wd.allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
+            m_targetWorldData->allRenderables.RemoveItem(static_cast<RenderableComponent*>(ev.ptr)->GetRenderableID());
         }
     }
 
     void Renderer::OnWindowResized(const Event::EWindowResized& ev)
     {
-        m_sharedDataCPU.resizeRequests.push_back({ev.window, ev.newSize});
+        if (m_renderMask.IsSet(RM_SwapchainOwner) && ev.window == m_swapchain->_windowHandle)
+        {
+            SimpleAction act;
+            act.Action = [ev, this]() {
+                m_recreateSwapchain = true;
+                m_newSwapchainSize  = ev.newSize;
+            };
+            m_syncedActions.push_back(act);
+        }
+        else if (!m_renderMask.IsSet(RM_SwapchainOwner) && ev.window == Backend::Get()->GetMainSwapchain()._windowHandle)
+        {
+            SimpleAction act;
+            act.Action = [ev, this]() { UpdateViewport(ev.newSize); };
+            m_syncedActions.push_back(act);
+        }
     }
 
-    void Renderer::AddWorldToRender(World::EntityWorld* world)
+    void Renderer::AssignSwapchain(Swapchain* swapchain)
     {
-        LINA_ASSERT(m_worldsToRender.find(world) == m_worldsToRender.end(), "World already exists!");
+        m_swapchain = swapchain;
+        UpdateViewport(m_swapchain->size);
+    }
 
-        auto& data = m_worldsToRender[world];
+    void Renderer::SetWorld(World::EntityWorld* world)
+    {
+        m_worldToSet = world;
+    }
+
+    void Renderer::RemoveWorld()
+    {
+        m_shouldRemoveWorld = true;
+    }
+
+    void Renderer::SetWorldImpl()
+    {
+        LINA_ASSERT(m_targetWorldData == nullptr, "World already exists!");
+
+        m_targetWorldData        = new RenderWorldData();
+        m_targetWorldData->world = m_worldToSet;
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            data.indirectBuffer[i] = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
-                                            .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
-                                            .memoryUsage = MemoryUsageFlags::CpuToGpu};
+            m_targetWorldData->indirectBuffer[i] = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
+                                                          .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::TransferDst) | GetBufferUsageFlags(BufferUsageFlags::StorageBuffer) | GetBufferUsageFlags(BufferUsageFlags::IndirectBuffer),
+                                                          .memoryUsage = MemoryUsageFlags::CpuToGpu};
 
-            data.indirectBuffer[i].Create();
+            m_targetWorldData->indirectBuffer[i].Create();
 
             // Scene data
-            data.sceneDataBuffer[i] = Buffer{
+            m_targetWorldData->sceneDataBuffer[i] = Buffer{
                 .size        = sizeof(GPUSceneData),
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
-            data.sceneDataBuffer[i].Create();
+            m_targetWorldData->sceneDataBuffer[i].Create();
 
             // Light data
-            data.lightDataBuffer[i] = Buffer{
+            m_targetWorldData->lightDataBuffer[i] = Buffer{
                 .size        = sizeof(GPULightData),
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
-            data.lightDataBuffer[i].Create();
+            m_targetWorldData->lightDataBuffer[i].Create();
 
             // View data
-            data.viewDataBuffer[i] = Buffer{
+            m_targetWorldData->viewDataBuffer[i] = Buffer{
                 .size        = sizeof(GPUViewData),
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
-            data.viewDataBuffer[i].Create();
+            m_targetWorldData->viewDataBuffer[i].Create();
 
             // Obj data
-            data.objDataBuffer[i] = Buffer{
+            m_targetWorldData->objDataBuffer[i] = Buffer{
                 .size        = sizeof(GPUObjectData) * OBJ_BUFFER_MAX,
                 .bufferUsage = GetBufferUsageFlags(BufferUsageFlags::StorageBuffer),
                 .memoryUsage = MemoryUsageFlags::CpuToGpu,
             };
-            data.objDataBuffer[i].Create();
-            data.objDataBuffer[i].boundSet     = &data.passDescriptor;
-            data.objDataBuffer[i].boundBinding = 1;
-            data.objDataBuffer[i].boundType    = DescriptorType::StorageBuffer;
+            m_targetWorldData->objDataBuffer[i].Create();
+            m_targetWorldData->objDataBuffer[i].boundSet     = &m_targetWorldData->passDescriptor;
+            m_targetWorldData->objDataBuffer[i].boundBinding = 1;
+            m_targetWorldData->objDataBuffer[i].boundType    = DescriptorType::StorageBuffer;
 
             // Pass descriptor
-            data.passDescriptor = DescriptorSet{
+            m_targetWorldData->passDescriptor = DescriptorSet{
                 .setCount = 1,
                 .pool     = m_descriptorPool._ptr,
             };
 
-            data.passDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
-            data.passDescriptor.BeginUpdate();
-            data.passDescriptor.AddBufferUpdate(data.sceneDataBuffer[i], data.sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
-            data.passDescriptor.AddBufferUpdate(data.viewDataBuffer[i], data.viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
-            data.passDescriptor.AddBufferUpdate(data.lightDataBuffer[i], data.lightDataBuffer[i].size, 2, DescriptorType::UniformBuffer);
-            data.passDescriptor.AddBufferUpdate(data.objDataBuffer[i], data.objDataBuffer[i].size, 3, DescriptorType::StorageBuffer);
-            data.passDescriptor.SendUpdate();
+            m_targetWorldData->passDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+            m_targetWorldData->passDescriptor.BeginUpdate();
+            m_targetWorldData->passDescriptor.AddBufferUpdate(m_targetWorldData->sceneDataBuffer[i], m_targetWorldData->sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
+            m_targetWorldData->passDescriptor.AddBufferUpdate(m_targetWorldData->viewDataBuffer[i], m_targetWorldData->viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
+            m_targetWorldData->passDescriptor.AddBufferUpdate(m_targetWorldData->lightDataBuffer[i], m_targetWorldData->lightDataBuffer[i].size, 2, DescriptorType::UniformBuffer);
+            m_targetWorldData->passDescriptor.AddBufferUpdate(m_targetWorldData->objDataBuffer[i], m_targetWorldData->objDataBuffer[i].size, 3, DescriptorType::StorageBuffer);
+            m_targetWorldData->passDescriptor.SendUpdate();
         }
 
-        data.opaquePass.Initialize(DrawPassMask::Opaque, 1000.0f);
-        data.allRenderables.Initialize(250, nullptr);
-        data.allRenderables.Initialize(250, nullptr);
-        data.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
-        data.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
-        const String   sidStr  = "World: " + TO_STRING(world->GetID()) + TO_STRING(m_worldCounter++);
-        const StringID sid     = TO_SID(sidStr);
-        data.finalColorTexture->SetUserManaged(true);
-        data.finalColorTexture->ChangeSID(sid);
-        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, data.finalColorTexture);
-        data.initialized = true;
+        m_targetWorldData->opaquePass.Initialize(DrawPassMask::Opaque, 1000.0f);
+        m_targetWorldData->allRenderables.Initialize(250, nullptr);
+        m_targetWorldData->allRenderables.Initialize(250, nullptr);
+        m_targetWorldData->finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor();
+        m_targetWorldData->finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth();
+        const String   sidStr                = "World: " + TO_STRING(m_targetWorldData->world->GetID()) + TO_STRING(s_worldCounter++);
+        const StringID sid                   = TO_SID(sidStr);
+        m_targetWorldData->finalColorTexture->SetUserManaged(true);
+        m_targetWorldData->finalColorTexture->ChangeSID(sid);
+        Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, m_targetWorldData->finalColorTexture);
+        m_targetWorldData->initialized = true;
 
-        AddRenderable<Graphics::ModelNodeComponent>(world, m_worldsToRender[world]);
-    }
-
-    void Renderer::RemoveWorldToRender(World::EntityWorld* world)
-    {
-        auto it = m_worldsToRender.find(world);
-        LINA_ASSERT(it != m_worldsToRender.end(), "World doesn't exist!");
-
-        Join();
-
-        auto& data = it->second;
-        Resources::ResourceManager::Get()->UnloadUserManaged(data.finalColorTexture);
-        delete data.finalDepthTexture;
-        data.allRenderables.Reset();
-        data.extractedRenderables.clear();
+        AddRenderables<Graphics::ModelNodeComponent>(m_targetWorldData->world, m_targetWorldData);
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            data.objDataBuffer[i].Destroy();
-            data.lightDataBuffer[i].Destroy();
-            data.viewDataBuffer[i].Destroy();
-            data.indirectBuffer[i].Destroy();
-            data.sceneDataBuffer[i].Destroy();
+            if (m_worldMaterials[i] != nullptr)
+            {
+                m_worldMaterials[i]->SetTexture(0, m_targetWorldData->finalColorTexture);
+                m_worldMaterials[i]->CheckUpdatePropertyBuffers();
+            }
+        }
+    }
+
+    void Renderer::RemoveWorldImpl()
+    {
+        LINA_ASSERT(m_targetWorldData != nullptr, "World doesn't exist!");
+        Resources::ResourceManager::Get()->UnloadUserManaged(m_targetWorldData->finalColorTexture);
+        delete m_targetWorldData->finalDepthTexture;
+        m_targetWorldData->allRenderables.Reset();
+        m_targetWorldData->extractedRenderables.clear();
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            m_targetWorldData->objDataBuffer[i].Destroy();
+            m_targetWorldData->lightDataBuffer[i].Destroy();
+            m_targetWorldData->viewDataBuffer[i].Destroy();
+            m_targetWorldData->indirectBuffer[i].Destroy();
+            m_targetWorldData->sceneDataBuffer[i].Destroy();
         }
 
-        m_worldsToRender.erase(it);
+        delete m_targetWorldData;
     }
 
     void Renderer::UpdateViewport(const Vector2i& size)
     {
-        m_viewport.width             = static_cast<float>(size.x);
-        m_viewport.height            = static_cast<float>(size.y);
-        m_scissors.size              = size;
-        LinaVG::Config.displayWidth  = static_cast<unsigned int>(m_viewport.width);
-        LinaVG::Config.displayHeight = static_cast<unsigned int>(m_viewport.height);
+        m_viewport.width  = static_cast<float>(size.x);
+        m_viewport.height = static_cast<float>(size.y);
+        m_scissors.size   = size;
     }
 
 } // namespace Lina::Graphics

@@ -83,11 +83,6 @@ namespace Lina::Editor
             return m_additionalWindows;
         }
 
-        inline const HashMap<World::EntityWorld*, Graphics::Renderer::RenderWorldData>& GetWorldData()
-        {
-            return m_worldsToRenderGPU;
-        }
-
         inline void SetGUIManager(EditorGUIManager* guiMan)
         {
             m_guiManager = guiMan;
@@ -98,11 +93,10 @@ namespace Lina::Editor
 
         virtual void Tick() override;
         virtual void Shutdown() override;
-        virtual void Render() override;
+        //virtual void Render() override;
         virtual void SyncData() override;
 
     private:
-        virtual void          OnTexturesRecreated() override{};
         AdditionalWindowData* GetWindowDataFromSwapchain(Graphics::Swapchain* swp);
 
     private:

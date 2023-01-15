@@ -60,7 +60,6 @@ namespace Lina::Editor
     class Drawable;
     class DockArea;
     class TopPanel;
-    class EditorRenderer;
 
     class EditorGUIManager
     {
@@ -75,14 +74,9 @@ namespace Lina::Editor
         };
 
     public:
-        void Initialize(Graphics::GUIBackend* guiBackend, EditorRenderer* rend, Graphics::WindowManager* wm);
+        void Initialize(Graphics::GUIBackend* guiBackend, Graphics::WindowManager* wm);
         void Shutdown();
         void LaunchPanel(EditorPanel panel);
-
-        inline void SetCurrentSwapchain(Graphics::Swapchain* swp)
-        {
-            m_currentSwapchain = swp;
-        }
 
         inline Graphics::Texture* GetIconTexture()
         {
@@ -101,11 +95,9 @@ namespace Lina::Editor
         Graphics::Texture*         m_iconTexture   = nullptr;
         Graphics::WindowManager*   m_windowManager = nullptr;
         Vector<PackedTexture>      m_packedIcons;
-        EditorRenderer*            m_renderer = nullptr;
         Vector<DockArea*>          m_dockAreas;
-        Graphics::Swapchain*       m_currentSwapchain = nullptr;
-        DockArea*                  m_mainDockArea     = nullptr;
-        TopPanel*                  m_topPanel         = nullptr;
+        DockArea*                  m_mainDockArea = nullptr;
+        TopPanel*                  m_topPanel     = nullptr;
         Vector<LaunchPanelRequest> m_panelRequests;
         StringID                   m_hoveredSwapchainID = 0;
         StringID                   m_topMostSwapchainID = 0;

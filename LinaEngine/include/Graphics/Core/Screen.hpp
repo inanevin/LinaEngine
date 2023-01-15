@@ -59,12 +59,6 @@ namespace Lina::Graphics
         Vector2i DisplayResolution() const;
 
         /// <summary>
-        /// Returns viewport position, defaults to 0-0 unless explicitly stated.
-        /// </summary>
-        /// <returns></returns>
-        Vector2i GetViewportPos() const;
-
-        /// <summary>
         /// Converts given screen-space coordinates to world-space coordinates.
         /// Z element is the distance from camera.
         /// (0,0) top-left, (screenSizeX, screenSizeY) bottom-right
@@ -123,9 +117,8 @@ namespace Lina::Graphics
         friend class RenderEngine;
         friend class WindowManager;
 
-        inline void Initialize(Renderer* rend, Swapchain* swp)
+        inline void Initialize(Swapchain* swp)
         {
-            m_renderer  = rend;
             m_swapchain = swp;
         }
 
@@ -133,7 +126,6 @@ namespace Lina::Graphics
         Vector2i   m_displayResolution = Vector2i::Zero;
         Vector2    m_contentScale      = Vector2::Zero;
         Swapchain* m_swapchain         = nullptr;
-        Renderer*  m_renderer          = nullptr;
     };
 } // namespace Lina::Graphics
 

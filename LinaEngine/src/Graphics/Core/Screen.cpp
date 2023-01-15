@@ -46,12 +46,6 @@ namespace Lina::Graphics
         return m_displayResolution;
     }
 
-    Vector2i Screen::GetViewportPos() const
-    {
-        const auto& vp = m_renderer->GetViewport();
-        return Vector2i(static_cast<int>(vp.x), static_cast<int>(vp.y));
-    }
-
     Vector3 Screen::ScreenToWorldCoordinates(const Vector3& screenPos) const
     {
         auto* world = World::EntityWorld::GetWorld();
@@ -59,7 +53,7 @@ namespace Lina::Graphics
             return Vector3::Zero;
 
         Vector2 windowSize = Size();
-        Vector2 windowPos  = GetViewportPos();
+        Vector2 windowPos  = m_swapchain->pos;
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
         Vector3 win = glm::vec3(screenPos.x, windowSize.y - screenPos.y, 1.0f);
 
@@ -83,7 +77,7 @@ namespace Lina::Graphics
             return Vector3::Zero;
 
         Vector2 windowSize = Size();
-        Vector2 windowPos  = GetViewportPos();
+        Vector2 windowPos  = m_swapchain->pos;
         Vector4 viewport(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
         Matrix  pp     = w->GetActiveCamera()->GetProjection();
         Matrix  vv     = w->GetActiveCamera()->GetView();

@@ -99,7 +99,6 @@ namespace Lina::Editor
         Graphics::WindowManager*         m_windowManager = nullptr;
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
-        EditorRenderer*                  m_renderer     = nullptr;
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
         ImmediateGUI                     m_gui;

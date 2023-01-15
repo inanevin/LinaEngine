@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Buffer.hpp"
 #include "Graphics/PipelineObjects/UploadContext.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
-#include "Graphics/Utility/Command.hpp"
+#include "Core/Command.hpp"
 #include "Math/Math.hpp"
 #include "Log/Log.hpp"
 #define STB_IMAGE_IMPLEMENTATION
