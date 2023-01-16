@@ -47,7 +47,8 @@ namespace Lina::Graphics
         uint32 flags = 0;
 
         // Runtime
-        VkSemaphore_T* _ptr = nullptr;
+        VkSemaphore_T* _ptr          = nullptr;
+        bool           _markSignaled = false;
     };
 } // namespace Lina::Graphics
 

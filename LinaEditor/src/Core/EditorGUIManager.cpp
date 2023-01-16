@@ -191,17 +191,28 @@ namespace Lina::Editor
         LGUI->m_currentSwaphchain  = ev.swapchain;
         LGUI->m_isSwapchainHovered = ev.swapchain->swapchainID == m_hoveredSwapchainID;
 
-        if (ev.swapchain->swapchainID == LINA_MAIN_SWAPCHAIN_ID)
-            m_topPanel->Draw();
+     if (ev.swapchain->swapchainID == LINA_MAIN_SWAPCHAIN_ID)
+         m_topPanel->Draw();
 
         const auto&   topPanelRect = m_topPanel->GetRect();
         const Vector2 screen       = Graphics::RenderEngine::Get()->GetScreen().Size();
         m_mainDockArea->m_rect     = Rect(Vector2(0, topPanelRect.size.y), Vector2(screen.x, screen.y - topPanelRect.size.y));
 
+        Vector<Drawable*> toDestroy;
         for (auto d : m_dockAreas)
         {
             d->UpdateSwapchainInfo(ev.swapchain->swapchainID, m_hoveredSwapchainID, m_topMostSwapchainID);
             d->Draw();
+
+            if (d->ShouldDestroy())
+                toDestroy.push_back(d);
+        }
+
+        for (auto d : toDestroy)
+        {
+            d->Shutdown();
+            delete d;
+            m_dockAreas.erase(std::remove(m_dockAreas.begin(), m_dockAreas.end(), d), m_dockAreas.end());
         }
 
         FindHoveredSwapchain();
@@ -287,21 +298,21 @@ namespace Lina::Editor
             LaunchPanel(EditorPanel::Entities);
         }
 
-           if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_U))
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_U))
         {
             LaunchPanel(EditorPanel::Global);
         }
 
-            if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_O))
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_O))
         {
             LaunchPanel(EditorPanel::Resources);
         }
 
-           if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_K))
+        if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_K))
         {
             LaunchPanel(EditorPanel::Properties);
         }
-        
+
         const auto& childWindows = Graphics::RenderEngine::Get()->GetChildWindowRenderers();
         auto        it           = m_panelRequests.begin();
 
@@ -318,7 +329,7 @@ namespace Lina::Editor
                     area->m_rect          = Rect(req.pos, req.size);
                     area->m_swapchain     = renderer->GetSwapchain();
                     area->m_detached      = true;
-                   // area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
+                    // area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
 
                     found = true;
                     m_dockAreas.push_back(area);

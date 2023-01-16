@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef CameraComponent_HPP
 #define CameraComponent_HPP
 
+
 // Headers here.
 #include "World/Core/Component.hpp"
 #include "Reflection/ReflectionCommon.hpp"

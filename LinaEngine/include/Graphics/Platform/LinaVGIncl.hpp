@@ -31,7 +31,18 @@ SOFTWARE.
 #ifndef LinaVGInc_HPP
 #define LinaVGInc_HPP
 
+#include "Data/Vector.hpp"
+#include "Data/Map.hpp"
+
+
 #define LINAVG_TEXT_SUPPORT
+
+#define LINAVG_VEC Lina::Vector
+
+#ifndef LINAVG_MAP
+#define LINAVG_MAP Lina::HashMap
+#endif
+
 #include <LinaVG/LinaVG.hpp>
 
 #define LV2(V) LinaVG::Vec2(V.x, V.y)
@@ -46,12 +57,12 @@ namespace Lina
     inline extern void DrawPoint(const Vector2& p, int drawOrder, Color col = Color::Red)
     {
         LinaVG::StyleOptions style;
-        style.color = LV4(col);
-        const Vector2 size = Vector2(2,2) * LinaVG::Config.framebufferScale.x;
-        const LinaVG::Vec2 min = LV2((p - size));
-        const LinaVG::Vec2 max = LV2((p + size));
+        style.color             = LV4(col);
+        const Vector2      size = Vector2(2, 2) * LinaVG::Config.framebufferScale.x;
+        const LinaVG::Vec2 min  = LV2((p - size));
+        const LinaVG::Vec2 max  = LV2((p + size));
         LinaVG::DrawRect(min, max, style, 0, drawOrder);
     }
 
-}
+} // namespace Lina
 #endif

@@ -81,15 +81,32 @@ namespace Lina::Graphics
         if (setMaterials)
         {
             auto& pool = caps.materialPool;
-            pool.materials.resize(MATERIAL_POOL_COUNT, Material());
+            pool.materials.resize(MATERIAL_POOL_COUNT, nullptr);
             pool.index = 0;
 
             for (auto& m : pool.materials)
             {
-                m.CreateBuffer();
-                m.SetShader(m_guiStandard->GetShaderHandle().value);
+                m = new Material();
+                m->CreateBuffer();
+                m->SetShader(m_guiStandard->GetShaderHandle().value);
             }
         }
+    }
+
+    void GUIBackend::RemoveBufferCapsule(StringID sid)
+    {
+        auto it = m_bufferCapsules.find(sid);
+
+        for (auto c : it->second)
+        {
+            c.indxBuffer.Destroy();
+            c.vtxBuffer.Destroy();
+
+            for (auto m : c.materialPool.materials)
+                delete m;
+        }
+
+        m_bufferCapsules.erase(it);
     }
 
     void GUIBackend::OnPreMainLoop(const Event::EPreMainLoop& ev)
@@ -102,13 +119,14 @@ namespace Lina::Graphics
             for (auto& b : pair.second)
             {
                 auto& pool = b.materialPool;
-                pool.materials.resize(MATERIAL_POOL_COUNT, Material());
+                pool.materials.resize(MATERIAL_POOL_COUNT, nullptr);
                 pool.index = 0;
 
                 for (auto& m : pool.materials)
                 {
-                    m.CreateBuffer();
-                    m.SetShader(m_guiStandard->GetShaderHandle().value);
+                    m = new Material();
+                    m->CreateBuffer();
+                    m->SetShader(m_guiStandard->GetShaderHandle().value);
                 }
             }
         }
@@ -134,7 +152,7 @@ namespace Lina::Graphics
         }
     }
 
-    void GUIBackend::StartFrame()
+    void GUIBackend::StartFrame(int threadCount)
     {
     }
 
@@ -214,6 +232,8 @@ namespace Lina::Graphics
 
         uint32 matId = pool.index;
 
+        LINA_TRACE("Adding Draw request {0}", matId);
+        
         if (matId >= pool.materials.size())
         {
             LINA_ASSERT(false, "[GUI Backend] -> Insufficient material pool size!");
@@ -221,8 +241,9 @@ namespace Lina::Graphics
         else
             pool.index++;
 
-        request.transientMat = &pool.materials[matId];
-        request.transientMat->SetProperty("projection", m_projection);
+        auto mat = pool.materials[matId];
+        mat->SetProperty("projection", m_projection);
+        request.matId = matId;
 
         targetCapsule.orderedDrawRequests.push_back(request);
         targetCapsule.vtxBuffer.CopyIntoPadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), targetCapsule.vertexCounter * sizeof(LinaVG::Vertex));
@@ -230,14 +251,14 @@ namespace Lina::Graphics
 
         targetCapsule.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
         targetCapsule.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
-        return request.transientMat;
+        return mat;
     }
 
     void GUIBackend::Reset()
     {
         for (auto& b : m_bufferCapsules)
         {
-            for(auto& c : b.second)
+            for (auto& c : b.second)
                 c.materialPool.index = 0;
         }
     }
@@ -250,7 +271,9 @@ namespace Lina::Graphics
     {
         PROFILER_FUNC(PROFILER_THREAD_RENDER);
 
+        LINA_TRACE("STARTING LINA VG RENDER");
         LinaVG::Render();
+        LINA_TRACE("ENDING LINA VG RENDER");
 
         auto& b = GetCurrentBufferCapsule();
 
@@ -270,7 +293,7 @@ namespace Lina::Graphics
             rect.size.x = r.meta.clipW;
             rect.size.y = r.meta.clipH;
             m_cmd->CMD_SetScissors(rect);
-            r.transientMat->Bind(*m_cmd, MaterialBindFlag::BindDescriptor);
+            b.materialPool.materials[r.matId]->Bind(*m_cmd, MaterialBindFlag::BindDescriptor);
             m_cmd->CMD_DrawIndexed(r.indexSize, 1, r.firstIndex, r.vertexOffset, 0);
         }
 
@@ -397,7 +420,7 @@ namespace Lina::Graphics
         const StringID id = m_currentSwapchainIndexPair.first->swapchainID;
         if (m_bufferCapsules.find(id) == m_bufferCapsules.end())
         {
-            for (auto& img : m_currentSwapchainIndexPair.first->_images)
+            for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
                 CreateBufferCapsule(id, true);
         }
 

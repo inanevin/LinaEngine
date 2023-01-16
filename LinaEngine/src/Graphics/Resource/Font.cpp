@@ -31,9 +31,7 @@ SOFTWARE.
 #include "Serialization/VectorSerialization.hpp"
 #include "Graphics/Core/RenderEngine.hpp"
 #include "Log/Log.hpp"
-
-#define LINAVG_TEXT_SUPPORT
-#include "LinaVG/LinaVG.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 #include <fstream>
 

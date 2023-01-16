@@ -95,6 +95,13 @@ namespace Lina::Graphics
     {
         swapchainID = sid;
 
+        // Query surface capabilities and format
+        VkSurfaceCapabilitiesKHR surfaceCapabilities;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Backend::Get()->GetGPU(), surface, &surfaceCapabilities);
+
+        if (surfaceCapabilities.currentExtent.width == 0 || surfaceCapabilities.currentExtent.height == 0)
+            return;
+
         if (size.x == 0 || size.y == 0)
         {
             LINA_ERR("[Swapchain] -> Could not create swapchain, width or height is 0!");
@@ -135,18 +142,6 @@ namespace Lina::Graphics
         _imageViews.clear();
         _depthImages.clear();
 
-        for (auto& s : _submitSemaphores)
-        {
-            s.Destroy();
-            s.Create(false);
-        }
-
-        for (auto& s : _presentSemaphores)
-        {
-            s.Destroy();
-            s.Create(false);
-        }
-
         for (VkImage img : imgs)
         {
             _images.push_back(img);
@@ -182,6 +177,7 @@ namespace Lina::Graphics
 
             _depthImages.clear();
         }
+
         for (auto& s : _submitSemaphores)
             s.Destroy();
 

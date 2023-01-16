@@ -93,6 +93,7 @@ namespace Lina::Graphics
         HICON__*                              m_cursorHV_E   = nullptr;
         HICON__*                              m_cursorHV_W   = nullptr;
         unsigned long                         m_style;
+        Vector2i                              m_restoreSize = Vector2i::Zero;
     };
 } // namespace Lina::Graphics
 

@@ -254,7 +254,6 @@ namespace Lina::Graphics
             mipmap.width  = width;
             mipmap.height = height;
             mipmap.pixels = new unsigned char[width * height * m_assetData.channels];
-            // stbir_resize_uint8(m_assetData.pixels, m_assetData.width, m_assetData.height, 0, mipmap.pixels, width, height, 0, m_assetData.channels);
             const stbir_colorspace cs = m_assetData.isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
             stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_assetData.channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(m_assetData.mipmapFilter), cs, 0);
             lastWidth  = width;

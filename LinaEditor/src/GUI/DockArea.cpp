@@ -40,9 +40,10 @@ namespace Lina::Editor
     void DockArea::Draw()
     {
         const bool shouldDraw = m_swapchain->swapchainID == m_currentSwapchainID;
-        if (!shouldDraw)
+        if (!shouldDraw || m_shouldDestroy)
             return;
-
+            
+        LINA_TRACE("Drawing Dock area {0}", m_swapchain->swapchainID);
         auto&                theme  = LGUI->GetTheme();
         const auto&          screen = Graphics::RenderEngine::Get()->GetScreen();
         LinaVG::StyleOptions style;
@@ -64,15 +65,29 @@ namespace Lina::Editor
 
             m_gridRect = Rect(m_rect.pos + Vector2(0, headerHeight), m_rect.size - Vector2(0, headerHeight));
 
-            const Recti dragRect = Recti(0, 0, static_cast<int>(m_rect.size.x), static_cast<int>(headerRect.size.y * 0.5f));
-            m_windowManager->GetWindow(m_swapchain->swapchainID).SetDragRect(dragRect);
-
             /************** HEADER BG **************/
             if (LGUI->BeginWindow(headerName.c_str()))
             {
-                int closeState = 0, minimizeState = 0, maximizeState = 0;
-                Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, 0.0f, nullptr);
+                int         closeState = 0, minimizeState = 0, maximizeState = 0;
+                const float start = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, 0.0f, nullptr);
+
+                if (minimizeState == 1)
+                    Graphics::RenderEngine::Get()->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetWindow(m_swapchain->swapchainID).Minimize(); }));
+
+                if (maximizeState == 1)
+                    Graphics::RenderEngine::Get()->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetWindow(m_swapchain->swapchainID).Maximize(); }));
+
+                if (closeState == 1)
+                {
+                    Graphics::RenderEngine::Get()->DestroyChildWindow(m_swapchain->swapchainID);
+                    m_shouldDestroy = true;
+                    return;
+                }
+
                 LGUI->EndWindow();
+
+                const Recti dragRect = Recti(0, 0, static_cast<int>(start), static_cast<int>(headerRect.size.y * 0.5f));
+                m_windowManager->GetWindow(m_swapchain->swapchainID).SetDragRect(dragRect);
             }
 
             /************** DIVIDER **************/

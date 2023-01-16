@@ -36,8 +36,6 @@ SOFTWARE.
 #include "EventSystem/GraphicsEvents.hpp"
 #include "Graphics/Resource/Material.hpp"
 
-#define LINAVG_TEXT_SUPPORT
-#include "LinaVG/LinaVG.hpp"
 
 namespace Lina::Graphics
 {
@@ -142,6 +140,7 @@ namespace Lina::Graphics
             // Issue GUI draw commands.
             if (m_mask.IsSet(RM_RenderGUI))
             {
+                LINA_TRACE("LINAVG START FRAME");
                 LinaVG::StartFrame();
                 m_guiBackend->Prepare(m_swapchain, frameIndex, &cmd);
                 Event::EventSystem::Get()->Trigger<Event::EDrawGUI>({m_swapchain});
@@ -159,6 +158,7 @@ namespace Lina::Graphics
             if (m_mask.IsSet(RM_RenderGUI))
             {
                 m_guiBackend->RecordDrawCommands();
+                LINA_TRACE("LINAVG END FRAME");
                 LinaVG::EndFrame();
             }
 
@@ -191,8 +191,10 @@ namespace Lina::Graphics
             Backend::Get()->WaitIdle();
             m_recreateSwapchain = false;
 
+            if (m_newSwapchainSize.x == 0 || m_newSwapchainSize.y == 0)
+                return false;
+
             // Swapchain
-            // m_swapchain->Destroy(false);
             m_swapchain->size = m_newSwapchainSize;
             m_swapchain->RecreateFromOld(m_swapchain->swapchainID);
 
@@ -207,6 +209,9 @@ namespace Lina::Graphics
 
     void SurfaceRenderer::OnWindowResized(const Event::EWindowResized& ev)
     {
+        if (ev.window != m_swapchain->_windowHandle)
+            return;
+
         SimpleAction act;
         act.Action = [ev, this]() {
             m_recreateSwapchain = true;

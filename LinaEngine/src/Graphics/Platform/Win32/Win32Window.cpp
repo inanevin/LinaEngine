@@ -73,8 +73,7 @@ namespace Lina::Graphics
         RECT top       = {tl.right, tl.top, tr.left, tr.bottom};
 
         // std::tuple<RECT, LRESULT> rects[] = {{title_bar, HTCAPTION}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}};
-        std::tuple<RECT, LRESULT> rects[] = {{tl, HTTOPLEFT}, {tr, HTTOPRIGHT}, {bl, HTBOTTOMLEFT}, {br, HTBOTTOMRIGHT}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}, {top, HTTOP},
-        {title_bar, HTCAPTION}};
+        std::tuple<RECT, LRESULT> rects[] = {{tl, HTTOPLEFT}, {tr, HTTOPRIGHT}, {bl, HTBOTTOMLEFT}, {br, HTBOTTOMRIGHT}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}, {top, HTTOP}, {title_bar, HTCAPTION}};
 
         POINT pt = {GET_X_LPARAM(lparam) - wnd_rect.left, GET_Y_LPARAM(lparam) - wnd_rect.top};
         for (const auto& [r, code] : rects)
@@ -332,12 +331,24 @@ namespace Lina::Graphics
         m_hinst          = GetModuleHandle(0);
         m_registryHandle = static_cast<void*>(m_hinst);
 
-        WNDCLASS wc      = {};
-        wc.lpfnWndProc   = Win32Window::WndProc;
-        wc.hInstance     = m_hinst;
-        wc.lpszClassName = title;
-        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-      //  wc.style         = CS_DBLCLKS;
+WNDCLASSEX wcx;
+        BOOL        exists = GetClassInfoEx(m_hinst, title, &wcx);
+
+        if (!exists)
+        {
+            WNDCLASS wc      = {};
+            wc.lpfnWndProc   = Win32Window::WndProc;
+            wc.hInstance     = m_hinst;
+            wc.lpszClassName = title;
+            wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+            wc.style         = CS_DBLCLKS;
+
+            if (!RegisterClassA(&wc))
+            {
+                LINA_ERR("[Win32 Window] -> Failed registering window class!");
+                return false;
+            }
+        }
 
         m_cursorDef    = LoadCursor(NULL, IDC_ARROW);
         m_cursorH      = LoadCursor(NULL, IDC_SIZEWE);
@@ -345,12 +356,6 @@ namespace Lina::Graphics
         m_cursorHV_E   = LoadCursor(NULL, IDC_SIZENWSE);
         m_cursorHV_W   = LoadCursor(NULL, IDC_SIZENESW);
         m_targetCursor = m_cursorDef;
-
-        if (!RegisterClassA(&wc))
-        {
-            LINA_ERR("[Win32 Window] -> Failed registering window class!");
-            return false;
-        }
 
         DWORD exStyle = WS_EX_APPWINDOW;
 
@@ -384,6 +389,7 @@ namespace Lina::Graphics
             RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
         }
 
+        m_restoreSize = size;
         return true;
     }
 
@@ -449,7 +455,7 @@ namespace Lina::Graphics
 
         SetPos(Vector2i(w / 2 - m_rect.size.x / 2, h / 2 - m_rect.size.y / 2));
         SetSize(Vector2i(m_rect.size.x, m_rect.size.y));
-        m_isMaximized = true;
+        m_isMaximized = false;
     }
 
     void Win32Window::UpdateButtonLayoutForDpi(HWND__* hwnd)
@@ -547,7 +553,40 @@ namespace Lina::Graphics
 
     void Win32Window::Maximize()
     {
-        ShowWindow(m_window, SW_SHOWMAXIMIZED);
+        if (m_isMaximized)
+        {
+            m_isMaximized = false;
+
+            if (m_restoreSize == GetSize())
+                m_restoreSize = Vector2(GetSize()) * 0.7f;
+
+            SetSize(m_restoreSize);
+        }
+        else
+        {
+            m_restoreSize        = GetSize();
+            m_isMaximized        = true;
+            HMONITOR    hMonitor = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
+            MONITORINFO mi;
+            mi.cbSize = sizeof(mi);
+            GetMonitorInfo(hMonitor, &mi);
+
+            SetPos(Vector2i::Zero);
+            int width = 0, height = 0;
+
+            if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
+            {
+                width  = mi.rcWork.right - mi.rcWork.left;
+                height = mi.rcWork.bottom - mi.rcWork.top;
+            }
+            else
+            {
+                width  = mi.rcMonitor.right - mi.rcMonitor.left;
+                height = mi.rcMonitor.bottom - mi.rcMonitor.top;
+            }
+
+            SetSize(Vector2i(width, height));
+        }
     }
 
 } // namespace Lina::Graphics

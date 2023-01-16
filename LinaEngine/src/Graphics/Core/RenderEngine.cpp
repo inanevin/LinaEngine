@@ -49,8 +49,7 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/WorldRenderer.hpp"
 
-#define LINAVG_TEXT_SUPPORT
-#include "LinaVG/LinaVG.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Graphics/Platform/Win32/Win32Window.hpp"
@@ -64,6 +63,11 @@ namespace Lina::Graphics
 
     RenderEngine* RenderEngine::s_instance = nullptr;
     Model*        cube                     = nullptr;
+
+    void RenderEngine::AddToActionSyncQueue(const SimpleAction& act)
+    {
+        m_syncedActions.push_back(act);
+    }
 
     void RenderEngine::CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer)
     {
@@ -88,16 +92,18 @@ namespace Lina::Graphics
         // First need to remove associated the renderer.
         SimpleAction act;
         act.Action = [this, sid]() {
+            Backend::Get()->WaitIdle();
             auto it                = m_childWindowRenderers.find(sid);
             auto renderer          = it->second;
             auto itInRenderersList = linatl::find_if(m_renderers.begin(), m_renderers.end(), [renderer](Renderer* r) { return r == renderer; });
             m_renderers.erase(itInRenderersList);
+            m_childWindowRenderers.erase(it);
             renderer->Shutdown();
             delete renderer;
             m_windowManager.DestroyAppWindow(sid);
             Backend::Get()->DestroyAdditionalSwapchain(sid);
             m_windowManager.DestroyAppWindow(sid);
-
+            m_guiBackend->RemoveBufferCapsule(sid);
         };
 
         if (immediate)
@@ -337,7 +343,15 @@ namespace Lina::Graphics
         Vector<Renderer*> acquiredSurfaceRenderers;
         for (auto r : surfaceRenderers)
         {
-            const bool imageOK = r->AcquireImage(frameIndex);
+            auto& submitSemaphore = r->GetSwapchain()->_submitSemaphores[frameIndex];
+            if (submitSemaphore._markSignaled)
+            {
+                submitSemaphore.Destroy();
+                submitSemaphore.Create(false);
+            }
+
+            const bool imageOK            = r->AcquireImage(frameIndex);
+            submitSemaphore._markSignaled = true;
 
             if (imageOK)
                 acquiredSurfaceRenderers.push_back(r);
@@ -383,7 +397,11 @@ namespace Lina::Graphics
         Backend::Get()->GetGraphicsQueue().Present(presentSemaphores, swapchains, imageIndices, res);
 
         for (auto r : acquiredSurfaceRenderers)
+        {
+            // Not unsignalled yet on the GPU, but we don't care, by the time fence is over it will be.
+            r->GetSwapchain()->_submitSemaphores[frameIndex]._markSignaled = false;
             r->OnPostPresent(res);
+        }
 
         PROFILER_SCOPE_END("Queue Submit & Present", PROFILER_THREAD_RENDER);
 
@@ -396,6 +414,8 @@ namespace Lina::Graphics
 
     void RenderEngine::Join()
     {
+        Backend::Get()->WaitIdle();
+        Backend::Get()->GetGraphicsQueue().WaitIdle();
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
             m_frames[i].graphicsFence.Wait();
     }

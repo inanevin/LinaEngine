@@ -85,7 +85,7 @@ namespace Lina::Graphics
             uint32                 vertexOffset = 0;
             uint32                 firstIndex   = 0;
             uint32                 indexSize    = 0;
-            Material*              transientMat = nullptr;
+            uint32                 matId        = 0;
             Material               m;
             LinaVGDrawCategoryType type = LinaVGDrawCategoryType::Default;
             OrderedDrawRequestMeta meta;
@@ -93,8 +93,8 @@ namespace Lina::Graphics
 
         struct MaterialPool
         {
-            uint32           index = 0;
-            Vector<Material> materials;
+            uint32            index = 0;
+            Vector<Material*> materials;
         };
 
         struct BufferCapsule
@@ -110,7 +110,7 @@ namespace Lina::Graphics
     public:
         virtual bool                  Initialize() override;
         virtual void                  Terminate() override;
-        virtual void                  StartFrame() override;
+        virtual void                  StartFrame(int threadCount) override;
         virtual void                  DrawGradient(LinaVG::GradientDrawBuffer* buf) override;
         virtual void                  DrawTextured(LinaVG::TextureDrawBuffer* buf) override;
         virtual void                  DrawDefault(LinaVG::DrawBuffer* buf) override;
@@ -129,6 +129,7 @@ namespace Lina::Graphics
         void      UpdateProjection(const Vector2i& size);
         void      OnPreMainLoop(const Event::EPreMainLoop& ev);
         void      CreateBufferCapsule(StringID sid, bool setMaterials);
+        void      RemoveBufferCapsule(StringID sid);
         void      RecordDrawCommands();
         void      UploadAllFontTextures();
         Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);

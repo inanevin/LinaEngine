@@ -51,6 +51,11 @@ namespace Lina
     class SimpleAction
     {
     public:
+        SimpleAction(){};
+        ~SimpleAction(){};
+        SimpleAction(Delegate<void()>&& act) : Action(act){};
+        SimpleAction(Delegate<void()>&& act, Delegate<void()>&& cb) : Action(act), OnExecuted(cb){};
+
         Delegate<void()> Action;
         Delegate<void()> OnExecuted;
     };

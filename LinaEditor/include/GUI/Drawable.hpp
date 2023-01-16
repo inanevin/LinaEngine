@@ -61,9 +61,15 @@ namespace Lina::Editor
             return m_rect;
         }
 
+        inline bool ShouldDestroy()
+        {
+            return m_shouldDestroy;
+        }
+
     protected:
-        StringID m_sid  = 0;
-        Rect     m_rect = Rect();
+        bool     m_shouldDestroy = false;
+        StringID m_sid           = 0;
+        Rect     m_rect          = Rect();
     };
 } // namespace Lina::Editor
 
