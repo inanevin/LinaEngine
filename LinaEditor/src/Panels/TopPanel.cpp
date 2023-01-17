@@ -169,7 +169,6 @@ namespace Lina::Editor
 
     void TopPanel::Draw()
     {
-        const Vector2 display        = m_subsystems.renderEngine->GetScreen().DisplayResolution();
         const Vector2 screenSize     = m_subsystems.renderEngine->GetScreen().Size();
         const float   borderInMargin = 2.0f;
 
@@ -182,7 +181,6 @@ namespace Lina::Editor
         appBorderStyle.color     = LV4(theme.GetColor(ThemeColor::AppBorder));
         LinaVG::DrawRect(m_gui->GetThreadNumber(), LV2(Vector2(borderInMargin)), LV2((screenSize - borderInMargin)), appBorderStyle, 0.0f, 100);
 
-        m_rect.size                = Vector2(screenSize.x, display.y * 0.084f);
         constexpr const char* name = "TopPanel";
         m_gui->SetWindowSize(name, m_rect.size);
         m_gui->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
@@ -198,7 +196,7 @@ namespace Lina::Editor
         }
 
         const Recti dragRect = Recti(static_cast<int>(m_fileMenuMaxX), 0, static_cast<int>(m_minimizeStart - m_fileMenuMaxX), static_cast<int>(m_rect.size.y * 0.4f));
-        m_windowManager->GetMainWindow().SetDragRect(dragRect);
+         m_subsystems.renderEngine->GetWindowManager()->GetMainWindow().SetDragRect(dragRect);
     }
 
     void TopPanel::DrawFileMenu()
@@ -298,13 +296,13 @@ namespace Lina::Editor
         m_minimizeStart = Widgets::WindowButtons(m_gui, m_subsystems.renderEngine->GetScreen().DisplayResolution(), &closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
 
         if (closeState == 1)
-            m_windowManager->GetMainWindow().Close();
+             m_subsystems.renderEngine->GetWindowManager()->GetMainWindow().Close();
 
         if (minimizeState == 1)
-            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Minimize(); }));
+            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() {  m_subsystems.renderEngine->GetWindowManager()->GetMainWindow().Minimize(); }));
 
         if (maximizeState == 1)
-            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Maximize(); }));
+            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() {  m_subsystems.renderEngine->GetWindowManager()->GetMainWindow().Maximize(); }));
 
         w.SetPenPos(Vector2(m_minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
         const String str = TO_STRING(Time::GetFPS()) + ApplicationInfo::GetAppName();

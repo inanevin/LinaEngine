@@ -62,7 +62,7 @@ namespace Lina::Graphics
 #define DEF_VTXBUF_SIZE   sizeof(Vertex) * 2000
 #define DEF_INDEXBUF_SIZE sizeof(uint32) * 2000
 
-    Model*        cube                     = nullptr;
+    Model* cube = nullptr;
 
     void RenderEngine::AddToActionSyncQueue(const SimpleAction& act)
     {
@@ -74,23 +74,31 @@ namespace Lina::Graphics
     {
         const StringID sid = TO_SID(name);
         m_windowManager.CreateAppWindow(m_windowManager.GetMainWindow().GetHandle(), name.c_str(), pos, size, true);
-        auto& createdWindow = m_windowManager.GetWindow(sid);
-        auto* windowPtr     = createdWindow.GetHandle();
+
+        auto* createdWindow = m_windowManager.m_windows[sid];
+        auto* windowPtr     = createdWindow->GetHandle();
         auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, pos, size);
         associatedRenderer->AssignSwapchain(swapchainPtr);
         associatedRenderer->Initialize(this);
-        m_childWindowRenderers[sid] = associatedRenderer;
         m_renderers.push_back(associatedRenderer);
+
+        m_windowData[sid] = WindowData{
+            .window          = createdWindow,
+            .windowHandle    = windowPtr,
+            .swapchain       = swapchainPtr,
+            .surfaceRenderer = associatedRenderer,
+            .sid             = sid,
+        };
     }
 
     void RenderEngine::DestroyChildWindow(StringID sid)
     {
         Backend::Get()->WaitIdle();
-        auto it                = m_childWindowRenderers.find(sid);
-        auto renderer          = it->second;
+        auto it                = m_windowData.find(sid);
+        auto renderer          = it->second.surfaceRenderer;
         auto itInRenderersList = linatl::find_if(m_renderers.begin(), m_renderers.end(), [renderer](Renderer* r) { return r == renderer; });
         m_renderers.erase(itInRenderersList);
-        m_childWindowRenderers.erase(it);
+        m_windowData.erase(it);
         renderer->Shutdown();
         delete renderer;
         m_windowManager.DestroyAppWindow(sid);
@@ -139,17 +147,17 @@ namespace Lina::Graphics
 
         Backend::s_instance = &m_backend;
 
-        m_initedSuccessfully = m_windowManager.Initialize(initInfo.windowProperties, &m_screen);
-        m_initedSuccessfully = m_backend.Initialize(initInfo, &m_windowManager);
+        m_windowManager.Initialize(initInfo.windowProperties, &m_screen);
+        m_backend.Initialize(initInfo, &m_windowManager);
         m_backend.SetSwapchainPosition(m_windowManager.GetMainWindow().GetHandle(), m_windowManager.GetMainWindow().GetPos());
-
-        if (!m_initedSuccessfully)
-        {
-            LINA_ERR("[Render Engine] -> Initialization failed, no rendering will occur!");
-            return;
-        }
-
         m_screen.Initialize(m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID]);
+
+        m_windowData[LINA_MAIN_SWAPCHAIN_ID] = WindowData{
+            .window       = m_windowManager.m_windows[LINA_MAIN_SWAPCHAIN_ID],
+            .windowHandle = m_windowManager.m_windows[LINA_MAIN_SWAPCHAIN_ID]->GetHandle(),
+            .swapchain    = m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID],
+            .sid          = LINA_MAIN_SWAPCHAIN_ID,
+        };
 
         DescriptorSetLayoutBinding globalBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -588,8 +596,11 @@ namespace Lina::Graphics
         m_mainDeletionQueue.Flush();
 
         Vector<StringID> childs;
-        for (auto [sid, wd] : m_childWindowRenderers)
-            childs.push_back(sid);
+        for (auto [sid, wd] : m_windowData)
+        {
+            if (sid != LINA_MAIN_SWAPCHAIN_ID)
+                childs.push_back(sid);
+        }
 
         for (auto c : childs)
             DestroyChildWindow(c);
@@ -599,6 +610,7 @@ namespace Lina::Graphics
             r->Shutdown();
             delete r;
         }
+
         m_renderers.clear();
         m_windowManager.Shutdown();
         m_backend.Shutdown();

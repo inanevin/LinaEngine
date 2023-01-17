@@ -341,13 +341,14 @@ namespace Lina::Graphics
 
     void GUIBackend::SetSwapchain(int thread, Swapchain* swp)
     {
-        m_bufferCapsules[thread].swapchain = swp;
-        UpdateProjection(thread, swp->size);
+       
     }
 
     void GUIBackend::SetCmd(int thread, Swapchain* swapchain, CommandBuffer* cmd)
     {
-        m_bufferCapsules[thread].cmd = cmd;
+        m_bufferCapsules[thread].cmd       = cmd;
+        m_bufferCapsules[thread].swapchain = swapchain;
+        UpdateProjection(thread, swapchain->size);
     }
 
     void GUIBackend::UpdateProjection(int thread, const Vector2i& size)

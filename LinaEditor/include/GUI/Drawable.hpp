@@ -74,9 +74,6 @@ namespace Lina::Editor
             return m_shouldDestroy;
         }
 
-        inline void SetGUI()
-        {
-        }
 
     protected:
         friend class EditorGUIManager;

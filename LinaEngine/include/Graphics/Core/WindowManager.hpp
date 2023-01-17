@@ -177,7 +177,7 @@ namespace Lina::Graphics
         }
 
     private:
-        friend class Engine;
+        friend class RenderEngine;
 
         Window* GetWindowPtr(StringID sid)
         {

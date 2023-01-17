@@ -59,11 +59,6 @@ namespace Lina::Editor
         virtual void Shutdown() override;
         virtual void Draw() override;
 
-        inline void SetWindowManager(Graphics::WindowManager* wm)
-        {
-            m_windowManager = wm;
-        }
-
         inline void SetGUIManager(EditorGUIManager* guiManager)
         {
             m_guiManager = guiManager;
@@ -88,7 +83,6 @@ namespace Lina::Editor
         Graphics::Texture*       m_packedAnim         = nullptr;
         Vector<PackedTexture>    m_packedAnimTextures;
         EditorGUIManager*        m_guiManager    = nullptr;
-        Graphics::WindowManager* m_windowManager = nullptr;
     };
 } // namespace Lina::Editor
 

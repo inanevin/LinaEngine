@@ -75,10 +75,18 @@ namespace Lina::Graphics
     class WorldRenderer;
     class SurfaceRenderer;
 
+    struct WindowData
+    {
+        Window*    window          = nullptr;
+        void*      windowHandle    = nullptr;
+        Swapchain* swapchain       = nullptr;
+        Renderer*  surfaceRenderer = nullptr;
+        StringID   sid             = 0;
+    };
+
     class RenderEngine
     {
 
-    private:
     public:
         RenderEngine()  = default;
         ~RenderEngine() = default;
@@ -106,11 +114,6 @@ namespace Lina::Graphics
         inline DeletionQueue& GetMainDeletionQueue()
         {
             return m_mainDeletionQueue;
-        }
-
-        inline bool IsInitialized()
-        {
-            return m_initedSuccessfully;
         }
 
         inline const DescriptorSetLayout& GetLayout(DescriptorSetType set)
@@ -173,9 +176,9 @@ namespace Lina::Graphics
             return m_frameNumber % FRAMES_IN_FLIGHT;
         }
 
-        inline const HashMap<StringID, SurfaceRenderer*>& GetChildWindowRenderers()
+        inline const HashMap<StringID, WindowData>& GetWindowData()
         {
-            return m_childWindowRenderers;
+            return m_windowData;
         }
 
         inline GUIBackend* GetGUIBackend()
@@ -229,8 +232,7 @@ namespace Lina::Graphics
         Buffer                                m_gpuVtxBuffer;
         Buffer                                m_gpuIndexBuffer;
         Mutex                                 m_syncQueueMtx;
-        bool                                  m_initedSuccessfully = false;
-        bool                                  m_hasLevelLoaded     = false;
+        bool                                  m_hasLevelLoaded = false;
         Frame                                 m_frames[FRAMES_IN_FLIGHT];
         uint32                                m_frameNumber = 0;
 
@@ -244,6 +246,7 @@ namespace Lina::Graphics
         Material*                                       m_placeholderMaterial    = nullptr;
         WorldRenderer*                                  m_defaultWorldRenderer   = nullptr;
         SurfaceRenderer*                                m_defaultSurfaceRenderer = nullptr;
+        HashMap<StringID, WindowData>                   m_windowData;
 
         // Resources
         HashMap<EngineShaderType, String>    m_engineShaderNames;
@@ -253,7 +256,6 @@ namespace Lina::Graphics
         HashMap<EngineShaderType, Material*> m_engineMaterials;
         HashMap<EnginePrimitiveType, Model*> m_engineModels;
         HashMap<EngineTextureType, Texture*> m_engineTextures;
-        HashMap<StringID, SurfaceRenderer*>  m_childWindowRenderers;
     };
 } // namespace Lina::Graphics
 

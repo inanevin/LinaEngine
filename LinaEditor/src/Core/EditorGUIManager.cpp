@@ -133,14 +133,14 @@ namespace Lina::Editor
     void EditorGUIManager::FindHoveredSwapchain()
     {
         auto*                        windowManager = m_subsys.renderEngine->GetWindowManager();
-        const auto&                  childWindows  = m_subsys.renderEngine->GetChildWindowRenderers();
+        const auto&                  windowData    = m_subsys.renderEngine->GetWindowData();
         int                          biggestZOrder = 0;
         Vector<Graphics::Swapchain*> hoveredSwapchains;
         m_topMostSwapchainID = 0;
 
-        for (const auto& [sid, renderer] : childWindows)
+        for (const auto& [sid, wd] : windowData)
         {
-            auto       swp     = renderer->GetSwapchain();
+            auto       swp     = wd.swapchain;
             const Rect swpRect = Rect(swp->pos, swp->size);
 
             if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), swpRect))
@@ -269,34 +269,52 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnTick(const Event::ETick& ev)
     {
-        return;
+    
+        // Adjust
+        const Vector2 display   = m_subsys.renderEngine->GetScreen().DisplayResolution();
+        const Vector2 screen    = m_subsys.renderEngine->GetScreen().Size();
+        m_topPanel->m_rect.size = Vector2(screen.x, display.y * 0.084f);
+        m_mainDockArea->m_rect  = Rect(Vector2(0, m_topPanel->m_rect.size.y), Vector2(screen.x, screen.y - m_topPanel->m_rect.size.y));
 
-        const auto& additionalRenderers = m_subsys.renderEngine->GetChildWindowRenderers();
-        const int   totalSwapCount      = 1 + static_cast<int>(additionalRenderers.size());
-
-        while (static_cast<int>(m_guis.size()) < totalSwapCount)
+        // Get windows & make sure enough immediate guis available.
+        const auto& windows          = m_subsys.renderEngine->GetWindowData();
+        const int   totalWindowCount = static_cast<int>(windows.size());
+        while (static_cast<int>(m_guis.size()) < totalWindowCount)
             CreateImmediateGUI();
 
-        int thread        = 0;
-        m_topPanel->m_gui = &m_guis[thread];
-        m_topPanel->Draw();
+        Vector<Graphics::WindowData> windowDatas;
 
-        const auto&   topPanelRect = m_topPanel->GetRect();
-        const Vector2 screen       = m_subsys.renderEngine->GetScreen().Size();
-        m_mainDockArea->m_rect     = Rect(Vector2(0, topPanelRect.size.y), Vector2(screen.x, screen.y - topPanelRect.size.y));
-        m_mainDockArea->Draw();
+        for (auto [sid, wd] : windows)
+            windowDatas.push_back(wd);
 
-        thread = 1;
-        for (auto& [sid, renderer] : additionalRenderers)
-        {
-            m_guis[thread].m_currentSwaphchain  = renderer->GetSwapchain();
-            m_guis[thread].m_isSwapchainHovered = renderer->GetSwapchain()->swapchainID == m_hoveredSwapchainID;
-            m_guis[thread].m_threadNumber       = thread;
+        // Draw guis async.
+        Taskflow tf;
+        tf.for_each_index(0, static_cast<int>(windowDatas.size()), 1, [&](int i) {
+            auto& wd = windowDatas[i];
 
-            m_additionalDockAreas[thread - 1]->SetSwapchain(renderer->GetSwapchain());
-            m_additionalDockAreas[thread - 1]->Draw();
-            thread++;
-        }
+            m_subsys.renderEngine->GetGUIBackend()->SetSwapchain(i, wd.swapchain);
+            m_guis[i].m_currentSwaphchain  = wd.swapchain;
+            m_guis[i].m_isSwapchainHovered = wd.swapchain->swapchainID == m_hoveredSwapchainID;
+            m_guis[i].m_threadNumber       = i;
+
+            if (wd.sid == LINA_MAIN_SWAPCHAIN_ID)
+            {
+                m_topPanel->SetSwapchain(wd.swapchain);
+                m_mainDockArea->SetSwapchain(wd.swapchain);
+                m_topPanel->m_gui     = &m_guis[0];
+                m_mainDockArea->m_gui = &m_guis[0];
+                m_topPanel->Draw();
+                m_mainDockArea->Draw();
+            }
+            else
+            {
+                m_additionalDockAreas[i - 1]->m_gui = &m_guis[i - 1];
+                m_additionalDockAreas[i - 1]->SetSwapchain(wd.swapchain);
+                m_additionalDockAreas[i - 1]->Draw();
+            }
+        });
+
+        JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
 
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
         {
