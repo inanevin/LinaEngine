@@ -40,6 +40,8 @@ namespace Lina::Graphics
 {
     Mesh::~Mesh()
     {
+        m_cpuIndexBuffer.Destroy();
+        m_cpuVtxBuffer.Destroy();
         m_gpuVtxBuffer.Destroy();
         m_gpuIndexBuffer.Destroy();
         m_vertices.clear();

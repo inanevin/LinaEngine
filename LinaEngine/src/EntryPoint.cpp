@@ -72,6 +72,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     app->Initialize(initInfo, gm);
     app->Start();
 
+    while (app->IsRunning())
+    {
+        app->PreTick();
+
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
+            break;
+
+        app->Tick();
+    }
 
     app->Shutdown();
     delete gm;
