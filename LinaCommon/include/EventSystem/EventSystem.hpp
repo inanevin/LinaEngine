@@ -151,6 +151,7 @@ namespace Lina::Event
         friend class Editor::ShortcutManager;
         friend class Resources::EditorResourceLoader;
         friend class Graphics::Renderer;
+        friend class Graphics::RenderEngine;
         friend class Graphics::WorldRenderer;
         friend class Graphics::SurfaceRenderer;
         friend class Graphics::Win32Window;

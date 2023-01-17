@@ -38,14 +38,15 @@ SOFTWARE.
 namespace Lina::Editor
 {
     class MenuPopup;
-
+    class ImmediateGUI;
+    
     class MenuBar
     {
     public:
         MenuBar() = default;
         ~MenuBar();
 
-        void Draw();
+        void Draw(ImmediateGUI* gui);
 
         template <typename... Args> void AddItem(Args... args)
         {

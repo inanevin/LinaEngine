@@ -38,7 +38,7 @@ namespace Lina::Resources
     class EditorResourceLoader : public ResourceLoader
     {
     public:
-        EditorResourceLoader()          = default;
+        EditorResourceLoader(const EngineSubsystems& subsystems) : ResourceLoader(subsystems){};
         virtual ~EditorResourceLoader() = default;
 
         virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources) override;

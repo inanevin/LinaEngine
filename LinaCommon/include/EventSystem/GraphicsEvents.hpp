@@ -45,10 +45,6 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Event
 {
-    struct EDrawGUI
-    {
-        Graphics::Swapchain* swapchain = nullptr;
-    };
 
     struct EDrawLine
     {

@@ -35,18 +35,18 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void UploadContext::Create()
+    void UploadContext::Create(DeletionQueue& deletionQueue)
     {
         m_fence = Fence{
             .flags = 0,
         };
-        m_fence.Create(false);
+        m_fence.Create();
 
         m_pool = CommandPool{.familyIndex = Backend::Get()->GetTransferQueue()._family};
-        m_pool.Create(false);
+        m_pool.Create();
 
-        m_buffer = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
-        m_buffer.Create(m_pool._ptr);
+        m_cmd = CommandBuffer{.count = 1, .level = CommandBufferLevel::Primary};
+        m_cmd.Create(m_pool._ptr);
     }
 
     void UploadContext::Destroy()
@@ -88,14 +88,14 @@ namespace Lina::Graphics
 
     void UploadContext::Transfer(Command& cmd)
     {
-        m_buffer.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-        cmd.Record(m_buffer);
-        m_buffer.End();
+        m_cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
+        cmd.Record(m_cmd);
+        m_cmd.End();
 
         if (cmd.OnRecorded)
             cmd.OnRecorded();
 
-        Backend::Get()->GetTransferQueue().Submit(m_fence, m_buffer, 1);
+        Backend::Get()->GetTransferQueue().Submit(m_fence, m_cmd, 1);
 
         m_fence.Wait(true, 10.0f);
         m_fence.Reset();

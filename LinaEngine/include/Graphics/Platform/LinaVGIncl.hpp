@@ -33,17 +33,12 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "Data/Map.hpp"
-
+#include <iostream>
 
 #define LINAVG_TEXT_SUPPORT
 
-#define LINAVG_VEC Lina::Vector
-
-#ifndef LINAVG_MAP
-#define LINAVG_MAP Lina::HashMap
-#endif
-
 #include <LinaVG/LinaVG.hpp>
+#include <LinaVG/Backends/BaseBackend.hpp>
 
 #define LV2(V) LinaVG::Vec2(V.x, V.y)
 #define LV4(V) LinaVG::Vec4(V.x, V.y, V.z, V.w)

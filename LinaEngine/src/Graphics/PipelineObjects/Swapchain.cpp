@@ -85,9 +85,9 @@ namespace Lina::Graphics
             _semaphoresInited = true;
 
             for (auto& s : _submitSemaphores)
-                s.Create(false);
+                s.Create();
             for (auto& s : _presentSemaphores)
-                s.Create(false);
+                s.Create();
         }
     }
 

@@ -28,14 +28,14 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/PipelineLayout.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
 
-    void PipelineLayout::Create()
+    void PipelineLayout::Create(DeletionQueue& deletionQueue)
     {
         Vector<VkPushConstantRange> ranges;
 
@@ -70,12 +70,10 @@ namespace Lina::Graphics
         LINA_ASSERT(res == VK_SUCCESS, "[Pipeline Layout] -> Creating pipeline layout failed!");
 
         VkPipelineLayout_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() {
-            vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-        });
+        deletionQueue.Push([ptr]() { vkDestroyPipelineLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
 
-       // pushConstantRanges.clear();
-       // _setLayoutPtrs.clear();
+        // pushConstantRanges.clear();
+        // _setLayoutPtrs.clear();
     }
 
     PipelineLayout& PipelineLayout::AddPushConstant(const PushConstantRange& r)

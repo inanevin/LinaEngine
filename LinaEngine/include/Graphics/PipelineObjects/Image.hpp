@@ -38,10 +38,13 @@ struct VkImage_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class Image
     {
     public:
-        void Create(bool createImageView, bool autoDestroy = true);
+        void Create(bool createImageView);
+        void Create(DeletionQueue& deletionQueue, bool createImageView);
         void Destroy();
 
         Format                format              = Format::R32G32B32_SFLOAT;

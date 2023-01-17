@@ -28,13 +28,13 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/DescriptorPool.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void DescriptorPool::Create(bool autoDestroy)
+    void DescriptorPool::Create()
     {
         std::vector<VkDescriptorPoolSize> _sizes;
 
@@ -58,12 +58,14 @@ namespace Lina::Graphics
 
         VkResult res = vkCreateDescriptorPool(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Pool] -> Could not create descriptor pool!");
+    }
 
-        if (autoDestroy)
-        {
-            VkDescriptorPool_T* ptr = _ptr;
-            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyDescriptorPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
-        }
+    void DescriptorPool::Create(DeletionQueue& deletionQueue)
+    {
+
+        Create();
+        VkDescriptorPool_T* ptr = _ptr;
+        deletionQueue.Push([ptr]() { vkDestroyDescriptorPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
 
     void DescriptorPool::Destroy()

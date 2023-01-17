@@ -43,17 +43,18 @@ namespace Lina::Graphics
     class Model;
     class Mesh;
     class ModelNode;
+    class RenderEngine;
 
     class ModelLoader
     {
     public:
-        static bool LoadModel(unsigned char* data, size_t dataSize, Model* model);
-        static bool LoadModel(const String& fileName, Model* model);
+        static bool LoadModel(RenderEngine* renderEngine, unsigned char* data, size_t dataSize, Model* model);
+        static bool LoadModel(RenderEngine* renderEngine, const String& fileName, Model* model);
 
     private:
         static void   FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh);
-        static void   FillNodeHierarchy(const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* linanode);
-        static bool   LoadModelProcess(const aiScene* scene, Model* model);
+        static void   FillNodeHierarchy(RenderEngine* renderEngine, const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* linanode);
+        static bool   LoadModelProcess(RenderEngine* renderEngine, const aiScene* scene, Model* model);
         static uint32 GetImportFlags(Model* model);
     };
 } // namespace Lina::Graphics

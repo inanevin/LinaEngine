@@ -138,12 +138,6 @@ namespace Lina
         if (m_dirty)
             return;
 
-        if (m_isRunning)
-        {
-            LINA_ERR("Can't shutdown, application is running!");
-            return;
-        }
-
         m_engine.m_eventSystem.Disconnect<Event::EWindowClosed>(this);
         m_engine.m_eventSystem.Disconnect<Event::EResourceProgressUpdated>(this);
         m_engine.m_eventSystem.Disconnect<Event::EResourceProgressStarted>(this);

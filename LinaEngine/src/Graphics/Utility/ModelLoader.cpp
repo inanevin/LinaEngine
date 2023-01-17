@@ -74,7 +74,7 @@ namespace Lina::Graphics
         return Vector2(vec.x, vec.y);
     }
 
-    bool ModelLoader::LoadModel(unsigned char* data, size_t dataSize, Model* model)
+    bool ModelLoader::LoadModel(RenderEngine* renderEngine, unsigned char* data, size_t dataSize, Model* model)
     {
         // Get the importer & set assimp scene.
         Assimp::Importer importer;
@@ -86,10 +86,10 @@ namespace Lina::Graphics
         const aiScene* scene = importer.ReadFileFromMemory((void*)data, dataSize, importFlags, ext.c_str());
         const char*    err   = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
-        return LoadModelProcess(scene, model);
+        return LoadModelProcess(renderEngine, scene, model);
     }
 
-    bool ModelLoader::LoadModel(const String& fileName, Model* model)
+    bool ModelLoader::LoadModel(RenderEngine* renderEngine, const String& fileName, Model* model)
     {
         // Get the importer & set assimp scene.
         Assimp::Importer importer;
@@ -100,7 +100,7 @@ namespace Lina::Graphics
         const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
         const char*    err   = importer.GetErrorString();
         LINA_ASSERT(scene != nullptr, "Assimp could not read scene from memory.");
-        return LoadModelProcess(scene, model);
+        return LoadModelProcess(renderEngine, scene, model);
     }
 
     void ModelLoader::FillMeshData(const aiMesh* aiMesh, Mesh* linaMesh)
@@ -192,7 +192,7 @@ namespace Lina::Graphics
         linaMesh->m_aabb.boundsHalfExtents = (maxVertexPos - minVertexPos) / 2.0f;
     }
 
-    void ModelLoader::FillNodeHierarchy(const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* n)
+    void ModelLoader::FillNodeHierarchy(RenderEngine* renderEngine, const aiNode* ainode, const aiScene* scene, Model* parentModel, ModelNode* n)
     {
         n->m_name           = String(ainode->mName.C_Str());
         n->m_localTransform = AssimpToLinaMatrix(ainode->mTransformation);
@@ -210,13 +210,13 @@ namespace Lina::Graphics
 
             if (aimesh->HasBones())
             {
-                SkinnedMesh* skinned = new SkinnedMesh();
+                SkinnedMesh* skinned = new SkinnedMesh(renderEngine);
                 n->m_meshes.push_back(skinned);
                 addedMesh = skinned;
             }
             else
             {
-                StaticMesh* staticMesh = new StaticMesh();
+                StaticMesh* staticMesh = new StaticMesh(renderEngine);
                 n->m_meshes.push_back(staticMesh);
                 addedMesh = staticMesh;
             }
@@ -269,25 +269,25 @@ namespace Lina::Graphics
         // Recursively fill the other nodes.
         for (uint32 i = 0; i < ainode->mNumChildren; i++)
         {
-            ModelNode* newNode = new ModelNode();
+            ModelNode* newNode = new ModelNode(renderEngine);
             newNode->m_index   = static_cast<uint32>(parentModel->m_nodes.size());
             parentModel->m_nodes.push_back(newNode);
             n->m_children.push_back(newNode);
-            FillNodeHierarchy(ainode->mChildren[i], scene, parentModel, newNode);
+            FillNodeHierarchy(renderEngine, ainode->mChildren[i], scene, parentModel, newNode);
         }
     }
 
-    bool ModelLoader::LoadModelProcess(const aiScene* scene, Model* model)
+    bool ModelLoader::LoadModelProcess(RenderEngine* renderEngine, const aiScene* scene, Model* model)
     {
         model->m_numMeshes    = scene->mNumMeshes;
         model->m_numMaterials = scene->mNumMaterials;
         model->m_numAnims     = scene->mNumAnimations;
 
-        ModelNode* n               = new ModelNode();
+        ModelNode* n               = new ModelNode(renderEngine);
         model->m_rootNode          = n;
         model->m_rootNode->m_index = static_cast<uint32>(model->m_nodes.size());
         model->m_nodes.push_back(model->m_rootNode);
-        FillNodeHierarchy(scene->mRootNode, scene, model, n);
+        FillNodeHierarchy(renderEngine, scene->mRootNode, scene, model, n);
 
         // TODO?: Materials & textures.
 

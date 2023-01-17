@@ -46,7 +46,7 @@ namespace Lina::Graphics
     class ModelNode
     {
     public:
-        ModelNode() = default;
+        ModelNode(RenderEngine* renderEngine) : m_renderEngine(renderEngine){};
         ~ModelNode();
 
         inline void ClearData()
@@ -94,8 +94,7 @@ namespace Lina::Graphics
             return m_children;
         }
 
-        template <typename Archive>
-        void Save(Archive& archive)
+        template <typename Archive> void Save(Archive& archive)
         {
             archive(m_aabb, m_localTransform, m_totalVertexCenter, m_name, m_index);
 
@@ -117,8 +116,7 @@ namespace Lina::Graphics
             }
         }
 
-        template <typename Archive>
-        void Load(Archive& archive)
+        template <typename Archive> void Load(Archive& archive)
         {
             archive(m_aabb, m_localTransform, m_totalVertexCenter, m_name, m_index);
             archive(m_childrenIndices);
@@ -134,9 +132,9 @@ namespace Lina::Graphics
                 Mesh*    m  = nullptr;
 
                 if (mt == MeshType::StaticMesh)
-                    m = new StaticMesh();
+                    m = new StaticMesh(m_renderEngine);
                 else
-                    m = new SkinnedMesh();
+                    m = new SkinnedMesh(m_renderEngine);
 
                 archive(*m);
                 m_meshes.push_back(m);
@@ -147,6 +145,7 @@ namespace Lina::Graphics
         friend class ModelLoader;
         friend class Model;
 
+        RenderEngine*      m_renderEngine = nullptr;
         AABB               m_aabb;
         Matrix             m_localTransform;
         Vector3            m_totalVertexCenter = Vector3::Zero;

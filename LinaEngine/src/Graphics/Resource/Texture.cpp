@@ -58,7 +58,7 @@ namespace Lina::Graphics
         LoadFromArchive(archive);
         GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channels, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
-        WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
+        WriteToGPUImage(m_subsystems.renderEngine->GetGPUUploader(), m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
     }
 
@@ -91,7 +91,7 @@ namespace Lina::Graphics
         const Sampler sampler = CreateDefaultSampler();
         GenerateCustomBuffers(m_assetData.width, m_assetData.height, m_assetData.channels, m_assetData.mipLevels, m_assetData.format, sampler, ImageTiling::Optimal);
         AddPixelsFromAssetData();
-        WriteToGPUImage(m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
+        WriteToGPUImage(m_subsystems.renderEngine->GetGPUUploader(), m_assetData.mipmaps, Offset3D{.x = 0, .y = 0, .z = 0}, m_extent, true);
         return this;
     }
 
@@ -251,9 +251,9 @@ namespace Lina::Graphics
                 height = 1;
 
             Mipmap mipmap;
-            mipmap.width  = width;
-            mipmap.height = height;
-            mipmap.pixels = new unsigned char[width * height * m_assetData.channels];
+            mipmap.width              = width;
+            mipmap.height             = height;
+            mipmap.pixels             = new unsigned char[width * height * m_assetData.channels];
             const stbir_colorspace cs = m_assetData.isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
             stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_assetData.channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(m_assetData.mipmapFilter), cs, 0);
             lastWidth  = width;
@@ -313,12 +313,12 @@ namespace Lina::Graphics
     {
         m_extent   = ext;
         m_gpuImage = img;
-        m_gpuImage.Create(true, false);
+        m_gpuImage.Create(true);
         m_sampler = sampler;
-        m_sampler.Create(false);
+        m_sampler.Create();
     }
 
-    void Texture::WriteToGPUImage(const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
+    void Texture::WriteToGPUImage(UploadContext& uploader, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
     {
         Command cmd;
         cmd.Record = [this, copyExtent, gpuImgOffset](CommandBuffer& cmd) {
@@ -346,10 +346,10 @@ namespace Lina::Graphics
             }
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+        uploader.SubmitImmediate(cmd);
     }
 
-    void Texture::WriteToGPUImage(const Vector<Mipmap>& mipmaps, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
+    void Texture::WriteToGPUImage(UploadContext& uploader, const Vector<Mipmap>& mipmaps, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter)
     {
         Command cmd;
         cmd.Record = [this, copyExtent, gpuImgOffset, mipmaps](CommandBuffer& cmd) {
@@ -393,7 +393,7 @@ namespace Lina::Graphics
             }
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(cmd);
+        uploader.SubmitImmediate(cmd);
     }
 
     void Texture::GenerateCustomBuffers(int width, int height, int channels, uint32 mipLevels, Format format, Sampler sampler, ImageTiling imageTiling)
@@ -434,11 +434,11 @@ namespace Lina::Graphics
             .mipLevels       = mipLevels,
         };
 
-        m_gpuImage.Create(true, false);
+        m_gpuImage.Create(true);
 
         // Sampler
         m_sampler = sampler;
-        m_sampler.Create(false);
+        m_sampler.Create();
     }
 
 } // namespace Lina::Graphics

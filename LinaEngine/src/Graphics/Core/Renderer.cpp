@@ -29,10 +29,11 @@ SOFTWARE.
 #include "Graphics/Core/Renderer.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Core/Backend.hpp"
+#include "Graphics/Core/RenderEngine.hpp"
 
 namespace Lina::Graphics
 {
-    bool Renderer::Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng)
+    bool Renderer::Initialize(RenderEngine* renderEngine)
     {
         if (m_initialized)
         {
@@ -40,13 +41,11 @@ namespace Lina::Graphics
             return false;
         }
 
-        m_initialized   = true;
-        m_renderEngine  = eng;
-        m_windowManager = windowManager;
-        m_guiBackend    = guiBackend;
+        m_renderEngine = renderEngine;
+        m_initialized  = true;
 
         m_cmdPool = CommandPool{.familyIndex = Backend::Get()->GetGraphicsQueue()._family, .flags = GetCommandPoolCreateFlags(CommandPoolFlags::Reset)};
-        m_cmdPool.Create(false);
+        m_cmdPool.Create();
 
         const uint32 imageSize = static_cast<uint32>(Backend::Get()->GetMainSwapchain()._images.size());
 
@@ -61,7 +60,7 @@ namespace Lina::Graphics
             .maxSets = 10,
             .flags   = DescriptorPoolCreateFlags::None,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create(false);
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 10).AddPoolSize(DescriptorType::UniformBufferDynamic, 10).AddPoolSize(DescriptorType::StorageBuffer, 10).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create();
 
         return true;
     }

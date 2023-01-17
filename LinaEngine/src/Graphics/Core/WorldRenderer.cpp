@@ -58,12 +58,11 @@ namespace Lina::Graphics
         }
     }
 
-    bool WorldRenderer::Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng)
+    bool WorldRenderer::Initialize(RenderEngine* renderEngine)
     {
-        Renderer::Initialize(guiBackend, windowManager, eng);
+        Renderer::Initialize(renderEngine);
 
         m_type = RendererType::WorldRenderer;
-        m_cameraSystem.Initialize(windowManager);
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             m_targetWorldData.indirectBuffer[i] = Buffer{.size        = OBJ_BUFFER_MAX * sizeof(VkDrawIndexedIndirectCommand),
@@ -113,7 +112,7 @@ namespace Lina::Graphics
                 .pool     = m_descriptorPool._ptr,
             };
 
-            m_targetWorldData.passDescriptor.Create(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+            m_targetWorldData.passDescriptor.Create(m_renderEngine->GetLayout(DescriptorSetType::PassSet));
             m_targetWorldData.passDescriptor.BeginUpdate();
             m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.sceneDataBuffer[i], m_targetWorldData.sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
             m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.viewDataBuffer[i], m_targetWorldData.viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
@@ -138,7 +137,7 @@ namespace Lina::Graphics
     void WorldRenderer::Shutdown()
     {
         Renderer::Shutdown();
-    
+
         Event::EventSystem::Get()->Disconnect<Event::EComponentCreated>(this);
         Event::EventSystem::Get()->Disconnect<Event::EComponentDestroyed>(this);
 
@@ -263,10 +262,10 @@ namespace Lina::Graphics
         cmd.CMD_BindIndexBuffers(m_renderEngine->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
 
         // Global set.
-        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
+        // cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_renderEngine->GetGlobalAndPassLayouts()._ptr, 0, 1, &frame.globalDescriptor, 0, nullptr);
 
         // Pass set.
-        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, RenderEngine::Get()->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd.passDescriptor, 0, nullptr);
+        cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_renderEngine->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd.passDescriptor, 0, nullptr);
 
         // Global - scene data.
         wd.sceneDataBuffer[frameIndex].CopyInto(&wd.sceneData, sizeof(GPUSceneData));
@@ -369,7 +368,7 @@ namespace Lina::Graphics
                 if (createMaterials)
                 {
                     m_worldPostProcessMaterials[i] = new Material();
-                    m_worldPostProcessMaterials[i]->SetShader(RenderEngine::Get()->GetEngineShader(EngineShaderType::SQPostProcess));
+                    m_worldPostProcessMaterials[i]->SetShader(m_renderEngine->GetEngineShader(EngineShaderType::SQPostProcess));
                 }
                 m_worldPostProcessMaterials[i]->SetTexture(0, m_targetWorldData.finalColorTexture);
                 m_worldPostProcessMaterials[i]->CheckUpdatePropertyBuffers();

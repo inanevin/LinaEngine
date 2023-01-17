@@ -58,11 +58,6 @@ namespace Lina::Graphics
 
     void Mesh::GenerateBuffers()
     {
-        if (!RenderEngine::Get()->IsInitialized())
-        {
-            LINA_ERR("[Mesh] -> Could not create mesh, render engine is not initialized!");
-            return;
-        }
         const size_t vtxBufferSize = m_vertices.size() * sizeof(Vertex);
 
         m_cpuVtxBuffer = Buffer{
@@ -101,7 +96,7 @@ namespace Lina::Graphics
             m_cpuVtxBuffer.Destroy();
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
+        m_renderEngine->GetGPUUploader().SubmitImmediate(vtxCmd);
 
         // Index buffer
         const size_t indexBufferSize = m_indices.size() * sizeof(uint32);
@@ -142,7 +137,7 @@ namespace Lina::Graphics
             m_cpuIndexBuffer.Destroy();
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+        m_renderEngine->GetGPUUploader().SubmitImmediate(indexCmd);
 
         m_vtxSize   = static_cast<uint32>(m_vertices.size());
         m_indexSize = static_cast<uint32>(m_indices.size());

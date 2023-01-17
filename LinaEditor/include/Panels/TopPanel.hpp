@@ -52,7 +52,7 @@ namespace Lina::Editor
     class TopPanel : public Drawable
     {
     public:
-        TopPanel()          = default;
+        TopPanel(const EngineSubsystems& subsys) : Drawable(subsys){};
         virtual ~TopPanel() = default;
 
         virtual void Initialize() override;

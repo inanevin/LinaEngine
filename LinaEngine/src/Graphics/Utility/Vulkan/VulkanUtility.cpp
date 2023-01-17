@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 
-
 namespace Lina::Graphics
 {
 
@@ -257,7 +256,7 @@ namespace Lina::Graphics
             .subresRange         = range,
         };
 
-        img.Create(true, false);
+        img.Create(true);
     }
 
     void VulkanUtility::CreateDefaultPassImageColor(Image& img, bool useExplicitSize, int width, int height)
@@ -282,7 +281,7 @@ namespace Lina::Graphics
             .subresRange         = range,
         };
 
-        img.Create(true, false);
+        img.Create(true);
     }
 
     void VulkanUtility::CreateMainRenderPass(RenderPass& pass)

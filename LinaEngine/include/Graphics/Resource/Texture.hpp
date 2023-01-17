@@ -41,6 +41,8 @@ namespace Lina::Graphics
 {
     class CommandBuffer;
 
+    class UploadContext;
+
     class Texture : public Resources::Resource
     {
 
@@ -86,13 +88,10 @@ namespace Lina::Graphics
             return VERSION;
         }
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-        void              CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext);
-        void              WriteToGPUImage(const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
-        void              WriteToGPUImage(const Vector<Mipmap>& mipmaps, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
-        void              GenerateCustomBuffers(int width, int height, int channels, uint32 mipLevels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
+        void CreateFromRuntime(const Image& img, const Sampler& sampler, const Extent3D& ext);
+        void WriteToGPUImage(UploadContext& uploader, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
+        void WriteToGPUImage(UploadContext& uploader, const Vector<Mipmap>& mipmaps, const Offset3D& gpuImgOffset, const Extent3D& copyExtent, bool destroyCPUBufferAfter);
+        void GenerateCustomBuffers(int width, int height, int channels, uint32 mipLevels, Format format = Format::R8G8B8A8_SRGB, Sampler sampler = Sampler(), ImageTiling = ImageTiling::Linear);
 
         inline const Extent3D& GetExtent() const
         {
@@ -115,8 +114,11 @@ namespace Lina::Graphics
         }
 
     protected:
-        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         void    AddPixelsFromAssetData();

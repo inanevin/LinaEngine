@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/DataCommon.hpp"
-#include <LinaVG/Backends/BaseBackend.hpp>
 #include "Graphics/Resource/Material.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
@@ -59,6 +59,7 @@ namespace Lina::Graphics
     class Texture;
     class Swapchain;
     class Renderer;
+    class RenderEngine;
 
     class GUIBackend : public LinaVG::Backend::BaseBackend
     {
@@ -104,18 +105,22 @@ namespace Lina::Graphics
             uint32                     vertexCounter = 0;
             Buffer                     vtxBuffer;
             Buffer                     indxBuffer;
-            MaterialPool               materialPool;
+            Vector<MaterialPool>       pools;
+            Swapchain*                 swapchain          = nullptr;
+            CommandBuffer*             cmd                = nullptr;
+            Matrix                     projection         = Matrix::Identity();
+            Vector2i                   lastProjectionSize = Vector2i::Zero;
         };
 
     public:
         virtual bool                  Initialize() override;
         virtual void                  Terminate() override;
         virtual void                  StartFrame(int threadCount) override;
-        virtual void                  DrawGradient(LinaVG::GradientDrawBuffer* buf) override;
-        virtual void                  DrawTextured(LinaVG::TextureDrawBuffer* buf) override;
-        virtual void                  DrawDefault(LinaVG::DrawBuffer* buf) override;
-        virtual void                  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf) override;
-        virtual void                  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf) override;
+        virtual void                  DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread) override;
+        virtual void                  DrawTextured(LinaVG::TextureDrawBuffer* buf, int thread) override;
+        virtual void                  DrawDefault(LinaVG::DrawBuffer* buf, int thread) override;
+        virtual void                  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int thread) override;
+        virtual void                  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread) override;
         virtual void                  EndFrame() override;
         virtual void                  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
         virtual void                  BindFontTexture(LinaVG::BackendHandle texture) override;
@@ -123,27 +128,28 @@ namespace Lina::Graphics
         virtual void                  RestoreAPIState() override;
         virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-        BufferCapsule& GetCurrentBufferCapsule();
-
-        void      Prepare(Swapchain* swapchain, uint32 frameIndex, CommandBuffer* cmd);
-        void      UpdateProjection(const Vector2i& size);
+        void      Prepare(uint32 frameIndex);
+        void      SetSwapchain(int thread, Swapchain* swp);
+        void      SetCmd(int thread, Swapchain* swapchain, CommandBuffer* cmd);
+        void      UpdateProjection(int thread, const Vector2i& size);
         void      OnPreMainLoop(const Event::EPreMainLoop& ev);
-        void      CreateBufferCapsule(StringID sid, bool setMaterials);
-        void      RemoveBufferCapsule(StringID sid);
-        void      RecordDrawCommands();
+        void      CreateBufferCapsule(bool setMaterials);
+        void      RecordDrawCommands(int thread);
         void      UploadAllFontTextures();
-        Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
-        void      Reset();
+        Material* AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type, int thread);
+
+        inline void SetRenderEngine(RenderEngine* renderEngine)
+        {
+            m_renderEngine = renderEngine;
+        }
 
     private:
-        HashMap<StringID, Vector<BufferCapsule>> m_bufferCapsules;
-        Matrix                                   m_projection  = Matrix::Identity();
-        CommandBuffer*                           m_cmd         = nullptr;
-        Material*                                m_guiStandard = nullptr;
-        HashMap<uint32, Texture*>                m_fontTextures;
-        uint32                                   m_bufferingFontTexture = 0;
-        Vector2i                                 m_lastProjectionSize   = Vector2i::Zero;
-        Pair<Swapchain*, uint32>                 m_currentSwapchainIndexPair;
+        RenderEngine*             m_renderEngine;
+        Vector<BufferCapsule>     m_bufferCapsules;
+        Material*                 m_guiStandard = nullptr;
+        HashMap<uint32, Texture*> m_fontTextures;
+        uint32                    m_bufferingFontTexture = 0;
+        uint32                    m_frameIndex           = 0;
     };
 
 } // namespace Lina::Graphics

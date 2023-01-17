@@ -70,7 +70,7 @@ namespace Lina::Graphics
     protected:
         friend class RenderEngine;
 
-        virtual bool           Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng) override;
+        virtual bool           Initialize(RenderEngine* renderEngine) override;
         virtual void           Shutdown() override;
         virtual bool           AcquireImage(uint32 frameIndex) override;
         virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;

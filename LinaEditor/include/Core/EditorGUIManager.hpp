@@ -34,13 +34,14 @@ SOFTWARE.
 #include "Utility/Graphics/TexturePacker.hpp"
 #include "EditorCommon.hpp"
 #include "Utility/StringId.hpp"
+#include "GUI/GUI.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
     namespace Event
     {
         struct EEngineResourcesLoaded;
-        struct EDrawGUI;
         struct ETick;
         struct ESyncData;
     } // namespace Event
@@ -49,6 +50,7 @@ namespace Lina
     {
         class GUIBackend;
         class Swapchain;
+        class Font;
         class WindowManager;
     } // namespace Graphics
 
@@ -65,18 +67,11 @@ namespace Lina::Editor
     {
 
     private:
-        struct LaunchPanelRequest
-        {
-            EditorPanel panelType = EditorPanel::Global;
-            StringID    sid       = 0;
-            Vector2     pos       = Vector2::Zero;
-            Vector2     size      = Vector2::Zero;
-        };
-
     public:
-        void Initialize(Graphics::GUIBackend* guiBackend, Graphics::WindowManager* wm, Graphics::Swapchain* mainSwapchain);
+        void Initialize(const EngineSubsystems& subsys);
         void Shutdown();
         void LaunchPanel(EditorPanel panel);
+        void DestroyDockArea(StringID sid);
 
         inline Graphics::Texture* GetIconTexture()
         {
@@ -85,22 +80,23 @@ namespace Lina::Editor
 
     private:
         void      OnTick(const Event::ETick& ev);
-        void      OnDrawGUI(const Event::EDrawGUI& ev);
         void      OnSyncData(const Event::ESyncData& ev);
         void      FindHoveredSwapchain();
+        void      CreateImmediateGUI();
         Drawable* GetContentFromPanelRequest(EditorPanel panel);
 
     private:
-        Graphics::GUIBackend*      m_guiBackend    = nullptr;
-        Graphics::Texture*         m_iconTexture   = nullptr;
-        Graphics::WindowManager*   m_windowManager = nullptr;
-        Vector<PackedTexture>      m_packedIcons;
-        Vector<DockArea*>          m_dockAreas;
-        DockArea*                  m_mainDockArea = nullptr;
-        TopPanel*                  m_topPanel     = nullptr;
-        Vector<LaunchPanelRequest> m_panelRequests;
-        StringID                   m_hoveredSwapchainID = 0;
-        StringID                   m_topMostSwapchainID = 0;
+        Graphics::Texture*    m_iconTexture = nullptr;
+        Vector<PackedTexture> m_packedIcons;
+        Vector<DockArea*>     m_additionalDockAreas;
+        DockArea*             m_mainDockArea       = nullptr;
+        TopPanel*             m_topPanel           = nullptr;
+        StringID              m_hoveredSwapchainID = 0;
+        StringID              m_topMostSwapchainID = 0;
+        Vector<ImmediateGUI>  m_guis;
+        Graphics::Font*       m_rubikFont  = nullptr;
+        Graphics::Font*       m_nunitoFont = nullptr;
+        EngineSubsystems      m_subsys;
     };
 } // namespace Lina::Editor
 

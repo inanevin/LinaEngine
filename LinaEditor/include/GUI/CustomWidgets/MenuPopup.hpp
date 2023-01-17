@@ -41,6 +41,7 @@ namespace Lina::Editor
 {
     class MenuPopup;
     class MenuBar;
+    class ImmediateGUI;
 
     class MenuPopupElement
     {
@@ -59,9 +60,9 @@ namespace Lina::Editor
 
         virtual ~MenuPopupElement();
 
-        bool    Draw();
-        Vector2 GetTextSize();
-        Vector2 GetTooltipSize();
+        bool    Draw(ImmediateGUI* gui);
+        Vector2 GetTextSize(ImmediateGUI* gui);
+        Vector2 GetTooltipSize(ImmediateGUI* gui);
         void    CreateExpandedPopup();
 
         inline const String& GetName() const
@@ -108,8 +109,8 @@ namespace Lina::Editor
         ~MenuPopup();
 
         void AddElement(MenuPopupElement* element);
-        void Calculate(const Vector2& startPosition);
-        bool Draw();
+        void Calculate(ImmediateGUI* gui, const Vector2& startPosition);
+        bool Draw(ImmediateGUI* gui);
 
         inline const String& GetName() const
         {

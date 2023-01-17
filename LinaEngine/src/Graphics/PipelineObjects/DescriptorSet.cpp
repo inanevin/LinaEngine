@@ -75,6 +75,7 @@ namespace Lina::Graphics
 
     void DescriptorSet::AddTextureUpdate(uint32 binding, Texture* txt)
     {
+
         WriteDescriptorSet textureWrite = WriteDescriptorSet{
             .dstSet          = _ptr,
             .dstBinding      = binding,
@@ -83,21 +84,6 @@ namespace Lina::Graphics
             .imageView       = txt->GetImage()._ptrImgView,
             .imageLayout     = ImageLayout::ShaderReadOnlyOptimal,
             .sampler         = txt->GetSampler()._ptr,
-        };
-
-        _writes.push_back(textureWrite);
-    }
-
-    void DescriptorSet::AddTextureUpdate(uint32 binding, Image* img, Sampler* sampler)
-    {
-        WriteDescriptorSet textureWrite = WriteDescriptorSet{
-            .dstSet          = _ptr,
-            .dstBinding      = binding,
-            .descriptorCount = 1,
-            .descriptorType  = DescriptorType::CombinedImageSampler,
-            .imageView       = img->_ptrImgView,
-            .imageLayout     = ImageLayout::ShaderReadOnlyOptimal,
-            .sampler         = sampler->_ptr,
         };
 
         _writes.push_back(textureWrite);

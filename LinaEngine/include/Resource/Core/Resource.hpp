@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Data/Streams.hpp"
 #include "Utility/StringId.hpp"
 #include "Serialization/Archive.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
@@ -56,20 +57,14 @@ namespace Lina::Resources
         Resource()          = default;
         virtual ~Resource() = default;
 
-        virtual Resource* LoadFromFile(const char* path)                           = 0;
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) = 0;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
-        virtual void      LoadReferences(){};
-        virtual void      SaveToFile(){};
+        static Serialization::Archive<IStream> GetMetaArchive(const String& path, uint32 version = 0);
+        static void                            SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path, uint32 version = 0);
+        static bool                            MetaArchiveExists(const String& path, uint32 version = 0);
 
         virtual uint32 GetVersion()
         {
             return 0;
         }
-
-        static Serialization::Archive<IStream> GetMetaArchive(const String& path, uint32 version = 0);
-        static void                            SaveMetaArchive(Serialization::Archive<OStream>& arch, const String& path, uint32 version = 0);
-        static bool                            MetaArchiveExists(const String& path, uint32 version = 0);
 
         inline TypeID GetTID()
         {
@@ -102,6 +97,12 @@ namespace Lina::Resources
         }
 
     protected:
+        virtual Resource* LoadFromFile(const char* path)                           = 0;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) = 0;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) = 0;
+        virtual void      LoadReferences(){};
+        virtual void      SaveToFile(){};
+
         virtual void SaveAssetData(uint32 reserveSize = 512);
         virtual void LoadAssetData();
         virtual void SaveToArchive(Serialization::Archive<OStream>& archive){};
@@ -110,6 +111,11 @@ namespace Lina::Resources
     private:
         static String GetFilename(const String& path, uint32 version);
 
+        inline void SetSubsystems(const EngineSubsystems& subsys)
+        {
+            m_subsystems = subsys;
+        }
+
     protected:
         template <typename U> friend class ResourceCache;
         friend class Memory::MemoryManager;
@@ -117,11 +123,12 @@ namespace Lina::Resources
         friend class ResourceLoader;
         friend class ResourcePackager;
 
-        bool     m_userManaged    = false;
-        uint32   m_allocPoolIndex = 0;
-        TypeID   m_tid            = 0;
-        StringID m_sid            = 0;
-        String   m_path           = "";
+        EngineSubsystems m_subsystems;
+        bool             m_userManaged    = false;
+        uint32           m_allocPoolIndex = 0;
+        TypeID           m_tid            = 0;
+        StringID         m_sid            = 0;
+        String           m_path           = "";
     };
 } // namespace Lina::Resources
 

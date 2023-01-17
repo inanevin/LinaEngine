@@ -38,7 +38,6 @@ SOFTWARE.
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Drawable.hpp"
 #include "GUI/DockArea.hpp"
 #include "Graphics/Core/WindowManager.hpp"
@@ -58,32 +57,141 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void EditorGUIManager::Initialize(Graphics::GUIBackend* guiBackend, Graphics::WindowManager* wm, Graphics::Swapchain* mainSwapchain)
+    void EditorGUIManager::Initialize(const EngineSubsystems& subsys)
     {
-        m_guiBackend    = guiBackend;
-        m_windowManager = wm;
+        m_subsys     = subsys;
+        m_nunitoFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/NunitoSans.ttf");
+        m_rubikFont  = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/Rubik-Regular.ttf");
 
-        auto* nunitoFont = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/NunitoSans.ttf");
-        auto* rubikFont  = Resources::ResourceManager::Get()->GetResource<Graphics::Font>("Resources/Editor/Fonts/Rubik-Regular.ttf");
+        m_rubikFont->GenerateFont(false, 12, 13);
+        m_nunitoFont->GenerateFont(false, 12);
 
-        rubikFont->GenerateFont(false, 12, 13);
-        nunitoFont->GenerateFont(false, 12);
-
-        m_guiBackend->UploadAllFontTextures();
-
-        auto  gui   = ImmediateGUI::Get();
-        auto& theme = LGUI->GetTheme();
-
-        theme.m_fonts[ThemeFont::Default]       = rubikFont->GetHandle(12);
-        theme.m_fonts[ThemeFont::PopupMenuText] = rubikFont->GetHandle(13);
+        m_subsys.renderEngine->GetGUIBackend()->UploadAllFontTextures();
 
         // Scan Icons folder & buffer all icons into a texture atlas.
         Vector<String> icons = Utility::GetFolderContents("Resources/Editor/Icons");
-        m_iconTexture        = TexturePacker::PackFilesOrdered(icons, 2000, m_packedIcons);
+        m_iconTexture        = TexturePacker::PackFilesOrdered(m_subsys.renderEngine->GetGPUUploader(), icons, 2000, m_packedIcons);
         const StringID sid   = TO_SIDC("LINA_ENGINE_EDITOR_ICONPACK");
         m_iconTexture->ChangeSID(sid);
         m_iconTexture->SetUserManaged(true);
         Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(sid, m_iconTexture);
+
+        CreateImmediateGUI();
+
+        // Events
+        Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
+        Event::EventSystem::Get()->Connect<Event::ESyncData, &EditorGUIManager::OnSyncData>(this);
+
+        // then bottom dock area.
+        m_mainDockArea = new DockArea(m_subsys);
+        // m_mainDockArea->m_swapchain  = mainSwapchain;
+
+        m_topPanel = new TopPanel(m_subsys);
+        m_topPanel->Initialize();
+        // m_topPanel->m_swapchain = mainSwapchain;
+    }
+
+    void EditorGUIManager::Shutdown()
+    {
+        m_topPanel->Shutdown();
+        delete m_topPanel;
+
+        for (auto d : m_additionalDockAreas)
+        {
+            d->Shutdown();
+            delete d;
+        }
+
+        // m_topPanel.Shutdown();
+        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
+        Event::EventSystem::Get()->Disconnect<Event::ESyncData>(this);
+        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
+    }
+
+    void EditorGUIManager::OnSyncData(const Event::ESyncData& ev)
+    {
+        for (auto& d : m_additionalDockAreas)
+            d->SyncData();
+
+        Vector<DockArea*> toDestroy;
+        for (auto d : m_additionalDockAreas)
+        {
+            if (d->ShouldDestroy())
+                toDestroy.push_back(d);
+        }
+
+        for (auto d : toDestroy)
+        {
+            d->Shutdown();
+            delete d;
+            m_additionalDockAreas.erase(std::remove(m_additionalDockAreas.begin(), m_additionalDockAreas.end(), d), m_additionalDockAreas.end());
+        }
+
+        FindHoveredSwapchain();
+    }
+
+    void EditorGUIManager::FindHoveredSwapchain()
+    {
+        auto*                        windowManager = m_subsys.renderEngine->GetWindowManager();
+        const auto&                  childWindows  = m_subsys.renderEngine->GetChildWindowRenderers();
+        int                          biggestZOrder = 0;
+        Vector<Graphics::Swapchain*> hoveredSwapchains;
+        m_topMostSwapchainID = 0;
+
+        for (const auto& [sid, renderer] : childWindows)
+        {
+            auto       swp     = renderer->GetSwapchain();
+            const Rect swpRect = Rect(swp->pos, swp->size);
+
+            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), swpRect))
+                hoveredSwapchains.push_back(swp);
+
+            const int zOrder = windowManager->GetWindowZOrder(swp->swapchainID);
+            if (zOrder >= biggestZOrder)
+            {
+                biggestZOrder        = zOrder;
+                m_topMostSwapchainID = swp->swapchainID;
+            }
+        }
+
+        const uint32 hoveredSwapchainsSize = static_cast<uint32>(hoveredSwapchains.size());
+
+        if (hoveredSwapchainsSize == 0)
+            m_hoveredSwapchainID = 0;
+        else if (hoveredSwapchainsSize == 1)
+            m_hoveredSwapchainID = hoveredSwapchains[0]->swapchainID;
+        else
+        {
+            // Verify hover by checking z order
+            StringID biggestWindow = 0;
+            for (auto& s : hoveredSwapchains)
+            {
+                const int zOrder = windowManager->GetWindowZOrder(s->swapchainID);
+                if (zOrder >= biggestZOrder)
+                {
+                    biggestZOrder = zOrder;
+                    biggestWindow = s->swapchainID;
+                }
+            }
+            m_hoveredSwapchainID = biggestWindow;
+        }
+
+        if (m_hoveredSwapchainID == 0)
+        {
+            const auto& mainSwp = Graphics::Backend::Get()->GetMainSwapchain();
+            const Rect  r       = Rect(mainSwp.pos, mainSwp.size);
+            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), r))
+                m_hoveredSwapchainID = mainSwp.swapchainID;
+        }
+    }
+
+    void EditorGUIManager::CreateImmediateGUI()
+    {
+        m_guis.push_back(ImmediateGUI());
+        auto& gui   = m_guis[m_guis.size() - 1];
+        auto& theme = gui.m_theme;
+
+        gui.m_iconTexture = GetIconTexture()->GetSID();
 
         for (auto& pi : m_packedIcons)
         {
@@ -105,6 +213,9 @@ namespace Lina::Editor
         const Color light2  = Color(60.0f, 60.0f, 60.0f, 255.0f, true);
         const Color light3  = Color(80.0f, 80.0f, 80.0f, 255.0f, true);
         const Color light5  = Color(190.0f, 190.0f, 190.0f, 255.0f, true);
+
+        theme.m_fonts[ThemeFont::Default]       = m_rubikFont->GetHandle(12);
+        theme.m_fonts[ThemeFont::PopupMenuText] = m_rubikFont->GetHandle(13);
 
         theme.m_colors[ThemeColor::Error]                   = Color(160.0f, 30.0f, 30.0f, 255.0f, true);
         theme.m_colors[ThemeColor::Warn]                    = Color(60.0f, 60.0f, 30.0f, 255.0f, true);
@@ -146,136 +257,6 @@ namespace Lina::Editor
         theme.m_properties[ThemeProperty::PopupBorderThickness]        = 1.0f;
         theme.m_properties[ThemeProperty::MenuBarPopupBorderThickness] = 1.0f;
         theme.m_properties[ThemeProperty::MenuBarItemsTooltipSpacing]  = 24.0f;
-
-        // Events
-        Event::EventSystem::Get()->Connect<Event::EDrawGUI, &EditorGUIManager::OnDrawGUI>(this);
-        Event::EventSystem::Get()->Connect<Event::ETick, &EditorGUIManager::OnTick>(this);
-        Event::EventSystem::Get()->Connect<Event::ESyncData, &EditorGUIManager::OnSyncData>(this);
-
-        // then bottom dock area.
-        m_mainDockArea                  = new DockArea();
-        m_mainDockArea->m_swapchain     = mainSwapchain;
-        m_mainDockArea->m_windowManager = m_windowManager;
-        m_dockAreas.push_back(m_mainDockArea);
-
-        m_topPanel = new TopPanel();
-        m_topPanel->Initialize();
-        m_topPanel->SetWindowManager(m_windowManager);
-
-        for (auto d : m_dockAreas)
-            d->Initialize();
-    }
-
-    void EditorGUIManager::Shutdown()
-    {
-        m_topPanel->Shutdown();
-        delete m_topPanel;
-
-        for (auto d : m_dockAreas)
-        {
-            d->Shutdown();
-            delete d;
-        }
-
-        // m_topPanel.Shutdown();
-        Event::EventSystem::Get()->Disconnect<Event::EDrawGUI>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
-        Event::EventSystem::Get()->Disconnect<Event::ESyncData>(this);
-        Resources::ResourceManager::Get()->UnloadUserManaged<Graphics::Texture>(m_iconTexture);
-    }
-
-    World::EntityWorld* testWorld = nullptr;
-
-    void EditorGUIManager::OnDrawGUI(const Event::EDrawGUI& ev)
-    {
-        LGUI->m_currentSwaphchain  = ev.swapchain;
-        LGUI->m_isSwapchainHovered = ev.swapchain->swapchainID == m_hoveredSwapchainID;
-
-     if (ev.swapchain->swapchainID == LINA_MAIN_SWAPCHAIN_ID)
-         m_topPanel->Draw();
-
-        const auto&   topPanelRect = m_topPanel->GetRect();
-        const Vector2 screen       = Graphics::RenderEngine::Get()->GetScreen().Size();
-        m_mainDockArea->m_rect     = Rect(Vector2(0, topPanelRect.size.y), Vector2(screen.x, screen.y - topPanelRect.size.y));
-
-        Vector<Drawable*> toDestroy;
-        for (auto d : m_dockAreas)
-        {
-            d->UpdateSwapchainInfo(ev.swapchain->swapchainID, m_hoveredSwapchainID, m_topMostSwapchainID);
-            d->Draw();
-
-            if (d->ShouldDestroy())
-                toDestroy.push_back(d);
-        }
-
-        for (auto d : toDestroy)
-        {
-            d->Shutdown();
-            delete d;
-            m_dockAreas.erase(std::remove(m_dockAreas.begin(), m_dockAreas.end(), d), m_dockAreas.end());
-        }
-
-        FindHoveredSwapchain();
-    }
-
-    void EditorGUIManager::OnSyncData(const Event::ESyncData& ev)
-    {
-        for (auto& d : m_dockAreas)
-            d->SyncData();
-    }
-
-    void EditorGUIManager::FindHoveredSwapchain()
-    {
-        const auto&                  childWindows  = Graphics::RenderEngine::Get()->GetChildWindowRenderers();
-        int                          biggestZOrder = 0;
-        Vector<Graphics::Swapchain*> hoveredSwapchains;
-        m_topMostSwapchainID = 0;
-
-        for (const auto& [sid, renderer] : childWindows)
-        {
-            auto       swp     = renderer->GetSwapchain();
-            const Rect swpRect = Rect(swp->pos, swp->size);
-
-            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), swpRect))
-                hoveredSwapchains.push_back(swp);
-
-            const int zOrder = m_windowManager->GetWindowZOrder(swp->swapchainID);
-            if (zOrder >= biggestZOrder)
-            {
-                biggestZOrder        = zOrder;
-                m_topMostSwapchainID = swp->swapchainID;
-            }
-        }
-
-        const uint32 hoveredSwapchainsSize = static_cast<uint32>(hoveredSwapchains.size());
-
-        if (hoveredSwapchainsSize == 0)
-            m_hoveredSwapchainID = 0;
-        else if (hoveredSwapchainsSize == 1)
-            m_hoveredSwapchainID = hoveredSwapchains[0]->swapchainID;
-        else
-        {
-            // Verify hover by checking z order
-            StringID biggestWindow = 0;
-            for (auto& s : hoveredSwapchains)
-            {
-                const int zOrder = m_windowManager->GetWindowZOrder(s->swapchainID);
-                if (zOrder >= biggestZOrder)
-                {
-                    biggestZOrder = zOrder;
-                    biggestWindow = s->swapchainID;
-                }
-            }
-            m_hoveredSwapchainID = biggestWindow;
-        }
-
-        if (m_hoveredSwapchainID == 0)
-        {
-            const auto& mainSwp = Graphics::Backend::Get()->GetMainSwapchain();
-            const Rect  r       = Rect(mainSwp.pos, mainSwp.size);
-            if (Input::InputEngine::Get()->IsPointInRect(Input::InputEngine::Get()->GetMousePositionAbs(), r))
-                m_hoveredSwapchainID = mainSwp.swapchainID;
-        }
     }
 
     Drawable* EditorGUIManager::GetContentFromPanelRequest(EditorPanel panel)
@@ -288,6 +269,35 @@ namespace Lina::Editor
 
     void EditorGUIManager::OnTick(const Event::ETick& ev)
     {
+        return;
+
+        const auto& additionalRenderers = m_subsys.renderEngine->GetChildWindowRenderers();
+        const int   totalSwapCount      = 1 + static_cast<int>(additionalRenderers.size());
+
+        while (static_cast<int>(m_guis.size()) < totalSwapCount)
+            CreateImmediateGUI();
+
+        int thread        = 0;
+        m_topPanel->m_gui = &m_guis[thread];
+        m_topPanel->Draw();
+
+        const auto&   topPanelRect = m_topPanel->GetRect();
+        const Vector2 screen       = m_subsys.renderEngine->GetScreen().Size();
+        m_mainDockArea->m_rect     = Rect(Vector2(0, topPanelRect.size.y), Vector2(screen.x, screen.y - topPanelRect.size.y));
+        m_mainDockArea->Draw();
+
+        thread = 1;
+        for (auto& [sid, renderer] : additionalRenderers)
+        {
+            m_guis[thread].m_currentSwaphchain  = renderer->GetSwapchain();
+            m_guis[thread].m_isSwapchainHovered = renderer->GetSwapchain()->swapchainID == m_hoveredSwapchainID;
+            m_guis[thread].m_threadNumber       = thread;
+
+            m_additionalDockAreas[thread - 1]->SetSwapchain(renderer->GetSwapchain());
+            m_additionalDockAreas[thread - 1]->Draw();
+            thread++;
+        }
+
         if (Input::InputEngine::Get()->GetKeyDown(LINA_KEY_R))
         {
             LaunchPanel(EditorPanel::Level);
@@ -312,36 +322,10 @@ namespace Lina::Editor
         {
             LaunchPanel(EditorPanel::Properties);
         }
-
-        const auto& childWindows = Graphics::RenderEngine::Get()->GetChildWindowRenderers();
-        auto        it           = m_panelRequests.begin();
-
-        for (; it < m_panelRequests.end(); ++it)
-        {
-            bool  found = false;
-            auto& req   = *it;
-            for (const auto& [windowSid, renderer] : childWindows)
-            {
-                if (windowSid == req.sid)
-                {
-                    DockArea* area        = new DockArea();
-                    area->m_windowManager = m_windowManager;
-                    area->m_rect          = Rect(req.pos, req.size);
-                    area->m_swapchain     = renderer->GetSwapchain();
-                    area->m_detached      = true;
-                    // area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
-
-                    found = true;
-                    m_dockAreas.push_back(area);
-                    m_panelRequests.erase(it);
-                    break;
-                }
-            }
-
-            if (found)
-                break;
-        }
     }
+
+    static int  ctr = 0;
+    static bool tgl = 0;
 
     void EditorGUIManager::LaunchPanel(EditorPanel panel)
     {
@@ -349,15 +333,43 @@ namespace Lina::Editor
         // receive last pos & size.
         const Vector2  lastPos   = panel == EditorPanel::Level ? Vector2(100, 100) : Vector2(500, 100);
         const Vector2  lastSize  = Vector2(500, 500);
-        const String   panelName = "panel" + TO_STRING(int(panel));
+        const String   panelName = "panel";
         const StringID sid       = TO_SID(panelName);
 
         const Bitmask16 mask = Graphics::RendererMask::RM_RenderGUI;
 
-        Graphics::SurfaceRenderer* renderer = new Graphics::SurfaceRenderer();
-        renderer->SetRenderMask(Graphics::RendererMask::RM_RenderGUI);
-        Graphics::RenderEngine::Get()->CreateChildWindow(panelName, lastPos, lastSize, renderer);
+        if (tgl)
+        {
+            tgl = false;
+            DestroyDockArea(sid);
+            return;
+        }
 
-        m_panelRequests.push_back({panel, TO_SID(panelName), Vector2::Zero, lastSize});
+        SimpleAction act;
+
+        act.Action = [this, lastSize, panelName, lastPos]() {
+            Graphics::SurfaceRenderer* renderer = new Graphics::SurfaceRenderer();
+            renderer->SetRenderMask(Graphics::RendererMask::RM_RenderGUI);
+            m_subsys.renderEngine->CreateChildWindow(panelName, lastPos, lastSize, renderer);
+            DockArea* area     = new DockArea(m_subsys);
+            area->m_rect       = Rect(Vector2i::Zero, lastSize);
+            area->m_swapchain  = renderer->GetSwapchain();
+            area->m_detached   = true;
+            area->m_guiManager = this;
+            // area->m_content.push_back(GetContentFromPanelRequest(req.panelType));
+            m_additionalDockAreas.push_back(area);
+            tgl = true;
+        };
+        m_subsys.renderEngine->AddToActionSyncQueue(act);
+    }
+    void EditorGUIManager::DestroyDockArea(StringID sid)
+    {
+        SimpleAction act;
+        act.Action = [this, sid]() {
+            m_additionalDockAreas.erase(linatl::find_if(m_additionalDockAreas.begin(), m_additionalDockAreas.end(), [sid](DockArea* da) { return da->m_swapchain->swapchainID == sid; }));
+            m_subsys.renderEngine->DestroyChildWindow(sid);
+            tgl = false;
+        };
+        m_subsys.renderEngine->AddToActionSyncQueue(act);
     }
 } // namespace Lina::Editor

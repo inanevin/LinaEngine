@@ -68,7 +68,7 @@ namespace Lina::Graphics
 
         if (m_rootNode == nullptr)
         {
-            ModelLoader::LoadModel(path, this);
+            ModelLoader::LoadModel(m_subsystems.renderEngine, path, this);
             SaveAssetData();
         }
 
@@ -91,7 +91,7 @@ namespace Lina::Graphics
         LoadAssetData();
 
         if (m_rootNode == nullptr)
-            ModelLoader::LoadModel(m_path, this);
+            ModelLoader::LoadModel(m_subsystems.renderEngine, m_path, this);
 
         SaveToArchive(archive);
     }
@@ -128,7 +128,7 @@ namespace Lina::Graphics
 
         for (uint32 i = 0; i < nodeSize; i++)
         {
-            ModelNode* node = new ModelNode();
+            ModelNode* node = new ModelNode(m_subsystems.renderEngine);
             archive(*node);
             m_nodes.push_back(node);
         }
@@ -168,6 +168,10 @@ namespace Lina::Graphics
             comp->m_modelHandle.sid   = GetSID();
             comp->m_modelHandle.value = this;
             comp->m_nodeIndex         = node->GetNodeIndex();
+            comp->m_stubModel         = m_subsystems.renderEngine->GetPlaceholderModel();
+            comp->m_stubModelNode     = m_subsystems.renderEngine->GetPlaceholderModelNode();
+            comp->m_stubMesh          = m_subsystems.renderEngine->GetPlaceholderMesh();
+            comp->m_stubMaterial      = m_subsystems.renderEngine->GetPlaceholderMaterial();
 
             for (auto mesh : node->GetMeshes())
             {
@@ -175,7 +179,7 @@ namespace Lina::Graphics
 
                 // Assign default material for now.
                 Resources::ResourceHandle<Material> handle;
-                handle.value            = RenderEngine::Get()->GetPlaceholderMaterial();
+                handle.value            = m_subsystems.renderEngine->GetPlaceholderMaterial();
                 handle.sid              = handle.value->GetSID();
                 comp->m_materials[slot] = handle;
             }

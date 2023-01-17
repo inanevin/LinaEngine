@@ -32,10 +32,8 @@ SOFTWARE.
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "EventSystem/GraphicsEvents.hpp"
 #include "Graphics/Resource/Material.hpp"
-
 
 namespace Lina::Graphics
 {
@@ -54,7 +52,7 @@ namespace Lina::Graphics
         }
     }
 
-    bool SurfaceRenderer::Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng)
+    bool SurfaceRenderer::Initialize(RenderEngine* renderEngine)
     {
         if (m_swapchain == nullptr)
         {
@@ -64,7 +62,7 @@ namespace Lina::Graphics
 
         m_type = RendererType::SurfaceRenderer;
 
-        Renderer::Initialize(guiBackend, windowManager, eng);
+        Renderer::Initialize(renderEngine);
 
         Event::EventSystem::Get()->Connect<Event::EWindowResized, &SurfaceRenderer::OnWindowResized>(this);
 
@@ -137,14 +135,11 @@ namespace Lina::Graphics
         {
             PROFILER_SCOPE_START("Final Pass", PROFILER_THREAD_RENDER);
 
+            const int threadNumber = static_cast<int>(m_userData);
+
             // Issue GUI draw commands.
             if (m_mask.IsSet(RM_RenderGUI))
-            {
-                LINA_TRACE("LINAVG START FRAME");
-                LinaVG::StartFrame();
-                m_guiBackend->Prepare(m_swapchain, frameIndex, &cmd);
-                Event::EventSystem::Get()->Trigger<Event::EDrawGUI>({m_swapchain});
-            }
+                m_renderEngine->GetGUIBackend()->SetCmd(threadNumber, m_swapchain, &cmd);
 
             cmd.CMD_BeginRenderingDefault(swapchainImageView, swapchainDepthImageView, defaultRenderArea);
 
@@ -156,11 +151,7 @@ namespace Lina::Graphics
 
             // Render GUI on top
             if (m_mask.IsSet(RM_RenderGUI))
-            {
-                m_guiBackend->RecordDrawCommands();
-                LINA_TRACE("LINAVG END FRAME");
-                LinaVG::EndFrame();
-            }
+                m_renderEngine->GetGUIBackend()->RecordDrawCommands(threadNumber);
 
             cmd.CMD_EndRendering();
 
@@ -178,7 +169,7 @@ namespace Lina::Graphics
     void SurfaceRenderer::AcquiredImageInvalid(uint32 frameIndex)
     {
         m_swapchain->_submitSemaphores[frameIndex].Destroy();
-        m_swapchain->_submitSemaphores[frameIndex].Create(false);
+        m_swapchain->_submitSemaphores[frameIndex].Create();
     }
 
     bool SurfaceRenderer::CanContinueWithAcquiredImage(VulkanResult res, bool disallowSuboptimal)

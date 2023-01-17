@@ -57,51 +57,53 @@ namespace Lina::Editor
         Right
     };
 
+    class ImmediateGUI;
+
     class Widgets
     {
     public:
         // Buttons
-        static bool ButtonEmpty(const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool ButtonEmpty(ImmediateGUI* gui, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         /// <summary>
         /// Button with a pre-defined size that fits the text inside.
         /// </summary>
-        static bool Button(const char* str, const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool Button(ImmediateGUI* gui, const char* str, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         /// <summary>
         /// Button that auto-adjusts its size according to the text inside.
         /// </summary>
-        static bool ButtonFlexible(const char* str, Bitmask8 mask = Bitmask8(), Vector2* outTotalSize = nullptr);
+        static bool ButtonFlexible(ImmediateGUI* gui, const char* str, Bitmask8 mask = Bitmask8(), Vector2* outTotalSize = nullptr);
 
         /// <summary>
         /// Button with a pre-defined size that fits the icon inside in the middle.
         /// </summary>
-        static bool ButtonIcon(StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
+        static bool ButtonIcon(ImmediateGUI* gui, StringID icon, const Vector2& size, Bitmask8 mask = Bitmask8());
 
         /// <summary>
         /// Minimize, Maximize and Close buttons.
         /// Returns the start X
         /// </summary>
-        static float WindowButtons(int* close, int* minimize, int* maximizeRestore, float maxX, Vector2* outButtonSize, float extraXSpace = 0.0f);
+        static float WindowButtons(ImmediateGUI* gui, const Vector2i& display, int* close, int* minimize, int* maximizeRestore, float maxX, Vector2* outButtonSize, float extraXSpace = 0.0f);
 
         // Popup
-        static bool BeginPopup(const char* str, const Vector2& pos, const Vector2& size);
-        static void EndPopup();
+        static bool BeginPopup(ImmediateGUI* gui, const char* str, const Vector2& pos, const Vector2& size);
+        static void EndPopup(ImmediateGUI* gui);
 
         // Text
-        static Vector2 GetTextSize(const char* text, float wrapWidth = 0.0f);
-        static void    Text(const char* text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
+        static Vector2 GetTextSize(ImmediateGUI* gui, const char* text, float wrapWidth = 0.0f);
+        static void    Text(ImmediateGUI* gui, const char* text, float wrapWidth = 0.0f, TextAlignment alignment = TextAlignment::Left, bool alignY = false);
 
         // Utility
-        static void BeginHorizontal();
-        static void EndHorizontal();
-        static void Space(float amt);
+        static void BeginHorizontal(ImmediateGUI* gui);
+        static void EndHorizontal(ImmediateGUI* gui);
+        static void Space(ImmediateGUI* gui, float amt);
 
         // Style
-        static void DropShadow(const Vector2& p1, const Vector2& p2, const Color& color, float thickness, int count, int drawOrder);
+        static void DropShadow(ImmediateGUI* gui, const Vector2& p1, const Vector2& p2, const Color& color, float thickness, int count, int drawOrder);
 
         // Icon
-        static void DrawIcon(const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);
+        static void DrawIcon(ImmediateGUI* gui, const char* name, const Vector2& pos, float size, int drawOrder, const Color& tint = Color::White);
     };
 } // namespace Lina::Editor
 

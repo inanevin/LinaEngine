@@ -60,10 +60,6 @@ namespace Lina::Graphics
         Shader() = default;
         virtual ~Shader();
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
         inline const HashMap<ShaderStage, ShaderModule>& GetModules()
         {
             return m_modules;
@@ -95,8 +91,11 @@ namespace Lina::Graphics
         }
 
     protected:
-        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         void CheckShaderProperties();

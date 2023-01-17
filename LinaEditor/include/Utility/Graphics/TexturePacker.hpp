@@ -40,7 +40,8 @@ namespace Lina
     namespace Graphics
     {
         class Texture;
-    }
+        class UploadContext;
+    } // namespace Graphics
 
 } // namespace Lina
 namespace Lina::Editor
@@ -71,7 +72,7 @@ namespace Lina::Editor
     class TexturePacker
     {
     public:
-        static Graphics::Texture* PackFilesOrdered(Vector<String>& paths, int maxAllowedWidth, Vector<PackedTexture>& packed);
+        static Graphics::Texture* PackFilesOrdered(Graphics::UploadContext& uploader, Vector<String>& paths, int maxAllowedWidth, Vector<PackedTexture>& packed);
     };
 } // namespace Lina::Editor
 

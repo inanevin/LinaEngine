@@ -43,7 +43,8 @@ namespace Lina::Graphics
     class Texture;
     class Sampler;
     class Image;
-
+    class DeletionQueue;
+    
     class VulkanUtility
     {
     public:

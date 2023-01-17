@@ -59,8 +59,7 @@ namespace Lina::Resources
         TypeID GetTypeIDFromExtension(const String& ext);
         void   LoadReferences();
 
-        template <typename T>
-        void RegisterResourceType(const ResourceTypeData& typeData)
+        template <typename T> void RegisterResourceType(const ResourceTypeData& typeData)
         {
             const TypeID tid = GetTypeID<T>();
             const auto&  it  = m_caches.find(tid);
@@ -77,15 +76,13 @@ namespace Lina::Resources
             return m_caches.at(tid);
         }
 
-        template <typename T>
-        ResourceCache<T>* GetCache()
+        template <typename T> ResourceCache<T>* GetCache()
         {
             auto* c = m_caches[GetTypeID<T>()];
             return static_cast<ResourceCache<T>*>(c);
         }
 
-        template <typename T>
-        bool Exists(StringID sid)
+        template <typename T> bool Exists(StringID sid)
         {
             const TypeID      tid   = GetTypeID<T>();
             ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
@@ -97,8 +94,7 @@ namespace Lina::Resources
             return m_caches.at(tid)->Exists(sid);
         }
 
-        template <typename T>
-        T* GetResource(const String& path)
+        template <typename T> T* GetResource(const String& path)
         {
             const StringID    sid   = TO_SID(path);
             const TypeID      tid   = GetTypeID<T>();
@@ -106,24 +102,21 @@ namespace Lina::Resources
             return cache->GetResource(sid);
         }
 
-        template <typename T>
-        T* GetResource(const StringID sid)
+        template <typename T> T* GetResource(const StringID sid)
         {
             const TypeID      tid   = GetTypeID<T>();
             ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
             return cache->GetResource(sid);
         }
 
-        template <typename T>
-        void Unload(StringID sid)
+        template <typename T> void Unload(StringID sid)
         {
             const TypeID      tid   = GetTypeID<T>();
             ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
             cache->Unload(sid);
         }
 
-        template<typename T>
-        void UnloadUserManaged(T* t)
+        template <typename T> void UnloadUserManaged(T* t)
         {
             const TypeID      tid   = GetTypeID<T>();
             ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
@@ -162,7 +155,7 @@ namespace Lina::Resources
 
         ResourceManager()  = default;
         ~ResourceManager() = default;
-        void Initialize();
+        void Initialize(const EngineSubsystems& subystems);
         void Shutdown();
         void LoadEngineResources();
 

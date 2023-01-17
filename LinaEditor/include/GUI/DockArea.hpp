@@ -51,16 +51,11 @@ namespace Lina::Editor
     class DockArea : public Drawable
     {
     public:
-        DockArea()          = default;
+        DockArea(const EngineSubsystems& subsys) : Drawable(subsys){};
         virtual ~DockArea() = default;
 
         virtual void Draw() override;
         virtual void SyncData() override;
-
-        inline void UpdateSwapchainInfo(uint32 currentSwapchainID, uint32 hoveredSwapchain, uint32 topMostSwapchain) override
-        {
-            m_currentSwapchainID = currentSwapchainID;
-        }
 
     private:
         void DrawGrid();
@@ -68,15 +63,11 @@ namespace Lina::Editor
     private:
         friend class EditorGUIManager;
 
-        bool                     m_detached           = false;
-        Recti                    m_gridRect           = Recti();
-        uint32                   m_hoveredSwapchainID = 0;
-        uint32                   m_topMostSwapchainID = 0;
-        Vector<DockArea*>        m_dockAreas;
-        Graphics::WindowManager* m_windowManager      = nullptr;
-        Graphics::Swapchain*     m_swapchain          = nullptr;
-        uint32                   m_currentSwapchainID = 0;
-        Vector<Row>              m_rows;
+        bool              m_detached = false;
+        Recti             m_gridRect = Recti();
+        Vector<DockArea*> m_dockAreas;
+        Vector<Row>       m_rows;
+        EditorGUIManager* m_guiManager = nullptr;
     };
 
 } // namespace Lina::Editor

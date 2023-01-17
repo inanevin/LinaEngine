@@ -139,18 +139,13 @@ namespace Lina::Graphics
             }
         }
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-        virtual void      LoadReferences() override;
-        virtual void      SaveToFile() override;
-        void              SetShader(Shader* shader);
-        void              Bind(const CommandBuffer& cmd, uint32 bindFlags);
-        void              CheckUpdatePropertyBuffers();
-        void              SetTexture(const String& name, Texture* texture);
-        void              SetTexture(uint32 index, Texture* texture);
-        uint32            GetPropertyTypeAlignment(MaterialPropertyType type);
-        uint32            GetPropertiesTotalAlignedSize();
+        void   SetShader(Shader* shader);
+        void   Bind(const CommandBuffer& cmd, uint32 bindFlags);
+        void   CheckUpdatePropertyBuffers();
+        void   SetTexture(const String& name, Texture* texture);
+        void   SetTexture(uint32 index, Texture* texture);
+        uint32 GetPropertyTypeAlignment(MaterialPropertyType type);
+        uint32 GetPropertiesTotalAlignedSize();
 
         template <typename T> void SetProperty(uint32 index, T value)
         {
@@ -198,9 +193,17 @@ namespace Lina::Graphics
             return m_uniformBuffer;
         }
 
+    protected:
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadReferences() override;
+        virtual void      SaveToFile() override;
+
     private:
         friend class RenderEngine;
         friend class GUIBackend;
+        friend class Resources::ResourceCache<Material>;
 
         void                  SetupProperties();
         void                  CreateBuffer();

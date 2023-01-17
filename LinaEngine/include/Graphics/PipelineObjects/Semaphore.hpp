@@ -37,10 +37,13 @@ struct VkSemaphore_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class Semaphore
     {
     public:
-        void Create(bool autoDestroy = true);
+        void Create();
+        void Create(DeletionQueue& deletionQueue);
         void Destroy();
 
         // Description

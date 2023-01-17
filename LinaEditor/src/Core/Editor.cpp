@@ -45,7 +45,6 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "World/Core/Level.hpp"
 #include "Graphics/Resource/Texture.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/Renderer.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Serialization/Serialization.hpp"
@@ -53,24 +52,18 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void Editor::Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swapchain, Graphics::GUIBackend* guiBackend, Graphics::WindowManager* windowManager)
+    void Editor::Initialize(const EngineSubsystems& subsystems)
     {
         Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &Editor::OnLevelInstalled>(this);
         Event::EventSystem::Get()->Connect<Event::EEngineResourcesLoaded, &Editor::OnEngineResourcesLoaded>(this);
 
-        m_windowManager = windowManager;
-        m_guiBackend    = guiBackend;
-        m_engine        = engine;
-        m_levelManager  = lvlManager;
-        m_resLoader     = new Resources::EditorResourceLoader();
-        m_mainSwapchain = swapchain;
+        m_subsys    = subsystems;
+        m_resLoader = new Resources::EditorResourceLoader(subsystems);
         Resources::ResourceManager::Get()->InjectResourceLoader(m_resLoader);
 
         if (!Utility::FileExists("Resources/Editor/Metacache/"))
             Utility::CreateFolderInPath("Resources/Editor/Metacache/");
 
-        m_gui.Initialize();
-        ImmediateGUI::s_instance = &m_gui;
         m_shortcutManager.Initialize();
     }
 
@@ -78,7 +71,6 @@ namespace Lina::Editor
     {
         Event::EventSystem::Get()->Disconnect<Event::ELevelInstalled>(this);
         Event::EventSystem::Get()->Disconnect<Event::EEngineResourcesLoaded>(this);
-        m_gui.Shutdown();
         m_guiManager.Shutdown();
     }
 
@@ -159,7 +151,7 @@ namespace Lina::Editor
     void Editor::SaveCurrentLevel()
     {
         DeleteEditorCamera();
-        m_levelManager->SaveCurrentLevel();
+        m_subsys.levelManager->SaveCurrentLevel();
         CreateEditorCamera();
     }
 
@@ -179,7 +171,7 @@ namespace Lina::Editor
 
         // Fill level files.
         Vector<Pair<TypeID, String>> levelFiles;
-        const auto&                  levels = m_engine->GetEngineSettings().GetPackagedLevels();
+        const auto&                  levels = m_subsys.engine->GetEngineSettings().GetPackagedLevels();
 
         const TypeID levelsTID = GetTypeID<World::Level>();
         for (auto& lvl : levels)
@@ -276,8 +268,7 @@ namespace Lina::Editor
     void Editor::OnEngineResourcesLoaded(const Event::EEngineResourcesLoaded& ev)
     {
         m_dockSetup = Resources::ResourceManager::Get()->GetResource<DockSetup>("Resources/Editor/dockSetup.linasettings");
-        m_guiManager.Initialize(m_guiBackend, m_windowManager, m_mainSwapchain);
-        m_gui.m_iconTexture = m_guiManager.GetIconTexture()->GetSID();
+        m_guiManager.Initialize(m_subsys);
     }
 
 } // namespace Lina::Editor

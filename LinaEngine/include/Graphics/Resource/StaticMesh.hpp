@@ -38,7 +38,7 @@ namespace Lina::Graphics
     class StaticMesh : public Mesh
     {
     public:
-        StaticMesh()          = default;
+        StaticMesh(RenderEngine* renderEngine) : Mesh(renderEngine) {};
         virtual ~StaticMesh() = default;
 
         virtual MeshType GetMeshType() override

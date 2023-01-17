@@ -28,14 +28,14 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/DescriptorSetLayout.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void DescriptorSetLayout::Create()
+    void DescriptorSetLayout::Create(DeletionQueue& deletionQueue)
     {
         Vector<VkDescriptorSetLayoutBinding> _bindings;
 
@@ -73,7 +73,7 @@ namespace Lina::Graphics
         LINA_ASSERT(res == VK_SUCCESS, "[Descriptor Set Layout] -> Could not create layout!");
 
         VkDescriptorSetLayout_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyDescriptorSetLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
+        deletionQueue.Push([ptr]() { vkDestroyDescriptorSetLayout(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
 
     DescriptorSetLayout& DescriptorSetLayout::AddBinding(DescriptorSetLayoutBinding binding)

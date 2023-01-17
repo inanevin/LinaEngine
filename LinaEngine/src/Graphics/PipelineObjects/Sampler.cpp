@@ -28,13 +28,13 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/Sampler.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void Sampler::Create(bool autoDestroy)
+    void Sampler::Create()
     {
         VkSamplerCreateInfo i = VkSamplerCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -55,14 +55,15 @@ namespace Lina::Graphics
 
         VkResult res = vkCreateSampler(Backend::Get()->GetDevice(), &i, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(res == VK_SUCCESS, "[Sampler] -> Could not create sampler!");
-
-        if (autoDestroy)
-        {
-            VkSampler_T* ptr = _ptr;
-            RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroySampler(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
-        }
     }
 
+    void Sampler::Create(DeletionQueue& deletionQueue)
+    {
+        Create();
+        VkSampler_T* ptr = _ptr;
+        deletionQueue.Push([ptr]() { vkDestroySampler(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
+    }
+    
     void Sampler::Destroy()
     {
         if (_ptr == nullptr)

@@ -54,10 +54,11 @@ namespace Lina::Graphics
         SkinnedMesh
     };
 
+    class RenderEngine;
     class Mesh
     {
     public:
-        Mesh() = default;
+        Mesh(Graphics::RenderEngine* renderEngine) : m_renderEngine(renderEngine){};
         virtual ~Mesh();
 
         inline uint32 GetVertexSize()
@@ -133,6 +134,7 @@ namespace Lina::Graphics
         friend class Model;
         friend struct ECS::ModelComponent;
 
+        RenderEngine*  m_renderEngine;
         Buffer         m_gpuVtxBuffer;
         Buffer         m_gpuIndexBuffer;
         Buffer         m_cpuVtxBuffer;

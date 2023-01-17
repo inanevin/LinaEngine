@@ -47,12 +47,13 @@ namespace Lina::Editor
         EditorSettings(){};
         ~EditorSettings(){};
 
+        LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
+        String m_textEditorPath = "";
+
+    protected:
         virtual Resource* LoadFromFile(const char* path) override;
         virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
         virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
-        LINA_FIELD("Text Editor", "StringPath", "Default text editor to open shader & similar files.")
-        String m_textEditorPath = "";
 
     private:
         FRIEND_ARCHIVE;

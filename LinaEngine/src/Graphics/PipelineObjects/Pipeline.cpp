@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/Pipeline.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/PipelineObjects/RenderPass.hpp"
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-    void Pipeline::Create()
+    void Pipeline::Create(DeletionQueue& deletionQueue)
     {
         VkPipelineViewportStateCreateInfo viewportState = {
             .sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -153,8 +153,9 @@ namespace Lina::Graphics
         _shaderStages.clear();
 
         VkPipeline_T* ptr = _ptr;
-        RenderEngine::Get()->GetMainDeletionQueue().Push([ptr]() { vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
+        deletionQueue.Push([ptr]() { vkDestroyPipeline(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); });
     }
+
 
     Pipeline& Pipeline::SetShader(Shader* shader)
     {

@@ -94,7 +94,7 @@ namespace Lina::Editor
         m_titleAspect      = static_cast<float>(titleTexture->GetExtent().width) / static_cast<float>(titleTexture->GetExtent().height);
 
         auto animFiles = Utility::GetFolderContents("Resources/Editor/Textures/TitleTextAnim/");
-        m_packedAnim   = TexturePacker::PackFilesOrdered(animFiles, 2050, m_packedAnimTextures);
+        m_packedAnim   = TexturePacker::PackFilesOrdered(m_subsystems.renderEngine->GetGPUUploader(), animFiles, 2050, m_packedAnimTextures);
         m_packedAnim->ChangeSID(TO_SIDC(TITLE_ANIM_SID));
         m_packedAnim->SetUserManaged(true);
         Resources::ResourceManager::Get()->GetCache<Graphics::Texture>()->AddResource(TO_SIDC(TITLE_ANIM_SID), m_packedAnim);
@@ -169,32 +169,32 @@ namespace Lina::Editor
 
     void TopPanel::Draw()
     {
-        const Vector2 display        = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
-        const Vector2 screenSize     = Graphics::RenderEngine::Get()->GetScreen().Size();
+        const Vector2 display        = m_subsystems.renderEngine->GetScreen().DisplayResolution();
+        const Vector2 screenSize     = m_subsystems.renderEngine->GetScreen().Size();
         const float   borderInMargin = 2.0f;
 
-        auto& theme = LGUI->GetTheme();
+        auto& theme = m_gui->GetTheme();
 
         // App border
         LinaVG::StyleOptions appBorderStyle;
         appBorderStyle.isFilled  = false;
         appBorderStyle.thickness = 3.0f;
         appBorderStyle.color     = LV4(theme.GetColor(ThemeColor::AppBorder));
-        LinaVG::DrawRect(LV2(Vector2(borderInMargin)), LV2((screenSize - borderInMargin)), appBorderStyle, 0.0f, 100);
+        LinaVG::DrawRect(m_gui->GetThreadNumber(), LV2(Vector2(borderInMargin)), LV2((screenSize - borderInMargin)), appBorderStyle, 0.0f, 100);
 
         m_rect.size                = Vector2(screenSize.x, display.y * 0.084f);
         constexpr const char* name = "TopPanel";
-        LGUI->SetWindowSize(name, m_rect.size);
-        LGUI->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
+        m_gui->SetWindowSize(name, m_rect.size);
+        m_gui->SetWindowColor(name, theme.GetColor(ThemeColor::TopPanelBackground));
 
-        if (LGUI->BeginWindow(name))
+        if (m_gui->BeginWindow(name))
         {
             DrawFileMenu();
-            m_fileMenuMaxX = LGUI->GetCurrentWindow().GetPenPos().x;
+            m_fileMenuMaxX = m_gui->GetCurrentWindow().GetPenPos().x;
             DrawLinaLogo();
             DrawButtons();
             DrawControls();
-            LGUI->EndWindow();
+            m_gui->EndWindow();
         }
 
         const Recti dragRect = Recti(static_cast<int>(m_fileMenuMaxX), 0, static_cast<int>(m_minimizeStart - m_fileMenuMaxX), static_cast<int>(m_rect.size.y * 0.4f));
@@ -203,29 +203,29 @@ namespace Lina::Editor
 
     void TopPanel::DrawFileMenu()
     {
-        const Vector2 display = Graphics::RenderEngine::Get()->GetScreen().DisplayResolution();
-        auto&         theme   = LGUI->GetTheme();
-        auto&         w       = LGUI->GetCurrentWindow();
+        const Vector2 display = m_subsystems.renderEngine->GetScreen().DisplayResolution();
+        auto&         theme   = m_gui->GetTheme();
+        auto&         w       = m_gui->GetCurrentWindow();
 
         const float    offset    = display.x * 0.005f;
         const Vector2  logoStart = Vector2(offset, offset * 0.5f);
         const Vector2  logoSize  = Vector2(display.x * 0.01f);
-        const StringID txtSid    = Graphics::RenderEngine::Get()->GetEngineTexture(Graphics::EngineTextureType::LogoWhite512)->GetSID();
-        LinaVG::DrawImage(txtSid, LV2((logoStart + logoSize * 0.5f)), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
+        const StringID txtSid    = m_subsystems.renderEngine->GetEngineTexture(Graphics::EngineTextureType::LogoColored1024)->GetSID();
+        LinaVG::DrawImage(m_gui->GetThreadNumber(), txtSid, LV2((logoStart + logoSize * 0.5f)), LV2(logoSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, 2);
 
         theme.PushColor(ThemeColor::ButtonBackground, ThemeColor::TopPanelBackground);
         const float   buttonSizeX = display.x * 0.027f;
         const float   buttonSizeY = buttonSizeX * 0.5f;
         const Vector2 buttonSize  = Vector2(buttonSizeX, buttonSizeY);
         m_menuBar.SetStartPosition(Vector2(logoStart.x + logoSize.x + offset * 0.5f, offset * 0.5f));
-        m_menuBar.Draw();
+        m_menuBar.Draw(m_gui);
         theme.PopColor();
     }
 
     void TopPanel::DrawLinaLogo()
     {
-        const Vector2 screenSize = Graphics::RenderEngine::Get()->GetScreen().Size();
-        auto&         w          = LGUI->GetCurrentWindow();
+        const Vector2 screenSize = m_subsystems.renderEngine->GetScreen().Size();
+        auto&         w          = m_gui->GetCurrentWindow();
 
         // BG
         Vector<LinaVG::Vec2> points;
@@ -243,19 +243,19 @@ namespace Lina::Editor
         m_titleMaxX                       = bg2.x;
 
         LinaVG::StyleOptions bgStyle;
-        bgStyle.color = LV4(LGUI->GetTheme().GetColor(ThemeColor::Dark0));
+        bgStyle.color = LV4(m_gui->GetTheme().GetColor(ThemeColor::Dark0));
         points.push_back(bg1);
         points.push_back(bg2);
         points.push_back(bg3);
         points.push_back(bg4);
-        LinaVG::DrawConvex(points.data(), static_cast<int>(points.size()), bgStyle, 0.0f, w.GetDrawOrder() + 1);
+        LinaVG::DrawConvex(m_gui->GetThreadNumber(), points.data(), static_cast<int>(points.size()), bgStyle, 0.0f, w.GetDrawOrder() + 1);
 
         // Title
         const Color   tint       = Color(0.4f, 0.4f, 0.4f, 1.0f);
         const Vector2 texturePos = Vector2(centerX, bgHeight * 0.5f);
-        LinaVG::DrawImage(m_titleTexture, LV2(texturePos), LV2(textureSize), LV4(tint), 0.0f, w.GetDrawOrder() + 2);
+        LinaVG::DrawImage(m_gui->GetThreadNumber(), m_titleTexture, LV2(texturePos), LV2(textureSize), LV4(tint), 0.0f, w.GetDrawOrder() + 2);
 
-        if (LGUI->IsMouseHoveringRect(Rect(texturePos - textureSize * 0.5f, textureSize)))
+        if (m_gui->IsMouseHoveringRect(Rect(texturePos - textureSize * 0.5f, textureSize)))
         {
             auto&       pa      = m_packedAnimTextures[m_textAnimationIndex % m_packedAnimTextures.size()];
             const float elapsed = Time::GetElapsedTimeF();
@@ -267,21 +267,21 @@ namespace Lina::Editor
             }
 
             const Color animTint = Color(0.8f, 0.8f, 0.8f, 1.0f);
-            LinaVG::DrawImage(m_packedAnim->GetSID(), LV2(Vector2(texturePos)), LV2(textureSize), LV4(animTint), 0.0f, w.GetDrawOrder() + 2, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(pa.uvTL), LV2(pa.uvBR));
+            LinaVG::DrawImage(m_gui->GetThreadNumber(), m_packedAnim->GetSID(), LV2(Vector2(texturePos)), LV2(textureSize), LV4(animTint), 0.0f, w.GetDrawOrder() + 2, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LV2(pa.uvTL), LV2(pa.uvBR));
 
             // Popup
-            const Vector2 mouse         = LGUI->GetMousePosition();
+            const Vector2 mouse         = m_gui->GetMousePosition();
             const Vector2 popupPosition = Vector2(mouse.x + 15, mouse.y + 15);
 
             const char* popupName = "TitlePopup";
 
-            if (Widgets::BeginPopup(popupName, popupPosition, Vector2::Zero))
+            if (Widgets::BeginPopup(m_gui, popupName, popupPosition, Vector2::Zero))
             {
                 const String versionText = "Lina Engine: " + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b." + TO_STRING(LINA_BUILD);
                 const String configText  = "Configuration: " + String(LINA_CONFIGURATION);
-                Widgets::Text(versionText.c_str(), 400);
-                Widgets::Text(configText.c_str(), 400);
-                Widgets::EndPopup();
+                Widgets::Text(m_gui, versionText.c_str(), 400);
+                Widgets::Text(m_gui, configText.c_str(), 400);
+                Widgets::EndPopup(m_gui);
             }
         }
     }
@@ -289,39 +289,40 @@ namespace Lina::Editor
     void TopPanel::DrawButtons()
     {
         int   closeState = 0, minimizeState = 0, maximizeState = 0;
-        auto& w     = LGUI->GetCurrentWindow();
-        auto& theme = LGUI->GetTheme();
+        auto& w     = m_gui->GetCurrentWindow();
+        auto& theme = m_gui->GetTheme();
 
         Vector2       buttonSize   = Vector2::Zero;
-        const Vector2 appTitleSize = Widgets::GetTextSize(ApplicationInfo::GetAppName());
+        const Vector2 appTitleSize = Widgets::GetTextSize(m_gui, ApplicationInfo::GetAppName());
 
-        m_minimizeStart = Widgets::WindowButtons(&closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
+        m_minimizeStart = Widgets::WindowButtons(m_gui, m_subsystems.renderEngine->GetScreen().DisplayResolution(), &closeState, &minimizeState, &maximizeState, m_titleMaxX, &buttonSize, appTitleSize.x);
 
         if (closeState == 1)
             m_windowManager->GetMainWindow().Close();
 
         if (minimizeState == 1)
-            Graphics::RenderEngine::Get()->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Minimize(); }));
+            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Minimize(); }));
 
         if (maximizeState == 1)
-            Graphics::RenderEngine::Get()->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Maximize(); }));
+            m_subsystems.renderEngine->AddToActionSyncQueue(SimpleAction([this]() { m_windowManager->GetMainWindow().Maximize(); }));
 
         w.SetPenPos(Vector2(m_minimizeStart - theme.GetProperty(ThemeProperty::WindowItemSpacingX), buttonSize.y * 0.5f));
-        Widgets::Text(ApplicationInfo::GetAppName(), 0.0f, TextAlignment::Right, true);
+        const String str = TO_STRING(Time::GetFPS()) + ApplicationInfo::GetAppName();
+        Widgets::Text(m_gui, str.c_str(), 0.0f, TextAlignment::Right, true);
     }
 
     void TopPanel::DrawControls()
     {
-        auto& w     = LGUI->GetCurrentWindow();
-        auto& theme = LGUI->GetTheme();
+        auto& w     = m_gui->GetCurrentWindow();
+        auto& theme = m_gui->GetTheme();
 
         const Vector2         pos  = Vector2(0, m_rect.size.y * 0.55f);
         constexpr const char* name = "TopPanelControls";
-        LGUI->SetWindowSize(name, Vector2(m_rect.size.x, m_rect.size.y * 0.45f));
+        m_gui->SetWindowSize(name, Vector2(m_rect.size.x, m_rect.size.y * 0.45f));
 
-        if (LGUI->BeginWindow(name, 0, pos))
+        if (m_gui->BeginWindow(name, 0, pos))
         {
-            LGUI->EndWindow();
+            m_gui->EndWindow();
         }
     }
 

@@ -42,8 +42,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    ImmediateGUI* ImmediateGUI::s_instance = nullptr;
-
     // #define DEBUG
 
     ImmediateWidget& ImmediateWindow::GetCurrentWidget()
@@ -53,9 +51,9 @@ namespace Lina::Editor
 
     bool ImmediateWidget::IsHovered()
     {
-        auto&      window = LGUI->GetCurrentWindow();
+        auto&      window = m_gui->GetCurrentWindow();
         const bool wh     = window.IsHovered();
-        const bool rh     = LGUI->IsMouseHoveringRect(Rect(m_absPos, m_size));
+        const bool rh     = m_gui->IsMouseHoveringRect(Rect(m_absPos, m_size));
 
         if (wh && rh)
         {
@@ -82,14 +80,14 @@ namespace Lina::Editor
         // For when we determine a window's size based on its content.
         if (m_size.Equals(Vector2::Zero, 0.001f))
         {
-            auto&       theme    = LGUI->GetTheme();
+            auto&       theme    = m_gui->GetTheme();
             const float xPadding = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
             const float yPadding = theme.GetProperty(ThemeProperty::WindowItemPaddingY);
             const float ySpacing = theme.GetProperty(ThemeProperty::WindowItemSpacingY);
             m_size               = Vector2(m_maxPenPosX + xPadding * 2, m_penPos.y - ySpacing + yPadding);
         }
 
-        auto&                theme = ImmediateGUI::Get()->GetTheme();
+        auto&                theme = m_gui->GetTheme();
         const Vector2        min   = _absPos;
         const Vector2        max   = min + m_size;
         LinaVG::StyleOptions opts;
@@ -99,18 +97,18 @@ namespace Lina::Editor
         opts.rounding = theme.GetProperty(ThemeProperty::WindowRounding);
 
         // Main window rect.
-        LinaVG::DrawRect(LV2(min), LV2(max), opts, 0.0f, _drawOrder);
+        LinaVG::DrawRect(m_gui->GetThreadNumber(), LV2(min), LV2(max), opts, 0.0f, _drawOrder);
 
 #ifdef DEBUG
         LinaVG::StyleOptions optsDebug;
         optsDebug.isFilled = false;
-        LinaVG::DrawRect(LV2(min), LV2(max), optsDebug, 0.0f, m_drawOrder + 1);
+        LinaVG::DrawRect(m_gui->GetThreadNumber(), LV2(min), LV2(max), optsDebug, 0.0f, m_drawOrder + 1);
 #endif
     }
 
     bool ImmediateWindow::IsHovered()
     {
-        return LGUI->IsMouseHoveringRect(_rect);
+        return m_gui->IsMouseHoveringRect(_rect);
     }
 
     void ImmediateWindow::BeginWidget(const Vector2& size)
@@ -119,13 +117,14 @@ namespace Lina::Editor
         w.m_size   = size;
         w.m_penPos = m_penPos;
         w.m_absPos = _absPos + m_penPos;
+        w.m_gui    = m_gui;
         m_widgets.push_back(w);
     }
 
     void ImmediateWindow::EndWidget()
     {
         auto& widget = GetCurrentWidget();
-        auto& theme  = LGUI->GetTheme();
+        auto& theme  = m_gui->GetTheme();
 
         // Horizontal check
         if (m_horizontalRequests.empty())
@@ -152,7 +151,7 @@ namespace Lina::Editor
 
     void ImmediateWindow::EndHorizontal()
     {
-        auto& theme = LGUI->GetTheme();
+        auto& theme = m_gui->GetTheme();
         m_horizontalRequests.pop_back();
         m_penPos.y += m_maxYDuringHorizontal + theme.GetProperty(ThemeProperty::WindowItemSpacingY);
         m_penPos.x = theme.GetProperty(ThemeProperty::WindowItemPaddingX);
@@ -160,24 +159,21 @@ namespace Lina::Editor
 
     void ImmediateGUI::StartFrame()
     {
-        auto&               theme = LGUI->GetTheme();
+        auto&               theme = GetTheme();
         LinaVG::TextOptions txt;
         txt.font      = theme.GetFont(ThemeFont::Default);
         txt.alignment = LinaVG::TextAlignment::Right;
 
-        const Vector2 screen = Graphics::RenderEngine::Get()->GetScreen().Size();
-
-        const Vector2 mouseDelta    = LGUI->GetMouseDelta();
+        const Vector2 mouseDelta    = GetMouseDelta();
         const String  mouseDeltaStr = "Mouse Delta: X: " + TO_STRING(mouseDelta.x) + " Y: " + TO_STRING(mouseDelta.y);
 
-        Vector2        pos = Vector2(screen.x * 0.98f, screen.y * 0.8f);
         Vector<String> debugs;
         debugs.push_back(mouseDeltaStr);
 
         for (auto& s : debugs)
         {
-            LinaVG::DrawTextNormal(s.c_str(), LV2(pos), txt, 0, 200);
-            pos.y += 20.0f;
+            // LinaVG::DrawTextNormal(GetThreadNumber(), s.c_str(), LV2(pos), txt, 0, 200);
+            // pos.y += 20.0f;
         }
     }
 
@@ -201,6 +197,7 @@ namespace Lina::Editor
             windowData._parent      = m_lastWindow;
         }
 
+        windowData.m_gui       = this;
         windowData.m_name      = str;
         windowData.m_mask      = mask;
         windowData.m_sid       = sid;
@@ -308,14 +305,6 @@ namespace Lina::Editor
     bool ImmediateGUI::GetKeyDown(int key)
     {
         return Input::InputEngine::Get()->GetKeyDown(key);
-    }
-
-    void ImmediateGUI::Initialize()
-    {
-    }
-
-    void ImmediateGUI::Shutdown()
-    {
     }
 
     void ImmediateGUI::SetWindowSize(const char* str, const Vector2& size)

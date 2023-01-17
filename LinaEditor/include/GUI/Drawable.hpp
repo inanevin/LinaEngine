@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Math/Rect.hpp"
 #include "Utility/StringId.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
@@ -44,17 +45,24 @@ namespace Lina
 
 namespace Lina::Editor
 {
+    class ImmediateGUI;
+    class EditorGUIManager;
+
     class Drawable
     {
     public:
-        Drawable()          = default;
+        Drawable(const EngineSubsystems& subsys) : m_subsystems(subsys){};
         virtual ~Drawable() = default;
 
         virtual void Initialize(){};
         virtual void Shutdown(){};
         virtual void Draw() = 0;
         virtual void SyncData(){};
-        virtual void UpdateSwapchainInfo(uint32 currentSwapchainID, uint32 hoveredSwapchain, uint32 topMostSwapchain){};
+
+        inline void SetSwapchain(Graphics::Swapchain* swp)
+        {
+            m_swapchain = swp;
+        }
 
         inline const Rect& GetRect()
         {
@@ -66,10 +74,19 @@ namespace Lina::Editor
             return m_shouldDestroy;
         }
 
+        inline void SetGUI()
+        {
+        }
+
     protected:
-        bool     m_shouldDestroy = false;
-        StringID m_sid           = 0;
-        Rect     m_rect          = Rect();
+        friend class EditorGUIManager;
+
+        EngineSubsystems     m_subsystems;
+        bool                 m_shouldDestroy = false;
+        StringID             m_sid           = 0;
+        Rect                 m_rect          = Rect();
+        ImmediateGUI*        m_gui;
+        Graphics::Swapchain* m_swapchain = nullptr;
     };
 } // namespace Lina::Editor
 

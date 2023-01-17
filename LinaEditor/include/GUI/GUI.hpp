@@ -92,15 +92,15 @@ namespace Lina::Editor
 
     private:
         friend class ImmediateWindow;
-        Vector2 m_size   = Vector2::Zero;
-        Vector2 m_penPos = Vector2::Zero;
-        Vector2 m_absPos = Vector2::Zero;
+        Vector2       m_size   = Vector2::Zero;
+        Vector2       m_penPos = Vector2::Zero;
+        Vector2       m_absPos = Vector2::Zero;
+        ImmediateGUI* m_gui    = nullptr;
     };
 
     class ImmediateWindow
     {
     public:
-        void DragBehaviour();
         void Draw();
         bool IsHovered();
 
@@ -174,22 +174,18 @@ namespace Lina::Editor
         float                  m_maxYDuringHorizontal = 0.0f;
         bool                   m_docked               = false;
 
-        Color    _finalColor = Color::White;
-        int      _drawOrder  = 0;
-        Vector2  _absPos     = Vector2::Zero;
-        Rect     _rect       = Rect();
-        StringID _parent     = 0;
-        Rect     _dragRect   = Rect();
+        Color         _finalColor = Color::White;
+        int           _drawOrder  = 0;
+        Vector2       _absPos     = Vector2::Zero;
+        Rect          _rect       = Rect();
+        StringID      _parent     = 0;
+        Rect          _dragRect   = Rect();
+        ImmediateGUI* m_gui       = nullptr;
     };
 
     class ImmediateGUI
     {
     public:
-        static ImmediateGUI* Get()
-        {
-            return s_instance;
-        }
-
         // Frame
         void StartFrame();
         void EndFrame();
@@ -231,26 +227,24 @@ namespace Lina::Editor
             return m_iconTexture;
         }
 
+        inline int GetThreadNumber()
+        {
+            return m_threadNumber;
+        }
+
     private:
-        friend class Editor;
         friend class EditorGUIManager;
 
-        void Initialize();
-        void Shutdown();
-
     private:
-        Graphics::Swapchain* m_currentSwaphchain  = nullptr;
-        bool                 m_isSwapchainHovered = false;
-
-        static ImmediateGUI*               s_instance;
+        Graphics::Swapchain*               m_currentSwaphchain  = nullptr;
+        bool                               m_isSwapchainHovered = false;
         HashMap<StringID, ImmediateWindow> m_windowData;
         StringID                           m_lastWindow = 0;
         Theme                              m_theme;
         StringID                           m_iconTexture       = 0;
         int                                m_absoluteDrawOrder = 0;
+        int                                m_threadNumber      = 0;
     };
-
-#define LGUI ImmediateGUI::Get()
 
 } // namespace Lina::Editor
 

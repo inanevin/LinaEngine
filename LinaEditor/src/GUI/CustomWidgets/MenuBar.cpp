@@ -42,10 +42,10 @@ namespace Lina::Editor
         m_items.clear();
     }
 
-    void MenuBar::Draw()
+    void MenuBar::Draw(ImmediateGUI* gui)
     {
-        auto&   window = LGUI->GetCurrentWindow();
-        auto&   theme  = LGUI->GetTheme();
+        auto&   window = gui->GetCurrentWindow();
+        auto&   theme  = gui->GetTheme();
         Vector2 pos    = m_startPosition;
 
         bool anyHovered = false;
@@ -64,7 +64,7 @@ namespace Lina::Editor
             }
 
             Vector2 totalSize = Vector2::Zero;
-            if (Widgets::ButtonFlexible(item->GetName().c_str(), Bitmask8(), &totalSize))
+            if (Widgets::ButtonFlexible(gui, item->GetName().c_str(), Bitmask8(), &totalSize))
             {
                 if (m_activeItem != -1)
                     Reset();
@@ -73,7 +73,7 @@ namespace Lina::Editor
             }
 
             const Rect itemRect  = Rect(pos, totalSize);
-            const bool isHovered = window.IsHovered() && LGUI->IsMouseHoveringRect(itemRect);
+            const bool isHovered = window.IsHovered() && gui->IsMouseHoveringRect(itemRect);
 
             if (isHovered)
                 anyHovered = true;
@@ -98,9 +98,9 @@ namespace Lina::Editor
                 theme.PushFont(ThemeFont::PopupMenuText);
 
                 // Draw the item, if it's clicked disable the popup
-                item->Calculate(pos + Vector2(0, totalSize.y));
+                item->Calculate(gui, pos + Vector2(0, totalSize.y));
 
-                if (item->Draw())
+                if (item->Draw(gui))
                     anyHovered = true;
 
                 theme.PopFont();
@@ -109,7 +109,7 @@ namespace Lina::Editor
             pos.x += totalSize.x;
         }
 
-        if (m_activeItem != -1 && LGUI->GetMouseButtonDown(LINA_MOUSE_0) && !anyHovered)
+        if (m_activeItem != -1 && gui->GetMouseButtonDown(LINA_MOUSE_0) && !anyHovered)
         {
             m_items[m_activeItem]->Reset();
             m_activeItem = -1;

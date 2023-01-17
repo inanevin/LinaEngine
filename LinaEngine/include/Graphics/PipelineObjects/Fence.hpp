@@ -37,10 +37,13 @@ struct VkFence_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class Fence
     {
     public:
-        void Create(bool destroyAuto = true);
+        void Create();
+        void Create(DeletionQueue& deletionQueue);
         void Wait(bool waitForAll = true, double timeOutSeconds = 1.0) const;
         void Reset();
         void Destroy();

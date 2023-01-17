@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
 #include "Graphics/PipelineObjects/DescriptorPool.hpp"
 #include "Core/Command.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -64,7 +65,7 @@ namespace Lina::Graphics
     protected:
         friend class RenderEngine;
 
-        virtual bool           Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng);
+        virtual bool           Initialize(RenderEngine* renderEngine);
         virtual void           Shutdown();
         virtual void           SyncData();
         virtual void           Tick(){};
@@ -92,17 +93,21 @@ namespace Lina::Graphics
             return m_type;
         }
 
+        inline void SetUserData(uint32 data)
+        {
+            m_userData = data;
+        }
+
     protected:
-        RendererType          m_type = RendererType::None;
-        Bitmask16             m_mask = 0;
+        RenderEngine*         m_renderEngine = nullptr;
+        RendererType          m_type         = RendererType::None;
+        Bitmask16             m_mask         = 0;
         Vector<SimpleAction>  m_syncedActions;
-        GUIBackend*           m_guiBackend = nullptr;
         CommandPool           m_cmdPool;
         DescriptorPool        m_descriptorPool;
         Vector<CommandBuffer> m_cmds;
-        RenderEngine*         m_renderEngine = nullptr;
-        WindowManager*        m_windowManager;
         bool                  m_initialized = false;
+        uint32                m_userData    = 0;
     };
 
 } // namespace Lina::Graphics

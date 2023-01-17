@@ -100,12 +100,11 @@ namespace Lina
 
     void Engine::Initialize(const InitInfo& initInfo, GameManager* gm)
     {
-       
+
         // Assign
         Event::EventSystem::s_eventSystem      = &m_eventSystem;
         Input::InputEngine::s_inputEngine      = &m_inputEngine;
         Resources::ResourceManager::s_instance = &m_resourceManager;
-        Graphics::RenderEngine::s_instance     = &m_renderEngine;
         Memory::MemoryManager::s_instance      = &m_memoryManager;
         JobSystem::s_instance                  = &m_jobSystem;
 
@@ -121,11 +120,20 @@ namespace Lina
 
 #endif
 
+        EngineSubsystems subsystems = EngineSubsystems{
+            .engine        = this,
+            .renderEngine  = &m_renderEngine,
+            .audioEngine   = &m_audioEngine,
+            .physicsEngine = &m_physicsEngine,
+            .inputEngine   = &m_inputEngine,
+            .levelManager  = &m_levelManager,
+        };
+
         // System init
         m_memoryManager.Initialize();
         m_eventSystem.Initialize();
         m_jobSystem.Initialize();
-        m_resourceManager.Initialize();
+        m_resourceManager.Initialize(subsystems);
         m_inputEngine.Initialize();
         m_audioEngine.Initialize();
         m_physicsEngine.Initialize();
@@ -135,7 +143,7 @@ namespace Lina
         // Editor if used
 #ifndef LINA_PRODUCTION
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
-            m_editor.Initialize(&m_levelManager, this, m_renderEngine.m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID], m_renderEngine.m_guiBackend, &m_renderEngine.m_windowManager);
+            m_editor.Initialize(subsystems);
 #endif
 
         // Runtime info setup
@@ -217,17 +225,13 @@ namespace Lina
         // Calculate FPS, UPS.
         if (m_currentFrameTime - m_totalFPSTime >= 1.0)
         {
-            m_frameTime  = Time::s_deltaTime * 1000;
-            m_currentFPS = m_frames;
-            m_currentUPS = m_updates;
+            m_frameTime = Time::s_deltaTime * 1000;
+            Time::s_fps = m_frames;
+            Time::s_ups = m_updates;
             m_totalFPSTime += 1.0f;
             m_frames  = 0;
             m_updates = 0;
         }
-
-        const String title = m_initialTitle + " FPS: " + TO_STRING(m_currentFPS) + " UPS: " + TO_STRING(m_currentUPS);
-        m_renderEngine.m_windowManager.GetMainWindowPtr()->SetTitle(title.c_str());
-        // LINA_TRACE("FPS: {0}", m_currentFPS);
 
         if (m_firstRun)
             m_firstRun = false;

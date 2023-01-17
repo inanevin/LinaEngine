@@ -39,9 +39,8 @@ layout (location = 2) in vec4 col;
 layout (location = 0) out vec4 fCol;
 layout (location = 1) out vec2 fUV;
 
-layout(set = 2, binding = 0) uniform MaterialData
-{
-   mat4 projection;
+struct GUIData{
+	mat4 projection;
    vec4 color1;
    vec4 color2;
    vec2 vec2pack1;
@@ -52,7 +51,16 @@ layout(set = 2, binding = 0) uniform MaterialData
    int intvar1;
    int intvar2;
    int intvar3;
-} material;
+};
+
+//all object matrices
+layout(std140,set = 2, binding = 1) readonly buffer guiBuffer{
+
+	GUIData objects[];
+} guiBuffer;
+
+layout(set = 2, binding = 2) uniform sampler2D textures[];
+layout(set = 2, binding = 3) uniform int numTextures;
 
 void main()
 {

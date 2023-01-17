@@ -76,6 +76,16 @@ namespace Lina
             return static_cast<float>(GetElapsedTime());
         }
 
+        static inline int GetFPS()
+        {
+            return s_fps;
+        }
+        
+          static inline int GetUPS()
+        {
+            return s_fps;
+        }
+        
     private:
         friend class Engine;
 
@@ -88,7 +98,8 @@ namespace Lina
         static double s_deltaTime;
         static double s_smoothDeltaTime;
         static double s_startTime;
-
+        static int    s_ups;
+        static int    s_fps;
 #ifdef LINA_PLATFORM_WINDOWS
         static double s_timerFrequency;
         static bool   s_isTimerInitialized;

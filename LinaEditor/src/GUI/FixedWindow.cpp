@@ -29,7 +29,5 @@ SOFTWARE.
 #include "GUI/FixedWindow.hpp"
 namespace Lina::Editor
 {
-	void FixedWindow::Draw()
-	{
-	}
+	
 } // namespace Lina::Editor

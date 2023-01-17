@@ -34,8 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
-    Graphics::Texture* TexturePacker::PackFilesOrdered(Vector<String>& paths, int maxWidth, Vector<PackedTexture>& packed)
+    Graphics::Texture* TexturePacker::PackFilesOrdered(Graphics::UploadContext& uploader, Vector<String>& paths, int maxWidth, Vector<PackedTexture>& packed)
     {
         Graphics::Texture* txt = new Graphics::Texture();
 
@@ -187,7 +186,7 @@ namespace Lina::Editor
 
         // Upload to gpu
         // Might be transferred late, so don't destroy cpu buffer right away
-        txt->WriteToGPUImage(Graphics::Offset3D{.x = 0, .y = 0, .z = 0}, txt->GetExtent(), true);
+        txt->WriteToGPUImage(uploader, Graphics::Offset3D{.x = 0, .y = 0, .z = 0}, txt->GetExtent(), true);
 
         return txt;
     }

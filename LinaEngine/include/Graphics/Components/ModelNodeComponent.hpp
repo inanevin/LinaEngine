@@ -91,6 +91,10 @@ namespace Lina::Graphics
         friend class Model;
         friend class Renderer;
 
+        Mesh*                                                m_stubMesh      = nullptr;
+        Material*                                            m_stubMaterial  = nullptr;
+        Model*                                               m_stubModel     = nullptr;
+        ModelNode*                                           m_stubModelNode = nullptr;
         Resources::ResourceHandle<Model>                     m_modelHandle;
         HashMap<uint32, Resources::ResourceHandle<Material>> m_materials; // Index - material pair
         uint32                                               m_nodeIndex = 0;

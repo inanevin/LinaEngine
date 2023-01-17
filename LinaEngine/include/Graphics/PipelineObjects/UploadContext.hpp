@@ -43,7 +43,8 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     class RQueue;
-
+    class DeletionQueue;
+    
     class UploadContext
     {
     public:
@@ -52,7 +53,7 @@ namespace Lina::Graphics
     private:
         friend class RenderEngine;
 
-        void Create();
+        void Create(DeletionQueue& deletionQueue);
         void Destroy();
         void Poll();
         void Transfer(Command& cmd);
@@ -61,7 +62,7 @@ namespace Lina::Graphics
         Mutex          m_mtx;
         Fence          m_fence;
         CommandPool    m_pool;
-        CommandBuffer  m_buffer;
+        CommandBuffer  m_cmd;
         Queue<Command> m_waitingUploads;
     };
 } // namespace Lina::Graphics

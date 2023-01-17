@@ -372,13 +372,13 @@ namespace Lina::Graphics
             m_materialLayout.AddBinding(b.second);
 
         // m_materialLayout.flags = DescriptorSetCreateFlags::UpdateAfterBind;
-        m_materialLayout.Create();
+        m_materialLayout.Create(m_subsystems.renderEngine->GetMainDeletionQueue());
 
-        m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::GlobalSet));
-        m_pipelineLayout.AddDescriptorSetLayout(RenderEngine::Get()->GetLayout(DescriptorSetType::PassSet));
+        m_pipelineLayout.AddDescriptorSetLayout(m_subsystems.renderEngine->GetLayout(DescriptorSetType::GlobalSet));
+        m_pipelineLayout.AddDescriptorSetLayout(m_subsystems.renderEngine->GetLayout(DescriptorSetType::PassSet));
         m_pipelineLayout.AddDescriptorSetLayout(m_materialLayout);
 
-        m_pipelineLayout.Create();
+        m_pipelineLayout.Create(m_subsystems.renderEngine->GetMainDeletionQueue());
 
         ColorBlendAttachmentState blendAttachment = ColorBlendAttachmentState{
             .blendEnable         = true,
@@ -419,7 +419,7 @@ namespace Lina::Graphics
             m_pipeline.frontFace = FrontFace::AntiClockWise;
         }
 
-        // m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(RenderEngine::Get()->GetRenderer()->GetRenderPass(rp)).Create();
-        m_pipeline.SetShader(this).SetLayout(m_pipelineLayout).Create();
+        // m_pipelines[rp].SetShader(this).SetLayout(m_pipelineLayout).SetRenderPass(m_subsystems.renderEngine->GetRenderer()->GetRenderPass(rp)).Create();
+        m_pipeline.SetShader(this).SetLayout(m_pipelineLayout).Create(m_subsystems.renderEngine->GetMainDeletionQueue());
     }
 } // namespace Lina::Graphics

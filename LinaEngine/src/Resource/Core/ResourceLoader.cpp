@@ -234,6 +234,7 @@ namespace Lina::Resources
         res->m_tid      = tid;
 
         Serialization::Archive<IStream> finalArchive = copyArchive;
+        res->SetSubsystems(m_subsystems);
         res->LoadFromMemory(finalArchive);
         finalArchive.GetStream().Destroy();
 

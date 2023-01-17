@@ -28,13 +28,13 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/CommandPool.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void CommandPool::Create(bool destroyAuto)
+    void CommandPool::Create()
     {
         VkCommandPoolCreateInfo commandPoolInfo = VkCommandPoolCreateInfo{
             .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -45,14 +45,13 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateCommandPool(Backend::Get()->GetDevice(), &commandPoolInfo, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Command Pool] -> Could not create command pool!");
+    }
 
-        if (destroyAuto)
-        {
-            VkCommandPool_T* ptr = _ptr;
-            RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() {
-                vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator());
-            }));
-        }
+    void CommandPool::Create(DeletionQueue& deletionQueue)
+    {
+        Create();
+        VkCommandPool_T* ptr = _ptr;
+        deletionQueue.Push(std::bind([ptr]() { vkDestroyCommandPool(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); }));
     }
 
     void CommandPool::Destroy()

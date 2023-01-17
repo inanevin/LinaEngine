@@ -49,11 +49,6 @@ namespace Lina::Graphics
         Font()  = default;
         ~Font() = default;
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-        void              ClearBuffers();
-
         template <typename... Args> inline void GenerateFont(bool isSDF, Args... args)
         {
             (GenerateFontImpl(isSDF, std::forward<Args>(args)), ...);
@@ -63,11 +58,15 @@ namespace Lina::Graphics
         uint32 GetHandle(int size);
 
     protected:
-        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         void GenerateFontImpl(bool isSDF, int size);
+        void ClearBuffers();
 
     private:
         AssetData            m_assetData;

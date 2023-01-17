@@ -33,21 +33,8 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
-
-    void CameraSystem::CalculateCamera(CameraComponent* cam)
-    {
-        const float aspect = m_windowManager->GetMainWindow().GetAspect();
-        if (aspect == 0.0f)
-            return;
-
-        CalculateCamera(cam, aspect);
-    }
-
     void CameraSystem::CalculateCamera(CameraComponent* cam, float aspect)
     {
-        if (aspect == 0.0f)
-            aspect = m_windowManager->GetMainWindow().GetAspect();
-
         World::Entity*   e      = cam->GetEntity();
         const Vector3    pos    = e->GetPosition();
         const Quaternion camRot = e->GetRotation();

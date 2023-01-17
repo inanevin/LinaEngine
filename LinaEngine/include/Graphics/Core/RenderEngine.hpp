@@ -80,13 +80,8 @@ namespace Lina::Graphics
 
     private:
     public:
-        RenderEngine();
+        RenderEngine()  = default;
         ~RenderEngine() = default;
-
-        static inline RenderEngine* Get()
-        {
-            return s_instance;
-        }
 
         Vector<String> GetEngineShaderPaths();
         Vector<String> GetEnginePrimitivePaths();
@@ -183,9 +178,19 @@ namespace Lina::Graphics
             return m_childWindowRenderers;
         }
 
+        inline GUIBackend* GetGUIBackend()
+        {
+            return m_guiBackend;
+        }
+
+        inline WindowManager* GetWindowManager()
+        {
+            return &m_windowManager;
+        }
+
         void AddToActionSyncQueue(const SimpleAction& act);
         void CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer);
-        void DestroyChildWindow(StringID sid, bool immediate = false);
+        void DestroyChildWindow(StringID sid);
         void AddRenderer(Renderer* renderer);
         void DeleteRenderer(Renderer* renderer);
 
@@ -211,8 +216,6 @@ namespace Lina::Graphics
         void OnResourceLoaded(const Event::EResourceLoaded& res);
 
     private:
-        static RenderEngine* s_instance;
-
         DeletionQueue                         m_mainDeletionQueue;
         WindowManager                         m_windowManager;
         InitInfo                              m_appInfo;
@@ -225,6 +228,7 @@ namespace Lina::Graphics
         Buffer                                m_cpuIndexBuffer;
         Buffer                                m_gpuVtxBuffer;
         Buffer                                m_gpuIndexBuffer;
+        Mutex                                 m_syncQueueMtx;
         bool                                  m_initedSuccessfully = false;
         bool                                  m_hasLevelLoaded     = false;
         Frame                                 m_frames[FRAMES_IN_FLIGHT];

@@ -435,6 +435,11 @@ namespace Lina::Graphics
         UniformBufferDynamic,
         CombinedImageSampler,
         StorageBuffer,
+        UniformTexelBuffer,
+        StorageTexelBuffer,
+        Sampler,
+        SampledImage,
+        StorageImage
     };
 
     extern VkDescriptorType GetDescriptorType(DescriptorType type);
@@ -524,10 +529,10 @@ namespace Lina::Graphics
 
     enum class VulkanResult
     {
-        Unknown = 0,
-        OutOfDateKHR = 1,
+        Unknown       = 0,
+        OutOfDateKHR  = 1,
         SuboptimalKHR = 2,
-        Success = 3, 
+        Success       = 3,
         Timeout,
         NotReady,
         ErrorOutOfHostMemory,

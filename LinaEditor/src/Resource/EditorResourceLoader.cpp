@@ -141,6 +141,7 @@ namespace Lina::Resources
         res->m_sid      = sid;
         res->m_path     = path;
         res->m_tid      = tid;
+        res->SetSubsystems(m_subsystems);
         res->LoadFromFile(path);
 
         LOCK_GUARD(m_mtx);

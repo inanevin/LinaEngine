@@ -37,10 +37,12 @@ struct VkDescriptorSetLayout_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class DescriptorSetLayout
     {
     public:
-        void                 Create();
+        void                 Create(DeletionQueue& deletionQueue);
         DescriptorSetLayout& AddBinding(DescriptorSetLayoutBinding binding);
         DescriptorSetLayout& AddBindingFlag(DescriptorSetLayoutBindingFlags flag);
 

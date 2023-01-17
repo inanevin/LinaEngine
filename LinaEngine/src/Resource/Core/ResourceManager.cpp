@@ -62,9 +62,9 @@ namespace Lina::Resources
             c.second->LoadReferences();
     }
 
-    void ResourceManager::Initialize()
+    void ResourceManager::Initialize(const EngineSubsystems& subsystems)
     {
-        m_loader = new ResourceLoader();
+        m_loader = new ResourceLoader(subsystems);
     }
 
     void ResourceManager::Shutdown()

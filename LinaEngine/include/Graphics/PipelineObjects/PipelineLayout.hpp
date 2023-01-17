@@ -39,11 +39,12 @@ struct VkDescriptorSetLayout_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
 
     class PipelineLayout
     {
     public:
-        void            Create();
+        void            Create(DeletionQueue& deletionQueue);
         PipelineLayout& AddPushConstant(const PushConstantRange& r);
         PipelineLayout& AddDescriptorSetLayout(const DescriptorSetLayout& l);
 

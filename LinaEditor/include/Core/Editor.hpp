@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "EditorGUIManager.hpp"
 #include "ShortcutManager.hpp"
-#include "GUI/GUI.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
@@ -76,7 +76,7 @@ namespace Lina::Editor
         Editor()          = default;
         virtual ~Editor() = default;
 
-        void Initialize(World::LevelManager* lvlManager, Engine* engine, Graphics::Swapchain* swp, Graphics::GUIBackend* guiBackend, Graphics::WindowManager* windowManager);
+        void Initialize(const EngineSubsystems& subsystems);
         void OnLevelInstalled(const Event::ELevelInstalled& ev);
         void Shutdown();
         void VerifyStaticResources();
@@ -95,18 +95,13 @@ namespace Lina::Editor
     private:
         friend class Engine;
 
-        Graphics::GUIBackend*            m_guiBackend    = nullptr;
-        Graphics::WindowManager*         m_windowManager = nullptr;
         Resources::EditorResourceLoader* m_resLoader;
         World::Entity*                   m_editorCamera = nullptr;
         EditorGUIManager                 m_guiManager;
         ShortcutManager                  m_shortcutManager;
-        ImmediateGUI                     m_gui;
-        World::LevelManager*             m_levelManager  = nullptr;
-        World::EntityWorld*              m_world         = nullptr;
-        Engine*                          m_engine        = nullptr;
-        Graphics::Swapchain*             m_mainSwapchain = nullptr;
+        World::EntityWorld*              m_world = nullptr;
         DockSetup*                       m_dockSetup;
+        EngineSubsystems                 m_subsys;
     };
 } // namespace Lina::Editor
 

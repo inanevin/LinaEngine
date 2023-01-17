@@ -37,10 +37,13 @@ struct VkSampler_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class Sampler
     {
     public:
-        void Create(bool autoDestroy = true);
+        void Create();
+        void Create(DeletionQueue& deletionQueue);
         void Destroy();
 
         // Description

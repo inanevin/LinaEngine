@@ -28,13 +28,14 @@ SOFTWARE.
 
 #include "Graphics/PipelineObjects/Semaphore.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void Semaphore::Create(bool autoDestroy)
+
+    void Semaphore::Create()
     {
         VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo{
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -44,12 +45,13 @@ namespace Lina::Graphics
 
         VkResult result = vkCreateSemaphore(Backend::Get()->GetDevice(), &info, Backend::Get()->GetAllocator(), &_ptr);
         LINA_ASSERT(result == VK_SUCCESS, "[Semaphore] -> Could not create Vulkan Semaphore!");
+    }
 
-        if (autoDestroy)
-        {
-            VkSemaphore_T* ptr = _ptr;
-            RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptr]() { vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); }));
-        }
+    void Semaphore::Create(DeletionQueue& deletionQueue)
+    {
+        Create();
+        VkSemaphore_T* ptr = _ptr;
+        deletionQueue.Push(std::bind([ptr]() { vkDestroySemaphore(Backend::Get()->GetDevice(), ptr, Backend::Get()->GetAllocator()); }));
     }
 
     void Semaphore::Destroy()

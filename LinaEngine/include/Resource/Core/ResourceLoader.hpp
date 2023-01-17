@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Utility/StringId.hpp"
 #include "ResourceCommon.hpp"
 #include "Data/DataCommon.hpp"
+#include "Core/CommonEngine.hpp"
 
 namespace Lina
 {
@@ -55,7 +56,7 @@ namespace Lina::Resources
     class ResourceLoader
     {
     public:
-        ResourceLoader()          = default;
+        ResourceLoader(const EngineSubsystems& subsystems) : m_subsystems(subsystems){};
         virtual ~ResourceLoader() = default;
 
         virtual void LoadLevelResources(const Vector<Pair<TypeID, String>>& resources);
@@ -65,6 +66,9 @@ namespace Lina::Resources
     protected:
         void LoadResources(PackageType packageType, const Vector<Pair<TypeID, String>>& resources, bool async);
         void LoadResourceFromMemory(TypeID tid, const char* path, uint8* data, uint32 size);
+
+    protected:
+        EngineSubsystems m_subsystems;
 
     private:
         Mutex m_mtx;

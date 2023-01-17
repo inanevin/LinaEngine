@@ -38,7 +38,7 @@ namespace Lina::Graphics
     class SkinnedMesh : public Mesh
     {
     public:
-        SkinnedMesh()          = default;
+        SkinnedMesh(RenderEngine* renderEngine) : Mesh(renderEngine){};
         virtual ~SkinnedMesh() = default;
 
         virtual MeshType GetMeshType() override

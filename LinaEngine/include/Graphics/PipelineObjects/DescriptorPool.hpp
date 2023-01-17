@@ -38,10 +38,13 @@ struct VkDescriptorPool_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+
     class DescriptorPool
     {
     public:
-        void            Create(bool autoDestroy = true);
+        void            Create();
+        void            Create(DeletionQueue& deletionQueue);
         DescriptorPool& AddPoolSize(DescriptorType type, uint32 count);
         void            Destroy();
 

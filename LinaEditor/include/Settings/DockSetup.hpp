@@ -70,14 +70,15 @@ namespace Lina::Editor
             }
         };
 
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
         inline const Vector<DockSwapchain>& GetSwapchains()
         {
             return m_dockSwapchains;
         }
+
+    protected:
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
     private:
         FRIEND_ARCHIVE;

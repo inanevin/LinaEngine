@@ -55,9 +55,9 @@ namespace Lina
 namespace Lina::Graphics
 {
     class SurfaceRenderer;
+
     class WorldRenderer : public Renderer
     {
-
     public:
         struct RenderWorldData
         {
@@ -100,7 +100,7 @@ namespace Lina::Graphics
     protected:
         friend class RenderEngine;
 
-        virtual bool           Initialize(GUIBackend* guiBackend, WindowManager* windowManager, RenderEngine* eng) override;
+        virtual bool           Initialize(RenderEngine* renderEngine) override;
         virtual void           Shutdown() override;
         virtual void           SyncData() override;
         virtual void           Tick() override;

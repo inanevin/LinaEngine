@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Material.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
 #include "Resource/Core/ResourceManager.hpp"
 #include "Graphics/PipelineObjects/CommandBuffer.hpp"
 #include "Serialization/Serialization.hpp"
@@ -82,7 +81,7 @@ namespace Lina::Graphics
             if (manager->Exists<Shader>(m_shader.sid))
                 SetShader(manager->GetResource<Shader>(m_shader.sid));
             else
-                SetShader(RenderEngine::Get()->GetEngineShader(EngineShaderType::LitStandard));
+                SetShader(Resources::ResourceManager::Get()->GetResource<Shader>("Resources/Engine/Shaders/LitStandard.linashader"));
         }
 
         SetupProperties();
@@ -128,8 +127,14 @@ namespace Lina::Graphics
             .maxSets = 10,
             .flags   = DescriptorPoolCreateFlags::None,
         };
-        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 2).AddPoolSize(DescriptorType::UniformBufferDynamic, 2).AddPoolSize(DescriptorType::CombinedImageSampler, 2).Create(false);
+        m_descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 2).AddPoolSize(DescriptorType::UniformBufferDynamic, 2).AddPoolSize(DescriptorType::CombinedImageSampler, 2).Create();
 
+        const auto& bindings = m_shader.value->GetMaterialSetLayout().bindings;
+
+        for (auto& b : bindings)
+        {
+            int a = 5;
+        }
         if (!m_shader.value->GetMaterialSetLayout().bindings.empty())
         {
             m_descriptor = DescriptorSet{
@@ -157,7 +162,7 @@ namespace Lina::Graphics
 
         m_properties.clear();
         m_textures.clear();
-        Texture* defaultLina = RenderEngine::Get()->GetEngineTexture(EngineTextureType::LogoWithText);
+        Texture* defaultLina = Resources::ResourceManager::Get()->GetResource<Texture>("Resources/Engine/Textures/LogoWithText.png");
 
         const auto& vec = m_shader.value->GetReflectedProperties();
 

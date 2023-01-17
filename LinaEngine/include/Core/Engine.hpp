@@ -119,8 +119,6 @@ namespace Lina
         bool                                   m_shouldSkipFrame    = false;
         bool                                   m_paused             = false;
         bool                                   m_isInPlayMode       = false;
-        int                                    m_currentFPS         = 0;
-        int                                    m_currentUPS         = 0;
         double                                 m_updateTime         = 0;
         double                                 m_renderTime         = 0;
         double                                 m_frameTime          = 0;

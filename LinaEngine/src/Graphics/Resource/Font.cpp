@@ -82,7 +82,7 @@ namespace Lina::Graphics
         m_assetData.isSDF = isSDF;
         m_assetData.size  = size;
 
-        const int contentScale = static_cast<int>(RenderEngine::Get()->GetScreen().GetContentScale().x);
+        const int contentScale = static_cast<int>(m_subsystems.renderEngine->GetScreen().GetContentScale().x);
 
         if (ApplicationInfo::GetAppMode() == ApplicationMode::Editor)
             m_handles[size] = LinaVG::LoadFont(m_path.c_str(), m_assetData.isSDF, m_assetData.size * contentScale);

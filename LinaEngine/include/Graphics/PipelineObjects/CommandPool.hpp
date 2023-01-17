@@ -37,10 +37,13 @@ struct VkCommandPool_T;
 
 namespace Lina::Graphics
 {
+    class DeletionQueue;
+    
     class CommandPool
     {
     public:
-        void Create(bool destroyAuto = true);
+        void Create();
+        void Create(DeletionQueue& deletionQueue);
         void Reset();
         void Destroy();
 

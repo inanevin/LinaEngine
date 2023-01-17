@@ -61,10 +61,6 @@ namespace Lina::World
             archive(m_world);
         }
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
-
         void SaveToFile(const String& path);
         void LoadWithoutWorld(const String& path);
         void ResourcesLoaded();
@@ -83,6 +79,11 @@ namespace Lina::World
         {
             return m_world;
         }
+
+    protected:
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
 
     private:
         void Install();

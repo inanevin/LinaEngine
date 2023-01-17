@@ -52,20 +52,20 @@ namespace Lina
         EngineSettings()  = default;
         ~EngineSettings() = default;
 
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
-        template <typename Archive>
-        void Serialize(Archive& ar)
+        template <typename Archive> void Serialize(Archive& ar)
         {
-           ar(m_packagedLevels);
+            ar(m_packagedLevels);
         }
 
         inline const Vector<String>& GetPackagedLevels() const
         {
             return m_packagedLevels;
         }
+
+    protected:
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
     private:
         friend class Engine;

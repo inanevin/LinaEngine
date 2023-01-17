@@ -27,8 +27,9 @@ SOFTWARE.
 */
 
 #include "GUI/Drawable.hpp"
+#include "Graphics/PipelineObjects/Swapchain.hpp"
 
 namespace Lina::Editor
 {
-    
+   
 } // namespace Lina::Editor

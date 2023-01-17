@@ -50,16 +50,12 @@ namespace Lina::Physics
         PhysicsMaterial()  = default;
         ~PhysicsMaterial() = default;
 
-        template <class Archive>
-        void Serialize(Archive& archive)
+        template <class Archive> void Serialize(Archive& archive)
         {
             archive(m_staticFriction, m_dynamicFriction, m_restitution);
         }
 
         static PhysicsMaterial* CreatePhysicsMaterial(const String& savePath, float staticFriction, float dynamicFriction, float restitution);
-        virtual Resource*       LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource*       LoadFromFile(const char* path) override;
-        virtual void            WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
         float GetStaticFriction()
         {
@@ -73,6 +69,11 @@ namespace Lina::Physics
         {
             return m_restitution;
         }
+
+    protected:
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
 
     private:
         friend class World::Level;

@@ -29,14 +29,14 @@ SOFTWARE.
 #include "Graphics/PipelineObjects/Image.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Core/Backend.hpp"
-#include "Graphics/Core/RenderEngine.hpp"
+#include "Graphics/Utility/DeletionQueue.hpp"
 #include "Log/Log.hpp"
 #include "Graphics/Utility/Vulkan/vk_mem_alloc.h"
 #include <vulkan/vulkan.h>
 
 namespace Lina::Graphics
 {
-    void Image::Create(bool createImageView, bool autoDestroy)
+    void Image::Create(bool createImageView)
     {
         VkImageCreateInfo imgInfo = VulkanUtility::GetImageCreateInfo(format, imageUsageFlags, tiling, extent, initialLayout, sharingMode, mipLevels);
 
@@ -54,21 +54,22 @@ namespace Lina::Graphics
             res                            = vkCreateImageView(Backend::Get()->GetDevice(), &viewInfo, Backend::Get()->GetAllocator(), &_ptrImgView);
             LINA_ASSERT(res == VK_SUCCESS, "[Image] -> Could not create image view!");
         }
+    }
+
+    void Image::Create(DeletionQueue& deletionQueue, bool createImageView)
+    {
+        Create(createImageView);
 
         VkImageView   ptrImageView = _ptrImgView;
         VkImage       ptrImg       = _allocatedImg.image;
         VmaAllocation allocation   = _allocatedImg.allocation;
-
-        if (autoDestroy)
-        {
-            RenderEngine::Get()->GetMainDeletionQueue().Push(std::bind([ptrImageView, ptrImg, allocation]() {
-                vmaDestroyImage(Backend::Get()->GetVMA(), ptrImg, allocation);
-                if (ptrImageView)
-                    vkDestroyImageView(Backend::Get()->GetDevice(), ptrImageView, nullptr);
-            }));
-        }
+        deletionQueue.Push(std::bind([ptrImageView, ptrImg, allocation]() {
+            vmaDestroyImage(Backend::Get()->GetVMA(), ptrImg, allocation);
+            if (ptrImageView)
+                vkDestroyImageView(Backend::Get()->GetDevice(), ptrImageView, nullptr);
+        }));
     }
-
+    
     void Image::Destroy()
     {
         if (_ptrImgView != nullptr)

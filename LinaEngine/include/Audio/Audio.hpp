@@ -53,19 +53,17 @@ namespace Lina::Audio
         Audio() = default;
         virtual ~Audio();
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
-
         unsigned int GetBuffer()
         {
             return m_buffer;
         }
 
     protected:
-
-        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive) override;
+        virtual void      SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         static void CheckForError();

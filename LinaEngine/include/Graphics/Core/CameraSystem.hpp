@@ -37,23 +37,14 @@ SOFTWARE.
 namespace Lina::Graphics
 {
     class CameraComponent;
-    class WindowManager;
+    
     class CameraSystem
     {
     public:
         CameraSystem()  = default;
         ~CameraSystem() = default;
 
-        void Initialize(WindowManager* windowManager)
-        {
-            m_windowManager = windowManager;
-        }
-
-        void CalculateCamera(CameraComponent* cam);
         void CalculateCamera(CameraComponent* cam, float aspect);
-
-    private:
-        WindowManager* m_windowManager = nullptr;
     };
 } // namespace Lina::Graphics
 

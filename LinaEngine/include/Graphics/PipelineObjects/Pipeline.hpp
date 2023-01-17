@@ -44,11 +44,12 @@ namespace Lina::Graphics
     class Shader;
     class PipelineLayout;
     class CommandBuffer;
+    class DeletionQueue;
 
     class Pipeline
     {
     public:
-        void      Create();
+        void      Create(DeletionQueue& deletionQueue);
         Pipeline& SetShader(Shader* shader);
         Pipeline& SetRenderPass(const RenderPass& rp);
         Pipeline& SetLayout(const PipelineLayout& layout);

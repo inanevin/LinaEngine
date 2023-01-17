@@ -34,10 +34,8 @@ namespace Lina::Graphics
 {
     AABB& ModelNodeComponent::GetAABB()
     {
-        Model*     placeholderModel = RenderEngine::Get()->GetPlaceholderModel();
-        ModelNode* placeholderNode  = RenderEngine::Get()->GetPlaceholderModelNode();
-        Model*     model            = m_modelHandle.IsValid() ? m_modelHandle.value : placeholderModel;
-        ModelNode* node             = m_modelHandle.IsValid() ? model->GetNodes()[m_nodeIndex] : placeholderNode;
+        Model*     model = m_modelHandle.IsValid() ? m_modelHandle.value : m_stubModel;
+        ModelNode* node  = m_modelHandle.IsValid() ? model->GetNodes()[m_nodeIndex] : m_stubModelNode;
         return node->GetAABB();
     }
 
@@ -62,8 +60,8 @@ namespace Lina::Graphics
         if (!m_modelHandle.IsValid())
         {
             MeshMaterialPair p;
-            p.mesh     = RenderEngine::Get()->GetPlaceholderMesh();
-            p.material = RenderEngine::Get()->GetPlaceholderMaterial();
+            p.mesh     = m_stubMesh;
+            p.material = m_stubMaterial;
             pairs.push_back(p);
             return pairs;
         }
@@ -75,7 +73,7 @@ namespace Lina::Graphics
         {
             MeshMaterialPair p;
             p.mesh     = m;
-            p.material = m_materials[index].IsValid() ? m_materials[index].value : RenderEngine::Get()->GetPlaceholderMaterial();
+            p.material = m_materials[index].IsValid() ? m_materials[index].value : m_stubMaterial;
             pairs.push_back(p);
             index++;
         }

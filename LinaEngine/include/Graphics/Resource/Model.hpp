@@ -64,10 +64,6 @@ namespace Lina::Graphics
         Model() = default;
         virtual ~Model();
 
-        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
-        virtual Resource* LoadFromFile(const char* path) override;
-        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
-
         World::Entity* AddToWorld(World::EntityWorld* w);
 
         inline AssetData& GetAssetData()
@@ -86,8 +82,11 @@ namespace Lina::Graphics
         }
 
     protected:
-        virtual void SaveToArchive(Serialization::Archive<OStream>& archive) override;
-        virtual void LoadFromArchive(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromMemory(Serialization::Archive<IStream>& archive) override;
+        virtual Resource* LoadFromFile(const char* path) override;
+        virtual void      WriteToPackage(Serialization::Archive<OStream>& archive);
+        virtual void      SaveToArchive(Serialization::Archive<OStream>& archive) override;
+        virtual void      LoadFromArchive(Serialization::Archive<IStream>& archive) override;
 
     private:
         World::Entity* CreateEntityForNode(World::Entity* parent, World::EntityWorld* w, ModelNode* n);

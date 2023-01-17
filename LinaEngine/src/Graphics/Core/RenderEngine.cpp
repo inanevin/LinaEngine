@@ -35,6 +35,7 @@ SOFTWARE.
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WindowEvents.hpp"
 #include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/GraphicsEvents.hpp"
 #include "EventSystem/LevelEvents.hpp"
 #include "EventSystem/ResourceEvents.hpp"
 #include "Resource/Core/ResourceManager.hpp"
@@ -44,11 +45,11 @@ SOFTWARE.
 #include "Graphics/Resource/Mesh.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
+
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Utility/Vulkan/VulkanUtility.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/WorldRenderer.hpp"
-
 #include "Graphics/Platform/LinaVGIncl.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -61,62 +62,46 @@ namespace Lina::Graphics
 #define DEF_VTXBUF_SIZE   sizeof(Vertex) * 2000
 #define DEF_INDEXBUF_SIZE sizeof(uint32) * 2000
 
-    RenderEngine* RenderEngine::s_instance = nullptr;
     Model*        cube                     = nullptr;
 
     void RenderEngine::AddToActionSyncQueue(const SimpleAction& act)
     {
+        LOCK_GUARD(m_syncQueueMtx);
         m_syncedActions.push_back(act);
     }
 
     void RenderEngine::CreateChildWindow(const String& name, const Vector2i& pos, const Vector2i& size, SurfaceRenderer* associatedRenderer)
     {
-        SimpleAction act;
-        act.Action = [this, name, pos, size, associatedRenderer]() {
-            const StringID sid = TO_SID(name);
-            m_windowManager.CreateAppWindow(m_windowManager.GetMainWindow().GetHandle(), name.c_str(), pos, size, true);
-            auto& createdWindow = m_windowManager.GetWindow(sid);
-            auto* windowPtr     = createdWindow.GetHandle();
-            auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, pos, size);
-            associatedRenderer->AssignSwapchain(swapchainPtr);
-            associatedRenderer->Initialize(m_guiBackend, &m_windowManager, this);
-            m_childWindowRenderers[sid] = associatedRenderer;
-            m_renderers.push_back(associatedRenderer);
-        };
-
-        m_syncedActions.push_back(act);
+        const StringID sid = TO_SID(name);
+        m_windowManager.CreateAppWindow(m_windowManager.GetMainWindow().GetHandle(), name.c_str(), pos, size, true);
+        auto& createdWindow = m_windowManager.GetWindow(sid);
+        auto* windowPtr     = createdWindow.GetHandle();
+        auto* swapchainPtr  = Backend::Get()->CreateAdditionalSwapchain(sid, windowPtr, pos, size);
+        associatedRenderer->AssignSwapchain(swapchainPtr);
+        associatedRenderer->Initialize(this);
+        m_childWindowRenderers[sid] = associatedRenderer;
+        m_renderers.push_back(associatedRenderer);
     }
 
-    void RenderEngine::DestroyChildWindow(StringID sid, bool immediate)
+    void RenderEngine::DestroyChildWindow(StringID sid)
     {
-        // First need to remove associated the renderer.
-        SimpleAction act;
-        act.Action = [this, sid]() {
-            Backend::Get()->WaitIdle();
-            auto it                = m_childWindowRenderers.find(sid);
-            auto renderer          = it->second;
-            auto itInRenderersList = linatl::find_if(m_renderers.begin(), m_renderers.end(), [renderer](Renderer* r) { return r == renderer; });
-            m_renderers.erase(itInRenderersList);
-            m_childWindowRenderers.erase(it);
-            renderer->Shutdown();
-            delete renderer;
-            m_windowManager.DestroyAppWindow(sid);
-            Backend::Get()->DestroyAdditionalSwapchain(sid);
-            m_windowManager.DestroyAppWindow(sid);
-            m_guiBackend->RemoveBufferCapsule(sid);
-        };
-
-        if (immediate)
-            act.Action();
-        else
-            m_syncedActions.push_back(act);
+        Backend::Get()->WaitIdle();
+        auto it                = m_childWindowRenderers.find(sid);
+        auto renderer          = it->second;
+        auto itInRenderersList = linatl::find_if(m_renderers.begin(), m_renderers.end(), [renderer](Renderer* r) { return r == renderer; });
+        m_renderers.erase(itInRenderersList);
+        m_childWindowRenderers.erase(it);
+        renderer->Shutdown();
+        delete renderer;
+        m_windowManager.DestroyAppWindow(sid);
+        Backend::Get()->DestroyAdditionalSwapchain(sid);
     }
 
     void RenderEngine::AddRenderer(Renderer* renderer)
     {
         SimpleAction action;
         action.Action = [this, renderer]() {
-            if (renderer->Initialize(m_guiBackend, &m_windowManager, this))
+            if (renderer->Initialize(this))
                 m_renderers.push_back(renderer);
         };
         m_syncedActions.push_back(action);
@@ -173,7 +158,7 @@ namespace Lina::Graphics
             .type            = DescriptorType::UniformBuffer,
         };
 
-        m_descriptorLayouts[DescriptorSetType::GlobalSet].AddBinding(globalBinding).Create();
+        m_descriptorLayouts[DescriptorSetType::GlobalSet].AddBinding(globalBinding).Create(m_mainDeletionQueue);
 
         DescriptorSetLayoutBinding sceneBinding = DescriptorSetLayoutBinding{
             .binding         = 0,
@@ -203,10 +188,10 @@ namespace Lina::Graphics
             .type            = DescriptorType::StorageBuffer,
         };
 
-        m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(sceneBinding).AddBinding(viewDataBinding).AddBinding(lightDataBinding).AddBinding(objDataBinding).Create();
+        m_descriptorLayouts[DescriptorSetType::PassSet].AddBinding(sceneBinding).AddBinding(viewDataBinding).AddBinding(lightDataBinding).AddBinding(objDataBinding).Create(m_mainDeletionQueue);
 
-        m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create();
-        m_gpuUploader.Create();
+        m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create(m_mainDeletionQueue);
+        m_gpuUploader.Create(m_mainDeletionQueue);
 
         // Init GUI Backend, LinaVG
         LinaVG::Config.displayPosX           = 0;
@@ -226,6 +211,7 @@ namespace Lina::Graphics
         LinaVG::Config.logCallback   = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 
         m_guiBackend = new GUIBackend();
+        m_guiBackend->SetRenderEngine(this);
         LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
         LinaVG::Initialize();
 
@@ -288,7 +274,7 @@ namespace Lina::Graphics
             Frame& f = m_frames[i];
 
             f.graphicsFence = Fence{.flags = GetFenceFlags(FenceFlags::Signaled)};
-            f.graphicsFence.Create();
+            f.graphicsFence.Create(m_mainDeletionQueue);
         }
     }
 
@@ -347,7 +333,7 @@ namespace Lina::Graphics
             if (submitSemaphore._markSignaled)
             {
                 submitSemaphore.Destroy();
-                submitSemaphore.Create(false);
+                submitSemaphore.Create();
             }
 
             const bool imageOK            = r->AcquireImage(frameIndex);
@@ -370,24 +356,51 @@ namespace Lina::Graphics
         Vector<Swapchain*>     swapchains;
         Vector<CommandBuffer*> commandBuffers;
 
-        commandBuffers.resize(worldRenderers.size());
+        const size_t worldRenderersSize   = static_cast<size_t>(worldRenderers.size());
+        const size_t surfaceRenderersSize = static_cast<size_t>(acquiredSurfaceRenderers.size());
+        imageIndices.resize(surfaceRenderersSize);
+        submitSemaphores.resize(surfaceRenderersSize);
+        presentSemaphores.resize(surfaceRenderersSize);
+        swapchains.resize(surfaceRenderersSize);
+        commandBuffers.resize(worldRenderersSize + surfaceRenderersSize);
 
         // Render worlds in parallel
         Taskflow tf;
         tf.for_each_index(0, static_cast<int>(worldRenderers.size()), 1, [&](int i) { commandBuffers[i] = worldRenderers[i]->Render(frameIndex, frame.graphicsFence); });
         JobSystem::Get()->GetMainExecutor().RunAndWait(tf);
 
-        for (auto r : acquiredSurfaceRenderers)
+        const int threadSize = static_cast<int>(acquiredSurfaceRenderers.size());
+
+        if (threadSize == 2)
         {
-            auto swp = r->GetSwapchain();
-            imageIndices.push_back(r->GetAcquiredImage());
-            commandBuffers.push_back(r->Render(frameIndex, frame.graphicsFence));
-            submitSemaphores.push_back(&swp->_submitSemaphores[frameIndex]);
-            presentSemaphores.push_back(&swp->_presentSemaphores[frameIndex]);
-            swapchains.push_back(swp);
+            int a = 5;
+        }
+        LINA_TRACE("Starting frame");
+
+        LinaVG::StartFrame(threadSize);
+        m_guiBackend->Prepare(frameIndex);
+
+        for (int i = 0; i < threadSize; i++)
+        {
+            auto sz = LinaVG::Internal::g_rendererData[i].m_defaultBuffers.m_size;
+            LINA_TRACE("Size {0}", sz);
         }
 
-        m_guiBackend->Reset();
+        Taskflow tf2;
+        tf2.for_each_index(0, static_cast<int>(acquiredSurfaceRenderers.size()), 1, [&](int i) {
+            auto r          = acquiredSurfaceRenderers[i];
+            auto swp        = r->GetSwapchain();
+            imageIndices[i] = r->GetAcquiredImage();
+            r->SetUserData(i);
+            commandBuffers[worldRenderersSize + i] = r->Render(frameIndex, frame.graphicsFence);
+            submitSemaphores[i]                    = &swp->_submitSemaphores[frameIndex];
+            presentSemaphores[i]                   = &swp->_presentSemaphores[frameIndex];
+            swapchains[i]                          = swp;
+        });
+
+        JobSystem::Get()->GetMainExecutor().RunAndWait(tf2);
+
+        LinaVG::EndFrame();
 
         // Submit command waits on the present semaphore, e.g. it waits for the acquired image to be ready.
         // Then submits command, and signals render semaphore when its submitted.
@@ -509,7 +522,7 @@ namespace Lina::Graphics
             // f.cpuVtxBuffer.Destroy();
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(vtxCmd);
+        m_gpuUploader.SubmitImmediate(vtxCmd);
 
         Command indexCmd;
         indexCmd.Record = [this, indexSize](CommandBuffer& cmd) {
@@ -530,7 +543,7 @@ namespace Lina::Graphics
             // f.cpuIndexBuffer.Destroy();
         };
 
-        RenderEngine::Get()->GetGPUUploader().SubmitImmediate(indexCmd);
+        m_gpuUploader.SubmitImmediate(indexCmd);
     }
 
     void RenderEngine::SyncData()
@@ -579,7 +592,7 @@ namespace Lina::Graphics
             childs.push_back(sid);
 
         for (auto c : childs)
-            DestroyChildWindow(c, true);
+            DestroyChildWindow(c);
 
         for (auto r : m_renderers)
         {
@@ -638,15 +651,15 @@ namespace Lina::Graphics
 
         if (m_appInfo.appMode == ApplicationMode::Editor)
         {
-            m_defaultWorldRenderer->Initialize(m_guiBackend, &m_windowManager, this);
-            m_defaultSurfaceRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultWorldRenderer->Initialize(this);
+            m_defaultSurfaceRenderer->Initialize(this);
             m_defaultSurfaceRenderer->SetRenderMask(RM_RenderGUI);
         }
         else
         {
             m_defaultSurfaceRenderer->SetRenderMask(RM_RenderGUI | RM_DrawOffscreenTexture);
-            m_defaultWorldRenderer->Initialize(m_guiBackend, &m_windowManager, this);
-            m_defaultSurfaceRenderer->Initialize(m_guiBackend, &m_windowManager, this);
+            m_defaultWorldRenderer->Initialize(this);
+            m_defaultSurfaceRenderer->Initialize(this);
             m_defaultSurfaceRenderer->SetOffscreenTexture(m_defaultWorldRenderer->GetFinalTexture());
             m_defaultWorldRenderer->AddFinalTextureListener(m_defaultSurfaceRenderer);
         }
@@ -658,7 +671,7 @@ namespace Lina::Graphics
     void RenderEngine::OnPreMainLoop(const Event::EPreMainLoop& ev)
     {
         auto mainSwapchain = m_backend.m_swapchains[LINA_MAIN_SWAPCHAIN_ID];
-        m_guiBackend->UpdateProjection(mainSwapchain->size);
+        // m_guiBackend->UpdateProjection(mainSwapchain->size);
     }
 
     void RenderEngine::OnWindowPositioned(const Event::EWindowPositioned& ev)
@@ -710,11 +723,6 @@ namespace Lina::Graphics
                 MergeMeshes();
             }
         }
-    }
-
-    RenderEngine::RenderEngine()
-    {
-        LINA_TRACE("E AQ TABI");
     }
 
     Vector<String> RenderEngine::GetEngineShaderPaths()

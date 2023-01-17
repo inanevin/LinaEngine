@@ -35,12 +35,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class FixedWindow : public Drawable
-    {
-    public:
-        virtual ~FixedWindow() = default;
-        virtual void Draw() override;
-    };
 } // namespace Lina::Editor
 
 #endif

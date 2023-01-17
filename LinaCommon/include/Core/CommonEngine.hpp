@@ -38,10 +38,47 @@ SOFTWARE.
 
 namespace Lina
 {
+    namespace Audio
+    {
+        class AudioEngine;
+    }
+
+    namespace Graphics
+    {
+        class RenderEngine;
+    }
+
+    namespace Physics
+    {
+        class PhysicsEngine;
+    }
+
+    namespace Input
+    {
+        class InputEngine;
+    }
+
     namespace Editor
     {
         class Editor;
     }
+
+    namespace World
+    {
+        class LevelManager;
+    }
+
+    class Engine;
+
+    struct EngineSubsystems
+    {
+        Engine*                 engine        = nullptr;
+        Graphics::RenderEngine* renderEngine  = nullptr;
+        Audio::AudioEngine*     audioEngine   = nullptr;
+        Physics::PhysicsEngine* physicsEngine = nullptr;
+        Input::InputEngine*     inputEngine   = nullptr;
+        World::LevelManager*    levelManager  = nullptr;
+    };
 
     class DefaultResources
     {
@@ -58,7 +95,6 @@ namespace Lina
         friend class Editor::Editor;
         static HashMap<TypeID, Vector<String>> s_engineResources;
     };
-
 
 #define LINA_EDITOR_CAMERA_NAME "lina_entityreserved_editorcam"
 } // namespace Lina
